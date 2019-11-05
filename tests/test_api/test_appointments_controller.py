@@ -65,7 +65,8 @@ class TestCreateAppointment:
     def _get_waitlist(cls, client, dept_code, expected_status_code=200):
         response = client.get(f'/api/appointments/waitlist/{dept_code}')
         assert response.status_code == expected_status_code
-        return response.json
+        if response.status_code == 200:
+            return response.json['waitlist']
 
     def test_create_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -316,7 +317,8 @@ class TestAppointmentWaitlist:
     def _get_waitlist(cls, client, dept_code, expected_status_code=200):
         response = client.get(f'/api/appointments/waitlist/{dept_code}')
         assert response.status_code == expected_status_code
-        return response.json
+        if response.status_code == 200:
+            return response.json['waitlist']
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""

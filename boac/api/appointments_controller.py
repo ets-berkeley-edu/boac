@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, appointments_feature_flag, scheduler_required
+from boac.api.util import advisor_required, appointments_feature_flag, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
@@ -62,7 +62,10 @@ def get_waitlist(dept_code):
                 others.append(a)
         waitlist = my_reserved + others + canceled
         _put_student_profile_per_appointment(waitlist)
-        return tolerant_jsonify(waitlist)
+        return tolerant_jsonify({
+            'advisors': drop_in_advisors_for_dept_code(dept_code),
+            'waitlist': waitlist,
+        })
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
 
