@@ -24,16 +24,6 @@
       <DropInAvailabilityToggle :dept-code="deptCode" />
     </div>
     <div v-if="!isHomepage">
-      <div class="mb-4 pb-3 pt-3 text-center">
-        <b-btn
-          id="btn-create-appointment"
-          @click="openCreateAppointmentModal()"
-          variant="primary"
-          class="btn-primary-color-override pl-3 pr-3"
-          aria-label="Create appointment. Modal window will open.">
-          New Drop-in Appointment
-        </b-btn>
-      </div>
       <div class="border-bottom d-flex justify-content-between">
         <div>
           <h1 class="font-size-18 font-weight-bold text-nowrap">

@@ -37,6 +37,7 @@ from boac.merged.student import get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment
 from boac.models.curated_group import CuratedGroup
+from boac.models.drop_in_advisor import DropInAdvisor
 from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
@@ -156,6 +157,17 @@ def canvas_courses_api_feed(courses):
     if not courses:
         return []
     return [canvas_course_api_feed(course) for course in courses]
+
+
+def drop_in_advisors_for_dept_code(dept_code):
+    dept_code = dept_code.upper()
+    advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
+    feeds = []
+    for a in advisor_assignments:
+        transformed_user = authorized_users_api_feed([a.authorized_user])[0]
+        transformed_user['available'] = a.is_available
+        feeds.append(transformed_user)
+    return feeds
 
 
 def sis_enrollment_class_feed(enrollment):

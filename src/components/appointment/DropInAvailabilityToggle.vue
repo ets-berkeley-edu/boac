@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex mb-2">
       <div v-if="!isNil(isAvailable)" class="availability-status-outer flex-row">
-        <div class="mr-2 availability-status">
+        <div v-if="!advisor" class="mr-2 availability-status">
           My availability status:
         </div>
         <div
@@ -47,25 +47,44 @@ export default {
   name: 'DropInAvailabilityToggle',
   mixins: [Context, UserMetadata, Util],
   props: {
+    advisor: {
+      type: Object,
+      required: false
+    },
     deptCode: {
       type: String,
       required: true
     }
   },
   data: () => ({
-    isAvailable: undefined,
     isToggling: undefined
   }),
-  created() {
-    const dropInAdvisorStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
-    if (dropInAdvisorStatus) {
-      this.isAvailable = dropInAdvisorStatus.available;
+  computed: {
+    isAvailable: {
+      get: function() {
+        if (this.advisor) {
+          return this.advisor.available;
+        } else {
+          const dropInAdvisorStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
+          if (dropInAdvisorStatus) {
+            return dropInAdvisorStatus.available;
+          } else {
+            return null;
+          }
+        }
+      },
+      set: function(newValue) {
+        if (this.advisor) {
+          this.advisor.available = newValue;
+        }
+      }
     }
   },
   methods: {
     toggle: function() {
       this.isToggling = true;
-      setDropInAvailability(this.deptCode, 'me', !this.isAvailable).then(() => {
+      const uid = this.advisor ? this.advisor.uid : 'me';
+      setDropInAvailability(this.deptCode, uid, !this.isAvailable).then(() => {
         this.isAvailable = !this.isAvailable;
         this.isToggling = false;
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);

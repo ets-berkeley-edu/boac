@@ -24,14 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api import errors
-from boac.api.util import admin_required, advisor_required, authorized_users_api_feed, scheduler_required
+from boac.api.util import admin_required, advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -134,14 +133,7 @@ def all_users():
 @app.route('/api/users/drop_in_advisors/<dept_code>')
 @scheduler_required
 def drop_in_advisors_for_dept(dept_code):
-    dept_code = dept_code.upper()
-    advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
-    feeds = []
-    for a in advisor_assignments:
-        transformed_user = authorized_users_api_feed([a.authorized_user])[0]
-        transformed_user['available'] = a.is_available
-        feeds.append(transformed_user)
-    return tolerant_jsonify(feeds)
+    return tolerant_jsonify(drop_in_advisors_for_dept_code(dept_code))
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])

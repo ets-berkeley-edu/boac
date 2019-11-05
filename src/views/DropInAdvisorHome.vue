@@ -73,12 +73,13 @@
 <script>
 import Context from '@/mixins/Context';
 import DropInWaitlist from '@/components/appointment/DropInWaitlist';
-import DropInWaitlistContainer from '@/mixins/DropInWaitlistContainer';
 import Loading from '@/mixins/Loading';
 import SortableGroup from '@/components/search/SortableGroup';
 import Spinner from '@/components/util/Spinner';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { getDropInAppointmentWaitlist } from '@/api/appointments';
+import store from '@/store';
 
 export default {
   name: 'DropInAdvisorHome',
@@ -87,7 +88,7 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Context, DropInWaitlistContainer, Loading, UserMetadata, Util],
+  mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     deptCode: undefined,
     waitlist: undefined
@@ -96,6 +97,40 @@ export default {
     this.deptCode = this.get(this.$route, 'params.deptCode');
     this.loadDropInWaitlist();
     setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+  },
+  methods: {
+    loadDropInWaitlist() {
+      getDropInAppointmentWaitlist(this.deptCode).then(response => {
+        const waitlist = response.waitlist;
+        let announceLoad = false;
+        let announceUpdate = false;
+
+        if (!this.isEqual(waitlist, this.waitlist)) {
+          if (this.waitlist) {
+            announceUpdate = true;
+          } else {
+            announceLoad = true;
+          }
+          this.waitlist = waitlist;
+        }
+
+        const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
+        const newDropInStatus = this.find(response.advisors, {'uid': this.user.uid});
+        if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
+          store.dispatch('user/setDropInStatus', {
+            deptCode: this.deptCode,
+            available: newDropInStatus.available
+          });
+        }
+
+        if (announceLoad) {
+          this.loaded('Appointment waitlist');
+        }
+        if (announceUpdate) {
+          this.alertScreenReader('The appointment waitlist has been updated');
+        }
+      });
+    }
   }
 }
 </script>
