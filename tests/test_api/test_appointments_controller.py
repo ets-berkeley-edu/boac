@@ -107,6 +107,38 @@ class TestCreateAppointment:
             self._get_waitlist(client, 'COENG', expected_status_code=401)
 
 
+class TestGetAppointment:
+
+    @classmethod
+    def _get_appointment(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._get_appointment(client, 'COENG', expected_status_code=401)
+
+    def test_not_authorized(self, client, fake_auth):
+        """Returns 401 if user is scheduler."""
+        fake_auth.login(coe_scheduler_uid)
+        self._get_appointment(client, 1, 401)
+
+    def test_get_appointment(self, client, fake_auth):
+        """Get appointment."""
+        fake_auth.login(coe_advisor_uid)
+        appointment = self._get_appointment(client, 1)
+        assert appointment
+        assert appointment['id'] == 1
+        assert appointment['status'] is not None
+
+    def test_feature_flag(self, client, fake_auth, app):
+        """Returns 404 if the Appointments feature is false."""
+        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
+            fake_auth.login(coe_advisor_uid)
+            self._get_appointment(client, 'COENG', expected_status_code=401)
+
+
 class TestAppointmentCancel:
 
     @classmethod

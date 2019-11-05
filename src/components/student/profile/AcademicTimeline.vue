@@ -189,9 +189,8 @@
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
-                :cancel-appointment="cancelAppointment"
-                :check-in="appointmentCheckIn"
                 :is-open="includes(openMessages, message.transientId)"
+                :on-appointment-status-change="onAppointmentStatusChange"
                 :student="student" />
               <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
@@ -323,7 +322,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
-import { cancel as apiCancel, checkIn as apiCheckIn, markAppointmentRead } from '@/api/appointments';
+import { getAppointment, markAppointmentRead } from '@/api/appointments';
 import { deleteNote, getNote, markNoteRead } from '@/api/notes';
 import { search } from '@/api/search';
 
@@ -483,22 +482,6 @@ export default {
     afterNoteEditCancel() {
       this.editModeNoteId = null;
     },
-    appointmentCheckIn(appointmentId) {
-      apiCheckIn(
-        this.map(this.user.departments, 'code'),
-        this.user.name,
-        this.user.title || (this.isAdmin ? 'BOA Admin' : null),
-        this.user.uid,
-        appointmentId
-      ).then(a => {
-        this.refreshTimelineAppointment(appointmentId, a);
-      });
-    },
-    cancelAppointment(appointmentId, cancelReason, cancelReasonExplained) {
-      apiCancel(appointmentId, cancelReason, cancelReasonExplained).then(a => {
-        this.refreshTimelineAppointment(appointmentId, a);
-      });
-    },
     cancelTheDelete() {
       this.alertScreenReader('Canceled');
       this.messageForDelete = undefined;
@@ -591,6 +574,12 @@ export default {
         ? this.filterList(this.messages, ['type', type])
         : this.messages;
     },
+    onAppointmentStatusChange(appointmentId) {
+      getAppointment(appointmentId).then(appointment => {
+        let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
+        Object.assign(timelineAppointment, appointment);
+      });
+    },
     onCreateNoteStart(subject) {
       this.creatingNoteWithSubject = subject;
     },
@@ -611,10 +600,6 @@ export default {
       if (screenreaderAlert) {
         this.alertScreenReader(`${this.capitalize(message.type)} opened`);
       }
-    },
-    refreshTimelineAppointment(appointmentId, appointment) {
-      let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
-      Object.assign(timelineAppointment, appointment);
     },
     scrollToPermalink(messageType, messageId) {
       this.scrollTo(`#permalink-${messageType}-${messageId}`);
