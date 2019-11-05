@@ -1,6 +1,6 @@
 <template>
   <b-container class="m-3 pr-5" fluid>
-    <b-row class="border-bottom border-top p-2">
+    <b-row align-v="start" class="border-bottom border-top p-2">
       <b-col class="font-weight-500" cols="3">
         Name
       </b-col>
@@ -8,7 +8,7 @@
         {{ user.name }}
       </b-col>
     </b-row>
-    <b-row class="border-bottom p-2">
+    <b-row align-v="start" class="border-bottom p-2">
       <b-col class="font-weight-500" cols="3">
         UID
       </b-col>
@@ -16,7 +16,7 @@
         {{ user.uid }}
       </b-col>
     </b-row>
-    <b-row class="border-bottom p-2">
+    <b-row align-v="start" class="border-bottom p-2">
       <b-col class="font-weight-500" cols="3">
         Campus Solutions ID
       </b-col>
@@ -24,7 +24,7 @@
         {{ user.csid }}
       </b-col>
     </b-row>
-    <b-row class="border-bottom p-2">
+    <b-row align-v="start" class="border-bottom p-2">
       <b-col class="font-weight-500" cols="3">
         Email
       </b-col>
@@ -32,24 +32,17 @@
         {{ user.email }}
       </b-col>
     </b-row>
-    <b-row class="border-bottom p-2">
-      <b-col class="font-weight-500" cols="3">
-        Roles and permissions
+    <b-row align-v="start" class="border-bottom p-2">
+      <b-col class="font-weight-500 v-align-middle" cols="3">
+        Roles
       </b-col>
       <b-col>
         <div v-if="user.isAdmin || !user.canAccessCanvasData">
           <span v-if="user.isAdmin">You are a BOA Admin user.</span>
           <span v-if="!user.canAccessCanvasData">You do not have access to bCourses (LMS) data.</span>
         </div>
-        <div v-if="user.departments.length" class="mt-2">
-          <div v-if="user.departments.length > 1" class="pt-1">
-            <h3 class="color-grey font-size-14 font-weight-bold">Departments</h3>
-          </div>
-          <div>
-            <div v-for="department in user.departments" :key="department.code">
-              <span>{{ capitalize(oxfordJoin(getRoles(department)).toLowerCase()) }} in {{ department.name }}.</span>
-            </div>
-          </div>
+        <div v-if="user.departments.length" v-for="department in user.departments" :key="department.code">
+          <span>{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
         </div>
       </b-col>
     </b-row>
@@ -63,6 +56,12 @@ import Util from '@/mixins/Util';
 export default {
   name: 'MyProfile',
   mixins: [UserMetadata, Util],
+  data: () => ({
+    dropInAdvisorDeptCodes: undefined
+  }),
+  created() {
+    this.dropInAdvisorDeptCodes = this.map(this.user.dropInAdvisorStatus, 'deptCode');
+  },
   methods: {
     conditionalAppend(items, item, append) {
       if (append) {
@@ -70,9 +69,10 @@ export default {
       }
     },
     getRoles(department) {
+      const advisorType = this.includes(this.dropInAdvisorDeptCodes, department.code) ? 'Drop-in Advisor' : 'Advisor';
       const roles = [];
       this.conditionalAppend(roles, 'Director', department.isDirector);
-      this.conditionalAppend(roles, 'Advisor', department.isAdvisor);
+      this.conditionalAppend(roles, advisorType, department.isAdvisor);
       this.conditionalAppend(roles, 'Scheduler', department.isScheduler);
       return roles;
     }
