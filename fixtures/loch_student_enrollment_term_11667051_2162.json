@@ -23,6 +23,10 @@
             "units": "E"
         }
     ],
+    "termGpa": {
+        "gpa": 3.8,
+        "unitsTakenForGpa": 15.0
+    },
     "termId": "2162",
     "termName": "Spring 2016",
     "unmatchedCanvasSites": []

@@ -849,6 +849,13 @@ class TestCohortPerFilters:
         assert defensive_line_by_units[1]['term']['enrolledUnits'] == 5
         assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
 
+        def _fall_2017_gpa(student_feed):
+            return next((t['gpa'] for t in student_feed['termGpa'] if t['termName'] == 'Fall 2017'), None)
+        defensive_line_by_term_gpa = self._get_defensive_line(client, False, 'term_gpa_2178')
+        assert _fall_2017_gpa(defensive_line_by_term_gpa[0]) == 2.1
+        assert _fall_2017_gpa(defensive_line_by_term_gpa[1]) == 3.2
+        assert _fall_2017_gpa(defensive_line_by_term_gpa[2]) is None
+
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'
 

@@ -76,6 +76,10 @@
             "units": 2.0
         }
     ],
+    "termGpa": {
+        "gpa": 2.7,
+        "unitsTakenForGpa": 17.0
+    },
     "termId": "2172",
     "termName": "Spring 2017",
     "unmatchedCanvasSites": [
