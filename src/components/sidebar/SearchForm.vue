@@ -250,9 +250,10 @@ import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getAllTopics as getAppointmentTopics, findAdvisorsByName } from '@/api/appointments';
-import { getTopics as getNoteTopics, findAuthorsByName } from '@/api/notes';
+import { findAdvisorsByName } from '@/api/appointments';
+import { findAuthorsByName } from '@/api/notes';
 import { findStudentsByNameOrSid } from '@/api/student';
+import { getAllTopics } from '@/api/topics';
 
 export default {
   name: 'SearchForm',
@@ -425,16 +426,13 @@ export default {
       this.showNoteFilters = !this.showNoteFilters;
       if (!this.topicOptions) {
         this.topicOptions = [];
-        const queries = this.featureFlagAppointments ? [getNoteTopics(true), getAppointmentTopics(true)] : [getNoteTopics(true)];
-        Promise.all(queries).then((results) => {
-          this.each(this.uniq(this.flatten(results)), topic => {
+        getAllTopics(true).then(topics => {
+          this.each(topics, topic => {
             this.topicOptions.push({
               text: topic,
               value: topic
             })
           });
-        }).finally(() => {
-          this.topicOptions = this.orderBy(this.topicOptions, 'value');
         });
       }
     },

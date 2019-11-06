@@ -99,12 +99,6 @@ export function deleteNote(noteId: number) {
     .then(response => response.data);
 }
 
-export function getTopics(includeDeleted: boolean) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/notes/topics?includeDeleted=${includeDeleted}`)
-    .then(response => response.data);
-}
-
 export function findAuthorsByName(query: string, limit: number) {
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios

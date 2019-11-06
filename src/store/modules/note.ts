@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { getMyNoteTemplates } from "@/api/note-templates";
-import { getTopics } from '@/api/notes';
+import { getTopicsForNotes } from '@/api/topics';
 
 const state = {
   noteTemplates: undefined,
@@ -34,7 +34,7 @@ const actions = {
   },
   async loadSuggestedNoteTopics({ commit, state }) {
     if (_.isUndefined(state.suggestedNoteTopics)) {
-      getTopics(false).then(data => {
+      getTopicsForNotes(false).then(data => {
         commit('setSuggestedNoteTopics', data);
       });
     }

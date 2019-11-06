@@ -54,6 +54,7 @@ def register_routes(app):
     import boac.api.search_controller
     import boac.api.student_controller
     import boac.api.status_controller
+    import boac.api.topic_controller
     import boac.api.user_controller
 
     # Register error handlers.

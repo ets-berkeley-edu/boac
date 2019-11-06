@@ -80,12 +80,6 @@ export function getDropInAppointmentWaitlist(deptCode) {
     .then(response => response.data, () => null);
 }
 
-export function getAllTopics(includeDeleted: boolean) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/topics?includeDeleted=${includeDeleted}`)
-    .then(response => response.data, () => null);
-}
-
 export function markAppointmentRead(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/mark_read`)
