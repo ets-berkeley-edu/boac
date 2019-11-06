@@ -114,6 +114,7 @@ export default {
  font-size: 20px;
 }
 .toggle-btn-column {
+  min-height: 28px;
   min-width: 36px;
 }
 .toggle-off {
