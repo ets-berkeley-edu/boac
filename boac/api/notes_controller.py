@@ -35,7 +35,7 @@ from boac.api.util import (
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor, to_bool_or_none
+from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import (
     get_batch_distinct_sids,
     get_boa_attachment_stream,
@@ -47,7 +47,6 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_read import NoteRead
-from boac.models.topic import Topic
 from flask import current_app as app, request, Response
 from flask_login import current_user
 
@@ -198,14 +197,6 @@ def find_note_authors_by_name():
             'uid': a.get('uid'),
         }
     return tolerant_jsonify([_author_feed(a) for a in authors])
-
-
-@app.route('/api/notes/topics', methods=['GET'])
-@advisor_required
-def get_topics():
-    include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
-    topics = Topic.get_all(available_in_notes=True, include_deleted=include_deleted)
-    return tolerant_jsonify([topic.to_api_json() for topic in topics])
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])

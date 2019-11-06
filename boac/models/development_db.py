@@ -611,6 +611,11 @@ def _create_waiting_appointments():
 
 
 def _create_topics():
+    Topic.create_topic(
+        'Other / Reason not listed',
+        available_in_notes=True,
+        available_in_appointments=True,
+    )
     for index in range(10):
         true_for_both = index in [1, 5, 7]
         available_in_appointments = true_for_both or index % 2 == 0

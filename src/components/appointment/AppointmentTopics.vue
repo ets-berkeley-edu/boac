@@ -75,7 +75,7 @@
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { getAllTopics } from '@/api/appointments';
+import { getTopicsForAppointments } from '@/api/topics';
 
 export default {
   name: 'AppointmentTopics',
@@ -113,7 +113,7 @@ export default {
     topicOptions: []
   }),
   created() {
-    getAllTopics().then(topics => {
+    getTopicsForAppointments().then(topics => {
       this.each(topics, topic => {
         this.topicOptions.push({
           text: topic,

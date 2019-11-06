@@ -438,52 +438,6 @@ class TestMarkAppointmentRead:
         Appointment.delete(appointment_id)
 
 
-class TestAppointmentTopics:
-
-    @classmethod
-    def _get_topics(cls, client, include_deleted=None, expected_status_code=200):
-        api_path = '/api/appointments/topics'
-        if include_deleted is not None:
-            api_path += f'?includeDeleted={str(include_deleted).lower()}'
-        response = client.get(api_path)
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_mark_read_not_authenticated(self, client):
-        """Returns 401 if not authenticated."""
-        self._get_topics(client, expected_status_code=401)
-
-    def test_deny_advisor(self, app, client, fake_auth):
-        """Returns 401 if user is not a drop-in advisor."""
-        fake_auth.login(l_s_college_advisor_uid)
-        self._get_topics(client, expected_status_code=401)
-
-    def test_scheduler_get_appointment_topics(self, app, client, fake_auth):
-        """COE scheduler can get topics."""
-        fake_auth.login(coe_scheduler_uid)
-        topics = self._get_topics(client)
-        assert len(topics) == 8
-
-    def test_advisor_get_appointment_topics(self, app, client, fake_auth):
-        """COE advisor can get topics."""
-        fake_auth.login(coe_advisor_uid)
-        topics = self._get_topics(client)
-        assert len(topics) == 8
-
-    def test_get_all_topics_including_deleted(self, client, fake_auth):
-        """Get all appointment topic options, including deleted."""
-        fake_auth.login(coe_advisor_uid)
-        topics = self._get_topics(client, include_deleted=True)
-        assert len(topics) == 10
-        assert 'Topic for appointments, deleted' in topics
-
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            self._get_topics(client, expected_status_code=401)
-
-
 class TestAuthorSearch:
 
     def test_find_appointment_advisors_by_name(self, client, fake_auth):

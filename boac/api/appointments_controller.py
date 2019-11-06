@@ -27,12 +27,10 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import advisor_required, appointments_feature_flag, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
-from boac.models.topic import Topic
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -235,15 +233,6 @@ def find_appointment_advisors_by_name():
             'uid': a.advisor_uid,
         }
     return tolerant_jsonify([_advisor_feed(a) for a in advisors])
-
-
-@app.route('/api/appointments/topics', methods=['GET'])
-@appointments_feature_flag
-@scheduler_required
-def get_appointment_topics():
-    include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
-    topics = Topic.get_all(available_in_appointments=True, include_deleted=include_deleted)
-    return tolerant_jsonify([topic.to_api_json() for topic in topics])
 
 
 def _dept_codes_with_scheduler_privilege():

@@ -10,22 +10,24 @@
           class="aria-hidden availability-status">
           Off duty
         </div>
-        <button
-          id="toggle-drop-in-availability"
-          v-if="!isToggling"
-          v-model="isAvailable"
-          @click="toggle"
-          @keyup="toggle"
-          type="button"
-          class="btn btn-link pt-0 pb-0 pl-1 pr-1">
-          <span class="status-toggle-label">
-            <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
-            <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
-            <span class="sr-only">{{ isAvailable ? 'On duty' : 'Off duty' }}</span>
-          </span>
-        </button>
-        <div v-if="isToggling">
-          <font-awesome icon="spinner" spin />
+        <div class="toggle-btn-column">
+          <button
+            id="toggle-drop-in-availability"
+            v-if="!isToggling"
+            v-model="isAvailable"
+            @click="toggle"
+            @keyup="toggle"
+            type="button"
+            class="btn btn-link pt-0 pb-0 pl-1 pr-1">
+            <span class="status-toggle-label">
+              <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
+              <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
+              <span class="sr-only">{{ isAvailable ? 'On duty' : 'Off duty' }}</span>
+            </span>
+          </button>
+          <div v-if="isToggling" class="pl-2">
+            <font-awesome icon="spinner" spin />
+          </div>
         </div>
         <div
           :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
@@ -110,6 +112,9 @@ export default {
 }
 .toggle {
  font-size: 20px;
+}
+.toggle-btn-column {
+  min-width: 36px;
 }
 .toggle-off {
    color: #999999;
