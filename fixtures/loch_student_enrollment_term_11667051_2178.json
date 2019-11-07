@@ -385,6 +385,10 @@
       "units": 2.0
     }
   ],
+  "termGpa": {
+    "gpa": 1.8,
+    "unitsTakenForGpa": 15.0
+  },
   "termId": "2178",
   "termName": "Fall 2017",
   "unmatchedCanvasSites": []
