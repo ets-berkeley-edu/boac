@@ -41,11 +41,11 @@ const router = new Router({
             } else if (auth.isAdvisor(user) || user.isAdmin) {
               next('/home');
             } else {
-              const schedulerDepartments = auth.schedulerForDepartments(user);
-              if (_.size(schedulerDepartments)) {
+              const deptCodes = auth.getSchedulerDeptCodes(user);
+              if (_.size(deptCodes)) {
                 // The multi-department scheduler is NOT a use case we support, yet. Therefore,
                 // we grab first deptCode from his/her profile.
-                const deptCode = schedulerDepartments[0].code.toLowerCase();
+                const deptCode = deptCodes[0].toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
                 next({ path: '/404' });
@@ -197,9 +197,9 @@ const router = new Router({
         {
           beforeEnter: (to: any, from: any, next: any) => {
             store.dispatch('user/loadUser').then(user => {
-              const schedulerDepartments = auth.schedulerForDepartments(user);
-              if (_.size(schedulerDepartments) && !auth.isAdvisor(user) && !user.isAdmin) {
-                const deptCode = schedulerDepartments[0].code.toLowerCase();
+              const deptCodes = auth.getSchedulerDeptCodes(user);
+              if (_.size(deptCodes) && !auth.isAdvisor(user) && !user.isAdmin) {
+                const deptCode = deptCodes[0].toLowerCase();
                 next({ path: `/appt/desk/${deptCode}` });
               } else {
                 if (_.size(user.dropInAdvisorStatus)) {
@@ -222,7 +222,7 @@ const router = new Router({
         {
           beforeEnter: (to: any, from: any, next: any) => {
             store.dispatch('user/loadUser').then(user => {
-              if (_.size(auth.schedulerForDepartments(user)) && !auth.isAdvisor(user) && !user.isAdmin) {
+              if (_.size(auth.getSchedulerDeptCodes(user)) && !auth.isAdvisor(user) && !user.isAdmin) {
                 next({ path: '/scheduler/404' });
               } else {
                 next();
