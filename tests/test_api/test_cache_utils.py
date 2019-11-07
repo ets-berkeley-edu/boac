@@ -47,7 +47,7 @@ class TestCacheUtils:
         assert 0 < alerts[0]['id']
         assert 'midterm' == alerts[0]['alertType']
         assert '2178_90100' == alerts[0]['key']
-        assert 'BURMESE 1A midterm grade of D+.' == alerts[0]['message']
+        assert 'BURMESE 1A midpoint deficient grade of D+.' == alerts[0]['message']
 
     def test_update_curated_group_lists(self, app):
         from boac.api.cache_utils import update_curated_group_lists
