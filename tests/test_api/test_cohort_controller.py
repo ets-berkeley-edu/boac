@@ -962,6 +962,27 @@ class TestCohortPerFilters:
         sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['11667051']
 
+    def test_last_term_gpa_filter(self, client, coe_advisor_login):
+        summer_success = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'lastTermGpaRanges', 'value': {'min': 3, 'max': 4}},
+                ],
+            },
+        )
+        assert len(summer_success['students']) == 0
+        summer_less_success = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'lastTermGpaRanges', 'value': {'min': 0, 'max': 0.5}},
+                ],
+            },
+        )
+        assert len(summer_less_success['students']) == 1
+        assert {'termName': 'Summer 2017', 'gpa': 0.0} in summer_less_success['students'][0]['termGpa']
+
 
 class TestDownloadCsvPerFilters:
     """Download Cohort CSV API."""

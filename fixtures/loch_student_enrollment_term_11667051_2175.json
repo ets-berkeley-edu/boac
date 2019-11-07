@@ -1,0 +1,11 @@
+{
+  "enrolledUnits": 0,
+  "enrollments": [],
+  "termGpa": {
+      "gpa": 0.0,
+      "unitsTakenForGpa": 0.0
+  },
+  "termId": "2175",
+  "termName": "Summer 2017",
+  "unmatchedCanvasSites": []
+}
