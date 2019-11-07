@@ -54,25 +54,30 @@ export default {
   },
   methods: {
     loadDropInWaitlist() {
-      getDropInAppointmentWaitlist(this.deptCode).then(response => {
-        let announceUpdate = false;
-        if (!this.isEqual(response.advisors, this.advisors)) {
-          if (this.advisors) {
-            announceUpdate = true;
+      return new Promise(resolve => {
+        getDropInAppointmentWaitlist(this.deptCode).then(response => {
+          let announceUpdate = false;
+          if (!this.isEqual(response.advisors, this.advisors)) {
+            if (this.advisors) {
+              announceUpdate = true;
+            }
+            this.advisors = response.advisors;
           }
-          this.advisors = response.advisors;
-        }
-        if (!this.isEqual(response.waitlist, this.waitlist)) {
-          if (this.waitlist) {
-            announceUpdate = true;
+          if (!this.isEqual(response.waitlist, this.waitlist)) {
+            if (this.waitlist) {
+              announceUpdate = true;
+            }
+            this.waitlist = response.waitlist;
           }
-          this.waitlist = response.waitlist;
-        }
-        if (announceUpdate) {
-          this.alertScreenReader("The drop-in waitlist has been updated");
-        } else if (response.waitlist) {
-          this.loaded('Appointment waitlist');
-        }
+
+          resolve();
+
+          if (announceUpdate) {
+            this.alertScreenReader("The drop-in waitlist has been updated");
+          } else if (response.waitlist) {
+            this.loaded('Appointment waitlist');
+          }
+        });
       });
     }
   }

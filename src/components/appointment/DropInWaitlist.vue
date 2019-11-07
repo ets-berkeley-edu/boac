@@ -48,6 +48,15 @@
     <div v-if="waitlist.length">
       <b-container fluid class="pl-0 pr-0">
         <b-row
+          id="waitlist-appointment-creation-spinner"
+          v-if="creating"
+          no-gutters
+          class="border-bottom font-size-16 mt-3 pb-4 pt-2">
+          <b-col sm="12" class="text-center">
+            <font-awesome icon="spinner" spin />
+          </b-col>
+        </b-row>
+        <b-row
           v-for="(appointment, index) in waitlist"
           :key="appointment.id"
           :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'canceled' && waitlist[index + 1].status === 'canceled'}"
@@ -169,6 +178,7 @@ export default {
     }
   },
   data: () => ({
+    creating: false,
     linkToStudentProfiles: undefined,
     now: undefined,
     selectedAppointment: undefined,
@@ -185,11 +195,14 @@ export default {
       this.selectedAppointment = undefined;
     },
     createAppointment(details, student, topics, advisorUid) {
+      this.creating = true;
       apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics, advisorUid).then(() => {
-        this.alertScreenReader(`${student.label} appointment created`);
         this.showCreateAppointmentModal = false;
-        this.onAppointmentStatusChange();
-        this.putFocusNextTick(`waitlist-student-${student.sid}`)
+        this.onAppointmentStatusChange().then(() => {
+          this.creating = false;
+          this.alertScreenReader(`${student.label} appointment created`);
+          this.putFocusNextTick(`waitlist-student-${student.sid}`)
+        });
       });
     },
     openCreateAppointmentModal() {
