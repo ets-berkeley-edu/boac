@@ -244,7 +244,7 @@ _university_depts = {
                 'uid': '1133399',
                 'isAdvisor': True,
                 'isDirector': False,
-                'isDropInAdvisor': False,
+                'isDropInAdvisor': True,
                 'isScheduler': False,
                 'automate_membership': True,
             },

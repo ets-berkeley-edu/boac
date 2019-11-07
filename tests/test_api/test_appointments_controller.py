@@ -297,6 +297,30 @@ class TestAppointmentReserve:
         assert appointment['statusBy']['id'] == user.id
         Appointment.delete(appointment['id'])
 
+    def test_steal_appointment_reservation(self, app, client, fake_auth):
+        """Reserve an appointment that another advisor has reserved."""
+        dept_code = 'COENG'
+        advisor_1 = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        user_1 = AuthorizedUser.find_by_id(advisor_1.authorized_user_id)
+        fake_auth.login(user_1.uid)
+        waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+        appointment = self._reserve_appointment(client, waiting['id'])
+        assert appointment['status'] == 'reserved'
+        assert appointment['statusDate'] is not None
+        assert appointment['statusBy']['id'] == user_1.id
+        client.get('/api/auth/logout')
+
+        # Another advisor comes along...
+        advisor_2 = DropInAdvisor.advisors_for_dept_code(dept_code)[1]
+        user_2 = AuthorizedUser.find_by_id(advisor_2.authorized_user_id)
+        fake_auth.login(user_2.uid)
+        appointment = self._reserve_appointment(client, waiting['id'])
+        assert appointment['status'] == 'reserved'
+        assert appointment['statusDate'] is not None
+        assert appointment['statusBy']['id'] == user_2.id
+        # Clean up
+        Appointment.delete(appointment['id'])
+
     def test_unreserve_appointment(self, app, client, fake_auth):
         """Drop-in advisor can un-reserve an appointment."""
         dept_code = 'QCADV'
