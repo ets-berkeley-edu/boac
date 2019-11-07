@@ -642,7 +642,7 @@ class TestAlerts:
         assert not alerts[1]['dismissed']
         assert alerts[2]['alertType'] == 'midterm'
         assert alerts[2]['key'] == '2178_90100'
-        assert alerts[2]['message'] == 'BURMESE 1A midterm grade of D+.'
+        assert alerts[2]['message'] == 'BURMESE 1A midpoint deficient grade of D+.'
         assert not alerts[2]['dismissed']
 
 

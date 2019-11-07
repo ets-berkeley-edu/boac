@@ -340,7 +340,7 @@ class Alert(Base):
     @classmethod
     def update_midterm_grade_alerts(cls, sid, term_id, section_id, class_name, grade):
         key = f'{term_id}_{section_id}'
-        message = f'{class_name} midterm grade of {grade}.'
+        message = f'{class_name} midpoint deficient grade of {grade}.'
         cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message)
 
     @classmethod
