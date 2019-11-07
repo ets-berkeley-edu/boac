@@ -123,7 +123,7 @@ export default {
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     appointmentOptions: {
-      limit: 100,
+      limit: 20,
       offset: 0
     },
     loadingAdditionalAppointments: undefined,
@@ -137,7 +137,7 @@ export default {
       dateTo: undefined,
     },
     noteOptions: {
-      limit: 100,
+      limit: 20,
       offset: 0
     },
     phrase: null,

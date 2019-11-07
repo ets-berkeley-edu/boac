@@ -12,7 +12,7 @@
         </div>
         <div class="toggle-btn-column">
           <button
-            id="toggle-drop-in-availability"
+            :id="`toggle-drop-in-availability-${advisor.uid}`"
             v-if="!isToggling"
             v-model="isAvailable"
             @click="toggle"
