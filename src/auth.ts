@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import store from "@/store";
 
-const goToLogin = (to: any, next: any) => {
+const $_goToLogin = (to: any, next: any) => {
   next({
     path: '/login',
     query: {
@@ -11,11 +11,29 @@ const goToLogin = (to: any, next: any) => {
   });
 };
 
+const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) => {
+  if (store.getters['context/featureFlagAppointments'] || !authorizedDeptCodes.length) {
+    if (to.params.deptCode) {
+      if (_.includes(authorizedDeptCodes, to.params.deptCode.toUpperCase())) {
+        next();
+      } else {
+        next({ path: '/404' });
+      }
+    } else {
+      // URL path has no dept code; Drop-in Advisor or Scheduler can proceed.
+      next();
+    }
+  } else {
+     next({ path: '/404' });
+  }
+};
+
 const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
 
-const schedulerForDepartments = user =>  _.filter(user.departments, d => d.isScheduler);
+const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.isScheduler), 'code');
 
 export default {
+  getSchedulerDeptCodes,
   isAdvisor,
   requiresAdmin: (to: any, from: any, next: any) => {
     store.dispatch('user/loadUser').then(user => {
@@ -26,7 +44,7 @@ export default {
           next({ path: '/404' });
         }
       } else {
-        goToLogin(to, next);
+        $_goToLogin(to, next);
       }
     });
   },
@@ -39,7 +57,7 @@ export default {
           next({ path: '/404' });
         }
       } else {
-        goToLogin(to, next);
+        $_goToLogin(to, next);
       }
     });
   },
@@ -48,43 +66,34 @@ export default {
       if (data.isAuthenticated) {
         next();
       } else {
-        goToLogin(to, next);
+        $_goToLogin(to, next);
       }
     });
   },
   requiresDropInAdvisor: (to: any, from: any, next: any) => {
     store.dispatch('user/loadUser').then(user => {
-      if (store.getters['context/featureFlagAppointments']) {
-        if (user.isAuthenticated) {
-          if (_.size(user.dropInAdvisorStatus) || user.isAdmin) {
-            next();
-          } else {
-            next({ path: '/404' });
-          }
+      if (user.isAuthenticated) {
+        if (user.isAdmin) {
+          next();
         } else {
-          goToLogin(to, next);
+          $_requiresScheduler(to, next, _.map(user.dropInAdvisorStatus, 'deptCode'));
         }
       } else {
-         next({ path: '/404' });
+        $_goToLogin(to, next);
       }
     });
   },
   requiresScheduler: (to: any, from: any, next: any) => {
     store.dispatch('user/loadUser').then(user => {
-      if (store.getters['context/featureFlagAppointments']) {
-        if (user.isAuthenticated) {
-          if (_.size(schedulerForDepartments(user)) || user.isAdmin) {
-            next();
-          } else {
-            next({ path: '/404' });
-          }
+      if (user.isAuthenticated) {
+        if (user.isAdmin) {
+          next();
         } else {
-          goToLogin(to, next);
+          $_requiresScheduler(to, next, getSchedulerDeptCodes(user));
         }
       } else {
-         next({ path: '/404' });
+        $_goToLogin(to, next);
       }
     });
-  },
-  schedulerForDepartments,
+  }
 };
