@@ -1,7 +1,7 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner alert-prefix="Appointment waitlist" />
-    <div v-if="!loading" class="mb-4 pb-3 pt-3 text-center">
+    <div v-if="!loading && !user.isAdmin" class="mb-2 pb-3 pt-3 text-center">
       <b-btn
         id="btn-create-appointment"
         @click="$refs.dropInWaitlist.openCreateAppointmentModal()"
@@ -11,7 +11,7 @@
         New Drop-in Appointment
       </b-btn>
     </div>
-    <div v-if="!loading" class="drop-in-desk-outer">
+    <div v-if="!loading" class="drop-in-desk-outer pt-3">
       <div class="waitlist-container">
         <DropInAdvisorList
           :dept-code="deptCode"
