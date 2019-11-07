@@ -408,14 +408,20 @@ def future_term_id():
     return sis_term_id_for_name(term_name)
 
 
+def previous_term_id(term_id):
+    term_id = int(term_id)
+    previous = term_id - (4 if (term_id % 10 == 2) else 3)
+    return str(previous)
+
+
 def all_term_ids():
     """Return SIS IDs of each term covered by BOAC, from current to oldest."""
-    earliest_term_id = int(sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM']))
-    term_id = int(current_term_id())
+    earliest_term_id = sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
+    term_id = current_term_id()
     ids = []
-    while term_id >= earliest_term_id:
-        ids.append(str(term_id))
-        term_id -= 4 if (term_id % 10 == 2) else 3
+    while int(term_id) >= int(earliest_term_id):
+        ids.append(term_id)
+        term_id = previous_term_id(term_id)
     return ids
 
 

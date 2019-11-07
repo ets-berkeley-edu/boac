@@ -268,6 +268,7 @@ class CohortFilter(Base):
         is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
         is_inactive_coe = util.to_bool_or_none(c.get('isInactiveCoe'))
         last_name_ranges = c.get('lastNameRanges')
+        last_term_gpa_ranges = c.get('lastTermGpaRanges')
         levels = c.get('levels')
         majors = c.get('majors')
         midpoint_deficient_grade = util.to_bool_or_none(c.get('midpointDeficient'))
@@ -294,6 +295,7 @@ class CohortFilter(Base):
                 'isInactiveAsc': is_inactive_asc,
                 'isInactiveCoe': is_inactive_coe,
                 'lastNameRanges': last_name_ranges,
+                'lastTermGpaRanges': last_term_gpa_ranges,
                 'levels': levels,
                 'majors': majors,
                 'midpointDeficient': midpoint_deficient_grade,
@@ -345,6 +347,7 @@ class CohortFilter(Base):
             is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
             is_active_coe=None if is_inactive_coe is None else not is_inactive_coe,
             last_name_ranges=last_name_ranges,
+            last_term_gpa_ranges=last_term_gpa_ranges,
             levels=levels,
             limit=limit,
             majors=majors,

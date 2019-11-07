@@ -118,8 +118,8 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             enrollment_terms = student['enrollmentTerms']
-            assert len(enrollment_terms) == 1
-            assert enrollment_terms[0]['termName'] == 'Spring 2017'
+            assert len(enrollment_terms) == 2
+            assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017']
             assert student['hasCurrentTermEnrollments'] is False
 
     def test_user_analytics_authenticated(self, client, coe_advisor_login):

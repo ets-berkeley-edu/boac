@@ -271,8 +271,8 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
             profile['term'] = term
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
-        if term_gpas:
-            profile['termGpa'] = term_gpas.get(profile['sid'])
+    if term_gpas:
+        profile['termGpa'] = term_gpas.get(profile['sid'])
 
 
 def get_student_and_terms_by_sid(sid):
@@ -321,6 +321,7 @@ def query_students(
     is_active_asc=None,
     is_active_coe=None,
     last_name_ranges=None,
+    last_term_gpa_ranges=None,
     levels=None,
     limit=50,
     majors=None,
@@ -372,6 +373,7 @@ def query_students(
         is_active_asc=is_active_asc,
         is_active_coe=is_active_coe,
         last_name_ranges=last_name_ranges,
+        last_term_gpa_ranges=last_term_gpa_ranges,
         levels=levels,
         majors=majors,
         midpoint_deficient_grade=midpoint_deficient_grade,

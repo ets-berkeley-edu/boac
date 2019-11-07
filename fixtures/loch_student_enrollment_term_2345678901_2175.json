@@ -1,0 +1,33 @@
+{
+  "enrolledUnits": 4,
+  "enrollments": [
+      {
+          "canvasSites": [],
+          "displayName": "ASTRON C161",
+          "grade": "F",
+          "gradingBasis": "Letter",
+          "sections": [
+              {
+                  "canvasCourseIds": [],
+                  "ccn": 87654,
+                  "component": "LEC",
+                  "enrollmentStatus": "E",
+                  "grade": "F",
+                  "gradingBasis": "Letter",
+                  "primary": true,
+                  "sectionNumber": "001",
+                  "units": "E"
+              }
+          ],
+          "title": "Relativistic Astrophysics and Cosmology",
+          "units": 4
+      }
+  ],
+  "termGpa": {
+      "gpa": 0.0,
+      "unitsTakenForGpa": 4.0
+  },
+  "termId": "2175",
+  "termName": "Summer 2017",
+  "unmatchedCanvasSites": []
+}

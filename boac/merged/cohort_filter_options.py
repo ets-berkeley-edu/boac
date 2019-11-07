@@ -143,7 +143,23 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'key': 'gpaRanges',
                 'options': None,
                 'label': {
-                    'primary': 'GPA',
+                    'primary': 'GPA (Cumulative)',
+                    'range': ['', '-'],
+                    'rangeMinEqualsMax': '',
+                },
+                'type': {
+                    'db': 'json[]',
+                    'ux': 'range',
+                },
+                'validation': 'gpa',
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'lastTermGpaRanges',
+                'options': None,
+                'label': {
+                    'primary': 'GPA (Last Term)',
                     'range': ['', '-'],
                     'rangeMinEqualsMax': '',
                 },

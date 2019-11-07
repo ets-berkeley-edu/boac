@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import re
 
-from boac.lib.berkeley import current_term_id, sis_term_id_for_name
+from boac.lib.berkeley import current_term_id, previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
 from flask import current_app as app
@@ -640,6 +640,7 @@ def get_students_query(     # noqa
     is_active_asc=None,
     is_active_coe=None,
     last_name_ranges=None,
+    last_term_gpa_ranges=None,
     levels=None,
     majors=None,
     midpoint_deficient_grade=None,
@@ -699,6 +700,13 @@ def get_students_query(     # noqa
     if gpa_ranges:
         sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
         query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
+    if last_term_gpa_ranges:
+        sql_ready_term_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in last_term_gpa_ranges]
+        query_filter += _number_ranges_to_sql('set.term_gpa', sql_ready_term_gpa_ranges)
+        query_tables += f"""
+            JOIN {student_schema()}.student_enrollment_terms set
+            ON set.sid = sas.sid AND set.term_id = :previous_term_id"""
+        query_bindings.update({'previous_term_id': previous_term_id(current_term_id())})
     query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
         query_filter += _last_name_ranges_to_sql(last_name_ranges)
