@@ -85,7 +85,7 @@ def _appointments_search(search_phrase, params):
     advisor_csid = appointment_options.get('advisorCsid')
     student_csid = appointment_options.get('studentCsid')
     topic = appointment_options.get('topic')
-    limit = int(util.get(appointment_options, 'limit', 100))
+    limit = int(util.get(appointment_options, 'limit', 20))
     offset = int(util.get(appointment_options, 'offset', 0))
 
     date_from = appointment_options.get('dateFrom')
@@ -198,7 +198,7 @@ def _notes_search(search_phrase, params):
     author_uid = note_options.get('advisorUid')
     student_csid = note_options.get('studentCsid')
     topic = note_options.get('topic')
-    limit = int(util.get(note_options, 'limit', 100))
+    limit = int(util.get(note_options, 'limit', 20))
     offset = int(util.get(note_options, 'offset', 0))
 
     date_from = note_options.get('dateFrom')
