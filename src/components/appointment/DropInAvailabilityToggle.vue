@@ -12,7 +12,7 @@
         </div>
         <div class="toggle-btn-column">
           <button
-            :id="`toggle-drop-in-availability-${advisor.uid}`"
+            :id="`toggle-drop-in-availability-${uid}`"
             v-if="!isToggling"
             v-model="isAvailable"
             @click="toggle"
@@ -59,7 +59,8 @@ export default {
     }
   },
   data: () => ({
-    isToggling: undefined
+    isToggling: undefined,
+    uid: undefined
   }),
   computed: {
     isAvailable: {
@@ -82,11 +83,13 @@ export default {
       }
     }
   },
+  created() {
+    this.uid = this.advisor ? this.advisor.uid : 'me';
+  },
   methods: {
     toggle: function() {
       this.isToggling = true;
-      const uid = this.advisor ? this.advisor.uid : 'me';
-      setDropInAvailability(this.deptCode, uid, !this.isAvailable).then(() => {
+      setDropInAvailability(this.deptCode, this.uid, !this.isAvailable).then(() => {
         this.isAvailable = !this.isAvailable;
         this.isToggling = false;
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
