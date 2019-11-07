@@ -100,35 +100,39 @@ export default {
   },
   methods: {
     loadDropInWaitlist() {
-      getDropInAppointmentWaitlist(this.deptCode).then(response => {
-        const waitlist = response.waitlist;
-        let announceLoad = false;
-        let announceUpdate = false;
+      return new Promise(resolve => {
+        getDropInAppointmentWaitlist(this.deptCode).then(response => {
+          const waitlist = response.waitlist;
+          let announceLoad = false;
+          let announceUpdate = false;
 
-        if (!this.isEqual(waitlist, this.waitlist)) {
-          if (this.waitlist) {
-            announceUpdate = true;
-          } else {
-            announceLoad = true;
+          if (!this.isEqual(waitlist, this.waitlist)) {
+            if (this.waitlist) {
+              announceUpdate = true;
+            } else {
+              announceLoad = true;
+            }
+            this.waitlist = waitlist;
           }
-          this.waitlist = waitlist;
-        }
 
-        const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
-        const newDropInStatus = this.find(response.advisors, {'uid': this.user.uid});
-        if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
-          store.dispatch('user/setDropInStatus', {
-            deptCode: this.deptCode,
-            available: newDropInStatus.available
-          });
-        }
+          const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
+          const newDropInStatus = this.find(response.advisors, {'uid': this.user.uid});
+          if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
+            store.dispatch('user/setDropInStatus', {
+              deptCode: this.deptCode,
+              available: newDropInStatus.available
+            });
+          }
 
-        if (announceLoad) {
-          this.loaded('Appointment waitlist');
-        }
-        if (announceUpdate) {
-          this.alertScreenReader('The appointment waitlist has been updated');
-        }
+          resolve();
+
+          if (announceLoad) {
+            this.loaded('Appointment waitlist');
+          }
+          if (announceUpdate) {
+            this.alertScreenReader('The appointment waitlist has been updated');
+          }
+        });
       });
     }
   }

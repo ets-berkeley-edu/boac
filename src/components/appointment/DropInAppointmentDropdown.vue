@@ -21,7 +21,7 @@
       :close="closeCheckInModal"
       :show-modal="showCheckInModal" />
     <b-dropdown
-      v-if="includes(['reserved', 'waiting'], appointment.status)"
+      v-if="!loading && includes(['reserved', 'waiting'], appointment.status)"
       :id="`appointment-${appointment.id}-dropdown`"
       :disabled="appointment.status === 'checked_in' || appointment.status === 'canceled'"
       @click="launchCheckInForAppointment(appointment)"
@@ -55,6 +55,9 @@
         <span class="sr-only">Cancel Appointment</span>
       </b-dropdown-item-button>
     </b-dropdown>
+    <div v-if="loading" :id="`appointment-${appointment.id}-dropdown-spinner`" class="float-right pr-3">
+      <font-awesome icon="spinner" spin />
+    </div>
   </div>
 </template>
 
@@ -109,6 +112,7 @@ export default {
     }
   },
   data: () => ({
+    loading: false,
     showAppointmentDetailsModal: false,
     showCancelAppointmentModal: false,
     showCheckInModal: false,
@@ -116,10 +120,13 @@ export default {
   }),
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
+      this.loading = true;
       apiCancel(this.appointment.id, reason, reasonExplained).then(canceled => {
-        this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         this.setSelectedAppointment(undefined);
-        this.onAppointmentStatusChange(this.appointment.id);
+        this.onAppointmentStatusChange(this.appointment.id).then(() => {
+          this.loading = false;
+          this.alertScreenReader(`${canceled.student.name} appointment canceled`);
+        });
       });
     },
     checkInAppointment(advisor, deptCodes) {
@@ -128,6 +135,7 @@ export default {
         deptCodes = this.map(this.user.departments, 'code');
       }
       const appointmentId = this.appointment.id;
+      this.loading = true;
       apiCheckIn(
         deptCodes,
         advisor.name,
@@ -135,9 +143,11 @@ export default {
         advisor.uid,
         appointmentId
       ).then(checkedIn => {
-        this.onAppointmentStatusChange(appointmentId);
-        this.alertScreenReader(`${checkedIn.student.name} checked in`);
         this.closeCheckInModal();
+        this.onAppointmentStatusChange(appointmentId).then(() => {
+          this.loading = false;
+          this.alertScreenReader(`${checkedIn.student.name} checked in`);
+        });
       });
     },
     closeAppointmentCancellationModal() {
@@ -173,9 +183,12 @@ export default {
       this.showCancelAppointmentModal = true;
     },
     reserveAppointment(appointment) {
+      this.loading = true;
       apiReserve(appointment.id).then(reserved => {
-        this.onAppointmentStatusChange(appointment.id);
-        this.alertScreenReader(`${reserved.student.name} appointment reserved`);
+        this.onAppointmentStatusChange(appointment.id).then(() => {
+          this.loading = false;
+          this.alertScreenReader(`${reserved.student.name} appointment reserved`);
+        });
       });
     },
     showAppointmentDetails(appointment) {
@@ -183,9 +196,12 @@ export default {
       this.showAppointmentDetailsModal = true;
     },
     unreserveAppointment(appointment) {
+      this.loading = true;
       apiUnreserve(appointment.id).then(unreserved => {
-        this.onAppointmentStatusChange(appointment.id);
-        this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
+        this.onAppointmentStatusChange(appointment.id).then(() => {
+          this.loading = false;
+          this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
+        });
       });
     }
   }

@@ -575,9 +575,12 @@ export default {
         : this.messages;
     },
     onAppointmentStatusChange(appointmentId) {
-      getAppointment(appointmentId).then(appointment => {
-        let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
-        Object.assign(timelineAppointment, appointment);
+      return new Promise(resolve => {
+        getAppointment(appointmentId).then(appointment => {
+          let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
+          Object.assign(timelineAppointment, appointment);
+          resolve();
+        });
       });
     },
     onCreateNoteStart(subject) {
