@@ -41,9 +41,22 @@ export function checkIn(
     }, () => null);
 }
 
-export function create(deptCode, details, sid, appointmentType, topics, advisorUid) {
+export function create(
+    deptCode,
+    details,
+    sid,
+    appointmentType,
+    topics,
+    advisorDeptCodes?,
+    advisorName?,
+    advisorRole?,
+    advisorUid?,
+  ) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/create`, {
+      advisorDeptCodes,
+      advisorName,
+      advisorRole,
       advisorUid,
       appointmentType,
       deptCode,

@@ -148,6 +148,9 @@ class Appointment(Base):
             details,
             appointment_type,
             student_sid,
+            advisor_dept_codes=None,
+            advisor_name=None,
+            advisor_role=None,
             advisor_uid=None,
             topics=(),
     ):
@@ -161,6 +164,9 @@ class Appointment(Base):
 
         appointment = cls(
             advisor_uid=advisor_uid,
+            advisor_name=advisor_name,
+            advisor_role=advisor_role,
+            advisor_dept_codes=advisor_dept_codes,
             appointment_type=appointment_type,
             created_by=created_by,
             dept_code=dept_code,

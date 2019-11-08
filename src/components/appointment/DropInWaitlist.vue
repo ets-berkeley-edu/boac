@@ -194,9 +194,27 @@ export default {
       this.alertScreenReader('Dialog closed');
       this.selectedAppointment = undefined;
     },
-    createAppointment(details, student, topics, advisorUid) {
+    createAppointment(
+      details,
+      student,
+      topics,
+      advisorDeptCodes,
+      advisorName,
+      advisorRole,
+      advisorUid
+    ) {
       this.creating = true;
-      apiCreate(this.deptCode, details, student.sid, 'Drop-in', topics, advisorUid).then(() => {
+      apiCreate(
+        this.deptCode,
+        details,
+        student.sid,
+        'Drop-in',
+        topics,
+        advisorDeptCodes,
+        advisorName,
+        advisorRole,
+        advisorUid
+      ).then(() => {
         this.showCreateAppointmentModal = false;
         this.onAppointmentStatusChange().then(() => {
           this.creating = false;
