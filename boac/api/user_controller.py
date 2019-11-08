@@ -23,11 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import re
+
 from boac.api import errors
 from boac.api.util import admin_required, advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
+from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -123,11 +126,58 @@ def deactivate_drop_in_status(uid, dept_code):
     return _update_drop_in_status(uid, dept_code, False)
 
 
-@app.route('/api/users/all')
+@app.route('/api/users', methods=['POST'])
 @admin_required
 def all_users():
-    sort_users_by = util.get(request.args, 'sortUsersBy', None)
-    return tolerant_jsonify(_get_boa_users(sort_users_by))
+    params = request.get_json()
+    users, total_user_count = AuthorizedUser.get_users(
+        blocked=to_bool_or_none(util.get(params, 'blocked', None)),
+        deleted=to_bool_or_none(util.get(params, 'deleted', None)),
+        dept_code=util.get(params, 'deptCode', None),
+        role=util.get(params, 'role', None) or None,
+    )
+    return tolerant_jsonify({
+        'users': authorized_users_api_feed(
+            users,
+            sort_by=util.get(params, 'sortBy', 'lastName'),
+            sort_descending=to_bool_or_none(util.get(params, 'sortDescending', False)),
+        ),
+        'totalUserCount': total_user_count,
+    })
+
+
+@app.route('/api/users/admins', methods=['POST'])
+@admin_required
+def get_admin_users():
+    params = request.get_json()
+    users = AuthorizedUser.query.filter(AuthorizedUser.is_admin).all()
+    return tolerant_jsonify({
+        'users': authorized_users_api_feed(
+            users,
+            sort_by=util.get(params, 'sortBy'),
+            sort_descending=to_bool_or_none(util.get(params, 'sortDescending')),
+        ),
+        'totalUserCount': len(users),
+    })
+
+
+@app.route('/api/users/search', methods=['POST'])
+@admin_required
+def user_search():
+    snippet = request.get_json().get('snippet', '').strip()
+    if snippet:
+        search_by_uid = re.match(r'\d+', snippet)
+        users = AuthorizedUser.users_with_uid_like(snippet) if search_by_uid else AuthorizedUser.get_all_active_users()
+        users = authorized_users_api_feed(users)
+        if not search_by_uid:
+            regex = r'.*'.join(snippet.split()) + r'.*'
+            users = list(filter(lambda u: re.search(regex, u['name']), users))
+    else:
+        users = []
+    return tolerant_jsonify({
+        'users': users,
+        'totalUserCount': len(users),
+    })
 
 
 @app.route('/api/users/drop_in_advisors/<dept_code>')
@@ -175,12 +225,21 @@ def download_boa_users_csv():
     )
 
 
-def _get_boa_users(sort_user_by=None):
-    users = AuthorizedUser.get_all_users()
-    return authorized_users_api_feed(users, sort_user_by)
+@app.route('/api/users/departments')
+@admin_required
+def get_departments():
+    exclude_empty = to_bool_or_none(util.get(request.args, 'excludeEmpty', None))
+    api_json = []
+    for d in UniversityDept.get_all(exclude_empty=exclude_empty):
+        api_json.append({
+            'id': d.id,
+            'deptCode': d.dept_code,
+            'deptName': d.dept_name,
+        })
+    return tolerant_jsonify(api_json)
 
 
-def _get_boa_user_groups(sort_users_by=None):
+def _get_boa_user_groups():
     depts = {}
 
     def _put(_dept_code, _user):
@@ -209,9 +268,10 @@ def _get_boa_user_groups(sort_users_by=None):
             _put('NOTESONLY', user)
     user_groups = []
     for dept_code, dept in depts.items():
-        dept['users'] = authorized_users_api_feed(dept['users'], sort_users_by)
+        users = authorized_users_api_feed(dept['users'])
+        dept['users'] = sorted(users, key=lambda p: p.get('lastName') or '')
         user_groups.append(dept)
-    return sorted(user_groups, key=lambda dept: dept['name'])
+    return sorted(user_groups, key=lambda group: group['name'])
 
 
 def _update_drop_in_status(uid, dept_code, active):

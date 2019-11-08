@@ -53,6 +53,15 @@ class UniversityDept(Base):
         return cls.query.filter_by(dept_code=dept_code).first()
 
     @classmethod
+    def get_all(cls, exclude_empty=False):
+        if exclude_empty:
+            results = db.session.execute(text('select distinct university_dept_id from university_dept_members'))
+            dept_ids = [row['university_dept_id'] for row in results]
+            return cls.query.filter(cls.id.in_(dept_ids)).order_by(cls.dept_name).all()
+        else:
+            return cls.query.order_by(cls.dept_name).all()
+
+    @classmethod
     def create(cls, dept_code, dept_name):
         dept = cls(dept_code=dept_code, dept_name=dept_name)
         db.session.add(dept)

@@ -27,7 +27,7 @@ from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
-from sqlalchemy import text
+from sqlalchemy import and_, text
 
 
 class AuthorizedUser(Base):
@@ -139,19 +139,42 @@ class AuthorizedUser(Base):
 
     @classmethod
     def find_by_id(cls, db_id):
-        return AuthorizedUser.query.filter_by(id=db_id, deleted_at=None).first()
+        return cls.query.filter_by(id=db_id, deleted_at=None).first()
+
+    @classmethod
+    def users_with_uid_like(cls, uid_snippet):
+        return cls.query.filter(and_(cls.uid.like(f'%{uid_snippet}%'), cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
     def find_by_uid(cls, uid):
-        return AuthorizedUser.query.filter_by(uid=uid, deleted_at=None).first()
+        return cls.query.filter_by(uid=uid, deleted_at=None).first()
 
     @classmethod
     def get_all_active_users(cls):
         return cls.query.filter_by(deleted_at=None).all()
 
     @classmethod
-    def get_all_users(cls):
-        return cls.query.all()
+    def get_users(
+            cls,
+            deleted=False,
+            blocked=False,
+            dept_code=None,
+            role=None,
+    ):
+        query_tables, query_filter, query_bindings = _users_sql(
+            blocked=blocked,
+            deleted=deleted,
+            dept_code=dept_code,
+            role=role,
+        )
+        query = text(f"""
+            SELECT u.id
+            {query_tables}
+            {query_filter}
+        """)
+        results = db.session.execute(query, query_bindings)
+        user_ids = [row['id'] for row in results]
+        return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
 
     @classmethod
     def get_all_uids_in_scope(cls, scope=()):
@@ -170,3 +193,55 @@ class AuthorizedUser(Base):
             """
         results = db.session.execute(sql, {'scope': scope})
         return [row['uid'] for row in results]
+
+
+def _users_sql(
+        blocked=False,
+        deleted=False,
+        dept_code=None,
+        role=None,
+):
+    query_tables = 'FROM authorized_users u '
+    query_filter = 'WHERE true '
+    query_bindings = {}
+    if blocked:
+        query_filter += 'AND u.is_blocked = true '
+    if deleted:
+        query_filter += 'AND u.deleted_at IS NOT NULL '
+    if role == 'admin':
+        query_filter += 'AND u.is_admin IS true '
+    if role == 'noCanvasDataAccess':
+        query_filter += 'AND u.can_access_canvas_data IS false '
+    elif dept_code and role:
+        if role == 'dropInAdvisor':
+            query_tables += f"""
+                JOIN drop_in_advisors a ON
+                    a.dept_code = :dept_code
+                    AND a.authorized_user_id = u.id
+                    AND a.deleted_at IS NULL
+            """
+        elif role in ['advisor', 'director', 'scheduler']:
+            query_tables += f"""
+                JOIN university_depts d ON d.dept_code = :dept_code
+                JOIN university_dept_members m ON
+                    m.university_dept_id = d.id
+                    AND m.authorized_user_id = u.id
+                    AND m.is_{role} = true
+            """
+        query_bindings['dept_code'] = dept_code
+    elif not dept_code and role:
+        query_tables += f"""
+            JOIN university_dept_members m ON
+                m.authorized_user_id = u.id
+                AND m.is_{role} = true
+        """
+    elif dept_code and not role:
+        query_tables += f"""
+            JOIN university_depts d ON d.dept_code = :dept_code
+            JOIN university_dept_members m ON
+                m.university_dept_id = d.id
+                AND m.authorized_user_id = u.id
+        """
+        query_bindings['dept_code'] = dept_code
+    # query_filter += 'NULLS LAST'
+    return query_tables, query_filter, query_bindings

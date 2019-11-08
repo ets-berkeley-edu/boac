@@ -38,6 +38,7 @@ from boac.models.alert import Alert
 from boac.models.appointment import Appointment
 from boac.models.curated_group import CuratedGroup
 from boac.models.drop_in_advisor import DropInAdvisor
+from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
@@ -110,7 +111,7 @@ def add_alert_counts(alert_counts, students):
     return students
 
 
-def authorized_users_api_feed(users, sort_by='lastName'):
+def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
     if not users:
         return ()
     calnet_users = calnet.get_calnet_users_for_uids(app, [u.uid for u in users])
@@ -140,8 +141,11 @@ def authorized_users_api_feed(users, sort_by='lastName'):
             })
         if user.drop_in_departments:
             profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
+        user_login = UserLogin.last_login(user.uid)
+        profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
-    return sorted(profiles, key=lambda p: p.get(sort_by) or '')
+    sort_by = sort_by or 'lastName'
+    return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
 
 
 def canvas_course_api_feed(course):

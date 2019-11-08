@@ -2,9 +2,15 @@ import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
 
-export function getUserStatus() {
+export function getDepartments(excludeEmpty?: boolean) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/user/status`)
+    .get(`${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`)
+    .then(response => response.data, () => null);
+}
+
+export function getAdminUsers(sortBy: string, sortDescending: boolean) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/users/admins`, {sortBy, sortDescending})
     .then(response => response.data, () => null);
 }
 
@@ -26,10 +32,29 @@ export function getUserByUid(uid) {
     .then(response => response.data, () => null);
 }
 
-export function getUsers(sortUsersBy: string) {
-  let query = sortUsersBy ? `sortUsersBy=${sortUsersBy}` : '';
+export function getUsers(
+    blocked: boolean,
+    deleted: boolean,
+    deptCode: string,
+    role: string,
+    sortBy: string,
+    sortDescending: boolean
+  ) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/users/all?${query}`)
+    .post(`${utils.apiBaseUrl()}/api/users`, {
+      blocked,
+      deleted,
+      deptCode,
+      role,
+      sortBy,
+      sortDescending
+    })
+    .then(response => response.data, () => null);
+}
+
+export function userSearch(snippet: string) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/users/search`, { snippet: snippet })
     .then(response => response.data, () => null);
 }
 
