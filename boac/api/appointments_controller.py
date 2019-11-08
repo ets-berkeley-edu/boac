@@ -87,24 +87,25 @@ def appointment_check_in(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-    if appointment.dept_code in _dept_codes_with_scheduler_privilege():
-        params = request.get_json()
-        advisor_uid = params.get('advisorUid', None)
-        if not advisor_uid:
-            raise BadRequestError('Appointment check-in requires \'advisor_uid\'')
-        appointment = Appointment.check_in(
-            appointment_id=appointment_id,
-            checked_in_by=current_user.get_id(),
-            advisor_dept_codes=params.get('advisorDeptCodes', None),
-            advisor_name=params.get('advisorName', None),
-            advisor_role=params.get('advisorRole', None),
-            advisor_uid=advisor_uid,
-        )
-        api_json = appointment.to_api_json(current_user.get_id())
-        _put_student_profile_per_appointment([api_json])
-        return tolerant_jsonify(api_json)
-    else:
+    if appointment.dept_code not in _dept_codes_with_scheduler_privilege():
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
+    if not appointment.status_change_available():
+        raise BadRequestError(appointment.to_api_json(current_user.get_id()))
+    params = request.get_json()
+    advisor_uid = params.get('advisorUid', None)
+    if not advisor_uid:
+        raise BadRequestError('Appointment check-in requires "advisor_uid"')
+    appointment = Appointment.check_in(
+        appointment_id=appointment_id,
+        checked_in_by=current_user.get_id(),
+        advisor_dept_codes=params.get('advisorDeptCodes', None),
+        advisor_name=params.get('advisorName', None),
+        advisor_role=params.get('advisorRole', None),
+        advisor_uid=advisor_uid,
+    )
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
@@ -114,21 +115,23 @@ def cancel_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-    if current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege():
-        params = request.get_json()
-        cancel_reason = params.get('cancelReason', None)
-        cancel_reason_explained = params.get('cancelReasonExplained', None)
-        appointment = Appointment.cancel(
-            appointment_id=appointment_id,
-            canceled_by=current_user.get_id(),
-            cancel_reason=cancel_reason,
-            cancel_reason_explained=cancel_reason_explained,
-        )
-        api_json = appointment.to_api_json(current_user.get_id())
-        _put_student_profile_per_appointment([api_json])
-        return tolerant_jsonify(api_json)
-    else:
+    has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
+    if not has_privilege:
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
+    if not appointment.status_change_available():
+        raise BadRequestError(appointment.to_api_json(current_user.get_id()))
+    params = request.get_json()
+    cancel_reason = params.get('cancelReason', None)
+    cancel_reason_explained = params.get('cancelReasonExplained', None)
+    appointment = Appointment.cancel(
+        appointment_id=appointment_id,
+        canceled_by=current_user.get_id(),
+        cancel_reason=cancel_reason,
+        cancel_reason_explained=cancel_reason_explained,
+    )
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/<appointment_id>/reserve', methods=['GET'])
@@ -138,18 +141,18 @@ def reserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-
     has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
-    if has_privilege and appointment.status in ('reserved', 'waiting'):
-        appointment = Appointment.reserve(
-            appointment_id=appointment_id,
-            reserved_by=current_user.get_id(),
-        )
-        api_json = appointment.to_api_json(current_user.get_id())
-        _put_student_profile_per_appointment([api_json])
-        return tolerant_jsonify(api_json)
-    else:
+    if not has_privilege:
         raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
+    if not appointment.status_change_available():
+        raise BadRequestError(appointment.to_api_json(current_user.get_id()))
+    appointment = Appointment.reserve(
+        appointment_id=appointment_id,
+        reserved_by=current_user.get_id(),
+    )
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/<appointment_id>/unreserve', methods=['GET'])
@@ -159,22 +162,21 @@ def unreserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-
     has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
-    if has_privilege and appointment.status == 'reserved':
-        event = AppointmentEvent.get_most_recent_per_type(appointment.id, 'reserved')
-        if event.user_id == current_user.get_id():
-            appointment = Appointment.unreserve(
-                appointment_id=appointment_id,
-                unreserved_by=current_user.get_id(),
-            )
-            api_json = appointment.to_api_json(current_user.get_id())
-            _put_student_profile_per_appointment([api_json])
-            return tolerant_jsonify(api_json)
-        else:
-            raise ForbiddenRequestError(f'You did not reserve appointment {appointment_id}.')
-    else:
+    if not has_privilege:
         raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
+    if appointment.status != 'reserved':
+        raise BadRequestError(appointment.to_api_json(current_user.get_id()))
+    event = AppointmentEvent.get_most_recent_per_type(appointment.id, 'reserved')
+    if event.user_id != current_user.get_id():
+        raise ForbiddenRequestError(f'You did not reserve appointment {appointment_id}.')
+    appointment = Appointment.unreserve(
+        appointment_id=appointment_id,
+        unreserved_by=current_user.get_id(),
+    )
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/create', methods=['POST'])
