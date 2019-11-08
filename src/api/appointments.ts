@@ -15,7 +15,7 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
         action: 'cancel'
       });
       return response.data
-    }, () => null);
+    });
 }
 
 export function checkIn(
@@ -38,7 +38,7 @@ export function checkIn(
         action: 'check_in'
       });
       return response.data
-    }, () => null);
+    });
 }
 
 export function create(
@@ -116,7 +116,7 @@ export function reserve(appointmentId) {
         action: 'reserve'
       });
       return response.data
-    }, () => null);
+    });
 }
 
 export function unreserve(appointmentId) {
@@ -129,5 +129,5 @@ export function unreserve(appointmentId) {
         action: 'unreserve'
       });
       return response.data
-    }, () => null);
+    });
 }
