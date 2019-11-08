@@ -69,26 +69,11 @@ def start_continuation_of_interrupted_job():
     return tolerant_jsonify(cache_utils.continue_request_handler())
 
 
-@app.route('/api/admin/cachejob/load')
-@admin_required
-def start_load_only():
-    """Lets us load still-uncached data without having to erase any data which was already cached."""
-    job_state = cache_utils.refresh_request_handler(term(), load_only=True)
-    return tolerant_jsonify(job_state)
-
-
 @app.route('/api/admin/cachejob/refresh')
 @admin_required
 def start_refresh():
     response = cache_utils.refresh_request_handler(term())
     return tolerant_jsonify(response, status=500 if 'error' in response else 200)
-
-
-@app.route('/api/admin/cachejob/import_refresh')
-# For the moment, keeping this around as a legacy alias for start_refresh.
-@admin_required
-def start_import_refresh():
-    return tolerant_jsonify(cache_utils.refresh_request_handler(term()))
 
 
 @app.route('/api/admin/report/low_assignment_scores')
