@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getUserByCsid, getUsers, getUserProfile } from '@/api/user';
+import { getUserByCsid, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
@@ -11,8 +11,7 @@ const state = {
   preferences: {
     sortBy: 'last_name'
   },
-  user: undefined,
-  users: undefined
+  user: undefined
 };
 
 const getters = {
@@ -45,8 +44,7 @@ const mutations = {
     } else {
       throw new TypeError('Invalid user preference type: ' + key);
     }
-  },
-  setUsers: (state: any, users: any[]) => (state.users = users)
+  }
 };
 
 const actions = {
@@ -67,19 +65,6 @@ const actions = {
           .then(calnetUser => {
             commit('putCalnetUserByCsid', {csid, calnetUser});
             resolve(state.calnetUsersByCsid[csid]);
-          });
-      }
-    });
-  },
-  loadUsers: ({commit, state}) => {
-    return new Promise(resolve => {
-      if (state.users) {
-        resolve(state.users);
-      } else {
-        getUsers('lastName')
-          .then(data => {
-            commit('setUsers', data);
-            resolve(state.users);
           });
       }
     });

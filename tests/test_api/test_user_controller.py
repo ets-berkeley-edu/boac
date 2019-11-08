@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept import UniversityDept
+from flask import current_app as app
 import simplejson as json
 from tests.util import override_config
 
@@ -281,30 +283,42 @@ class TestUsers:
 
     def test_not_authenticated(self, client):
         """Returns 'unauthorized' response status if user is not authenticated."""
-        response = client.get('/api/users/all')
+        response = client.post('/api/users')
+        assert response.status_code == 401
+        response = client.post('/api/users/admins')
+        assert response.status_code == 401
+        response = client.get('/api/users/departments')
         assert response.status_code == 401
 
     def test_unauthorized(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/users/all')
+        response = client.post('/api/users')
+        assert response.status_code == 401
+        response = client.post('/api/users/admins')
+        assert response.status_code == 401
+        response = client.get('/api/users/departments')
         assert response.status_code == 401
 
     def test_unauthorized_scheduler(self, client, fake_auth):
         """Returns 'unauthorized' response status if user is a scheduler."""
         fake_auth.login(coe_scheduler_uid)
-        response = client.get('/api/users/all')
+        response = client.post('/api/users')
         assert response.status_code == 401
 
     def test_authorized(self, client, fake_auth):
         """Returns a well-formed response including cached, uncached, and deleted users."""
         fake_auth.login(admin_uid)
-        response = client.get('/api/users/all')
+        response = client.post(
+            '/api/users',
+            data=json.dumps({
+                'deptCode': 'QCADV',
+            }),
+            content_type='application/json',
+        )
         assert response.status_code == 200
-        users = response.json
-        assert len(users) == 22
-        deleted_users = [user for user in users if user['deletedAt'] is not None]
-        assert len(deleted_users) == 3
+        users = response.json['users']
+        assert len(users) == 3
 
     def test_drop_in_advisors_for_dept(self, client, fake_auth):
         fake_auth.login(l_s_college_scheduler_uid)
@@ -312,6 +326,72 @@ class TestUsers:
         assert response.status_code == 200
         assert len(response.json) == 1
         assert response.json[0]['dropInAdvisorStatus'][0] == {'available': True, 'deptCode': 'QCADV'}
+
+    def test_get_admin_users(self, client, fake_auth):
+        """Get all admin users."""
+        fake_auth.login(admin_uid)
+        response = client.post(
+            '/api/users/admins',
+            data=json.dumps({
+                'sortBy': 'lastName',
+                'sortDescending': False,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        users = response.json['users']
+        admin_users = list(filter(lambda u: u['isAdmin'], users))
+        assert len(users) == len(admin_users)
+
+    def test_get_departments(self, client, fake_auth):
+        """Get all departments."""
+        fake_auth.login(admin_uid)
+        response = client.get('/api/users/departments')
+        assert response.status_code == 200
+
+
+class TestUserSearch:
+
+    @classmethod
+    def _api_users_search(
+            cls,
+            client,
+            snippet=None,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/users/search',
+            data=json.dumps({'snippet': snippet}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Deny anonymous user."""
+        assert self._api_users_search(client, 'Jo', expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Deny non-admin user."""
+        assert self._api_users_search(client, 'Jo', expected_status_code=401)
+
+    def test_user_search_by_uid(self, client, fake_auth):
+        """Search users by UID."""
+        fake_auth.login(admin_uid)
+        api_json = self._api_users_search(client, '339')
+        assert api_json['totalUserCount'] == 2
+        assert len(api_json['users']) == 2
+
+    def test_user_search_by_name(self, client, fake_auth):
+        """Search users by UID."""
+        fake_auth.login(admin_uid)
+        calnet_users = list(calnet.get_calnet_users_for_uids(app, ['1081940']).values())
+        first_name = calnet_users[0]['firstName']
+        last_name = calnet_users[0]['lastName']
+        api_json = self._api_users_search(client, f' {first_name[:2]} {last_name[:3]}  ')
+        assert api_json['totalUserCount'] == 1
+        assert len(api_json['users']) == 1
+        assert api_json['users'][0]['name'] == f'{first_name} {last_name}'
 
 
 class TestDemoMode:
