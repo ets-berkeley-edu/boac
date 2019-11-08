@@ -349,6 +349,9 @@ class Appointment(Base):
             std_commit()
             cls.refresh_search_index()
 
+    def status_change_available(self):
+        return self.status in ['reserved', 'waiting']
+
     def to_api_json(self, current_user_id):
         topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
         departments = None
