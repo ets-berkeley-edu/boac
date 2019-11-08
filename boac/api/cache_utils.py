@@ -36,7 +36,7 @@ from boac.models.job_progress import JobProgress
 from flask import current_app as app
 
 
-def refresh_request_handler(term_id, load_only=False):
+def refresh_request_handler(term_id):
     """Handle a start refresh admin request by returning an error status or starting the job on a background thread."""
     job_state = JobProgress().get()
 
@@ -44,9 +44,7 @@ def refresh_request_handler(term_id, load_only=False):
         app.logger.error(f'Previous refresh job did not finish normally: {job_state}')
         JobProgress().delete()
 
-    job_type = 'Load' if load_only else 'Refresh'
     JobProgress().start({
-        'job_type': job_type,
         'term_id': term_id,
     })
     app.logger.warn('About to start background thread')
@@ -56,7 +54,6 @@ def refresh_request_handler(term_id, load_only=False):
         kwargs={
             'app_arg': app._get_current_object(),
             'term_id': term_id,
-            'job_type': job_type,
         },
     )
     thread.start()
@@ -72,16 +69,13 @@ def continue_request_handler():
 
     job_state = JobProgress().get()
     if job_state and job_state['start'] and not job_state['end']:
-        job_type = job_state['job_type']
         term_id = job_state['term_id']
-        JobProgress().update(f'Continuing {job_type} for term {term_id}')
         thread = Thread(
             target=background_thread_refresh,
             daemon=True,
             kwargs={
                 'app_arg': app._get_current_object(),
                 'term_id': term_id,
-                'job_type': job_type,
                 'continuation': True,
             },
         )
@@ -96,23 +90,16 @@ def continue_request_handler():
         }
 
 
-def background_thread_refresh(app_arg, term_id, job_type, continuation=False):
+def background_thread_refresh(app_arg, term_id):
     with app_arg.app_context():
         try:
-            if job_type == 'Refresh':
-                refresh_term(term_id, continuation)
-            else:
-                load_term(term_id)
+            load_term(term_id)
             JobProgress().end()
         except Exception as e:
             app.logger.exception(e)
             app.logger.error('Background thread is stopping')
             JobProgress().update(f'An unexpected error occured: {e}')
             raise e
-
-
-def refresh_term(term_id=berkeley.current_term_id(), continuation=False):
-    load_term(term_id)
 
 
 def load_all_terms():
