@@ -720,9 +720,9 @@ class TestNotes:
         assert response.status_code == 200
         user = response.json
         assert user['csid'] == advisor_sid
-        assert user['name'] == 'Roberta Joan Anderson'
-        assert user['departments'][0]['code'] == 'QCADV'
-        assert user['departments'][0]['name'] == 'L&S College Advising'
+        assert len(user['name'])
+        assert user['departments'][0]['code'] == 'COENG'
+        assert user['departments'][0]['name'] == 'College of Engineering'
 
 
 class TestValidateSids:

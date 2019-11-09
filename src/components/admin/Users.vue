@@ -14,24 +14,13 @@
             @change="$refs.users.refresh()"></b-form-select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
-          <div class="d-flex">
-            <div class="pr-2 w-50">
-              <b-form-input
-                id="user-search"
-                v-model="filterBy.searchPhrase"
-                type="search"
-                placeholder="UID or Name"></b-form-input>
-            </div>
-            <div>
-              <b-btn
-                id="user-search-btn"
-                :disabled="!trim(filterBy.searchPhrase).length"
-                @keyup.enter="$refs.users.refresh()"
-                @click="$refs.users.refresh()">
-                Search
-              </b-btn>
-            </div>
-          </div>
+          <Autocomplete
+            id="search-options-note-filters-author"
+            v-model="userSelection"
+            :source="autocompleteUsers"
+            class="w-50"
+            placeholder="Name or UID...">
+          </Autocomplete>
         </b-col>
         <b-col v-if="filterType === 'filter'">
           <div class="d-flex">
@@ -41,8 +30,8 @@
                 v-model="filterBy.deptCode"
                 :options="departments"
                 @change="$refs.users.refresh()"
-                value-field="deptCode"
-                text-field="deptName"
+                value-field="code"
+                text-field="name"
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
                 <template v-slot:first>
                   <option :value="null">All</option>
@@ -90,10 +79,12 @@
       :fields="[
         {key: 'toggleDetails', label: '', class: 'column-toggle-details'},
         {key: 'uid', class: 'column-uid'},
-        {key: 'lastName', class: 'column-name', sortable: true, variant: 'primary'},
+        {key: 'edit', class: 'column-edit', thClass: 'color-transparent', variant: 'primary'},
+        {key: 'lastName', class: 'column-name font-weight-bolder pl-1', sortable: true, variant: 'primary'},
         {key: 'depts', label: 'Department(s)'},
-        {key: 'email', class: 'column-email'},
         {key: 'status', class: 'column-status'},
+        {key: 'lastLogin', class: 'column-last-login', sortable: true, variant: 'info'},
+        {key: 'email', class: 'column-email text-center'},
         {key: 'actions', class: 'p-0 pt-1 column-actions', label: ''}
       ]"
       :items="usersProvider"
@@ -124,45 +115,67 @@
         <span class="sr-only">U I D</span>
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
+      <template v-slot:cell(edit)="row">
+        <div v-if="!row.item.deletedAt">
+          <EditUserProfileModal
+            :after-update-user="afterUpdateUser"
+            :departments="departments"
+            :profile="row.item" />
+        </div>
+      </template>
       <template v-slot:cell(lastName)="row">
-        <span class="sr-only">Name</span>
-        <a
-          :id="`directory-link-${row.item.uid}`"
-          :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
-          :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
-          class="m-0"
-          target="_blank">
-          {{ row.item.name }}
-        </a>
+        <div class="d-flex">
+          <div class="pr-2">
+            <font-awesome
+              :id="`permission-canvas-data-${row.item.uid}`"
+              v-if="!row.item.canAccessCanvasData"
+              class="text-secondary"
+              title="Cannot access Canvas data"
+              icon="eye-slash" />
+          </div>
+          <div>
+            <span class="sr-only">Name</span>
+            <a
+              :id="`directory-link-${row.item.uid}`"
+              :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
+              :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
+              class="m-0"
+              target="_blank">
+              {{ row.item.name }}
+            </a>
+          </div>
+        </div>
       </template>
       <template v-slot:cell(depts)="row">
-        <div v-for="deptCode in keys(row.item.departments)" :key="deptCode" class="pb-1">
+        <div v-for="department in row.item.departments" :key="department.code" class="pb-1">
           <font-awesome
-            v-if="!row.item.departments[deptCode].automateMembership"
-            class="has-error pr-1"
+            v-if="!department.automateMembership"
+            class="text-warning pr-1"
             title="Membership is not automated"
             icon="exclamation-triangle" />
-          <span :id="`dept-${deptCode}-${row.item.uid}`">
-            <span class="dept-name">{{ row.item.departments[deptCode]['deptName'] }}</span> ({{ oxfordJoin(getDeptRoles(row.item, deptCode)) }})
+          <span :id="`dept-${department.code}-${row.item.uid}`">
+            <span class="dept-name">{{ department.name }}</span> ({{ oxfordJoin(getDeptRoles(row.item, department)) }})
           </span>
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
+      </template>
+      <template v-slot:cell(status)="row">
+        <span :id="`user-status-${row.item.uid}`">{{ oxfordJoin(getUserStatuses(row.item)) }}</span>
+      </template>
+      <template v-slot:cell(lastLogin)="row">
+        <span v-if="row.item.lastLogin" :id="`user-last-login-${row.item.uid}`">{{ row.item.lastLogin | moment('MMM D, YYYY') }}</span>
       </template>
       <template v-slot:cell(email)="row">
         <span :id="`user-email-${row.item.uid}`">
           <a
             :aria-label="`Send email to ${row.item.name}`"
             :href="`mailto:${row.item.campusEmail}`"
-            target="_blank">{{ row.item.campusEmail }}<span class="sr-only"> (will open new browser tab)</span></a>
+            target="_blank"><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
-      </template>
-      <template v-slot:cell(status)="row">
-        <span :id="`user-status-${row.item.uid}`">{{ oxfordJoin(getUserStatuses(row.item)) }}</span>
       </template>
       <template v-slot:row-details="row">
         <b-card>
-          <div v-if="!row.item.canAccessCanvasData" :id="`permission-canvas-data-${row.item.uid}`" class="has-error text-nowrap">Cannot access Canvas data.</div>
-          <div><span class="font-weight-500">Last login:</span> {{ row.item.lastLogin }}</div>
+          <pre>{{ row.item }}</pre>
         </b-card>
       </template>
       <template v-slot:cell(actions)="row">
@@ -180,13 +193,16 @@
 </template>
 
 <script>
+import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
+import EditUserProfileModal from '@/components/admin/EditUserProfileModal';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
-import { becomeUser, getAdminUsers, getUsers, userSearch } from '@/api/user';
+import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } from '@/api/user';
 
 export default {
   name: 'Users',
+  components: {Autocomplete, EditUserProfileModal},
   mixins: [Context, UserMetadata, Util],
   props: {
     departments: {
@@ -195,6 +211,7 @@ export default {
     }
   },
   data: () => ({
+    userSelection: undefined,
     currentPage: 1,
     filterBy: {
       deptCode: 'QCADV',
@@ -208,7 +225,20 @@ export default {
     sortDescending: false,
     totalUserCount: undefined
   }),
+  watch: {
+    userSelection(u) {
+      if (u) {
+        this.$refs.users.refresh();
+      }
+    }
+  },
   methods: {
+    afterUpdateUser(profile) {
+      this.alertScreenReader(`${profile.name} profile updated.`);
+    },
+    autocompleteUsers(q) {
+      return userAutocomplete(q).then(results => this.orderBy(results, 'label'));
+    },
     become(uid) {
       becomeUser(uid).then(() => (window.location.href = '/home'));
     },
@@ -218,33 +248,19 @@ export default {
       const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       return this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
-    deptRoles(dept) {
-      let roles = [];
-      this.each([
-        {key: 'advisor', label: 'Advisor'},
-        {key: 'director', label: 'Director'},
-        {key: 'scheduler', label: 'Scheduler'}
-      ], role => {
-        if (this.get(dept, role.key)) {
-          roles.push(role.label);
-        }
-      });
-      return this.size(roles) ? this.oxfordJoin(roles) : '';
-    },
-    getDeptRoles(user, deptCode) {
+    getDeptRoles(user, department) {
       const roles = [];
-      const d = user.departments[deptCode];
-      if (d.isAdvisor) {
+      if (department.isAdvisor) {
         roles.push('Advisor');
       }
-      if (this.find(user.dropInAdvisorStatus, ['deptCode', deptCode])) {
-        roles.push('Drop-in Advisor');
-      }
-      if (d.isDirector) {
+      if (department.isDirector) {
         roles.push('Director');
       }
-      if (d.isScheduler) {
+      if (department.isScheduler) {
         roles.push('Scheduler');
+      }
+      if (this.find(user.dropInAdvisorStatus, ['deptCode', department.code])) {
+        roles.push('Drop-in Advisor');
       }
       return roles;
     },
@@ -257,6 +273,9 @@ export default {
         statuses.push('Expired, according to CalNet.')
       }
       return statuses;
+    },
+    openEditUserModal(user) {
+      user.showEditUserModal = true;
     },
     usersProvider() {
       this.totalUserCount = undefined;
@@ -282,10 +301,10 @@ export default {
           });
           break;
         case 'search':
-          if (this.trim(this.filterBy.searchPhrase)) {
-            promise = userSearch(this.filterBy.searchPhrase).then(data => {
-              this.totalUserCount = data.totalUserCount;
-              return data.users;
+          if (this.userSelection) {
+            promise = getUserByUid(this.userSelection.uid).then(data => {
+              this.totalUserCount = 1;
+              return [ data ];
             });
           } else {
             promise = new Promise(resolve => resolve([]));
@@ -302,14 +321,27 @@ export default {
 </script>
 
 <style>
+.color-transparent {
+  color: transparent;
+}
 .column-actions {
   width: 50px;
+}
+.column-edit {
+  padding: 3px 2px 0 4px !important;
+  width: 30px;
+}
+.column-email {
+  width: 50px;
+}
+.column-last-login {
+  width: 120px;
 }
 .column-name {
   width: 200px;
 }
 .column-status {
-  width: 120px;
+  width: 100px;
 }
 .column-toggle-details {
   width: 25px;

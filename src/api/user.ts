@@ -52,9 +52,9 @@ export function getUsers(
     .then(response => response.data, () => null);
 }
 
-export function userSearch(snippet: string) {
+export function userAutocomplete(snippet: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/search`, { snippet: snippet })
+    .post(`${utils.apiBaseUrl()}/api/users/autocomplete`, { snippet: snippet })
     .then(response => response.data, () => null);
 }
 
