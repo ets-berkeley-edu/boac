@@ -20,6 +20,11 @@
       :appointment-checkin="checkInAppointment"
       :close="closeCheckInModal"
       :show-modal="showCheckInModal" />
+    <AppointmentUpdateModal
+      v-if="showUpdateModal"
+      :appointment-update="appointmentUpdate"
+      :close="closeUpdateModal"
+      :show-modal="showUpdateModal" />
     <b-dropdown
       v-if="!loading && includes(['reserved', 'waiting'], appointment.status)"
       :id="`appointment-${appointment.id}-dropdown`"
@@ -62,8 +67,9 @@
 </template>
 
 <script>
-import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
 import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
+import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
+import AppointmentUpdateModal from '@/components/appointment/AppointmentUpdateModal';
 import CheckInModal from '@/components/appointment/CheckInModal';
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
@@ -80,6 +86,7 @@ export default {
   components: {
     AppointmentCancellationModal,
     AppointmentDetailsModal,
+    AppointmentUpdateModal,
     CheckInModal
   },
   mixins: [Context, UserMetadata, Util],
@@ -112,11 +119,13 @@ export default {
     }
   },
   data: () => ({
+    appointmentUpdate: null,
     loading: false,
     showAppointmentDetailsModal: false,
     showCancelAppointmentModal: false,
     showCheckInModal: false,
-    showCreateAppointmentModal: false
+    showCreateAppointmentModal: false,
+    showUpdateModal: false
   }),
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
@@ -127,7 +136,7 @@ export default {
           this.loading = false;
           this.alertScreenReader(`${canceled.student.name} appointment canceled`);
         });
-      });
+      }).catch(this.handleBadRequestError);
     },
     checkInAppointment(advisor, deptCodes) {
       if (!advisor) {
@@ -148,7 +157,7 @@ export default {
           this.loading = false;
           this.alertScreenReader(`${checkedIn.student.name} checked in`);
         });
-      });
+      }).catch(this.handleBadRequestError);
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
@@ -166,6 +175,25 @@ export default {
       this.showCheckInModal = false;
       this.showAppointmentDetailsModal = false;
       this.setSelectedAppointment(undefined);
+    },
+    closeUpdateModal() {
+      this.showUpdateModal = false;
+      this.onAppointmentStatusChange(this.appointmentUpdate.id).then(() => {
+        this.loading = false;
+      });
+      this.appointmentUpdate = null;
+    },
+    handleBadRequestError(error) {
+      if (error.response && error.response.status === 400) {
+        const appointmentUpdate = this.get(error, 'response.data.message');
+        if (appointmentUpdate) {
+          this.appointmentUpdate = appointmentUpdate;
+          this.showUpdateModal = true;
+          this.loading = false;
+        }
+      } else {
+        this.loading = false;
+      }
     },
     launchCheckIn() {
       if (this.selfCheckIn) {
@@ -189,7 +217,7 @@ export default {
           this.loading = false;
           this.alertScreenReader(`${reserved.student.name} appointment reserved`);
         });
-      });
+      }).catch(this.handleBadRequestError);
     },
     showAppointmentDetails(appointment) {
       this.setSelectedAppointment(appointment);
@@ -202,7 +230,7 @@ export default {
           this.loading = false;
           this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
         });
-      });
+      }).catch(this.handleBadRequestError);
     }
   }
 }
