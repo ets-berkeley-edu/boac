@@ -56,13 +56,14 @@ def user_profile(uid):
 @app.route('/api/user/by_csid/<csid>')
 @advisor_required
 def calnet_profile(csid):
-    return tolerant_jsonify(calnet.get_calnet_user_for_csid(app, csid))
+    user = calnet.get_calnet_user_for_csid(app, csid)
+    return tolerant_jsonify(user and _user_by_uid(user['uid']))
 
 
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):
-    return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
+    return tolerant_jsonify(_user_by_uid(uid))
 
 
 @app.route('/api/user/dept_membership/add', methods=['POST'])
@@ -161,23 +162,20 @@ def get_admin_users():
     })
 
 
-@app.route('/api/users/search', methods=['POST'])
+@app.route('/api/users/autocomplete', methods=['POST'])
 @admin_required
 def user_search():
     snippet = request.get_json().get('snippet', '').strip()
     if snippet:
         search_by_uid = re.match(r'\d+', snippet)
         users = AuthorizedUser.users_with_uid_like(snippet) if search_by_uid else AuthorizedUser.get_all_active_users()
-        users = authorized_users_api_feed(users)
+        users = list(calnet.get_calnet_users_for_uids(app, [u.uid for u in users]).values())
         if not search_by_uid:
-            regex = r'.*'.join(snippet.split()) + r'.*'
-            users = list(filter(lambda u: re.search(regex, u['name']), users))
+            pattern = re.compile(r'.*'.join(snippet.split()) + r'.*')
+            users = list(filter(lambda u: u.get('name') and pattern.match(u['name']), users))
     else:
         users = []
-    return tolerant_jsonify({
-        'users': users,
-        'totalUserCount': len(users),
-    })
+    return tolerant_jsonify([{'label': u['name'], 'uid': u['uid']} for u in users])
 
 
 @app.route('/api/users/drop_in_advisors/<dept_code>')
@@ -233,8 +231,8 @@ def get_departments():
     for d in UniversityDept.get_all(exclude_empty=exclude_empty):
         api_json.append({
             'id': d.id,
-            'deptCode': d.dept_code,
-            'deptName': d.dept_name,
+            'code': d.dept_code,
+            'name': d.dept_name,
         })
     return tolerant_jsonify(api_json)
 
@@ -292,3 +290,8 @@ def _update_drop_in_status(uid, dept_code, active):
         return tolerant_jsonify(drop_in_status.to_api_json())
     else:
         raise errors.ResourceNotFoundError(f'No drop-in advisor status found: (uid={uid}, dept_code={dept_code})')
+
+
+def _user_by_uid(uid):
+    user = AuthorizedUser.find_by_uid(uid)
+    return user and authorized_users_api_feed([user])[0]

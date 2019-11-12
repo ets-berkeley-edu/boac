@@ -129,16 +129,17 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'deletedAt': _isoformat(user.deleted_at),
             'departments': {},
         })
+        departments = []
         for m in user.department_memberships:
-            profile['departments'].update({
-                m.university_dept.dept_code: {
-                    'deptName': m.university_dept.dept_name,
-                    'isAdvisor': m.is_advisor,
-                    'isDirector': m.is_director,
-                    'isScheduler': m.is_scheduler,
-                    'automateMembership': m.automate_membership,
-                },
+            departments.append({
+                'code': m.university_dept.dept_code,
+                'name': m.university_dept.dept_name,
+                'isAdvisor': m.is_advisor,
+                'isDirector': m.is_director,
+                'isScheduler': m.is_scheduler,
+                'automateMembership': m.automate_membership,
             })
+        profile['departments'] = departments
         if user.drop_in_departments:
             profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
         user_login = UserLogin.last_login(user.uid)

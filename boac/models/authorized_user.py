@@ -230,11 +230,18 @@ def _users_sql(
             """
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
-        query_tables += f"""
-            JOIN university_dept_members m ON
-                m.authorized_user_id = u.id
-                AND m.is_{role} = true
-        """
+        if role == 'dropInAdvisor':
+            query_tables += f"""
+                JOIN drop_in_advisors a ON
+                    a.authorized_user_id = u.id
+                    AND a.deleted_at IS NULL
+            """
+        else:
+            query_tables += f"""
+                JOIN university_dept_members m ON
+                    m.authorized_user_id = u.id
+                    AND m.is_{role} = true
+            """
     elif dept_code and not role:
         query_tables += f"""
             JOIN university_depts d ON d.dept_code = :dept_code
@@ -243,5 +250,4 @@ def _users_sql(
                 AND m.authorized_user_id = u.id
         """
         query_bindings['dept_code'] = dept_code
-    # query_filter += 'NULLS LAST'
     return query_tables, query_filter, query_bindings

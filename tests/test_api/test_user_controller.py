@@ -138,9 +138,10 @@ class TestUserById:
     def test_user_by_csid(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login(admin_uid)
-        response = client.get(f'/api/user/by_csid/{81067873}')
+        response = client.get('/api/user/by_csid/800700600')
         assert response.status_code == 200
-        assert response.json['csid'] == '81067873'
+        assert response.json['csid'] == '800700600'
+        assert response.json['uid'] == '1133399'
 
 
 class TestUniversityDeptMember:
@@ -360,7 +361,7 @@ class TestUserSearch:
             expected_status_code=200,
     ):
         response = client.post(
-            f'/api/users/search',
+            f'/api/users/autocomplete',
             data=json.dumps({'snippet': snippet}),
             content_type='application/json',
         )
@@ -378,9 +379,7 @@ class TestUserSearch:
     def test_user_search_by_uid(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
-        api_json = self._api_users_search(client, '339')
-        assert api_json['totalUserCount'] == 2
-        assert len(api_json['users']) == 2
+        assert len(self._api_users_search(client, '339')) == 2
 
     def test_user_search_by_name(self, client, fake_auth):
         """Search users by UID."""
@@ -389,9 +388,8 @@ class TestUserSearch:
         first_name = calnet_users[0]['firstName']
         last_name = calnet_users[0]['lastName']
         api_json = self._api_users_search(client, f' {first_name[:2]} {last_name[:3]}  ')
-        assert api_json['totalUserCount'] == 1
-        assert len(api_json['users']) == 1
-        assert api_json['users'][0]['name'] == f'{first_name} {last_name}'
+        assert len(api_json) == 1
+        assert api_json[0]['uid'] == calnet_users[0]['uid']
 
 
 class TestDemoMode:
