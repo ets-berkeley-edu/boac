@@ -211,7 +211,6 @@ export default {
     }
   },
   data: () => ({
-    userSelection: undefined,
     currentPage: 1,
     filterBy: {
       deptCode: 'QCADV',
@@ -223,7 +222,8 @@ export default {
     isBusy: false,
     sortBy: 'lastName',
     sortDescending: false,
-    totalUserCount: undefined
+    totalUserCount: undefined,
+    userSelection: undefined
   }),
   watch: {
     userSelection(u) {

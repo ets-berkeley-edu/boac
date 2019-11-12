@@ -49,6 +49,7 @@
       <div class="modal-footer">
         <b-btn
           id="btn-appointment-details-check-in"
+          v-if="!user.isAdmin"
           @click.stop="checkIn"
           class="pl-2"
           variant="primary">
