@@ -46,7 +46,8 @@ def get_waitlist(dept_code):
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        statuses = appointment_event_type.enums if current_user.is_drop_in_advisor else ['reserved', 'waiting']
+        show_all_statuses = current_user.is_drop_in_advisor or current_user.is_admin
+        statuses = appointment_event_type.enums if show_all_statuses else ['reserved', 'waiting']
         my_reserved = []
         others = []
         canceled = []
