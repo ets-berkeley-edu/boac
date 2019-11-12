@@ -49,7 +49,7 @@
           </div>
         </div>
       </div>
-      <div v-if="appointment.advisorName" class="mt-2">
+      <div v-if="appointment.advisorName && (appointment.status === 'checked_in')" class="mt-2">
         <a
           v-if="appointment.advisorUid"
           :id="`appointment-${appointment.id}-advisor-name`"
