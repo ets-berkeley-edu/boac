@@ -11,7 +11,7 @@
         <div aria-live="polite" role="alert">
           <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
         </div>
-        <div>
+        <div v-if="!user.isAdmin">
           <b-btn
             id="btn-homepage-create-appointment"
             @click="showCreateAppointmentModal = true"

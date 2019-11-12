@@ -6,11 +6,12 @@
           My availability status:
         </div>
         <div
+          v-if="!isAvailable || !user.isAdmin"
           :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
           class="aria-hidden availability-status">
           Off duty
         </div>
-        <div class="toggle-btn-column">
+        <div v-if="!user.isAdmin" class="toggle-btn-column">
           <button
             :id="`toggle-drop-in-availability-${uid}`"
             v-if="!isToggling"
@@ -30,6 +31,7 @@
           </div>
         </div>
         <div
+          v-if="isAvailable || !user.isAdmin"
           :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
           class="aria-hidden availability-status">
           On duty

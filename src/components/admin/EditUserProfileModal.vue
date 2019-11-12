@@ -111,9 +111,10 @@
         <b-btn
           id="save-changes-to-user-profile"
           @click="save()"
+          :disabled="true"
           class="btn-primary-color-override"
           variant="primary">
-          Save
+          TODO: Save
         </b-btn>
         <b-btn
           id="delete-cancel"
