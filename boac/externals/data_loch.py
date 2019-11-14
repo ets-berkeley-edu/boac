@@ -702,10 +702,10 @@ def get_students_query(     # noqa
         query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
     if last_term_gpa_ranges:
         sql_ready_term_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in last_term_gpa_ranges]
-        query_filter += _number_ranges_to_sql('set.term_gpa', sql_ready_term_gpa_ranges)
+        query_filter += _number_ranges_to_sql('previous_term.term_gpa', sql_ready_term_gpa_ranges)
         query_tables += f"""
-            JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = sas.sid AND set.term_id = :previous_term_id"""
+            JOIN {student_schema()}.student_enrollment_terms previous_term
+            ON previous_term.sid = sas.sid AND previous_term.term_id = :previous_term_id"""
         query_bindings.update({'previous_term_id': previous_term_id(current_term_id())})
     query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
