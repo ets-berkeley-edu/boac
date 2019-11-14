@@ -354,7 +354,7 @@ class TestUsers:
 class TestUserSearch:
 
     @classmethod
-    def _api_users_search(
+    def _api_users_autocomplete(
             cls,
             client,
             snippet=None,
@@ -370,24 +370,25 @@ class TestUserSearch:
 
     def test_not_authenticated(self, client):
         """Deny anonymous user."""
-        assert self._api_users_search(client, 'Jo', expected_status_code=401)
+        assert self._api_users_autocomplete(client, 'Jo', expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth):
         """Deny non-admin user."""
-        assert self._api_users_search(client, 'Jo', expected_status_code=401)
+        assert self._api_users_autocomplete(client, 'Jo', expected_status_code=401)
 
     def test_user_search_by_uid(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
-        assert len(self._api_users_search(client, '339')) == 2
+        assert len(self._api_users_autocomplete(client, '339')) == 2
 
     def test_user_search_by_name(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
         calnet_users = list(calnet.get_calnet_users_for_uids(app, ['1081940']).values())
-        first_name = calnet_users[0]['firstName']
-        last_name = calnet_users[0]['lastName']
-        api_json = self._api_users_search(client, f' {first_name[:2]} {last_name[:3]}  ')
+        # Case-insensitive search
+        first_name = calnet_users[0]['firstName'].lower()
+        last_name = calnet_users[0]['lastName'].lower()
+        api_json = self._api_users_autocomplete(client, f' {first_name[:2]} {last_name[:3]}  ')
         assert len(api_json) == 1
         assert api_json[0]['uid'] == calnet_users[0]['uid']
 
