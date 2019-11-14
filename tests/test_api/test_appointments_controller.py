@@ -76,12 +76,25 @@ class AppointmentTestUtil:
         return response.json
 
     @classmethod
-    def create_appointment(cls, client, dept_code, details='', advisor_uid=None, expected_status_code=200):
+    def create_appointment(
+            cls,
+            client,
+            dept_code,
+            details=None,
+            advisor_dept_codes=None,
+            advisor_name=None,
+            advisor_role=None,
+            advisor_uid=None,
+            expected_status_code=200,
+    ):
         data = {
+            'advisorDeptCodes': advisor_dept_codes,
+            'advisorName': advisor_name,
+            'advisorRole': advisor_role,
             'advisorUid': advisor_uid,
             'appointmentType': 'Drop-in',
             'deptCode': dept_code,
-            'details': details,
+            'details': details or '',
             'sid': '3456789012',
             'topics': ['Topic for appointments, 1', 'Topic for appointments, 4'],
         }
@@ -132,14 +145,28 @@ class TestCreateAppointment:
     def test_create_pre_reserved_appointment_for_specific_advisor(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
         details = 'Aloysius has some questions.'
-        appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details, advisor_uid=coe_drop_in_advisor_uid)
+        advisor_dept_codes = ['COENG']
+        advisor_name = 'Alfred E. Neuman'
+        advisor_role = 'College Advisor'
+        appointment = AppointmentTestUtil.create_appointment(
+            client=client,
+            dept_code='COENG',
+            details=details,
+            advisor_dept_codes=advisor_dept_codes,
+            advisor_name=advisor_name,
+            advisor_role=advisor_role,
+            advisor_uid=coe_drop_in_advisor_uid,
+        )
         appointment_id = appointment['id']
         waitlist = self._get_waitlist(client, 'COENG')
         matching = next((a for a in waitlist if a['details'] == details), None)
         assert appointment_id == matching['id']
+        assert appointment['advisorDepartments'][0]['code'] == 'COENG'
+        assert appointment['advisorName'] == advisor_name
+        assert appointment['advisorRole'] == advisor_role
+        assert appointment['advisorUid'] == coe_drop_in_advisor_uid
         assert appointment['read'] is True
         assert appointment['status'] == 'reserved'
-        assert appointment['advisorUid'] == coe_drop_in_advisor_uid
         assert appointment['statusBy']['uid'] == coe_drop_in_advisor_uid
 
     def test_other_departments_forbidden(self, client, fake_auth):

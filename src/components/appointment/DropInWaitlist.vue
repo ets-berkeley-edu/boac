@@ -5,6 +5,7 @@
       :advisors="advisors"
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
+      :dept-code="deptCode"
       :show-modal="showCreateAppointmentModal" />
     <div v-if="isHomepage" class="homepage-header-border">
       <div class="align-items-center d-flex justify-content-between mb-2">

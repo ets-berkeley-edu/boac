@@ -48,7 +48,7 @@ export default {
     waitlist: undefined
   }),
   created() {
-    this.deptCode = this.get(this.$route, 'params.deptCode');
+    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
     setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
