@@ -94,7 +94,7 @@ export default {
     waitlist: undefined
   }),
   mounted() {
-    this.deptCode = this.get(this.$route, 'params.deptCode');
+    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
     setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
@@ -115,7 +115,7 @@ export default {
             this.waitlist = waitlist;
           }
 
-          const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
+          const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode});
           const newDropInStatus = this.find(response.advisors, {'uid': this.user.uid});
           if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
             store.dispatch('user/setDropInStatus', {

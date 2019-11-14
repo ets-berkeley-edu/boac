@@ -151,6 +151,10 @@ export default {
       type: Function,
       required: true
     },
+    deptCode: {
+      type: String,
+      required: true
+    },
     showModal: {
       type: Boolean,
       required: true
@@ -203,14 +207,18 @@ export default {
         this.details,
         this.student,
         this.topics,
-        advisor && Object.keys(advisor.departments),
+        advisor && this.map(advisor.departments, 'code'),
         this.get(advisor, 'name'),
-        this.get(advisor, 'title'),
+        this.describeAdvisorRole(advisor),
         this.selectedAdvisorUid
       );
       this.showCreateAppointmentModal = false;
       this.saving = false;
       this.reset();
+    },
+    describeAdvisorRole(advisor) {
+      const department = advisor && this.find(advisor.departments, ['code', this.deptCode]);
+      return department && this.oxfordJoin(this.getBoaUserRoles(advisor, department));
     },
     removeStudent() {
       this.alertScreenReader(`${this.student.label} removed`);

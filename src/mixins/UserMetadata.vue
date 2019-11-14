@@ -34,6 +34,22 @@ export default {
       'loadCalnetUserByCsid',
       'setUserPreference'
     ]),
+    getBoaUserRoles(user, department) {
+      const roles = [];
+      if (department.isAdvisor) {
+        roles.push('Advisor');
+      }
+      if (department.isDirector) {
+        roles.push('Director');
+      }
+      if (department.isScheduler) {
+        roles.push('Scheduler');
+      }
+      if (_.find(user.dropInAdvisorStatus, ['deptCode', department.code])) {
+        roles.push('Drop-in Advisor');
+      }
+      return roles;
+    },
     isUserDropInAdvisor(deptCode) {
       const deptCodes = _.map(store.getters['user/user'].dropInAdvisorStatus || [], 'deptCode');
       return _.includes(deptCodes, _.upperCase(deptCode));

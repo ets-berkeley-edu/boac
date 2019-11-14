@@ -154,7 +154,7 @@
             title="Membership is not automated"
             icon="exclamation-triangle" />
           <span :id="`dept-${department.code}-${row.item.uid}`">
-            <span class="dept-name">{{ department.name }}</span> ({{ oxfordJoin(getDeptRoles(row.item, department)) }})
+            <span class="dept-name">{{ department.name }}</span> ({{ oxfordJoin(getBoaUserRoles(row.item, department)) }})
           </span>
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
@@ -247,22 +247,6 @@ export default {
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
       const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       return this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
-    },
-    getDeptRoles(user, department) {
-      const roles = [];
-      if (department.isAdvisor) {
-        roles.push('Advisor');
-      }
-      if (department.isDirector) {
-        roles.push('Director');
-      }
-      if (department.isScheduler) {
-        roles.push('Scheduler');
-      }
-      if (this.find(user.dropInAdvisorStatus, ['deptCode', department.code])) {
-        roles.push('Drop-in Advisor');
-      }
-      return roles;
     },
     getUserStatuses(user) {
       const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ];
