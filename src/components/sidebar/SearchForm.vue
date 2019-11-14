@@ -107,7 +107,7 @@
           v-model="showNoteFilters"
           class="search-options-note-filters-subpanel text-white">
           <div>
-            <b-form-group label="Topic">
+            <b-form-group label="Topic" label-for="search-option-note-filters-topic">
               <b-form-select
                 id="search-option-note-filters-topic"
                 v-model="noteFilters.topic"
@@ -137,7 +137,7 @@
                 You
               </b-form-radio>
             </b-form-group>
-            <b-form-group label="Advisor">
+            <b-form-group label="Advisor" label-for="search-options-note-filters-author-input">
               <Autocomplete
                 id="search-options-note-filters-author"
                 v-model="noteAuthor"
@@ -146,7 +146,7 @@
                 :placeholder="noteFilters.postedBy === 'you' ? user.name : 'Enter name...'">
               </Autocomplete>
             </b-form-group>
-            <b-form-group label="Student (name or SID)">
+            <b-form-group label="Student (name or SID)" label-for="search-options-note-filters-student-input">
               <Autocomplete
                 id="search-options-note-filters-student"
                 v-model="noteFilters.student"
