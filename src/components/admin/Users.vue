@@ -4,7 +4,7 @@
       <b-row align-v="center" no-gutters>
         <b-col cols="2" class="pr-2">
           <b-form-select
-            id="user-permission-options"
+            id="user-filter-options"
             v-model="filterType"
             :options="[
               {text: 'BOA Admins', value: 'admins'},
@@ -15,7 +15,7 @@
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <Autocomplete
-            id="search-options-note-filters-author"
+            id="search-user"
             v-model="userSelection"
             :source="autocompleteUsers"
             class="w-50"
