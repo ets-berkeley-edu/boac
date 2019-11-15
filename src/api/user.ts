@@ -103,5 +103,5 @@ export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[]) {
       profile,
       rolesPerDeptCode
     })
-    .then(response => response.data, () => null);
+    .then(response => response.data);
 }

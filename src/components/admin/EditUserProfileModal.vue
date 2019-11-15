@@ -1,12 +1,28 @@
 <template>
   <div>
     <b-btn
+      v-if="isExistingUser"
       :id="'edit-${user.uid}'"
       :title="`Edit profile of ${profile.name}`"
       @click="openEditUserModal()"
       class="pl-1 pr-1"
       variant="link">
       <font-awesome icon="edit" />
+    </b-btn>
+    <b-btn
+      id="add-new-user-btn"
+      v-if="!isExistingUser"
+      @click="openEditUserModal()"
+      class="pl-1 pr-1"
+      variant="link">
+      <div class="d-flex">
+        <div class="pr-1">
+          <font-awesome icon="plus" />
+        </div>
+        <div>
+          Add New User
+        </div>
+      </div>
     </b-btn>
     <b-modal
       v-if="showEditUserModal"
@@ -16,10 +32,23 @@
       hide-footer
       hide-header>
       <div class="modal-header">
-        <h2 id="edit-modal-header" class="student-section-header">{{ profile.name }}</h2>
+        <h2 id="edit-modal-header" class="student-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
       </div>
       <div class="modal-body m-0 p-0">
         <div class="pt-2">
+          <div v-if="error" class="align-items-center has-error mb-0 ml-4 mt-1">
+            Error: {{ error }}
+          </div>
+          <div v-if="!isExistingUser" class="align-items-center mb-3 ml-4 mt-3">
+            <label for="uid-input" class="sr-only">U I D</label>
+            <b-form-input
+              id="uid-input"
+              v-model="userProfile.uid"
+              class="w-200px"
+              maxlength="10"
+              placeholder="UID"
+              size="lg"></b-form-input>
+          </div>
           <b-container fluid class="ml-2 w-50">
             <b-row>
               <b-col><label for="is-admin">Admin</label></b-col>
@@ -99,6 +128,7 @@
               v-model="deptCode"
               :options="departmentOptions"
               @change="addDepartment"
+              class="w-auto"
               aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
               <template v-slot:first>
                 <option :value="undefined">Add department...</option>
@@ -147,17 +177,28 @@ export default {
       type: Array
     },
     profile: {
-      required: true,
+      default: () => ({
+        canAccessCanvasData: true,
+        departments: [],
+        isAdmin: false,
+        isBlocked: false
+      }),
       type: Object
     }
   },
   data: () => ({
     departmentOptions: undefined,
     deptCode: undefined,
+    error: undefined,
     rolesPerDeptCode: undefined,
     showEditUserModal: false,
     userProfile: undefined
   }),
+  computed: {
+    isExistingUser() {
+      return !!this.profile.id;
+    }
+  },
   methods: {
     addDepartment() {
       if (this.deptCode) {
@@ -177,11 +218,13 @@ export default {
       this.closeModal();
     },
     closeModal() {
+      this.error = undefined;
       this.userProfile = undefined;
       this.rolesPerDeptCode = undefined;
       this.showEditUserModal = false;
     },
     openEditUserModal() {
+      this.putFocusNextTick(this.profile.id ? 'edit-modal-header' : 'uid-input');
       this.userProfile = {
         id: this.profile.id,
         uid: this.profile.uid,
@@ -232,6 +275,8 @@ export default {
       createOrUpdateUser(this.userProfile, this.rolesPerDeptCode).then(() => {
         this.afterUpdateUser(this.profile.name);
         this.closeModal();
+      }).catch(error => {
+        this.error = this.get(error, 'response.data.message') || error;
       });
     }
   }
