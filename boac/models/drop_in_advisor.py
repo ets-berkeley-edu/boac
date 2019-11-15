@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.lib.util import utc_now
 from boac.models.base import Base
 
 
@@ -47,22 +48,19 @@ class DropInAdvisor(Base):
         std_commit()
 
     @classmethod
-    def create_or_update_status(cls, university_dept, authorized_user, is_available):
+    def create_or_update_status(cls, university_dept, authorized_user_id, is_available=False):
         dept_code = university_dept.dept_code
-        user_id = authorized_user.id
-        existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=user_id).first()
+        existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
             status = existing_status
             status.deleted_at = None
             status.is_available = is_available
         else:
             status = cls(
-                authorized_user_id=user_id,
+                authorized_user_id=authorized_user_id,
                 dept_code=dept_code,
                 is_available=is_available,
             )
-            status.authorized_user = authorized_user
-            authorized_user.drop_in_departments.append(status)
         db.session.add(status)
         std_commit()
         return status
@@ -70,6 +68,19 @@ class DropInAdvisor(Base):
     @classmethod
     def advisors_for_dept_code(cls, dept_code):
         return cls.query.filter_by(dept_code=dept_code, deleted_at=None).all()
+
+    @classmethod
+    def get_all(cls, authorized_user_id):
+        return cls.query.filter_by(authorized_user_id=authorized_user_id, deleted_at=None).all()
+
+    @classmethod
+    def delete(cls, authorized_user_id, dept_code):
+        row = cls.query.filter_by(authorized_user_id=authorized_user_id, dept_code=dept_code, deleted_at=None).first()
+        if not row:
+            return False
+        row.deleted_at = utc_now()
+        std_commit()
+        return True
 
     def to_api_json(self):
         return {

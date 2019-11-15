@@ -49,9 +49,7 @@ class AuthorizedUser(Base):
     )
     drop_in_departments = db.relationship(
         'DropInAdvisor',
-        back_populates='authorized_user',
         primaryjoin='and_(AuthorizedUser.id==DropInAdvisor.authorized_user_id, DropInAdvisor.deleted_at==None)',
-        lazy='joined',
     )
     cohort_filters = db.relationship(
         'CohortFilter',
@@ -65,10 +63,11 @@ class AuthorizedUser(Base):
         lazy='joined',
     )
 
-    def __init__(self, uid, created_by, is_admin=False, in_demo_mode=False, can_access_canvas_data=True):
+    def __init__(self, uid, created_by, is_admin=False, is_blocked=False, in_demo_mode=False, can_access_canvas_data=True):
         self.uid = uid
         self.created_by = created_by
         self.is_admin = is_admin
+        self.is_blocked = is_blocked
         self.in_demo_mode = in_demo_mode
         self.can_access_canvas_data = can_access_canvas_data
 
@@ -94,7 +93,14 @@ class AuthorizedUser(Base):
         return user
 
     @classmethod
-    def create_or_restore(cls, uid, created_by, is_admin=False, can_access_canvas_data=True):
+    def create_or_restore(
+            cls,
+            uid,
+            created_by,
+            is_admin=False,
+            is_blocked=False,
+            can_access_canvas_data=True,
+    ):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
             if existing_user.is_blocked:
@@ -102,6 +108,7 @@ class AuthorizedUser(Base):
             # If restoring a previously deleted user, respect passed-in attributes.
             if existing_user.deleted_at:
                 existing_user.is_admin = is_admin
+                existing_user.is_blocked = is_blocked
                 existing_user.can_access_canvas_data = can_access_canvas_data
                 existing_user.created_by = created_by
                 existing_user.deleted_at = None
@@ -112,6 +119,8 @@ class AuthorizedUser(Base):
                     existing_user.can_access_canvas_data = True
                 if is_admin and not existing_user.is_admin:
                     existing_user.is_admin = True
+                if is_blocked and not existing_user.is_blocked:
+                    existing_user.is_blocked = True
                 existing_user.created_by = created_by
             user = existing_user
         else:
@@ -119,9 +128,11 @@ class AuthorizedUser(Base):
                 uid=uid,
                 created_by=created_by,
                 is_admin=is_admin,
+                is_blocked=is_blocked,
                 in_demo_mode=False,
                 can_access_canvas_data=can_access_canvas_data,
             )
+            db.session.add(user)
         std_commit()
         return user
 
@@ -193,6 +204,15 @@ class AuthorizedUser(Base):
             """
         results = db.session.execute(sql, {'scope': scope})
         return [row['uid'] for row in results]
+
+    @classmethod
+    def update_user(cls, user_id, can_access_canvas_data=False, is_admin=False, is_blocked=False):
+        user = AuthorizedUser.find_by_id(user_id)
+        user.can_access_canvas_data = can_access_canvas_data
+        user.is_admin = is_admin
+        user.is_blocked = is_blocked
+        std_commit()
+        return user
 
 
 def _users_sql(

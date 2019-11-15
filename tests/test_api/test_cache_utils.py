@@ -157,8 +157,8 @@ class TestRefreshDepartmentMemberships:
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
         UniversityDeptMember.create_or_update_membership(
-            dept_coe,
-            bad_user,
+            dept_coe.id,
+            bad_user.id,
             is_advisor=True,
             is_director=False,
             is_scheduler=False,
@@ -183,8 +183,8 @@ class TestRefreshDepartmentMemberships:
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         manually_added_user = AuthorizedUser.create_or_restore(uid='1024', created_by='2040')
         manual_membership = UniversityDeptMember.create_or_update_membership(
-            dept_coe,
-            manually_added_user,
+            dept_coe.id,
+            manually_added_user.id,
             is_advisor=True,
             is_director=False,
             is_scheduler=False,
@@ -262,8 +262,8 @@ class TestRefreshDepartmentMemberships:
         user = AuthorizedUser.find_by_uid('242881')
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         UniversityDeptMember.create_or_update_membership(
-            dept_coe,
-            user,
+            dept_coe.id,
+            user.id,
             is_advisor=True,
             is_director=False,
             is_scheduler=False,

@@ -170,8 +170,8 @@ def refresh_department_memberships():
             )
             if user:
                 UniversityDeptMember.create_or_update_membership(
-                    dept,
-                    user,
+                    university_dept_id=dept.id,
+                    authorized_user_id=user.id,
                     is_advisor=True,
                     is_director=False,
                     is_scheduler=False,

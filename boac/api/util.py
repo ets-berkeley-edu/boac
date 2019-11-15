@@ -138,8 +138,7 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
                 'isScheduler': m.is_scheduler,
                 'automateMembership': m.automate_membership,
             })
-        if user.drop_in_departments:
-            profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
+        profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)

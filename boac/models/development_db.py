@@ -443,8 +443,8 @@ def _create_department_memberships():
         for user in dept_membership['users']:
             authorized_user = AuthorizedUser.find_by_uid(user['uid'])
             UniversityDeptMember.create_or_update_membership(
-                university_dept=university_dept,
-                authorized_user=authorized_user,
+                university_dept_id=university_dept.id,
+                authorized_user_id=authorized_user.id,
                 is_advisor=user['isAdvisor'],
                 is_director=user['isDirector'],
                 is_scheduler=user['isScheduler'],
@@ -453,7 +453,7 @@ def _create_department_memberships():
             if user['isDropInAdvisor']:
                 DropInAdvisor.create_or_update_status(
                     university_dept=university_dept,
-                    authorized_user=authorized_user,
+                    authorized_user_id=authorized_user.id,
                     is_available=True,
                 )
 

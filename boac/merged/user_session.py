@@ -131,6 +131,7 @@ class UserSession(UserMixin):
                         'isDirector': m.is_director,
                         'isScheduler': m.is_scheduler,
                     })
+        drop_in_advisor_status = []
         is_active = False
         if user:
             if not calnet_profile:
@@ -142,22 +143,19 @@ class UserSession(UserMixin):
                     is_active = m.is_advisor or m.is_director or m.is_scheduler
                     if is_active:
                         break
-        is_admin = user and user.is_admin
-        drop_in_advisor_status = []
-        if user and len(user.drop_in_departments):
             drop_in_advisor_status = [d.to_api_json() for d in user.drop_in_departments]
         return {
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
                 'departments': departments,
+                'dropInAdvisorStatus': drop_in_advisor_status,
                 'isActive': is_active,
-                'isAdmin': is_admin,
+                'isAdmin': user and user.is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
                 'inDemoMode': user and user.in_demo_mode,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
                 'uid': user and user.uid,
-                'dropInAdvisorStatus': drop_in_advisor_status,
             },
         }

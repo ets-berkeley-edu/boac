@@ -34,6 +34,7 @@ from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -57,13 +58,23 @@ def user_profile(uid):
 @advisor_required
 def calnet_profile(csid):
     user = calnet.get_calnet_user_for_csid(app, csid)
-    return tolerant_jsonify(user and _user_by_uid(user['uid']))
+    if user:
+        authorized_user = AuthorizedUser.find_by_uid(user['uid'])
+        users_feed = authorized_users_api_feed([authorized_user])
+        return tolerant_jsonify(users_feed[0])
+    else:
+        return errors.ResourceNotFoundError('User not found')
 
 
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):
-    return tolerant_jsonify(_user_by_uid(uid))
+    user = AuthorizedUser.find_by_uid(uid)
+    if user:
+        users_feed = authorized_users_api_feed([user])
+        return tolerant_jsonify(users_feed[0])
+    else:
+        return errors.ResourceNotFoundError('User not found')
 
 
 @app.route('/api/user/dept_membership/add', methods=['POST'])
@@ -73,8 +84,8 @@ def add_university_dept_membership():
     dept = UniversityDept.find_by_dept_code(params.get('deptCode', None))
     user = AuthorizedUser.find_by_uid(params.get('uid', None))
     membership = UniversityDeptMember.create_or_update_membership(
-        university_dept=dept,
-        authorized_user=user,
+        university_dept_id=dept.id,
+        authorized_user_id=user.id,
         is_advisor=params.get('isAdvisor', False),
         is_director=params.get('isDirector', False),
         is_scheduler=params.get('isScheduler', False),
@@ -182,6 +193,26 @@ def user_search():
 @scheduler_required
 def drop_in_advisors_for_dept(dept_code):
     return tolerant_jsonify(drop_in_advisors_for_dept_code(dept_code))
+
+
+@app.route('/api/users/create_or_update', methods=['POST'])
+@admin_required
+def create_or_update_user_profile():
+    params = request.get_json()
+    profile = params.get('profile', None)
+    roles_per_dept_code = params.get('rolesPerDeptCode', None)
+    if not profile or not profile.get('uid') or roles_per_dept_code is None:
+        raise errors.BadRequestError('Required parameters are missing')
+
+    authorized_user = _update_or_create_authorized_user(profile)
+    _delete_existing_memberships(authorized_user)
+    _create_department_memberships(authorized_user, roles_per_dept_code)
+    _create_drop_in_advisor(authorized_user, roles_per_dept_code)
+
+    user_id = authorized_user.id
+    UserSession.flush_cache_for_id(user_id)
+    users_json = authorized_users_api_feed([AuthorizedUser.find_by_id(user_id)])
+    return tolerant_jsonify(users_json and users_json[0])
 
 
 @app.route('/api/user/demo_mode', methods=['POST'])
@@ -292,6 +323,64 @@ def _update_drop_in_status(uid, dept_code, active):
         raise errors.ResourceNotFoundError(f'No drop-in advisor status found: (uid={uid}, dept_code={dept_code})')
 
 
-def _user_by_uid(uid):
-    user = AuthorizedUser.find_by_uid(uid)
-    return user and authorized_users_api_feed([user])[0]
+def _update_or_create_authorized_user(profile):
+    user_id = profile.get('id')
+    can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
+    is_admin = to_bool_or_none(profile.get('isAdmin'))
+    is_blocked = to_bool_or_none(profile.get('isBlocked'))
+    if user_id:
+        return AuthorizedUser.update_user(
+            user_id=user_id,
+            can_access_canvas_data=can_access_canvas_data,
+            is_admin=is_admin,
+            is_blocked=is_blocked,
+        )
+    else:
+        uid = profile.get('uid')
+        return AuthorizedUser.create_or_restore(
+            uid=uid,
+            created_by=current_user.get_uid(),
+            is_admin=is_admin,
+            is_blocked=is_blocked,
+            can_access_canvas_data=can_access_canvas_data,
+        )
+
+
+def _delete_existing_memberships(authorized_user):
+    existing_memberships = UniversityDeptMember.get_existing_memberships(authorized_user_id=authorized_user.id)
+    existing_drop_in_dept_codes = [a.dept_code for a in DropInAdvisor.get_all(authorized_user_id=authorized_user.id)]
+    for university_dept_id in [m.university_dept.id for m in existing_memberships]:
+        UniversityDeptMember.delete_membership(
+            university_dept_id=university_dept_id,
+            authorized_user_id=authorized_user.id,
+        )
+    for dept_code in existing_drop_in_dept_codes:
+        DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
+
+
+def _create_department_memberships(authorized_user, user_roles):
+    for user_role in [d for d in user_roles if d['role'] in ('advisor', 'director', 'scheduler')]:
+        university_dept = UniversityDept.find_by_dept_code(user_role['code'])
+        role = user_role['role']
+        UniversityDeptMember.create_or_update_membership(
+            university_dept_id=university_dept.id,
+            authorized_user_id=authorized_user.id,
+            is_advisor=role in ['advisor', 'dropInAdvisor'],
+            is_director=role == 'director',
+            is_scheduler=role == 'scheduler',
+            automate_membership=to_bool_or_none(user_role['automateMembership']),
+        )
+
+
+def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
+    for user_role in [d for d in roles_per_dept_code if d['role'] == 'dropInAdvisor']:
+        university_dept = UniversityDept.find_by_dept_code(user_role['code'])
+        DropInAdvisor.create_or_update_status(university_dept=university_dept, authorized_user_id=authorized_user.id)
+        UniversityDeptMember.create_or_update_membership(
+            university_dept_id=university_dept.id,
+            authorized_user_id=authorized_user.id,
+            is_advisor=True,
+            is_director=False,
+            is_scheduler=False,
+            automate_membership=to_bool_or_none(user_role['automateMembership']),
+        )

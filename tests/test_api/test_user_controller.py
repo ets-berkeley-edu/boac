@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac import std_commit
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept import UniversityDept
@@ -513,3 +514,144 @@ class TestToggleDropInAppointmentStatus:
         assert len(response.json) == 1
         assert response.json[0]['available'] is True
         assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': True}]
+
+
+class TestUserUpdate:
+
+    @classmethod
+    def _profile_object(
+            cls,
+            uid,
+            is_admin=False,
+            is_blocked=False,
+            can_access_canvas_data=True,
+    ):
+        return {
+            'uid': uid,
+            'isAdmin': is_admin,
+            'isBlocked': is_blocked,
+            'canAccessCanvasData': can_access_canvas_data,
+        }
+
+    @classmethod
+    def _api_create_or_update(cls, client, profile, expected_status_code=200, roles_per_dept_code=()):
+        response = client.post(
+            f'/api/users/create_or_update',
+            data=json.dumps({
+                'profile': profile,
+                'rolesPerDeptCode': roles_per_dept_code,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Authentication required."""
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid='2040'),
+            expected_status_code=401,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Admin required."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid='2040'),
+            expected_status_code=401,
+        )
+
+    def test_create_drop_in_advisor(self, client, fake_auth):
+        """Admin creates new Drop-in Advisor."""
+        fake_auth.login(admin_uid)
+        user = self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid='90001'),
+            roles_per_dept_code=[
+                {
+                    'code': 'QCADV',
+                    'role': 'dropInAdvisor',
+                    'automateMembership': True,
+                },
+                {
+                    'code': 'QCADVMAJ',
+                    'role': 'scheduler',
+                    'automateMembership': False,
+                },
+            ],
+        )
+        uid = user['uid']
+        assert user['id']
+        assert uid
+        assert user['isAdmin'] is False
+        assert user['isBlocked'] is False
+        assert user['canAccessCanvasData'] is True
+        assert len(user['departments']) == 2
+
+        assert len(user['dropInAdvisorStatus']) == 1
+        assert user['dropInAdvisorStatus'][0]['deptCode'] == 'QCADV'
+
+        qcadv = next(d for d in user['departments'] if d['code'] == 'QCADV')
+        assert qcadv['isAdvisor'] is True
+        assert qcadv['isScheduler'] is False
+        assert qcadv['automateMembership'] is True
+
+        qcadvmaj = next(d for d in user['departments'] if d['code'] == 'QCADVMAJ')
+        assert qcadvmaj['isAdvisor'] is False
+        assert qcadvmaj['isScheduler'] is True
+        assert qcadvmaj['automateMembership'] is False
+
+        # Clean up
+        AuthorizedUser.delete_and_block(uid)
+
+    def test_update_advisor(self, client, fake_auth):
+        """Add Advisor to another department, assign Scheduler role."""
+        fake_auth.login(admin_uid)
+        # First, create advisor
+        uid = '9000000002'
+        user = self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid=uid),
+            roles_per_dept_code=[
+                {
+                    'code': 'QCADV',
+                    'role': 'dropInAdvisor',
+                    'automateMembership': True,
+                },
+            ],
+        )
+        user_id = user['id']
+        assert user_id
+        assert user['uid'] == uid
+
+        departments = user['departments']
+        assert len(departments) == 1
+        assert departments[0]['code'] == 'QCADV'
+        assert departments[0]['isAdvisor'] is True
+        assert departments[0]['automateMembership'] is True
+
+        drop_in_statuses = user['dropInAdvisorStatus']
+        assert len(drop_in_statuses) == 1
+        assert drop_in_statuses[0]['deptCode'] == 'QCADV'
+
+        # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Scheduler".
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid=uid),
+            roles_per_dept_code=[
+                {
+                    'code': 'QCADVMAJ',
+                    'role': 'scheduler',
+                    'automateMembership': False,
+                },
+            ],
+        )
+        std_commit(allow_test_environment=True)
+
+        user = AuthorizedUser.find_by_uid(uid)
+        assert len(user.drop_in_departments) == 0
+        assert len(user.department_memberships) == 1
+        assert user.department_memberships[0].university_dept.dept_code == 'QCADVMAJ'
+        assert user.department_memberships[0].automate_membership is False
