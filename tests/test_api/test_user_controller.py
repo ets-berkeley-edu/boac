@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import std_commit
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.university_dept import UniversityDept
 from flask import current_app as app
 import simplejson as json
@@ -563,12 +564,29 @@ class TestUserUpdate:
             expected_status_code=401,
         )
 
+    def test_unrecognized_uid(self, client, fake_auth):
+        """Unrecognized UID."""
+        fake_auth.login(admin_uid)
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid='9999999999'),
+            expected_status_code=400,
+        )
+
     def test_create_drop_in_advisor(self, client, fake_auth):
         """Admin creates new Drop-in Advisor."""
         fake_auth.login(admin_uid)
+        uid = '900000001'
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': '100000009',
+            },
+        )
         user = self._api_create_or_update(
             client,
-            profile=self._profile_object(uid='90001'),
+            profile=self._profile_object(uid=uid),
             roles_per_dept_code=[
                 {
                     'code': 'QCADV',
@@ -611,6 +629,13 @@ class TestUserUpdate:
         fake_auth.login(admin_uid)
         # First, create advisor
         uid = '9000000002'
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': '200000009',
+            },
+        )
         user = self._api_create_or_update(
             client,
             profile=self._profile_object(uid=uid),

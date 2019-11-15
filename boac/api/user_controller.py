@@ -337,13 +337,17 @@ def _update_or_create_authorized_user(profile):
         )
     else:
         uid = profile.get('uid')
-        return AuthorizedUser.create_or_restore(
-            uid=uid,
-            created_by=current_user.get_uid(),
-            is_admin=is_admin,
-            is_blocked=is_blocked,
-            can_access_canvas_data=can_access_canvas_data,
-        )
+        calnet_user = calnet.get_calnet_user_for_uid(app, uid, skip_expired_users=True)
+        if calnet_user and calnet_user.get('csid', None):
+            return AuthorizedUser.create_or_restore(
+                uid=uid,
+                created_by=current_user.get_uid(),
+                is_admin=is_admin,
+                is_blocked=is_blocked,
+                can_access_canvas_data=can_access_canvas_data,
+            )
+        else:
+            raise errors.BadRequestError('Invalid UID')
 
 
 def _delete_existing_memberships(authorized_user):

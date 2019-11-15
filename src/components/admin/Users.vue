@@ -209,6 +209,11 @@ export default {
     departments: {
       required: true,
       type: Array
+    },
+    refresh: {
+      default: false,
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({
@@ -227,6 +232,11 @@ export default {
     userSelection: undefined
   }),
   watch: {
+    refresh(value) {
+      if (value) {
+        this.$refs.users.refresh();
+      }
+    },
     userSelection(u) {
       if (u) {
         this.$refs.users.refresh();
