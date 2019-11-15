@@ -19,7 +19,7 @@
       <ul
         ref="autocompleteSuggestions"
         :id="`${id}-suggestions`"
-        :class="{'dropdown-menu-open': isOpen, dropdownClass: true}"
+        :class="isOpen ? `dropdown-menu-open ${dropdownClass}`: dropdownClass"
         @keyup.down="onArrowDown"
         @keyup.up="onArrowUp"
         @keyup.esc="onEsc"

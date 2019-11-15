@@ -39,7 +39,7 @@
         <div class="ml-3 mr-2 pt-2">
           <h3 class="color-grey font-size-18 mb-1">Departments</h3>
           <div
-            v-for="dept in userProfile.departments"
+            v-for="dept in rolesPerDeptCode"
             :key="dept.code"
             class="ml-2 mt-2">
             <div class="align-items-center d-flex">
@@ -90,10 +90,10 @@
               </div>
             </div>
           </div>
-          <div v-if="userProfile.departments.length >= 3" class="m-3">
+          <div v-if="rolesPerDeptCode.length >= 3" class="m-3">
             <span class="text-info"><font-awesome icon="check" /> Three departments is enough!</span>
           </div>
-          <div v-if="userProfile.departments.length < 3" class="mb-3 ml-0 mr-2 p-2">
+          <div v-if="rolesPerDeptCode.length < 3" class="mb-3 ml-0 mr-2 p-2">
             <b-form-select
               id="department-select-list"
               v-model="deptCode"
@@ -111,10 +111,9 @@
         <b-btn
           id="save-changes-to-user-profile"
           @click="save()"
-          :disabled="true"
           class="btn-primary-color-override"
           variant="primary">
-          TODO: Save
+          Save
         </b-btn>
         <b-btn
           id="delete-cancel"
@@ -133,6 +132,7 @@
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { createOrUpdateUser } from '@/api/user';
 
 export default {
   name: 'EditUserProfileModal',
@@ -154,6 +154,7 @@ export default {
   data: () => ({
     departmentOptions: undefined,
     deptCode: undefined,
+    rolesPerDeptCode: undefined,
     showEditUserModal: false,
     userProfile: undefined
   }),
@@ -161,7 +162,7 @@ export default {
     addDepartment() {
       if (this.deptCode) {
         const dept = this.find(this.departments, ['code', this.deptCode]);
-        this.userProfile.departments.push({
+        this.rolesPerDeptCode.push({
           code: dept.code,
           name: dept.name,
           role: undefined,
@@ -173,25 +174,48 @@ export default {
       }
     },
     cancel() {
+      this.closeModal();
+    },
+    closeModal() {
+      this.userProfile = undefined;
+      this.rolesPerDeptCode = undefined;
       this.showEditUserModal = false;
     },
     openEditUserModal() {
-      this.userProfile = this.cloneDeep(this.profile);
-      this.each(this.userProfile.departments, d => {
-        if (this.find(this.userProfile.dropInAdvisorStatus, ['deptCode', d.code])) {
-          d.role = 'dropInAdvisor';
+      this.userProfile = {
+        id: this.profile.id,
+        uid: this.profile.uid,
+        name: this.profile.name,
+        canAccessCanvasData: this.profile.canAccessCanvasData,
+        departments: [],
+        isAdmin: this.profile.isAdmin,
+        isBlocked: this.profile.isBlocked
+      };
+      this.rolesPerDeptCode = [];
+      this.each(this.profile.departments, d => {
+        let role = undefined;
+        if (this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code])) {
+          role = 'dropInAdvisor';
         } else if (d.isAdvisor) {
-          d.role = 'advisor';
+          role = 'advisor';
         } else if (d.isDirector) {
-          d.role = 'director';
+          role = 'director';
         } else if (d.isScheduler) {
-          d.role = 'scheduler';
+          role = 'scheduler';
+        }
+        if (role) {
+          this.rolesPerDeptCode.push({
+            automateMembership: d.automateMembership,
+            code: d.code,
+            name: d.name,
+            role,
+          });
         }
       });
       this.departmentOptions = [];
       this.each(this.departments, d => {
         this.departmentOptions.push({
-          disabled: !!this.find(this.userProfile.departments, ['code', d.code]),
+          disabled: !!this.find(this.rolesPerDeptCode, ['code', d.code]),
           value: d.code,
           text: d.name
         });
@@ -199,14 +223,16 @@ export default {
       this.showEditUserModal = true;
     },
     removeDepartment(deptCode) {
-      let indexOf = this.userProfile.departments.findIndex(d => d.code === deptCode);
-      this.userProfile.departments.splice(indexOf, 1);
+      let indexOf = this.rolesPerDeptCode.findIndex(d => d.code === deptCode);
+      this.rolesPerDeptCode.splice(indexOf, 1);
       const option = this.find(this.departmentOptions, ['value', deptCode]);
       option.disabled = false;
     },
     save() {
-      this.showEditUserModal = false;
-      this.afterUpdateUser();
+      createOrUpdateUser(this.userProfile, this.rolesPerDeptCode).then(() => {
+        this.afterUpdateUser(this.profile.name);
+        this.closeModal();
+      });
     }
   }
 };

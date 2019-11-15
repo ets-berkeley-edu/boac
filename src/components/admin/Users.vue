@@ -18,6 +18,7 @@
             id="search-user"
             v-model="userSelection"
             :source="autocompleteUsers"
+            dropdown-class="w-100"
             class="w-50"
             placeholder="Name or UID...">
           </Autocomplete>
@@ -233,8 +234,9 @@ export default {
     }
   },
   methods: {
-    afterUpdateUser(profile) {
-      this.alertScreenReader(`${profile.name} profile updated.`);
+    afterUpdateUser(name) {
+      this.alertScreenReader(`${name} profile updated.`);
+      this.$refs.users.refresh();
     },
     autocompleteUsers(q) {
       return userAutocomplete(q).then(results => this.orderBy(results, 'label'));
@@ -288,12 +290,13 @@ export default {
           if (this.userSelection) {
             promise = getUserByUid(this.userSelection.uid).then(data => {
               this.totalUserCount = 1;
+              this.userSelection = undefined;
               return [ data ];
             });
           } else {
             promise = new Promise(resolve => resolve([]));
           }
-          this.putFocusNextTick('user-search');
+          this.putFocusNextTick('search-user-input');
           break;
         default:
           promise = new Promise(resolve => resolve([]));

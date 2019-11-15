@@ -96,3 +96,12 @@ export function setDemoMode(demoMode: boolean) {
       store.dispatch('user/setDemoMode', demoMode);
     });
 }
+
+export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[]) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/users/create_or_update`, {
+      profile,
+      rolesPerDeptCode
+    })
+    .then(response => response.data, () => null);
+}
