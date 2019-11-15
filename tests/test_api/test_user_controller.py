@@ -454,7 +454,7 @@ class TestDownloadUsers:
         response = client.get('/api/users/csv')
         assert response.status_code == 200
         assert 'csv' in response.content_type
-        assert 'College of Engineering' in str(response.data)
+        assert 'COENG' in str(response.data)
 
 
 class TestToggleDropInAppointmentStatus:
