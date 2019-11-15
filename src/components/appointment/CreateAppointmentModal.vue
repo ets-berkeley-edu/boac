@@ -73,9 +73,6 @@
                 :options="availableAdvisors"
                 value-field="uid"
                 text-field="name">
-                <template v-slot:first>
-                  <option :value="null" disabled>Select...</option>
-                </template>
               </b-form-select>
             </b-col>
             <div v-if="!availableAdvisors.length" class="pb-1 pt-1">
@@ -161,6 +158,7 @@ export default {
     }
   },
   data: () => ({
+    availableAdvisors: undefined,
     details: '',
     isSaving: false,
     resetAutoCompleteKey: undefined,
@@ -169,18 +167,17 @@ export default {
     student: undefined,
     topics: []
   }),
-  computed: {
-    availableAdvisors() {
-      return this.filterList(this.advisors, 'available');
-    }
-  },
   watch: {
+    advisors() {
+      this.updateAvailableAdvisors();
+    },
     showModal(value) {
       this.showCreateAppointmentModal = value;
     }
   },
   created() {
     this.reset();
+    this.updateAvailableAdvisors();
     this.showCreateAppointmentModal = this.showModal;
     this.putFocusNextTick('appointment-student-input');
     this.alertScreenReader(`Create appointment form is open`);
@@ -236,6 +233,9 @@ export default {
     },
     studentsByNameOrSid(query, limit) {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
+    },
+    updateAvailableAdvisors() {
+      this.availableAdvisors = [{ uid: null, name: 'Select...' }].concat(this.filterList(this.advisors, 'available'));
     }
   }
 };
