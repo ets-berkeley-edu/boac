@@ -234,6 +234,7 @@ def set_demo_mode():
 @app.route('/api/users/csv')
 @admin_required
 def download_boa_users_csv():
+    fieldnames = None
     rows = []
     for dept in _get_boa_user_groups():
         for user in dept['users']:
@@ -242,15 +243,21 @@ def download_boa_users_csv():
                     'last_name': user.get('lastName') or '',
                     'first_name': user.get('firstName') or '',
                     'uid': user.get('uid'),
+                    'title': user.get('title'),
                     'email': user.get('campusEmail') or user.get('email'),
-                    'dept_code': dept.get('code'),
-                    'dept_name': dept.get('name'),
+                    'departments': _describe_dept_roles(user['departments']),
+                    'drop_in_advising': _describe_drop_in_advising(user['departments'], user['dropInAdvisorStatus']),
+                    'can_access_canvas_data': user.get('canAccessCanvasData'),
+                    'is_blocked': user.get('isBlocked'),
+                    'last_login': user.get('lastLogin'),
                 },
             )
+            if not fieldnames:
+                fieldnames = rows[-1].keys()
     return response_with_csv_download(
         rows=sorted(rows, key=lambda row: row['last_name'].upper()),
         filename_prefix='boa_users',
-        fieldnames=['last_name', 'first_name', 'uid', 'email', 'dept_code', 'dept_name'],
+        fieldnames=fieldnames,
     )
 
 
@@ -388,3 +395,24 @@ def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
             is_scheduler=False,
             automate_membership=to_bool_or_none(user_role['automateMembership']),
         )
+
+
+def _describe_dept_roles(departments):
+    s = '{ '
+    for d in list(filter(lambda d: d.get('isAdvisor') or d.get('isDirector'), departments)):
+        roles = ['Advisor'] if d.get('isAdvisor') else []
+        if d.get('isDirector'):
+            roles.append('Director')
+        s += f"[ {d.get('code')}: {'; '.join(roles)} (automated={d.get('automateMembership')}) ] "
+    s += '}'
+    return s
+
+
+def _describe_drop_in_advising(departments, drop_in_advisor_statuses):
+    s = '{ '
+    for d in list(filter(lambda d: d['isScheduler'], departments)):
+        s += f"[ {d.get('code')}: Scheduler (automated={d.get('automateMembership')}) ] "
+    for d in drop_in_advisor_statuses:
+        s += f"[ {d.get('detCode')}: Drop-in Advisor ] "
+    s += '}'
+    return s

@@ -168,7 +168,7 @@ class AuthorizedUser(Base):
     def get_users(
             cls,
             deleted=False,
-            blocked=False,
+            blocked=None,
             dept_code=None,
             role=None,
     ):
@@ -216,7 +216,7 @@ class AuthorizedUser(Base):
 
 
 def _users_sql(
-        blocked=False,
+        blocked=None,
         deleted=False,
         dept_code=None,
         role=None,
