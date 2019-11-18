@@ -57,13 +57,24 @@ def user_profile(uid):
 @advisor_required
 def calnet_profile(csid):
     user = calnet.get_calnet_user_for_csid(app, csid)
-    return tolerant_jsonify(user and _user_by_uid(user['uid']))
+    uid = user.get('uid', None)
+    authorized_user = uid and AuthorizedUser.find_by_uid(uid)
+    if authorized_user:
+        users_feed = authorized_users_api_feed([authorized_user])
+        return tolerant_jsonify(users_feed[0])
+    else:
+        raise errors.ResourceNotFoundError('User not found')
 
 
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):
-    return tolerant_jsonify(_user_by_uid(uid))
+    user = AuthorizedUser.find_by_uid(uid)
+    if user:
+        users_feed = authorized_users_api_feed([user])
+        return tolerant_jsonify(users_feed[0])
+    else:
+        raise errors.ResourceNotFoundError('User not found')
 
 
 @app.route('/api/user/dept_membership/add', methods=['POST'])
