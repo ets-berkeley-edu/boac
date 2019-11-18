@@ -28,7 +28,7 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!isUndefined(note.author) && !note.author.name" class="mt-2 advisor-profile-not-found">
+      <div v-if="!isNil(note.author) && !note.author.name" class="mt-2 advisor-profile-not-found">
         Advisor profile not found
       </div>
       <div v-if="note.author" class="mt-2">
@@ -211,7 +211,7 @@ export default {
   },
   methods: {
     setAuthor() {
-      if (this.isOpen && (!this.note.author.name || !this.note.author.role)) {
+      if (this.isOpen && this.get(this.note, 'author.uid') && (!this.note.author.name || !this.note.author.role)) {
         const author_uid = this.note.author.uid;
         if (author_uid) {
           if (author_uid === this.user.uid) {
