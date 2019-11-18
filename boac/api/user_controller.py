@@ -182,7 +182,8 @@ def user_search():
         users = AuthorizedUser.users_with_uid_like(snippet) if search_by_uid else AuthorizedUser.get_all_active_users()
         users = list(calnet.get_calnet_users_for_uids(app, [u.uid for u in users]).values())
         if not search_by_uid:
-            pattern = re.compile(r'.*'.join(snippet.split()) + r'.*', re.IGNORECASE)
+            any_ = r'.*'
+            pattern = re.compile(any_ + any_.join(snippet.split()) + any_, re.IGNORECASE)
             users = list(filter(lambda u: u.get('name') and pattern.match(u['name']), users))
     else:
         users = []

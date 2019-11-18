@@ -383,6 +383,24 @@ class TestUserSearch:
         fake_auth.login(admin_uid)
         assert len(self._api_users_autocomplete(client, '339')) == 2
 
+    def test_space_separated_names_is_required(self, client, fake_auth):
+        """When search users, names must be separated by spaces."""
+        fake_auth.login(admin_uid)
+        calnet_users = list(calnet.get_calnet_users_for_uids(app, ['1081940']).values())
+        first_name = calnet_users[0]['firstName']
+        last_name = calnet_users[0]['lastName']
+        api_json = self._api_users_autocomplete(client, f'{first_name}{last_name}')
+        assert len(api_json) == 0
+
+    def test_user_search_by_last_name(self, client, fake_auth):
+        """Search users by last name."""
+        fake_auth.login(admin_uid)
+        calnet_users = list(calnet.get_calnet_users_for_uids(app, ['1081940']).values())
+        last_name = calnet_users[0]['lastName']
+        api_json = self._api_users_autocomplete(client, f' {last_name[:3]}  ')
+        assert len(api_json) == 1
+        assert api_json[0]['uid'] == calnet_users[0]['uid']
+
     def test_user_search_by_name(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
