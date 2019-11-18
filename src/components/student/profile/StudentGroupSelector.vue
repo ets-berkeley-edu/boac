@@ -73,6 +73,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header-close
+      title="Name Your Curated Group"
       aria-label="Name Your Curated Group">
       <CreateCuratedGroupModal
         :create="modalCreateGroup"
