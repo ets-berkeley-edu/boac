@@ -29,6 +29,7 @@ module.exports = {
         'allowChildren': false
       }
     ],
+    'vue-a11y/no-onchange': 'off',
     'vue/eqeqeq': 2,
     'vue/html-closing-bracket-newline': 0,
     'vue/html-self-closing': 0,
