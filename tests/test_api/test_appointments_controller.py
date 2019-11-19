@@ -220,26 +220,26 @@ class TestAppointmentCancel:
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        AppointmentTestUtil.cancel_appointment(client, 1, 'Canceled by student', expected_status_code=401)
+        AppointmentTestUtil.cancel_appointment(client, 1, 'Cancelled by student', expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 403 if user is an advisor without drop_in responsibilities."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
-        AppointmentTestUtil.cancel_appointment(client, 1, 'Canceled by advisor', expected_status_code=403)
+        AppointmentTestUtil.cancel_appointment(client, 1, 'Cancelled by advisor', expected_status_code=403)
 
     def test_double_cancel_conflict(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by weasels')
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by weasels')
         fake_auth.login(l_s_college_scheduler_uid)
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by stoats', expected_status_code=400)
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by stoats', expected_status_code=400)
 
     def test_check_in_cancel_conflict(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
         AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
         fake_auth.login(l_s_college_scheduler_uid)
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by wolves', expected_status_code=400)
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves', expected_status_code=400)
 
     def test_appointment_cancel(self, app, client, fake_auth):
         """Drop-in advisor can cancel appointment."""
@@ -248,10 +248,10 @@ class TestAppointmentCancel:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by wolves')
+        appointment = AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
         appointment_id = appointment['id']
         assert appointment_id == waiting['id']
-        assert appointment['status'] == 'canceled'
+        assert appointment['status'] == 'cancelled'
         assert appointment['statusBy']['id'] == user.id
         assert appointment['statusBy']['uid'] == user.uid
         assert appointment['statusDate'] is not None
@@ -267,7 +267,7 @@ class TestAppointmentCancel:
             AppointmentTestUtil.cancel_appointment(
                 client,
                 appointment_id=appointment['id'],
-                cancel_reason='Canceled by the power of the mind',
+                cancel_reason='Cancelled by the power of the mind',
                 expected_status_code=401,
             )
 
@@ -288,12 +288,12 @@ class TestAppointmentCheckIn:
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
         AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
         fake_auth.login(l_s_college_scheduler_uid)
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by wolves', expected_status_code=400)
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves', expected_status_code=400)
 
     def test_cancel_check_in_conflict(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by wolves')
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
         fake_auth.login(l_s_college_scheduler_uid)
         AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
 
@@ -335,7 +335,7 @@ class TestAppointmentReserve:
     def test_cancel_reserve_conflict(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
-        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Canceled by wolves')
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
         fake_auth.login(l_s_college_scheduler_uid)
         self._reserve_appointment(client, waiting['id'], expected_status_code=400)
 
@@ -459,21 +459,21 @@ class TestAppointmentWaitlist:
         # Appointments reserved by me are always on top
         assert waitlist[0]['status'] == 'reserved'
         assert waitlist[0]['statusBy']['uid'] == coe_drop_in_advisor_uid
-        # Canceled appointments are put to the bottom of list
-        assert waitlist[-1]['status'] == 'canceled'
+        # Cancelled appointments are put to the bottom of list
+        assert waitlist[-1]['status'] == 'cancelled'
         for index in range(1, len(waitlist) - 1):
             # Everything else is in between
             assert waitlist[index]['status'] in ('waiting', 'checked_in')
 
-    def test_waitlist_include_checked_in_and_canceled(self, app, client, fake_auth):
+    def test_waitlist_include_checked_in_and_cancelled(self, app, client, fake_auth):
         """For scheduler, the waitlist has appointments with event type 'waiting' or 'reserved'."""
         fake_auth.login(coe_scheduler_uid)
         appointments = self._get_waitlist(client, 'COENG')
         assert len(appointments) > 2
         for index, appointment in enumerate(appointments):
-            if index > 0 and appointments[index - 1]['status'] == 'canceled':
-                # Canceled appointments are put to the bottom of list
-                assert appointment['status'] == 'canceled'
+            if index > 0 and appointments[index - 1]['status'] == 'cancelled':
+                # Cancelled appointments are put to the bottom of list
+                assert appointment['status'] == 'cancelled'
             else:
                 assert appointment['status'] in ('waiting', 'reserved')
 

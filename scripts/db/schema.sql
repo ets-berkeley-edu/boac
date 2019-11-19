@@ -107,7 +107,7 @@ CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
 
 --
 
-CREATE TYPE appointment_event_types AS ENUM ('canceled', 'checked_in', 'reserved', 'waiting');
+CREATE TYPE appointment_event_types AS ENUM ('cancelled', 'checked_in', 'reserved', 'waiting');
 
 --
 

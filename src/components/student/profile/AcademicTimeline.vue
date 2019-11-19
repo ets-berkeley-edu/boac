@@ -213,10 +213,10 @@
           <td class="column-right align-top pt-1 pr-1">
             <div v-if="!includes(openMessages, message.transientId) && message.type === 'appointment'">
               <div
-                v-if="message.appointmentType === 'Drop-in' && message.status === 'canceled'"
-                :id="`collapsed-${message.type}-${message.id}-status-canceled`"
-                class="pill-appointment-status pill-canceled pl-2 pr-2 mr-2 text-nowrap">
-                Canceled
+                v-if="message.appointmentType === 'Drop-in' && message.status === 'cancelled'"
+                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
+                class="pill-appointment-status pill-cancelled pl-2 pr-2 mr-2 text-nowrap">
+                Cancelled
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
@@ -483,7 +483,7 @@ export default {
       this.editModeNoteId = null;
     },
     cancelTheDelete() {
-      this.alertScreenReader('Canceled');
+      this.alertScreenReader('Cancelled');
       this.messageForDelete = undefined;
     },
     close(message, screenreaderAlert) {

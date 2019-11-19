@@ -211,15 +211,15 @@ class Appointment(Base):
             return None
 
     @classmethod
-    def cancel(cls, appointment_id, canceled_by, cancel_reason, cancel_reason_explained):
+    def cancel(cls, appointment_id, cancelled_by, cancel_reason, cancel_reason_explained):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
-            event_type = 'canceled'
+            event_type = 'cancelled'
             appointment.status = event_type
-            appointment.updated_by = canceled_by
+            appointment.updated_by = cancelled_by
             AppointmentEvent.create(
                 appointment_id=appointment.id,
-                user_id=canceled_by,
+                user_id=cancelled_by,
                 event_type=event_type,
                 cancel_reason=cancel_reason,
                 cancel_reason_explained=cancel_reason_explained,

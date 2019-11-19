@@ -50,16 +50,16 @@ def get_waitlist(dept_code):
         statuses = appointment_event_type.enums if show_all_statuses else ['reserved', 'waiting']
         my_reserved = []
         others = []
-        canceled = []
+        cancelled = []
         for appointment in Appointment.get_waitlist(dept_code, statuses):
             a = appointment.to_api_json(current_user.get_id())
-            if a['status'] == 'canceled':
-                canceled.append(a)
+            if a['status'] == 'cancelled':
+                cancelled.append(a)
             elif a['status'] == 'reserved' and a['statusBy']['id'] == current_user.get_id():
                 my_reserved.append(a)
             else:
                 others.append(a)
-        waitlist = my_reserved + others + canceled
+        waitlist = my_reserved + others + cancelled
         _put_student_profile_per_appointment(waitlist)
         return tolerant_jsonify({
             'advisors': drop_in_advisors_for_dept_code(dept_code),
@@ -126,7 +126,7 @@ def cancel_appointment(appointment_id):
     cancel_reason_explained = params.get('cancelReasonExplained', None)
     appointment = Appointment.cancel(
         appointment_id=appointment_id,
-        canceled_by=current_user.get_id(),
+        cancelled_by=current_user.get_id(),
         cancel_reason=cancel_reason,
         cancel_reason_explained=cancel_reason_explained,
     )

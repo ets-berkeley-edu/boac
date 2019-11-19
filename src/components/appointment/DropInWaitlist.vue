@@ -60,7 +60,7 @@
         <b-row
           v-for="(appointment, index) in waitlist"
           :key="appointment.id"
-          :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'canceled' && waitlist[index + 1].status === 'canceled'}"
+          :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'cancelled' && waitlist[index + 1].status === 'cancelled'}"
           no-gutters
           class="border-bottom font-size-16 mt-3 pb-2 pt-2">
           <b-col sm="2" class="pb-2 text-nowrap">
@@ -119,10 +119,10 @@
                 :set-selected-appointment="setSelectedAppointment" />
             </div>
             <div
-              v-if="appointment.status === 'canceled'"
-              :id="`appointment-${appointment.id}-canceled`"
-              class="float-right pill-appointment-status pill-canceled pl-2 pr-2">
-              Canceled<span class="sr-only"> appointment</span>
+              v-if="appointment.status === 'cancelled'"
+              :id="`appointment-${appointment.id}-cancelled`"
+              class="float-right pill-appointment-status pill-cancelled pl-2 pr-2">
+              Cancelled<span class="sr-only"> appointment</span>
             </div>
             <div
               v-if="appointment.status === 'checked_in'"
@@ -263,7 +263,7 @@ export default {
   background-color: #e2ffc0;
   color: #518019;
 }
-.pill-canceled {
+.pill-cancelled {
   background-color: #ffecc0;
   color: #857103;
 }

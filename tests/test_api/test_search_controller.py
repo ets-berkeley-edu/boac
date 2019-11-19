@@ -406,7 +406,7 @@ class TestNoteAndAppointmentSearch:
         appointment = Appointment.find_by_id(1)
         Appointment.cancel(
             appointment_id=appointment.id,
-            canceled_by=AuthorizedUser.get_id_per_uid('6972201'),
+            cancelled_by=AuthorizedUser.get_id_per_uid('6972201'),
             cancel_reason='Sick cat',
             cancel_reason_explained='Student needed to attend to ailing feline.',
         )
