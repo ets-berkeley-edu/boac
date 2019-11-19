@@ -11,7 +11,7 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
     .then(response => {
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} canceled a drop-in appointment`,
+        name: `Advisor ${store.getters['user/uid']} cancelled a drop-in appointment`,
         action: 'cancel'
       });
       return response.data

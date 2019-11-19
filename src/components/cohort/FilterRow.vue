@@ -367,7 +367,7 @@ export default {
       });
     },
     onClickCancelEdit() {
-      this.alertScreenReader('Canceled');
+      this.alertScreenReader('Cancelled');
       this.isModifyingFilter = false;
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();

@@ -32,7 +32,7 @@ from sqlalchemy.sql import desc
 
 
 appointment_event_type = ENUM(
-    'canceled',
+    'cancelled',
     'checked_in',
     'reserved',
     'waiting',

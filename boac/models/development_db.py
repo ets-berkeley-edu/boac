@@ -459,13 +459,13 @@ def _create_department_memberships():
 
 
 def _create_appointments():
-    _create_canceled_appointments()
+    _create_cancelled_appointments()
     _create_checked_in_appointments()
     _create_reserved_appointments()
     _create_waiting_appointments()
 
 
-def _create_canceled_appointments():
+def _create_cancelled_appointments():
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
     scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
     cancel_me = Appointment.create(
@@ -478,7 +478,7 @@ def _create_canceled_appointments():
     )
     Appointment.cancel(
         appointment_id=cancel_me.id,
-        canceled_by=scheduler_user_id,
+        cancelled_by=scheduler_user_id,
         cancel_reason='Just because',
         cancel_reason_explained='I felt like it.',
     )

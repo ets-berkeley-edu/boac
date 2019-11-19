@@ -37,11 +37,11 @@
             </span>
           </span>
         </div>
-        <div v-if="appointment.status === 'canceled'">
+        <div v-if="appointment.status === 'cancelled'">
           <div>
-            <font-awesome icon="calendar-minus" class="status-canceled-icon" />
+            <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
             <span class="text-secondary ml-1">
-              <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Canceled' }}</span>
+              <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Cancelled' }}</span>
             </span>
           </div>
           <div v-if="appointment.cancelReasonExplained" class="mt-1">
@@ -127,7 +127,7 @@ export default {
 .advising-appointment-outer {
   flex-basis: 100%;
 }
-.status-canceled-icon {
+.status-cancelled-icon {
   color: #f0ad4e;
 }
 .status-checked-in-icon {

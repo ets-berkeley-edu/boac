@@ -133,8 +133,8 @@ export default {
     reason: undefined,
     reasonExplained: undefined,
     reasonOptions: [
-      { value: 'Canceled by student', text: 'Canceled by student' },
-      { value: 'Canceled by department/advisor', text: 'Canceled by department/advisor' },
+      { value: 'Cancelled by student', text: 'Cancelled by student' },
+      { value: 'Cancelled by department/advisor', text: 'Cancelled by department/advisor' },
     ],
     showCancellationModal: false
   }),
@@ -151,7 +151,7 @@ export default {
   methods: {
     cancelTheAppointment() {
       this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained);
-      this.alertScreenReader(`Appointment with ${this.student.name} canceled`);
+      this.alertScreenReader(`Appointment with ${this.student.name} cancelled`);
       this.showCancellationModal = false;
     },
     reasonSelected() {

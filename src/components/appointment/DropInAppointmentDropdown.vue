@@ -46,7 +46,7 @@
       <div v-if="!user.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
-          :disabled="appointment.status === 'checked_in' || appointment.status === 'canceled'"
+          :disabled="appointment.status === 'checked_in' || appointment.status === 'cancelled'"
           @click="launchCheckInForAppointment(appointment)"
           class="bg-white float-right text-nowrap"
           right
@@ -150,11 +150,11 @@ export default {
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       this.loading = true;
-      apiCancel(this.appointment.id, reason, reasonExplained).then(canceled => {
+      apiCancel(this.appointment.id, reason, reasonExplained).then(cancelled => {
         this.setSelectedAppointment(undefined);
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${canceled.student.name} appointment canceled`);
+          this.alertScreenReader(`${cancelled.student.name} appointment cancelled`);
         });
       }).catch(this.handleBadRequestError);
     },
