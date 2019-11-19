@@ -1,11 +1,10 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
     <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
-      <span v-if="note.subject" :id="`note-${note.id}-subject-closed`">{{ note.subject }}</span>
-      <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-message-closed`" v-html="note.message"></span>
-      <span v-if="!note.subject && !size(note.message)" :id="`note-${note.id}-category-closed`">{{ note.category }}<span v-if="note.subcategory" :id="`note-${note.id}-subcategory-closed`">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments[0].name }}
-        advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+      <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
+      <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
+      <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
+      <span v-if="!note.subject && !size(note.message)">{{ note.author.departments[0].name }} advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
