@@ -8,7 +8,7 @@
       <select
         id="matrix-choose-metrics-y-axis"
         v-model="selectedAxes.y"
-        @blur="refreshMatrix()"
+        @change="refreshMatrix()"
         class="matrix-choose-metrics-select">
         <option
           v-for="(yAxisName, yAxisValue) in axisLabels"
@@ -21,7 +21,7 @@
       <select
         id="matrix-choose-metrics-x-axis"
         v-model="selectedAxes.x"
-        @blur="refreshMatrix()"
+        @change="refreshMatrix()"
         class="matrix-choose-metrics-select">
         <option
           v-for="(xAxisName, xAxisValue) in axisLabels"
