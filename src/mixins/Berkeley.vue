@@ -29,23 +29,6 @@ export default {
           course.waitlisted || section.enrollmentStatus === 'W';
       });
     },
-    sortableStudentsOptions(studentGroup, compact=false) {
-      if (studentGroup.studentsWithAlerts && _.size(studentGroup.studentsWithAlerts) === 50) {
-        return {
-          compact,
-          includeCuratedCheckbox: false,
-          reverse: true,
-          sortBy: 'alertCount'
-        };
-      } else {
-        return {
-          compact,
-          includeCuratedCheckbox: false,
-          reverse: false,
-          sortBy: 'lastName'
-        };
-      }
-    },
     termNameForSisId(termId) {
       let termName = '';
       if (termId) {

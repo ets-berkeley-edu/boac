@@ -61,7 +61,7 @@
         <div class="pt-2">
           <SortableStudents
             :students="studentsWithAlerts"
-            :options="sortableStudentsOptions(group, compact)" />
+            :options="sortableGroupOptions" />
         </div>
       </div>
       <div v-if="openAndLoaded" class="mb-3 ml-4">
@@ -80,7 +80,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
@@ -90,7 +89,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'SortableGroup',
   components: {SortableStudents},
-  mixins: [Berkeley, Context, UserMetadata, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     compact: {
       default: false,
@@ -114,6 +113,14 @@ export default {
   computed: {
     openAndLoaded() {
       return this.isOpen && !this.isFetching;
+    },
+    sortableGroupOptions() {
+      return {
+        compact: this.compact,
+        includeCuratedCheckbox: false,
+        reverse: true,
+        sortBy: 'alertCount'
+      }
     }
   },
   mounted() {
