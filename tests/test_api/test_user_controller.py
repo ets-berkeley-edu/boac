@@ -122,6 +122,12 @@ class TestUserById:
         response = client.get(f'/api/user/by_uid/{user.uid}')
         assert response.status_code == 401
 
+    def test_user_not_found(self, client, fake_auth):
+        """404 when user not found."""
+        fake_auth.login(admin_uid)
+        response = client.get('/api/user/by_csid/99999999999999999')
+        assert response.status_code == 404
+
     def test_user_by_uid(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login(admin_uid)
