@@ -176,7 +176,7 @@
       </template>
       <template v-slot:row-details="row">
         <b-card>
-          <pre>{{ row.item }}</pre>
+          <pre :id="`user-details-${row.item.uid}`">{{ row.item }}</pre>
         </b-card>
       </template>
       <template v-slot:cell(actions)="row">
