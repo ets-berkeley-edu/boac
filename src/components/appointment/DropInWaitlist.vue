@@ -62,7 +62,7 @@
           :key="appointment.id"
           :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'cancelled' && waitlist[index + 1].status === 'cancelled'}"
           no-gutters
-          class="border-bottom font-size-16 mt-3 pb-2 pt-2">
+          class="border-bottom font-size-16 mt-2 pb-1 pt-1">
           <b-col sm="2" class="pb-2 text-nowrap">
             <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
           </b-col>
