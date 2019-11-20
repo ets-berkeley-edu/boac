@@ -48,22 +48,22 @@ def get_waitlist(dept_code):
     elif _is_current_user_authorized():
         show_all_statuses = current_user.is_drop_in_advisor or current_user.is_admin
         statuses = appointment_event_type.enums if show_all_statuses else ['reserved', 'waiting']
-        my_reserved = []
-        others = []
-        cancelled = []
+        unresolved = []
+        resolved = []
         for appointment in Appointment.get_waitlist(dept_code, statuses):
             a = appointment.to_api_json(current_user.get_id())
-            if a['status'] == 'cancelled':
-                cancelled.append(a)
-            elif a['status'] == 'reserved' and a['statusBy']['id'] == current_user.get_id():
-                my_reserved.append(a)
+            if a['status'] in ['reserved', 'waiting']:
+                unresolved.append(a)
             else:
-                others.append(a)
-        waitlist = my_reserved + others + cancelled
-        _put_student_profile_per_appointment(waitlist)
+                resolved.append(a)
+        _put_student_profile_per_appointment(unresolved)
+        _put_student_profile_per_appointment(resolved)
         return tolerant_jsonify({
             'advisors': drop_in_advisors_for_dept_code(dept_code),
-            'waitlist': waitlist,
+            'waitlist': {
+                'unresolved': unresolved,
+                'resolved': resolved,
+            },
         })
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
