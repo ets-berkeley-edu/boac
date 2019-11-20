@@ -1,13 +1,13 @@
 <template>
-  <div class="ml-3 mt-3">
+  <div class="ml-3 mt-4 w-100">
     <h1 class="sr-only">Welcome to BOA</h1>
 
     <Spinner alert-prefix="Drop-in Advisor homepage" />
 
     <b-container v-if="!loading" fluid>
       <b-row no-gutters>
-        <b-col sm>
-          <div class="mb-4 mr-4">
+        <b-col cols="7" sm>
+          <div class="mb-4 mr-3">
             <DropInWaitlist
               :dept-code="deptCode"
               :is-homepage="true"
@@ -15,8 +15,8 @@
               :waitlist="waitlist" />
           </div>
         </b-col>
-        <b-col sm>
-          <div class="homepage-alerts mr-3">
+        <b-col cols="5" sm>
+          <div class="homepage-alerts mr-3 pl-2">
             <div class="homepage-header-border">
               <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
             </div>
