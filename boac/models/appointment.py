@@ -41,7 +41,7 @@ from flask import current_app as app
 import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.sql import desc, text
+from sqlalchemy.sql import text
 
 
 APPOINTMENT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
@@ -138,7 +138,7 @@ class Appointment(Base):
             cls.deleted_at == None,
             cls.dept_code == dept_code,
         )  # noqa: E711
-        return cls.query.filter(criterion).order_by(desc(cls.created_at)).all()
+        return cls.query.filter(criterion).order_by(cls.created_at).all()
 
     @classmethod
     def create(

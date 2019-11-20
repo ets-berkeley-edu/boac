@@ -127,7 +127,7 @@ class TestCreateAppointment:
         appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details)
         appointment_id = appointment['id']
         waitlist = self._get_waitlist(client, 'COENG')
-        matching = next((a for a in waitlist if a['details'] == details), None)
+        matching = next((a for a in waitlist['unresolved'] if a['details'] == details), None)
         assert matching
         assert appointment_id == matching['id']
         assert appointment['read'] is True
@@ -140,7 +140,7 @@ class TestCreateAppointment:
         # Verify that a deleted appointment is off the waitlist
         Appointment.delete(appointment_id)
         waitlist = self._get_waitlist(client, 'COENG')
-        assert next((a for a in waitlist if a['details'] == details), None) is None
+        assert next((a for a in waitlist['unresolved'] if a['details'] == details), None) is None
 
     def test_create_pre_reserved_appointment_for_specific_advisor(self, client, fake_auth):
         fake_auth.login(coe_scheduler_uid)
@@ -159,7 +159,7 @@ class TestCreateAppointment:
         )
         appointment_id = appointment['id']
         waitlist = self._get_waitlist(client, 'COENG')
-        matching = next((a for a in waitlist if a['details'] == details), None)
+        matching = next((a for a in waitlist['unresolved'] if a['details'] == details), None)
         assert appointment_id == matching['id']
         assert appointment['advisorDepartments'][0]['code'] == 'COENG'
         assert appointment['advisorName'] == advisor_name
@@ -455,41 +455,40 @@ class TestAppointmentWaitlist:
         """Waitlist is properly sorted for COE drop-in advisor."""
         fake_auth.login(coe_drop_in_advisor_uid)
         waitlist = self._get_waitlist(client, 'COENG')
-        assert len(waitlist) > 6
-        # Appointments reserved by me are always on top
-        assert waitlist[0]['status'] == 'reserved'
-        assert waitlist[0]['statusBy']['uid'] == coe_drop_in_advisor_uid
-        # Cancelled appointments are put to the bottom of list
-        assert waitlist[-1]['status'] == 'cancelled'
-        for index in range(1, len(waitlist) - 1):
-            # Everything else is in between
-            assert waitlist[index]['status'] in ('waiting', 'checked_in')
+        assert len(waitlist['unresolved']) == 3
+        assert len(waitlist['resolved']) > 2
+        for appt in waitlist['unresolved']:
+            assert appt['status'] in ('reserved', 'waiting')
+        for appt in waitlist['resolved']:
+            assert appt['status'] in ('checked_in', 'cancelled')
 
     def test_waitlist_include_checked_in_and_cancelled(self, app, client, fake_auth):
         """For scheduler, the waitlist has appointments with event type 'waiting' or 'reserved'."""
         fake_auth.login(coe_scheduler_uid)
         appointments = self._get_waitlist(client, 'COENG')
-        assert len(appointments) > 2
-        for index, appointment in enumerate(appointments):
-            if index > 0 and appointments[index - 1]['status'] == 'cancelled':
-                # Cancelled appointments are put to the bottom of list
-                assert appointment['status'] == 'cancelled'
-            else:
-                assert appointment['status'] in ('waiting', 'reserved')
+        assert len(appointments['resolved']) == 0
+        assert len(appointments['unresolved']) > 2
+        for index, appointment in enumerate(appointments['unresolved']):
+            assert appointment['status'] in ('reserved', 'waiting')
 
-    def test_l_and_s_advisor_waitlist(self, app, client, fake_auth):
-        """L&S advisor can only see L&S appointments."""
+    def test_l_and_s_scheduler_waitlist(self, app, client, fake_auth):
+        """L&S scheduler can only see L&S unresolved appointments."""
         fake_auth.login(l_s_college_scheduler_uid)
-        appointments = self._get_waitlist(client, 'QCADV')
-        assert len(appointments) == 2
+        dept_code = 'QCADV'
+        appointments = self._get_waitlist(client, dept_code)
+        assert len(appointments['unresolved']) == 2
+        assert len(appointments['resolved']) == 0
+        for appointment in appointments['unresolved']:
+            assert appointment['deptCode'] == dept_code
 
     def test_l_s_college_drop_in_advisor_uid_waitlist(self, app, client, fake_auth):
         """L&S drop-in advisor can only see L&S appointments."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         dept_code = 'QCADV'
         appointments = self._get_waitlist(client, dept_code)
-        assert len(appointments) > 2
-        for appointment in appointments:
+        assert len(appointments['unresolved']) == 2
+        assert len(appointments['resolved']) > 0
+        for appointment in appointments['unresolved'] + appointments['resolved']:
             assert appointment['deptCode'] == dept_code
 
     def test_feature_flag(self, client, fake_auth, app):

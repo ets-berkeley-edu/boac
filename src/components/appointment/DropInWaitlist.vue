@@ -37,7 +37,7 @@
         </div>
       </div>
     </div>
-    <div v-if="!waitlist.length" class="border-bottom">
+    <div v-if="!waitlist.unresolved.length && !waitlist.resolved.length && !creating" class="border-bottom">
       <div
         id="waitlist-is-empty"
         class="font-size-16 mb-3 ml-1 mt-3"
@@ -46,92 +46,41 @@
         No appointments yet
       </div>
     </div>
-    <div v-if="waitlist.length">
+    <div v-if="waitlist.unresolved.length || waitlist.resolved.length || creating">
       <b-container fluid class="pl-0 pr-0">
+        <b-row v-if="waitlist.unresolved.length">
+          <span class="sr-only">{{ waitlist.unresolved.length }} appointments not yet checked in</span>
+        </b-row>
+        <DropInWaitlistAppointment
+          v-for="(appointment, index) in waitlist.unresolved"
+          :appointment="appointment"
+          :deptCode="deptCode"
+          :isHomepage="isHomepage"
+          :isLast="!creating && (index + 1 === waitlist.unresolved.length)"
+          :key="appointment.id"
+          :onAppointmentStatusChange="onAppointmentStatusChange" />
         <b-row
           id="waitlist-appointment-creation-spinner"
           v-if="creating"
           no-gutters
-          class="border-bottom font-size-16 mt-3 pb-4 pt-2">
+          class="font-size-16 mt-2 pb-4 pt-1">
           <b-col sm="12" class="text-center">
             <font-awesome icon="spinner" spin />
           </b-col>
         </b-row>
         <b-row
-          v-for="(appointment, index) in waitlist"
-          :key="appointment.id"
-          :class="{'border-thick-grey': index < (waitlist.length - 1) && appointment.status !== 'cancelled' && waitlist[index + 1].status === 'cancelled'}"
+          :class="waitlist.resolved.length ? 'border-thick-grey' : ''"
           no-gutters
-          class="border-bottom font-size-16 mt-2 pb-1 pt-1">
-          <b-col sm="2" class="pb-2 text-nowrap">
-            <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
-          </b-col>
-          <b-col sm="7">
-            <div class="d-flex">
-              <div v-if="isHomepage" class="mr-2">
-                <StudentAvatar :student="appointment.student" size="small" />
-              </div>
-              <div>
-                <div class="d-flex flex-wrap font-size-16">
-                  <div class="pr-1">
-                    <router-link
-                      v-if="linkToStudentProfiles"
-                      :id="`appointment-${appointment.id}-student-name`"
-                      :class="{'demo-mode-blur' : user.inDemoMode}"
-                      :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
-                      {{ appointment.student.name }}
-                    </router-link>
-                    <div v-if="!linkToStudentProfiles">
-                      <span
-                        :id="`appointment-${appointment.id}-student-name`"
-                        :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="font-weight-bolder pr-1">
-                      (<span
-                        :id="`appointment-${appointment.id}-student-sid`"
-                        :class="{'demo-mode-blur' : user.inDemoMode}"
-                        aria-label="Student ID">{{ appointment.student.sid }}</span>)
-                    </div>
-                  </div>
-                </div>
-                <div
-                  v-if="appointment.topics.length"
-                  :id="`appointment-${appointment.id}-topics`"
-                  class="appointment-topics font-size-14 pb-2">
-                  {{ oxfordJoin(appointment.topics) }}
-                </div>
-                <div v-if="appointment.status === 'reserved'" class="has-error">
-                  <span :id="`reserved-for-${appointment.id}`" v-if="appointment.statusBy">Reserved for {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
-                  <span :id="`reserved-for-${appointment.id}`" v-if="!appointment.statusBy">Reserved</span>
-                </div>
-              </div>
-            </div>
-          </b-col>
-          <b-col sm="3">
-            <div>
-              <DropInAppointmentDropdown
-                :appointment="appointment"
-                :dept-code="deptCode"
-                :self-check-in="isHomepage"
-                :on-appointment-status-change="onAppointmentStatusChange"
-                :set-selected-appointment="setSelectedAppointment" />
-            </div>
-            <div
-              v-if="appointment.status === 'cancelled'"
-              :id="`appointment-${appointment.id}-cancelled`"
-              class="float-right pill-appointment-status pill-cancelled pl-2 pr-2">
-              Cancelled<span class="sr-only"> appointment</span>
-            </div>
-            <div
-              v-if="appointment.status === 'checked_in'"
-              :id="`appointment-${appointment.id}-checked-in`"
-              class="float-right pill-appointment-status pill-checked-in pl-2 pr-2 text-nowrap">
-              <span class="sr-only">Student was </span>Checked In
-            </div>
-          </b-col>
+          class="border-top">
+          <span v-if="waitlist.resolved.length" class="sr-only">{{ waitlist.resolved.length }} appointments checked in or cancelled</span>
         </b-row>
+        <DropInWaitlistAppointment
+          v-for="appointment in waitlist.resolved"
+          :key="appointment.id"
+          :appointment="appointment"
+          :isHomepage="isHomepage"
+          :deptCode="deptCode"
+          :onAppointmentStatusChange="onAppointmentStatusChange" />
       </b-container>
     </div>
   </div>
@@ -140,9 +89,8 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
-import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
-import StudentAvatar from '@/components/student/StudentAvatar';
+import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { create as apiCreate } from '@/api/appointments';
@@ -151,9 +99,8 @@ export default {
   name: 'DropInWaitlist',
   components: {
     CreateAppointmentModal,
-    DropInAppointmentDropdown,
     DropInAvailabilityToggle,
-    StudentAvatar
+    DropInWaitlistAppointment,
   },
   mixins: [Context, UserMetadata, Util],
   props: {
@@ -174,7 +121,7 @@ export default {
       required: true
     },
     waitlist: {
-      type: Array,
+      type: Object,
       required: true
     }
   },
@@ -182,7 +129,6 @@ export default {
     creating: false,
     linkToStudentProfiles: undefined,
     now: undefined,
-    selectedAppointment: undefined,
     showCreateAppointmentModal: false
   }),
   created() {
@@ -193,7 +139,6 @@ export default {
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
       this.alertScreenReader('Dialog closed');
-      this.selectedAppointment = undefined;
     },
     createAppointment(
       details,
@@ -227,48 +172,14 @@ export default {
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
       this.alertScreenReader('Create appointment form is open');
-    },
-    setSelectedAppointment(appointment) {
-      this.selectedAppointment = appointment;
     }
   }
 }
 </script>
 
-<style scoped>
-.appointment-topics {
-  max-width: 240px;
-}
-</style>
-
 <style>
 .border-thick-grey {
   border-color: #aaa !important;
   border-width: 3px !important;
-}
-.pill-appointment-status {
-  border-radius: 5px;
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 800;
-  height: 32px;
-  min-width: 108px;
-  max-width: 108px;
-  padding-top: 6px;
-  text-align: center;
-  text-transform: uppercase;
-  whitespace: nowrap;
-}
-.pill-checked-in {
-  background-color: #e2ffc0;
-  color: #518019;
-}
-.pill-cancelled {
-  background-color: #ffecc0;
-  color: #857103;
-}
-.pill-waiting {
-  background-color: #78b1c9;
-  color: #ffffff;
 }
 </style>

@@ -29,7 +29,7 @@
       <div v-if="user.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
-          @click="showAppointmentDetails(appointment)"
+          @click="showAppointmentDetails()"
           class="bg-white float-right text-nowrap"
           right
           split
@@ -37,7 +37,7 @@
           variant="outline-dark">
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
-            @click="openCancelAppointmentModal(appointment)">
+            @click="openCancelAppointmentModal()">
             <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
             <span class="sr-only">Cancel Appointment</span>
           </b-dropdown-item-button>
@@ -47,7 +47,7 @@
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
           :disabled="appointment.status === 'checked_in' || appointment.status === 'cancelled'"
-          @click="launchCheckInForAppointment(appointment)"
+          @click="launchCheckIn()"
           class="bg-white float-right text-nowrap"
           right
           split
@@ -56,24 +56,24 @@
           <b-dropdown-item-button
             v-if="includeDetailsOption"
             :id="`btn-appointment-${appointment.id}-details`"
-            @click="showAppointmentDetails(appointment)">
+            @click="showAppointmentDetails()">
             Details
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="isUserDropInAdvisor(deptCode) && (appointment.status !== 'reserved' || appointment.statusBy.id !== user.id)"
             :id="`btn-appointment-${appointment.id}-reserve`"
-            @click="reserveAppointment(appointment)">
+            @click="reserveAppointment()">
             <span class="text-nowrap">Reserve</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status === 'reserved' && appointment.statusBy.id === user.id"
             :id="`btn-appointment-${appointment.id}-unreserve`"
-            @click="unreserveAppointment(appointment)">
+            @click="unreserveAppointment()">
             <span class="text-nowrap">Unreserve</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
-            @click="openCancelAppointmentModal(appointment)">
+            @click="openCancelAppointmentModal()">
             <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
             <span class="sr-only">Cancel Appointment</span>
           </b-dropdown-item-button>
@@ -127,11 +127,6 @@ export default {
       type: Boolean,
       required: true
     },
-    setSelectedAppointment: {
-      default: () => {},
-      type: Function,
-      required: false
-    },
     includeDetailsOption: {
       default: true,
       type: Boolean,
@@ -151,7 +146,6 @@ export default {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       this.loading = true;
       apiCancel(this.appointment.id, reason, reasonExplained).then(cancelled => {
-        this.setSelectedAppointment(undefined);
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
           this.alertScreenReader(`${cancelled.student.name} appointment cancelled`);
@@ -183,18 +177,15 @@ export default {
       this.showCancelAppointmentModal = false;
       this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`);
       this.alertScreenReader('Dialog closed');
-      this.setSelectedAppointment(undefined);
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false;
       this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`);
       this.alertScreenReader(`Dialog closed`);
-      this.setSelectedAppointment(undefined);
     },
     closeCheckInModal() {
       this.showCheckInModal = false;
       this.showAppointmentDetailsModal = false;
-      this.setSelectedAppointment(undefined);
     },
     closeUpdateModal() {
       this.showUpdateModal = false;
@@ -222,31 +213,25 @@ export default {
         this.showCheckInModal = true;
       }
     },
-    launchCheckInForAppointment(appointment) {
-      this.setSelectedAppointment(appointment);
-      this.launchCheckIn();
-    },
-    openCancelAppointmentModal(appointment) {
-      this.setSelectedAppointment(appointment);
+    openCancelAppointmentModal() {
       this.showCancelAppointmentModal = true;
     },
-    reserveAppointment(appointment) {
+    reserveAppointment() {
       this.loading = true;
-      apiReserve(appointment.id).then(reserved => {
-        this.onAppointmentStatusChange(appointment.id).then(() => {
+      apiReserve(this.appointment.id).then(reserved => {
+        this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
           this.alertScreenReader(`${reserved.student.name} appointment reserved`);
         });
       }).catch(this.handleBadRequestError);
     },
-    showAppointmentDetails(appointment) {
-      this.setSelectedAppointment(appointment);
+    showAppointmentDetails() {
       this.showAppointmentDetailsModal = true;
     },
-    unreserveAppointment(appointment) {
+    unreserveAppointment() {
       this.loading = true;
-      apiUnreserve(appointment.id).then(unreserved => {
-        this.onAppointmentStatusChange(appointment.id).then(() => {
+      apiUnreserve(this.appointment.id).then(unreserved => {
+        this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
           this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
         });
