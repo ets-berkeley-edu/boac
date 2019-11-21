@@ -4,6 +4,7 @@
     v-model="showModalProxy"
     @shown="focusModalById('rename-template-input')"
     aria-label="Rename Your Template"
+    title="Rename Your Template"
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close>

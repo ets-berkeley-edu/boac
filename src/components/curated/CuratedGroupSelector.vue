@@ -67,6 +67,7 @@
       <b-modal
         v-model="showModal"
         @shown="focusModalById('create-input')"
+        title="Name Your Curated Group"
         body-class="pl-0 pr-0"
         hide-footer
         hide-header-close>
