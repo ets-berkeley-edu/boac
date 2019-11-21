@@ -48,6 +48,7 @@ from flask import current_app as app
 from sqlalchemy.sql import text
 
 
+delete_this_uid = '33333'
 no_calnet_record_for_uid = '13'
 
 _test_users = [
@@ -71,6 +72,14 @@ _test_users = [
         'csid': '222222222',
         'isAdmin': False,
         'inDemoMode': True,
+        'canAccessCanvasData': False,
+    },
+    {
+        # User deleted (see below)
+        'uid': delete_this_uid,
+        'csid': '333333333',
+        'isAdmin': False,
+        'inDemoMode': False,
         'canAccessCanvasData': False,
     },
     {
@@ -433,6 +442,8 @@ def _create_users():
             if test_user.get('deleted'):
                 user.deleted_at = utc_now()
             db.session.add(user)
+
+    AuthorizedUser.delete_and_block(delete_this_uid)
     std_commit(allow_test_environment=True)
 
 

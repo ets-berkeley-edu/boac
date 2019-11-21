@@ -134,7 +134,7 @@
               title="Cannot access Canvas data"
               icon="eye-slash" />
           </div>
-          <div>
+          <div v-if="row.item.name">
             <span class="sr-only">Name</span>
             <a
               :id="`directory-link-${row.item.uid}`"
@@ -144,6 +144,9 @@
               target="_blank">
               {{ row.item.name }}
             </a>
+          </div>
+          <div v-if="!row.item.name">
+            <span class="faint-text">(Name unavailable)</span>
           </div>
         </div>
       </template>
@@ -285,8 +288,8 @@ export default {
           break;
         case 'filter':
           promise = getUsers(
-            this.filterBy.status === 'blocked',
-            this.filterBy.status === 'deleted',
+            this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
+            this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
             this.filterBy.deptCode,
             this.filterBy.role,
             this.sortBy,
@@ -298,7 +301,7 @@ export default {
           break;
         case 'search':
           if (this.userSelection) {
-            promise = getUserByUid(this.userSelection.uid).then(data => {
+            promise = getUserByUid(this.userSelection.uid, false).then(data => {
               this.totalUserCount = 1;
               this.userSelection = undefined;
               return [ data ];

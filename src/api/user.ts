@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
@@ -26,10 +27,12 @@ export function getUserByCsid(csid) {
     .then(response => response.data, () => null);
 }
 
-export function getUserByUid(uid) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/user/by_uid/${uid}`)
-    .then(response => response.data, () => null);
+export function getUserByUid(uid, ignoreDeleted?: boolean) {
+  let url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}`;
+  if (!_.isNil(ignoreDeleted)) {
+    url += `?ignoreDeleted=${ignoreDeleted}`;
+  }
+  return axios.get(url).then(response => response.data, () => null);
 }
 
 export function getUsers(

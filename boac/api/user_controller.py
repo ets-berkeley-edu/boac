@@ -59,9 +59,10 @@ def user_profile(uid):
 def calnet_profile(csid):
     user = calnet.get_calnet_user_for_csid(app, csid)
     uid = user.get('uid', None)
-    authorized_user = uid and AuthorizedUser.find_by_uid(uid)
-    if authorized_user:
-        users_feed = authorized_users_api_feed([authorized_user])
+    ignore_deleted = to_bool_or_none(util.get(request.args, 'ignoreDeleted'))
+    user = _find_user_by_uid(uid, ignore_deleted)
+    if user:
+        users_feed = authorized_users_api_feed([user])
         return tolerant_jsonify(users_feed[0])
     else:
         raise errors.ResourceNotFoundError('User not found')
@@ -70,7 +71,8 @@ def calnet_profile(csid):
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):
-    user = AuthorizedUser.find_by_uid(uid)
+    ignore_deleted = to_bool_or_none(util.get(request.args, 'ignoreDeleted'))
+    user = _find_user_by_uid(uid, ignore_deleted)
     if user:
         users_feed = authorized_users_api_feed([user])
         return tolerant_jsonify(users_feed[0])
@@ -144,8 +146,8 @@ def deactivate_drop_in_status(uid, dept_code):
 def all_users():
     params = request.get_json()
     users, total_user_count = AuthorizedUser.get_users(
-        blocked=to_bool_or_none(util.get(params, 'blocked', None)),
-        deleted=to_bool_or_none(util.get(params, 'deleted', None)),
+        blocked=to_bool_or_none(util.get(params, 'blocked')),
+        deleted=to_bool_or_none(util.get(params, 'deleted')),
         dept_code=util.get(params, 'deptCode', None),
         role=util.get(params, 'role', None) or None,
     )
@@ -180,7 +182,10 @@ def user_search():
     snippet = request.get_json().get('snippet', '').strip()
     if snippet:
         search_by_uid = re.match(r'\d+', snippet)
-        users = AuthorizedUser.users_with_uid_like(snippet) if search_by_uid else AuthorizedUser.get_all_active_users()
+        if search_by_uid:
+            users = AuthorizedUser.users_with_uid_like(snippet, include_deleted=True)
+        else:
+            users = AuthorizedUser.get_all_active_users(include_deleted=True)
         users = list(calnet.get_calnet_users_for_uids(app, [u.uid for u in users]).values())
         if not search_by_uid:
             any_ = r'.*'
@@ -188,7 +193,11 @@ def user_search():
             users = list(filter(lambda u: u.get('name') and pattern.match(u['name']), users))
     else:
         users = []
-    return tolerant_jsonify([{'label': u['name'], 'uid': u['uid']} for u in users])
+
+    def _label(user):
+        name = user['name']
+        return f"{name} ({user['uid']})" if name else user['uid']
+    return tolerant_jsonify([{'label': _label(u), 'uid': u['uid']} for u in users])
 
 
 @app.route('/api/users/drop_in_advisors/<dept_code>')
@@ -418,3 +427,11 @@ def _describe_drop_in_advising(departments, drop_in_advisor_statuses):
         s += f"[ {d.get('detCode')}: Drop-in Advisor ] "
     s += '}'
     return s
+
+
+def _find_user_by_uid(uid, ignore_deleted=True):
+    if uid:
+        ignore_deleted_ = True if ignore_deleted is None else ignore_deleted
+        return AuthorizedUser.find_by_uid(uid, ignore_deleted=ignore_deleted_)
+    else:
+        return None
