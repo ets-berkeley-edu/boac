@@ -6,6 +6,7 @@
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close
+    title="Name Your Template"
     @shown="focusModalById('template-title-input')">
     <div>
       <form @submit.prevent="createTemplate()">

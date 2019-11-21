@@ -6,6 +6,7 @@
     body-class="pl-0 pr-0"
     hide-footer
     hide-header-close
+    title="Rename Your Template"
     @shown="focusModalById('rename-template-input')">
     <div>
       <form @submit.prevent="renameTemplate()">
