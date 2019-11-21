@@ -4,10 +4,10 @@
     <div v-if="!loading && !user.isAdmin" class="mb-2 pb-3 pt-3 text-center">
       <b-btn
         id="btn-create-appointment"
-        @click="$refs.dropInWaitlist.openCreateAppointmentModal()"
         variant="primary"
         class="btn-primary-color-override pl-3 pr-3"
-        aria-label="Create appointment. Modal window will open.">
+        aria-label="Create appointment. Modal window will open."
+        @click="$refs.dropInWaitlist.openCreateAppointmentModal()">
         New Drop-in Appointment
       </b-btn>
     </div>

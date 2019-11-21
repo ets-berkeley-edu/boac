@@ -1,7 +1,7 @@
 <template>
   <highcharts
-    ref="studentGpaChart"
     :id="'student-chart-gpa-container-' + student.uid"
+    ref="studentGpaChart"
     :options="gpaChartOptions"
     aria-hidden="true">
   </highcharts>

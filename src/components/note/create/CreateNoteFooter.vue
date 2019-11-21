@@ -2,11 +2,11 @@
   <div class="d-flex flex-wrap-reverse mt-1 mr-3 mb-0 ml-3">
     <div class="flex-grow-1">
       <b-btn
-        id="btn-save-as-template"
         v-if="mode !== 'editTemplate'"
+        id="btn-save-as-template"
         :disabled="isSaving || !trim(model.subject)"
-        @click="saveAsTemplate()"
-        variant="link">
+        variant="link"
+        @click="saveAsTemplate()">
         Save as template
       </b-btn>
     </div>
@@ -14,10 +14,10 @@
       <b-btn
         id="btn-update-template"
         :disabled="isSaving || !model.subject"
-        @click.prevent="updateTemplate()"
         class="btn-primary-color-override"
         aria-label="Update note template"
-        variant="primary">
+        variant="primary"
+        @click.prevent="updateTemplate()">
         Update Template
       </b-btn>
     </div>
@@ -25,10 +25,10 @@
       <b-btn
         id="create-note-button"
         :disabled="isSaving || !targetStudentCount || !trim(model.subject)"
-        @click.prevent="createNote()"
         class="btn-primary-color-override"
         aria-label="Create note"
-        variant="primary">
+        variant="primary"
+        @click.prevent="createNote()">
         Save
       </b-btn>
     </div>
@@ -36,8 +36,8 @@
       <b-btn
         id="create-note-cancel"
         :disabled="isSaving"
-        @click.prevent="cancel()"
-        variant="link">
+        variant="link"
+        @click.prevent="cancel()">
         Cancel
       </b-btn>
     </div>

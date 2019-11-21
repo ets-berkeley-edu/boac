@@ -10,16 +10,16 @@
       <form @submit.prevent="deleteCohort()">
         <b-btn
           id="delete-confirm"
-          @click.prevent="deleteCohort()"
           class="btn-primary-color-override"
-          variant="primary">
+          variant="primary"
+          @click.prevent="deleteCohort()">
           Delete
         </b-btn>
         <b-btn
           id="delete-cancel"
-          @click="cancelDeleteModal()"
           class="pl-2"
-          variant="link">
+          variant="link"
+          @click="cancelDeleteModal()">
           Cancel
         </b-btn>
       </form>

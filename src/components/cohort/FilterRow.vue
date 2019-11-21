@@ -41,10 +41,10 @@
             :key="subCategory.key"
             :aria-disabled="subCategory.disabled"
             :disabled="subCategory.disabled"
+            class="dropdown-item"
             @click="onSelectFilter(subCategory)"
             @focusin.prevent.stop
-            @mouseover.prevent.stop
-            class="dropdown-item">
+            @mouseover.prevent.stop>
             <span
               :class="{
                 'font-weight-light pointer-default text-muted': subCategory.disabled,
@@ -90,10 +90,10 @@
               :id="`${filter.label.primary}-${option.value}`"
               :aria-disabled="option.disabled"
               :disabled="option.disabled"
+              class="dropdown-item"
               @click="updateDropdownValue(option)"
               @focusin.prevent.stop
-              @mouseover.prevent.stop
-              class="dropdown-item">
+              @mouseover.prevent.stop>
               <span
                 :class="{
                   'font-weight-light pointer-default text-muted': option.disabled,
@@ -148,12 +148,12 @@
     </div>
     <div v-if="!isExistingFilter" class="filter-row-column-03 mt-1 pl-0">
       <b-btn
-        id="unsaved-filter-add"
         v-if="showAdd"
-        @click="onClickAddButton()"
+        id="unsaved-filter-add"
         class="btn-primary-color-override ml-2"
         variant="primary"
-        aria-label="Add this new filter to the search criteria">
+        aria-label="Add this new filter to the search criteria"
+        @click="onClickAddButton()">
         Add
       </b-btn>
     </div>
@@ -162,10 +162,10 @@
       class="filter-row-column-04">
       <b-btn
         id="unsaved-filter-reset"
-        @click="reset()"
         class="p-0"
         variant="link"
-        aria-label="Cancel this filter selection">
+        aria-label="Cancel this filter selection"
+        @click="reset()">
         Cancel
       </b-btn>
     </div>
@@ -175,20 +175,20 @@
           <b-btn
             :id="`edit-added-filter-${index}`"
             :aria-label="`Edit ${filter.label.primary} filter (row ${index})`"
-            @click="onClickEditButton()"
             class="btn-cohort-added-filter pr-1"
             variant="link"
-            size="sm">
+            size="sm"
+            @click="onClickEditButton()">
             Edit
           </b-btn> |
         </span>
         <b-btn
           :id="`remove-added-filter-${index}`"
           :aria-label="`Remove this ${filter.label.primary} filter`"
-          @click="remove()"
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
-          size="sm">
+          size="sm"
+          @click="remove()">
           Remove
         </b-btn>
       </div>
@@ -197,19 +197,19 @@
           :id="`update-added-filter-${index}`"
           :aria-label="`Update this ${filter.label.primary} filter`"
           :disabled="disableUpdateButton"
-          @click="onClickUpdateButton()"
           class="btn-primary-color-override"
           variant="primary"
-          size="sm">
+          size="sm"
+          @click="onClickUpdateButton()">
           Update
         </b-btn>
         <b-btn
           :id="`cancel-edit-added-filter-${index}`"
-          @click="onClickCancelEdit()"
           class="btn-cohort-added-filter"
           variant="link"
           aria-label="Cancel update"
-          size="sm">
+          size="sm"
+          @click="onClickCancelEdit()">
           Cancel
         </b-btn>
       </div>

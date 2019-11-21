@@ -3,10 +3,10 @@
     <form
       id="search-students-form"
       :class="{'search-page-body': context === 'pageBody'}"
-      @keypress.enter.stop="search()"
-      @submit.prevent="search()"
       autocomplete="off"
-      class="search-form">
+      class="search-form"
+      @keypress.enter.stop="search()"
+      @submit.prevent="search()">
       <div class="d-flex flex-column-reverse">
         <div :class="{'search-form-button': context === 'pageBody'}">
           <span
@@ -38,9 +38,9 @@
           <b-btn
             id="search-options-panel-toggle"
             v-b-toggle="'search-options-panel'"
-            @click="toggleSearchOptions()"
             class="pr-0 pt-0 search-options-panel-toggle"
-            variant="link">
+            variant="link"
+            @click="toggleSearchOptions()">
             {{ showSearchOptions ? 'Hide' : 'Show' }} options
           </b-btn>
         </div>
@@ -54,7 +54,7 @@
           Search
         </b-btn>
       </div>
-      <b-collapse id="search-options-panel" v-if="context === 'sidebar'" class="mt-2 text-white">
+      <b-collapse v-if="context === 'sidebar'" id="search-options-panel" class="mt-2 text-white">
         <div class="d-flex">
           <b-form-checkbox
             id="search-include-students-checkbox"
@@ -96,9 +96,9 @@
           <b-btn
             id="search-options-note-filters-toggle"
             :class="includeNotes ? 'visible' : 'invisible'"
-            @click="toggleNoteFilters()"
             class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
-            variant="link">
+            variant="link"
+            @click="toggleNoteFilters()">
             ({{ showNoteFilters ? 'hide' : 'show' }} filters)
           </b-btn>
         </div>
@@ -122,18 +122,18 @@
                 id="search-options-note-filters-posted-by-anyone"
                 v-model="noteFilters.postedBy"
                 :ischecked="noteFilters.postedBy === 'anyone'"
-                @change.native="clearAuthorFilter"
                 name="note-filters-posted-by"
-                value="anyone">
+                value="anyone"
+                @change.native="clearAuthorFilter">
                 Anyone
               </b-form-radio>
               <b-form-radio
                 id="search-options-note-filters-posted-by-you"
                 v-model="noteFilters.postedBy"
                 :ischecked="noteFilters.postedBy === 'you'"
-                @change.native="clearAuthorFilter"
                 name="note-filters-posted-by"
-                value="you">
+                value="you"
+                @change.native="clearAuthorFilter">
                 You
               </b-form-radio>
             </b-form-group>
@@ -172,19 +172,19 @@
                       id="search-options-note-filters-last-updated-from"
                       :value="inputValue"
                       :formatter="dateFormat"
-                      @change.native="updateValue($event.target.value)"
                       type="text"
                       name="note-filters-date-from"
                       class="search-input-date"
                       placeholder="MM/DD/YYYY"
                       expanded
-                      lazy-formatter>
+                      lazy-formatter
+                      @change.native="updateValue($event.target.value)">
                     </b-form-input>
                     <b-btn
-                      id="search-options-note-filters-last-updated-from-clear"
                       v-if="noteFilters.dateFrom"
-                      @click="noteFilters.dateFrom = null;"
-                      class="search-input-date">
+                      id="search-options-note-filters-last-updated-from-clear"
+                      class="search-input-date"
+                      @click="noteFilters.dateFrom = null">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date from</span>
                     </b-btn>
@@ -207,19 +207,19 @@
                       id="search-options-note-filters-last-updated-to"
                       :value="inputValue"
                       :formatter="dateFormat"
-                      @change.native="updateValue($event.target.value)"
                       type="text"
                       name="note-filters-date-to"
                       class="search-input-date"
                       placeholder="MM/DD/YYYY"
                       expanded
-                      lazy-formatter>
+                      lazy-formatter
+                      @change.native="updateValue($event.target.value)">
                     </b-form-input>
                     <b-btn
-                      id="search-options-note-filters-last-updated-to-clear"
                       v-if="noteFilters.dateTo"
-                      @click="noteFilters.dateTo = null;"
-                      class="search-input-date">
+                      id="search-options-note-filters-last-updated-to-clear"
+                      class="search-input-date"
+                      @click="noteFilters.dateTo = null">
                       <font-awesome icon="times"></font-awesome>
                       <span class="sr-only">Clear date to</span>
                     </b-btn>

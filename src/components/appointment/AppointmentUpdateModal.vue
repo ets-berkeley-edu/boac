@@ -3,11 +3,11 @@
     id="appointment-update"
     v-model="showUpdateModal"
     :no-close-on-backdrop="true"
-    @cancel.prevent="close"
-    @hide.prevent="close"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header>
+    hide-header
+    @cancel.prevent="close"
+    @hide.prevent="close">
     <div>
       <div class="ml-3 modal-header">
         <h3 id="appointment-update-modal-header">Drop-in Update</h3>
@@ -19,9 +19,9 @@
       <div class="modal-footer">
         <b-btn
           id="btn-update-modal-close"
-          @click.stop="close"
           class="pl-2"
-          variant="primary">
+          variant="primary"
+          @click.stop="close">
           Okay
         </b-btn>
       </div>

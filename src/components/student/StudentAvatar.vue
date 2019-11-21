@@ -5,9 +5,9 @@
       :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
       :alt="`Photo of ${student.firstName} ${student.lastName}`"
       :src="avatarUrl"
-      @error="avatarError"
       class="avatar"
-      tabindex="0" />
+      tabindex="0"
+      @error="avatarError" />
     <div
       v-if="alertCount"
       class="inactive-info-icon student-avatar-alert-count">

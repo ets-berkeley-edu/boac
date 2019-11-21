@@ -4,14 +4,14 @@
       v-if="totalCourseCount"
       tabindex="0">
       <h1
-        id="course-results-page-h1"
         v-if="renderPrimaryHeader"
+        id="course-results-page-h1"
         class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h1>
       <h2
-        id="course-results-page-h2"
         v-if="!renderPrimaryHeader"
+        id="course-results-page-h2"
         class="page-section-header">
         {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
@@ -25,10 +25,10 @@
           <button
             id="column-sort-button-section"
             :aria-label="`Sort by section ${describeReverse(sort.reverse.section)}`"
-            @click="courseSort('section')"
-            @keyup.enter="courseSort('section')"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            tabindex="0">
+            tabindex="0"
+            @click="courseSort('section')"
+            @keyup.enter="courseSort('section')">
             Section
             <span v-if="sort.by === 'section'">
               <font-awesome :icon="sort.reverse.section ? 'caret-down' : 'caret-up'" />
@@ -39,10 +39,10 @@
           <button
             id="column-sort-button-title"
             :aria-label="`Sort by course name ${describeReverse(sort.reverse.title)}`"
-            @click="courseSort('title')"
-            @keyup.enter="courseSort('title')"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            tabindex="0">
+            tabindex="0"
+            @click="courseSort('title')"
+            @keyup.enter="courseSort('title')">
             Course Name
             <span v-if="sort.by === 'title'">
               <font-awesome :icon="sort.reverse.title ? 'caret-down' : 'caret-up'" />

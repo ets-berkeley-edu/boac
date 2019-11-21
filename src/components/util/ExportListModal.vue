@@ -7,8 +7,8 @@
       <b-form-group>
         <b-form-checkbox-group
           id="csv-column-options"
-          :options="csvColumns"
           v-model="csvColumnsSelected"
+          :options="csvColumns"
           class="flex-col flex-wrap csv-column-options"
           name="csv-column-options"
           stacked>
@@ -19,16 +19,16 @@
       <form @submit.prevent="exportList(csvColumnsSelected)">
         <b-btn
           id="export-list-confirm"
-          @click.prevent="exportList(csvColumnsSelected)"
           class="btn-primary-color-override"
-          variant="primary">
+          variant="primary"
+          @click.prevent="exportList(csvColumnsSelected)">
           Export
         </b-btn>
         <b-btn
           id="export-list-cancel"
-          @click="cancelExportListModal()"
           class="pl-2"
-          variant="link">
+          variant="link"
+          @click="cancelExportListModal()">
           Close
         </b-btn>
       </form>

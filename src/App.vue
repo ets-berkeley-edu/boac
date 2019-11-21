@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="fill-viewport">
     <router-view></router-view>
-    <div id="fixed_bottom" v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert">
+    <div v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
       <div
         id="fixed-warning-on-all-pages"
         class="d-flex fixed-bottom fixed-warning"
@@ -17,10 +17,10 @@
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
             id="speedbird"
-            @click="dismissTheWarning"
             class="btn-dismiss pl-2 pt-0 text-white"
             variant="link"
-            aria-label="Dismiss warning about BOA environment type">
+            aria-label="Dismiss warning about BOA environment type"
+            @click="dismissTheWarning">
             <font-awesome icon="plane-departure" />
           </b-btn>
         </div>

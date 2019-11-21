@@ -1,5 +1,5 @@
 <template>
-  <div id="spinner-when-loading" v-if="loading" class="spinner">
+  <div v-if="loading" id="spinner-when-loading" class="spinner">
     <font-awesome icon="sync" size="5x" spin />
   </div>
 </template>

@@ -12,15 +12,15 @@
         <b-btn
           v-if="user.isAdmin"
           :id="`btn-delete-note-${note.id}`"
-          @click.stop="deleteNote(note)"
-          class="sr-only">
+          class="sr-only"
+          @click.stop="deleteNote(note)">
           Delete Note
         </b-btn>
         <b-btn
           v-if="user.uid === note.author.uid"
           :id="`btn-edit-note-${note.id}`"
-          @click.stop="editNote(note)"
-          class="sr-only">
+          class="sr-only"
+          @click.stop="editNote(note)">
           Edit Note
         </b-btn>
       </div>
@@ -90,9 +90,9 @@
             <b-btn
               v-if="isEditable && (user.isAdmin || user.uid === note.author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
-              @click.prevent="removeAttachment(index)"
               variant="link"
-              class="p-0">
+              class="p-0"
+              @click.prevent="removeAttachment(index)">
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
@@ -113,11 +113,11 @@
             Drop file to upload attachment or
             <b-btn
               id="choose-file-for-note-attachment"
-              @keydown.enter.prevent="clickBrowseForAttachment"
               type="file"
               variant="outline-primary"
               class="btn-file-upload mt-2 mb-2"
-              size="sm">
+              size="sm"
+              @keydown.enter.prevent="clickBrowseForAttachment">
               Browse<span class="sr-only"> for file to upload</span>
             </b-btn>
             <b-form-file

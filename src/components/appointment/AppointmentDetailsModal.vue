@@ -3,11 +3,11 @@
     id="appointment-check-in"
     v-model="showDetailsModal"
     :no-close-on-backdrop="true"
-    @cancel.prevent="close"
-    @hide.prevent="close"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header>
+    hide-header
+    @cancel.prevent="close"
+    @hide.prevent="close">
     <div>
       <div class="ml-3 modal-header">
         <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : user.inDemoMode}">{{ student.name }}</h3>
@@ -48,18 +48,18 @@
       </div>
       <div class="modal-footer">
         <b-btn
-          id="btn-appointment-details-check-in"
           v-if="!user.isAdmin"
-          @click.stop="checkIn"
+          id="btn-appointment-details-check-in"
           class="pl-2"
-          variant="primary">
+          variant="primary"
+          @click.stop="checkIn">
           Check In
         </b-btn>
         <b-btn
           id="btn-appointment-cancel"
-          @click.stop="close"
           class="pl-2"
-          variant="link">
+          variant="link"
+          @click.stop="close">
           Close
         </b-btn>
       </div>

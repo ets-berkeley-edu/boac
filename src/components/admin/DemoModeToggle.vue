@@ -12,8 +12,8 @@
       <div class="pl-2 pt-2">
         <div v-if="!isNil(user.inDemoMode)">
           <b-form-checkbox
-            id="toggle-demo-mode"
             v-if="!isToggling"
+            id="toggle-demo-mode"
             v-model="inDemoMode"
             :disabled="isToggling"
             @change="toggle">

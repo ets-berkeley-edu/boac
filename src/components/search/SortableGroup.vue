@@ -9,12 +9,12 @@
       <a
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
-        @click.prevent="fetchStudents()"
-        @keyup.enter.prevent="fetchStudents()"
         class="accordion-heading-link"
         tabindex="0"
         role="button"
-        href="#">
+        href="#"
+        @click.prevent="fetchStudents()"
+        @keyup.enter.prevent="fetchStudents()">
         <div
           :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}"
           class="accordion-heading d-flex justify-content-between">

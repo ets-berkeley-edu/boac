@@ -15,10 +15,10 @@
         <div v-if="!user.isAdmin">
           <b-btn
             id="btn-homepage-create-appointment"
-            @click="showCreateAppointmentModal = true"
             variant="link"
             class="mb-1"
-            aria-label="Create appointment. Modal window will open.">
+            aria-label="Create appointment. Modal window will open."
+            @click="showCreateAppointmentModal = true">
             <font-awesome icon="plus" />
           </b-btn>
         </div>
@@ -53,15 +53,15 @@
         </b-row>
         <DropInWaitlistAppointment
           v-for="(appointment, index) in waitlist.unresolved"
-          :appointment="appointment"
-          :deptCode="deptCode"
-          :isHomepage="isHomepage"
-          :isLast="!creating && (index + 1 === waitlist.unresolved.length)"
           :key="appointment.id"
-          :onAppointmentStatusChange="onAppointmentStatusChange" />
+          :appointment="appointment"
+          :dept-code="deptCode"
+          :is-homepage="isHomepage"
+          :is-last="!creating && (index + 1 === waitlist.unresolved.length)"
+          :on-appointment-status-change="onAppointmentStatusChange" />
         <b-row
-          id="waitlist-appointment-creation-spinner"
           v-if="creating"
+          id="waitlist-appointment-creation-spinner"
           no-gutters
           class="font-size-16 mt-2 pb-4 pt-1">
           <b-col sm="12" class="text-center">
@@ -78,9 +78,9 @@
           v-for="appointment in waitlist.resolved"
           :key="appointment.id"
           :appointment="appointment"
-          :isHomepage="isHomepage"
-          :deptCode="deptCode"
-          :onAppointmentStatusChange="onAppointmentStatusChange" />
+          :is-homepage="isHomepage"
+          :dept-code="deptCode"
+          :on-appointment-status-change="onAppointmentStatusChange" />
       </b-container>
     </div>
   </div>

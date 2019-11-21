@@ -23,8 +23,8 @@
           </div>
         </div>
         <div
-          id="currently-enrolled-units"
           v-if="cumulativeUnits || currentEnrolledUnits"
+          id="currently-enrolled-units"
           class="sr-only">
           Currently enrolled units: {{ currentEnrolledUnits || '0' }}
         </div>

@@ -60,10 +60,10 @@
         :note="advisingNote" />
       <div class="text-center">
         <b-btn
-          id="fetch-more-notes"
           v-if="!completeNoteResults"
-          @click.prevent="fetchMoreNotes()"
-          variant="link">
+          id="fetch-more-notes"
+          variant="link"
+          @click.prevent="fetchMoreNotes()">
           Show additional advising notes
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalNotes" name="Notes" />
@@ -83,10 +83,10 @@
         :appointment="appointment" />
       <div class="text-center">
         <b-btn
-          id="fetch-more-appointments"
           v-if="!completeAppointmentResults"
-          @click.prevent="fetchMoreAppointments()"
-          variant="link">
+          id="fetch-more-appointments"
+          variant="link"
+          @click.prevent="fetchMoreAppointments()">
           Show additional advising appointments
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalAppointments" name="Appointments" />

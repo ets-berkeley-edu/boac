@@ -2,17 +2,17 @@
   <div>
     <div class="mt-3 w-75">
       <div v-if="error || warning" :class="{'error': error, 'warning': warning}" class="alert-box p-3 mt-2 mb-3 w-100">
-        <span v-html="error || warning" aria-live="polite" role="alert"></span>
+        <span aria-live="polite" role="alert" v-html="error || warning"></span>
       </div>
       <div>
         <b-form-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
           :disabled="isUpdating"
-          @keydown.esc="cancel"
           aria-label="Type or paste student SID numbers here"
           rows="8"
           max-rows="30"
+          @keydown.esc="cancel"
         ></b-form-textarea>
       </div>
       <div class="d-flex justify-content-end mt-3">
@@ -20,9 +20,9 @@
           id="btn-curated-group-bulk-add-sids"
           :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
           :disabled="!trim(textarea) || (curatedGroupId && isUpdating)"
-          @click="submitSids"
           class="pl-2"
-          variant="primary">
+          variant="primary"
+          @click="submitSids">
           <span v-if="curatedGroupId">
             <span v-if="isUpdating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
             <span v-if="!isUpdating">Add</span>
@@ -30,11 +30,11 @@
           <span v-if="!curatedGroupId">Next</span>
         </b-btn>
         <b-btn
-          id="btn-cancel-bulk-add-sids"
           v-if="curatedGroupId"
+          id="btn-cancel-bulk-add-sids"
           :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
-          @click="cancel"
-          variant="link">
+          variant="link"
+          @click="cancel">
           Cancel
         </b-btn>
       </div>

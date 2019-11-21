@@ -30,10 +30,10 @@
                 id="department-select-list"
                 v-model="filterBy.deptCode"
                 :options="departments"
-                @change="$refs.users.refresh()"
                 value-field="code"
                 text-field="name"
-                aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
+                aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+                @change="$refs.users.refresh()">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
@@ -103,9 +103,9 @@
       <template v-slot:cell(toggleDetails)="row">
         <b-btn
           :id="`user-${row.item.uid}-details-toggle`"
-          @click="row.toggleDetails"
           class="column-toggle-details-button"
-          variant="link">
+          variant="link"
+          @click="row.toggleDetails">
           <font-awesome v-if="!row.detailsShowing" icon="caret-right" />
           <span v-if="!row.detailsShowing" class="sr-only">Show user details</span>
           <font-awesome v-if="row.detailsShowing" icon="caret-down" />
@@ -128,8 +128,8 @@
         <div class="d-flex">
           <div class="pr-2">
             <font-awesome
-              :id="`permission-canvas-data-${row.item.uid}`"
               v-if="!row.item.canAccessCanvasData"
+              :id="`permission-canvas-data-${row.item.uid}`"
               class="text-secondary"
               title="Cannot access Canvas data"
               icon="eye-slash" />
@@ -184,8 +184,8 @@
           v-if="canBecome(row.item)"
           :id="'become-' + row.item.uid"
           :title="`Log in as ${row.item.name}`"
-          @click="become(row.item.uid)"
-          variant="link">
+          variant="link"
+          @click="become(row.item.uid)">
           <font-awesome icon="sign-in-alt" />
         </b-btn>
       </template>

@@ -18,12 +18,12 @@
       <SectionSpinner :loading="editMode === 'apply'" name="Students" />
       <div v-if="showStudentsSection" class="pt-2">
         <a
-          id="skip-to-pagination-widget"
           v-if="totalStudentCount > 50"
-          @click="alertScreenReader('Go to another page of search results')"
-          @keyup.enter="alertScreenReader('Go to another page of search results')"
+          id="skip-to-pagination-widget"
           class="sr-only"
-          href="#pagination-widget">Skip to bottom, other pages of search results</a>
+          href="#pagination-widget"
+          @click="alertScreenReader('Go to another page of search results')"
+          @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
           <hr class="filters-section-separator mr-2" />
           <div class="d-flex justify-content-between align-items-center p-2">

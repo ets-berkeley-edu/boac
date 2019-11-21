@@ -3,11 +3,11 @@
     id="advising-appointment-check-in"
     v-model="showCheckInModal"
     :no-close-on-backdrop="true"
-    @cancel.prevent="close"
-    @hide.prevent="close"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header>
+    hide-header
+    @cancel.prevent="close"
+    @hide.prevent="close">
     <div>
       <div class="modal-header">
         <h3>Check In - {{ appointment.student.name }}</h3>
@@ -71,20 +71,20 @@
       <div class="modal-footer">
         <form @submit.prevent="checkIn">
           <b-btn
-            id="btn-appointment-check-in"
             v-if="dropInAdvisors.length"
+            id="btn-appointment-check-in"
             :aria-label="`Check in ${appointment.student.name}`"
             :disabled="!selectedAdvisorUid"
-            @click.prevent="checkIn"
             class="btn-primary-color-override"
-            variant="primary">
+            variant="primary"
+            @click.prevent="checkIn">
             Check In
           </b-btn>
           <b-btn
             id="btn-appointment-close"
-            @click.stop="close"
             class="pl-2"
-            variant="link">
+            variant="link"
+            @click.stop="close">
             Close
           </b-btn>
         </form>

@@ -11,11 +11,11 @@
         <b-btn
           id="choose-file-for-note-attachment"
           :disabled="disabled"
-          @keydown.enter.prevent="clickBrowseForAttachment"
           type="file"
           variant="outline-primary"
           class="btn-file-upload mt-2 mb-2"
-          size="sm">
+          size="sm"
+          @keydown.enter.prevent="clickBrowseForAttachment">
           Browse<span class="sr-only"> for file to upload</span>
         </b-btn>
         <b-form-file
@@ -43,9 +43,9 @@
             <b-btn
               :id="`remove-note-attachment-${index}`"
               :disabled="disabled"
-              @click.prevent="removeAttachmentByIndex(index)"
               variant="link"
-              class="p-0">
+              class="p-0"
+              @click.prevent="removeAttachmentByIndex(index)">
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>

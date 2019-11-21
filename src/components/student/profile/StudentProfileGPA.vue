@@ -16,11 +16,11 @@
               GPA Trends
             </div>
             <b-btn
-              id="show-hide-term-gpa-button"
               v-if="!isEmpty(student.termGpa)"
-              @click="showHideTermGpa()"
+              id="show-hide-term-gpa-button"
               class="gpa-trends-more-button col-auto"
-              variant="link">
+              variant="link"
+              @click="showHideTermGpa()">
               {{ showTermGpa ? 'Less' : 'More' }}
             </b-btn>
           </div>
@@ -30,7 +30,7 @@
           <div v-if="isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
-          <div id="current-term-gpa" v-if="!isEmpty(student.termGpa)" class="current-term-gpa">
+          <div v-if="!isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
@@ -73,8 +73,8 @@
               </td>
             </tr>
             <tr
-              id="student-gpa-no-terms"
-              v-if="isEmpty(student.termGpa)">
+              v-if="isEmpty(student.termGpa)"
+              id="student-gpa-no-terms">
               <td>No previous terms</td>
               <td>--</td>
             </tr>
