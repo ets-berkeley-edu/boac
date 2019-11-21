@@ -69,7 +69,7 @@
           </b-col>
         </b-row>
         <b-row
-          :class="waitlist.resolved.length ? 'border-thick-grey' : ''"
+          :class="waitlist.unresolved.length && waitlist.resolved.length ? 'border-thick-grey' : ''"
           no-gutters
           class="border-top">
           <span v-if="waitlist.resolved.length" class="sr-only">{{ waitlist.resolved.length }} appointments checked in or cancelled</span>

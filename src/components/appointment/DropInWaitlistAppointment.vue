@@ -6,7 +6,7 @@
     <b-col sm="2" class="pb-2 text-nowrap">
       <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
     </b-col>
-    <b-col sm="7">
+    <b-col sm="6">
       <div class="d-flex">
         <div v-if="isHomepage" class="mr-2">
           <StudentAvatar :student="appointment.student" size="small" />
@@ -49,6 +49,18 @@
         </div>
       </div>
     </b-col>
+    <b-col sm="1">
+      <button
+        v-if="!reopening && includes(['checked_in', 'cancelled'], appointment.status)"
+        class="btn btn-link float-right"
+        @click="reopenAppointment()"
+        @keyup.enter="reopenAppointment()">
+        Undo<span class="sr-only"> {{ appointment.status }} status</span>
+      </button>
+      <div v-if="reopening" :id="`appointment-${appointment.id}-reopen-spinner`" class="float-right pr-3">
+        <font-awesome icon="spinner" spin />
+      </div>
+    </b-col>
     <b-col sm="3">
       <div>
         <DropInAppointmentDropdown
@@ -79,6 +91,7 @@ import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmen
 import StudentAvatar from '@/components/student/StudentAvatar';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { reopen as apiReopen } from '@/api/appointments';
 
 export default {
   name: 'DropInWaitlist',
@@ -113,11 +126,23 @@ export default {
     creating: false,
     linkToStudentProfiles: undefined,
     now: undefined,
+    reopening: false,
     showCreateAppointmentModal: false
   }),
   created() {
     this.linkToStudentProfiles = this.user.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
     this.now = this.$moment();
+  },
+  methods: {
+    reopenAppointment() {
+      this.reopening = true;
+      apiReopen(this.appointment.id).then(() => {
+        this.onAppointmentStatusChange(this.appointment.id).then(() => {
+          this.reopening = false;
+          this.alertScreenReader(`${this.appointment.student.name} appointment reopened`);
+        });
+      }).catch(this.handleBadRequestError);
+    }
   }
 }
 </script>

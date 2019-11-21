@@ -19,6 +19,7 @@
       :appointment="appointment"
       :appointment-checkin="checkInAppointment"
       :close="closeCheckInModal"
+      :self-check-in="selfCheckIn"
       :show-modal="showCheckInModal" />
     <AppointmentUpdateModal
       v-if="showUpdateModal"
@@ -207,11 +208,7 @@ export default {
       }
     },
     launchCheckIn() {
-      if (this.selfCheckIn) {
-        this.checkInAppointment();
-      } else {
-        this.showCheckInModal = true;
-      }
+      this.showCheckInModal = true;
     },
     openCancelAppointmentModal() {
       this.showCancelAppointmentModal = true;

@@ -423,6 +423,44 @@ class TestAppointmentReserve:
             self._reserve_appointment(client, appointment['id'], expected_status_code=401)
 
 
+class TestAppointmentReopen:
+
+    @classmethod
+    def _reopen_appointment(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}/reopen')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._reopen_appointment(client, 1, expected_status_code=401)
+
+    def test_deny_advisor(self, app, client, fake_auth):
+        """Returns 401 if user is a non-dropin advisor."""
+        fake_auth.login(l_s_college_advisor_uid)
+        self._reopen_appointment(client, 1, expected_status_code=401)
+
+    def test_appointment_not_found(self, app, client, fake_auth):
+        """Returns 404 if appointment is not found."""
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        self._reopen_appointment(client, 9999999, expected_status_code=404)
+
+    def test_reopen_appointment(self, app, client, fake_auth):
+        """Drop-in advisor can reopen an appointment."""
+        dept_code = 'QCADV'
+        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+        user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+        fake_auth.login(user.uid)
+        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
+        cancelled = AppointmentTestUtil.cancel_appointment(client, appointment['id'], 'Accidental cancel, whoopsie')
+        assert cancelled['status'] == 'cancelled'
+        appointment = self._reopen_appointment(client, cancelled['id'])
+        assert appointment['status'] == 'waiting'
+        assert appointment['statusDate'] is not None
+        assert appointment['statusBy']['id'] == user.id
+        Appointment.delete(appointment['id'])
+
+
 class TestAppointmentWaitlist:
 
     @classmethod

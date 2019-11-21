@@ -49,7 +49,7 @@
             </div>
           </div>
         </div>
-        <div v-if="dropInAdvisors.length" class="pb-3 pt-3">
+        <div v-if="!selfCheckIn && dropInAdvisors.length" class="pb-3 pt-3">
           <label for="checkin-modal-advisor-select" class="font-weight-bolder">
             Select a drop-in advisor:
           </label>
@@ -64,17 +64,17 @@
             </template>
           </b-form-select>
         </div>
-        <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-3">
+        <div v-if="!selfCheckIn && !dropInAdvisors.length" class="has-error pb-1 pt-3">
           Sorry, no advisors are on duty.
         </div>
       </div>
       <div class="modal-footer">
         <form @submit.prevent="checkIn">
           <b-btn
-            v-if="dropInAdvisors.length"
+            v-if="selfCheckIn || dropInAdvisors.length"
             id="btn-appointment-check-in"
             :aria-label="`Check in ${appointment.student.name}`"
-            :disabled="!selectedAdvisorUid"
+            :disabled="!selfCheckIn && !selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="checkIn">
@@ -95,12 +95,13 @@
 
 <script>
 import Context from '@/mixins/Context';
+import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getDropInAdvisorsForDept } from '@/api/user';
 
 export default {
   name: 'CheckInModal',
-  mixins: [Context, Util],
+  mixins: [Context, UserMetadata, Util],
   props: {
     appointment: {
       type: Object,
@@ -112,6 +113,10 @@ export default {
     },
     close: {
       type: Function,
+      required: true
+    },
+    selfCheckIn: {
+      type: Boolean,
       required: true
     },
     showModal: {
@@ -132,20 +137,27 @@ export default {
     }
   },
   created() {
-    getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-      this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
-      this.showCheckInModal = this.showModal;
-    });
+    this.showCheckInModal = this.showModal;
+    if (!this.selfCheckIn) {
+      this.selectedAdvisorUid = this.user.uid;
+      getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
+        this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+      });
+    }
   },
   methods: {
     checkIn() {
-      const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
-      if (advisor) {
-        const deptCodes = Object.keys(advisor.departments);
-        this.appointmentCheckin(advisor, deptCodes);
-        this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
-        this.showCheckInModal = false;
+      if (this.selfCheckIn) {
+        this.appointmentCheckin();
+      } else {
+        const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
+        if (advisor) {
+          const deptCodes = Object.keys(advisor.departments);
+          this.appointmentCheckin(advisor, deptCodes);
+        }
       }
+      this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
+      this.showCheckInModal = false;
     }
   }
 }
