@@ -153,21 +153,24 @@ class AuthorizedUser(Base):
         return cls.query.filter_by(id=db_id, deleted_at=None).first()
 
     @classmethod
-    def users_with_uid_like(cls, uid_snippet):
-        return cls.query.filter(and_(cls.uid.like(f'%{uid_snippet}%'), cls.deleted_at == None)).all()  # noqa: E711
+    def users_with_uid_like(cls, uid_snippet, include_deleted=False):
+        like_uid_snippet = cls.uid.like(f'%{uid_snippet}%')
+        criteria = like_uid_snippet if include_deleted else and_(like_uid_snippet, cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).all()
 
     @classmethod
-    def find_by_uid(cls, uid):
-        return cls.query.filter_by(uid=uid, deleted_at=None).first()
+    def find_by_uid(cls, uid, ignore_deleted=True):
+        results = cls.query.filter_by(uid=uid, deleted_at=None) if ignore_deleted else cls.query.filter_by(uid=uid)
+        return results.first()
 
     @classmethod
-    def get_all_active_users(cls):
-        return cls.query.filter_by(deleted_at=None).all()
+    def get_all_active_users(cls, include_deleted=False):
+        return cls.query.all() if include_deleted else cls.query.filter_by(deleted_at=None).all()
 
     @classmethod
     def get_users(
             cls,
-            deleted=False,
+            deleted=None,
             blocked=None,
             dept_code=None,
             role=None,
@@ -217,32 +220,36 @@ class AuthorizedUser(Base):
 
 def _users_sql(
         blocked=None,
-        deleted=False,
+        deleted=None,
         dept_code=None,
         role=None,
 ):
     query_tables = 'FROM authorized_users u '
     query_filter = 'WHERE true '
     query_bindings = {}
-    if blocked:
+    if blocked is True:
         query_filter += 'AND u.is_blocked = true '
-    if deleted:
+    elif blocked is False:
+        query_filter += 'AND u.is_blocked = false '
+    if deleted is True:
         query_filter += 'AND u.deleted_at IS NOT NULL '
+    elif deleted is False:
+        query_filter += 'AND u.deleted_at IS NULL '
     if role == 'admin':
         query_filter += 'AND u.is_admin IS true '
     if role == 'noCanvasDataAccess':
         query_filter += 'AND u.can_access_canvas_data IS false '
     elif dept_code and role:
         if role == 'dropInAdvisor':
-            query_tables += f"""
+            query_tables += """
                 JOIN drop_in_advisors a ON
                     a.dept_code = :dept_code
                     AND a.authorized_user_id = u.id
-                    AND a.deleted_at IS NULL
             """
         elif role in ['advisor', 'director', 'scheduler']:
             query_tables += f"""
-                JOIN university_depts d ON d.dept_code = :dept_code
+                JOIN university_depts d ON
+                    d.dept_code = :dept_code
                 JOIN university_dept_members m ON
                     m.university_dept_id = d.id
                     AND m.authorized_user_id = u.id
@@ -251,10 +258,9 @@ def _users_sql(
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
         if role == 'dropInAdvisor':
-            query_tables += f"""
+            query_tables += """
                 JOIN drop_in_advisors a ON
                     a.authorized_user_id = u.id
-                    AND a.deleted_at IS NULL
             """
         else:
             query_tables += f"""

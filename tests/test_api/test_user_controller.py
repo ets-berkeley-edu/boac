@@ -36,6 +36,8 @@ admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
+deleted_user_csid = '333333333'
+deleted_user_uid = '33333'
 l_s_college_scheduler_uid = '19735'
 l_s_college_advisor_uid = '188242'
 l_s_college_drop_in_advisor_uid = '53791'
@@ -130,6 +132,19 @@ class TestUserById:
         response = client.get('/api/user/by_csid/99999999999999999')
         assert response.status_code == 404
 
+    def test_deleted_user_by_uid_not_found(self, client, fake_auth):
+        """404 is default if get deleted user by UID."""
+        fake_auth.login(admin_uid)
+        assert client.get(f'/api/user/by_uid/{deleted_user_uid}').status_code == 404
+        assert client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=true').status_code == 404
+
+    def test_get_deleted_user_by_uid(self, client, fake_auth):
+        """Get deleted user by UID if specific param is passed."""
+        fake_auth.login(admin_uid)
+        response = client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=false')
+        assert response.status_code == 200
+        assert response.json['uid'] == deleted_user_uid
+
     def test_user_by_uid(self, client, fake_auth):
         """Delivers CalNet profile."""
         fake_auth.login(admin_uid)
@@ -150,6 +165,19 @@ class TestUserById:
         assert response.status_code == 200
         assert response.json['csid'] == '800700600'
         assert response.json['uid'] == '1133399'
+
+    def test_deleted_user_by_csid_not_found(self, client, fake_auth):
+        """404 is default if get deleted user by CSID."""
+        fake_auth.login(admin_uid)
+        assert client.get(f'/api/user/by_csid/{deleted_user_csid}').status_code == 404
+        assert client.get(f'/api/user/by_csid/{deleted_user_csid}?ignoreDeleted=true').status_code == 404
+
+    def test_get_deleted_user_by_csid(self, client, fake_auth):
+        """Get deleted user by CSID if specific param is passed."""
+        fake_auth.login(admin_uid)
+        response = client.get(f'/api/user/by_csid/{deleted_user_csid}?ignoreDeleted=false')
+        assert response.status_code == 200
+        assert response.json['uid'] == deleted_user_uid
 
 
 class TestUniversityDeptMember:
@@ -388,6 +416,22 @@ class TestUserSearch:
         """Search users by UID."""
         fake_auth.login(admin_uid)
         assert len(self._api_users_autocomplete(client, '339')) == 2
+
+    def test_search_for_deleted_user_by_uid(self, client, fake_auth):
+        """Search for deleted user by UID."""
+        fake_auth.login(admin_uid)
+        users = self._api_users_autocomplete(client, '3333')
+        assert len(users) == 1
+        assert users[0]['uid'] == '33333'
+
+    def test_search_for_deleted_user_by_name(self, client, fake_auth):
+        """Search for deleted user by name."""
+        fake_auth.login(admin_uid)
+        calnet_users = list(calnet.get_calnet_users_for_uids(app, ['33333']).values())
+        first_name = calnet_users[0]['firstName']
+        last_name = calnet_users[0]['lastName']
+        api_json = self._api_users_autocomplete(client, f'{first_name[:2]} {last_name[:3]}')
+        assert len(api_json) == 1
 
     def test_space_separated_names_is_required(self, client, fake_auth):
         """When search users, names must be separated by spaces."""

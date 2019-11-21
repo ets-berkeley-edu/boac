@@ -425,6 +425,66 @@
                 "ou": [ "people" ],
                 "uid": [ "6446" ]
             }
+        },
+        {
+            "attributes": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": "333333333",
+                "berkeleyEduConfidentialFlag": false,
+                "berkeleyEduEmailRelFlag": false,
+                "berkeleyEduExpDate": "2018-05-23 14:16:42+00:00",
+                "berkeleyEduIsMemberOf": [
+                    "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu"
+                ],
+                "berkeleyEduModDate": "2016-08-29 14:51:46+00:00",
+                "berkeleyEduOfficialEmail": [ "33333@berkeley.edu" ],
+                "berkeleyEduStuID": "333333333",
+                "cn": [ "Deleted-in-BOA, John" ],
+                "departmentNumber": "QCADV",
+                "displayName": "John Deleted-in-BOA",
+                "givenName": [ "John" ],
+                "mail": [ "deleted-in-boa@gmail.com" ],
+                "o": [ "University of California, Berkeley" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "berkeleyEduPerson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "sn": [ "Deleted-in-BOA" ],
+                "uid": [ "33333" ]
+            },
+            "dn": "uid=33333,ou=people,dc=berkeley,dc=edu",
+            "raw": {
+                "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": [ "333333333" ],
+                "berkeleyEduConfidentialFlag": [ "false" ],
+                "berkeleyEduEmailRelFlag": [ "false" ],
+                "berkeleyEduExpDate": [ "20180523141642Z" ],
+                "berkeleyEduIsMemberOf": [
+                    "cn=edu:berkeley:official:all,ou=campus groups,dc=berkeley,dc=edu"
+                ],
+                "berkeleyEduModDate": [ "20160829145146Z" ],
+                "berkeleyEduOfficialEmail": [ "deleted-in-boa@berkeley.edu" ],
+                "berkeleyEduStuID": [ "333333333" ],
+                "cn": [ "Deleted-in-BOA, John" ],
+                "departmentNumber": [ "QCADV" ],
+                "displayName": [ "John Deleted-in-BOA" ],
+                "givenName": [ "John" ],
+                "o": [ "University of California, Berkeley" ],
+                "objectClass": [
+                    "top",
+                    "eduPerson",
+                    "berkeleyEduPerson",
+                    "person",
+                    "ucEduPerson"
+                ],
+                "ou": [ "people" ],
+                "sn": [ "Deleted-in-BOA" ],
+                "uid": [ "33333" ]
+            }
         }
     ]
 }
