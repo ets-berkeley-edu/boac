@@ -1,3 +1,4 @@
+import numeral from 'numeral';
 import numFormat from 'vue-filter-number-format';
 
 export default {
@@ -5,7 +6,7 @@ export default {
   lowercase: (str: string) => {
     return str.toLowerCase();
   },
-  numFormat,
+  numFormat: numFormat(numeral),
   pluralize: (
     noun: string,
     count: number,
