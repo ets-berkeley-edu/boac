@@ -322,8 +322,6 @@ class TestUsers:
         """Returns 'unauthorized' response status if user is not authenticated."""
         response = client.post('/api/users')
         assert response.status_code == 401
-        response = client.post('/api/users/admins')
-        assert response.status_code == 401
         response = client.get('/api/users/departments')
         assert response.status_code == 401
 
@@ -331,8 +329,6 @@ class TestUsers:
         """Returns 'unauthorized' response status if user is not admin."""
         fake_auth.login(coe_advisor_uid)
         response = client.post('/api/users')
-        assert response.status_code == 401
-        response = client.post('/api/users/admins')
         assert response.status_code == 401
         response = client.get('/api/users/departments')
         assert response.status_code == 401
@@ -364,27 +360,66 @@ class TestUsers:
         assert len(response.json) == 1
         assert response.json[0]['dropInAdvisorStatus'][0] == {'available': True, 'deptCode': 'QCADV'}
 
-    def test_get_admin_users(self, client, fake_auth):
-        """Get all admin users."""
-        fake_auth.login(admin_uid)
-        response = client.post(
-            '/api/users/admins',
-            data=json.dumps({
-                'sortBy': 'lastName',
-                'sortDescending': False,
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == 200
-        users = response.json['users']
-        admin_users = list(filter(lambda u: u['isAdmin'], users))
-        assert len(users) == len(admin_users)
-
     def test_get_departments(self, client, fake_auth):
         """Get all departments."""
         fake_auth.login(admin_uid)
         response = client.get('/api/users/departments')
         assert response.status_code == 200
+
+
+class TestGetAdminUsers:
+    """Get Admin Users API."""
+
+    @classmethod
+    def _api_admin_users(
+            cls,
+            client,
+            ignore_deleted,
+            sort_by='lastName',
+            sort_descending=False,
+            expected_status_code=200,
+    ):
+        params = {
+            'ignoreDeleted': ignore_deleted,
+            'sortBy': sort_by,
+            'sortDescending': sort_descending,
+        }
+        response = client.post(
+            '/api/users/admins',
+            data=json.dumps(params),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 'unauthorized' response status if user is not authenticated."""
+        self._api_admin_users(client, ignore_deleted=True, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Returns 'unauthorized' response status if user is not admin."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_admin_users(client, ignore_deleted=True, expected_status_code=401)
+
+    def test_get_admin_users(self, client, fake_auth):
+        """Get all admin users."""
+        fake_auth.login(admin_uid)
+        api_json = self._api_admin_users(client, ignore_deleted=False, expected_status_code=200)
+        users = api_json['users']
+        user_count = len(users)
+        assert user_count
+        assert user_count == api_json['totalUserCount']
+        assert next((u for u in users if u['deletedAt']), None) is not None
+
+    def test_get_admin_users_ignore_deleted(self, client, fake_auth):
+        """Get admin users, ignoring deleted users."""
+        fake_auth.login(admin_uid)
+        api_json = self._api_admin_users(client, ignore_deleted=True, expected_status_code=200)
+        users = api_json['users']
+        user_count = len(users)
+        assert user_count
+        assert user_count == api_json['totalUserCount']
+        assert next((u for u in users if u['deletedAt']), None) is None
 
 
 class TestUserSearch:

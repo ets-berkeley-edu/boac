@@ -160,12 +160,20 @@ class AuthorizedUser(Base):
 
     @classmethod
     def find_by_uid(cls, uid, ignore_deleted=True):
-        results = cls.query.filter_by(uid=uid, deleted_at=None) if ignore_deleted else cls.query.filter_by(uid=uid)
-        return results.first()
+        query = cls.query.filter_by(uid=uid, deleted_at=None) if ignore_deleted else cls.query.filter_by(uid=uid)
+        return query.first()
 
     @classmethod
     def get_all_active_users(cls, include_deleted=False):
         return cls.query.all() if include_deleted else cls.query.filter_by(deleted_at=None).all()
+
+    @classmethod
+    def get_admin_users(cls, ignore_deleted=True):
+        if ignore_deleted:
+            query = cls.query.filter(and_(cls.is_admin, cls.deleted_at == None))  # noqa: E711
+        else:
+            query = cls.query.filter(cls.is_admin)
+        return query.all()
 
     @classmethod
     def get_users(

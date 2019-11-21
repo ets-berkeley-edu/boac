@@ -165,7 +165,8 @@ def all_users():
 @admin_required
 def get_admin_users():
     params = request.get_json()
-    users = AuthorizedUser.query.filter(AuthorizedUser.is_admin).all()
+    ignore_deleted = to_bool_or_none(util.get(params, 'ignoreDeleted'))
+    users = AuthorizedUser.get_admin_users(ignore_deleted=True if ignore_deleted is None else ignore_deleted)
     return tolerant_jsonify({
         'users': authorized_users_api_feed(
             users,

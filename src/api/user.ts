@@ -9,9 +9,13 @@ export function getDepartments(excludeEmpty?: boolean) {
     .then(response => response.data, () => null);
 }
 
-export function getAdminUsers(sortBy: string, sortDescending: boolean) {
+export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/admins`, {sortBy, sortDescending})
+    .post(`${utils.apiBaseUrl()}/api/users/admins`, {
+      ignoreDeleted: _.isNil(ignoreDeleted) ? null : ignoreDeleted,
+      sortBy,
+      sortDescending
+    })
     .then(response => response.data, () => null);
 }
 
