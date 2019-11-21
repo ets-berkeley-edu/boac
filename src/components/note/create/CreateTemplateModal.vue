@@ -3,6 +3,7 @@
     id="create-note-template"
     v-model="showModalProxy"
     @shown="focusModalById('template-title-input')"
+    title="Name Your Template"
     aria-label="Name Your Template"
     body-class="pl-0 pr-0"
     hide-footer

@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    id="advising-appointment-check-in"
+    id="advising-appointment-create"
     v-model="showCreateAppointmentModal"
     :no-close-on-backdrop="true"
     @cancel.prevent="cancel"
