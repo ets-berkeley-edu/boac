@@ -63,6 +63,7 @@
     "eslint-plugin-vue-a11y": "^0.0.31",
     "eslint-plugin-xss": "^0.1.9",
     "eslint-utils": "^1.4.3",
+    "numeral": "^2.0.6",
     "typescript": "^3.5.3",
     "vue-eslint-parser": "^7.0.0",
     "vue-template-compiler": "^2.6.10"
