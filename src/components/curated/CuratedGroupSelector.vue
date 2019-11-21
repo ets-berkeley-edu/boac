@@ -56,7 +56,7 @@
         <b-dropdown-item>
           <b-btn
             id="create-curated-group"
-            v-b-modal="'modal'"
+            v-b-modal="'create-curated-group-modal'"
             class="text-dark"
             variant="link"
             aria-label="Create a new curated group">
@@ -65,6 +65,7 @@
         </b-dropdown-item>
       </b-dropdown>
       <b-modal
+        id="create-curated-group-modal"
         v-model="showModal"
         @shown="focusModalById('create-input')"
         body-class="pl-0 pr-0"
