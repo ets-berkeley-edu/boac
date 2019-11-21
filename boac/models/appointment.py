@@ -249,23 +249,17 @@ class Appointment(Base):
         else:
             return None
 
-    @classmethod
-    def unreserve(cls, appointment_id, unreserved_by):
-        appointment = cls.find_by_id(appointment_id=appointment_id)
-        if appointment:
-            event_type = 'waiting'
-            appointment.status = event_type
-            appointment.updated_by = unreserved_by
-            AppointmentEvent.create(
-                appointment_id=appointment.id,
-                user_id=unreserved_by,
-                event_type=event_type,
-            )
-            std_commit()
-            db.session.refresh(appointment)
-            return appointment
-        else:
-            return None
+    def set_to_waiting(self, updated_by):
+        event_type = 'waiting'
+        self.status = event_type
+        self.updated_by = updated_by
+        AppointmentEvent.create(
+            appointment_id=self.id,
+            user_id=updated_by,
+            event_type=event_type,
+        )
+        std_commit()
+        db.session.refresh(self)
 
     @classmethod
     def search(

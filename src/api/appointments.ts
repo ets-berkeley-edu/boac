@@ -106,6 +106,19 @@ export function markAppointmentRead(appointmentId) {
     }, () => null);
 }
 
+export function reopen(appointmentId) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reopen`)
+    .then(response => {
+      store.dispatch('user/gaAppointmentEvent', {
+        id: appointmentId,
+        name: `Advisor ${store.getters['user/uid']} reopened a drop-in appointment`,
+        action: 'reopen'
+      });
+      return response.data
+    });
+}
+
 export function reserve(appointmentId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`)

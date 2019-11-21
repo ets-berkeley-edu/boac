@@ -135,6 +135,16 @@ def cancel_appointment(appointment_id):
     return tolerant_jsonify(api_json)
 
 
+@app.route('/api/appointments/<appointment_id>/reopen', methods=['GET'])
+@appointments_feature_flag
+@scheduler_required
+def reopen_appointment(appointment_id):
+    appointment = Appointment.find_by_id(appointment_id)
+    if not appointment:
+        raise ResourceNotFoundError('Unknown path')
+    return _set_appointment_to_waiting(appointment)
+
+
 @app.route('/api/appointments/<appointment_id>/reserve', methods=['GET'])
 @appointments_feature_flag
 @scheduler_required
@@ -163,18 +173,19 @@ def unreserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-    has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
-    if not has_privilege:
-        raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
     if appointment.status != 'reserved':
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
     event = AppointmentEvent.get_most_recent_per_type(appointment.id, 'reserved')
     if event.user_id != current_user.get_id():
         raise ForbiddenRequestError(f'You did not reserve appointment {appointment_id}.')
-    appointment = Appointment.unreserve(
-        appointment_id=appointment_id,
-        unreserved_by=current_user.get_id(),
-    )
+    return _set_appointment_to_waiting(appointment)
+
+
+def _set_appointment_to_waiting(appointment):
+    has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
+    if not has_privilege:
+        raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment.id}.')
+    appointment.set_to_waiting(updated_by=current_user.get_id())
     api_json = appointment.to_api_json(current_user.get_id())
     _put_student_profile_per_appointment([api_json])
     return tolerant_jsonify(api_json)
