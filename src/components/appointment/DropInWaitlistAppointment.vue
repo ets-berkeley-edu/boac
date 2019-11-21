@@ -43,8 +43,8 @@
             {{ oxfordJoin(appointment.topics) }}
           </div>
           <div v-if="appointment.status === 'reserved'" class="has-error">
-            <span v-if="appointment.statusBy" :id="`reserved-for-${appointment.id}`">Reserved for {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
-            <span v-if="!appointment.statusBy" :id="`reserved-for-${appointment.id}`">Reserved</span>
+            <span v-if="appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
+            <span v-if="!appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned</span>
           </div>
         </div>
       </div>

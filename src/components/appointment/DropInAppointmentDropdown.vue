@@ -64,13 +64,13 @@
             v-if="isUserDropInAdvisor(deptCode) && (appointment.status !== 'reserved' || appointment.statusBy.id !== user.id)"
             :id="`btn-appointment-${appointment.id}-reserve`"
             @click="reserveAppointment()">
-            <span class="text-nowrap">Reserve</span>
+            <span class="text-nowrap">Assign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status === 'reserved' && appointment.statusBy.id === user.id"
             :id="`btn-appointment-${appointment.id}-unreserve`"
             @click="unreserveAppointment()">
-            <span class="text-nowrap">Unreserve</span>
+            <span class="text-nowrap">Unassign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
@@ -218,7 +218,7 @@ export default {
       apiReserve(this.appointment.id).then(reserved => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${reserved.student.name} appointment reserved`);
+          this.alertScreenReader(`${reserved.student.name} appointment assigned`);
         });
       }).catch(this.handleBadRequestError);
     },
@@ -230,7 +230,7 @@ export default {
       apiUnreserve(this.appointment.id).then(unreserved => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${unreserved.student.name} appointment unreserved`);
+          this.alertScreenReader(`${unreserved.student.name} appointment unassigned`);
         });
       }).catch(this.handleBadRequestError);
     }

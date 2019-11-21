@@ -228,7 +228,7 @@
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'reserved'"
                 :id="`collapsed-${message.type}-${message.id}-status-waiting`"
                 class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
-                Reserved
+                Assigned
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'waiting'"
