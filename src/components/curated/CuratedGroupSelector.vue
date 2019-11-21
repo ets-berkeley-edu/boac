@@ -70,6 +70,7 @@
         body-class="pl-0 pr-0"
         hide-footer
         hide-header-close
+        title="Name Your Curated Group"
         @shown="focusModalById('create-input')">
         <CreateCuratedGroupModal
           :create="modalCreateCuratedGroup"
