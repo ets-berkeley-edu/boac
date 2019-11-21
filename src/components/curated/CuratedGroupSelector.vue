@@ -5,16 +5,16 @@
       v-model="isSelectAllChecked"
       :disabled="isSaving"
       :indeterminate="indeterminate"
-      @change="toggle"
       class="add-all-checkbox mr-1"
       plain
-      aria-controls="curated-group-dropdown-select">
+      aria-controls="curated-group-dropdown-select"
+      @change="toggle">
       <span class="sr-only">{{ 'Select all students to add to a curated group' }}</span>
     </b-form-checkbox>
     <div>
       <b-dropdown
-        id="curated-group-dropdown-select"
         v-if="showMenu"
+        id="curated-group-dropdown-select"
         :variant="dropdownVariant"
         :disabled="disableSelector"
         class="curated-selector mr-2"
@@ -45,9 +45,9 @@
           <input
             :id="`curated-group-${group.id}-checkbox`"
             :aria-label="`Add students to curated group '${group.name}'`"
+            type="checkbox"
             @click.prevent="curatedGroupCheckboxClick(group)"
-            @keyup.enter="curatedGroupCheckboxClick(group)"
-            type="checkbox" />
+            @keyup.enter="curatedGroupCheckboxClick(group)" />
           <label
             :for="`curated-group-${group.id}-checkbox`"
             class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
@@ -66,10 +66,10 @@
       </b-dropdown>
       <b-modal
         v-model="showModal"
-        @shown="focusModalById('create-input')"
         body-class="pl-0 pr-0"
         hide-footer
-        hide-header-close>
+        hide-header-close
+        @shown="focusModalById('create-input')">
         <CreateCuratedGroupModal
           :create="modalCreateCuratedGroup"
           :cancel="modalCancel" />

@@ -48,7 +48,7 @@
         <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
-      <template v-slot:cell(majors[0])="row" v-if="!options.compact">
+      <template v-if="!options.compact" v-slot:cell(majors[0])="row">
         <span class="sr-only">Major</span>
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
@@ -58,24 +58,24 @@
         </div>
       </template>
 
-      <template v-slot:cell(expectedGraduationTerm.id)="row" v-if="!options.compact">
+      <template v-if="!options.compact" v-slot:cell(expectedGraduationTerm.id)="row">
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
         <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
       </template>
 
-      <template v-slot:cell(term.enrolledUnits)="row" v-if="!options.compact">
+      <template v-if="!options.compact" v-slot:cell(term.enrolledUnits)="row">
         <span class="sr-only">Term units</span>
         <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
-      <template v-slot:cell(cumulativeUnits)="row" v-if="!options.compact">
+      <template v-if="!options.compact" v-slot:cell(cumulativeUnits)="row">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
         <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
       </template>
 
-      <template v-slot:cell(cumulativeGPA)="row" v-if="!options.compact">
+      <template v-if="!options.compact" v-slot:cell(cumulativeGPA)="row">
         <span class="sr-only">GPA</span>
         <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
         <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>

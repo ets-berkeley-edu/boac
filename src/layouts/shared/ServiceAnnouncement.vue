@@ -5,9 +5,9 @@
     class="service-announcement pl-3 pt-3 pr-3 pb-0 w-100">
     <span
       id="service-announcement-banner"
-      v-html="announcement.text"
       aria-live="polite"
-      role="alert">
+      role="alert"
+      v-html="announcement.text">
     </span>
   </div>
 </template>

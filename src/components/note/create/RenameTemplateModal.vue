@@ -2,11 +2,11 @@
   <b-modal
     id="rename-note-template"
     v-model="showModalProxy"
-    @shown="focusModalById('rename-template-input')"
     aria-label="Rename Your Template"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header-close>
+    hide-header-close
+    @shown="focusModalById('rename-template-input')">
     <div>
       <form @submit.prevent="renameTemplate()">
         <div class="ml-3 mr-3">
@@ -22,8 +22,8 @@
           </div>
           <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
           <div
-            id="rename-template-error"
             v-if="error"
+            id="rename-template-error"
             aria-live="polite"
             role="alert"
             class="has-error">
@@ -40,15 +40,15 @@
           <b-btn
             id="rename-template-confirm"
             :disabled="!title.length"
-            @click.prevent="renameTemplate()"
             class="btn-primary-color-override"
-            variant="primary">
+            variant="primary"
+            @click.prevent="renameTemplate()">
             Rename
           </b-btn>
           <b-btn
             id="cancel-rename-template"
-            @click="cancelModal()"
-            variant="link">
+            variant="link"
+            @click="cancelModal()">
             Cancel
           </b-btn>
         </div>

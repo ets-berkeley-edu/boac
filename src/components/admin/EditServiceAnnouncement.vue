@@ -29,9 +29,9 @@
           <b-btn
             id="button-update-service-announcement"
             :disabled="text === originalText"
-            @click="updateText"
             variant="primary"
-            class="btn-primary-color-override mt-2">
+            class="btn-primary-color-override mt-2"
+            @click="updateText">
             <span v-if="isSaving"><font-awesome icon="spinner" spin /> Update...</span>
             <span v-if="!isSaving">Update</span>
           </b-btn>

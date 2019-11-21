@@ -3,8 +3,8 @@
     <div>
       <span aria-live="polite" role="alert">
         <span
-          id="target-student-count-alert"
           v-if="targetStudentCount"
+          id="target-student-count-alert"
           :class="{'has-error': targetStudentCount >= 250, 'font-weight-bolder': targetStudentCount >= 500}"
           class="font-italic">
           Note will be added to {{ 'student record' | pluralize(targetStudentCount) }}.
@@ -12,14 +12,14 @@
         </span>
         <span v-if="!targetStudentCount && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
           <span
-            id="no-students-per-cohorts-alert"
-            v-if="addedCohorts.length && !addedCuratedGroups.length">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
+            v-if="addedCohorts.length && !addedCuratedGroups.length"
+            id="no-students-per-cohorts-alert">There are no students in the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }}.</span>
           <span
-            id="no-students-per-curated-groups-alert"
-            v-if="addedCuratedGroups.length && !addedCohorts.length">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
+            v-if="addedCuratedGroups.length && !addedCohorts.length"
+            id="no-students-per-curated-groups-alert">There are no students in the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }}.</span>
           <span
-            id="no-students-alert"
-            v-if="addedCohorts.length && addedCuratedGroups.length">
+            v-if="addedCohorts.length && addedCuratedGroups.length"
+            id="no-students-alert">
             Neither the {{ 'cohort' | pluralize(addedCohorts.length, {1: ' '}) }} nor the {{ 'group' | pluralize(addedCuratedGroups.length, {1: ' '}) }} have students.
           </span>
         </span>

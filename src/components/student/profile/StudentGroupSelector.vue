@@ -37,16 +37,16 @@
           v-for="group in myCuratedGroups"
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
-          @keyup.space.prevent.stop="groupCheckboxClick(group)"
-          class="b-dd-item-override">
+          class="b-dd-item-override"
+          @keyup.space.prevent.stop="groupCheckboxClick(group)">
           <input
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"
             :value="group.id"
             :aria-label="`${checkedGroups.includes(group.id) ? 'Checked' : 'Not checked'}`"
+            type="checkbox"
             @click="groupCheckboxClick(group)"
-            @keyup.enter="groupCheckboxClick(group)"
-            type="checkbox" />
+            @keyup.enter="groupCheckboxClick(group)" />
           <label
             :id="`curated-group-${group.id}-name`"
             :for="`curated-group-${group.id}-checkbox`"
@@ -69,12 +69,12 @@
     <b-modal
       id="modal"
       v-model="showModal"
-      @shown="focusModalById('create-input')"
       body-class="pl-0 pr-0"
       hide-footer
       hide-header-close
       title="Name Your Curated Group"
-      aria-label="Name Your Curated Group">
+      aria-label="Name Your Curated Group"
+      @shown="focusModalById('create-input')">
       <CreateCuratedGroupModal
         :create="modalCreateGroup"
         :cancel="modalCancel" />

@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="save()" class="edit-note-form">
+  <form class="edit-note-form" @submit.prevent="save()">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -7,12 +7,12 @@
       <input
         id="edit-note-subject"
         :value="model.subject"
-        @input="setSubjectPerEvent"
-        @keydown.esc="cancelRequested()"
         aria-labelledby="edit-note-subject-label"
         class="cohort-create-input-name"
         type="text"
-        maxlength="255">
+        maxlength="255"
+        @input="setSubjectPerEvent"
+        @keydown.esc="cancelRequested()">
     </div>
     <div>
       <label class="font-weight-bold mt-2" for="edit-note-details">
@@ -37,18 +37,18 @@
       <div>
         <b-btn
           id="save-note-button"
-          @click="save()"
           class="btn-primary-color-override"
-          variant="primary">
+          variant="primary"
+          @click="save()">
           Save
         </b-btn>
       </div>
       <div>
         <b-btn
           id="cancel-edit-note-button"
+          variant="link"
           @click.stop="cancelRequested()"
-          @keypress.enter.stop="cancelRequested()"
-          variant="link">
+          @keypress.enter.stop="cancelRequested()">
           Cancel
         </b-btn>
       </div>
@@ -66,9 +66,9 @@
           v-for="(attachment, index) in model.attachments"
           :id="`note-${model.id}-attachment-${index}`"
           :key="attachment.id"
+          class="mt-2"
           @click.stop
-          @keyup.stop
-          class="mt-2">
+          @keyup.stop>
           <span class="pill pill-attachment text-nowrap">
             <font-awesome icon="paperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}

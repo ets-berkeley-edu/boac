@@ -3,11 +3,11 @@
     id="advising-appointment-check-in"
     v-model="showCreateAppointmentModal"
     :no-close-on-backdrop="true"
-    @cancel.prevent="cancel"
-    @hide.prevent="cancel"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header>
+    hide-header
+    @cancel.prevent="cancel"
+    @hide.prevent="cancel">
     <div>
       <div class="modal-header">
         <h3 class="ml-2">
@@ -36,9 +36,9 @@
               <div class="mb-1 mr-2">
                 <b-btn
                   id="appointment-student-remove"
-                  @click.prevent="removeStudent"
                   variant="link"
-                  class="p-0">
+                  class="p-0"
+                  @click.prevent="removeStudent">
                   <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
                 </b-btn>
                 <label class="sr-only" for="appointment-student-remove">
@@ -56,8 +56,8 @@
                 :on-esc-form-input="cancelModal"
                 :show-add-button="true"
                 :source="studentsByNameOrSid"
-                @input="addStudent"
-                class="w-75" />
+                class="w-75"
+                @input="addStudent" />
             </div>
           </div>
           <div v-if="advisors">
@@ -105,15 +105,15 @@
           <b-btn
             id="create-appointment-confirm"
             :disabled="!student || !topics.length || !trim(details).length"
-            @click.prevent="create()"
             class="btn-primary-color-override"
-            variant="primary">
+            variant="primary"
+            @click.prevent="create()">
             Make Appointment
           </b-btn>
           <b-btn
             id="create-appointment-cancel"
-            @click.prevent="cancelModal()"
-            variant="link">
+            variant="link"
+            @click.prevent="cancelModal()">
             Cancel
           </b-btn>
         </div>

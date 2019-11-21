@@ -16,25 +16,25 @@
         <form @submit.prevent="logIn()">
           <b-btn
             id="splash-sign-in"
-            @click.stop="logIn()"
             class="btn-sign-in btn-primary-color-override"
             variant="primary"
             aria-label="Log in to BOA"
             tabindex="0"
-            placement="top">
+            placement="top"
+            @click.stop="logIn()">
             Sign In
           </b-btn>
           <b-popover
-            @hidden="onHidden"
             placement="top"
             target="splash-sign-in"
-            triggers="focus">
+            triggers="focus"
+            @hidden="onHidden">
             <span
               v-for="message in errorMessages"
               :key="message"
-              v-html="message"
               class="has-error"
-              aria-live="polite"></span>
+              aria-live="polite"
+              v-html="message"></span>
           </b-popover>
         </form>
         <div class="splash-contact-us">

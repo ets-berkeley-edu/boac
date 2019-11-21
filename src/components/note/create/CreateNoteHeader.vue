@@ -6,15 +6,15 @@
     </div>
     <div class="mr-4">
       <b-dropdown
-        id="my-templates-button"
         v-if="mode !== 'editTemplate'"
+        id="my-templates-button"
         :disabled="isSaving"
         text="Templates"
         aria-label="Select a note template"
         variant="primary"
         class="mb-2 ml-0"
         right>
-        <b-dropdown-header id="no-templates-header" v-if="!size(noteTemplates)" class="templates-dropdown-header">
+        <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
             You have no saved templates.
@@ -27,17 +27,17 @@
             <b-link
               :id="`load-note-template-${template.id}`"
               :title="template.title"
-              @click="loadTemplate(template)"
-              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis">
+              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
+              @click="loadTemplate(template)">
               {{ template.title }}
             </b-link>
             <div class="align-items-center d-flex ml-3">
               <div class="pl-2">
                 <b-btn
                   :id="`btn-rename-note-template-${template.id}`"
-                  @click="openRenameTemplateModal(template)"
                   variant="link"
-                  class="p-0">
+                  class="p-0"
+                  @click="openRenameTemplateModal(template)">
                   Rename<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -47,9 +47,9 @@
               <div>
                 <b-btn
                   :id="`btn-edit-note-template-${template.id}`"
-                  @click="editTemplate(template)"
                   variant="link"
-                  class="p-0">
+                  class="p-0"
+                  @click="editTemplate(template)">
                   Edit<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -59,9 +59,9 @@
               <div>
                 <b-btn
                   :id="`btn-delete-note-template-${template.id}`"
-                  @click="openDeleteTemplateModal(template)"
                   variant="link"
-                  class="p-0">
+                  class="p-0"
+                  @click="openDeleteTemplateModal(template)">
                   Delete<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>

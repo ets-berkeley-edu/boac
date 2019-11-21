@@ -29,12 +29,12 @@
       <div v-if="user.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
-          @click="showAppointmentDetails()"
           class="bg-white float-right text-nowrap"
           right
           split
           text="Details"
-          variant="outline-dark">
+          variant="outline-dark"
+          @click="showAppointmentDetails()">
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
             @click="openCancelAppointmentModal()">
@@ -47,12 +47,12 @@
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
           :disabled="appointment.status === 'checked_in' || appointment.status === 'cancelled'"
-          @click="launchCheckIn()"
           class="bg-white float-right text-nowrap"
           right
           split
           text="Check In"
-          variant="outline-dark">
+          variant="outline-dark"
+          @click="launchCheckIn()">
           <b-dropdown-item-button
             v-if="includeDetailsOption"
             :id="`btn-appointment-${appointment.id}-details`"

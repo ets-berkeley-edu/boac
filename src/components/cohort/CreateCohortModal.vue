@@ -14,8 +14,8 @@
         </div>
         <div class="faint-text mb-3"><span class="sr-only">Cohort name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
         <div
-          id="create-error"
           v-if="error"
+          id="create-error"
           class="has-error"
           aria-live="polite"
           role="alert">
@@ -32,15 +32,15 @@
         <b-btn
           id="create-confirm"
           :disabled="!name.length"
-          @click.prevent="createCohort()"
           class="btn-primary-color-override"
-          variant="primary">
+          variant="primary"
+          @click.prevent="createCohort()">
           Save
         </b-btn>
         <b-btn
           id="create-cancel"
-          @click="cancelModal()"
-          variant="link">
+          variant="link"
+          @click="cancelModal()">
           Cancel
         </b-btn>
       </div>

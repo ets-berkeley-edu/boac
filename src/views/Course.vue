@@ -12,8 +12,8 @@
 
     <div v-if="!loading && !error" class="course-container-inner">
       <a
-        id="skip-to-pagination-widget"
         v-if="section.totalStudentCount > pagination.itemsPerPage"
+        id="skip-to-pagination-widget"
         href="#pagination-widget"
         class="sr-only">Skip to pagination widget</a>
       <div>
@@ -81,11 +81,11 @@
               <button
                 id="btn-tab-list"
                 :class="{'tab-button-selected': tab === 'list'}"
-                @click="toggleView('list')"
-                @keyup.enter="toggleView('list')"
                 type="button"
                 class="btn btn-secondary tab-button"
-                aria-label="Switch to list view">
+                aria-label="Switch to list view"
+                @click="toggleView('list')"
+                @keyup.enter="toggleView('list')">
                 <font-awesome icon="list" /> List
               </button>
               <button
@@ -93,11 +93,11 @@
                 :title="matrixDisabledMessage"
                 :class="{'tab-button-selected': tab === 'matrix'}"
                 :disabled="matrixDisabledMessage"
-                @click="toggleView('matrix')"
-                @keyup.enter="toggleView('matrix')"
                 type="button"
                 class="btn btn-secondary tab-button"
-                aria-label="Switch to matrix view">
+                aria-label="Switch to matrix view"
+                @click="toggleView('matrix')"
+                @keyup.enter="toggleView('matrix')">
                 <font-awesome icon="table" /> Matrix
               </button>
             </div>
@@ -111,9 +111,9 @@
                 <a
                   :class="{'selected': option === pagination.itemsPerPage}"
                   :title="`Show ${option} results per page`"
+                  href="#"
                   @click="resizePage(option)"
-                  @keyup.enter="resizePage(option)"
-                  href="#">
+                  @keyup.enter="resizePage(option)">
                   {{ option }}</a><span v-if="optionIndex + 1 < pagination.options.length">&nbsp;|&nbsp;</span>
               </li>
             </ul>
@@ -132,7 +132,7 @@
             </div>
           </div>
         </div>
-        <div id="matrix-outer" v-if="tab === 'matrix' && !loading && !error" class="matrix-outer">
+        <div v-if="tab === 'matrix' && !loading && !error" id="matrix-outer" class="matrix-outer">
           <Matrix :featured="featured" :section="section" />
         </div>
       </div>

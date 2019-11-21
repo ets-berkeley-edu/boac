@@ -4,17 +4,17 @@
       v-if="isExistingUser"
       :id="'edit-${user.uid}'"
       :title="`Edit profile of ${profile.name}`"
-      @click="openEditUserModal()"
       class="pl-1 pr-1"
-      variant="link">
+      variant="link"
+      @click="openEditUserModal()">
       <font-awesome icon="edit" />
     </b-btn>
     <b-btn
-      id="add-new-user-btn"
       v-if="!isExistingUser"
-      @click="openEditUserModal()"
+      id="add-new-user-btn"
       class="pl-1 pr-1"
-      variant="link">
+      variant="link"
+      @click="openEditUserModal()">
       <div class="d-flex">
         <div class="pr-1">
           <font-awesome icon="plus" />
@@ -27,10 +27,10 @@
     <b-modal
       v-if="showEditUserModal"
       v-model="showEditUserModal"
-      @shown="focusModalById('edit-modal-header')"
       body-class="pl-0 pr-0"
       hide-footer
-      hide-header>
+      hide-header
+      @shown="focusModalById('edit-modal-header')">
       <div class="modal-header">
         <h2 id="edit-modal-header" class="student-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
       </div>
@@ -80,9 +80,9 @@
               <div class="mb-1">
                 <b-btn
                   :id="`remove-department-${dept.code}`"
-                  @click.prevent="removeDepartment(dept.code)"
                   variant="link"
-                  class="p-0">
+                  class="p-0"
+                  @click.prevent="removeDepartment(dept.code)">
                   <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                   <span class="sr-only">Remove department '{{ dept.name }}'</span>
                 </b-btn>
@@ -95,13 +95,13 @@
                 </div>
                 <b-form-select
                   :id="`select-department-${dept.code}-role`"
+                  v-model="dept.role"
                   :options="[
                     { text: 'Advisor', value: 'advisor' },
                     { text: 'Advisor + Drop-In', value: 'dropInAdvisor' },
                     { text: 'Director', value: 'director' },
                     { text: 'Scheduler', value: 'scheduler' },
                   ]"
-                  v-model="dept.role"
                   :aria-label="`User's role in department ${dept.name}`"
                   class="w-200px">
                   <template v-slot:first>
@@ -127,9 +127,9 @@
               id="department-select-list"
               v-model="deptCode"
               :options="departmentOptions"
-              @change="addDepartment"
               class="w-auto"
-              aria-label="Use up and down arrows to review departments. Hit enter to select a department.">
+              aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+              @change="addDepartment">
               <template v-slot:first>
                 <option :value="undefined">Add department...</option>
               </template>
@@ -140,17 +140,17 @@
       <div class="modal-footer">
         <b-btn
           id="save-changes-to-user-profile"
-          @click="save()"
           class="btn-primary-color-override"
-          variant="primary">
+          variant="primary"
+          @click="save()">
           Save
         </b-btn>
         <b-btn
           id="delete-cancel"
-          @click="cancel()"
-          @keyup.enter="cancel()"
           class="pl-2"
-          variant="link">
+          variant="link"
+          @click="cancel()"
+          @keyup.enter="cancel()">
           Cancel
         </b-btn>
       </div>

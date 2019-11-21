@@ -8,8 +8,8 @@
       <select
         id="matrix-choose-metrics-y-axis"
         v-model="selectedAxes.y"
-        @change="refreshMatrix()"
-        class="matrix-choose-metrics-select">
+        class="matrix-choose-metrics-select"
+        @change="refreshMatrix()">
         <option
           v-for="(yAxisName, yAxisValue) in axisLabels"
           :key="yAxisName"
@@ -21,8 +21,8 @@
       <select
         id="matrix-choose-metrics-x-axis"
         v-model="selectedAxes.x"
-        @change="refreshMatrix()"
-        class="matrix-choose-metrics-select">
+        class="matrix-choose-metrics-select"
+        @change="refreshMatrix()">
         <option
           v-for="(xAxisName, xAxisValue) in axisLabels"
           :key="xAxisName"
@@ -38,27 +38,27 @@
         <div class="btn-group">
           <button
             id="btn-matrix-zoom-in"
-            @click="zoomIn()"
-            @keyup.enter="zoomIn()"
             type="button"
-            class="btn matrix-zoom-button">
+            class="btn matrix-zoom-button"
+            @click="zoomIn()"
+            @keyup.enter="zoomIn()">
             <font-awesome icon="plus" />
             <span class="sr-only">Zoom in</span>
           </button>
           <button
             id="btn-matrix-zoom-out"
             :disabled="zoom.scale === 1"
-            @click="zoomOut()"
-            @keyup.enter="zoomOut()"
             type="button"
-            class="btn matrix-zoom-button">
+            class="btn matrix-zoom-button"
+            @click="zoomOut()"
+            @keyup.enter="zoomOut()">
             <font-awesome :class="{'matrix-zoom-disabled': zoom.scale === 1}" icon="minus" />
             <span class="sr-only">Zoom out</span>
           </button>
         </div>
       </div>
-      <div id="scatterplot" v-if="plottable" class="matrix"></div>
-      <div id="cohort-missing-student-data" v-if="!isEmpty(studentsWithoutData)" class="cohort-missing-student-data">
+      <div v-if="plottable" id="scatterplot" class="matrix"></div>
+      <div v-if="!isEmpty(studentsWithoutData)" id="cohort-missing-student-data" class="cohort-missing-student-data">
         <h2 class="matrix-header">Missing Student Data</h2>
         <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
         <table class="missing-student-data-table">

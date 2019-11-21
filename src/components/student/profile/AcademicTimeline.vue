@@ -9,9 +9,9 @@
             <b-btn
               id="timeline-tab-all"
               :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
-              @click="setFilter(null)"
               class="tab pl-2 pr-2"
-              variant="link">
+              variant="link"
+              @click="setFilter(null)">
               All
             </b-btn>
           </div>
@@ -25,9 +25,9 @@
               }"
               :aria-label="`${filterTypes[type].name}s tab`"
               :disabled="!countsPerType[type]"
-              @click="setFilter(type)"
               class="tab ml-2 pl-2 pr-2 text-center"
-              variant="link">
+              variant="link"
+              @click="setFilter(type)">
               {{ filterTypes[type].tab }}
             </b-btn>
           </div>
@@ -44,8 +44,8 @@
     <div v-if="isExpandAllAvailable" class="mt-1 mb-1 timeline-submenu">
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
-        @click.prevent="toggleExpandAll()"
-        variant="link">
+        variant="link"
+        @click.prevent="toggleExpandAll()">
         <font-awesome
           :icon="allExpanded ? 'caret-down' : 'caret-right'"
           class="toggle-expand-all-caret" />
@@ -60,11 +60,11 @@
       <input
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
-        @keypress.enter.stop="searchTimeline()"
-        class="pl-2 pr-2 timeline-query-input" />
+        class="pl-2 pr-2 timeline-query-input"
+        @keypress.enter.stop="searchTimeline()" />
     </div>
 
-    <div id="timeline-notes-spinner" v-if="searchResultsLoading" class="mt-4 text-center">
+    <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
       <font-awesome icon="sync" size="3x" spin />
     </div>
 
@@ -136,10 +136,10 @@
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
                   :disabled="disableNewNoteButton"
-                  @keypress.enter.stop="editNote(message)"
-                  @click.stop="editNote(message)"
                   variant="link"
-                  class="p-0 edit-note-button">
+                  class="p-0 edit-note-button"
+                  @keypress.enter.stop="editNote(message)"
+                  @click.stop="editNote(message)">
                   Edit Note
                 </b-btn>
               </div>
@@ -147,10 +147,10 @@
                 <b-btn
                   id="delete-note-button"
                   :disabled="disableNewNoteButton"
-                  @keypress.enter.stop="deleteNote(message)"
-                  @click.stop="deleteNote(message)"
                   variant="link"
-                  class="p-0 edit-note-button">
+                  class="p-0 edit-note-button"
+                  @keypress.enter.stop="deleteNote(message)"
+                  @click.stop="deleteNote(message)">
                   Delete Note
                 </b-btn>
               </div>
@@ -195,9 +195,9 @@
               <div v-if="includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
+                  variant="link"
                   @keyup.enter.stop="close(message, true)"
-                  @click.stop="close(message, true)"
-                  variant="link">
+                  @click.stop="close(message, true)">
                   <div class="d-flex">
                     <div class="mr-1">
                       <font-awesome icon="times-circle" class="font-size-24" />
@@ -292,9 +292,9 @@
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
         :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
-        @click="isShowingAll = !isShowingAll"
         class="no-wrap pr-2 pt-0"
-        variant="link">
+        variant="link"
+        @click="isShowingAll = !isShowingAll">
         <font-awesome :icon="isShowingAll ? 'caret-up' : 'caret-right'" />
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>

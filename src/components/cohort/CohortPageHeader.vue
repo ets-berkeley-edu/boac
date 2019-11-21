@@ -14,8 +14,8 @@
     <div v-if="!renameMode" class="d-flex flex-wrap justify-content-between">
       <div>
         <h1
-          id="cohort-name"
           v-if="cohortName"
+          id="cohort-name"
           class="page-section-header"
           tabindex="0">
           {{ cohortName }}
@@ -24,8 +24,8 @@
             class="faint-text">{{ 'student' | pluralize(totalStudentCount) }}</span>
         </h1>
         <h1
-          id="cohort-results-header"
           v-if="!cohortName && totalStudentCount !== undefined"
+          id="cohort-results-header"
           tabindex="0">
           {{ 'Result' | pluralize(totalStudentCount) }}
         </h1>
@@ -35,9 +35,9 @@
           <b-btn
             id="show-hide-details-button"
             :aria-label="isCompactView ? 'Show cohort filters' : 'Hide cohort filters'"
-            @click="toggleShowHideDetails()"
             class="no-wrap pr-2 p-0"
-            variant="link">
+            variant="link"
+            @click="toggleShowHideDetails()">
             {{ isCompactView ? 'Show' : 'Hide' }} Filters
           </b-btn>
         </div>
@@ -45,10 +45,10 @@
         <div v-if="cohortId && isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
-            @click="beginRename()"
             class="pl-2 pr-2 pt-0"
             variant="link"
-            aria-label="Rename this cohort">
+            aria-label="Rename this cohort"
+            @click="beginRename()">
             Rename
           </b-btn>
         </div>
@@ -65,10 +65,10 @@
           <b-modal
             id="confirm-delete-modal"
             v-model="showDeleteModal"
-            @shown="focusModalById('delete-confirm')"
             body-class="pl-0 pr-0"
             hide-footer
-            hide-header>
+            hide-header
+            @shown="focusModalById('delete-confirm')">
             <DeleteCohortModal
               :cohort-name="cohortName"
               :cancel-delete-modal="cancelDeleteModal"
@@ -79,8 +79,8 @@
         <div v-if="cohortId || totalStudentCount !== undefined">
           <b-btn
             id="export-student-list-button"
-            :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             v-b-modal="'export-list-modal'"
+            :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-0 pt-0"
             variant="link"
             aria-label="Download CSV file containing all students">
@@ -89,10 +89,10 @@
           <b-modal
             id="export-list-modal"
             v-model="showExportListModal"
-            @shown="focusModalById('export-list-confirm')"
             body-class="pl-0 pr-0"
             hide-footer
-            hide-header>
+            hide-header
+            @shown="focusModalById('export-list-confirm')">
             <ExportListModal
               :cancel-export-list-modal="cancelExportCohortModal"
               :export-list="exportCohort" />
@@ -108,13 +108,13 @@
               id="rename-cohort-input"
               v-model="name"
               :aria-invalid="!name"
-              @keyup.esc="cancelRename()"
               class="rename-input text-dark p-2 w-100"
               aria-label="Input cohort name, 255 characters or fewer"
               aria-required="true"
               maxlength="255"
               required
-              type="text" />
+              type="text"
+              @keyup.esc="cancelRename()" />
           </form>
         </div>
         <div class="pt-1">
@@ -133,20 +133,20 @@
         <b-btn
           id="rename-confirm"
           :disabled="!name"
-          @click.prevent="submitRename()"
           class="cohort-manage-btn btn-primary-color-override"
           variant="primary"
           aria-label="Save changes to cohort name"
-          size="sm">
+          size="sm"
+          @click.prevent="submitRename()">
           Rename
         </b-btn>
         <b-btn
           id="rename-cancel"
-          @click="cancelRename()"
           class="cohort-manage-btn"
           variant="link"
           aria-label="Cancel rename cohort"
-          size="sm">
+          size="sm"
+          @click="cancelRename()">
           Cancel
         </b-btn>
       </div>

@@ -256,8 +256,8 @@ v-if="section.isViewableOnCoursePage"
     <div v-if="get(student, 'enrollmentTerms.length') > 1" class="text-center">
       <b-btn
         id="toggle-show-all-terms"
-        @click.prevent="toggleShowAllTerms()"
-        variant="link">
+        variant="link"
+        @click.prevent="toggleShowAllTerms()">
         <font-awesome :icon="showAllTerms ? 'caret-up' : 'caret-right'" />
         <span class="no-wrap pl-1">{{ showAllTerms ? 'Hide' : 'Show' }} Previous Semesters</span>
       </b-btn>

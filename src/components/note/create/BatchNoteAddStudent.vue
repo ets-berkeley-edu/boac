@@ -17,8 +17,8 @@
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
         :source="studentsByNameOrSid"
-        @input="addStudent"
-        class="w-75">
+        class="w-75"
+        @input="addStudent">
       </Autocomplete>
     </div>
     <div>
@@ -27,9 +27,9 @@
           <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': user.inDemoMode}">{{ addedStudent.label }}</span>
           <b-btn
             :id="`remove-student-from-batch-${index}`"
-            @click.prevent="removeStudent(addedStudent)"
             variant="link"
-            class="p-0">
+            class="p-0"
+            @click.prevent="removeStudent(addedStudent)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
             <span class="sr-only">Remove {{ addedStudent.label }} from batch note</span>
           </b-btn>

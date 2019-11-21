@@ -29,9 +29,9 @@
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
             :aria-label="`Remove ${type} ${addedObject.name}`"
-            @click.prevent="remove(addedObject)"
             variant="link"
-            class="p-0">
+            class="p-0"
+            @click.prevent="remove(addedObject)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
           </b-btn>
         </span>

@@ -3,17 +3,17 @@
     id="are-you-sure-modal"
     v-model="showAreYouSureModal"
     :no-close-on-backdrop="true"
-    @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header>
+    hide-header
+    @cancel.prevent="functionCancel"
+    @hide.prevent="functionCancel"
+    @shown="putFocusNextTick('are-you-sure-confirm')">
     <div>
       <div class="modal-header">
         <h3 id="are-you-sure-header">{{ modalHeader }}</h3>
       </div>
-      <div id="are-you-sure-body" v-if="modalBody" class="modal-body">
+      <div v-if="modalBody" id="are-you-sure-body" class="modal-body">
         <span v-html="modalBody"></span>
       </div>
       <div class="modal-footer">
@@ -21,16 +21,16 @@
           <b-btn
             id="are-you-sure-confirm"
             :aria-label="modalHeader"
-            @click.prevent="functionConfirm"
             class="btn-primary-color-override"
-            variant="primary">
+            variant="primary"
+            @click.prevent="functionConfirm">
             {{ buttonLabelConfirm }}
           </b-btn>
           <b-btn
             id="are-you-sure-cancel"
-            @click.stop="functionCancel"
             class="pl-2"
-            variant="link">
+            variant="link"
+            @click.stop="functionCancel">
             {{ buttonLabelCancel }}
           </b-btn>
         </form>

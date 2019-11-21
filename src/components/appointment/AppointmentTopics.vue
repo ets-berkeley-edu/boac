@@ -9,14 +9,14 @@
       <b-form-row class="pb-1">
         <b-col cols="9">
           <b-form-select
-            id="add-topic-select-list"
             v-if="topicOptions.length"
+            id="add-topic-select-list"
             :key="topics.length"
             v-model="selected"
             :disabled="disabled"
-            @input="add"
             role="listbox"
-            aria-label="Use up and down arrows to review topics. Hit enter to select a topic.">
+            aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
+            @input="add">
             <template v-slot:first>
               <option :value="null" disabled>Select...</option>
             </template>
@@ -49,10 +49,10 @@
                     :id="`remove-appointment-topic-${index}`"
                     :disabled="disabled"
                     :aria-labelledby="`remove-appointment-topic-${index}-label`"
-                    @click.prevent="remove(addedTopic)"
                     variant="link"
                     class="m-0 p-0"
-                    tabindex="0">
+                    tabindex="0"
+                    @click.prevent="remove(addedTopic)">
                     <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                   </b-btn>
                   <label :id="`remove-appointment-topic-${index}-label`" :for="`remove-appointment-topic-${index}`" class="sr-only">

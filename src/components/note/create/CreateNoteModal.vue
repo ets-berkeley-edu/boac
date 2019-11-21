@@ -5,9 +5,9 @@
         :id="isBatchFeature ? 'batch-note-button' : 'new-note-button'"
         :class="{'w-100': isBatchFeature}"
         :disabled="disableNewNoteButton"
-        @click="openNoteModal()"
         class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-        variant="primary">
+        variant="primary"
+        @click="openNoteModal()">
         <span class="m-1">
           <font-awesome icon="file-alt" />
           <span class="sr-only">{{ isBatchFeature ? 'Batch create ' : 'Create ' }}</span>
@@ -40,13 +40,13 @@
               <b-alert
                 id="alert-in-note-modal"
                 :show="dismissAlertSeconds"
-                @dismiss-count-down="dismissAlert"
                 class="font-weight-bolder w-100"
                 dismissible
                 fade
                 variant="info"
                 aria-live="polite"
-                role="alert">
+                role="alert"
+                @dismiss-count-down="dismissAlert">
                 <div class="d-flex">
                   <div v-if="isSaving" class="mr-2">
                     <font-awesome icon="sync" spin />
@@ -64,13 +64,13 @@
                 :value="model.subject"
                 :disabled="isSaving"
                 :class="{ 'bg-light': isSaving }"
-                @input="setSubjectPerEvent"
-                @keydown.enter="submitForm()"
-                @keydown.esc="cancelRequested()"
                 aria-labelledby="create-note-subject-label"
                 class="cohort-create-input-name"
                 maxlength="255"
-                type="text">
+                type="text"
+                @input="setSubjectPerEvent"
+                @keydown.enter="submitForm()"
+                @keydown.esc="cancelRequested()">
             </div>
             <div>
               <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>

@@ -2,22 +2,22 @@
   <div>
     <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <b-btn
-      id="unsaved-filter-apply"
       v-if="showApplyButton"
+      id="unsaved-filter-apply"
       :disabled="!!editMode"
-      @click="apply()"
       class="btn-filter-draft btn-primary-color-override"
       variant="primary"
-      aria-label="Search for students">
+      aria-label="Search for students"
+      @click="apply()">
       Apply
     </b-btn>
     <b-btn
-      id="unsaved-filter-reset"
       v-if="showApplyButton"
+      id="unsaved-filter-reset"
       :disabled="!!editMode"
-      @click="resetToLastApply()"
       class="btn-filter-draft"
-      aria-label="Reset filters">
+      aria-label="Reset filters"
+      @click="resetToLastApply()">
       Reset
     </b-btn>
     <div v-if="showSaveButton && isPerforming !== 'search'">
@@ -29,28 +29,28 @@
         :variant="saveButtonVariant"
         :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
         :disabled="!!editMode || showCreateModal || !!isPerforming"
-        @click="save()"
-        class="btn-filter-draft save-button-width mt-3">
+        class="btn-filter-draft save-button-width mt-3"
+        @click="save()">
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
         <span v-if="isPerforming === 'save'"><font-awesome icon="spinner" spin /> Saving</span>
         <span v-if="!isPerforming && cohortId">Save Cohort</span>
         <span v-if="!isPerforming && !cohortId">Save</span>
       </b-btn>
       <b-btn
-        id="unsaved-filter-reset"
         v-if="!isPerforming && cohortId"
+        id="reset-to-saved-cohort"
         :disabled="!!editMode"
-        @click="resetToSaved()"
         class="btn-filter-draft"
-        aria-label="Reset filters">
+        aria-label="Reset filters"
+        @click="resetToSaved()">
         Reset
       </b-btn>
       <b-modal
         v-model="showCreateModal"
-        @shown="focusModalById('create-input')"
         body-class="pl-0 pr-0"
         hide-footer
-        hide-header-close>
+        hide-header-close
+        @shown="focusModalById('create-input')">
         <CreateCohortModal
           :cancel="cancelCreateModal"
           :create="create" />

@@ -9,13 +9,13 @@
       :total-rows="totalRows"
       :limit="limit"
       :per-page="perPage"
-      @change="onClick"
       next-text="Next"
       prev-text="Prev"
       first-text="First"
       last-text="Last"
       hide-ellipsis
-      size="md">
+      size="md"
+      @change="onClick">
     </b-pagination>
   </div>
 </template>

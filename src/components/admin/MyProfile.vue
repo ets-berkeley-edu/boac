@@ -41,8 +41,10 @@
           <span v-if="user.isAdmin">You are a BOA Admin user.</span>
           <span v-if="!user.canAccessCanvasData">You do not have access to bCourses (LMS) data.</span>
         </div>
-        <div v-if="user.departments.length" v-for="department in user.departments" :key="department.code">
-          <span>{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
+        <div v-if="user.departments.length">
+          <div v-for="department in user.departments" :key="department.code">
+            <span>{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
+          </div>
         </div>
       </b-col>
     </b-row>

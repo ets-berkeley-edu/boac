@@ -13,13 +13,12 @@
         </div>
         <div v-if="!user.isAdmin" class="toggle-btn-column">
           <button
-            :id="`toggle-drop-in-availability-${uid}`"
             v-if="!isToggling"
-            v-model="isAvailable"
-            @click="toggle"
-            @keyup="toggle"
+            :id="`toggle-drop-in-availability-${uid}`"
             type="button"
-            class="btn btn-link pt-0 pb-0 pl-1 pr-1">
+            class="btn btn-link pt-0 pb-0 pl-1 pr-1"
+            @click="toggle"
+            @keyup.down="toggle">
             <span class="status-toggle-label">
               <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
               <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
@@ -95,6 +94,7 @@ export default {
         this.isAvailable = !this.isAvailable;
         this.isToggling = false;
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
+        this.putFocusNextTick(`toggle-drop-in-availability-${this.uid}`)
       });
     }
   }

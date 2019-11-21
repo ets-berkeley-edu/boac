@@ -8,14 +8,14 @@
         :id="`link-to-student-${note.studentUid}`"
         :class="{'demo-mode-blur': user.inDemoMode}"
         :to="`${studentRoutePath(note.studentUid, user.inDemoMode)}#note-${note.id}`"
-        v-html="note.studentName"
-        class="advising-note-search-result-header-link"></router-link>
+        class="advising-note-search-result-header-link"
+        v-html="note.studentName"></router-link>
       ({{ note.studentSid }})
     </h3>
     <div
       :id="`advising-note-search-result-snippet-${note.id}`"
-      v-html="note.noteSnippet"
-      class="advising-note-search-result-snippet">
+      class="advising-note-search-result-snippet"
+      v-html="note.noteSnippet">
     </div>
     <div :class="{'demo-mode-blur': user.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">

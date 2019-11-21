@@ -6,9 +6,9 @@
       <button
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
+        class="btn btn-link"
         @click="removeStudent(student.sid)"
-        @keyup.enter="removeStudent(student.sid)"
-        class="btn btn-link">
+        @keyup.enter="removeStudent(student.sid)">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
       <div v-if="listType === 'cohort'">
@@ -29,8 +29,8 @@
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               :class="{'demo-mode-blur' : user.inDemoMode}"
-              v-html="`${student.lastName}, ${student.firstName}`"
-              class="student-name"></h3>
+              class="student-name"
+              v-html="`${student.lastName}, ${student.firstName}`"></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
