@@ -43,14 +43,14 @@
           <span v-if="!note.author.uid" :id="`note-${note.id}-author-name`">
             {{ note.author.name }}
           </span>
-          <span v-if="note.author.role">
-            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role }}</span>
+          <span v-if="note.author.role || note.author.title">
+            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role || note.author.title }}</span>
           </span>
         </div>
         <div v-if="size(note.author.departments)" class="text-secondary">
-          <span v-if="note.isLegacy">(currently </span><span v-if="note.author.title">{{ note.author.title }}, </span><span v-for="(dept, index) in note.author.departments" :key="dept.code">
-            <span :id="`note-${note.id}-author-dept-${index}`">{{ dept.name }}</span>
-          </span><span v-if="note.isLegacy">)</span>
+          <div v-for="(deptName, index) in orderBy(map(note.author.departments, 'name'))" :key="index">
+            <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
+          </div>
         </div>
       </div>
       <div v-if="note.topics && size(note.topics)">
