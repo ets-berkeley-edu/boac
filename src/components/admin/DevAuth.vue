@@ -65,7 +65,7 @@ export default {
           .then(user => {
             if (user.isAuthenticated) {
               const redirect = this.get(this.$router, 'currentRoute.query.redirect');
-              this.$router.push({ path: redirect || '/home' });
+              this.$router.push({ path: redirect || '/home' }, this.noop);
             }
           });
       } else {
