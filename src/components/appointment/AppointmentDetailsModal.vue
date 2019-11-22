@@ -14,46 +14,46 @@
       </div>
       <div class="modal-body w-100">
         <b-container fluid>
-          <b-row v-if="appointment.topics.length">
-            <b-col class="font-weight-bolder" cols="3">
-              <label for="appointment-topics">
-                Reason
-              </label>
-            </b-col>
-            <b-col id="appointment-topics">
-              {{ oxfordJoin(appointment.topics) }}
-            </b-col>
-          </b-row>
-          <b-row class="mt-2">
-            <b-col cols="3">
-              <label class="font-weight-bolder text-nowrap" for="appointment-created-at">
-                Arrival Time
-              </label>
-            </b-col>
-            <b-col id="appointment-created-at">
+          <div class="mt-2">
+            <label class="font-size-14 font-weight-bolder text-nowrap m-0" for="appointment-created-at">
+              Arrival Time
+            </label>
+            <div id="appointment-created-at">
               {{ new Date(appointment.createdAt) | moment('LT') }}
-            </b-col>
-          </b-row>
-          <b-row>
-            <b-col class="font-weight-bolder" cols="3">
-              <label for="appointment-details">
-                Details
-              </label>
-            </b-col>
-            <b-col>
-              <span id="appointment-details" v-html="appointment.details"></span>
-            </b-col>
-          </b-row>
+            </div>
+          </div>
+          <div class="mt-2">
+            <AppointmentTopics
+              :disabled="saving"
+              :function-add="addTopic"
+              :function-remove="removeTopic"
+              :topics="topics"
+              focus-after-topic-add="appointment-details" />
+          </div>
+          <div class="mb-4 mr-3 mt-1">
+            <label for="appointment-details" class="font-size-14 input-label text">
+              <span class="font-weight-bolder">Additional Information</span>
+            </label>
+            <div>
+              <b-textarea
+                id="appointment-details"
+                v-model="details"
+                rows="4"
+                required>
+              </b-textarea>
+            </div>
+          </div>
         </b-container>
       </div>
       <div class="modal-footer">
         <b-btn
           v-if="!user.isAdmin"
-          id="btn-appointment-details-check-in"
+          id="btn-appointment-details-update"
           class="pl-2"
           variant="primary"
-          @click.stop="checkIn">
-          Check In
+          :disabled="!topics.length || !trim(details).length"
+          @click.stop="update()">
+          Update
         </b-btn>
         <b-btn
           id="btn-appointment-cancel"
@@ -68,21 +68,19 @@
 </template>
 
 <script>
+import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'AppointmentDetailsModal',
+  components: {AppointmentTopics},
   mixins: [Context, UserMetadata, Util],
   props: {
     appointment: {
       type: Object,
       required: true
-    },
-    checkIn: {
-      type: Function,
-      required: false
     },
     close: {
       type: Function,
@@ -95,10 +93,17 @@ export default {
     student: {
       type: Object,
       required: true
-    }
+    },
+    updateAppointment: {
+      type: Function,
+      required: false
+    },
   },
   data: () => ({
-    showDetailsModal: false
+    details: '',
+    isSaving: false,
+    showDetailsModal: false,
+    topics: []
   }),
   watch: {
     showModal(value) {
@@ -106,9 +111,31 @@ export default {
     }
   },
   created() {
+    this.details = this.appointment.details;
+    this.topics = this.clone(this.appointment.topics);
     this.showDetailsModal = this.showModal;
-    this.alertScreenReader(`Opened appointment details of student ${this.student.name}`);
-    this.putFocusNextTick('appointment-check-in-student');
+    this.putFocusNextTick('create-modal-advisor-select');
+    this.alertScreenReader(`Appointment details form is open`);
+  },
+  methods: {
+    addTopic(topic) {
+      this.topics.push(topic);
+    },
+    removeTopic(topic) {
+      const index = this.indexOf(this.topics, topic);
+      if (index !== -1) {
+        this.topics.splice(index, 1);
+      }
+    },
+    update() {
+      this.saving = true;
+      this.updateAppointment(
+        this.details,
+        this.topics,
+      );
+      this.showDetailsModal = false;
+      this.saving = false;
+    }
   }
 }
 </script>

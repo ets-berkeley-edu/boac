@@ -29,7 +29,7 @@ import re
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, get_benchmarker, search_result_text_snippet, utc_now
+from boac.lib.util import camelize, get_benchmarker, search_result_text_snippet, titleize, utc_now, vacuum_whitespace
 from boac.merged import calnet
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
@@ -327,6 +327,15 @@ class Appointment(Base):
         response = [_to_json(search_terms, dict(zip(keys, row))) for row in result.fetchall()]
         return response
 
+    def update(self, updated_by, details=None, topics=()):
+        if details != self.details:
+            self.updated_at = utc_now()
+            self.updated_by = updated_by
+        self.details = details
+        _update_appointment_topics(self, topics, updated_by)
+        std_commit()
+        db.session.refresh(self)
+
     @classmethod
     def refresh_search_index(cls):
         db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
@@ -419,6 +428,28 @@ def _appointment_event_to_json(appointment_id, event_type):
         'statusBy': event and _status_by_user(),
         'statusDate': event and _isoformat(event.created_at),
     }
+
+
+def _update_appointment_topics(appointment, topics, updated_by):
+    modified = False
+    now = utc_now()
+    topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
+    existing_topics = set(appointment_topic.topic for appointment_topic in AppointmentTopic.find_by_appointment_id(appointment.id))
+    topics_to_delete = existing_topics - topics
+    topics_to_add = topics - existing_topics
+    for topic in topics_to_delete:
+        topic_to_delete = next((t for t in appointment.topics if t.topic == topic), None)
+        if topic_to_delete:
+            topic_to_delete.deleted_at = now
+            modified = True
+    for topic in topics_to_add:
+        appointment.topics.append(
+            AppointmentTopic.create(appointment, topic),
+        )
+        modified = True
+    if modified:
+        appointment.updated_at = now
+        appointment.updated_by = updated_by
 
 
 def _isoformat(value):

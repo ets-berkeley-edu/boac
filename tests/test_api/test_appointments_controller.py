@@ -216,6 +216,72 @@ class TestGetAppointment:
             self._get_appointment(client, 'COENG', expected_status_code=401)
 
 
+class TestAppointmentUpdate:
+
+    @classmethod
+    def _api_appointment_update(
+            cls,
+            client,
+            appointment_id,
+            details,
+            topics=(),
+            expected_status_code=200,
+    ):
+        data = {
+            'id': appointment_id,
+            'details': details,
+            'topics': topics,
+        }
+        response = client.post(
+            f'/api/appointments/{appointment_id}/update',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, app, client):
+        """Returns 401 if not authenticated."""
+        self._api_appointment_update(client, 1, 'Hack the appointment!', expected_status_code=401)
+
+    def test_deny_advisor(self, app, client, fake_auth):
+        """Returns 401 if user is a non-dropin advisor."""
+        fake_auth.login(l_s_college_advisor_uid)
+        self._api_appointment_update(client, 1, 'Advise the appointment!', expected_status_code=401)
+
+    def test_appointment_not_found(self, app, client, fake_auth):
+        """Returns 404 if appointment is not found."""
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        self._api_appointment_update(client, 99999999, 'Drop in the appointment!', expected_status_code=404)
+
+    def test_update_appointment_details(self, app, client, fake_auth):
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        created = AppointmentTestUtil.create_appointment(client, 'QCADV')
+        expected_details = 'Why lookst thou so? - With my crossbow I shot the albatross.'
+        self._api_appointment_update(
+            client,
+            created['id'],
+            expected_details,
+            created['topics'],
+        )
+        updated_appt = Appointment.find_by_id(appointment_id=created['id'])
+        assert updated_appt.details == expected_details
+
+    def test_update_appointment_topics(self, app, client, fake_auth):
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        created = AppointmentTestUtil.create_appointment(client, 'QCADV')
+        expected_topics = ['practice makes perfect', 'french film blurred']
+        updated_response = self._api_appointment_update(
+            client,
+            created['id'],
+            created['details'],
+            expected_topics,
+        )
+        assert len(updated_response['topics']) == 2
+        assert 'Practice Makes Perfect' in updated_response['topics']
+        assert 'French Film Blurred' in updated_response['topics']
+
+
 class TestAppointmentCancel:
 
     def test_mark_read_not_authenticated(self, client):
