@@ -220,20 +220,24 @@ export default {
   },
   methods: {
     setAuthor() {
-      if (this.isOpen && this.get(this.note, 'author.uid') && (!this.note.author.name || !this.note.author.role)) {
-        const author_uid = this.note.author.uid;
-        if (author_uid) {
-          if (author_uid === this.user.uid) {
-            this.note.author = this.user;
-          } else {
-            getUserByUid(author_uid).then(data => {
+      const requiresLazyLoad = this.isOpen && (!this.note.author.name || !this.note.author.role);
+      if (requiresLazyLoad) {
+        const hasIdentifier = this.get(this.note, 'author.uid') || this.get(this.note, 'author.sid');
+        if (hasIdentifier) {
+          const author_uid = this.note.author.uid;
+          if (author_uid) {
+            if (author_uid === this.user.uid) {
+              this.note.author = this.user;
+            } else {
+              getUserByUid(author_uid).then(data => {
+                this.note.author = data;
+              });
+            }
+          } else if (this.note.author.sid) {
+            store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
               this.note.author = data;
             });
           }
-        } else if (this.note.author.sid) {
-          store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
-            this.note.author = data;
-          });
         }
       }
     },
