@@ -24,7 +24,7 @@
           </div>
           <div class="mt-2">
             <AppointmentTopics
-              :disabled="saving"
+              :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
               :topics="topics"
@@ -128,13 +128,13 @@ export default {
       }
     },
     update() {
-      this.saving = true;
+      this.isSaving = true;
       this.updateAppointment(
         this.details,
         this.topics,
       );
       this.showDetailsModal = false;
-      this.saving = false;
+      this.isSaving = false;
     }
   }
 }

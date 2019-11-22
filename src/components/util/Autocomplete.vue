@@ -19,7 +19,7 @@
       <ul
         :id="`${id}-suggestions`"
         ref="autocompleteSuggestions"
-        :class="isOpen ? `dropdown-menu-open ${dropdownClass}`: dropdownClass"
+        :class="isOpen ? `d-block ${dropdownClass}`: dropdownClass"
         aria-expanded="true"
         class="dropdown-menu"
         role="menu"
@@ -76,7 +76,7 @@ export default {
       type: Boolean
     },
     dropdownClass: {
-      default: 'autocomplete-dropdown-menu',
+      default: '',
       required: false,
       type: String
     },
@@ -195,13 +195,7 @@ export default {
 </script>
 
 <style scoped>
-.autocomplete-dropdown-menu {
-  position: static;
-}
 .dropdown {
   z-index: 100;
-}
-.dropdown-menu-open {
-  display: block;
 }
 </style>
