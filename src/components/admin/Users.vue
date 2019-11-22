@@ -117,12 +117,10 @@
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
       <template v-slot:cell(edit)="row">
-        <div v-if="!row.item.deletedAt">
-          <EditUserProfileModal
-            :after-update-user="afterUpdateUser"
-            :departments="departments"
-            :profile="row.item" />
-        </div>
+        <EditUserProfileModal
+          :after-update-user="afterUpdateUser"
+          :departments="departments"
+          :profile="row.item" />
       </template>
       <template v-slot:cell(lastName)="row">
         <div class="d-flex">

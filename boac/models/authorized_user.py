@@ -93,6 +93,13 @@ class AuthorizedUser(Base):
         return user
 
     @classmethod
+    def un_delete(cls, uid):
+        user = cls.query.filter_by(uid=uid).first()
+        user.deleted_at = None
+        std_commit()
+        return user
+
+    @classmethod
     def create_or_restore(
             cls,
             uid,
@@ -149,8 +156,9 @@ class AuthorizedUser(Base):
         return result and result['uid']
 
     @classmethod
-    def find_by_id(cls, db_id):
-        return cls.query.filter_by(id=db_id, deleted_at=None).first()
+    def find_by_id(cls, db_id, include_deleted=False):
+        query = cls.query.filter_by(id=db_id) if include_deleted else cls.query.filter_by(id=db_id, deleted_at=None)
+        return query.first()
 
     @classmethod
     def users_with_uid_like(cls, uid_snippet, include_deleted=False):
@@ -217,8 +225,8 @@ class AuthorizedUser(Base):
         return [row['uid'] for row in results]
 
     @classmethod
-    def update_user(cls, user_id, can_access_canvas_data=False, is_admin=False, is_blocked=False):
-        user = AuthorizedUser.find_by_id(user_id)
+    def update_user(cls, user_id, can_access_canvas_data=False, is_admin=False, is_blocked=False, include_deleted=False):
+        user = AuthorizedUser.find_by_id(user_id, include_deleted)
         user.can_access_canvas_data = can_access_canvas_data
         user.is_admin = is_admin
         user.is_blocked = is_blocked

@@ -36,8 +36,12 @@
       </div>
       <div class="modal-body m-0 p-0">
         <div class="pt-2">
-          <div v-if="error" class="align-items-center has-error mb-0 ml-4 mt-1">
-            Error: {{ error }}
+          <div
+            v-if="error"
+            class="align-items-center has-error mb-3 ml-4 mt-1"
+            aria-live="polite"
+            role="alert">
+            <span class="font-weight-bolder">Error:</span> {{ error }}
           </div>
           <div v-if="!isExistingUser" class="align-items-center mb-3 ml-4 mt-3">
             <label for="uid-input" class="sr-only">U I D</label>
@@ -61,6 +65,10 @@
             <b-row>
               <b-col><label for="can-access-canvas-data">Canvas Data</label></b-col>
               <b-col><b-form-checkbox id="can-access-canvas-data" v-model="userProfile.canAccessCanvasData"></b-form-checkbox></b-col>
+            </b-row>
+            <b-row v-if="profile.id">
+              <b-col><label for="is-deleted">Deleted</label></b-col>
+              <b-col><b-form-checkbox id="is-deleted" v-model="isDeleted"></b-form-checkbox></b-col>
             </b-row>
           </b-container>
         </div>
@@ -190,6 +198,7 @@ export default {
     departmentOptions: undefined,
     deptCode: undefined,
     error: undefined,
+    isDeleted: undefined,
     rolesPerDeptCode: undefined,
     showEditUserModal: false,
     userProfile: undefined
@@ -234,6 +243,7 @@ export default {
         isAdmin: this.profile.isAdmin,
         isBlocked: this.profile.isBlocked
       };
+      this.isDeleted = !!this.profile.deletedAt;
       this.rolesPerDeptCode = [];
       this.each(this.profile.departments, d => {
         let role = undefined;
@@ -272,7 +282,9 @@ export default {
       option.disabled = false;
     },
     save() {
-      createOrUpdateUser(this.userProfile, this.rolesPerDeptCode).then(() => {
+      // If no change in deleted status then do not update 'deleted_at' in the database.
+      const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
+      createOrUpdateUser(this.userProfile, this.rolesPerDeptCode, deleteAction).then(() => {
         this.afterUpdateUser(this.profile.name);
         this.closeModal();
       }).catch(error => {

@@ -213,17 +213,26 @@ def create_or_update_user_profile():
     params = request.get_json()
     profile = params.get('profile', None)
     roles_per_dept_code = params.get('rolesPerDeptCode', None)
+    delete_action = to_bool_or_none(util.get(params, 'deleteAction'))
+
     if not profile or not profile.get('uid') or roles_per_dept_code is None:
         raise errors.BadRequestError('Required parameters are missing')
 
-    authorized_user = _update_or_create_authorized_user(profile)
+    authorized_user = _update_or_create_authorized_user(profile, include_deleted=True)
     _delete_existing_memberships(authorized_user)
     _create_department_memberships(authorized_user, roles_per_dept_code)
     _create_drop_in_advisor(authorized_user, roles_per_dept_code)
 
+    if delete_action is True and not authorized_user.deleted_at:
+        AuthorizedUser.delete_and_block(authorized_user.uid)
+    elif delete_action is False and authorized_user.deleted_at:
+        AuthorizedUser.un_delete(authorized_user.uid)
+
     user_id = authorized_user.id
     UserSession.flush_cache_for_id(user_id)
-    users_json = authorized_users_api_feed([AuthorizedUser.find_by_id(user_id)])
+
+    updated_user = AuthorizedUser.find_by_id(user_id, include_deleted=True)
+    users_json = authorized_users_api_feed([updated_user])
     return tolerant_jsonify(users_json and users_json[0])
 
 
@@ -342,7 +351,7 @@ def _update_drop_in_status(uid, dept_code, active):
         raise errors.ResourceNotFoundError(f'No drop-in advisor status found: (uid={uid}, dept_code={dept_code})')
 
 
-def _update_or_create_authorized_user(profile):
+def _update_or_create_authorized_user(profile, include_deleted=False):
     user_id = profile.get('id')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
     is_admin = to_bool_or_none(profile.get('isAdmin'))
@@ -353,6 +362,7 @@ def _update_or_create_authorized_user(profile):
             can_access_canvas_data=can_access_canvas_data,
             is_admin=is_admin,
             is_blocked=is_blocked,
+            include_deleted=include_deleted,
         )
     else:
         uid = profile.get('uid')
