@@ -209,6 +209,8 @@ export default {
             name: includeCourses ? 'classes and students' : 'students'
           });
         });
+    } else {
+      this.$router.push({ path: '/' }, this.noop);
     }
   },
   methods: {

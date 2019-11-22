@@ -335,6 +335,7 @@ class Appointment(Base):
         _update_appointment_topics(self, topics, updated_by)
         std_commit()
         db.session.refresh(self)
+        self.refresh_search_index()
 
     @classmethod
     def refresh_search_index(cls):
