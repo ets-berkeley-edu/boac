@@ -104,9 +104,10 @@ export function setDemoMode(demoMode: boolean) {
     });
 }
 
-export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[]) {
+export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], deleteAction: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/users/create_or_update`, {
+      deleteAction,
       profile,
       rolesPerDeptCode
     })

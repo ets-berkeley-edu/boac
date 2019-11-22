@@ -638,12 +638,20 @@ class TestUserUpdate:
         }
 
     @classmethod
-    def _api_create_or_update(cls, client, profile, expected_status_code=200, roles_per_dept_code=()):
+    def _api_create_or_update(
+            cls,
+            client,
+            profile,
+            expected_status_code=200,
+            roles_per_dept_code=(),
+            delete_action=None,
+    ):
         response = client.post(
             f'/api/users/create_or_update',
             data=json.dumps({
                 'profile': profile,
                 'rolesPerDeptCode': roles_per_dept_code,
+                'deleteAction': delete_action,
             }),
             content_type='application/json',
         )
@@ -783,3 +791,33 @@ class TestUserUpdate:
         assert len(user.department_memberships) == 1
         assert user.department_memberships[0].university_dept.dept_code == 'QCADVMAJ'
         assert user.department_memberships[0].automate_membership is False
+
+    def test_update_deleted_user(self, client, fake_auth):
+        """Update and then un-delete user."""
+        fake_auth.login(admin_uid)
+        # First, create advisor
+        uid = '9000000003'
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': '300000009',
+            },
+        )
+        profile = self._profile_object(uid=uid, is_admin=True)
+        user = self._api_create_or_update(client, profile=profile, roles_per_dept_code=[])
+        profile['id'] = user['id']
+
+        # Next, delete the user.
+        self._api_create_or_update(client, profile=profile, delete_action=True)
+        std_commit(allow_test_environment=True)
+
+        user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
+        assert user.deleted_at
+
+        # Finally, un-delete the user.
+        self._api_create_or_update(client, profile=profile, delete_action=False)
+        std_commit(allow_test_environment=True)
+
+        user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
+        assert not user.deleted_at
