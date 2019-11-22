@@ -281,7 +281,7 @@ export default {
       let promise = undefined;
       switch(this.filterType) {
         case 'admins':
-          promise = getAdminUsers(this.sortBy, this.sortDescending).then(data => {
+          promise = getAdminUsers(this.sortBy, this.sortDescending, false).then(data => {
             this.totalUserCount = data.totalUserCount;
             return data.users;
           });
