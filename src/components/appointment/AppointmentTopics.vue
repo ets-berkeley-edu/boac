@@ -118,7 +118,7 @@ export default {
         this.topicOptions.push({
           text: topic,
           value: topic,
-          disabled: false
+          disabled: this.includes(this.topics, topic)
         })
       });
     });

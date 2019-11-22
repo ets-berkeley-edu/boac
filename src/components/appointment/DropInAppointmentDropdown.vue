@@ -11,9 +11,9 @@
       v-if="showAppointmentDetailsModal"
       :appointment="appointment"
       :close="closeAppointmentDetailsModal"
-      :check-in="launchCheckIn"
       :show-modal="showAppointmentDetailsModal"
-      :student="appointment.student" />
+      :student="appointment.student"
+      :update-appointment="updateAppointment" />
     <CheckInModal
       v-if="showCheckInModal"
       :appointment="appointment"
@@ -100,6 +100,7 @@ import {
   checkIn as apiCheckIn,
   reserve as apiReserve,
   unreserve as apiUnreserve,
+  update as apiUpdate,
 } from '@/api/appointments';
 
 export default {
@@ -231,6 +232,15 @@ export default {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
           this.alertScreenReader(`${unreserved.student.name} appointment unassigned`);
+        });
+      }).catch(this.handleBadRequestError);
+    },
+    updateAppointment(details, topics) {
+      this.loading = true;
+      apiUpdate(this.appointment.id, details, topics).then(updated => {
+        this.onAppointmentStatusChange(this.appointment.id).then(() => {
+          this.loading = false;
+          this.alertScreenReader(`${updated.student.name} appointment updated`);
         });
       }).catch(this.handleBadRequestError);
     }

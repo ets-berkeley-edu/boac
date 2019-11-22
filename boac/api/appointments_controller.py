@@ -181,6 +181,29 @@ def unreserve_appointment(appointment_id):
     return _set_appointment_to_waiting(appointment)
 
 
+@app.route('/api/appointments/<appointment_id>/update', methods=['POST'])
+@appointments_feature_flag
+@scheduler_required
+def update_appointment(appointment_id):
+    appointment = Appointment.find_by_id(appointment_id)
+    if not appointment:
+        raise ResourceNotFoundError('Unknown path')
+    has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
+    if not has_privilege:
+        raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
+    params = request.get_json()
+    details = params.get('details', None)
+    topics = params.get('topics', None)
+    appointment.update(
+        details=details,
+        topics=topics,
+        updated_by=current_user.get_id(),
+    )
+    api_json = appointment.to_api_json(current_user.get_id())
+    _put_student_profile_per_appointment([api_json])
+    return tolerant_jsonify(api_json)
+
+
 def _set_appointment_to_waiting(appointment):
     has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
     if not has_privilege:

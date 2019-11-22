@@ -144,3 +144,19 @@ export function unreserve(appointmentId) {
       return response.data
     });
 }
+
+export function update(appointmentId, details, topics) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/update`, {
+      details,
+      topics
+    })
+    .then(response => {
+      store.dispatch('user/gaAppointmentEvent', {
+        id: appointmentId,
+        name: `Advisor ${store.getters['user/uid']} updated a drop-in appointment`,
+        action: 'update'
+      });
+      return response.data
+    });
+}
