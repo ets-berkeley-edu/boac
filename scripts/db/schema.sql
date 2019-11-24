@@ -101,7 +101,7 @@ ALTER TABLE ONLY appointment_topics ALTER COLUMN id SET DEFAULT nextval('appoint
 ALTER TABLE ONLY appointment_topics
     ADD CONSTRAINT appointment_topics_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY appointment_topics
-    ADD CONSTRAINT appointment_topics_appointment_id_topic_unique_constraint UNIQUE (appointment_id, topic);
+    ADD CONSTRAINT appointment_topics_appointment_id_topic_unique_constraint UNIQUE (appointment_id, topic, deleted_at);
 CREATE INDEX appointment_topics_appointment_id_idx ON appointment_topics (appointment_id);
 CREATE INDEX appointment_topics_topic_idx ON appointment_topics (topic);
 
@@ -470,7 +470,7 @@ ALTER TABLE ONLY note_topics ALTER COLUMN id SET DEFAULT nextval('note_topics_id
 ALTER TABLE ONLY note_topics
     ADD CONSTRAINT note_topics_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY note_topics
-    ADD CONSTRAINT note_topics_note_id_topic_unique_constraint UNIQUE (note_id, topic);
+    ADD CONSTRAINT note_topics_note_id_topic_unique_constraint UNIQUE (note_id, topic, deleted_at);
 CREATE INDEX note_topics_note_id_idx ON note_topics (note_id);
 CREATE INDEX note_topics_topic_idx ON note_topics (topic);
 

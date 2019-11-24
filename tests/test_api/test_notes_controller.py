@@ -578,17 +578,27 @@ class TestUpdateNotes:
     def test_remove_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
         """Delete note topics."""
         fake_auth.login(mock_asc_advising_note.author_uid)
-        expected_topics = []
+        original_topics = mock_asc_advising_note.topics
+        assert len(original_topics)
         api_json = self._api_note_update(
             app,
             client,
             note_id=mock_asc_advising_note.id,
             subject=mock_asc_advising_note.subject,
             body=mock_asc_advising_note.body,
-            topics=expected_topics,
+            topics=[],
         )
-        assert api_json['read'] is True
         assert not api_json['topics']
+        # Put those topics back
+        api_json = self._api_note_update(
+            app,
+            client,
+            note_id=mock_asc_advising_note.id,
+            subject=mock_asc_advising_note.subject,
+            body=mock_asc_advising_note.body,
+            topics=[t.topic for t in original_topics],
+        )
+        assert set(api_json['topics']) == set([t.topic for t in original_topics])
 
 
 class TestDeleteNote:

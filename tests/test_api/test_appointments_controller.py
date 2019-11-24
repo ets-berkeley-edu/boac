@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac import std_commit
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -270,16 +271,22 @@ class TestAppointmentUpdate:
     def test_update_appointment_topics(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         created = AppointmentTestUtil.create_appointment(client, 'QCADV')
-        expected_topics = ['practice makes perfect', 'french film blurred']
-        updated_response = self._api_appointment_update(
-            client,
-            created['id'],
-            created['details'],
-            expected_topics,
-        )
-        assert len(updated_response['topics']) == 2
-        assert 'Practice Makes Perfect' in updated_response['topics']
-        assert 'French Film Blurred' in updated_response['topics']
+        expected_topics = ['Practice Makes Perfect', 'French Film Blurred']
+        details = created['details']
+        appt_id = created['id']
+        updated = self._api_appointment_update(client, appt_id, details, expected_topics)
+        assert len(updated['topics']) == 2
+        assert set(updated['topics']) == set(expected_topics)
+
+        # Remove topics
+        removed = self._api_appointment_update(client, appt_id, details, ['Practice Makes Perfect'])
+        std_commit(allow_test_environment=True)
+        assert len(removed['topics']) == 1
+
+        # Finally, re-add topics
+        restored = self._api_appointment_update(client, appt_id, details, expected_topics)
+        std_commit(allow_test_environment=True)
+        assert set(restored['topics']) == set(expected_topics)
 
 
 class TestAppointmentCancel:
@@ -580,7 +587,7 @@ class TestAppointmentWaitlist:
         fake_auth.login(l_s_college_scheduler_uid)
         dept_code = 'QCADV'
         appointments = self._get_waitlist(client, dept_code)
-        assert len(appointments['unresolved']) == 2
+        assert len(appointments['unresolved']) >= 2
         assert len(appointments['resolved']) == 0
         for appointment in appointments['unresolved']:
             assert appointment['deptCode'] == dept_code
@@ -590,7 +597,7 @@ class TestAppointmentWaitlist:
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         dept_code = 'QCADV'
         appointments = self._get_waitlist(client, dept_code)
-        assert len(appointments['unresolved']) == 2
+        assert len(appointments['unresolved']) >= 2
         assert len(appointments['resolved']) > 0
         for appointment in appointments['unresolved'] + appointments['resolved']:
             assert appointment['deptCode'] == dept_code
