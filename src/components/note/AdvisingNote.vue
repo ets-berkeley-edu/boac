@@ -220,12 +220,12 @@ export default {
               this.note.author = this.user;
             } else {
               getUserByUid(author_uid).then(data => {
-                this.note.author = data;
+                this.note.author = data || {};
               });
             }
           } else if (this.note.author.sid) {
             store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
-              this.note.author = data;
+              this.note.author = data || {};
             });
           }
         }
