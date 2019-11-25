@@ -126,7 +126,7 @@ class TestUserById:
         """404 when user not found."""
         fake_auth.login(admin_uid)
         response = client.get('/api/user/by_csid/99999999999999999')
-        assert response.status_code == 404
+        assert not response.json
 
     def test_user_by_uid(self, client, fake_auth):
         """Delivers CalNet profile."""

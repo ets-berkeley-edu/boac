@@ -63,7 +63,8 @@ def calnet_profile(csid):
         users_feed = authorized_users_api_feed([authorized_user])
         return tolerant_jsonify(users_feed[0])
     else:
-        raise errors.ResourceNotFoundError('User not found')
+        app.logger.error(f'No user found for CS ID {csid}')
+        return tolerant_jsonify(None)
 
 
 @app.route('/api/user/by_uid/<uid>')
@@ -74,7 +75,8 @@ def user_by_uid(uid):
         users_feed = authorized_users_api_feed([user])
         return tolerant_jsonify(users_feed[0])
     else:
-        raise errors.ResourceNotFoundError('User not found')
+        app.logger.error(f'No user found for UID {uid}')
+        return tolerant_jsonify(None)
 
 
 @app.route('/api/user/dept_membership/add', methods=['POST'])
