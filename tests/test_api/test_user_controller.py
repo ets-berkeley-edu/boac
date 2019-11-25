@@ -130,7 +130,7 @@ class TestUserById:
         """404 when user not found."""
         fake_auth.login(admin_uid)
         response = client.get('/api/user/by_csid/99999999999999999')
-        assert response.status_code == 404
+        assert not response.json
 
     def test_deleted_user_by_uid_not_found(self, client, fake_auth):
         """404 is default if get deleted user by UID."""
