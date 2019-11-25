@@ -152,7 +152,7 @@ import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
-import { getUserByUid } from '@/api/user';
+import { getCalnetProfileByUid } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
@@ -229,7 +229,7 @@ export default {
             if (author_uid === this.user.uid) {
               this.note.author = this.user;
             } else {
-              getUserByUid(author_uid).then(data => {
+              getCalnetProfileByUid(author_uid).then(data => {
                 this.note.author = data || {};
               });
             }
