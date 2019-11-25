@@ -220,7 +220,7 @@ export default {
   },
   methods: {
     setAuthor() {
-      const requiresLazyLoad = this.isOpen && (!this.note.author.name || !this.note.author.role);
+      const requiresLazyLoad = this.isOpen && (!this.get(this.note, 'author.name') || !this.get(this.note, 'author.role'));
       if (requiresLazyLoad) {
         const hasIdentifier = this.get(this.note, 'author.uid') || this.get(this.note, 'author.sid');
         if (hasIdentifier) {
