@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getUserByCsid, getUserProfile } from '@/api/user';
+import { getCalnetProfileByCsid, getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
@@ -61,7 +61,7 @@ const actions = {
       if (state.calnetUsersByCsid[csid]) {
         resolve(state.calnetUsersByCsid[csid]);
       } else {
-        getUserByCsid(csid)
+        getCalnetProfileByCsid(csid)
           .then(calnetUser => {
             commit('putCalnetUserByCsid', {csid, calnetUser});
             resolve(state.calnetUsersByCsid[csid]);
