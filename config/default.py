@@ -60,9 +60,9 @@ BOAC_SUPPORT_EMAIL = 'boahelp@berkeley.edu'
 CACHE_DEFAULT_TIMEOUT = False
 CACHE_TYPE = 'null'
 
-CANVAS_CURRENT_ENROLLMENT_TERM = 'Fall 2017'
+CANVAS_CURRENT_ENROLLMENT_TERM = 'auto'
 CANVAS_EARLIEST_TERM = 'Fall 2016'
-CANVAS_FUTURE_ENROLLMENT_TERM = 'Spring 2018'
+CANVAS_FUTURE_ENROLLMENT_TERM = 'auto'
 
 CAS_SERVER = 'https://auth-test.berkeley.edu/cas/'
 CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'

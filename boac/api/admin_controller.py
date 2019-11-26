@@ -25,16 +25,16 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api import cache_utils
 from boac.api.util import admin_required
-from boac.lib import berkeley
 from boac.lib.http import tolerant_jsonify
 from boac.merged import reporter
+from boac.merged.sis_terms import current_term_id
 from boac.models.job_progress import JobProgress
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app, request
 
 
 def term():
-    term_id = request.args.get('term') or berkeley.current_term_id()
+    term_id = request.args.get('term') or current_term_id()
     return term_id
 
 
