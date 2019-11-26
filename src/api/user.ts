@@ -25,6 +25,18 @@ export function getUserProfile() {
     .then(response => response.data, () => null);
 }
 
+export function getCalnetProfileByCsid(csid) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`)
+    .then(response => response.data, () => null);
+}
+
+export function getCalnetProfileByUid(uid) {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`)
+    .then(response => response.data, () => null);
+}
+
 export function getUserByCsid(csid) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/user/by_csid/${csid}`)

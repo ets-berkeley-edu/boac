@@ -117,6 +117,36 @@ class TestUserProfile:
         assert response.status_code == 404
 
 
+class TestCalnetProfileById:
+    """Calnet Profile API."""
+
+    def test_user_by_uid_not_authenticated(self, client):
+        """Returns 401 when not authenticated."""
+        user = AuthorizedUser.find_by_uid(asc_advisor_uid)
+        response = client.get(f'/api/user/calnet_profile/by_uid/{user.uid}')
+        assert response.status_code == 401
+
+    def test_user_by_uid(self, client, fake_auth):
+        """Delivers CalNet profile."""
+        fake_auth.login(admin_uid)
+        user = AuthorizedUser.find_by_uid(asc_advisor_uid)
+        response = client.get(f'/api/user/calnet_profile/by_uid/{user.uid}')
+        assert response.status_code == 200
+        assert response.json['uid'] == asc_advisor_uid
+
+    def test_user_by_csid_not_authenticated(self, client):
+        """Returns 401 when not authenticated."""
+        response = client.get(f'/api/user/calnet_profile/by_csid/{81067873}')
+        assert response.status_code == 401
+
+    def test_user_by_csid(self, client, fake_auth):
+        """Delivers CalNet profile."""
+        fake_auth.login(admin_uid)
+        response = client.get(f'/api/user/calnet_profile/by_csid/{81067873}')
+        assert response.status_code == 200
+        assert response.json['csid'] == '81067873'
+
+
 class TestUserById:
     """User Profile API."""
 
@@ -130,13 +160,13 @@ class TestUserById:
         """404 when user not found."""
         fake_auth.login(admin_uid)
         response = client.get('/api/user/by_csid/99999999999999999')
-        assert not response.json
+        assert response.status_code == 404
 
     def test_deleted_user_by_uid_not_found(self, client, fake_auth):
         """404 is default if get deleted user by UID."""
         fake_auth.login(admin_uid)
-        assert not client.get(f'/api/user/by_uid/{deleted_user_uid}').json
-        assert not client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=true').json
+        assert client.get(f'/api/user/by_uid/{deleted_user_uid}').status_code == 404
+        assert client.get(f'/api/user/by_uid/{deleted_user_uid}?ignoreDeleted=true').status_code == 404
 
     def test_get_deleted_user_by_uid(self, client, fake_auth):
         """Get deleted user by UID if specific param is passed."""
@@ -169,8 +199,8 @@ class TestUserById:
     def test_deleted_user_by_csid_not_found(self, client, fake_auth):
         """404 is default if get deleted user by CSID."""
         fake_auth.login(admin_uid)
-        assert not client.get(f'/api/user/by_csid/{deleted_user_csid}').json
-        assert not client.get(f'/api/user/by_csid/{deleted_user_csid}?ignoreDeleted=true').json
+        assert client.get(f'/api/user/by_csid/{deleted_user_csid}').status_code == 404
+        assert client.get(f'/api/user/by_csid/{deleted_user_csid}?ignoreDeleted=true').status_code == 404
 
     def test_get_deleted_user_by_csid(self, client, fake_auth):
         """Get deleted user by CSID if specific param is passed."""

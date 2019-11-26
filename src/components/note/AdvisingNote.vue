@@ -4,7 +4,8 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
       <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
       <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !size(note.message)">{{ note.author.departments[0].name }} advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments && note.author.departments[0].name }}
+        advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
@@ -145,7 +146,7 @@ import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
-import { getUserByUid } from '@/api/user';
+import { getCalnetProfileByUid } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
@@ -219,7 +220,7 @@ export default {
             if (author_uid === this.user.uid) {
               this.note.author = this.user;
             } else {
-              getUserByUid(author_uid).then(data => {
+              getCalnetProfileByUid(author_uid).then(data => {
                 this.note.author = data || {};
               });
             }
