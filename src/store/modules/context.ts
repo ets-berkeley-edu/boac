@@ -29,6 +29,7 @@ const getters = {
   errors: (state: any): any => state.errors,
   ebEnvironment: (state: any): boolean => _.get(state.config, 'ebEnvironment'),
   featureFlagAppointments: (state: any): boolean => _.get(state.config, 'featureFlagAppointments'),
+  featureFlagPassengerEdit: (state: any): boolean => _.get(state.config, 'featureFlagPassengerEdit'),
   fixedWarningOnAllPages: (state: any): string => _.get(state.config, 'fixedWarningOnAllPages'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),
   hasUserDismissedFooterAlert: (state: any): boolean => state.hasUserDismissedFooterAlert,

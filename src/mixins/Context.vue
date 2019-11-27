@@ -13,6 +13,7 @@ export default {
       'ebEnvironment',
       'errors',
       'featureFlagAppointments',
+      'featureFlagPassengerEdit',
       'fixedWarningOnAllPages',
       'hasUserDismissedFooterAlert',
       'isDemoModeAvailable',

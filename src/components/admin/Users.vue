@@ -118,6 +118,7 @@
       </template>
       <template v-slot:cell(edit)="row">
         <EditUserProfileModal
+          v-if="featureFlagPassengerEdit"
           :after-update-user="afterUpdateUser"
           :departments="departments"
           :profile="row.item" />
