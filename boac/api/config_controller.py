@@ -49,6 +49,7 @@ def app_config():
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'featureFlagAppointments': app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS'],
+        'featureFlagPassengerEdit': app.config['FEATURE_FLAG_PASSENGER_EDIT'],
         'fixedWarningOnAllPages': app.config['FIXED_WARNING_ON_ALL_PAGES'],
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
