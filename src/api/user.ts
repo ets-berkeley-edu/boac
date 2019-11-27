@@ -37,12 +37,6 @@ export function getCalnetProfileByUid(uid) {
     .then(response => response.data, () => null);
 }
 
-export function getUserByCsid(csid) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/user/by_csid/${csid}`)
-    .then(response => response.data, () => null);
-}
-
 export function getUserByUid(uid, ignoreDeleted?: boolean) {
   let url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}`;
   if (!_.isNil(ignoreDeleted)) {

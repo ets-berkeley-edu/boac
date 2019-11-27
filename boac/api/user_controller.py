@@ -66,20 +66,6 @@ def calnet_profile_by_uid(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
-@app.route('/api/user/by_csid/<csid>')
-@advisor_required
-def user_by_csid(csid):
-    user = calnet.get_calnet_user_for_csid(app, csid)
-    uid = user.get('uid', None)
-    ignore_deleted = to_bool_or_none(util.get(request.args, 'ignoreDeleted'))
-    user = _find_user_by_uid(uid, ignore_deleted)
-    if user:
-        users_feed = authorized_users_api_feed([user])
-        return tolerant_jsonify(users_feed[0])
-    else:
-        raise errors.ResourceNotFoundError('User not found')
-
-
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):

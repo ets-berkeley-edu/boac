@@ -142,11 +142,10 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Attachments from '@/mixins/Attachments';
 import Context from '@/mixins/Context';
-import store from '@/store';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
-import { getCalnetProfileByUid } from '@/api/user';
+import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
 
 export default {
   name: 'AdvisingNote',
@@ -221,12 +220,12 @@ export default {
               this.note.author = this.user;
             } else {
               getCalnetProfileByUid(author_uid).then(data => {
-                this.note.author = data || {};
+                this.note.author = data;
               });
             }
           } else if (this.note.author.sid) {
-            store.dispatch('user/loadCalnetUserByCsid', this.note.author.sid).then(data => {
-              this.note.author = data || {};
+            getCalnetProfileByCsid(this.note.author.sid).then(data => {
+              this.note.author = data;
             });
           }
         }

@@ -1,13 +1,12 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getCalnetProfileByCsid, getUserProfile } from '@/api/user';
+import { getUserProfile } from '@/api/user';
 import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
 
 const state = {
-  calnetUsersByCsid: {},
   preferences: {
     sortBy: 'last_name'
   },
@@ -21,8 +20,6 @@ const getters = {
 };
 
 const mutations = {
-  putCalnetUserByCsid: (state: any, {csid, calnetUser}: any) =>
-    (state.calnetUsersByCsid[csid] = calnetUser),
   registerUser: (state: any, user: any) => {
     if (user.uid) {
       state.user = user;
@@ -56,19 +53,6 @@ const actions = {
   gaNoteTemplateEvent: (state: any, {id, label, action}) => gaEvent('Advising Note Template', action, label, id),
   gaSearchEvent: (state: any, action: string) => gaEvent('Search', action, null, null),
   gaStudentAlert: (state: any, action: string) => gaEvent('Student Alert', action, null, null),
-  loadCalnetUserByCsid: ({commit, state}, csid) => {
-    return new Promise(resolve => {
-      if (state.calnetUsersByCsid[csid]) {
-        resolve(state.calnetUsersByCsid[csid]);
-      } else {
-        getCalnetProfileByCsid(csid)
-          .then(calnetUser => {
-            commit('putCalnetUserByCsid', {csid, calnetUser});
-            resolve(state.calnetUsersByCsid[csid]);
-          });
-      }
-    });
-  },
   loadUser: ({commit, state}) => {
     return new Promise(resolve => {
       if (state.user) {

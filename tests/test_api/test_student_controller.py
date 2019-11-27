@@ -715,14 +715,6 @@ class TestNotes:
         assert not len(author['departments'])
         advisor_sid = '800700600'
         assert author['sid'] == advisor_sid
-        # Lazy-load author info, as performed on front-end
-        response = client.get(f'/api/user/by_csid/{advisor_sid}')
-        assert response.status_code == 200
-        user = response.json
-        assert user['csid'] == advisor_sid
-        assert len(user['name'])
-        assert user['departments'][0]['code'] == 'COENG'
-        assert user['departments'][0]['name'] == 'College of Engineering'
 
 
 class TestValidateSids:
