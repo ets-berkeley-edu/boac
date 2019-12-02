@@ -139,7 +139,6 @@ export default {
   created() {
     this.showCheckInModal = this.showModal;
     if (!this.selfCheckIn) {
-      this.selectedAdvisorUid = this.user.uid;
       getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
         this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
       });
