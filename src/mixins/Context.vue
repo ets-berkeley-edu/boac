@@ -11,7 +11,6 @@ export default {
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'ebEnvironment',
-      'errors',
       'featureFlagAppointments',
       'featureFlagPassengerEdit',
       'fixedWarningOnAllPages',
@@ -30,11 +29,8 @@ export default {
   methods: {
     ...mapActions('context', [
       'alertScreenReader',
-      'clearAlertsInStore',
-      'dismissError',
       'dismissFooterAlert',
-      'initUserSession',
-      'reportError'
+      'initUserSession'
     ])
   }
 };

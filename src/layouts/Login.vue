@@ -1,57 +1,48 @@
 <template>
   <div class="background-blue-sky fill-viewport">
-    <span
-      v-if="screenReaderAlert"
-      class="sr-only"
-      aria-live="polite"
-      role="alert">
-      {{ screenReaderAlert }}
-    </span>
-    <div class="splash-container">
-      <div class="splash-cell-stripe"></div>
+    <b-popover
+      v-if="showError"
+      placement="top"
+      show
+      target="sign-in"
+      triggers="focus"
+      @hidden="onHidden">
+      <span
+        class="has-error"
+        aria-live="polite"
+        v-html="error"></span>
+    </b-popover>
+    <div class="container">
+      <div class="stripe"></div>
       <div class="avatar-container">
         <img src="@/assets/airplane.svg" alt="Airplane logo" class="avatar-airplane" />
       </div>
-      <div class="splash-cell-sign-in" role="main">
-        <form @submit.prevent="logIn()">
-          <b-btn
-            id="splash-sign-in"
-            class="btn-sign-in btn-primary-color-override"
-            variant="primary"
-            aria-label="Log in to BOA"
-            tabindex="0"
-            placement="top"
-            @click.stop="logIn()">
-            Sign In
-          </b-btn>
-          <b-popover
-            placement="top"
-            target="splash-sign-in"
-            triggers="focus"
-            @hidden="onHidden">
-            <span
-              v-for="message in errorMessages"
-              :key="message"
-              class="has-error"
-              aria-live="polite"
-              v-html="message"></span>
-          </b-popover>
-        </form>
-        <div class="splash-contact-us">
+      <div class="sign-in" role="main">
+        <b-btn
+          id="sign-in"
+          class="btn-sign-in btn-primary-color-override"
+          variant="primary"
+          aria-label="Log in to BOA"
+          tabindex="0"
+          placement="top"
+          @click.stop="logIn()">
+          Sign In
+        </b-btn>
+        <div class="contact-us">
           Questions or feedback? Contact us at
           <a
             :href="`mailto:${supportEmailAddress}`"
             aria-label="BOA support email address"
             target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
         </div>
-        <DevAuth v-if="devAuthEnabled" />
+        <DevAuth v-if="devAuthEnabled" :report-error="reportError" />
       </div>
-      <div class="splash-box-container" role="banner">
-        <div class="splash-cell-header">
+      <div class="box-container" role="banner">
+        <div class="header">
           <h1>BOA</h1>
         </div>
       </div>
-      <div class="splash-cell-copyright pt-2" role="contentinfo">
+      <div class="copyright pt-2" role="contentinfo">
         <span class="font-size-12 text-white">&copy; 2019 The Regents of the University of California</span>
       </div>
     </div>
@@ -71,26 +62,26 @@ export default {
   },
   mixins: [Context, Util],
   data: () => ({
-    errorMessages: undefined
+    error: undefined,
+    showError: false
   }),
   created() {
-    this.errorCheck();
-    this.$eventHub.$on('error-reported', () => this.errorCheck());
+    this.reportError(this.$route.query.error);
   },
   methods: {
-    errorCheck() {
-      if (this.size(this.errors)) {
-        this.alertScreenReader('Login failed');
-        this.errorMessages = this.map(this.errors, 'message');
-        this.putFocusNextTick('splash-sign-in');
-        this.clearAlertsInStore();
-      }
-    },
     logIn() {
       getCasLoginURL().then(data => window.location.href = data.casLoginUrl);
     },
     onHidden() {
-      this.errorMessages = null;
+      this.error = null;
+      this.showError = false;
+    },
+    reportError(error) {
+      error = this.trim(error);
+      if (error.length) {
+        this.error = error;
+        this.showError = true;
+      }
     }
   }
 };
@@ -127,7 +118,7 @@ export default {
   font-size: 20px;
   top: 4.7em;
 }
-.splash-box-container {
+.box-container {
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.5);
   flex: 1;
@@ -138,7 +129,7 @@ export default {
   padding: 0 25px 0 25px;
   z-index: -1;
 }
-.splash-cell-copyright {
+.copyright {
   background-color: #3b80bf;
   height: 40px;
   width: 320px;
@@ -146,28 +137,28 @@ export default {
   text-align: center;
   white-space: nowrap;
 }
-.splash-cell-header {
+.header {
   padding-top: 40px;
   text-align: center;
 }
-.splash-cell-sign-in {
+.sign-in {
   position: absolute;
   top: 460px;
   left: 50%;
   text-align: center;
   transform: translate(-50%, -50%);
 }
-.splash-cell-stripe {
+.stripe {
   background-color: #0275d8;
   height: 10px;
   width: 320px;
 }
-.splash-contact-us {
+.contact-us {
   padding: 20px 40px 10px 40px;
   width: 320px;
   text-align: left;
 }
-.splash-container {
+.container {
   align-items: center;
   display: flex;
   flex-direction: column;

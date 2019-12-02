@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="logInDevAuth()">
+  <form @submit.prevent="logIn()">
     <div class="flex-container splash-dev-auth">
       <div>
         <input
@@ -48,6 +48,12 @@ import { devAuthLogIn } from '@/api/auth';
 export default {
   name: 'DevAuth',
   mixins: [Context, UserMetadata, Util],
+  props: {
+    reportError: {
+      required: true,
+      type: Function
+    }
+  },
   data: () => ({
     uid: null,
     password: null
@@ -56,20 +62,24 @@ export default {
     this.putFocusNextTick('dev-auth-uid');
   },
   methods: {
-    logInDevAuth() {
+    logIn() {
       let uid = this.trim(this.uid);
       let password = this.trim(this.password);
       if (uid && password) {
-        // Auth errors will be caught by axios.interceptors; see error reporting in the file 'main.ts'.
-        devAuthLogIn(uid, password)
-          .then(user => {
-            if (user.isAuthenticated) {
-              const redirect = this.get(this.$router, 'currentRoute.query.redirect');
-              this.$router.push({ path: redirect || '/home' }, this.noop);
-            }
-          });
+        devAuthLogIn(uid, password).then(user => {
+          if (user.isAuthenticated) {
+            const redirect = this.get(this.$router, 'currentRoute.query.redirect');
+            this.$router.push({ path: redirect || '/home' }, this.noop);
+          } else {
+            this.reportError('Sorry, user is not authorized to use BOA.');
+          }
+        });
+      } else if (uid) {
+        this.reportError('Password required');
+        this.putFocusNextTick('dev-auth-password');
       } else {
-        this.reportError({ message: this.uid ? 'Password required' : 'UID and password required' });
+        this.reportError('Both UID and password are required');
+        this.putFocusNextTick('dev-auth-uid');
       }
     }
   }
