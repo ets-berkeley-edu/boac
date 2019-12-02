@@ -9,6 +9,8 @@
 # Abort immediately if a command fails
 set -e
 
+echo "Starting cancel_open_appointments script."
+
 if [ "$EUID" -ne 0 ]; then
   echo "This script must be run as root."; echo
   exit 1

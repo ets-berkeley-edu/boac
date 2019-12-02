@@ -45,8 +45,8 @@ class AppointmentEvent(db.Model):
     __tablename__ = 'appointment_events'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
+    appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'))
     event_type = db.Column(appointment_event_type, nullable=False)
     cancel_reason = db.Column(db.String(255), nullable=True)
     cancel_reason_explained = db.Column(db.String(255), nullable=True)
