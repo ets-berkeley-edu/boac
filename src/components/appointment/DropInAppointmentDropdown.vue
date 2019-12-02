@@ -1,5 +1,11 @@
 <template>
   <div>
+    <AppointmentAssignModal
+      v-if="showAppointmentAssignModal"
+      :appointment="appointment"
+      :appointment-assign="reserveAppointment"
+      :close="closeAppointmentAssignModal"
+      :show-modal="showAppointmentAssignModal" />
     <AppointmentCancellationModal
       v-if="showCancelAppointmentModal"
       :appointment="appointment"
@@ -61,13 +67,13 @@
             Details
           </b-dropdown-item-button>
           <b-dropdown-item-button
-            v-if="isUserDropInAdvisor(deptCode) && (appointment.status !== 'reserved' || appointment.statusBy.id !== user.id)"
+            v-if="appointment.status !== 'reserved'"
             :id="`btn-appointment-${appointment.id}-reserve`"
-            @click="reserveAppointment()">
+            @click="selfCheckIn ? reserveAppointment() : launchAppointmentAssign()">
             <span class="text-nowrap">Assign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
-            v-if="appointment.status === 'reserved' && appointment.statusBy.id === user.id"
+            v-if="appointment.status === 'reserved'"
             :id="`btn-appointment-${appointment.id}-unreserve`"
             @click="unreserveAppointment()">
             <span class="text-nowrap">Unassign</span>
@@ -88,6 +94,7 @@
 </template>
 
 <script>
+import AppointmentAssignModal from '@/components/appointment/AppointmentAssignModal';
 import AppointmentCancellationModal from '@/components/appointment/AppointmentCancellationModal';
 import AppointmentDetailsModal from '@/components/appointment/AppointmentDetailsModal';
 import AppointmentUpdateModal from '@/components/appointment/AppointmentUpdateModal';
@@ -106,6 +113,7 @@ import {
 export default {
   name: 'DropInAppointmentDropdown',
   components: {
+    AppointmentAssignModal,
     AppointmentCancellationModal,
     AppointmentDetailsModal,
     AppointmentUpdateModal,
@@ -121,6 +129,11 @@ export default {
       type: String,
       required: true
     },
+    includeDetailsOption: {
+      default: true,
+      type: Boolean,
+      required: false
+    },
     onAppointmentStatusChange: {
       type: Function,
       required: true
@@ -128,17 +141,13 @@ export default {
     selfCheckIn: {
       type: Boolean,
       required: true
-    },
-    includeDetailsOption: {
-      default: true,
-      type: Boolean,
-      required: false
     }
   },
   data: () => ({
     appointmentUpdate: null,
     loading: false,
     showAppointmentDetailsModal: false,
+    showAppointmentAssignModal: false,
     showCancelAppointmentModal: false,
     showCheckInModal: false,
     showCreateAppointmentModal: false,
@@ -175,6 +184,11 @@ export default {
         });
       }).catch(this.handleBadRequestError);
     },
+    closeAppointmentAssignModal() {
+      this.showAppointmentAssignModal = false;
+      this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`);
+      this.alertScreenReader('Dialog closed');
+    },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false;
       this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`);
@@ -208,15 +222,21 @@ export default {
         this.loading = false;
       }
     },
+    launchAppointmentAssign() {
+      this.showAppointmentAssignModal = true;
+    },
     launchCheckIn() {
       this.showCheckInModal = true;
     },
     openCancelAppointmentModal() {
       this.showCancelAppointmentModal = true;
     },
-    reserveAppointment() {
+    reserveAppointment(advisor) {
+      if (!advisor) {
+        advisor = this.user;
+      }
       this.loading = true;
-      apiReserve(this.appointment.id).then(reserved => {
+      apiReserve(this.appointment.id, advisor.uid).then(reserved => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
           this.alertScreenReader(`${reserved.student.name} appointment assigned`);

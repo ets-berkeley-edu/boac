@@ -383,26 +383,33 @@ class TestAppointmentCheckIn:
 class TestAppointmentReserve:
 
     @classmethod
-    def _reserve_appointment(cls, client, appointment_id, expected_status_code=200):
-        response = client.get(f'/api/appointments/{appointment_id}/reserve')
+    def _reserve_appointment(cls, client, appointment_id, advisor_uid, expected_status_code=200):
+        data = {
+            'advisorUid': advisor_uid,
+        }
+        response = client.post(
+            f'/api/appointments/{appointment_id}/reserve',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
         assert response.status_code == expected_status_code
         return response.json
 
     @classmethod
     def _unreserve_appointment(cls, client, appointment_id, expected_status_code=200):
-        response = client.get(f'/api/appointments/{appointment_id}/unreserve')
+        response = client.post(f'/api/appointments/{appointment_id}/unreserve')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._reserve_appointment(client, 1, expected_status_code=401)
+        self._reserve_appointment(client, 1, l_s_college_advisor_uid, expected_status_code=401)
         self._unreserve_appointment(client, 1, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is not a drop-in advisor."""
         fake_auth.login(l_s_college_advisor_uid)
-        self._reserve_appointment(client, 1, expected_status_code=401)
+        self._reserve_appointment(client, 1, l_s_college_advisor_uid, expected_status_code=401)
         self._unreserve_appointment(client, 1, expected_status_code=401)
 
     def test_cancel_reserve_conflict(self, app, client, fake_auth):
@@ -410,14 +417,14 @@ class TestAppointmentReserve:
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
         AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
         fake_auth.login(l_s_college_scheduler_uid)
-        self._reserve_appointment(client, waiting['id'], expected_status_code=400)
+        self._reserve_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
 
     def test_check_in_reserve_conflict(self, app, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
         AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
         fake_auth.login(l_s_college_scheduler_uid)
-        self._reserve_appointment(client, waiting['id'], expected_status_code=400)
+        self._reserve_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
 
     def test_unreserve_appointment_reserved_by_other(self, app, client, fake_auth):
         """Returns 401 if user un-reserves an appointment which is reserved by another."""
@@ -426,7 +433,7 @@ class TestAppointmentReserve:
         ).first()  # noqa: E711
         advisor = AuthorizedUser.find_by_id(waiting.created_by)
         fake_auth.login(advisor.uid)
-        self._reserve_appointment(client, waiting.id)
+        self._reserve_appointment(client, waiting.id, advisor.uid)
         fake_auth.login(l_s_college_advisor_uid)
         self._unreserve_appointment(client, 1, expected_status_code=401)
 
@@ -437,7 +444,7 @@ class TestAppointmentReserve:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = self._reserve_appointment(client, waiting['id'])
+        appointment = self._reserve_appointment(client, waiting['id'], user.uid)
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user.id
@@ -450,7 +457,7 @@ class TestAppointmentReserve:
         user_1 = AuthorizedUser.find_by_id(advisor_1.authorized_user_id)
         fake_auth.login(user_1.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = self._reserve_appointment(client, waiting['id'])
+        appointment = self._reserve_appointment(client, waiting['id'], user_1.uid)
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user_1.id
@@ -460,7 +467,7 @@ class TestAppointmentReserve:
         advisor_2 = DropInAdvisor.advisors_for_dept_code(dept_code)[1]
         user_2 = AuthorizedUser.find_by_id(advisor_2.authorized_user_id)
         fake_auth.login(user_2.uid)
-        appointment = self._reserve_appointment(client, waiting['id'])
+        appointment = self._reserve_appointment(client, waiting['id'], user_2.uid)
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user_2.id
@@ -474,7 +481,7 @@ class TestAppointmentReserve:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        reserved = self._reserve_appointment(client, waiting['id'])
+        reserved = self._reserve_appointment(client, waiting['id'], user.uid)
         assert reserved['status'] == 'reserved'
         assert reserved['statusDate']
         assert reserved['statusBy']['id'] == user.id
@@ -490,10 +497,11 @@ class TestAppointmentReserve:
         """Appointments feature is false."""
         dept_code = 'QCADV'
         advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
+        advisor_uid = AuthorizedUser.find_by_id(advisor.authorized_user_id).uid
+        fake_auth.login(advisor_uid)
         appointment = AppointmentTestUtil.create_appointment(client, dept_code)
         with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            self._reserve_appointment(client, appointment['id'], expected_status_code=401)
+            self._reserve_appointment(client, appointment['id'], advisor_uid, expected_status_code=401)
 
 
 class TestAppointmentReopen:

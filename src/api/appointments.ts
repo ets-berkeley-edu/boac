@@ -119,13 +119,14 @@ export function reopen(appointmentId) {
     });
 }
 
-export function reserve(appointmentId) {
+export function reserve(appointmentId, advisorUid) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`)
-    .then(response => {
+    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`, {
+      advisorUid,
+    }).then(response => {
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} reserved a drop-in appointment`,
+        name: `Advisor ${advisorUid} reserved a drop-in appointment`,
         action: 'reserve'
       });
       return response.data
@@ -134,7 +135,7 @@ export function reserve(appointmentId) {
 
 export function unreserve(appointmentId) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
+    .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
     .then(response => {
       store.dispatch('user/gaAppointmentEvent', {
         id: appointmentId,
