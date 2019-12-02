@@ -244,18 +244,9 @@ const router = new Router({
   ]
 });
 
-router.beforeEach((to: any, from: any, next: any) => {
-  store.dispatch('context/clearAlertsInStore').then(() => next());
-});
-
 router.afterEach((to: any) => {
-  let name = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
-  document.title = `${name} | BOA`;
-  if (to.query.error) {
-    store.dispatch('context/reportError', {
-      message: to.query.error
-    });
-  }
+  const title = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome';
+  document.title = `${title} | BOA`;
 });
 
 export default router;

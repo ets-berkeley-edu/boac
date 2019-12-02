@@ -27,18 +27,6 @@ Vue.component('font-awesome', FontAwesomeIcon);
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true;
-axios.interceptors.response.use(response => response, function(error) {
-  let status = _.get(error, 'response.status') || 'Unknown';
-  if (_.includes([404], status)) {
-    router.push({ path: '/404' });
-  } else {
-    store.dispatch('context/reportError', {
-      message: _.get(error.response, 'data.message') || error.message || `Request failed with status ${status}`,
-      status: status
-    });
-  }
-  return Promise.reject(error);
-});
 
 Vue.config.productionTip = false;
 Vue.use(BootstrapVue);

@@ -13,7 +13,6 @@ const state = {
   announcement: undefined,
   config: undefined,
   hasUserDismissedFooterAlert: false,
-  errors: [],
   loading: undefined,
   screenReaderAlert: undefined
 };
@@ -26,7 +25,6 @@ const getters = {
   currentEnrollmentTermId: (state: any): boolean => _.get(state.config, 'currentEnrollmentTermId'),
   devAuthEnabled: (state: any): boolean => _.get(state.config, 'devAuthEnabled'),
   disableMatrixViewThreshold: (state: any): string => _.get(state.config, 'disableMatrixViewThreshold'),
-  errors: (state: any): any => state.errors,
   ebEnvironment: (state: any): boolean => _.get(state.config, 'ebEnvironment'),
   featureFlagAppointments: (state: any): boolean => _.get(state.config, 'featureFlagAppointments'),
   featureFlagPassengerEdit: (state: any): boolean => _.get(state.config, 'featureFlagPassengerEdit'),
@@ -44,24 +42,9 @@ const getters = {
 };
 
 const mutations = {
-  clearAlertsInStore: (state: any) => {
-    state.errors = [];
-    state.screenReaderAlert = undefined;
-  },
-  dismissError: (state: any, id: number) => {
-    const indexOf = state.errors.findIndex((e: any) => e.id === id);
-    if (indexOf > -1) {
-      state.errors.splice(indexOf, 1);
-    }
-  },
   dismissFooterAlert: (state: any) => state.hasUserDismissedFooterAlert = true,
   loadingComplete: (state: any) => (state.loading = false),
   loadingStart: (state: any) => (state.loading = true),
-  reportError: (state: any, error: any) => {
-    error.id = new Date().getTime();
-    state.errors.push(error);
-    Vue.prototype.$eventHub.$emit('error-reported', error);
-  },
   setScreenReaderAlert: (state: any, alert: any) => (state.screenReaderAlert = alert),
   storeConfig: (state: any, config: any) => (state.config = config),
   storeAnnouncement: (state: any, data: any) => (state.announcement = data),
@@ -74,8 +57,6 @@ const actions = {
       commit('setScreenReaderAlert', alert);
     });
   },
-  clearAlertsInStore: ({ commit }) => commit('clearAlertsInStore'),
-  dismissError: ({ commit }, id) => commit('dismissError', id),
   dismissFooterAlert: ({ commit }) => commit('dismissFooterAlert'),
   async initUserSession() {
     store.dispatch('context/loadConfig').then(config => {
@@ -132,8 +113,7 @@ const actions = {
         });
       }
     });
-  },
-  reportError: ({ commit }, error) => commit('reportError', error)
+  }
 };
 
 export default {
