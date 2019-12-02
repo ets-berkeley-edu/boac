@@ -150,7 +150,7 @@ CREATE INDEX appointments_student_sid_idx ON appointments(student_sid);
 CREATE TABLE appointment_events (
   id INTEGER NOT NULL,
   appointment_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
+  user_id INTEGER,
   event_type appointment_event_types NOT NULL,
   cancel_reason VARCHAR(255),
   cancel_reason_explained VARCHAR(255),
