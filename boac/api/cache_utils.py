@@ -29,7 +29,7 @@ from threading import Thread
 
 from boac import std_commit
 from boac.externals import data_loch
-from boac.lib import berkeley
+from boac.merged.sis_terms import all_term_ids, current_term_id
 from boac.models.alert import Alert
 from boac.models.curated_group import CuratedGroupStudent
 from boac.models.job_progress import JobProgress
@@ -93,6 +93,7 @@ def continue_request_handler():
 def background_thread_refresh(app_arg, term_id):
     with app_arg.app_context():
         try:
+            refresh_current_term_index()
             load_term(term_id)
             JobProgress().end()
         except Exception as e:
@@ -105,7 +106,7 @@ def background_thread_refresh(app_arg, term_id):
 def load_all_terms():
     job_progress = JobProgress().get()
     terms_done = job_progress.get('terms_done', [])
-    all_terms = berkeley.all_term_ids()
+    all_terms = all_term_ids()
     while terms_done != all_terms:
         if len(terms_done) == len(all_terms):
             app.logger.error(f'Unexpected terms_done value; stopping load: {terms_done}')
@@ -116,7 +117,7 @@ def load_all_terms():
         JobProgress().update(f'Term {term_id} loaded', properties={'terms_done': terms_done})
 
 
-def load_term(term_id=berkeley.current_term_id()):
+def load_term(term_id=current_term_id(use_cache=False)):
     if term_id == 'all':
         load_all_terms()
         return
@@ -124,7 +125,7 @@ def load_term(term_id=berkeley.current_term_id()):
     JobProgress().update(f'About to refresh alerts for term {term_id}')
     refresh_alerts(term_id)
 
-    if term_id == berkeley.current_term_id():
+    if term_id == current_term_id():
         JobProgress().update(f'About to refresh department memberships')
         refresh_department_memberships()
         JobProgress().update(f'About to refresh CalNet attributes for active users')
@@ -148,6 +149,14 @@ def refresh_calnet_attributes():
     json_cache.clear('calnet_user_for_uid_%')
     new_attrs = calnet.get_calnet_users_for_uids(app, active_uids)
     app.logger.info(f'Cached {len(new_attrs)} CalNet records for {len(active_uids)} active users')
+
+
+def refresh_current_term_index():
+    from boac.merged import sis_terms
+    from boac.models import json_cache
+    json_cache.clear('current_term_index')
+    sis_terms.get_current_term_index()
+    app.logger.info('Cached current and future SIS terms')
 
 
 def refresh_department_memberships():

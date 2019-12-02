@@ -30,8 +30,9 @@ import re
 
 from boac.externals import data_loch, s3
 from boac.lib import analytics
-from boac.lib.berkeley import current_term_id, dept_codes_where_advising, future_term_id, term_name_for_sis_id
+from boac.lib.berkeley import dept_codes_where_advising, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
+from boac.merged.sis_terms import current_term_id, future_term_id
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from flask_login import current_user
@@ -363,6 +364,7 @@ def query_students(
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
         coe_underrepresented=coe_underrepresented,
+        current_term_id=current_term_id(),
         entering_terms=entering_terms,
         ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
@@ -400,6 +402,7 @@ def query_students(
     }
     if not sids_only:
         o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(
+            current_term_id=current_term_id(),
             order_by=order_by,
             group_codes=group_codes,
             majors=majors,
@@ -447,7 +450,10 @@ def search_for_students(
             'students': [],
             'totalStudentCount': 0,
         }
-    o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(order_by=order_by)
+    o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(
+        current_term_id=current_term_id(),
+        order_by=order_by,
+    )
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
     benchmark('begin SID query')

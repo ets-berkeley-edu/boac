@@ -32,8 +32,9 @@ import time
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
 from boac.externals import data_loch
-from boac.lib.berkeley import current_term_id, section_is_eligible_for_alerts, term_name_for_sis_id
+from boac.lib.berkeley import section_is_eligible_for_alerts, term_name_for_sis_id
 from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
+from boac.merged.sis_terms import current_term_id
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app

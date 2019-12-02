@@ -103,6 +103,28 @@ class TestRefreshCalnetAttributes:
         assert json_cache.fetch(f'calnet_user_for_uid_{removed_advisor}') is None
 
 
+class TestRefreshCurrentTermIndex:
+    """Test current term index refresh."""
+
+    def test_refresh_current_term_index(self, app):
+        """Deletes existing index from the cache and adds a fresh one."""
+        from boac.api.cache_utils import refresh_current_term_index
+        from boac.models import json_cache
+        from boac.models.json_cache import JsonCache
+
+        index_row = JsonCache.query.filter_by(key='current_term_index').first()
+        index_row.json = 'old'
+        json_cache.update_jsonb_row(index_row)
+        index = json_cache.fetch('current_term_index')
+        assert(index) == 'old'
+
+        refresh_current_term_index()
+
+        index = json_cache.fetch('current_term_index')
+        assert(index['current_term_name']) == 'Fall 2017'
+        assert(index['future_term_name']) == 'Spring 2018'
+
+
 class TestRefreshDepartmentMemberships:
     """Test department membership refresh."""
 

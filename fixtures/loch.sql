@@ -213,6 +213,12 @@ CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
   sis_topic VARCHAR NOT NULL
 );
 
+CREATE TABLE sis_data.current_term_index
+(
+    current_term_name VARCHAR NOT NULL,
+    future_term_name VARCHAR NOT NULL
+);
+
 CREATE TABLE sis_data.enrolled_primary_sections
 (
     term_id VARCHAR NOT NULL,
@@ -539,6 +545,11 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   UNION SELECT id, fts_index FROM boac_advising_e_i.advising_notes_search_index
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );
+
+INSERT INTO sis_data.current_term_index
+(current_term_name, future_term_name)
+VALUES
+('Fall 2017', 'Spring 2018');
 
 INSERT INTO sis_data.enrolled_primary_sections
 (term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_subject_area_compressed, sis_catalog_id, sis_course_title, sis_instruction_format, sis_section_num, instructors)

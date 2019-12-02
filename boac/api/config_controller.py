@@ -28,9 +28,9 @@ import json
 from boac import __version__ as version
 from boac.api.errors import BadRequestError
 from boac.api.util import admin_required
-from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
+from boac.merged.sis_terms import current_term_id, current_term_name
 from boac.models.tool_setting import ToolSetting
 from flask import current_app as app, request
 from flask_login import current_user
@@ -38,13 +38,11 @@ from flask_login import current_user
 
 @app.route('/api/config')
 def app_config():
-    current_term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-    current_term_id = sis_term_id_for_name(current_term_name)
     return tolerant_jsonify({
         'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
         'boacEnv': app.config['BOAC_ENV'],
-        'currentEnrollmentTerm': current_term_name,
-        'currentEnrollmentTermId': int(current_term_id),
+        'currentEnrollmentTerm': current_term_name(),
+        'currentEnrollmentTermId': int(current_term_id()),
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,

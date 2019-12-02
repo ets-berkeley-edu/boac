@@ -25,8 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
-from flask import current_app as app
-
 
 """A utility module collecting logic specific to the Berkeley campus."""
 
@@ -398,31 +396,10 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
 }
 
 
-def current_term_id():
-    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-    return sis_term_id_for_name(term_name)
-
-
-def future_term_id():
-    term_name = app.config['CANVAS_FUTURE_ENROLLMENT_TERM']
-    return sis_term_id_for_name(term_name)
-
-
 def previous_term_id(term_id):
     term_id = int(term_id)
     previous = term_id - (4 if (term_id % 10 == 2) else 3)
     return str(previous)
-
-
-def all_term_ids():
-    """Return SIS IDs of each term covered by BOAC, from current to oldest."""
-    earliest_term_id = sis_term_id_for_name(app.config['CANVAS_EARLIEST_TERM'])
-    term_id = current_term_id()
-    ids = []
-    while int(term_id) >= int(earliest_term_id):
-        ids.append(term_id)
-        term_id = previous_term_id(term_id)
-    return ids
 
 
 def term_ids_range(earliest_term_id, latest_term_id):
@@ -433,20 +410,6 @@ def term_ids_range(earliest_term_id, latest_term_id):
         ids.append(str(term_id))
         term_id += 4 if (term_id % 10 == 8) else 3
     return ids
-
-
-def reverse_terms_until(stop_term):
-    term_name = app.config['CANVAS_CURRENT_ENROLLMENT_TERM']
-    while True:
-        yield term_name
-        if (term_name == stop_term) or (term_name == app.config['CANVAS_EARLIEST_TERM']):
-            break
-        if term_name.startswith('Fall'):
-            term_name = term_name.replace('Fall', 'Summer')
-        elif term_name.startswith('Summer'):
-            term_name = term_name.replace('Summer', 'Spring')
-        elif term_name.startswith('Spring'):
-            term_name = 'Fall ' + str(int(term_name[-4:]) - 1)
 
 
 def sis_term_id_for_name(term_name=None):

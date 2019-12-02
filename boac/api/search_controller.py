@@ -30,10 +30,10 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, advisor_required, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code
 from boac.lib import util
-from boac.lib.berkeley import current_term_id
 from boac.lib.http import tolerant_jsonify
 from boac.merged.advising_note import search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment

@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 
 from boac.externals import data_loch
-from boac.lib.berkeley import current_term_id
+from boac.merged.sis_terms import current_term_id
 from flask import current_app as app
 
 

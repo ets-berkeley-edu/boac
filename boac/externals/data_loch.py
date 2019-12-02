@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import re
 
-from boac.lib.berkeley import current_term_id, previous_term_id, sis_term_id_for_name
+from boac.lib.berkeley import previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
 from flask import current_app as app
@@ -99,6 +99,11 @@ def student_schema():
 
 def earliest_term_id():
     return sis_term_id_for_name(app.config['LEGACY_EARLIEST_TERM'])
+
+
+def get_current_term_index():
+    rows = safe_execute_rds(f'SELECT * FROM {sis_schema()}.current_term_index')
+    return None if not rows or (len(rows) == 0) else rows[0]
 
 
 def get_undergraduate_term(term_id):
@@ -630,6 +635,7 @@ def get_students_query(     # noqa
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
+    current_term_id=None,
     ethnicities=None,
     entering_terms=None,
     expected_grad_terms=None,
@@ -706,7 +712,7 @@ def get_students_query(     # noqa
         query_tables += f"""
             JOIN {student_schema()}.student_enrollment_terms previous_term
             ON previous_term.sid = sas.sid AND previous_term.term_id = :previous_term_id"""
-        query_bindings.update({'previous_term_id': previous_term_id(current_term_id())})
+        query_bindings.update({'previous_term_id': previous_term_id(current_term_id)})
     query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
         query_filter += _last_name_ranges_to_sql(last_name_ranges)
@@ -748,7 +754,7 @@ def get_students_query(     # noqa
                              ON ser.sid = sas.sid
                              AND ser.term_id = :term_id
                              AND ser.midpoint_deficient_grade = TRUE"""
-        query_bindings.update({'term_id': current_term_id()})
+        query_bindings.update({'term_id': current_term_id})
     if transfer is True:
         query_filter += ' AND sas.transfer = TRUE'
     if advisor_plan_mappings:
@@ -798,7 +804,7 @@ def get_students_query(     # noqa
     return query_tables, query_filter, query_bindings
 
 
-def get_students_ordering(order_by=None, group_codes=None, majors=None, scope=None):
+def get_students_ordering(current_term_id, order_by=None, group_codes=None, majors=None, scope=None):
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
     by_first_name = naturalize_order('sas.first_name')
@@ -838,7 +844,7 @@ def get_students_ordering(order_by=None, group_codes=None, majors=None, scope=No
     elif order_by == 'enrolled_units':
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = sas.sid AND set.term_id = '{current_term_id()}'"""
+            ON set.sid = sas.sid AND set.term_id = '{current_term_id}'"""
         o = 'set.enrolled_units'
     elif order_by and order_by.startswith('term_gpa_'):
         gpa_term_id = order_by.replace('term_gpa_', '')

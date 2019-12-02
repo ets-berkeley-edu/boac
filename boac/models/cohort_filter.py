@@ -28,10 +28,10 @@ import json
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
 from boac.lib import util
-from boac.lib.berkeley import current_term_id
 from boac.lib.util import get_benchmarker
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import query_students
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser

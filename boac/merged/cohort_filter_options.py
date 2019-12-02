@@ -27,9 +27,10 @@ from copy import copy, deepcopy
 
 from boac.api.util import authorized_users_api_feed
 from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, COE_ETHNICITIES_PER_CODE, current_term_id, term_name_for_sis_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app
