@@ -1,5 +1,6 @@
 <template>
   <b-modal
+    v-if="!isNil(dropInAdvisors)"
     id="advising-appointment-check-in"
     v-model="showCheckInModal"
     :no-close-on-backdrop="true"
@@ -125,7 +126,7 @@ export default {
     }
   },
   data: () => ({
-    dropInAdvisors: [],
+    dropInAdvisors: undefined,
     reason: undefined,
     reasonExplained: undefined,
     selectedAdvisorUid: null,

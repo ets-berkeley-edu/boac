@@ -164,12 +164,12 @@ def canvas_courses_api_feed(courses):
 def drop_in_advisors_for_dept_code(dept_code):
     dept_code = dept_code.upper()
     advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
-    feeds = []
+    advisors = []
     for a in advisor_assignments:
-        transformed_user = authorized_users_api_feed([a.authorized_user])[0]
-        transformed_user['available'] = a.is_available
-        feeds.append(transformed_user)
-    return feeds
+        advisor = authorized_users_api_feed([a.authorized_user])[0]
+        advisor['available'] = a.is_available
+        advisors.append(advisor)
+    return sorted(advisors, key=lambda u: (u.get('lastName', '').upper(), u.get('firstName', '').upper(), u.get('id')))
 
 
 def sis_enrollment_class_feed(enrollment):
