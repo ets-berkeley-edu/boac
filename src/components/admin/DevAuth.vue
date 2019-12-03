@@ -1,11 +1,11 @@
 <template>
   <form @submit.prevent="logIn()">
-    <div class="flex-container splash-dev-auth">
+    <div class="flex-container dev-auth">
       <div>
         <input
           id="dev-auth-uid"
           v-model="uid"
-          class="splash-form-input"
+          class="form-input"
           placeholder="UID"
           type="text"
           aria-required="true"
@@ -17,7 +17,7 @@
           id="dev-auth-password"
           v-model="password"
           :aria-invalid="!!password"
-          class="splash-form-input"
+          class="form-input"
           placeholder="Password"
           type="password"
           aria-required="true"
@@ -28,7 +28,7 @@
       <div class="ml-1">
         <b-btn
           id="dev-auth-submit"
-          class="splash-btn-dev-auth btn-primary-color-override"
+          class="btn-dev-auth btn-primary-color-override"
           variant="primary"
           aria-label="Log in to BOA with dev-auth"
           type="submit">
@@ -90,17 +90,17 @@ export default {
 button {
   background-color: #3b80bf;
 }
-.splash-btn-dev-auth {
+.btn-dev-auth {
   height: 26px;
   padding: 0 !important;
   width: 80px;
 }
-.splash-dev-auth {
+.dev-auth {
   justify-content: center;
   padding-top: 10px;
   white-space: nowrap;
 }
-.splash-form-input {
+.form-input {
   padding-right: 5px;
 }
 </style>

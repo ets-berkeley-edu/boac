@@ -241,26 +241,25 @@ def _users_sql(
         role=None,
 ):
     query_tables = 'FROM authorized_users u '
-    query_filter = 'WHERE true '
+    query_filter = _users_sql_where_clause(blocked, deleted, role == 'admin')
     query_bindings = {}
-    if blocked is True:
-        query_filter += 'AND u.is_blocked = true '
-    elif blocked is False:
-        query_filter += 'AND u.is_blocked = false '
-    if deleted is True:
-        query_filter += 'AND u.deleted_at IS NOT NULL '
-    elif deleted is False:
-        query_filter += 'AND u.deleted_at IS NULL '
-    if role == 'admin':
-        query_filter += 'AND u.is_admin IS true '
-    if role == 'noCanvasDataAccess':
-        query_filter += 'AND u.can_access_canvas_data IS false '
-    elif dept_code and role:
+
+    if dept_code and role:
         if role == 'dropInAdvisor':
             query_tables += """
                 JOIN drop_in_advisors a ON
                     a.dept_code = :dept_code
                     AND a.authorized_user_id = u.id
+                    AND a.deleted_at IS NULL
+            """
+        elif role == 'noCanvasDataAccess':
+            query_filter += 'AND u.can_access_canvas_data IS FALSE '
+            query_tables += f"""
+                JOIN university_depts d ON
+                    d.dept_code = :dept_code
+                JOIN university_dept_members m ON
+                    m.university_dept_id = d.id
+                    AND m.authorized_user_id = u.id
             """
         elif role in ['advisor', 'director', 'scheduler']:
             query_tables += f"""
@@ -269,7 +268,7 @@ def _users_sql(
                 JOIN university_dept_members m ON
                     m.university_dept_id = d.id
                     AND m.authorized_user_id = u.id
-                    AND m.is_{role} = true
+                    AND m.is_{role} IS TRUE
             """
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
@@ -277,12 +276,15 @@ def _users_sql(
             query_tables += """
                 JOIN drop_in_advisors a ON
                     a.authorized_user_id = u.id
+                    AND a.deleted_at IS NULL
             """
+        elif role == 'noCanvasDataAccess':
+            query_filter += 'AND u.can_access_canvas_data IS FALSE '
         else:
             query_tables += f"""
                 JOIN university_dept_members m ON
                     m.authorized_user_id = u.id
-                    AND m.is_{role} = true
+                    AND m.is_{role} IS TRUE
             """
     elif dept_code and not role:
         query_tables += f"""
@@ -293,3 +295,21 @@ def _users_sql(
         """
         query_bindings['dept_code'] = dept_code
     return query_tables, query_filter, query_bindings
+
+
+def _users_sql_where_clause(blocked, deleted, is_admin):
+    query_filter = 'WHERE TRUE '
+    if blocked is True:
+        query_filter += 'AND u.is_blocked IS TRUE '
+    elif blocked is False:
+        query_filter += 'AND u.is_blocked IS FALSE '
+
+    if deleted is True:
+        query_filter += 'AND u.deleted_at IS NOT NULL '
+    elif deleted is False:
+        query_filter += 'AND u.deleted_at IS NULL '
+
+    if is_admin:
+        query_filter += 'AND u.is_admin IS TRUE '
+
+    return query_filter
