@@ -73,9 +73,12 @@
                 :options="availableAdvisors"
                 value-field="uid"
                 text-field="name">
+                <template v-slot:first>
+                  <option :value="null" disabled>Select...</option>
+                </template>
               </b-form-select>
             </b-col>
-            <div v-if="!availableAdvisors.length" class="pb-1 pt-1">
+            <div v-if="!availableAdvisors.length" class="has-error pb-1 pt-1">
               Sorry, no advisors are on duty.
             </div>
           </div>
@@ -235,7 +238,7 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
     },
     updateAvailableAdvisors() {
-      this.availableAdvisors = [{ uid: null, name: 'Select...' }].concat(this.filterList(this.advisors, 'available'));
+      this.availableAdvisors = this.filterList(this.advisors, 'available');
     }
   }
 };

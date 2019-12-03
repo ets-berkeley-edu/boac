@@ -1,5 +1,6 @@
 <template>
   <b-modal
+    v-if="!isNil(dropInAdvisors)"
     id="advising-appointment-assign"
     v-model="showAppointmentAssignModal"
     :no-close-on-backdrop="true"
@@ -28,7 +29,7 @@
             </template>
           </b-form-select>
         </div>
-        <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-3">
+        <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-1">
           Sorry, no advisors are on duty.
         </div>
       </div>
@@ -84,7 +85,7 @@ export default {
     }
   },
   data: () => ({
-    dropInAdvisors: [],
+    dropInAdvisors: undefined,
     selectedAdvisorUid: null,
     showAppointmentAssignModal: false
   }),
@@ -111,9 +112,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.appointment-details-label {
-  min-width: 25%;
-}
-</style>
