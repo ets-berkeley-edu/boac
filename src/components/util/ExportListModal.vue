@@ -19,6 +19,7 @@
       <form @submit.prevent="exportList(csvColumnsSelected)">
         <b-btn
           id="export-list-confirm"
+          :disabled="!csvColumnsSelected.length"
           class="btn-primary-color-override"
           variant="primary"
           @click.prevent="exportList(csvColumnsSelected)">
