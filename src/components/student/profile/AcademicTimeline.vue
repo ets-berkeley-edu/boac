@@ -259,6 +259,7 @@
                   <TimelineDate
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
+                    :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
                     :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')" />
                 </div>
                 <div v-if="displayUpdatedAt(message)">
@@ -267,7 +268,8 @@
                     :id="`expanded-${message.type}-${message.id}-updated-at`"
                     :date="message.updatedAt"
                     :include-time-of-day="message.updatedAt.length > 10"
-                    class="mb-2" />
+                    class="mb-2"
+                    sr-prefix="Last updated on" />
                 </div>
                 <div class="text-muted">
                   <router-link
