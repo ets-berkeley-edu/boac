@@ -29,8 +29,9 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
-from boac.models.appointment_event import appointment_event_type, AppointmentEvent
+from boac.models.appointment_event import appointment_event_type
 from boac.models.appointment_read import AppointmentRead
+from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -145,7 +146,7 @@ def reopen_appointment(appointment_id):
     return _set_appointment_to_waiting(appointment)
 
 
-@app.route('/api/appointments/<appointment_id>/reserve', methods=['GET'])
+@app.route('/api/appointments/<appointment_id>/reserve', methods=['POST'])
 @appointments_feature_flag
 @scheduler_required
 def reserve_appointment(appointment_id):
@@ -157,27 +158,32 @@ def reserve_appointment(appointment_id):
         raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
     if not appointment.status_change_available():
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
+    params = request.get_json()
+    advisor_uid = params.get('advisorUid', None)
+    advisor_id = advisor_uid and AuthorizedUser.get_id_per_uid(advisor_uid)
+    if not advisor_id:
+        raise BadRequestError('Appointment check-in requires valid "advisorUid"')
     appointment = Appointment.reserve(
         appointment_id=appointment_id,
-        reserved_by=current_user.get_id(),
+        reserved_by=advisor_id,
     )
     api_json = appointment.to_api_json(current_user.get_id())
     _put_student_profile_per_appointment([api_json])
     return tolerant_jsonify(api_json)
 
 
-@app.route('/api/appointments/<appointment_id>/unreserve', methods=['GET'])
+@app.route('/api/appointments/<appointment_id>/unreserve', methods=['POST'])
 @appointments_feature_flag
 @scheduler_required
 def unreserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
+    has_privilege = current_user.is_admin or appointment.dept_code in _dept_codes_with_scheduler_privilege()
+    if not has_privilege:
+        raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
     if appointment.status != 'reserved':
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
-    event = AppointmentEvent.get_most_recent_per_type(appointment.id, 'reserved')
-    if event.user_id != current_user.get_id():
-        raise ForbiddenRequestError(f'You did not reserve appointment {appointment_id}.')
     return _set_appointment_to_waiting(appointment)
 
 
