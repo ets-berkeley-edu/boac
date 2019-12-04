@@ -29,7 +29,7 @@
       <div class="border-bottom d-flex justify-content-between">
         <div>
           <h1 class="font-size-18 font-weight-bold text-nowrap">
-            <span aria-live="polite" role="alert">Today's Drop-In Waitlist ({{ size(waitlist) }}<span class="sr-only"> students</span>)</span>
+            <span aria-live="polite" role="alert">Today's Drop-In Waitlist ({{ waitlist.unresolved.length }}<span class="sr-only"> students</span>)</span>
           </h1>
         </div>
         <div>
