@@ -47,7 +47,7 @@
       </div>
     </div>
     <div v-if="waitlist.unresolved.length || waitlist.resolved.length || creating">
-      <b-container fluid class="pl-0 pr-0">
+      <b-container fluid class="pl-0 pr-0" :class="{'homepage-header-border': isHomepage}">
         <b-row v-if="waitlist.unresolved.length">
           <span class="sr-only">{{ waitlist.unresolved.length }} appointments not yet checked in</span>
         </b-row>
@@ -179,7 +179,7 @@ export default {
 
 <style>
 .border-thick-grey {
-  border-color: #aaa !important;
+  border-color: lightgrey !important;
   border-width: 3px !important;
 }
 </style>
