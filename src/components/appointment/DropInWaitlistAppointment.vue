@@ -46,40 +46,54 @@
             <span v-if="appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
             <span v-if="!appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned</span>
           </div>
+          <div v-if="appointment.statusBy && !reopening">
+            <div class="font-size-14 pb-2 text-nowrap">
+              <span v-if="appointment.status === 'cancelled'">
+                <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
+                {{ appointment.statusBy.firstName }} {{ appointment.statusBy.lastName }}
+              </span>
+              <span v-if="appointment.status === 'checked_in'">
+                <font-awesome icon="calendar-check" class="status-checked-in-icon" />
+                {{ appointment.statusBy.firstName }} {{ appointment.statusBy.lastName }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </b-col>
-    <b-col sm="1">
-      <button
-        v-if="!reopening && includes(['checked_in', 'cancelled'], appointment.status)"
-        class="btn btn-link float-right"
-        @click="reopenAppointment()"
-        @keyup.enter="reopenAppointment()">
-        Undo<span class="sr-only"> {{ appointment.status }} status</span>
-      </button>
-      <div v-if="reopening" :id="`appointment-${appointment.id}-reopen-spinner`" class="float-right pr-3">
-        <font-awesome icon="spinner" spin />
-      </div>
-    </b-col>
-    <b-col sm="3">
-      <div>
-        <DropInAppointmentDropdown
-          :appointment="appointment"
-          :dept-code="deptCode"
-          :self-check-in="isHomepage"
-          :on-appointment-status-change="onAppointmentStatusChange" />
-      </div>
-      <div
-        v-if="appointment.status === 'cancelled'"
-        :id="`appointment-${appointment.id}-cancelled`"
-        class="float-right pill-appointment-status pill-cancelled pl-2 pr-2">
-        Cancelled<span class="sr-only"> appointment</span>
-      </div>
-      <div
-        v-if="appointment.status === 'checked_in'"
-        :id="`appointment-${appointment.id}-checked-in`"
-        class="float-right pill-appointment-status pill-checked-in pl-2 pr-2 text-nowrap">
-        <span class="sr-only">Student was </span>Checked In
+    <b-col sm="4">
+      <DropInAppointmentDropdown
+        v-if="includes(['reserved', 'waiting'], appointment.status)"
+        :appointment="appointment"
+        :dept-code="deptCode"
+        :self-check-in="isHomepage"
+        :on-appointment-status-change="onAppointmentStatusChange" />
+      <div v-if="includes(['checked_in', 'cancelled'], appointment.status)" class="d-flex justify-content-end">
+        <div>
+          <button
+            v-if="!reopening"
+            class="btn btn-link pr-1 pt-1"
+            @click="reopenAppointment()"
+            @keyup.enter="reopenAppointment()">
+            Undo<span class="sr-only"> {{ appointment.status }} status</span>
+          </button>
+          <div v-if="reopening" :id="`appointment-${appointment.id}-reopen-spinner`" class="float-right pl-2 pr-3 pt-1">
+            <font-awesome icon="spinner" spin />
+          </div>
+        </div>
+        <div
+          v-if="appointment.status === 'cancelled' && !reopening"
+          :id="`appointment-${appointment.id}-cancelled`"
+          class="float-right pill-appointment-status pill-cancelled pl-2 pr-2">
+          Cancelled<span class="sr-only"> appointment</span>
+        </div>
+        <div v-if="appointment.status === 'checked_in' && !reopening">
+          <div
+            :id="`appointment-${appointment.id}-checked-in`"
+            class="pill-appointment-status pill-checked-in pl-2 pr-2 text-nowrap">
+            <span class="sr-only">Student was </span>Checked In
+          </div>
+        </div>
       </div>
     </b-col>
   </b-row>
@@ -154,6 +168,12 @@ export default {
 </style>
 
 <style>
+.status-cancelled-icon {
+  color: #f0ad4e;
+}
+.status-checked-in-icon {
+  color: #00c13a;
+}
 .pill-appointment-status {
   border-radius: 5px;
   display: inline-block;
