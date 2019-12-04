@@ -6,6 +6,7 @@
           <b-form-select
             id="user-filter-options"
             v-model="filterType"
+            :disabled="isBusy"
             :options="[
               {text: 'BOA Admins', value: 'admins'},
               {text: 'Search', value: 'search'},
@@ -17,6 +18,7 @@
           <Autocomplete
             id="search-user"
             v-model="userSelection"
+            :disabled="isBusy"
             :source="autocompleteUsers"
             dropdown-class="w-100"
             class="w-50"
@@ -29,6 +31,7 @@
               <b-form-select
                 id="department-select-list"
                 v-model="filterBy.deptCode"
+                :disabled="isBusy"
                 :options="departments"
                 value-field="code"
                 text-field="name"
@@ -43,6 +46,7 @@
               <b-form-select
                 id="user-permission-options"
                 v-model="filterBy.role"
+                :disabled="isBusy"
                 :options="[
                   {text: 'All', value: null},
                   {text: 'Advisors', value: 'advisor'},
@@ -57,6 +61,7 @@
               <b-form-select
                 id="user-status-options"
                 v-model="filterBy.status"
+                :disabled="isBusy"
                 :options="[
                   {text: 'All', value: null},
                   {text: 'Active', value: 'active'},
