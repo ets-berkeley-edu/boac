@@ -17,6 +17,7 @@
           </div>
           <div class="flex-grow-1 text-right">
             <EditUserProfileModal
+              v-if="featureFlagPassengerEdit"
               :after-update-user="afterCreateUser"
               :departments="departments" />
           </div>
