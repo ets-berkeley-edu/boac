@@ -61,7 +61,7 @@
             value-field="uid"
             text-field="name">
             <template v-slot:first>
-              <option :value="null" disabled>Select...</option>
+              <option :value="null">Select...</option>
             </template>
           </b-form-select>
         </div>
