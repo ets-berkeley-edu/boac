@@ -7,6 +7,7 @@ DROP SCHEMA IF EXISTS boac_advisor cascade;
 DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_advising_notes cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
+DROP SCHEMA IF EXISTS sis_terms cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
@@ -18,6 +19,7 @@ CREATE SCHEMA boac_advisor;
 CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
+CREATE SCHEMA sis_terms;
 CREATE SCHEMA student;
 
 CREATE TABLE boac_advising_asc.advising_notes
@@ -213,12 +215,6 @@ CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
   sis_topic VARCHAR NOT NULL
 );
 
-CREATE TABLE sis_data.current_term_index
-(
-    current_term_name VARCHAR NOT NULL,
-    future_term_name VARCHAR NOT NULL
-);
-
 CREATE TABLE sis_data.enrolled_primary_sections
 (
     term_id VARCHAR NOT NULL,
@@ -233,7 +229,13 @@ CREATE TABLE sis_data.enrolled_primary_sections
     instructors VARCHAR
 );
 
-CREATE TABLE sis_data.term_definitions
+CREATE TABLE sis_terms.current_term_index
+(
+    current_term_name VARCHAR NOT NULL,
+    future_term_name VARCHAR NOT NULL
+);
+
+CREATE TABLE sis_terms.term_definitions
 (
     term_id VARCHAR(4) NOT NULL,
     term_name VARCHAR NOT NULL,
@@ -546,11 +548,6 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );
 
-INSERT INTO sis_data.current_term_index
-(current_term_name, future_term_name)
-VALUES
-('Fall 2017', 'Spring 2018');
-
 INSERT INTO sis_data.enrolled_primary_sections
 (term_id, sis_section_id, sis_course_name, sis_course_name_compressed, sis_subject_area_compressed, sis_catalog_id, sis_course_title, sis_instruction_format, sis_section_num, instructors)
 VALUES
@@ -564,7 +561,12 @@ VALUES
 ('2178', '22460', 'MATH 185', 'MATH185', 'MATH', '185', 'Introduction to Complex Analysis', 'LEC', '001', 'Leonhard Euler'),
 ('2178', '22114', 'MATH 55', 'MATH55', 'MATH', '55', 'Discrete Mathematics', 'LEC', '001', 'David Hilbert');
 
-INSERT INTO sis_data.term_definitions
+INSERT INTO sis_terms.current_term_index
+(current_term_name, future_term_name)
+VALUES
+('Fall 2017', 'Spring 2018');
+
+INSERT INTO sis_terms.term_definitions
 (term_id, term_name, term_begins, term_ends)
 VALUES
 ('2188', 'Fall 2018', '2018-08-15', '2018-12-14'),
