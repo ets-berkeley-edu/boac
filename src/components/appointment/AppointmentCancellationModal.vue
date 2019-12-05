@@ -61,7 +61,7 @@
             :options="reasonOptions"
             @input="reasonSelected">
             <template v-slot:first>
-              <option :value="undefined" disabled>Select...</option>
+              <option :value="undefined">Select...</option>
             </template>
           </b-form-select>
         </div>
