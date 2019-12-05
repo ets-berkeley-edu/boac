@@ -152,7 +152,7 @@ export default {
       } else {
         const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
         if (advisor) {
-          const deptCodes = Object.keys(advisor.departments);
+          const deptCodes = this.map(advisor.departments, 'code');
           this.appointmentCheckin(advisor, deptCodes);
         }
       }
