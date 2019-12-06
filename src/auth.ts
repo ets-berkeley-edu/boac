@@ -12,7 +12,7 @@ const $_goToLogin = (to: any, next: any) => {
 };
 
 const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) => {
-  if (store.getters['context/featureFlagAppointments'] || !authorizedDeptCodes.length) {
+  if (authorizedDeptCodes.length) {
     if (to.params.deptCode) {
       if (_.includes(authorizedDeptCodes, to.params.deptCode.toUpperCase())) {
         next();
