@@ -25,8 +25,16 @@ export function validateSids(sids: string[]) {
     .then(response => response.data, () => null);
 }
 
+let $_findStudentsByNameOrSidCancel = axios.CancelToken.source();
+
 export function findStudentsByNameOrSid(query: string, limit: number) {
+  if ($_findStudentsByNameOrSidCancel) {
+     $_findStudentsByNameOrSidCancel.cancel();
+  }
+  $_findStudentsByNameOrSidCancel = axios.CancelToken.source();
   return axios
-    .get(`${utils.apiBaseUrl()}/api/students/find_by_name_or_sid?q=${query}&limit=${limit}`)
-    .then(response => response.data);
+    .get(
+      `${utils.apiBaseUrl()}/api/students/find_by_name_or_sid?q=${query}&limit=${limit}`,
+      {cancelToken: $_findStudentsByNameOrSidCancel.token}
+    ).then(response => response.data, () => []);
 }

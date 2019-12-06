@@ -91,6 +91,7 @@ export default {
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     deptCode: undefined,
+    loadingWaitlist: false,
     waitlist: undefined
   }),
   mounted() {
@@ -101,6 +102,11 @@ export default {
   methods: {
     loadDropInWaitlist() {
       return new Promise(resolve => {
+        if (this.loadingWaitlist) {
+          resolve();
+          return;
+        }
+        this.loadingWaitlist = true;
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           const waitlist = response.waitlist;
           let announceLoad = false;
@@ -124,6 +130,7 @@ export default {
             });
           }
 
+          this.loadingWaitlist = false;
           resolve();
 
           if (announceLoad) {
