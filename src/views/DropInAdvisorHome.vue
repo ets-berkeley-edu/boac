@@ -97,13 +97,13 @@ export default {
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
-    setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
   methods: {
     loadDropInWaitlist() {
       return new Promise(resolve => {
         if (this.loadingWaitlist) {
           resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
           return;
         }
         this.loadingWaitlist = true;
@@ -132,6 +132,7 @@ export default {
 
           this.loadingWaitlist = false;
           resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
 
           if (announceLoad) {
             this.loaded('Appointment waitlist');
