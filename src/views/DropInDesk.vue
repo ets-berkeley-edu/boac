@@ -45,6 +45,7 @@ export default {
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     advisors: undefined,
+    loadingWaitlist: false,
     waitlist: undefined
   }),
   created() {
@@ -55,6 +56,11 @@ export default {
   methods: {
     loadDropInWaitlist() {
       return new Promise(resolve => {
+        if (this.loadingWaitlist) {
+          resolve();
+          return;
+        }
+        this.loadingWaitlist = true;
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           let announceUpdate = false;
           if (!this.isEqual(response.advisors, this.advisors)) {
@@ -70,6 +76,7 @@ export default {
             this.waitlist = response.waitlist;
           }
 
+          this.loadingWaitlist = false;
           resolve();
 
           if (announceUpdate) {
