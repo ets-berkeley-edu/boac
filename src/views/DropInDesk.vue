@@ -45,16 +45,22 @@ export default {
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     advisors: undefined,
+    loadingWaitlist: false,
     waitlist: undefined
   }),
   created() {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
-    setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
   methods: {
     loadDropInWaitlist() {
       return new Promise(resolve => {
+        if (this.loadingWaitlist) {
+          resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          return;
+        }
+        this.loadingWaitlist = true;
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           let announceUpdate = false;
           if (!this.isEqual(response.advisors, this.advisors)) {
@@ -70,7 +76,9 @@ export default {
             this.waitlist = response.waitlist;
           }
 
+          this.loadingWaitlist = false;
           resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
 
           if (announceUpdate) {
             this.alertScreenReader("The drop-in waitlist has been updated");

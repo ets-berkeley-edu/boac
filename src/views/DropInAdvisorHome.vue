@@ -91,16 +91,22 @@ export default {
   mixins: [Context, Loading, UserMetadata, Util],
   data: () => ({
     deptCode: undefined,
+    loadingWaitlist: false,
     waitlist: undefined
   }),
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
-    setInterval(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
   },
   methods: {
     loadDropInWaitlist() {
       return new Promise(resolve => {
+        if (this.loadingWaitlist) {
+          resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          return;
+        }
+        this.loadingWaitlist = true;
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           const waitlist = response.waitlist;
           let announceLoad = false;
@@ -124,7 +130,9 @@ export default {
             });
           }
 
+          this.loadingWaitlist = false;
           resolve();
+          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
 
           if (announceLoad) {
             this.loaded('Appointment waitlist');
