@@ -74,11 +74,19 @@ export function create(
     }, () => null);
 }
 
+let $_findAdvisorsByNameCancel = axios.CancelToken.source();
+
 export function findAdvisorsByName(query: string, limit: number) {
+  if ($_findAdvisorsByNameCancel) {
+     $_findAdvisorsByNameCancel.cancel();
+  }
+  $_findAdvisorsByNameCancel = axios.CancelToken.source();
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/appointments/advisors/find_by_name?q=${query}&limit=${limit}`)
-    .then(response => response.data);
+    .get(
+      `${apiBaseUrl}/api/appointments/advisors/find_by_name?q=${query}&limit=${limit}`,
+      {cancelToken: $_findAdvisorsByNameCancel.token}
+    ).then(response => response.data);
 }
 
 export function getAppointment(appointmentId) {
