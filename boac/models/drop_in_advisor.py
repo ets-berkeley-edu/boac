@@ -82,6 +82,21 @@ class DropInAdvisor(Base):
         std_commit()
         return True
 
+    @classmethod
+    def delete_orphans(cls):
+        sql = """
+            UPDATE drop_in_advisors AS a SET deleted_at = now()
+                WHERE a.deleted_at IS NULL
+                AND authorized_user_id NOT IN (
+                    SELECT m.authorized_user_id
+                    FROM university_depts AS d
+                    JOIN university_dept_members AS m
+                    ON m.university_dept_id = d.id
+                    WHERE d.dept_code = a.dept_code
+                );"""
+        db.session.execute(sql)
+        std_commit()
+
     def to_api_json(self):
         return {
             'deptCode': self.dept_code,
