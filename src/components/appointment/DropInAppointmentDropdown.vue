@@ -70,7 +70,7 @@
             v-if="appointment.status !== 'reserved'"
             :id="`btn-appointment-${appointment.id}-reserve`"
             @click="selfCheckIn ? reserveAppointment() : launchAppointmentAssign()">
-            <span class="text-nowrap">Assign</span>
+            <span class="text-nowrap">Assign<span v-if="selfCheckIn"> to me</span></span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status === 'reserved'"
