@@ -99,11 +99,19 @@ export function deleteNote(noteId: number) {
     .then(response => response.data);
 }
 
+let $_findAuthorsByNameCancel = axios.CancelToken.source();
+
 export function findAuthorsByName(query: string, limit: number) {
+  if ($_findAuthorsByNameCancel) {
+     $_findAuthorsByNameCancel.cancel();
+  }
+  $_findAuthorsByNameCancel = axios.CancelToken.source();
   let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
-    .get(`${apiBaseUrl}/api/notes/authors/find_by_name?q=${query}&limit=${limit}`)
-    .then(response => response.data);
+    .get(
+      `${apiBaseUrl}/api/notes/authors/find_by_name?q=${query}&limit=${limit}`,
+      {cancelToken: $_findAuthorsByNameCancel.token}
+    ).then(response => response.data);
 }
 
 export function addAttachment(noteId: number, attachment: any) {
