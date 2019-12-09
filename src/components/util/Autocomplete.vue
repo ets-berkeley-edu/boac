@@ -7,6 +7,7 @@
       :class="{'obfuscate-form-input': demoModeBlur && user.inDemoMode}"
       :disabled="disabled"
       :placeholder="placeholder"
+      maxlength="56"
       name="autocomplete-name"
       type="text"
       autocomplete="off"
