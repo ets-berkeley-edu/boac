@@ -48,13 +48,9 @@
           </div>
           <div v-if="appointment.statusBy && !reopening">
             <div class="font-size-14 pb-2 text-nowrap">
-              <span v-if="appointment.status === 'cancelled'">
-                <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
-                {{ appointment.statusBy.firstName }} {{ appointment.statusBy.lastName }}
-              </span>
               <span v-if="appointment.status === 'checked_in'">
                 <font-awesome icon="calendar-check" class="status-checked-in-icon" />
-                {{ appointment.statusBy.firstName }} {{ appointment.statusBy.lastName }}
+                {{ appointment.advisorName }}
               </span>
             </div>
           </div>
