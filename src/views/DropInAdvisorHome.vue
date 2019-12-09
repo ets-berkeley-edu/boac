@@ -11,7 +11,7 @@
             <DropInWaitlist
               :dept-code="deptCode"
               :is-homepage="true"
-              :on-appointment-status-change="loadDropInWaitlist"
+              :on-appointment-status-change="onAppointmentStatusChange"
               :waitlist="waitlist" />
           </div>
         </b-col>
@@ -99,11 +99,13 @@ export default {
     this.loadDropInWaitlist();
   },
   methods: {
-    loadDropInWaitlist() {
+    loadDropInWaitlist(scheduleFutureRefresh=true) {
       return new Promise(resolve => {
         if (this.loadingWaitlist) {
           resolve();
-          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          if (scheduleFutureRefresh) {
+            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          }
           return;
         }
         this.loadingWaitlist = true;
@@ -132,7 +134,9 @@ export default {
 
           this.loadingWaitlist = false;
           resolve();
-          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          if (scheduleFutureRefresh) {
+            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          }
 
           if (announceLoad) {
             this.loaded('Appointment waitlist');
@@ -142,6 +146,10 @@ export default {
           }
         });
       });
+    },
+    onAppointmentStatusChange() {
+      // We return a Promise.
+      return this.loadDropInWaitlist(false);
     }
   }
 }

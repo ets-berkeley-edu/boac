@@ -22,7 +22,7 @@
           ref="dropInWaitlist"
           :advisors="advisors"
           :dept-code="deptCode"
-          :on-appointment-status-change="loadDropInWaitlist"
+          :on-appointment-status-change="onAppointmentStatusChange"
           :waitlist="waitlist" />
       </div>
     </div>
@@ -53,11 +53,13 @@ export default {
     this.loadDropInWaitlist();
   },
   methods: {
-    loadDropInWaitlist() {
+    loadDropInWaitlist(scheduleFutureRefresh=true) {
       return new Promise(resolve => {
         if (this.loadingWaitlist) {
           resolve();
-          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          if (scheduleFutureRefresh) {
+            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          }
           return;
         }
         this.loadingWaitlist = true;
@@ -78,8 +80,9 @@ export default {
 
           this.loadingWaitlist = false;
           resolve();
-          setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
-
+          if (scheduleFutureRefresh) {
+            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+          }
           if (announceUpdate) {
             this.alertScreenReader("The drop-in waitlist has been updated");
           } else if (response.waitlist) {
@@ -87,6 +90,10 @@ export default {
           }
         });
       });
+    },
+    onAppointmentStatusChange() {
+      // We return a Promise.
+      return this.loadDropInWaitlist(false);
     }
   }
 }
