@@ -169,7 +169,7 @@ def drop_in_advisors_for_dept_code(dept_code):
         advisor = authorized_users_api_feed([a.authorized_user])[0]
         advisor['available'] = a.is_available
         advisors.append(advisor)
-    return sorted(advisors, key=lambda u: (u.get('lastName', '').upper(), u.get('firstName', '').upper(), u.get('id')))
+    return sorted(advisors, key=lambda u: (u.get('firstName', '').upper(), u.get('lastName', '').upper(), u.get('id')))
 
 
 def sis_enrollment_class_feed(enrollment):
