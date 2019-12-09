@@ -209,16 +209,12 @@ export default {
         this.topics,
         advisor && this.map(advisor.departments, 'code'),
         this.get(advisor, 'name'),
-        this.describeAdvisorRole(advisor),
+        advisor.title || 'Advisor',
         this.selectedAdvisorUid
       );
       this.showCreateAppointmentModal = false;
       this.saving = false;
       this.reset();
-    },
-    describeAdvisorRole(advisor) {
-      const department = advisor && this.find(advisor.departments, ['code', this.deptCode]);
-      return department && this.oxfordJoin(this.getBoaUserRoles(advisor, department));
     },
     removeStudent() {
       this.alertScreenReader(`${this.student.label} removed`);
