@@ -173,7 +173,7 @@ export default {
       apiCheckIn(
         deptCodes,
         advisor.name,
-        advisor.title,
+        advisor.title || 'Advisor',
         advisor.uid,
         appointmentId
       ).then(checkedIn => {
