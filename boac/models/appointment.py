@@ -29,7 +29,10 @@ import re
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, get_benchmarker, search_result_text_snippet, titleize, utc_now, vacuum_whitespace
+from boac.lib.util import (
+    camelize, get_benchmarker, localize_datetime, localized_timestamp_to_utc,
+    search_result_text_snippet, titleize, utc_now, vacuum_whitespace,
+)
 from boac.merged import calnet
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
 from boac.models.appointment_read import AppointmentRead
@@ -38,7 +41,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from dateutil.tz import tzutc
 from flask import current_app as app
-import pytz
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -131,9 +133,10 @@ class Appointment(Base):
 
     @classmethod
     def get_waitlist(cls, dept_code, statuses=()):
-        start_of_today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        local_today = localize_datetime(datetime.now()).strftime('%Y-%m-%d')
+        start_of_today = localized_timestamp_to_utc(f'{local_today}T00:00:00')
         criterion = and_(
-            cls.created_at >= start_of_today.astimezone(pytz.utc),
+            cls.created_at >= start_of_today,
             cls.status.in_(statuses),
             cls.deleted_at == None,
             cls.dept_code == dept_code,
