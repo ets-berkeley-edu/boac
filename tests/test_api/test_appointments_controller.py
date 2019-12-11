@@ -30,7 +30,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.drop_in_advisor import DropInAdvisor
 import simplejson as json
 from sqlalchemy import and_
-from tests.util import override_config
 
 coe_advisor_uid = '90412'
 coe_drop_in_advisor_uid = '90412'
@@ -178,12 +177,6 @@ class TestCreateAppointment:
         fake_auth.login(coe_scheduler_uid)
         AppointmentTestUtil.create_appointment(client, 'DINGO', expected_status_code=404)
 
-    def test_feature_flag(self, client, fake_auth, app):
-        """Returns 404 if the Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            self._get_waitlist(client, 'COENG', expected_status_code=401)
-
 
 class TestGetAppointment:
 
@@ -209,12 +202,6 @@ class TestGetAppointment:
         assert appointment
         assert appointment['id'] == 1
         assert appointment['status'] is not None
-
-    def test_feature_flag(self, client, fake_auth, app):
-        """Returns 404 if the Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            self._get_appointment(client, 'COENG', expected_status_code=401)
 
 
 class TestAppointmentUpdate:
@@ -330,20 +317,6 @@ class TestAppointmentCancel:
         assert appointment['statusDate'] is not None
         Appointment.delete(appointment_id)
 
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        dept_code = 'QCADV'
-        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
-        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            AppointmentTestUtil.cancel_appointment(
-                client,
-                appointment_id=appointment['id'],
-                cancel_reason='Cancelled by the power of the mind',
-                expected_status_code=401,
-            )
-
 
 class TestAppointmentCheckIn:
 
@@ -369,15 +342,6 @@ class TestAppointmentCheckIn:
         AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
         fake_auth.login(l_s_college_scheduler_uid)
         AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
-
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        dept_code = 'QCADV'
-        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-        fake_auth.login(AuthorizedUser.find_by_id(advisor.authorized_user_id).uid)
-        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            AppointmentTestUtil.check_in_appointment(client, appointment['id'], l_s_college_drop_in_advisor_uid, expected_status_code=401)
 
 
 class TestAppointmentReserve:
@@ -493,16 +457,6 @@ class TestAppointmentReserve:
         assert appointment['statusBy']['id'] == user.id
         Appointment.delete(appointment['id'])
 
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        dept_code = 'QCADV'
-        advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-        advisor_uid = AuthorizedUser.find_by_id(advisor.authorized_user_id).uid
-        fake_auth.login(advisor_uid)
-        appointment = AppointmentTestUtil.create_appointment(client, dept_code)
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            self._reserve_appointment(client, appointment['id'], advisor_uid, expected_status_code=401)
-
 
 class TestAppointmentReopen:
 
@@ -610,12 +564,6 @@ class TestAppointmentWaitlist:
         for appointment in appointments['unresolved'] + appointments['resolved']:
             assert appointment['deptCode'] == dept_code
 
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(l_s_college_scheduler_uid)
-            self._get_waitlist(client, 'COENG', expected_status_code=401)
-
 
 class TestMarkAppointmentRead:
 
@@ -662,10 +610,3 @@ class TestAuthorSearch:
         assert len(response.json) == 1
         labels = [s['label'] for s in response.json]
         assert 'Johnny C. Lately' in labels
-
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            response = client.get('/api/appointments/advisors/find_by_name?q=Jo')
-            assert response.status_code == 401

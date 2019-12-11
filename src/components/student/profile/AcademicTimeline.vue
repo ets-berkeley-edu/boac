@@ -357,6 +357,10 @@ export default {
         name: 'Advising Note',
         tab: 'Notes'
       },
+      appointment: {
+        name: 'Appointment',
+        tab: 'Appointments'
+      },
       alert: {
         name: 'Alert',
         tab: 'Alerts'
@@ -411,9 +415,6 @@ export default {
     }
   },
   created() {
-    if (this.featureFlagAppointments) {
-      this.filterTypes['appointment'] = {name: 'Appointment', tab: 'Appointments'};
-    }
     this.messages = [];
     this.countsPerType = {};
     this.each(this.keys(this.filterTypes), (type, typeIndex) => {

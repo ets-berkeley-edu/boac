@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import pytest
 import simplejson as json
-from tests.util import override_config
 
 admin_uid = '2040'
 asc_advisor_id = '1081940'
@@ -574,47 +573,39 @@ class TestStudent:
 
     def test_student_with_appointment(self, app, client, asc_advisor_login):
         """Includes advising appointments."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
-            student = self._api_student_by_sid(client=client, sid='5678901234')
-            appointments = student['notifications']['appointment']
-            assert len(appointments) == 3
+        student = self._api_student_by_sid(client=client, sid='5678901234')
+        appointments = student['notifications']['appointment']
+        assert len(appointments) == 3
 
     def test_appointment_marked_read(self, app, client, fake_auth):
         """Includes advising appointments."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', True):
-            sid = '3456789012'
+        sid = '3456789012'
 
-            fake_auth.login(coe_scheduler_id)
-            response = client.post(
-                '/api/appointments/create',
-                data=json.dumps({
-                    'deptCode': 'COENG',
-                    'sid': sid,
-                    'appointmentType': 'Drop-in',
-                    'topics': ['Topic for appointments, 4'],
-                }),
-                content_type='application/json',
-            )
-            assert response.status_code == 200
-            appointment_id = response.json['id']
+        fake_auth.login(coe_scheduler_id)
+        response = client.post(
+            '/api/appointments/create',
+            data=json.dumps({
+                'deptCode': 'COENG',
+                'sid': sid,
+                'appointmentType': 'Drop-in',
+                'topics': ['Topic for appointments, 4'],
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == 200
+        appointment_id = response.json['id']
 
-            def _is_appointment_read():
-                student = self._api_student_by_sid(client=client, sid=sid)
-                appointments = student['notifications']['appointment']
-                appointment = next((a for a in appointments if a['id'] == appointment_id), None)
-                assert appointment is not None
-                return appointment['read']
+        def _is_appointment_read():
+            student = self._api_student_by_sid(client=client, sid=sid)
+            appointments = student['notifications']['appointment']
+            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+            assert appointment is not None
+            return appointment['read']
 
-            fake_auth.login(asc_advisor_id)
-            assert _is_appointment_read() is False
-            client.post(f'/api/appointments/{appointment_id}/mark_read')
-            assert _is_appointment_read() is True
-
-    def test_appointments_when_feature_flag_false(self, app, client, coe_advisor_login):
-        """Returns advising appointment(s)."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            student = self._api_student_by_sid(client=client, sid='5678901234')
-            assert 'appointment' not in student['notifications']
+        fake_auth.login(asc_advisor_id)
+        assert _is_appointment_read() is False
+        client.post(f'/api/appointments/{appointment_id}/mark_read')
+        assert _is_appointment_read() is True
 
 
 class TestAlerts:

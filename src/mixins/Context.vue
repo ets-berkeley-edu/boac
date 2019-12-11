@@ -11,7 +11,6 @@ export default {
       'currentEnrollmentTermId',
       'devAuthEnabled',
       'ebEnvironment',
-      'featureFlagAppointments',
       'featureFlagPassengerEdit',
       'fixedWarningOnAllPages',
       'hasUserDismissedFooterAlert',

@@ -50,22 +50,18 @@ def search():
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     domain = {
-        'appointments': util.get(params, 'appointments'),
         'students': util.get(params, 'students'),
         'courses': util.get(params, 'courses'),
         'notes': util.get(params, 'notes'),
     }
-    if not domain['students'] and not domain['courses'] and not (domain['notes'] or domain['appointments']):
+    if not domain['students'] and not domain['courses'] and not domain['notes']:
         raise BadRequestError('No search domain specified')
-    if not len(search_phrase) and not (domain['notes'] or domain['appointments']):
+    if not len(search_phrase) and not domain['notes']:
         raise BadRequestError('Invalid or empty search input')
     if domain['courses'] and not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to search courses')
 
     feed = {}
-
-    if domain['appointments'] and app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        feed.update(_appointments_search(search_phrase, params))
 
     if len(search_phrase) and domain['students']:
         feed.update(_student_search(search_phrase, params, order_by))
@@ -74,6 +70,7 @@ def search():
         feed.update(_course_search(search_phrase, params, order_by))
 
     if domain['notes']:
+        feed.update(_appointments_search(search_phrase, params))
         feed.update(_notes_search(search_phrase, params))
 
     return tolerant_jsonify(feed)

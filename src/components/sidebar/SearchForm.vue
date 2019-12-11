@@ -91,7 +91,7 @@
             for="search-include-notes-checkbox"
             class="search-form-label">
             <span class="sr-only">Search for</span>
-            {{ featureFlagAppointments ? 'Notes &amp; Appointments' : 'Notes' }}
+            Notes &amp; Appointments
           </label>
           <b-btn
             id="search-options-note-filters-toggle"
@@ -329,10 +329,10 @@ export default {
     },
     includeNotes(value) {
       if (value) {
-        this.alertScreenReader(`Search will include notes${this.featureFlagAppointments ? ' and appointments.' : '.'}`);
+        this.alertScreenReader('Search will include notes and appointments.');
       } else {
         this.showNoteFilters = false;
-        this.alertScreenReader(`Search will not include notes${this.featureFlagAppointments ? ' or appointments.' : '.'}`);
+        this.alertScreenReader('Search will include neither notes nor appointments.');
       }
     },
     includeStudents(value) {
@@ -340,12 +340,12 @@ export default {
     },
     showNoteFilters(value) {
       if (value) {
-        this.alertScreenReader(`Notes${this.featureFlagAppointments ? ' and Appointments' : ''} search filters opened.`);
+        this.alertScreenReader('Notes and Appointments search filters opened.');
         this.putFocusNextTick('search-option-note-filters-topic');
       }
       else {
         this.resetNoteFilters();
-        this.alertScreenReader(`Notes${this.featureFlagAppointments ? ' and Appointments' : ''} search filters closed.`);
+        this.alertScreenReader('Notes and Appointments search filters closed.');
         this.putFocusNextTick('search-options-note-filters-toggle');
       }
     }
@@ -369,7 +369,7 @@ export default {
       return this.$options.filters.moment(d, format);
     },
     findAdvisorsByName(q, limit) {
-      const queries = this.featureFlagAppointments ? [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)] : [findAuthorsByName(q, limit)];
+      const queries = [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)];
       return Promise.all(queries).then((results) => {
         return this.orderBy(this.unionBy(this.flatten(results), 'label'), 'label');
       });
