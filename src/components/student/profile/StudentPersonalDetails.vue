@@ -51,18 +51,21 @@
               Additional Information
             </h3>
             <div class="text-muted">
+              <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
+                Transfer
+              </div>
               <div
                 v-if="student.sisProfile.matriculation"
                 id="student-bio-matriculation">
                 Entered {{ student.sisProfile.matriculation }}
               </div>
+              <div v-if="visaDescription" id="student-profile-visa">
+                {{ visaDescription }}
+              </div>
               <div v-if="student.athleticsProfile" id="student-bio-athletics">
                 <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
                   {{ membership.groupName }}
                 </div>
-              </div>
-              <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
-                Transfer
               </div>
               <div class="no-wrap mt-1">
                 <a
@@ -117,10 +120,11 @@
 
 <script>
 import UserMetadata from '@/mixins/UserMetadata';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentPersonalDetails',
-  mixins: [UserMetadata],
+  mixins: [UserMetadata, Util],
   props: {
     inactivePlans: {
       required: true,
@@ -133,6 +137,23 @@ export default {
     student: {
       required: true,
       type: Object
+    }
+  },
+  computed: {
+    visaDescription() {
+      if (this.get('demographics.visa.status', this.student) !== 'G') {
+        return null;
+      }
+      switch (this.student.demographics.visa.type) {
+        case 'F1':
+          return 'F-1 International Student';
+        case 'J1':
+          return 'J-1 International Student';
+        case 'PR':
+          return 'PR Verified';
+        default:
+          return 'Other Verified';
+      }
     }
   }
 }
