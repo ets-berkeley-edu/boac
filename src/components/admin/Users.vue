@@ -74,7 +74,48 @@
         </b-col>
       </b-row>
     </b-container>
-    <div class="font-size-14 mb-2 ml-4 total-user-count">
+    <div class="align-items-center d-flex pl-4">
+      <div>
+        <strong>Quick links:</strong>
+      </div>
+      <div>
+        <b-btn
+          id="quick-link-drop-in-advisors"
+          :disabled="isBusy"
+          class="pl-2 pr-2"
+          variant="link"
+          @click="quickLink('dropInAdvisor')">
+          Drop-in Advisors
+        </b-btn>
+      </div>
+      <div>
+        |
+      </div>
+      <div>
+        <b-btn
+          id="quick-link-advisors"
+          :disabled="isBusy"
+          class="pl-2 pr-2"
+          variant="link"
+          @click="quickLink('advisor', 'QCADV')">
+          L&amp;S Advisors
+        </b-btn>
+      </div>
+      <div>
+        |
+      </div>
+      <div>
+        <b-btn
+          id="quick-link-schedulers"
+          :disabled="isBusy"
+          class="pl-2 pr-2"
+          variant="link"
+          @click="quickLink('scheduler')">
+          Schedulers
+        </b-btn>
+      </div>
+    </div>
+    <div class="font-size-14 mb-3 ml-4 total-user-count">
       <span v-if="totalUserCount === 0">No users found</span>
       <span v-if="totalUserCount > 0">{{ 'user' | pluralize(totalUserCount) }}</span>
     </div>
@@ -279,6 +320,16 @@ export default {
     },
     openEditUserModal(user) {
       user.showEditUserModal = true;
+    },
+    quickLink(role, deptCode=null) {
+      this.filterType = 'filter';
+      this.filterBy = {
+        deptCode: deptCode,
+        role: role,
+        searchPhrase: '',
+        status: 'active'
+      };
+      this.$refs.users.refresh();
     },
     usersProvider() {
       this.totalUserCount = undefined;
