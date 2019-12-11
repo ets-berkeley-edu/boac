@@ -1,19 +1,19 @@
 <template>
   <transition name="drawer">
     <div v-show="isOpen" class="drawer">
-      <div class="ml-4 mr-4 p-2 row">
-        <div class="col-sm pr-2">
-          <h3>
+      <div class="ml-4 mr-4 pb-4 pt-4 row">
+        <div class="col-sm mr-2 pr-2">
+          <h3 class="student-profile-section-header">
             Advisor(s)
           </h3>
           <div>
             <div>
               <strong>College Advisor</strong>
             </div>
-            <div>
+            <div class="text-muted">
               Letters & Sci Undeclared UG
             </div>
-            <div>
+            <div class="text-muted">
               Paulette Jacobs
             </div>
             <div>
@@ -21,72 +21,72 @@
             </div>
           </div>
         </div>
-        <div class="col-sm pr-2">
-          <h3>
-            Contact Information
-          </h3>
-          <div>
+        <div class="col-sm mr-2 pr-2">
+          <div id="contact-information-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Contact Information
+            </h3>
             <div>
-              <strong>Other Email (preferred)</strong>
+              <div>
+                <strong>Other Email (preferred)</strong>
+              </div>
+              <div>
+                paulette.jacobs@berkeley.edu
+              </div>
             </div>
-            <div>
-              paulette.jacobs@berkeley.edu
-            </div>
-          </div>
-          <div>
-            <div>
-              <strong>Mobile Phone (preferred)</strong>
-            </div>
-            <div>
-              (510) 555-1212
-            </div>
-          </div>
-          <div>
-            <div>
-              <strong>Home/Permanent Phone</strong>
-            </div>
-            <div>
-              (510) 555-1234
-            </div>
-          </div>
-          <h3>
-            Additional Information
-          </h3>
-          <div>
-            <div>
-              Transfer
-            </div>
-            <div>
-              Entered Fall 2017
-            </div>
-            <div>
-              Women's Sportsball
-            </div>
-            <div class="no-wrap mt-1">
+            <div v-if="student.sisProfile.phoneNumber">
+              <div>
+                <strong>Phone</strong>
+              </div>
               <a
-                id="link-to-calcentral"
-                :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
-                target="_blank"
-                aria-label="Open CalCentral in new window">Student profile in CalCentral <font-awesome icon="external-link-alt" class="pr-1" /></a>
+                id="student-phone-number"
+                :href="`tel:${student.sisProfile.phoneNumber}`"
+                :class="{'demo-mode-blur': user.inDemoMode}"
+                tabindex="0">
+                {{ student.sisProfile.phoneNumber }}</a>
+            </div>
+          </div>
+          <div id="additional-information-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Additional Information
+            </h3>
+            <div class="text-muted">
+              <div
+                v-if="student.sisProfile.matriculation"
+                id="student-bio-matriculation">
+                Entered {{ student.sisProfile.matriculation }}
+              </div>
+              <div v-if="student.athleticsProfile" id="student-bio-athletics">
+                <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
+                  {{ membership.groupName }}
+                </div>
+              </div>
+              <div v-if="student.sisProfile.transfer">
+                Transfer
+              </div>
+              <div class="no-wrap mt-1">
+                <a
+                  id="link-to-calcentral"
+                  :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
+                  target="_blank"
+                  aria-label="Open CalCentral in new window">Student profile in CalCentral <font-awesome icon="external-link-alt" class="pr-1" /></a>
+              </div>
             </div>
           </div>
         </div>
-        <div class="col-sm pr-2">
-          <div id="student-details-intended-majors-outer">
-            <h3>
-              Intended Major(s)
+        <div class="col-sm pr-2 mr-2">
+          <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Intended Major
             </h3>
-            <div v-if="student.sisProfile.intendedMajors.length" id="student-details-intended-majors">
+            <div id="student-details-intended-majors">
               <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description" class="mb-2">
                 <strong class="no-wrap">{{ plan.description }}</strong>
               </div>
             </div>
-            <div v-if="!student.sisProfile.intendedMajors.length" id="student-details-intended-majors-none">
-              None
-            </div>
           </div>
-          <div v-if="inactivePlans.length" id="student-details-discontinued-majors-outer">
-            <h3>
+          <div v-if="inactivePlans.length" id="student-details-discontinued-majors-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
               Discontinued Major(s)
             </h3>
             <div id="student-details-discontinued-majors">
@@ -116,8 +116,11 @@
 </template>
 
 <script>
+import UserMetadata from '@/mixins/UserMetadata';
+
 export default {
   name: 'StudentPersonalDetails',
+  mixins: [UserMetadata],
   props: {
     inactivePlans: {
       required: true,
