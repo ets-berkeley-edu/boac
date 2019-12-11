@@ -72,40 +72,41 @@
           </div>
         </div>
         <div class="col-sm pr-2">
-          <h3>
-            Intended Major
-          </h3>
-          <div>
-            <div>
-              <strong>Comparative Literature BA</strong>
+          <div id="student-details-intended-majors-outer">
+            <h3>
+              Intended Major(s)
+            </h3>
+            <div v-if="student.sisProfile.intendedMajors.length" id="student-details-intended-majors">
+              <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description" class="mb-2">
+                <strong class="no-wrap">{{ plan.description }}</strong>
+              </div>
             </div>
-            <div>
-              Undergraduate Letters & Science
-            </div>
-          </div>
-          <h3>
-            Discontinued Majors
-          </h3>
-          <div>
-            <div>
-              <strong>Non-UC Campus Visitor L&S UG</strong>
-            </div>
-            <div>
-              Undergrad Non-Degree/NonFinAid
-            </div>
-            <div>
-              Discontinued on 2/15/2018
+            <div v-if="!student.sisProfile.intendedMajors.length" id="student-details-intended-majors-none">
+              None
             </div>
           </div>
-          <div>
-            <div>
-              <strong>Non-UC Campus Visitor EVCP UG</strong>
-            </div>
-            <div>
-              Undergrad Non-Degree/NonFinAid
-            </div>
-            <div>
-              Discontinued on 2/15/2018
+          <div v-if="inactivePlans.length" id="student-details-discontinued-majors-outer">
+            <h3>
+              Discontinued Major(s)
+            </h3>
+            <div id="student-details-discontinued-majors">
+              <div v-for="plan in inactivePlans" :key="plan.description" class="mb-2">
+                <div class="font-weight-bolder">
+                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+                  <a
+                    v-if="plan.degreeProgramUrl"
+                    :href="plan.degreeProgramUrl"
+                    :aria-label="`Open ${plan.description} program page in new window`"
+                    target="_blank">
+                    {{ plan.description }}</a>
+                </div>
+                <div v-if="plan.program" class="text-muted">
+                  {{ plan.program }}
+                </div>
+                <div class="font-weight-bolder has-error small text-uppercase">
+                  {{ plan.status }}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -118,12 +119,16 @@
 export default {
   name: 'StudentPersonalDetails',
   props: {
+    inactivePlans: {
+      required: true,
+      type: Array
+    },
     isOpen: {
-      required: false,
+      required: true,
       type: Boolean
     },
     student: {
-      required: false,
+      required: true,
       type: Object
     }
   }
