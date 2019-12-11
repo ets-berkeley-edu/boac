@@ -209,7 +209,7 @@ export default {
         this.topics,
         advisor && this.map(advisor.departments, 'code'),
         this.get(advisor, 'name'),
-        advisor.title || 'Advisor',
+        this.get(advisor, 'title') || 'Advisor',
         this.selectedAdvisorUid
       );
       this.showCreateAppointmentModal = false;
