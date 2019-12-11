@@ -141,7 +141,7 @@ export default {
   },
   computed: {
     visaDescription() {
-      if (this.get('demographics.visa.status', this.student) !== 'G') {
+      if (this.get(this.student, 'demographics.visa.status') !== 'G') {
         return null;
       }
       switch (this.student.demographics.visa.type) {
