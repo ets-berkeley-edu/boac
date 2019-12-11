@@ -22,19 +22,19 @@
           </div>
         </div>
         <div class="col-sm mr-2 pr-2">
-          <div id="contact-information-outer" class="mb-3">
+          <div id="contact-information-outer" class="mb-4">
             <h3 class="student-profile-section-header">
               Contact Information
             </h3>
-            <div>
+            <div v-if="student.sisProfile.emailAddressAlternate" id="student-profile-other-email-outer" class="mb-2">
               <div>
                 <strong>Other Email (preferred)</strong>
               </div>
-              <div>
-                paulette.jacobs@berkeley.edu
+              <div id="student-profile-other-email">
+                {{ student.sisProfile.emailAddressAlternate }}
               </div>
             </div>
-            <div v-if="student.sisProfile.phoneNumber">
+            <div v-if="student.sisProfile.phoneNumber" id="student-profile-phone-number-outer" class="mb-2">
               <div>
                 <strong>Phone</strong>
               </div>
@@ -46,7 +46,7 @@
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
-          <div id="additional-information-outer" class="mb-3">
+          <div id="additional-information-outer">
             <h3 class="student-profile-section-header">
               Additional Information
             </h3>
@@ -61,7 +61,7 @@
                   {{ membership.groupName }}
                 </div>
               </div>
-              <div v-if="student.sisProfile.transfer">
+              <div v-if="student.sisProfile.transfer" id="student-profile-transfer">
                 Transfer
               </div>
               <div class="no-wrap mt-1">
@@ -75,7 +75,7 @@
           </div>
         </div>
         <div class="col-sm pr-2 mr-2">
-          <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-3">
+          <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-4">
             <h3 class="student-profile-section-header">
               Intended Major
             </h3>
