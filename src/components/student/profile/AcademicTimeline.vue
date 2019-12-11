@@ -251,7 +251,7 @@
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.updatedAt || message.createdAt"
                   :include-time-of-day="false"
-                  sr-prefix="Last updated on" />
+                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'" />
               </div>
               <div v-if="includes(openMessages, message.transientId) && ['appointment', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
