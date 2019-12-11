@@ -91,15 +91,6 @@ def scheduler_required(func):
     return _scheduler_required
 
 
-def appointments_feature_flag(func):
-    @wraps(func)
-    def _feature_flag_required(*args, **kw):
-        if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-            return app.login_manager.unauthorized()
-        return func(*args, **kw)
-    return _feature_flag_required
-
-
 def add_alert_counts(alert_counts, students):
     students_by_sid = {student['sid']: student for student in students}
     for alert_count in alert_counts:
@@ -206,16 +197,15 @@ def put_notifications(student):
         'hold': [],
         'requirement': [],
     }
-    if app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        student['notifications']['appointment'] = []
-        for appointment in Appointment.get_appointments_per_sid(sid) or []:
-            student['notifications']['appointment'].append({
-                **appointment.to_api_json(current_user.get_id()),
-                **{
-                    'message': appointment.details,
-                    'type': 'appointment',
-                },
-            })
+    student['notifications']['appointment'] = []
+    for appointment in Appointment.get_appointments_per_sid(sid) or []:
+        student['notifications']['appointment'].append({
+            **appointment.to_api_json(current_user.get_id()),
+            **{
+                'message': appointment.details,
+                'type': 'appointment',
+            },
+        })
 
     # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
     for note in get_advising_notes(sid) or []:

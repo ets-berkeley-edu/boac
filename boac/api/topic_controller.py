@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.util import advisor_required, appointments_feature_flag, scheduler_required
+from boac.api.util import advisor_required, scheduler_required
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.models.topic import Topic
@@ -33,21 +33,12 @@ from flask import current_app as app, request
 @app.route('/api/topics/all', methods=['GET'])
 @advisor_required
 def get_all_topics():
-    include_appointments = app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
-    if include_appointments:
-        topics = Topic.get_all(include_deleted=include_deleted)
-    else:
-        topics = Topic.get_all(available_in_notes=True, include_deleted=include_deleted)
-    if not app.config['FEATURE_FLAG_ADVISOR_APPOINTMENTS']:
-        for index, topic in enumerate(topics):
-            if not topic.available_in_notes:
-                topics.pop(index)
+    topics = Topic.get_all(include_deleted=include_deleted)
     return tolerant_jsonify(_to_api_json(topics))
 
 
 @app.route('/api/topics/for_appointments', methods=['GET'])
-@appointments_feature_flag
 @scheduler_required
 def get_topics_for_appointment():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))

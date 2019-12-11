@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from tests.util import override_config
-
 coe_advisor_uid = '90412'
 coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
@@ -66,18 +64,6 @@ class TestGetTopics:
         assert 'Topic for appointments, deleted' in api_json
         assert 'Topic for notes, deleted' in api_json
         assert api_json[-1] == 'Other / Reason not listed'
-
-    def test_appointments_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            api_json = self._api_all_topics(client, include_deleted=True)
-            assert 'Topic for all, 1' in api_json
-            assert 'Topic for notes, 9' in api_json
-            assert 'Topic for appointments, 1' not in api_json
-            assert 'Topic for appointments, deleted' not in api_json
-            assert 'Topic for notes, deleted' in api_json
-            assert api_json[-1] == 'Other / Reason not listed'
 
 
 class TestTopicsForAppointment:
@@ -121,12 +107,6 @@ class TestTopicsForAppointment:
         assert len(topics) == 11
         assert 'Topic for appointments, deleted' in topics
         assert topics[-1] == 'Other / Reason not listed'
-
-    def test_feature_flag(self, client, fake_auth, app):
-        """Appointments feature is false."""
-        with override_config(app, 'FEATURE_FLAG_ADVISOR_APPOINTMENTS', False):
-            fake_auth.login(coe_advisor_uid)
-            self._get_topics(client, expected_status_code=401)
 
 
 class TestTopicsForNotes:

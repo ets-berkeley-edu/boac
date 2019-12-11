@@ -26,7 +26,6 @@ const getters = {
   devAuthEnabled: (state: any): boolean => _.get(state.config, 'devAuthEnabled'),
   disableMatrixViewThreshold: (state: any): string => _.get(state.config, 'disableMatrixViewThreshold'),
   ebEnvironment: (state: any): boolean => _.get(state.config, 'ebEnvironment'),
-  featureFlagAppointments: (state: any): boolean => _.get(state.config, 'featureFlagAppointments'),
   featureFlagPassengerEdit: (state: any): boolean => _.get(state.config, 'featureFlagPassengerEdit'),
   fixedWarningOnAllPages: (state: any): string => _.get(state.config, 'fixedWarningOnAllPages'),
   googleAnalyticsId: (state: any): string => _.get(state.config, 'googleAnalyticsId'),

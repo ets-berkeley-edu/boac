@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, appointments_feature_flag, drop_in_advisors_for_dept_code, scheduler_required
+from boac.api.util import advisor_required, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_distilled_student_profiles
@@ -37,7 +37,6 @@ from flask_login import current_user
 
 
 @app.route('/api/appointments/waitlist/<dept_code>')
-@appointments_feature_flag
 @scheduler_required
 def get_waitlist(dept_code):
     def _is_current_user_authorized():
@@ -71,7 +70,6 @@ def get_waitlist(dept_code):
 
 
 @app.route('/api/appointments/<appointment_id>')
-@appointments_feature_flag
 @advisor_required
 def get_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -83,7 +81,6 @@ def get_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/check_in', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def appointment_check_in(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -111,7 +108,6 @@ def appointment_check_in(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def cancel_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -137,7 +133,6 @@ def cancel_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/reopen', methods=['GET'])
-@appointments_feature_flag
 @scheduler_required
 def reopen_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -147,7 +142,6 @@ def reopen_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/reserve', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def reserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -173,7 +167,6 @@ def reserve_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/unreserve', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def unreserve_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -188,7 +181,6 @@ def unreserve_appointment(appointment_id):
 
 
 @app.route('/api/appointments/<appointment_id>/update', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def update_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
@@ -221,7 +213,6 @@ def _set_appointment_to_waiting(appointment):
 
 
 @app.route('/api/appointments/create', methods=['POST'])
-@appointments_feature_flag
 @scheduler_required
 def create_appointment():
     params = request.get_json()
@@ -255,14 +246,12 @@ def create_appointment():
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
-@appointments_feature_flag
 @advisor_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
 
 
 @app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
-@appointments_feature_flag
 @advisor_required
 def find_appointment_advisors_by_name():
     query = request.args.get('q')

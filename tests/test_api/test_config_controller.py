@@ -60,7 +60,6 @@ class TestConfigController:
         # In tests, certain configs are omitted or disabled (e.g., Google Analytics)
         data = response.json
         assert data['ebEnvironment'] is None
-        assert data['featureFlagAppointments'] is True
         assert data['googleAnalyticsId'] is False
         assert '@' in data['supportEmailAddress']
         assert data['maxAttachmentsPerNote'] > 0

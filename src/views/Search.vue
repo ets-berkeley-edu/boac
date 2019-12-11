@@ -166,7 +166,6 @@ export default {
   },
   mounted() {
     this.phrase = this.$route.query.q;
-    const includeAppointments = this.featureFlagAppointments && this.$route.query.notes;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
@@ -182,7 +181,6 @@ export default {
       this.alertScreenReader(`Searching for '${this.phrase}'`)
       search(
         this.phrase,
-        this.isNil(includeAppointments) ? false : includeAppointments,
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,
