@@ -75,7 +75,7 @@
             <div v-if="academicCareerStatus !== 'Completed'">
               <div id="student-bio-majors">
                 <h3 class="sr-only">Major</h3>
-                <div v-for="plan in sortedPlans" :key="plan.description" class="mb-2">
+                <div v-for="plan in plansPartitionedByStatus[0]" :key="plan.description" class="mb-2">
                   <div class="font-weight-bolder">
                     <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
                     <a
@@ -87,9 +87,6 @@
                   </div>
                   <div v-if="plan.program" class="text-muted">
                     {{ plan.program }}
-                  </div>
-                  <div v-if="plan.status !== 'Active'" class="font-weight-bolder has-error small text-uppercase">
-                    {{ plan.status }}
                   </div>
                 </div>
               </div>
@@ -149,7 +146,10 @@
       </div>
     </div>
     <div>
-      <StudentPersonalDetails :is-open="isShowingPersonalDetails" :student="student" />
+      <StudentPersonalDetails
+        :inactive-plans="plansPartitionedByStatus[1]"
+        :is-open="isShowingPersonalDetails"
+        :student="student" />
     </div>
   </div>
 </template>
@@ -184,8 +184,8 @@ export default {
     academicCareerStatus() {
       return this.get(this.student, 'sisProfile.academicCareerStatus');
     },
-    sortedPlans() {
-      return this.orderBy(this.student.sisProfile.plans, 'status');
+    plansPartitionedByStatus() {
+      return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active');
     }
   },
   created() {
