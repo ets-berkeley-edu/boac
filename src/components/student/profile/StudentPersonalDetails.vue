@@ -150,9 +150,9 @@ export default {
         case 'J1':
           return 'J-1 International Student';
         case 'PR':
-          return 'PR Verified';
+          return 'PR Verified International Student';
         default:
-          return 'Other Verified';
+          return 'Other Verified International Student';
       }
     }
   }
