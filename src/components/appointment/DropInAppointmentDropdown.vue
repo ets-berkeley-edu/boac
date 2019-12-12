@@ -156,10 +156,10 @@ export default {
   methods: {
     appointmentCancellation(appointmentId, reason, reasonExplained) {
       this.loading = true;
-      apiCancel(this.appointment.id, reason, reasonExplained).then(cancelled => {
+      apiCancel(this.appointment.id, reason, reasonExplained).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${cancelled.student.name} appointment cancelled`);
+          this.alertScreenReader(`${this.appointment.student.name} appointment cancelled`);
         });
       }).catch(this.handleBadRequestError);
     },
@@ -176,11 +176,11 @@ export default {
         advisor.title || 'Advisor',
         advisor.uid,
         appointmentId
-      ).then(checkedIn => {
+      ).then(() => {
         this.closeCheckInModal();
         this.onAppointmentStatusChange(appointmentId).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${checkedIn.student.name} checked in`);
+          this.alertScreenReader(`${this.appointment.student.name} checked in`);
         });
       }).catch(this.handleBadRequestError);
     },
@@ -236,10 +236,10 @@ export default {
         advisor = this.user;
       }
       this.loading = true;
-      apiReserve(this.appointment.id, advisor.uid).then(reserved => {
+      apiReserve(this.appointment.id, advisor.uid).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${reserved.student.name} appointment assigned`);
+          this.alertScreenReader(`${this.appointment.student.name} appointment assigned`);
         });
       }).catch(this.handleBadRequestError);
     },
@@ -248,10 +248,10 @@ export default {
     },
     unreserveAppointment() {
       this.loading = true;
-      apiUnreserve(this.appointment.id).then(unreserved => {
+      apiUnreserve(this.appointment.id).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false;
-          this.alertScreenReader(`${unreserved.student.name} appointment unassigned`);
+          this.alertScreenReader(`${this.appointment.student.name} appointment unassigned`);
         });
       }).catch(this.handleBadRequestError);
     },

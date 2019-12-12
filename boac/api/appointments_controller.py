@@ -32,7 +32,7 @@ from boac.models.appointment import Appointment
 from boac.models.appointment_event import appointment_event_type
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
-from flask import current_app as app, request
+from flask import current_app as app, request, Response
 from flask_login import current_user
 
 
@@ -94,7 +94,7 @@ def appointment_check_in(appointment_id):
     advisor_uid = params.get('advisorUid', None)
     if not advisor_uid:
         raise BadRequestError('Appointment check-in requires "advisor_uid"')
-    appointment = Appointment.check_in(
+    Appointment.check_in(
         appointment_id=appointment_id,
         checked_in_by=current_user.get_id(),
         advisor_dept_codes=params.get('advisorDeptCodes', None),
@@ -102,9 +102,7 @@ def appointment_check_in(appointment_id):
         advisor_role=params.get('advisorRole', None),
         advisor_uid=advisor_uid,
     )
-    api_json = appointment.to_api_json(current_user.get_id())
-    _put_student_profile_per_appointment([api_json])
-    return tolerant_jsonify(api_json)
+    return Response(status=200)
 
 
 @app.route('/api/appointments/<appointment_id>/cancel', methods=['POST'])
@@ -121,15 +119,13 @@ def cancel_appointment(appointment_id):
     params = request.get_json()
     cancel_reason = params.get('cancelReason', None)
     cancel_reason_explained = params.get('cancelReasonExplained', None)
-    appointment = Appointment.cancel(
+    Appointment.cancel(
         appointment_id=appointment_id,
         cancelled_by=current_user.get_id(),
         cancel_reason=cancel_reason,
         cancel_reason_explained=cancel_reason_explained,
     )
-    api_json = appointment.to_api_json(current_user.get_id())
-    _put_student_profile_per_appointment([api_json])
-    return tolerant_jsonify(api_json)
+    return Response(status=200)
 
 
 @app.route('/api/appointments/<appointment_id>/reopen', methods=['GET'])
@@ -138,7 +134,8 @@ def reopen_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
         raise ResourceNotFoundError('Unknown path')
-    return _set_appointment_to_waiting(appointment)
+    _set_appointment_to_waiting(appointment)
+    return Response(status=200)
 
 
 @app.route('/api/appointments/<appointment_id>/reserve', methods=['POST'])
@@ -157,13 +154,11 @@ def reserve_appointment(appointment_id):
     advisor_id = advisor_uid and AuthorizedUser.get_id_per_uid(advisor_uid)
     if not advisor_id:
         raise BadRequestError('Appointment check-in requires valid "advisorUid"')
-    appointment = Appointment.reserve(
+    Appointment.reserve(
         appointment_id=appointment_id,
         reserved_by=advisor_id,
     )
-    api_json = appointment.to_api_json(current_user.get_id())
-    _put_student_profile_per_appointment([api_json])
-    return tolerant_jsonify(api_json)
+    return Response(status=200)
 
 
 @app.route('/api/appointments/<appointment_id>/unreserve', methods=['POST'])
@@ -177,7 +172,8 @@ def unreserve_appointment(appointment_id):
         raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment_id}.')
     if appointment.status != 'reserved':
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
-    return _set_appointment_to_waiting(appointment)
+    _set_appointment_to_waiting(appointment)
+    return Response(status=200)
 
 
 @app.route('/api/appointments/<appointment_id>/update', methods=['POST'])
@@ -207,9 +203,6 @@ def _set_appointment_to_waiting(appointment):
     if not has_privilege:
         raise ForbiddenRequestError(f'You are unauthorized to manage appointment {appointment.id}.')
     appointment.set_to_waiting(updated_by=current_user.get_id())
-    api_json = appointment.to_api_json(current_user.get_id())
-    _put_student_profile_per_appointment([api_json])
-    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/appointments/create', methods=['POST'])
