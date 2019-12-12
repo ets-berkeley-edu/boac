@@ -9,7 +9,7 @@
           Problem? Question? Suggestion?
           Email <a :href="`mailto:${supportEmailAddress}`" target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
         </div>
-        &copy; 2019 The Regents of the University of California
+        &copy; 2020 The Regents of the University of California
       </b-col>
     </b-row>
   </b-container>
