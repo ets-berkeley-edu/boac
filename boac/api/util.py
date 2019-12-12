@@ -65,6 +65,7 @@ def advisor_required(func):
             and (
                 current_user.is_admin
                 or _has_role_in_any_department(current_user, 'isAdvisor')
+                or _has_role_in_any_department(current_user, 'isDirector')
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)

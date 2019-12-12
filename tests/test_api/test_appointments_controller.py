@@ -42,6 +42,12 @@ l_s_college_scheduler_uid = '19735'
 class AppointmentTestUtil:
 
     @classmethod
+    def get_appointment(cls, client, appointment_id, expected_status_code=200):
+        response = client.get(f'/api/appointments/{appointment_id}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
     def cancel_appointment(
             cls,
             client,
@@ -60,7 +66,6 @@ class AppointmentTestUtil:
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
-        return response.json
 
     @classmethod
     def check_in_appointment(cls, client, appointment_id, advisor_uid=None, expected_status_code=200):
@@ -73,7 +78,6 @@ class AppointmentTestUtil:
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
-        return response.json
 
     @classmethod
     def create_appointment(
@@ -180,25 +184,19 @@ class TestCreateAppointment:
 
 class TestGetAppointment:
 
-    @classmethod
-    def _get_appointment(cls, client, appointment_id, expected_status_code=200):
-        response = client.get(f'/api/appointments/{appointment_id}')
-        assert response.status_code == expected_status_code
-        return response.json
-
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._get_appointment(client, 'COENG', expected_status_code=401)
+        AppointmentTestUtil.get_appointment(client, 'COENG', expected_status_code=401)
 
     def test_not_authorized(self, client, fake_auth):
         """Returns 401 if user is scheduler."""
         fake_auth.login(coe_scheduler_uid)
-        self._get_appointment(client, 1, 401)
+        AppointmentTestUtil.get_appointment(client, 1, 401)
 
     def test_get_appointment(self, client, fake_auth):
         """Get appointment."""
         fake_auth.login(coe_advisor_uid)
-        appointment = self._get_appointment(client, 1)
+        appointment = AppointmentTestUtil.get_appointment(client, 1)
         assert appointment
         assert appointment['id'] == 1
         assert appointment['status'] is not None
@@ -308,7 +306,9 @@ class TestAppointmentCancel:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
+        AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
+        # Verify
+        appointment = AppointmentTestUtil.get_appointment(client, appointment_id=waiting['id'])
         appointment_id = appointment['id']
         assert appointment_id == waiting['id']
         assert appointment['status'] == 'cancelled'
@@ -357,13 +357,11 @@ class TestAppointmentReserve:
             content_type='application/json',
         )
         assert response.status_code == expected_status_code
-        return response.json
 
     @classmethod
     def _unreserve_appointment(cls, client, appointment_id, expected_status_code=200):
         response = client.post(f'/api/appointments/{appointment_id}/unreserve')
         assert response.status_code == expected_status_code
-        return response.json
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -408,7 +406,11 @@ class TestAppointmentReserve:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = self._reserve_appointment(client, waiting['id'], user.uid)
+
+        self._reserve_appointment(client, waiting['id'], user.uid)
+
+        # Verify
+        appointment = AppointmentTestUtil.get_appointment(client, waiting['id'])
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user.id
@@ -421,7 +423,11 @@ class TestAppointmentReserve:
         user_1 = AuthorizedUser.find_by_id(advisor_1.authorized_user_id)
         fake_auth.login(user_1.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        appointment = self._reserve_appointment(client, waiting['id'], user_1.uid)
+
+        self._reserve_appointment(client, waiting['id'], user_1.uid)
+
+        # Verify
+        appointment = AppointmentTestUtil.get_appointment(client, waiting['id'])
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user_1.id
@@ -431,7 +437,11 @@ class TestAppointmentReserve:
         advisor_2 = DropInAdvisor.advisors_for_dept_code(dept_code)[1]
         user_2 = AuthorizedUser.find_by_id(advisor_2.authorized_user_id)
         fake_auth.login(user_2.uid)
-        appointment = self._reserve_appointment(client, waiting['id'], user_2.uid)
+
+        self._reserve_appointment(client, waiting['id'], user_2.uid)
+
+        # Verify
+        appointment = AppointmentTestUtil.get_appointment(client, waiting['id'])
         assert appointment['status'] == 'reserved'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user_2.id
@@ -445,13 +455,19 @@ class TestAppointmentReserve:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         waiting = AppointmentTestUtil.create_appointment(client, dept_code)
-        reserved = self._reserve_appointment(client, waiting['id'], user.uid)
+
+        self._reserve_appointment(client, waiting['id'], user.uid)
+        # Verify
+        reserved = AppointmentTestUtil.get_appointment(client, waiting['id'])
         assert reserved['status'] == 'reserved'
         assert reserved['statusDate']
         assert reserved['statusBy']['id'] == user.id
         assert reserved['statusBy']['uid'] == user.uid
         assert 'name' in reserved['statusBy']
-        appointment = self._unreserve_appointment(client, waiting['id'])
+
+        self._unreserve_appointment(client, waiting['id'])
+        # Verify
+        appointment = AppointmentTestUtil.get_appointment(client, waiting['id'])
         assert appointment['status'] == 'waiting'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user.id
@@ -464,7 +480,6 @@ class TestAppointmentReopen:
     def _reopen_appointment(cls, client, appointment_id, expected_status_code=200):
         response = client.get(f'/api/appointments/{appointment_id}/reopen')
         assert response.status_code == expected_status_code
-        return response.json
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -487,9 +502,14 @@ class TestAppointmentReopen:
         user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
         fake_auth.login(user.uid)
         appointment = AppointmentTestUtil.create_appointment(client, dept_code)
-        cancelled = AppointmentTestUtil.cancel_appointment(client, appointment['id'], 'Accidental cancel, whoopsie')
+        AppointmentTestUtil.cancel_appointment(client, appointment['id'], 'Accidental cancel, whoopsie')
+
+        cancelled = AppointmentTestUtil.get_appointment(client, appointment['id'])
         assert cancelled['status'] == 'cancelled'
-        appointment = self._reopen_appointment(client, cancelled['id'])
+
+        self._reopen_appointment(client, cancelled['id'])
+
+        appointment = AppointmentTestUtil.get_appointment(client, appointment['id'])
         assert appointment['status'] == 'waiting'
         assert appointment['statusDate'] is not None
         assert appointment['statusBy']['id'] == user.id
