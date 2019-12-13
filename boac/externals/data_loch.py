@@ -387,19 +387,34 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
 
 
 def match_students_by_name_or_sid(prefixes, limit=None):
-    prefix_conditions = []
+    current_student_conditions = []
+    non_current_student_conditions = []
     prefix_kwargs = {}
     for idx, prefix in enumerate(prefixes):
-        prefix_conditions.append(
+        current_student_conditions.append(
             f"""JOIN {student_schema()}.student_names sn{idx}
             ON (sn{idx}.name LIKE :prefix_{idx} OR sn{idx}.sid LIKE :prefix_{idx})
             AND sn{idx}.sid = sas.sid""",
         )
+        if not prefix.isalpha():
+            non_current_student_conditions.append(
+                f"""JOIN {student_schema()}.student_name_index_hist_enr sn{idx}
+                ON sn{idx}.sid LIKE :prefix_{idx}
+                AND sn{idx}.sid = s.sid""",
+            )
         prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
-    sql = f"""SELECT DISTINCT sas.first_name, sas.last_name, sas.sid, sas.uid
+
+    inner_sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
         FROM {student_schema()}.student_academic_status sas
-        {' '.join(prefix_conditions)}
-        ORDER BY sas.first_name, sas.last_name"""
+        {' '.join(current_student_conditions)}"""
+    if len(non_current_student_conditions) > 0:
+        inner_sql += f"""\nUNION
+            SELECT s.first_name, s.last_name, s.sid, s.uid
+            FROM {student_schema()}.student_names_hist_enr s
+            {' '.join(non_current_student_conditions)}"""
+    sql = f"""SELECT DISTINCT q.*
+        FROM ({inner_sql}) q
+        ORDER BY q.first_name, q.last_name"""
     if limit:
         sql += f' LIMIT {limit}'
     return safe_execute_rds(sql, **prefix_kwargs)
