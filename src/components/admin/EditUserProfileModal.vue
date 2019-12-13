@@ -2,7 +2,7 @@
   <div>
     <b-btn
       v-if="isExistingUser"
-      :id="`edit-${user.uid}`"
+      :id="`edit-${profile.uid}`"
       :title="`Edit profile of ${profile.name}`"
       class="pl-1 pr-1"
       variant="link"
