@@ -296,10 +296,24 @@ CREATE TABLE student.student_majors
     major VARCHAR NOT NULL
 );
 
+CREATE TABLE student.student_name_index_hist_enr
+(
+    sid VARCHAR NOT NULL,
+    name VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_names
 (
     sid VARCHAR NOT NULL,
     name VARCHAR NOT NULL
+);
+
+CREATE TABLE student.student_names_hist_enr
+(
+    sid VARCHAR NOT NULL,
+    uid VARCHAR,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL
 );
 
 CREATE TABLE student.student_enrollment_terms
@@ -659,6 +673,16 @@ VALUES
 ('9000000000', 'Engineering Undeclared UG'),
 ('9100000000', 'Engineering Undeclared UG');
 
+INSERT INTO student.student_name_index_hist_enr
+(sid, name)
+VALUES
+('2718281828', 'ERNEST'),
+('2718281828', 'PONTIFEX'),
+('3141592653', 'CLIMACUS'),
+('3141592653', 'JOHANNES'),
+('9191919191', 'PAUL'),
+('9191919191', 'TARSUS');
+
 INSERT INTO student.student_names
 (sid, name)
 VALUES
@@ -682,6 +706,13 @@ VALUES
 ('9100000000', 'BARNEY'),
 ('9100000000', 'NORA'),
 ('9100000000', 'STANTON');
+
+INSERT INTO student.student_names_hist_enr
+(sid, uid, first_name, last_name)
+VALUES
+('2718281828', '271828', 'Ernest', 'Pontifex'),
+('3141592653', '314159', 'Johannes', 'Climacus'),
+('9191919191', '191919', 'Paul', 'Tarsus');
 
 INSERT INTO student.student_enrollment_terms
 (sid, term_id, enrollment_term, midpoint_deficient_grade, enrolled_units, term_gpa)

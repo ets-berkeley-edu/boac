@@ -644,6 +644,7 @@ class TestPrefixSearch:
         assert response.status_code == 401
 
     def test_student_prefix_search_by_name(self, client, coe_advisor_login):
+        """When searching by name, results include current students only."""
         response = client.get('/api/students/find_by_name_or_sid?q=Paul')
         assert response.status_code == 200
         assert len(response.json) == 3
@@ -653,12 +654,14 @@ class TestPrefixSearch:
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
 
     def test_student_prefix_search_by_sid(self, client, coe_advisor_login):
+        """When searching by SID, results include both current and non-current students."""
         response = client.get('/api/students/find_by_name_or_sid?q=9')
         assert response.status_code == 200
-        assert len(response.json) == 2
+        assert len(response.json) == 3
         labels = [s['label'] for s in response.json]
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
         assert 'Nora Stanton Barney (9100000000)' in labels
+        assert 'Paul Tarsus (9191919191)' in labels
 
     def test_allow_scheduler(self, client, coe_scheduler_login):
         response = client.get('/api/students/find_by_name_or_sid?q=Paul')
