@@ -1,7 +1,7 @@
 <template>
   <div id="app" class="fill-viewport">
     <router-view></router-view>
-    <div v-if="fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
+    <div v-if="$config.fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
       <div
         id="fixed-warning-on-all-pages"
         class="d-flex fixed-bottom fixed-warning"
@@ -12,7 +12,7 @@
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div>
-          {{ isVueAppDebugMode ? screenReaderAlert : fixedWarningOnAllPages }}
+          {{ isVueAppDebugMode ? screenReaderAlert : $config.fixedWarningOnAllPages }}
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
@@ -45,7 +45,7 @@ export default {
       this.alertScreenReader('Warning message dismissed');
     },
     getBoaEnvLabel() {
-      return this.ebEnvironment ? this.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test';
+      return this.$config.ebEnvironment ? this.$config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test';
     }
   }
 };

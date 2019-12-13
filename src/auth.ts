@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import store from "@/store";
+import Vue from 'vue';
 
 const $_goToLogin = (to: any, next: any) => {
   next({
@@ -36,64 +36,58 @@ export default {
   getSchedulerDeptCodes,
   isAdvisor,
   requiresAdmin: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(user => {
-      if (user.isAuthenticated) {
-        if (user.isAdmin) {
-          next();
-        } else {
-          next({ path: '/404' });
-        }
-      } else {
-        $_goToLogin(to, next);
-      }
-    });
-  },
-  requiresAdvisor: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(user => {
-      if (user.isAuthenticated) {
-        if (isAdvisor(user) || user.isAdmin) {
-          next();
-        } else {
-          next({ path: '/404' });
-        }
-      } else {
-        $_goToLogin(to, next);
-      }
-    });
-  },
-  requiresAuthenticated: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(data => {
-      if (data.isAuthenticated) {
+    const currentUser = Vue.prototype.$currentUser;
+    if (currentUser.isAuthenticated) {
+      if (currentUser.isAdmin) {
         next();
       } else {
-        $_goToLogin(to, next);
+        next({ path: '/404' });
       }
-    });
+    } else {
+      $_goToLogin(to, next);
+    }
+  },
+  requiresAdvisor: (to: any, from: any, next: any) => {
+    const currentUser = Vue.prototype.$currentUser;
+    if (currentUser.isAuthenticated) {
+      if (isAdvisor(currentUser) || currentUser.isAdmin) {
+        next();
+      } else {
+        next({ path: '/404' });
+      }
+    } else {
+      $_goToLogin(to, next);
+    }
+  },
+  requiresAuthenticated: (to: any, from: any, next: any) => {
+    if (Vue.prototype.$currentUser.isAuthenticated) {
+      next();
+    } else {
+      $_goToLogin(to, next);
+    }
   },
   requiresDropInAdvisor: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(user => {
-      if (user.isAuthenticated) {
-        if (user.isAdmin) {
-          next();
-        } else {
-          $_requiresScheduler(to, next, _.map(user.dropInAdvisorStatus, 'deptCode'));
-        }
+    const currentUser = Vue.prototype.$currentUser;
+    if (currentUser.isAuthenticated) {
+      if (currentUser.isAdmin) {
+        next();
       } else {
-        $_goToLogin(to, next);
+        $_requiresScheduler(to, next, _.map(currentUser.dropInAdvisorStatus, 'deptCode'));
       }
-    });
+    } else {
+      $_goToLogin(to, next);
+    }
   },
   requiresScheduler: (to: any, from: any, next: any) => {
-    store.dispatch('user/loadUser').then(user => {
-      if (user.isAuthenticated) {
-        if (user.isAdmin) {
-          next();
-        } else {
-          $_requiresScheduler(to, next, getSchedulerDeptCodes(user));
-        }
+    const currentUser = Vue.prototype.$currentUser;
+    if (currentUser.isAuthenticated) {
+      if (currentUser.isAdmin) {
+        next();
       } else {
-        $_goToLogin(to, next);
+        $_requiresScheduler(to, next, getSchedulerDeptCodes(Vue.prototype.$currentUser));
       }
-    });
+    } else {
+      $_goToLogin(to, next);
+    }
   }
 };

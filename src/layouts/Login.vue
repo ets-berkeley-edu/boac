@@ -35,7 +35,7 @@
             aria-label="BOA support email address"
             target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
         </div>
-        <DevAuth v-if="devAuthEnabled" :report-error="reportError" />
+        <DevAuth v-if="$config.devAuthEnabled" :report-error="reportError" />
       </div>
       <div class="box-container" role="banner">
         <div class="header">

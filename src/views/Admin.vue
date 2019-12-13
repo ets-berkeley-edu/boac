@@ -14,7 +14,7 @@
         <h2 class="page-section-header-sub">My Profile</h2>
         <MyProfile class="mt-2" />
       </div>
-      <div v-if="isDemoModeAvailable">
+      <div v-if="$config.isDemoModeAvailable">
         <div class="pt-3">
           <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
         </div>

@@ -50,8 +50,27 @@ Vue.prototype.$eventHub = new Vue();
 Vue.use(routerHistory);
 router.afterEach(writeHistory);
 
-new Vue({
-  router,
-  store,
-  render: h => h(App)
-}).$mount('#app');
+const apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
+axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+  Vue.prototype.$currentUser = response.data;
+
+  axios.get(`${apiBaseUrl}/api/config`).then(response => {
+    Vue.prototype.$config = response.data;
+
+    new Vue({
+      router,
+      store,
+      render: h => h(App)
+    }).$mount('#app');
+
+    if (Vue.prototype.$ga && Vue.prototype.$config.googleAnalyticsId) {
+      Vue.prototype.$ga.set('userId', Vue.prototype.$currentUser.uid);
+      const dept_code = Vue.prototype.$currentUser.isAdmin
+        ? 'ADMIN'
+        : _.keys(Vue.prototype.$currentUser.departments)[0];
+      if (dept_code) {
+        Vue.prototype.$ga.set('dimension1', dept_code);
+      }
+    }
+  });
+});

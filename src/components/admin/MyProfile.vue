@@ -5,7 +5,7 @@
         Name
       </b-col>
       <b-col>
-        {{ user.name }}
+        {{ $currentUser.name }}
       </b-col>
     </b-row>
     <b-row align-v="start" class="border-bottom p-2">
@@ -13,7 +13,7 @@
         UID
       </b-col>
       <b-col>
-        {{ user.uid }}
+        {{ $currentUser.uid }}
       </b-col>
     </b-row>
     <b-row align-v="start" class="border-bottom p-2">
@@ -21,7 +21,7 @@
         Campus Solutions ID
       </b-col>
       <b-col>
-        {{ user.csid }}
+        {{ $currentUser.csid }}
       </b-col>
     </b-row>
     <b-row align-v="start" class="border-bottom p-2">
@@ -29,7 +29,7 @@
         Email
       </b-col>
       <b-col>
-        {{ user.email }}
+        {{ $currentUser.email }}
       </b-col>
     </b-row>
     <b-row align-v="start" class="border-bottom p-2">
@@ -37,12 +37,12 @@
         Roles
       </b-col>
       <b-col>
-        <div v-if="user.isAdmin || !user.canAccessCanvasData">
-          <span v-if="user.isAdmin">You are a BOA Admin user.</span>
-          <span v-if="!user.canAccessCanvasData">You do not have access to bCourses (LMS) data.</span>
+        <div v-if="$currentUser.isAdmin || !$currentUser.canAccessCanvasData">
+          <span v-if="$currentUser.isAdmin">You are a BOA Admin user.</span>
+          <span v-if="!$currentUser.canAccessCanvasData">You do not have access to bCourses (LMS) data.</span>
         </div>
-        <div v-if="user.departments.length">
-          <div v-for="department in user.departments" :key="department.code">
+        <div v-if="$currentUser.departments.length">
+          <div v-for="department in $currentUser.departments" :key="department.code">
             <span>{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
           </div>
         </div>
@@ -62,7 +62,7 @@ export default {
     dropInAdvisorDeptCodes: undefined
   }),
   created() {
-    this.dropInAdvisorDeptCodes = this.map(this.user.dropInAdvisorStatus, 'deptCode');
+    this.dropInAdvisorDeptCodes = this.map(this.$currentUser.dropInAdvisorStatus, 'deptCode');
   },
   methods: {
     conditionalAppend(items, item, append) {

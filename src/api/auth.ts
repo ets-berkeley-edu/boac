@@ -1,6 +1,7 @@
 import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
+import Vue from "vue";
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
@@ -9,12 +10,11 @@ export function devAuthLogIn(uid: string, password: string) {
       password: password
     })
     .then(response => {
-      const user = response.data;
-      if (user.isAuthenticated) {
-        store.dispatch('user/registerUser', user);
+      Vue.prototype.$currentUser = response.data;
+      if (Vue.prototype.$currentUser.isAuthenticated) {
         store.dispatch('context/initUserSession');
       }
-      return user;
+      return Vue.prototype.$currentUser;
     }, error => error);
 }
 

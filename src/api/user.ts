@@ -2,6 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
+import Vue from "vue";
 
 export function getDepartments(excludeEmpty?: boolean) {
   return axios
@@ -101,13 +102,8 @@ export function setDropInAvailability(deptCode: string, uid: string, available: 
 
 export function setDemoMode(demoMode: boolean) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {
-      demoMode: demoMode
-    })
-    .then(response => response.data, () => null)
-    .then(() => {
-      store.dispatch('user/setDemoMode', demoMode);
-    });
+    .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, { demoMode: demoMode })
+    .then(() => Vue.prototype.$currentUser.inDemoMode = demoMode);
 }
 
 export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], deleteAction: boolean) {
