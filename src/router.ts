@@ -17,7 +17,6 @@ import PassengerManifest from '@/views/PassengerManifest.vue';
 import Router from 'vue-router';
 import Search from '@/views/Search.vue';
 import StandardLayout from '@/layouts/StandardLayout.vue';
-import store from '@/store';
 import Student from '@/views/Student.vue';
 import Vue from 'vue';
 
@@ -34,27 +33,26 @@ const router = new Router({
       path: '/login',
       component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
-        store.dispatch('user/loadUser').then(user => {
-          if (user.isAuthenticated) {
-            if (_.trim(to.query.redirect)) {
-              next(to.query.redirect);
-            } else if (auth.isAdvisor(user) || user.isAdmin) {
-              next('/home');
-            } else {
-              const deptCodes = auth.getSchedulerDeptCodes(user);
-              if (_.size(deptCodes)) {
-                // The multi-department scheduler is NOT a use case we support, yet. Therefore,
-                // we grab first deptCode from his/her profile.
-                const deptCode = deptCodes[0].toLowerCase();
-                next({ path: `/appt/desk/${deptCode}` });
-              } else {
-                next({ path: '/404' });
-              }
-            }
+        const currentUser = Vue.prototype.$currentUser;
+        if (currentUser.isAuthenticated) {
+          if (_.trim(to.query.redirect)) {
+            next(to.query.redirect);
+          } else if (auth.isAdvisor(currentUser) || currentUser.isAdmin) {
+            next('/home');
           } else {
-            next();
+            const deptCodes = auth.getSchedulerDeptCodes(currentUser);
+            if (_.size(deptCodes)) {
+              // The multi-department scheduler is NOT a use case we support, yet. Therefore,
+              // we grab first deptCode from his/her profile.
+              const deptCode = deptCodes[0].toLowerCase();
+              next({ path: `/appt/desk/${deptCode}` });
+            } else {
+              next({ path: '/404' });
+            }
           }
-        });
+        } else {
+          next();
+        }
       },
       meta: {
         title: 'Welcome'
@@ -196,21 +194,20 @@ const router = new Router({
       children: [
         {
           beforeEnter: (to: any, from: any, next: any) => {
-            store.dispatch('user/loadUser').then(user => {
-              const deptCodes = auth.getSchedulerDeptCodes(user);
-              if (_.size(deptCodes) && !auth.isAdvisor(user) && !user.isAdmin) {
-                const deptCode = deptCodes[0].toLowerCase();
-                next({ path: `/appt/desk/${deptCode}` });
+            const currentUser = Vue.prototype.$currentUser;
+            const deptCodes = auth.getSchedulerDeptCodes(currentUser);
+            if (_.size(deptCodes) && !auth.isAdvisor(currentUser) && !currentUser.isAdmin) {
+              const deptCode = deptCodes[0].toLowerCase();
+              next({ path: `/appt/desk/${deptCode}` });
+            } else {
+              if (_.size(currentUser.dropInAdvisorStatus)) {
+                // We assume drop-in advisor status for one department only.
+                const deptCode = currentUser.dropInAdvisorStatus[0].deptCode.toLowerCase();
+                next({ path: `/home/${deptCode}` });
               } else {
-                if (_.size(user.dropInAdvisorStatus)) {
-                  // We assume drop-in advisor status for one department only.
-                  const deptCode = user.dropInAdvisorStatus[0].deptCode.toLowerCase();
-                  next({ path: `/home/${deptCode}` });
-                } else {
-                  next();
-                }
+                next();
               }
-            });
+            }
           },
           path: '/home',
           name: 'home',
@@ -221,13 +218,12 @@ const router = new Router({
         },
         {
           beforeEnter: (to: any, from: any, next: any) => {
-            store.dispatch('user/loadUser').then(user => {
-              if (_.size(auth.getSchedulerDeptCodes(user)) && !auth.isAdvisor(user) && !user.isAdmin) {
-                next({ path: '/scheduler/404' });
-              } else {
-                next();
-              }
-            });
+            const currentUser = Vue.prototype.$currentUser;
+            if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !auth.isAdvisor(currentUser) && !currentUser.isAdmin) {
+              next({ path: '/scheduler/404' });
+            } else {
+              next();
+            }
           },
           path: '/404',
           component: NotFound,

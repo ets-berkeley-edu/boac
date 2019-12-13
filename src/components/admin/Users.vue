@@ -164,7 +164,7 @@
       </template>
       <template v-slot:cell(edit)="row">
         <EditUserProfileModal
-          v-if="featureFlagPassengerEdit"
+          v-if="$config.featureFlagPassengerEdit"
           :after-update-user="afterUpdateUser"
           :departments="departments"
           :profile="row.item" />
@@ -309,7 +309,7 @@ export default {
       const isNotMe = user.uid !== this.user.uid;
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
       const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
-      return this.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
+      return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
     getUserStatuses(user) {
       const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ];

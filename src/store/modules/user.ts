@@ -1,35 +1,24 @@
 import _ from 'lodash';
 import Vue from 'vue';
 import { event } from 'vue-analytics';
-import { getUserProfile } from '@/api/user';
-import { gaTrackUserSessionStart } from '@/api/ga';
 
 const gaEvent = (category, action, label, value) => event(category, action, label, value);
 
 const state = {
   preferences: {
     sortBy: 'last_name'
-  },
-  user: undefined
+  }
 };
 
 const getters = {
   preferences: (state: any): any => state.preferences,
-  uid: (state: any): string => state.user && state.user.uid,
-  user: (state: any): any => state.user
+  user: (): any => Vue.prototype.$currentUser
 };
 
 const mutations = {
-  registerUser: (state: any, user: any) => {
-    if (user.uid) {
-      state.user = user;
-      Vue.prototype.$eventHub.$emit('user-profile-loaded');
-    }
-  },
-  setDemoMode: (state: any, demoMode: boolean) =>
-    (state.user.inDemoMode = demoMode),
   setDropInStatus: (state: any, {deptCode, available}) => {
-    const dropInAdvisorStatus = _.find(state.user.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
+    const currentUser = Vue.prototype.$currentUser;
+    const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
     if (dropInAdvisorStatus) {
       dropInAdvisorStatus.available = available;
     }
@@ -53,22 +42,7 @@ const actions = {
   gaNoteTemplateEvent: (state: any, {id, label, action}) => gaEvent('Advising Note Template', action, label, id),
   gaSearchEvent: (state: any, action: string) => gaEvent('Search', action, null, null),
   gaStudentAlert: (state: any, action: string) => gaEvent('Student Alert', action, null, null),
-  loadUser: ({commit, state}) => {
-    return new Promise(resolve => {
-      if (state.user) {
-        resolve(state.user);
-      } else {
-        getUserProfile().then(user => {
-          gaTrackUserSessionStart(user);
-          commit('registerUser', user);
-          resolve(user);
-        });
-      }
-    });
-  },
-  logout: ({ commit }) => commit('logout'),
   registerUser: ({ commit }, user) => commit('registerUser', user),
-  setDemoMode: ({ commit }, demoMode) => commit('setDemoMode', demoMode),
   setDropInStatus: ({ commit }, {deptCode, available}) => commit('setDropInStatus', {deptCode, available}),
   setUserPreference: ({ commit }, {key, value}) => commit('setUserPreference', { key, value })
 };

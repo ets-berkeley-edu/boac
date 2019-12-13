@@ -6,15 +6,9 @@ export default {
   computed: {
     ...mapGetters('context', [
       'apiBaseUrl',
-      'apptDeskRefreshInterval',
       'currentEnrollmentTerm',
       'currentEnrollmentTermId',
-      'devAuthEnabled',
-      'ebEnvironment',
-      'featureFlagPassengerEdit',
-      'fixedWarningOnAllPages',
       'hasUserDismissedFooterAlert',
-      'isDemoModeAvailable',
       'isVueAppDebugMode',
       'maxAttachmentsPerNote',
       'pingFrequency',

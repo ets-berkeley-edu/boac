@@ -1,11 +1,10 @@
 <script>
 import _ from 'lodash';
-import store from '@/store';
 import { mapActions, mapGetters } from 'vuex';
+import Vue from "vue";
 
 const $_myDeptCodes = roles => {
-  const user = store.getters['user/user'];
-  return _.map(_.filter(user.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
+  return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
 };
 
 export default {
@@ -51,13 +50,12 @@ export default {
       return roles;
     },
     isUserDropInAdvisor(deptCode) {
-      const deptCodes = _.map(store.getters['user/user'].dropInAdvisorStatus || [], 'deptCode');
+      const deptCodes = _.map(Vue.prototype.$currentUser.dropInAdvisorStatus || [], 'deptCode');
       return _.includes(deptCodes, _.upperCase(deptCode));
     },
     isUserSimplyScheduler() {
-     const user = store.getters['user/user'];
      const isScheduler = _.size($_myDeptCodes(['isScheduler']));
-     return isScheduler && !user.isAdmin && !_.size($_myDeptCodes(['isAdvisor', 'isDirector']));
+     return isScheduler && !Vue.prototype.$currentUser.isAdmin && !_.size($_myDeptCodes(['isAdvisor', 'isDirector']));
     },
     myDeptCodes: $_myDeptCodes
   }

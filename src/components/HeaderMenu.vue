@@ -13,7 +13,7 @@
             <div class="b-link-text">{{ user.firstName || `UID:${user.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
           </div>
         </template>
-        <b-dropdown-item v-if="user.isAdmin || isDemoModeAvailable">
+        <b-dropdown-item v-if="user.isAdmin || $config.isDemoModeAvailable">
           <NavLink
             id="header-link-to-settings"
             class="nav-link-color text-decoration-none"

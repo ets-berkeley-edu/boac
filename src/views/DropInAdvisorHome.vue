@@ -104,7 +104,7 @@ export default {
         if (this.loadingWaitlist) {
           resolve();
           if (scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
           }
           return;
         }
@@ -135,7 +135,7 @@ export default {
           this.loadingWaitlist = false;
           resolve();
           if (scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.apptDeskRefreshInterval);
+            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
           }
 
           if (announceLoad) {
