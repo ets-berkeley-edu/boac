@@ -290,7 +290,7 @@ export default {
         // If no change in deleted status then do not update 'deleted_at' in the database.
         const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
         createOrUpdateUser(this.userProfile, this.rolesPerDeptCode, deleteAction).then(() => {
-          this.afterUpdateUser(this.profile.name);
+          this.afterUpdateUser(this.profile);
           this.closeModal();
         }).catch(error => {
           this.error = this.get(error, 'response.data.message') || error;
