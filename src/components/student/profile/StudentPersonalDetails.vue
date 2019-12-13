@@ -84,7 +84,15 @@
             </h3>
             <div id="student-details-intended-majors">
               <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description" class="mb-2">
-                <strong class="no-wrap">{{ plan.description }}</strong>
+                <div class="font-weight-bolder">
+                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+                  <a
+                    v-if="plan.degreeProgramUrl"
+                    :href="plan.degreeProgramUrl"
+                    :aria-label="`Open ${plan.description} program page in new window`"
+                    target="_blank">
+                    {{ plan.description }}</a>
+                </div>
               </div>
             </div>
           </div>
