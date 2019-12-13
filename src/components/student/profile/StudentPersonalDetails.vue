@@ -6,19 +6,28 @@
           <h3 class="student-profile-section-header">
             Advisor(s)
           </h3>
-          <div>
-            <div>
-              <strong>College Advisor</strong>
+          <div v-if="student.advisors.length" id="student-profile-advisors">
+            <div
+              v-for="(advisor, index) in student.advisors"
+              :id="`student-profile-advisor-${index}`"
+              :key="advisor.uid"
+              class="mb-2">
+              <div :id="`student-profile-advisor-${index}-role`">
+                <strong>{{ advisor.role }}</strong>
+              </div>
+              <div :id="`student-profile-advisor-${index}-plan`" class="text-muted">
+                {{ advisor.plan }}
+              </div>
+              <div :id="`student-profile-advisor-${index}-name`" class="text-muted">
+                {{ advisor.firstName }} {{ advisor.lastName }}
+              </div>
+              <div :id="`student-profile-advisor-${index}-email`" class="text-muted">
+                {{ advisor.email }}
+              </div>
             </div>
-            <div class="text-muted">
-              Letters & Sci Undeclared UG
-            </div>
-            <div class="text-muted">
-              Paulette Jacobs
-            </div>
-            <div>
-              paulette.jacobs@berkeley.edu
-            </div>
+          </div>
+          <div v-if="!student.advisors.length" id="student-profile-advisors-none">
+            None assigned.
           </div>
         </div>
         <div class="col-sm mr-2 pr-2">
