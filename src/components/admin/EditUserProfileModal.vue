@@ -282,14 +282,20 @@ export default {
       option.disabled = false;
     },
     save() {
-      // If no change in deleted status then do not update 'deleted_at' in the database.
-      const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
-      createOrUpdateUser(this.userProfile, this.rolesPerDeptCode, deleteAction).then(() => {
-        this.afterUpdateUser(this.profile.name);
-        this.closeModal();
-      }).catch(error => {
-        this.error = this.get(error, 'response.data.message') || error;
-      });
+      const undefinedRoles = this.filterList(this.rolesPerDeptCode, r => this.isNil(r.role));
+      if (undefinedRoles.length) {
+        const deptNames = this.map(undefinedRoles, 'name');
+        this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`;
+      } else {
+        // If no change in deleted status then do not update 'deleted_at' in the database.
+        const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
+        createOrUpdateUser(this.userProfile, this.rolesPerDeptCode, deleteAction).then(() => {
+          this.afterUpdateUser(this.profile.name);
+          this.closeModal();
+        }).catch(error => {
+          this.error = this.get(error, 'response.data.message') || error;
+        });
+      }
     }
   }
 };
