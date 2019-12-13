@@ -292,8 +292,11 @@ export default {
     }
   },
   methods: {
-    afterUpdateUser(name) {
-      this.alertScreenReader(`${name} profile updated.`);
+    afterUpdateUser(profile) {
+      this.alertScreenReader(`${profile.name} profile updated.`);
+      if (this.filterType === 'search') {
+        this.userSelection = profile;
+      }
       this.$refs.users.refresh();
     },
     autocompleteUsers(q) {
