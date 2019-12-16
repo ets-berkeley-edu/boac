@@ -28,7 +28,11 @@
             {{ advisor.name }}
           </b-col>
           <b-col sm="4">
-            <DropInAvailabilityToggle :dept-code="deptCode" :advisor="advisor" />
+            <DropInAvailabilityToggle
+              :availability="advisor.available"
+              :dept-code="deptCode"
+              :is-homepage="false"
+              :uid="advisor.uid" />
           </b-col>
         </b-row>
       </b-container>

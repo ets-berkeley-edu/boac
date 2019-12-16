@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex mb-2">
       <div v-if="!isNil(isAvailable)" class="availability-status-outer flex-row">
-        <div v-if="!advisor" class="mr-2 availability-status">
+        <div v-if="isHomepage" class="mr-2 availability-status">
           My availability status:
         </div>
         <div
@@ -14,7 +14,7 @@
         <div v-if="!user.isAdmin" class="toggle-btn-column">
           <button
             v-if="!isToggling"
-            :id="`toggle-drop-in-availability-${uid}`"
+            :id="buttonElementId"
             type="button"
             class="btn btn-link pt-0 pb-0 pl-1 pr-1"
             @click="toggle"
@@ -50,42 +50,39 @@ export default {
   name: 'DropInAvailabilityToggle',
   mixins: [Context, UserMetadata, Util],
   props: {
-    advisor: {
-      type: Object,
-      required: false
+    availability: {
+      type: Boolean,
+      required: true
     },
     deptCode: {
+      type: String,
+      required: true
+    },
+    isHomepage: {
+      type: Boolean,
+      required: true
+    },
+    uid: {
       type: String,
       required: true
     }
   },
   data: () => ({
-    isToggling: undefined,
-    uid: undefined
+    isAvailable: undefined,
+    isToggling: undefined
   }),
   computed: {
-    isAvailable: {
-      get: function() {
-        if (this.advisor) {
-          return this.advisor.available;
-        } else {
-          const dropInAdvisorStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
-          if (dropInAdvisorStatus) {
-            return dropInAdvisorStatus.available;
-          } else {
-            return null;
-          }
-        }
-      },
-      set: function(newValue) {
-        if (this.advisor) {
-          this.advisor.available = newValue;
-        }
-      }
+    buttonElementId() {
+      return `toggle-drop-in-availability-${this.uid === this.user.uid ? 'me' : this.uid}`;
+    }
+  },
+  watch: {
+    availability(value) {
+      this.isAvailable = value;
     }
   },
   created() {
-    this.uid = this.advisor ? this.advisor.uid : 'me';
+    this.isAvailable = this.availability;
   },
   methods: {
     toggle: function() {
@@ -94,7 +91,7 @@ export default {
         this.isAvailable = !this.isAvailable;
         this.isToggling = false;
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
-        this.putFocusNextTick(`toggle-drop-in-availability-${this.uid}`)
+        this.putFocusNextTick(this.buttonElementId)
       });
     }
   }
