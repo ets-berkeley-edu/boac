@@ -28,12 +28,25 @@
               </div>
             </div>
             <div>
-              <div class="font-weight-bolder pr-1">
+              <span class="font-weight-bolder pr-1">
                 (<span
                   :id="`appointment-${appointment.id}-student-sid`"
                   :class="{'demo-mode-blur' : user.inDemoMode}"
                   aria-label="Student ID">{{ appointment.student.sid }}</span>)
-              </div>
+              </span>
+              <span
+                v-if="appointment.student.academicCareerStatus === 'Inactive' || displayAsAscInactive(appointment.student) || displayAsCoeInactive(appointment.student)"
+                class="inactive-info-icon"
+                uib-tooltip="Inactive"
+                tooltip-placement="bottom">
+                <font-awesome icon="info-circle" />
+              </span>
+              <span
+                v-if="appointment.student.academicCareerStatus === 'Completed'"
+                uib-tooltip="Graduated"
+                tooltip-placement="bottom">
+                <font-awesome icon="graduation-cap" />
+              </span>
             </div>
           </div>
           <div
@@ -99,6 +112,7 @@
 import Context from '@/mixins/Context';
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import StudentAvatar from '@/components/student/StudentAvatar';
+import StudentMetadata from '@/mixins/StudentMetadata';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { reopen as apiReopen } from '@/api/appointments';
@@ -109,7 +123,7 @@ export default {
     DropInAppointmentDropdown,
     StudentAvatar
   },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, StudentMetadata, UserMetadata, Util],
   props: {
     appointment: {
       type: Object,
