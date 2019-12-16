@@ -20,11 +20,11 @@
             :self-check-in="true"
             class="mr-3" />
         </div>
-        <div v-if="appointment.status === 'reserved' && (user.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
+        <div v-if="appointment.status === 'reserved' && ($currentUser.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
           <span class="text-secondary">
             Assigned
             <span v-if="appointment.statusBy" :id="`appointment-${appointment.id}-assigned-to`">
-              to {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}
+              to {{ appointment.statusBy.id === $currentUser.id ? 'you' : appointment.statusBy.name }}
             </span>
           </span>
         </div>
@@ -90,13 +90,12 @@
 <script>
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingAppointment',
   components: { DropInAppointmentDropdown },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, Util],
   props: {
     isOpen: {
       required: true,
@@ -118,6 +117,10 @@ export default {
   methods: {
     datePerTimezone(date) {
       return this.$moment(date).tz(this.timezone);
+    },
+    isUserDropInAdvisor(deptCode) {
+      const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode');
+      return this.includes(deptCodes, this.upperCase(deptCode));
     }
   }
 }

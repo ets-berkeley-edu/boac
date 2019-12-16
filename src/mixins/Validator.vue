@@ -1,20 +1,18 @@
 <script>
 import _ from 'lodash';
+import Berkeley from '@/mixins/Berkeley';
 import store from '@/store';
-import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Validator',
-  mixins: [UserMetadata],
+  mixins: [ Berkeley ],
   methods: {
     validateCohortName: function(cohort) {
       const name = _.trim(cohort.name);
+      const deptCodes = this.myDeptCodes(['isAdvisor', 'isDirector']);
       const isReservedName = name =>
-        _.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC') &&
-        _.includes(
-          ['intensive students', 'inactive students'],
-          name.toLowerCase()
-        );
+        _.includes(deptCodes, 'UWASC') &&
+        _.includes(['intensive students', 'inactive students'], name.toLowerCase());
       let msg = null;
       if (_.isEmpty(name)) {
         msg = 'Required';

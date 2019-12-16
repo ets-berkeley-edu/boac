@@ -1,9 +1,13 @@
 <script>
 import _ from 'lodash';
+import Vue from 'vue';
 
 export default {
   name: 'Berkeley',
   methods: {
+    myDeptCodes: (roles) => {
+      return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
+    },
     previousSisTermId(termId) {
       let previousTermId = '';
       let strTermId = termId.toString();
