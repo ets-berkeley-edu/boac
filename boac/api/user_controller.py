@@ -362,6 +362,9 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
         )
     else:
         uid = profile.get('uid')
+        if AuthorizedUser.get_id_per_uid(uid, include_deleted=True):
+            raise errors.BadRequestError(f'User with UID {uid} is already in the BOA database.')
+
         calnet_user = calnet.get_calnet_user_for_uid(app, uid, skip_expired_users=True)
         if calnet_user and calnet_user.get('csid', None):
             return AuthorizedUser.create_or_restore(

@@ -629,12 +629,14 @@ class TestUserUpdate:
     def _profile_object(
             cls,
             uid,
+            authorized_user_id=None,
             is_admin=False,
             is_blocked=False,
             can_access_canvas_data=True,
     ):
         return {
             'uid': uid,
+            'id': authorized_user_id,
             'isAdmin': is_admin,
             'isBlocked': is_blocked,
             'canAccessCanvasData': can_access_canvas_data,
@@ -684,6 +686,15 @@ class TestUserUpdate:
         self._api_create_or_update(
             client,
             profile=self._profile_object(uid='9999999999'),
+            expected_status_code=400,
+        )
+
+    def test_error_when_add_existing_uid(self, client, fake_auth):
+        """Raises error if UID exists."""
+        fake_auth.login(admin_uid)
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid=deleted_user_uid),
             expected_status_code=400,
         )
 
@@ -776,9 +787,13 @@ class TestUserUpdate:
         assert drop_in_statuses[0]['deptCode'] == 'QCADV'
 
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Scheduler".
+        authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
         self._api_create_or_update(
             client,
-            profile=self._profile_object(uid=uid),
+            profile=self._profile_object(
+                uid=uid,
+                authorized_user_id=authorized_user_id,
+            ),
             roles_per_dept_code=[
                 {
                     'code': 'QCADVMAJ',

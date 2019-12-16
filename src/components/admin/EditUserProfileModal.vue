@@ -168,13 +168,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { createOrUpdateUser } from '@/api/user';
 
 export default {
   name: 'EditUserProfileModal',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, Util],
   props: {
     afterUpdateUser: {
       required: true,
@@ -302,9 +301,6 @@ export default {
 </script>
 
 <style scoped>
-.w-100px {
-  width: 100px;
-}
 .w-200px {
   width: 200px;
 }
