@@ -23,7 +23,11 @@
           </b-btn>
         </div>
       </div>
-      <DropInAvailabilityToggle :dept-code="deptCode" />
+      <DropInAvailabilityToggle
+        :availability="!!get(find(user.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'available')"
+        :dept-code="deptCode"
+        :is-homepage="isHomepage"
+        :uid="user.uid" />
     </div>
     <div v-if="!isHomepage">
       <div class="border-bottom d-flex justify-content-between">

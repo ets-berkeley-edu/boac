@@ -331,9 +331,7 @@ def _get_boa_user_groups():
 
 def _update_drop_in_status(uid, dept_code, active):
     dept_code = dept_code.upper()
-    if uid == 'me':
-        uid = current_user.get_uid()
-    else:
+    if uid != current_user.get_uid():
         authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
         if not authorized_to_toggle:
             raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in status for department {dept_code}')

@@ -586,19 +586,19 @@ class TestToggleDropInAppointmentStatus:
 
     def test_handles_drop_in_status_not_found(self, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
-        response = client.post(f'/api/user/me/drop_in_status/COENG/deactivate')
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/COENG/deactivate')
         assert response.status_code == 404
 
     def test_advisor_can_toggle_own_status(self, client, fake_auth):
         fake_auth.login(l_s_college_drop_in_advisor_uid)
-        response = client.post(f'/api/user/me/drop_in_status/QCADV/deactivate')
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
         assert response.status_code == 200
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
         assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
         response = client.get('/api/profile/my')
         assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': False}]
-        response = client.post(f'/api/user/me/drop_in_status/QCADV/activate')
+        response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
         assert response.status_code == 200
         response = client.get('/api/profile/my')
         assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'available': True}]

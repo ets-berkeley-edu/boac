@@ -89,7 +89,7 @@ export function setDropInAvailability(deptCode: string, uid: string, available: 
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_status/${deptCode}/${action}`)
     .then(response => {
-      if (uid === 'me') {
+      if (uid === Vue.prototype.$currentUser.uid) {
         store.dispatch('user/setDropInStatus', {
           deptCode: deptCode,
           available: available
