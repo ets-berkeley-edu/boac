@@ -23,7 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged.student import get_course_student_profiles
+from boac.merged import student
+from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 
 
 coe_advisor = '1133399'
@@ -33,9 +34,45 @@ class TestMergedStudent:
     """Student data, merged."""
 
     def test_get_course_student_profiles(self, app):
-        profiles = get_course_student_profiles('2178', '90100')
+        profiles = student.get_course_student_profiles('2178', '90100')
 
         assert len(profiles['students']) == 1
         assert profiles['students'][0]['cumulativeUnits'] == 101.3
         assert profiles['students'][0]['currentTerm']['unitsMax'] == 25
         assert profiles['students'][0]['currentTerm']['unitsMin'] == 0
+
+    def test_get_distilled_student_profiles(self):
+        """Returns basic profiles of both current and non-current students."""
+        profiles = student.get_distilled_student_profiles(['2718281828', '11667051'])
+        assert len(profiles) == 2
+        assert profiles[0]['firstName'] == 'Deborah'
+        assert profiles[0]['fullProfilePending'] is None
+        assert profiles[0]['gender'] == 'Different Identity'
+        assert profiles[0]['lastName'] == 'Davies'
+        assert profiles[0]['name'] == 'Deborah Davies'
+        assert 'https://photo-bucket.s3.amazonaws.com/photo-path' in profiles[0]['photoUrl']
+        assert profiles[0]['sid'] == '11667051'
+        assert profiles[0]['uid'] == '61889'
+        assert profiles[0]['underrepresented'] is False
+        assert profiles[0]['athleticsProfile']
+
+        assert profiles[1]['firstName'] == 'Ernest'
+        assert profiles[1]['fullProfilePending'] is True
+        assert profiles[1]['gender'] is None
+        assert profiles[1]['lastName'] == 'Pontifex'
+        assert profiles[1]['name'] == 'Ernest Pontifex'
+        assert profiles[1]['photoUrl'] is None
+        assert profiles[1]['sid'] == '2718281828'
+        assert profiles[1]['uid'] == '27182'
+        assert profiles[1]['underrepresented'] is None
+
+    def test_get_historical_student_profiles(self):
+        """Returns profiles of non-current students after adding them to manually_added_advisees."""
+        manually_added_advisees = ManuallyAddedAdvisee.get_all()
+        assert len(manually_added_advisees) == 0
+
+        profiles = student.get_historical_student_profiles(['2718281828', '3141592653'])
+        assert len(profiles) == 2
+
+        manually_added_advisees = ManuallyAddedAdvisee.get_all()
+        assert len(manually_added_advisees) == 2

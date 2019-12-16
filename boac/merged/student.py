@@ -47,9 +47,10 @@ def get_distilled_student_profiles(sids):
 
     def distill_profile(profile):
         distilled = {
-            key: profile[key] for key in
+            key: profile.get(key) for key in
             [
                 'firstName',
+                'fullProfilePending',
                 'gender',
                 'lastName',
                 'name',
@@ -59,12 +60,18 @@ def get_distilled_student_profiles(sids):
                 'underrepresented',
             ]
         }
+        distilled['academicCareerStatus'] = profile['sisProfile'].get('academicCareerStatus')
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
             distilled['coeProfile'] = profile['coeProfile']
         return distilled
-    return [distill_profile(profile) for profile in get_full_student_profiles(sids)]
+    profiles = get_full_student_profiles(sids)
+    remaining_sids = list(set(sids) - set([p.get('sid') for p in profiles]))
+    if remaining_sids:
+        historical_profiles = get_historical_student_profiles(remaining_sids)
+        profiles += historical_profiles
+    return [distill_profile(profile) for profile in profiles]
 
 
 def get_full_student_profiles(sids):
@@ -215,21 +222,10 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     remaining_sids = list(set(sids) - set([p.get('sid') for p in profiles]))
     if len(remaining_sids) and include_historical:
         benchmark('begin historical profile supplement')
-        historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(remaining_sids)
-
-        def _historicize_profile(row):
-            return {
-                **json.loads(row['profile']),
-                **{
-                    'fullProfilePending': True,
-                },
-            }
-        historical_profiles = [_historicize_profile(row) for row in historical_profile_rows]
+        historical_profiles = get_historical_student_profiles(remaining_sids)
         # We don't expect photo information to show for historical profiles, but we still need a placeholder element
         # in the feed so the front end can show the proper fallback.
         _merge_photo_urls(historical_profiles)
-        for historical_profile in historical_profiles:
-            ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
         profiles += historical_profiles
         historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, remaining_sids)
         for row in historical_enrollments_for_term:
@@ -274,6 +270,14 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
                 profile['hasCurrentTermEnrollments'] = True
     if term_gpas:
         profile['termGpa'] = term_gpas.get(profile['sid'])
+
+
+def get_historical_student_profiles(sids):
+    historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
+    historical_profiles = [_historicize_profile(row) for row in historical_profile_rows]
+    for historical_profile in historical_profiles:
+        ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
+    return historical_profiles
 
 
 def get_student_and_terms_by_sid(sid):
@@ -579,6 +583,15 @@ def _get_sis_level_description(profile):
 
 def _get_active_plan_descriptions(profile):
     return sorted(plan.get('description') for plan in profile.get('plans', []) if plan.get('status') == 'Active')
+
+
+def _historicize_profile(row):
+    return {
+        **json.loads(row['profile']),
+        **{
+            'fullProfilePending': True,
+        },
+    }
 
 
 def _merge_photo_urls(profiles):
