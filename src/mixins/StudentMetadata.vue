@@ -1,10 +1,10 @@
 <script>
 import _ from 'lodash';
-import UserMetadata from '@/mixins/UserMetadata';
+import Berkeley from '@/mixins/Berkeley';
 
 export default {
   name: 'StudentMetadata',
-  mixins: [UserMetadata],
+  mixins: [ Berkeley ],
   // Grades deserving alerts: D(+/-), F, I, NP.
   alertGrades: /^[DFIN]/,
   methods: {

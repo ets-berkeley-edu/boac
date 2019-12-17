@@ -245,14 +245,13 @@
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } from '@/api/user';
 
 export default {
   name: 'Users',
   components: {Autocomplete, EditUserProfileModal},
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, Util],
   props: {
     departments: {
       required: true,
@@ -306,10 +305,26 @@ export default {
       becomeUser(uid).then(() => (window.location.href = '/home'));
     },
     canBecome(user) {
-      const isNotMe = user.uid !== this.user.uid;
+      const isNotMe = user.uid !== this.$currentUser.uid;
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
       const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
+    },
+    getBoaUserRoles(user, department) {
+      const roles = [];
+      if (department.isAdvisor) {
+        roles.push('Advisor');
+      }
+      if (department.isDirector) {
+        roles.push('Director');
+      }
+      if (department.isScheduler) {
+        roles.push('Scheduler');
+      }
+      if (this.find(user.dropInAdvisorStatus, ['deptCode', department.code])) {
+        roles.push('Drop-in Advisor');
+      }
+      return roles;
     },
     getUserStatuses(user) {
       const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ];

@@ -56,7 +56,7 @@ export default {
       {
         name: 'Team',
         value: 'group_name',
-        available: this.user.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
+        available: this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
       },
       { name: 'Units (In Progress)', value: 'enrolled_units', available: true },
       { name: 'Units (Completed)', value: 'units', available: true },
