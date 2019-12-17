@@ -10,7 +10,7 @@
             <div
               v-for="(advisor, index) in student.advisors"
               :id="`student-profile-advisor-${index}`"
-              :key="advisor.uid"
+              :key="index"
               class="mb-2">
               <div :id="`student-profile-advisor-${index}-role`">
                 <strong>{{ advisor.role }}</strong>
