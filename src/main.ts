@@ -63,6 +63,11 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
       render: h => h(App)
     }).$mount('#app');
 
+    if (Vue.prototype.$config.pingFrequency) {
+      // Keep session alive with periodic requests
+      setInterval(() => axios.get(`${apiBaseUrl}/api/ping`), Vue.prototype.$config.pingFrequency);
+    }
+
     if (Vue.prototype.$ga && Vue.prototype.$config.googleAnalyticsId) {
       Vue.prototype.$ga.set('userId', Vue.prototype.$currentUser.uid);
       const dept_code = Vue.prototype.$currentUser.isAdmin

@@ -69,6 +69,7 @@
 import Context from '@/mixins/Context';
 import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
+import { getTopicsForNotes } from "@/api/topics";
 
 export default {
   name: 'AdvisingNoteTopics',
@@ -106,12 +107,14 @@ export default {
     }
   },
   created() {
-    this.each(this.suggestedNoteTopics, topic => {
-      this.topicOptions.push({
-        text: topic,
-        value: topic,
-        disabled: this.includes(this.topics, topic)
-      })
+    getTopicsForNotes(false).then(topics => {
+      this.each(topics, topic => {
+        this.topicOptions.push({
+          text: topic,
+          value: topic,
+          disabled: this.includes(this.topics, topic)
+        })
+      });
     });
   },
   methods: {

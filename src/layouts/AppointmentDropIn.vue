@@ -29,7 +29,6 @@ import Context from '@/mixins/Context';
 import Footer from '@/components/Footer';
 import Loading from '@/mixins/Loading';
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement';
-import Session from '@/mixins/Session';
 import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout';
 import Util from '@/mixins/Util';
 
@@ -40,7 +39,7 @@ export default {
     ServiceAnnouncement,
     StandardHeaderLayout
   },
-  mixins: [Context, Loading, Session, Util],
+  mixins: [Context, Loading, Util],
   created() {
     this.loaded();
   }

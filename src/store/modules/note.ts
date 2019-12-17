@@ -1,15 +1,12 @@
 import _ from 'lodash';
 import { getMyNoteTemplates } from "@/api/note-templates";
-import { getTopicsForNotes } from '@/api/topics';
 
 const state = {
-  noteTemplates: undefined,
-  suggestedNoteTopics: undefined
+  noteTemplates: undefined
 };
 
 const getters = {
-  noteTemplates: (state: any): any[] => state.noteTemplates,
-  suggestedNoteTopics: (state: any): any[] => state.suggestedNoteTopics
+  noteTemplates: (state: any): any[] => state.noteTemplates
 };
 
 const mutations = {
@@ -22,21 +19,13 @@ const mutations = {
     let indexOf = state.noteTemplates.findIndex(t => t.id === template.id);
     Object.assign(state.noteTemplates[indexOf], template);
   },
-  setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
-  setSuggestedNoteTopics: (state: any, topics: any[]) => (state.suggestedNoteTopics = topics)
+  setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates
 };
 
 const actions = {
   async loadNoteTemplates({ commit, state }) {
     if (_.isUndefined(state.myNoteTemplates)) {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
-    }
-  },
-  async loadSuggestedNoteTopics({ commit, state }) {
-    if (_.isUndefined(state.suggestedNoteTopics)) {
-      getTopicsForNotes(false).then(data => {
-        commit('setSuggestedNoteTopics', data);
-      });
     }
   },
   onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),

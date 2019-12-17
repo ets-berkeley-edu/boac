@@ -2,12 +2,6 @@ import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
 
-export function ping() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/ping`)
-    .then(response => response.data, () => null);
-}
-
 export function getVersion() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/version`)
