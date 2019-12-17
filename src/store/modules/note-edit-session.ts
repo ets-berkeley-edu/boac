@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
+import { getMyNoteTemplates } from "@/api/note-templates";
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate'];
 
@@ -34,6 +35,7 @@ const state = {
   isSaving: false,
   mode: undefined,
   model: $_getDefaultModel(),
+  noteTemplates: undefined,
   sids: [],
   targetStudentCount: 0
 };
@@ -46,6 +48,7 @@ const getters = {
   isSaving: (state: any): boolean => state.isSaving,
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
+  noteTemplates: (state: any): any[] => state.noteTemplates,
   sids: (state: any): string[] => state.sids,
   targetStudentCount: (state: any): number => state.targetStudentCount,
   template: (state: any): any => state.template
@@ -65,6 +68,15 @@ const mutations = {
     state.model = $_getDefaultModel();
     state.sids = [];
     state.targetStudentCount = 0;
+  },
+  onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
+  onDeleteTemplate: (state: any, templateId: any) => {
+    let indexOf = state.noteTemplates.findIndex(template => template.id === templateId);
+    state.noteTemplates.splice(indexOf, 1);
+  },
+  onUpdateTemplate: (state: any, template: any) => {
+    let indexOf = state.noteTemplates.findIndex(t => t.id === template.id);
+    Object.assign(state.noteTemplates[indexOf], template);
   },
   removeAttachment: (state: any, index: number) => {
     const attachment = state.model.attachments[index];
@@ -103,6 +115,7 @@ const mutations = {
       state.model = $_getDefaultModel();
     }
   },
+  setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setSubject: (state: any, subject: string) => (state.model.subject = subject),
   setTargetStudentCount: (state: any, count: number) => (state.targetStudentCount = count)
 };
@@ -155,6 +168,14 @@ const actions = {
     });
   },
   exitSession: ({ commit }) => commit('exitSession'),
+  async loadNoteTemplates({ commit, state }) {
+    if (_.isUndefined(state.myNoteTemplates)) {
+      getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
+    }
+  },
+  onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
+  onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
+  onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
   removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     commit('removeCohort', cohort);

@@ -92,15 +92,14 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import NoteEditSession from '@/mixins/NoteEditSession';
-import RenameTemplateModal from '@/components/note/create/RenameTemplateModal'
-import UserMetadata from '@/mixins/UserMetadata';
+import RenameTemplateModal from '@/components/note/create/RenameTemplateModal';
 import Util from '@/mixins/Util';
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates';
 
 export default {
   name: 'CreateNoteHeader',
   components: {AreYouSureModal, RenameTemplateModal},
-  mixins: [Context, NoteEditSession, UserMetadata, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     cancelPrimaryModal: {
       required: true,

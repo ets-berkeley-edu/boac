@@ -3,7 +3,6 @@ import cohortEditSession from '@/store/modules/cohort-edit-session';
 import context from '@/store/modules/context';
 import curated from '@/store/modules/curated';
 import curatedEditSession from '@/store/modules/curated-edit-session';
-import note from '@/store/modules/note';
 import noteEditSession from '@/store/modules/note-edit-session';
 import user from '@/store/modules/user';
 import Vue from 'vue';
@@ -18,7 +17,6 @@ export default new Vuex.Store({
     context,
     curated,
     curatedEditSession,
-    note,
     noteEditSession,
     user
   },
