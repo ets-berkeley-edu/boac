@@ -120,6 +120,7 @@ export default {
     unionBy: _.unionBy,
     uniq: _.uniq,
     uniqBy: _.uniqBy,
+    upperCase: _.upperCase,
     without: _.without,
     xor: _.xor,
     xorBy: _.xorBy
