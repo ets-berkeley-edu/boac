@@ -65,7 +65,7 @@
       </div>
       <div class="col-sm mr-2 pr-2">
         <div v-if="academicCareerStatus !== 'Completed'">
-          <div id="student-bio-majors" class="mb-3">
+          <div v-if="plansPartitionedByStatus[0].length" id="student-bio-majors" class="mb-3">
             <h3 class="student-profile-section-header">Major</h3>
             <div v-for="plan in plansPartitionedByStatus[0]" :key="plan.description" class="mb-2">
               <div class="font-weight-bolder">
@@ -82,9 +82,9 @@
               </div>
             </div>
           </div>
-          <div v-if="student.sisProfile.plansMinor.length" id="student-bio-minors" class="mb-3">
+          <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
             <h3 class="student-profile-section-header">Minor</h3>
-            <div v-for="plan in student.sisProfile.plansMinor" :key="plan.description" class="mb-2">
+            <div v-for="plan in plansMinorPartitionedByStatus[0]" :key="plan.description" class="mb-2">
               <div class="font-weight-bolder">
                 <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
                 <a
@@ -132,7 +132,8 @@
     </div>
     <div>
       <StudentPersonalDetails
-        :inactive-plans="plansPartitionedByStatus[1]"
+        :inactive-majors="plansPartitionedByStatus[1]"
+        :inactive-minors="plansMinorPartitionedByStatus[1]"
         :is-open="isShowingPersonalDetails"
         :student="student" />
     </div>
@@ -171,6 +172,9 @@ export default {
     },
     plansPartitionedByStatus() {
       return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active');
+    },
+    plansMinorPartitionedByStatus() {
+      return this.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active');
     }
   },
   created() {

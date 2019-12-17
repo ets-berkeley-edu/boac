@@ -105,12 +105,36 @@
               </div>
             </div>
           </div>
-          <div v-if="inactivePlans.length" id="student-details-discontinued-majors-outer" class="mb-3">
+          <div v-if="inactiveMajors.length" id="student-details-discontinued-majors-outer" class="mb-3">
             <h3 class="student-profile-section-header">
               Discontinued Major(s)
             </h3>
             <div id="student-details-discontinued-majors">
-              <div v-for="plan in inactivePlans" :key="plan.description" class="mb-2">
+              <div v-for="plan in inactiveMajors" :key="plan.description" class="mb-2">
+                <div class="font-weight-bolder">
+                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
+                  <a
+                    v-if="plan.degreeProgramUrl"
+                    :href="plan.degreeProgramUrl"
+                    :aria-label="`Open ${plan.description} program page in new window`"
+                    target="_blank">
+                    {{ plan.description }}</a>
+                </div>
+                <div v-if="plan.program" class="text-muted">
+                  {{ plan.program }}
+                </div>
+                <div class="font-weight-bolder has-error small text-uppercase">
+                  {{ plan.status }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Discontinued Minor(s)
+            </h3>
+            <div id="student-details-discontinued-minors">
+              <div v-for="plan in inactiveMinors" :key="plan.description" class="mb-2">
                 <div class="font-weight-bolder">
                   <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
                   <a
@@ -143,7 +167,11 @@ export default {
   name: 'StudentPersonalDetails',
   mixins: [UserMetadata, Util],
   props: {
-    inactivePlans: {
+    inactiveMajors: {
+      required: true,
+      type: Array
+    },
+    inactiveMinors: {
       required: true,
       type: Array
     },
