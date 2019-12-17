@@ -652,10 +652,17 @@ export default {
         this.allExpanded = false;
       }
     },
+    sortDate(message) {
+      if (message.type === 'appointment') {
+        return message.createdAt;
+      } else {
+        return message.updatedAt || message.createdAt;
+      }
+    },
     sortMessages() {
       this.messages.sort((m1, m2) => {
-        let d1 = m1.updatedAt || m1.createdAt;
-        let d2 = m2.updatedAt || m2.createdAt;
+        let d1 = this.sortDate(m1);
+        let d2 = this.sortDate(m2);
         if (d1 && d2 && d1 !== d2) {
           return d2.localeCompare(d1);
         } else if (d1 === d2 && m1.id && m2.id) {
