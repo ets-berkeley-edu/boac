@@ -403,7 +403,7 @@ def _to_json(search_terms, search_result):
         'deptCode': search_result['dept_code'],
         'details': search_result['details'],
         'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
-        'student': {camelize(key): student[key] for key in student.keys()},
+        'student': {camelize(key): student[key] for key in student.keys()} if student else None,
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
     }

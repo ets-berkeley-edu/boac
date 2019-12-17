@@ -181,6 +181,7 @@ export default {
       this.alertScreenReader(`Searching for '${this.phrase}'`)
       search(
         this.phrase,
+        this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeCourses) ? false : includeCourses,
         this.isNil(includeNotes) ? false : includeNotes,
         this.isNil(includeStudents) ? false : includeStudents,

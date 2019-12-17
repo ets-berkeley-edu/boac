@@ -4,6 +4,7 @@ import utils from '@/api/api-utils';
 
 export function search(
   phrase: string,
+  includeAppointments: boolean,
   includeCourses: boolean,
   includeNotes: boolean,
   includeStudents: boolean,
@@ -16,6 +17,7 @@ export function search(
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
+      appointments: includeAppointments,
       students: includeStudents,
       courses: includeCourses,
       notes: includeNotes,

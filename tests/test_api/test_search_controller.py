@@ -71,6 +71,7 @@ def asc_inactive_students():
 def _api_search(
         client,
         phrase,
+        appointments=False,
         courses=False,
         notes=False,
         students=False,
@@ -85,6 +86,7 @@ def _api_search(
         '/api/search',
         content_type='application/json',
         data=json.dumps({
+            'appointments': appointments,
             'courses': courses,
             'notes': notes,
             'students': students,
@@ -332,57 +334,28 @@ class TestCourseSearch:
         _api_search(client, '1A', courses=True, students=True, expected_status_code=403)
 
 
-class TestNoteAndAppointmentSearch:
-    """Notes & Appointments search API."""
+class TestNoteSearch:
+    """Notes search API."""
 
     @classmethod
-    def _assert(cls, api_json, note_count=0, appointment_count=0, note_ids=()):
+    def _assert(cls, api_json, note_count=0, note_ids=()):
         assert 'notes' in api_json
         notes = api_json['notes']
         assert len(notes) == note_count
         for idx, note_id in enumerate(note_ids):
             assert notes[idx].get('id') == note_id
 
-        assert 'appointments' in api_json
-        appointments = api_json['appointments']
-        assert len(api_json['appointments']) == appointment_count
-        previous_id = None
-        for appointment in appointments:
-            if previous_id is not None:
-                assert previous_id > appointment.get('id')
-
     def test_search_with_missing_input_no_options(self, coe_advisor, client):
         """Notes search is nothing without input when no additional options are set."""
         _api_search(client, ' \t  ', notes=True, expected_status_code=400)
 
-    def test_search_notes_and_appointments(self, coe_advisor, client):
-        """Search results include notes and appointments ordered by rank."""
+    def test_search_notes(self, coe_advisor, client):
+        """Search results include notes ordered by rank."""
         api_json = _api_search(client, 'life', notes=True)
-        self._assert(api_json, note_count=1, appointment_count=2, note_ids=['11667051-00003'])
-
-    def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
-        """Appointments can be searched for by cancel reason and cancel reason explained."""
-        appointment = Appointment.find_by_id(1)
-        Appointment.cancel(
-            appointment_id=appointment.id,
-            cancelled_by=AuthorizedUser.get_id_per_uid('6972201'),
-            cancel_reason='Sick cat',
-            cancel_reason_explained='Student needed to attend to ailing feline.',
-        )
-
-        api_json = _api_search(client, 'cat', notes=True)
-        self._assert(api_json, appointment_count=1)
-
-        api_json = _api_search(client, 'feline', notes=True)
-        self._assert(api_json, appointment_count=1)
+        self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
     def test_search_respects_date_filters(self, coe_advisor, client):
-        """Search results include notes and appointments updated within provided date range."""
-        from boac import std_commit
-        appointment = Appointment.find_by_id(2)
-        appointment.updated_at = util.localized_timestamp_to_utc('2017-10-31T00:00:00')
-        std_commit(allow_test_environment=True)
-
+        """Search results include notes updated within provided date range."""
         api_json = _api_search(
             client,
             'making',
@@ -392,7 +365,7 @@ class TestNoteAndAppointmentSearch:
                 'dateTo': '2017-11-01',
             },
         )
-        self._assert(api_json, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
     def test_note_search_validates_date_formatting(self, coe_advisor, client):
         api_json = _api_search(
@@ -421,21 +394,14 @@ class TestNoteAndAppointmentSearch:
         assert api_json['message'] == 'dateFrom must be less than dateTo'
 
     def test_search_with_no_input_and_date(self, coe_advisor, client):
-        """Notes and appointments search needs no input when date options are set."""
-        from boac import db, std_commit
-        appointment = Appointment.find_by_id(2)
-        appointment.created_at = util.localized_timestamp_to_utc('2017-11-01T00:00:00')
-        std_commit()
-        db.session.refresh(appointment)
-
+        """Notes search needs no input when date options are set."""
         api_json = _api_search(
             client,
             '',
             notes=True,
-            appointment_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
             note_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
         )
-        self._assert(api_json, note_count=4, appointment_count=1)
+        self._assert(api_json, note_count=4)
 
     def test_search_with_midnight_creation(self, coe_advisor, client):
         """Notes search correctly returns legacy notes with midnight creation times."""
@@ -444,7 +410,6 @@ class TestNoteAndAppointmentSearch:
                 client,
                 'confound',
                 notes=True,
-                appointment_options={'dateFrom': date, 'dateTo': date},
                 note_options={'dateFrom': date, 'dateTo': date},
             )
             return api_json['notes']
@@ -453,15 +418,14 @@ class TestNoteAndAppointmentSearch:
         assert len(_single_date_search('2017-11-03')) == 0
 
     def test_search_excludes_notes_unless_requested(self, coe_advisor, client):
-        """Excludes notes and appointments from search results if notes param is false."""
-        api_json = _api_search(client, 'life', courses=True, students=True)
+        """Excludes notes from search results if notes param is false."""
+        api_json = _api_search(client, 'life', appointments=True, courses=True, students=True)
         assert 'notes' not in api_json
-        assert 'appointments' not in api_json
 
     def test_search_includes_notes_if_requested(self, coe_advisor, client):
-        """Includes notes and appointments in search results if notes param is true."""
+        """Includes notes in search results if notes param is true."""
         api_json = _api_search(client, 'Brigitte', notes=True)
-        self._assert(api_json, note_count=2, appointment_count=0, note_ids=['11667051-00001', '11667051-00002'])
+        self._assert(api_json, note_count=2, note_ids=['11667051-00001', '11667051-00002'])
 
     def test_search_note_with_null_body(self, asc_advisor, client):
         """Finds newly created BOA note when note body is null."""
@@ -477,39 +441,37 @@ class TestNoteAndAppointmentSearch:
         note = response.json
 
         api_json = _api_search(client, 'a conquering virtue', notes=True)
-        self._assert(api_json, note_count=1, appointment_count=0, note_ids=[note['id']])
+        self._assert(api_json, note_count=1, note_ids=[note['id']])
 
     def test_search_asc_notes(self, asc_advisor, client):
         """Includes ASC notes in search results."""
         api_json = _api_search(client, 'ginger', notes=True)
-        self._assert(api_json, note_count=3, appointment_count=0, note_ids=['11667051-139379', '2345678901-139379', '8901234567-139379'])
+        self._assert(api_json, note_count=3, note_ids=['11667051-139379', '2345678901-139379', '8901234567-139379'])
 
     def test_search_notes_by_asc_topic(self, asc_advisor, client):
         """Includes ASC notes with advisor name match in search results."""
         api_json = _api_search(client, 'academic', notes=True)
-        self._assert(api_json, note_count=1, appointment_count=0, note_ids=['11667051-139362'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-139362'])
 
     def test_search_by_topic(self, coe_advisor, client):
-        """Searches notes and appointments by topic if topics option is selected."""
+        """Searches notes by topic if topics option is selected."""
         api_json = _api_search(
             client,
             'making',
             notes=True,
-            appointment_options={'topic': 'Good Show'},
             note_options={'topic': 'Good Show'},
         )
-        self._assert(api_json, note_count=1, appointment_count=2, note_ids=['11667051-00001'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
     def test_search_with_no_input_and_topic(self, coe_advisor, client):
-        """Notes and appointments search needs no input when topic set."""
+        """Notes search needs no input when topic set."""
         api_json = _api_search(
             client,
             '',
             notes=True,
-            appointment_options={'topic': 'Good Show'},
             note_options={'topic': 'Good Show'},
         )
-        self._assert(api_json, note_count=1, appointment_count=3, note_ids=['11667051-00001'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
     def test_search_by_note_author_sis(self, coe_advisor, client):
         """Searches SIS notes by advisor CSID if posted by option is selected."""
@@ -517,10 +479,9 @@ class TestNoteAndAppointmentSearch:
             client,
             'Brigitte',
             notes=True,
-            appointment_options={'advisorCsid': '800700600'},
             note_options={'advisorCsid': '800700600'},
         )
-        self._assert(api_json, note_count=1, appointment_count=0, note_ids=['11667051-00001'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00001'])
 
     def test_search_by_note_author_asc(self, coe_advisor, client):
         """Searches ASC notes by advisor CSID if posted by option is selected."""
@@ -528,51 +489,29 @@ class TestNoteAndAppointmentSearch:
             client,
             'Academic',
             notes=True,
-            appointment_options={'advisorCsid': '800700600'},
             note_options={'advisorCsid': '800700600'},
         )
-        self._assert(api_json, note_count=1, appointment_count=0, note_ids=['11667051-139362'])
-
-    def test_search_by_appointment_scheduler(self, coe_advisor, client):
-        """Searches appointments by advisor CSID if posted by option is selected."""
-        api_json = _api_search(
-            client,
-            'catch',
-            notes=True,
-            note_options={'advisorCsid': '53791'},
-        )
-        self._assert(api_json, note_count=0, appointment_count=1)
+        self._assert(api_json, note_count=1, note_ids=['11667051-139362'])
 
     def test_search_with_no_input_and_author(self, coe_advisor, client):
-        """Notes and appointments search needs no input when author set."""
+        """Notes search needs no input when author set."""
         api_json = _api_search(
             client,
             '',
             notes=True,
-            appointment_options={'advisorCsid': '800700600'},
             note_options={'advisorCsid': '800700600'},
         )
         self._assert(api_json, note_count=2)
 
-        api_json = _api_search(
-            client,
-            '',
-            notes=True,
-            appointment_options={'advisorCsid': '53791'},
-            note_options={'advisorCsid': '53791'},
-        )
-        self._assert(api_json, appointment_count=1)
-
     def test_search_by_student(self, coe_advisor, client):
-        """Searches notes and appointments by student CSID."""
+        """Searches notes by student CSID."""
         api_json = _api_search(
             client,
             'life',
             notes=True,
-            appointment_options={'studentCsid': '11667051'},
             note_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
     def test_search_with_no_input_and_student(self, coe_advisor, client):
         """Notes search needs no input when student set."""
@@ -580,43 +519,233 @@ class TestNoteAndAppointmentSearch:
             client,
             '',
             notes=True,
-            appointment_options={'studentCsid': '11667051'},
             note_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, note_count=8, appointment_count=2)
+        self._assert(api_json, note_count=8)
 
     def test_note_search_limit(self, coe_advisor, client):
-        """Limits search to the first n appointments and the first n notes."""
+        """Limits search to the first n notes."""
         api_json = _api_search(
             client,
             'life',
             notes=True,
-            appointment_options={'limit': '1'},
             note_options={'limit': '1'},
         )
-        self._assert(api_json, note_count=1, appointment_count=1, note_ids=['11667051-00003'])
+        self._assert(api_json, note_count=1, note_ids=['11667051-00003'])
 
     def test_note_search_offset(self, coe_advisor, client):
         """Returns results beginning from the offset."""
         api_json = _api_search(
             client,
-            'life',
+            'student',
             notes=True,
-            appointment_options={'offset': '1'},
             note_options={'offset': '1'},
         )
-        self._assert(api_json, appointment_count=1)
+        self._assert(api_json, note_count=2, note_ids=['9000000000-00002', '9100000000-00001'])
 
     def test_search_notes_no_canvas_data_access(self, client, no_canvas_access_advisor):
-        """A user with no access to Canvas data can still search for notes and appointments."""
+        """A user with no access to Canvas data can still search for notes."""
         api_json = _api_search(
             client,
             '',
             notes=True,
-            appointment_options={'studentCsid': '11667051'},
             note_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, note_count=8, appointment_count=2)
+        self._assert(api_json, note_count=8)
+
+
+class TestAppointmentSearch:
+    """Appointments search API."""
+
+    @classmethod
+    def _assert(cls, api_json, appointment_count=0):
+        assert 'appointments' in api_json
+        appointments = api_json['appointments']
+        assert len(api_json['appointments']) == appointment_count
+        previous_id = None
+        for appointment in appointments:
+            if previous_id is not None:
+                assert previous_id > appointment.get('id')
+
+    def test_search_with_missing_input_no_options(self, coe_advisor, client):
+        """Appointments search is nothing without input when no additional options are set."""
+        _api_search(client, ' \t  ', appointments=True, expected_status_code=400)
+
+    def test_search_appointments(self, coe_advisor, client):
+        """Search results include appointments ordered by rank."""
+        api_json = _api_search(client, 'life', appointments=True)
+        self._assert(api_json, appointment_count=2)
+
+    def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
+        """Appointments can be searched for by cancel reason and cancel reason explained."""
+        appointment = Appointment.find_by_id(1)
+        Appointment.cancel(
+            appointment_id=appointment.id,
+            cancelled_by=AuthorizedUser.get_id_per_uid('6972201'),
+            cancel_reason='Sick cat',
+            cancel_reason_explained='Student needed to attend to ailing feline.',
+        )
+
+        api_json = _api_search(client, 'cat', appointments=True)
+        self._assert(api_json, appointment_count=1)
+
+        api_json = _api_search(client, 'feline', appointments=True)
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_respects_date_filters(self, app, coe_advisor, client):
+        """Search results include appointments created within provided date range."""
+        from boac import std_commit
+        appointment = Appointment.find_by_id(2)
+        appointment.created_at = util.localized_timestamp_to_utc('2017-10-31T00:00:00')
+        std_commit(allow_test_environment=True)
+
+        api_json = _api_search(
+            client,
+            'pick me',
+            appointments=True,
+            appointment_options={
+                'dateFrom': '2017-10-31',
+                'dateTo': '2017-11-01',
+            },
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_appointment_search_validates_date_formatting(self, coe_advisor, client):
+        api_json = _api_search(
+            client,
+            'Brigitte',
+            appointments=True,
+            appointment_options={
+                'dateFrom': '2017-11-01',
+                'dateTo': 'rubbish',
+            },
+            expected_status_code=400,
+        )
+        assert api_json['message'] == 'Invalid dateTo value'
+
+    def test_appointment_search_validates_date_ranges(self, coe_advisor, client):
+        api_json = _api_search(
+            client,
+            'Brigitte',
+            appointments=True,
+            appointment_options={
+                'dateFrom': '2017-11-02',
+                'dateTo': '2017-11-01',
+            },
+            expected_status_code=400,
+        )
+        assert api_json['message'] == 'dateFrom must be less than dateTo'
+
+    def test_appointment_search_with_no_input_and_date(self, coe_advisor, client):
+        """Appointments search needs no input when date options are set."""
+        from boac import db, std_commit
+        appointment = Appointment.find_by_id(2)
+        appointment.created_at = util.localized_timestamp_to_utc('2017-11-01T00:00:00')
+        std_commit()
+        db.session.refresh(appointment)
+
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_excludes_appointments_unless_requested(self, coe_advisor, client):
+        """Excludes appointments from search results if appointments param is false."""
+        api_json = _api_search(client, 'life', courses=True, students=True, notes=True)
+        assert 'appointments' not in api_json
+
+    def test_search_appointments_by_topic(self, coe_advisor, client):
+        """Searches appointments by topic if topics option is selected."""
+        api_json = _api_search(
+            client,
+            'making',
+            appointments=True,
+            appointment_options={'topic': 'Good Show'},
+        )
+        self._assert(api_json, appointment_count=2)
+
+    def test_search_appointments_with_no_input_and_topic(self, coe_advisor, client):
+        """Appointments search needs no input when topic set."""
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'topic': 'Good Show'},
+        )
+        self._assert(api_json, appointment_count=3)
+
+    def test_search_by_appointment_scheduler(self, coe_advisor, client):
+        """Searches appointments by advisor UID if posted by option is selected."""
+        api_json = _api_search(
+            client,
+            'making',
+            appointments=True,
+            appointment_options={'advisorUid': '90412'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_appointments_with_no_input_and_author(self, coe_advisor, client):
+        """Appointments search needs no input when author set."""
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'advisorUid': '90412'},
+        )
+        self._assert(api_json, appointment_count=3)
+
+    def test_search_appointments_by_student(self, coe_advisor, client):
+        """Searches appointments by student CSID."""
+        api_json = _api_search(
+            client,
+            'life',
+            appointments=True,
+            appointment_options={'studentCsid': '11667051'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_appointments_with_no_input_and_student(self, coe_advisor, client):
+        """Appointments search needs no input when student set."""
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'studentCsid': '11667051'},
+        )
+        self._assert(api_json, appointment_count=2)
+
+    def test_appointments_search_limit(self, coe_advisor, client):
+        """Limits search to the first n appointments."""
+        api_json = _api_search(
+            client,
+            'life',
+            appointments=True,
+            appointment_options={'limit': '1'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_appointments_search_offset(self, coe_advisor, client):
+        """Returns appointment results beginning from the offset."""
+        api_json = _api_search(
+            client,
+            'life',
+            appointments=True,
+            appointment_options={'offset': '1'},
+        )
+        self._assert(api_json, appointment_count=1)
+
+    def test_search_appointments_no_canvas_data_access(self, client, no_canvas_access_advisor):
+        """A user with no access to Canvas data can still search for appointments."""
+        api_json = _api_search(
+            client,
+            '',
+            appointments=True,
+            appointment_options={'studentCsid': '11667051'},
+        )
+        self._assert(api_json, appointment_count=2)
 
 
 def _get_common_sids(student_list_1, student_list_2):
