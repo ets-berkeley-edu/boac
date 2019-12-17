@@ -10,10 +10,7 @@ export default {
     ]),
     ...mapGetters('cohort', ['myCohorts']),
     ...mapGetters('curated', ['myCuratedGroups']),
-    ...mapGetters('note', [
-      'noteTemplates',
-      'suggestedNoteTopics'
-    ])
+    ...mapGetters('note', ['noteTemplates'])
   },
   methods: {
     ...mapActions('user', [

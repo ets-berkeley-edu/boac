@@ -37,7 +37,6 @@ import Context from '@/mixins/Context';
 import Footer from '@/components/Footer';
 import Loading from '@/mixins/Loading';
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement';
-import Session from '@/mixins/Session';
 import Sidebar from '@/components/sidebar/Sidebar';
 import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout';
 import Util from '@/mixins/Util';
@@ -50,7 +49,7 @@ export default {
     Sidebar,
     StandardHeaderLayout
   },
-  mixins: [Context, Loading, Session, Util],
+  mixins: [Context, Loading, Util],
   created() {
     this.putFocusNextTick('home-header');
   }

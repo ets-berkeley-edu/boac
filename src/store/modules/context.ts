@@ -21,7 +21,6 @@ const getters = {
   hasUserDismissedFooterAlert: (): boolean => state.hasUserDismissedFooterAlert,
   isVueAppDebugMode: (): any => _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true',
   maxAttachmentsPerNote: (): string => _.get(Vue.prototype.$config, 'maxAttachmentsPerNote'),
-  pingFrequency: (): string => _.get(Vue.prototype.$config, 'pingFrequency'),
   loading: (state: any): boolean => state.loading,
   screenReaderAlert: (state: any): string => state.screenReaderAlert,
   supportEmailAddress: (): string => _.get(Vue.prototype.$config, 'supportEmailAddress'),
@@ -52,7 +51,6 @@ const actions = {
         store.dispatch('cohort/loadMyCohorts');
         store.dispatch('curated/loadMyCuratedGroups');
         store.dispatch('note/loadNoteTemplates');
-        store.dispatch('note/loadSuggestedNoteTopics');
       }
       store.dispatch('context/loadServiceAnnouncement');
     }

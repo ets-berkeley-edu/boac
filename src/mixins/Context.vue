@@ -5,14 +5,13 @@ export default {
   name: 'Context',
   computed: {
     ...mapGetters('context', [
+      'announcement',
       'apiBaseUrl',
       'currentEnrollmentTerm',
       'currentEnrollmentTermId',
       'hasUserDismissedFooterAlert',
       'isVueAppDebugMode',
       'maxAttachmentsPerNote',
-      'pingFrequency',
-      'announcement',
       'screenReaderAlert',
       'supportEmailAddress',
       'timezone'
