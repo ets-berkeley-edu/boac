@@ -142,7 +142,7 @@ import CreateTemplateModal from "@/components/note/create/CreateTemplateModal";
 import FocusLock from 'vue-focus-lock';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import RichTextEditor from '@/components/util/RichTextEditor';
-import UserMetadata from '@/mixins/UserMetadata';
+import store from "@/store";
 import Util from '@/mixins/Util';
 import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
 
@@ -159,7 +159,7 @@ export default {
     FocusLock,
     RichTextEditor
   },
-  mixins: [Context, NoteEditSession, UserMetadata, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     onCreateNoteStart: {
       required: false,
@@ -188,6 +188,7 @@ export default {
   }),
   mounted() {
     this.isBatchFeature = !this.student;
+    store.dispatch('noteEditSession/loadNoteTemplates');
   },
   methods: {
     cancelRequested() {

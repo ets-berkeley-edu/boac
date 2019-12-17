@@ -47,7 +47,7 @@ export default {
       } else if (_.size(title) > 255) {
         msg = 'Name must be 255 characters or fewer';
       } else {
-        const myTemplates = store.getters['note/noteTemplates'];
+        const myTemplates = store.getters['noteEditSession/noteTemplates'];
         _.each(myTemplates, existing => {
           if (
             (!template.id || template.id !== existing.id) &&

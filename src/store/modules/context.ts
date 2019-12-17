@@ -50,7 +50,6 @@ const actions = {
       if (isAdvisor || currentUser.isAdmin) {
         store.dispatch('cohort/loadMyCohorts');
         store.dispatch('curated/loadMyCuratedGroups');
-        store.dispatch('note/loadNoteTemplates');
       }
       store.dispatch('context/loadServiceAnnouncement');
     }

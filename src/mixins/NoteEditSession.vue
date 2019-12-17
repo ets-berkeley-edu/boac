@@ -13,6 +13,7 @@ export default {
       'isSaving',
       'mode',
       'model',
+      'noteTemplates',
       'sids',
       'targetStudentCount'
     ])
