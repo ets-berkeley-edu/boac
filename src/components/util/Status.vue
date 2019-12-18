@@ -15,8 +15,8 @@
       <div>
         <ul>
           <li>App: {{ status.app }}</li>
-          <li>RDS: {{ status.db }}</li>
-          <li>Redshift: {{ status.data_loch }}</li>
+          <li>BOA RDS: {{ status.db }}</li>
+          <li>Nessie RDS: {{ status.data_loch }}</li>
         </ul>
       </div>
     </div>
