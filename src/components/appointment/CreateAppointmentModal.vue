@@ -91,7 +91,7 @@
           </div>
           <div class="mb-4 mr-3 mt-1">
             <label for="appointment-details" class="font-size-14 input-label text">
-              <span class="font-weight-bolder">Additional Information</span>
+              <span class="font-weight-bolder">Description</span>
             </label>
             <div>
               <b-textarea
