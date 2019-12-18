@@ -276,6 +276,7 @@ class CohortFilter(Base):
         transfer = util.to_bool_or_none(c.get('transfer'))
         underrepresented = util.to_bool_or_none(c.get('underrepresented'))
         unit_ranges = c.get('unitRanges')
+        visa_types = c.get('visaTypes')
         cohort_json.update({
             'criteria': {
                 'coeAdvisorLdapUids': coe_advisor_ldap_uids,
@@ -302,6 +303,7 @@ class CohortFilter(Base):
                 'transfer': transfer,
                 'unitRanges': unit_ranges,
                 'underrepresented': underrepresented,
+                'visaTypes': visa_types,
             },
             'teamGroups': team_groups,
         })
@@ -358,6 +360,7 @@ class CohortFilter(Base):
             transfer=transfer,
             underrepresented=underrepresented,
             unit_ranges=unit_ranges,
+            visa_types=visa_types,
         )
         benchmark('end students query')
 

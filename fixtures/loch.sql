@@ -341,6 +341,12 @@ CREATE TABLE student.student_term_gpas
     units_taken_for_gpa DECIMAL(4,1)
 );
 
+CREATE TABLE student.visas (
+    sid VARCHAR,
+    visa_status VARCHAR,
+    visa_type VARCHAR
+);
+
 INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
 VALUES
@@ -747,3 +753,10 @@ VALUES
 ('2345678901', '2175', 0, 4),
 ('3456789012', '2178', 3.2, 15),
 ('5678901234', '2178', 2.1, 14);
+
+INSERT INTO student.visas
+(sid, visa_status, visa_type)
+VALUES
+('2345678901', 'G', 'F1'),
+('3456789012', 'A', 'J1'),
+('5678901234', 'G', 'OT');
