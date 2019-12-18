@@ -130,6 +130,7 @@ export default {
       if (topic) {
         this.setDisabled(topic, true);
         this.functionAdd(topic);
+        this.topics.sort();
         this.putFocusNextTick(this.focusAfterTopicAdd);
         this.alertScreenReader(`"${topic}" added.`);
       }

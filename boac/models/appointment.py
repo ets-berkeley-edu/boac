@@ -70,6 +70,7 @@ class Appointment(Base):
         'AppointmentTopic',
         primaryjoin='and_(Appointment.id==AppointmentTopic.appointment_id, AppointmentTopic.deleted_at==None)',
         back_populates='appointment',
+        order_by='AppointmentTopic.topic',
         lazy=True,
     )
 
