@@ -6,7 +6,8 @@
       :cancel="cancelCreateAppointment"
       :create-appointment="createAppointment"
       :dept-code="deptCode"
-      :show-modal="showCreateAppointmentModal" />
+      :show-modal="showCreateAppointmentModal"
+      :waitlist-unresolved="waitlist.unresolved" />
     <div v-if="isHomepage" class="homepage-header-border">
       <div class="align-items-center d-flex justify-content-between mb-2">
         <div aria-live="polite" role="alert">

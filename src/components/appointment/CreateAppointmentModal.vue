@@ -60,6 +60,10 @@
                 @input="addStudent" />
             </div>
           </div>
+          <div v-if="isStudentInWaitlist" class="mt-2 text-danger">
+            <font-awesome icon="exclamation-triangle" class="pr-1" />
+            This student is already in the Drop-In Waitlist.
+          </div>
           <div v-if="advisors">
             <label
               for="create-modal-advisor-select"
@@ -106,7 +110,7 @@
         <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="create-appointment-confirm"
-            :disabled="!student || !topics.length || !trim(details).length"
+            :disabled="!student || isStudentInWaitlist || !topics.length || !trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="create()">
@@ -157,6 +161,10 @@ export default {
     showModal: {
       type: Boolean,
       required: true
+    },
+    waitlistUnresolved: {
+      type: Array,
+      required: true
     }
   },
   data: () => ({
@@ -169,6 +177,11 @@ export default {
     student: undefined,
     topics: []
   }),
+  computed: {
+    isStudentInWaitlist() {
+      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid);
+    }
+  },
   watch: {
     advisors() {
       this.updateAvailableAdvisors();
