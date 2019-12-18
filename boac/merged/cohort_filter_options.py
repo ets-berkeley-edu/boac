@@ -284,6 +284,19 @@ def _get_filter_options(scope, cohort_owner_uid):
                     'ux': 'boolean',
                 },
             },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
+                'key': 'visaTypes',
+                'label': {
+                    'primary': 'Visa Type',
+                },
+                'options': _visa_types,
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
+            },
         ],
         [
             {
@@ -534,6 +547,16 @@ def _team_groups():
 def _majors():
     major_results = [row['major'] for row in data_loch.get_majors()]
     return [{'name': major, 'value': major} for major in major_results]
+
+
+def _visa_types():
+    other_types = [row['visa_type'] for row in data_loch.get_other_visa_types()]
+    return [
+        {'name': 'F-1 International Student', 'value': 'F1'},
+        {'name': 'J-1 International Student', 'value': 'J1'},
+        {'name': 'Permanent Resident', 'value': 'PR'},
+        {'name': 'Other', 'value': ','.join(other_types)},
+    ]
 
 
 def _get_dept_codes(user):

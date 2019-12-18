@@ -338,6 +338,7 @@ def query_students(
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
+    visa_types=None,
 ):
 
     criteria = {
@@ -355,6 +356,7 @@ def query_students(
         'is_active_asc': is_active_asc,
         'is_active_coe': is_active_coe,
         'underrepresented': underrepresented,
+        'visa_types': visa_types,
     }
 
     # Cohorts pull from all students in BOA unless they include a department-specific criterion.
@@ -388,6 +390,7 @@ def query_students(
         transfer=transfer,
         underrepresented=underrepresented,
         unit_ranges=unit_ranges,
+        visa_types=visa_types,
     )
     if not query_tables:
         return {

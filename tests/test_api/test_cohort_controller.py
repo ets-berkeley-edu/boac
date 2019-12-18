@@ -787,6 +787,7 @@ class TestCohortPerFilters:
             'transfer',
             'underrepresented',
             'unitRanges',
+            'visaTypes',
         ]:
             assert criteria[key] is None
 
@@ -982,6 +983,21 @@ class TestCohortPerFilters:
         )
         assert len(summer_less_success['students']) == 1
         assert {'termName': 'Summer 2017', 'gpa': 0.0} in summer_less_success['students'][0]['termGpa']
+
+    def test_filter_visa_types(self, client, coe_advisor_login):
+        """Returns students with verified visa status and the specified visa type(s)."""
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'visaTypes', 'value': 'F1'},
+                    {'key': 'visaTypes', 'value': 'J1'},
+                    {'key': 'visaTypes', 'value': 'PA,RF,L2,E2,H4,E1,U3,A1,E3,O1,OT,U1'},
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['2345678901', '5678901234']
 
 
 class TestDownloadCsvPerFilters:

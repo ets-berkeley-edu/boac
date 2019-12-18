@@ -646,6 +646,12 @@ def get_majors():
     return safe_execute_rds(sql)
 
 
+def get_other_visa_types():
+    sql = f"""SELECT DISTINCT visa_type FROM {student_schema()}.visas
+        WHERE visa_status = 'G' and visa_type NOT IN ('F1','J1','PR')"""
+    return safe_execute_rds(sql)
+
+
 def get_students_query(     # noqa
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -675,6 +681,7 @@ def get_students_query(     # noqa
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
+    visa_types=None,
 ):
 
     # If no specific scope is required by criteria, default to the admin view.
@@ -717,6 +724,8 @@ def get_students_query(     # noqa
         query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = sas.sid"""
     if genders or underrepresented is not None:
         query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
+    if visa_types:
+        query_tables += f""" JOIN {student_schema()}.visas v ON v.sid = sas.sid"""
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
@@ -791,6 +800,11 @@ def get_students_query(     # noqa
                 )
         query_tables += f""" JOIN {advisor_schema()}.advisor_students advs ON advs.student_sid = sas.sid"""
         query_tables += ' AND (' + ' OR '.join(advisor_plan_filters) + ')'
+    if visa_types:
+        query_filter += ' AND v.visa_status = \'G\' AND v.visa_type = ANY(:visa_types)'
+        visa_types_flattened = []
+        [visa_types_flattened.extend(t.split(',')) for t in visa_types]
+        query_bindings.update({'visa_types': visa_types_flattened})
 
     # ASC criteria
     query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''
