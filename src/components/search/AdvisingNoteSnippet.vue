@@ -1,13 +1,13 @@
 <template>
   <div
     :id="`advising-note-search-result-${note.id}`"
-    :class="{'demo-mode-blur': user.inDemoMode}"
+    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
     class="advising-note-search-result">
     <h3 class="advising-note-search-result-header">
       <router-link
         :id="`link-to-student-${note.studentUid}`"
-        :class="{'demo-mode-blur': user.inDemoMode}"
-        :to="`${studentRoutePath(note.studentUid, user.inDemoMode)}#note-${note.id}`"
+        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :to="`${studentRoutePath(note.studentUid, $currentUser.inDemoMode)}#note-${note.id}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"></router-link>
       ({{ note.studentSid }})
@@ -17,7 +17,7 @@
       class="advising-note-search-result-snippet"
       v-html="note.noteSnippet">
     </div>
-    <div :class="{'demo-mode-blur': user.inDemoMode}" class="advising-note-search-result-footer">
+    <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
@@ -28,12 +28,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AdvisingNoteSnippet',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     note: Object,
   },

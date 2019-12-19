@@ -33,7 +33,7 @@
       :close="closeUpdateModal"
       :show-modal="showUpdateModal" />
     <div v-if="!loading && includes(['reserved', 'waiting'], appointment.status)">
-      <div v-if="user.isAdmin">
+      <div v-if="$currentUser.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
           class="bg-white float-right text-nowrap"
@@ -50,7 +50,7 @@
           </b-dropdown-item-button>
         </b-dropdown>
       </div>
-      <div v-if="!user.isAdmin">
+      <div v-if="!$currentUser.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
           :disabled="appointment.status === 'checked_in' || appointment.status === 'cancelled'"
@@ -100,7 +100,7 @@ import AppointmentDetailsModal from '@/components/appointment/AppointmentDetails
 import AppointmentUpdateModal from '@/components/appointment/AppointmentUpdateModal';
 import CheckInModal from '@/components/appointment/CheckInModal';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import {
   cancel as apiCancel,
@@ -119,7 +119,7 @@ export default {
     AppointmentUpdateModal,
     CheckInModal
   },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     appointment: {
       type: Object,
@@ -166,7 +166,7 @@ export default {
     checkInAppointment(advisor, deptCodes) {
       if (!advisor) {
         advisor = this.user;
-        deptCodes = this.map(this.user.departments, 'code');
+        deptCodes = this.map(this.$currentUser.departments, 'code');
       }
       const appointmentId = this.appointment.id;
       this.loading = true;

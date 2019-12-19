@@ -51,7 +51,7 @@
       :aria-expanded="openAndLoaded"
       :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
       class="panel-body mr-3">
-      <div v-if="studentsWithAlerts && size(studentsWithAlerts)">
+      <div v-if="size(studentsWithAlerts)">
         <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
@@ -82,8 +82,9 @@
 <script>
 import Context from '@/mixins/Context';
 import SortableStudents from '@/components/search/SortableStudents';
-import store from '@/store';
 import Util from '@/mixins/Util';
+import { getStudentsWithAlerts as getCohortStudentsWithAlerts } from "@/api/cohort";
+import { getStudentsWithAlerts as getCuratedStudentsWithAlerts } from "@/api/curated";
 
 export default {
   name: 'SortableGroup',
@@ -131,10 +132,9 @@ export default {
       if (this.isNil(this.studentsWithAlerts)) {
         this.isFetching = true;
         const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent;
-        store
-          .dispatch(`${this.keyword}/loadStudentsWithAlerts`, this.group.id)
-          .then(group => {
-            this.studentsWithAlerts = group.studentsWithAlerts;
+        const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts;
+        apiCall(this.group.id).then(students => {
+            this.studentsWithAlerts = students;
             this.isFetching = false;
             this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`);
             ga({

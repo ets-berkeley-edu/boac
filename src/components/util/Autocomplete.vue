@@ -4,7 +4,7 @@
       :id="`${id}-input`"
       ref="autocompleteInput"
       v-model="query"
-      :class="{'obfuscate-form-input': demoModeBlur && user.inDemoMode}"
+      :class="{'obfuscate-form-input': demoModeBlur && $currentUser.inDemoMode}"
       :disabled="disabled"
       :placeholder="placeholder"
       maxlength="56"
@@ -44,7 +44,7 @@
           :key="i">
           <a
             :id="`${id}-suggestion-${i}`"
-            :class="{'demo-mode-blur': demoModeBlur && user.inDemoMode}"
+            :class="{'demo-mode-blur': demoModeBlur && $currentUser.inDemoMode}"
             role="menuitem"
             class="dropdown-item"
             href="#"
@@ -59,12 +59,12 @@
 </template>
 
 <script>
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'Autocomplete',
-  mixins: [UserMetadata, Util],
+  mixins: [CurrentUserExtras, Util],
   props: {
     demoModeBlur: {
       default: false,

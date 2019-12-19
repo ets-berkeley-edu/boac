@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!user.isAdmin">
+      <div v-if="!$currentUser.isAdmin">
         <CreateNoteModal
           :on-create-note-start="onCreateNoteStart"
           :on-create-note-success="onCreateNoteSuccess"
@@ -132,7 +132,7 @@
             <div
               v-if="isEditable(message) && !editModeNoteId && includes(openMessages, message.transientId)"
               class="mt-2">
-              <div v-if="user.uid === message.author.uid">
+              <div v-if="$currentUser.uid === message.author.uid">
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
                   :disabled="disableNewNoteButton"
@@ -143,7 +143,7 @@
                   Edit Note
                 </b-btn>
               </div>
-              <div v-if="user.isAdmin">
+              <div v-if="$currentUser.isAdmin">
                 <b-btn
                   id="delete-note-button"
                   :disabled="disableNewNoteButton"
@@ -164,7 +164,7 @@
               :class="{
                 'align-top message-open': includes(openMessages, message.transientId),
                 'truncate': !includes(openMessages, message.transientId),
-                'img-blur': user.inDemoMode && ['appointment', 'note'].includes(message.type)
+                'img-blur': $currentUser.inDemoMode && ['appointment', 'note'].includes(message.type)
               }"
               :tabindex="includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
@@ -318,10 +318,10 @@ import AdvisingNote from "@/components/note/AdvisingNote";
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import CreateNoteModal from "@/components/note/create/CreateNoteModal";
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { dismissStudentAlert } from '@/api/student';
 import { getAppointment, markAppointmentRead } from '@/api/appointments';
@@ -338,7 +338,7 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
-  mixins: [Context, Scrollable, UserMetadata, Util],
+  mixins: [Context, Scrollable, CurrentUserExtras, Util],
   props: {
     student: {
       required: true,
@@ -556,13 +556,13 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
-          this.$ga.studentAlert(`Advisor ${this.user.uid} dismissed alert`);
+          this.$ga.studentAlert(`Advisor ${this.$currentUser.uid} dismissed alert`);
         } else if (message.type === 'note') {
           markNoteRead(message.id);
-          this.$ga.noteEvent(message.id, null, `Advisor ${this.user.uid} read note`);
+          this.$ga.noteEvent(message.id, null, `Advisor ${this.$currentUser.uid} read note`);
         } else if (message.type === 'appointment') {
           markAppointmentRead(message.id);
-          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.user.uid} read appointment`);
+          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.$currentUser.uid} read appointment`);
         }
       }
     },

@@ -20,10 +20,10 @@
         </div>
         <DemoModeToggle />
       </div>
-      <div v-if="user.isAdmin">
+      <div v-if="$currentUser.isAdmin">
         <EditServiceAnnouncement />
       </div>
-      <div v-if="user.isAdmin">
+      <div v-if="$currentUser.isAdmin">
         <Status />
       </div>
     </div>
@@ -32,13 +32,13 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DemoModeToggle from '@/components/admin/DemoModeToggle';
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement';
 import Loading from '@/mixins/Loading';
 import MyProfile from '@/components/admin/MyProfile';
 import Spinner from '@/components/util/Spinner';
 import Status from '@/components/util/Status';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -50,7 +50,7 @@ export default {
     Spinner,
     Status
   },
-  mixins: [Context, Loading, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Loading, Util],
   mounted() {
     this.loaded('Flight Deck');
   }

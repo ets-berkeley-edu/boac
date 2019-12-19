@@ -24,24 +24,24 @@
     <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
         <div>
-          <router-link :id="`link-to-student-${student.uid}`" :to="studentRoutePath(student.uid, user.inDemoMode)">
+          <router-link :id="`link-to-student-${student.uid}`" :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
             <h3
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
-              :class="{'demo-mode-blur' : user.inDemoMode}"
+              :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
               class="student-name"
               v-html="`${student.lastName}, ${student.firstName}`"></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
-              :class="{'demo-mode-blur' : user.inDemoMode}"
+              :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
               class="student-name">
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
         </div>
       </div>
-      <div :class="{'demo-mode-blur' : user.inDemoMode}" class="d-flex student-sid">
+      <div :class="{'demo-mode-blur' : $currentUser.inDemoMode}" class="d-flex student-sid">
         <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
         <div
           v-if="student.academicCareerStatus === 'Inactive'"
@@ -179,7 +179,7 @@
       <table class="cohort-course-activity-table">
         <tr>
           <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
-          <th v-if="user.canAccessCanvasData" class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
+          <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
           <th class="cohort-course-activity-header">MID</th>
           <th class="cohort-course-activity-header">FINAL</th>
         </tr>
@@ -191,7 +191,7 @@
               :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
               class="pl-1 red-flag-status">(W)</span>
           </td>
-          <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
+          <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
             <div
               v-for="(canvasSite, cIndex) in enrollment.canvasSites"
               :key="cIndex"
@@ -228,7 +228,7 @@
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
             No {{ termNameForSisId($config.currentEnrollmentTermId) }} enrollments
           </td>
-          <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
+          <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;
           </td>
           <td class="cohort-course-activity-data">
@@ -247,11 +247,11 @@
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -264,9 +264,9 @@ export default {
   mixins: [
     Berkeley,
     Context,
+    CurrentUserExtras,
     StudentAnalytics,
     StudentMetadata,
-    UserMetadata,
     Util
   ],
   props: {

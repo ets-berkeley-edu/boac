@@ -30,7 +30,7 @@
                   <h4 class="student-course-title">{{ course.displayName }}</h4>
                 </div>
                 <b-btn
-                  v-if="user.canAccessCanvasData && !student.fullProfilePending"
+                  v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending"
                   :id="`term-${term.termId}-course-${courseIndex}-toggle`"
                   v-b-toggle="`course-canvas-data-${term.termId}-${courseIndex}`"
                   class="student-course-collapse-button"
@@ -98,7 +98,7 @@ v-if="section.isViewableOnCoursePage"
           </div>
         </div>
         <b-collapse
-          v-if="user.canAccessCanvasData && !student.fullProfilePending"
+          v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending"
           :id="`course-canvas-data-${term.termId}-${courseIndex}`"
           class="panel-body">
           <div v-for="(canvasSite, csIndex) in course.canvasSites" :key="csIndex" class="student-bcourses-wrapper">
@@ -201,10 +201,10 @@ v-if="section.isViewableOnCoursePage"
                 </th>
                 <td colspan="2">
                   <div v-if="!canvasSite.analytics.lastActivity.student.raw">
-                    <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.name }}</span> has never visited this course site.
+                    <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
                   </div>
                   <div v-if="canvasSite.analytics.lastActivity.student.raw">
-                    <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.name }}</span>
+                    <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
                     last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
                     {{ lastActivityInContext(canvasSite.analytics) }}
                   </div>
@@ -271,9 +271,9 @@ v-if="section.isViewableOnCoursePage"
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import StudentWithdrawalCancel from "@/components/student/profile/StudentWithdrawalCancel";
 
@@ -283,7 +283,7 @@ export default {
     StudentWithdrawalCancel,
     StudentBoxplot
   },
-  mixins: [Context, StudentAnalytics, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, StudentAnalytics, Util],
   props: {
     student: Object
   },

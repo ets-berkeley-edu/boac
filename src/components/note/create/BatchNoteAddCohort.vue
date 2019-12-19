@@ -42,12 +42,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'BatchNoteAddCohort',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     addObject: {
       required: true,

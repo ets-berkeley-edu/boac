@@ -13,7 +13,7 @@
         <div aria-live="polite" role="alert">
           <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
         </div>
-        <div v-if="!user.isAdmin">
+        <div v-if="!$currentUser.isAdmin">
           <b-btn
             id="btn-homepage-create-appointment"
             variant="link"
@@ -25,10 +25,10 @@
         </div>
       </div>
       <DropInAvailabilityToggle
-        :availability="!!get(find(user.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'available')"
+        :availability="!!get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'available')"
         :dept-code="deptCode"
         :is-homepage="isHomepage"
-        :uid="user.uid" />
+        :uid="$currentUser.uid" />
     </div>
     <div v-if="!isHomepage">
       <div class="border-bottom d-flex justify-content-between">
@@ -94,9 +94,9 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { create as apiCreate } from '@/api/appointments';
 
@@ -107,7 +107,7 @@ export default {
     DropInAvailabilityToggle,
     DropInWaitlistAppointment,
   },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     advisors: {
       type: Array,
@@ -137,7 +137,7 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.user.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
     this.now = this.$moment();
   },
   methods: {

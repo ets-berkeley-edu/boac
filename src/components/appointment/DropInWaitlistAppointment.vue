@@ -17,21 +17,21 @@
               <router-link
                 v-if="linkToStudentProfiles"
                 :id="`appointment-${appointment.id}-student-name`"
-                :class="{'demo-mode-blur' : user.inDemoMode}"
-                :to="studentRoutePath(appointment.student.uid, user.inDemoMode)">
+                :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
+                :to="studentRoutePath(appointment.student.uid, $currentUser.inDemoMode)">
                 {{ appointment.student.name }}
               </router-link>
               <div v-if="!linkToStudentProfiles">
                 <span
                   :id="`appointment-${appointment.id}-student-name`"
-                  :class="{'demo-mode-blur' : user.inDemoMode}">{{ appointment.student.name }}</span>
+                  :class="{'demo-mode-blur' : $currentUser.inDemoMode}">{{ appointment.student.name }}</span>
               </div>
             </div>
             <div>
               <span class="font-weight-bolder pr-1">
                 (<span
                   :id="`appointment-${appointment.id}-student-sid`"
-                  :class="{'demo-mode-blur' : user.inDemoMode}"
+                  :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
                   aria-label="Student ID">{{ appointment.student.sid }}</span>)
               </span>
               <span
@@ -56,7 +56,7 @@
             {{ oxfordJoin(appointment.topics) }}
           </div>
           <div v-if="appointment.status === 'reserved'" class="has-error">
-            <span v-if="appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.statusBy.id === user.id ? 'you' : appointment.statusBy.name }}</span>
+            <span v-if="appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.statusBy.id === $currentUser.id ? 'you' : appointment.statusBy.name }}</span>
             <span v-if="!appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned</span>
           </div>
           <div v-if="appointment.statusBy && !reopening">
@@ -110,10 +110,10 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { reopen as apiReopen } from '@/api/appointments';
 
@@ -123,7 +123,7 @@ export default {
     DropInAppointmentDropdown,
     StudentAvatar
   },
-  mixins: [Context, StudentMetadata, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, StudentMetadata, Util],
   props: {
     appointment: {
       type: Object,
@@ -154,7 +154,7 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.user.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
     this.now = this.$moment();
   },
   methods: {

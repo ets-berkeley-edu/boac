@@ -10,7 +10,7 @@
           <h1
             id="student-name-header"
             ref="pageHeader"
-            :class="{'demo-mode-blur': user.inDemoMode}"
+            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
             class="student-section-header"
             tabindex="0"
             v-html="student.name"></h1>
@@ -18,12 +18,12 @@
           <div
             v-if="student.sisProfile.preferredName !== student.name"
             id="student-preferred-name"
-            :class="{'demo-mode-blur': user.inDemoMode}">
+            :class="{'demo-mode-blur': $currentUser.inDemoMode}">
             <span class="sr-only">Preferred name</span>
             <span v-html="student.sisProfile.preferredName"></span>
           </div>
           <div id="student-bio-sid" class="font-size-14 font-weight-bold mb-1">
-            SID <span :class="{'demo-mode-blur': user.inDemoMode}">{{ student.sid }}</span>
+            SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
             <span
               v-if="academicCareerStatus === 'Inactive'"
               id="student-bio-inactive"
@@ -36,7 +36,7 @@
             <a
               id="student-mailto"
               :href="`mailto:${student.sisProfile.emailAddress}`"
-              :class="{'demo-mode-blur': user.inDemoMode}"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               target="_blank">
               {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
             </a>
@@ -141,11 +141,11 @@
 </template>
 
 <script>
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentPersonalDetails from "@/components/student/profile/StudentPersonalDetails";
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -155,7 +155,7 @@ export default {
     StudentGroupSelector,
     StudentPersonalDetails
   },
-  mixins: [StudentMetadata, UserMetadata, Util],
+  mixins: [CurrentUserExtras, StudentMetadata, Util],
   props: {
     student: Object
   },

@@ -1,13 +1,13 @@
 <template>
   <div
     :id="`appointment-search-result-${appointment.id}`"
-    :class="{'demo-mode-blur': user.inDemoMode}"
+    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
     class="advising-note-search-result">
     <h3 class="advising-note-search-result-header">
       <router-link
         :id="`appointment-link-to-student-${appointment.student.uid}`"
-        :class="{'demo-mode-blur': user.inDemoMode}"
-        :to="`${studentRoutePath(appointment.student.uid, user.inDemoMode)}#appointment-${appointment.id}`"
+        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :to="`${studentRoutePath(appointment.student.uid, $currentUser.inDemoMode)}#appointment-${appointment.id}`"
         class="advising-note-search-result-header-link"
         v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"></router-link>
       ({{ appointment.student.sid }})
@@ -17,7 +17,7 @@
       class="advising-note-search-result-snippet"
       v-html="appointment.detailsSnippet">
     </div>
-    <div :class="{'demo-mode-blur': user.inDemoMode}" class="advising-note-search-result-footer">
+    <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
         {{ appointment.advisorName }} -
       </span>
@@ -28,12 +28,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AppointmentSnippet',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     appointment: Object,
   },

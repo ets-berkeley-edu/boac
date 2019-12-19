@@ -52,12 +52,12 @@
 </template>
 
 <script>
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'MyProfile',
-  mixins: [UserMetadata, Util],
+  mixins: [CurrentUserExtras, Util],
   data: () => ({
     dropInAdvisorDeptCodes: undefined
   }),

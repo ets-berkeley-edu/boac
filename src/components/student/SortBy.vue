@@ -22,12 +22,13 @@
 <script>
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
+import store from '@/store';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'SortBy',
-  mixins: [Berkeley, Context, UserMetadata, Util],
+  mixins: [Berkeley, Context, CurrentUserExtras, Util],
   data: () => ({
     selected: undefined,
     options: []
@@ -35,7 +36,10 @@ export default {
   watch: {
     selected(value) {
       if (value && value !== this.preferences.sortBy) {
-        this.setUserPreference({key: 'sortBy', value});
+        store.commit('currentUserExtras/setUserPreference', {
+          key: 'sortBy',
+          value
+        });
       }
     }
   },

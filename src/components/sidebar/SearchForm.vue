@@ -143,7 +143,7 @@
                 v-model="noteAuthor"
                 :source="findAdvisorsByName"
                 :disabled="noteFilters.postedBy === 'you'"
-                :placeholder="noteFilters.postedBy === 'you' ? user.name : 'Enter name...'">
+                :placeholder="noteFilters.postedBy === 'you' ? $currentUser.name : 'Enter name...'">
               </Autocomplete>
             </b-form-group>
             <b-form-group label="Student (name or SID)" label-for="search-options-note-filters-student-input">
@@ -248,7 +248,7 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { findAdvisorsByName } from '@/api/appointments';
 import { findAuthorsByName } from '@/api/notes';
@@ -260,7 +260,7 @@ export default {
   components: {
     Autocomplete
   },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     context: String,
     domain: Array,
@@ -392,7 +392,7 @@ export default {
         }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
-            query.advisorCsid = this.user.csid;
+            query.advisorCsid = this.$currentUser.csid;
           } else if (this.noteFilters.author) {
             query.advisorCsid = this.noteFilters.author.sid;
             query.advisorUid = this.noteFilters.author.uid;

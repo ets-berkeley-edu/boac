@@ -10,7 +10,7 @@
     @hide.prevent="close">
     <div>
       <div class="ml-3 modal-header">
-        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : user.inDemoMode}">{{ student.name }}</h3>
+        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : $currentUser.inDemoMode}">{{ student.name }}</h3>
       </div>
       <div class="modal-body w-100">
         <b-container fluid>
@@ -46,7 +46,7 @@
       </div>
       <div class="modal-footer">
         <b-btn
-          v-if="!user.isAdmin"
+          v-if="!$currentUser.isAdmin"
           id="btn-appointment-details-update"
           class="pl-2"
           variant="primary"
@@ -69,13 +69,13 @@
 <script>
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
-import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'AppointmentDetailsModal',
   components: {AppointmentTopics},
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     appointment: {
       type: Object,

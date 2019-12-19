@@ -11,14 +11,14 @@
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
         <b-btn
-          v-if="user.isAdmin"
+          v-if="$currentUser.isAdmin"
           :id="`btn-delete-note-${note.id}`"
           class="sr-only"
           @click.stop="deleteNote(note)">
           Delete Note
         </b-btn>
         <b-btn
-          v-if="user.uid === note.author.uid"
+          v-if="$currentUser.uid === note.author.uid"
           :id="`btn-edit-note-${note.id}`"
           class="sr-only"
           @click.stop="editNote(note)">
@@ -89,7 +89,7 @@
               {{ attachment.displayName }}
             </a>
             <b-btn
-              v-if="isEditable && (user.isAdmin || user.uid === note.author.uid)"
+              v-if="isEditable && ($currentUser.isAdmin || $currentUser.uid === note.author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
@@ -100,7 +100,7 @@
           </span>
         </li>
       </ul>
-      <div v-if="isEditable && user.uid === note.author.uid">
+      <div v-if="isEditable && $currentUser.uid === note.author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
           <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
@@ -142,7 +142,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Attachments from '@/mixins/Attachments';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
 import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
@@ -150,7 +150,7 @@ import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
 export default {
   name: 'AdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Attachments, Context, UserMetadata, Util],
+  mixins: [Attachments, Context, CurrentUserExtras, Util],
   props: {
     afterSaved: Function,
     deleteNote: Function,
@@ -216,7 +216,7 @@ export default {
         if (hasIdentifier) {
           const author_uid = this.note.author.uid;
           if (author_uid) {
-            if (author_uid === this.user.uid) {
+            if (author_uid === this.$currentUser.uid) {
               this.note.author = this.user;
             } else {
               getCalnetProfileByUid(author_uid).then(data => {

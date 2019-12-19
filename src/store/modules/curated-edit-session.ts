@@ -5,7 +5,7 @@ import {addStudents, getCuratedGroup, removeFromCuratedGroup, renameCuratedGroup
 const $_goToPage = ({ commit, state }, pageNumber: number) => {
   return new Promise(resolve => {
     commit('setPageNumber', pageNumber);
-    const preferences = store.getters['user/preferences'];
+    const preferences = store.getters['currentUserExtras/preferences'];
     const offset = _.multiply(pageNumber - 1, state.itemsPerPage);
     getCuratedGroup(state.curatedGroupId, preferences.sortBy, offset, state.itemsPerPage).then(group => {
       if (group) {

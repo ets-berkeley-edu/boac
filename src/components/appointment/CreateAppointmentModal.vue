@@ -28,7 +28,7 @@
           <div v-if="student" class="d-inline-block">
             <div
               id="appointment-student-input"
-              :class="{'demo-mode-blur' : user.inDemoMode}"
+              :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
               class="d-flex pill pill-student text-uppercase text-nowrap">
               <div class="student-label">
                 <span class="sr-only">Student: </span> {{ student.label }}
@@ -132,7 +132,7 @@
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 import { findStudentsByNameOrSid } from '@/api/student';
@@ -140,7 +140,7 @@ import { findStudentsByNameOrSid } from '@/api/student';
 export default {
   name: 'CreateAppointmentModal',
   components: {AppointmentTopics, Autocomplete},
-  mixins: [Context, UserMetadata, Util, Validator],
+  mixins: [Context, CurrentUserExtras, Util, Validator],
   props: {
     advisors: {
       type: Array,

@@ -19,16 +19,16 @@
 
     <template v-slot:cell(profile)="row">
       <div>
-        <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, user.inDemoMode)">
+        <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)">
           <h3
-            :class="{'demo-mode-blur': user.inDemoMode}"
+            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
             class="student-name m-0 p-0">
             <span v-if="row.item.firstName" v-html="`${row.item.lastName}, ${row.item.firstName}`"></span>
             <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
           </h3>
         </router-link>
       </div>
-      <div :id="`row-${row.index}-student-sid`" :class="{'demo-mode-blur': user.inDemoMode}" class="student-sid">
+      <div :id="`row-${row.index}-student-sid`" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="student-sid">
         {{ row.item.sid }}
         <span
           v-if="row.item.enrollment.enrollmentStatus === 'W'"
@@ -199,11 +199,11 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -215,9 +215,9 @@ export default {
   },
   mixins: [
     Context,
+    CurrentUserExtras,
     StudentAnalytics,
     StudentMetadata,
-    UserMetadata,
     Util
   ],
   props: {

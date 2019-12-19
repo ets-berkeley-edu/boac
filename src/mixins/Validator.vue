@@ -22,8 +22,8 @@ export default {
         msg = `Sorry, '${name}' is a reserved name. Please choose a different name.`;
       } else {
         let all = {
-          'curated group': store.getters['curated/myCuratedGroups'],
-          cohort: store.getters['cohort/myCohorts']
+          'curated group': store.getters['currentUserExtras/myCuratedGroups'],
+          cohort: store.getters['currentUserExtras/myCohorts']
         };
         _.each(all, (cohorts, cohortType) => {
           _.each(cohorts, existing => {
