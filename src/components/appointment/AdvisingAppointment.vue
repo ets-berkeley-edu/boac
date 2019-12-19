@@ -10,7 +10,16 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div class="d-flex align-items-center mt-3 mb-3">
+      <div class="mt-3">
+        <font-awesome icon="clock" class="status-arrived-icon" />
+        <span class="text-secondary ml-1">
+          Arrived @
+          <span :id="`appointment-${appointment.id}-created-at`">
+            {{ datePerTimezone(appointment.createdAt) | moment('h:mma') }}
+          </span>
+        </span>
+      </div>
+      <div class="d-flex align-items-center mt-1 mb-3">
         <div v-if="isUserDropInAdvisor(appointment.deptCode) && includes(['waiting', 'reserved'], appointment.status)">
           <DropInAppointmentDropdown
             :appointment="appointment"
@@ -130,10 +139,16 @@ export default {
 .advising-appointment-outer {
   flex-basis: 100%;
 }
+.status-arrived-icon {
+  color: #f0ad4e;
+  width: 18px;
+}
 .status-cancelled-icon {
   color: #f0ad4e;
+  width: 18px;
 }
 .status-checked-in-icon {
   color: #00c13a;
+  width: 18px;
 }
 </style>
