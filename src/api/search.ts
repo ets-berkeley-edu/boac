@@ -1,6 +1,6 @@
 import axios from 'axios';
-import store from '@/store';
 import utils from '@/api/api-utils';
+import Vue from "vue";
 
 export function search(
   phrase: string,
@@ -28,10 +28,7 @@ export function search(
       limit: limit || 50
     })
     .then(response => {
-      store.dispatch('user/gaSearchEvent', {
-        action: 'search',
-        name: `Search phrase: ${phrase}`
-      });
+      Vue.prototype.$ga.searchEvent(`Search phrase: ${phrase}`);
       return response;
     })
     .then(response => response.data, () => null);

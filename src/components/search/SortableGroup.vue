@@ -83,13 +83,12 @@
 import Context from '@/mixins/Context';
 import SortableStudents from '@/components/search/SortableStudents';
 import store from '@/store';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'SortableGroup',
   components: {SortableStudents},
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, Util],
   props: {
     compact: {
       default: false,
@@ -131,7 +130,7 @@ export default {
       this.isOpen = !this.isOpen;
       if (this.isNil(this.studentsWithAlerts)) {
         this.isFetching = true;
-        const ga = this.isCohort ? this.gaCohortEvent : this.gaCuratedEvent;
+        const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent;
         store
           .dispatch(`${this.keyword}/loadStudentsWithAlerts`, this.group.id)
           .then(group => {

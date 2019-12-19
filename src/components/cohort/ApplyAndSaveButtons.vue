@@ -87,11 +87,7 @@ export default {
       this.isPerforming = 'search';
       this.applyFilters(this.preferences.sortBy).then(() => {
         this.putFocusNextTick('cohort-results-header');
-        this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName || '',
-          action: 'search'
-        });
+        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search');
         this.isPerforming = null;
       });
     },
@@ -105,10 +101,7 @@ export default {
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort "${name}" created`);
         this.setPageTitle(this.cohortName);
-        this.gaCohortEvent({
-          id: this.cohortId,
-          name, action: 'create'
-        });
+        this.$ga.cohortEvent(this.cohortId, name, 'create');
         history.pushState({}, null, `/cohort/${this.cohortId}`);
         this.isPerforming = null;
       });
@@ -129,11 +122,7 @@ export default {
         this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`);
         this.isPerforming = 'save';
         this.saveExistingCohort().then(() => {
-          this.gaCohortEvent({
-            id: this.cohortId,
-            name: this.cohortName,
-            action: 'save'
-          });
+          this.$ga.cohortEvent(this.cohortId, this.cohortName, 'save');
           this.savedCohortCallback(`Cohort "${this.cohortName}" saved`);
         });
       } else {

@@ -112,7 +112,7 @@ FIXED_WARNING_ON_ALL_PAGES = None
 FIXTURES_PATH = None
 
 # Enable with a valid Google id. For example, 'UA-999999999-1'
-GOOGLE_ANALYTICS_ID = False
+GOOGLE_ANALYTICS_ID = 'UA-XXX-X'
 
 # The following JSON is generated at https://console.developers.google.com/apis/credentials
 GOOGLE_CLIENT_SECRETS_JSON = 'config/google-client-secrets.json'

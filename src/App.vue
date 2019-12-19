@@ -36,9 +36,6 @@ import Util from '@/mixins/Util';
 export default {
   name: 'App',
   mixins: [Context, Util],
-  mounted() {
-    this.initUserSession().then(this.noop);
-  },
   methods: {
     dismissTheWarning() {
       this.dismissFooterAlert();

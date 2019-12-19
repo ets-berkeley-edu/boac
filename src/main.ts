@@ -6,6 +6,7 @@ import App from './App.vue';
 import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
 import CKEditor from '@ckeditor/ckeditor5-vue';
+import core from './core';
 import filters from './filters';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
@@ -56,7 +57,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
 
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     Vue.prototype.$config = response.data;
-
+    // Mount BOA
     new Vue({
       router,
       store,
@@ -67,15 +68,12 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
       // Keep session alive with periodic requests
       setInterval(() => axios.get(`${apiBaseUrl}/api/ping`), Vue.prototype.$config.pingFrequency);
     }
-
-    if (Vue.prototype.$ga && Vue.prototype.$config.googleAnalyticsId) {
-      Vue.prototype.$ga.set('userId', Vue.prototype.$currentUser.uid);
-      const dept_code = Vue.prototype.$currentUser.isAdmin
-        ? 'ADMIN'
-        : _.keys(Vue.prototype.$currentUser.departments)[0];
-      if (dept_code) {
-        Vue.prototype.$ga.set('dimension1', dept_code);
-      }
-    }
+    // The 'core' functions strictly manage state changes in $currentUser and other "prototype" objects.
+    // For example, core functions might be invoked after a successful dev-auth login.
+    Vue.prototype.$core = core;
+    Vue.prototype.$core.initializeCurrentUser().then(_.noop);
+    Vue.prototype.$core.mountGoogleAnalytics().then(_.noop);
+    // The following non-core function(s) do not involve "prototype" objects.
+    store.dispatch('context/loadServiceAnnouncement');
   });
 });

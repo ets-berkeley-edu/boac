@@ -54,11 +54,7 @@ export default {
       this.showCreateModal = false;
       createCuratedGroup(name, this.sids)
         .then(group => {
-          this.gaCuratedEvent({
-            id: group.id,
-            name: group.name,
-            action: 'Create curated group with bulk SIDs'
-          });
+          this.$ga.curatedEvent( group.id, group.name, 'Create curated group with bulk SIDs');
           this.alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`);
           this.isSaving = false;
           this.$router.push(`/curated/${group.id}`);

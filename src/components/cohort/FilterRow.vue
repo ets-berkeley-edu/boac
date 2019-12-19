@@ -360,11 +360,7 @@ export default {
       this.addFilter(this.filter);
       this.reset();
       this.putFocusNewFilterDropdown();
-      this.gaCohortEvent({
-        id: this.cohortId,
-        name: this.cohortName || '',
-        action: this.screenReaderAlert
-      });
+      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert);
     },
     onClickCancelEdit() {
       this.alertScreenReader('Cancelled');
@@ -398,11 +394,7 @@ export default {
         this.isModifyingFilter = false;
         this.setEditMode(null);
         this.alertScreenReader(`${this.filter.label.primary} filter updated`);
-        this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName,
-          action: this.screenReaderAlert
-        });
+        this.$ga.cohortEvent(this.cohortId, this.cohortName, this.screenReaderAlert);
       });
     },
     onSelectFilter(filter) {
@@ -470,11 +462,7 @@ export default {
       this.removeFilter(this.index);
       this.setEditMode(null);
       this.putFocusNewFilterDropdown();
-      this.gaCohortEvent({
-        id: this.cohortId,
-        name: this.cohortName || '',
-        action: this.screenReaderAlert
-      });
+      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert);
     },
     reset() {
       this.disableUpdateButton = false;

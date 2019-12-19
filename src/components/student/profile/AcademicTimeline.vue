@@ -556,19 +556,13 @@ export default {
         message.read = true;
         if (this.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id);
-          this.gaStudentAlert({ action: `Advisor ${this.user.uid} dismissed alert` })
+          this.$ga.studentAlert(`Advisor ${this.user.uid} dismissed alert`);
         } else if (message.type === 'note') {
           markNoteRead(message.id);
-          this.gaNoteEvent({
-            id: message.id,
-            action: `Advisor ${this.user.uid} read note`
-          });
+          this.$ga.noteEvent(message.id, null, `Advisor ${this.user.uid} read note`);
         } else if (message.type === 'appointment') {
           markAppointmentRead(message.id);
-          this.gaAppointmentEvent({
-            id: message.id,
-            action: `Advisor ${this.user.uid} read appointment`
-          });
+          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.user.uid} read appointment`);
         }
       }
     },

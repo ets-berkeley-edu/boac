@@ -154,11 +154,7 @@ export default {
         this.sids = [];
         this.isSelectAllChecked = this.indeterminate = false;
         this.$eventHub.$emit('curated-group-deselect-all');
-        this.gaEventTracker({
-          id: group.id,
-          name: group.name,
-          action: `${this.contextDescription}: add students to Curated Group`
-      });
+        this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`);
       };
       const done = () => (this.isSaving = false);
       this.isSaving = true;
@@ -183,11 +179,7 @@ export default {
             `${this.contextDescription}: add students to Curated Group`
           ],
           action => {
-            this.gaEventTracker({
-              id: group.id,
-              name: group.name,
-              action
-            });
+            this.$ga.curatedEvent(group.id, group.name, action);
           }
         );
       };
