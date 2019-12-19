@@ -94,11 +94,7 @@ export default {
         this.putFocusNextTick('curated-group-name');
         if (this.pageNumber > 1) {
           this.screenReaderAlert = `Go to page ${this.pageNumber}`;
-          this.gaCuratedEvent({
-            id: this.curatedGroupId,
-            name: this.curatedGroupName,
-            action: this.screenReaderAlert
-          });
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
         }
       } else {
         this.$router.push({ path: '/404' });
@@ -110,11 +106,7 @@ export default {
         this.goToPage(1).then(() => {
           this.loaded(this.curatedGroupName);
           this.screenReaderAlert = `Students sorted by ${sortBy}`;
-          this.gaCuratedEvent({
-            id: this.curatedGroupId,
-            name: this.curatedGroupName,
-            action: this.screenReaderAlert
-          });
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
         });
       }
     });
@@ -141,11 +133,7 @@ export default {
           this.loaded(this.name);
           this.putFocusNextTick('curated-group-name');
           this.alertScreenReader(`${sids.length} students added to group '${this.name}'`);
-          this.gaCuratedEvent({
-            id: this.curatedGroupId,
-            name: this.curatedGroupName,
-            action: 'Update curated group with bulk-add SIDs'
-          });
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs');
         });
       } else {
         this.alertScreenReader('Cancelled bulk add of students');
@@ -157,11 +145,7 @@ export default {
       this.goToPage(pageNumber).then(() => {
         this.loaded(this.name);
         this.screenReaderAlert = `Page ${pageNumber} of cohort ${this.curatedGroupName}`;
-        this.gaCuratedEvent({
-          id: this.curatedGroupId,
-          name: this.curatedGroupName,
-          action: this.screenReaderAlert
-        });
+        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName,this.screenReaderAlert);
       });
     }
   }

@@ -1,8 +1,5 @@
 import _ from 'lodash';
-import router from '@/router';
-import store from '@/store';
 import Vue from 'vue';
-import VueAnalytics from 'vue-analytics';
 import { getServiceAnnouncement } from '@/api/config';
 
 const state = {
@@ -43,45 +40,10 @@ const actions = {
     });
   },
   dismissFooterAlert: ({ commit }) => commit('dismissFooterAlert'),
-  async initUserSession() {
-    const currentUser = Vue.prototype.$currentUser;
-    if (currentUser.isAuthenticated) {
-      const isAdvisor = !!_.size(_.filter(currentUser.departments, d => d.isAdvisor || d.isDirector));
-      if (isAdvisor || currentUser.isAdmin) {
-        store.dispatch('cohort/loadMyCohorts');
-        store.dispatch('curated/loadMyCuratedGroups');
-      }
-      store.dispatch('context/loadServiceAnnouncement');
-    }
-    let googleAnalyticsId = _.get(Vue.prototype.$config, 'googleAnalyticsId');
-    if (googleAnalyticsId) {
-      let options = {
-        id: googleAnalyticsId,
-        checkDuplicatedScript: true,
-        debug: {
-          // If debug.enabled is true then browser console gets GA debug info.
-          enabled: false
-        },
-        fields: {},
-        router
-      };
-      const uid = store.getters['user/uid'];
-      if (uid) {
-        options.fields['userId'] = uid;
-      }
-      Vue.use(VueAnalytics, options);
-    }
-  },
   loadingComplete: ({ commit }) => commit('loadingComplete'),
   loadingStart: ({ commit }) => commit('loadingStart'),
-  loadServiceAnnouncement: ({ commit, state }) => {
-    return new Promise(() => {
-      if (_.isUndefined(state.announcement)) {
-        getServiceAnnouncement().then(data => {
-          commit('storeAnnouncement', data);
-        });
-      }
-    });
+  loadServiceAnnouncement: ({ commit }) => {
+    return new Promise(() => getServiceAnnouncement().then(data => commit('storeAnnouncement', data)));
   }
 };
 

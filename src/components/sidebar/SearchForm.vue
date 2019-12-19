@@ -417,7 +417,7 @@ export default {
           },
           this.noop
         );
-        this.gaSearchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+        this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
       } else {
         this.alertScreenReader('Search input is required');
       }

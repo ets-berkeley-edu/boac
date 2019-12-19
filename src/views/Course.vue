@@ -72,7 +72,7 @@
             <CuratedGroupSelector
               v-if="!isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
-              :ga-event-tracker="gaCourseEvent"
+              :ga-event-tracker="$ga.courseEvent"
               :students="section.students"
               class="mr-2" />
           </div>
@@ -149,7 +149,6 @@ import MatrixUtil from '@/components/matrix/MatrixUtil';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getSection } from '@/api/course';
 
@@ -166,7 +165,6 @@ export default {
     Loading,
     MatrixUtil,
     Scrollable,
-    UserMetadata,
     Util
   ],
   data: () => ({

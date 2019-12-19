@@ -29,7 +29,7 @@
           <div class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector
               :context-description="`Cohort ${cohortName || ''}`"
-              :ga-event-tracker="gaCohortEvent"
+              :ga-event-tracker="$ga.cohortEvent"
               :students="students" />
             <SortBy v-if="showSortBy" />
           </div>
@@ -138,11 +138,7 @@ export default {
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
         );
-        this.gaCohortEvent({
-          id: this.cohortId || '',
-          name: this.cohortName || '',
-          action: 'view'
-        });
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view');
       });
     }
   },
@@ -155,11 +151,7 @@ export default {
         this.goToPage(1);
         const action = `Sort students by ${sortBy}`;
         this.alertScreenReader(action);
-        this.gaCohortEvent({
-          id: this.cohortId || '',
-          name: this.cohortName || '',
-          action: action
-        });
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action);
       }
     });
   },
@@ -169,11 +161,7 @@ export default {
       if (page > 1) {
         const action = `Go to page ${page}`;
         this.alertScreenReader(action);
-        this.gaCohortEvent({
-          id: this.cohortId || '',
-          name: this.cohortName || '',
-          action: action
-        });
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action);
       }
       this.setPagination(page);
       this.onPageNumberChange().then(this.scrollToTop);

@@ -31,7 +31,7 @@
     <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
       <div class="search-header-curated-cohort">
         <CuratedGroupSelector
-          :ga-event-tracker="gaSearchEvent"
+          :ga-event-tracker="$ga.searchEvent"
           :students="results.students"
           context-description="Search" />
       </div>
@@ -203,10 +203,7 @@ export default {
             this.toInt(this.results.totalStudentCount, 0);
           const focusId = totalCount ? 'page-header' : 'page-header-no-results';
           this.putFocusNextTick(focusId);
-          this.gaSearchEvent({
-            action: 'results',
-            name: includeCourses ? 'classes and students' : 'students'
-          });
+          this.$ga.searchEvent(includeCourses ? 'classes and students' : 'students');
         });
     } else {
       this.$router.push({ path: '/' }, this.noop);

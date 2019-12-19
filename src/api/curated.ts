@@ -2,6 +2,7 @@ import axios from 'axios';
 import moment from 'moment-timezone';
 import store from '@/store';
 import utils from '@/api/api-utils';
+import Vue from "vue";
 
 export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
   return axios
@@ -40,12 +41,7 @@ export function deleteCuratedGroup(id) {
     .then(() => {
       store.commit('curated/deleteCuratedGroup', id);
     })
-    .then(() => {
-      store.dispatch('user/gaCuratedEvent', {
-        id: id,
-        action: 'delete'
-      });
-    })
+    .then(() => Vue.prototype.$ga.curatedEvent(id, null, 'delete'))
     .catch(error => error);
 }
 
@@ -95,11 +91,7 @@ export function removeFromCuratedGroup(groupId, sid) {
       return group;
     })
     .then(group => {
-      store.dispatch('user/gaCuratedEvent', {
-        id: group.id,
-        name: group.name,
-        action: 'remove_student'
-      });
+      Vue.prototype.$ga.curatedEvent(group.id, group.name, 'remove_student');
       return group;
     });
 }
@@ -113,11 +105,7 @@ export function renameCuratedGroup(id, name) {
       return group;
     })
     .then(group => {
-      store.dispatch('user/gaCuratedEvent', {
-        id: group.id,
-        name: group.name,
-        action: 'rename'
-      });
+      Vue.prototype.$ga.curatedEvent(group.id, group.name, 'rename');
       return group;
     })
     .catch(error => error);

@@ -213,11 +213,7 @@ export default {
       this.alertScreenReader(`Deleting ${this.name} cohort`);
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false;
-        this.gaCohortEvent({
-          id: this.cohortId,
-          name: this.cohortName,
-          action: 'delete'
-        });
+        this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete');
         router.push({ path: '/' });
       });
     },
@@ -241,11 +237,7 @@ export default {
           this.alertScreenReader(`Saved new cohort name: ${this.name}`);
           this.setPageTitle(this.name);
           this.putFocusNextTick('cohort-name');
-          this.gaCohortEvent({
-            id: this.cohortId,
-            name: this.name,
-            action: 'rename'
-          });
+          this.$ga.cohortEvent(this.cohortId, this.name, 'rename');
         });
         this.setEditMode(null);
       }

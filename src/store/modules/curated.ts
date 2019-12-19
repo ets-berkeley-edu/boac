@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { getMyCuratedGroups, getStudentsWithAlerts } from '@/api/curated';
 
 const state = {
@@ -56,10 +55,8 @@ const actions = {
       }
     });
   },
-  async loadMyCuratedGroups({ commit, state }) {
-    if (_.isUndefined(state.myCuratedGroups)) {
-      getMyCuratedGroups().then(curatedGroups => commit('saveMyCuratedGroups', curatedGroups));
-    }
+  async loadMyCuratedGroups({ commit }) {
+    getMyCuratedGroups().then(curatedGroups => commit('saveMyCuratedGroups', curatedGroups));
   }
 };
 

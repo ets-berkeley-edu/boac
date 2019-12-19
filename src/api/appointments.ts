@@ -1,6 +1,7 @@
 import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
+import Vue from "vue";
 
 export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
   return axios
@@ -9,11 +10,8 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
       cancelReasonExplained
     })
     .then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} cancelled a drop-in appointment`,
-        action: 'cancel'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} cancelled a drop-in appointment`, 'cancel');
       return response.data
     });
 }
@@ -32,11 +30,8 @@ export function checkIn(
       advisorRole,
       advisorUid
     }).then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} checked in a drop-in appointment`,
-        action: 'check_in'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} checked in a drop-in appointment`, 'check_in');
       return response.data
     });
 }
@@ -65,11 +60,8 @@ export function create(
       topics
     }).then(response => {
       const appointmentId = response.data.id;
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} created an appointment`,
-        action: 'create'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} created an appointment`, 'create');
       return response.data
     }, () => null);
 }
@@ -105,11 +97,8 @@ export function markAppointmentRead(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/mark_read`)
     .then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} read an appointment`,
-        action: 'read'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} read an appointment`, 'read');
       return response.data
     }, () => null);
 }
@@ -118,11 +107,8 @@ export function reopen(appointmentId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reopen`)
     .then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} reopened a drop-in appointment`,
-        action: 'reopen'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} reopened a drop-in appointment`, 'reopen');
       return response.data
     });
 }
@@ -132,11 +118,7 @@ export function reserve(appointmentId, advisorUid) {
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`, {
       advisorUid,
     }).then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${advisorUid} reserved a drop-in appointment`,
-        action: 'reserve'
-      });
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${advisorUid} reserved a drop-in appointment`, 'reserve');
       return response.data
     });
 }
@@ -145,11 +127,8 @@ export function unreserve(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
     .then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} unreserve a drop-in appointment`,
-        action: 'unreserve'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} unreserve a drop-in appointment`, 'unreserve');
       return response.data
     });
 }
@@ -161,11 +140,8 @@ export function update(appointmentId, details, topics) {
       topics
     })
     .then(response => {
-      store.dispatch('user/gaAppointmentEvent', {
-        id: appointmentId,
-        name: `Advisor ${store.getters['user/uid']} updated a drop-in appointment`,
-        action: 'update'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} updated a drop-in appointment`, 'update');
       return response.data
     });
 }

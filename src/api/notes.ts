@@ -20,11 +20,8 @@ export function markNoteRead(noteId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
     .then(response => {
-      store.dispatch('user/gaNoteEvent', {
-        id: noteId,
-        name: `Advisor ${store.getters['user/uid']} read a note`,
-        action: 'read'
-      });
+      const uid = Vue.prototype.$currentUser.uid;
+      Vue.prototype.$ga.noteEvent(noteId, `Advisor ${uid} read a note`, 'read');
       return response.data
     }, () => null);
 }
@@ -41,11 +38,8 @@ export function createNote(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/create', data).then(data => {
     Vue.prototype.$eventHub.$emit('advising-note-created', data);
-    store.dispatch('user/gaNoteEvent', {
-      id: data.id,
-      label: `Advisor ${store.getters['user/uid']} created a note`,
-      action: 'create'
-    });
+    const uid = Vue.prototype.$currentUser.uid;
+    Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a note`, 'create');
     return data;
   });
 }
@@ -64,11 +58,8 @@ export function createNoteBatch(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
     Vue.prototype.$eventHub.$emit('batch-of-notes-created', data);
-    store.dispatch('user/gaNoteEvent', {
-      id: data.id,
-      name: `Advisor ${store.getters['user/uid']} created a batch of notes`,
-      action: 'batch_create'
-    });
+    const uid = Vue.prototype.$currentUser.uid;
+    Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a batch of notes`, 'batch_create');
   });
 }
 
@@ -85,11 +76,8 @@ export function updateNote(
     topics: topics
   };
   const api_json = utils.postMultipartFormData('/api/notes/update', data);
-  store.dispatch('user/gaNoteEvent', {
-    id: noteId,
-    name: `Advisor ${store.getters['user/uid']} updated a note`,
-    action: 'update'
-  });
+  const uid = Vue.prototype.$currentUser.uid;
+  Vue.prototype.$ga.noteEvent(noteId, `Advisor ${uid} updated a note`, 'update');
   return api_json;
 }
 
