@@ -8,7 +8,7 @@ export default {
   computed: {
     exceedsMatrixThresholdMessage() {
       return `Sorry, the matrix view is only available when total student count is below ${
-        this.disableMatrixViewThreshold
+        this.$config.disableMatrixViewThreshold
       }. Please narrow your search.`;
     }
   },
@@ -16,7 +16,7 @@ export default {
     exceedsMatrixThreshold(studentCount) {
       return (
         parseInt(studentCount, 10) >
-        parseInt(this.disableMatrixViewThreshold, 10)
+        parseInt(this.$config.disableMatrixViewThreshold, 10)
       );
     },
     getPlottableProperty(obj, prop) {

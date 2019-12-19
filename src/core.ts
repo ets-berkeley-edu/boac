@@ -6,6 +6,15 @@ import store from "@/store";
 import { event } from 'vue-analytics';
 
 export default {
+  async initializeCurrentUser() {
+    if (Vue.prototype.$currentUser.isAuthenticated) {
+      const isAdvisor = !!_.size(_.filter(Vue.prototype.$currentUser.departments, d => d.isAdvisor || d.isDirector));
+      if (isAdvisor || Vue.prototype.$currentUser.isAdmin) {
+        store.dispatch('cohort/loadMyCohorts');
+        store.dispatch('curated/loadMyCuratedGroups');
+      }
+    }
+  },
   async mountGoogleAnalytics() {
     let options = {
       id: Vue.prototype.$config.googleAnalyticsId,
@@ -35,14 +44,5 @@ export default {
     Vue.prototype.$ga.noteTemplateEvent = (id, label, action) => event('Advising Note Template', action, label, id);
     Vue.prototype.$ga.searchEvent = action => event('Search', action, null, null);
     Vue.prototype.$ga.studentAlert = action => event('Student Alert', action, null, null);
-  },
-  async initializeCurrentUser() {
-    if (Vue.prototype.$currentUser.isAuthenticated) {
-      const isAdvisor = !!_.size(_.filter(Vue.prototype.$currentUser.departments, d => d.isAdvisor || d.isDirector));
-      if (isAdvisor || Vue.prototype.$currentUser.isAdmin) {
-        store.dispatch('cohort/loadMyCohorts');
-        store.dispatch('curated/loadMyCuratedGroups');
-      }
-    }
   }
 };

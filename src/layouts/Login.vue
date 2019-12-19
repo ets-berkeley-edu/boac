@@ -31,9 +31,9 @@
         <div class="contact-us">
           Questions or feedback? Contact us at
           <a
-            :href="`mailto:${supportEmailAddress}`"
+            :href="`mailto:${$config.supportEmailAddress}`"
             aria-label="BOA support email address"
-            target="_blank">{{ supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
+            target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
         </div>
         <DevAuth v-if="$config.devAuthEnabled" :report-error="reportError" />
       </div>

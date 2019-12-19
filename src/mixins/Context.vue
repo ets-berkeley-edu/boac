@@ -6,15 +6,8 @@ export default {
   computed: {
     ...mapGetters('context', [
       'announcement',
-      'apiBaseUrl',
-      'currentEnrollmentTerm',
-      'currentEnrollmentTermId',
       'hasUserDismissedFooterAlert',
-      'isVueAppDebugMode',
-      'maxAttachmentsPerNote',
-      'screenReaderAlert',
-      'supportEmailAddress',
-      'timezone'
+      'screenReaderAlert'
     ]),
     ...mapGetters('noteEditSession', ['disableNewNoteButton'])
   },

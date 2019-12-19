@@ -30,7 +30,7 @@
       </b-dropdown-item>
       <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item
-        :href="`mailto:${supportEmailAddress}`"
+        :href="`mailto:${$config.supportEmailAddress}`"
         target="_blank"
         aria-label="Send email to the BOA team">
         Feedback/Help<span class="sr-only"> (new browser tab will open)</span>

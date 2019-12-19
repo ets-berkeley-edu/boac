@@ -226,7 +226,7 @@
         </tr>
         <tr v-if="!termEnrollments.length">
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
-            No {{ termNameForSisId(currentEnrollmentTermId) }} enrollments
+            No {{ termNameForSisId($config.currentEnrollmentTermId) }} enrollments
           </td>
           <td v-if="user.canAccessCanvasData" class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;

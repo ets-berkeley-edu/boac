@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import axios from 'axios';
-import store from '@/store';
 import utils from '@/api/api-utils';
 import Vue from 'vue';
 
@@ -94,10 +93,9 @@ export function findAuthorsByName(query: string, limit: number) {
      $_findAuthorsByNameCancel.cancel();
   }
   $_findAuthorsByNameCancel = axios.CancelToken.source();
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(
-      `${apiBaseUrl}/api/notes/authors/find_by_name?q=${query}&limit=${limit}`,
+      `${utils.apiBaseUrl()}/api/notes/authors/find_by_name?q=${query}&limit=${limit}`,
       {cancelToken: $_findAuthorsByNameCancel.token}
     ).then(response => response.data);
 }

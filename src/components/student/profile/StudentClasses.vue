@@ -6,14 +6,14 @@
       :key="index"
       class="student-term">
       <div
-        v-if="index === 0 && !student.hasCurrentTermEnrollments && (currentEnrollmentTermId > parseInt(term.termId))"
+        v-if="index === 0 && !student.hasCurrentTermEnrollments && ($config.currentEnrollmentTermId > parseInt(term.termId))"
         class="term-no-enrollments">
-        <h3 class="student-term-header">{{ currentEnrollmentTerm }}</h3>
+        <h3 class="student-term-header">{{ $config.currentEnrollmentTerm }}</h3>
         <div class="term-no-enrollments-description">No enrollments</div>
         <StudentWithdrawalCancel
           v-if="student.sisProfile.withdrawalCancel"
           :withdrawal="student.sisProfile.withdrawalCancel"
-          :term-id="currentEnrollmentTermId" />
+          :term-id="$config.currentEnrollmentTermId" />
       </div>
       <h3 :id="`term-header-${index}`" tabindex="0" class="student-term-header">{{ term.termName }}</h3>
       <StudentWithdrawalCancel
@@ -84,7 +84,7 @@ v-if="section.isViewableOnCoursePage"
                   v-if="!course.grade && !course.gradingBasis"
                   class="font-weight-bold"><span class="sr-only">No data</span>&mdash;</span>
               </div>
-              <div v-if="currentEnrollmentTermId === parseInt(term.termId)" class="text-nowrap">
+              <div v-if="$config.currentEnrollmentTermId === parseInt(term.termId)" class="text-nowrap">
                 Mid:
                 <span
                   v-if="course.midtermGrade"
@@ -195,7 +195,7 @@ v-if="section.isViewableOnCoursePage"
                   </div>
                 </td>
               </tr>
-              <tr v-if="currentEnrollmentTermId === parseInt(term.termId)">
+              <tr v-if="$config.currentEnrollmentTermId === parseInt(term.termId)">
                 <th class="student-bcourses-legend" scope="row">
                   Last bCourses Activity
                 </th>
@@ -226,12 +226,12 @@ v-if="section.isViewableOnCoursePage"
             <!--
             TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.
             <span
-              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMin')"
+              v-if="$config.currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMin')"
               class="student-course-heading-units-override">
               <span>Min&nbsp;Approved </span><span :id="`term-${term.termId}-min-units`">{{ student.sisProfile.currentTerm.unitsMin }}</span>
             </span>
             <span
-              v-if="currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMax')"
+              v-if="$config.currentEnrollmentTermId === parseInt(term.termId) && get(student, 'sisProfile.currentTerm.unitsMax')"
               class="student-course-heading-units-override">
               <span>Max&nbsp;Approved </span><span :id="`term-${term.termId}-max-units`">{{ student.sisProfile.currentTerm.unitsMax }}</span>
             </span>
@@ -293,7 +293,7 @@ export default {
   computed: {
     relevantTerms() {
       var currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
-        return term.termId === this.toString(this.currentEnrollmentTermId)
+        return term.termId === this.toString(this.$config.currentEnrollmentTermId)
       });
       var index = currentTermIndex < 0 ? 0 : currentTermIndex;
       return this.student.enrollmentTerms.slice(0, index + 1);

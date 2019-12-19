@@ -36,7 +36,7 @@ export default {
     render() {
       if (this.date) {
         const now = this.$moment();
-        this.datePerTimezone = this.$moment(this.date).tz(this.timezone);
+        this.datePerTimezone = this.$moment(this.date).tz(this.$config.timezone);
         this.dateFormat = this.datePerTimezone.year() === now.year() ? 'MMM D' : 'MMM D, YYYY';
       }
     }
