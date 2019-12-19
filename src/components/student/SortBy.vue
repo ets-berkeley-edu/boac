@@ -42,7 +42,7 @@ export default {
   created() {
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => this.selected = sortBy);
     this.selected = this.preferences.sortBy;
-    const gpa_term_id_1 = this.previousSisTermId(this.currentEnrollmentTermId);
+    const gpa_term_id_1 = this.previousSisTermId(this.$config.currentEnrollmentTermId);
     const gpa_term_id_2 = this.previousSisTermId(gpa_term_id_1);
     let options = [
       { name: 'First Name', value: 'first_name', available: true },

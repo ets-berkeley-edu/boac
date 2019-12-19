@@ -57,6 +57,9 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
 
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     Vue.prototype.$config = response.data;
+    Vue.prototype.$config.apiBaseUrl = apiBaseUrl;
+    Vue.prototype.$config.isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true';
+
     // Mount BOA
     new Vue({
       router,

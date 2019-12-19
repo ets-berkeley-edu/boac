@@ -116,7 +116,7 @@ export default {
   },
   methods: {
     datePerTimezone(date) {
-      return this.$moment(date).tz(this.timezone);
+      return this.$moment(date).tz(this.$config.timezone);
     },
     isUserDropInAdvisor(deptCode) {
       const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode');

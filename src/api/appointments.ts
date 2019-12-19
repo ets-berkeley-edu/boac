@@ -1,5 +1,4 @@
 import axios from 'axios';
-import store from '@/store';
 import utils from '@/api/api-utils';
 import Vue from "vue";
 
@@ -73,10 +72,9 @@ export function findAdvisorsByName(query: string, limit: number) {
      $_findAdvisorsByNameCancel.cancel();
   }
   $_findAdvisorsByNameCancel = axios.CancelToken.source();
-  let apiBaseUrl = store.getters['context/apiBaseUrl'];
   return axios
     .get(
-      `${apiBaseUrl}/api/appointments/advisors/find_by_name?q=${query}&limit=${limit}`,
+      `${utils.apiBaseUrl()}/api/appointments/advisors/find_by_name?q=${query}&limit=${limit}`,
       {cancelToken: $_findAdvisorsByNameCancel.token}
     ).then(response => response.data);
 }

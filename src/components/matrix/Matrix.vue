@@ -647,12 +647,12 @@ export default {
       return this.isGpaProp(prop) ? d3.format('.2f') : '';
     },
     initAxisLabels() {
-      var metrics = [
+      let metrics = [
         'analytics.currentScore',
         'analytics.lastActivity',
         'cumulativeGPA'
       ];
-      var lastTermId = this.previousSisTermId(this.currentEnrollmentTermId);
+      var lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId);
       var previousTermId = this.previousSisTermId(lastTermId);
       metrics.push('termGpa.' + previousTermId);
       metrics.push('termGpa.' + lastTermId);

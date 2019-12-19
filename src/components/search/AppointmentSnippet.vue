@@ -43,7 +43,7 @@ export default {
   created() {
     const timestamp = this.get(this.appointment, 'createdAt');
     if (timestamp) {
-      this.createdAt = this.$moment(timestamp).tz(this.timezone);
+      this.createdAt = this.$moment(timestamp).tz(this.$config.timezone);
     }
   }
 };

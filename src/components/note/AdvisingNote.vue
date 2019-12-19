@@ -108,7 +108,7 @@
         <div v-if="uploadingAttachment" class="w-100">
           <font-awesome icon="sync" spin /> Uploading attachment...
         </div>
-        <div v-if="size(attachments) < maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
+        <div v-if="size(attachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
             Drop file to upload attachment or
@@ -124,14 +124,14 @@
             <b-form-file
               ref="attachment-file-input"
               v-model="attachment"
-              :disabled="size(attachments) === maxAttachmentsPerNote"
+              :disabled="size(attachments) === $config.maxAttachmentsPerNote"
               :state="Boolean(attachment)"
               :plain="true"
             ></b-form-file>
           </div>
         </div>
-        <div v-if="size(attachments) === maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
-          A note can have no more than {{ maxAttachmentsPerNote }} attachments.
+        <div v-if="size(attachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
+          A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
         </div>
       </div>
     </div>
@@ -261,7 +261,7 @@ export default {
       return this.size(attachments) <= index ? '' : attachments[index].displayName;
     },
     downloadUrl(attachment) {
-      return this.apiBaseUrl + '/api/notes/attachment/' + attachment.id;
+      return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`;
     },
     resetAttachments() {
       this.attachments = this.cloneDeep(this.note.attachments);
