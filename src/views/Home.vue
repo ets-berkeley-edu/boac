@@ -39,11 +39,11 @@
 </template>
 
 <script>
+import CurrentUserExtras from '@/mixins/CurrentUserExtras.vue';
 import Loading from '@/mixins/Loading.vue';
 import Scrollable from '@/mixins/Scrollable';
 import SortableGroup from '@/components/search/SortableGroup.vue';
 import Spinner from '@/components/util/Spinner.vue';
-import UserMetadata from '@/mixins/UserMetadata.vue';
 import Util from '@/mixins/Util.vue';
 
 export default {
@@ -52,7 +52,7 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Loading, Scrollable, UserMetadata, Util],
+  mixins: [CurrentUserExtras, Loading, Scrollable, Util],
   watch: {
     myCohorts: function() {
       if (this.myCohorts) {

@@ -11,7 +11,7 @@ export function createCohort(
     .post(`${utils.apiBaseUrl()}/api/cohort/create`, {name, filters})
     .then(response => {
       const cohort = response.data;
-      store.dispatch('cohort/addCohort', cohort);
+      store.commit('currentUserExtras/cohortCreated', cohort);
       return cohort;
     }, () => null);
 }
@@ -24,7 +24,7 @@ export function deleteCohort(id) {
       }
     })
     .then(() => {
-      store.commit('cohort/deleteCohort', id);
+      store.commit('currentUserExtras/cohortDeleted', id);
     }, () => null);
 }
 
@@ -105,7 +105,7 @@ export function saveCohort(
     })
     .then(response => {
       const cohort = response.data;
-      store.dispatch('cohort/updateCohort', cohort);
+      store.commit('currentUserExtras/cohortUpdated', cohort);
       return cohort;
     }, () => null);
 }

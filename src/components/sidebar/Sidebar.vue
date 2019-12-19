@@ -2,7 +2,7 @@
   <div>
     <div>
       <SearchForm
-        :domain="user.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes']"
+        :domain="$currentUser.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes']"
         context="sidebar" />
     </div>
     <div v-if="myCohorts">
@@ -23,7 +23,7 @@
         <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
       </div>
     </div>
-    <div v-if="user && !user.isAdmin">
+    <div v-if="!$currentUser.isAdmin">
       <div class="batch-note-button fixed-bottom mb-3">
         <CreateNoteModal id="batch-note-button" />
       </div>
@@ -36,8 +36,8 @@ import Cohorts from '@/components/sidebar/Cohorts.vue';
 import Context from '@/mixins/Context';
 import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
-import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'Sidebar',
@@ -47,7 +47,7 @@ export default {
     CuratedGroups,
     SearchForm
   },
-  mixins: [Context, UserMetadata]
+  mixins: [Context, CurrentUserExtras]
 };
 </script>
 

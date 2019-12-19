@@ -6,12 +6,12 @@
           My availability status:
         </div>
         <div
-          v-if="!isAvailable || !user.isAdmin"
+          v-if="!isAvailable || !$currentUser.isAdmin"
           :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
           class="aria-hidden availability-status">
           Off duty
         </div>
-        <div v-if="!user.isAdmin" class="toggle-btn-column">
+        <div v-if="!$currentUser.isAdmin" class="toggle-btn-column">
           <button
             v-if="!isToggling"
             :id="buttonElementId"
@@ -30,7 +30,7 @@
           </div>
         </div>
         <div
-          v-if="isAvailable || !user.isAdmin"
+          v-if="isAvailable || !$currentUser.isAdmin"
           :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
           class="aria-hidden availability-status">
           On duty
@@ -42,13 +42,13 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { setDropInAvailability } from '@/api/user';
 
 export default {
   name: 'DropInAvailabilityToggle',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     availability: {
       type: Boolean,
@@ -73,7 +73,7 @@ export default {
   }),
   computed: {
     buttonElementId() {
-      return `toggle-drop-in-availability-${this.uid === this.user.uid ? 'me' : this.uid}`;
+      return `toggle-drop-in-availability-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
     }
   },
   watch: {

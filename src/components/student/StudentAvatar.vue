@@ -22,11 +22,11 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 
 export default {
   name: 'StudentAvatar',
-  mixins: [Context, UserMetadata],
+  mixins: [Context, CurrentUserExtras],
   props: {
     size: String,
     student: Object,
@@ -39,7 +39,7 @@ export default {
   created() {
     this.avatarUrl = this.student.photoUrl;
     this.avatarStyle = `student-avatar-${this.size} ${
-      this.user.inDemoMode ? 'img-blur' : ''
+      this.$currentUser.inDemoMode ? 'img-blur' : ''
     }`;
   },
   methods: {

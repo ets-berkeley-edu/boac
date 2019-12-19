@@ -85,8 +85,8 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Scrollable from '@/mixins/Scrollable';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import {
   addStudents,
@@ -100,7 +100,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, Scrollable, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Scrollable, Util],
   props: {
     student: {
       type: Object,

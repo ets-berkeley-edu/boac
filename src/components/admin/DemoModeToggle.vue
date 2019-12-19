@@ -4,13 +4,13 @@
       <div class="ml-2 mr-2">
         <img
           id="avatar-verify-blur"
-          :class="{'img-blur': user.inDemoMode}"
+          :class="{'img-blur': $currentUser.inDemoMode}"
           :src="blurAvatarUrl"
           alt="Picture of woman demonstrates blur effect when BOA demo mode is on."
           class="avatar student-avatar-large" />
       </div>
       <div class="pl-2 pt-2">
-        <div v-if="!isNil(user.inDemoMode)">
+        <div v-if="!isNil($currentUser.inDemoMode)">
           <b-form-checkbox
             v-if="!isToggling"
             id="toggle-demo-mode"
@@ -34,20 +34,19 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { setDemoMode } from '@/api/user';
 
 export default {
   name: 'DemoModeToggle',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, Util],
   data: () => ({
     blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),
     inDemoMode: undefined,
     isToggling: undefined
   }),
   created() {
-    this.inDemoMode = this.user.inDemoMode;
+    this.inDemoMode = this.$currentUser.inDemoMode;
   },
   methods: {
     toggle: function() {

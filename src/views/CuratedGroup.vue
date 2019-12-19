@@ -21,7 +21,7 @@
                 :remove-student="removeStudent"
                 :row-index="index"
                 :student="student"
-                :list-type="ownerId === user.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+                :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
                 :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
                 class="list-group-item student-list-item" />
@@ -53,13 +53,14 @@ import Context from '@/mixins/Context';
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue';
 import CuratedEditSession from '@/mixins/CuratedEditSession';
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
+import store from "@/store";
 import StudentRow from '@/components/student/StudentRow';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -72,7 +73,7 @@ export default {
     Spinner,
     StudentRow
   },
-  mixins: [Context, CuratedEditSession, Loading, Scrollable, UserMetadata, Util],
+  mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Scrollable, Util],
   props: {
     id: {
       required: true,
@@ -86,14 +87,17 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    this.setUserPreference({key: 'sortBy', value: 'last_name'});
+    store.commit('currentUserExtras/setUserPreference', {
+      key: 'sortBy',
+      value: 'last_name'
+    });
     this.init(parseInt(this.id)).then(group => {
       if (group) {
         this.loaded(group.name);
         this.setPageTitle(this.curatedGroupName);
         this.putFocusNextTick('curated-group-name');
         if (this.pageNumber > 1) {
-          this.screenReaderAlert = `Go to page ${this.pageNumber}`;
+          this.alertScreenReader(`Go to page ${this.pageNumber}`);
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
         }
       } else {
@@ -105,7 +109,7 @@ export default {
         this.loadingStart();
         this.goToPage(1).then(() => {
           this.loaded(this.curatedGroupName);
-          this.screenReaderAlert = `Students sorted by ${sortBy}`;
+          this.alertScreenReader(`Students sorted by ${sortBy}`);
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
         });
       }
@@ -127,7 +131,10 @@ export default {
       this.setMode(undefined);
       if (this.size(sids)) {
         this.alertScreenReader(`Adding ${sids.length} students`);
-        this.setUserPreference({key: 'sortBy', value: 'last_name'});
+        store.commit('currentUserExtras/setUserPreference', {
+          key: 'sortBy',
+          value: 'last_name'
+        });
         this.loadingStart();
         this.addStudents(sids).then(() => {
           this.loaded(this.name);
@@ -144,7 +151,7 @@ export default {
       this.loadingStart();
       this.goToPage(pageNumber).then(() => {
         this.loaded(this.name);
-        this.screenReaderAlert = `Page ${pageNumber} of cohort ${this.curatedGroupName}`;
+        this.alertScreenReader(`Page ${pageNumber} of cohort ${this.curatedGroupName}`);
         this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName,this.screenReaderAlert);
       });
     }

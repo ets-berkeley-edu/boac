@@ -37,13 +37,13 @@
 </template>
 
 <script>
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import NavLink from "@/components/util/NavLink";
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'CuratedGroups',
   components: {NavLink},
-  mixins: [UserMetadata, Util]
+  mixins: [CurrentUserExtras, Util]
 };
 </script>

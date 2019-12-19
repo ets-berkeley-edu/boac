@@ -46,7 +46,7 @@
                 </label>
               </b-col>
               <b-col>
-                <span id="appointment-student" :class="{'demo-mode-blur' : user.inDemoMode}" v-html="appointment.student.name"></span>
+                <span id="appointment-student" :class="{'demo-mode-blur' : $currentUser.inDemoMode}" v-html="appointment.student.name"></span>
               </b-col>
             </b-row>
           </b-container>
@@ -101,12 +101,12 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
-import UserMetadata from '@/mixins/UserMetadata';
 
 export default {
   name: 'AppointmentCancellationModal',
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     appointment: {
       type: Object,

@@ -85,15 +85,15 @@
                   <div class="flex-container student-name">
                     <router-link
                       :id="`link-to-student-${student.uid}`"
-                      :class="{'demo-mode-blur': user.inDemoMode}"
-                      :to="studentRoutePath(student.uid, user.inDemoMode)">
+                      :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                      :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
                       {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                     </router-link>
                   </div>
                 </div>
                 <div
                   v-if="student.sid"
-                  :class="{'demo-mode-blur': user.inDemoMode}"
+                  :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                   class="student-sid">
                   SID: {{ student.sid }}
                 </div>
@@ -128,9 +128,9 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
 import StudentAvatar from '@/components/student/StudentAvatar';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -138,7 +138,7 @@ export default {
   components: {
     StudentAvatar
   },
-  mixins: [Berkeley, Context, MatrixUtil, UserMetadata, Util],
+  mixins: [Berkeley, Context, CurrentUserExtras, MatrixUtil, Util],
   props: {
     featured: String,
     section: Object
@@ -344,7 +344,7 @@ export default {
         if (d.isClassMean) {
           photoUri = require('@/assets/class-mean-avatar.svg');
         } else {
-          photoUri = this.user.inDemoMode
+          photoUri = this.$currentUser.inDemoMode
             ? avatarBackgroundPath
             : d.photoUrl;
         }
@@ -457,7 +457,7 @@ export default {
 
       dot.on('click', d => {
         if (!d.isClassMean) {
-          this.$router.push(this.studentRoutePath(d.uid, this.user.inDemoMode));
+          this.$router.push(this.studentRoutePath(d.uid, this.$currentUser.inDemoMode));
         }
       });
 
@@ -544,7 +544,7 @@ export default {
           .append('h4')
           .attr(
             'class',
-            this.user.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
+            this.$currentUser.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
           )
           .text(fullName);
         _.each(d.majors, major =>

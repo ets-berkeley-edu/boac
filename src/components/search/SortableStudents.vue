@@ -24,8 +24,8 @@
         <router-link
           :id="`link-to-student-${row.item.uid}`"
           :aria-label="`Go to profile page of ${row.item.name}`"
-          :class="{'demo-mode-blur': user.inDemoMode}"
-          :to="studentRoutePath(row.item.uid, user.inDemoMode)"
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+          :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
           v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
@@ -45,7 +45,7 @@
 
       <template v-slot:cell(sid)="row">
         <span class="sr-only">S I D</span>
-        <span :class="{'demo-mode-blur': user.inDemoMode}">{{ row.item.sid }}</span>
+        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
       <template v-if="!options.compact" v-slot:cell(majors[0])="row">
@@ -107,9 +107,9 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -118,7 +118,7 @@ export default {
     CuratedStudentCheckbox,
     StudentAvatar
   },
-  mixins: [Context, StudentMetadata, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, StudentMetadata, Util],
   props: {
     options: {
       type: Object,

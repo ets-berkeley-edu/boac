@@ -13,7 +13,7 @@ export function addStudents(curatedGroupId: number, sids: string[], returnStuden
     })
     .then(response => {
       const group = response.data;
-      store.dispatch('curated/updateCuratedGroup', group);
+      store.commit('currentUserExtras/curatedGroupUpdated', group);
       return group;
     });
 }
@@ -26,7 +26,7 @@ export function createCuratedGroup(name: string, sids: string[]) {
     })
     .then(function(response) {
       const group = response.data;
-      store.dispatch('curated/createCuratedGroup', group);
+      store.commit('currentUserExtras/curatedGroupCreated', group);
       return group;
     });
 }
@@ -39,7 +39,7 @@ export function deleteCuratedGroup(id) {
       }
     })
     .then(() => {
-      store.commit('curated/deleteCuratedGroup', id);
+      store.commit('currentUserExtras/curatedGroupDeleted', id);
     })
     .then(() => Vue.prototype.$ga.curatedEvent(id, null, 'delete'))
     .catch(error => error);
@@ -87,7 +87,7 @@ export function removeFromCuratedGroup(groupId, sid) {
     .delete(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data;
-      store.dispatch('curated/updateCuratedGroup', group);
+      store.commit('currentUserExtras/curatedGroupUpdated', group);
       return group;
     })
     .then(group => {
@@ -101,7 +101,7 @@ export function renameCuratedGroup(id, name) {
     .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: id, name: name})
     .then(response => {
       const group = response.data;
-      store.commit('curated/updateCuratedGroup', group);
+      store.commit('currentUserExtras/curatedGroupUpdated', group);
       return group;
     })
     .then(group => {

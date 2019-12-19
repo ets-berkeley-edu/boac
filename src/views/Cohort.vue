@@ -69,6 +69,7 @@ import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import FilterRow from '@/components/cohort/FilterRow';
 import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
@@ -77,7 +78,6 @@ import SectionSpinner from '@/components/util/SectionSpinner';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
 import StudentRow from '@/components/student/StudentRow';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 
 export default {
@@ -98,7 +98,7 @@ export default {
     Context,
     Loading,
     Scrollable,
-    UserMetadata,
+    CurrentUserExtras,
     Util
   ],
   data: () => ({

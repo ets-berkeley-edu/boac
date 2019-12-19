@@ -72,11 +72,11 @@
 
 <script>
 import Context from '@/mixins/Context';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 
 export default {
   name: 'SortableCourseList',
-  mixins: [Context, UserMetadata],
+  mixins: [Context, CurrentUserExtras],
   props: {
     searchPhrase: String,
     courses: Array,

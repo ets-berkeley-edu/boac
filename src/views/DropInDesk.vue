@@ -1,7 +1,7 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner alert-prefix="Appointment waitlist" />
-    <div v-if="!loading && !user.isAdmin" class="mb-2 pb-3 pt-3 text-center">
+    <div v-if="!loading && !$currentUser.isAdmin" class="mb-2 pb-3 pt-3 text-center">
       <b-btn
         id="btn-create-appointment"
         variant="primary"
@@ -31,18 +31,18 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAdvisorList from '@/components/appointment/DropInAdvisorList';
 import DropInWaitlist from '@/components/appointment/DropInWaitlist';
 import Loading from '@/mixins/Loading';
 import Spinner from '@/components/util/Spinner';
-import UserMetadata from '@/mixins/UserMetadata';
 import Util from '@/mixins/Util';
 import { getDropInAppointmentWaitlist } from '@/api/appointments';
 
 export default {
   name: 'DropInDesk',
   components: {DropInAdvisorList, DropInWaitlist, Spinner},
-  mixins: [Context, Loading, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Loading, Util],
   data: () => ({
     advisors: undefined,
     loadingWaitlist: false,

@@ -72,14 +72,14 @@
 
 <script>
 import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInWaitlist from '@/components/appointment/DropInWaitlist';
 import Loading from '@/mixins/Loading';
 import SortableGroup from '@/components/search/SortableGroup';
 import Spinner from '@/components/util/Spinner';
-import UserMetadata from '@/mixins/UserMetadata';
+import store from '@/store';
 import Util from '@/mixins/Util';
 import { getDropInAppointmentWaitlist } from '@/api/appointments';
-import store from '@/store';
 
 export default {
   name: 'DropInAdvisorHome',
@@ -88,7 +88,7 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Context, Loading, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Loading, Util],
   data: () => ({
     deptCode: undefined,
     loadingWaitlist: false,
@@ -123,10 +123,10 @@ export default {
             this.waitlist = waitlist;
           }
 
-          const currentDropInStatus = this.find(this.user.dropInAdvisorStatus, {'deptCode': this.deptCode});
-          const newDropInStatus = this.find(response.advisors, {'uid': this.user.uid});
+          const currentDropInStatus = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode});
+          const newDropInStatus = this.find(response.advisors, {'uid': this.$currentUser.uid});
           if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
-            store.dispatch('user/setDropInStatus', {
+            store.commit('currentUserExtras/setDropInStatus', {
               deptCode: this.deptCode,
               available: newDropInStatus.available
             });

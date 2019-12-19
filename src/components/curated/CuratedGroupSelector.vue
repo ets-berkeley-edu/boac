@@ -83,7 +83,7 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { addStudents, createCuratedGroup } from '@/api/curated';
 
@@ -92,7 +92,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, UserMetadata, Util],
+  mixins: [Context, CurrentUserExtras, Util],
   props: {
     contextDescription: String,
     gaEventTracker: Function,

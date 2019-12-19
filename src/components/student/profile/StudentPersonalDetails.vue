@@ -50,7 +50,7 @@
               <a
                 id="student-phone-number"
                 :href="`tel:${student.sisProfile.phoneNumber}`"
-                :class="{'demo-mode-blur': user.inDemoMode}"
+                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                 tabindex="0">
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
@@ -160,12 +160,12 @@
 </template>
 
 <script>
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentPersonalDetails',
-  mixins: [UserMetadata, Util],
+  mixins: [CurrentUserExtras, Util],
   props: {
     inactiveMajors: {
       required: true,

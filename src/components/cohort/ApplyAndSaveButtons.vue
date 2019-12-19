@@ -65,13 +65,13 @@
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Context from '@/mixins/Context';
 import CreateCohortModal from '@/components/cohort/CreateCohortModal';
-import UserMetadata from '@/mixins/UserMetadata';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'ApplyAndSaveButtons',
   components: { CreateCohortModal },
-  mixins: [CohortEditSession, Context, UserMetadata, Util],
+  mixins: [CohortEditSession, Context, CurrentUserExtras, Util],
   data: () => ({
     isPerforming: undefined,
     showCreateModal: false
