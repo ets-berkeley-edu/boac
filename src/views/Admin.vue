@@ -32,7 +32,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DemoModeToggle from '@/components/admin/DemoModeToggle';
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement';
 import Loading from '@/mixins/Loading';
@@ -50,7 +49,7 @@ export default {
     Spinner,
     Status
   },
-  mixins: [Context, CurrentUserExtras, Loading, Util],
+  mixins: [Context, Loading, Util],
   mounted() {
     this.loaded('Flight Deck');
   }

@@ -63,7 +63,7 @@ import NoteEditSession from '@/mixins/NoteEditSession';
 import Util from '@/mixins/Util';
 
 export default {
-  name: 'NoteBatchFeatures',
+  name: 'BatchNoteFeatures',
   components: {
     BatchNoteAddCohort,
     BatchNoteAddStudent

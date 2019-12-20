@@ -160,12 +160,11 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentPersonalDetails',
-  mixins: [CurrentUserExtras, Util],
+  mixins: [Util],
   props: {
     inactiveMajors: {
       required: true,

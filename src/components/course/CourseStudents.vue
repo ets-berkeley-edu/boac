@@ -199,7 +199,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
@@ -215,7 +214,6 @@ export default {
   },
   mixins: [
     Context,
-    CurrentUserExtras,
     StudentAnalytics,
     StudentMetadata,
     Util

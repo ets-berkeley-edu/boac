@@ -143,7 +143,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedEditSession from '@/mixins/CuratedEditSession';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import ExportListModal from '@/components/util/ExportListModal';
 import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
@@ -154,7 +153,7 @@ import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
 export default {
   name: 'CuratedGroupHeader',
   components: { ExportListModal },
-  mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Util, Validator],
+  mixins: [Context, CuratedEditSession, Loading, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isModalOpen: false,

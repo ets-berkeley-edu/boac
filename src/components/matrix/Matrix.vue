@@ -128,7 +128,6 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import MatrixUtil from '@/components/matrix/MatrixUtil';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import Util from '@/mixins/Util';
@@ -138,7 +137,7 @@ export default {
   components: {
     StudentAvatar
   },
-  mixins: [Berkeley, Context, CurrentUserExtras, MatrixUtil, Util],
+  mixins: [Berkeley, Context, MatrixUtil, Util],
   props: {
     featured: String,
     section: Object

@@ -28,12 +28,11 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AppointmentSnippet',
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     appointment: Object,
   },

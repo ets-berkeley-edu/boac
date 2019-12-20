@@ -110,7 +110,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
@@ -123,7 +122,7 @@ export default {
     DropInAppointmentDropdown,
     StudentAvatar
   },
-  mixins: [Context, CurrentUserExtras, StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   props: {
     appointment: {
       type: Object,

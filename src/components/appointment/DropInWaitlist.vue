@@ -94,7 +94,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
 import Util from '@/mixins/Util';
@@ -107,7 +106,7 @@ export default {
     DropInAvailabilityToggle,
     DropInWaitlistAppointment,
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     advisors: {
       type: Array,

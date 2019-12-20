@@ -42,7 +42,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import Util from '@/mixins/Util';
 
@@ -51,7 +50,7 @@ export default {
   components: {
     DropInAvailabilityToggle,
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     advisors: {
       type: Array,

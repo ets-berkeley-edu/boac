@@ -318,7 +318,6 @@ import AdvisingNote from "@/components/note/AdvisingNote";
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import CreateNoteModal from "@/components/note/create/CreateNoteModal";
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
@@ -338,7 +337,7 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
-  mixins: [Context, Scrollable, CurrentUserExtras, Util],
+  mixins: [Context, Scrollable, Util],
   props: {
     student: {
       required: true,

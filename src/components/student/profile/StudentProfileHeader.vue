@@ -141,7 +141,6 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
@@ -155,7 +154,7 @@ export default {
     StudentGroupSelector,
     StudentPersonalDetails
   },
-  mixins: [CurrentUserExtras, StudentMetadata, Util],
+  mixins: [StudentMetadata, Util],
   props: {
     student: Object
   },

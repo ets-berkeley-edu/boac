@@ -157,7 +157,6 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
 import ExportListModal from '@/components/util/ExportListModal';
 import router from '@/router';
@@ -168,7 +167,7 @@ import { deleteCohort } from '@/api/cohort';
 export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal, ExportListModal },
-  mixins: [CohortEditSession, Context, CurrentUserExtras, Util, Validator],
+  mixins: [CohortEditSession, Context, Util, Validator],
   data: () => ({
     exportEnabled: true,
     name: undefined,

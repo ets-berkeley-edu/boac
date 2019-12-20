@@ -73,13 +73,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { getTopicsForAppointments } from '@/api/topics';
 
 export default {
   name: 'AppointmentTopics',
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     appointmentId: {
       type: Number,

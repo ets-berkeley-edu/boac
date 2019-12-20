@@ -59,12 +59,11 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'Autocomplete',
-  mixins: [CurrentUserExtras, Util],
+  mixins: [Util],
   props: {
     demoModeBlur: {
       default: false,

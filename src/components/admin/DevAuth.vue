@@ -41,13 +41,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from "@/mixins/CurrentUserExtras";
 import Util from '@/mixins/Util';
 import { devAuthLogIn } from '@/api/auth';
 
 export default {
   name: 'DevAuth',
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     reportError: {
       required: true,

@@ -22,11 +22,10 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 
 export default {
   name: 'StudentAvatar',
-  mixins: [Context, CurrentUserExtras],
+  mixins: [Context],
   props: {
     size: String,
     student: Object,

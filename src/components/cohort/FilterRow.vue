@@ -220,12 +220,11 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'FilterRow',
-  mixins: [CohortEditSession, Context, CurrentUserExtras, Util],
+  mixins: [CohortEditSession, Context, Util],
   props: {
     index: Number
   },

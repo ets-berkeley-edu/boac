@@ -107,7 +107,6 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import Util from '@/mixins/Util';
@@ -118,7 +117,7 @@ export default {
     CuratedStudentCheckbox,
     StudentAvatar
   },
-  mixins: [Context, CurrentUserExtras, StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   props: {
     options: {
       type: Object,
