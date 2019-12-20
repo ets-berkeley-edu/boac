@@ -271,7 +271,6 @@ v-if="section.isViewableOnCoursePage"
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
 import Util from '@/mixins/Util';
@@ -283,7 +282,7 @@ export default {
     StudentWithdrawalCancel,
     StudentBoxplot
   },
-  mixins: [Context, CurrentUserExtras, StudentAnalytics, Util],
+  mixins: [Context, StudentAnalytics, Util],
   props: {
     student: Object
   },

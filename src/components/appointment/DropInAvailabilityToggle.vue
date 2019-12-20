@@ -42,13 +42,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { setDropInAvailability } from '@/api/user';
 
 export default {
   name: 'DropInAvailabilityToggle',
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     availability: {
       type: Boolean,

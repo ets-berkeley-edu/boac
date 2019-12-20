@@ -248,7 +248,6 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { findAdvisorsByName } from '@/api/appointments';
 import { findAuthorsByName } from '@/api/notes';
@@ -260,7 +259,7 @@ export default {
   components: {
     Autocomplete
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     context: String,
     domain: Array,

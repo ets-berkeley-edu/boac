@@ -142,7 +142,6 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Attachments from '@/mixins/Attachments';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { addAttachment, removeAttachment } from '@/api/notes';
 import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
@@ -150,7 +149,7 @@ import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
 export default {
   name: 'AdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Attachments, Context, CurrentUserExtras, Util],
+  mixins: [Attachments, Context, Util],
   props: {
     afterSaved: Function,
     deleteNote: Function,

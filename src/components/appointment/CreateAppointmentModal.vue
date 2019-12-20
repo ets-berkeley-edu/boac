@@ -132,7 +132,6 @@
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 import { findStudentsByNameOrSid } from '@/api/student';
@@ -140,7 +139,7 @@ import { findStudentsByNameOrSid } from '@/api/student';
 export default {
   name: 'CreateAppointmentModal',
   components: {AppointmentTopics, Autocomplete},
-  mixins: [Context, CurrentUserExtras, Util, Validator],
+  mixins: [Context, Util, Validator],
   props: {
     advisors: {
       type: Array,

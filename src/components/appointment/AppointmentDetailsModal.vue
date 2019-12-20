@@ -69,13 +69,12 @@
 <script>
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AppointmentDetailsModal',
   components: {AppointmentTopics},
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     appointment: {
       type: Object,

@@ -25,14 +25,13 @@
 import Context from '@/mixins/Context';
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { createCuratedGroup } from '@/api/curated';
 
 export default {
   name: 'CreateCuratedGroup',
   components: {CreateCuratedGroupModal, CuratedGroupBulkAdd},
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   data: () => ({
     isSaving: false,
     showCreateModal: false,

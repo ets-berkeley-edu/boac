@@ -42,7 +42,6 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { findStudentsByNameOrSid } from '@/api/student';
 
@@ -51,7 +50,7 @@ export default {
   components: {
     Autocomplete
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     addSid: {
       required: true,

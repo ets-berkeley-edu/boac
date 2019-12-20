@@ -247,7 +247,6 @@
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
@@ -264,7 +263,6 @@ export default {
   mixins: [
     Berkeley,
     Context,
-    CurrentUserExtras,
     StudentAnalytics,
     StudentMetadata,
     Util

@@ -96,13 +96,12 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import { getDropInAdvisorsForDept } from '@/api/user';
 
 export default {
   name: 'CheckInModal',
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     appointment: {
       type: Object,

@@ -100,7 +100,6 @@ import AppointmentDetailsModal from '@/components/appointment/AppointmentDetails
 import AppointmentUpdateModal from '@/components/appointment/AppointmentUpdateModal';
 import CheckInModal from '@/components/appointment/CheckInModal';
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Util from '@/mixins/Util';
 import {
   cancel as apiCancel,
@@ -119,7 +118,7 @@ export default {
     AppointmentUpdateModal,
     CheckInModal
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     appointment: {
       type: Object,

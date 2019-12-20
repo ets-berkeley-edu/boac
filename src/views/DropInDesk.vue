@@ -31,7 +31,6 @@
 
 <script>
 import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInAdvisorList from '@/components/appointment/DropInAdvisorList';
 import DropInWaitlist from '@/components/appointment/DropInWaitlist';
 import Loading from '@/mixins/Loading';
@@ -42,7 +41,7 @@ import { getDropInAppointmentWaitlist } from '@/api/appointments';
 export default {
   name: 'DropInDesk',
   components: {DropInAdvisorList, DropInWaitlist, Spinner},
-  mixins: [Context, CurrentUserExtras, Loading, Util],
+  mixins: [Context, Loading, Util],
   data: () => ({
     advisors: undefined,
     loadingWaitlist: false,

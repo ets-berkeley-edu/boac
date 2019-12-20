@@ -53,23 +53,9 @@ export default {
     Spinner
   },
   mixins: [CurrentUserExtras, Loading, Scrollable, Util],
-  watch: {
-    myCohorts: function() {
-      if (this.myCohorts) {
-        this.loaded('Home');
-      }
-    },
-    myCuratedGroups: function() {
-      if (this.myCuratedGroups) {
-        this.loaded('Home');
-      }
-    }
-  },
   mounted() {
-    if (this.myCohorts || this.myCuratedGroups) {
-      this.loaded('Home');
-      this.scrollToTop();
-    }
+    this.loaded('Home');
+    this.scrollToTop();
   }
 };
 </script>

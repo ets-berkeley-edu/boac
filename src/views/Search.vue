@@ -100,7 +100,6 @@ import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import AppointmentSnippet from '@/components/search/AppointmentSnippet';
 import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
 import SortableCourseList from '@/components/course/SortableCourseList';
@@ -120,7 +119,7 @@ export default {
     SortableStudents,
     Spinner
   },
-  mixins: [Context, Loading, CurrentUserExtras, Util],
+  mixins: [Context, Loading, Util],
   data: () => ({
     appointmentOptions: {
       limit: 20,
