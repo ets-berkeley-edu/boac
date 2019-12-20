@@ -735,6 +735,7 @@ class TestUserUpdate:
 
         assert len(user['dropInAdvisorStatus']) == 1
         assert user['dropInAdvisorStatus'][0]['deptCode'] == 'QCADV'
+        assert user['dropInAdvisorStatus'][0]['supervisorOnCall'] is False
 
         qcadv = next(d for d in user['departments'] if d['code'] == 'QCADV')
         assert qcadv['isAdvisor'] is True
@@ -750,7 +751,7 @@ class TestUserUpdate:
         AuthorizedUser.delete_and_block(uid)
 
     def test_update_advisor(self, client, fake_auth):
-        """Add Advisor to another department, assign Scheduler role."""
+        """Add Advisor to another department as a drop-in supervisor, assign Scheduler role."""
         fake_auth.login(admin_uid)
         # First, create advisor
         uid = '9000000002'
@@ -767,7 +768,7 @@ class TestUserUpdate:
             roles_per_dept_code=[
                 {
                     'code': 'QCADV',
-                    'role': 'dropInAdvisor',
+                    'role': 'dropInSupervisor',
                     'automateMembership': True,
                 },
             ],
@@ -785,6 +786,7 @@ class TestUserUpdate:
         drop_in_statuses = user['dropInAdvisorStatus']
         assert len(drop_in_statuses) == 1
         assert drop_in_statuses[0]['deptCode'] == 'QCADV'
+        assert drop_in_statuses[0]['supervisorOnCall'] is True
 
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Scheduler".
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)

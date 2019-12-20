@@ -48,7 +48,7 @@
             <b-form-input
               id="uid-input"
               v-model="userProfile.uid"
-              class="w-200px"
+              class="w-260px"
               maxlength="10"
               placeholder="UID"
               size="lg"></b-form-input>
@@ -107,11 +107,12 @@
                   :options="[
                     { text: 'Advisor', value: 'advisor' },
                     { text: 'Advisor + Drop-In', value: 'dropInAdvisor' },
+                    { text: 'Advisor + Drop-In Supervisor', value: 'dropInSupervisor' },
                     { text: 'Director', value: 'director' },
                     { text: 'Scheduler', value: 'scheduler' },
                   ]"
                   :aria-label="`User's role in department ${dept.name}`"
-                  class="w-200px">
+                  class="w-260px">
                   <template v-slot:first>
                     <option :value="undefined">Select...</option>
                   </template>
@@ -246,8 +247,9 @@ export default {
       this.rolesPerDeptCode = [];
       this.each(this.profile.departments, d => {
         let role = undefined;
-        if (this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code])) {
-          role = 'dropInAdvisor';
+        const dropInAdvisorStatus = this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code]);
+        if (dropInAdvisorStatus) {
+          role = dropInAdvisorStatus.supervisorOnCall ? 'dropInSupervisor' : 'dropInAdvisor';
         } else if (d.isAdvisor) {
           role = 'advisor';
         } else if (d.isDirector) {
@@ -301,7 +303,7 @@ export default {
 </script>
 
 <style scoped>
-.w-200px {
-  width: 200px;
+.w-260px {
+  width: 260px;
 }
 </style>
