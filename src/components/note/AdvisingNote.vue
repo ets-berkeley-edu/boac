@@ -216,7 +216,7 @@ export default {
           const author_uid = this.note.author.uid;
           if (author_uid) {
             if (author_uid === this.$currentUser.uid) {
-              this.note.author = this.user;
+              this.note.author = this.$currentUser;
             } else {
               getCalnetProfileByUid(author_uid).then(data => {
                 this.note.author = data;

@@ -136,7 +136,7 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.user, 'dropInAdvisorStatus.length');
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.$currentUser, 'dropInAdvisorStatus.length');
     this.now = this.$moment();
   },
   methods: {

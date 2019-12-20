@@ -164,7 +164,7 @@ export default {
     },
     checkInAppointment(advisor, deptCodes) {
       if (!advisor) {
-        advisor = this.user;
+        advisor = this.$currentUser;
         deptCodes = this.map(this.$currentUser.departments, 'code');
       }
       const appointmentId = this.appointment.id;
@@ -232,7 +232,7 @@ export default {
     },
     reserveAppointment(advisor) {
       if (!advisor) {
-        advisor = this.user;
+        advisor = this.$currentUser;
       }
       this.loading = true;
       apiReserve(this.appointment.id, advisor.uid).then(() => {
