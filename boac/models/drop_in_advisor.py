@@ -35,31 +35,35 @@ class DropInAdvisor(Base):
     dept_code = db.Column(db.String(80), nullable=False, primary_key=True)
     is_available = db.Column(db.Boolean, default=False, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    is_supervisor_on_call = db.Column(db.Boolean, default=False, nullable=False)
 
     authorized_user = db.relationship('AuthorizedUser', back_populates='drop_in_departments')
 
-    def __init__(self, authorized_user_id, dept_code, is_available):
+    def __init__(self, authorized_user_id, dept_code, is_available, is_supervisor_on_call):
         self.authorized_user_id = authorized_user_id
         self.dept_code = dept_code
         self.is_available = is_available
+        self.is_supervisor_on_call = is_supervisor_on_call
 
     def update_availability(self, available):
         self.is_available = available
         std_commit()
 
     @classmethod
-    def create_or_update_status(cls, university_dept, authorized_user_id, is_available=False):
+    def create_or_update_status(cls, university_dept, authorized_user_id, is_available=False, is_supervisor_on_call=False):
         dept_code = university_dept.dept_code
         existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
             status = existing_status
             status.deleted_at = None
             status.is_available = is_available
+            status.is_supervisor_on_call = is_supervisor_on_call
         else:
             status = cls(
                 authorized_user_id=authorized_user_id,
                 dept_code=dept_code,
                 is_available=is_available,
+                is_supervisor_on_call=is_supervisor_on_call,
             )
         db.session.add(status)
         std_commit()
@@ -101,4 +105,5 @@ class DropInAdvisor(Base):
         return {
             'deptCode': self.dept_code,
             'available': self.is_available,
+            'supervisorOnCall': self.is_supervisor_on_call,
         }
