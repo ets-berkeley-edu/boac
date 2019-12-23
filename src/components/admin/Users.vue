@@ -312,6 +312,7 @@ export default {
     },
     getBoaUserRoles(user, department) {
       const roles = [];
+      const dropInAdvisorStatus = this.find(user.dropInAdvisorStatus, ['deptCode', department.code])
       if (department.isAdvisor) {
         roles.push('Advisor');
       }
@@ -321,8 +322,8 @@ export default {
       if (department.isScheduler) {
         roles.push('Scheduler');
       }
-      if (this.find(user.dropInAdvisorStatus, ['deptCode', department.code])) {
-        roles.push('Drop-in Advisor');
+      if (dropInAdvisorStatus) {
+        roles.push(dropInAdvisorStatus.supervisorOnCall ? 'Drop-in Supervisor' : 'Drop-in Advisor');
       }
       return roles;
     },
