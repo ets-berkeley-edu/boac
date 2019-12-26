@@ -73,13 +73,16 @@
             <b-col v-if="availableAdvisors.length" cols="9" class="pl-0">
               <b-form-select
                 id="create-modal-advisor-select"
-                v-model="selectedAdvisorUid"
-                :options="availableAdvisors"
-                value-field="uid"
-                text-field="name">
+                v-model="selectedAdvisorUid">
                 <template v-slot:first>
                   <option :value="null">Select...</option>
                 </template>
+                <option
+                  v-for="advisor in availableAdvisors"
+                  :key="advisor.uid"
+                  :value="advisor.uid">
+                  {{ `${advisor.name}${isSupervisorOnCall(advisor, deptCode) ? ' (Supervisor On Call)' : ''}` }}
+                </option>
               </b-form-select>
             </b-col>
             <div v-if="!availableAdvisors.length" class="has-error pb-1 pt-1">
@@ -131,6 +134,7 @@
 <script>
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Autocomplete from '@/components/util/Autocomplete';
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
@@ -139,7 +143,7 @@ import { findStudentsByNameOrSid } from '@/api/student';
 export default {
   name: 'CreateAppointmentModal',
   components: {AppointmentTopics, Autocomplete},
-  mixins: [Context, Util, Validator],
+  mixins: [Berkeley, Context, Util, Validator],
   props: {
     advisors: {
       type: Array,
