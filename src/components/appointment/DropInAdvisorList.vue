@@ -26,6 +26,8 @@
           class="border-bottom font-size-16 mt-2">
           <b-col sm="8" class="pb-2 text-nowrap">
             {{ advisor.name }}
+            <font-awesome v-if="isSupervisorOnCall(advisor, deptCode)" icon="star" class="supervisor-on-call-icon" />
+            <span v-if="isSupervisorOnCall(advisor, deptCode)" class="sr-only">(Supervisor on call)</span>
           </b-col>
           <b-col sm="4">
             <DropInAvailabilityToggle
@@ -41,6 +43,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import Util from '@/mixins/Util';
@@ -50,7 +53,7 @@ export default {
   components: {
     DropInAvailabilityToggle,
   },
-  mixins: [Context, Util],
+  mixins: [Berkeley, Context, Util],
   props: {
     advisors: {
       type: Array,
@@ -68,3 +71,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.supervisor-on-call-icon {
+  color: #f0ad4e;
+}
+</style>

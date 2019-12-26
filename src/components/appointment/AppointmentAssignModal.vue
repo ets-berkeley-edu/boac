@@ -20,13 +20,16 @@
           </label>
           <b-form-select
             id="assign-modal-advisor-select"
-            v-model="selectedAdvisorUid"
-            :options="dropInAdvisors"
-            value-field="uid"
-            text-field="name">
+            v-model="selectedAdvisorUid">
             <template v-slot:first>
               <option :value="null">Select...</option>
             </template>
+            <option
+              v-for="advisor in dropInAdvisors"
+              :key="advisor.uid"
+              :value="advisor.uid">
+              {{ `${advisor.name}${isSupervisorOnCall(advisor, appointment.deptCode) ? ' (Supervisor On Call)' : ''}` }}
+            </option>
           </b-form-select>
         </div>
         <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-1">
@@ -59,13 +62,14 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import { getDropInAdvisorsForDept } from '@/api/user';
 
 export default {
   name: 'AppointmentAssignModal',
-  mixins: [Context, Util],
+  mixins: [Berkeley, Context, Util],
   props: {
     appointment: {
       type: Object,
