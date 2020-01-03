@@ -61,7 +61,7 @@ class TestMergedStudent:
         assert profiles[1]['gender'] is None
         assert profiles[1]['lastName'] == 'Pontifex'
         assert profiles[1]['name'] == 'Ernest Pontifex'
-        assert profiles[1]['photoUrl'] is None
+        assert 'https://photo-bucket.s3.amazonaws.com/photo-path' in profiles[1]['photoUrl']
         assert profiles[1]['sid'] == '2718281828'
         assert profiles[1]['uid'] == '27182'
         assert profiles[1]['underrepresented'] is None
