@@ -102,8 +102,6 @@ DEMO_MODE_AVAILABLE = False
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
-FEATURE_FLAG_PASSENGER_EDIT = False
-
 # Notify BOA users when they are accessing boa-dev, boa-qa, and boa-demo. Unlike service announcements, this
 # warning can only be unpublished by setting config to None.
 FIXED_WARNING_ON_ALL_PAGES = None
