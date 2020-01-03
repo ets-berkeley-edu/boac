@@ -1,5 +1,11 @@
 <template>
   <b-container class="m-3 pr-5" fluid>
+    <EditMyRolesModal
+      v-if="showEditRolesModal"
+      :after-save="afterSaveRoles"
+      :cancel="cancelEditRoles"
+      :dept-code="editingRolesForDeptCode"
+      :show-modal="showEditRolesModal" />
     <b-row align-v="start" class="border-bottom border-top p-2">
       <b-col class="font-weight-500" cols="3">
         Name
@@ -43,7 +49,16 @@
         </div>
         <div v-if="$currentUser.departments.length">
           <div v-for="department in $currentUser.departments" :key="department.code">
-            <span>{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
+            <span id="my-dept-roles">{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</span>
+            <b-btn
+              v-if="includes(dropInAdvisorDeptCodes, department.code)"
+              id="btn-edit-my-dept-roles"
+              variant="link"
+              class="mb-1"
+              aria-label="Edit roles. Modal window will open."
+              @click="openEditRolesModal(department.code)">
+              edit
+            </b-btn>
           </div>
         </div>
       </b-col>
@@ -52,30 +67,55 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
+import Context from '@/mixins/Context';
+import EditMyRolesModal from '@/components/admin/EditMyRolesModal';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'MyProfile',
-  mixins: [Util],
+  components: {EditMyRolesModal},
+  mixins: [Berkeley, Context, Util],
   data: () => ({
-    dropInAdvisorDeptCodes: undefined
+    dropInAdvisorDeptCodes: undefined,
+    editingRolesForDeptCode: undefined,
+    showEditRolesModal: false
   }),
   created() {
     this.dropInAdvisorDeptCodes = this.map(this.$currentUser.dropInAdvisorStatus, 'deptCode');
   },
   methods: {
+    afterSaveRoles() {
+      this.showEditRolesModal = false;
+      this.dropInAdvisorDeptCodes = this.map(this.$currentUser.dropInAdvisorStatus, 'deptCode');
+      this.editingRolesForDeptCode = undefined;
+      this.alertScreenReader('Role edits saved');
+      this.putFocusNextTick('my-dept-roles')
+    },
+    cancelEditRoles() {
+      this.showEditRolesModal = false;
+      this.editingRolesForDeptCode = undefined;
+      this.alertScreenReader('Dialog closed');
+      this.putFocusNextTick('btn-edit-my-dept-roles')
+    },
     conditionalAppend(items, item, append) {
       if (append) {
         items.push(item)
       }
     },
     getRoles(department) {
-      const advisorType = this.includes(this.dropInAdvisorDeptCodes, department.code) ? 'Drop-in Advisor' : 'Advisor';
+      const dropInAdvisorRole = `Drop-in Advisor${this.isSupervisorOnCall(this.$currentUser, department.code) ? ' (Supervisor On Call)' : ''}`;
+      const advisorType = this.includes(this.dropInAdvisorDeptCodes, department.code) ? dropInAdvisorRole : 'Advisor';
       const roles = [];
       this.conditionalAppend(roles, 'Director', department.isDirector);
       this.conditionalAppend(roles, advisorType, department.isAdvisor);
       this.conditionalAppend(roles, 'Scheduler', department.isScheduler);
       return roles;
+    },
+    openEditRolesModal(deptCode) {
+      this.editingRolesForDeptCode = deptCode;
+      this.showEditRolesModal = true;
+      this.alertScreenReader('Edit roles form is open');
     }
   }
 }
