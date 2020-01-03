@@ -6,7 +6,7 @@
           <h3 class="student-profile-section-header">
             Advisor(s)
           </h3>
-          <div v-if="student.advisors.length" id="student-profile-advisors">
+          <div v-if="size(student.advisors)" id="student-profile-advisors">
             <div
               v-for="(advisor, index) in student.advisors"
               :id="`student-profile-advisor-${index}`"
@@ -26,7 +26,7 @@
               </div>
             </div>
           </div>
-          <div v-if="!student.advisors.length" id="student-profile-advisors-none">
+          <div v-if="!size(student.advisors)" id="student-profile-advisors-none">
             None assigned.
           </div>
         </div>
