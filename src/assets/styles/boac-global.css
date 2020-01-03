@@ -128,9 +128,6 @@
 .no-wrap {
   white-space: nowrap;
 }
-.obfuscate-form-input {
-  -webkit-text-security: disc;
-}
 .page-section-header {
   font-size: 24px;
   font-weight: bold;
