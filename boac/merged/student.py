@@ -223,9 +223,6 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     if len(remaining_sids) and include_historical:
         benchmark('begin historical profile supplement')
         historical_profiles = get_historical_student_profiles(remaining_sids)
-        # We don't expect photo information to show for historical profiles, but we still need a placeholder element
-        # in the feed so the front end can show the proper fallback.
-        _merge_photo_urls(historical_profiles)
         profiles += historical_profiles
         historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, remaining_sids)
         for row in historical_enrollments_for_term:
@@ -275,6 +272,9 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
 def get_historical_student_profiles(sids):
     historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
     historical_profiles = [_historicize_profile(row) for row in historical_profile_rows]
+    # We don't expect photo information to show for historical profiles, but we still need a placeholder element
+    # in the feed so the front end can show the proper fallback.
+    _merge_photo_urls(historical_profiles)
     for historical_profile in historical_profiles:
         ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
     return historical_profiles
