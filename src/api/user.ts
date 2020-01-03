@@ -115,3 +115,13 @@ export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], delete
     })
     .then(response => response.data);
 }
+
+export function updateDropInRole(deptCode: string, role: string) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/user/drop_in_role/${deptCode}`, {
+      role: role
+    })
+    .then(response => {
+      Vue.prototype.$currentUser.dropInAdvisorStatus = response.data.dropInAdvisorStatus;
+    });
+}

@@ -768,7 +768,7 @@ class TestUserUpdate:
             roles_per_dept_code=[
                 {
                     'code': 'QCADV',
-                    'role': 'dropInSupervisor',
+                    'role': 'supervisorOnCall',
                     'automateMembership': True,
                 },
             ],
@@ -841,3 +841,74 @@ class TestUserUpdate:
 
         user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
         assert not user.deleted_at
+
+
+class TestSetDropInRole:
+
+    @classmethod
+    def _api_drop_in_role(
+            cls,
+            client,
+            dept_code,
+            role,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/user/drop_in_role/{dept_code}',
+            data=json.dumps({
+                'deptCode': dept_code,
+                'role': role,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Authentication required."""
+        self._api_drop_in_role(
+            client,
+            dept_code='COENG',
+            role='dropInAdvisor',
+            expected_status_code=401,
+        )
+
+    def test_invalid_params(self, client, fake_auth):
+        """Requires role."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_drop_in_role(
+            client,
+            dept_code='COENG',
+            role=None,
+            expected_status_code=400,
+        )
+
+    def test_relinquish_supervisor_status(self, client, fake_auth):
+        """Allows supervisor on call to become a regular drop-in advisor."""
+        fake_auth.login(coe_advisor_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        assert len(user.drop_in_departments) == 1
+        assert user.drop_in_departments[0].is_supervisor_on_call is True
+        self._api_drop_in_role(
+            client,
+            dept_code='COENG',
+            role='dropInAdvisor',
+        )
+        user = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        assert len(user.drop_in_departments) == 1
+        assert user.drop_in_departments[0].is_supervisor_on_call is False
+
+    def test_become_drop_in_supervisor(self, client, fake_auth, app):
+        """Allows drop-in advisor to become a supervisor on call."""
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
+        user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
+        assert len(user.drop_in_departments) == 1
+        assert user.drop_in_departments[0].is_supervisor_on_call is False
+        self._api_drop_in_role(
+            client,
+            dept_code='QCADV',
+            role='supervisorOnCall',
+        )
+        user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
+        assert len(user.drop_in_departments) == 1
+        assert user.drop_in_departments[0].is_supervisor_on_call is True

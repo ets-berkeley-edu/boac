@@ -139,6 +139,30 @@ def deactivate_drop_in_status(uid, dept_code):
     return _update_drop_in_status(uid, dept_code, False)
 
 
+@app.route('/api/user/drop_in_role/<dept_code>', methods=['POST'])
+@login_required
+def set_drop_in_role(dept_code):
+    params = request.get_json()
+    role = params.get('role', None)
+    if not role:
+        raise errors.BadRequestError('Required parameters are missing')
+
+    dept = UniversityDept.find_by_dept_code(dept_code)
+    status = DropInAdvisor.create_or_update_status(
+        university_dept=dept,
+        authorized_user_id=current_user.user_id,
+        is_supervisor_on_call=(role == 'supervisorOnCall'),
+    )
+    if not status:
+        raise errors.BadRequestError(f'Failed to update drop-in advisor: university_dept_id={dept.id} authorized_user_id={current_user.user_id}')
+
+    UserSession.flush_cache_for_id(current_user.user_id)
+
+    updated_user = AuthorizedUser.find_by_id(current_user.user_id)
+    users_json = authorized_users_api_feed([updated_user])
+    return tolerant_jsonify(users_json and users_json[0])
+
+
 @app.route('/api/users', methods=['POST'])
 @admin_required
 def all_users():
@@ -405,12 +429,12 @@ def _create_department_memberships(authorized_user, user_roles):
 
 
 def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
-    for user_role in [d for d in roles_per_dept_code if d['role'] in ('dropInAdvisor', 'dropInSupervisor')]:
+    for user_role in [d for d in roles_per_dept_code if d['role'] in ('dropInAdvisor', 'supervisorOnCall')]:
         university_dept = UniversityDept.find_by_dept_code(user_role['code'])
         DropInAdvisor.create_or_update_status(
             university_dept=university_dept,
             authorized_user_id=authorized_user.id,
-            is_supervisor_on_call=user_role['role'] == 'dropInSupervisor',
+            is_supervisor_on_call=user_role['role'] == 'supervisorOnCall',
         )
         UniversityDeptMember.create_or_update_membership(
             university_dept_id=university_dept.id,

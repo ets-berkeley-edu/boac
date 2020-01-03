@@ -167,7 +167,6 @@ def refresh_department_memberships():
     depts = UniversityDept.query.all()
     for dept in depts:
         dept.delete_automated_members()
-    DropInAdvisor.delete_orphans()
     std_commit(allow_test_environment=True)
     for dept in depts:
         for membership in dept.memberships_from_loch():
@@ -187,6 +186,7 @@ def refresh_department_memberships():
                     is_director=False,
                     is_scheduler=False,
                 )
+    DropInAdvisor.delete_orphans()
 
 
 def load_filtered_cohort_counts():
