@@ -42,7 +42,7 @@ export default {
     Vue.prototype.$ga.curatedEvent = (id, label, action) => event('Curated Group', action, label, id);
     Vue.prototype.$ga.noteEvent = (id, label, action) => event('Advising Note', action, label, id);
     Vue.prototype.$ga.noteTemplateEvent = (id, label, action) => event('Advising Note Template', action, label, id);
-    Vue.prototype.$ga.searchEvent = action => event('Search', action, null, null);
-    Vue.prototype.$ga.studentAlert = action => event('Student Alert', action, null, null);
+    Vue.prototype.$ga.searchEvent = action => event('Search', action);
+    Vue.prototype.$ga.studentAlert = action => event('Student Alert', action);
   }
 };
