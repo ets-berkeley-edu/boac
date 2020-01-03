@@ -253,7 +253,7 @@ v-if="section.isViewableOnCoursePage"
         </div>
       </div>
     </div>
-    <div v-if="get(student, 'enrollmentTerms.length') > 1" class="text-center">
+    <div v-if="get(student, 'enrollmentTerms.length') > size(relevantTerms)" class="text-center">
       <b-btn
         id="toggle-show-all-terms"
         variant="link"
@@ -287,18 +287,15 @@ export default {
     student: Object
   },
   data: () => ({
+    relevantTerms: undefined,
     showAllTerms: false
   }),
-  computed: {
-    relevantTerms() {
-      var currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
-        return term.termId === this.toString(this.$config.currentEnrollmentTermId)
-      });
-      var index = currentTermIndex < 0 ? 0 : currentTermIndex;
-      return this.student.enrollmentTerms.slice(0, index + 1);
-    }
-  },
   created() {
+    const currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
+      return term.termId === this.toString(this.$config.currentEnrollmentTermId)
+    });
+    const index = currentTermIndex < 0 ? 0 : currentTermIndex;
+    this.relevantTerms = this.student.enrollmentTerms.slice(0, index + 1);
   },
   methods: {
     toggleShowAllTerms() {
