@@ -27,6 +27,7 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import advisor_required, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import process_input_from_rich_text_editor
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_event import appointment_event_type
@@ -189,7 +190,7 @@ def update_appointment(appointment_id):
     details = params.get('details', None)
     topics = params.get('topics', None)
     appointment.update(
-        details=details,
+        details=process_input_from_rich_text_editor(details),
         topics=topics,
         updated_by=current_user.get_id(),
     )
@@ -228,7 +229,7 @@ def create_appointment():
         appointment_type=appointment_type,
         created_by=current_user.get_id(),
         dept_code=dept_code,
-        details=params.get('details', None),
+        details=process_input_from_rich_text_editor(params.get('details', None)),
         student_sid=sid,
         topics=topics,
     )

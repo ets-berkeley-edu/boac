@@ -101,12 +101,12 @@
               <span class="font-weight-bolder">Description</span>
             </label>
             <div>
-              <b-textarea
+              <RichTextEditor
                 id="appointment-details"
-                v-model="details"
-                rows="4"
-                required>
-              </b-textarea>
+                :initial-value="details || ''"
+                :disabled="isSaving"
+                :is-in-modal="true"
+                :on-value-update="d => details = d" />
             </div>
           </div>
         </div>
@@ -136,13 +136,14 @@ import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Autocomplete from '@/components/util/Autocomplete';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
+import RichTextEditor from '@/components/util/RichTextEditor';
 import Util from '@/mixins/Util';
 import Validator from '@/mixins/Validator';
 import { findStudentsByNameOrSid } from '@/api/student';
 
 export default {
   name: 'CreateAppointmentModal',
-  components: {AppointmentTopics, Autocomplete},
+  components: {AppointmentTopics, Autocomplete, RichTextEditor},
   mixins: [Berkeley, Context, Util, Validator],
   props: {
     advisors: {
