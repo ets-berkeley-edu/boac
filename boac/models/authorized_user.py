@@ -28,6 +28,7 @@ from boac.lib.util import utc_now
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
 from sqlalchemy import and_, text
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 class AuthorizedUser(Base):
@@ -42,6 +43,7 @@ class AuthorizedUser(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
+    search_history = db.Column(ARRAY(db.String), nullable=True)
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
