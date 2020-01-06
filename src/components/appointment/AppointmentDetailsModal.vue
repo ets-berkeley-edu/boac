@@ -34,12 +34,12 @@
               <span class="font-weight-bolder">Additional Information</span>
             </label>
             <div>
-              <b-textarea
+              <RichTextEditor
                 id="appointment-details"
-                v-model="details"
-                rows="4"
-                required>
-              </b-textarea>
+                :initial-value="details || ''"
+                :disabled="isSaving"
+                :is-in-modal="true"
+                :on-value-update="d => details = d" />
             </div>
           </div>
         </b-container>
@@ -69,11 +69,12 @@
 <script>
 import AppointmentTopics from "@/components/appointment/AppointmentTopics";
 import Context from '@/mixins/Context';
+import RichTextEditor from '@/components/util/RichTextEditor';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'AppointmentDetailsModal',
-  components: {AppointmentTopics},
+  components: {AppointmentTopics, RichTextEditor},
   mixins: [Context, Util],
   props: {
     appointment: {

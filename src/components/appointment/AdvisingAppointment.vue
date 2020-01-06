@@ -4,7 +4,7 @@
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
       :class="{'truncate-with-ellipsis': !isOpen}">
-      <span :id="`appointment-${appointment.id}-details-closed`">{{ appointment.details }}</span>
+      <span :id="`appointment-${appointment.id}-details-closed`" v-html="appointment.details"></span>
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
       <div class="mt-2">
