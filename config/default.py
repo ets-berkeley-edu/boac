@@ -163,6 +163,8 @@ THREADS_PER_PAGE = 2
 
 TIMEZONE = 'America/Los_Angeles'
 
+USER_SEARCH_HISTORY_MAX_SIZE = 5
+
 # This base-URL config should only be non-None in the "local" env where the Vue front-end runs on port 8080.
 VUE_LOCALHOST_BASE_URL = None
 

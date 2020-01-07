@@ -198,6 +198,7 @@ _test_users = [
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
+        'searchHistory': ['Moe', 'Larry', 'Curly'],
     },
     {
         'uid': '90412',
@@ -462,6 +463,7 @@ def _create_users():
                 is_admin=test_user['isAdmin'],
                 in_demo_mode=test_user['inDemoMode'],
                 can_access_canvas_data=test_user['canAccessCanvasData'],
+                search_history=test_user.get('searchHistory', []),
             )
             if test_user.get('deleted'):
                 user.deleted_at = utc_now()

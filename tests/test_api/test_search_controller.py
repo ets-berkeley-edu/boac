@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac import std_commit
 from boac.externals import data_loch
 from boac.lib import util
 from boac.models.appointment import Appointment
@@ -66,40 +67,6 @@ def asc_inactive_students():
         JOIN student.student_academic_status sas ON sas.sid = s.sid
         WHERE s.active is FALSE
     """)
-
-
-def _api_search(
-        client,
-        phrase,
-        appointments=False,
-        courses=False,
-        notes=False,
-        students=False,
-        appointment_options=None,
-        note_options=None,
-        order_by=None,
-        offset=None,
-        limit=None,
-        expected_status_code=200,
-):
-    response = client.post(
-        '/api/search',
-        content_type='application/json',
-        data=json.dumps({
-            'appointments': appointments,
-            'courses': courses,
-            'notes': notes,
-            'students': students,
-            'searchPhrase': phrase,
-            'appointmentOptions': appointment_options,
-            'noteOptions': note_options,
-            'orderBy': order_by,
-            'offset': offset,
-            'limit': limit,
-        }),
-    )
-    assert response.status_code == expected_status_code
-    return response.json
 
 
 class TestStudentSearch:
@@ -746,6 +713,124 @@ class TestAppointmentSearch:
             appointment_options={'studentCsid': '11667051'},
         )
         self._assert(api_json, appointment_count=2)
+
+
+class TestSearchHistory:
+    """Search history API."""
+
+    @classmethod
+    def _api_my_search_history(cls, client, expected_status_code=200):
+        response = client.get('/api/search/my_search_history')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
+    def _api_add_to_my_search_history(cls, client, phrase, expected_status_code=200):
+        response = client.post(
+            '/api/search/add_to_search_history',
+            content_type='application/json',
+            data=json.dumps({
+                'phrase': phrase,
+            }),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._api_my_search_history(client, expected_status_code=401)
+
+    def test_not_authenticated_update_search_history(self, client):
+        """/add_to_search_history returns 401 if not authenticated."""
+        self._api_add_to_my_search_history(client, 'I want it all', expected_status_code=401)
+
+    def test_empty_search_history(self, client, coe_advisor):
+        """Returns empty array if user has no search history."""
+        assert self._api_my_search_history(client) == []
+
+    def test_search_history(self, asc_advisor, client):
+        """Returns search history."""
+        api_json = self._api_my_search_history(client)
+        expected_history = ['Moe', 'Larry', 'Curly']
+        assert api_json == expected_history
+        # Searching for same phrase twice should cause no change in search history
+        self._api_add_to_my_search_history(client, 'Moe')
+        assert self._api_my_search_history(client=client) == expected_history
+
+    def test_manage_search_history(self, admin_login, client):
+        """Properly manages search history."""
+        assert self._api_my_search_history(client) == []
+        polythene_pam = 'Polythene Pam'
+        phrases = [
+            'Sun King',
+            'Mean Mr. Mustard',
+            polythene_pam,
+            'She Came In Through the Bathroom Window',
+            'Golden Slumbers',
+        ]
+        for phrase in phrases:
+            self._api_add_to_my_search_history(client, phrase)
+        std_commit(allow_test_environment=True)
+        # Expect list above, in reverse order
+        search_history = phrases[::-1]
+        assert self._api_my_search_history(client) == search_history
+        # Search for phrase a second time and it will move to start of list
+        self._api_add_to_my_search_history(client, polythene_pam)
+        std_commit(allow_test_environment=True)
+
+        search_history = self._api_my_search_history(client)
+        assert search_history == [
+            polythene_pam,
+            'Golden Slumbers',
+            'She Came In Through the Bathroom Window',
+            'Mean Mr. Mustard',
+            'Sun King',
+        ]
+        # Finally, verify USER_SEARCH_HISTORY_MAX_SIZE setting
+        self._api_add_to_my_search_history(client, 'Carry That Weight')
+        self._api_add_to_my_search_history(client, 'The End')
+        search_history = self._api_my_search_history(client)
+        assert search_history == [
+            'The End',
+            'Carry That Weight',
+            polythene_pam,
+            'Golden Slumbers',
+            'She Came In Through the Bathroom Window',
+        ]
+
+
+def _api_search(
+        client,
+        phrase,
+        appointments=False,
+        courses=False,
+        notes=False,
+        students=False,
+        appointment_options=None,
+        note_options=None,
+        order_by=None,
+        offset=None,
+        limit=None,
+        expected_status_code=200,
+):
+    response = client.post(
+        '/api/search',
+        content_type='application/json',
+        data=json.dumps({
+            'appointments': appointments,
+            'courses': courses,
+            'notes': notes,
+            'students': students,
+            'searchPhrase': phrase,
+            'appointmentOptions': appointment_options,
+            'noteOptions': note_options,
+            'orderBy': order_by,
+            'offset': offset,
+            'limit': limit,
+        }),
+    )
+    assert response.status_code == expected_status_code
+    return response.json
 
 
 def _get_common_sids(student_list_1, student_list_2):

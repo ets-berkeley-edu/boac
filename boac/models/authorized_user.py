@@ -27,8 +27,10 @@ from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
+from flask import current_app as app
 from sqlalchemy import and_, text
 from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import deferred
 
 
 class AuthorizedUser(Base):
@@ -43,7 +45,7 @@ class AuthorizedUser(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
-    search_history = db.Column(ARRAY(db.String), nullable=True)
+    search_history = deferred(db.Column(ARRAY(db.String), nullable=True))
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
@@ -65,19 +67,30 @@ class AuthorizedUser(Base):
         lazy='joined',
     )
 
-    def __init__(self, uid, created_by, is_admin=False, is_blocked=False, in_demo_mode=False, can_access_canvas_data=True):
+    def __init__(
+            self,
+            uid,
+            created_by,
+            is_admin=False,
+            is_blocked=False,
+            in_demo_mode=False,
+            can_access_canvas_data=True,
+            search_history=(),
+    ):
         self.uid = uid
         self.created_by = created_by
         self.is_admin = is_admin
         self.is_blocked = is_blocked
         self.in_demo_mode = in_demo_mode
         self.can_access_canvas_data = can_access_canvas_data
+        self.search_history = search_history
 
     def __repr__(self):
         return f"""<AuthorizedUser {self.uid},
                     is_admin={self.is_admin},
                     in_demo_mode={self.in_demo_mode},
                     can_access_canvas_data={self.can_access_canvas_data},
+                    search_history={self.search_history},
                     created={self.created_at},
                     created_by={self.created_by},
                     updated={self.updated_at},
@@ -187,6 +200,32 @@ class AuthorizedUser(Base):
         else:
             query = cls.query.filter(cls.is_admin)
         return query.all()
+
+    @classmethod
+    def add_to_search_history(cls, user_id, search_phrase):
+        query = text(f'SELECT search_history FROM authorized_users WHERE id = :user_id')
+        result = db.session.execute(query, {'user_id': user_id}).first()
+        if result:
+            search_history = result['search_history'] or []
+            if search_phrase.lower() in [s.lower() for s in search_history]:
+                search_history.remove(search_phrase)
+            search_history.insert(0, search_phrase)
+
+            max_size = app.config['USER_SEARCH_HISTORY_MAX_SIZE']
+            if len(search_history) > max_size:
+                del search_history[max_size:]
+
+            sql_text = text('UPDATE authorized_users SET search_history = :history WHERE id = :id')
+            db.session.execute(sql_text, {'history': search_history, 'id': user_id})
+            return cls.get_search_history(user_id)
+        else:
+            return None
+
+    @classmethod
+    def get_search_history(cls, user_id):
+        query = text(f'SELECT search_history FROM authorized_users WHERE id = :id')
+        result = db.session.execute(query, {'id': user_id}).first()
+        return result and result['search_history']
 
     @classmethod
     def get_users(

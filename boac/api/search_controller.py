@@ -37,8 +37,9 @@ from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment
+from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 
 @app.route('/api/search', methods=['POST'])
@@ -77,6 +78,22 @@ def search():
         feed.update(_notes_search(search_phrase, params))
 
     return tolerant_jsonify(feed)
+
+
+@app.route('/api/search/add_to_search_history', methods=['POST'])
+@login_required
+def add_to_search_history():
+    search_phrase = util.get(request.get_json(), 'phrase', '').strip()
+    if search_phrase:
+        return tolerant_jsonify(AuthorizedUser.add_to_search_history(current_user.get_id(), search_phrase))
+    else:
+        raise BadRequestError('Search phrase not found in request')
+
+
+@app.route('/api/search/my_search_history')
+@login_required
+def my_search_history():
+    return tolerant_jsonify(AuthorizedUser.get_search_history(current_user.get_id()))
 
 
 def _appointments_search(search_phrase, params):
