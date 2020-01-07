@@ -110,23 +110,11 @@
               Discontinued Major(s)
             </h3>
             <div id="student-details-discontinued-majors">
-              <div v-for="plan in inactiveMajors" :key="plan.description" class="mb-2">
-                <div class="font-weight-bolder">
-                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
-                  <a
-                    v-if="plan.degreeProgramUrl"
-                    :href="plan.degreeProgramUrl"
-                    :aria-label="`Open ${plan.description} program page in new window`"
-                    target="_blank">
-                    {{ plan.description }}</a>
-                </div>
-                <div v-if="plan.program" class="text-muted">
-                  {{ plan.program }}
-                </div>
-                <div class="font-weight-bolder has-error small text-uppercase">
-                  {{ plan.status }}
-                </div>
-              </div>
+              <StudentProfilePlan
+                v-for="plan in inactiveMajors"
+                :key="plan.description"
+                :plan="plan"
+                :active="false" />
             </div>
           </div>
           <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer" class="mb-3">
@@ -134,23 +122,11 @@
               Discontinued Minor(s)
             </h3>
             <div id="student-details-discontinued-minors">
-              <div v-for="plan in inactiveMinors" :key="plan.description" class="mb-2">
-                <div class="font-weight-bolder">
-                  <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
-                  <a
-                    v-if="plan.degreeProgramUrl"
-                    :href="plan.degreeProgramUrl"
-                    :aria-label="`Open ${plan.description} program page in new window`"
-                    target="_blank">
-                    {{ plan.description }}</a>
-                </div>
-                <div v-if="plan.program" class="text-muted">
-                  {{ plan.program }}
-                </div>
-                <div class="font-weight-bolder has-error small text-uppercase">
-                  {{ plan.status }}
-                </div>
-              </div>
+              <StudentProfilePlan
+                v-for="plan in inactiveMinors"
+                :key="plan.description"
+                :plan="plan"
+                :active="false" />
             </div>
           </div>
         </div>
@@ -160,10 +136,14 @@
 </template>
 
 <script>
+import StudentProfilePlan from "@/components/student/profile/StudentProfilePlan";
 import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentPersonalDetails',
+  components: {
+    StudentProfilePlan
+  },
   mixins: [Util],
   props: {
     inactiveMajors: {

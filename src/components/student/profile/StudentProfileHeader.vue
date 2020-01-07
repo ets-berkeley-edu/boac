@@ -67,36 +67,42 @@
         <div v-if="academicCareerStatus !== 'Completed'">
           <div v-if="plansPartitionedByStatus[0].length" id="student-bio-majors" class="mb-3">
             <h3 class="student-profile-section-header">Major</h3>
-            <div v-for="plan in plansPartitionedByStatus[0]" :key="plan.description" class="mb-2">
-              <div class="font-weight-bolder">
-                <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
-                <a
-                  v-if="plan.degreeProgramUrl"
-                  :href="plan.degreeProgramUrl"
-                  :aria-label="`Open ${plan.description} program page in new window`"
-                  target="_blank">
-                  {{ plan.description }}</a>
-              </div>
-              <div v-if="plan.program" class="text-muted">
-                {{ plan.program }}
-              </div>
-            </div>
+            <StudentProfilePlan
+              v-for="plan in plansPartitionedByStatus[0]"
+              :key="plan.description"
+              :plan="plan"
+              :active="true" />
           </div>
           <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
             <h3 class="student-profile-section-header">Minor</h3>
-            <div v-for="plan in plansMinorPartitionedByStatus[0]" :key="plan.description" class="mb-2">
-              <div class="font-weight-bolder">
-                <span v-if="!plan.degreeProgramUrl" class="no-wrap">{{ plan.description }}</span>
-                <a
-                  v-if="plan.degreeProgramUrl"
-                  :href="plan.degreeProgramUrl"
-                  :aria-label="`Open ${plan.description} program page in new window`"
-                  target="_blank">
-                  {{ plan.description }}</a>
-              </div>
-              <div v-if="plan.program" class="text-muted">
-                {{ plan.program }}
-              </div>
+            <StudentProfilePlan
+              v-for="plan in plansMinorPartitionedByStatus[0]"
+              :key="plan.description"
+              :plan="plan"
+              :active="true" />
+          </div>
+          <div v-if="!plansPartitionedByStatus[0].length && plansPartitionedByStatus[1].length" id="student-details-discontinued-majors-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Discontinued Major(s)
+            </h3>
+            <div id="student-details-discontinued-majors">
+              <StudentProfilePlan
+                v-for="plan in plansPartitionedByStatus[1]"
+                :key="plan.description"
+                :plan="plan"
+                :active="false" />
+            </div>
+          </div>
+          <div v-if="!plansPartitionedByStatus[0].length && plansMinorPartitionedByStatus[1].length" id="student-details-discontinued-minors-outer" class="mb-3">
+            <h3 class="student-profile-section-header">
+              Discontinued Minor(s)
+            </h3>
+            <div id="student-details-discontinued-minors">
+              <StudentProfilePlan
+                v-for="plan in plansMinorPartitionedByStatus[1]"
+                :key="plan.description"
+                :plan="plan"
+                :active="false" />
             </div>
           </div>
         </div>
@@ -132,8 +138,8 @@
     </div>
     <div>
       <StudentPersonalDetails
-        :inactive-majors="plansPartitionedByStatus[1]"
-        :inactive-minors="plansMinorPartitionedByStatus[1]"
+        :inactive-majors="belowTheFoldMajors"
+        :inactive-minors="belowTheFoldMinors"
         :is-open="isShowingPersonalDetails"
         :student="student" />
     </div>
@@ -145,6 +151,7 @@ import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
 import StudentPersonalDetails from "@/components/student/profile/StudentPersonalDetails";
+import StudentProfilePlan from "@/components/student/profile/StudentProfilePlan";
 import Util from '@/mixins/Util';
 
 export default {
@@ -152,7 +159,8 @@ export default {
   components: {
     StudentAvatar,
     StudentGroupSelector,
-    StudentPersonalDetails
+    StudentPersonalDetails,
+    StudentProfilePlan
   },
   mixins: [StudentMetadata, Util],
   props: {
@@ -168,6 +176,14 @@ export default {
   computed: {
     academicCareerStatus() {
       return this.get(this.student, 'sisProfile.academicCareerStatus');
+    },
+    belowTheFoldMajors() {
+      // Send inactive majors below the fold only if we have active majors to show above the fold.
+      return this.plansPartitionedByStatus[0].length ? this.plansPartitionedByStatus[1] : [];
+    },
+    belowTheFoldMinors() {
+      // Send inactive minors below the fold only if we have active majors to show above the fold.
+      return this.plansPartitionedByStatus[0].length ? this.plansMinorPartitionedByStatus[1] : [];
     },
     plansPartitionedByStatus() {
       return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active');
