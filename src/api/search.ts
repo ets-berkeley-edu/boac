@@ -2,6 +2,18 @@ import axios from 'axios';
 import utils from '@/api/api-utils';
 import Vue from "vue";
 
+export function getMySearchHistory() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/search/my_search_history`)
+    .then(response => response.data, () => null);
+}
+
+export function addToSearchHistory(phrase) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/search/add_to_search_history`, { phrase })
+    .then(response => response.data, () => null);
+}
+
 export function search(
   phrase: string,
   includeAppointments: boolean,

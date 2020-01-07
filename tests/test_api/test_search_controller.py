@@ -748,6 +748,11 @@ class TestSearchHistory:
         """Returns empty array if user has no search history."""
         assert self._api_my_search_history(client) == []
 
+    def test_blank_input(self, asc_advisor, client):
+        """Blank search phrase is not added to search history."""
+        self._api_add_to_my_search_history(client, '    ', expected_status_code=400)
+        assert self._api_my_search_history(client=client) == ['Moe', 'Larry', 'Curly']
+
     def test_search_history(self, asc_advisor, client):
         """Returns search history."""
         api_json = self._api_my_search_history(client)
