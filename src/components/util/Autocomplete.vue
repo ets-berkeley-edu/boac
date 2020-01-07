@@ -4,18 +4,22 @@
       :id="`${id}-input`"
       ref="autocompleteInput"
       v-model="query"
+      :aria-readonly="disabled"
+      :class="inputClass"
       :disabled="disabled"
       :placeholder="placeholder"
       maxlength="56"
       name="autocomplete-name"
+      :required="isRequired"
       :type="demoModeBlur && $currentUser.inDemoMode ? 'password': 'text'"
       autocomplete="off"
       @input="onTextInput"
-      @keypress.enter.prevent="onArrowDown"
-      @keyup.esc="onEscFormInput"
+      @focusin="makeSuggestions"
+      @keypress.enter.prevent="onEnter"
+      @keyup.esc="onEscInput"
       @keyup.down="onArrowDown">
     </b-form-input>
-    <div class="dropdown">
+    <div v-if="restrict || suggestions.length" class="dropdown">
       <ul
         :id="`${id}-suggestions`"
         ref="autocompleteSuggestions"
@@ -33,7 +37,7 @@
           <font-awesome icon="spinner" spin />
         </li>
         <li
-          v-if="!isLoading && !suggestions.length"
+          v-if="restrict && !isLoading && !suggestions.length"
           :id="`${id}-no-results`"
           class="dropdown-item">
           No results.
@@ -79,15 +83,43 @@ export default {
       required: false,
       type: String
     },
-    id: String,
+    id: {
+      required: true,
+      type: String
+    },
+    isRequired: {
+      default: false,
+      required: false,
+      type: Boolean
+    },
+    inputClass: {
+      default: '',
+      required: false,
+      type: String
+    },
     onEscFormInput: {
-      default: () => {},
       required: false,
       type: Function
     },
-    placeholder: String,
-    source: Function,
-    value: Object,
+    placeholder: {
+      required: false,
+      type: String
+    },
+    restrict: {
+      default: true,
+      required: false,
+      type: Boolean
+    },
+    source: {
+      required: true,
+      type: Function
+    },
+    suggestWhen: {
+      default: query => query && query.length > 1,
+      required: false,
+      type: Function
+    },
+    value: Object
   },
   data() {
     return {
@@ -95,7 +127,7 @@ export default {
       isLoading: false,
       limit: 20,
       query: null,
-      onTextInput: this.debounce(this._onTextInput, 200),
+      onTextInput: this.debounce(this.makeSuggestions, 200),
       suggestions: [],
       suggestionElements: [],
       suggestionFocusIndex: null,
@@ -132,6 +164,20 @@ export default {
       var matchedText = string.substring(match.index, match.index + match[0].toString().length);
       return string.replace(regex, `<strong>${matchedText}</strong>`);
     },
+    makeSuggestions() {
+      this.$emit('input', null);
+      if (this.suggestWhen(this.query)) {
+        this.isOpen = true;
+        this.isLoading = true;
+        this.suggestions = [];
+        const q = this.query && this.query.replace(/[^\w ]+/g, '');
+        this.source(q, this.limit).then(results => {
+          this.populateSuggestions(results);
+        });
+      } else {
+        this.isOpen = false;
+      }
+    },
     onArrowDown() {
       if (this.suggestionElements.length) {
         if (this.suggestionFocusIndex === null) {
@@ -159,20 +205,21 @@ export default {
         this.closeSuggestions();
       }
     },
+    onEnter() {
+      if (this.restrict) {
+        this.onArrowDown();
+      } else {
+        this.selectSuggestion({ label: this.query });
+      }
+    },
     onEsc() {
       this.closeSuggestions();
     },
-    _onTextInput() {
-      this.$emit('input', null);
-      if (this.query.length > 1) {
-        this.isOpen = true;
-        this.isLoading = true;
-        this.suggestions = [];
-        this.source(this.query.replace(/[^\w ]+/g, ''), this.limit).then(results => {
-          this.populateSuggestions(results);
-        });
+    onEscInput() {
+      if (this.onEscFormInput) {
+        this.onEscFormInput();
       } else {
-        this.isOpen = false;
+        this.closeSuggestions();
       }
     },
     populateSuggestions(results) {
@@ -181,7 +228,8 @@ export default {
       this.isOpen = true;
       this.suggestionFocusIndex = null;
       this.$nextTick(() => {
-        this.suggestionElements = this.$refs.autocompleteSuggestions.querySelectorAll('.dropdown-item');
+        const el = this.$refs.autocompleteSuggestions;
+        this.suggestionElements = el ? el.querySelectorAll('.dropdown-item') : [];
       });
     },
     selectSuggestion(suggestion) {

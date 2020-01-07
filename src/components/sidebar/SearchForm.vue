@@ -4,9 +4,7 @@
       id="search-students-form"
       :class="{'search-page-body': context === 'pageBody'}"
       autocomplete="off"
-      class="search-form"
-      @keypress.enter.stop="search()"
-      @submit.prevent="search()">
+      class="search-form">
       <div class="d-flex flex-column-reverse">
         <div :class="{'search-form-button': context === 'pageBody'}">
           <span
@@ -16,14 +14,16 @@
             role="alert">
             At least one search option must be checked.
           </span>
-          <input
+          <Autocomplete
             id="search-students-input"
-            v-model="searchPhrase"
-            :class="{ 'input-disabled': allOptionsUnchecked }"
-            :readonly="allOptionsUnchecked"
-            :aria-readonly="allOptionsUnchecked"
-            :required="searchInputRequired"
-            class="pl-2 pr-2 search-input w-100"
+            v-model="searchInput"
+            :restrict="false"
+            :disabled="allOptionsUnchecked"
+            :source="searchSuggestions"
+            :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
+            :is-required="searchInputRequired"
+            :on-esc-form-input="searchPhrase = null"
+            :suggest-when="query => true"
             aria-label="Hit enter to execute search"
             type="text"
             maxlength="255" />
@@ -253,6 +253,7 @@ import { findAdvisorsByName } from '@/api/appointments';
 import { findAuthorsByName } from '@/api/notes';
 import { findStudentsByNameOrSid } from '@/api/student';
 import { getAllTopics } from '@/api/topics';
+import { addToSearchHistory, getMySearchHistory } from '@/api/search';
 
 export default {
   name: 'SearchForm',
@@ -279,6 +280,7 @@ export default {
       includeStudents: this.domain.includes('students'),
       findStudentsByNameOrSid: findStudentsByNameOrSid,
       noteFilters: null,
+      searchHistory: [],
       searchPhrase: null,
       showNoteFilters: false,
       showSearchOptions: false,
@@ -288,6 +290,17 @@ export default {
   computed: {
     allOptionsUnchecked() {
       return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
+    },
+    searchInput: {
+      get: function() {
+        return this.searchPhrase;
+      },
+      set: function(phrase) {
+        if (phrase) {
+          this.searchPhrase = phrase.label;
+          this.search();
+        }
+      }
     },
     noteAuthor: {
       get: function() {
@@ -351,6 +364,9 @@ export default {
   },
   created() {
     this.resetNoteFilters();
+    getMySearchHistory().then(history => {
+      this.searchHistory = history;
+    })
   },
   methods: {
     dateFormat(value) {
@@ -366,6 +382,20 @@ export default {
     },
     dateString(d, format) {
       return this.$options.filters.moment(d, format);
+    },
+    searchSuggestions(q) {
+      return new Promise(resolve => {
+        let suggestions;
+        if (q) {
+          const normalized = q.toLowerCase();
+          suggestions = this.filterList(this.searchHistory, s => s.toLowerCase().startsWith(normalized));
+        } else {
+          suggestions = this.searchHistory;
+        }
+        resolve(this.map(suggestions, s => {
+          return { label: s }
+        }))
+      });
     },
     findAdvisorsByName(q, limit) {
       const queries = [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)];
@@ -416,7 +446,10 @@ export default {
           },
           this.noop
         );
-        this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+        addToSearchHistory(this.searchPhrase).then(history => {
+          this.searchHistory = history;
+          this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+        });
       } else {
         this.alertScreenReader('Search input is required');
       }
@@ -450,6 +483,17 @@ export default {
 };
 </script>
 
+<style>
+.search-input {
+  box-sizing: border-box !important;
+  border: 2px solid #ccc !important;
+  border-radius: 4px !important;
+  color: #333;
+  height: 45px !important;
+  padding: 0 10px 0 10px !important;
+}
+</style>
+
 <style scoped>
 .btn-search-students {
   height: 46px;
@@ -475,13 +519,6 @@ export default {
 .search-form-label {
   font-weight: 400;
   margin-bottom: 5px;
-}
-.search-input {
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-  color: #333;
-  height: 45px;
 }
 .search-input-date {
   margin-bottom: 10px;

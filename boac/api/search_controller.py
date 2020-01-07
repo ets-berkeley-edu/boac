@@ -83,9 +83,11 @@ def search():
 @app.route('/api/search/add_to_search_history', methods=['POST'])
 @login_required
 def add_to_search_history():
-    search_phrase = util.get(request.get_json(), 'phrase', '').strip()
+    search_phrase = request.get_json().get('phrase')
+    search_phrase = search_phrase and search_phrase.strip()
     if search_phrase:
-        return tolerant_jsonify(AuthorizedUser.add_to_search_history(current_user.get_id(), search_phrase))
+        search_history = AuthorizedUser.add_to_search_history(current_user.get_id(), search_phrase)
+        return tolerant_jsonify(search_history)
     else:
         raise BadRequestError('Search phrase not found in request')
 
@@ -93,7 +95,8 @@ def add_to_search_history():
 @app.route('/api/search/my_search_history')
 @login_required
 def my_search_history():
-    return tolerant_jsonify(AuthorizedUser.get_search_history(current_user.get_id()))
+    search_history = AuthorizedUser.get_search_history(current_user.get_id()) or []
+    return tolerant_jsonify(search_history)
 
 
 def _appointments_search(search_phrase, params):
