@@ -15,7 +15,7 @@
             At least one search option must be checked.
           </span>
           <Autocomplete
-            id="search-students-input"
+            id="search-students"
             v-model="searchInput"
             :restrict="false"
             :disabled="allOptionsUnchecked"
