@@ -33,9 +33,8 @@
             <label for="appointment-details" class="font-size-14 input-label text">
               <span class="font-weight-bolder">Additional Information</span>
             </label>
-            <div>
+            <div id="appointment-details">
               <RichTextEditor
-                id="appointment-details"
                 :initial-value="details || ''"
                 :disabled="isSaving"
                 :is-in-modal="true"
@@ -138,9 +137,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.appointment-details-label {
-  min-width: 25%;
-}
-</style>
