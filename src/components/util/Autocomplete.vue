@@ -155,6 +155,9 @@ export default {
         }
       });
     },
+    getQuery() {
+      return this.query;
+    },
     highlightQuery(string) {
       var regex = new RegExp(this.query, 'i');
       var match = string.match(regex);
@@ -201,7 +204,7 @@ export default {
       }
     },
     onClickOutside(evt) {
-      if (!this.$el.contains(evt.target)) {
+      if (this.restrict && !this.$el.contains(evt.target)) {
         this.closeSuggestions();
       }
     },
