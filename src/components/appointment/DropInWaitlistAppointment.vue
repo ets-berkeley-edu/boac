@@ -1,7 +1,7 @@
 <template>
   <b-row
-    :class="isLast ? '' : 'border-bottom'"
-    class="font-size-16 mt-2 pb-1 pt-2"
+    :class="{'border-bottom': isLast, 'row-assigned-to-me': appointment.status === 'reserved' && appointment.statusBy.id === $currentUser.id }"
+    class="font-size-16 p-2 border-top"
     no-gutters>
     <b-col sm="2" class="pb-2 text-nowrap">
       <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
@@ -207,5 +207,8 @@ export default {
 .pill-waiting {
   background-color: #78b1c9;
   color: #ffffff;
+}
+.row-assigned-to-me {
+  background-color: #ecf5fb;
 }
 </style>
