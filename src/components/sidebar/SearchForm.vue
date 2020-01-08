@@ -3,7 +3,6 @@
     <form
       id="search-students-form"
       :class="{'search-page-body': context === 'pageBody'}"
-      autocomplete="off"
       class="search-form">
       <div class="d-flex flex-column-reverse">
         <div :class="{'search-form-button': context === 'pageBody'}">
@@ -16,14 +15,15 @@
           </span>
           <Autocomplete
             id="search-students"
-            v-model="searchInput"
+            ref="searchInput"
+            v-model="searchPhrase"
+            :demo-mode-blur="false"
             :restrict="false"
             :disabled="allOptionsUnchecked"
             :source="searchSuggestions"
             :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
             :is-required="searchInputRequired"
-            :on-esc-form-input="searchPhrase = null"
-            :suggest-when="query => true"
+            :suggest-when="() => true"
             aria-label="Hit enter to execute search"
             type="text"
             maxlength="255" />
@@ -185,7 +185,7 @@
                       id="search-options-note-filters-last-updated-from-clear"
                       class="search-input-date"
                       @click="noteFilters.dateFrom = null">
-                      <font-awesome icon="times"></font-awesome>
+                      <font-awesome icon="times" />
                       <span class="sr-only">Clear date from</span>
                     </b-btn>
                   </b-input-group>
@@ -235,8 +235,8 @@
         </b-collapse>
         <b-button
           :disabled="validDateRange === false"
-          type="submit"
-          variant="primary">
+          variant="primary"
+          @click="search()">
           Search
         </b-button>
       </b-collapse>
@@ -291,17 +291,6 @@ export default {
     allOptionsUnchecked() {
       return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
     },
-    searchInput: {
-      get: function() {
-        return this.searchPhrase;
-      },
-      set: function(phrase) {
-        if (phrase) {
-          this.searchPhrase = phrase.label;
-          this.search();
-        }
-      }
-    },
     noteAuthor: {
       get: function() {
         if (this.noteFilters && this.noteFilters.postedBy === 'anyone') {
@@ -349,6 +338,9 @@ export default {
     },
     includeStudents(value) {
       this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`);
+    },
+    searchPhrase() {
+      this.search();
     },
     showNoteFilters(value) {
       if (value) {
@@ -407,8 +399,8 @@ export default {
       this.noteFilters = this.cloneDeep(this.defaultNoteFilters);
     },
     search() {
-      this.searchPhrase = this.trim(this.searchPhrase);
-      if (this.searchPhrase || !this.searchInputRequired) {
+      const searchPhrase = this.trim(this.$refs.searchInput.getQuery());
+      if (searchPhrase || !this.searchInputRequired) {
         const query = {
           notes: this.includeNotes,
           students: this.includeStudents
@@ -416,8 +408,8 @@ export default {
         if (this.domain.includes('courses')) {
           query.courses = this.includeCourses;
         }
-        if (this.searchPhrase) {
-          query.q = this.searchPhrase;
+        if (searchPhrase) {
+          query.q = searchPhrase;
         }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
@@ -446,7 +438,7 @@ export default {
           },
           this.noop
         );
-        addToSearchHistory(this.searchPhrase).then(history => {
+        addToSearchHistory(searchPhrase).then(history => {
           this.searchHistory = history;
           this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
         });
