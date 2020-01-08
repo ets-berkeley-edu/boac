@@ -160,19 +160,80 @@ class TestGetCuratedGroup:
         assert alert_counts == [3, 0, 1, 0]
 
     def test_order_by_level(self, asc_advisor, asc_curated_groups, client):
-        """Includes students in response."""
+        """Includes students in response, ordered by level."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='level', offset=1, limit=2)
         names = [f"{s.get('level')} ({s.get('lastName')})" for s in api_json['students']]
         assert names == ['Junior (Kerschen)', 'Senior (Farestveit)']
 
     def test_order_by_major(self, asc_advisor, asc_curated_groups, client):
-        """Includes students in response."""
+        """Includes students in response, ordered by major."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='major', offset=1)
         majors = [f"{s.get('majors')[0]} ({s.get('lastName')})" for s in api_json['students']]
         assert majors == [
             'English BA (Kerschen)',
             'Letters & Sci Undeclared UG (Jayaprakash)',
             'Nuclear Engineering BS (Farestveit)',
+        ]
+
+    def test_order_by_gpa_desc(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by cumulative GPA descending."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='gpa desc')
+        gpas = [f"{s.get('cumulativeGPA')} ({s.get('lastName')})" for s in api_json['students']]
+        assert gpas == [
+            '3.9 (Farestveit)',
+            '3.501 (Jayaprakash)',
+            '3.005 (Kerschen)',
+            '3.8 (Davies)',
+        ]
+
+    def test_order_by_term_gpa(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by term GPA, nulls last."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='term_gpa_2178')
+
+        def _fall_2017_gpa(student):
+            return next((t['gpa'] for t in student['termGpa'] if t['termName'] == 'Fall 2017'), None) if student['termGpa'] else None
+        gpas = [f"{_fall_2017_gpa(s)} ({s.get('lastName')})" for s in api_json['students']]
+        assert gpas == [
+            '1.8 (Davies)',
+            '2.1 (Jayaprakash)',
+            '3.2 (Kerschen)',
+            'None (Farestveit)',
+        ]
+
+    def test_order_by_term_gpa_desc(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by term GPA descending, nulls first."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='term_gpa_2178 desc')
+
+        def _fall_2017_gpa(student):
+            return next((t['gpa'] for t in student['termGpa'] if t['termName'] == 'Fall 2017'), None) if student['termGpa'] else None
+        gpas = [f"{_fall_2017_gpa(s)} ({s.get('lastName')})" for s in api_json['students']]
+        assert gpas == [
+            'None (Farestveit)',
+            '3.2 (Kerschen)',
+            '2.1 (Jayaprakash)',
+            '1.8 (Davies)',
+        ]
+
+    def test_order_by_units_enrolled(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by units in progress, nulls first."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='enrolled_units')
+        units = [f"{s['term'].get('enrolledUnits') if s.get('term') else None} ({s.get('lastName')})" for s in api_json['students']]
+        assert units == [
+            'None (Farestveit)',
+            '5 (Kerschen)',
+            '7 (Jayaprakash)',
+            '12.5 (Davies)',
+        ]
+
+    def test_order_by_units_enrolled_desc(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by units in progress descending, nulls last."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='enrolled_units desc')
+        units = [f"{s['term'].get('enrolledUnits') if s.get('term') else None} ({s.get('lastName')})" for s in api_json['students']]
+        assert units == [
+            '12.5 (Davies)',
+            '7 (Jayaprakash)',
+            '5 (Kerschen)',
+            'None (Farestveit)',
         ]
 
     def test_curated_group_detail_includes_profiles(self, asc_advisor, asc_curated_groups, client, create_alerts):

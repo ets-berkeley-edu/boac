@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 import json
 import operator
+from operator import xor
 import re
 
 from boac.externals import data_loch, s3
@@ -408,7 +409,7 @@ def query_students(
         'totalStudentCount': len(sids_result),
     }
     if not sids_only:
-        o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
             current_term_id=current_term_id(),
             order_by=order_by,
             group_codes=group_codes,
@@ -417,7 +418,7 @@ def query_students(
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
-        if 'group_name' in o or 'entering_term' in o or 'term_gpa' in o:
+        if xor('group_name' in o or 'entering_term' in o or 'term_gpa' in o, 'desc' == o_direction):
             o_null_order = 'NULLS LAST'
         else:
             o_null_order = 'NULLS FIRST'
@@ -426,7 +427,7 @@ def query_students(
             {query_tables}
             {query_filter}
             GROUP BY sas.sid
-            ORDER BY MIN({o}) {o_null_order}, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
+            ORDER BY MIN({o}) {o_direction} {o_null_order}, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
         if o_tertiary != 'sas.sid':
             sql += ', sas.sid'
         sql += ' OFFSET :offset'
@@ -457,7 +458,7 @@ def search_for_students(
             'students': [],
             'totalStudentCount': 0,
         }
-    o, o_secondary, o_tertiary, supplemental_query_tables = data_loch.get_students_ordering(
+    o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
         current_term_id=current_term_id(),
         order_by=order_by,
     )
@@ -477,7 +478,7 @@ def search_for_students(
         {query_tables}
         {query_filter}
         GROUP BY sas.sid
-        ORDER BY MIN({o}) NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
+        ORDER BY MIN({o}) {o_direction} NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
     if o_tertiary != 'sas.sid':
         sql += ', sas.sid'
     sql += f' OFFSET {offset}'

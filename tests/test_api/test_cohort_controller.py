@@ -840,9 +840,11 @@ class TestCohortPerFilters:
         assert _get_first_student('first_name')['firstName'] == 'Dave'
         assert _get_first_student('last_name')['lastName'] == 'Doolittle'
         assert _get_first_student('gpa')['cumulativeGPA'] == 3.005
+        assert _get_first_student('gpa desc')['cumulativeGPA'] == 3.501
         assert _get_first_student('level')['level'] == 'Junior'
         assert _get_first_student('major')['majors'][0] == 'Chemistry BS'
         assert _get_first_student('units')['cumulativeUnits'] == 34
+        assert _get_first_student('units desc')['cumulativeUnits'] == 102
         assert _get_first_student('entering_term')['matriculation'] == 'Spring 2015'
 
         defensive_line_by_units = self._get_defensive_line(client, False, 'enrolled_units')
@@ -850,12 +852,23 @@ class TestCohortPerFilters:
         assert defensive_line_by_units[1]['term']['enrolledUnits'] == 5
         assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
 
+        defensive_line_by_units_desc = self._get_defensive_line(client, False, 'enrolled_units desc')
+        assert defensive_line_by_units_desc[0]['term']['enrolledUnits'] == 7
+        assert defensive_line_by_units_desc[1]['term']['enrolledUnits'] == 5
+        assert 'term' not in defensive_line_by_units_desc[2]
+
         def _fall_2017_gpa(student_feed):
             return next((t['gpa'] for t in student_feed['termGpa'] if t['termName'] == 'Fall 2017'), None)
+
         defensive_line_by_term_gpa = self._get_defensive_line(client, False, 'term_gpa_2178')
         assert _fall_2017_gpa(defensive_line_by_term_gpa[0]) == 2.1
         assert _fall_2017_gpa(defensive_line_by_term_gpa[1]) == 3.2
         assert _fall_2017_gpa(defensive_line_by_term_gpa[2]) is None
+
+        defensive_line_by_term_gpa_desc = self._get_defensive_line(client, False, 'term_gpa_2178 desc')
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[0]) is None
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[1]) == 3.2
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[2]) == 2.1
 
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'

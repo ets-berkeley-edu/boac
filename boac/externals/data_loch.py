@@ -838,6 +838,9 @@ def get_students_query(     # noqa
 
 
 def get_students_ordering(current_term_id, order_by=None, group_codes=None, majors=None, scope=None):
+    o_direction = 'asc'
+    if order_by and order_by.endswith('desc'):
+        order_by, o_direction = order_by.rsplit(' ', 1)
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
     by_first_name = naturalize_order('sas.first_name')
@@ -888,7 +891,7 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
     o_tertiary = diff.pop() if diff else 'sas.sid'
-    return o, o_secondary, o_tertiary, supplemental_query_tables
+    return o, o_secondary, o_tertiary, o_direction, supplemental_query_tables
 
 
 def level_to_code(level):
