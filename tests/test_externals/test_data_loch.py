@@ -107,6 +107,62 @@ class TestDataLoch:
         assert attachment[0]['user_file_name'] == 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'
         assert attachment[0]['is_historical'] is True
 
+    def test_get_students_ordering_default(self):
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
+            '2202',
+        )
+        assert o == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_secondary == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_tertiary == "UPPER(regexp_replace(sas.first_name, '\\\\W', ''))"
+        assert o_direction == 'asc'
+        assert supplemental_query_tables is None
+
+    def test_get_students_ordering_gpa_ascending(self):
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
+            '2202',
+            'gpa',
+        )
+        assert o == 'sas.gpa'
+        assert o_secondary == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_tertiary == "UPPER(regexp_replace(sas.first_name, '\\\\W', ''))"
+        assert o_direction == 'asc'
+        assert supplemental_query_tables is None
+
+    def test_get_students_ordering_gpa_descending(self):
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
+            '2202',
+            order_by='gpa desc',
+        )
+        assert o == 'sas.gpa'
+        assert o_secondary == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_tertiary == "UPPER(regexp_replace(sas.first_name, '\\\\W', ''))"
+        assert o_direction == 'desc'
+        assert supplemental_query_tables is None
+
+    def test_get_students_ordering_units_in_progress_descending(self):
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
+            '2202',
+            order_by='enrolled_units desc',
+        )
+        assert o == 'set.enrolled_units'
+        assert o_secondary == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_tertiary == "UPPER(regexp_replace(sas.first_name, '\\\\W', ''))"
+        assert o_direction == 'desc'
+        assert 'LEFT JOIN student.student_enrollment_terms set' in supplemental_query_tables
+        assert 'ON set.sid = sas.sid AND set.term_id = \'2202\'' in supplemental_query_tables
+
+    def test_get_students_ordering_term_gpa_descending(self):
+        o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
+            '2202',
+            order_by='term_gpa_2202 desc',
+        )
+        assert o == 'set.term_gpa'
+        assert o_secondary == "UPPER(regexp_replace(sas.last_name, '\\\\W', ''))"
+        assert o_tertiary == "UPPER(regexp_replace(sas.first_name, '\\\\W', ''))"
+        assert o_direction == 'desc'
+        assert 'LEFT JOIN student.student_enrollment_terms set' in supplemental_query_tables
+        assert 'ON set.sid = sas.sid AND set.term_id = \'2202\'' in supplemental_query_tables
+
     def test_override_fixture(self, app):
         mr = MockRows(io.StringIO('sid,first_name,last_name\n20000000,Martin,Van Buren'))
         with register_mock(data_loch.get_sis_section_enrollments, mr):

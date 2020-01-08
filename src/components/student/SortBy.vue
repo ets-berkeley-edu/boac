@@ -4,17 +4,13 @@
       <label class="text-nowrap" for="students-sort-by">Sort by</label>
     </div>
     <div class="pl-2 pb-1">
-      <select
+      <b-form-select
         id="students-sort-by"
         v-model="selected"
-        class="form-control w-auto">
-        <option
-          v-for="o in options"
-          :key="o.value"
-          :value="o.value">
-          {{ o.name }}
-        </option>
-      </select>
+        :options="options"
+        class="form-control w-auto"
+        text-field="name">
+      </b-form-select>
     </div>
   </div>
 </template>
@@ -31,7 +27,8 @@ export default {
   mixins: [Berkeley, Context, CurrentUserExtras, Util],
   data: () => ({
     selected: undefined,
-    options: []
+    options: [],
+    separator: '&#x2500;'.repeat(14)
   }),
   watch: {
     selected(value) {
@@ -51,9 +48,6 @@ export default {
     let options = [
       { name: 'First Name', value: 'first_name', available: true },
       { name: 'Last Name', value: 'last_name', available: true },
-      { name: 'GPA (Cumulative)', value: 'gpa', available: true },
-      { name: `GPA (${this.termNameForSisId(gpa_term_id_2)})`, value: `term_gpa_${gpa_term_id_2}`, available: true },
-      { name: `GPA (${this.termNameForSisId(gpa_term_id_1)})`, value: `term_gpa_${gpa_term_id_1}`, available: true },
       { name: 'Level', value: 'level', available: true },
       { name: 'Major', value: 'major', available: true },
       { name: 'Entering Term', value: 'entering_term', available: true },
@@ -62,8 +56,18 @@ export default {
         value: 'group_name',
         available: this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
       },
-      { name: 'Units (In Progress)', value: 'enrolled_units', available: true },
-      { name: 'Units (Completed)', value: 'units', available: true },
+      { html: this.separator, value: null, disabled: true, available: true },
+      { name: `GPA (${this.termNameForSisId(gpa_term_id_2)} - High/Low)`, value: `term_gpa_${gpa_term_id_2} desc`, available: true },
+      { name: `GPA (${this.termNameForSisId(gpa_term_id_2)} - Low/High)`, value: `term_gpa_${gpa_term_id_2}`, available: true },
+      { name: `GPA (${this.termNameForSisId(gpa_term_id_1)} - High/Low)`, value: `term_gpa_${gpa_term_id_1} desc`, available: true },
+      { name: `GPA (${this.termNameForSisId(gpa_term_id_1)} - Low/High)`, value: `term_gpa_${gpa_term_id_1}`, available: true },
+      { name: 'GPA (Cumulative - High/Low)', value: 'gpa desc', available: true },
+      { name: 'GPA (Cumulative - Low/High)', value: 'gpa', available: true },
+      { html: this.separator, value: null, disabled: true, available: true },
+      { name: 'Units (In Progress - High/Low)', value: 'enrolled_units desc', available: true },
+      { name: 'Units (In Progress - Low/High)', value: 'enrolled_units', available: true },
+      { name: 'Units (Completed - High/Low)', value: 'units desc', available: true },
+      { name: 'Units (Completed - Low/High)', value: 'units', available: true },
     ];
     this.options = this.filterList(options, 'available');
   }
