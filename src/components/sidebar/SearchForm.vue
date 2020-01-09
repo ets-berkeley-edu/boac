@@ -24,6 +24,7 @@
             :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
             :is-required="searchInputRequired"
             :suggest-when="() => true"
+            suggestion-label-class="suggestion-label"
             aria-label="Hit enter to execute search"
             type="text"
             maxlength="255" />
@@ -487,6 +488,12 @@ export default {
   color: #333;
   height: 45px !important;
   padding: 0 10px 0 10px !important;
+}
+.suggestion-label {
+  display: inline-block;
+  max-width: 100vw;
+  overflow-wrap: break-word;
+  white-space: normal;
 }
 </style>
 
