@@ -850,7 +850,7 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         o = 's.intensive'
     elif order_by in ['first_name', 'last_name']:
         o = naturalize_order(f'sas.{order_by}')
-    elif order_by in ['entering_term', 'gpa', 'units', 'level']:
+    elif order_by in ['entering_term', 'gpa', 'units', 'level', 'terms_in_attendance']:
         o = f'sas.{order_by}'
     elif order_by == 'group_name':
         # Sorting by athletic team introduces a couple of onerous special cases where we

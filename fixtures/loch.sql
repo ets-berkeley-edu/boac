@@ -287,7 +287,8 @@ CREATE TABLE student.student_academic_status
     transfer BOOLEAN,
     email_address VARCHAR,
     entering_term VARCHAR(4),
-    expected_grad_term VARCHAR(4)
+    expected_grad_term VARCHAR(4),
+    terms_in_attendance INT
 );
 
 CREATE TABLE student.student_majors
@@ -652,17 +653,17 @@ VALUES
 ('3141592653', '314159', :profile_inactive_3141592653);
 
 INSERT INTO student.student_academic_status
-(sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term)
+(sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance)
 VALUES
-('11667051', '61889', 'Deborah', 'Davies', NULL, NULL, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198'),
-('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192'),
-('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192'),
-('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192'),
-('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202'),
-('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978'),
-('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192'),
-('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202'),
-('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192');
+('11667051', '61889', 'Deborah', 'Davies', NULL, NULL, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL),
+('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4),
+('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5),
+('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', 5),
+('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202', 2),
+('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978', 2),
+('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192', 2),
+('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202', 2),
+('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2);
 
 INSERT INTO student.student_majors
 (sid, major)
