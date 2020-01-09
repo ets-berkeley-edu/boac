@@ -100,9 +100,8 @@
             <label for="appointment-details" class="font-size-14 input-label text">
               <span class="font-weight-bolder">Description</span>
             </label>
-            <div>
+            <div id="appointment-details">
               <RichTextEditor
-                id="appointment-details"
                 :initial-value="details || ''"
                 :disabled="isSaving"
                 :is-in-modal="true"
