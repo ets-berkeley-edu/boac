@@ -204,10 +204,14 @@ export default {
       }
     },
     onClickOutside(evt) {
-      if (this.restrict && !this.$el.contains(evt.target)) {
-        this.closeSuggestions();
-      } else if (!this.restrict) {
-        this.isOpen = false;
+      if (!this.$el.contains(evt.target)) {
+        if (this.restrict) {
+          // Close suggestions and clear the input.
+          this.closeSuggestions();
+        } else {
+          // Close only.
+          this.isOpen = false;
+        }
       }
     },
     onEnter() {
