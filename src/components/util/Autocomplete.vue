@@ -53,7 +53,7 @@
             href="#"
             @click="selectSuggestion(suggestion)"
             @keyup.enter="selectSuggestion(suggestion)">
-            <span v-html="highlightQuery(suggestion.label)"></span>
+            <span :class="suggestionLabelClass" v-html="highlightQuery(suggestion.label)"></span>
           </a>
         </li>
       </ul>
@@ -118,6 +118,11 @@ export default {
     source: {
       required: true,
       type: Function
+    },
+    suggestionLabelClass: {
+      default: '',
+      required: false,
+      type: String
     },
     suggestWhen: {
       default: query => query && query.length > 1,
