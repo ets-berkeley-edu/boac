@@ -5,6 +5,9 @@ import Vue from 'vue';
 export default {
   name: 'Berkeley',
   methods: {
+    isDirector: (user) => {
+      return !!_.size(_.filter(user.departments, d => d.isDirector));
+    },
     isSupervisorOnCall: (advisor, deptCode) => {
       return !!_.find(advisor.dropInAdvisorStatus, (status) => {
         return status.deptCode === deptCode && status.supervisorOnCall;

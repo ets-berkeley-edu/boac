@@ -58,6 +58,22 @@ def admin_required(func):
     return _admin_required
 
 
+def admin_or_director_required(func):
+    @wraps(func)
+    def _admin_or_director_required(*args, **kw):
+        is_authorized = current_user.is_authenticated \
+            and (
+                current_user.is_admin
+                or _has_role_in_any_department(current_user, 'isDirector')
+            )
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _admin_or_director_required
+
+
 def advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):

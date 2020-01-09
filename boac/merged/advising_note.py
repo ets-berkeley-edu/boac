@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import csv
+import io
 from itertools import groupby
 from operator import itemgetter
 import re
@@ -30,7 +32,7 @@ import re
 from boac import db
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.util import camelize, get_benchmarker, join_if_present, search_result_text_snippet
+from boac.lib.util import camelize, get_benchmarker, is_int, join_if_present, localize_datetime, search_result_text_snippet, utc_now
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -39,6 +41,7 @@ from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
+import zipstream
 
 """Provide advising note data from local and external sources."""
 
@@ -311,6 +314,70 @@ def get_legacy_attachment_stream(filename):
     return {
         'filename': display_filename,
         'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key),
+    }
+
+
+def get_zip_stream_for_sid(sid):
+    z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
+    notes = get_advising_notes(sid)
+    if not notes:
+        return None
+
+    filename = 'advising_notes'
+    student_data = data_loch.get_basic_student_data([sid])
+    if student_data:
+        student_row = student_data[0]
+        student_name = join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')])
+        filename = '_'.join([filename, student_row.get('first_name', '').lower(), student_row.get('last_name', '').lower()])
+    else:
+        student_name = ''
+    filename = '_'.join([filename, localize_datetime(utc_now()).strftime('%Y%m%d')])
+
+    def iter_csv():
+        def csv_line(_list):
+            csv_output = io.StringIO()
+            csv.writer(csv_output).writerow(_list)
+            return csv_output.getvalue().encode('utf-8')
+            csv_output.close()
+
+        yield csv_line([
+            'date_created',
+            'student_sid',
+            'student_name',
+            'author_uid',
+            'author_csid',
+            'author_name',
+            'subject',
+            'topics',
+            'attachments',
+            'body',
+        ])
+        for note in notes:
+            yield csv_line([
+                note['createdAt'][:10],
+                sid,
+                student_name,
+                note['author']['uid'],
+                note['author']['sid'],
+                note['author']['name'],
+                note['subject'],
+                '; '.join([t for t in note['topics'] or []]),
+                '; '.join([a['displayName'] for a in note['attachments'] or []]),
+                note['body'],
+            ])
+    z.write_iter(f'{filename}.csv', iter_csv())
+
+    for note in notes:
+        for attachment in note['attachments'] or []:
+            is_legacy_attachment = not is_int(attachment['id'])
+            id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
+            stream_data = get_legacy_attachment_stream(id_) if is_legacy_attachment else get_boa_attachment_stream(id_)
+            if stream_data:
+                z.write_iter(stream_data['filename'], stream_data['stream'])
+
+    return {
+        'filename': f'{filename}.zip',
+        'stream': z,
     }
 
 
