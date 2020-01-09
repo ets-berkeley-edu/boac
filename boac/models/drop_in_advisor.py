@@ -59,8 +59,7 @@ class DropInAdvisor(Base):
         std_commit()
 
     @classmethod
-    def create_or_update_status(cls, university_dept, authorized_user_id, status='off_duty_no_waitlist'):
-        dept_code = university_dept.dept_code
+    def create_or_update_status(cls, dept_code, authorized_user_id, status='off_duty_no_waitlist'):
         existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
             new_status = existing_status
@@ -81,7 +80,13 @@ class DropInAdvisor(Base):
         return cls.query.filter_by(dept_code=dept_code, deleted_at=None).all()
 
     @classmethod
-    def get_all(cls, authorized_user_id):
+    def find_by_dept_and_user(cls, dept_code, authorized_user_id):
+        return cls.query.filter_by(authorized_user_id=authorized_user_id, dept_code=dept_code).first()
+
+    @classmethod
+    def get_all(cls, authorized_user_id, include_deleted=False):
+        if include_deleted:
+            return cls.query.filter_by(authorized_user_id=authorized_user_id).all()
         return cls.query.filter_by(authorized_user_id=authorized_user_id, deleted_at=None).all()
 
     @classmethod
@@ -111,5 +116,6 @@ class DropInAdvisor(Base):
     def to_api_json(self):
         return {
             'deptCode': self.dept_code,
+            'isEnabled': self.deleted_at is None,
             'status': self.status,
         }

@@ -321,7 +321,7 @@ class TestRefreshDepartmentMemberships:
             is_director=False,
             is_scheduler=False,
         )
-        DropInAdvisor.create_or_update_status(dept_ucls, bad_user.id)
+        DropInAdvisor.create_or_update_status(dept_ucls.dept_code, bad_user.id)
         std_commit(allow_test_environment=True)
 
         ucls_drop_in_advisors = DropInAdvisor.advisors_for_dept_code(dept_ucls.dept_code)
