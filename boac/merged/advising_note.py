@@ -333,6 +333,11 @@ def get_zip_stream_for_sid(sid):
         student_name = ''
     filename = '_'.join([filename, localize_datetime(utc_now()).strftime('%Y%m%d')])
 
+    supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(
+        app,
+        list(set([note['author']['sid'] for note in notes if note['author']['sid'] and not note['author']['name']])),
+    )
+
     def iter_csv():
         def csv_line(_list):
             csv_output = io.StringIO()
@@ -353,13 +358,16 @@ def get_zip_stream_for_sid(sid):
             'body',
         ])
         for note in notes:
+            calnet_author = supplemental_calnet_advisor_feeds.get(note['author']['sid'])
+            calnet_author_name = join_if_present(' ', [calnet_author.get('firstName'), calnet_author.get('lastName')]) if calnet_author else None
+            calnet_author_uid = calnet_author.get('uid') if calnet_author else None
             yield csv_line([
                 note['createdAt'][:10],
                 sid,
                 student_name,
-                note['author']['uid'],
+                (note['author']['uid'] or calnet_author_uid),
                 note['author']['sid'],
-                note['author']['name'],
+                (note['author']['name'] or calnet_author_name),
                 note['subject'],
                 '; '.join([t for t in note['topics'] or []]),
                 '; '.join([a['displayName'] for a in note['attachments'] or []]),
