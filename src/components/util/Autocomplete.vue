@@ -159,12 +159,12 @@ export default {
       return this.query;
     },
     highlightQuery(string) {
-      var regex = new RegExp(this.query, 'i');
-      var match = string.match(regex);
+      const regex = new RegExp(this.escapeForRegExp(this.query), 'i');
+      const match = string.match(regex);
       if (!match) {
         return string;
       }
-      var matchedText = string.substring(match.index, match.index + match[0].toString().length);
+      const matchedText = string.substring(match.index, match.index + match[0].toString().length);
       return string.replace(regex, `<strong>${matchedText}</strong>`);
     },
     makeSuggestions() {
@@ -173,7 +173,7 @@ export default {
         this.isOpen = true;
         this.isLoading = true;
         this.suggestions = [];
-        const q = this.query && this.query.replace(/[^\w ]+/g, '');
+        const q = this.query && this.escapeForRegExp(this.query).replace(/[^\w ]+/g, '');
         this.source(q, this.limit).then(results => {
           this.populateSuggestions(results);
         });
