@@ -8,7 +8,7 @@
       :class="inputClass"
       :disabled="disabled"
       :placeholder="placeholder"
-      maxlength="56"
+      :maxlength="maxlength"
       name="autocomplete-name"
       :required="isRequired"
       :type="demoModeBlur && $currentUser.inDemoMode ? 'password': 'text'"
@@ -100,6 +100,11 @@ export default {
     onEscFormInput: {
       required: false,
       type: Function
+    },
+    maxlength: {
+      default: '56',
+      required: false,
+      type: String
     },
     placeholder: {
       required: false,

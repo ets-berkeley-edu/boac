@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.lib.util import utc_now
+from boac.lib.util import utc_now, vacuum_whitespace
 from boac.models.base import Base
 from boac.models.db_relationships import cohort_filter_owners
 from flask import current_app as app
@@ -35,6 +35,8 @@ from sqlalchemy.orm import deferred
 
 class AuthorizedUser(Base):
     __tablename__ = 'authorized_users'
+
+    SEARCH_HISTORY_ITEM_MAX_LENGTH = 256
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     uid = db.Column(db.String(255), nullable=False, unique=True)
@@ -203,10 +205,17 @@ class AuthorizedUser(Base):
 
     @classmethod
     def add_to_search_history(cls, user_id, search_phrase):
+        search_phrase = vacuum_whitespace(search_phrase)
         query = text(f'SELECT search_history FROM authorized_users WHERE id = :user_id')
         result = db.session.execute(query, {'user_id': user_id}).first()
         if result:
             search_history = result['search_history'] or []
+            if len(search_phrase) > cls.SEARCH_HISTORY_ITEM_MAX_LENGTH:
+                if ' ' in search_phrase:
+                    search_phrase = search_phrase[:cls.SEARCH_HISTORY_ITEM_MAX_LENGTH + 1]
+                    search_phrase = search_phrase[:search_phrase.rindex(' ') + 1].strip()
+                else:
+                    search_phrase = search_phrase[:cls.SEARCH_HISTORY_ITEM_MAX_LENGTH]
             if search_phrase.lower() in [s.lower() for s in search_history]:
                 search_history.remove(search_phrase)
             search_history.insert(0, search_phrase)

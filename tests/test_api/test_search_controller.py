@@ -762,6 +762,30 @@ class TestSearchHistory:
         self._api_add_to_my_search_history(client, 'Moe')
         assert self._api_my_search_history(client=client) == expected_history
 
+    def test_search_history_truncate(self, client, coe_scheduler):
+        # The string expected in search history will be shorter than MAX_LENGTH
+        expected_length = AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH - 20
+        expected_search_history_string = 's' * expected_length
+        search_string = f'  {expected_search_history_string}  this_suffix_has_no_whitespace_and_will_be_dropped  '
+        self._api_add_to_my_search_history(client, search_string)
+        assert self._api_my_search_history(client)[0] == expected_search_history_string
+
+        # A whole lot of whitespace in search string
+        search_string = '       aa       bbb     c  ' * AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH
+        self._api_add_to_my_search_history(client, search_string)
+        actual_search_history_string = self._api_my_search_history(client)[0]
+        assert actual_search_history_string[0] in 'abc'
+        assert actual_search_history_string[-1] in 'abc'
+        for snippet in (' aa ', ' bbb ', ' c '):
+            assert snippet in actual_search_history_string
+        assert '  ' not in actual_search_history_string
+
+    def test_search_history_truncate_when_no_whitespace(self, client, coe_scheduler):
+        expected_search_history_string = 's' * AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH
+        no_whitespace_in_search_string = f'{expected_search_history_string}truncate_me'
+        self._api_add_to_my_search_history(client, f'  {no_whitespace_in_search_string}   ')
+        assert self._api_my_search_history(client)[0] == expected_search_history_string
+
     def test_manage_search_history(self, admin_login, client):
         """Properly manages search history."""
         assert self._api_my_search_history(client) == []

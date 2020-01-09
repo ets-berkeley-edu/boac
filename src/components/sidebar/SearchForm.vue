@@ -440,10 +440,12 @@ export default {
           this.noop
         );
         this.scrollToTop();
-        addToSearchHistory(searchPhrase).then(history => {
-          this.searchHistory = history;
-          this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
-        });
+        if (this.trim(searchPhrase)) {
+          addToSearchHistory(searchPhrase).then(history => {
+            this.searchHistory = history;
+            this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+          });
+        }
       } else {
         this.alertScreenReader('Search input is required');
       }
