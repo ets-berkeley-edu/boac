@@ -206,6 +206,8 @@ export default {
     onClickOutside(evt) {
       if (this.restrict && !this.$el.contains(evt.target)) {
         this.closeSuggestions();
+      } else if (!this.restrict) {
+        this.isOpen = false;
       }
     },
     onEnter() {
