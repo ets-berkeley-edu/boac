@@ -3,7 +3,7 @@
     :id="`appointment-search-result-${appointment.id}`"
     :class="{'demo-mode-blur': $currentUser.inDemoMode}"
     class="advising-note-search-result">
-    <h3 class="advising-note-search-result-header">
+    <h3 v-if="appointment.student" class="advising-note-search-result-header">
       <router-link
         :id="`appointment-link-to-student-${appointment.student.uid}`"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
@@ -12,6 +12,14 @@
         v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"></router-link>
       ({{ appointment.student.sid }})
     </h3>
+    <div v-if="!appointment.student">
+      <h3 class="advising-note-search-result-header">
+        <span class="font-weight-500">Appointment for SID {{ appointment.studentSid }}</span>
+      </h3>
+      <div>
+        <i>No student record found.</i>
+      </div>
+    </div>
     <div
       :id="`appointment-search-result-snippet-${appointment.id}`"
       class="advising-note-search-result-snippet"

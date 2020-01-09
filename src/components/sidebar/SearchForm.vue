@@ -248,6 +248,7 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
+import Scrollable from '@/mixins/Scrollable';
 import Util from '@/mixins/Util';
 import { findAdvisorsByName } from '@/api/appointments';
 import { findAuthorsByName } from '@/api/notes';
@@ -260,7 +261,7 @@ export default {
   components: {
     Autocomplete
   },
-  mixins: [Context, Util],
+  mixins: [Context, Scrollable, Util],
   props: {
     context: String,
     domain: Array,
@@ -438,6 +439,7 @@ export default {
           },
           this.noop
         );
+        this.scrollToTop();
         addToSearchHistory(searchPhrase).then(history => {
           this.searchHistory = history;
           this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);

@@ -392,7 +392,8 @@ class Appointment(Base):
 
 def _to_json(search_terms, search_result):
     appointment_id = search_result['id']
-    student = data_loch.get_student_by_sid(search_result['student_sid'])
+    sid = search_result['student_sid']
+    student = data_loch.get_student_by_sid(sid)
     api_json = {
         'id': appointment_id,
         'advisorName': search_result['advisor_name'],
@@ -405,6 +406,7 @@ def _to_json(search_terms, search_result):
         'details': search_result['details'],
         'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
         'student': {camelize(key): student[key] for key in student.keys()} if student else None,
+        'studentSid': sid,
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
     }
