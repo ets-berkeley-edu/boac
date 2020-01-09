@@ -62,6 +62,7 @@ def get_distilled_student_profiles(sids):
             ]
         }
         distilled['academicCareerStatus'] = profile['sisProfile'].get('academicCareerStatus')
+        distilled['termsInAttendance'] = profile['sisProfile'].get('termsInAttendance')
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
@@ -251,6 +252,7 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
         profile['level'] = _get_sis_level_description(sis_profile)
         profile['majors'] = _get_active_plan_descriptions(sis_profile)
         profile['matriculation'] = sis_profile.get('matriculation')
+        profile['termsInAttendance'] = sis_profile.get('termsInAttendance')
         profile['transfer'] = sis_profile.get('transfer')
         if sis_profile.get('withdrawalCancel'):
             profile['withdrawalCancel'] = sis_profile['withdrawalCancel']

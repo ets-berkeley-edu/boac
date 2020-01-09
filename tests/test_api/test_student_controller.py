@@ -435,7 +435,7 @@ class TestStudent:
             assert sis_profile['plans'][1]['degreeProgramUrl'] == 'http://guide.berkeley.edu/undergraduate/degree-programs/nuclear-engineering/'
             assert sis_profile['preferredName'] == 'Osk Bear'
             assert sis_profile['primaryName'] == 'Oski Bear'
-            assert sis_profile['termsInAttendance'] == 5
+            assert sis_profile['termsInAttendance'] is None
 
     def test_sis_profile_expected_graduation_term(self, client, coe_advisor_login):
         """Provides the last of any expected graduation terms listed in SIS profile."""

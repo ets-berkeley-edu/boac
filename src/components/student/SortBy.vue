@@ -51,6 +51,7 @@ export default {
       { name: 'Level', value: 'level', available: true },
       { name: 'Major', value: 'major', available: true },
       { name: 'Entering Term', value: 'entering_term', available: true },
+      { name: 'Terms Completed', value: 'terms_in_attendance', available: true },
       {
         name: 'Team',
         value: 'group_name',

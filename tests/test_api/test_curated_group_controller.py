@@ -236,6 +236,17 @@ class TestGetCuratedGroup:
             'None (Farestveit)',
         ]
 
+    def test_order_by_terms_in_attendance(self, asc_advisor, asc_curated_groups, client):
+        """Includes students in response, ordered by terms completed, nulls last."""
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='terms_in_attendance')
+        units = [f"{s['termsInAttendance']} ({s.get('lastName')})" for s in api_json['students']]
+        assert units == [
+            'None (Davies)',
+            '2 (Farestveit)',
+            '5 (Jayaprakash)',
+            '5 (Kerschen)',
+        ]
+
     def test_curated_group_detail_includes_profiles(self, asc_advisor, asc_curated_groups, client, create_alerts):
         """Returns all students with profile data."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id)
@@ -645,10 +656,10 @@ class TestDownloadCuratedGroupCSV:
         for snippet in [
             'first_name,last_name,sid,email,phone,majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,\
 program_status',
-            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,5,Fall 2019,101.3,2.900,3.8,',
+            'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,',
             'Paul,Kerschen,3456789012,doctork@berkeley.edu,415/123-4567,English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
             'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
-            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,5,Spring 2020,110,,3.9,',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,',
         ]:
             assert str(snippet) in csv
 
@@ -693,10 +704,10 @@ program_status',
         csv = str(response.data)
         for snippet in [
             'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
-            'English BA;Nuclear Engineering BS,Junior,5,Fall 2019,101.3,2.900,3.8,',
+            'English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,',
             'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
             'Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
-            'Nuclear Engineering BS,Senior,5,Spring 2020,110,,3.9,',
+            'Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,',
         ]:
             assert str(snippet) in csv
 
