@@ -27,6 +27,7 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
+    admin_or_director_required,
     advisor_required,
     get_note_attachments_from_http_post,
     get_note_topics_from_http_post,
@@ -40,6 +41,7 @@ from boac.merged.advising_note import (
     get_batch_distinct_sids,
     get_boa_attachment_stream,
     get_legacy_attachment_stream,
+    get_zip_stream_for_sid,
     note_to_compatible_json,
 )
 from boac.merged.calnet import get_calnet_user_for_uid
@@ -257,6 +259,18 @@ def download_attachment(attachment_id):
     r.headers['Content-Type'] = 'application/octet-stream'
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
     r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
+    return r
+
+
+@app.route('/api/notes/download_for_sid/<sid>', methods=['GET'])
+@admin_or_director_required
+def download_notes_and_attachments(sid):
+    stream_data = get_zip_stream_for_sid(sid)
+    if not stream_data or not stream_data['stream']:
+        return Response('Notes not available.', mimetype='text/html', status=404)
+    r = Response(stream_data['stream'])
+    r.headers['Content-Type'] = 'application/zip'
+    r.headers['Content-Disposition'] = f"attachment; filename={stream_data['filename']}"
     return r
 
 

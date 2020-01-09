@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 from time import sleep
 
+from boac.lib.util import localize_datetime, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
@@ -40,6 +41,7 @@ from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
+l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
 admin_uid = '2040'
 
@@ -704,6 +706,40 @@ class TestStreamNoteAttachments:
             response = client.get('/api/notes/attachment/h0ax.lol')
             assert response.status_code == 404
             assert response.data == b'Sorry, attachment not available.'
+
+
+class TestStreamNotesZip:
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+
+    def test_not_authorized(self, client, fake_auth):
+        """Returns 401 if not admin or director."""
+        fake_auth.login(coe_advisor_uid)
+        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+
+    def test_not_found(self, client, fake_auth):
+        """Returns 404 if SID not found."""
+        fake_auth.login(admin_uid)
+        assert client.get('/api/notes/download_for_sid/9999999999').status_code == 404
+
+    def _assert_zip_download(self, app, client):
+        today = localize_datetime(utc_now()).strftime('%Y%m%d')
+        with mock_legacy_note_attachment(app):
+            response = client.get('/api/notes/download_for_sid/9000000000')
+            assert response.status_code == 200
+            assert response.headers['Content-Type'] == 'application/zip'
+            assert response.headers['Content-Disposition'] == f"attachment; filename=advising_notes_wolfgang_pauli-o'rourke_{today}.zip"
+            assert response.data
+
+    def test_authorizes_director(self, app, client, fake_auth):
+        fake_auth.login(l_s_director_uid)
+        self._assert_zip_download(app, client)
+
+    def test_authorizes_admin(self, app, client, fake_auth):
+        fake_auth.login(admin_uid)
+        self._assert_zip_download(app, client)
 
 
 class TestAuthorSearch:

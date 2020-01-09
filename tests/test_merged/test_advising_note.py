@@ -24,8 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime, timedelta
+import io
+from zipfile import ZipFile
 
-from boac.merged.advising_note import get_advising_notes, get_legacy_attachment_stream, search_advising_notes
+from boac.lib.util import localize_datetime, utc_now
+from boac.merged.advising_note import get_advising_notes, get_legacy_attachment_stream, get_zip_stream_for_sid, search_advising_notes
 from boac.models.note import Note
 from dateutil.parser import parse
 import pytz
@@ -439,6 +442,27 @@ class TestMergedAdvisingNote:
             fake_auth.login(coe_advisor)
             assert get_legacy_attachment_stream('11667051_00001_1.pdf')['stream'] is None
             assert "the s3 key 'sis-attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text
+
+    def test_stream_zipped_bundle(self, app, fake_auth):
+        with mock_legacy_note_attachment(app):
+            stream = get_zip_stream_for_sid('9000000000')['stream']
+            body = b''
+            for chunk in stream:
+                body += chunk
+            zipfile = ZipFile(io.BytesIO(body), 'r')
+            contents = {}
+            for name in zipfile.namelist():
+                contents[name] = zipfile.read(name)
+
+            assert len(contents) == 2
+            assert contents['dog_eaten_homework.pdf'] == b'When in the course of human events, it becomes necessarf arf woof woof woof'
+            today = localize_datetime(utc_now()).strftime('%Y%m%d')
+            csv_rows = contents[f"advising_notes_wolfgang_pauli-o'rourke_{today}.csv"].decode('utf-8').strip().split('\r\n')
+            assert len(csv_rows) == 3
+            assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,topics,attachments,body'
+            assert csv_rows[1] ==\
+                "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,,dog_eaten_homework.pdf,I am confounded by this confounding student"
+            assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,,Is this student even on campus?"
 
 
 def _create_coe_advisor_note(

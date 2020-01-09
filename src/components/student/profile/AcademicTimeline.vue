@@ -51,6 +51,15 @@
           class="toggle-expand-all-caret" />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
+      <div v-if="filter === 'note' && ($currentUser.isAdmin || isDirector($currentUser))">
+        |
+        <a
+          id="download-notes-link"
+          class="p-2"
+          :href="notesDownloadUrl">
+          Download notes
+        </a>
+      </div>
       |
       <label
         :for="`timeline-${filter}s-query-input`"
@@ -318,6 +327,7 @@
 import AdvisingAppointment from "@/components/appointment/AdvisingAppointment";
 import AdvisingNote from "@/components/note/AdvisingNote";
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CreateNoteModal from "@/components/note/create/CreateNoteModal";
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
@@ -339,7 +349,7 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
-  mixins: [Context, Scrollable, Util],
+  mixins: [Berkeley, Context, Scrollable, Util],
   props: {
     student: {
       required: true,
@@ -401,6 +411,9 @@ export default {
     },
     isExpandAllAvailable() {
       return this.includes(['appointment', 'note'], this.filter);
+    },
+    notesDownloadUrl() {
+      return `${this.$config.apiBaseUrl}/api/notes/download_for_sid/${this.student.sid}`;
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete;
