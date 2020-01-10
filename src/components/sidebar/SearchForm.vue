@@ -23,11 +23,21 @@
             :source="searchSuggestions"
             :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
             :is-required="searchInputRequired"
+            :on-esc-form-input="hideError"
             :suggest-when="() => true"
             suggestion-label-class="suggestion-label"
             aria-label="Hit enter to execute search"
             type="text"
             maxlength="255" />
+          <b-popover
+            v-if="showErrorPopover"
+            :show.sync="showErrorPopover"
+            aria-live="polite"
+            placement="top"
+            role="alert"
+            target="search-students-input">
+            <span id="popover-error-message" class="has-error"><font-awesome icon="exclamation-triangle" class="text-warning pr-1" /> Search input is required</span>
+          </b-popover>
         </div>
         <div v-if="context === 'sidebar'" class="d-flex flex-wrap justify-content-between search-label text-nowrap text-white">
           <div>
@@ -237,7 +247,7 @@
         <b-button
           :disabled="validDateRange === false"
           variant="primary"
-          @click="search()">
+          @click.stop="search()">
           Search
         </b-button>
       </b-collapse>
@@ -285,6 +295,7 @@ export default {
       searchHistory: [],
       searchPhrase: null,
       showNoteFilters: false,
+      showErrorPopover: false,
       showSearchOptions: false,
       topicOptions: undefined
     };
@@ -360,7 +371,9 @@ export default {
     this.resetNoteFilters();
     getMySearchHistory().then(history => {
       this.searchHistory = history;
-    })
+    });
+    document.addEventListener('keydown', this.hideError);
+    document.addEventListener('click', this.hideError);
   },
   methods: {
     dateFormat(value) {
@@ -376,6 +389,9 @@ export default {
     },
     dateString(d, format) {
       return this.$options.filters.moment(d, format);
+    },
+    hideError() {
+      this.showErrorPopover = false;
     },
     searchSuggestions(q) {
       return new Promise(resolve => {
@@ -449,6 +465,7 @@ export default {
         }
       } else {
         this.alertScreenReader('Search input is required');
+        this.showErrorPopover = true;
       }
     },
     toggleNoteFilters() {
