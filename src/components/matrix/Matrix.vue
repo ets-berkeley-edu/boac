@@ -204,7 +204,14 @@ export default {
         .tickFormat(this.getTickFormat(yAxisMeasure))
         .tickSize(-width);
 
+      var container = d3.select('#matrix-container');
+
+      var clearTooltips = () => {
+        container.selectAll('.matrix-tooltip').remove();
+      };
+
       var onZoom = () => {
+        clearTooltips();
         var transform = d3.event.transform;
         var xNewScale = transform.rescaleX(xScale);
         xAxis.scale(xNewScale);
@@ -228,10 +235,8 @@ export default {
         .filter(() => !d3.event.button && d3.event.type !== 'wheel')
         .on('zoom', onZoom);
 
-      var container = d3.select('#matrix-container');
-
       // Clear any lingering tooltips.
-      container.selectAll('.matrix-tooltip').remove();
+      clearTooltips();
 
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3
@@ -506,7 +511,7 @@ export default {
         if (featuredStudent[0]) {
           onDotDeselected(featuredStudent[0], featuredStudent[1], true);
         }
-        container.selectAll('.matrix-tooltip').remove();
+        clearTooltips();
         /*
          * If the dot represents a real student, lift it outside the path-clipped dotGroup so it can
          * overlap the edge of the matrix if need be.
