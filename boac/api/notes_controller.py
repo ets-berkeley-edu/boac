@@ -193,8 +193,9 @@ def find_note_authors_by_name():
     authors = data_loch.match_advising_note_authors_by_name(query_fragments, limit=limit)
 
     def _author_feed(a):
+        label = a.get('name') or ' '.join([a.get('first_name', ''), a.get('last_name', '')])
         return {
-            'label': ' '.join([a.get('first_name', ''), a.get('last_name', '')]),
+            'label': label,
             'sid': a.get('sid'),
             'uid': a.get('uid'),
         }
