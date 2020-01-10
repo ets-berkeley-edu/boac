@@ -394,7 +394,7 @@ export default {
     findAdvisorsByName(q, limit) {
       const queries = [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)];
       return Promise.all(queries).then((results) => {
-        return this.orderBy(this.unionBy(this.flatten(results), 'label'), 'label');
+        return this.orderBy(this.unionBy(this.flatten(results), 'uid'), 'label');
       });
     },
     resetNoteFilters() {

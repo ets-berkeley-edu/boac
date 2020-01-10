@@ -128,7 +128,8 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
         profile = calnet_users[user.uid]
         if not profile:
             continue
-        profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()
+        if not profile.get('name'):
+            profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()
         profile.update({
             'id': user.id,
             'isAdmin': user.is_admin,

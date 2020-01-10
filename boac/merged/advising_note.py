@@ -266,7 +266,10 @@ def _get_loch_notes_search_results(loch_results, search_terms):
     for row in loch_results:
         note = {camelize(key): row[key] for key in row.keys()}
         advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
-        advisor_name = join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')]) if advisor_feed else None
+        if advisor_feed:
+            advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')])
+        else:
+            advisor_name = None
         note_body = (note.get('noteBody') or '').strip() or join_if_present(', ', [note.get('noteCategory'), note.get('noteSubcategory')])
         results.append({
             'id': note.get('id'),
@@ -359,8 +362,13 @@ def get_zip_stream_for_sid(sid):
         ])
         for note in notes:
             calnet_author = supplemental_calnet_advisor_feeds.get(note['author']['sid'])
-            calnet_author_name = join_if_present(' ', [calnet_author.get('firstName'), calnet_author.get('lastName')]) if calnet_author else None
-            calnet_author_uid = calnet_author.get('uid') if calnet_author else None
+            if calnet_author:
+                calnet_author_name =\
+                    calnet_author.get('name') or join_if_present(' ', [calnet_author.get('firstName'), calnet_author.get('lastName')])
+                calnet_author_uid = calnet_author.get('uid')
+            else:
+                calnet_author_name = None
+                calnet_author_uid = None
             yield csv_line([
                 note['createdAt'][:10],
                 sid,
