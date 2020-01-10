@@ -1,14 +1,14 @@
 <template>
-  <div class="d-flex align-items-center">
+  <div class="align-items-center d-flex pb-1">
     <div>
-      <label class="text-nowrap" for="students-sort-by">Sort by</label>
+      <label class="mb-0 text-nowrap" for="students-sort-by">Sort by</label>
     </div>
-    <div class="pl-2 pb-1">
+    <div class="pl-2">
       <b-form-select
         id="students-sort-by"
         v-model="selected"
         :options="options"
-        class="form-control w-auto"
+        class="form-control pb-1 pt-1 pr-4 w-auto"
         text-field="name">
       </b-form-select>
     </div>
