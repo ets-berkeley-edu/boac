@@ -11,22 +11,20 @@
           <div class="b-link-text">{{ $currentUser.firstName || `UID:${$currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
         </div>
       </template>
-      <b-dropdown-item v-if="$currentUser.isAdmin || $config.isDemoModeAvailable">
-        <NavLink
-          id="header-link-to-settings"
-          class="nav-link-color text-decoration-none"
-          :path="isUserSimplyScheduler() ? '/scheduler/settings' : '/admin'">
-          <span v-if="$currentUser.isAdmin">Flight Deck</span>
-          <span v-if="!$currentUser.isAdmin">Settings</span>
-        </NavLink>
+      <b-dropdown-item
+        v-if="!isUserSimplyScheduler() || $config.isDemoModeAvailable"
+        id="header-link-to-settings"
+        :href="isUserSimplyScheduler() ? '/scheduler/settings' : '/admin'"
+        class="nav-link-color text-decoration-none">
+        <span v-if="$currentUser.isAdmin">Flight Deck</span>
+        <span v-if="!$currentUser.isAdmin">Settings</span>
       </b-dropdown-item>
-      <b-dropdown-item v-if="$currentUser.isAdmin">
-        <NavLink
-          id="header-link-to-passengers"
-          class="nav-link-color text-decoration-none"
-          path="/admin/passengers">
-          Passenger Manifest
-        </NavLink>
+      <b-dropdown-item
+        v-if="$currentUser.isAdmin"
+        id="header-link-to-passengers"
+        href="/admin/passengers"
+        class="nav-link-color text-decoration-none">
+        Passenger Manifest
       </b-dropdown-item>
       <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item
@@ -42,13 +40,11 @@
 <script>
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import NavLink from "@/components/util/NavLink";
 import Util from '@/mixins/Util';
 import { getCasLogoutUrl } from '@/api/auth';
 
 export default {
   name: 'HeaderMenu',
-  components: { NavLink },
   mixins: [Berkeley, Context, Util],
   methods: {
     isUserSimplyScheduler() {
