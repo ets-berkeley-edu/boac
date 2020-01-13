@@ -99,6 +99,8 @@ DISABLE_MATRIX_VIEW_THRESHOLD = 800
 # In demo mode, student profile pictures and sensitive data will be blurred.
 DEMO_MODE_AVAILABLE = False
 
+DEPARTMENTS_SUPPORTING_DROP_INS = []
+
 DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 

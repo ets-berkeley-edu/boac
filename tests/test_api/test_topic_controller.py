@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from tests.util import override_config
+
 coe_advisor_uid = '90412'
 coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
@@ -83,30 +85,39 @@ class TestTopicsForAppointment:
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is not a drop-in advisor."""
-        fake_auth.login(l_s_college_advisor_uid)
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            self._get_topics(client, expected_status_code=401)
+
+    def test_dept_not_drop_in_enabled(self, client, fake_auth):
+        """Returns 401 if user's dept is not configured for drop-in advising."""
+        fake_auth.login(coe_scheduler_uid)
         self._get_topics(client, expected_status_code=401)
 
     def test_scheduler_get_appointment_topics(self, app, client, fake_auth):
         """COE scheduler can get topics."""
-        fake_auth.login(coe_scheduler_uid)
-        topics = self._get_topics(client)
-        assert len(topics) == 9
-        assert topics[-1] == 'Other / Reason not listed'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_scheduler_uid)
+            topics = self._get_topics(client)
+            assert len(topics) == 9
+            assert topics[-1] == 'Other / Reason not listed'
 
     def test_advisor_get_appointment_topics(self, app, client, fake_auth):
         """COE advisor can get topics."""
-        fake_auth.login(coe_advisor_uid)
-        topics = self._get_topics(client)
-        assert len(topics) == 9
-        assert topics[-1] == 'Other / Reason not listed'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_uid)
+            topics = self._get_topics(client)
+            assert len(topics) == 9
+            assert topics[-1] == 'Other / Reason not listed'
 
-    def test_get_all_topics_including_deleted(self, client, fake_auth):
+    def test_get_all_topics_including_deleted(self, app, client, fake_auth):
         """Get all appointment topic options, including deleted."""
-        fake_auth.login(coe_advisor_uid)
-        topics = self._get_topics(client, include_deleted=True)
-        assert len(topics) == 11
-        assert 'Topic for appointments, deleted' in topics
-        assert topics[-1] == 'Other / Reason not listed'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_uid)
+            topics = self._get_topics(client, include_deleted=True)
+            assert len(topics) == 11
+            assert 'Topic for appointments, deleted' in topics
+            assert topics[-1] == 'Other / Reason not listed'
 
 
 class TestTopicsForNotes:

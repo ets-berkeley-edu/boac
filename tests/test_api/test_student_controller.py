@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import pytest
 import simplejson as json
+from tests.util import override_config
 
 admin_uid = '2040'
 asc_advisor_id = '1081940'
@@ -579,33 +580,34 @@ class TestStudent:
 
     def test_appointment_marked_read(self, app, client, fake_auth):
         """Includes advising appointments."""
-        sid = '3456789012'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            sid = '3456789012'
 
-        fake_auth.login(coe_scheduler_id)
-        response = client.post(
-            '/api/appointments/create',
-            data=json.dumps({
-                'deptCode': 'COENG',
-                'sid': sid,
-                'appointmentType': 'Drop-in',
-                'topics': ['Topic for appointments, 4'],
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == 200
-        appointment_id = response.json['id']
+            fake_auth.login(coe_scheduler_id)
+            response = client.post(
+                '/api/appointments/create',
+                data=json.dumps({
+                    'deptCode': 'COENG',
+                    'sid': sid,
+                    'appointmentType': 'Drop-in',
+                    'topics': ['Topic for appointments, 4'],
+                }),
+                content_type='application/json',
+            )
+            assert response.status_code == 200
+            appointment_id = response.json['id']
 
-        def _is_appointment_read():
-            student = self._api_student_by_sid(client=client, sid=sid)
-            appointments = student['notifications']['appointment']
-            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
-            assert appointment is not None
-            return appointment['read']
+            def _is_appointment_read():
+                student = self._api_student_by_sid(client=client, sid=sid)
+                appointments = student['notifications']['appointment']
+                appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+                assert appointment is not None
+                return appointment['read']
 
-        fake_auth.login(asc_advisor_id)
-        assert _is_appointment_read() is False
-        client.post(f'/api/appointments/{appointment_id}/mark_read')
-        assert _is_appointment_read() is True
+            fake_auth.login(asc_advisor_id)
+            assert _is_appointment_read() is False
+            client.post(f'/api/appointments/{appointment_id}/mark_read')
+            assert _is_appointment_read() is True
 
 
 class TestAlerts:
