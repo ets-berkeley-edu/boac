@@ -595,13 +595,13 @@ class TestToggleDropInAppointmentStatus:
         assert response.status_code == 200
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
-        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False}]
+        assert {'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False} in response.json[0]['dropInAdvisorStatus']
         response = client.get('/api/profile/my')
-        assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False}]
+        assert {'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False} in response.json['dropInAdvisorStatus']
         response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
         assert response.status_code == 200
         response = client.get('/api/profile/my')
-        assert response.json['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'status': 'on_duty_advisor', 'supervisorOnCall': False}]
+        assert {'deptCode': 'QCADV', 'status': 'on_duty_advisor', 'supervisorOnCall': False} in response.json['dropInAdvisorStatus']
 
     def test_scheduler_can_toggle_advisor_status(self, client, fake_auth):
         fake_auth.login(l_s_college_scheduler_uid)
@@ -612,7 +612,7 @@ class TestToggleDropInAppointmentStatus:
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
         assert response.json[0]['status'] == 'off_duty_waitlist'
-        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False}]
+        assert {'deptCode': 'QCADV', 'status': 'off_duty_waitlist', 'supervisorOnCall': False} in response.json[0]['dropInAdvisorStatus']
 
         response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
         assert response.status_code == 200
@@ -620,7 +620,7 @@ class TestToggleDropInAppointmentStatus:
         response = client.get('/api/users/drop_in_advisors/QCADV')
         assert len(response.json) == 1
         assert response.json[0]['status'] == 'on_duty_advisor'
-        assert response.json[0]['dropInAdvisorStatus'] == [{'deptCode': 'QCADV', 'status': 'on_duty_advisor', 'supervisorOnCall': False}]
+        assert {'deptCode': 'QCADV', 'status': 'on_duty_advisor', 'supervisorOnCall': False} in response.json[0]['dropInAdvisorStatus']
 
 
 class TestUserUpdate:
@@ -902,7 +902,7 @@ class TestSetDropInRole:
         """Allows drop-in advisor to become a supervisor on call."""
         fake_auth.login(l_s_college_drop_in_advisor_uid)
         user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
-        assert len(user.drop_in_departments) == 1
+        assert len(user.drop_in_departments) == 2
         assert user.drop_in_departments[0].is_supervisor_on_call is False
         self._api_drop_in_role(
             client,
@@ -910,5 +910,5 @@ class TestSetDropInRole:
             role='supervisorOnCall',
         )
         user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
-        assert len(user.drop_in_departments) == 1
+        assert len(user.drop_in_departments) == 2
         assert user.drop_in_departments[0].is_supervisor_on_call is True
