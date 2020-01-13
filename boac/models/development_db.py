@@ -203,7 +203,7 @@ _test_users = [
     {
         'uid': '90412',
         'csid': '100100100',
-        'isAdmin': True,
+        'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
     },
@@ -528,8 +528,8 @@ def _create_checked_in_appointments():
     coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
     coe_advisor_uid = '90412'
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-    l_s_advisor_uid = '53791'
-    l_s_advisor_user_id = AuthorizedUser.get_id_per_uid(l_s_advisor_uid)
+    l_s_director_uid = '53791'
+    l_s_director_user_id = AuthorizedUser.get_id_per_uid(l_s_director_uid)
 
     check_me_in = Appointment.create(
         appointment_type='Drop-in',
@@ -582,7 +582,7 @@ def _create_checked_in_appointments():
     # L&S College Advising
     check_me_in = Appointment.create(
         appointment_type='Drop-in',
-        created_by=l_s_advisor_user_id,
+        created_by=l_s_director_user_id,
         dept_code='QCADV',
         details='It is not the length of life, but depth of life.',
         student_sid='11667051',
@@ -593,8 +593,8 @@ def _create_checked_in_appointments():
         advisor_dept_codes=['QCADV'],
         advisor_name='Max Headroom',
         advisor_role='Advisor',
-        advisor_uid=l_s_advisor_uid,
-        checked_in_by=l_s_advisor_user_id,
+        advisor_uid=l_s_director_uid,
+        checked_in_by=l_s_director_user_id,
     )
 
 
@@ -614,7 +614,7 @@ def _create_reserved_appointments():
 def _create_waiting_appointments():
     coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
     coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
-    l_s_advisor_user_id = AuthorizedUser.get_id_per_uid('53791')
+    l_s_director_user_id = AuthorizedUser.get_id_per_uid('53791')
     Appointment.create(
         appointment_type='Drop-in',
         created_by=coe_scheduler_user_id,
@@ -634,7 +634,7 @@ def _create_waiting_appointments():
     # L&S College Advising
     Appointment.create(
         appointment_type='Drop-in',
-        created_by=l_s_advisor_user_id,
+        created_by=l_s_director_user_id,
         dept_code='QCADV',
         details='C-c-catch the wave!',
         student_sid='5678901234',
@@ -642,7 +642,7 @@ def _create_waiting_appointments():
     )
     Appointment.create(
         appointment_type='Drop-in',
-        created_by=l_s_advisor_user_id,
+        created_by=l_s_director_user_id,
         dept_code='QCADV',
         details='You be you.',
         student_sid='11667051',
