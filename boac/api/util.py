@@ -97,8 +97,8 @@ def scheduler_required(func):
         is_authorized = current_user.is_authenticated \
             and (
                 current_user.is_admin
-                or current_user.is_drop_in_advisor
-                or _has_role_in_any_department(current_user, 'isScheduler')
+                or _is_drop_in_advisor(current_user)
+                or _is_drop_in_scheduler(current_user)
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -397,6 +397,15 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
 
 def _has_role_in_any_department(user, role):
     return next((d for d in user.departments if d[role]), False)
+
+
+def _is_drop_in_advisor(user):
+    return next((d for d in user.drop_in_advisor_departments if d['deptCode'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']), False)
+
+
+def _is_drop_in_scheduler(user):
+    scheduler_dept = _has_role_in_any_department(current_user, 'isScheduler')
+    return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
 
 
 def _api_key_ok():

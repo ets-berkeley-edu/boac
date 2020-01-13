@@ -143,7 +143,9 @@ class UserSession(UserMixin):
                     is_active = m.is_advisor or m.is_director or m.is_scheduler
                     if is_active:
                         break
-            drop_in_advisor_status = [d.to_api_json() for d in user.drop_in_departments]
+            drop_in_advisor_status = [
+                d.to_api_json() for d in user.drop_in_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
+            ]
         return {
             **(calnet_profile or {}),
             **{
