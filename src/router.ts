@@ -2,6 +2,7 @@ import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
+import Analytics from '@/views/Analytics.vue';
 import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue';
 import auth from './auth';
 import Cohort from '@/views/Cohort.vue';
@@ -181,6 +182,20 @@ const router = new Router({
         {
           path: '/home/:deptCode',
           component: DropInAdvisorHome,
+          meta: {
+            title: 'Home'
+          }
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: auth.requiresDirector,
+      children: [
+        {
+          path: '/analytics/:deptCode',
+          component: Analytics,
           meta: {
             title: 'Home'
           }

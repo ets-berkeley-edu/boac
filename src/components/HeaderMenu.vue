@@ -12,6 +12,13 @@
         </div>
       </template>
       <b-dropdown-item
+        v-if="$currentUser.isAdmin || getMyDirectorDept()"
+        id="header-link-to-analytics"
+        :href="$currentUser.isAdmin ? '/analytics/QCADV' : '/analytics/${getMyDirectorDept()}'"
+        class="nav-link-color text-decoration-none">
+        Analytics
+      </b-dropdown-item>
+      <b-dropdown-item
         v-if="!isUserSimplyScheduler() || $config.isDemoModeAvailable"
         id="header-link-to-settings"
         :href="isUserSimplyScheduler() ? '/scheduler/settings' : '/admin'"
@@ -26,13 +33,13 @@
         class="nav-link-color text-decoration-none">
         Passenger Manifest
       </b-dropdown-item>
-      <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
       <b-dropdown-item
         :href="`mailto:${$config.supportEmailAddress}`"
         target="_blank"
         aria-label="Send email to the BOA team">
         Feedback/Help<span class="sr-only"> (new browser tab will open)</span>
       </b-dropdown-item>
+      <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
     </b-dropdown>
   </div>
 </template>
@@ -47,6 +54,10 @@ export default {
   name: 'HeaderMenu',
   mixins: [Berkeley, Context, Util],
   methods: {
+    getMyDirectorDept() {
+      const deptCodes = this.myDeptCodes(['isDirector']);
+      return deptCodes && deptCodes[0];
+    },
     isUserSimplyScheduler() {
      const isScheduler = this.size(this.myDeptCodes(['isScheduler']));
      return isScheduler && !this.$currentUser.isAdmin && !this.size(this.myDeptCodes(['isAdvisor', 'isDirector']));
