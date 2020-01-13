@@ -258,7 +258,7 @@ class TestRefreshDepartmentMemberships:
 
         dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
         ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
-        assert len(ucls_users) == 1
+        assert len(ucls_users) == 2
         assert next((u for u in ucls_users if u.uid == '1133397'), None) is None
 
         from boac.api.cache_utils import refresh_department_memberships
@@ -266,7 +266,7 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
-        assert len(ucls_users) == 2
+        assert len(ucls_users) == 3
         assert next(u for u in ucls_users if u.uid == '1133397')
         assert AuthorizedUser.query.filter_by(uid='1133397').first().deleted_at is None
 
@@ -295,14 +295,14 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
-        assert len(ucls_users) == 1
+        assert len(ucls_users) == 2
 
         from boac.api.cache_utils import refresh_department_memberships
         refresh_department_memberships()
         std_commit(allow_test_environment=True)
 
         ucls_users = [au.authorized_user for au in dept_ucls.authorized_users]
-        assert len(ucls_users) == 2
+        assert len(ucls_users) == 3
         assert next(u for u in ucls_users if u.uid == '242881')
         updated_user = AuthorizedUser.query.filter_by(uid='242881').first()
         assert updated_user.deleted_at is None
@@ -325,12 +325,12 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         ucls_drop_in_advisors = DropInAdvisor.advisors_for_dept_code(dept_ucls.dept_code)
-        assert len(ucls_drop_in_advisors) == 1
-        assert ucls_drop_in_advisors[0].authorized_user_id == bad_user.id
+        assert len(ucls_drop_in_advisors) == 2
+        assert bad_user.id in [d.authorized_user_id for d in ucls_drop_in_advisors]
 
         from boac.api.cache_utils import refresh_department_memberships
         refresh_department_memberships()
         std_commit(allow_test_environment=True)
 
         ucls_drop_in_advisors = DropInAdvisor.advisors_for_dept_code(dept_ucls.dept_code)
-        assert len(ucls_drop_in_advisors) == 0
+        assert len(ucls_drop_in_advisors) == 1

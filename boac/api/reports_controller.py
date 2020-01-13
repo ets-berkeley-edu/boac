@@ -27,6 +27,7 @@ from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import admin_or_director_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app
 from flask_login import current_user
 
@@ -34,7 +35,8 @@ from flask_login import current_user
 @app.route('/api/reports/boa_usage_summary/<dept_code>')
 @admin_or_director_required
 def boa_usage_summary(dept_code):
-    dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code and dept_code.upper())
+    dept_code = dept_code.upper()
+    dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
             return tolerant_jsonify({
@@ -47,6 +49,26 @@ def boa_usage_summary(dept_code):
             raise ForbiddenRequestError(f'You are unauthorized to view {dept_name} reports')
     else:
         raise ResourceNotFoundError(f'Unrecognized department code {dept_code}')
+
+
+@app.route('/api/reports/available_departments')
+@admin_or_director_required
+def available_dept_codes():
+    if current_user.is_admin:
+        dept_codes = UniversityDeptMember.get_distinct_departments()
+    else:
+        dept_codes = UniversityDeptMember.get_distinct_departments(
+            authorized_user_id=current_user.get_id(),
+            is_director=True,
+        )
+
+    def _to_json(row):
+        dept_code = row.upper()
+        return {
+            'code': dept_code,
+            'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+        }
+    return tolerant_jsonify([_to_json(d) for d in dept_codes])
 
 
 def _current_user_is_director_of(dept_code):
