@@ -49,16 +49,16 @@ export default {
   name: 'DropInAvailabilityToggle',
   mixins: [Context, Util],
   props: {
-    availability: {
-      type: Boolean,
-      required: true
-    },
     deptCode: {
       type: String,
       required: true
     },
     isHomepage: {
       type: Boolean,
+      required: true
+    },
+    status: {
+      type: String,
       required: true
     },
     uid: {
@@ -76,12 +76,12 @@ export default {
     }
   },
   watch: {
-    availability(value) {
-      this.isAvailable = value;
+    status(value) {
+      this.isAvailable = value.startsWith('on_duty');
     }
   },
   created() {
-    this.isAvailable = this.availability;
+    this.isAvailable = this.status.startsWith('on_duty');
   },
   methods: {
     toggle: function() {

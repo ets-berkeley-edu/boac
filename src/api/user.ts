@@ -92,7 +92,7 @@ export function setDropInAvailability(deptCode: string, uid: string, available: 
       if (uid === Vue.prototype.$currentUser.uid) {
         store.commit('currentUserExtras/setDropInStatus', {
           deptCode: deptCode,
-          available: available
+          status: response.data.status
         });
       } else {
         return response.data;

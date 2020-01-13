@@ -26,6 +26,17 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
+from sqlalchemy.dialects.postgresql import ENUM
+
+
+drop_in_advisor_status_type = ENUM(
+    'on_duty_advisor',
+    'on_duty_supervisor',
+    'off_duty_waitlist',
+    'off_duty_no_waitlist',
+    name='drop_in_advisor_status_types',
+    create_type=False,
+)
 
 
 class DropInAdvisor(Base):
@@ -33,41 +44,41 @@ class DropInAdvisor(Base):
 
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
     dept_code = db.Column(db.String(80), nullable=False, primary_key=True)
-    is_available = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(drop_in_advisor_status_type, default='off_duty_no_waitlist', nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     is_supervisor_on_call = db.Column(db.Boolean, default=False, nullable=False)
 
     authorized_user = db.relationship('AuthorizedUser', back_populates='drop_in_departments')
 
-    def __init__(self, authorized_user_id, dept_code, is_available, is_supervisor_on_call):
+    def __init__(self, authorized_user_id, dept_code, status, is_supervisor_on_call):
         self.authorized_user_id = authorized_user_id
         self.dept_code = dept_code
-        self.is_available = is_available
+        self.status = status
         self.is_supervisor_on_call = is_supervisor_on_call
 
-    def update_availability(self, available):
-        self.is_available = available
+    def update_status(self, status):
+        self.status = status
         std_commit()
 
     @classmethod
-    def create_or_update_status(cls, university_dept, authorized_user_id, is_available=False, is_supervisor_on_call=False):
+    def create_or_update_status(cls, university_dept, authorized_user_id, status='off_duty_no_waitlist', is_supervisor_on_call=False):
         dept_code = university_dept.dept_code
         existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
-            status = existing_status
-            status.deleted_at = None
-            status.is_available = is_available
-            status.is_supervisor_on_call = is_supervisor_on_call
+            new_status = existing_status
+            new_status.deleted_at = None
+            new_status.status = status
+            new_status.is_supervisor_on_call = is_supervisor_on_call
         else:
-            status = cls(
+            new_status = cls(
                 authorized_user_id=authorized_user_id,
                 dept_code=dept_code,
-                is_available=is_available,
+                status=status,
                 is_supervisor_on_call=is_supervisor_on_call,
             )
-        db.session.add(status)
+        db.session.add(new_status)
         std_commit()
-        return status
+        return new_status
 
     @classmethod
     def advisors_for_dept_code(cls, dept_code):
@@ -104,6 +115,6 @@ class DropInAdvisor(Base):
     def to_api_json(self):
         return {
             'deptCode': self.dept_code,
-            'available': self.is_available,
+            'status': self.status,
             'supervisorOnCall': self.is_supervisor_on_call,
         }

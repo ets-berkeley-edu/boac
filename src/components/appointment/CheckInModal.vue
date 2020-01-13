@@ -140,7 +140,7 @@ export default {
     this.showCheckInModal = this.showModal;
     if (!this.selfCheckIn) {
       getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-        this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+        this.dropInAdvisors = this.filterList(dropInAdvisors, d => d.status.startsWith('on_duty'));
       });
     }
   },

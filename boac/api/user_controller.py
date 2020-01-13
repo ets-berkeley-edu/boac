@@ -130,13 +130,13 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
 @app.route('/api/user/<uid>/drop_in_status/<dept_code>/activate', methods=['POST'])
 @scheduler_required
 def activate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, True)
+    return _update_drop_in_status(uid, dept_code, 'on_duty_advisor')
 
 
 @app.route('/api/user/<uid>/drop_in_status/<dept_code>/deactivate', methods=['POST'])
 @scheduler_required
 def deactivate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, False)
+    return _update_drop_in_status(uid, dept_code, 'off_duty_waitlist')
 
 
 @app.route('/api/user/drop_in_role/<dept_code>', methods=['POST'])
@@ -353,7 +353,7 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _update_drop_in_status(uid, dept_code, active):
+def _update_drop_in_status(uid, dept_code, status):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
         authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
@@ -364,7 +364,7 @@ def _update_drop_in_status(uid, dept_code, active):
     if user:
         drop_in_status = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
     if drop_in_status:
-        drop_in_status.update_availability(active)
+        drop_in_status.update_status(status)
         UserSession.flush_cache_for_id(user.id)
         return tolerant_jsonify(drop_in_status.to_api_json())
     else:

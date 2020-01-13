@@ -249,7 +249,7 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
     },
     updateAvailableAdvisors() {
-      this.availableAdvisors = this.filterList(this.advisors, 'available');
+      this.availableAdvisors = this.filterList(this.advisors, a => a.status.startsWith('on_duty'));
     }
   }
 };

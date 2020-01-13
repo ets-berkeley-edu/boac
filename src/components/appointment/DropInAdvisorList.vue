@@ -31,7 +31,7 @@
           </b-col>
           <b-col sm="4">
             <DropInAvailabilityToggle
-              :availability="advisor.available"
+              :status="advisor.status"
               :dept-code="deptCode"
               :is-homepage="false"
               :uid="advisor.uid" />
