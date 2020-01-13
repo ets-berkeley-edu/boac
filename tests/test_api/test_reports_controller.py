@@ -40,31 +40,83 @@ class TestBoaUsageSummary:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        self._api_boa_usage_summary(client, 'qcadv', 401)
+        self._api_boa_usage_summary(client, 'qcadv', expected_status_code=401)
 
     def test_not_authorized_advisor(self, client, fake_auth):
         """Returns 401 if neither admin nor director."""
         fake_auth.login(l_s_advisor_uid)
-        self._api_boa_usage_summary(client, 'qcadv', 401)
+        self._api_boa_usage_summary(client, 'qcadv', expected_status_code=401)
 
     def test_not_authorized_director_of_other_dept(self, client, fake_auth):
         """Returns 401 if director in some other dept."""
         fake_auth.login(asc_director_uid)
-        self._api_boa_usage_summary(client, 'qcadv', 403)
+        self._api_boa_usage_summary(client, 'qcadv', expected_status_code=403)
 
     def test_not_found(self, client, fake_auth):
         """Returns 404 if dept_code not found."""
         fake_auth.login(admin_uid)
-        self._api_boa_usage_summary(client, 'foo', 404)
+        self._api_boa_usage_summary(client, 'foo', expected_status_code=404)
 
-    def director_can_access_report_per_dept(self, client, fake_auth):
+    def test_director_can_access_report_per_dept(self, client, fake_auth):
         """Director of L&S Advising can access L&S report."""
         fake_auth.login(l_s_director_uid)
         report = self._api_boa_usage_summary(client, 'qcadv')
         assert report['dept']['name'] == 'L&S College Advising'
 
-    def admin_can_access_dept_report(self, client, fake_auth):
+    def test_admin_can_access_dept_report(self, client, fake_auth):
         """Admin user can access L&S report."""
         fake_auth.login(admin_uid)
         report = self._api_boa_usage_summary(client, 'qcadv')
         assert report['dept']['name'] == 'L&S College Advising'
+
+
+class TestAvailableDeptCodesPerUser:
+
+    @classmethod
+    def _api_available_departments(cls, client, expected_status_code=200):
+        response = client.get(f'/api/reports/available_departments')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._api_available_departments(client, expected_status_code=401)
+
+    def test_not_authorized_advisor(self, client, fake_auth):
+        """Returns 401 if neither admin nor director."""
+        fake_auth.login(l_s_advisor_uid)
+        self._api_available_departments(client, expected_status_code=401)
+
+    def test_asc_director(self, client, fake_auth):
+        """Returns 401 if director in some other dept."""
+        fake_auth.login(asc_director_uid)
+        departments = self._api_available_departments(client)
+        assert len(departments) == 1
+        assert departments == [
+            {
+                'code': 'UWASC',
+                'name': 'Athletic Study Center',
+            },
+        ]
+
+    def test_director_of_multiple_departments(self, client, fake_auth):
+        """Director of multiple departments can access reports accordingly."""
+        fake_auth.login(l_s_director_uid)
+        departments = self._api_available_departments(client)
+        assert len(departments) == 2
+        assert departments == [
+            {
+                'code': 'QCADV',
+                'name': 'L&S College Advising',
+            },
+            {
+                'code': 'QCADVMAJ',
+                'name': 'L&S Major Advising',
+            },
+        ]
+
+    def test_admin_has_access_to_all_departments(self, client, fake_auth):
+        """Admin user can access all departments."""
+        fake_auth.login(admin_uid)
+        departments = self._api_available_departments(client)
+        assert len(departments) > 5

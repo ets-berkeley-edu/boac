@@ -115,6 +115,31 @@ class UniversityDeptMember(Base):
         return None
 
     @classmethod
+    def get_distinct_departments(
+            cls,
+            authorized_user_id=None,
+            is_advisor=None,
+            is_director=None,
+            is_scheduler=None,
+    ):
+        sql = """
+            SELECT DISTINCT dept_code FROM university_depts d
+            JOIN university_dept_members m ON m.university_dept_id = d.id
+            WHERE TRUE
+        """
+        if authorized_user_id:
+            sql += ' AND m.authorized_user_id = :authorized_user_id'
+        else:
+            sql += ' AND d.id IN (SELECT DISTINCT university_dept_id FROM university_depts)'
+        if is_advisor is not None:
+            sql += f" AND m.is_advisor IS {'TRUE' if is_advisor else 'FALSE'}"
+        if is_director is not None:
+            sql += f" AND m.is_director IS {'TRUE' if is_director else 'FALSE'}"
+        if is_scheduler is not None:
+            sql += f" AND m.is_scheduler IS {'TRUE' if is_scheduler else 'FALSE'}"
+        return [row['dept_code'] for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
+
+    @classmethod
     def delete_membership(cls, university_dept_id, authorized_user_id):
         membership = cls.query.filter_by(university_dept_id=university_dept_id, authorized_user_id=authorized_user_id).first()
         if not membership:

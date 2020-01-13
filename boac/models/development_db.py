@@ -316,6 +316,15 @@ _university_depts = {
     'QCADVMAJ': {
         'users': [
             {
+                'uid': '53791',
+                'isAdvisor': False,
+                'isDirector': True,
+                'isDropInAdvisor': True,
+                'isScheduler': False,
+                'isSupervisorOnCall': False,
+                'automate_membership': False,
+            },
+            {
                 'uid': '242881',
                 'isAdvisor': True,
                 'isDirector': False,
