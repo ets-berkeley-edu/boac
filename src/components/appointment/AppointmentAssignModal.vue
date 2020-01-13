@@ -101,7 +101,7 @@ export default {
   created() {
     this.showAppointmentAssignModal = this.showModal;
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-      this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+      this.dropInAdvisors = this.filterList(dropInAdvisors, d => d.status.startsWith('on_duty'));
     });
   },
   methods: {

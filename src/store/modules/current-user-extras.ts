@@ -42,11 +42,11 @@ const mutations = {
     let group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
     Object.assign(group, updatedGroup);
   },
-  setDropInStatus: (state: any, {deptCode, available}) => {
+  setDropInStatus: (state: any, {deptCode, status}) => {
     const currentUser = Vue.prototype.$currentUser;
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
     if (dropInAdvisorStatus) {
-      dropInAdvisorStatus.available = available;
+      dropInAdvisorStatus.status = status;
     }
   },
   setUserPreference: (state: any, {key, value}) => {

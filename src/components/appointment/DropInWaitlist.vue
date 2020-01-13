@@ -25,7 +25,7 @@
         </div>
       </div>
       <DropInAvailabilityToggle
-        :availability="!!get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'available')"
+        :status="get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'status')"
         :dept-code="deptCode"
         :is-homepage="isHomepage"
         :uid="$currentUser.uid" />
