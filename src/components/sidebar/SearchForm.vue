@@ -456,7 +456,6 @@ export default {
           },
           this.noop
         );
-        this.scrollToTop();
         if (this.trim(searchPhrase)) {
           addToSearchHistory(searchPhrase).then(history => {
             this.searchHistory = history;
@@ -466,7 +465,9 @@ export default {
       } else {
         this.alertScreenReader('Search input is required');
         this.showErrorPopover = true;
+        this.putFocusNextTick('search-students-input');
       }
+      this.scrollToTop();
     },
     toggleNoteFilters() {
       this.showNoteFilters = !this.showNoteFilters;
