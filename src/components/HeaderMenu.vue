@@ -14,7 +14,7 @@
       <b-dropdown-item
         v-if="$currentUser.isAdmin || getMyDirectorDept()"
         id="header-link-to-analytics"
-        :href="$currentUser.isAdmin ? '/analytics/QCADV' : '/analytics/${getMyDirectorDept()}'"
+        :href="$currentUser.isAdmin ? '/analytics/qcadv' : '/analytics/${getMyDirectorDept().toLowerCase()}'"
         class="nav-link-color text-decoration-none">
         Analytics
       </b-dropdown-item>
