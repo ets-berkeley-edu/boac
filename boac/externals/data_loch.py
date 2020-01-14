@@ -194,7 +194,7 @@ def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
               GROUP BY sas.sid, sas.uid, sas.first_name, sas.last_name
-              ORDER BY {naturalize_order('sas.last_name')}, {naturalize_order('sas.first_name')}, sas.sid"""
+              ORDER BY {_naturalize_order('sas.last_name')}, {_naturalize_order('sas.first_name')}, sas.sid"""
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     if offset:
         sql += ' OFFSET :offset'
@@ -470,6 +470,10 @@ def get_sis_advising_notes(sid):
         WHERE sid=:sid
         ORDER BY created_at, updated_at, id"""
     return safe_execute_rds(sql, sid=sid)
+
+
+def get_sis_advising_note_count():
+    return safe_execute_rds(f'SELECT COUNT(id) FROM {sis_advising_notes_schema()}.advising_notes')[0]['count']
 
 
 def get_sis_advising_note_topics(sid):
@@ -761,7 +765,7 @@ def get_students_query(     # noqa
         query_bindings.update({'genders': genders})
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
-        query_bindings.update({'levels': [level_to_code(l) for l in levels]})
+        query_bindings.update({'levels': [_level_to_code(l) for l in levels]})
     if majors:
         # Only modify the majors list clone
         _majors = majors.copy()
@@ -843,13 +847,13 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         order_by, o_direction = order_by.rsplit(' ', 1)
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
-    by_first_name = naturalize_order('sas.first_name')
-    by_last_name = naturalize_order('sas.last_name')
+    by_first_name = _naturalize_order('sas.first_name')
+    by_last_name = _naturalize_order('sas.last_name')
     o = by_last_name
     if order_by == 'in_intensive_cohort':
         o = 's.intensive'
     elif order_by in ['first_name', 'last_name']:
-        o = naturalize_order(f'sas.{order_by}')
+        o = _naturalize_order(f'sas.{order_by}')
     elif order_by in ['entering_term', 'gpa', 'units', 'level', 'terms_in_attendance']:
         o = f'sas.{order_by}'
     elif order_by == 'group_name':
@@ -865,18 +869,18 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         # pagination offsets requires filtering and ordering to be done at the SQL level.
         if group_codes or (scope and asc_schema() not in _student_query_tables_for_scope(scope)):
             supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students asc_students ON asc_students.sid = sas.sid'
-            o = naturalize_order('asc_students.group_name')
+            o = _naturalize_order('asc_students.group_name')
         else:
-            o = naturalize_order('s.group_name')
+            o = _naturalize_order('s.group_name')
     elif order_by == 'major':
         # Majors, like group names, require extra handling in the special case where they are both filter
         # criteria and ordering criteria.
         if majors:
             supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = sas.sid'
-            o = naturalize_order('maj2.major')
+            o = _naturalize_order('maj2.major')
         else:
             supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = sas.sid'
-            o = naturalize_order('m.major')
+            o = _naturalize_order('m.major')
     elif order_by == 'enrolled_units':
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
@@ -894,7 +898,7 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
     return o, o_secondary, o_tertiary, o_direction, supplemental_query_tables
 
 
-def level_to_code(level):
+def _level_to_code(level):
     codes = {
         'Freshman': '10',
         'Sophomore': '20',
@@ -905,7 +909,7 @@ def level_to_code(level):
     return codes.get(level, level)
 
 
-def naturalize_order(column_name):
+def _naturalize_order(column_name):
     return f"UPPER(regexp_replace({column_name}, '\\\W', ''))"
 
 

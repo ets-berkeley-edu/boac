@@ -31,10 +31,64 @@
           </div>
         </div>
       </div>
+
       <div class="pt-4">
-        <h3 class="page-section-header-sub">Notes</h3>
+        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Notes (BOA)</h3>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label for="notes-count-boa">Total</label>
+          </div>
+          <div id="notes-count-boa" class="font-weight-bolder">
+            {{ report.boa.notes.count.total | numFormat }}
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label for="notes-count-boa-authors">Distinct authors</label>
+          </div>
+          <div id="notes-count-boa-authors" class="font-weight-bolder">
+            {{ report.boa.notes.count.authors.total | numFormat }}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4">
+        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">{{ report.dept.name }} Notes (BOA)</h3>
+
+        <div class="d-flex justify-content-between">
+          <div>
+            <label :for="`notes-count-boa-${report.dept.code}`">Total</label>
+          </div>
+          <div :id="`notes-count-boa-${report.dept.code}`" class="font-weight-bolder">
+            {{ get(report.boa.notes.count, deptCode) | numFormat }}
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label :for="`notes-count-boa-authors-${report.dept.code}`">Distinct authors</label>
+          </div>
+          <div :id="`notes-count-boa-authors-${report.dept.code}`" class="font-weight-bolder">
+            {{ get(report.boa.notes.count.authors, deptCode) | numFormat }}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4">
+        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Notes (CalCentral)</h3>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label for="notes-count-calcentral">Total</label>
+          </div>
+          <div id="notes-count-calcentral" class="font-weight-bolder">
+            {{ report.sis.notes.count | numFormat }}
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4">
+        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Users</h3>
         <div>
-          Yo!
+          TODO: Number of users who have accessed BOA, and their departmental affiliations
         </div>
       </div>
     </div>

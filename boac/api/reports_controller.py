@@ -25,8 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import admin_or_director_required
+from boac.externals.data_loch import get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.models.note import Note
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app
 from flask_login import current_user
@@ -39,10 +41,32 @@ def boa_usage_summary(dept_code):
     dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
+            total_note_count = Note.get_note_count()
             return tolerant_jsonify({
                 'dept': {
                     'code': dept_code,
                     'name': dept_name,
+                },
+                'boa': {
+                    'notes': {
+                        'count': {
+                            'total': total_note_count,
+                            dept_code: Note.get_note_count(dept_code),
+                            'authors': {
+                                'total': Note.get_note_author_count(),
+                                dept_code: Note.get_note_author_count(dept_code),
+                            },
+                        },
+                        'percentages': {
+                            'withAttachments': 'TODO',
+                            'withTopics': 'TODO',
+                        },
+                    },
+                },
+                'sis': {
+                    'notes': {
+                        'count': get_sis_advising_note_count(),
+                    },
                 },
             })
         else:
