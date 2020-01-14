@@ -432,6 +432,10 @@ def get_asc_advising_notes(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_asc_advising_note_count():
+    return safe_execute_rds(f'SELECT COUNT(id) FROM {asc_schema()}.advising_notes')[0]['count']
+
+
 def get_asc_advising_note_topics(sid):
     sql = f"""SELECT id, topic
         FROM {asc_schema()}.advising_note_topics
@@ -451,6 +455,14 @@ def get_e_i_advising_notes(sid):
         AND advisor_last_name <> 'Front Desk'
         ORDER BY created_at, updated_at, id"""
     return safe_execute_rds(sql, sid=sid)
+
+
+def get_e_and_i_advising_note_count():
+    sql = f"""
+        SELECT COUNT(id)
+        FROM {e_i_schema()}.advising_notes
+        WHERE advisor_last_name <> 'Front Desk'"""
+    return safe_execute_rds(sql)[0]['count']
 
 
 def get_e_i_advising_note_topics(sid):

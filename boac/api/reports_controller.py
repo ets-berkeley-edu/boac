@@ -24,52 +24,59 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import admin_or_director_required, admin_required
-from boac.externals.data_loch import get_sis_advising_note_count
+from boac.api.util import admin_or_director_required, admin_required, authorized_users_api_feed
+from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
-from boac.merged.reports import get_note_author_count, get_note_count, get_note_with_attachments_count,\
-    get_note_with_topics_count, low_assignment_scores
+from boac.merged.reports import get_note_author_count, get_note_count, get_note_count_per_user,\
+    get_note_with_attachments_count, get_note_with_topics_count, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/reports/boa_usage_summary/<dept_code>')
+@app.route('/api/reports/notes/<dept_code>')
 @admin_or_director_required
-def boa_usage_summary(dept_code):
+def get_notes_report(dept_code):
     dept_code = dept_code.upper()
     dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
             total_note_count = get_note_count()
             return tolerant_jsonify({
-                'dept': {
-                    'code': dept_code,
-                    'name': dept_name,
-                },
+                'asc': get_asc_advising_note_count(),
+                'ei': get_e_and_i_advising_note_count(),
+                'sis': get_sis_advising_note_count(),
                 'boa': {
-                    'notes': {
-                        'count': {
-                            'total': total_note_count,
-                            'authors': get_note_author_count(),
-                            'withAttachments': get_note_with_attachments_count(),
-                            'withTopics': get_note_with_topics_count(),
-                            dept_code: {
-                                'total': get_note_count(dept_code),
-                                'authors': get_note_author_count(dept_code),
-                                'withAttachments': get_note_with_attachments_count(dept_code),
-                                'withTopics': get_note_with_topics_count(dept_code),
-                            },
-                        },
-                    },
+                    'total': total_note_count,
+                    'authors': get_note_author_count(),
+                    'withAttachments': get_note_with_attachments_count(),
+                    'withTopics': get_note_with_topics_count(),
                 },
-                'sis': {
-                    'notes': {
-                        'count': get_sis_advising_note_count(),
-                    },
-                },
+            })
+        else:
+            raise ForbiddenRequestError(f'You are unauthorized to view {dept_name} reports')
+    else:
+        raise ResourceNotFoundError(f'Unrecognized department code {dept_code}')
+
+
+@app.route('/api/reports/users/<dept_code>')
+@admin_or_director_required
+def get_users_report(dept_code):
+    dept_code = dept_code.upper()
+    dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
+    if dept_name:
+        if current_user.is_admin or _current_user_is_director_of(dept_code):
+            users, total_user_count = AuthorizedUser.get_users(deleted=False, dept_code=dept_code)
+            users = authorized_users_api_feed(users, sort_by='lastName')
+            note_count_per_user = get_note_count_per_user(dept_code)
+            for user in users:
+                user['notesCreated'] = note_count_per_user.get(user['uid'], 0)
+            return tolerant_jsonify({
+                'users': users,
+                'totalUserCount': total_user_count,
             })
         else:
             raise ForbiddenRequestError(f'You are unauthorized to view {dept_name} reports')

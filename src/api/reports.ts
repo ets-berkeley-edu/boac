@@ -1,8 +1,13 @@
 import axios from 'axios';
 import utils from '@/api/api-utils';
 
-export function getBoaUsageSummary(deptCode) {
-  let url = `${utils.apiBaseUrl()}/api/reports/boa_usage_summary/${deptCode}`;
+export function getNotesReport(deptCode) {
+  let url = `${utils.apiBaseUrl()}/api/reports/notes/${deptCode}`;
+  return axios.get(url).then(response => response.data, () => null);
+}
+
+export function getUsersReport(deptCode) {
+  let url = `${utils.apiBaseUrl()}/api/reports/users/${deptCode}`;
   return axios.get(url).then(response => response.data, () => null);
 }
 

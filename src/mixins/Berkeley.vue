@@ -5,6 +5,23 @@ import Vue from 'vue';
 export default {
   name: 'Berkeley',
   methods: {
+    getBoaUserRoles(user, department) {
+      const roles = [];
+      const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code]);
+      if (department.isAdvisor) {
+        roles.push('Advisor');
+      }
+      if (department.isDirector) {
+        roles.push('Director');
+      }
+      if (department.isScheduler) {
+        roles.push('Scheduler');
+      }
+      if (dropInAdvisorStatus) {
+        roles.push(dropInAdvisorStatus.supervisorOnCall ? 'Drop-in Supervisor' : 'Drop-in Advisor');
+      }
+      return roles;
+    },
     isDirector: (user) => {
       return !!_.size(_.filter(user.departments, d => d.isDirector));
     },
