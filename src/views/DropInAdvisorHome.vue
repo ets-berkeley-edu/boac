@@ -4,10 +4,17 @@
 
     <Spinner alert-prefix="Drop-in Advisor homepage" />
 
-    <b-container v-if="!loading" fluid>
+    <b-container v-if="!loading && showWaitlist" fluid>
       <b-row no-gutters>
         <b-col cols="7" sm>
           <div class="mb-4 mr-3">
+            <button
+              class="btn btn-link pl-0 pb-2"
+              :disabled="onDuty"
+              @click="hideDropInWaitlist()"
+              @keyup.enter="hideDropInWaitlist()">
+              Hide Drop-in Waitlist
+            </button>
             <DropInWaitlist
               :dept-code="deptCode"
               :is-homepage="true"
@@ -67,6 +74,46 @@
         </b-col>
       </b-row>
     </b-container>
+
+    <b-container v-if="!loading && !showWaitlist" fluid>
+      <button
+        class="btn btn-link pl-0 pb-2"
+        @click="showDropInWaitlist()"
+        @keyup.enter="showDropInWaitlist()">
+        Show Drop-in Waitlist
+      </button>
+      <div>
+        <div id="filtered-cohorts-header-row">
+          <h2 v-if="myCohorts && !size(myCohorts)" id="no-cohorts-header" class="page-section-header">
+            You have no saved cohorts.
+          </h2>
+          <h1 v-if="myCohorts && size(myCohorts)" class="page-section-header">
+            Cohorts
+          </h1>
+        </div>
+        <div v-if="myCohorts && !size(myCohorts)">
+          <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
+          automatically by your filtering preferences, such as GPA or units.
+        </div>
+        <div role="tablist" class="panel-group">
+          <SortableGroup
+            v-for="cohort in myCohorts"
+            :key="cohort.id"
+            :group="cohort"
+            :is-cohort="true" />
+        </div>
+      </div>
+      <div v-if="size(myCuratedGroups)">
+        <div id="curated-groups-header-row">
+          <h2 class="page-section-header">Curated Groups</h2>
+        </div>
+        <SortableGroup
+          v-for="curatedGroup in myCuratedGroups"
+          :key="curatedGroup.id"
+          :group="curatedGroup"
+          :is-cohort="false" />
+      </div>
+    </b-container>
   </div>
 </template>
 
@@ -75,11 +122,13 @@ import Context from '@/mixins/Context';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import DropInWaitlist from '@/components/appointment/DropInWaitlist';
 import Loading from '@/mixins/Loading';
+import Scrollable from '@/mixins/Scrollable';
 import SortableGroup from '@/components/search/SortableGroup';
 import Spinner from '@/components/util/Spinner';
 import store from '@/store';
 import Util from '@/mixins/Util';
 import { getDropInAppointmentWaitlist } from '@/api/appointments';
+import { setDropInStatus } from '@/api/user';
 
 export default {
   name: 'DropInAdvisorHome',
@@ -88,22 +137,52 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Context, CurrentUserExtras, Loading, Util],
+  mixins: [Context, CurrentUserExtras, Loading, Scrollable, Util],
   data: () => ({
     deptCode: undefined,
+    dropInStatus: undefined,
     loadingWaitlist: false,
     waitlist: undefined
   }),
+  computed: {
+    onDuty() {
+      return this.dropInStatus && this.dropInStatus.startsWith('on_duty');
+    },
+    showWaitlist() {
+      return this.dropInStatus !== 'off_duty_no_waitlist';
+    }
+  },
+  created() {
+    this.$eventHub.$on('drop-in-status-change', status => {
+      this.dropInStatus = status;
+    });
+  },
   mounted() {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
-    this.loadDropInWaitlist();
+    this.layoutPage();
   },
   methods: {
-    loadDropInWaitlist(scheduleFutureRefresh=true) {
+    hideDropInWaitlist() {
+      this.alertScreenReader('Hiding drop-in waitlist');
+      this.loadingStart();
+      setDropInStatus(this.deptCode, this.$currentUser.uid, 'off_duty_no_waitlist').then(() => {
+        this.layoutPage();
+      });
+    },
+    layoutPage() {
+      this.dropInStatus = this.get(this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()}), 'status');
+      if (this.showWaitlist) {
+        this.loadDropInWaitlist(true, true);
+      } else {
+        this.loaded('Home');
+        this.scrollToTop();
+      }
+    },
+    loadDropInWaitlist(scheduleFutureRefresh=true, announceLoad=false) {
       return new Promise(resolve => {
         if (this.loadingWaitlist) {
           resolve();
-          if (scheduleFutureRefresh) {
+          if (this.showWaitlist && scheduleFutureRefresh) {
             setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
           }
           return;
@@ -111,7 +190,6 @@ export default {
         this.loadingWaitlist = true;
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           const waitlist = response.waitlist;
-          let announceLoad = false;
           let announceUpdate = false;
 
           if (!this.isEqual(waitlist, this.waitlist)) {
@@ -134,7 +212,7 @@ export default {
 
           this.loadingWaitlist = false;
           resolve();
-          if (scheduleFutureRefresh) {
+          if (this.showWaitlist && scheduleFutureRefresh) {
             setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
           }
 
@@ -150,7 +228,14 @@ export default {
     onAppointmentStatusChange() {
       // We return a Promise.
       return this.loadDropInWaitlist(false);
-    }
+    },
+    showDropInWaitlist() {
+      this.alertScreenReader('Showing drop-in waitlist');
+      this.loadingStart();
+      setDropInStatus(this.deptCode, this.$currentUser.uid, 'off_duty_waitlist').then(() => {
+        this.layoutPage();
+      });
+    },
   }
 }
 </script>
