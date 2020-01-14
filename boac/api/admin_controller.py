@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api import cache_utils
 from boac.api.util import admin_required
 from boac.lib.http import tolerant_jsonify
-from boac.merged import reporter
 from boac.merged.sis_terms import current_term_id
 from boac.models.job_progress import JobProgress
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
@@ -74,9 +73,3 @@ def start_continuation_of_interrupted_job():
 def start_refresh():
     response = cache_utils.refresh_request_handler(term())
     return tolerant_jsonify(response, status=500 if 'error' in response else 200)
-
-
-@app.route('/api/admin/report/low_assignment_scores')
-@admin_required
-def report_low_assignment_scores():
-    return tolerant_jsonify(reporter.low_assignment_scores(term()))

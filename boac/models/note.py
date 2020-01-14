@@ -296,22 +296,6 @@ class Note(Base):
         return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).order_by(cls.updated_at, cls.id).all()  # noqa: E711
 
     @classmethod
-    def get_note_count(cls, dept_code=None):
-        query = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL'
-        if dept_code:
-            query += f" AND '{dept_code}' = ANY(author_dept_codes)"
-        results = db.session.execute(query)
-        return [row['count'] for row in results][0]
-
-    @classmethod
-    def get_note_author_count(cls, dept_code=None):
-        query = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL'
-        if dept_code:
-            query += f" AND '{dept_code}' = ANY(author_dept_codes)"
-        results = db.session.execute(query)
-        return [row['count'] for row in results][0]
-
-    @classmethod
     def delete(cls, note_id):
         note = cls.find_by_id(note_id)
         if note:
