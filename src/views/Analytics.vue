@@ -22,7 +22,7 @@
                 id="available-department-reports"
                 v-model="deptCode"
                 :options="availableDepartments"
-                class="form-control p-1 pl-3 pr-2 w-auto"
+                class="form-control pb-1 pl-3 pr-5 pt-1 w-auto"
                 text-field="name"
                 value-field="code"
                 @change="renderReport">
@@ -47,7 +47,23 @@
             <label for="notes-count-boa-authors">Distinct authors</label>
           </div>
           <div id="notes-count-boa-authors" class="font-weight-bolder">
-            {{ report.boa.notes.count.authors.total | numFormat }}
+            {{ report.boa.notes.count.authors | numFormat }}
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label for="notes-count-boa-with-attachments">With one or more attachments</label>
+          </div>
+          <div id="notes-count-boa-with-attachments" class="font-weight-bolder">
+            {{ (report.boa.notes.count.withAttachments / report.boa.notes.count.total) * 100 | numFormat('0.0') }}%
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label for="notes-count-boa-with-topics">With one or more topics</label>
+          </div>
+          <div id="notes-count-boa-with-topics" class="font-weight-bolder">
+            {{ (report.boa.notes.count.withTopics / report.boa.notes.count.total) * 100 | numFormat('0.0') }}%
           </div>
         </div>
       </div>
@@ -60,7 +76,7 @@
             <label :for="`notes-count-boa-${report.dept.code}`">Total</label>
           </div>
           <div :id="`notes-count-boa-${report.dept.code}`" class="font-weight-bolder">
-            {{ get(report.boa.notes.count, deptCode) | numFormat }}
+            {{ get(report.boa.notes.count, `${deptCode}.total`) | numFormat }}
           </div>
         </div>
         <div class="d-flex justify-content-between">
@@ -68,7 +84,23 @@
             <label :for="`notes-count-boa-authors-${report.dept.code}`">Distinct authors</label>
           </div>
           <div :id="`notes-count-boa-authors-${report.dept.code}`" class="font-weight-bolder">
-            {{ get(report.boa.notes.count.authors, deptCode) | numFormat }}
+            {{ get(report.boa.notes.count, `${deptCode}.authors`) | numFormat }}
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label :for="`notes-count-boa-with-attachments-${report.dept.code}`">With one or more attachments</label>
+          </div>
+          <div :id="`notes-count-boa-with-attachments-${report.dept.code}`" class="font-weight-bolder">
+            {{ (get(report.boa.notes.count, `${deptCode}.withAttachments`) / get(report.boa.notes.count, `${deptCode}.total`)) * 100 | numFormat('0.0') }}%
+          </div>
+        </div>
+        <div class="d-flex justify-content-between">
+          <div>
+            <label :for="`notes-count-boa-with-topics-${report.dept.code}`">With one or more topics</label>
+          </div>
+          <div :id="`notes-count-boa-with-topics-${report.dept.code}`" class="font-weight-bolder">
+            {{ (get(report.boa.notes.count, `${deptCode}.withTopics`) / get(report.boa.notes.count, `${deptCode}.total`)) * 100 | numFormat('0.0') }}%
           </div>
         </div>
       </div>

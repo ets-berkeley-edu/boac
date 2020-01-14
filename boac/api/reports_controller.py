@@ -24,13 +24,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import admin_or_director_required
+from boac.api.util import admin_or_director_required, admin_required
 from boac.externals.data_loch import get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
-from boac.models.note import Note
+from boac.merged.reports import get_note_author_count, get_note_count, get_note_with_attachments_count,\
+    get_note_with_topics_count, low_assignment_scores
+from boac.merged.sis_terms import current_term_id
 from boac.models.university_dept_member import UniversityDeptMember
-from flask import current_app as app
+from flask import current_app as app, request
 from flask_login import current_user
 
 
@@ -41,7 +43,7 @@ def boa_usage_summary(dept_code):
     dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
-            total_note_count = Note.get_note_count()
+            total_note_count = get_note_count()
             return tolerant_jsonify({
                 'dept': {
                     'code': dept_code,
@@ -51,15 +53,15 @@ def boa_usage_summary(dept_code):
                     'notes': {
                         'count': {
                             'total': total_note_count,
-                            dept_code: Note.get_note_count(dept_code),
-                            'authors': {
-                                'total': Note.get_note_author_count(),
-                                dept_code: Note.get_note_author_count(dept_code),
+                            'authors': get_note_author_count(),
+                            'withAttachments': get_note_with_attachments_count(),
+                            'withTopics': get_note_with_topics_count(),
+                            dept_code: {
+                                'total': get_note_count(dept_code),
+                                'authors': get_note_author_count(dept_code),
+                                'withAttachments': get_note_with_attachments_count(dept_code),
+                                'withTopics': get_note_with_topics_count(dept_code),
                             },
-                        },
-                        'percentages': {
-                            'withAttachments': 'TODO',
-                            'withTopics': 'TODO',
                         },
                     },
                 },
@@ -95,6 +97,17 @@ def available_dept_codes():
     return tolerant_jsonify([_to_json(d) for d in dept_codes])
 
 
+@app.route('/api/reports/low_assignment_scores')
+@admin_required
+def report_low_assignment_scores():
+    return tolerant_jsonify(low_assignment_scores(_term()))
+
+
 def _current_user_is_director_of(dept_code):
     departments = list(filter(lambda d: d['isDirector'], current_user.departments))
     return next((d for d in departments if d['code'] == dept_code), False)
+
+
+def _term():
+    term_id = request.args.get('term') or current_term_id()
+    return term_id

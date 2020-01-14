@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from boac import db
 from boac.externals import data_loch
 from boac.merged.sis_terms import current_term_id
 from flask import current_app as app
@@ -86,3 +87,45 @@ def low_assignment_scores(term_id=None):
         'sections_scored_count': len(primary_sections_with_scored_assignments),
         'sections_with_range_of_scores_count': len(primary_sections_with_plottable_assignments),
     }
+
+
+def get_note_author_count(dept_code=None):
+    query = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL'
+    if dept_code:
+        query += f" AND '{dept_code}' = ANY(author_dept_codes)"
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
+
+
+def get_note_count(dept_code=None):
+    query = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL'
+    if dept_code:
+        query += f" AND '{dept_code}' = ANY(author_dept_codes)"
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
+
+
+def get_note_with_attachments_count(dept_code=None):
+    query = """
+        SELECT COUNT(DISTINCT a.id)
+        FROM note_attachments a
+        JOIN notes n ON n.id = a.note_id
+        WHERE a.deleted_at IS NULL AND n.deleted_at IS NULL
+    """
+    if dept_code:
+        query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
+
+
+def get_note_with_topics_count(dept_code=None):
+    query = """
+        SELECT COUNT(DISTINCT t.note_id)
+        FROM note_topics t
+        JOIN notes n ON n.id = t.note_id
+        WHERE t.deleted_at IS NULL AND n.deleted_at IS NULL
+    """
+    if dept_code:
+        query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]

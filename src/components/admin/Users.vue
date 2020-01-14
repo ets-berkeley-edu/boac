@@ -80,6 +80,19 @@
       </div>
       <div>
         <b-btn
+          id="quick-link-directors"
+          :disabled="isBusy"
+          class="pl-2 pr-2"
+          variant="link"
+          @click="quickLink('director')">
+          Directors
+        </b-btn>
+      </div>
+      <div>
+        |
+      </div>
+      <div>
+        <b-btn
           id="quick-link-drop-in-advisors"
           :disabled="isBusy"
           class="pl-2 pr-2"
