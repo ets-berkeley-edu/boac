@@ -127,16 +127,13 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
     )
 
 
-@app.route('/api/user/<uid>/drop_in_status/<dept_code>/activate', methods=['POST'])
+@app.route('/api/user/<uid>/drop_in_status/<dept_code>/<status>', methods=['POST'])
 @scheduler_required
-def activate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, 'on_duty_advisor')
-
-
-@app.route('/api/user/<uid>/drop_in_status/<dept_code>/deactivate', methods=['POST'])
-@scheduler_required
-def deactivate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, 'off_duty_waitlist')
+def set_drop_in_status(uid, dept_code, status):
+    if status not in ['on_duty_advisor', 'on_duty_supervisor', 'off_duty_no_waitlist', 'off_duty_waitlist']:
+        raise errors.BadRequestError('Unrecognized drop-in status')
+    allow_scheduler = status in ['on_duty_advisor', 'on_duty_supervisor', 'off_duty_waitlist']
+    return _update_drop_in_status(uid, dept_code, status, allow_scheduler)
 
 
 @app.route('/api/user/drop_in_role/<dept_code>', methods=['POST'])
@@ -353,10 +350,12 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _update_drop_in_status(uid, dept_code, status):
+def _update_drop_in_status(uid, dept_code, status, allow_scheduler=False):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
-        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
+        authorized_to_toggle = \
+            current_user.is_admin or \
+            (allow_scheduler and dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')])
         if not authorized_to_toggle:
             raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in status for department {dept_code}')
     drop_in_status = None

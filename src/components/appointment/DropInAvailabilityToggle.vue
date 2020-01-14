@@ -43,7 +43,7 @@
 <script>
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
-import { setDropInAvailability } from '@/api/user';
+import { setDropInStatus } from '@/api/user';
 
 export default {
   name: 'DropInAvailabilityToggle',
@@ -86,7 +86,8 @@ export default {
   methods: {
     toggle: function() {
       this.isToggling = true;
-      setDropInAvailability(this.deptCode, this.uid, !this.isAvailable).then(() => {
+      const newStatus = this.isAvailable ? 'off_duty_waitlist' : 'on_duty_advisor';
+      setDropInStatus(this.deptCode, this.uid, newStatus).then(() => {
         this.isAvailable = !this.isAvailable;
         this.isToggling = false;
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);

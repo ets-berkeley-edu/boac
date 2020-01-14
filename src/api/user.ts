@@ -84,15 +84,14 @@ export function getDropInAdvisorsForDept(deptCode: string) {
     .then(response => response.data, () => null);
 }
 
-export function setDropInAvailability(deptCode: string, uid: string, available: boolean) {
-  const action = available ? 'activate' : 'deactivate';
+export function setDropInStatus(deptCode: string, uid: string, status: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_status/${deptCode}/${action}`)
+    .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_status/${deptCode}/${status}`)
     .then(response => {
       if (uid === Vue.prototype.$currentUser.uid) {
         store.commit('currentUserExtras/setDropInStatus', {
           deptCode: deptCode,
-          status: response.data.status
+          status: status
         });
       } else {
         return response.data;

@@ -47,6 +47,7 @@ const mutations = {
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
     if (dropInAdvisorStatus) {
       dropInAdvisorStatus.status = status;
+      Vue.prototype.$eventHub.$emit('drop-in-status-change', status);
     }
   },
   setUserPreference: (state: any, {key, value}) => {
