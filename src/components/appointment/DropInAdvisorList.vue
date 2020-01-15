@@ -24,12 +24,12 @@
           :key="advisor.uid"
           no-gutters
           class="border-bottom font-size-16 mt-2">
-          <b-col sm="8" class="pb-2 text-nowrap">
+          <b-col sm="6" class="pb-2 text-nowrap">
             {{ advisor.name }}
             <font-awesome v-if="isSupervisorOnCall(advisor, deptCode)" icon="star" class="supervisor-on-call-icon" />
             <span v-if="isSupervisorOnCall(advisor, deptCode)" class="sr-only">(Supervisor on call)</span>
           </b-col>
-          <b-col sm="4">
+          <b-col sm="6">
             <DropInAvailabilityToggle
               :status="advisor.status"
               :dept-code="deptCode"
