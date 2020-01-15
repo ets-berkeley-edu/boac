@@ -142,6 +142,7 @@ export default {
     deptCode: undefined,
     dropInStatus: undefined,
     loadingWaitlist: false,
+    refreshJob: undefined,
     waitlist: undefined
   }),
   computed: {
@@ -161,6 +162,9 @@ export default {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.layoutPage();
   },
+  destroyed() {
+    clearTimeout(this.refreshJob);
+  },
   methods: {
     hideDropInWaitlist() {
       this.alertScreenReader('Hiding drop-in waitlist');
@@ -168,6 +172,7 @@ export default {
       setDropInStatus(this.deptCode, this.$currentUser.uid, 'off_duty_no_waitlist').then(() => {
         this.layoutPage();
       });
+      clearTimeout(this.refreshJob);
     },
     layoutPage() {
       this.dropInStatus = this.get(this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()}), 'status');
@@ -183,7 +188,7 @@ export default {
         if (this.loadingWaitlist) {
           resolve();
           if (this.showWaitlist && scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+            this.scheduleRefreshJob();
           }
           return;
         }
@@ -213,7 +218,7 @@ export default {
           this.loadingWaitlist = false;
           resolve();
           if (this.showWaitlist && scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+            this.scheduleRefreshJob();
           }
 
           if (announceLoad) {
@@ -236,6 +241,11 @@ export default {
         this.layoutPage();
       });
     },
+    scheduleRefreshJob() {
+      // Clear previous job, if pending. The following is null-safe.
+      clearTimeout(this.refreshJob);
+      this.refreshJob = setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+    }
   }
 }
 </script>
