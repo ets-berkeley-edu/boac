@@ -148,7 +148,6 @@ def set_drop_in_role(dept_code):
     status = DropInAdvisor.create_or_update_status(
         university_dept=dept,
         authorized_user_id=current_user.user_id,
-        is_supervisor_on_call=(role == 'supervisorOnCall'),
     )
     if not status:
         raise errors.BadRequestError(f'Failed to update drop-in advisor: university_dept_id={dept.id} authorized_user_id={current_user.user_id}')
@@ -428,12 +427,11 @@ def _create_department_memberships(authorized_user, user_roles):
 
 
 def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
-    for user_role in [d for d in roles_per_dept_code if d['role'] in ('dropInAdvisor', 'supervisorOnCall')]:
+    for user_role in [d for d in roles_per_dept_code if d['role'] == 'dropInAdvisor']:
         university_dept = UniversityDept.find_by_dept_code(user_role['code'])
         DropInAdvisor.create_or_update_status(
             university_dept=university_dept,
             authorized_user_id=authorized_user.id,
-            is_supervisor_on_call=user_role['role'] == 'supervisorOnCall',
         )
         UniversityDeptMember.create_or_update_membership(
             university_dept_id=university_dept.id,

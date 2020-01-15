@@ -241,7 +241,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
             {
@@ -250,7 +249,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': True,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -259,7 +257,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
             {
@@ -268,7 +265,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
-                'isSupervisorOnCall': True,
                 'automate_membership': True,
             },
             {
@@ -277,7 +273,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
         ],
@@ -290,7 +285,6 @@ _university_depts = {
                 'isDirector': True,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -299,7 +293,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -308,7 +301,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': True,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
         ],
@@ -321,7 +313,6 @@ _university_depts = {
                 'isDirector': True,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -330,7 +321,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
             {
@@ -339,7 +329,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
         ],
@@ -352,7 +341,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': True,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -361,7 +349,6 @@ _university_depts = {
                 'isDirector': True,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
             {
@@ -370,7 +357,6 @@ _university_depts = {
                 'isDirector': True,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
         ],
@@ -383,7 +369,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': True,
             },
         ],
@@ -396,7 +381,6 @@ _university_depts = {
                 'isDirector': False,
                 'isDropInAdvisor': False,
                 'isScheduler': False,
-                'isSupervisorOnCall': False,
                 'automate_membership': False,
             },
         ],
@@ -503,7 +487,6 @@ def _create_department_memberships():
                     university_dept=university_dept,
                     authorized_user_id=authorized_user.id,
                     status='on_duty_advisor',
-                    is_supervisor_on_call=user['isSupervisorOnCall'],
                 )
 
 

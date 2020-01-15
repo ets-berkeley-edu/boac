@@ -18,7 +18,7 @@ export default {
         roles.push('Scheduler');
       }
       if (dropInAdvisorStatus) {
-        roles.push(dropInAdvisorStatus.supervisorOnCall ? 'Drop-in Supervisor' : 'Drop-in Advisor');
+        roles.push('Drop-in Advisor');
       }
       return roles;
     },
@@ -27,7 +27,7 @@ export default {
     },
     isSupervisorOnCall: (advisor, deptCode) => {
       return !!_.find(advisor.dropInAdvisorStatus, (status) => {
-        return status.deptCode === deptCode && status.supervisorOnCall;
+        return status.deptCode === deptCode && status.status === 'on_duty_supervisor';
       });
     },
     myDeptCodes: (roles) => {
