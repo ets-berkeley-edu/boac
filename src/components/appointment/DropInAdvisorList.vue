@@ -19,24 +19,22 @@
     </div>
     <div v-if="advisors.length">
       <b-container fluid class="pl-0 pr-0">
-        <b-row
+        <div
           v-for="advisor in orderedAdvisors"
           :key="advisor.uid"
           no-gutters
-          class="border-bottom font-size-16 mt-2">
-          <b-col sm="6" class="pb-2 text-nowrap">
+          class="border-bottom font-size-16 d-flex justify-content-between">
+          <div class="d-flex align-items-center text-nowrap">
             {{ advisor.name }}
-            <font-awesome v-if="isSupervisorOnCall(advisor, deptCode)" icon="star" class="supervisor-on-call-icon" />
-            <span v-if="isSupervisorOnCall(advisor, deptCode)" class="sr-only">(Supervisor on call)</span>
-          </b-col>
-          <b-col sm="6">
+          </div>
+          <div>
             <DropInAvailabilityToggle
               :status="advisor.status"
               :dept-code="deptCode"
               :is-homepage="false"
               :uid="advisor.uid" />
-          </b-col>
-        </b-row>
+          </div>
+        </div>
       </b-container>
     </div>
   </div>

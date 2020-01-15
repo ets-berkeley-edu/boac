@@ -9,7 +9,7 @@
       :show-modal="showCreateAppointmentModal"
       :waitlist-unresolved="waitlist.unresolved" />
     <div v-if="isHomepage" class="homepage-header-border">
-      <div class="align-items-center d-flex justify-content-between mb-2">
+      <div class="align-items-center d-flex justify-content-between">
         <div aria-live="polite" role="alert">
           <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
         </div>
