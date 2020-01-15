@@ -45,11 +45,15 @@ export default {
   data: () => ({
     advisors: undefined,
     loadingWaitlist: false,
+    refreshJob: undefined,
     waitlist: undefined
   }),
   created() {
     this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
     this.loadDropInWaitlist();
+  },
+  destroyed() {
+    clearTimeout(this.refreshJob);
   },
   methods: {
     loadDropInWaitlist(scheduleFutureRefresh=true) {
@@ -57,7 +61,7 @@ export default {
         if (this.loadingWaitlist) {
           resolve();
           if (scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+            this.scheduleRefreshJob();
           }
           return;
         }
@@ -80,7 +84,7 @@ export default {
           this.loadingWaitlist = false;
           resolve();
           if (scheduleFutureRefresh) {
-            setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+            this.scheduleRefreshJob();
           }
           if (announceUpdate) {
             this.alertScreenReader("The drop-in waitlist has been updated");
@@ -93,6 +97,11 @@ export default {
     onAppointmentStatusChange() {
       // We return a Promise.
       return this.loadDropInWaitlist(false);
+    },
+    scheduleRefreshJob() {
+      // Clear previous job, if pending. The following is null-safe.
+      clearTimeout(this.refreshJob);
+      this.refreshJob = setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
     }
   }
 }
