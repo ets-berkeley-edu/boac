@@ -1,40 +1,19 @@
 <template>
   <div>
     <div class="d-flex mb-2">
-      <div v-if="!isNil(isAvailable)" class="availability-status-outer flex-row">
-        <div v-if="isHomepage" class="mr-2 availability-status">
-          My availability status:
-        </div>
-        <div
-          v-if="!isAvailable || !$currentUser.isAdmin"
-          :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
-          class="aria-hidden availability-status">
-          Off duty
-        </div>
-        <div v-if="!$currentUser.isAdmin" class="toggle-btn-column">
-          <button
-            v-if="!isToggling"
-            :id="buttonElementId"
-            type="button"
-            class="btn btn-link pt-0 pb-0 pl-1 pr-1"
-            @click="toggle"
-            @keyup.down="toggle">
-            <span class="status-toggle-label">
-              <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
-              <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
-              <span class="sr-only">{{ isAvailable ? 'On duty' : 'Off duty' }}</span>
-            </span>
-          </button>
-          <div v-if="isToggling" class="pl-2">
-            <font-awesome icon="spinner" spin />
-          </div>
-        </div>
-        <div
-          v-if="isAvailable || !$currentUser.isAdmin"
-          :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
-          class="aria-hidden availability-status">
-          On duty
-        </div>
+      <div v-if="!$currentUser.isAdmin" class="availability-status-outer flex-row">
+        <b-form-group>
+          <b-form-radio-group
+            :id="toggleElementId"
+            v-model="selectedStatus"
+            class="drop-in-status-toggle"
+            :options="dropInStatusOptions"
+            buttons
+            name="drop-in-status-toggle"
+            size="sm"
+            @change="changeStatus"
+          ></b-form-radio-group>
+        </b-form-group>
       </div>
     </div>
   </div>
@@ -66,32 +45,31 @@ export default {
       required: true
     }
   },
-  data: () => ({
-    isAvailable: undefined,
-    isToggling: undefined
-  }),
-  computed: {
-    buttonElementId() {
-      return `toggle-drop-in-availability-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
+  data() {
+    return {
+      dropInStatusOptions: [
+        { text: 'Off Duty', value: 'off_duty_waitlist'},
+        { text: 'On Duty Drop-in Advisor', value: 'on_duty_advisor' },
+        { text: 'On Duty Supervisor On Call', value: 'on_duty_supervisor' }
+      ],
+      isToggling: undefined,
+      selectedStatus: this.status
     }
   },
-  watch: {
-    status(value) {
-      this.isAvailable = value.startsWith('on_duty');
+  computed: {
+    toggleElementId() {
+      return `toggle-drop-in-status-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
     }
   },
   created() {
-    this.isAvailable = this.status.startsWith('on_duty');
+    this.$eventHub.$on('drop-in-status-change', status => {
+      this.selectedStatus = status;
+    });
   },
   methods: {
-    toggle: function() {
-      this.isToggling = true;
-      const newStatus = this.isAvailable ? 'off_duty_waitlist' : 'on_duty_advisor';
-      setDropInStatus(this.deptCode, this.uid, newStatus).then(() => {
-        this.isAvailable = !this.isAvailable;
-        this.isToggling = false;
-        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
-        this.putFocusNextTick(this.buttonElementId)
+    changeStatus: function(selected) {
+      setDropInStatus(this.deptCode, this.uid, selected).then(() => {
+        this.alertScreenReader(`Switching drop-in availability to ${this.status}`);
       });
     }
   }
@@ -99,30 +77,21 @@ export default {
 </script>
 
 <style scoped>
-.availability-status {
-  font-size: 12px;
-  text-transform: uppercase;
-}
-.availability-status-active {
-  font-weight: 600;
-}
-.availability-status-disabled {
-  color: #999999;
-}
 .availability-status-outer {
   align-items: center;
 }
-.toggle {
- font-size: 20px;
+</style>
+
+<style>
+.drop-in-status-toggle .btn {
+  background-color: #3b7ea5 !important;
+  border-radius: 0 !important;
+  border-width: 0 !important;
+  margin-right: 5px !important;
 }
-.toggle-btn-column {
-  min-height: 28px;
-  min-width: 36px;
-}
-.toggle-off {
-   color: #999999;
-}
-.toggle-on {
-   color: #00c13a;
+
+.drop-in-status-toggle .btn:hover,
+.drop-in-status-toggle .btn.active {
+  background-color: #4a90e2 !important;
 }
 </style>
