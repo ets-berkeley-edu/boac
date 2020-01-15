@@ -5,13 +5,6 @@ import Context from '@/mixins/Context';
 export default {
   name: 'MatrixUtil',
   mixins: [Context],
-  computed: {
-    exceedsMatrixThresholdMessage() {
-      return `Sorry, the matrix view is only available when total student count is below ${
-        this.$config.disableMatrixViewThreshold
-      }. Please narrow your search.`;
-    }
-  },
   methods: {
     exceedsMatrixThreshold(studentCount) {
       return (

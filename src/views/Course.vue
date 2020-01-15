@@ -294,7 +294,7 @@ export default {
       if (
         this.exceedsMatrixThreshold(this.get(this.section, 'totalStudentCount'))
       ) {
-        this.matrixDisabledMessage = this.exceedsMatrixThresholdMessage();
+        this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`;
       } else {
         var plottableStudents = this.partitionPlottableStudents();
         if (plottableStudents[0].length === 0) {
