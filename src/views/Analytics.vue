@@ -13,7 +13,7 @@
             </div>
           </div>
           <div v-if="availableDepartments.length === 1">
-            <h2 class="page-section-header-sub pt-0">{{ report.dept.name }}</h2>
+            <h2 class="page-section-header-sub pt-0">{{ department.name }}</h2>
           </div>
           <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
             <label class="sr-only" for="available-department-reports">Departments:</label>
@@ -25,104 +25,14 @@
                 class="form-control pb-1 pl-3 pr-5 pt-1 w-auto"
                 text-field="name"
                 value-field="code"
-                @change="renderReport">
+                @change="render">
               </b-form-select>
             </div>
           </div>
         </div>
       </div>
-
-      <div class="pt-4">
-        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Notes (BOA)</h3>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label for="notes-count-boa">Total</label>
-          </div>
-          <div id="notes-count-boa" class="font-weight-bolder">
-            {{ report.boa.notes.count.total | numFormat }}
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label for="notes-count-boa-authors">Distinct authors</label>
-          </div>
-          <div id="notes-count-boa-authors" class="font-weight-bolder">
-            {{ report.boa.notes.count.authors | numFormat }}
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label for="notes-count-boa-with-attachments">With one or more attachments</label>
-          </div>
-          <div id="notes-count-boa-with-attachments" class="font-weight-bolder">
-            {{ (report.boa.notes.count.withAttachments / report.boa.notes.count.total) * 100 | numFormat('0.0') }}%
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label for="notes-count-boa-with-topics">With one or more topics</label>
-          </div>
-          <div id="notes-count-boa-with-topics" class="font-weight-bolder">
-            {{ (report.boa.notes.count.withTopics / report.boa.notes.count.total) * 100 | numFormat('0.0') }}%
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-4">
-        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">{{ report.dept.name }} Notes (BOA)</h3>
-
-        <div class="d-flex justify-content-between">
-          <div>
-            <label :for="`notes-count-boa-${report.dept.code}`">Total</label>
-          </div>
-          <div :id="`notes-count-boa-${report.dept.code}`" class="font-weight-bolder">
-            {{ get(report.boa.notes.count, `${deptCode}.total`) | numFormat }}
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label :for="`notes-count-boa-authors-${report.dept.code}`">Distinct authors</label>
-          </div>
-          <div :id="`notes-count-boa-authors-${report.dept.code}`" class="font-weight-bolder">
-            {{ get(report.boa.notes.count, `${deptCode}.authors`) | numFormat }}
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label :for="`notes-count-boa-with-attachments-${report.dept.code}`">With one or more attachments</label>
-          </div>
-          <div :id="`notes-count-boa-with-attachments-${report.dept.code}`" class="font-weight-bolder">
-            {{ (get(report.boa.notes.count, `${deptCode}.withAttachments`) / get(report.boa.notes.count, `${deptCode}.total`)) * 100 | numFormat('0.0') }}%
-          </div>
-        </div>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label :for="`notes-count-boa-with-topics-${report.dept.code}`">With one or more topics</label>
-          </div>
-          <div :id="`notes-count-boa-with-topics-${report.dept.code}`" class="font-weight-bolder">
-            {{ (get(report.boa.notes.count, `${deptCode}.withTopics`) / get(report.boa.notes.count, `${deptCode}.total`)) * 100 | numFormat('0.0') }}%
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-4">
-        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Notes (CalCentral)</h3>
-        <div class="d-flex justify-content-between">
-          <div>
-            <label for="notes-count-calcentral">Total</label>
-          </div>
-          <div id="notes-count-calcentral" class="font-weight-bolder">
-            {{ report.sis.notes.count | numFormat }}
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-4">
-        <h3 class="border-bottom page-section-header-sub pb-2 pt-3">Users</h3>
-        <div>
-          TODO: Number of users who have accessed BOA, and their departmental affiliations
-        </div>
-      </div>
+      <NotesReport :department="department" />
+      <UserReport :department="department" />
     </div>
   </div>
 </template>
@@ -130,43 +40,35 @@
 <script>
 import Context from '@/mixins/Context';
 import Loading from '@/mixins/Loading';
+import NotesReport from "@/components/reports/NotesReport";
 import Spinner from '@/components/util/Spinner';
+import UserReport from "@/components/reports/UserReport";
 import Util from '@/mixins/Util';
-import { getAvailableDepartmentReports, getBoaUsageSummary } from '@/api/reports';
+import { getAvailableDepartmentReports } from '@/api/reports';
 
 export default {
   name: 'Admin',
   components: {
-    Spinner
+    NotesReport,
+    Spinner,
+    UserReport
   },
   mixins: [Context, Loading, Util],
   data: () => ({
     availableDepartments: undefined,
-    deptCode: undefined,
-    report: undefined
+    department: undefined,
   }),
   mounted() {
     this.deptCode = this.trim(this.get(this.$route, 'params.deptCode')).toUpperCase();
-    this.renderReport();
+    getAvailableDepartmentReports().then(departments => {
+      this.availableDepartments = departments;
+      this.render();
+      this.loaded('Reports');
+    });
   },
   methods: {
-    renderReport() {
-      this.loadingStart();
-      getAvailableDepartmentReports().then(departments => {
-        if (this.includes(this.map(departments, 'code'), this.deptCode)) {
-          this.availableDepartments = departments;
-          getBoaUsageSummary(this.deptCode).then(report => {
-            if (report) {
-              this.report = report;
-              this.loaded('Analytics');
-            } else {
-              this.$router.push({ path: '/404' });
-            }
-          });
-        } else {
-          this.$router.push({ path: '/404' });
-        }
-      });
+    render() {
+      this.department = this.find(this.availableDepartments, ['code', this.deptCode]);
     }
   }
 };

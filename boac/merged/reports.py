@@ -105,6 +105,19 @@ def get_note_count(dept_code=None):
     return [row['count'] for row in results][0]
 
 
+def get_note_count_per_user(dept_code):
+    query = f"""
+        SELECT author_uid as uid, COUNT(id) AS count
+        FROM notes
+        WHERE '{dept_code}' = ANY(author_dept_codes)
+        GROUP BY author_uid
+    """
+    results = {}
+    for row in db.session.execute(query):
+        results[row['uid']] = row['count']
+    return results
+
+
 def get_note_with_attachments_count(dept_code=None):
     query = """
         SELECT COUNT(DISTINCT a.id)

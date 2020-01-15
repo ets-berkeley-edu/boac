@@ -255,6 +255,7 @@
 
 <script>
 import Autocomplete from '@/components/util/Autocomplete';
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal';
 import Util from '@/mixins/Util';
@@ -263,7 +264,7 @@ import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } f
 export default {
   name: 'Users',
   components: {Autocomplete, EditUserProfileModal},
-  mixins: [Context, Util],
+  mixins: [Berkeley, Context, Util],
   props: {
     departments: {
       required: true,
@@ -321,23 +322,6 @@ export default {
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
       const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
-    },
-    getBoaUserRoles(user, department) {
-      const roles = [];
-      const dropInAdvisorStatus = this.find(user.dropInAdvisorStatus, ['deptCode', department.code])
-      if (department.isAdvisor) {
-        roles.push('Advisor');
-      }
-      if (department.isDirector) {
-        roles.push('Director');
-      }
-      if (department.isScheduler) {
-        roles.push('Scheduler');
-      }
-      if (dropInAdvisorStatus) {
-        roles.push(dropInAdvisorStatus.supervisorOnCall ? 'Drop-in Supervisor' : 'Drop-in Advisor');
-      }
-      return roles;
     },
     getUserStatuses(user) {
       const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ];
@@ -459,11 +443,5 @@ export default {
   color: #aaa;
   font-weight: normal;
   padding: 5px 20px 5px 0;
-}
-.user-details-header {
-  color: #aaa;
-  font-size: 13px;
-  font-weight: normal;
-  vertical-align: top;
 }
 </style>

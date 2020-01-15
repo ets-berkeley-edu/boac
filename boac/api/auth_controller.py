@@ -133,6 +133,7 @@ def _dev_auth_login(uid, password):
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
         login_user(user, force=True, remember=True)
+        UserLogin.record_user_login(uid)
         return tolerant_jsonify(current_user.to_api_json())
     else:
         raise ResourceNotFoundError('Unknown path')
