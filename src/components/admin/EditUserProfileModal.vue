@@ -107,7 +107,6 @@
                   :options="[
                     { text: 'Advisor', value: 'advisor' },
                     { text: 'Advisor + Drop-In', value: 'dropInAdvisor' },
-                    { text: 'Advisor + Drop-In Supervisor', value: 'supervisorOnCall' },
                     { text: 'Director', value: 'director' },
                     { text: 'Scheduler', value: 'scheduler' },
                   ]"
@@ -249,7 +248,7 @@ export default {
         let role = undefined;
         const dropInAdvisorStatus = this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code]);
         if (dropInAdvisorStatus) {
-          role = dropInAdvisorStatus.supervisorOnCall ? 'supervisorOnCall' : 'dropInAdvisor';
+          role = 'dropInAdvisor';
         } else if (d.isAdvisor) {
           role = 'advisor';
         } else if (d.isDirector) {

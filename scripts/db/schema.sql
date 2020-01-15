@@ -280,8 +280,7 @@ CREATE TABLE drop_in_advisors (
     status drop_in_advisor_status_types DEFAULT 'off_duty_no_waitlist' NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    deleted_at TIMESTAMP WITH TIME ZONE,
-    is_supervisor_on_call BOOLEAN DEFAULT false NOT NULL
+    deleted_at TIMESTAMP WITH TIME ZONE
 );
 ALTER TABLE drop_in_advisors OWNER TO boac;
 ALTER TABLE drop_in_advisors

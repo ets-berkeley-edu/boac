@@ -13,7 +13,7 @@
         <h2 id="edit-modal-header" class="student-section-header">{{ dept.name }}</h2>
       </div>
       <div class="modal-body m-0 p-0">
-        <div class="ml-3 mr-2 p-2">          
+        <div class="ml-3 mr-2 p-2">
           <div class="pl-4">
             <div class="align-items-center d-flex">
               <div class="font-weight-500 pr-2 pt-1">
@@ -24,8 +24,7 @@
                 v-model="selectedRole"
                 required
                 :options="[
-                  { text: 'Drop-In Advisor', value: 'dropInAdvisor' },
-                  { text: 'Supervisor On Call', value: 'supervisorOnCall' },
+                  { text: 'Drop-In Advisor', value: 'dropInAdvisor' }
                 ]"
                 :aria-label="`Your role in ${dept.name}`"
                 class="w-260px">
@@ -106,7 +105,7 @@ export default {
       if (this.dept) {
         const dropInAdvisorDept = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode.toUpperCase()});
         if (dropInAdvisorDept) {
-          this.selectedRole = dropInAdvisorDept.supervisorOnCall ? 'supervisorOnCall' : 'dropInAdvisor';
+          this.selectedRole = 'dropInAdvisor';
         }
       }
     }
