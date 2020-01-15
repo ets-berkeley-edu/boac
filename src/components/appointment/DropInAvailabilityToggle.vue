@@ -1,20 +1,19 @@
 <template>
   <div>
-    <div class="d-flex mb-2">
-      <div v-if="!$currentUser.isAdmin" class="availability-status-outer flex-row">
-        <b-form-group>
-          <b-form-radio-group
-            :id="toggleElementId"
-            v-model="selectedStatus"
-            class="drop-in-status-toggle"
-            :options="dropInStatusOptions"
-            buttons
-            name="drop-in-status-toggle"
-            size="sm"
-            @change="changeStatus"
-          ></b-form-radio-group>
-        </b-form-group>
-      </div>
+    <div v-if="!$currentUser.isAdmin" class="availability-status-outer flex-row">
+      <b-form-group class="mt-3 mb-3">
+        <b-form-radio-group
+          :id="toggleElementId"
+          v-model="selectedStatus"
+          class="drop-in-status-toggle"
+          :options="dropInStatusOptions"
+          buttons
+          button-variant="outline-primary"
+          name="drop-in-status-toggle"
+          size="sm"
+          @change="changeStatus"
+        ></b-form-radio-group>
+      </b-form-group>
     </div>
   </div>
 </template>
@@ -49,8 +48,8 @@ export default {
     return {
       dropInStatusOptions: [
         { text: 'Off Duty', value: 'off_duty_waitlist'},
-        { text: 'On Duty Drop-in Advisor', value: 'on_duty_advisor' },
-        { text: 'On Duty Supervisor On Call', value: 'on_duty_supervisor' }
+        { text: 'Advisor', value: 'on_duty_advisor' },
+        { text: 'Supervisor', value: 'on_duty_supervisor' }
       ],
       isToggling: undefined,
       selectedStatus: this.status
@@ -59,6 +58,11 @@ export default {
   computed: {
     toggleElementId() {
       return `toggle-drop-in-status-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
+    }
+  },
+  watch: {
+    status(value) {
+      this.selectedStatus = value;
     }
   },
   created() {
@@ -84,14 +88,15 @@ export default {
 
 <style>
 .drop-in-status-toggle .btn {
-  background-color: #3b7ea5 !important;
-  border-radius: 0 !important;
-  border-width: 0 !important;
-  margin-right: 5px !important;
+  border-color: #3b7ea5 !important;
+  color: #3b7ea5 !important;
 }
-
-.drop-in-status-toggle .btn:hover,
 .drop-in-status-toggle .btn.active {
-  background-color: #4a90e2 !important;
+  background-color: #3b7ea5 !important;
+  color: #ffffff !important;
+}
+.drop-in-status-toggle .btn:hover {
+  background-color: #69a6c9 !important;
+  color: #ffffff !important;
 }
 </style>
