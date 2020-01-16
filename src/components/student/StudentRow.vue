@@ -88,6 +88,13 @@
           Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
         </div>
         <div
+          v-if="student.termsInAttendance"
+          :id="`row-${rowIndex}-student-terms-in-attendance`"
+          class="student-text"
+          aria-label="Terms in attendance">
+          Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
+        </div>
+        <div
           v-for="(major, index) in student.majors"
           :key="index"
           class="student-text">

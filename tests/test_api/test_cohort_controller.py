@@ -846,7 +846,8 @@ class TestCohortPerFilters:
         assert _get_first_student('units')['cumulativeUnits'] == 34
         assert _get_first_student('units desc')['cumulativeUnits'] == 102
         assert _get_first_student('entering_term')['matriculation'] == 'Spring 2015'
-        assert _get_first_student('terms_in_attendance')['termsInAttendance'] == 4
+        assert _get_first_student('terms_in_attendance')['termsInAttendance'] is None
+        assert _get_first_student('terms_in_attendance desc')['termsInAttendance'] == 5
 
         defensive_line_by_units = self._get_defensive_line(client, False, 'enrolled_units')
         assert 'term' not in defensive_line_by_units[0]
@@ -1087,7 +1088,7 @@ class TestDownloadCsvPerFilters:
 program_status',
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,',
             'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,',
-            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567,Engineering Undeclared UG,Sophomore,5,Spring 2020,55,,2.3,',
+            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567,Engineering Undeclared UG,Sophomore,2,Spring 2020,55,,2.3,',
         ]:
             assert str(snippet) in csv
 

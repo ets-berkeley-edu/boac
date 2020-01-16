@@ -242,8 +242,8 @@ class TestGetCuratedGroup:
         units = [f"{s['termsInAttendance']} ({s.get('lastName')})" for s in api_json['students']]
         assert units == [
             'None (Davies)',
+            'None (Jayaprakash)',
             '2 (Farestveit)',
-            '5 (Jayaprakash)',
             '5 (Kerschen)',
         ]
 
@@ -658,7 +658,7 @@ class TestDownloadCuratedGroupCSV:
 program_status',
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,',
             'Paul,Kerschen,3456789012,doctork@berkeley.edu,415/123-4567,English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
-            'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
+            'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,',
             'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,',
         ]:
             assert str(snippet) in csv
@@ -706,7 +706,7 @@ program_status',
             'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
             'English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,',
             'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,',
-            'Letters & Sci Undeclared UG,Senior,5,Fall 2019,102,2.100,3.501,',
+            'Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,',
             'Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,',
         ]:
             assert str(snippet) in csv
