@@ -51,12 +51,14 @@ export default {
       { name: 'Level', value: 'level', available: true },
       { name: 'Major', value: 'major', available: true },
       { name: 'Entering Term', value: 'entering_term', available: true },
-      { name: 'Terms Completed', value: 'terms_in_attendance', available: true },
       {
         name: 'Team',
         value: 'group_name',
         available: this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
       },
+      { html: this.separator, value: null, disabled: true, available: true },
+      { name: 'Terms in Attendance (High/Low)', value: 'terms_in_attendance desc', available: true },
+      { name: 'Terms in Attendance (Low/High)', value: 'terms_in_attendance', available: true },
       { html: this.separator, value: null, disabled: true, available: true },
       { name: `GPA (${this.termNameForSisId(gpa_term_id_2)} - High/Low)`, value: `term_gpa_${gpa_term_id_2} desc`, available: true },
       { name: `GPA (${this.termNameForSisId(gpa_term_id_2)} - Low/High)`, value: `term_gpa_${gpa_term_id_2}`, available: true },
