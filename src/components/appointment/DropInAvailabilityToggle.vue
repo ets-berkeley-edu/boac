@@ -15,16 +15,28 @@
         ></b-form-radio-group>
       </b-form-group>
     </div>
+    <AreYouSureModal
+      v-if="showOffDutyConfirmModal"
+      :function-cancel="cancelGoOffDuty"
+      :function-confirm="confirmGoOffDuty"
+      :modal-body="offDutyConfirmModalBody()"
+      :show-modal="showOffDutyConfirmModal"
+      button-label-confirm="Confirm"
+      modal-header="Go off duty?" />
   </div>
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
 import { setDropInStatus } from '@/api/user';
 
 export default {
   name: 'DropInAvailabilityToggle',
+  components: {
+    AreYouSureModal
+  },
   mixins: [Context, Util],
   props: {
     deptCode: {
@@ -33,6 +45,10 @@ export default {
     },
     isHomepage: {
       type: Boolean,
+      required: true
+    },
+    reservedAppointments: {
+      type: Array,
       required: true
     },
     status: {
@@ -52,7 +68,8 @@ export default {
         { text: 'Supervisor', value: 'on_duty_supervisor' }
       ],
       isToggling: undefined,
-      selectedStatus: this.status
+      selectedStatus: this.status,
+      showOffDutyConfirmModal: false
     }
   },
   computed: {
@@ -71,11 +88,34 @@ export default {
     });
   },
   methods: {
-    changeStatus: function(selected) {
-      setDropInStatus(this.deptCode, this.uid, selected).then(() => {
-        this.alertScreenReader(`Switching drop-in availability to ${this.status}`);
+    cancelGoOffDuty() {
+      this.showOffDutyConfirmModal = false;
+      this.$nextTick(() => {
+        this.selectedStatus = this.status;
       });
-    }
+    },
+    changeStatus: function(selected) {
+      if (selected.startsWith('off_duty') && this.reservedAppointments.length) {
+        this.showOffDutyConfirmModal = true;
+      } else {
+        this.confirmChangeStatus(selected);
+      }
+    },
+    confirmGoOffDuty() {
+      this.showOffDutyConfirmModal = false;
+      this.confirmChangeStatus('off_duty_waitlist');
+    },
+    confirmChangeStatus(selected) {
+      setDropInStatus(this.deptCode, this.uid, selected).then(() => {
+        this.alertScreenReader(`Switching drop-in availability to ${selected}`);
+      });
+    },
+    offDutyConfirmModalBody() {
+      return `
+        Setting status to "Off Duty" will unassign
+        ${this.$options.filters.pluralize('assigned student', this.reservedAppointments.length)}
+        on the waitlist.`;
+    },
   }
 };
 </script>

@@ -25,9 +25,10 @@
         </div>
       </div>
       <DropInAvailabilityToggle
-        :status="get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'status')"
         :dept-code="deptCode"
         :is-homepage="isHomepage"
+        :reserved-appointments="myReservedAppointments"
+        :status="get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'status')"
         :uid="$currentUser.uid" />
     </div>
     <div v-if="!isHomepage">
@@ -135,6 +136,13 @@ export default {
     now: undefined,
     showCreateAppointmentModal: false
   }),
+  computed: {
+    myReservedAppointments: function() {
+      return this.filterList(this.waitlist.unresolved, (appt) => {
+        return appt.status === 'reserved' && appt.advisorUid === this.$currentUser.uid;
+      });
+    }
+  },
   created() {
     this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.$currentUser, 'dropInAdvisorStatus.length');
     this.now = this.$moment();

@@ -15,7 +15,8 @@
       <div class="waitlist-container">
         <DropInAdvisorList
           :dept-code="deptCode"
-          :advisors="advisors" />
+          :advisors="advisors"
+          :waitlist="waitlist" />
       </div>
       <div class="waitlist-container">
         <DropInWaitlist

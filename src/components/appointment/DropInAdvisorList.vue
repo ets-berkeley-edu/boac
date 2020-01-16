@@ -29,9 +29,10 @@
           </div>
           <div>
             <DropInAvailabilityToggle
-              :status="advisor.status"
               :dept-code="deptCode"
               :is-homepage="false"
+              :reserved-appointments="reservedAppointmentsByAdvisor[advisor.uid] || []"
+              :status="advisor.status"
               :uid="advisor.uid" />
           </div>
         </div>
@@ -60,9 +61,18 @@ export default {
     deptCode: {
       type: String,
       required: true
+    },
+    waitlist: {
+      type: Object,
+      required: true
     }
   },
   computed: {
+    reservedAppointmentsByAdvisor: function() {
+      return this.groupBy(this.waitlist.unresolved, (appt) => {
+        return appt.status === 'reserved' && appt.advisorUid;
+      });
+    },
     orderedAdvisors: function() {
       return this.orderBy(this.advisors, 'name');
     }

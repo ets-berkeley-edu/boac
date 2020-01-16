@@ -25,12 +25,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import std_commit
 from boac.merged import calnet
+from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.university_dept import UniversityDept
 from flask import current_app as app
 import simplejson as json
+from tests.test_api.test_appointments_controller import AppointmentTestUtil
 from tests.util import override_config
 
 admin_uid = '2040'
@@ -673,6 +675,57 @@ class TestToggleDropInAppointmentStatus:
                 'isEnabled': True,
                 'status': 'on_duty_advisor',
             } in response.json[0]['dropInAdvisorStatus']
+
+    def test_unreserve_appointments_when_advisor_goes_off_duty(self, app, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_scheduler_uid)
+
+            # Put advisor on duty.
+            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/on_duty_advisor')
+
+            # Reserve a couple of appointments for the advisor via different paths.
+            details = 'Concurrent enrollment in beauty school'
+            pre_reserved_appointment = AppointmentTestUtil.create_appointment(
+                client=client,
+                dept_code='QCADV',
+                details=details,
+                advisor_uid=l_s_college_drop_in_advisor_uid,
+            )
+            pre_reserved_appointment_id = pre_reserved_appointment['id']
+            subsequently_reserved_appointment = AppointmentTestUtil.create_appointment(client, 'QCADV', details)
+            subsequently_reserved_appointment_id = subsequently_reserved_appointment['id']
+            AppointmentTestUtil.reserve_appointment(client, subsequently_reserved_appointment_id, l_s_college_drop_in_advisor_uid)
+
+            # Verify reserved appointment data.
+            waitlist = client.get(f'/api/appointments/waitlist/QCADV').json['waitlist']
+            pre_reserved_appointment_feed = next(appt for appt in waitlist['unresolved'] if appt['id'] == pre_reserved_appointment_id)
+            assert pre_reserved_appointment_feed['status'] == 'reserved'
+            assert pre_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
+            assert pre_reserved_appointment_feed['advisorUid'] == l_s_college_drop_in_advisor_uid
+            subsequently_reserved_appointment_feed =\
+                next(appt for appt in waitlist['unresolved'] if appt['id'] == subsequently_reserved_appointment_id)
+            assert subsequently_reserved_appointment_feed['status'] == 'reserved'
+            assert subsequently_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
+            assert subsequently_reserved_appointment_feed['advisorUid'] == l_s_college_drop_in_advisor_uid
+
+            # Take advisor off duty.
+            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/off_duty_waitlist')
+
+            # Verify appointments are back to waiting.
+            waitlist = client.get(f'/api/appointments/waitlist/QCADV').json['waitlist']
+            pre_reserved_appointment_feed = next(appt for appt in waitlist['unresolved'] if appt['id'] == pre_reserved_appointment_id)
+            assert pre_reserved_appointment_feed['status'] == 'waiting'
+            assert pre_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
+            assert pre_reserved_appointment_feed['advisorUid'] is None
+            subsequently_reserved_appointment_feed =\
+                next(appt for appt in waitlist['unresolved'] if appt['id'] == subsequently_reserved_appointment_id)
+            assert subsequently_reserved_appointment_feed['status'] == 'waiting'
+            assert subsequently_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
+            assert subsequently_reserved_appointment_feed['advisorUid'] is None
+
+            # Clean up.
+            Appointment.delete(pre_reserved_appointment_id)
+            Appointment.delete(subsequently_reserved_appointment_id)
 
     def test_advisor_can_hide_their_own_waitlist(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):

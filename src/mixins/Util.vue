@@ -35,6 +35,7 @@ export default {
     flatten: _.flatten,
     focusModalById: id => document.getElementById(id) && document.getElementById(id).focus(),
     get: _.get,
+    groupBy: _.groupBy,
     has: _.has,
     includes: _.includes,
     indexOf: _.indexOf,
