@@ -420,7 +420,7 @@ def query_students(
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
-        if xor('group_name' in o or 'entering_term' in o or 'term_gpa' in o, 'desc' == o_direction):
+        if 'term_gpa' in o or xor(o in ['group_name', 'entering_term'], 'desc' == o_direction):
             o_null_order = 'NULLS LAST'
         else:
             o_null_order = 'NULLS FIRST'

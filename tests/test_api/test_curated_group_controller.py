@@ -201,17 +201,17 @@ class TestGetCuratedGroup:
         ]
 
     def test_order_by_term_gpa_desc(self, asc_advisor, asc_curated_groups, client):
-        """Includes students in response, ordered by term GPA descending, nulls first."""
+        """Includes students in response, ordered by term GPA descending, nulls last."""
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='term_gpa_2178 desc')
 
         def _fall_2017_gpa(student):
             return next((t['gpa'] for t in student['termGpa'] if t['termName'] == 'Fall 2017'), None) if student['termGpa'] else None
         gpas = [f"{_fall_2017_gpa(s)} ({s.get('lastName')})" for s in api_json['students']]
         assert gpas == [
-            'None (Farestveit)',
             '3.2 (Kerschen)',
             '2.1 (Jayaprakash)',
             '1.8 (Davies)',
+            'None (Farestveit)',
         ]
 
     def test_order_by_units_enrolled(self, asc_advisor, asc_curated_groups, client):
