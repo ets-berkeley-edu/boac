@@ -868,9 +868,9 @@ class TestCohortPerFilters:
         assert _fall_2017_gpa(defensive_line_by_term_gpa[2]) is None
 
         defensive_line_by_term_gpa_desc = self._get_defensive_line(client, False, 'term_gpa_2178 desc')
-        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[0]) is None
-        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[1]) == 3.2
-        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[2]) == 2.1
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[0]) == 3.2
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[1]) == 2.1
+        assert _fall_2017_gpa(defensive_line_by_term_gpa_desc[2]) is None
 
         student = _get_first_student('group_name')
         assert student['athleticsProfile']['athletics'][0]['groupName'] == 'Football, Defensive Backs'
