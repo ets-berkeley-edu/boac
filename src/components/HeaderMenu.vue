@@ -19,7 +19,7 @@
         Analytics
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="!isUserSimplyScheduler() || $config.isDemoModeAvailable"
+        v-if="!isUserSimplyScheduler() || size($currentUser.dropInAdvisorStatus) || $config.isDemoModeAvailable"
         id="header-link-to-settings"
         :href="isUserSimplyScheduler() ? '/scheduler/settings' : '/admin'"
         class="nav-link-color text-decoration-none">

@@ -484,7 +484,7 @@ def _create_department_memberships():
             )
             if user['isDropInAdvisor']:
                 DropInAdvisor.create_or_update_status(
-                    university_dept=university_dept,
+                    dept_code=dept_code,
                     authorized_user_id=authorized_user.id,
                     status='on_duty_advisor',
                 )

@@ -115,12 +115,12 @@ export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], delete
     .then(response => response.data);
 }
 
-export function updateDropInRole(deptCode: string, role: string) {
+export function toggleDropInAdvising(deptCode: string, enable: boolean) {
+  const action = enable ? 'enable' : 'disable';
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_role/${deptCode}`, {
-      role: role
-    })
+    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/${action}`)
     .then(response => {
-      Vue.prototype.$currentUser.dropInAdvisorStatus = response.data.dropInAdvisorStatus;
+      const indexOf = _.findIndex(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode});
+      Vue.prototype.$currentUser.dropInAdvisorStatus[indexOf] = response.data;
     });
 }

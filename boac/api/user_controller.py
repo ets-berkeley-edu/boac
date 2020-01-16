@@ -136,27 +136,25 @@ def set_drop_in_status(uid, dept_code, status):
     return _update_drop_in_status(uid, dept_code, status, allow_scheduler)
 
 
-@app.route('/api/user/drop_in_role/<dept_code>', methods=['POST'])
-@login_required
-def set_drop_in_role(dept_code):
-    params = request.get_json()
-    role = params.get('role', None)
-    if not role:
-        raise errors.BadRequestError('Required parameters are missing')
-
-    dept = UniversityDept.find_by_dept_code(dept_code)
-    status = DropInAdvisor.create_or_update_status(
-        university_dept=dept,
-        authorized_user_id=current_user.user_id,
+@app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
+@scheduler_required
+def enable_drop_in_advising(dept_code):
+    drop_in_status = DropInAdvisor.create_or_update_status(
+        dept_code,
+        current_user.user_id,
+        status='off_duty_no_waitlist',
     )
-    if not status:
-        raise errors.BadRequestError(f'Failed to update drop-in advisor: university_dept_id={dept.id} authorized_user_id={current_user.user_id}')
-
     UserSession.flush_cache_for_id(current_user.user_id)
+    return tolerant_jsonify(drop_in_status.to_api_json())
 
-    updated_user = AuthorizedUser.find_by_id(current_user.user_id)
-    users_json = authorized_users_api_feed([updated_user])
-    return tolerant_jsonify(users_json and users_json[0])
+
+@app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
+@scheduler_required
+def disable_drop_in_advising(dept_code):
+    DropInAdvisor.delete(authorized_user_id=current_user.user_id, dept_code=dept_code)
+    UserSession.flush_cache_for_id(current_user.user_id)
+    drop_in_status = DropInAdvisor.find_by_dept_and_user(dept_code, current_user.user_id)
+    return tolerant_jsonify(drop_in_status.to_api_json())
 
 
 @app.route('/api/users', methods=['POST'])
@@ -430,7 +428,7 @@ def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
     for user_role in [d for d in roles_per_dept_code if d['role'] == 'dropInAdvisor']:
         university_dept = UniversityDept.find_by_dept_code(user_role['code'])
         DropInAdvisor.create_or_update_status(
-            university_dept=university_dept,
+            dept_code=university_dept.dept_code,
             authorized_user_id=authorized_user.id,
         )
         UniversityDeptMember.create_or_update_membership(
