@@ -1,6 +1,6 @@
 <template>
   <b-row
-    :class="{'border-bottom': isLast, 'row-assigned-to-me': appointment.status === 'reserved' && appointment.statusBy.id === $currentUser.id }"
+    :class="{'border-bottom': isLast, 'row-assigned-to-me': appointment.status === 'reserved' && appointment.advisorId === $currentUser.id }"
     class="font-size-16 p-2 border-top"
     no-gutters>
     <b-col sm="2" class="pb-2 text-nowrap">
@@ -56,10 +56,10 @@
             {{ oxfordJoin(appointment.topics) }}
           </div>
           <div v-if="appointment.status === 'reserved'" class="has-error">
-            <span v-if="appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.statusBy.id === $currentUser.id ? 'you' : appointment.statusBy.name }}</span>
-            <span v-if="!appointment.statusBy" :id="`assigned-to-${appointment.id}`">Assigned</span>
+            <span v-if="appointment.advisorId" :id="`assigned-to-${appointment.id}`">Assigned to {{ appointment.advisorId === $currentUser.id ? 'you' : appointment.advisorName }}</span>
+            <span v-if="!appointment.advisorId" :id="`assigned-to-${appointment.id}`">Assigned</span>
           </div>
-          <div v-if="appointment.statusBy && !reopening">
+          <div v-if="appointment.advisorName && !reopening">
             <div class="font-size-14 pb-2 text-nowrap">
               <span v-if="appointment.status === 'checked_in'">
                 <font-awesome icon="calendar-check" class="status-checked-in-icon" />

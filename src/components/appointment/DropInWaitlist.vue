@@ -148,9 +148,6 @@ export default {
       details,
       student,
       topics,
-      advisorDeptCodes,
-      advisorName,
-      advisorRole,
       advisorUid
     ) {
       this.creating = true;
@@ -160,9 +157,6 @@ export default {
         student.sid,
         'Drop-in',
         topics,
-        advisorDeptCodes,
-        advisorName,
-        advisorRole,
         advisorUid
       ).then(() => {
         this.showCreateAppointmentModal = false;

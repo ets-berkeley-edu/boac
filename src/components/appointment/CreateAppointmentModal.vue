@@ -217,14 +217,10 @@ export default {
     },
     create() {
       this.saving = true;
-      const advisor = this.selectedAdvisorUid ? this.find(this.advisors, ['uid', this.selectedAdvisorUid]) : null;
       this.createAppointment(
         this.details,
         this.student,
         this.topics,
-        advisor && this.map(advisor.departments, 'code'),
-        this.get(advisor, 'name'),
-        this.get(advisor, 'title') || 'Advisor',
         this.selectedAdvisorUid
       );
       this.showCreateAppointmentModal = false;

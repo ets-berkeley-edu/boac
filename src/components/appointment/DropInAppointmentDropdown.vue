@@ -162,17 +162,13 @@ export default {
         });
       }).catch(this.handleBadRequestError);
     },
-    checkInAppointment(advisor, deptCodes) {
+    checkInAppointment(advisor) {
       if (!advisor) {
         advisor = this.$currentUser;
-        deptCodes = this.map(this.$currentUser.departments, 'code');
       }
       const appointmentId = this.appointment.id;
       this.loading = true;
       apiCheckIn(
-        deptCodes,
-        advisor.name,
-        advisor.title || 'Advisor',
         advisor.uid,
         appointmentId
       ).then(() => {

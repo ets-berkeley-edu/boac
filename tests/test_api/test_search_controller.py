@@ -669,7 +669,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'advisorUid': '90412'},
         )
-        self._assert(api_json, appointment_count=3)
+        self._assert(api_json, appointment_count=4)
 
     def test_search_appointments_by_student(self, coe_advisor, client):
         """Searches appointments by student CSID."""

@@ -16,17 +16,11 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
 }
 
 export function checkIn(
-    advisorDeptCodes,
-    advisorName,
-    advisorRole,
     advisorUid,
     appointmentId
 ) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/check_in`, {
-      advisorDeptCodes,
-      advisorName,
-      advisorRole,
       advisorUid
     }).then(response => {
       const uid = Vue.prototype.$currentUser.uid;
@@ -41,16 +35,10 @@ export function create(
     sid,
     appointmentType,
     topics,
-    advisorDeptCodes?,
-    advisorName?,
-    advisorRole?,
     advisorUid?,
   ) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/create`, {
-      advisorDeptCodes,
-      advisorName,
-      advisorRole,
       advisorUid,
       appointmentType,
       deptCode,
