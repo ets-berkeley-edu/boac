@@ -9,7 +9,7 @@
               <font-awesome :style="{ color: '#3b7ea5' }" icon="chart-line" size="2x" />
             </div>
             <div class="pt-2">
-              <h1 class="page-section-header">Analytics</h1>
+              <h1 class="page-section-header">Flight Data Recorder</h1>
             </div>
           </div>
           <div v-if="availableDepartments.length === 1">
