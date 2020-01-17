@@ -277,6 +277,24 @@ class Appointment(Base):
         db.session.refresh(self)
 
     @classmethod
+    def unreserve_all_for_advisor(cls, advisor_uid, updated_by):
+        appointments = cls.query.filter(and_(cls.status == 'reserved', cls.advisor_uid == advisor_uid, cls.deleted_at == None))  # noqa: E711
+        event_type = 'waiting'
+        for appointment in appointments:
+            appointment.status = event_type
+            appointment.advisor_uid = None
+            appointment.advisor_name = None
+            appointment.advisor_role = None
+            appointment.advisor_dept_codes = None
+            appointment.updated_by = updated_by
+            AppointmentEvent.create(
+                appointment_id=appointment.id,
+                user_id=updated_by,
+                event_type=event_type,
+            )
+        std_commit()
+
+    @classmethod
     def search(
         cls,
         search_phrase,

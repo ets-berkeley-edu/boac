@@ -33,6 +33,7 @@ from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
+from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.university_dept import UniversityDept
@@ -347,7 +348,7 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _update_drop_in_status(uid, dept_code, status, allow_scheduler=False):
+def _update_drop_in_status(uid, dept_code, new_status, allow_scheduler=False):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
         authorized_to_toggle = \
@@ -360,7 +361,9 @@ def _update_drop_in_status(uid, dept_code, status, allow_scheduler=False):
     if user:
         drop_in_status = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
     if drop_in_status:
-        drop_in_status.update_status(status)
+        if drop_in_status.status.startswith('on_duty') and new_status.startswith('off_duty'):
+            Appointment.unreserve_all_for_advisor(uid, current_user.get_id())
+        drop_in_status.update_status(new_status)
         UserSession.flush_cache_for_id(user.id)
         return tolerant_jsonify(drop_in_status.to_api_json())
     else:
