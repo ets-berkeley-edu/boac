@@ -16,7 +16,7 @@
         id="header-link-to-analytics"
         :href="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${getMyDirectorDept().toLowerCase()}`"
         class="nav-link-color text-decoration-none">
-        Analytics
+        Flight Data Recorder
       </b-dropdown-item>
       <b-dropdown-item
         v-if="!isUserSimplyScheduler() || size($currentUser.dropInAdvisorStatus) || $config.isDemoModeAvailable"

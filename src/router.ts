@@ -197,7 +197,7 @@ const router = new Router({
           path: '/analytics/:deptCode',
           component: Analytics,
           meta: {
-            title: 'Analytics'
+            title: 'Flight Data Recorder'
           }
         }
       ]
