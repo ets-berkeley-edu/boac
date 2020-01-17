@@ -54,13 +54,17 @@ def override_config(app, key, value):
     """Temporarily override an app config value."""
     old_value = app.config[key]
     app.config[key] = value
-    yield
-    app.config[key] = old_value
+    try:
+        yield
+    finally:
+        app.config[key] = old_value
 
 
 @contextmanager
 def pause_mock_sts():
     """Temporarily pause moto's mock STS, which can get in the way of tests incorporating other external services, such as CAS."""
     moto.mock_sts().stop()
-    yield
-    moto.mock_sts().start()
+    try:
+        yield
+    finally:
+        moto.mock_sts().start()

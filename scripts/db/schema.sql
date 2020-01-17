@@ -151,6 +151,7 @@ CREATE TABLE appointment_events (
   id INTEGER NOT NULL,
   appointment_id INTEGER NOT NULL,
   user_id INTEGER,
+  advisor_id INTEGER,
   event_type appointment_event_types NOT NULL,
   cancel_reason VARCHAR(255),
   cancel_reason_explained VARCHAR(255),
@@ -670,6 +671,8 @@ ALTER TABLE ONLY appointment_events
     ADD CONSTRAINT appointment_events_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
 ALTER TABLE ONLY appointment_events
     ADD CONSTRAINT appointment_events_user_id_updated_by_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY appointment_events
+    ADD CONSTRAINT appointment_events_advisor_id_fkey FOREIGN KEY (advisor_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 

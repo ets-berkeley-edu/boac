@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, drop_in_advisors_for_dept_code, scheduler_required
+from boac.api.util import advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor
@@ -92,16 +92,13 @@ def appointment_check_in(appointment_id):
     if not appointment.status_change_available():
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
     params = request.get_json()
-    advisor_uid = params.get('advisorUid', None)
-    if not advisor_uid:
-        raise BadRequestError('Appointment check-in requires "advisor_uid"')
+    advisor_attrs = _advisor_attrs_for_uid(params.get('advisorUid'))
+    if not advisor_attrs:
+        raise BadRequestError('Appointment reservation requires valid "advisorUid"')
     Appointment.check_in(
         appointment_id=appointment_id,
         checked_in_by=current_user.get_id(),
-        advisor_dept_codes=params.get('advisorDeptCodes', None),
-        advisor_name=params.get('advisorName', None),
-        advisor_role=params.get('advisorRole', None),
-        advisor_uid=advisor_uid,
+        advisor_attrs=advisor_attrs,
     )
     return Response(status=200)
 
@@ -151,13 +148,13 @@ def reserve_appointment(appointment_id):
     if not appointment.status_change_available():
         raise BadRequestError(appointment.to_api_json(current_user.get_id()))
     params = request.get_json()
-    advisor_uid = params.get('advisorUid', None)
-    advisor_id = advisor_uid and AuthorizedUser.get_id_per_uid(advisor_uid)
-    if not advisor_id:
-        raise BadRequestError('Appointment check-in requires valid "advisorUid"')
+    advisor_attrs = _advisor_attrs_for_uid(params.get('advisorUid'))
+    if not advisor_attrs:
+        raise BadRequestError('Appointment reservation requires valid "advisorUid"')
     Appointment.reserve(
         appointment_id=appointment_id,
-        reserved_by=advisor_id,
+        reserved_by=current_user.get_id(),
+        advisor_attrs=advisor_attrs,
     )
     return Response(status=200)
 
@@ -221,11 +218,14 @@ def create_appointment():
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     if dept_code not in _dept_codes_with_scheduler_privilege():
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
+    advisor_attrs = None
+    advisor_uid = params.get('advisorUid')
+    if advisor_uid:
+        advisor_attrs = _advisor_attrs_for_uid(advisor_uid)
+        if not advisor_attrs:
+            raise BadRequestError('Invalid "advisorUid"')
     appointment = Appointment.create(
-        advisor_dept_codes=params.get('advisorDeptCodes', None),
-        advisor_name=params.get('advisorName', None),
-        advisor_role=params.get('advisorRole', None),
-        advisor_uid=params.get('advisorUid', None),
+        advisor_attrs=advisor_attrs,
         appointment_type=appointment_type,
         created_by=current_user.get_id(),
         dept_code=dept_code,
@@ -261,6 +261,23 @@ def find_appointment_advisors_by_name():
             'uid': a.advisor_uid,
         }
     return tolerant_jsonify([_advisor_feed(a) for a in advisors])
+
+
+def _advisor_attrs_for_uid(advisor_uid):
+    authorized_user = AuthorizedUser.find_by_uid(advisor_uid)
+    if not authorized_user:
+        return None
+    api_feeds = authorized_users_api_feed([authorized_user])
+    if not api_feeds:
+        return None
+    api_feed = api_feeds[0]
+    return {
+        'id': authorized_user.id,
+        'uid': advisor_uid,
+        'name': api_feed['name'],
+        'role': api_feed.get('title') or 'Advisor',
+        'deptCodes': [d['code'] for d in api_feed.get('departments', [])],
+    }
 
 
 def _dept_codes_with_scheduler_privilege():

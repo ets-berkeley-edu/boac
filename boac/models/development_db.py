@@ -28,6 +28,7 @@ import random
 import string
 
 from boac import db, std_commit
+from boac.api.appointments_controller import _advisor_attrs_for_uid
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import utc_now
 from boac.models.appointment import Appointment
@@ -203,6 +204,8 @@ _test_users = [
     {
         'uid': '90412',
         'csid': '100100100',
+        'first_name': 'COE Add',
+        'last_name': 'Visor',
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
@@ -425,16 +428,16 @@ def _create_users():
     for test_user in _test_users:
         # This script can be run more than once. Do not create user if s/he exists in BOAC db.
         uid = test_user['uid']
-        csid = test_user['csid']
-        user = AuthorizedUser.find_by_uid(uid=uid)
+        # Mock CSIDs and names are random unless we need them to correspond to test data elsewhere.
+        csid = test_user['csid'] or datetime.now().strftime('%H%M%S%f')
+        first_name = test_user.get('first_name', ''.join(random.choices(string.ascii_uppercase, k=6)))
+        last_name = test_user.get('last_name', ''.join(random.choices(string.ascii_uppercase, k=6)))
+
+        # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
         if uid != no_calnet_record_for_uid:
-            # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
-            first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
-            last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
             calnet_feed = {
                 'uid': uid,
-                # Mock CSIDs are random unless we need them to correspond to test data elsewhere.
-                'csid': csid or datetime.now().strftime('%H%M%S%f'),
+                'csid': csid,
                 'firstName': first_name,
                 'lastName': last_name,
                 'name': f'{first_name} {last_name}',
@@ -449,6 +452,9 @@ def _create_users():
             if 'title' in test_user:
                 calnet_feed['title'] = test_user['title']
             insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
+
+        # Add user to authorized_users table if not already present.
+        user = AuthorizedUser.find_by_uid(uid=uid)
         if not user:
             user = AuthorizedUser(
                 uid=uid,
@@ -533,10 +539,7 @@ def _create_checked_in_appointments():
     )
     Appointment.check_in(
         appointment_id=check_me_in.id,
-        advisor_dept_codes=['COENG'],
-        advisor_name='Johnny C. Lately',
-        advisor_role='Advisor',
-        advisor_uid=coe_advisor_uid,
+        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
         checked_in_by=coe_advisor_user_id,
     )
     check_me_in = Appointment.create(
@@ -549,10 +552,7 @@ def _create_checked_in_appointments():
     )
     Appointment.check_in(
         appointment_id=check_me_in.id,
-        advisor_dept_codes=['COENG'],
-        advisor_name='Johnny C. Lately',
-        advisor_role='Advisor',
-        advisor_uid=coe_advisor_uid,
+        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
         checked_in_by=coe_advisor_user_id,
     )
     check_me_in = Appointment.create(
@@ -566,10 +566,7 @@ def _create_checked_in_appointments():
     Appointment.check_in(
         appointment_id=check_me_in.id,
         checked_in_by=coe_advisor_user_id,
-        advisor_uid=coe_advisor_uid,
-        advisor_name='Johnny C. Lately',
-        advisor_role='Advisor',
-        advisor_dept_codes=['COENG'],
+        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
     )
     # L&S College Advising
     check_me_in = Appointment.create(
@@ -582,25 +579,22 @@ def _create_checked_in_appointments():
     )
     Appointment.check_in(
         appointment_id=check_me_in.id,
-        advisor_dept_codes=['QCADV'],
-        advisor_name='Max Headroom',
-        advisor_role='Advisor',
-        advisor_uid=l_s_director_uid,
+        advisor_attrs=_advisor_attrs_for_uid(l_s_director_uid),
         checked_in_by=l_s_director_user_id,
     )
 
 
 def _create_reserved_appointments():
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
+    coe_advisor_attrs = _advisor_attrs_for_uid('90412')
     reserve_me = Appointment.create(
         appointment_type='Drop-in',
-        created_by=coe_advisor_user_id,
+        created_by=coe_advisor_attrs['id'],
         dept_code='COENG',
         details='I will reserve this appointment.',
         student_sid='7890123456',
         topics=['Whoops'],
     )
-    Appointment.reserve(appointment_id=reserve_me.id, reserved_by=coe_advisor_user_id)
+    Appointment.reserve(appointment_id=reserve_me.id, reserved_by=coe_advisor_attrs['id'], advisor_attrs=coe_advisor_attrs)
 
 
 def _create_waiting_appointments():

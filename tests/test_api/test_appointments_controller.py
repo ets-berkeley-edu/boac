@@ -87,16 +87,10 @@ class AppointmentTestUtil:
             client,
             dept_code,
             details=None,
-            advisor_dept_codes=None,
-            advisor_name=None,
-            advisor_role=None,
             advisor_uid=None,
             expected_status_code=200,
     ):
         data = {
-            'advisorDeptCodes': advisor_dept_codes,
-            'advisorName': advisor_name,
-            'advisorRole': advisor_role,
             'advisorUid': advisor_uid,
             'appointmentType': 'Drop-in',
             'deptCode': dept_code,
@@ -145,6 +139,7 @@ class TestCreateAppointment:
             assert appointment_id == matching['id']
             assert appointment['read'] is True
             assert appointment['status'] == 'waiting'
+            assert appointment['statusBy']['uid'] == coe_scheduler_uid
             assert appointment['student']['sid'] == '3456789012'
             assert appointment['student']['name'] == 'Paul Kerschen'
             assert appointment['student']['photoUrl']
@@ -159,29 +154,24 @@ class TestCreateAppointment:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
             details = 'Aloysius has some questions.'
-            advisor_dept_codes = ['COENG']
-            advisor_name = 'Alfred E. Neuman'
-            advisor_role = 'College Advisor'
             appointment = AppointmentTestUtil.create_appointment(
                 client=client,
                 dept_code='COENG',
                 details=details,
-                advisor_dept_codes=advisor_dept_codes,
-                advisor_name=advisor_name,
-                advisor_role=advisor_role,
                 advisor_uid=coe_drop_in_advisor_uid,
             )
             appointment_id = appointment['id']
             waitlist = self._get_waitlist(client, 'COENG')
             matching = next((a for a in waitlist['unresolved'] if a['details'] == details), None)
             assert appointment_id == matching['id']
-            assert appointment['advisorDepartments'][0]['code'] == 'COENG'
-            assert appointment['advisorName'] == advisor_name
-            assert appointment['advisorRole'] == advisor_role
+            assert 'COENG' in [d['code'] for d in appointment['advisorDepartments']]
+            assert appointment['advisorName'] == 'COE Add Visor'
+            assert appointment['advisorRole'] == 'Advisor'
             assert appointment['advisorUid'] == coe_drop_in_advisor_uid
+            assert appointment['advisorId'] is not None
             assert appointment['read'] is True
             assert appointment['status'] == 'reserved'
-            assert appointment['statusBy']['uid'] == coe_drop_in_advisor_uid
+            assert appointment['statusBy']['uid'] == coe_scheduler_uid
 
     def test_other_departments_forbidden(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
@@ -347,12 +337,22 @@ class TestAppointmentCancel:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(user.uid)
-            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+            waiting = AppointmentTestUtil.create_appointment(
+                client=client,
+                dept_code=dept_code,
+                details='Minor in Klingon',
+                advisor_uid=user.uid,
+            )
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
             # Verify
             appointment = AppointmentTestUtil.get_appointment(client, appointment_id=waiting['id'])
             appointment_id = appointment['id']
             assert appointment_id == waiting['id']
+            assert appointment['advisorDepartments'] is None
+            assert appointment['advisorName'] is None
+            assert appointment['advisorRole'] is None
+            assert appointment['advisorUid'] is None
+            assert appointment['advisorId'] is None
             assert appointment['status'] == 'cancelled'
             assert appointment['statusBy']['id'] == user.id
             assert appointment['statusBy']['uid'] == user.uid
@@ -477,6 +477,35 @@ class TestAppointmentReserve:
             assert appointment['status'] == 'reserved'
             assert appointment['statusDate'] is not None
             assert appointment['statusBy']['id'] == user.id
+            assert appointment['advisorId'] == user.id
+            assert appointment['advisorUid'] == user.uid
+            assert 'QCADV' in [d['code'] for d in appointment['advisorDepartments']]
+            assert appointment['advisorName'] is not None
+            assert appointment['advisorRole'] == 'Advisor'
+            Appointment.delete(appointment['id'])
+
+    def test_scheduler_reserve_appointment(self, app, client, fake_auth):
+        """Scheduler can reserve an appointment for a drop-in advisor."""
+        dept_code = 'QCADV'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
+            user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+            fake_auth.login(l_s_college_scheduler_uid)
+            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+
+            self._reserve_appointment(client, waiting['id'], user.uid)
+
+            # Verify
+            fake_auth.login(l_s_college_drop_in_advisor_uid)
+            appointment = AppointmentTestUtil.get_appointment(client, waiting['id'])
+            assert appointment['status'] == 'reserved'
+            assert appointment['statusDate'] is not None
+            assert appointment['statusBy']['uid'] == l_s_college_scheduler_uid
+            assert appointment['advisorId'] == user.id
+            assert appointment['advisorUid'] == user.uid
+            assert 'QCADV' in [d['code'] for d in appointment['advisorDepartments']]
+            assert appointment['advisorName'] is not None
+            assert appointment['advisorRole'] == 'Advisor'
             Appointment.delete(appointment['id'])
 
     def test_steal_appointment_reservation(self, app, client, fake_auth):
@@ -495,6 +524,7 @@ class TestAppointmentReserve:
             assert appointment['status'] == 'reserved'
             assert appointment['statusDate'] is not None
             assert appointment['statusBy']['id'] == user_1.id
+            assert appointment['advisorUid'] == user_1.uid
             client.get('/api/auth/logout')
 
             # Another advisor comes along...
@@ -509,6 +539,8 @@ class TestAppointmentReserve:
             assert appointment['status'] == 'reserved'
             assert appointment['statusDate'] is not None
             assert appointment['statusBy']['id'] == user_2.id
+            assert appointment['advisorUid'] == user_2.uid
+
             # Clean up
             Appointment.delete(appointment['id'])
 
@@ -528,6 +560,8 @@ class TestAppointmentReserve:
             assert reserved['statusDate']
             assert reserved['statusBy']['id'] == user.id
             assert reserved['statusBy']['uid'] == user.uid
+            assert reserved['advisorId'] == user.id
+            assert reserved['advisorUid'] == user.uid
             assert 'name' in reserved['statusBy']
 
             self._unreserve_appointment(client, waiting['id'])
@@ -536,6 +570,11 @@ class TestAppointmentReserve:
             assert appointment['status'] == 'waiting'
             assert appointment['statusDate'] is not None
             assert appointment['statusBy']['id'] == user.id
+            assert appointment['advisorDepartments'] is None
+            assert appointment['advisorName'] is None
+            assert appointment['advisorRole'] is None
+            assert appointment['advisorUid'] is None
+            assert appointment['advisorId'] is None
             Appointment.delete(appointment['id'])
 
 
@@ -587,6 +626,7 @@ class TestAppointmentReopen:
             assert appointment['status'] == 'waiting'
             assert appointment['statusDate'] is not None
             assert appointment['statusBy']['id'] == user.id
+            assert appointment['advisorUid'] is None
             Appointment.delete(appointment['id'])
 
 
@@ -714,8 +754,8 @@ class TestAuthorSearch:
 
     def test_find_appointment_advisors_by_name(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/appointments/advisors/find_by_name?q=Jo')
+        response = client.get('/api/appointments/advisors/find_by_name?q=Vis')
         assert response.status_code == 200
         assert len(response.json) == 1
         labels = [s['label'] for s in response.json]
-        assert 'Johnny C. Lately' in labels
+        assert 'COE Add Visor' in labels

@@ -32,8 +32,8 @@
         <div v-if="appointment.status === 'reserved' && ($currentUser.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
           <span class="text-secondary">
             Assigned
-            <span v-if="appointment.statusBy" :id="`appointment-${appointment.id}-assigned-to`">
-              to {{ appointment.statusBy.id === $currentUser.id ? 'you' : appointment.statusBy.name }}
+            <span v-if="appointment.advisorId" :id="`appointment-${appointment.id}-assigned-to`">
+              to {{ appointment.advisorId === $currentUser.id ? 'you' : appointment.advisorName }}
             </span>
           </span>
         </div>

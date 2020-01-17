@@ -115,7 +115,8 @@ class Appointment(Base):
             token_conditions.append(
                 f"""JOIN appointments a{idx}
                 ON UPPER(a{idx}.advisor_name) LIKE :token_{idx}
-                AND a{idx}.advisor_uid = a.advisor_uid""",
+                AND a{idx}.advisor_uid = a.advisor_uid
+                AND a{idx}.advisor_name = a.advisor_name""",
             )
             params[f'token_{idx}'] = f'%{token}%'
         sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
@@ -153,25 +154,19 @@ class Appointment(Base):
             details,
             appointment_type,
             student_sid,
-            advisor_dept_codes=None,
-            advisor_name=None,
-            advisor_role=None,
-            advisor_uid=None,
+            advisor_attrs=None,
             topics=(),
     ):
-
-        if advisor_uid:
+        if advisor_attrs:
             status = 'reserved'
-            status_by = AuthorizedUser.get_id_per_uid(advisor_uid)
         else:
             status = 'waiting'
-            status_by = created_by
 
         appointment = cls(
-            advisor_uid=advisor_uid,
-            advisor_name=advisor_name,
-            advisor_role=advisor_role,
-            advisor_dept_codes=advisor_dept_codes,
+            advisor_uid=advisor_attrs and advisor_attrs['uid'],
+            advisor_name=advisor_attrs and advisor_attrs['name'],
+            advisor_role=advisor_attrs and advisor_attrs['role'],
+            advisor_dept_codes=advisor_attrs and advisor_attrs['deptCodes'],
             appointment_type=appointment_type,
             created_by=created_by,
             dept_code=dept_code,
@@ -188,27 +183,29 @@ class Appointment(Base):
         std_commit()
         AppointmentEvent.create(
             appointment_id=appointment.id,
-            user_id=status_by,
+            advisor_id=advisor_attrs and advisor_attrs['id'],
+            user_id=created_by,
             event_type=status,
         )
         cls.refresh_search_index()
         return appointment
 
     @classmethod
-    def check_in(cls, appointment_id, checked_in_by, advisor_uid, advisor_name, advisor_role, advisor_dept_codes):
+    def check_in(cls, appointment_id, checked_in_by, advisor_attrs):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
             appointment.status = 'checked_in'
-            appointment.advisor_uid = advisor_uid
-            appointment.advisor_name = advisor_name
-            appointment.advisor_role = advisor_role
-            appointment.advisor_dept_codes = advisor_dept_codes
+            appointment.advisor_uid = advisor_attrs['uid']
+            appointment.advisor_name = advisor_attrs['name']
+            appointment.advisor_role = advisor_attrs['role']
+            appointment.advisor_dept_codes = advisor_attrs['deptCodes']
             appointment.updated_by = checked_in_by
             std_commit()
             db.session.refresh(appointment)
             AppointmentEvent.create(
                 appointment_id=appointment.id,
                 user_id=checked_in_by,
+                advisor_id=advisor_attrs['id'],
                 event_type='checked_in',
             )
             return appointment
@@ -222,6 +219,10 @@ class Appointment(Base):
             event_type = 'cancelled'
             appointment.status = event_type
             appointment.updated_by = cancelled_by
+            appointment.advisor_uid = None
+            appointment.advisor_name = None
+            appointment.advisor_role = None
+            appointment.advisor_dept_codes = None
             AppointmentEvent.create(
                 appointment_id=appointment.id,
                 user_id=cancelled_by,
@@ -237,15 +238,20 @@ class Appointment(Base):
             return None
 
     @classmethod
-    def reserve(cls, appointment_id, reserved_by):
+    def reserve(cls, appointment_id, reserved_by, advisor_attrs):
         appointment = cls.find_by_id(appointment_id=appointment_id)
         if appointment:
             event_type = 'reserved'
             appointment.status = event_type
             appointment.updated_by = reserved_by
+            appointment.advisor_uid = advisor_attrs['uid']
+            appointment.advisor_name = advisor_attrs['name']
+            appointment.advisor_role = advisor_attrs['role']
+            appointment.advisor_dept_codes = advisor_attrs['deptCodes']
             AppointmentEvent.create(
                 appointment_id=appointment.id,
                 user_id=reserved_by,
+                advisor_id=advisor_attrs['id'],
                 event_type=event_type,
             )
             std_commit()
@@ -258,6 +264,10 @@ class Appointment(Base):
         event_type = 'waiting'
         self.status = event_type
         self.updated_by = updated_by
+        self.advisor_uid = None
+        self.advisor_name = None
+        self.advisor_role = None
+        self.advisor_dept_codes = None
         AppointmentEvent.create(
             appointment_id=self.id,
             user_id=updated_by,
@@ -368,6 +378,7 @@ class Appointment(Base):
             departments = [{'code': c, 'name': BERKELEY_DEPT_CODE_TO_NAME.get(c, c)} for c in self.advisor_dept_codes]
         api_json = {
             'id': self.id,
+            'advisorId': AuthorizedUser.get_id_per_uid(self.advisor_uid),
             'advisorName': self.advisor_name,
             'advisorRole': self.advisor_role,
             'advisorUid': self.advisor_uid,

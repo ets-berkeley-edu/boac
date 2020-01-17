@@ -47,6 +47,7 @@ class AppointmentEvent(db.Model):
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     appointment_id = db.Column(db.Integer, db.ForeignKey('appointments.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'))
+    advisor_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'))
     event_type = db.Column(appointment_event_type, nullable=False)
     cancel_reason = db.Column(db.String(255), nullable=True)
     cancel_reason_explained = db.Column(db.String(255), nullable=True)
@@ -57,14 +58,16 @@ class AppointmentEvent(db.Model):
         appointment_id,
         user_id,
         event_type,
+        advisor_id=None,
         cancel_reason=None,
         cancel_reason_explained=None,
     ):
         self.appointment_id = appointment_id
+        self.user_id = user_id
         self.event_type = event_type
+        self.advisor_id = advisor_id
         self.cancel_reason = cancel_reason
         self.cancel_reason_explained = cancel_reason_explained
-        self.user_id = user_id
 
     @classmethod
     def create(
@@ -72,6 +75,7 @@ class AppointmentEvent(db.Model):
         appointment_id,
         user_id,
         event_type,
+        advisor_id=None,
         cancel_reason=None,
         cancel_reason_explained=None,
     ):
@@ -80,6 +84,7 @@ class AppointmentEvent(db.Model):
                 appointment_id=appointment_id,
                 user_id=user_id,
                 event_type=event_type,
+                advisor_id=advisor_id,
                 cancel_reason=cancel_reason,
                 cancel_reason_explained=cancel_reason_explained,
             ),
@@ -95,6 +100,7 @@ class AppointmentEvent(db.Model):
 
     def to_api_json(self):
         return {
+            'advisorId': self.advisor_id,
             'appointmentId': self.appointment_id,
             'cancelReason': self.cancel_reason,
             'cancelReasonExplained': self.cancel_reason_explained,
