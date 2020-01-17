@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
+import json
 import re
 
 from boac import db, std_commit
@@ -393,7 +394,7 @@ class Appointment(Base):
 def _to_json(search_terms, search_result):
     appointment_id = search_result['id']
     sid = search_result['student_sid']
-    student = data_loch.get_student_by_sid(sid)
+
     api_json = {
         'id': appointment_id,
         'advisorName': search_result['advisor_name'],
@@ -405,7 +406,6 @@ def _to_json(search_terms, search_result):
         'deptCode': search_result['dept_code'],
         'details': search_result['details'],
         'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
-        'student': {camelize(key): student[key] for key in student.keys()} if student else None,
         'studentSid': sid,
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],
@@ -413,6 +413,7 @@ def _to_json(search_terms, search_result):
     return {
         **api_json,
         **_appointment_event_to_json(appointment_id, search_result['status']),
+        **_student_to_json(sid),
     }
 
 
@@ -435,6 +436,19 @@ def _appointment_event_to_json(appointment_id, event_type):
         'statusBy': event and _status_by_user(),
         'statusDate': event and _isoformat(event.created_at),
     }
+
+
+def _student_to_json(sid):
+    student = data_loch.get_student_by_sid(sid)
+    if student:
+        return {
+            'student': {camelize(key): student[key] for key in student.keys()},
+        }
+    profiles = data_loch.get_historical_student_profiles_for_sids([sid])
+    if profiles and profiles[0]:
+        return {
+            'student': json.loads(profiles[0].get('profile')),
+        }
 
 
 def _update_appointment_topics(appointment, topics, updated_by):

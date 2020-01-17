@@ -559,8 +559,8 @@ def _create_checked_in_appointments():
         appointment_type='Drop-in',
         created_by=coe_scheduler_user_id,
         dept_code='COENG',
-        details='We will check in this student.',
-        student_sid='9012345678',
+        details='We will check in this inactive student.',
+        student_sid='3141592653',
         topics=['Please check me in.'],
     )
     Appointment.check_in(

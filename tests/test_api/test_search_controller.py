@@ -533,6 +533,13 @@ class TestAppointmentSearch:
         for appointment in appointments:
             if previous_id is not None:
                 assert previous_id > appointment.get('id')
+            assert appointment['details']
+            assert appointment['detailsSnippet']
+            assert appointment['student']
+            assert appointment['student']['firstName']
+            assert appointment['student']['lastName']
+            assert appointment['studentSid']
+            assert appointment['status']
 
     def test_search_with_missing_input_no_options(self, coe_advisor, client):
         """Appointments search is nothing without input when no additional options are set."""

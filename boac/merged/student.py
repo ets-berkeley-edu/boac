@@ -288,7 +288,8 @@ def get_student_and_terms_by_sid(sid):
     if student:
         return _construct_student_profile(student)
     else:
-        return _construct_historical_student_profile(sid=sid)
+        profile_rows = data_loch.get_historical_student_profiles_for_sids([sid])
+        return _construct_historical_student_profile(profile_rows)
 
 
 def get_student_and_terms_by_uid(uid):
@@ -296,7 +297,8 @@ def get_student_and_terms_by_uid(uid):
     if student:
         return _construct_student_profile(student)
     else:
-        return _construct_historical_student_profile(uid=uid)
+        profile_rows = data_loch.get_historical_student_profiles_for_uid(uid)
+        return _construct_historical_student_profile(profile_rows)
 
 
 def get_term_gpas_by_sid(sids, as_dicts=False):
@@ -499,7 +501,8 @@ def search_for_students(
 
 
 def search_for_student_historical(sid):
-    profile = _construct_historical_student_profile(sid=sid)
+    student = data_loch.get_historical_student_profiles_for_sids([sid])
+    profile = _construct_historical_student_profile(student)
     if profile:
         ManuallyAddedAdvisee.find_or_create(sid)
         summarize_profile(profile)
@@ -639,11 +642,7 @@ def _construct_student_profile(student):
     return profile
 
 
-def _construct_historical_student_profile(sid=None, uid=None):
-    if uid:
-        profile_rows = data_loch.get_historical_student_profiles_for_uid(uid)
-    elif sid:
-        profile_rows = data_loch.get_historical_student_profiles_for_sids([sid])
+def _construct_historical_student_profile(profile_rows):
     if not profile_rows or not profile_rows[0]:
         return
 
