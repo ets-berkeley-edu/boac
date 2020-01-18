@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import csv
+from datetime import datetime
 import io
 from itertools import groupby
 from operator import itemgetter
@@ -40,6 +41,7 @@ from boac.models.note_read import NoteRead
 from dateutil.tz import tzutc
 from flask import current_app as app
 from flask_login import current_user
+import pytz
 from sqlalchemy import text
 import zipstream
 
@@ -341,6 +343,8 @@ def get_zip_stream_for_sid(sid):
         list(set([note['author']['sid'] for note in notes if note['author']['sid'] and not note['author']['name']])),
     )
 
+    app_timezone = pytz.timezone(app.config['TIMEZONE'])
+
     def iter_csv():
         def csv_line(_list):
             csv_output = io.StringIO()
@@ -369,8 +373,12 @@ def get_zip_stream_for_sid(sid):
             else:
                 calnet_author_name = None
                 calnet_author_uid = None
+            # strptime expects a timestamp without timezone; ancient date-only legacy notes get a bogus time appended.
+            timestamp_created = f"{note['createdAt']}T12:00:00" if len(note['createdAt']) == 10 else note['createdAt'][:19]
+            datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
+            date_local = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
             yield csv_line([
-                note['createdAt'][:10],
+                date_local,
                 sid,
                 student_name,
                 (note['author']['uid'] or calnet_author_uid),
