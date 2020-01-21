@@ -49,6 +49,13 @@
           class="red-flag-status ml-1">
           INACTIVE
         </div>
+        <div
+          v-if="student.academicCareerStatus === 'Completed'"
+          class="ml-1"
+          uib-tooltip="Graduated"
+          tooltip-placement="bottom">
+          <font-awesome icon="graduation-cap" />
+        </div>
       </div>
       <div
         v-if="displayAsAscInactive(student)"
