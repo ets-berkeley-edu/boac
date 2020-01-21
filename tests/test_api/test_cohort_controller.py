@@ -766,10 +766,10 @@ class TestCohortPerFilters:
             },
         )
         students = api_json['students']
-        assert len(students) == 5
-        assert api_json.get('totalStudentCount') == 5
-        assert ['Barney', 'Doolittle', 'Farestveit', 'Kerschen', 'Schlemiel'] == [s['lastName'] for s in students]
-        assert [3.85, 3.495, 3.9, 3.005, 0.4] == [s['cumulativeGPA'] for s in students]
+        assert len(students) == 6
+        assert api_json.get('totalStudentCount') == 6
+        assert ['Barney', 'Davies', 'Doolittle', 'Farestveit', 'Kerschen', 'Schlemiel'] == [s['lastName'] for s in students]
+        assert [3.85, 3.8, 3.495, 3.9, 3.005, 0.4] == [s['cumulativeGPA'] for s in students]
         criteria = api_json['criteria']
         assert len(criteria['gpaRanges']) == 2
         assert len(criteria['lastNameRanges']) == 3
@@ -846,7 +846,7 @@ class TestCohortPerFilters:
         assert _get_first_student('units')['cumulativeUnits'] == 34
         assert _get_first_student('units desc')['cumulativeUnits'] == 102
         assert _get_first_student('entering_term')['matriculation'] == 'Spring 2015'
-        assert _get_first_student('terms_in_attendance')['termsInAttendance'] is None
+        assert _get_first_student('terms_in_attendance')['termsInAttendance'] == 4
         assert _get_first_student('terms_in_attendance desc')['termsInAttendance'] == 5
 
         defensive_line_by_units = self._get_defensive_line(client, False, 'enrolled_units')
@@ -855,9 +855,9 @@ class TestCohortPerFilters:
         assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
 
         defensive_line_by_units_desc = self._get_defensive_line(client, False, 'enrolled_units desc')
-        assert defensive_line_by_units_desc[0]['term']['enrolledUnits'] == 7
-        assert defensive_line_by_units_desc[1]['term']['enrolledUnits'] == 5
-        assert 'term' not in defensive_line_by_units_desc[2]
+        assert 'term' not in defensive_line_by_units_desc[0]
+        assert defensive_line_by_units_desc[1]['term']['enrolledUnits'] == 7
+        assert defensive_line_by_units_desc[2]['term']['enrolledUnits'] == 5
 
         def _fall_2017_gpa(student_feed):
             return next((t['gpa'] for t in student_feed['termGpa'] if t['termName'] == 'Fall 2017'), None)
