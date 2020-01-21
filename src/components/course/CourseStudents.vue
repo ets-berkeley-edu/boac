@@ -38,6 +38,13 @@
           v-if="row.item.academicCareerStatus === 'Inactive'"
           :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
           class="red-flag-status">INACTIVE</span>
+        <span
+          v-if="row.item.academicCareerStatus === 'Completed'"
+          class="ml-1"
+          uib-tooltip="Graduated"
+          tooltip-placement="bottom">
+          <font-awesome icon="graduation-cap" />
+        </span>
       </div>
       <div
         v-if="displayAsAscInactive(row.item)"

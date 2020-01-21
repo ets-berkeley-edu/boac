@@ -30,6 +30,13 @@
               class="red-flag-status ml-1">
               INACTIVE
             </span>
+            <span
+              v-if="academicCareerStatus === 'Completed'"
+              class="ml-1"
+              uib-tooltip="Graduated"
+              tooltip-placement="bottom">
+              <font-awesome icon="graduation-cap" />
+            </span>
           </div>
           <div v-if="student.sisProfile.emailAddress" class="mt-2">
             <span class="sr-only">Email</span>
