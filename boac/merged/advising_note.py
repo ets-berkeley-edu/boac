@@ -28,6 +28,7 @@ from datetime import datetime
 import io
 from itertools import groupby
 from operator import itemgetter
+from os import path
 import re
 
 from boac import db
@@ -391,13 +392,22 @@ def get_zip_stream_for_sid(sid):
             ])
     z.write_iter(f'{filename}.csv', iter_csv())
 
+    all_attachment_filenames = set()
+    all_attachment_filenames.add(f'{filename}.csv')
     for note in notes:
         for attachment in note['attachments'] or []:
             is_legacy_attachment = not is_int(attachment['id'])
             id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
             stream_data = get_legacy_attachment_stream(id_) if is_legacy_attachment else get_boa_attachment_stream(id_)
             if stream_data:
-                z.write_iter(stream_data['filename'], stream_data['stream'])
+                attachment_filename = stream_data['filename']
+                basename, extension = path.splitext(attachment_filename)
+                suffix = 1
+                while attachment_filename in all_attachment_filenames:
+                    attachment_filename = f'{basename} ({suffix}){extension}'
+                    suffix += 1
+                all_attachment_filenames.add(attachment_filename)
+                z.write_iter(attachment_filename, stream_data['stream'])
 
     return {
         'filename': f'{filename}.zip',
