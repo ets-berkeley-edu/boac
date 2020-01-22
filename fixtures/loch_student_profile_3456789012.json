@@ -7,6 +7,7 @@
     "sid": "3456789012",
     "sisProfile": {
         "academicCareer": "UGRD",
+        "academicCareerStatus": "Active",
         "cumulativeGPA": 3.005,
         "cumulativeUnits": 70,
         "degreeProgress": {
