@@ -371,7 +371,15 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         'units_completed': lambda profile: profile.get('sisProfile', {}).get('cumulativeUnits'),
         'term_gpa': lambda profile: profile.get('termGpa'),
         'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
-        'program_status': lambda profile: profile.get('sisProfile', {}).get('academicCareerStatus'),
+        'program_status': lambda profile: ';'.join(
+            list(
+                set(
+                    [
+                        plan.get('status') for plan in profile.get('sisProfile', {}).get('plans', [])
+                    ],
+                ),
+            ),
+        ),
     }
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
     for student in get_student_profiles(sids=sids):

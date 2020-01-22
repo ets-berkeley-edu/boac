@@ -7,6 +7,7 @@
     "sid": "7890123456",
     "sisProfile": {
         "academicCareer": "UGRD",
+        "academicCareerStatus": "Inactive",
         "cumulativeGPA": 3.9,
         "cumulativeUnits": 110,
         "degreeProgress": {
@@ -45,7 +46,7 @@
             {
                 "description": "Nuclear Engineering BS",
                 "program": "Engineering",
-                "status": "Active"
+                "status": "Cancelled"
             }
         ],
         "preferredName": "Paul Farestveit",
