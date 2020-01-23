@@ -43,11 +43,13 @@
           v-for="department in $currentUser.departments"
           :key="department.code"
           class="flex-row pb-3">
-          <DropInAdvisingToggle
-            v-if="isDropInAdvisor(department.code)"
-            :dept-code="department.code"
-            class="drop-in-advising-toggle" />
-          <div id="my-dept-roles">{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}.</div>
+          <div id="my-dept-roles">{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}</div>
+          <div v-if="isDropInAdvisor(department.code)" class="ml-5">
+            Drop-in advising:
+            <DropInAdvisingToggle
+              :dept-code="department.code"
+              class="drop-in-advising-toggle" />
+          </div>
         </div>
       </b-col>
     </b-row>
@@ -79,10 +81,9 @@ export default {
       }
     },
     getRoles(department) {
-      const advisorType = this.isDropInAdvisor(department.code) ? 'Drop-in Advisor' : 'Advisor';
       const roles = [];
       this.conditionalAppend(roles, 'Director', department.isDirector);
-      this.conditionalAppend(roles, advisorType, department.isAdvisor);
+      this.conditionalAppend(roles, 'Advisor', department.isAdvisor);
       this.conditionalAppend(roles, 'Scheduler', department.isScheduler);
       return roles;
     },
@@ -95,7 +96,7 @@ export default {
 
 <style scoped>
   .drop-in-advising-toggle {
-    margin-left: -87px;
-    padding-right: 10px;
+    display: inline-block;
+    padding-left: 5px;
   }
 </style>
