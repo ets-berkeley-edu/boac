@@ -52,6 +52,17 @@ Vue.use(routerHistory);
 router.afterEach(writeHistory);
 
 const apiBaseUrl = process.env.VUE_APP_API_BASE_URL;
+
+axios.interceptors.response.use(response => response, function(error) {
+  if (_.get(error, 'response.status') === 401) {
+    axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+      Vue.prototype.$currentUser = response.data;
+      Vue.prototype.$core.initializeCurrentUser().then(router.push({ path: '/login' }).catch(() => null));
+    });
+  }
+  return Promise.reject(error);
+});
+
 axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
   Vue.prototype.$currentUser = response.data;
 
