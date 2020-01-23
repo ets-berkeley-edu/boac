@@ -655,7 +655,7 @@ VALUES
 INSERT INTO student.student_academic_status
 (sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance)
 VALUES
-('11667051', '61889', 'Deborah', 'Davies', NULL, NULL, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL),
+('11667051', '61889', 'Deborah', 'Davies', NULL, 3.8, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL),
 ('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4),
 ('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5),
 ('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', NULL),

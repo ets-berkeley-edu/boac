@@ -181,9 +181,9 @@ class TestGetCuratedGroup:
         gpas = [f"{s.get('cumulativeGPA')} ({s.get('lastName')})" for s in api_json['students']]
         assert gpas == [
             '3.9 (Farestveit)',
+            '3.8 (Davies)',
             '3.501 (Jayaprakash)',
             '3.005 (Kerschen)',
-            '3.8 (Davies)',
         ]
 
     def test_order_by_term_gpa(self, asc_advisor, asc_curated_groups, client):
@@ -230,10 +230,10 @@ class TestGetCuratedGroup:
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='enrolled_units desc')
         units = [f"{s['term'].get('enrolledUnits') if s.get('term') else None} ({s.get('lastName')})" for s in api_json['students']]
         assert units == [
+            'None (Farestveit)',
             '12.5 (Davies)',
             '7 (Jayaprakash)',
             '5 (Kerschen)',
-            'None (Farestveit)',
         ]
 
     def test_order_by_terms_in_attendance(self, asc_advisor, asc_curated_groups, client):
@@ -241,10 +241,10 @@ class TestGetCuratedGroup:
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='terms_in_attendance')
         units = [f"{s['termsInAttendance']} ({s.get('lastName')})" for s in api_json['students']]
         assert units == [
-            'None (Davies)',
-            'None (Jayaprakash)',
             '2 (Farestveit)',
             '5 (Kerschen)',
+            'None (Davies)',
+            'None (Jayaprakash)',
         ]
 
     def test_curated_group_detail_includes_profiles(self, asc_advisor, asc_curated_groups, client, create_alerts):
