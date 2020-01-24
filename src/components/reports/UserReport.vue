@@ -1,13 +1,10 @@
 <template>
   <div class="pr-3">
-    <div class="pt-4">
-      <h3 class="page-section-header-sub pb-2">{{ department.name }} users <span v-if="isNil(totalUserCount)" class="pl-1"><font-awesome icon="sync" spin /></span><span v-if="!isNil(totalUserCount)">({{ totalUserCount }})</span></h3>
-    </div>
     <b-table
       ref="users"
       :items="usersProvider"
       :fields="[
-        {key: 'lastName', class: 'column-name font-weight-bolder pl-1'},
+        {key: 'name', class: 'column-name font-weight-bolder pl-1'},
         {key: 'depts', label: 'Department(s)'},
         {key: 'notesCreated', class: 'text-nowrap text-right pr-3'},
         {key: 'lastLogin', class: 'column-last-login text-nowrap text-right pr-1'},
@@ -18,7 +15,7 @@
       stacked="md"
       striped
       thead-class="text-nowrap">
-      <template v-slot:cell(lastName)="row">
+      <template v-slot:cell(name)="row">
         <div class="d-flex">
           <div v-if="row.item.name" class="text-nowrap">
             <span class="sr-only">Name</span>

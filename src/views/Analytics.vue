@@ -12,26 +12,26 @@
               <h1 class="page-section-header">Flight Data Recorder</h1>
             </div>
           </div>
-          <div v-if="availableDepartments.length === 1">
-            <h2 class="page-section-header-sub pt-0">{{ department.name }}</h2>
-          </div>
-          <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
-            <label class="sr-only" for="available-department-reports">Departments:</label>
-            <div>
-              <b-form-select
-                id="available-department-reports"
-                v-model="deptCode"
-                :options="availableDepartments"
-                class="form-control pb-1 pl-3 pr-5 pt-1 w-auto"
-                text-field="name"
-                value-field="code"
-                @change="render">
-              </b-form-select>
-            </div>
-          </div>
         </div>
       </div>
       <NotesReport :department="department" />
+      <div class="pb-4 pt-4">
+        <h2 class="page-section-header-sub m-0 pt-0" :class="{'sr-only': availableDepartments.length !== 1}">{{ department.name }}</h2>
+        <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
+          <label class="sr-only" for="available-department-reports">Departments:</label>
+          <div>
+            <b-form-select
+              id="available-department-reports"
+              v-model="deptCode"
+              :options="availableDepartments"
+              class="form-control font-size-20 pb-1 pl-2 pr-5 pt-1 w-auto"
+              text-field="name"
+              value-field="code"
+              @change="render">
+            </b-form-select>
+          </div>
+        </div>
+      </div>
       <UserReport :department="department" />
     </div>
   </div>
