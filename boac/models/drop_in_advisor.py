@@ -26,17 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
-from sqlalchemy.dialects.postgresql import ENUM
-
-
-drop_in_advisor_status_type = ENUM(
-    'on_duty_advisor',
-    'on_duty_supervisor',
-    'off_duty_waitlist',
-    'off_duty_no_waitlist',
-    name='drop_in_advisor_status_types',
-    create_type=False,
-)
 
 
 class DropInAdvisor(Base):
@@ -44,32 +33,32 @@ class DropInAdvisor(Base):
 
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
     dept_code = db.Column(db.String(80), nullable=False, primary_key=True)
-    status = db.Column(drop_in_advisor_status_type, default='off_duty_no_waitlist', nullable=False)
+    is_available = db.Column(db.Boolean, default=False, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
 
     authorized_user = db.relationship('AuthorizedUser', back_populates='drop_in_departments')
 
-    def __init__(self, authorized_user_id, dept_code, status):
+    def __init__(self, authorized_user_id, dept_code, is_available):
         self.authorized_user_id = authorized_user_id
         self.dept_code = dept_code
-        self.status = status
+        self.is_available = is_available
 
-    def update_status(self, status):
-        self.status = status
+    def update_availability(self, available):
+        self.is_available = available
         std_commit()
 
     @classmethod
-    def create_or_update_status(cls, dept_code, authorized_user_id, status='off_duty_no_waitlist'):
+    def create_or_update_status(cls, dept_code, authorized_user_id, is_available=False):
         existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
             new_status = existing_status
             new_status.deleted_at = None
-            new_status.status = status
+            new_status.is_available = is_available
         else:
             new_status = cls(
                 authorized_user_id=authorized_user_id,
                 dept_code=dept_code,
-                status=status,
+                is_available=is_available,
             )
         db.session.add(new_status)
         std_commit()
@@ -117,5 +106,5 @@ class DropInAdvisor(Base):
         return {
             'deptCode': self.dept_code,
             'isEnabled': self.deleted_at is None,
-            'status': self.status,
+            'available': self.is_available,
         }

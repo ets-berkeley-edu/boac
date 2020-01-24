@@ -271,14 +271,10 @@ ALTER TABLE ONLY cohort_filters
 
 --
 
-CREATE TYPE drop_in_advisor_status_types AS ENUM ('on_duty_advisor', 'on_duty_supervisor', 'off_duty_waitlist', 'off_duty_no_waitlist');
-
---
-
 CREATE TABLE drop_in_advisors (
     authorized_user_id INTEGER NOT NULL,
     dept_code character varying(255) NOT NULL,
-    status drop_in_advisor_status_types DEFAULT 'off_duty_no_waitlist' NOT NULL,
+    is_available BOOLEAN DEFAULT false NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE

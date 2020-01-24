@@ -28,7 +28,7 @@
               v-for="advisor in dropInAdvisors"
               :key="advisor.uid"
               :value="advisor.uid">
-              {{ `${advisor.name}${isSupervisorOnCall(advisor, appointment.deptCode) ? ' (Supervisor On Call)' : ''}` }}
+              {{ advisor.name }}
             </option>
           </b-form-select>
         </div>
@@ -101,7 +101,7 @@ export default {
   created() {
     this.showAppointmentAssignModal = this.showModal;
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-      this.dropInAdvisors = this.filterList(dropInAdvisors, d => d.status.startsWith('on_duty'));
+      this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
     });
   },
   methods: {

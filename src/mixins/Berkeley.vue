@@ -25,11 +25,6 @@ export default {
     isDirector: (user) => {
       return !!_.size(_.filter(user.departments, d => d.isDirector));
     },
-    isSupervisorOnCall: (advisor, deptCode) => {
-      return !!_.find(advisor.dropInAdvisorStatus, (status) => {
-        return status.deptCode === deptCode && status.status === 'on_duty_supervisor';
-      });
-    },
     myDeptCodes: (roles) => {
       return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
     },

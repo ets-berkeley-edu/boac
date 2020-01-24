@@ -1,19 +1,39 @@
 <template>
   <div>
-    <div v-if="!$currentUser.isAdmin" class="availability-status-outer flex-row">
-      <b-form-group class="mt-3 mb-3">
-        <b-form-radio-group
-          :id="toggleElementId"
-          v-model="selectedStatus"
-          class="drop-in-status-toggle"
-          :options="dropInStatusOptions"
-          buttons
-          button-variant="outline-primary"
-          name="drop-in-status-toggle"
-          size="sm"
-          @change="changeStatus"
-        ></b-form-radio-group>
-      </b-form-group>
+    <div v-if="!isNil(isAvailable)" class="availability-status-outer flex-row">
+      <div v-if="isHomepage" class="mr-2 availability-status">
+        My availability status:
+      </div>
+      <div
+        v-if="!isAvailable || !$currentUser.isAdmin"
+        :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
+        class="aria-hidden availability-status">
+        Off duty
+      </div>
+      <div v-if="!$currentUser.isAdmin" class="toggle-btn-column">
+        <button
+          v-if="!isToggling"
+          :id="buttonElementId"
+          type="button"
+          class="btn btn-link pt-0 pb-0 pl-1 pr-1"
+          @click="toggle"
+          @keyup.down="toggle">
+          <span class="status-toggle-label">
+            <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
+            <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
+            <span class="sr-only">{{ isAvailable ? 'On duty' : 'Off duty' }}</span>
+          </span>
+        </button>
+        <div v-if="isToggling" class="pl-2">
+          <font-awesome icon="spinner" spin />
+        </div>
+      </div>
+      <div
+        v-if="isAvailable || !$currentUser.isAdmin"
+        :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
+        class="aria-hidden availability-status">
+        On duty
+      </div>
     </div>
     <AreYouSureModal
       v-if="showOffDutyConfirmModal"
@@ -30,7 +50,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
-import { setDropInStatus } from '@/api/user';
+import { setDropInAvailability } from '@/api/user';
 
 export default {
   name: 'DropInAvailabilityToggle',
@@ -39,6 +59,10 @@ export default {
   },
   mixins: [Context, Util],
   props: {
+    availability: {
+      type: Boolean,
+      required: true
+    },
     deptCode: {
       type: String,
       required: true
@@ -51,41 +75,28 @@ export default {
       type: Array,
       required: true
     },
-    status: {
-      type: String,
-      required: true
-    },
     uid: {
       type: String,
       required: true
     }
   },
-  data() {
-    return {
-      dropInStatusOptions: [
-        { text: 'Off Duty', value: 'off_duty_waitlist'},
-        { text: 'Advisor', value: 'on_duty_advisor' },
-        { text: 'Supervisor', value: 'on_duty_supervisor' }
-      ],
-      isToggling: undefined,
-      selectedStatus: this.status,
-      showOffDutyConfirmModal: false
-    }
-  },
+  data: () => ({
+    isAvailable: undefined,
+    isToggling: undefined,
+    showOffDutyConfirmModal: false
+  }),
   computed: {
-    toggleElementId() {
-      return `toggle-drop-in-status-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
+    buttonElementId() {
+      return `toggle-drop-in-availability-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
     }
   },
   watch: {
-    status(value) {
-      this.selectedStatus = value;
+    availability(value) {
+      this.isAvailable = value;
     }
   },
   created() {
-    this.$eventHub.$on('drop-in-status-change', status => {
-      this.selectedStatus = status;
-    });
+    this.isAvailable = this.availability;
   },
   methods: {
     cancelGoOffDuty() {
@@ -94,20 +105,17 @@ export default {
         this.selectedStatus = this.status;
       });
     },
-    changeStatus: function(selected) {
-      if (selected.startsWith('off_duty') && this.reservedAppointments.length) {
-        this.showOffDutyConfirmModal = true;
-      } else {
-        this.confirmChangeStatus(selected);
-      }
-    },
     confirmGoOffDuty() {
       this.showOffDutyConfirmModal = false;
-      this.confirmChangeStatus('off_duty_waitlist');
+      this.confirmChangeAvailability(false);
     },
-    confirmChangeStatus(selected) {
-      setDropInStatus(this.deptCode, this.uid, selected).then(() => {
-        this.alertScreenReader(`Switching drop-in availability to ${selected}`);
+    confirmChangeAvailability(newStatus) {
+      this.isToggling = true;
+      setDropInAvailability(this.deptCode, this.uid, newStatus).then(() => {
+        this.isAvailable = newStatus;
+        this.isToggling = false;
+        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
+        this.putFocusNextTick(this.buttonElementId);
       });
     },
     offDutyConfirmModalBody() {
@@ -116,27 +124,43 @@ export default {
         ${this.$options.filters.pluralize('assigned student', this.reservedAppointments.length)}
         on the waitlist.`;
     },
+    toggle: function() {
+      const newStatus = !this.isAvailable;
+      if (!newStatus && this.reservedAppointments.length) {
+        this.showOffDutyConfirmModal = true;
+      } else {
+        this.confirmChangeAvailability(newStatus);
+      }
+    }
   }
 };
 </script>
 
 <style scoped>
+.availability-status {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.availability-status-active {
+  font-weight: 600;
+}
+.availability-status-disabled {
+  color: #999999;
+}
 .availability-status-outer {
   align-items: center;
 }
-</style>
-
-<style>
-.drop-in-status-toggle .btn {
-  border-color: #3b7ea5 !important;
-  color: #3b7ea5 !important;
+.toggle {
+ font-size: 20px;
 }
-.drop-in-status-toggle .btn.active {
-  background-color: #3b7ea5 !important;
-  color: #ffffff !important;
+.toggle-btn-column {
+  min-height: 28px;
+  min-width: 36px;
 }
-.drop-in-status-toggle .btn:hover {
-  background-color: #69a6c9 !important;
-  color: #ffffff !important;
+.toggle-off {
+   color: #999999;
+}
+.toggle-on {
+   color: #00c13a;
 }
 </style>
