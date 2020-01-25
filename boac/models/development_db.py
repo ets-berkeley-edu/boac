@@ -492,7 +492,7 @@ def _create_department_memberships():
                 DropInAdvisor.create_or_update_status(
                     dept_code=dept_code,
                     authorized_user_id=authorized_user.id,
-                    status='on_duty_advisor',
+                    is_available=True,
                 )
 
 

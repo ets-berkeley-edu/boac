@@ -81,7 +81,7 @@
                   v-for="advisor in availableAdvisors"
                   :key="advisor.uid"
                   :value="advisor.uid">
-                  {{ `${advisor.name}${isSupervisorOnCall(advisor, deptCode) ? ' (Supervisor On Call)' : ''}` }}
+                  {{ advisor.name }}
                 </option>
               </b-form-select>
             </b-col>
@@ -245,7 +245,7 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
     },
     updateAvailableAdvisors() {
-      this.availableAdvisors = this.filterList(this.advisors, a => a.status.startsWith('on_duty'));
+      this.dropInAdvisors = this.filterList(this.advisors, 'available');
     }
   }
 };

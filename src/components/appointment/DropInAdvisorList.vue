@@ -19,23 +19,23 @@
     </div>
     <div v-if="advisors.length">
       <b-container fluid class="pl-0 pr-0">
-        <div
+        <b-row
           v-for="advisor in orderedAdvisors"
           :key="advisor.uid"
           no-gutters
-          class="border-bottom font-size-16 d-flex justify-content-between">
-          <div class="d-flex align-items-center text-nowrap">
+          class="border-bottom font-size-16 mt-2">
+          <b-col sm="6" class="pb-2 text-nowrap">
             {{ advisor.name }}
-          </div>
-          <div>
+          </b-col>
+          <b-col sm="6">
             <DropInAvailabilityToggle
+              :availability="advisor.available"
               :dept-code="deptCode"
               :is-homepage="false"
               :reserved-appointments="reservedAppointmentsByAdvisor[advisor.uid] || []"
-              :status="advisor.status"
               :uid="advisor.uid" />
-          </div>
-        </div>
+          </b-col>
+        </b-row>
       </b-container>
     </div>
   </div>

@@ -128,13 +128,16 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
     )
 
 
-@app.route('/api/user/<uid>/drop_in_status/<dept_code>/<status>', methods=['POST'])
+@app.route('/api/user/<uid>/drop_in_status/<dept_code>/activate', methods=['POST'])
 @scheduler_required
-def set_drop_in_status(uid, dept_code, status):
-    if status not in ['on_duty_advisor', 'on_duty_supervisor', 'off_duty_no_waitlist', 'off_duty_waitlist']:
-        raise errors.BadRequestError('Unrecognized drop-in status')
-    allow_scheduler = status in ['on_duty_advisor', 'on_duty_supervisor', 'off_duty_waitlist']
-    return _update_drop_in_status(uid, dept_code, status, allow_scheduler)
+def activate_drop_in_status(uid, dept_code):
+    return _update_drop_in_status(uid, dept_code, True)
+
+
+@app.route('/api/user/<uid>/drop_in_status/<dept_code>/deactivate', methods=['POST'])
+@scheduler_required
+def deactivate_drop_in_status(uid, dept_code):
+    return _update_drop_in_status(uid, dept_code, False)
 
 
 @app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
@@ -143,7 +146,7 @@ def enable_drop_in_advising(dept_code):
     drop_in_status = DropInAdvisor.create_or_update_status(
         dept_code,
         current_user.user_id,
-        status='off_duty_no_waitlist',
+        is_available=False,
     )
     UserSession.flush_cache_for_id(current_user.user_id)
     return tolerant_jsonify(drop_in_status.to_api_json())
@@ -348,12 +351,10 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _update_drop_in_status(uid, dept_code, new_status, allow_scheduler=False):
+def _update_drop_in_status(uid, dept_code, new_status):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
-        authorized_to_toggle = \
-            current_user.is_admin or \
-            (allow_scheduler and dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')])
+        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
         if not authorized_to_toggle:
             raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in status for department {dept_code}')
     drop_in_status = None
@@ -361,9 +362,9 @@ def _update_drop_in_status(uid, dept_code, new_status, allow_scheduler=False):
     if user:
         drop_in_status = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
     if drop_in_status:
-        if drop_in_status.status.startswith('on_duty') and new_status.startswith('off_duty'):
+        if drop_in_status.is_available is True and new_status is False:
             Appointment.unreserve_all_for_advisor(uid, current_user.get_id())
-        drop_in_status.update_status(new_status)
+        drop_in_status.update_availability(new_status)
         UserSession.flush_cache_for_id(user.id)
         return tolerant_jsonify(drop_in_status.to_api_json())
     else:

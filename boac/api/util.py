@@ -176,7 +176,7 @@ def drop_in_advisors_for_dept_code(dept_code):
     advisors = []
     for a in advisor_assignments:
         advisor = authorized_users_api_feed([a.authorized_user])[0]
-        advisor['status'] = a.status
+        advisor['available'] = a.is_available
         advisors.append(advisor)
     return sorted(advisors, key=lambda u: (u.get('firstName', '').upper(), u.get('lastName', '').upper(), u.get('id')))
 
