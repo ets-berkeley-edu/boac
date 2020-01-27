@@ -61,9 +61,13 @@ export default {
   mounted() {
     this.deptCode = this.trim(this.get(this.$route, 'params.deptCode')).toUpperCase();
     getAvailableDepartmentReports().then(departments => {
-      this.availableDepartments = departments;
-      this.render();
-      this.loaded('Reports');
+      if (this.includes(this.map(departments, 'code'), this.deptCode)) {
+        this.availableDepartments = departments;
+        this.render();
+        this.loaded('Reports');
+      } else {
+        this.$router.push({ path: '/404' });
+      }
     });
   },
   methods: {
