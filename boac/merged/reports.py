@@ -107,9 +107,12 @@ def get_note_count(dept_code=None):
 
 def get_note_count_per_user(dept_code):
     query = f"""
-        SELECT author_uid as uid, COUNT(id) AS count
-        FROM notes
-        WHERE '{dept_code}' = ANY(author_dept_codes)
+        SELECT n.author_uid AS uid, COUNT(n.id) AS count
+        FROM notes n
+        JOIN authorized_users a ON a.uid = n.author_uid
+        JOIN university_dept_members m ON m.authorized_user_id = a.id
+        JOIN university_depts d ON d.id = m.university_dept_id AND d.dept_code = '{dept_code}'
+        WHERE n.deleted_at IS NULL
         GROUP BY author_uid
     """
     results = {}
