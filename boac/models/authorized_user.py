@@ -55,7 +55,8 @@ class AuthorizedUser(Base):
     )
     drop_in_departments = db.relationship(
         'DropInAdvisor',
-        primaryjoin='AuthorizedUser.id==DropInAdvisor.authorized_user_id',
+        back_populates='authorized_user',
+        lazy='joined',
     )
     cohort_filters = db.relationship(
         'CohortFilter',

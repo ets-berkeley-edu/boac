@@ -42,6 +42,10 @@ const mutations = {
     let group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
     Object.assign(group, updatedGroup);
   },
+  dropInAdvisorAdded:(state: any, dropInAdvisor: any) => {
+    Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, dropInAdvisor)
+  },
+  dropInAdvisorDeleted:(state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
   setDropInStatus: (state: any, {deptCode, available}) => {
     const currentUser = Vue.prototype.$currentUser;
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});

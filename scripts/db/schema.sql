@@ -276,8 +276,7 @@ CREATE TABLE drop_in_advisors (
     dept_code character varying(255) NOT NULL,
     is_available BOOLEAN DEFAULT false NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    deleted_at TIMESTAMP WITH TIME ZONE
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 ALTER TABLE drop_in_advisors OWNER TO boac;
 ALTER TABLE drop_in_advisors

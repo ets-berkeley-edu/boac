@@ -129,6 +129,7 @@ class UserSession(UserMixin):
                         'role': get_dept_role(m),
                         'isAdvisor': m.is_advisor,
                         'isDirector': m.is_director,
+                        'isDropInEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS'],
                         'isScheduler': m.is_scheduler,
                     })
         drop_in_advisor_status = []

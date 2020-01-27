@@ -215,7 +215,7 @@ const router = new Router({
               const deptCode = deptCodes[0].toLowerCase();
               next({ path: `/appt/desk/${deptCode}` });
             } else {
-              if (_.size(_.filter(currentUser.dropInAdvisorStatus, 'isEnabled'))) {
+              if (_.size(currentUser.dropInAdvisorStatus)) {
                 // We assume drop-in advisor status for one department only.
                 const deptCode = currentUser.dropInAdvisorStatus[0].deptCode.toLowerCase();
                 next({ path: `/home/${deptCode}` });
