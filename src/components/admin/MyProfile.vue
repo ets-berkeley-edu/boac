@@ -44,7 +44,7 @@
           :key="department.code"
           class="flex-row pb-3">
           <div id="my-dept-roles">{{ oxfordJoin(getRoles(department)) }} in {{ department.name }}</div>
-          <div v-if="isDropInAdvisor(department.code)" class="ml-5">
+          <div v-if="department.isDropInEnabled" class="ml-5">
             Drop-in advising:
             <DropInAdvisingToggle
               :dept-code="department.code"
@@ -68,12 +68,6 @@ export default {
     DropInAdvisingToggle,
   },
   mixins: [Berkeley, Context, Util],
-  data: () => ({
-    dropInAdvisorDeptCodes: undefined
-  }),
-  created() {
-    this.dropInAdvisorDeptCodes = this.map(this.$currentUser.dropInAdvisorStatus, 'deptCode');
-  },
   methods: {
     conditionalAppend(items, item, append) {
       if (append) {
@@ -86,9 +80,6 @@ export default {
       this.conditionalAppend(roles, 'Advisor', department.isAdvisor);
       this.conditionalAppend(roles, 'Scheduler', department.isScheduler);
       return roles;
-    },
-    isDropInAdvisor(deptCode) {
-      return this.includes(this.dropInAdvisorDeptCodes, deptCode);
     }
   }
 }

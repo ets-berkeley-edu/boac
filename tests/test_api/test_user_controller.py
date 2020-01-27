@@ -27,7 +27,6 @@ from boac import std_commit
 from boac.merged import calnet
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.university_dept import UniversityDept
 from flask import current_app as app
@@ -99,25 +98,13 @@ class TestUserProfile:
         api_json = self._api_my_profile(client)
         assert not api_json['dropInAdvisorStatus']
 
-    def test_advisor_with_drop_in_disabled(self, client, fake_auth):
-        """Includes drop-in advising status that has been disabled/deleted."""
-        dept_code = 'COENG'
-        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
-            user = AuthorizedUser.find_by_uid(coe_advisor_uid)
-            DropInAdvisor.delete(authorized_user_id=user.id, dept_code=dept_code)
-            fake_auth.login(coe_advisor_uid)
-            api_json = self._api_my_profile(client)
-            assert api_json['dropInAdvisorStatus']
-            assert api_json['dropInAdvisorStatus'][0]['deptCode'] == dept_code
-            assert api_json['dropInAdvisorStatus'][0]['isEnabled'] is False
-
     def test_asc_advisor_exclude_cohorts(self, client, fake_auth):
         """Returns Athletic Study Center drop-in advisor."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['UWASC']):
             fake_auth.login(asc_advisor_uid)
             api_json = self._api_my_profile(client)
             assert api_json['canAccessCanvasData'] is True
-            assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'isEnabled': True, 'available': True}]
+            assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'available': True}]
             departments = api_json['departments']
             assert len(departments) == 1
             assert departments[0]['code'] == 'UWASC'
@@ -387,7 +374,6 @@ class TestUsers:
             assert response.json[0]['dropInAdvisorStatus'][0] == {
                 'available': True,
                 'deptCode': 'QCADV',
-                'isEnabled': True,
             }
 
     def test_get_departments(self, client, fake_auth):
@@ -630,13 +616,11 @@ class TestToggleDropInAppointmentStatus:
             assert len(response.json) == 1
             assert {
                 'deptCode': 'QCADV',
-                'isEnabled': True,
                 'available': False,
             } in response.json[0]['dropInAdvisorStatus']
             response = client.get('/api/profile/my')
             assert {
                 'deptCode': 'QCADV',
-                'isEnabled': True,
                 'available': False,
             } in response.json['dropInAdvisorStatus']
             response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
@@ -644,7 +628,6 @@ class TestToggleDropInAppointmentStatus:
             response = client.get('/api/profile/my')
             assert {
                 'deptCode': 'QCADV',
-                'isEnabled': True,
                 'available': True,
             } in response.json['dropInAdvisorStatus']
 
@@ -660,7 +643,6 @@ class TestToggleDropInAppointmentStatus:
             assert response.json[0]['available'] is False
             assert {
                 'deptCode': 'QCADV',
-                'isEnabled': True,
                 'available': False,
             } in response.json[0]['dropInAdvisorStatus']
 
@@ -672,7 +654,6 @@ class TestToggleDropInAppointmentStatus:
             assert response.json[0]['available'] is True
             assert {
                 'deptCode': 'QCADV',
-                'isEnabled': True,
                 'available': True,
             } in response.json[0]['dropInAdvisorStatus']
 
@@ -840,7 +821,6 @@ class TestUserUpdate:
 
         assert len(user['dropInAdvisorStatus']) == 1
         assert user['dropInAdvisorStatus'][0]['deptCode'] == 'QCADV'
-        assert user['dropInAdvisorStatus'][0]['isEnabled'] is True
 
         qcadv = next(d for d in user['departments'] if d['code'] == 'QCADV')
         assert qcadv['isAdvisor'] is True
@@ -891,7 +871,6 @@ class TestUserUpdate:
         drop_in_statuses = user['dropInAdvisorStatus']
         assert len(drop_in_statuses) == 1
         assert drop_in_statuses[0]['deptCode'] == 'QCADV'
-        assert drop_in_statuses[0]['isEnabled'] is True
 
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Scheduler".
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
@@ -912,8 +891,7 @@ class TestUserUpdate:
         std_commit(allow_test_environment=True)
 
         user = AuthorizedUser.find_by_uid(uid)
-        assert len(user.drop_in_departments) == 1
-        assert user.drop_in_departments[0].deleted_at is not None
+        assert len(user.drop_in_departments) == 0
         assert len(user.department_memberships) == 1
         assert user.department_memberships[0].university_dept.dept_code == 'QCADVMAJ'
         assert user.department_memberships[0].automate_membership is False
@@ -1020,22 +998,23 @@ class TestToggleDropInAdvising:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
             fake_auth.login(coe_advisor_uid)
             user = AuthorizedUser.find_by_uid(coe_advisor_uid)
-            assert user.drop_in_departments[0].deleted_at is None
+            assert len(user.drop_in_departments) == 1
 
             response = self._api_toggle_drop_in_advising(
                 client,
                 dept_code='COENG',
                 action='disable',
             )
-            assert response == {'deptCode': dept_code, 'isEnabled': False, 'available': True}
+            std_commit(allow_test_environment=True)
             user = AuthorizedUser.find_by_uid(coe_advisor_uid)
-            assert user.drop_in_departments[0].deleted_at is not None
+            assert len(user.drop_in_departments) == 0
 
             response = self._api_toggle_drop_in_advising(
                 client,
                 dept_code=dept_code,
                 action='enable',
             )
-            assert response == {'deptCode': dept_code, 'isEnabled': True, 'available': False}
+            std_commit(allow_test_environment=True)
+            assert response == {'deptCode': dept_code, 'available': False}
             user = AuthorizedUser.find_by_uid(coe_advisor_uid)
-            assert user.drop_in_departments[0].deleted_at is None
+            assert len(user.drop_in_departments) == 1

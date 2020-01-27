@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.lib.util import utc_now
 from boac.models.base import Base
 
 
@@ -34,7 +33,6 @@ class DropInAdvisor(Base):
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
     dept_code = db.Column(db.String(80), nullable=False, primary_key=True)
     is_available = db.Column(db.Boolean, default=False, nullable=False)
-    deleted_at = db.Column(db.DateTime, nullable=True)
 
     authorized_user = db.relationship('AuthorizedUser', back_populates='drop_in_departments')
 
@@ -52,7 +50,6 @@ class DropInAdvisor(Base):
         existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
         if existing_status:
             new_status = existing_status
-            new_status.deleted_at = None
             new_status.is_available = is_available
         else:
             new_status = cls(
@@ -66,33 +63,30 @@ class DropInAdvisor(Base):
 
     @classmethod
     def advisors_for_dept_code(cls, dept_code):
-        return cls.query.filter_by(dept_code=dept_code, deleted_at=None).all()
+        return cls.query.filter_by(dept_code=dept_code).all()
 
     @classmethod
     def find_by_dept_and_user(cls, dept_code, authorized_user_id):
         return cls.query.filter_by(authorized_user_id=authorized_user_id, dept_code=dept_code).first()
 
     @classmethod
-    def get_all(cls, authorized_user_id, include_deleted=False):
-        if include_deleted:
-            return cls.query.filter_by(authorized_user_id=authorized_user_id).all()
-        return cls.query.filter_by(authorized_user_id=authorized_user_id, deleted_at=None).all()
+    def get_all(cls, authorized_user_id):
+        return cls.query.filter_by(authorized_user_id=authorized_user_id).all()
 
     @classmethod
     def delete(cls, authorized_user_id, dept_code):
-        row = cls.query.filter_by(authorized_user_id=authorized_user_id, dept_code=dept_code, deleted_at=None).first()
+        row = cls.query.filter_by(authorized_user_id=authorized_user_id, dept_code=dept_code).first()
         if not row:
             return False
-        row.deleted_at = utc_now()
+        db.session.delete(row)
         std_commit()
         return True
 
     @classmethod
     def delete_orphans(cls):
         sql = """
-            UPDATE drop_in_advisors AS a SET deleted_at = now()
-                WHERE a.deleted_at IS NULL
-                AND authorized_user_id NOT IN (
+            DELETE FROM drop_in_advisors AS a
+                WHERE a.authorized_user_id NOT IN (
                     SELECT m.authorized_user_id
                     FROM university_depts AS d
                     JOIN university_dept_members AS m
@@ -105,6 +99,5 @@ class DropInAdvisor(Base):
     def to_api_json(self):
         return {
             'deptCode': self.dept_code,
-            'isEnabled': self.deleted_at is None,
             'available': self.is_available,
         }

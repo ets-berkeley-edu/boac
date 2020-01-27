@@ -91,6 +91,21 @@ def advisor_required(func):
     return _advisor_required
 
 
+def drop_in_required(func):
+    @wraps(func)
+    def _drop_in_required(*args, **kw):
+        is_authorized = current_user.is_authenticated \
+            and (
+                current_user.is_admin or _is_drop_in_enabled(current_user)
+            )
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _drop_in_required
+
+
 def scheduler_required(func):
     @wraps(func)
     def _scheduler_required(*args, **kw):
@@ -409,6 +424,10 @@ def _has_role_in_any_department(user, role):
 
 def _is_drop_in_advisor(user):
     return next((d for d in user.drop_in_advisor_departments if d['deptCode'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']), False)
+
+
+def _is_drop_in_enabled(user):
+    return next((d for d in user.departments if d['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']), False)
 
 
 def _is_drop_in_scheduler(user):

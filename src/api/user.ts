@@ -116,12 +116,16 @@ export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], delete
     .then(response => response.data);
 }
 
-export function toggleDropInAdvising(deptCode: string, enable: boolean) {
-  const action = enable ? 'enable' : 'disable';
+export function disableDropInAdvising(deptCode: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/${action}`)
-    .then(response => {
-      const indexOf = _.findIndex(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode});
-      Vue.prototype.$currentUser.dropInAdvisorStatus[indexOf] = response.data;
-    });
+    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/disable`)
+    .then(() => store.commit('currentUserExtras/dropInAdvisorDeleted', deptCode))
+    .catch(error => error);
+  }
+
+export function enableDropInAdvising(deptCode: string) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/enable`)
+    .then(response => store.commit('currentUserExtras/dropInAdvisorAdded', response.data))
+    .catch(error => error);
 }

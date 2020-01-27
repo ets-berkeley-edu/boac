@@ -26,7 +26,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 
 from boac.api import errors
-from boac.api.util import admin_required, advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
+from boac.api.util import (
+    admin_required,
+    advisor_required,
+    authorized_users_api_feed,
+    drop_in_advisors_for_dept_code,
+    drop_in_required,
+    scheduler_required,
+)
 from boac.lib import util
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
@@ -141,7 +148,7 @@ def deactivate_drop_in_status(uid, dept_code):
 
 
 @app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
-@scheduler_required
+@drop_in_required
 def enable_drop_in_advising(dept_code):
     drop_in_status = DropInAdvisor.create_or_update_status(
         dept_code,
@@ -155,10 +162,10 @@ def enable_drop_in_advising(dept_code):
 @app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
 @scheduler_required
 def disable_drop_in_advising(dept_code):
-    DropInAdvisor.delete(authorized_user_id=current_user.user_id, dept_code=dept_code)
+    if not DropInAdvisor.delete(authorized_user_id=current_user.user_id, dept_code=dept_code):
+        raise errors.ResourceNotFoundError('Drop-in advisor not found')
     UserSession.flush_cache_for_id(current_user.user_id)
-    drop_in_status = DropInAdvisor.find_by_dept_and_user(dept_code, current_user.user_id)
-    return tolerant_jsonify(drop_in_status.to_api_json())
+    return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
 
 
 @app.route('/api/users', methods=['POST'])

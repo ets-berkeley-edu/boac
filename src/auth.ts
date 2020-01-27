@@ -86,7 +86,7 @@ export default {
       if (currentUser.isAdmin) {
         next();
       } else {
-        $_requiresScheduler(to, next, _.map(_.filter(currentUser.dropInAdvisorStatus, 'isEnabled'), 'deptCode'));
+        $_requiresScheduler(to, next, _.map(currentUser.dropInAdvisorStatus, 'deptCode'));
       }
     } else {
       $_goToLogin(to, next);
