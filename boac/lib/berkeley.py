@@ -454,14 +454,10 @@ def get_dept_codes(user):
 
 def dept_codes_where_advising(user):
     if user:
-        dept_where_advising = list(filter(lambda d: d.get('isAdvisor') or d.get('isDirector'), user.departments))
+        dept_where_advising = list(filter(lambda d: d.get('role') in ('advisor', 'director'), user.departments))
         return list(map(lambda d: d['code'], dept_where_advising))
     else:
         return None
-
-
-def get_dept_role(department_membership):
-    return 'Director' if department_membership.is_director else ('Advisor' if department_membership.is_advisor else None)
 
 
 def section_is_eligible_for_alerts(enrollment, section):

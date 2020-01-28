@@ -182,9 +182,7 @@ def refresh_department_memberships():
                 UniversityDeptMember.create_or_update_membership(
                     university_dept_id=dept.id,
                     authorized_user_id=user.id,
-                    is_advisor=True,
-                    is_director=False,
-                    is_scheduler=False,
+                    role='advisor',
                 )
     DropInAdvisor.delete_orphans()
 

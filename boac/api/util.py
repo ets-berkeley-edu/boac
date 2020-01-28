@@ -64,7 +64,7 @@ def admin_or_director_required(func):
         is_authorized = current_user.is_authenticated \
             and (
                 current_user.is_admin
-                or _has_role_in_any_department(current_user, 'isDirector')
+                or _has_role_in_any_department(current_user, 'director')
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -80,8 +80,8 @@ def advisor_required(func):
         is_authorized = current_user.is_authenticated \
             and (
                 current_user.is_admin
-                or _has_role_in_any_department(current_user, 'isAdvisor')
-                or _has_role_in_any_department(current_user, 'isDirector')
+                or _has_role_in_any_department(current_user, 'advisor')
+                or _has_role_in_any_department(current_user, 'director')
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -157,9 +157,7 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             profile['departments'].append({
                 'code': m.university_dept.dept_code,
                 'name': m.university_dept.dept_name,
-                'isAdvisor': m.is_advisor,
-                'isDirector': m.is_director,
-                'isScheduler': m.is_scheduler,
+                'role': m.role,
                 'automateMembership': m.automate_membership,
             })
         profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
@@ -419,7 +417,7 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
 
 
 def _has_role_in_any_department(user, role):
-    return next((d for d in user.departments if d[role]), False)
+    return next((d for d in user.departments if d['role'] == role), False)
 
 
 def _is_drop_in_advisor(user):
@@ -431,7 +429,7 @@ def _is_drop_in_enabled(user):
 
 
 def _is_drop_in_scheduler(user):
-    scheduler_dept = _has_role_in_any_department(current_user, 'isScheduler')
+    scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
     return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
 
 

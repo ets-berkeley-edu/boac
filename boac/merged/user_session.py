@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, get_dept_role
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.merged import calnet
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.json_cache import clear, stow
@@ -125,12 +125,9 @@ class UserSession(UserMixin):
                 departments.append(
                     {
                         'code': dept_code,
-                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
-                        'role': get_dept_role(m),
-                        'isAdvisor': m.is_advisor,
-                        'isDirector': m.is_director,
                         'isDropInEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS'],
-                        'isScheduler': m.is_scheduler,
+                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
+                        'role': m.role,
                     })
         drop_in_advisor_status = []
         is_active = False
@@ -141,7 +138,7 @@ class UserSession(UserMixin):
                 is_active = True
             elif len(user.department_memberships):
                 for m in user.department_memberships:
-                    is_active = m.is_advisor or m.is_director or m.is_scheduler
+                    is_active = True if m.role else False
                     if is_active:
                         break
             drop_in_advisor_status = [

@@ -54,7 +54,7 @@ export default {
       {
         name: 'Team',
         value: 'group_name',
-        available: this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['isAdvisor', 'isDirector']), 'UWASC')
+        available: this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')
       },
       { html: this.separator, value: null, disabled: true, available: true },
       { name: 'Terms in Attendance (High/Low)', value: 'terms_in_attendance desc', available: true },

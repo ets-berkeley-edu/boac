@@ -88,9 +88,7 @@ class TestUserProfile:
         assert len(departments) == 1
         assert departments[0]['code'] == 'COENG'
         assert departments[0]['name'] == 'College of Engineering'
-        assert departments[0]['isAdvisor'] is False
-        assert departments[0]['isDirector'] is False
-        assert departments[0]['isScheduler'] is True
+        assert departments[0]['role'] == 'scheduler'
 
     def test_non_drop_in_dept_user(self, client, fake_auth):
         """Excludes drop-in status when dept is not configured for drop-in advising."""
@@ -109,9 +107,7 @@ class TestUserProfile:
             assert len(departments) == 1
             assert departments[0]['code'] == 'UWASC'
             assert departments[0]['name'] == 'Athletic Study Center'
-            assert departments[0]['isAdvisor'] is True
-            assert departments[0]['isDirector'] is False
-            assert departments[0]['isScheduler'] is False
+            assert departments[0]['role'] == 'advisor'
 
     def test_other_user_profile(self, client, fake_auth):
         fake_auth.login(admin_uid)
@@ -199,18 +195,14 @@ class TestUniversityDeptMember:
     def _api_add(
             cls,
             client,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
             automate_membership=False,
             expected_status_code=200,
     ):
         params = {
             'deptCode': 'ZZZZZ',
             'uid': coe_advisor_uid,
-            'isAdvisor': is_advisor,
-            'isDirector': is_director,
-            'isScheduler': is_scheduler,
+            'role': role,
             'automateMembership': automate_membership,
         }
         response = client.post(
@@ -225,18 +217,14 @@ class TestUniversityDeptMember:
     def _api_update(
             cls,
             client,
-            is_advisor=None,
-            is_director=None,
-            is_scheduler=None,
+            role=None,
             automate_membership=None,
             expected_status_code=200,
     ):
         params = {
             'deptCode': 'ZZZZZ',
             'uid': coe_advisor_uid,
-            'isAdvisor': is_advisor,
-            'isDirector': is_director,
-            'isScheduler': is_scheduler,
+            'role': role,
             'automateMembership': automate_membership,
         }
         response = client.post(
@@ -272,9 +260,7 @@ class TestUniversityDeptMember:
         membership = self._api_add(client)
         assert membership['universityDeptId'] == UniversityDept.find_by_dept_code('ZZZZZ').id
         assert membership['authorizedUserId'] == AuthorizedUser.find_by_uid(coe_advisor_uid).id
-        assert membership['isAdvisor'] is True
-        assert membership['isDirector'] is False
-        assert membership['automateMembership'] is False
+        assert membership['role'] == 'advisor'
 
     def test_update_university_dept_membership_not_authenticated(self, client):
         """Returns 401 when unauthenticated user attempts to update."""
@@ -294,12 +280,10 @@ class TestUniversityDeptMember:
         """Updates a UniversityDeptMember record."""
         fake_auth.login(admin_uid)
         self._api_add(client)
-        membership = self._api_update(client, is_advisor=False, is_director=True)
+        membership = self._api_update(client, role='director')
         assert membership['universityDeptId'] == UniversityDept.find_by_dept_code('ZZZZZ').id
         assert membership['authorizedUserId'] == AuthorizedUser.find_by_uid(coe_advisor_uid).id
-        assert membership['isAdvisor'] is False
-        assert membership['isDirector'] is True
-        assert membership['automateMembership'] is False
+        assert membership['role'] == 'director'
 
     def test_delete_university_dept_membership_not_authenticated(self, client):
         """Returns 401 when unauthenticated user attempts to delete."""
@@ -829,13 +813,11 @@ class TestUserUpdate:
         assert user['dropInAdvisorStatus'][0]['deptCode'] == 'QCADV'
 
         qcadv = next(d for d in user['departments'] if d['code'] == 'QCADV')
-        assert qcadv['isAdvisor'] is True
-        assert qcadv['isScheduler'] is False
+        assert qcadv['role'] == 'advisor'
         assert qcadv['automateMembership'] is True
 
         qcadvmaj = next(d for d in user['departments'] if d['code'] == 'QCADVMAJ')
-        assert qcadvmaj['isAdvisor'] is False
-        assert qcadvmaj['isScheduler'] is True
+        assert qcadvmaj['role'] == 'scheduler'
         assert qcadvmaj['automateMembership'] is False
 
         # Clean up
@@ -871,7 +853,7 @@ class TestUserUpdate:
         departments = user['departments']
         assert len(departments) == 1
         assert departments[0]['code'] == 'QCADV'
-        assert departments[0]['isAdvisor'] is True
+        assert departments[0]['role'] == 'advisor'
         assert departments[0]['automateMembership'] is True
 
         drop_in_statuses = user['dropInAdvisorStatus']

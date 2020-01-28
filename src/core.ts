@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import auth from '@/auth';
 import Vue from "vue";
 import VueAnalytics from 'vue-analytics';
 import router from "@/router";
@@ -8,8 +9,7 @@ import { event } from 'vue-analytics';
 export default {
   async initializeCurrentUser() {
     if (Vue.prototype.$currentUser.isAuthenticated) {
-      const isAdvisor = !!_.size(_.filter(Vue.prototype.$currentUser.departments, d => d.isAdvisor || d.isDirector));
-      if (isAdvisor || Vue.prototype.$currentUser.isAdmin) {
+      if (auth.isAdvisor(Vue.prototype.$currentUser) || auth.isDirector(Vue.prototype.$currentUser) || Vue.prototype.$currentUser.isAdmin) {
         store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop);
         store.dispatch('currentUserExtras/loadMyCuratedGroups').then(_.noop);
       }

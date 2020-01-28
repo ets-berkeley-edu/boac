@@ -281,7 +281,7 @@ def _advisor_attrs_for_uid(advisor_uid):
 
 
 def _dept_codes_with_scheduler_privilege():
-    scheduler_dept_codes = [d['code'] for d in current_user.departments if d.get('isScheduler')]
+    scheduler_dept_codes = [d['code'] for d in current_user.departments if d.get('role') == 'scheduler']
     drop_in_advisor_dept_codes = [d['deptCode'] for d in current_user.drop_in_advisor_departments]
     return scheduler_dept_codes + drop_in_advisor_dept_codes
 

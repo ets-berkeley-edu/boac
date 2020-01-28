@@ -28,15 +28,16 @@ const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) 
   }
 };
 
-const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.isAdvisor || d.isDirector));
+const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.role === 'advisor'));
 
-const isDirector = user => !!_.size(_.filter(user.departments, d => d.isDirector));
+const isDirector = user => !!_.size(_.filter(user.departments, d => d.role === 'director'));
 
-const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.isScheduler), 'code');
+const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code');
 
 export default {
   getSchedulerDeptCodes,
   isAdvisor,
+  isDirector,
   requiresAdmin: (to: any, from: any, next: any) => {
     const currentUser = Vue.prototype.$currentUser;
     if (currentUser.isAuthenticated) {
@@ -52,7 +53,7 @@ export default {
   requiresAdvisor: (to: any, from: any, next: any) => {
     const currentUser = Vue.prototype.$currentUser;
     if (currentUser.isAuthenticated) {
-      if (isAdvisor(currentUser) || currentUser.isAdmin) {
+      if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
         next();
       } else {
         next({ path: '/404' });

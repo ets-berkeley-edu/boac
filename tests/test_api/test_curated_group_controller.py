@@ -352,7 +352,7 @@ class TestMyCuratedGroups:
         self._api_my_curated_groups(client, expected_status_code=401)
 
     def test_coe_scheduler_not_allowed(self, client, coe_scheduler):
-        """User who is_scheduler will be denied."""
+        """User with scheduler role will be denied."""
         self._api_my_curated_groups(client, expected_status_code=401)
 
     def test_coe_curated_groups(self, client, coe_advisor):

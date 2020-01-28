@@ -564,12 +564,14 @@ ALTER TABLE ONLY university_depts
 
 --
 
+CREATE TYPE university_dept_member_role_types AS ENUM ('advisor', 'director', 'scheduler');
+
+--
+
 CREATE TABLE university_dept_members (
   university_dept_id INTEGER,
   authorized_user_id INTEGER,
-  is_advisor BOOLEAN DEFAULT false NOT NULL,
-  is_director BOOLEAN DEFAULT false NOT NULL,
-  is_scheduler BOOLEAN DEFAULT false NOT NULL,
+  role university_dept_member_role_types,
   automate_membership boolean DEFAULT true NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL

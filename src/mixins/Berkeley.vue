@@ -8,14 +8,8 @@ export default {
     getBoaUserRoles(user, department) {
       const roles = [];
       const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code]);
-      if (department.isAdvisor) {
-        roles.push('Advisor');
-      }
-      if (department.isDirector) {
-        roles.push('Director');
-      }
-      if (department.isScheduler) {
-        roles.push('Scheduler');
+      if (department.role) {
+        roles.push(_.upperFirst(department.role));
       }
       if (dropInAdvisorStatus) {
         roles.push('Drop-in Advisor');
@@ -23,10 +17,10 @@ export default {
       return roles;
     },
     isDirector: (user) => {
-      return !!_.size(_.filter(user.departments, d => d.isDirector));
+      return !!_.size(_.filter(user.departments, d => d.role === 'director'));
     },
     myDeptCodes: (roles) => {
-      return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d[role]) > -1), 'code');
+      return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code');
     },
     previousSisTermId(termId) {
       let previousTermId = '';

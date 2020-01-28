@@ -55,12 +55,12 @@ export default {
   mixins: [Berkeley, Context, Util],
   methods: {
     getMyDirectorDept() {
-      const deptCodes = this.myDeptCodes(['isDirector']);
+      const deptCodes = this.myDeptCodes(['director']);
       return deptCodes && deptCodes[0];
     },
     isUserSimplyScheduler() {
-     const isScheduler = this.size(this.myDeptCodes(['isScheduler']));
-     return isScheduler && !this.$currentUser.isAdmin && !this.size(this.myDeptCodes(['isAdvisor', 'isDirector']));
+      const isScheduler = this.size(this.myDeptCodes(['scheduler']));
+      return isScheduler && !this.$currentUser.isAdmin && !this.size(this.myDeptCodes(['advisor', 'director']));
     },
     logOut() {
       getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl);

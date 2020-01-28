@@ -9,7 +9,7 @@ export default {
   methods: {
     validateCohortName: function(cohort) {
       const name = _.trim(cohort.name);
-      const deptCodes = this.myDeptCodes(['isAdvisor', 'isDirector']);
+      const deptCodes = this.myDeptCodes(['advisor', 'director']);
       const isReservedName = name =>
         _.includes(deptCodes, 'UWASC') &&
         _.includes(['intensive students', 'inactive students'], name.toLowerCase());
