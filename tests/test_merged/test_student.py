@@ -68,11 +68,9 @@ class TestMergedStudent:
 
     def test_get_historical_student_profiles(self):
         """Returns profiles of non-current students after adding them to manually_added_advisees."""
-        manually_added_advisees = ManuallyAddedAdvisee.get_all()
-        assert len(manually_added_advisees) == 0
+        ManuallyAddedAdvisee.query.delete()
+        assert len(ManuallyAddedAdvisee.get_all()) == 0
 
         profiles = student.get_historical_student_profiles(['2718281828', '3141592653'])
         assert len(profiles) == 2
-
-        manually_added_advisees = ManuallyAddedAdvisee.get_all()
-        assert len(manually_added_advisees) == 2
+        assert len(ManuallyAddedAdvisee.get_all()) == 2

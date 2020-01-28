@@ -120,8 +120,11 @@ class TestCohortFilter:
     def test_jsonify_cohort(self):
         """Can be JSONified."""
         cohorts = AuthorizedUser.find_by_uid(coe_advisor_uid).cohort_filters
-        assert len(cohorts) == 2
-        assert cohorts[0].to_api_json()['name'] == 'Roberta\'s Students'
+        assert len(cohorts)
+        expected_name = 'Roberta\'s Students'
+        cohort = next((c for c in cohorts if c.name == expected_name), None)
+        assert cohort
+        assert cohort.to_api_json()['name'] == expected_name
 
 
 def cohort_count(user_uid):

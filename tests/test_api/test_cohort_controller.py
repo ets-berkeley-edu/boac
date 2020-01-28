@@ -29,7 +29,8 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
-from tests.test_api.api_test_utils import all_cohorts_owned_by
+from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_get, \
+    api_curated_group_add_students, api_curated_group_remove_student
 
 zzzzz_user_uid = '1'
 guest_user_uid = '2'
@@ -100,19 +101,17 @@ def coe_owned_cohort():
 
 @pytest.fixture()
 def new_undeclared_cohort(client):
-    cohort_props = {
+    data = {
         'name': 'Nothing to Declare',
         'filters': [
             {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
         ],
     }
-    cohort = client.post(
-        '/api/cohort/create',
-        data=json.dumps(cohort_props),
-        content_type='application/json',
-    )
-    cohort_id = json.loads(cohort.data).get('id')
-    return client.get(f'/api/cohort/{cohort_id}').json
+    cohort = api_cohort_create(client, data)
+    cohort_id = cohort['id']
+    response = client.get(f'/api/cohort/{cohort_id}')
+    assert response.status_code == 200
+    return response.json
 
 
 class TestCohortDetail:
@@ -368,14 +367,10 @@ class TestCohortDetail:
                 {'key': 'isInactiveAsc', 'value': True},
             ],
         }
-        response = client.post(
-            '/api/cohort/create',
-            data=json.dumps(data),
-            content_type='application/json',
-        )
-        assert response.status_code == 403
+        api_cohort_create(client, data, expected_status_code=403)
 
     def test_my_students_filter_me(self, client, asc_advisor_login):
+        """My Students cohort filter."""
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
             name='All my students',
@@ -383,11 +378,13 @@ class TestCohortDetail:
                 'cohortOwnerAcademicPlans': ['*'],
             },
         )
-        response = client.get(f"/api/cohort/{cohort['id']}").json
-        sids = sorted([s['sid'] for s in response['students']])
+        response = client.get(f"/api/cohort/{cohort['id']}")
+        assert response.status_code == 200
+        sids = sorted([s['sid'] for s in response.json['students']])
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
 
     def test_my_students_filter_not_me(self, client, admin_login):
+        """The My Students cohort owned by some other advisor."""
         cohort = CohortFilter.create(
             uid=asc_advisor_uid,
             name='All my students',
@@ -400,6 +397,7 @@ class TestCohortDetail:
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
 
     def test_cohort_with_curated_group_ids(self, client, asc_advisor_login):
+        """Cohort criteria can include filter-by-curated_group."""
         user_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
         # We start with the SIDs expected from the 'My Students' filter and then reduce expectations based on
         # the curated group SIDs below.
@@ -432,10 +430,7 @@ class TestCohortDetail:
                 {'key': 'curatedGroupIds', 'value': curated_group_2.id},
             ],
         }
-        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
-        assert response.status_code == 200
-        cohort_id = json.loads(response.data)['id']
-        std_commit(allow_test_environment=True)
+        cohort_id = api_cohort_create(client, data)['id']
 
         response = client.get(f'/api/cohort/{cohort_id}')
         assert response.status_code == 200
@@ -448,25 +443,38 @@ class TestCohortDetail:
         std_commit(allow_test_environment=True)
         assert CohortFilter.find_by_id(cohort_id) is None
 
+    def test_cohort_student_count_when_curated_group_modified(self, client, asc_advisor_login):
+        """Expect cohort SIDs and student-count to change if a referenced curated group is modified."""
+        user_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
+        curated_group = CuratedGroup.create(user_id, 'Destined to be a cohort filter, #1')
+        std_commit(allow_test_environment=True)
+        original_sids = ['2345678901', '5678901234', '9100000000']
+        for sid in original_sids:
+            CuratedGroup.add_student(curated_group.id, sid)
+            std_commit(allow_test_environment=True)
+        # Create the cohort
+        data = {
+            'name': 'Hey! You got your chocolate in my peanut butter!',
+            'filters': [
+                {
+                    'key': 'curatedGroupIds',
+                    'value': curated_group.id,
+                },
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert cohort['totalStudentCount'] == 3
+        api_curated_group_add_students(client, curated_group.id, sids=['11667051', '7890123456'])
+        cohort = api_cohort_get(client, cohort['id'])
+        assert cohort['totalStudentCount'] == 5
+        for sid in original_sids:
+            api_curated_group_remove_student(client, curated_group_id=curated_group.id, sid=sid)
+        cohort = api_cohort_get(client, cohort['id'])
+        assert cohort['totalStudentCount'] == 2
+
 
 class TestCohortCreate:
     """Cohort Create API."""
-
-    @classmethod
-    def _post_cohort_create(cls, client, json_data=(), expected_status_code=200):
-        response = client.post(
-            '/api/cohort/create',
-            data=json.dumps(json_data),
-            content_type='application/json',
-        )
-        assert response.status_code == expected_status_code
-        return json.loads(response.data)
-
-    @staticmethod
-    def _api_cohort(client, cohort_id, expected_status_code=200):
-        response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.status_code == expected_status_code
-        return response.json
 
     def test_create_cohort(self, client, asc_advisor_login):
         """Creates custom cohort, owned by current user."""
@@ -480,25 +488,25 @@ class TestCohortCreate:
             ],
         }
 
-        def _verify(api_json):
-            assert api_json.get('name') == 'Tennis'
-            assert api_json['alertCount'] is not None
-            assert len(api_json.get('criteria', {}).get('majors')) == 2
+        def _verify(cohort):
+            assert cohort.get('name') == 'Tennis'
+            assert cohort['alertCount'] is not None
+            assert len(cohort.get('criteria', {}).get('majors')) == 2
             # ASC specific
-            team_groups = api_json.get('teamGroups')
+            team_groups = cohort.get('teamGroups')
             assert len(team_groups) == 1
             assert team_groups[0].get('groupCode') == 'MTE'
             # Students
-            students = api_json.get('students')
+            students = cohort.get('students')
             assert len(students) == 1
             assert students[0]['gender'] == 'Male'
             assert students[0]['underrepresented'] is False
 
-        data = self._post_cohort_create(client, data)
+        data = api_cohort_create(client, data)
         _verify(data)
         cohort_id = data.get('id')
         assert cohort_id
-        _verify(self._api_cohort(client, cohort_id))
+        _verify(api_cohort_get(client, cohort_id))
 
     def test_scheduler_role_is_forbidden(self, coe_scheduler_login, client):
         """Rejects COE scheduler user."""
@@ -508,7 +516,7 @@ class TestCohortCreate:
                 {'key': 'coeEthnicities', 'value': 'Vietnamese'},
             ],
         }
-        assert self._post_cohort_create(client, data, expected_status_code=401)
+        api_cohort_create(client, data, expected_status_code=401)
 
     def test_asc_advisor_is_forbidden(self, asc_advisor_login, client, fake_auth):
         """Denies ASC advisor access to COE data."""
@@ -518,7 +526,7 @@ class TestCohortCreate:
                 {'key': 'coeEthnicities', 'value': 'Vietnamese'},
             ],
         }
-        assert self._post_cohort_create(client, data, expected_status_code=403)
+        api_cohort_create(client, data, expected_status_code=403)
 
     def test_admin_create_of_coe_uid_cohort(self, admin_login, client, fake_auth):
         """Allows Admin to access COE data."""
@@ -529,9 +537,9 @@ class TestCohortCreate:
                 {'key': 'genders', 'value': 'Different Identity'},
             ],
         }
-        api_json = self._post_cohort_create(client, data)
-        assert len(api_json['students']) == 2
-        for student in api_json['students']:
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 2
+        for student in cohort['students']:
             assert student['gender'] == 'Different Identity'
             assert student['coeProfile']['gender'] == 'M'
 
@@ -551,9 +559,9 @@ class TestCohortCreate:
                 {'key': 'majors', 'value': 'Environmental Economics & Policy'},
             ],
         }
-        api_json = self._post_cohort_create(client, data)
-        cohort_id = api_json['id']
-        api_json = self._api_cohort(client, cohort_id)
+        cohort = api_cohort_create(client, data)
+        cohort_id = cohort['id']
+        api_json = api_cohort_get(client, cohort_id)
         assert api_json['alertCount'] is not None
         criteria = api_json.get('criteria')
         # Genders
@@ -574,7 +582,7 @@ class TestCohortCreate:
 
     def test_admin_creation_of_asc_cohort(self, client, admin_login):
         """Admin can use ASC criteria."""
-        self._post_cohort_create(
+        api_cohort_create(
             client,
             {
                 'name': 'Admin superpowers',
@@ -593,7 +601,7 @@ class TestCohortCreate:
                 {'key': 'groupCodes', 'value': 'MTE'},
             ],
         }
-        self._post_cohort_create(client, data, expected_status_code=403)
+        api_cohort_create(client, data, expected_status_code=403)
 
     _intersecting_filter_criteria = {
         'name': 'Mixmaster BOA',
@@ -605,17 +613,17 @@ class TestCohortCreate:
 
     def test_admin_intersecting_filters(self, client, admin_login):
         """An admin can create a cohort using both ASC and COE criteria."""
-        api_json = self._post_cohort_create(client, self._intersecting_filter_criteria)
-        assert len(api_json['students']) == 1
+        cohort = api_cohort_create(client, self._intersecting_filter_criteria)
+        assert len(cohort['students']) == 1
 
     def test_multi_dept_intersecting_filters(self, client, asc_and_coe_advisor_login):
         """An advisor belonging to multiple departments can create a cohort using intersecting criteria."""
-        api_json = self._post_cohort_create(client, self._intersecting_filter_criteria)
-        assert len(api_json['students']) == 1
+        cohort = api_cohort_create(client, self._intersecting_filter_criteria)
+        assert len(cohort['students']) == 1
 
     def test_single_dept_intersecting_filters_fails(self, client, coe_advisor_login):
         """An advisor belonging to a single department cannot create a cohort using intersecting criteria."""
-        self._post_cohort_create(client, self._intersecting_filter_criteria, expected_status_code=403)
+        api_cohort_create(client, self._intersecting_filter_criteria, expected_status_code=403)
 
 
 class TestCohortUpdate:

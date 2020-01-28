@@ -104,6 +104,7 @@ class CuratedGroup(Base):
         curated_group = cls.query.filter_by(id=curated_group_id).first()
         if curated_group:
             CuratedGroupStudent.add_student(curated_group_id=curated_group_id, sid=sid)
+            _refresh_related_cohorts(curated_group)
 
     @classmethod
     def add_students(cls, curated_group_id, sids):
@@ -111,11 +112,14 @@ class CuratedGroup(Base):
         if curated_group:
             CuratedGroupStudent.add_students(curated_group_id=curated_group_id, sids=sids)
             std_commit()
+            _refresh_related_cohorts(curated_group)
 
     @classmethod
     def remove_student(cls, curated_group_id, sid):
-        if cls.find_by_id(curated_group_id):
+        curated_group = cls.find_by_id(curated_group_id)
+        if curated_group:
             CuratedGroupStudent.remove_student(curated_group_id, sid)
+            _refresh_related_cohorts(curated_group)
 
     @classmethod
     def rename(cls, curated_group_id, name):
@@ -127,21 +131,12 @@ class CuratedGroup(Base):
     def delete(cls, curated_group_id):
         curated_group = cls.query.filter_by(id=curated_group_id).first()
         if curated_group:
-            curated_group_id = curated_group.id
-            user_id = curated_group.owner_id
             db.session.delete(curated_group)
             std_commit()
             # Delete all cohorts that reference the deleted group
-            query = text(f"""SELECT
-                c.id, c.filter_criteria
-                FROM cohort_filters c
-                JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-                WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
-            results = db.session.execute(query, {'user_id': user_id})
-            for row in results:
-                if curated_group_id in row['filter_criteria'].get('curatedGroupIds', []):
-                    CohortFilter.delete(row['id'])
-                    std_commit()
+            for cohort_filter_id in _get_referencing_cohort_ids(curated_group):
+                CohortFilter.delete(cohort_filter_id)
+                std_commit()
 
     def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
         feed = {
@@ -203,3 +198,26 @@ class CuratedGroupStudent(db.Model):
         if row:
             db.session.delete(row)
             std_commit()
+
+
+def _refresh_related_cohorts(curated_group):
+    for cohort_id in _get_referencing_cohort_ids(curated_group):
+        cohort = CohortFilter.query.filter_by(id=cohort_id).first()
+        cohort.update_sids_and_student_count(None, None)
+        cohort.update_alert_count(None)
+        owner_id = cohort.owners[0].id if len(cohort.owners) else None
+        cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
+
+
+def _get_referencing_cohort_ids(curated_group):
+    query = text(f"""SELECT
+        c.id, c.filter_criteria
+        FROM cohort_filters c
+        JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+        WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
+    results = db.session.execute(query, {'user_id': curated_group.owner_id})
+    cohort_filter_ids = []
+    for row in results:
+        if curated_group.id in row['filter_criteria'].get('curatedGroupIds', []):
+            cohort_filter_ids.append(row['id'])
+    return cohort_filter_ids

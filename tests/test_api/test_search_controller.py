@@ -143,6 +143,7 @@ class TestStudentSearch:
         assert len(students) == 0
 
     def test_inactive_sids_search_creates_manually_added_advisee(self, client, fake_auth):
+        ManuallyAddedAdvisee.query.delete()
         assert len(ManuallyAddedAdvisee.query.all()) == 0
         fake_auth.login('2040')
         _api_search(client, '2718281828', students=True)
