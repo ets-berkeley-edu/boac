@@ -23,7 +23,6 @@ const mutations = {
     let indexOf = state.myCohorts.findIndex(cohort => cohort.id === id);
     state.myCohorts.splice(indexOf, 1);
   },
-  cohortsLoaded: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
   cohortUpdated: (state: any, updatedCohort: any) => {
     let cohort = state.myCohorts.find(
       cohort => cohort.id === +updatedCohort.id
@@ -37,7 +36,6 @@ const mutations = {
     });
     state.myCuratedGroups.splice(indexOf, 1);
   },
-  curatedGroupsLoaded: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
   curatedGroupUpdated: (state: any, updatedGroup: any) => {
     let group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
     Object.assign(group, updatedGroup);
@@ -46,6 +44,8 @@ const mutations = {
     Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, dropInAdvisor)
   },
   dropInAdvisorDeleted:(state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
+  loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
+  loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
   setDropInStatus: (state: any, {deptCode, available}) => {
     const currentUser = Vue.prototype.$currentUser;
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
@@ -64,11 +64,11 @@ const mutations = {
 };
 
 const actions = {
-  async cohortsLoaded({ commit }) {
-    getMyCohorts().then(cohorts => commit('cohortsLoaded', cohorts))
+  async loadMyCohorts({ commit }) {
+    getMyCohorts().then(cohorts => commit('loadMyCohorts', cohorts))
   },
-  async curatedGroupsLoaded({ commit }) {
-    getMyCuratedGroups().then(curatedGroups => commit('curatedGroupsLoaded', curatedGroups));
+  async loadMyCuratedGroups({ commit }) {
+    getMyCuratedGroups().then(curatedGroups => commit('loadMyCuratedGroups', curatedGroups));
   }
 };
 

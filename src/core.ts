@@ -10,8 +10,8 @@ export default {
     if (Vue.prototype.$currentUser.isAuthenticated) {
       const isAdvisor = !!_.size(_.filter(Vue.prototype.$currentUser.departments, d => d.isAdvisor || d.isDirector));
       if (isAdvisor || Vue.prototype.$currentUser.isAdmin) {
-        store.dispatch('currentUserExtras/cohortsLoaded').then(_.noop);
-        store.dispatch('currentUserExtras/curatedGroupsLoaded').then(_.noop);
+        store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop);
+        store.dispatch('currentUserExtras/loadMyCuratedGroups').then(_.noop);
       }
     }
   },
