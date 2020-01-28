@@ -1,0 +1,1 @@
+ALTER TABLE drop_in_advisors ADD COLUMN status character varying(255);

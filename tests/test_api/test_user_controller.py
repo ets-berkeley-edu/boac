@@ -104,7 +104,7 @@ class TestUserProfile:
             fake_auth.login(asc_advisor_uid)
             api_json = self._api_my_profile(client)
             assert api_json['canAccessCanvasData'] is True
-            assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'available': True}]
+            assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'available': True, 'status': None}]
             departments = api_json['departments']
             assert len(departments) == 1
             assert departments[0]['code'] == 'UWASC'
@@ -374,6 +374,7 @@ class TestUsers:
             assert response.json[0]['dropInAdvisorStatus'][0] == {
                 'available': True,
                 'deptCode': 'QCADV',
+                'status': None,
             }
 
     def test_get_departments(self, client, fake_auth):
@@ -580,62 +581,65 @@ class TestToggleDropInAppointmentStatus:
 
     def test_not_authenticated(self, app, client):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
             assert response.status_code == 401
 
     def test_denies_non_drop_in_advisor(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_advisor_uid)
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
             assert response.status_code == 401
 
     def test_denies_scheduler_in_other_department(self, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG', 'QCADV']):
             fake_auth.login(coe_scheduler_uid)
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
             assert response.status_code == 403
 
     def test_denies_advisor_toggling_another_advisor(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            response = client.post(f'/api/user/{asc_advisor_uid}/drop_in_status/UWASC/deactivate')
+            response = client.post(f'/api/user/{asc_advisor_uid}/drop_in_advising/UWASC/unavailable')
             assert response.status_code == 403
 
     def test_handles_drop_in_status_not_found(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/COENG/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/COENG/unavailable')
             assert response.status_code == 404
 
     def test_advisor_can_toggle_own_status(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
             assert response.status_code == 200
             response = client.get('/api/users/drop_in_advisors/QCADV')
             assert len(response.json) == 1
             assert {
                 'deptCode': 'QCADV',
                 'available': False,
+                'status': None,
             } in response.json[0]['dropInAdvisorStatus']
             response = client.get('/api/profile/my')
             assert {
                 'deptCode': 'QCADV',
                 'available': False,
+                'status': None,
             } in response.json['dropInAdvisorStatus']
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/available')
             assert response.status_code == 200
             response = client.get('/api/profile/my')
             assert {
                 'deptCode': 'QCADV',
                 'available': True,
+                'status': None,
             } in response.json['dropInAdvisorStatus']
 
     def test_scheduler_can_toggle_advisor_status(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_scheduler_uid)
 
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
             assert response.status_code == 200
 
             response = client.get('/api/users/drop_in_advisors/QCADV')
@@ -644,9 +648,10 @@ class TestToggleDropInAppointmentStatus:
             assert {
                 'deptCode': 'QCADV',
                 'available': False,
+                'status': None,
             } in response.json[0]['dropInAdvisorStatus']
 
-            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
+            response = client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/available')
             assert response.status_code == 200
 
             response = client.get('/api/users/drop_in_advisors/QCADV')
@@ -655,6 +660,7 @@ class TestToggleDropInAppointmentStatus:
             assert {
                 'deptCode': 'QCADV',
                 'available': True,
+                'status': None,
             } in response.json[0]['dropInAdvisorStatus']
 
     def test_unreserve_appointments_when_advisor_goes_off_duty(self, app, client, fake_auth):
@@ -662,7 +668,7 @@ class TestToggleDropInAppointmentStatus:
             fake_auth.login(l_s_college_scheduler_uid)
 
             # Put advisor on duty.
-            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/activate')
+            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/available')
 
             # Reserve a couple of appointments for the advisor via different paths.
             details = 'Concurrent enrollment in beauty school'
@@ -690,7 +696,7 @@ class TestToggleDropInAppointmentStatus:
             assert subsequently_reserved_appointment_feed['advisorUid'] == l_s_college_drop_in_advisor_uid
 
             # Take advisor off duty.
-            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_status/QCADV/deactivate')
+            client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
 
             # Verify appointments are back to waiting.
             waitlist = client.get(f'/api/appointments/waitlist/QCADV').json['waitlist']
@@ -927,7 +933,7 @@ class TestUserUpdate:
         assert not user.deleted_at
 
 
-class TestToggleDropInAdvising:
+class TestDropInAdvising:
 
     @classmethod
     def _api_toggle_drop_in_advising(
@@ -944,8 +950,23 @@ class TestToggleDropInAdvising:
         assert response.status_code == expected_status_code
         return response.json
 
-    def test_not_authenticated(self, client):
-        """Authentication required."""
+    @classmethod
+    def _api_set_drop_in_status(
+            cls,
+            client,
+            dept_code,
+            status,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/user/drop_in_advising/{dept_code}/status',
+            content_type='application/json',
+            data=json.dumps({'status': status}),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def _expect_unauthenticated(self, client):
         self._api_toggle_drop_in_advising(
             client,
             dept_code='COENG',
@@ -958,42 +979,30 @@ class TestToggleDropInAdvising:
             action='disable',
             expected_status_code=401,
         )
+        self._api_set_drop_in_status(
+            client,
+            dept_code='COENG',
+            status='Coffee is for closers',
+            expected_status_code=401,
+        )
 
-    def test_non_drop_in_advisor(self, client, fake_auth):
-        """Prevents advisor from toggling for a department they aren't a drop-in advisor for."""
+    def test_not_authenticated(self, client):
+        """Authentication required."""
+        self._expect_unauthenticated(client)
+
+    def test_non_advisor(self, client, fake_auth):
+        """Prevents advisor from toggling for a department they aren't an advisor for."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(coe_advisor_uid)
-            self._api_toggle_drop_in_advising(
-                client,
-                dept_code='QCADV',
-                action='enable',
-                expected_status_code=401,
-            )
-            self._api_toggle_drop_in_advising(
-                client,
-                dept_code='QCADV',
-                action='disable',
-                expected_status_code=401,
-            )
+            self._expect_unauthenticated(client)
 
     def test_non_drop_in_dept(self, client, fake_auth):
         """Prevents advisor from toggling when dept is not configured for drop-in advising."""
         fake_auth.login(coe_advisor_uid)
-        self._api_toggle_drop_in_advising(
-            client,
-            dept_code='COENG',
-            action='disable',
-            expected_status_code=401,
-        )
-        self._api_toggle_drop_in_advising(
-            client,
-            dept_code='COENG',
-            action='enable',
-            expected_status_code=401,
-        )
+        self._expect_unauthenticated(client)
 
     def test_toggle_drop_in_advising(self, client, fake_auth):
-        """Allows advisor to disable and enable their drop-in advising status."""
+        """Allows advisor to disable and enable their drop-in advising membership."""
         dept_code = 'COENG'
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
             fake_auth.login(coe_advisor_uid)
@@ -1015,6 +1024,90 @@ class TestToggleDropInAdvising:
                 action='enable',
             )
             std_commit(allow_test_environment=True)
-            assert response == {'deptCode': dept_code, 'available': False}
+            assert response == {'deptCode': dept_code, 'available': False, 'status': None}
             user = AuthorizedUser.find_by_uid(coe_advisor_uid)
             assert len(user.drop_in_departments) == 1
+
+    def test_set_drop_in_status(self, client, fake_auth):
+        """Allows advisor to set and unset drop-in advising status whether available or not."""
+        dept_code = 'COENG'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            fake_auth.login(coe_advisor_uid)
+            response = self._api_set_drop_in_status(
+                client,
+                dept_code='COENG',
+                status='Badminton break',
+                expected_status_code=200,
+            )
+            assert response == {'deptCode': dept_code, 'available': False, 'status': 'Badminton break'}
+
+            response = client.post(f'/api/user/{coe_advisor_uid}/drop_in_advising/COENG/available').json
+            assert response == {'deptCode': dept_code, 'available': True, 'status': 'Badminton break'}
+
+            response = self._api_set_drop_in_status(
+                client,
+                dept_code='COENG',
+                status='Coffee is for closers',
+                expected_status_code=200,
+            )
+            assert response == {'deptCode': dept_code, 'available': True, 'status': 'Coffee is for closers'}
+
+            response = self._api_set_drop_in_status(
+                client,
+                dept_code='COENG',
+                status=None,
+                expected_status_code=200,
+            )
+            assert response == {'deptCode': dept_code, 'available': True, 'status': None}
+
+            response = client.post(f'/api/user/{coe_advisor_uid}/drop_in_advising/COENG/unavailable').json
+            assert response == {'deptCode': dept_code, 'available': False, 'status': None}
+
+    def test_cannot_set_drop_in_status_when_drop_in_advising_disabled(self, client, fake_auth):
+        dept_code = 'COENG'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            fake_auth.login(coe_advisor_uid)
+            user = AuthorizedUser.find_by_uid(coe_advisor_uid)
+            assert len(user.drop_in_departments) == 1
+            self._api_toggle_drop_in_advising(
+                client,
+                dept_code='COENG',
+                action='disable',
+            )
+            std_commit(allow_test_environment=True)
+            self._api_set_drop_in_status(
+                client,
+                dept_code='COENG',
+                status='Coffee is for closers',
+                expected_status_code=404,
+            )
+            self._api_toggle_drop_in_advising(
+                client,
+                dept_code='COENG',
+                action='enable',
+            )
+            std_commit(allow_test_environment=True)
+
+    def test_status_too_long(self, client, fake_auth):
+        dept_code = 'COENG'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            fake_auth.login(coe_advisor_uid)
+            self._api_set_drop_in_status(
+                client,
+                dept_code='COENG',
+                status='The story had held us, round the fire, sufficiently breathless, but except the obvious remark that it was gruesome, as,\
+                    on Christmas Eve in an old house, a strange tale should essentially be, I remember no comment uttered till somebody happened\
+                    to say that it was the only case he had met in which such a visitation had fallen on a child.',
+                expected_status_code=400,
+            )
+
+    def test_no_status_param_sent(self, client, fake_auth):
+        dept_code = 'COENG'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            fake_auth.login(coe_advisor_uid)
+            response = client.post(
+                f'/api/user/drop_in_advising/{dept_code}/status',
+                content_type='application/json',
+                data=json.dumps({}),
+            )
+            assert response.status_code == 400
