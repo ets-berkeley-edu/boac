@@ -489,7 +489,7 @@ def _create_department_memberships():
                 automate_membership=user['automate_membership'],
             )
             if user['isDropInAdvisor']:
-                DropInAdvisor.create_or_update_status(
+                DropInAdvisor.create_or_update_membership(
                     dept_code=dept_code,
                     authorized_user_id=authorized_user.id,
                     is_available=True,

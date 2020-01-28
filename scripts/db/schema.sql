@@ -275,6 +275,7 @@ CREATE TABLE drop_in_advisors (
     authorized_user_id INTEGER NOT NULL,
     dept_code character varying(255) NOT NULL,
     is_available BOOLEAN DEFAULT false NOT NULL,
+    status character varying(255),
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

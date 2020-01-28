@@ -33,6 +33,7 @@ class DropInAdvisor(Base):
     authorized_user_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False, primary_key=True)
     dept_code = db.Column(db.String(80), nullable=False, primary_key=True)
     is_available = db.Column(db.Boolean, default=False, nullable=False)
+    status = db.Column(db.String(255))
 
     authorized_user = db.relationship('AuthorizedUser', back_populates='drop_in_departments')
 
@@ -45,21 +46,25 @@ class DropInAdvisor(Base):
         self.is_available = available
         std_commit()
 
+    def update_status(self, status):
+        self.status = status
+        std_commit()
+
     @classmethod
-    def create_or_update_status(cls, dept_code, authorized_user_id, is_available=False):
-        existing_status = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
-        if existing_status:
-            new_status = existing_status
-            new_status.is_available = is_available
+    def create_or_update_membership(cls, dept_code, authorized_user_id, is_available=False):
+        existing_membership = cls.query.filter_by(dept_code=dept_code, authorized_user_id=authorized_user_id).first()
+        if existing_membership:
+            new_membership = existing_membership
+            new_membership.is_available = is_available
         else:
-            new_status = cls(
+            new_membership = cls(
                 authorized_user_id=authorized_user_id,
                 dept_code=dept_code,
                 is_available=is_available,
             )
-        db.session.add(new_status)
+        db.session.add(new_membership)
         std_commit()
-        return new_status
+        return new_membership
 
     @classmethod
     def advisors_for_dept_code(cls, dept_code):
@@ -100,4 +105,5 @@ class DropInAdvisor(Base):
         return {
             'deptCode': self.dept_code,
             'available': self.is_available,
+            'status': self.status,
         }

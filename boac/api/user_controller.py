@@ -135,28 +135,16 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
     )
 
 
-@app.route('/api/user/<uid>/drop_in_status/<dept_code>/activate', methods=['POST'])
-@scheduler_required
-def activate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, True)
-
-
-@app.route('/api/user/<uid>/drop_in_status/<dept_code>/deactivate', methods=['POST'])
-@scheduler_required
-def deactivate_drop_in_status(uid, dept_code):
-    return _update_drop_in_status(uid, dept_code, False)
-
-
 @app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
 @drop_in_required
 def enable_drop_in_advising(dept_code):
-    drop_in_status = DropInAdvisor.create_or_update_status(
+    drop_in_membership = DropInAdvisor.create_or_update_membership(
         dept_code,
         current_user.user_id,
         is_available=False,
     )
     UserSession.flush_cache_for_id(current_user.user_id)
-    return tolerant_jsonify(drop_in_status.to_api_json())
+    return tolerant_jsonify(drop_in_membership.to_api_json())
 
 
 @app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
@@ -166,6 +154,35 @@ def disable_drop_in_advising(dept_code):
         raise errors.ResourceNotFoundError('Drop-in advisor not found')
     UserSession.flush_cache_for_id(current_user.user_id)
     return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
+
+
+@app.route('/api/user/<uid>/drop_in_advising/<dept_code>/available', methods=['POST'])
+@scheduler_required
+def set_drop_in_advising_available(uid, dept_code):
+    return _update_drop_in_availability(uid, dept_code, True)
+
+
+@app.route('/api/user/<uid>/drop_in_advising/<dept_code>/unavailable', methods=['POST'])
+@scheduler_required
+def set_drop_in_advising_unavailable(uid, dept_code):
+    return _update_drop_in_availability(uid, dept_code, False)
+
+
+@app.route('/api/user/drop_in_advising/<dept_code>/status', methods=['POST'])
+@drop_in_required
+def set_drop_in_advising_status(dept_code):
+    user = AuthorizedUser.find_by_id(current_user.get_id())
+    drop_in_membership = next((d for d in user.drop_in_departments if d.dept_code == dept_code.upper()), None)
+    if not drop_in_membership:
+        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={current_user.get_uid()}, dept_code={dept_code})')
+    params = request.get_json()
+    if 'status' not in params:
+        raise errors.BadRequestError('Missing status')
+    if params['status'] and len(params['status']) > 255:
+        raise errors.BadRequestError('Invalid status')
+    drop_in_membership.update_status(params['status'])
+    UserSession.flush_cache_for_id(user.id)
+    return tolerant_jsonify(drop_in_membership.to_api_json())
 
 
 @app.route('/api/users', methods=['POST'])
@@ -358,24 +375,24 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _update_drop_in_status(uid, dept_code, new_status):
+def _update_drop_in_availability(uid, dept_code, new_availability):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
         authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
         if not authorized_to_toggle:
-            raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in status for department {dept_code}')
-    drop_in_status = None
+            raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in availability for department {dept_code}')
+    drop_in_membership = None
     user = AuthorizedUser.find_by_uid(uid)
     if user:
-        drop_in_status = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
-    if drop_in_status:
-        if drop_in_status.is_available is True and new_status is False:
+        drop_in_membership = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
+    if drop_in_membership:
+        if drop_in_membership.is_available is True and new_availability is False:
             Appointment.unreserve_all_for_advisor(uid, current_user.get_id())
-        drop_in_status.update_availability(new_status)
+        drop_in_membership.update_availability(new_availability)
         UserSession.flush_cache_for_id(user.id)
-        return tolerant_jsonify(drop_in_status.to_api_json())
+        return tolerant_jsonify(drop_in_membership.to_api_json())
     else:
-        raise errors.ResourceNotFoundError(f'No drop-in advisor status found: (uid={uid}, dept_code={dept_code})')
+        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={uid}, dept_code={dept_code})')
 
 
 def _update_or_create_authorized_user(profile, include_deleted=False):
@@ -438,7 +455,7 @@ def _create_department_memberships(authorized_user, user_roles):
 def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
     for user_role in [d for d in roles_per_dept_code if d['role'] == 'dropInAdvisor']:
         university_dept = UniversityDept.find_by_dept_code(user_role['code'])
-        DropInAdvisor.create_or_update_status(
+        DropInAdvisor.create_or_update_membership(
             dept_code=university_dept.dept_code,
             authorized_user_id=authorized_user.id,
         )
