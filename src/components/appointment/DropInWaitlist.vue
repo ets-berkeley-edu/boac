@@ -24,12 +24,52 @@
           </b-btn>
         </div>
       </div>
-      <DropInAvailabilityToggle
-        :availability="!!get(find($currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}), 'available')"
-        :dept-code="deptCode"
-        :is-homepage="isHomepage"
-        :reserved-appointments="myReservedAppointments"
-        :uid="$currentUser.uid" />
+      <div class="mb-2">
+        <DropInAvailabilityToggle
+          :availability="dropInAvailability"
+          :dept-code="deptCode"
+          :is-homepage="isHomepage"
+          :reserved-appointments="myReservedAppointments"
+          :uid="$currentUser.uid" />
+      </div>
+      <div v-if="dropInStatusLoading" class="pl-2">
+        <font-awesome icon="spinner" spin />
+      </div>
+      <b-form v-if="!dropInStatusLoading && !dropInStatus" @submit="submitDropInStatus">
+        <div class="d-flex mb-2">
+          <div class="drop-in-status-label-outer">
+            <label class="drop-in-status-label" for="drop-in-status-input">My Status:</label>
+          </div>
+          <div class="drop-in-status-input-outer pr-3">
+            <b-form-input
+              id="drop-in-status-input"
+              v-model="dropInStatusNew"
+              class="drop-in-status-input"
+              maxlength="255"></b-form-input>
+          </div>
+          <div class="drop-in-status-submit-outer">
+            <b-btn
+              id="drop-in-status-submit"
+              class="btn-primary-color-override"
+              :disabled="!dropInStatusNew"
+              type="submit"
+              variant="primary">
+              Set Status
+            </b-btn>
+          </div>
+        </div>
+      </b-form>
+      <div v-if="!dropInStatusLoading && dropInStatus" class="mb-2">
+        <span class="drop-in-status-label">My Status:</span>
+        {{ dropInStatus }}
+        <button
+          id="drop-in-status-clear"
+          class="btn btn-link pb-0 pl-2 pt-0"
+          @click="clearDropInStatus"
+          @keyup.enter="clearDropInStatus">
+          Clear Status
+        </button>
+      </div>
     </div>
     <div v-if="!isHomepage">
       <div class="border-bottom d-flex justify-content-between">
@@ -99,6 +139,7 @@ import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilit
 import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
 import Util from '@/mixins/Util';
 import { create as apiCreate } from '@/api/appointments';
+import { setDropInStatus } from '@/api/user';
 
 export default {
   name: 'DropInWaitlist',
@@ -132,6 +173,10 @@ export default {
   },
   data: () => ({
     creating: false,
+    dropInAvailability: false,
+    dropInStatus: null,
+    dropInStatusLoading: false,
+    dropInStatusNew: undefined,
     linkToStudentProfiles: undefined,
     now: undefined,
     showCreateAppointmentModal: false
@@ -144,13 +189,29 @@ export default {
     }
   },
   created() {
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.$currentUser, 'dropInAdvisorStatus.length');
+    const currentUserDropInStatus = this.get(this.$currentUser, 'dropInAdvisorStatus');
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.isEmpty(this.currentUserDropInStatus);
     this.now = this.$moment();
+    if (this.isHomepage) {
+      this.$eventHub.$on('drop-in-status-change', newAttributes => {
+        this.updateDropInAttributes(newAttributes);
+      });
+      this.updateDropInAttributes(this.find(currentUserDropInStatus, {'deptCode': this.deptCode.toUpperCase()}))
+    }
   },
   methods: {
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
       this.alertScreenReader('Dialog closed');
+    },
+    clearDropInStatus() {
+      this.dropInStatusLoading = true;
+      setDropInStatus(this.deptCode).then(response => {
+        this.updateDropInAttributes(response);
+        this.dropInStatusLoading = false;
+        this.dropInStatusNew = null;
+        this.alertScreenReader('Drop-in status cleared');
+      });
     },
     createAppointment(
       details,
@@ -178,6 +239,20 @@ export default {
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
       this.alertScreenReader('Create appointment form is open');
+    },
+    submitDropInStatus() {
+      this.dropInStatusLoading = true;
+      setDropInStatus(this.deptCode, this.dropInStatusNew).then(response => {
+        this.updateDropInAttributes(response);
+        this.dropInStatusLoading = false;
+        this.alertScreenReader('Drop-in status updated');
+      });
+    },
+    updateDropInAttributes(attrs) {
+      if (attrs) {
+        this.dropInAvailability = attrs.available;
+        this.dropInStatus = attrs.status;
+      }
     }
   }
 }
@@ -187,5 +262,18 @@ export default {
 .border-thick-grey {
   border-color: lightgrey !important;
   border-width: 3px !important;
+}
+.drop-in-status-label {
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.drop-in-status-input-outer {
+  flex: 1;
+}
+.drop-in-status-label-outer {
+  flex: 0 0 80px;
+}
+.drop-in-status-submit-outer {
+  flex: 0 0 120px;
 }
 </style>
