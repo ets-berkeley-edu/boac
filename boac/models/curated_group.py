@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.externals.data_loch import query_historical_sids
 from boac.merged.student import query_students
 from boac.models.base import Base
+from boac.models.cohort_filter import CohortFilter
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from sqlalchemy import text
 
@@ -126,8 +127,21 @@ class CuratedGroup(Base):
     def delete(cls, curated_group_id):
         curated_group = cls.query.filter_by(id=curated_group_id).first()
         if curated_group:
+            curated_group_id = curated_group.id
+            user_id = curated_group.owner_id
             db.session.delete(curated_group)
             std_commit()
+            # Delete all cohorts that reference the deleted group
+            query = text(f"""SELECT
+                c.id, c.filter_criteria
+                FROM cohort_filters c
+                JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+                WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
+            results = db.session.execute(query, {'user_id': user_id})
+            for row in results:
+                if curated_group_id in row['filter_criteria'].get('curatedGroupIds', []):
+                    CohortFilter.delete(row['id'])
+                    std_commit()
 
     def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
         feed = {

@@ -31,9 +31,9 @@
     <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
       <div class="search-header-curated-cohort">
         <CuratedGroupSelector
+          context-description="Search"
           :ga-event-tracker="$ga.searchEvent"
-          :students="results.students"
-          context-description="Search" />
+          :students="results.students" />
       </div>
       <div>
         <SortableStudents :students="results.students" :options="studentListOptions" />

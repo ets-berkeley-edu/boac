@@ -24,7 +24,7 @@
               id="available-department-reports"
               v-model="deptCode"
               :options="availableDepartments"
-              class="form-control font-size-20 pb-1 pl-2 pr-5 pt-1 w-auto"
+              class="form-control font-size-16 pb-1 pl-2 pr-5 pt-1 w-auto"
               text-field="name"
               value-field="code"
               @change="render">

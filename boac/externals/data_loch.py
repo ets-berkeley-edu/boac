@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import re
 
+from boac import db
 from boac.lib.berkeley import previous_term_id, sis_term_id_for_name
 from boac.lib.mockingdata import fixture
 from boac.lib.util import join_if_present, tolerant_remove
@@ -678,6 +679,7 @@ def get_students_query(     # noqa
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
+    curated_group_ids=None,
     current_term_id=None,
     ethnicities=None,
     entering_terms=None,
@@ -747,6 +749,13 @@ def get_students_query(     # noqa
     if sids:
         query_filter += f' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
+    if curated_group_ids:
+        results = db.session.execute(
+            f'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
+            {'curated_group_ids': curated_group_ids},
+        )
+        query_filter += f' AND sas.sid = ANY(:sids_of_curated_groups)'
+        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
 
     # Generic SIS criteria
     if gpa_ranges:

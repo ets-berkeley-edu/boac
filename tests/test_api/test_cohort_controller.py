@@ -23,7 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac import std_commit
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by
@@ -395,6 +398,55 @@ class TestCohortDetail:
         response = client.get(f"/api/cohort/{cohort['id']}").json
         sids = sorted([s['sid'] for s in response['students']])
         assert sids == ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
+
+    def test_cohort_with_curated_group_ids(self, client, asc_advisor_login):
+        user_id = AuthorizedUser.get_id_per_uid(asc_advisor_uid)
+        # We start with the SIDs expected from the 'My Students' filter and then reduce expectations based on
+        # the curated group SIDs below.
+        expected_sids = ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
+
+        curated_group_1 = CuratedGroup.create(user_id, 'Destined to be a cohort filter, #1')
+        std_commit(allow_test_environment=True)
+        sids_1 = ['2345678901', '5678901234', '9100000000']
+        for sid in sids_1:
+            CuratedGroup.add_student(curated_group_1.id, sid)
+            std_commit(allow_test_environment=True)
+
+        curated_group_2 = CuratedGroup.create(user_id, 'Destined to be a cohort filter, #2')
+        std_commit(allow_test_environment=True)
+        sids_2 = ['5678901234', '9000000000', '9100000000']
+        for sid in sids_2:
+            CuratedGroup.add_student(curated_group_2.id, sid)
+            std_commit(allow_test_environment=True)
+
+        # Filter out the SIDs that are NOT in the curated groups
+        for sid in expected_sids:
+            if sid not in sids_1 or sid not in sids_2:
+                expected_sids.remove(sid)
+        # Time to create cohort
+        data = {
+            'name': 'A cohort defined, in part, by curated_group_ids',
+            'filters': [
+                {'key': 'cohortOwnerAcademicPlans', 'value': '*'},
+                {'key': 'curatedGroupIds', 'value': curated_group_1.id},
+                {'key': 'curatedGroupIds', 'value': curated_group_2.id},
+            ],
+        }
+        response = client.post('/api/cohort/create', data=json.dumps(data), content_type='application/json')
+        assert response.status_code == 200
+        cohort_id = json.loads(response.data)['id']
+        std_commit(allow_test_environment=True)
+
+        response = client.get(f'/api/cohort/{cohort_id}')
+        assert response.status_code == 200
+        api_json = json.loads(response.data)
+        students = api_json['students']
+        actual_sids = sorted([s['sid'] for s in students])
+        assert actual_sids == expected_sids
+        # If we delete a curated group referenced by the cohort then the cohort is quietly deleted, too.
+        CuratedGroup.delete(curated_group_1.id)
+        std_commit(allow_test_environment=True)
+        assert CohortFilter.find_by_id(cohort_id) is None
 
 
 class TestCohortCreate:
@@ -1287,6 +1339,19 @@ class TestCohortFilterOptions:
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         filter_options = api_json[0][1].get('options')
         assert [o['name'] for o in filter_options[-3:]] == ['2019 Spring', 'divider', '1997 Fall']
+
+    def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):
+        """User with no curated groups gets no cohort filter option where key='curatedGroupIds'."""
+        user_id = AuthorizedUser.get_id_per_uid(asc_and_coe_advisor_uid)
+        assert not CuratedGroup.get_curated_groups_by_owner_id(user_id)
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        verified = False
+        for category in api_json:
+            for filter_ in category:
+                if filter_['key'] == 'curatedGroupIds':
+                    assert filter_['disabled'] is True
+                    verified = True
+        assert verified
 
 
 class TestTranslateToFilterOptions:
