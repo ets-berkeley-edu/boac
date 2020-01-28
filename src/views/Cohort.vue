@@ -30,6 +30,7 @@
             <CuratedGroupSelector
               :context-description="`Cohort ${cohortName || ''}`"
               :ga-event-tracker="$ga.cohortEvent"
+              :on-create-curated-group="resetFiltersToLastApply"
               :students="students" />
             <SortBy v-if="showSortBy" />
           </div>

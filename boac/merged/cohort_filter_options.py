@@ -33,6 +33,7 @@ from boac.merged.calnet import get_csid_for_uid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.curated_group import CuratedGroup
 from flask import current_app as app
 from flask_login import current_user
 
@@ -410,6 +411,19 @@ def _get_filter_options(scope, cohort_owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
+                'key': 'curatedGroupIds',
+                'label': {
+                    'primary': 'My Curated Groups',
+                },
+                'options': _curated_groups(),
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
                 'key': 'cohortOwnerAcademicPlans',
                 'label': {
                     'primary': 'My Students',
@@ -471,7 +485,11 @@ def _get_filter_options(scope, cohort_owner_uid):
         if available and 'options' in d:
             # If it is available then populate menu options
             options = d.pop('options')
-            d['options'] = options() if callable(options) else options
+            options = options() if callable(options) else options
+            if d['type']['ux'] == 'dropdown' and not len(options):
+                d['disabled'] = True
+            else:
+                d['options'] = options
         return available
 
     for category in categories:
@@ -506,6 +524,11 @@ def _academic_plans_for_cohort_owner(owner_uid):
         if value:
             plans.append({'name': row['academic_plan'], 'value': value})
     return plans
+
+
+def _curated_groups():
+    curated_groups = CuratedGroup.get_curated_groups_by_owner_id(current_user.get_id())
+    return [{'name': g.name, 'value': g.id} for g in curated_groups]
 
 
 def _entering_terms():

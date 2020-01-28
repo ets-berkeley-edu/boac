@@ -94,9 +94,23 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Util],
   props: {
-    contextDescription: String,
-    gaEventTracker: Function,
-    students: Array
+    contextDescription: {
+      required: true,
+      type: String
+    },
+    gaEventTracker: {
+      required: true,
+      type: Function
+    },
+    onCreateCuratedGroup: {
+      default: () => {},
+      required: false,
+      type: Function
+    },
+    students: {
+      required: true,
+      type: Array
+    }
   },
   data: () => ({
     sids: [],
@@ -170,6 +184,7 @@ export default {
         this.refresh();
         this.toggle(false);
         this.isSaving = false;
+        this.onCreateCuratedGroup();
         this.alertScreenReader('Selected students added to curated group');
       };
       const trackEvent = group => {
