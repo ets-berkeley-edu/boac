@@ -249,12 +249,8 @@ export default {
         const dropInAdvisorStatus = this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code]);
         if (dropInAdvisorStatus) {
           role = 'dropInAdvisor';
-        } else if (d.isAdvisor) {
-          role = 'advisor';
-        } else if (d.isDirector) {
-          role = 'director';
-        } else if (d.isScheduler) {
-          role = 'scheduler';
+        } else {
+          role = d.role;
         }
         if (role) {
           this.rolesPerDeptCode.push({

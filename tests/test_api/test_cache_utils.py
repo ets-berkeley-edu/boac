@@ -181,9 +181,7 @@ class TestRefreshDepartmentMemberships:
         UniversityDeptMember.create_or_update_membership(
             dept_coe.id,
             bad_user.id,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
         )
         std_commit(allow_test_environment=True)
 
@@ -207,9 +205,7 @@ class TestRefreshDepartmentMemberships:
         manual_membership = UniversityDeptMember.create_or_update_membership(
             dept_coe.id,
             manually_added_user.id,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
             automate_membership=False,
         )
 
@@ -286,9 +282,7 @@ class TestRefreshDepartmentMemberships:
         UniversityDeptMember.create_or_update_membership(
             dept_coe.id,
             user.id,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
         )
         dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
         UniversityDeptMember.delete_membership(dept_ucls.id, user.id)
@@ -317,9 +311,7 @@ class TestRefreshDepartmentMemberships:
         UniversityDeptMember.create_or_update_membership(
             dept_ucls.id,
             bad_user.id,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
         )
         DropInAdvisor.create_or_update_membership(dept_ucls.dept_code, bad_user.id)
         std_commit(allow_test_environment=True)

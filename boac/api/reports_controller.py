@@ -92,7 +92,7 @@ def available_dept_codes():
     else:
         dept_codes = UniversityDeptMember.get_distinct_departments(
             authorized_user_id=current_user.get_id(),
-            is_director=True,
+            role='director',
         )
 
     def _to_json(row):
@@ -111,8 +111,7 @@ def report_low_assignment_scores():
 
 
 def _current_user_is_director_of(dept_code):
-    departments = list(filter(lambda d: d['isDirector'], current_user.departments))
-    return next((d for d in departments if d['code'] == dept_code), False)
+    return next((d for d in current_user.departments if d['code'] == dept_code and d['role'] == 'director'), False)
 
 
 def _term():

@@ -122,6 +122,7 @@ export default {
     uniq: _.uniq,
     uniqBy: _.uniqBy,
     upperCase: _.upperCase,
+    upperFirst: _.upperFirst,
     without: _.without,
     xor: _.xor,
     xorBy: _.xorBy

@@ -320,7 +320,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.$currentUser.uid;
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
-      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => dept.isAdvisor || dept.isDirector || dept.isScheduler);
+      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => !this.isNil(dept.role));
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
     },
     getUserStatuses(user) {

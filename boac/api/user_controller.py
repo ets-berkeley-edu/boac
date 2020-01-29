@@ -95,9 +95,7 @@ def add_university_dept_membership():
     membership = UniversityDeptMember.create_or_update_membership(
         university_dept_id=dept.id,
         authorized_user_id=user.id,
-        is_advisor=params.get('isAdvisor', False),
-        is_director=params.get('isDirector', False),
-        is_scheduler=params.get('isScheduler', False),
+        role=params.get('role', None),
         automate_membership=params.get('automateMembership', True),
     )
     return tolerant_jsonify(membership.to_api_json())
@@ -112,9 +110,7 @@ def update_university_dept_membership():
     membership = UniversityDeptMember.update_membership(
         university_dept_id=dept.id,
         authorized_user_id=user.id,
-        is_advisor=params.get('isAdvisor', None),
-        is_director=params.get('isDirector', None),
-        is_scheduler=params.get('isScheduler', False),
+        role=params.get('role', None),
         automate_membership=params.get('automateMembership', None),
     )
     if not membership:
@@ -378,7 +374,7 @@ def _get_boa_user_groups():
 def _update_drop_in_availability(uid, dept_code, new_availability):
     dept_code = dept_code.upper()
     if uid != current_user.get_uid():
-        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('isScheduler')]
+        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('role') == 'scheduler']
         if not authorized_to_toggle:
             raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in availability for department {dept_code}')
     drop_in_membership = None
@@ -445,9 +441,7 @@ def _create_department_memberships(authorized_user, user_roles):
         UniversityDeptMember.create_or_update_membership(
             university_dept_id=university_dept.id,
             authorized_user_id=authorized_user.id,
-            is_advisor=role in ['advisor', 'dropInAdvisor'],
-            is_director=role == 'director',
-            is_scheduler=role == 'scheduler',
+            role='advisor' if role == 'dropInAdvisor' else role,
             automate_membership=to_bool_or_none(user_role['automateMembership']),
         )
 
@@ -462,30 +456,25 @@ def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
         UniversityDeptMember.create_or_update_membership(
             university_dept_id=university_dept.id,
             authorized_user_id=authorized_user.id,
-            is_advisor=True,
-            is_director=False,
-            is_scheduler=False,
+            role='advisor',
             automate_membership=to_bool_or_none(user_role['automateMembership']),
         )
 
 
 def _describe_dept_roles(departments):
     s = '{ '
-    for d in list(filter(lambda d: d.get('isAdvisor') or d.get('isDirector'), departments)):
-        roles = ['Advisor'] if d.get('isAdvisor') else []
-        if d.get('isDirector'):
-            roles.append('Director')
-        s += f"[ {d.get('code')}: {'; '.join(roles)} (automated={d.get('automateMembership')}) ] "
+    for d in departments:
+        s += f"[ {d.get('code')}: {d.get('role')} (automated={d.get('automateMembership')}) ] "
     s += '}'
     return s
 
 
 def _describe_drop_in_advising(departments, drop_in_advisor_statuses):
     s = '{ '
-    for d in list(filter(lambda d: d['isScheduler'], departments)):
+    for d in list(filter(lambda d: d['role'] == 'scheduler', departments)):
         s += f"[ {d.get('code')}: Scheduler (automated={d.get('automateMembership')}) ] "
     for d in drop_in_advisor_statuses:
-        s += f"[ {d.get('detCode')}: Drop-in Advisor ] "
+        s += f"[ {d.get('deptCode')}: Drop-in Advisor ] "
     s += '}'
     return s
 

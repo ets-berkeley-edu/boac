@@ -166,7 +166,7 @@ class TestNoteCreation:
         assert isinstance(note_id, int) and note_id > 0
         assert new_note['author']['uid'] == coe_advisor_uid
         assert 'name' in new_note['author']
-        assert new_note['author']['role'] == 'Advisor'
+        assert new_note['author']['role'] == 'advisor'
         assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
         assert new_note['updatedAt'] is None
         # Get notes per SID and compare

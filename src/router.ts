@@ -38,7 +38,7 @@ const router = new Router({
         if (currentUser.isAuthenticated) {
           if (_.trim(to.query.redirect)) {
             next(to.query.redirect);
-          } else if (auth.isAdvisor(currentUser) || currentUser.isAdmin) {
+          } else if (auth.isAdvisor(currentUser) || auth.isDirector(currentUser) || currentUser.isAdmin) {
             next('/home');
           } else {
             const deptCodes = auth.getSchedulerDeptCodes(currentUser);
@@ -211,7 +211,7 @@ const router = new Router({
           beforeEnter: (to: any, from: any, next: any) => {
             const currentUser = Vue.prototype.$currentUser;
             const deptCodes = auth.getSchedulerDeptCodes(currentUser);
-            if (_.size(deptCodes) && !auth.isAdvisor(currentUser) && !currentUser.isAdmin) {
+            if (_.size(deptCodes) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
               const deptCode = deptCodes[0].toLowerCase();
               next({ path: `/appt/desk/${deptCode}` });
             } else {
@@ -234,7 +234,7 @@ const router = new Router({
         {
           beforeEnter: (to: any, from: any, next: any) => {
             const currentUser = Vue.prototype.$currentUser;
-            if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !auth.isAdvisor(currentUser) && !currentUser.isAdmin) {
+            if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
               next({ path: '/scheduler/404' });
             } else {
               next();
