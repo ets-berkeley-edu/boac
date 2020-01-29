@@ -11,6 +11,7 @@ export default {
       'mode',
       'ownerId',
       'pageNumber',
+      'referencingCohortIds',
       'students',
       'totalStudentCount'
     ])

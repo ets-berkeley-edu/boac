@@ -82,14 +82,14 @@
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="delete-button"
-            v-b-modal="'myModal'"
+            v-b-modal="referencingCohorts.length ? 'cohort-warning-modal' : 'confirm-delete-modal'"
             variant="link"
             aria-label="Delete this curated group">
             Delete
           </b-btn>
           <b-modal
-            id="myModal"
-            v-model="isModalOpen">
+            id="confirm-delete-modal"
+            v-model="isDeleteModalOpen">
             <div slot="modal-header">
               <h3>Delete Curated Group</h3>
             </div>
@@ -107,8 +107,39 @@
               <b-btn
                 id="delete-cancel"
                 variant="link"
-                @click="isModalOpen=false">
+                @click="isDeleteModalOpen = false">
                 Cancel
+              </b-btn>
+            </div>
+          </b-modal>
+          <b-modal
+            id="cohort-warning-modal"
+            v-model="isCohortWarningModalOpen">
+            <div slot="modal-header" class="ml-3 mt-3">
+              <h3 class="font-size-24">This group is in use as a cohort filter</h3>
+            </div>
+            <div
+              id="cohort-warning-body"
+              class="modal-body curated-cohort-label"
+              aria-live="polite"
+              role="alert">
+              Sorry, you cannot delete this curated group until you have removed it
+              from
+              <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bolder">{{ referencingCohorts[0].name }}</span>.</span>
+              <span v-if="referencingCohorts.length > 1">the following cohorts
+                <span v-for="cohort in $_.initial(referencingCohorts)" :key="cohort.id">
+                  <span class="font-weight-bolder">{{ cohort.name }}</span>
+                </span>
+                and <span class="font-weight-bolder">{{ $_.last(referencingCohorts).name }}</span>.
+              </span>
+            </div>
+            <div slot="modal-footer">
+              <b-btn
+                id="cohort-warning-modal-close"
+                class="mb-1 mr-3"
+                variant="link"
+                @click="isCohortWarningModalOpen = false">
+                Close
               </b-btn>
             </div>
           </b-modal>
@@ -143,6 +174,7 @@
 <script>
 import Context from '@/mixins/Context';
 import CuratedEditSession from '@/mixins/CuratedEditSession';
+import CurrentUserExtras from "@/mixins/CurrentUserExtras";
 import ExportListModal from '@/components/util/ExportListModal';
 import Loading from '@/mixins/Loading.vue';
 import router from '@/router';
@@ -153,10 +185,12 @@ import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
 export default {
   name: 'CuratedGroupHeader',
   components: { ExportListModal },
-  mixins: [Context, CuratedEditSession, Loading, Util, Validator],
+  mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Util, Validator],
   data: () => ({
     exportEnabled: true,
-    isModalOpen: false,
+    isCohortWarningModalOpen: false,
+    isDeleteModalOpen: false,
+    referencingCohorts: [],
     renameError: undefined,
     renameInput: undefined,
     showExportListModal: false
@@ -172,6 +206,10 @@ export default {
     }
   },
   mounted() {
+    this.each(this.referencingCohortIds, cohortId => {
+      const cohort = this.find(this.myCohorts, ['id', cohortId]);
+      this.referencingCohorts.push(cohort);
+    });
     this.loaded();
     this.putFocusNextTick('curated-group-name');
   },
@@ -196,7 +234,7 @@ export default {
     deleteGroup() {
       deleteCuratedGroup(this.curatedGroupId)
         .then(() => {
-          this.isModalOpen = false;
+          this.isDeleteModalOpen = false;
           router.push({ path: '/home' });
         })
         .catch(error => {
