@@ -321,7 +321,7 @@ def _users_sql(
                 JOIN university_dept_members m ON
                     m.university_dept_id = d.id
                     AND m.authorized_user_id = u.id
-                    AND m.is_{role} IS TRUE
+                    AND m.role = '{role}'
             """
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
@@ -336,7 +336,7 @@ def _users_sql(
             query_tables += f"""
                 JOIN university_dept_members m ON
                     m.authorized_user_id = u.id
-                    AND m.is_{role} IS TRUE
+                    AND m.role = '{role}'
             """
     elif dept_code and not role:
         query_tables += f"""
