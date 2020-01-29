@@ -48,6 +48,9 @@ Vue.directive('accessibleGrade', {
 // Emit, and listen for, events via hub
 Vue.prototype.$eventHub = new Vue();
 
+// Lodash
+Vue.prototype.$_ = _;
+
 Vue.use(routerHistory);
 router.afterEach(writeHistory);
 

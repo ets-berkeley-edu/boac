@@ -11,6 +11,7 @@ const $_goToPage = ({ commit, state }, pageNumber: number) => {
       if (group) {
         commit('setCuratedGroupName', group.name);
         commit('setOwnerId', group.ownerId);
+        commit('setReferencingCohortIds', group.referencingCohortIds);
         commit('setStudents', group.students);
         commit('setTotalStudentCount', group.totalStudentCount);
         return resolve(group);
@@ -30,6 +31,7 @@ const state = {
   mode: undefined,
   ownerId: undefined,
   pageNumber: undefined,
+  referencingCohortIds: undefined,
   students: undefined,
   totalStudentCount: undefined
 };
@@ -41,6 +43,7 @@ const getters = {
   mode: (state: any): string => state.mode,
   ownerId: (state: any): number => state.ownerId,
   pageNumber: (state: any): number => state.pageNumber,
+  referencingCohortIds: (state: any): number[] => state.referencingCohortIds,
   students: (state: any): any[] => state.students,
   totalStudentCount: (state: any): number => state.totalStudentCount
 };
@@ -65,6 +68,7 @@ const mutations = {
   },
   setOwnerId: (state: any, ownerId: number) => state.ownerId = ownerId,
   setPageNumber: (state: any, pageNumber: number) => state.pageNumber = pageNumber,
+  setReferencingCohortIds: (state: any, referencingCohortIds: number[]) => state.referencingCohortIds = referencingCohortIds,
   setStudents: (state: any, students: any[]) => state.students = students,
   setTotalStudentCount: (state: any, totalStudentCount: number) => state.totalStudentCount = totalStudentCount
 };

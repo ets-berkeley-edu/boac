@@ -134,9 +134,22 @@ class CuratedGroup(Base):
             db.session.delete(curated_group)
             std_commit()
             # Delete all cohorts that reference the deleted group
-            for cohort_filter_id in _get_referencing_cohort_ids(curated_group):
+            for cohort_filter_id in curated_group.get_referencing_cohort_ids():
                 CohortFilter.delete(cohort_filter_id)
                 std_commit()
+
+    def get_referencing_cohort_ids(self):
+        query = text(f"""SELECT
+            c.id, c.filter_criteria
+            FROM cohort_filters c
+            JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
+            WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
+        results = db.session.execute(query, {'user_id': self.owner_id})
+        cohort_filter_ids = []
+        for row in results:
+            if self.id in row['filter_criteria'].get('curatedGroupIds', []):
+                cohort_filter_ids.append(row['id'])
+        return cohort_filter_ids
 
     def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
         feed = {
@@ -201,23 +214,9 @@ class CuratedGroupStudent(db.Model):
 
 
 def _refresh_related_cohorts(curated_group):
-    for cohort_id in _get_referencing_cohort_ids(curated_group):
+    for cohort_id in curated_group.get_referencing_cohort_ids():
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.update_sids_and_student_count(None, None)
         cohort.update_alert_count(None)
         owner_id = cohort.owners[0].id if len(cohort.owners) else None
         cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
-
-
-def _get_referencing_cohort_ids(curated_group):
-    query = text(f"""SELECT
-        c.id, c.filter_criteria
-        FROM cohort_filters c
-        JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-        WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
-    results = db.session.execute(query, {'user_id': curated_group.owner_id})
-    cohort_filter_ids = []
-    for row in results:
-        if curated_group.id in row['filter_criteria'].get('curatedGroupIds', []):
-            cohort_filter_ids.append(row['id'])
-    return cohort_filter_ids
