@@ -93,7 +93,7 @@
             <div slot="modal-header">
               <h3>Delete Curated Group</h3>
             </div>
-            <div id="confirm-delete-body" class="modal-body curated-cohort-label">
+            <div id="confirm-delete-body" class="modal-body">
               Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
             </div>
             <div slot="modal-footer">
@@ -120,18 +120,18 @@
             </div>
             <div
               id="cohort-warning-body"
-              class="modal-body curated-cohort-label"
+              class="modal-body"
               aria-live="polite"
               role="alert">
               Sorry, you cannot delete this curated group until you have removed the filter
               from
               <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bolder">{{ referencingCohorts[0].name }}</span>.</span>
-              <span v-if="referencingCohorts.length > 1">the following cohorts
-                <span v-for="cohort in $_.initial(referencingCohorts)" :key="cohort.id">
-                  <span class="font-weight-bolder">{{ cohort.name }}</span>, 
-                </span>
-                and <span class="font-weight-bolder">{{ $_.last(referencingCohorts).name }}</span>.
-              </span>
+              <span v-if="referencingCohorts.length > 1">cohorts:</span>
+              <ul v-if="referencingCohorts.length > 1" class="mb-0 mt-2">
+                <li v-for="cohort in referencingCohorts" :key="cohort.id">
+                  <span class="font-weight-bolder">{{ cohort.name }}</span>
+                </li>
+              </ul>
             </div>
             <div slot="modal-footer">
               <b-btn
@@ -167,6 +167,25 @@
           </b-modal>
         </div>
       </div>
+    </div>
+    <div v-if="referencingCohorts.length" class="pb-2">
+      Used as a filter in {{ referencingCohorts.length === 1 ? 'cohort' : 'cohorts' }}
+      <router-link
+        v-if="referencingCohorts.length === 1"
+        id="referencing-cohort-0"
+        aria-label="Link to cohort"
+        :to="`/cohort/${referencingCohorts[0].id}`">
+        {{ referencingCohorts[0].name }}.
+      </router-link>
+      <span v-if="referencingCohorts.length > 1">
+        <span v-for="(cohort, index) in referencingCohorts" :key="cohort.id">
+          <span v-if="index === referencingCohorts.length - 1">and </span>
+          <router-link
+            :id="`referencing-cohort-${index}`"
+            aria-label="Link to cohort"
+            :to="`/cohort/${cohort.id}`">{{ cohort.name }}</router-link>{{ index === referencingCohorts.length - 1 ? '.' : (referencingCohorts.length > 2 ? ',' : '') }}
+        </span>
+      </span>
     </div>
   </div>
 </template>
@@ -206,10 +225,13 @@ export default {
     }
   },
   mounted() {
-    this.each(this.referencingCohortIds, cohortId => {
-      const cohort = this.find(this.myCohorts, ['id', cohortId]);
-      this.referencingCohorts.push(cohort);
-    });
+    if (this.referencingCohortIds.length) {
+      this.each(this.referencingCohortIds, cohortId => {
+        const cohort = this.find(this.myCohorts, ['id', cohortId]);
+        this.referencingCohorts.push(cohort);
+      });
+      this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name']);
+    }
     this.loaded();
     this.putFocusNextTick('curated-group-name');
   },

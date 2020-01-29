@@ -94,12 +94,14 @@
               @click="updateDropdownValue(option)"
               @focusin.prevent.stop
               @mouseover.prevent.stop>
-              <span
+              <div
                 :class="{
                   'font-weight-light pointer-default text-muted': option.disabled,
                   'font-weight-normal text-dark': !option.disabled
                 }"
-                class="font-size-16">{{ option.name }}</span>
+                class="font-size-16 option-truncate">
+                {{ option.name }}
+              </div>
             </b-dropdown-item>
             <hr v-if="option.value === 'divider'" class="dropdown-divider">
           </div>
@@ -573,5 +575,10 @@ export default {
 }
 .pointer-default {
   cursor: default;
+}
+.option-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>
