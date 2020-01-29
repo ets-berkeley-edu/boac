@@ -304,7 +304,6 @@ def _users_sql(
                 JOIN drop_in_advisors a ON
                     a.dept_code = :dept_code
                     AND a.authorized_user_id = u.id
-                    AND a.deleted_at IS NULL
             """
         elif role == 'noCanvasDataAccess':
             query_filter += 'AND u.can_access_canvas_data IS FALSE '
@@ -330,7 +329,6 @@ def _users_sql(
             query_tables += """
                 JOIN drop_in_advisors a ON
                     a.authorized_user_id = u.id
-                    AND a.deleted_at IS NULL
             """
         elif role == 'noCanvasDataAccess':
             query_filter += 'AND u.can_access_canvas_data IS FALSE '
