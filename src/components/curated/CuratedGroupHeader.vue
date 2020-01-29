@@ -123,12 +123,12 @@
               class="modal-body curated-cohort-label"
               aria-live="polite"
               role="alert">
-              Sorry, you cannot delete this curated group until you have removed it
+              Sorry, you cannot delete this curated group until you have removed the filter
               from
               <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bolder">{{ referencingCohorts[0].name }}</span>.</span>
               <span v-if="referencingCohorts.length > 1">the following cohorts
                 <span v-for="cohort in $_.initial(referencingCohorts)" :key="cohort.id">
-                  <span class="font-weight-bolder">{{ cohort.name }}</span>
+                  <span class="font-weight-bolder">{{ cohort.name }}</span>, 
                 </span>
                 and <span class="font-weight-bolder">{{ $_.last(referencingCohorts).name }}</span>.
               </span>
