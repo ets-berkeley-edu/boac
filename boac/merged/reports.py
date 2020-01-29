@@ -123,7 +123,7 @@ def get_note_count_per_user(dept_code):
 
 def get_note_with_attachments_count(dept_code=None):
     query = """
-        SELECT COUNT(DISTINCT a.id)
+        SELECT COUNT(DISTINCT a.note_id)
         FROM note_attachments a
         JOIN notes n ON n.id = a.note_id
         WHERE a.deleted_at IS NULL AND n.deleted_at IS NULL
