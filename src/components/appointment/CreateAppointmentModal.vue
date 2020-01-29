@@ -171,7 +171,7 @@ export default {
     }
   },
   data: () => ({
-    availableAdvisors: undefined,
+    availableAdvisors: [],
     details: '',
     isSaving: false,
     resetAutoCompleteKey: undefined,
@@ -245,7 +245,7 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
     },
     updateAvailableAdvisors() {
-      this.dropInAdvisors = this.filterList(this.advisors, 'available');
+      this.availableAdvisors = this.filterList(this.advisors, 'available');
     }
   }
 };
