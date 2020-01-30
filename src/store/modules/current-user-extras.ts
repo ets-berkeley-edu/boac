@@ -46,11 +46,13 @@ const mutations = {
   dropInAdvisorDeleted:(state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
   loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
   loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
-  setDropInStatus: (state: any, {deptCode, available}) => {
+  setDropInStatus: (state: any, {deptCode, available, status}) => {
     const currentUser = Vue.prototype.$currentUser;
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()});
     if (dropInAdvisorStatus) {
       dropInAdvisorStatus.available = available;
+      dropInAdvisorStatus.status = status;
+      Vue.prototype.$eventHub.$emit('drop-in-status-change', dropInAdvisorStatus);
     }
   },
   setUserPreference: (state: any, {key, value}) => {

@@ -129,10 +129,14 @@ export default {
 
           const currentDropInStatus = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode});
           const newDropInStatus = this.find(response.advisors, {'uid': this.$currentUser.uid});
-          if (currentDropInStatus && newDropInStatus && currentDropInStatus.available !== newDropInStatus.available) {
+          if (
+            currentDropInStatus && newDropInStatus &&
+            (currentDropInStatus.available !== newDropInStatus.available || currentDropInStatus.status !== newDropInStatus.status)
+          ) {
             store.commit('currentUserExtras/setDropInStatus', {
               available: newDropInStatus.available,
-              deptCode: this.deptCode
+              deptCode: this.deptCode,
+              status: newDropInStatus.status,
             });
           }
 

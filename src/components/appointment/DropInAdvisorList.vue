@@ -24,10 +24,13 @@
           :key="advisor.uid"
           no-gutters
           class="border-bottom font-size-16 mt-2">
-          <b-col sm="6" class="pb-2 text-nowrap">
+          <b-col sm="8" class="pb-2">
             {{ advisor.name }}
+            <span v-if="advisor.status" class="text-muted">
+              ({{ advisor.status }})
+            </span>
           </b-col>
-          <b-col sm="6">
+          <b-col sm="4">
             <DropInAvailabilityToggle
               :availability="advisor.available"
               :dept-code="deptCode"
