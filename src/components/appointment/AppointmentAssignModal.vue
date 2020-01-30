@@ -101,7 +101,9 @@ export default {
   created() {
     this.showAppointmentAssignModal = this.showModal;
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-      this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+      this.dropInAdvisors = this.$_.filter(dropInAdvisors, a => {
+        return a.available || a.uid === this.$currentUser.uid;
+      });
     });
   },
   methods: {
