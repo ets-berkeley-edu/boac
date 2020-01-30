@@ -245,7 +245,9 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
     },
     updateAvailableAdvisors() {
-      this.availableAdvisors = this.filterList(this.advisors, 'available');
+      this.availableAdvisors = this.$_.filter(this.advisors, a => {
+        return a.available || a.uid === this.$currentUser.uid;
+      });
     }
   }
 };

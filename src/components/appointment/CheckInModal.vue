@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    v-if="selfCheckIn || !isNil(dropInAdvisors)"
+    v-if="!isNil(dropInAdvisors)"
     id="advising-appointment-check-in"
     v-model="showCheckInModal"
     :no-close-on-backdrop="true"
@@ -50,7 +50,7 @@
             </div>
           </div>
         </div>
-        <div v-if="!selfCheckIn && dropInAdvisors.length" class="pb-3 pt-3">
+        <div v-if="dropInAdvisors.length" class="pb-3 pt-3">
           <label for="checkin-modal-advisor-select" class="font-weight-bolder">
             Select a drop-in advisor:
           </label>
@@ -65,17 +65,17 @@
             </template>
           </b-form-select>
         </div>
-        <div v-if="!selfCheckIn && !dropInAdvisors.length" class="has-error pb-1 pt-3">
+        <div v-if="!dropInAdvisors.length" class="has-error pb-1 pt-3">
           Sorry, no advisors are on duty.
         </div>
       </div>
       <div class="modal-footer">
         <form @submit.prevent="checkIn">
           <b-btn
-            v-if="selfCheckIn || dropInAdvisors.length"
+            v-if="dropInAdvisors.length"
             id="btn-appointment-check-in"
             :aria-label="`Check in ${appointment.student.name}`"
-            :disabled="!selfCheckIn && !selectedAdvisorUid"
+            :disabled="!selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="checkIn">
@@ -115,10 +115,6 @@ export default {
       type: Function,
       required: true
     },
-    selfCheckIn: {
-      type: Boolean,
-      required: true
-    },
     showModal: {
       type: Boolean,
       required: true
@@ -138,21 +134,17 @@ export default {
   },
   created() {
     this.showCheckInModal = this.showModal;
-    if (!this.selfCheckIn) {
-      getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-        this.dropInAdvisors = this.filterList(dropInAdvisors, 'available');
+    getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
+      this.dropInAdvisors = this.$_.filter(dropInAdvisors, a => {
+        return a.available || a.uid === this.$currentUser.uid;
       });
-    }
+    });
   },
   methods: {
     checkIn() {
-      if (this.selfCheckIn) {
-        this.appointmentCheckin();
-      } else {
-        const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
-        if (advisor) {
-          this.appointmentCheckin(advisor);
-        }
+      const advisor = this.$_.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
+      if (advisor) {
+        this.appointmentCheckin(advisor);
       }
       this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
       this.showCheckInModal = false;

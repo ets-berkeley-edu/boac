@@ -25,7 +25,6 @@
       :appointment="appointment"
       :appointment-checkin="checkInAppointment"
       :close="closeCheckInModal"
-      :self-check-in="selfCheckIn"
       :show-modal="showCheckInModal" />
     <AppointmentUpdateModal
       v-if="showUpdateModal"
@@ -69,8 +68,8 @@
           <b-dropdown-item-button
             v-if="appointment.status !== 'reserved'"
             :id="`btn-appointment-${appointment.id}-reserve`"
-            @click="selfCheckIn ? reserveAppointment() : launchAppointmentAssign()">
-            <span class="text-nowrap">Assign<span v-if="selfCheckIn"> to me</span></span>
+            @click="launchAppointmentAssign()">
+            <span class="text-nowrap">Assign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status === 'reserved'"
@@ -135,10 +134,6 @@ export default {
     },
     onAppointmentStatusChange: {
       type: Function,
-      required: true
-    },
-    selfCheckIn: {
-      type: Boolean,
       required: true
     }
   },
