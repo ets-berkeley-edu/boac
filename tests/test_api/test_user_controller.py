@@ -724,14 +724,14 @@ class TestUserUpdate:
             client,
             profile,
             expected_status_code=200,
-            roles_per_dept_code=(),
+            memberships=(),
             delete_action=None,
     ):
         response = client.post(
             f'/api/users/create_or_update',
             data=json.dumps({
                 'profile': profile,
-                'rolesPerDeptCode': roles_per_dept_code,
+                'memberships': memberships,
                 'deleteAction': delete_action,
             }),
             content_type='application/json',
@@ -788,12 +788,7 @@ class TestUserUpdate:
         user = self._api_create_or_update(
             client,
             profile=self._profile_object(uid=uid),
-            roles_per_dept_code=[
-                {
-                    'code': 'QCADV',
-                    'role': 'dropInAdvisor',
-                    'automateMembership': True,
-                },
+            memberships=[
                 {
                     'code': 'QCADVMAJ',
                     'role': 'scheduler',
@@ -807,14 +802,7 @@ class TestUserUpdate:
         assert user['isAdmin'] is False
         assert user['isBlocked'] is False
         assert user['canAccessCanvasData'] is True
-        assert len(user['departments']) == 2
-
-        assert len(user['dropInAdvisorStatus']) == 1
-        assert user['dropInAdvisorStatus'][0]['deptCode'] == 'QCADV'
-
-        qcadv = next(d for d in user['departments'] if d['code'] == 'QCADV')
-        assert qcadv['role'] == 'advisor'
-        assert qcadv['automateMembership'] is True
+        assert len(user['departments']) == 1
 
         qcadvmaj = next(d for d in user['departments'] if d['code'] == 'QCADVMAJ')
         assert qcadvmaj['role'] == 'scheduler'
@@ -838,10 +826,10 @@ class TestUserUpdate:
         user = self._api_create_or_update(
             client,
             profile=self._profile_object(uid=uid),
-            roles_per_dept_code=[
+            memberships=[
                 {
                     'code': 'QCADV',
-                    'role': 'dropInAdvisor',
+                    'role': 'advisor',
                     'automateMembership': True,
                 },
             ],
@@ -856,10 +844,6 @@ class TestUserUpdate:
         assert departments[0]['role'] == 'advisor'
         assert departments[0]['automateMembership'] is True
 
-        drop_in_statuses = user['dropInAdvisorStatus']
-        assert len(drop_in_statuses) == 1
-        assert drop_in_statuses[0]['deptCode'] == 'QCADV'
-
         # Next, remove advisor from 'QCADV' and add him to 'QCADVMAJ', as "Scheduler".
         authorized_user_id = AuthorizedUser.get_id_per_uid(uid)
         self._api_create_or_update(
@@ -868,7 +852,7 @@ class TestUserUpdate:
                 uid=uid,
                 authorized_user_id=authorized_user_id,
             ),
-            roles_per_dept_code=[
+            memberships=[
                 {
                     'code': 'QCADVMAJ',
                     'role': 'scheduler',
@@ -897,7 +881,7 @@ class TestUserUpdate:
             },
         )
         profile = self._profile_object(uid=uid, is_admin=True)
-        user = self._api_create_or_update(client, profile=profile, roles_per_dept_code=[])
+        user = self._api_create_or_update(client, profile=profile, memberships=[])
         profile['id'] = user['id']
 
         # Next, delete the user.

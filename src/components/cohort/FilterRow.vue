@@ -73,7 +73,7 @@
           no-caret>
           <template slot="button-content">
             <div class="d-flex dropdown-width justify-content-between text-secondary">
-              <div v-if="filter.value">
+              <div v-if="filter.value" class="option-truncate">
                 <span class="sr-only">Selected value is </span>
                 <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
                 <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
