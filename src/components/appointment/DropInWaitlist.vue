@@ -152,7 +152,7 @@ export default {
   props: {
     advisors: {
       type: Array,
-      required: false
+      required: true
     },
     deptCode: {
       type: String,
