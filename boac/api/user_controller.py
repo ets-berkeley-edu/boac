@@ -146,9 +146,9 @@ def enable_drop_in_advising(dept_code):
 @app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
 @scheduler_required
 def disable_drop_in_advising(dept_code):
-    if not DropInAdvisor.delete(authorized_user_id=current_user.user_id, dept_code=dept_code):
-        raise errors.ResourceNotFoundError('Drop-in advisor not found')
-    UserSession.flush_cache_for_id(current_user.user_id)
+    user = AuthorizedUser.find_by_id(current_user.get_id())
+    _delete_drop_in_advisor_status(user, dept_code)
+    UserSession.flush_cache_for_id(user.id)
     return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
 
 
@@ -430,6 +430,11 @@ def _delete_existing_memberships(authorized_user):
         )
 
 
+def _delete_drop_in_advisor_status(authorized_user, dept_code):
+    DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
+    Appointment.unreserve_all_for_advisor(authorized_user.uid, current_user.get_id())
+
+
 def _create_department_memberships(authorized_user, memberships):
     for membership in [m for m in memberships if m['role'] in ('advisor', 'director', 'scheduler')]:
         university_dept = UniversityDept.find_by_dept_code(membership['code'])
@@ -441,10 +446,8 @@ def _create_department_memberships(authorized_user, memberships):
             automate_membership=to_bool_or_none(membership['automateMembership']),
         )
         if role == 'scheduler':
-            drop_in_enabled = DropInAdvisor.get_all(authorized_user_id=authorized_user.id)
-            drop_in_dept_codes = [e.dept_code for e in drop_in_enabled]
-            for dept_code in drop_in_dept_codes:
-                DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
+            _delete_drop_in_advisor_status(authorized_user, university_dept.dept_code)
+        UserSession.flush_cache_for_id(authorized_user.id)
 
 
 def _describe_dept_roles(departments):

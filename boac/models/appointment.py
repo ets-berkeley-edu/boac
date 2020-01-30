@@ -278,7 +278,7 @@ class Appointment(Base):
 
     @classmethod
     def unreserve_all_for_advisor(cls, advisor_uid, updated_by):
-        appointments = cls.query.filter(and_(cls.status == 'reserved', cls.advisor_uid == advisor_uid, cls.deleted_at == None))  # noqa: E711
+        appointments = cls.query.filter(and_(cls.status == 'reserved', cls.advisor_uid == advisor_uid, cls.deleted_at == None)).all()  # noqa: E711
         event_type = 'waiting'
         for appointment in appointments:
             appointment.status = event_type
