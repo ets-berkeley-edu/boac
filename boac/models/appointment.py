@@ -157,7 +157,10 @@ class Appointment(Base):
             advisor_attrs=None,
             topics=(),
     ):
-        if advisor_attrs:
+        # If this appointment comes in already assigned to the intake desk, we treat it as resolved.
+        if advisor_attrs and advisor_attrs['role'] == 'Intake Desk':
+            status = 'checked_in'
+        elif advisor_attrs:
             status = 'reserved'
         else:
             status = 'waiting'

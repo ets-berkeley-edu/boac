@@ -1,7 +1,7 @@
 <template>
   <b-modal
-    id="advising-appointment-create"
-    v-model="showCreateAppointmentModal"
+    id="log-resolved-issue"
+    v-model="showLogResolvedIssueModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
     hide-footer
@@ -11,14 +11,14 @@
     <div>
       <div class="modal-header">
         <h3 class="ml-2">
-          <span aria-live="polite" role="alert"><span class="sr-only">Create new </span>Advising Appointment</span>
+          <span aria-live="polite" role="alert">Log Resolved Issue</span>
         </h3>
       </div>
-      <form @submit.prevent="create()">
+      <form @submit.prevent="log()">
         <div class="font-weight-500 ml-4 mr-3 mt-2">
           <div>
             <label
-              for="appointment-student-input"
+              for="log-resolved-issue-student-input"
               class="font-size-14 input-label text mt-2">
               <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span>
               <span v-if="!student"> (name or SID)</span>
@@ -33,7 +33,7 @@
           <div v-if="!student">
             <div class="mb-2">
               <Autocomplete
-                id="appointment-student"
+                id="log-resolved-issue-student"
                 :key="resetAutoCompleteKey"
                 :demo-mode-blur="true"
                 :on-esc-form-input="cancelModal"
@@ -47,31 +47,6 @@
             <font-awesome icon="exclamation-triangle" class="pr-1" />
             This student is already in the Drop-In Waitlist.
           </div>
-          <div v-if="advisors">
-            <label
-              for="create-modal-advisor-select"
-              class="font-size-14 input-label text mt-2">
-              <span class="sr-only">Select an </span><span class="font-weight-bolder">Advisor</span> (optional)
-            </label>
-            <b-col v-if="availableAdvisors.length" cols="9" class="pl-0">
-              <b-form-select
-                id="create-modal-advisor-select"
-                v-model="selectedAdvisorUid">
-                <template v-slot:first>
-                  <option :value="null">Select...</option>
-                </template>
-                <option
-                  v-for="advisor in availableAdvisors"
-                  :key="advisor.uid"
-                  :value="advisor.uid">
-                  {{ advisor.name }}
-                </option>
-              </b-form-select>
-            </b-col>
-            <div v-if="!availableAdvisors.length" class="has-error pb-1 pt-1">
-              Sorry, no advisors are on duty.
-            </div>
-          </div>
           <div class="mt-2">
             <AppointmentTopics
               :disabled="isSaving"
@@ -80,10 +55,10 @@
               :topics="topics" />
           </div>
           <div class="mb-4 mr-3 mt-1">
-            <label for="appointment-details" class="font-size-14 input-label text">
-              <span class="font-weight-bolder">Description</span>
+            <label for="log-resolved-issue-details" class="font-size-14 input-label text">
+              <span class="font-weight-bolder">Issue &amp; Resolution</span>
             </label>
-            <div id="appointment-details">
+            <div id="log-resolved-issue-details">
               <RichTextEditor
                 :initial-value="details || ''"
                 :disabled="isSaving"
@@ -94,15 +69,15 @@
         </div>
         <div class="modal-footer pl-0 mt-2">
           <b-btn
-            id="create-appointment-confirm"
+            id="log-resolved-issue-confirm"
             :disabled="!student || isStudentInWaitlist || !topics.length || !trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="create()">
-            Make Appointment
+            @click.prevent="log()">
+            Log Resolved Issue
           </b-btn>
           <b-btn
-            id="create-appointment-cancel"
+            id="log-resolved-issue-cancel"
             variant="link"
             @click.prevent="cancelModal()">
             Cancel
@@ -125,24 +100,16 @@ import Validator from '@/mixins/Validator';
 import { findStudentsByNameOrSid } from '@/api/student';
 
 export default {
-  name: 'CreateAppointmentModal',
+  name: 'LogResolvedIssueModal',
   components: {AppointmentStudentPill, AppointmentTopics, Autocomplete, RichTextEditor},
   mixins: [Berkeley, Context, Util, Validator],
   props: {
-    advisors: {
-      type: Array,
-      required: true
-    },
-    createAppointment: {
-      type: Function,
-      required: false
-    },
     cancel: {
       type: Function,
       required: true
     },
-    deptCode: {
-      type: String,
+    logResolvedIssue: {
+      type: Function,
       required: true
     },
     showModal: {
@@ -155,12 +122,10 @@ export default {
     }
   },
   data: () => ({
-    availableAdvisors: [],
     details: '',
     isSaving: false,
     resetAutoCompleteKey: undefined,
-    selectedAdvisorUid: null,
-    showCreateAppointmentModal: false,
+    showLogResolvedIssueModal: false,
     student: undefined,
     topics: []
   }),
@@ -170,19 +135,15 @@ export default {
     }
   },
   watch: {
-    advisors() {
-      this.updateAvailableAdvisors();
-    },
     showModal(value) {
-      this.showCreateAppointmentModal = value;
+      this.showLogResolvedIssueModal = value;
     }
   },
   created() {
     this.reset();
-    this.updateAvailableAdvisors();
-    this.showCreateAppointmentModal = this.showModal;
-    this.putFocusNextTick('appointment-student-input');
-    this.alertScreenReader(`Create appointment form is open`);
+    this.showLogResolvedIssueModal = this.showModal;
+    this.putFocusNextTick('log-resolved-issue-student-input');
+    this.alertScreenReader(`Log resolved issue form is open`);
   },
   methods: {
     addStudent(student) {
@@ -199,15 +160,15 @@ export default {
       this.cancel();
       this.reset();
     },
-    create() {
+    log() {
       this.saving = true;
-      this.createAppointment(
+      this.logResolvedIssue(
         this.details,
         this.student,
         this.topics,
-        this.selectedAdvisorUid
+        this.$currentUser.uid
       );
-      this.showCreateAppointmentModal = false;
+      this.showLogResolvedIssueModal = false;
       this.saving = false;
       this.reset();
     },
@@ -227,11 +188,6 @@ export default {
     },
     studentsByNameOrSid(query, limit) {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
-    },
-    updateAvailableAdvisors() {
-      this.availableAdvisors = this.$_.filter(this.advisors, a => {
-        return a.available || a.uid === this.$currentUser.uid;
-      });
     }
   }
 };

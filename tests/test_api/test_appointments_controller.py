@@ -39,6 +39,7 @@ coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
 l_s_college_drop_in_advisor_uid = '53791'
 l_s_college_scheduler_uid = '19735'
+student_sid = '3456789012'
 
 
 class AppointmentTestUtil:
@@ -95,7 +96,7 @@ class AppointmentTestUtil:
             'appointmentType': 'Drop-in',
             'deptCode': dept_code,
             'details': details or '',
-            'sid': '3456789012',
+            'sid': student_sid,
             'topics': ['Topic for appointments, 1', 'Topic for appointments, 4'],
         }
         response = client.post(
@@ -152,7 +153,7 @@ class TestCreateAppointment:
             assert appointment['read'] is True
             assert appointment['status'] == 'waiting'
             assert appointment['statusBy']['uid'] == coe_scheduler_uid
-            assert appointment['student']['sid'] == '3456789012'
+            assert appointment['student']['sid'] == student_sid
             assert appointment['student']['name'] == 'Paul Kerschen'
             assert appointment['student']['photoUrl']
             assert appointment['appointmentType'] == 'Drop-in'
@@ -183,6 +184,29 @@ class TestCreateAppointment:
             assert appointment['advisorId'] is not None
             assert appointment['read'] is True
             assert appointment['status'] == 'reserved'
+            assert appointment['statusBy']['uid'] == coe_scheduler_uid
+
+    def test_log_resolved_issue_as_coe_scheduler(self, app, client, fake_auth):
+        """Scheduler can resolve issues on their own."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_scheduler_uid)
+            details = 'Turns out Aloysius just needed directions to La Val\'s.'
+            appointment = AppointmentTestUtil.create_appointment(
+                client=client,
+                dept_code='COENG',
+                details=details,
+                advisor_uid=coe_scheduler_uid,
+            )
+            appointment_id = appointment['id']
+
+            fake_auth.login(coe_drop_in_advisor_uid)
+            student_feed = client.get(f'/api/student/by_sid/{student_sid}').json
+            appointments = student_feed['notifications']['appointment']
+            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+            assert appointment['advisorRole'] == 'Intake Desk'
+            assert appointment['advisorUid'] == coe_scheduler_uid
+            assert appointment['details'] == details
+            assert appointment['status'] == 'checked_in'
             assert appointment['statusBy']['uid'] == coe_scheduler_uid
 
     def test_other_departments_forbidden(self, app, client, fake_auth):

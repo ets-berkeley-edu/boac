@@ -271,11 +271,17 @@ def _advisor_attrs_for_uid(advisor_uid):
     if not api_feeds:
         return None
     api_feed = api_feeds[0]
+
+    if next((d for d in api_feed['departments'] if d['role'] == 'scheduler'), False):
+        role = 'Intake Desk'
+    else:
+        role = api_feed.get('title') or 'Advisor'
+
     return {
         'id': authorized_user.id,
         'uid': advisor_uid,
         'name': api_feed['name'],
-        'role': api_feed.get('title') or 'Advisor',
+        'role': role,
         'deptCodes': [d['code'] for d in api_feed.get('departments', [])],
     }
 

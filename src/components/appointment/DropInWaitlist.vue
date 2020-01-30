@@ -8,6 +8,12 @@
       :dept-code="deptCode"
       :show-modal="showCreateAppointmentModal"
       :waitlist-unresolved="waitlist.unresolved" />
+    <LogResolvedIssueModal
+      v-if="showLogResolvedIssueModal"
+      :cancel="cancelLogResolvedIssue"
+      :log-resolved-issue="logResolvedIssue"
+      :show-modal="showLogResolvedIssueModal"
+      :waitlist-unresolved="waitlist.unresolved" />
     <div v-if="isHomepage" class="homepage-header-border">
       <div class="align-items-center d-flex justify-content-between mb-2">
         <div aria-live="polite" role="alert">
@@ -137,6 +143,7 @@ import Context from '@/mixins/Context';
 import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
 import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
 import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
+import LogResolvedIssueModal from '@/components/appointment/LogResolvedIssueModal';
 import Util from '@/mixins/Util';
 import { create as apiCreate } from '@/api/appointments';
 import { setDropInStatus } from '@/api/user';
@@ -147,6 +154,7 @@ export default {
     CreateAppointmentModal,
     DropInAvailabilityToggle,
     DropInWaitlistAppointment,
+    LogResolvedIssueModal
   },
   mixins: [Context, Util],
   props: {
@@ -179,7 +187,8 @@ export default {
     dropInStatusNew: undefined,
     linkToStudentProfiles: undefined,
     now: undefined,
-    showCreateAppointmentModal: false
+    showCreateAppointmentModal: false,
+    showLogResolvedIssueModal: false
   }),
   computed: {
     myReservedAppointments: function() {
@@ -202,6 +211,10 @@ export default {
   methods: {
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false;
+      this.alertScreenReader('Dialog closed');
+    },
+    cancelLogResolvedIssue() {
+      this.showLogResolvedIssueModal = false;
       this.alertScreenReader('Dialog closed');
     },
     clearDropInStatus() {
@@ -236,9 +249,33 @@ export default {
         });
       });
     },
+    logResolvedIssue(
+      details,
+      student,
+      topics,
+      schedulerUid
+    ) {
+      apiCreate(
+        this.deptCode,
+        details,
+        student.sid,
+        'Drop-in',
+        topics,
+        schedulerUid
+      ).then(() => {
+        this.showLogResolvedIssueModal = false;
+        this.onAppointmentStatusChange().then(() => {
+          this.alertScreenReader(`Resolved issue for ${student.label}`);
+        });
+      });
+    },
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true;
       this.alertScreenReader('Create appointment form is open');
+    },
+    openLogResolvedIssueModal() {
+      this.showLogResolvedIssueModal = true;
+      this.alertScreenReader('Log resolved issue form is open');
     },
     submitDropInStatus() {
       this.dropInStatusLoading = true;
