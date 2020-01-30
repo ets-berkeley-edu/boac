@@ -9,6 +9,7 @@
         <b-col cols="7" sm>
           <div class="mb-4 mr-3">
             <DropInWaitlist
+              :advisors="advisors"
               :dept-code="deptCode"
               :is-homepage="true"
               :on-appointment-status-change="onAppointmentStatusChange"
@@ -90,6 +91,7 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Loading, Util],
   data: () => ({
+    advisors: undefined,
     deptCode: undefined,
     loadingWaitlist: false,
     refreshJob: undefined,
@@ -118,6 +120,12 @@ export default {
           let announceLoad = false;
           let announceUpdate = false;
 
+          if (!this.isEqual(response.advisors, this.advisors)) {
+            if (this.advisors) {
+              announceUpdate = true;
+            }
+            this.advisors = response.advisors;
+          }
           if (!this.isEqual(waitlist, this.waitlist)) {
             if (this.waitlist) {
               announceUpdate = true;

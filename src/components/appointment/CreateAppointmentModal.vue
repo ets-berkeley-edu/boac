@@ -147,7 +147,7 @@ export default {
   props: {
     advisors: {
       type: Array,
-      required: false
+      required: true
     },
     createAppointment: {
       type: Function,
