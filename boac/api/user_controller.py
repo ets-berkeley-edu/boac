@@ -252,16 +252,15 @@ def drop_in_advisors_for_dept(dept_code):
 def create_or_update_user_profile():
     params = request.get_json()
     profile = params.get('profile', None)
-    roles_per_dept_code = params.get('rolesPerDeptCode', None)
+    memberships = params.get('memberships', None)
     delete_action = to_bool_or_none(util.get(params, 'deleteAction'))
 
-    if not profile or not profile.get('uid') or roles_per_dept_code is None:
+    if not profile or not profile.get('uid') or memberships is None:
         raise errors.BadRequestError('Required parameters are missing')
 
     authorized_user = _update_or_create_authorized_user(profile, include_deleted=True)
     _delete_existing_memberships(authorized_user)
-    _create_department_memberships(authorized_user, roles_per_dept_code)
-    _create_drop_in_advisor(authorized_user, roles_per_dept_code)
+    _create_department_memberships(authorized_user, memberships)
 
     if delete_action is True and not authorized_user.deleted_at:
         AuthorizedUser.delete_and_block(authorized_user.uid)
@@ -424,41 +423,28 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
 
 def _delete_existing_memberships(authorized_user):
     existing_memberships = UniversityDeptMember.get_existing_memberships(authorized_user_id=authorized_user.id)
-    existing_drop_in_dept_codes = [a.dept_code for a in DropInAdvisor.get_all(authorized_user_id=authorized_user.id)]
     for university_dept_id in [m.university_dept.id for m in existing_memberships]:
         UniversityDeptMember.delete_membership(
             university_dept_id=university_dept_id,
             authorized_user_id=authorized_user.id,
         )
-    for dept_code in existing_drop_in_dept_codes:
-        DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
 
 
-def _create_department_memberships(authorized_user, user_roles):
-    for user_role in [d for d in user_roles if d['role'] in ('advisor', 'director', 'scheduler')]:
-        university_dept = UniversityDept.find_by_dept_code(user_role['code'])
-        role = user_role['role']
+def _create_department_memberships(authorized_user, memberships):
+    for membership in [m for m in memberships if m['role'] in ('advisor', 'director', 'scheduler')]:
+        university_dept = UniversityDept.find_by_dept_code(membership['code'])
+        role = membership['role']
         UniversityDeptMember.create_or_update_membership(
             university_dept_id=university_dept.id,
             authorized_user_id=authorized_user.id,
-            role='advisor' if role == 'dropInAdvisor' else role,
-            automate_membership=to_bool_or_none(user_role['automateMembership']),
+            role=role,
+            automate_membership=to_bool_or_none(membership['automateMembership']),
         )
-
-
-def _create_drop_in_advisor(authorized_user, roles_per_dept_code):
-    for user_role in [d for d in roles_per_dept_code if d['role'] == 'dropInAdvisor']:
-        university_dept = UniversityDept.find_by_dept_code(user_role['code'])
-        DropInAdvisor.create_or_update_membership(
-            dept_code=university_dept.dept_code,
-            authorized_user_id=authorized_user.id,
-        )
-        UniversityDeptMember.create_or_update_membership(
-            university_dept_id=university_dept.id,
-            authorized_user_id=authorized_user.id,
-            role='advisor',
-            automate_membership=to_bool_or_none(user_role['automateMembership']),
-        )
+        if role == 'scheduler':
+            drop_in_enabled = DropInAdvisor.get_all(authorized_user_id=authorized_user.id)
+            drop_in_dept_codes = [e.dept_code for e in drop_in_enabled]
+            for dept_code in drop_in_dept_codes:
+                DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
 
 
 def _describe_dept_roles(departments):

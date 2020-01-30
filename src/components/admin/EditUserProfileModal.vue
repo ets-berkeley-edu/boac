@@ -76,7 +76,7 @@
         <div class="ml-3 mr-2 pt-2">
           <h3 class="color-grey font-size-18 mb-1">Departments</h3>
           <div
-            v-for="dept in rolesPerDeptCode"
+            v-for="dept in memberships"
             :key="dept.code"
             class="ml-2 mt-2">
             <div class="align-items-center d-flex">
@@ -106,7 +106,6 @@
                   v-model="dept.role"
                   :options="[
                     { text: 'Advisor', value: 'advisor' },
-                    { text: 'Advisor + Drop-In', value: 'dropInAdvisor' },
                     { text: 'Director', value: 'director' },
                     { text: 'Scheduler', value: 'scheduler' },
                   ]"
@@ -127,10 +126,10 @@
               </div>
             </div>
           </div>
-          <div v-if="rolesPerDeptCode.length >= 3" class="m-3">
+          <div v-if="memberships.length >= 3" class="m-3">
             <span class="text-info"><font-awesome icon="check" /> Three departments is enough!</span>
           </div>
-          <div v-if="rolesPerDeptCode.length < 3" class="mb-3 ml-0 mr-2 p-2">
+          <div v-if="memberships.length < 3" class="mb-3 ml-0 mr-2 p-2">
             <b-form-select
               id="department-select-list"
               v-model="deptCode"
@@ -198,7 +197,7 @@ export default {
     deptCode: undefined,
     error: undefined,
     isDeleted: undefined,
-    rolesPerDeptCode: undefined,
+    memberships: undefined,
     showEditUserModal: false,
     userProfile: undefined
   }),
@@ -211,7 +210,7 @@ export default {
     addDepartment() {
       if (this.deptCode) {
         const dept = this.find(this.departments, ['code', this.deptCode]);
-        this.rolesPerDeptCode.push({
+        this.memberships.push({
           code: dept.code,
           name: dept.name,
           role: undefined,
@@ -228,7 +227,7 @@ export default {
     closeModal() {
       this.error = undefined;
       this.userProfile = undefined;
-      this.rolesPerDeptCode = undefined;
+      this.memberships = undefined;
       this.showEditUserModal = false;
     },
     openEditUserModal() {
@@ -243,28 +242,21 @@ export default {
         isBlocked: this.profile.isBlocked
       };
       this.isDeleted = !!this.profile.deletedAt;
-      this.rolesPerDeptCode = [];
+      this.memberships = [];
       this.each(this.profile.departments, d => {
-        let role = undefined;
-        const dropInAdvisorStatus = this.find(this.profile.dropInAdvisorStatus, ['deptCode', d.code]);
-        if (dropInAdvisorStatus) {
-          role = 'dropInAdvisor';
-        } else {
-          role = d.role;
-        }
-        if (role) {
-          this.rolesPerDeptCode.push({
+        if (d.role) {
+          this.memberships.push({
             automateMembership: d.automateMembership,
             code: d.code,
             name: d.name,
-            role,
+            role: d.role,
           });
         }
       });
       this.departmentOptions = [];
       this.each(this.departments, d => {
         this.departmentOptions.push({
-          disabled: !!this.find(this.rolesPerDeptCode, ['code', d.code]),
+          disabled: !!this.find(this.memberships, ['code', d.code]),
           value: d.code,
           text: d.name
         });
@@ -272,20 +264,20 @@ export default {
       this.showEditUserModal = true;
     },
     removeDepartment(deptCode) {
-      let indexOf = this.rolesPerDeptCode.findIndex(d => d.code === deptCode);
-      this.rolesPerDeptCode.splice(indexOf, 1);
+      let indexOf = this.memberships.findIndex(d => d.code === deptCode);
+      this.memberships.splice(indexOf, 1);
       const option = this.find(this.departmentOptions, ['value', deptCode]);
       option.disabled = false;
     },
     save() {
-      const undefinedRoles = this.filterList(this.rolesPerDeptCode, r => this.isNil(r.role));
+      const undefinedRoles = this.filterList(this.memberships, r => this.isNil(r.role));
       if (undefinedRoles.length) {
         const deptNames = this.map(undefinedRoles, 'name');
         this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`;
       } else {
         // If no change in deleted status then do not update 'deleted_at' in the database.
         const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
-        createOrUpdateUser(this.userProfile, this.rolesPerDeptCode, deleteAction).then(() => {
+        createOrUpdateUser(this.userProfile, this.memberships, deleteAction).then(() => {
           this.afterUpdateUser(this.profile);
           this.closeModal();
         }).catch(error => {

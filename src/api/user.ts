@@ -119,12 +119,12 @@ export function setDemoMode(demoMode: boolean) {
     .then(() => Vue.prototype.$currentUser.inDemoMode = demoMode);
 }
 
-export function createOrUpdateUser(profile: any, rolesPerDeptCode: any[], deleteAction: boolean) {
+export function createOrUpdateUser(profile: any, memberships: any[], deleteAction: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/users/create_or_update`, {
       deleteAction,
       profile,
-      rolesPerDeptCode
+      memberships
     })
     .then(response => response.data);
 }
