@@ -774,8 +774,8 @@ class TestUserUpdate:
             expected_status_code=400,
         )
 
-    def test_create_drop_in_advisor(self, client, fake_auth):
-        """Admin creates new Drop-in Advisor."""
+    def test_create_scheduler(self, client, fake_auth):
+        """Admin creates new Scheduler."""
         fake_auth.login(admin_uid)
         uid = '900000001'
         insert_in_json_cache(
@@ -898,6 +898,66 @@ class TestUserUpdate:
         user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
         assert not user.deleted_at
 
+    def test_change_drop_in_advisor_to_scheduler(self, client, fake_auth):
+        """A drop-in advisor loses their appointments and drop-in status when they become a scheduler."""
+        fake_auth.login(admin_uid)
+
+        user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
+        assert len(user.drop_in_departments) == 2
+
+        appointments = Appointment.query.filter_by(advisor_uid=l_s_college_drop_in_advisor_uid, status='reserved').all()
+        assert len(appointments) == 0
+
+        # Reserve a new appointment
+        advisor_attrs = {
+            'id': user.id,
+            'uid': l_s_college_drop_in_advisor_uid,
+            'name': 'Cornelius Conway III',
+            'role': 'Advisor',
+            'deptCodes': ['QCADV'],
+        }
+        appointment = Appointment.create(
+            appointment_type='Drop-in',
+            created_by=advisor_attrs['id'],
+            dept_code='QCADV',
+            details='Mine!',
+            student_sid='7890123456',
+            advisor_attrs=advisor_attrs,
+        )
+        assert appointment.status == 'reserved'
+        assert appointment.advisor_uid == advisor_attrs['uid']
+        assert appointment.advisor_name == advisor_attrs['name']
+        assert appointment.advisor_role == advisor_attrs['role']
+        assert appointment.advisor_dept_codes == advisor_attrs['deptCodes']
+
+        appointments = Appointment.query.filter_by(advisor_uid=l_s_college_drop_in_advisor_uid, status='reserved').all()
+        assert len(appointments) == 1
+
+        self._api_create_or_update(
+            client,
+            profile=self._profile_object(uid=l_s_college_drop_in_advisor_uid, authorized_user_id=user.id),
+            memberships=[
+                {
+                    'code': 'QCADV',
+                    'role': 'scheduler',
+                    'automateMembership': True,
+                },
+            ],
+        )
+        std_commit(allow_test_environment=True)
+        user = AuthorizedUser.find_by_uid(l_s_college_drop_in_advisor_uid)
+        assert len(user.drop_in_departments) == 1
+
+        appointments = Appointment.query.filter_by(advisor_uid=l_s_college_drop_in_advisor_uid, status='reserved').all()
+        assert len(appointments) == 0
+
+        appointment = Appointment.find_by_id(appointment.id)
+        assert appointment.status == 'waiting'
+        assert appointment.advisor_uid is None
+        assert appointment.advisor_name is None
+        assert appointment.advisor_role is None
+        assert appointment.advisor_dept_codes is None
+
 
 class TestDropInAdvising:
 
@@ -993,6 +1053,39 @@ class TestDropInAdvising:
             assert response == {'deptCode': dept_code, 'available': False, 'status': None}
             user = AuthorizedUser.find_by_uid(coe_advisor_uid)
             assert len(user.drop_in_departments) == 1
+
+    def disable_drop_in_advising_unassign_appointments(self, client, fake_auth):
+        """When drop-in advisor with appointments cancels their drop-in membership, appointments become unassigned."""
+        dept_code = 'QCADV'
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
+            fake_auth.login(l_s_college_advisor_uid)
+            advisor = AuthorizedUser.find_by_uid(l_s_college_advisor_uid)
+            advisor_attrs = {
+                'id': advisor.id,
+                'uid': l_s_college_advisor_uid,
+                'name': 'Berta Blorp',
+                'role': 'Advisor',
+                'deptCodes': ['QCADV'],
+            }
+            appointment = Appointment.query.filter(status='waiting').first()
+            Appointment.reserve(appointment.id, l_s_college_advisor_uid, advisor_attrs)
+            assert appointment.status == 'reserved'
+            assert appointment.advisor_uid == advisor_attrs['uid']
+            assert appointment.advisor_name == advisor_attrs['name']
+            assert appointment.advisor_role == advisor_attrs['role']
+            assert appointment.advisor_dept_codes == advisor_attrs['deptCodes']
+
+            self._api_toggle_drop_in_advising(
+                client,
+                dept_code=dept_code,
+                action='disable',
+            )
+            appointment = Appointment.find_by_id(appointment.id)
+            assert appointment.status == 'waiting'
+            assert appointment.advisor_uid is None
+            assert appointment.advisor_name is None
+            assert appointment.advisor_role is None
+            assert appointment.advisor_dept_codes is None
 
     def test_set_drop_in_status(self, client, fake_auth):
         """Allows advisor to set and unset drop-in advising status whether available or not."""
