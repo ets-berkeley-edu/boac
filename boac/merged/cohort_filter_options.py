@@ -96,7 +96,7 @@ def get_cohort_filter_options(owner_uid, existing_filters=()):
             # Populate dropdown
             selected_values = selected_values_per_key[key]
             available_options = cohort_filter['options']
-            if len(available_options) - len(selected_values) == 0:
+            if '*' in selected_values or len(available_options) == len(selected_values):
                 # This filter has zero available options.
                 cohort_filter['disabled'] = True
                 for option in available_options:
@@ -575,6 +575,7 @@ def _majors():
 def _visa_types():
     other_types = [row['visa_type'] for row in data_loch.get_other_visa_types()]
     return [
+        {'name': 'All types', 'value': '*'},
         {'name': 'F-1 International Student', 'value': 'F1'},
         {'name': 'J-1 International Student', 'value': 'J1'},
         {'name': 'Permanent Resident', 'value': 'PR'},

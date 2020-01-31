@@ -828,10 +828,13 @@ def get_students_query(     # noqa
         query_tables += f""" JOIN {advisor_schema()}.advisor_students advs ON advs.student_sid = sas.sid"""
         query_tables += ' AND (' + ' OR '.join(advisor_plan_filters) + ')'
     if visa_types:
-        query_filter += ' AND v.visa_status = \'G\' AND v.visa_type = ANY(:visa_types)'
-        visa_types_flattened = []
-        [visa_types_flattened.extend(t.split(',')) for t in visa_types]
-        query_bindings.update({'visa_types': visa_types_flattened})
+        if '*' in visa_types:
+            query_filter += ' AND v.visa_status = \'G\' AND v.visa_type IS NOT NULL'
+        else:
+            query_filter += ' AND v.visa_status = \'G\' AND v.visa_type = ANY(:visa_types)'
+            visa_types_flattened = []
+            [visa_types_flattened.extend(t.split(',')) for t in visa_types]
+            query_bindings.update({'visa_types': visa_types_flattened})
 
     # ASC criteria
     query_filter += f' AND s.active IS {is_active_asc}' if is_active_asc is not None else ''
