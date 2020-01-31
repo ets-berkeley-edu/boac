@@ -1074,6 +1074,19 @@ class TestCohortPerFilters:
         sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['2345678901', '5678901234']
 
+    def test_filter_visa_types_all(self, client, coe_advisor_login):
+        """Returns all students with verified visa status."""
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'visaTypes', 'value': '*'},
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['2345678901', '5678901234']
+
 
 class TestDownloadCsvPerFilters:
     """Download Cohort CSV API."""
@@ -1321,19 +1334,25 @@ class TestCohortFilterOptions:
             {
                 'existingFilters':
                     [
+                        {'key': 'cohortOwnerAcademicPlans', 'value': '*'},
                         {'key': 'levels', 'value': 'Senior'},
                         {'key': 'levels', 'value': 'Junior'},
                         {'key': 'levels', 'value': 'Sophomore'},
                         {'key': 'levels', 'value': 'Freshman'},
+                        {'key': 'visaTypes', 'value': '*'},
                     ],
             },
         )
         for category in api_json:
             for menu in category:
-                if menu['key'] == 'levels':
+                if menu['key'] == 'cohortOwnerAcademicPlans':
+                    assert menu.get('disabled') is True
+                elif menu['key'] == 'levels':
                     assert menu.get('disabled') is True
                     for option in menu['options']:
                         assert option.get('disabled') is True
+                elif menu['key'] == 'visaTypes':
+                    assert menu.get('disabled') is True
                 else:
                     assert 'disabled' not in menu
 
