@@ -14,8 +14,8 @@
       :log-resolved-issue="logResolvedIssue"
       :show-modal="showLogResolvedIssueModal"
       :waitlist-unresolved="waitlist.unresolved" />
-    <div v-if="isHomepage" class="homepage-header-border">
-      <div class="align-items-center d-flex justify-content-between mb-2">
+    <div v-if="isHomepage" class="pb-2">
+      <div class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
         <div aria-live="polite" role="alert">
           <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
         </div>
@@ -30,7 +30,7 @@
           </b-btn>
         </div>
       </div>
-      <div class="mb-2">
+      <div>
         <DropInAvailabilityToggle
           :availability="dropInAvailability"
           :dept-code="deptCode"
@@ -38,43 +38,52 @@
           :reserved-appointments="myReservedAppointments"
           :uid="$currentUser.uid" />
       </div>
-      <div v-if="dropInStatusLoading" class="pl-2">
-        <font-awesome icon="spinner" spin />
-      </div>
-      <b-form v-if="!dropInStatusLoading && !dropInStatus" @submit="submitDropInStatus">
-        <div class="d-flex mb-2">
-          <div class="drop-in-status-label-outer">
-            <label class="drop-in-status-label" for="drop-in-status-input">My Status:</label>
+      <div>
+        <b-form @submit.prevent="submitDropInStatus">
+          <div class="align-items-center d-flex drop-in-status-form">
+            <div class="pr-2">
+              <label class="drop-in-status-label" for="drop-in-status-input">My Status:</label>
+            </div>
+            <div v-if="dropInStatusLoading">
+              <font-awesome icon="spinner" spin />
+            </div>
+            <div :class="{'flex-grow-1 pr-3': !dropInStatus}">
+              <b-form-input
+                v-if="!dropInStatus && !dropInStatusLoading"
+                id="drop-in-status-input"
+                v-model="dropInStatusNew"
+                class="drop-in-status-input"
+                maxlength="255"></b-form-input>
+            </div>
+            <div v-if="!dropInStatus">
+              <b-btn
+                v-if="!dropInStatusLoading"
+                id="drop-in-status-submit"
+                class="btn-primary-color-override"
+                :disabled="!dropInStatusNew"
+                type="submit"
+                variant="primary">
+                Save
+              </b-btn>
+            </div>
+            <div v-if="dropInStatus && !dropInStatusLoading">
+              <div class="align-items-start d-flex">
+                <div class="drop-in-status-text pr-2">
+                  {{ dropInStatus }}
+                </div>
+                <div class="faint-text pb-1">
+                  [<button
+                    id="drop-in-status-clear"
+                    class="btn btn-link m-0 p-0"
+                    @click="clearDropInStatus"
+                    @keyup.enter="clearDropInStatus">
+                    Clear<span class="sr-only"> Status</span>
+                  </button>]
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="drop-in-status-input-outer pr-3">
-            <b-form-input
-              id="drop-in-status-input"
-              v-model="dropInStatusNew"
-              class="drop-in-status-input"
-              maxlength="255"></b-form-input>
-          </div>
-          <div class="drop-in-status-submit-outer">
-            <b-btn
-              id="drop-in-status-submit"
-              class="btn-primary-color-override"
-              :disabled="!dropInStatusNew"
-              type="submit"
-              variant="primary">
-              Set Status
-            </b-btn>
-          </div>
-        </div>
-      </b-form>
-      <div v-if="!dropInStatusLoading && dropInStatus" class="mb-2">
-        <span class="drop-in-status-label">My Status:</span>
-        {{ dropInStatus }}
-        <button
-          id="drop-in-status-clear"
-          class="btn btn-link pb-0 pl-2 pt-0"
-          @click="clearDropInStatus"
-          @keyup.enter="clearDropInStatus">
-          Clear Status
-        </button>
+        </b-form>
       </div>
     </div>
     <div v-if="!isHomepage">
@@ -300,17 +309,15 @@ export default {
   border-color: lightgrey !important;
   border-width: 3px !important;
 }
+.drop-in-status-form {
+  max-height: 48px;
+  min-height: 48px;
+}
+.drop-in-status-text {
+  padding-top: 1px;
+}
 .drop-in-status-label {
   font-size: 12px;
   text-transform: uppercase;
-}
-.drop-in-status-input-outer {
-  flex: 1;
-}
-.drop-in-status-label-outer {
-  flex: 0 0 80px;
-}
-.drop-in-status-submit-outer {
-  flex: 0 0 120px;
 }
 </style>
