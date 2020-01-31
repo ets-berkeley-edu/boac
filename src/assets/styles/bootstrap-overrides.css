@@ -78,6 +78,15 @@ legend {
   border-color: #77a0c4 !important;
   opacity: 1 !important;
 }
+.btn-primary-color-outline-override {
+  background-color: #ffffff !important;
+  color: #286090 !important;
+}
+.btn-primary-color-outline-override:hover,
+.btn-primary-color-outline-override:focus,
+.btn-primary-color-outline-override:active {
+  color: #ffffff !important;
+}
 .btn-link:active,
 .btn-link:focus,
 .btn-link:focus-within,
