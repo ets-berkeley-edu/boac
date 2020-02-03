@@ -109,7 +109,8 @@ def get_cohort_filter_options(owner_uid, existing_filters=()):
     return cohort_filter_options
 
 
-def _get_filter_options(scope, cohort_owner_uid):
+def _get_filter_options(scope, owner_uid):
+    owner_user_id = AuthorizedUser.get_id_per_uid(owner_uid)
     all_dept_codes = list(BERKELEY_DEPT_CODE_TO_NAME.keys())
     categories = [
         [
@@ -415,7 +416,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'label': {
                     'primary': 'My Curated Groups',
                 },
-                'options': _curated_groups(),
+                'options': _curated_groups(owner_user_id),
                 'type': {
                     'db': 'string[]',
                     'ux': 'dropdown',
@@ -428,7 +429,7 @@ def _get_filter_options(scope, cohort_owner_uid):
                 'label': {
                     'primary': 'My Students',
                 },
-                'options': _academic_plans_for_cohort_owner(cohort_owner_uid),
+                'options': _academic_plans_for_cohort_owner(owner_uid),
                 'type': {
                     'db': 'string[]',
                     'ux': 'dropdown',
@@ -526,8 +527,8 @@ def _academic_plans_for_cohort_owner(owner_uid):
     return plans
 
 
-def _curated_groups():
-    curated_groups = CuratedGroup.get_curated_groups_by_owner_id(current_user.get_id())
+def _curated_groups(user_id):
+    curated_groups = CuratedGroup.get_curated_groups_by_owner_id(user_id)
     return [{'name': g.name, 'value': g.id} for g in curated_groups]
 
 
