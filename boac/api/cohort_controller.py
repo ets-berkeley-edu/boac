@@ -35,6 +35,7 @@ from boac.merged.cohort_filter_options import get_cohort_filter_options, transla
 from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
+from boac.models.cohort_filter_event import CohortFilterEvent
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -131,6 +132,31 @@ def get_cohort(cohort_id):
         return tolerant_jsonify(cohort)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+
+
+@app.route('/api/cohort/<cohort_id>/events')
+@advisor_required
+def get_cohort_events(cohort_id):
+    cohort = CohortFilter.find_by_id(cohort_id, include_students=False)
+    if not cohort or not _can_current_user_view_cohort(cohort):
+        raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+
+    offset = get_param(request.args, 'offset', 0)
+    limit = get_param(request.args, 'limit', 50)
+    events = CohortFilterEvent.events_for_cohort(cohort_id, offset, limit)
+    event_sids = [e.sid for e in events]
+    event_profiles_by_sid = {e['sid']: e for e in get_summary_student_profiles(event_sids)}
+
+    def _event_feed(event):
+        profile = event_profiles_by_sid.get(event.sid, {})
+        return {
+            'createdAt': event.created_at.isoformat(),
+            'eventType': event.event_type,
+            'firstName': profile.get('firstName'),
+            'lastName': profile.get('lastName'),
+            'sid': event.sid,
+        }
+    return tolerant_jsonify([_event_feed(e) for e in events])
 
 
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])
