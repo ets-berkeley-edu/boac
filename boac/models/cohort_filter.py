@@ -37,6 +37,7 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
+from boac.models.cohort_filter_event import CohortFilterEvent
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
@@ -59,6 +60,7 @@ class CohortFilter(Base):
     def __init__(self, name, filter_criteria):
         self.name = name
         self.filter_criteria = filter_criteria
+        self._transient_sids = []
 
     def __repr__(self):
         return f"""<CohortFilter {self.id},
@@ -105,6 +107,10 @@ class CohortFilter(Base):
         cohort = query.filter_by(id=cohort_id).first()
         return cohort and cohort.sids
 
+    def clear_sids_and_student_count(self):
+        self._transient_sids = self.sids
+        self.update_sids_and_student_count(None, None)
+
     def update_sids_and_student_count(self, sids, student_count):
         self.sids = sids
         self.student_count = student_count
@@ -115,6 +121,16 @@ class CohortFilter(Base):
         self.alert_count = count
         std_commit()
         return self
+
+    def track_membership_changes(self):
+        # Track membership changes only if the cohort has been saved and has an id.
+        if self.id:
+            old_sids = set(self._transient_sids)
+            new_sids = set(self.sids)
+            removed_sids = old_sids - new_sids
+            added_sids = new_sids - old_sids
+            CohortFilterEvent.create_bulk(self.id, added_sids, removed_sids)
+        self._transient_sids = []
 
     @classmethod
     def share(cls, cohort_id, user_id):
@@ -377,6 +393,7 @@ class CohortFilter(Base):
             # If the cohort is new or cache refresh is underway then store student_count and sids in the db.
             if self.student_count is None:
                 self.update_sids_and_student_count(results['sids'], results['totalStudentCount'])
+                self.track_membership_changes()
             if include_students:
                 cohort_json.update({
                     'students': results['students'],

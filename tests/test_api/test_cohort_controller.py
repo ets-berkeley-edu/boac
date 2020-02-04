@@ -29,7 +29,7 @@ from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
-from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_get, \
+from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_events, api_cohort_get, \
     api_curated_group_add_students, api_curated_group_remove_student
 
 zzzzz_user_uid = '1'
@@ -464,13 +464,48 @@ class TestCohortDetail:
         }
         cohort = api_cohort_create(client, data)
         assert cohort['totalStudentCount'] == 3
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 3
+        assert sorted([e['sid'] for e in events]) == ['2345678901', '5678901234', '9100000000']
+        assert sorted([e['firstName'] for e in events]) == ['Dave', 'Nora Stanton', 'Sandeep']
+        for e in events:
+            assert e['createdAt'] is not None
+            assert e['eventType'] == 'added'
+
         api_curated_group_add_students(client, curated_group.id, sids=['11667051', '7890123456'])
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 5
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 5
+        assert sorted([e['sid'] for e in events][0:2]) == ['11667051', '7890123456']
+        assert sorted([e['firstName'] for e in events][0:2]) == ['Deborah', 'Paul']
+        assert sorted([e['sid'] for e in events][2:5]) == ['2345678901', '5678901234', '9100000000']
+        assert sorted([e['firstName'] for e in events][2:5]) == ['Dave', 'Nora Stanton', 'Sandeep']
+        for e in events:
+            assert e['createdAt'] is not None
+            assert e['eventType'] == 'added'
+
         for sid in original_sids:
             api_curated_group_remove_student(client, curated_group_id=curated_group.id, sid=sid)
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 2
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 8
+        assert sorted([e['sid'] for e in events][0:3]) == ['2345678901', '5678901234', '9100000000']
+        assert sorted([e['firstName'] for e in events][0:3]) == ['Dave', 'Nora Stanton', 'Sandeep']
+        assert sorted([e['sid'] for e in events][3:5]) == ['11667051', '7890123456']
+        assert sorted([e['firstName'] for e in events][3:5]) == ['Deborah', 'Paul']
+        assert sorted([e['sid'] for e in events][5:8]) == ['2345678901', '5678901234', '9100000000']
+        assert sorted([e['firstName'] for e in events][5:8]) == ['Dave', 'Nora Stanton', 'Sandeep']
+        for e in events[0:2]:
+            assert e['createdAt'] is not None
+            assert e['eventType'] == 'removed'
+        for e in events[3:8]:
+            assert e['createdAt'] is not None
+            assert e['eventType'] == 'added'
 
 
 class TestCohortCreate:

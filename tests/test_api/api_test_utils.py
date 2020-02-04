@@ -58,6 +58,12 @@ def api_cohort_get(client, cohort_id, expected_status_code=200):
     return response.json
 
 
+def api_cohort_events(client, cohort_id, expected_status_code=200):
+    response = client.get(f'/api/cohort/{cohort_id}/events')
+    assert response.status_code == expected_status_code
+    return response.json
+
+
 def api_curated_group_create(client, expected_status_code=200, name=None, sids=()):
     response = client.post(
         '/api/curated_group/create',

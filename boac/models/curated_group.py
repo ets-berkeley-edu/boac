@@ -216,7 +216,7 @@ class CuratedGroupStudent(db.Model):
 def _refresh_related_cohorts(curated_group):
     for cohort_id in curated_group.get_referencing_cohort_ids():
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
-        cohort.update_sids_and_student_count(None, None)
+        cohort.clear_sids_and_student_count()
         cohort.update_alert_count(None)
         owner_id = cohort.owners[0].id if len(cohort.owners) else None
         cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
