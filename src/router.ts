@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
+import AdmitStudent from '@/views/AdmitStudent.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
 import Analytics from '@/views/Analytics.vue';
@@ -198,6 +199,20 @@ const router = new Router({
           component: Analytics,
           meta: {
             title: 'Flight Data Recorder'
+          }
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: auth.requiresCE3,
+      children: [
+        {
+          path: '/admit/student/:sid',
+          component: AdmitStudent,
+          meta: {
+            title: 'Admit Student'
           }
         }
       ]

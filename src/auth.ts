@@ -30,6 +30,8 @@ const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) 
 
 const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.role === 'advisor'));
 
+const isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE' && _.includes(['advisor', 'director'], d.role)));
+
 const isDirector = user => !!_.size(_.filter(user.departments, d => d.role === 'director'));
 
 const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code');
@@ -65,6 +67,18 @@ export default {
   requiresAuthenticated: (to: any, from: any, next: any) => {
     if (Vue.prototype.$currentUser.isAuthenticated) {
       next();
+    } else {
+      $_goToLogin(to, next);
+    }
+  },
+  requiresCE3: (to: any, from: any, next: any) => {
+    const currentUser = Vue.prototype.$currentUser;
+    if (currentUser.isAuthenticated) {
+      if (currentUser.isAdmin || isCE3(currentUser)) {
+        next();
+      } else {
+        next({ path: '/404' });
+      }
     } else {
       $_goToLogin(to, next);
     }
