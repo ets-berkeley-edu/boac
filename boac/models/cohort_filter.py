@@ -41,14 +41,23 @@ from boac.models.cohort_filter_event import CohortFilterEvent
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM, JSONB
 from sqlalchemy.orm import deferred, undefer
+
+
+cohort_domain_type = ENUM(
+    'default',
+    'admitted_students',
+    name='cohort_domain_types',
+    create_type=False,
+)
 
 
 class CohortFilter(Base):
     __tablename__ = 'cohort_filters'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    domain = db.Column(cohort_domain_type, nullable=False)
     name = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
     # Fetching a large array literal from Postgres can be expensive. We defer until invoking code demands it.
@@ -57,13 +66,15 @@ class CohortFilter(Base):
     alert_count = db.Column(db.Integer)
     owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
 
-    def __init__(self, name, filter_criteria):
+    def __init__(self, domain, name, filter_criteria):
+        self.domain = domain
         self.name = name
         self.filter_criteria = filter_criteria
         self._transient_sids = []
 
     def __repr__(self):
         return f"""<CohortFilter {self.id},
+            domain={self.domain},
             name={self.name},
             owners={self.owners},
             filter_criteria={self.filter_criteria},
@@ -74,10 +85,10 @@ class CohortFilter(Base):
             created_at={self.created_at}>"""
 
     @classmethod
-    def create(cls, uid, name, filter_criteria, **kwargs):
+    def create(cls, uid, name, filter_criteria, domain='default', **kwargs):
         if all(not isinstance(value, bool) and not value for value in filter_criteria.values()):
             raise InternalServerError('Cohort creation requires at least one filter specification.')
-        cohort = cls(name=name, filter_criteria=filter_criteria)
+        cohort = cls(domain=domain, name=name, filter_criteria=filter_criteria)
         user = AuthorizedUser.find_by_uid(uid)
         user.cohort_filters.append(cohort)
         db.session.flush()
@@ -106,6 +117,12 @@ class CohortFilter(Base):
         query = db.session.query(cls).options(undefer('sids'))
         cohort = query.filter_by(id=cohort_id).first()
         return cohort and cohort.sids
+
+    @classmethod
+    def get_domain_of_cohort(cls, cohort_id):
+        query = text(f'SELECT domain FROM cohort_filters WHERE id = :id')
+        result = db.session.execute(query, {'id': cohort_id}).first()
+        return result and result['domain']
 
     def clear_sids_and_student_count(self):
         self._transient_sids = self.sids
@@ -140,18 +157,20 @@ class CohortFilter(Base):
         std_commit()
 
     @classmethod
-    def get_cohorts_of_user_id(cls, user_id):
+    def get_cohorts_of_user_id(cls, user_id, domain='default'):
         query = text(f"""
-            SELECT id, name, filter_criteria, alert_count, student_count FROM cohort_filters c
+            SELECT id, domain, name, filter_criteria, alert_count, student_count
+            FROM cohort_filters c
             LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE o.user_id = :user_id
+            WHERE o.user_id = :user_id AND c.domain = :domain
             ORDER BY c.name
         """)
-        results = db.session.execute(query, {'user_id': user_id})
+        results = db.session.execute(query, {'domain': domain, 'user_id': user_id})
 
         def transform(row):
             return {
                 'id': row['id'],
+                'domain': row['domain'],
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
                 'alertCount': row['alert_count'],
@@ -160,20 +179,22 @@ class CohortFilter(Base):
         return [transform(row) for row in results]
 
     @classmethod
-    def get_cohorts_owned_by_uids(cls, uids):
+    def get_cohorts_owned_by_uids(cls, uids, domain='default'):
         query = text(f"""
-            SELECT c.id, c.name, c.filter_criteria, c.alert_count, c.student_count, ARRAY_AGG(uid) authorized_users
+            SELECT
+            c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, ARRAY_AGG(uid) authorized_users
             FROM cohort_filters c
             INNER JOIN cohort_filter_owners o ON c.id = o.cohort_filter_id
             INNER JOIN authorized_users u ON o.user_id = u.id
-            WHERE u.uid = ANY(:uids)
+            WHERE u.uid = ANY(:uids) AND c.domain = :domain
             GROUP BY c.id, c.name, c.filter_criteria, c.alert_count, c.student_count
         """)
-        results = db.session.execute(query, {'uids': uids})
+        results = db.session.execute(query, {'domain': domain, 'uids': uids})
 
         def transform(row):
             return {
                 'id': row['id'],
+                'domain': row['domain'],
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
                 'owners': row['authorized_users'],
@@ -258,6 +279,7 @@ class CohortFilter(Base):
         cohort_name = self.name
         cohort_json = {
             'id': self.id,
+            'domain': self.domain,
             'code': self.id,
             'name': cohort_name,
             'owners': [],

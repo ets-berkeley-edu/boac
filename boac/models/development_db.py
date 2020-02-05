@@ -233,6 +233,14 @@ _test_users = [
         'canAccessCanvasData': True,
         'deleted': True,
     },
+    {
+        'uid': '2525',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': True,
+        'deleted': False,
+    },
 ]
 
 _university_depts = {
@@ -331,6 +339,16 @@ _university_depts = {
             {
                 'uid': '6446',
                 'role': 'director',
+                'isDropInAdvisor': False,
+                'automate_membership': False,
+            },
+        ],
+    },
+    'ZCEEE': {
+        'users': [
+            {
+                'uid': '2525',
+                'role': 'advisor',
                 'isDropInAdvisor': False,
                 'automate_membership': False,
             },
@@ -721,11 +739,29 @@ def _create_cohorts():
         },
     )
     CohortFilter.create(
-        uid='1133399',
+        uid=coe_advisor_uid,
         name='Radioactive Women and Men',
         filter_criteria={
             'majors': ['Nuclear Engineering BS'],
         },
+    )
+    # The CE3 advisor will create a standard cohort and a cohort with domain='admitted_students'
+    ce3_advisor_uid = '2525'
+    CohortFilter.create(
+        uid=ce3_advisor_uid,
+        name='Undeclared students',
+        filter_criteria={
+            'majors': ['Undeclared'],
+            'isInactiveAsc': False,
+        },
+    )
+    CohortFilter.create(
+        uid=ce3_advisor_uid,
+        name='First Generation Students',
+        filter_criteria={
+            'firstGeneration': True,
+        },
+        domain='admitted_students',
     )
     std_commit(allow_test_environment=True)
 

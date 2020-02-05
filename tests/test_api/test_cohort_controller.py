@@ -27,10 +27,12 @@ from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
+from flask import current_app as app
 import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_create, api_cohort_events, api_cohort_get, \
     api_curated_group_add_students, api_curated_group_remove_student
+from tests.util import override_config
 
 zzzzz_user_uid = '1'
 guest_user_uid = '2'
@@ -39,6 +41,7 @@ asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
 asc_and_coe_advisor_uid = '90412'
+ce3_advisor_uid = '2525'
 
 
 @pytest.fixture()
@@ -79,6 +82,11 @@ def no_canvas_access_advisor_login(fake_auth):
 @pytest.fixture()
 def zzzzz_user_login(fake_auth):
     fake_auth.login(zzzzz_user_uid)
+
+
+@pytest.fixture()
+def ce3_user_login(fake_auth):
+    fake_auth.login(ce3_advisor_uid)
 
 
 @pytest.fixture()
@@ -135,6 +143,24 @@ class TestCohortDetail:
         assert len(cohorts) == 2
         for key in 'name', 'alertCount', 'criteria', 'totalStudentCount', 'isOwnedByCurrentUser':
             assert key in cohorts[0], f'Missing cohort element: {key}'
+
+    def test_cohorts_all_for_ce3(self, ce3_user_login, client):
+        """Returns all standard cohorts for CE3 advisor."""
+        response = client.get('/api/cohorts/my')
+        assert response.status_code == 200
+        api_json = response.json
+        count = len(api_json)
+        assert count == 1
+        assert api_json[0]['name'] == 'Undeclared students'
+
+    def test_admitted_students_cohorts_all_for_ce3(self, ce3_user_login, client):
+        """Returns all standard cohorts for CE3 advisor."""
+        response = client.get('/api/cohorts/my?domain=admitted_students')
+        assert response.status_code == 200
+        api_json = response.json
+        count = len(api_json)
+        assert count == 1
+        assert api_json[0]['name'] == 'First Generation Students'
 
     def test_students_with_alert_counts(self, asc_advisor_login, client, create_alerts, db_session):
         """Pre-load students into cache for consistent alert data."""
@@ -1430,6 +1456,52 @@ class TestCohortFilterOptions:
                     assert filter_['disabled'] is True
                     verified = True
         assert verified
+
+    def test_404_when_feature_flag_is_false(self, client, ce3_user_login):
+        assert app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] is False
+        self._api_cohort_filter_options(
+            client,
+            {
+                'domain': 'admitted_students',
+                'existingFilters': [],
+            },
+            expected_status_code=404,
+        )
+
+    def test_invalid_domain_value(self, client, guest_user_login):
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_cohort_filter_options(
+                client,
+                {
+                    'domain': 'this_is_an_invalid_domain',
+                    'existingFilters': [],
+                },
+                expected_status_code=400,
+            )
+
+    def test_admitted_students_domain_denied(self, client, guest_user_login):
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_cohort_filter_options(
+                client,
+                {
+                    'domain': 'admitted_students',
+                    'existingFilters': [],
+                },
+                expected_status_code=403,
+            )
+
+    def test_admitted_students_domain(self, client, ce3_user_login):
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            api_json = self._api_cohort_filter_options(
+                client,
+                {
+                    'domain': 'admitted_students',
+                    'existingFilters': [],
+                },
+            )
+            assert len(api_json) == 1
+            assert len(api_json[0]) == 1
+            assert api_json[0][0]['key'] == 'firstGeneration'
 
 
 class TestTranslateToFilterOptions:

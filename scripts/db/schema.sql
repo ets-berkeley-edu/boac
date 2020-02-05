@@ -277,8 +277,13 @@ ALTER TABLE ONLY cohort_filter_owners
 
 --
 
+CREATE TYPE cohort_domain_types AS ENUM ('default', 'admitted_students');
+
+--
+
 CREATE TABLE cohort_filters (
     id integer NOT NULL,
+    domain cohort_domain_types NOT NULL,
     name character varying(255) NOT NULL,
     filter_criteria jsonb NOT NULL,
     sids VARCHAR(80)[],
