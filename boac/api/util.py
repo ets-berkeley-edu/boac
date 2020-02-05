@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from functools import wraps
 import json
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.externals.data_loch import get_sis_holds, get_student_profiles
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download
@@ -345,6 +345,14 @@ def get_my_curated_groups():
         api_json['totalStudentCount'] = len(students)
         curated_groups.append(api_json)
     return curated_groups
+
+
+def is_unauthorized_domain(domain):
+    if domain not in ['default', 'admitted_students']:
+        raise BadRequestError(f'Invalid domain: {domain}')
+    elif domain == 'admitted_students' and not app.config['FEATURE_FLAG_ADMITTED_STUDENTS']:
+        raise ResourceNotFoundError('Unknown path')
+    return domain == 'admitted_students' and not current_user.is_admin and 'ZCEEE' not in dept_codes_where_advising(current_user)
 
 
 def is_unauthorized_search(filter_keys, order_by=None):

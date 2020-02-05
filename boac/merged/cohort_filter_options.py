@@ -38,11 +38,11 @@ from flask import current_app as app
 from flask_login import current_user
 
 
-def translate_to_filter_options(owner_uid, criteria=None):
+def translate_to_filter_options(owner_uid, criteria=None, domain='default'):
     # Transform cohort filter criteria in the database to a UX-compatible data structure.
     rows = []
     if criteria:
-        for category in _get_filter_options(get_student_query_scope(), owner_uid):
+        for category in _get_filter_options(get_student_query_scope(), owner_uid, domain):
             for filter_option in category:
                 selected = criteria.get(filter_option['key'])
                 if selected is not None:
@@ -68,9 +68,9 @@ def translate_to_filter_options(owner_uid, criteria=None):
     return rows
 
 
-def get_cohort_filter_options(owner_uid, existing_filters=()):
+def get_cohort_filter_options(owner_uid, domain, existing_filters=()):
     # Disable filter options based on existing cohort criteria.
-    cohort_filter_options = _get_filter_options(get_student_query_scope(), owner_uid)
+    cohort_filter_options = _get_filter_options(get_student_query_scope(), owner_uid, domain=domain)
     cohort_filter_per_key = {}
     filter_type_per_key = {}
     for category in cohort_filter_options:
@@ -109,13 +109,14 @@ def get_cohort_filter_options(owner_uid, existing_filters=()):
     return cohort_filter_options
 
 
-def _get_filter_options(scope, owner_uid):
+def _get_filter_options(scope, owner_uid, domain):
     owner_user_id = AuthorizedUser.get_id_per_uid(owner_uid)
     all_dept_codes = list(BERKELEY_DEPT_CODE_TO_NAME.keys())
     categories = [
         [
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'colleges',
                 'label': {
@@ -129,6 +130,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'enteringTerms',
                 'label': {
@@ -142,6 +144,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'expectedGradTerms',
                 'label': {
@@ -155,6 +158,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'gpaRanges',
                 'options': None,
@@ -171,6 +175,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'lastTermGpaRanges',
                 'options': None,
@@ -187,6 +192,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'levels',
                 'label': {
@@ -205,6 +211,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'majors',
                 'label': {
@@ -218,6 +225,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'midpointDeficient',
                 'label': {
@@ -230,6 +238,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'transfer',
                 'label': {
@@ -242,6 +251,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'unitRanges',
                 'label': {
@@ -263,6 +273,7 @@ def _get_filter_options(scope, owner_uid):
         [
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'ethnicities',
                 'label': {
@@ -276,6 +287,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'genders',
                 'label': {
@@ -289,6 +301,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'underrepresented',
                 'label': {
@@ -301,6 +314,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'visaTypes',
                 'label': {
@@ -316,6 +330,7 @@ def _get_filter_options(scope, owner_uid):
         [
             {
                 'availableTo': ['UWASC'],
+                'domain': 'default',
                 'defaultValue': False if 'UWASC' in scope else None,
                 'key': 'isInactiveAsc',
                 'label': {
@@ -328,6 +343,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['UWASC'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'inIntensiveCohort',
                 'label': {
@@ -340,6 +356,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['UWASC'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'groupCodes',
                 'label': {
@@ -355,6 +372,7 @@ def _get_filter_options(scope, owner_uid):
         [
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coeAdvisorLdapUids',
                 'label': {
@@ -368,6 +386,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coeEthnicities',
                 'label': {
@@ -381,6 +400,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coeGenders',
                 'label': {
@@ -397,6 +417,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': False if 'COENG' in scope else None,
                 'key': 'isInactiveCoe',
                 'label': {
@@ -409,6 +430,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'lastNameRanges',
                 'label': {
@@ -424,6 +446,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'curatedGroupIds',
                 'label': {
@@ -437,6 +460,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': all_dept_codes,
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'cohortOwnerAcademicPlans',
                 'label': {
@@ -450,6 +474,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coePrepStatuses',
                 'label': {
@@ -468,6 +493,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coeProbation',
                 'label': {
@@ -480,6 +506,7 @@ def _get_filter_options(scope, owner_uid):
             },
             {
                 'availableTo': ['COENG'],
+                'domain': 'default',
                 'defaultValue': None,
                 'key': 'coeUnderrepresented',
                 'label': {
@@ -491,20 +518,38 @@ def _get_filter_options(scope, owner_uid):
                 },
             },
         ],
+        [
+            {
+                'availableTo': ['ZCEEE'],
+                'domain': 'admitted_students',
+                'defaultValue': None,
+                'key': 'firstGeneration',
+                'label': {
+                    'primary': 'First Generation Student',
+                },
+                'type': {
+                    'db': 'boolean',
+                    'ux': 'boolean',
+                },
+            },
+        ],
     ]
     available_categories = []
 
     def is_available(d):
-        available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
-        if available and 'options' in d:
-            # If it is available then populate menu options
-            options = d.pop('options')
-            options = options() if callable(options) else options
-            if d['type']['ux'] == 'dropdown' and not len(options):
-                d['disabled'] = True
-            else:
-                d['options'] = options
-        return available
+        if d['domain'] == domain:
+            available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
+            if available and 'options' in d:
+                # If it is available then populate menu options
+                options = d.pop('options')
+                options = options() if callable(options) else options
+                if d['type']['ux'] == 'dropdown' and not len(options):
+                    d['disabled'] = True
+                else:
+                    d['options'] = options
+            return available
+        else:
+            return False
 
     for category in categories:
         available_categories.append(list(filter(lambda d: is_available(d), category)))

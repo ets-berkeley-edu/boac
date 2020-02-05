@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, is_unauthorized_search, response_with_students_csv_download
+from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search, response_with_students_csv_download
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
@@ -43,8 +43,9 @@ from flask_login import current_user
 @app.route('/api/cohorts/my')
 @advisor_required
 def my_cohorts():
+    domain = get_param(request.args, 'domain', 'default')
     cohorts = []
-    for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id()):
+    for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id(), domain=domain):
         cohort['isOwnedByCurrentUser'] = True
         cohorts.append(cohort)
     return tolerant_jsonify(cohorts)
@@ -56,7 +57,8 @@ def all_cohorts():
     scope = get_query_scope(current_user)
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     cohorts_per_uid = dict((uid, []) for uid in uids)
-    for cohort in CohortFilter.get_cohorts_owned_by_uids(uids):
+    domain = get_param(request.args, 'domain', 'default')
+    for cohort in CohortFilter.get_cohorts_owned_by_uids(uids, domain=domain):
         for uid in cohort['owners']:
             cohorts_per_uid[uid].append(cohort)
     api_json = []
@@ -170,6 +172,9 @@ def get_cohort_per_filters():
         raise BadRequestError('API requires \'filters\'')
     include_students = to_bool(get_param(params, 'includeStudents'))
     include_students = True if include_students is None else include_students
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     order_by = get_param(params, 'orderBy', None)
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
@@ -178,6 +183,7 @@ def get_cohort_per_filters():
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     benchmark('begin phantom cohort query')
     cohort = _construct_phantom_cohort(
+        domain=domain,
         filters=filters,
         order_by=order_by,
         offset=int(offset),
@@ -197,6 +203,9 @@ def download_csv_per_filters():
     benchmark = get_benchmarker('cohort download_csv_per_filters')
     benchmark('begin')
     params = request.get_json()
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     filters = get_param(params, 'filters', [])
     fieldnames = get_param(params, 'csvColumnsSelected', [])
     if not filters:
@@ -205,6 +214,7 @@ def download_csv_per_filters():
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     cohort = _construct_phantom_cohort(
+        domain=domain,
         filters=filters,
         offset=0,
         limit=None,
@@ -219,6 +229,9 @@ def download_csv_per_filters():
 @advisor_required
 def create_cohort():
     params = request.get_json()
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     name = get_param(params, 'name', None)
     filters = get_param(params, 'filters', None)
     order_by = params.get('orderBy')
@@ -226,13 +239,14 @@ def create_cohort():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    filter_criteria = _translate_filters_to_cohort_criteria(filters)
+    filter_criteria = _translate_filters_to_cohort_criteria(filters, domain)
     if not name or not filter_criteria:
         raise BadRequestError('Cohort creation requires \'name\' and \'filters\'')
     cohort = CohortFilter.create(
         uid=current_user.get_uid(),
         name=name,
         filter_criteria=filter_criteria,
+        domain=domain,
         order_by=order_by,
         include_alerts_for_user_id=current_user.get_id(),
     )
@@ -255,7 +269,8 @@ def update_cohort():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    filter_criteria = _translate_filters_to_cohort_criteria(filters)
+    domain = CohortFilter.get_domain_of_cohort(cohort_id)
+    filter_criteria = _translate_filters_to_cohort_criteria(filters, domain)
     updated = CohortFilter.update(
         cohort_id=cohort_id,
         name=name,
@@ -286,8 +301,12 @@ def delete_cohort(cohort_id):
 def all_cohort_filter_options(cohort_owner_uid):
     if cohort_owner_uid == 'me':
         cohort_owner_uid = current_user.get_uid()
-    existing_filters = get_param(request.get_json(), 'existingFilters', [])
-    return tolerant_jsonify(get_cohort_filter_options(cohort_owner_uid, existing_filters))
+    params = request.get_json()
+    existing_filters = get_param(params, 'existingFilters', [])
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+    return tolerant_jsonify(get_cohort_filter_options(cohort_owner_uid, domain, existing_filters))
 
 
 @app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
@@ -315,17 +334,18 @@ def _can_current_user_view_cohort(cohort):
         return False
 
 
-def _construct_phantom_cohort(filters, **kwargs):
+def _construct_phantom_cohort(domain, filters, **kwargs):
     # A "phantom" cohort is an unsaved search.
     cohort = CohortFilter(
+        domain=domain,
         name=f'phantom_cohort_{datetime.now().timestamp()}',
-        filter_criteria=_translate_filters_to_cohort_criteria(filters),
+        filter_criteria=_translate_filters_to_cohort_criteria(filters, domain),
     )
     return cohort.to_api_json(**kwargs)
 
 
-def _translate_filters_to_cohort_criteria(filters):
-    db_type_per_key = _get_filter_db_type_per_key()
+def _translate_filters_to_cohort_criteria(filters, domain):
+    db_type_per_key = _get_filter_db_type_per_key(domain)
     criteria = {}
     for row in filters:
         key = row['key']
@@ -339,9 +359,9 @@ def _translate_filters_to_cohort_criteria(filters):
     return criteria
 
 
-def _get_filter_db_type_per_key():
+def _get_filter_db_type_per_key(domain):
     filter_type_per_key = {}
-    for category in get_cohort_filter_options(current_user.get_uid()):
+    for category in get_cohort_filter_options(current_user.get_uid(), domain):
         for _filter in category:
             filter_type_per_key[_filter['key']] = _filter['type']['db']
     return filter_type_per_key
