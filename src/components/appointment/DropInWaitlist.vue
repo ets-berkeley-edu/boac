@@ -40,7 +40,9 @@
       </div>
       <div>
         <b-form @submit.prevent="submitDropInStatus">
-          <div class="align-items-center d-flex drop-in-status-form">
+          <div
+            class="d-flex mt-1 mb-2"
+            :class="(dropInStatus && !dropInStatusLoading) ? 'drop-in-status-outer' : 'align-items-center drop-in-status-form'">
             <div class="pr-2">
               <label class="drop-in-status-label" for="drop-in-status-input">My Status:</label>
             </div>
@@ -313,11 +315,16 @@ export default {
   max-height: 48px;
   min-height: 48px;
 }
+.drop-in-status-outer {
+  align-items: top;
+  padding-top: 5px;
+}
 .drop-in-status-text {
   padding-top: 1px;
 }
 .drop-in-status-label {
   font-size: 12px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 </style>
