@@ -102,8 +102,7 @@ class CohortFilter(Base):
             cohort.name = name
         if filter_criteria:
             cohort.filter_criteria = filter_criteria
-        cohort.sids = None
-        cohort.student_count = None
+        cohort.clear_sids_and_student_count()
         if alert_count is not None:
             cohort.alert_count = alert_count
         else:

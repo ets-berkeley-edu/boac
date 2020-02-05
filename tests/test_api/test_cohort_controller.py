@@ -718,9 +718,14 @@ class TestCohortUpdate:
             uid=asc_advisor_uid,
             name='Swimming, Men\'s',
             filter_criteria={
-                'groupCodes': ['MSW', 'MSW-DV', 'MSW-SW'],
+                'groupCodes': ['MBB', 'MBB-AA'],
             },
         )
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 2
+        assert next(e for e in events if e['sid'] == '3456789012' and e['eventType'] == 'added')
+        assert next(e for e in events if e['sid'] == '7890123456' and e['eventType'] == 'added')
+
         # First, we POST an empty name
         cohort_id = cohort['id']
         response = self._post_cohort_update(client, {'id': cohort_id})
@@ -730,7 +735,7 @@ class TestCohortUpdate:
         data = {
             'id': cohort_id,
             'filters': [
-                {'key': 'majors', 'value': 'Gender and Women''s Studies'},
+                {'key': 'majors', 'value': 'Engineering Undeclared UG'},
                 {'key': 'gpaRanges', 'value': gpa_range},
             ],
         }
@@ -738,7 +743,7 @@ class TestCohortUpdate:
         assert 200 == response.status_code
         updated_cohort = response.json
         assert updated_cohort['alertCount'] is not None
-        assert updated_cohort['criteria']['majors'] == ['Gender and Women''s Studies']
+        assert updated_cohort['criteria']['majors'] == ['Engineering Undeclared UG']
         assert updated_cohort['criteria']['gpaRanges'] == [gpa_range]
         assert updated_cohort['criteria']['groupCodes'] is None
 
@@ -748,6 +753,13 @@ class TestCohortUpdate:
         expected = remove_empties(cohort['criteria'])
         actual = remove_empties(updated_cohort['criteria'])
         assert expected == actual
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 5
+        assert events[2]['sid'] == '9000000000'
+        assert events[2]['eventType'] == 'added'
+        assert next(e for e in events[0:2] if e['sid'] == '3456789012' and e['eventType'] == 'removed')
+        assert next(e for e in events[0:2] if e['sid'] == '7890123456' and e['eventType'] == 'removed')
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_login):
         name = 'Swimming, Men\'s'
@@ -762,6 +774,13 @@ class TestCohortUpdate:
         response = client.get(f'/api/cohort/{cohort_id}')
         cohort = json.loads(response.data)
         assert cohort['totalStudentCount'] == 1
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 1
+        assert events[0]['eventType'] == 'added'
+        assert events[0]['sid'] == '7890123456'
+        assert events[0]['createdAt'] is not None
+
         # Update the db
         response = self._post_cohort_update(
             client,
@@ -781,6 +800,15 @@ class TestCohortUpdate:
         group_codes = updated_cohort['criteria']['groupCodes']
         assert len(group_codes) == 2
         assert group_codes == ['MBB', 'MBB-AA']
+
+        events = api_cohort_events(client, cohort['id'])
+        assert len(events) == 2
+        assert events[0]['eventType'] == 'added'
+        assert events[0]['sid'] == '3456789012'
+        assert events[0]['createdAt'] is not None
+        assert events[1]['eventType'] == 'added'
+        assert events[1]['sid'] == '7890123456'
+        assert events[0]['createdAt'] > events[1]['createdAt']
 
 
 class TestCohortDelete:
