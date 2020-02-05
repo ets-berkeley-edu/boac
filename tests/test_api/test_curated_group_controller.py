@@ -174,7 +174,7 @@ class TestGetCuratedGroup:
         assert majors == [
             'English BA (Kerschen)',
             'Letters & Sci Undeclared UG (Jayaprakash)',
-            'None (Farestveit)',
+            'Nuclear Engineering BS (Farestveit)',
         ]
 
     def test_order_by_gpa_desc(self, asc_advisor, asc_curated_groups, client):
@@ -642,7 +642,7 @@ program_status',
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,Active',
             'Paul,Kerschen,3456789012,doctork@berkeley.edu,415/123-4567,English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
             'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,Active',
-            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,,Senior,2,Spring 2020,110,,3.9,Cancelled',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,Active',
         ]:
             assert str(snippet) in csv
 
@@ -694,6 +694,6 @@ program_status',
             'English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,Active',
             'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
             'Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,Active',
-            ',Senior,2,Spring 2020,110,,3.9,Cancelled',
+            'Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,Active',
         ]:
             assert str(snippet) in csv

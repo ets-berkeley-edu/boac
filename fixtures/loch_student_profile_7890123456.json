@@ -45,8 +45,8 @@
         "plans": [
             {
                 "description": "Nuclear Engineering BS",
-                "program": "Engineering",
-                "status": "Cancelled"
+                "program": "Undergrad Engineering",
+                "status": "Active"
             }
         ],
         "preferredName": "Paul Farestveit",
