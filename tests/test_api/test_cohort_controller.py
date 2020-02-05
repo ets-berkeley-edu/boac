@@ -871,6 +871,7 @@ class TestCohortPerFilters:
         for key in [
             'coeAdvisorLdapUids',
             'coeEthnicities',
+            'colleges',
             'ethnicities',
             'expectedGradTerms',
             'genders',
@@ -988,6 +989,21 @@ class TestCohortPerFilters:
         assert is_active_asc(students[1]) is True
         assert is_active_asc(students[2]) is True
         assert is_active_asc(students[3]) is True
+
+    def test_filter_colleges(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'colleges', 'value': 'Undergrad Engineering'},
+                    {'key': 'colleges', 'value': 'Undergrad Chemistry'},
+                ],
+            },
+        )
+        students = api_json['students']
+        for student in students:
+            assert ('Nuclear Engineering BS' in student['majors'] or 'Chemistry BS' in student['majors']
+                    or 'Engineering Undeclared UG' in student['majors'])
 
     def test_filter_entering_term(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
@@ -1195,7 +1211,7 @@ class TestDownloadCsvPerFilters:
             'first_name,last_name,sid,email,phone,majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,\
 program_status',
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,Active',
-            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,,Senior,2,Spring 2020,110,,3.9,Cancelled',
+            'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,Active',
             'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567,Engineering Undeclared UG,Sophomore,2,Spring 2020,55,,2.3,Active',
         ]:
             assert str(snippet) in csv
@@ -1393,13 +1409,13 @@ class TestCohortFilterOptions:
 
     def test_range_of_entering_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        filter_options = api_json[0][0].get('options')
+        filter_options = api_json[0][1].get('options')
         assert len(filter_options) == 4
         assert [o['name'] for o in filter_options] == ['2015 Fall', '2015 Summer', '2015 Spring', '1993 Fall']
 
     def test_range_of_expected_grad_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        filter_options = api_json[0][1].get('options')
+        filter_options = api_json[0][2].get('options')
         assert [o['name'] for o in filter_options[-3:]] == ['2019 Spring', 'divider', '1997 Fall']
 
     def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):

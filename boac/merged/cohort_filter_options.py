@@ -117,6 +117,19 @@ def _get_filter_options(scope, owner_uid):
             {
                 'availableTo': all_dept_codes,
                 'defaultValue': None,
+                'key': 'colleges',
+                'label': {
+                    'primary': 'College',
+                },
+                'options': _colleges,
+                'type': {
+                    'db': 'string[]',
+                    'ux': 'dropdown',
+                },
+            },
+            {
+                'availableTo': all_dept_codes,
+                'defaultValue': None,
                 'key': 'enteringTerms',
                 'label': {
                     'primary': 'Entering Term',
@@ -530,6 +543,11 @@ def _academic_plans_for_cohort_owner(owner_uid):
 def _curated_groups(user_id):
     curated_groups = CuratedGroup.get_curated_groups_by_owner_id(user_id)
     return [{'name': g.name, 'value': g.id} for g in curated_groups]
+
+
+def _colleges():
+    college_results = [row['college'] for row in data_loch.get_colleges()]
+    return [{'name': college, 'value': college} for college in college_results]
 
 
 def _entering_terms():

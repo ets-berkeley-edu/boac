@@ -274,6 +274,7 @@ class CohortFilter(Base):
         coe_probation = util.to_bool_or_none(c.get('coeProbation'))
         coe_underrepresented = util.to_bool_or_none(c.get('coeUnderrepresented'))
         cohort_owner_academic_plans = util.get(c, 'cohortOwnerAcademicPlans')
+        colleges = c.get('colleges')
         curated_group_ids = util.get(c, 'curatedGroupIds')
         entering_terms = c.get('enteringTerms')
         ethnicities = c.get('ethnicities')
@@ -303,6 +304,7 @@ class CohortFilter(Base):
                 'coeProbation': coe_probation,
                 'coeUnderrepresented': coe_underrepresented,
                 'cohortOwnerAcademicPlans': cohort_owner_academic_plans,
+                'colleges': colleges,
                 'curatedGroupIds': curated_group_ids,
                 'enteringTerms': entering_terms,
                 'ethnicities': ethnicities,
@@ -356,6 +358,7 @@ class CohortFilter(Base):
             coe_prep_statuses=coe_prep_statuses,
             coe_probation=coe_probation,
             coe_underrepresented=coe_underrepresented,
+            colleges=colleges,
             curated_group_ids=curated_group_ids,
             entering_terms=entering_terms,
             ethnicities=ethnicities,

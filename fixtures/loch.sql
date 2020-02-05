@@ -294,6 +294,7 @@ CREATE TABLE student.student_academic_status
 CREATE TABLE student.student_majors
 (
     sid VARCHAR NOT NULL,
+    college VARCHAR NOT NULL,
     major VARCHAR NOT NULL
 );
 
@@ -666,19 +667,19 @@ VALUES
 ('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2);
 
 INSERT INTO student.student_majors
-(sid, major)
+(sid, college, major)
 VALUES
-('11667051', 'English BA'),
-('11667051', 'Nuclear Engineering BS'),
-('2345678901', 'Chemistry BS'),
-('3456789012', 'English BA'),
-('3456789012', 'Political Economy BA'),
-('5678901234', 'Letters & Sci Undeclared UG'),
-('7890123456', 'Nuclear Engineering BS'),
-('8901234567', 'Economics BA'),
-('890127492', 'Mathematics'),
-('9000000000', 'Engineering Undeclared UG'),
-('9100000000', 'Engineering Undeclared UG');
+('11667051', 'Undergrad Letters & Science', 'English BA'),
+('11667051', 'Undergrad Engineering', 'Nuclear Engineering BS'),
+('2345678901', 'Undergrad Chemistry', 'Chemistry BS'),
+('3456789012', 'Undergrad Letters & Science', 'English BA'),
+('3456789012', 'Undergrad Letters & Science', 'Political Economy BA'),
+('5678901234', 'Undergrad Letters & Science', 'Letters & Sci Undeclared UG'),
+('7890123456', 'Undergrad Engineering', 'Nuclear Engineering BS'),
+('8901234567', 'Undergrad Letters & Science', 'Economics BA'),
+('890127492', 'Undergrad Letters & Science', 'Mathematics'),
+('9000000000', 'Undergrad Engineering', 'Engineering Undeclared UG'),
+('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG');
 
 INSERT INTO student.student_name_index_hist_enr
 (sid, name)

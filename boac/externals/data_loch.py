@@ -635,6 +635,15 @@ def get_coe_ethnicity_codes(scope=()):
         """)
 
 
+def get_colleges():
+    sql = f"""SELECT DISTINCT maj.college
+        FROM {student_schema()}.student_academic_status sas
+        JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
+        WHERE maj.college NOT LIKE 'Graduate%'
+        ORDER BY college"""
+    return safe_execute_rds(sql)
+
+
 def get_distinct_genders():
     return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
 
@@ -679,6 +688,7 @@ def get_students_query(     # noqa
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
+    colleges=None,
     curated_group_ids=None,
     current_term_id=None,
     ethnicities=None,
@@ -789,6 +799,9 @@ def get_students_query(     # noqa
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [_level_to_code(l) for l in levels]})
+    if colleges:
+        query_filter += ' AND maj.college = ANY(:colleges)'
+        query_bindings.update({'colleges': colleges})
     if majors:
         # Only modify the majors list clone
         _majors = majors.copy()
@@ -802,8 +815,9 @@ def get_students_query(     # noqa
         if _majors:
             major_filters.append('maj.major = ANY(:majors)')
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
-        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
         query_bindings.update({'majors': _majors})
+    if majors or colleges:
+        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
     if midpoint_deficient_grade is True:
         query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
                              ON ser.sid = sas.sid
