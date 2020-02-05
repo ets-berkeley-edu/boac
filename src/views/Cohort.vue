@@ -126,9 +126,11 @@ export default {
       this.setPageTitle(this.cohortName);
       this.loaded(this.cohortName);
     } else {
+      const domain = this.$route.query.domain || 'default';
       const id = this.toInt(this.get(this.$route, 'params.id'));
       this.init({
         id,
+        domain,
         orderBy: this.preferences.sortBy
       }).then(() => {
         this.showFilters = !this.isCompactView;

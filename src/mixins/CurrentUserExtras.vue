@@ -5,6 +5,7 @@ export default {
   name: 'CurrentUserExtras',
   computed: {
     ...mapGetters('currentUserExtras', [
+      'myAdmitCohorts',
       'myCohorts',
       'myCuratedGroups',
       'preferences'

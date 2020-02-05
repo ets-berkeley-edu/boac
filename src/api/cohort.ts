@@ -4,11 +4,16 @@ import store from '@/store';
 import utils from '@/api/api-utils';
 
 export function createCohort(
+  domain: string,
   name: string,
   filters: any[]
 ) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/create`, {name, filters})
+    .post(`${utils.apiBaseUrl()}/api/cohort/create`, {
+      domain,
+      name,
+      filters
+    })
     .then(response => {
       const cohort = response.data;
       store.commit('currentUserExtras/cohortCreated', cohort);
@@ -28,12 +33,16 @@ export function deleteCohort(id) {
     }, () => null);
 }
 
-export function downloadCsv(cohortName: string, filters: any[], csvColumnsSelected: any[]) {
+export function downloadCsv(domain: string, cohortName: string, filters: any[], csvColumnsSelected: any[]) {
   const fileDownload = require('js-file-download');
   const now = moment().format('YYYY-MM-DD_HH-mm-ss');
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`;
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, { filters, csvColumnsSelected })
+    .post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {
+      domain,
+      filters,
+      csvColumnsSelected
+    })
     .then(response => fileDownload(response.data, `${filename}.csv`), () => null);
 }
 
@@ -49,22 +58,24 @@ export function getCohort(
     .then(response => response.data, () => null);
 }
 
-export function getCohortFilterOptions(owner: string, existingFilters: any[]) {
+export function getCohortFilterOptions(domain: string, owner: string, existingFilters: any[]) {
   owner = owner || 'me';
   return axios
     .post(`${utils.apiBaseUrl()}/api/cohort/filter_options/${owner}`, {
+      domain: domain,
       existingFilters: existingFilters
     })
     .then(response => response.data, () => null);
 }
 
-export function getMyCohorts() {
+export function getMyCohorts(domain: string) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/cohorts/my`)
+    .get(`${utils.apiBaseUrl()}/api/cohorts/my?domain=${domain}`)
     .then(response => response.data, () => null);
 }
 
 export function getStudentsPerFilters(
+  domain: string,
   filters: any[],
   orderBy: string,
   offset: number,
@@ -72,6 +83,7 @@ export function getStudentsPerFilters(
 ) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/cohort/get_students_per_filters`, {
+      domain,
       filters,
       orderBy,
       offset,
@@ -86,9 +98,9 @@ export function getStudentsWithAlerts(cohortId) {
     .then(response => response.data, () => null);
 }
 
-export function getUsersWithCohorts() {
+export function getUsersWithCohorts(domain: string) {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/cohorts/all`)
+    .get(`${utils.apiBaseUrl()}/api/cohorts/all?domain=${domain || 'default'}`)
     .then(response => response.data, () => null);
 }
 
@@ -110,8 +122,11 @@ export function saveCohort(
     }, () => null);
 }
 
-export function translateToFilterOptions(owner: string, criteria: any) {
+export function translateToFilterOptions(domain: string, owner: string, criteria: any) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`, { criteria: criteria })
+    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`, {
+      criteria,
+      domain
+    })
     .then(response => response.data, () => null);
 }

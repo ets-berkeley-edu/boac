@@ -38,7 +38,7 @@ export default {
     rows: []
   }),
   created() {
-    getUsersWithCohorts().then(data => {
+    getUsersWithCohorts('default').then(data => {
       this.rows = data;
       this.loaded('Everyone\'s Cohorts');
     });
