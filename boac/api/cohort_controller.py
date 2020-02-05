@@ -44,6 +44,8 @@ from flask_login import current_user
 @advisor_required
 def my_cohorts():
     domain = get_param(request.args, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     cohorts = []
     for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id(), domain=domain):
         cohort['isOwnedByCurrentUser'] = True
@@ -58,6 +60,8 @@ def all_cohorts():
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     cohorts_per_uid = dict((uid, []) for uid in uids)
     domain = get_param(request.args, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     for cohort in CohortFilter.get_cohorts_owned_by_uids(uids, domain=domain):
         for uid in cohort['owners']:
             cohorts_per_uid[uid].append(cohort)

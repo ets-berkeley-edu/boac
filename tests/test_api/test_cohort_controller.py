@@ -122,45 +122,53 @@ def new_undeclared_cohort(client):
     return response.json
 
 
-class TestCohortDetail:
-    """Cohort API."""
+class TestMyCohorts:
+    """My Cohorts API."""
+
+    @classmethod
+    def _api_my_cohorts(cls, client, domain='default', expected_status_code=200):
+        response = client.get(f'/api/cohorts/my?domain={domain}')
+        assert response.status_code == expected_status_code
+        return response.json
 
     def test_my_cohorts_not_authenticated(self, client):
         """Rejects anonymous user."""
-        response = client.get('/api/cohorts/my')
-        assert response.status_code == 401
+        self._api_my_cohorts(client, expected_status_code=401)
 
     def test_scheduler_role_is_unauthorized(self, coe_scheduler_login, client):
         """Rejects COE scheduler user."""
-        response = client.get('/api/cohorts/my')
-        assert response.status_code == 401
+        self._api_my_cohorts(client, expected_status_code=401)
 
     def test_my_cohorts(self, coe_advisor_login, client):
-        """Returns user's cohorts."""
-        response = client.get('/api/cohorts/my')
-        assert response.status_code == 200
-        cohorts = response.json
+        """Returns cohorts of COE advisor."""
+        cohorts = self._api_my_cohorts(client)
         assert len(cohorts) == 2
         for key in 'name', 'alertCount', 'criteria', 'totalStudentCount', 'isOwnedByCurrentUser':
             assert key in cohorts[0], f'Missing cohort element: {key}'
 
+    def test_feature_flag_false_for_admitted_students_domain(self, ce3_user_login, client):
+        """Returns 404 if feature flag is false and domain is 'admitted_students'."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            self._api_my_cohorts(client, domain='admitted_students', expected_status_code=404)
+
     def test_cohorts_all_for_ce3(self, ce3_user_login, client):
         """Returns all standard cohorts for CE3 advisor."""
-        response = client.get('/api/cohorts/my')
-        assert response.status_code == 200
-        api_json = response.json
-        count = len(api_json)
+        cohorts = self._api_my_cohorts(client)
+        count = len(cohorts)
         assert count == 1
-        assert api_json[0]['name'] == 'Undeclared students'
+        assert cohorts[0]['name'] == 'Undeclared students'
 
     def test_admitted_students_cohorts_all_for_ce3(self, ce3_user_login, client):
         """Returns all standard cohorts for CE3 advisor."""
-        response = client.get('/api/cohorts/my?domain=admitted_students')
-        assert response.status_code == 200
-        api_json = response.json
-        count = len(api_json)
-        assert count == 1
-        assert api_json[0]['name'] == 'First Generation Students'
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            cohorts = self._api_my_cohorts(client, domain='admitted_students')
+            count = len(cohorts)
+            assert count == 1
+            assert cohorts[0]['name'] == 'First Generation Students'
+
+
+class TestCohortById:
+    """Cohort API."""
 
     def test_students_with_alert_counts(self, asc_advisor_login, client, create_alerts, db_session):
         """Pre-load students into cache for consistent alert data."""
@@ -212,27 +220,6 @@ class TestCohortDetail:
         assert len(students_with_alerts) == 2
         assert students_with_alerts[0]['sid'] == '11667051'
         assert students_with_alerts[0]['alertCount'] == 2
-
-    def test_cohorts_all(self, asc_advisor_login, client):
-        """Returns all cohorts per owner."""
-        response = client.get('/api/cohorts/all')
-        assert response.status_code == 200
-        api_json = response.json
-        count = len(api_json)
-        assert count == 3
-        for index, entry in enumerate(api_json):
-            user = entry['user']
-            if 0 < index < count:
-                # Verify order
-                assert user['name'] > api_json[index - 1]['user']['name']
-            assert 'uid' in user
-            cohorts = entry['cohorts']
-            cohort_count = len(cohorts)
-            for c_index, cohort in enumerate(cohorts):
-                if 0 < c_index < cohort_count:
-                    # Verify order
-                    assert cohort['name'] > cohorts[c_index - 1]['name']
-                assert 'id' in cohort
 
     def test_get_cohort(self, coe_advisor_login, client, coe_owned_cohort, create_alerts):
         """Returns a well-formed response with filtered cohort and alert count per student."""
@@ -532,6 +519,61 @@ class TestCohortDetail:
         for e in events[3:8]:
             assert e['createdAt'] is not None
             assert e['eventType'] == 'added'
+
+
+class TestCohortsEveryone:
+
+    @classmethod
+    def _api_cohorts_all(cls, client, domain='default', expected_status_code=200):
+        response = client.get(f'/api/cohorts/all?domain={domain}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_deny_admitted_students_domain(self, asc_advisor_login, client):
+        """Deny non-CE3 advisor access to non-default cohort domain."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_cohorts_all(client, domain='admitted_students', expected_status_code=403)
+
+    def test_admitted_students_feature_flag(self, ce3_user_login, client):
+        """Deny non-CE3 advisor access to non-default cohort domain."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            self._api_cohorts_all(client, domain='admitted_students', expected_status_code=404)
+
+    def test_cohorts_all(self, asc_advisor_login, client):
+        """Returns all cohorts per owner."""
+        api_json = self._api_cohorts_all(client)
+        count = len(api_json)
+        assert count == 3
+        for index, entry in enumerate(api_json):
+            user = entry['user']
+            if 0 < index < count:
+                # Verify order
+                assert user['name'] > api_json[index - 1]['user']['name']
+            assert 'uid' in user
+            cohorts = entry['cohorts']
+            cohort_count = len(cohorts)
+            for c_index, cohort in enumerate(cohorts):
+                if 0 < c_index < cohort_count:
+                    # Verify order
+                    assert cohort['name'] > cohorts[c_index - 1]['name']
+                assert 'id' in cohort
+
+    def test_all_cohorts_of_default_domain(self, ce3_user_login, client):
+        """Returns all cohorts, excluding admitted students."""
+        api_json = self._api_cohorts_all(client)
+        for row in api_json:
+            for cohort in row['cohorts']:
+                assert cohort['domain'] == 'default'
+                assert cohort['name'] != 'First Generation Students'
+
+    def test_all_admitted_students_cohorts(self, ce3_user_login, client):
+        """Returns all cohorts, excluding admitted students."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            api_json = self._api_cohorts_all(client, domain='admitted_students')
+            for row in api_json:
+                for cohort in row['cohorts']:
+                    assert cohort['domain'] == 'admitted_students'
+                    assert cohort['name'] != 'Undeclared students'
 
 
 class TestCohortCreate:

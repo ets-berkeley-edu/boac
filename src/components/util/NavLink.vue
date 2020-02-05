@@ -1,6 +1,6 @@
 <template>
   <router-link
-    :to="`${path}?_=${counter}`"
+    :to="`${path}?_=${counter}&${query}`"
     @click.native="incrementCounter()">
     <slot></slot>
   </router-link>
@@ -13,6 +13,11 @@ export default {
     path: {
       type: String,
       required: true
+    },
+    query: {
+      default: '',
+      type: String,
+      required: false
     }
   },
   data: () => ({

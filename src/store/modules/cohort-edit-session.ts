@@ -17,6 +17,7 @@ const state = {
   cohortId: undefined,
   cohortName: undefined,
   cohortOwnerUid: undefined,
+  domain: undefined,
   editMode: undefined,
   filters: undefined,
   isCompactView: undefined,
@@ -93,6 +94,7 @@ const mutations = {
     state.cohortId = cohort && cohort.id;
     state.cohortName = cohort && cohort.name;
     state.cohortOwnerUid = cohort && cohort.owners && cohort.owners[0] && cohort.owners[0].uid;
+    state.domain = cohort && cohort.domain;
     state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
     state.filters = filters || [];
     state.students = students;
@@ -108,6 +110,7 @@ const mutations = {
   },
   setCurrentPage: (state: any, currentPage: number) =>
     (state.pagination.currentPage = currentPage),
+  setDomain: (state: any, domain: string) => state.domain = domain,
   setModifiedSinceLastSearch: (state: any, value: boolean) =>
     (state.isModifiedSinceLastSearch = value),
   // Store an unmodified copy of the most recently applied filters in case of cancellation.
@@ -136,6 +139,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     let offset =
       (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
     getStudentsPerFilters(
+      state.domain,
       state.filters,
       orderBy,
       offset,
@@ -154,7 +158,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
 }
 
 const actions = {
-  init({ commit }, { id, orderBy }) {
+  init({ commit, state }, { id, domain, orderBy }) {
     return new Promise(resolve => {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
@@ -168,9 +172,17 @@ const actions = {
         store.dispatch('cohortEditSession/loadCohort', {
           id: id,
           orderBy: orderBy
-        }).then(resolve);
+        }).then(cohort => {
+          commit('setDomain', cohort.domain);
+          resolve();
+        });
       } else {
-        getCohortFilterOptions(getters.cohortOwner(state), []).then(menu => {
+        if (domain) {
+          commit('setDomain', domain);
+        } else {
+          throw new TypeError('\'domain\' is required when creating a new cohort.');
+        }
+        getCohortFilterOptions(state.domain, getters.cohortOwner(state), []).then(menu => {
           commit('updateMenu', menu);
           commit('resetSession', {});
           commit('stashOriginalFilters');
@@ -183,7 +195,7 @@ const actions = {
     return new Promise(resolve => {
       commit('addFilter', filter);
       commit('setModifiedSinceLastSearch', true);
-      getCohortFilterOptions(getters.cohortOwner(state), state.filters).then(menu => {
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
       });
@@ -199,7 +211,7 @@ const actions = {
   },
   createCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
-      createCohort(name, state.filters).then(
+      createCohort(state.domain, name, state.filters).then(
         cohort => {
           commit('resetSession', {
             cohort,
@@ -216,15 +228,15 @@ const actions = {
   },
   downloadCsvPerFilters: ({ state }, csvColumnsSelected: any) => {
     return new Promise(resolve => {
-      downloadCsv(state.cohortName, state.filters, csvColumnsSelected).then(resolve);
+      downloadCsv(state.domain, state.cohortName, state.filters, csvColumnsSelected).then(resolve);
     });
   },
-  loadCohort: ({commit}, {id, orderBy} ) => {
+  loadCohort: ({ commit, state }, {id, orderBy} ) => {
     return new Promise(resolve => {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
           const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owners[0].uid');
-          translateToFilterOptions(owner, cohort.criteria).then(filters => {
+          translateToFilterOptions(state.domain, owner, cohort.criteria).then(filters => {
             commit('resetSession', {
               cohort,
               filters: filters,
@@ -232,7 +244,7 @@ const actions = {
               totalStudentCount: cohort.totalStudentCount
             });
             commit('stashOriginalFilters');
-            getCohortFilterOptions(owner, filters).then(menu => {
+            getCohortFilterOptions(state.domain, owner, filters).then(menu => {
               commit('updateMenu', menu);
             });
             resolve();
@@ -257,7 +269,7 @@ const actions = {
     return new Promise(resolve => {
       commit('removeFilter', index);
       commit('setModifiedSinceLastSearch', true);
-      getCohortFilterOptions(getters.cohortOwner(state), state.filters).then(menu => {
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
       });
@@ -268,7 +280,7 @@ const actions = {
       commit('restoreOriginalFilters');
       commit('setEditMode', null);
       commit('setModifiedSinceLastSearch', false);
-      getCohortFilterOptions(getters.cohortOwner(state), state.filters).then(menu => {
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
       });
@@ -308,7 +320,7 @@ const actions = {
     return new Promise(resolve => {
       commit('updateExistingFilter', { index, updatedFilter });
       commit('setModifiedSinceLastSearch', true);
-      getCohortFilterOptions(getters.cohortOwner(state), state.filters).then(menu => {
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
         commit('updateMenu', menu);
         resolve();
       });

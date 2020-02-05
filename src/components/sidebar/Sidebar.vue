@@ -13,6 +13,10 @@
       <CuratedGroups />
       <hr class="ml-2 mr-2 section-divider" />
     </div>
+    <div v-if="$config.featureFlagAdmittedStudents && myAdmitCohorts">
+      <MyAdmitCohorts />
+      <hr class="ml-2 mr-2 section-divider" />
+    </div>
     <div class="mb-2 sidebar-row-link">
       <div class="ml-2 mr-2">
         <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
@@ -37,6 +41,7 @@ import Context from '@/mixins/Context';
 import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
+import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
 
 export default {
@@ -45,6 +50,7 @@ export default {
     Cohorts,
     CreateNoteModal,
     CuratedGroups,
+    MyAdmitCohorts,
     SearchForm
   },
   mixins: [Context, CurrentUserExtras]

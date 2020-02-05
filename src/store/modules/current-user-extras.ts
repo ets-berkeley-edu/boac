@@ -4,6 +4,7 @@ import { getMyCohorts } from "@/api/cohort";
 import { getMyCuratedGroups } from "@/api/curated";
 
 const state = {
+  myAdmitCohorts: undefined,
   myCohorts: undefined,
   myCuratedGroups: undefined,
   preferences: {
@@ -12,13 +13,17 @@ const state = {
 };
 
 const getters = {
+  myAdmitCohorts: (state: any): any => state.myAdmitCohorts,
   myCohorts: (state: any): any => state.myCohorts,
   myCuratedGroups: (state: any): any => state.myCuratedGroups,
   preferences: (state: any): any => state.preferences
 };
 
 const mutations = {
-  cohortCreated: (state: any, cohort: any) => state.myCohorts.push(cohort),
+  cohortCreated: (state: any, cohort: any) => {
+    const cohortArray = cohort.domain === 'admitted_students' ? state.myAdmitCohorts : state.myCohorts;
+    cohortArray.push(cohort);
+  },
   cohortDeleted: (state: any, id: any) => {
     let indexOf = state.myCohorts.findIndex(cohort => cohort.id === id);
     state.myCohorts.splice(indexOf, 1);
@@ -45,6 +50,7 @@ const mutations = {
   },
   dropInAdvisorDeleted:(state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
   loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
+  loadMyAdmitCohorts: (state: any, cohorts: any[]) => state.myAdmitCohorts = cohorts,
   loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
   setDropInStatus: (state: any, {deptCode, available, status}) => {
     const currentUser = Vue.prototype.$currentUser;
@@ -67,7 +73,10 @@ const mutations = {
 
 const actions = {
   async loadMyCohorts({ commit }) {
-    getMyCohorts().then(cohorts => commit('loadMyCohorts', cohorts))
+    getMyCohorts('default').then(cohorts => commit('loadMyCohorts', cohorts));
+    if (Vue.prototype.$config.featureFlagAdmittedStudents) {
+      getMyCohorts('admitted_students').then(cohorts => commit('loadMyAdmitCohorts', cohorts));
+    }
   },
   async loadMyCuratedGroups({ commit }) {
     getMyCuratedGroups().then(curatedGroups => commit('loadMyCuratedGroups', curatedGroups));
