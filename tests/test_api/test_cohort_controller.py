@@ -1570,8 +1570,12 @@ class TestCohortFilterOptions:
                 },
             )
             assert len(api_json) == 1
-            assert len(api_json[0]) == 1
-            assert api_json[0][0]['key'] == 'firstGeneration'
+            assert len(api_json[0]) > 1
+            for category in api_json:
+                for filter_ in category:
+                    # Verify the 'default' filters are not present.
+                    assert 'unitRanges' != filter_['key']
+                    assert filter_['domain'] == 'admitted_students'
 
 
 class TestTranslateToFilterOptions:
