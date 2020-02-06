@@ -44,6 +44,7 @@ const getters = {
       return state.cohortOwnerUid;
     }
   },
+  domain: (state: any) => state.domain,
   editMode: (state: any) => state.editMode,
   filters: (state: any): any[] => state.filters,
   isCompactView: (state: any): boolean => state.isCompactView,
@@ -94,7 +95,6 @@ const mutations = {
     state.cohortId = cohort && cohort.id;
     state.cohortName = cohort && cohort.name;
     state.cohortOwnerUid = cohort && cohort.owners && cohort.owners[0] && cohort.owners[0].uid;
-    state.domain = cohort && cohort.domain;
     state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
     state.filters = filters || [];
     state.students = students;
@@ -105,20 +105,14 @@ const mutations = {
       state.isModifiedSinceLastSearch = true;
     }
   },
-  restoreOriginalFilters: (state: any) => {
-    state.filters = _.cloneDeep(state.originalFilters);
-  },
-  setCurrentPage: (state: any, currentPage: number) =>
-    (state.pagination.currentPage = currentPage),
+  restoreOriginalFilters: (state: any) =>  state.filters = _.cloneDeep(state.originalFilters),
+  setCurrentPage: (state: any, currentPage: number) => state.pagination.currentPage = currentPage,
   setDomain: (state: any, domain: string) => state.domain = domain,
-  setModifiedSinceLastSearch: (state: any, value: boolean) =>
-    (state.isModifiedSinceLastSearch = value),
+  setModifiedSinceLastSearch: (state: any, value: boolean) => state.isModifiedSinceLastSearch = value,
   // Store an unmodified copy of the most recently applied filters in case of cancellation.
-  stashOriginalFilters: (state: any) =>
-    (state.originalFilters = _.cloneDeep(state.filters)),
-  toggleCompactView: (state: any) =>
-    (state.isCompactView = !state.isCompactView),
-  updateMenu: (state: any, menu: any[]) => (state.menu = menu),
+  stashOriginalFilters: (state: any) => state.originalFilters = _.cloneDeep(state.filters),
+  toggleCompactView: (state: any) => state.isCompactView = !state.isCompactView,
+  updateMenu: (state: any, menu: any[]) => state.menu = menu,
   updateStudents: (state: any, { students, totalStudentCount }) => {
     state.students = students;
     state.totalStudentCount = totalStudentCount;
@@ -158,7 +152,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
 }
 
 const actions = {
-  init({ commit, state }, { id, domain, orderBy }) {
+  init({ commit, state }, { id, orderBy, domain }) {
     return new Promise(resolve => {
       commit('setEditMode', null);
       commit('isCompactView', !!id);
@@ -172,10 +166,7 @@ const actions = {
         store.dispatch('cohortEditSession/loadCohort', {
           id: id,
           orderBy: orderBy
-        }).then(cohort => {
-          commit('setDomain', cohort.domain);
-          resolve();
-        });
+        }).then(resolve);
       } else {
         if (domain) {
           commit('setDomain', domain);
@@ -235,6 +226,7 @@ const actions = {
     return new Promise(resolve => {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
+          commit('setDomain', cohort.domain);
           const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owners[0].uid');
           translateToFilterOptions(state.domain, owner, cohort.criteria).then(filters => {
             commit('resetSession', {

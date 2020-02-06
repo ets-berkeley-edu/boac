@@ -26,7 +26,7 @@
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
           <hr class="filters-section-separator mr-2" />
-          <div class="d-flex justify-content-between align-items-center p-2">
+          <div v-if="domain === 'default'" class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector
               :context-description="`Cohort ${cohortName || ''}`"
               :ga-event-tracker="$ga.cohortEvent"
@@ -36,7 +36,7 @@
           </div>
           <div>
             <div class="cohort-column-results">
-              <div id="cohort-students" class="list-group mr-2">
+              <div v-if="domain === 'default'" id="cohort-students" class="list-group mr-2">
                 <StudentRow
                   v-for="(student, index) in students"
                   :id="`student-${student.uid}`"
@@ -46,6 +46,17 @@
                   :sorted-by="preferences.sortBy"
                   :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
                   list-type="cohort"
+                  class="list-group-item border-left-0 border-right-0" />
+              </div>
+              <div v-if="domain === 'admitted_students'" id="admitted-students-cohort-students" class="list-group mr-2">
+                <AdmitStudentRow
+                  v-for="(student, index) in students"
+                  :id="`admitted-student-student-${student.uid}`"
+                  :key="student.sid"
+                  :row-index="index"
+                  :student="student"
+                  :sorted-by="preferences.sortBy"
+                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
                   class="list-group-item border-left-0 border-right-0" />
               </div>
             </div>
@@ -65,6 +76,7 @@
 </template>
 
 <script>
+import AdmitStudentRow from '@/components/cohort/AdmitStudentRow';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
@@ -84,6 +96,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'Cohort',
   components: {
+    AdmitStudentRow,
     ApplyAndSaveButtons,
     CohortPageHeader,
     CuratedGroupSelector,
@@ -130,8 +143,8 @@ export default {
       const id = this.toInt(this.get(this.$route, 'params.id'));
       this.init({
         id,
-        domain,
-        orderBy: this.preferences.sortBy
+        orderBy: this.preferences.sortBy,
+        domain
       }).then(() => {
         this.showFilters = !this.isCompactView;
         this.pageNumber = this.pagination.currentPage;

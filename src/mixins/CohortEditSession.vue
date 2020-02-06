@@ -8,6 +8,7 @@ export default {
       'cohortId',
       'cohortName',
       'cohortOwner',
+      'domain',
       'editMode',
       'filters',
       'isCompactView',
