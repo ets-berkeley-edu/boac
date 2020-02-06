@@ -21,17 +21,24 @@ const getters = {
 
 const mutations = {
   cohortCreated: (state: any, cohort: any) => {
-    const cohortArray = cohort.domain === 'admitted_students' ? state.myAdmitCohorts : state.myCohorts;
-    cohortArray.push(cohort);
+    const cohorts = cohort.domain === 'admitted_students' ? state.myAdmitCohorts : state.myCohorts;
+    cohorts.push(cohort);
   },
   cohortDeleted: (state: any, id: any) => {
-    let indexOf = state.myCohorts.findIndex(cohort => cohort.id === id);
-    state.myCohorts.splice(indexOf, 1);
+    const removeFromList = cohorts => {
+      let indexOf = cohorts.findIndex(cohort => cohort.id === id);
+      if (indexOf > -1) {
+        cohorts.splice(indexOf, 1);
+        return true;
+      }
+    };
+    if (!removeFromList(state.myCohorts)) {
+      removeFromList(state.myAdmitCohorts);
+    }
   },
   cohortUpdated: (state: any, updatedCohort: any) => {
-    let cohort = state.myCohorts.find(
-      cohort => cohort.id === +updatedCohort.id
-    );
+    const cohorts = state.myCohorts.concat(state.myAdmitCohorts);
+    let cohort = cohorts.find(cohort => cohort.id === +updatedCohort.id);
     Object.assign(cohort, updatedCohort);
   },
   curatedGroupCreated: (state: any, group: any) => state.myCuratedGroups.push(group),

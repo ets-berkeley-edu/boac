@@ -371,7 +371,7 @@ class CohortFilter(Base):
         else:
             advisor_plan_mappings = None
 
-        results = query_students(
+        results = _mock_ce3_students() if self.domain == 'admitted_students' else query_students(
             advisor_plan_mappings=advisor_plan_mappings,
             coe_advisor_ldap_uids=coe_advisor_ldap_uids,
             coe_ethnicities=coe_ethnicities,
@@ -442,3 +442,24 @@ class CohortFilter(Base):
                     })
         benchmark('end')
         return cohort_json
+
+
+def _mock_ce3_students():
+    return {
+        'sids': ['1', '2', '3'],
+        'students': [
+            {
+                'sid': '1',
+                'firstName': 'Larry',
+            },
+            {
+                'sid': '2',
+                'firstName': 'Curly',
+            },
+            {
+                'sid': '3',
+                'firstName': 'Moe',
+            },
+        ],
+        'totalStudentCount': 3,
+    }

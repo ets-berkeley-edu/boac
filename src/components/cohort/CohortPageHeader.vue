@@ -5,10 +5,13 @@
         id="create-cohort-h1"
         class="page-section-header"
         tabindex="0">
-        Create a Cohort
+        Create {{ domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
-      <div>
+      <div v-if="domain === 'default'">
         Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
+      </div>
+      <div v-if="domain === 'admitted_students'">
+        Find a set of users using the filters below.
       </div>
     </div>
     <div v-if="!renameMode" class="d-flex flex-wrap justify-content-between">

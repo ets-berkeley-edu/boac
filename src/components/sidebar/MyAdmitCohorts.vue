@@ -10,7 +10,7 @@
           class="sidebar-create-link"
           aria-label="Create an admitted-students cohort"
           path="/cohort/new"
-          query="domain=admitted_students">
+          :query-args="{domain: 'admitted_students'}">
           <font-awesome icon="plus" class="sidebar-header" />
         </NavLink>
       </div>

@@ -14,15 +14,22 @@ export default {
       type: String,
       required: true
     },
-    query: {
-      default: '',
-      type: String,
+    queryArgs: {
+      type: Object,
       required: false
     }
   },
   data: () => ({
-    counter: 0
+    counter: 0,
+    query: ''
   }),
+  created() {
+    if (this.queryArgs) {
+      this.$_.each(this.$_.keys(this.queryArgs), key => {
+        this.query += `&${key}=${this.queryArgs[key]}`;
+      });
+    }
+  },
   methods: {
     incrementCounter() {
       this.counter = this.counter + 1;
