@@ -149,7 +149,9 @@ def get_cohort_events(cohort_id):
 
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
-    events = CohortFilterEvent.events_for_cohort(cohort_id, offset, limit)
+    results = CohortFilterEvent.events_for_cohort(cohort_id, offset, limit)
+    count = results['count']
+    events = results['events']
     event_sids = [e.sid for e in events]
     event_profiles_by_sid = {e['sid']: e for e in get_summary_student_profiles(event_sids)}
 
@@ -161,8 +163,13 @@ def get_cohort_events(cohort_id):
             'firstName': profile.get('firstName'),
             'lastName': profile.get('lastName'),
             'sid': event.sid,
+            'uid': profile.get('uid'),
         }
-    return tolerant_jsonify([_event_feed(e) for e in events])
+    feed = {
+        'count': count,
+        'events': [_event_feed(e) for e in events],
+    }
+    return tolerant_jsonify(feed)
 
 
 @app.route('/api/cohort/get_students_per_filters', methods=['POST'])

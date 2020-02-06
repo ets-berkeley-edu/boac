@@ -58,6 +58,14 @@ export function getCohort(
     .then(response => response.data, () => null);
 }
 
+export function getCohortEvents(id: number, offset: number, limit: number) {
+  return axios
+    .get(
+      `${utils.apiBaseUrl()}/api/cohort/${id}/events?offset=${offset}&limit=${limit}`
+    )
+    .then(response => response.data, () => null);
+}
+
 export function getCohortFilterOptions(domain: string, owner: string, existingFilters: any[]) {
   owner = owner || 'me';
   return axios

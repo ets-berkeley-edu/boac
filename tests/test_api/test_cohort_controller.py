@@ -478,7 +478,7 @@ class TestCohortById:
         cohort = api_cohort_create(client, data)
         assert cohort['totalStudentCount'] == 3
 
-        events = api_cohort_events(client, cohort['id'])
+        events = api_cohort_events(client, cohort['id'])['events']
         assert len(events) == 3
         assert sorted([e['sid'] for e in events]) == ['2345678901', '5678901234', '9100000000']
         assert sorted([e['firstName'] for e in events]) == ['Dave', 'Nora Stanton', 'Sandeep']
@@ -490,7 +490,7 @@ class TestCohortById:
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 5
 
-        events = api_cohort_events(client, cohort['id'])
+        events = api_cohort_events(client, cohort['id'])['events']
         assert len(events) == 5
         assert sorted([e['sid'] for e in events][0:2]) == ['11667051', '7890123456']
         assert sorted([e['firstName'] for e in events][0:2]) == ['Deborah', 'Paul']
@@ -505,7 +505,7 @@ class TestCohortById:
         cohort = api_cohort_get(client, cohort['id'])
         assert cohort['totalStudentCount'] == 2
 
-        events = api_cohort_events(client, cohort['id'])
+        events = api_cohort_events(client, cohort['id'])['events']
         assert len(events) == 8
         assert sorted([e['sid'] for e in events][0:3]) == ['2345678901', '5678901234', '9100000000']
         assert sorted([e['firstName'] for e in events][0:3]) == ['Dave', 'Nora Stanton', 'Sandeep']
@@ -763,10 +763,11 @@ class TestCohortUpdate:
                 'groupCodes': ['MBB', 'MBB-AA'],
             },
         )
-        events = api_cohort_events(client, cohort['id'])
-        assert len(events) == 2
-        assert next(e for e in events if e['sid'] == '3456789012' and e['eventType'] == 'added')
-        assert next(e for e in events if e['sid'] == '7890123456' and e['eventType'] == 'added')
+        response = api_cohort_events(client, cohort['id'])
+        assert response['count'] == 2
+        assert len(response['events']) == 2
+        assert next(e for e in response['events'] if e['sid'] == '3456789012' and e['eventType'] == 'added')
+        assert next(e for e in response['events'] if e['sid'] == '7890123456' and e['eventType'] == 'added')
 
         # First, we POST an empty name
         cohort_id = cohort['id']
@@ -796,12 +797,13 @@ class TestCohortUpdate:
         actual = remove_empties(updated_cohort['criteria'])
         assert expected == actual
 
-        events = api_cohort_events(client, cohort['id'])
-        assert len(events) == 5
-        assert events[2]['sid'] == '9000000000'
-        assert events[2]['eventType'] == 'added'
-        assert next(e for e in events[0:2] if e['sid'] == '3456789012' and e['eventType'] == 'removed')
-        assert next(e for e in events[0:2] if e['sid'] == '7890123456' and e['eventType'] == 'removed')
+        response = api_cohort_events(client, cohort['id'])
+        assert response['count'] == 5
+        assert len(response['events']) == 5
+        assert response['events'][2]['sid'] == '9000000000'
+        assert response['events'][2]['eventType'] == 'added'
+        assert next(e for e in response['events'][0:2] if e['sid'] == '3456789012' and e['eventType'] == 'removed')
+        assert next(e for e in response['events'][0:2] if e['sid'] == '7890123456' and e['eventType'] == 'removed')
 
     def test_cohort_update_filter_criteria(self, client, asc_advisor_login):
         name = 'Swimming, Men\'s'
@@ -817,7 +819,7 @@ class TestCohortUpdate:
         cohort = json.loads(response.data)
         assert cohort['totalStudentCount'] == 1
 
-        events = api_cohort_events(client, cohort['id'])
+        events = api_cohort_events(client, cohort['id'])['events']
         assert len(events) == 1
         assert events[0]['eventType'] == 'added'
         assert events[0]['sid'] == '7890123456'
@@ -843,7 +845,7 @@ class TestCohortUpdate:
         assert len(group_codes) == 2
         assert group_codes == ['MBB', 'MBB-AA']
 
-        events = api_cohort_events(client, cohort['id'])
+        events = api_cohort_events(client, cohort['id'])['events']
         assert len(events) == 2
         assert events[0]['eventType'] == 'added'
         assert events[0]['sid'] == '3456789012'
