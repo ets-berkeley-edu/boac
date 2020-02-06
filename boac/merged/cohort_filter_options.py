@@ -25,17 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from copy import copy, deepcopy
 
-from boac.api.util import authorized_users_api_feed
-from boac.externals import data_loch
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
-from boac.merged import athletics
-from boac.merged.calnet import get_csid_for_uid
-from boac.merged.sis_terms import current_term_id
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.merged.cohort_filter_option_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
+    coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
+    get_coe_profiles, grad_terms, level_options, majors, student_admit_college_options, student_admit_ethnic_options, \
+    team_groups, unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.curated_group import CuratedGroup
-from flask import current_app as app
-from flask_login import current_user
 
 
 def translate_to_filter_options(owner_uid, criteria=None, domain='default'):
@@ -111,427 +107,87 @@ def get_cohort_filter_options(owner_uid, domain, existing_filters=()):
 
 def _get_filter_options(scope, owner_uid, domain):
     owner_user_id = AuthorizedUser.get_id_per_uid(owner_uid)
-    all_dept_codes = list(BERKELEY_DEPT_CODE_TO_NAME.keys())
     categories = [
         [
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'colleges',
-                'label': {
-                    'primary': 'College',
-                },
-                'options': _colleges,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'enteringTerms',
-                'label': {
-                    'primary': 'Entering Term',
-                },
-                'options': _entering_terms,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'expectedGradTerms',
-                'label': {
-                    'primary': 'Expected Graduation Term',
-                },
-                'options': _grad_terms,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'gpaRanges',
-                'options': None,
-                'label': {
-                    'primary': 'GPA (Cumulative)',
-                    'range': ['', '-'],
-                    'rangeMinEqualsMax': '',
-                },
-                'type': {
-                    'db': 'json[]',
-                    'ux': 'range',
-                },
-                'validation': 'gpa',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'lastTermGpaRanges',
-                'options': None,
-                'label': {
-                    'primary': 'GPA (Last Term)',
-                    'range': ['', '-'],
-                    'rangeMinEqualsMax': '',
-                },
-                'type': {
-                    'db': 'json[]',
-                    'ux': 'range',
-                },
-                'validation': 'gpa',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'levels',
-                'label': {
-                    'primary': 'Level',
-                },
-                'options': [
-                    {'name': 'Freshman (0-29 Units)', 'value': 'Freshman'},
-                    {'name': 'Sophomore (30-59 Units)', 'value': 'Sophomore'},
-                    {'name': 'Junior (60-89 Units)', 'value': 'Junior'},
-                    {'name': 'Senior (90+ Units)', 'value': 'Senior'},
-                ],
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'majors',
-                'label': {
-                    'primary': 'Major',
-                },
-                'options': _majors,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'midpointDeficient',
-                'label': {
-                    'primary': 'Midpoint Deficient Grade',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'transfer',
-                'label': {
-                    'primary': 'Transfer Student',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'unitRanges',
-                'label': {
-                    'primary': 'Units Completed',
-                },
-                'options': [
-                    {'name': '0 - 29', 'value': 'numrange(NULL, 30, \'[)\')'},
-                    {'name': '30 - 59', 'value': 'numrange(30, 60, \'[)\')'},
-                    {'name': '60 - 89', 'value': 'numrange(60, 90, \'[)\')'},
-                    {'name': '90 - 119', 'value': 'numrange(90, 120, \'[)\')'},
-                    {'name': '120 +', 'value': 'numrange(120, NULL, \'[)\')'},
-                ],
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
+            _filter('colleges', 'College', options=colleges),
+            _filter('enteringTerms', 'Entering Term', options=entering_terms),
+            _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms),
+            _range_filter('gpaRanges', 'GPA (Cumulative)', labels_range=['', '-']),
+            _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
+            _filter('levels', 'Level', options=level_options),
+            _filter('majors', 'Major', options=majors),
+            _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
+            _boolean_filter('transfer', 'Transfer Student'),
+            _filter('unitRanges', 'Units Completed', options=unit_range_options),
         ],
         [
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'ethnicities',
-                'label': {
-                    'primary': 'Ethnicity',
-                },
-                'options': _ethnicities,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'genders',
-                'label': {
-                    'primary': 'Gender',
-                },
-                'options': _genders,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'underrepresented',
-                'label': {
-                    'primary': 'Underrepresented Minority',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'visaTypes',
-                'label': {
-                    'primary': 'Visa Type',
-                },
-                'options': _visa_types,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
+            _filter('ethnicities', 'Ethnicity', options=ethnicities),
+            _filter('genders', 'Gender', options=genders),
+            _boolean_filter('underrepresented', 'Underrepresented Minority'),
+            _filter('visaTypes', 'Visa Type', options=visa_types),
         ],
         [
-            {
-                'availableTo': ['UWASC'],
-                'domain': 'default',
-                'defaultValue': False if 'UWASC' in scope else None,
-                'key': 'isInactiveAsc',
-                'label': {
-                    'primary': 'Inactive (ASC)',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': ['UWASC'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'inIntensiveCohort',
-                'label': {
-                    'primary': 'Intensive',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': ['UWASC'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'groupCodes',
-                'label': {
-                    'primary': 'Team',
-                },
-                'options': _team_groups,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
+            _boolean_filter_asc('isInactiveAsc', 'Inactive (ASC)', default_value=False if 'UWASC' in scope else None),
+            _boolean_filter('inIntensiveCohort', 'Intensive', available_to=['UWASC']),
+            _filter('groupCodes', 'Team', options=team_groups, available_to=['UWASC']),
         ],
         [
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coeAdvisorLdapUids',
-                'label': {
-                    'primary': 'Advisor (COE)',
-                },
-                'options': _get_coe_profiles,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coeEthnicities',
-                'label': {
-                    'primary': 'Ethnicity (COE)',
-                },
-                'options': _coe_ethnicities,
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coeGenders',
-                'label': {
-                    'primary': 'Gender (COE)',
-                },
-                'options': [
-                    {'name': 'Female', 'value': 'F'},
-                    {'name': 'Male', 'value': 'M'},
+            _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
+            _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
+            _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
+            _boolean_filter_coe('isInactiveCoe', 'Inactive (COE)', default_value=False if 'COENG' in scope else None),
+            _range_filter(
+                'lastNameRanges',
+                'Last Name',
+                labels_range=['Initials', 'through'],
+                label_min_equals_max='Starts with',
+                available_to=['COENG'],
+                validation='char',
+            ),
+            _filter('curatedGroupIds', 'My Curated Groups', options=curated_groups(owner_user_id)),
+            _filter('cohortOwnerAcademicPlans', 'My Students', options=academic_plans_for_cohort_owner(owner_uid)),
+            _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
+            _boolean_filter_coe('coeProbation', 'Probation'),
+            _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
+        ],
+        [
+            _filter(
+                'freshmanOrTransfer',
+                'Freshman or Transfer',
+                domain_='admitted_students',
+                options=[
+                    {'name': 'Freshman', 'value': 'freshman'},
+                    {'name': 'Transfer', 'value': 'transfer'},
                 ],
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': False if 'COENG' in scope else None,
-                'key': 'isInactiveCoe',
-                'label': {
-                    'primary': 'Inactive (COE)',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'lastNameRanges',
-                'label': {
-                    'primary': 'Last Name',
-                    'range': ['Initials', 'through'],
-                    'rangeMinEqualsMax': 'Starts with',
-                },
-                'type': {
-                    'db': 'json[]',
-                    'ux': 'range',
-                },
-                'validation': 'char',
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'curatedGroupIds',
-                'label': {
-                    'primary': 'My Curated Groups',
-                },
-                'options': _curated_groups(owner_user_id),
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': all_dept_codes,
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'cohortOwnerAcademicPlans',
-                'label': {
-                    'primary': 'My Students',
-                },
-                'options': _academic_plans_for_cohort_owner(owner_uid),
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coePrepStatuses',
-                'label': {
-                    'primary': 'PREP',
-                },
-                'options': [
-                    {'name': 'PREP', 'value': 'did_prep'},
-                    {'name': 'PREP eligible', 'value': 'prep_eligible'},
-                    {'name': 'T-PREP', 'value': 'did_tprep'},
-                    {'name': 'T-PREP eligible', 'value': 'tprep_eligible'},
-                ],
-                'type': {
-                    'db': 'string[]',
-                    'ux': 'dropdown',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coeProbation',
-                'label': {
-                    'primary': 'Probation',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-            {
-                'availableTo': ['COENG'],
-                'domain': 'default',
-                'defaultValue': None,
-                'key': 'coeUnderrepresented',
-                'label': {
-                    'primary': 'Underrepresented Minority (COE)',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
-        ],
-        [
-            {
-                'availableTo': ['ZCEEE'],
-                'domain': 'admitted_students',
-                'defaultValue': None,
-                'key': 'firstGeneration',
-                'label': {
-                    'primary': 'First Generation Student',
-                },
-                'type': {
-                    'db': 'boolean',
-                    'ux': 'boolean',
-                },
-            },
+                available_to=['ZCEEE'],
+            ),
+            _boolean_filter_ce3('sir', 'Current SIR', domain_='admitted_students'),
+            _filter(
+                'admitCollege',
+                'College',
+                domain_='admitted_students',
+                options=student_admit_college_options,
+                available_to=['ZCEEE'],
+            ),
+            _filter(
+                'xEthnic',
+                'XEthnic',
+                domain_='admitted_students',
+                options=student_admit_ethnic_options,
+                available_to=['ZCEEE'],
+            ),
+            _boolean_filter_ce3('hispanic', 'Hispanic', domain_='admitted_students'),
+            _boolean_filter_ce3('urem', 'UREM', domain_='admitted_students'),
+            _boolean_filter_ce3('firstGeneration', 'First Generation Student', domain_='admitted_students'),
+            _boolean_filter_ce3('feeWaiver', 'Application Fee Waiver', domain_='admitted_students'),
+            _boolean_filter_ce3('fosterCare', 'Foster Care', domain_='admitted_students'),
+            _boolean_filter_ce3('singleParent', 'Single Parent', domain_='admitted_students'),
+            _boolean_filter_ce3('studentIsSingleParent', 'Student is Single Parent', domain_='admitted_students'),
+            # TODO: Family Dependents - number
+            # TODO: Student Dependents - number
+            _boolean_filter_ce3('reentryStatus', 'Re-entry Status'),
+            _boolean_filter_ce3('lastSchoolLCFF', 'Last School LCFF+'),
+            _boolean_filter_ce3('Special Program CEP', 'Special Program CEP'),
         ],
     ]
     available_categories = []
@@ -557,95 +213,109 @@ def _get_filter_options(scope, owner_uid, domain):
     return list(filter(lambda g: len(g), available_categories))
 
 
-def _get_coe_profiles():
-    users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.get_all_active_users()))
-    profiles = []
-    for user in authorized_users_api_feed(users):
-        uid = user['uid']
-        first_name = user.get('firstName')
-        last_name = user.get('lastName')
-        name = f'{first_name} {last_name}' if first_name or last_name else f'UID: {uid}'
-        profiles.append({'name': name, 'value': uid})
-    return sorted(profiles, key=lambda p: p['name'])
+def _filter(
+        key,
+        label_primary,
+        type_db='string[]',
+        type_ux='dropdown',
+        default_value=None,
+        labels_range=None,
+        label_min_equals_max='',
+        domain_='default',
+        available_to=None,
+        options=None,
+        validation=None,
+):
+    return {
+        'availableTo': available_to or tuple(BERKELEY_DEPT_CODE_TO_NAME.keys()),
+        'defaultValue': default_value,
+        'domain': domain_,
+        'key': key,
+        'label': {
+            'primary': label_primary,
+            'range': labels_range,
+            'rangeMinEqualsMax': label_min_equals_max,
+        },
+        'options': options,
+        'type': {
+            'db': type_db,
+            'ux': type_ux,
+        },
+        'validation': validation,
+    }
 
 
-def _academic_plans_for_cohort_owner(owner_uid):
-    if owner_uid:
-        owner_csid = get_csid_for_uid(app, owner_uid)
-    else:
-        owner_csid = current_user.get_csid()
-    plans = [
-        {'name': 'All plans', 'value': '*'},
-    ]
-    plan_results = data_loch.get_academic_plans_for_advisor(owner_csid)
-    for row in plan_results:
-        value = row['academic_plan_code']
-        if value:
-            plans.append({'name': row['academic_plan'], 'value': value})
-    return plans
+def _boolean_filter(
+        key,
+        label_primary,
+        default_value=None,
+        domain_='default',
+        available_to=None,
+):
+    return _filter(
+        key,
+        label_primary,
+        type_db='boolean',
+        type_ux='boolean',
+        default_value=default_value,
+        domain_=domain_,
+        available_to=available_to,
+    )
 
 
-def _curated_groups(user_id):
-    curated_groups = CuratedGroup.get_curated_groups_by_owner_id(user_id)
-    return [{'name': g.name, 'value': g.id} for g in curated_groups]
+def _boolean_filter_asc(key, label_primary, default_value=None, domain_='default'):
+    return _filter(
+        key,
+        label_primary,
+        type_db='boolean',
+        type_ux='boolean',
+        default_value=default_value,
+        domain_=domain_,
+        available_to=['UWASC'],
+    )
 
 
-def _colleges():
-    college_results = [row['college'] for row in data_loch.get_colleges()]
-    return [{'name': college, 'value': college} for college in college_results]
+def _boolean_filter_ce3(key, label_primary, default_value=None, domain_='default'):
+    return _filter(
+        key,
+        label_primary,
+        type_db='boolean',
+        type_ux='boolean',
+        default_value=default_value,
+        domain_=domain_,
+        available_to=['ZCEEE'],
+    )
 
 
-def _entering_terms():
-    term_ids = [r['entering_term'] for r in data_loch.get_entering_terms()]
-    return [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
+def _boolean_filter_coe(key, label_primary, default_value=None, domain_='default'):
+    return _filter(
+        key,
+        label_primary,
+        type_db='boolean',
+        type_ux='boolean',
+        default_value=default_value,
+        domain_=domain_,
+        available_to=['COENG'],
+    )
 
 
-def _ethnicities():
-    return [{'name': row['ethnicity'], 'value': row['ethnicity']} for row in data_loch.get_distinct_ethnicities()]
-
-
-def _genders():
-    return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
-
-
-def _grad_terms():
-    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]
-    terms = [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
-    first_previous_term_index = next((i for i, term in enumerate(terms) if term['value'] < current_term_id()), None)
-    terms.insert(first_previous_term_index, {'name': 'divider', 'value': 'divider'})
-    return terms
-
-
-def _coe_ethnicities():
-    rows = data_loch.get_coe_ethnicity_codes(['COENG'])
-    key = 'ethnicity_code'
-
-    def ethnicity(code):
-        return COE_ETHNICITIES_PER_CODE.get(code)
-    coe_ethnicities = [{'name': ethnicity(row[key]), 'value': row[key]} for row in rows]
-    return sorted(coe_ethnicities, key=lambda e: e['name'])
-
-
-def _team_groups():
-    rows = athletics.all_team_groups()
-    return [{'name': row['groupName'], 'value': row['groupCode']} for row in rows]
-
-
-def _majors():
-    major_results = [row['major'] for row in data_loch.get_majors()]
-    return [{'name': major, 'value': major} for major in major_results]
-
-
-def _visa_types():
-    other_types = [row['visa_type'] for row in data_loch.get_other_visa_types()]
-    return [
-        {'name': 'All types', 'value': '*'},
-        {'name': 'F-1 International Student', 'value': 'F1'},
-        {'name': 'J-1 International Student', 'value': 'J1'},
-        {'name': 'Permanent Resident', 'value': 'PR'},
-        {'name': 'Other', 'value': ','.join(other_types)},
-    ]
-
-
-def _get_dept_codes(user):
-    return [m.university_dept.dept_code for m in user.department_memberships] if user else None
+def _range_filter(
+        key,
+        label_primary,
+        labels_range,
+        label_min_equals_max='',
+        domain_='default',
+        available_to=None,
+        validation=None,
+):
+    return _filter(
+        key,
+        label_primary,
+        type_db='json[]',
+        type_ux='range',
+        labels_range=labels_range,
+        label_min_equals_max=label_min_equals_max,
+        domain_=domain_,
+        available_to=available_to,
+        validation=validation,
+    )

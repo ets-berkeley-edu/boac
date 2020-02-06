@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
+import random
 
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
@@ -445,21 +446,17 @@ class CohortFilter(Base):
 
 
 def _mock_ce3_students():
+    total_student_count = random.randint(0, 15000)
+    sids = [f'{random.randint(100000, 1000000)}' for i in range(total_student_count)]
+    batch_size = 50 if total_student_count > 50 else total_student_count
+    students = []
+    for i in range(batch_size):
+        students.append({
+            'sid': sids[i],
+            'firstName': ['Joe', 'Mick', 'Paul', 'Topper'][random.randint(0, 3)],
+        })
     return {
-        'sids': ['1', '2', '3'],
-        'students': [
-            {
-                'sid': '1',
-                'firstName': 'Larry',
-            },
-            {
-                'sid': '2',
-                'firstName': 'Curly',
-            },
-            {
-                'sid': '3',
-                'firstName': 'Moe',
-            },
-        ],
-        'totalStudentCount': 3,
+        'sids': sids,
+        'students': students,
+        'totalStudentCount': total_student_count,
     }
