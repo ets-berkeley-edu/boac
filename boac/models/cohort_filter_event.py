@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db, std_commit
+from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql import desc
 
@@ -61,4 +62,9 @@ class CohortFilterEvent(db.Model):
 
     @classmethod
     def events_for_cohort(cls, cohort_filter_id, offset=0, limit=50):
-        return cls.query.filter_by(cohort_filter_id=cohort_filter_id).order_by(desc(cls.created_at)).offset(offset).limit(limit).all()
+        count = db.session.query(func.count(cls.id)).filter_by(cohort_filter_id=cohort_filter_id).scalar()
+        events = cls.query.filter_by(cohort_filter_id=cohort_filter_id).order_by(desc(cls.created_at)).offset(offset).limit(limit).all()
+        return {
+            'count': count,
+            'events': events,
+        }

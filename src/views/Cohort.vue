@@ -2,7 +2,7 @@
   <div class="ml-3 mt-3">
     <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : cohortName" />
     <div v-if="!loading">
-      <CohortPageHeader />
+      <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
@@ -15,8 +15,9 @@
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
+      <hr class="filters-section-separator mr-2 mt-3" />
       <SectionSpinner :loading="editMode === 'apply'" name="Students" />
-      <div v-if="showStudentsSection" class="pt-2">
+      <div v-if="!showHistory && showStudentsSection">
         <a
           v-if="totalStudentCount > 50"
           id="skip-to-pagination-widget"
@@ -25,7 +26,6 @@
           @click="alertScreenReader('Go to another page of search results')"
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
-          <hr class="filters-section-separator mr-2" />
           <div v-if="domain === 'default'" class="d-flex justify-content-between align-items-center p-2">
             <CuratedGroupSelector
               :context-description="`Cohort ${cohortName || ''}`"
@@ -71,6 +71,9 @@
           </div>
         </div>
       </div>
+      <div v-if="showHistory">
+        <CohortHistory />
+      </div>
     </div>
   </div>
 </template>
@@ -79,6 +82,7 @@
 import AdmitStudentRow from '@/components/cohort/AdmitStudentRow';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
+import CohortHistory from '@/components/cohort/CohortHistory';
 import CohortPageHeader from '@/components/cohort/CohortPageHeader';
 import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
@@ -98,6 +102,7 @@ export default {
   components: {
     AdmitStudentRow,
     ApplyAndSaveButtons,
+    CohortHistory,
     CohortPageHeader,
     CuratedGroupSelector,
     FilterRow,
@@ -117,7 +122,8 @@ export default {
   ],
   data: () => ({
     pageNumber: undefined,
-    showFilters: undefined
+    showFilters: undefined,
+    showHistory: false
   }),
   computed: {
     anchor: () => location.hash,
@@ -185,6 +191,15 @@ export default {
     setPagination(page) {
       this.pageNumber = page;
       this.setCurrentPage(this.pageNumber);
+    },
+    toggleShowHistory(value) {
+      this.showHistory = value;
+      if (value && !this.isCompactView) {
+        this.toggleCompactView();
+      }
+      if (!value) {
+        this.onPageNumberChange().then(this.scrollToTop);
+      }
     }
   }
 };

@@ -33,7 +33,7 @@
           {{ 'Result' | pluralize(totalStudentCount) }}
         </h1>
       </div>
-      <div class="d-flex align-self-baseline mr-4">
+      <div v-if="!showHistory" class="d-flex align-self-baseline mr-4">
         <div v-if="cohortId && size(filters)">
           <b-btn
             id="show-hide-details-button"
@@ -84,7 +84,7 @@
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            class="no-wrap pl-2 pr-0 pt-0"
+            class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
             aria-label="Download CSV file containing all students">
             Export List
@@ -101,6 +101,28 @@
               :export-list="exportCohort" />
           </b-modal>
         </div>
+        <div v-if="cohortId" class="faint-text">|</div>
+        <div v-if="cohortId">
+          <b-btn
+            id="show-cohort-history-button"
+            :disabled="isModifiedSinceLastSearch"
+            class="no-wrap pl-2 pr-0 pt-0"
+            variant="link"
+            aria-label="Show cohort history"
+            @click="toggleShowHistory(true)">
+            History
+          </b-btn>
+        </div>
+      </div>
+      <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
+        <b-btn
+          id="show-cohort-history-button"
+          class="no-wrap pl-2 pr-0 pt-0"
+          variant="link"
+          aria-label="Hide cohort history"
+          @click="toggleShowHistory(false)">
+          Back to Cohort
+        </b-btn>
       </div>
     </div>
     <div v-if="renameMode" class="d-flex flex-wrap justify-content-between">
@@ -171,6 +193,16 @@ export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal, ExportListModal },
   mixins: [CohortEditSession, Context, Util, Validator],
+  props: {
+    showHistory: {
+      type: Boolean,
+      required: true
+    },
+    toggleShowHistory: {
+      type: Function,
+      required: true
+    }
+  },
   data: () => ({
     exportEnabled: true,
     name: undefined,
