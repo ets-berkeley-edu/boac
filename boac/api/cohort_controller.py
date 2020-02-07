@@ -153,7 +153,7 @@ def get_cohort_events(cohort_id):
     count = results['count']
     events = results['events']
     event_sids = [e.sid for e in events]
-    event_profiles_by_sid = {e['sid']: e for e in get_summary_student_profiles(event_sids)}
+    event_profiles_by_sid = {e['sid']: e for e in get_summary_student_profiles(event_sids, include_historical=True)}
 
     def _event_feed(event):
         profile = event_profiles_by_sid.get(event.sid, {})
