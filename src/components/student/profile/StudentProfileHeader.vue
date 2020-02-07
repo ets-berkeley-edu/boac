@@ -114,7 +114,7 @@
           </div>
         </div>
         <div v-if="academicCareerStatus === 'Completed' && student.sisProfile.degree" class="mb-3">
-          <h3 class="profile-section-header">Degree</h3>
+          <h3 class="student-profile-section-header">Degree</h3>
           <div id="student-bio-degree-type" class="font-weight-bolder">
             <span v-if="!includes(degreePlanOwners, 'Graduate Division')">
               {{ student.sisProfile.degree.description }} in
