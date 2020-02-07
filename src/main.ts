@@ -19,11 +19,12 @@ import VueHighcharts from 'vue-highcharts';
 import VueMoment from 'vue-moment';
 import { routerHistory, writeHistory } from 'vue-router-back-button';
 import { library } from '@fortawesome/fontawesome-svg-core'
+import { far } from '@fortawesome/free-regular-svg-icons'
 import { fas } from '@fortawesome/free-solid-svg-icons'
 import { faSpinner } from "@fortawesome/free-solid-svg-icons/faSpinner";
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
-library.add(fas, faSpinner);
+library.add(far, fas, faSpinner);
 Vue.component('font-awesome', FontAwesomeIcon);
 
 // Allow cookies in Access-Control requests

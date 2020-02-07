@@ -32,4 +32,4 @@ from boac.lib.util import camelize
 
 def get_admitted_student_by_sid(sid):
     admit = data_loch.get_admitted_student_by_sid(sid)
-    return {camelize(key): admit[key] for key in admit.keys()}
+    return {camelize(key): admit[key] for key in admit.keys()} if admit else None

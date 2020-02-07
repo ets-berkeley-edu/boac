@@ -486,7 +486,7 @@ def get_admitted_student_by_sid(sid):
         parent_2_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading,
         act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis,
         sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent,
-        family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status
+        family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status,
         athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep
         FROM {oua_schema()}.student_admits
         WHERE cs_empl_id=:sid"""
