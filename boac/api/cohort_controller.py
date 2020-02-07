@@ -146,6 +146,8 @@ def get_cohort_events(cohort_id):
     cohort = CohortFilter.find_by_id(cohort_id, include_students=False)
     if not cohort or not _can_current_user_view_cohort(cohort):
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+    if cohort['domain'] != 'default':
+        raise BadRequestError(f"Cohort events are not supported in domain {cohort['domain']}")
 
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)

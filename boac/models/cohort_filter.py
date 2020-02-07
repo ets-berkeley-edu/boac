@@ -344,7 +344,8 @@ class CohortFilter(Base):
             # If the cohort is new or cache refresh is underway then store student_count and sids in the db.
             if self.student_count is None:
                 self.update_sids_and_student_count(results['sids'], results['totalStudentCount'])
-                self.track_membership_changes()
+                if self.domain == 'default':
+                    self.track_membership_changes()
             if include_students:
                 cohort_json.update({
                     'students': results['students'],

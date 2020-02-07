@@ -575,6 +575,13 @@ class TestCohortsEveryone:
                     assert cohort['domain'] == 'admitted_students'
                     assert cohort['name'] != 'Undeclared students'
 
+    def test_history_not_available_when_admitted_students_domain(self, ce3_user_login, client):
+        """The cohort history feature is not available if domain is 'admitted_students'."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            api_json = self._api_cohorts_all(client, domain='admitted_students')
+            cohort = api_json[0]['cohorts'][0]
+            api_cohort_events(client, cohort['id'], expected_status_code=400)
+
 
 class TestCohortCreate:
     """Cohort Create API."""

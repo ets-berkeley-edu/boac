@@ -101,8 +101,8 @@
               :export-list="exportCohort" />
           </b-modal>
         </div>
-        <div v-if="cohortId" class="faint-text">|</div>
-        <div v-if="cohortId">
+        <div v-if="isHistorySupported" class="faint-text">|</div>
+        <div v-if="isHistorySupported">
           <b-btn
             id="show-cohort-history-button"
             :disabled="isModifiedSinceLastSearch"
@@ -205,6 +205,7 @@ export default {
   },
   data: () => ({
     exportEnabled: true,
+    isHistorySupported: true,
     name: undefined,
     renameError: undefined,
     showDeleteModal: false,
@@ -221,6 +222,7 @@ export default {
     }
   },
   created() {
+    this.isHistorySupported = this.cohortId && this.domain === 'default';
     this.name = this.cohortName;
   },
   methods: {
