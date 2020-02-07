@@ -29,11 +29,17 @@
           </b-td>
           <b-td class="p-1">
             <router-link
+              v-if="event.uid"
               :id="`event-${index}-student-name`"
               :aria-label="`Go to profile page of ${event.firstName} ${event.lastName}`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               :to="studentRoutePath(event.uid, $currentUser.inDemoMode)"
               v-html="`${event.lastName}, ${event.firstName}`"></router-link>
+            <div
+              v-if="!event.uid"
+              :id="`event-${index}-student-name-not-available`">
+              Not available
+            </div>
           </b-td>
           <b-td class="p-1">
             <div :id="`event-${index}-sid`">{{ event.sid }}</div>
