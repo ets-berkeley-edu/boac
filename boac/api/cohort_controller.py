@@ -31,7 +31,7 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
-from boac.merged.cohort_filter_options import get_cohort_filter_options, translate_to_filter_options
+from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -317,16 +317,20 @@ def all_cohort_filter_options(cohort_owner_uid):
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    return tolerant_jsonify(get_cohort_filter_options(cohort_owner_uid, domain, existing_filters))
+    return tolerant_jsonify(CohortFilterOptions.get_cohort_filter_options(cohort_owner_uid, domain, existing_filters))
 
 
 @app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
 @advisor_required
 def translate_cohort_filter_to_menu(cohort_owner_uid):
+    params = request.get_json()
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     if cohort_owner_uid == 'me':
         cohort_owner_uid = current_user.get_uid()
-    criteria = get_param(request.get_json(), 'criteria')
-    return tolerant_jsonify(translate_to_filter_options(cohort_owner_uid, criteria))
+    criteria = get_param(params, 'criteria')
+    return tolerant_jsonify(CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria))
 
 
 def _decorate_cohort(cohort):
@@ -372,7 +376,7 @@ def _translate_filters_to_cohort_criteria(filters, domain):
 
 def _get_filter_db_type_per_key(domain):
     filter_type_per_key = {}
-    for category in get_cohort_filter_options(current_user.get_uid(), domain):
+    for category in CohortFilterOptions.get_cohort_filter_options(current_user.get_uid(), domain):
         for _filter in category:
             filter_type_per_key[_filter['key']] = _filter['type']['db']
     return filter_type_per_key
