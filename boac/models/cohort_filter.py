@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 import random
+from typing import Optional
 
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
@@ -317,8 +318,26 @@ class CohortFilter(Base):
         underrepresented = util.to_bool_or_none(c.get('underrepresented'))
         unit_ranges = c.get('unitRanges')
         visa_types = c.get('visaTypes')
+
+        # Filters for domain='admitted_students'
+        admit_college = c.get('admitCollege')
+        fee_waiver = util.to_bool_or_none(c.get('feeWaiver'))
+        first_generation = util.to_bool_or_none(c.get('firstGeneration'))
+        foster_care = util.to_bool_or_none(c.get('fosterCare'))
+        freshman_or_transfer = c.get('freshmanOrTransfer')
+        hispanic = util.to_bool_or_none(c.get('hispanic'))
+        is_student_single_parent = util.to_bool_or_none(c.get('isStudentSingleParent'))
+        last_school_lcff: Optional[bool] = util.to_bool_or_none(c.get('lastSchoolLCFF'))
+        reentry_status = util.to_bool_or_none(c.get('reentryStatus'))
+        single_parent = util.to_bool_or_none(c.get('singleParent'))
+        sir = util.to_bool_or_none(c.get('sir'))
+        special_program_cep = util.to_bool_or_none(c.get('specialProgramCEP'))
+        urem = util.to_bool_or_none(c.get('urem'))
+        x_ethnic = c.get('xEthnic')
+
         cohort_json.update({
             'criteria': {
+                'admitCollege': admit_college,
                 'coeAdvisorLdapUids': coe_advisor_ldap_uids,
                 'coeEthnicities': coe_ethnicities,
                 'coeGenders': coe_genders,
@@ -331,21 +350,34 @@ class CohortFilter(Base):
                 'enteringTerms': entering_terms,
                 'ethnicities': ethnicities,
                 'expectedGradTerms': expected_grad_terms,
+                'feeWaiver': fee_waiver,
+                'firstGeneration': first_generation,
+                'fosterCare': foster_care,
+                'freshmanOrTransfer': freshman_or_transfer,
                 'genders': genders,
                 'gpaRanges': gpa_ranges,
                 'groupCodes': group_codes,
+                'hispanic': hispanic,
                 'inIntensiveCohort': in_intensive_cohort,
                 'isInactiveAsc': is_inactive_asc,
                 'isInactiveCoe': is_inactive_coe,
+                'isStudentSingleParent': is_student_single_parent,
                 'lastNameRanges': last_name_ranges,
+                'lastSchoolLCFF': last_school_lcff,
                 'lastTermGpaRanges': last_term_gpa_ranges,
                 'levels': levels,
                 'majors': majors,
                 'midpointDeficient': midpoint_deficient_grade,
+                'reentryStatus': reentry_status,
+                'singleParent': single_parent,
+                'sir': sir,
+                'specialProgramCEP': special_program_cep,
                 'transfer': transfer,
-                'unitRanges': unit_ranges,
                 'underrepresented': underrepresented,
+                'unitRanges': unit_ranges,
+                'urem': urem,
                 'visaTypes': visa_types,
+                'xEthnic': x_ethnic,
             },
             'teamGroups': team_groups,
         })

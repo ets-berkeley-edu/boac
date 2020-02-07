@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from copy import copy, deepcopy
 
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.merged.cohort_filter_option_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
+from boac.lib.cohort_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
     get_coe_profiles, grad_terms, level_options, majors, student_admit_college_options, student_admit_ethnic_options, \
     team_groups, unit_range_options, visa_types
@@ -34,183 +34,205 @@ from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
 
-def translate_to_filter_options(owner_uid, criteria=None, domain='default'):
-    # Transform cohort filter criteria in the database to a UX-compatible data structure.
-    rows = []
-    if criteria:
-        for category in _get_filter_options(get_student_query_scope(), owner_uid, domain):
-            for filter_option in category:
-                selected = criteria.get(filter_option['key'])
-                if selected is not None:
-                    def _append_row(value):
-                        clone = deepcopy(filter_option)
-                        row = {k: clone.get(k) for k in ['key', 'label', 'options', 'type', 'validation']}
-                        row['value'] = value
-                        rows.append(row)
-                    filter_type = filter_option['type']['db']
-                    if filter_type == 'string[]':
-                        all_options = filter_option.get('options')
-                        for selection in selected:
-                            value = next((o.get('value') for o in all_options if o.get('value') == selection), None)
-                            if value:
-                                _append_row(value)
-                    elif filter_type == 'boolean':
-                        _append_row(selected)
-                    elif filter_type == 'json[]':
-                        for obj in selected:
-                            _append_row(copy(obj))
+class CohortFilterOptions:
+    owner_uid = None
+    scope = None
+
+    def __init__(self, owner_uid, scope):
+        self.owner_uid = owner_uid
+        self.scope = scope
+
+    def get_filter_options(self, domain, populate_options=True):
+        available_categories = []
+
+        def is_available(d):
+            if domain in [d['domain'], '*']:
+                available = 'ADMIN' in self.scope or next((dept_code for dept_code in d['availableTo'] if dept_code in self.scope), False)
+                if available and populate_options and 'options' in d:
+                    # If it is available then populate menu options
+                    options = d.pop('options')
+                    options = options() if callable(options) else options
+                    if d['type']['ux'] == 'dropdown' and not len(options):
+                        d['disabled'] = True
                     else:
-                        raise ValueError(f'Unrecognized filter_type "{filter_type}"')
-    return rows
-
-
-def get_cohort_filter_options(owner_uid, domain, existing_filters=()):
-    # Disable filter options based on existing cohort criteria.
-    cohort_filter_options = _get_filter_options(get_student_query_scope(), owner_uid, domain=domain)
-    cohort_filter_per_key = {}
-    filter_type_per_key = {}
-    for category in cohort_filter_options:
-        for _filter in category:
-            _key = _filter['key']
-            cohort_filter_per_key[_key] = _filter
-            filter_type_per_key[_key] = _filter['type']['db']
-
-    selected_values_per_key = {}
-    for existing_filter in existing_filters:
-        key = existing_filter['key']
-        if key not in selected_values_per_key:
-            selected_values_per_key[key] = []
-        value = True if filter_type_per_key[key] == 'boolean' else existing_filter['value']
-        selected_values_per_key[key].append(value)
-
-    for key, selected_values in selected_values_per_key.items():
-        # Disable options that are represented in 'existing_filters'
-        cohort_filter = cohort_filter_per_key[key]
-        if cohort_filter['type']['ux'] == 'boolean':
-            cohort_filter['disabled'] = True
-        if cohort_filter['type']['ux'] == 'dropdown':
-            # Populate dropdown
-            selected_values = selected_values_per_key[key]
-            available_options = cohort_filter['options']
-            if '*' in selected_values or len(available_options) == len(selected_values):
-                # This filter has zero available options.
-                cohort_filter['disabled'] = True
-                for option in available_options:
-                    option['disabled'] = True
+                        d['options'] = options
+                return available
             else:
-                for option in available_options:
-                    if option.get('value') in selected_values:
-                        # Disable option
+                return False
+
+        for category in self.get_all_filter_categories():
+            available_categories.append(list(filter(lambda d: is_available(d), category)))
+        # Remove unavailable (ie, empty) categories
+        return list(filter(lambda g: len(g), available_categories))
+
+    def get_all_filter_categories(self):
+        owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid)
+        return [
+            [
+                _filter('colleges', 'College', options=colleges),
+                _filter('enteringTerms', 'Entering Term', options=entering_terms),
+                _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms),
+                _range_filter('gpaRanges', 'GPA (Cumulative)', labels_range=['', '-']),
+                _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
+                _filter('levels', 'Level', options=level_options),
+                _filter('majors', 'Major', options=majors),
+                _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
+                _boolean_filter('transfer', 'Transfer Student'),
+                _filter('unitRanges', 'Units Completed', options=unit_range_options),
+            ],
+            [
+                _filter('ethnicities', 'Ethnicity', options=ethnicities),
+                _filter('genders', 'Gender', options=genders),
+                _boolean_filter('underrepresented', 'Underrepresented Minority'),
+                _filter('visaTypes', 'Visa Type', options=visa_types),
+            ],
+            [
+                _boolean_filter_asc(
+                    'isInactiveAsc',
+                    'Inactive (ASC)',
+                    default_value=False if 'UWASC' in self.scope else None,
+                ),
+                _boolean_filter('inIntensiveCohort', 'Intensive', available_to=['UWASC']),
+                _filter('groupCodes', 'Team', options=team_groups, available_to=['UWASC']),
+            ],
+            [
+                _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
+                _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
+                _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
+                _boolean_filter_coe(
+                    'isInactiveCoe',
+                    'Inactive (COE)',
+                    default_value=False if 'COENG' in self.scope else None,
+                ),
+                _range_filter(
+                    'lastNameRanges',
+                    'Last Name',
+                    labels_range=['Initials', 'through'],
+                    label_min_equals_max='Starts with',
+                    available_to=['COENG'],
+                    validation='char',
+                ),
+                _filter('curatedGroupIds', 'My Curated Groups', options=lambda: curated_groups(owner_user_id)),
+                _filter(
+                    'cohortOwnerAcademicPlans',
+                    'My Students',
+                    options=lambda: academic_plans_for_cohort_owner(self.owner_uid),
+                ),
+                _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
+                _boolean_filter_coe('coeProbation', 'Probation'),
+                _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
+            ],
+            [
+                _filter(
+                    'freshmanOrTransfer',
+                    'Freshman or Transfer',
+                    options=[
+                        {'name': 'Freshman', 'value': 'freshman'},
+                        {'name': 'Transfer', 'value': 'transfer'},
+                    ],
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                ),
+                _boolean_filter_ce3('sir', 'Current SIR'),
+                _filter(
+                    'admitCollege',
+                    'College',
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    options=student_admit_college_options,
+                ),
+                _filter(
+                    'xEthnic',
+                    'XEthnic',
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    options=student_admit_ethnic_options,
+                ),
+                _boolean_filter_ce3('hispanic', 'Hispanic'),
+                _boolean_filter_ce3('urem', 'UREM'),
+                _boolean_filter_ce3('firstGeneration', 'First Generation Student'),
+                _boolean_filter_ce3('feeWaiver', 'Application Fee Waiver'),
+                _boolean_filter_ce3('fosterCare', 'Foster Care'),
+                _boolean_filter_ce3('singleParent', 'Single Parent'),
+                _boolean_filter_ce3('isStudentSingleParent', 'Student is Single Parent'),
+                # TODO: Family Dependents - number
+                # TODO: Student Dependents - number
+                _boolean_filter_ce3('reentryStatus', 'Re-entry Status'),
+                _boolean_filter_ce3('lastSchoolLCFF', 'Last School LCFF+'),
+                _boolean_filter_ce3('specialProgramCEP', 'Special Program CEP'),
+            ],
+        ]
+
+    @classmethod
+    def translate_to_filter_options(cls, owner_uid, domain, criteria=None):
+        # Transform cohort filter criteria in the database to a UX-compatible data structure.
+        rows = []
+        if criteria:
+            for category in cls(owner_uid, get_student_query_scope()).get_filter_options(domain):
+                for filter_option in category:
+                    selected = criteria.get(filter_option['key'])
+                    if selected is not None:
+                        def _append_row(value_):
+                            clone = deepcopy(filter_option)
+                            row = {k: clone.get(k) for k in ['key', 'label', 'options', 'type', 'validation']}
+                            row['value'] = value_
+                            rows.append(row)
+                        filter_type = filter_option['type']['db']
+                        if filter_type == 'string[]':
+                            all_options = filter_option.get('options')
+                            for selection in selected:
+                                value = next((o.get('value') for o in all_options if o.get('value') == selection), None)
+                                if value:
+                                    _append_row(value)
+                        elif filter_type == 'boolean':
+                            _append_row(selected)
+                        elif filter_type == 'json[]':
+                            for obj in selected:
+                                _append_row(copy(obj))
+                        else:
+                            raise ValueError(f'Unrecognized filter_type "{filter_type}"')
+        return rows
+
+    @classmethod
+    def get_cohort_filter_options(cls, owner_uid, domain, existing_filters=()):
+        # Disable filter options based on existing cohort criteria.
+        cohort_filter_options = cls(owner_uid, get_student_query_scope()).get_filter_options(domain)
+        cohort_filter_per_key = {}
+        filter_type_per_key = {}
+        for category in cohort_filter_options:
+            for filter_ in category:
+                _key = filter_['key']
+                cohort_filter_per_key[_key] = filter_
+                filter_type_per_key[_key] = filter_['type']['db']
+
+        selected_values_per_key = {}
+        for existing_filter in existing_filters:
+            key = existing_filter['key']
+            if key not in selected_values_per_key:
+                selected_values_per_key[key] = []
+            value = True if filter_type_per_key[key] == 'boolean' else existing_filter['value']
+            selected_values_per_key[key].append(value)
+
+        for key, selected_values in selected_values_per_key.items():
+            # Disable options that are represented in 'existing_filters'
+            cohort_filter = cohort_filter_per_key[key]
+            if cohort_filter['type']['ux'] == 'boolean':
+                cohort_filter['disabled'] = True
+            if cohort_filter['type']['ux'] == 'dropdown':
+                # Populate dropdown
+                selected_values = selected_values_per_key[key]
+                available_options = cohort_filter['options']
+                if '*' in selected_values or len(available_options) == len(selected_values):
+                    # This filter has zero available options.
+                    cohort_filter['disabled'] = True
+                    for option in available_options:
                         option['disabled'] = True
-    return cohort_filter_options
-
-
-def _get_filter_options(scope, owner_uid, domain):
-    owner_user_id = AuthorizedUser.get_id_per_uid(owner_uid)
-    categories = [
-        [
-            _filter('colleges', 'College', options=colleges),
-            _filter('enteringTerms', 'Entering Term', options=entering_terms),
-            _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms),
-            _range_filter('gpaRanges', 'GPA (Cumulative)', labels_range=['', '-']),
-            _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
-            _filter('levels', 'Level', options=level_options),
-            _filter('majors', 'Major', options=majors),
-            _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
-            _boolean_filter('transfer', 'Transfer Student'),
-            _filter('unitRanges', 'Units Completed', options=unit_range_options),
-        ],
-        [
-            _filter('ethnicities', 'Ethnicity', options=ethnicities),
-            _filter('genders', 'Gender', options=genders),
-            _boolean_filter('underrepresented', 'Underrepresented Minority'),
-            _filter('visaTypes', 'Visa Type', options=visa_types),
-        ],
-        [
-            _boolean_filter_asc('isInactiveAsc', 'Inactive (ASC)', default_value=False if 'UWASC' in scope else None),
-            _boolean_filter('inIntensiveCohort', 'Intensive', available_to=['UWASC']),
-            _filter('groupCodes', 'Team', options=team_groups, available_to=['UWASC']),
-        ],
-        [
-            _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
-            _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
-            _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
-            _boolean_filter_coe('isInactiveCoe', 'Inactive (COE)', default_value=False if 'COENG' in scope else None),
-            _range_filter(
-                'lastNameRanges',
-                'Last Name',
-                labels_range=['Initials', 'through'],
-                label_min_equals_max='Starts with',
-                available_to=['COENG'],
-                validation='char',
-            ),
-            _filter('curatedGroupIds', 'My Curated Groups', options=curated_groups(owner_user_id)),
-            _filter('cohortOwnerAcademicPlans', 'My Students', options=academic_plans_for_cohort_owner(owner_uid)),
-            _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
-            _boolean_filter_coe('coeProbation', 'Probation'),
-            _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
-        ],
-        [
-            _filter(
-                'freshmanOrTransfer',
-                'Freshman or Transfer',
-                domain_='admitted_students',
-                options=[
-                    {'name': 'Freshman', 'value': 'freshman'},
-                    {'name': 'Transfer', 'value': 'transfer'},
-                ],
-                available_to=['ZCEEE'],
-            ),
-            _boolean_filter_ce3('sir', 'Current SIR', domain_='admitted_students'),
-            _filter(
-                'admitCollege',
-                'College',
-                domain_='admitted_students',
-                options=student_admit_college_options,
-                available_to=['ZCEEE'],
-            ),
-            _filter(
-                'xEthnic',
-                'XEthnic',
-                domain_='admitted_students',
-                options=student_admit_ethnic_options,
-                available_to=['ZCEEE'],
-            ),
-            _boolean_filter_ce3('hispanic', 'Hispanic', domain_='admitted_students'),
-            _boolean_filter_ce3('urem', 'UREM', domain_='admitted_students'),
-            _boolean_filter_ce3('firstGeneration', 'First Generation Student', domain_='admitted_students'),
-            _boolean_filter_ce3('feeWaiver', 'Application Fee Waiver', domain_='admitted_students'),
-            _boolean_filter_ce3('fosterCare', 'Foster Care', domain_='admitted_students'),
-            _boolean_filter_ce3('singleParent', 'Single Parent', domain_='admitted_students'),
-            _boolean_filter_ce3('studentIsSingleParent', 'Student is Single Parent', domain_='admitted_students'),
-            # TODO: Family Dependents - number
-            # TODO: Student Dependents - number
-            _boolean_filter_ce3('reentryStatus', 'Re-entry Status'),
-            _boolean_filter_ce3('lastSchoolLCFF', 'Last School LCFF+'),
-            _boolean_filter_ce3('Special Program CEP', 'Special Program CEP'),
-        ],
-    ]
-    available_categories = []
-
-    def is_available(d):
-        if d['domain'] == domain:
-            available = 'ADMIN' in scope or next((dept_code for dept_code in d['availableTo'] if dept_code in scope), False)
-            if available and 'options' in d:
-                # If it is available then populate menu options
-                options = d.pop('options')
-                options = options() if callable(options) else options
-                if d['type']['ux'] == 'dropdown' and not len(options):
-                    d['disabled'] = True
                 else:
-                    d['options'] = options
-            return available
-        else:
-            return False
-
-    for category in categories:
-        available_categories.append(list(filter(lambda d: is_available(d), category)))
-    # Remove unavailable (ie, empty) categories
-    return list(filter(lambda g: len(g), available_categories))
+                    for option in available_options:
+                        if option.get('value') in selected_values:
+                            # Disable option
+                            option['disabled'] = True
+        return cohort_filter_options
 
 
 def _filter(
@@ -218,11 +240,11 @@ def _filter(
         label_primary,
         type_db='string[]',
         type_ux='dropdown',
-        default_value=None,
-        labels_range=None,
-        label_min_equals_max='',
-        domain_='default',
         available_to=None,
+        default_value=None,
+        domain_='default',
+        label_min_equals_max='',
+        labels_range=None,
         options=None,
         validation=None,
 ):
@@ -275,14 +297,14 @@ def _boolean_filter_asc(key, label_primary, default_value=None, domain_='default
     )
 
 
-def _boolean_filter_ce3(key, label_primary, default_value=None, domain_='default'):
+def _boolean_filter_ce3(key, label_primary, default_value=None):
     return _filter(
         key,
         label_primary,
         type_db='boolean',
         type_ux='boolean',
         default_value=default_value,
-        domain_=domain_,
+        domain_='admitted_students',
         available_to=['ZCEEE'],
     )
 
