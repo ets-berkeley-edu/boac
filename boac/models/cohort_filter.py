@@ -24,8 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
-import random
-from typing import Optional
 
 from boac import db, std_commit
 from boac.api.errors import InternalServerError
@@ -33,8 +31,9 @@ from boac.lib import util
 from boac.lib.util import get_benchmarker
 from boac.merged import athletics
 from boac.merged.calnet import get_csid_for_uid
+from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
-from boac.merged.student import query_students
+from boac.merged.student import query_students, scope_for_criteria
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
@@ -258,6 +257,36 @@ class CohortFilter(Base):
         db.session.delete(cohort_filter)
         std_commit()
 
+    def to_base_json(self):
+        c = self.filter_criteria
+        c = c if isinstance(c, dict) else json.loads(c)
+        user_uid = self.owners[0].uid if self.owners else None
+        for category in CohortFilterOptions(user_uid, scope_for_criteria()).get_all_filter_categories():
+            for filter_ in category:
+                key = filter_['key']
+                if key in c:
+                    value = c.get(key)
+                    if filter_['type']['db'] == 'boolean':
+                        c[key] = util.to_bool_or_none(value)
+                    else:
+                        c[key] = value
+
+        def _owner_to_json(owner):
+            return {
+                'uid': owner.uid,
+                'deptCodes': [m.university_dept.dept_code for m in owner.department_memberships],
+            }
+        return {
+            'id': self.id,
+            'domain': self.domain,
+            'name': self.name,
+            'code': self.id,
+            'criteria': c,
+            'owners': [_owner_to_json(o) for o in self.owners],
+            'teamGroups': athletics.get_team_groups(c.get('groupCodes')) if c.get('groupCodes') else [],
+            'alertCount': self.alert_count,
+        }
+
     def to_api_json(
         self,
         order_by=None,
@@ -272,115 +301,7 @@ class CohortFilter(Base):
     ):
         benchmark = get_benchmarker(f'CohortFilter {self.id} to_api_json')
         benchmark('begin')
-        c = self.filter_criteria
-        c = c if isinstance(c, dict) else json.loads(c)
-        coe_advisor_ldap_uids = util.get(c, 'coeAdvisorLdapUids')
-        if not isinstance(coe_advisor_ldap_uids, list):
-            coe_advisor_ldap_uids = [coe_advisor_ldap_uids] if coe_advisor_ldap_uids else None
-        cohort_name = self.name
-        cohort_json = {
-            'id': self.id,
-            'domain': self.domain,
-            'code': self.id,
-            'name': cohort_name,
-            'owners': [],
-            'alertCount': self.alert_count,
-        }
-        for owner in self.owners:
-            cohort_json['owners'].append({
-                'uid': owner.uid,
-                'deptCodes': [m.university_dept.dept_code for m in owner.department_memberships],
-            })
-        coe_ethnicities = c.get('coeEthnicities')
-        coe_genders = c.get('coeGenders')
-        coe_prep_statuses = c.get('coePrepStatuses')
-        coe_probation = util.to_bool_or_none(c.get('coeProbation'))
-        coe_underrepresented = util.to_bool_or_none(c.get('coeUnderrepresented'))
-        cohort_owner_academic_plans = util.get(c, 'cohortOwnerAcademicPlans')
-        colleges = c.get('colleges')
-        curated_group_ids = util.get(c, 'curatedGroupIds')
-        entering_terms = c.get('enteringTerms')
-        ethnicities = c.get('ethnicities')
-        expected_grad_terms = c.get('expectedGradTerms')
-        genders = c.get('genders')
-        gpa_ranges = c.get('gpaRanges')
-        group_codes = c.get('groupCodes')
-        in_intensive_cohort = util.to_bool_or_none(c.get('inIntensiveCohort'))
-        is_inactive_asc = util.to_bool_or_none(c.get('isInactiveAsc'))
-        is_inactive_coe = util.to_bool_or_none(c.get('isInactiveCoe'))
-        last_name_ranges = c.get('lastNameRanges')
-        last_term_gpa_ranges = c.get('lastTermGpaRanges')
-        levels = c.get('levels')
-        majors = c.get('majors')
-        midpoint_deficient_grade = util.to_bool_or_none(c.get('midpointDeficient'))
-        team_groups = athletics.get_team_groups(group_codes) if group_codes else []
-        transfer = util.to_bool_or_none(c.get('transfer'))
-        underrepresented = util.to_bool_or_none(c.get('underrepresented'))
-        unit_ranges = c.get('unitRanges')
-        visa_types = c.get('visaTypes')
-
-        # Filters for domain='admitted_students'
-        admit_college = c.get('admitCollege')
-        fee_waiver = util.to_bool_or_none(c.get('feeWaiver'))
-        first_generation = util.to_bool_or_none(c.get('firstGeneration'))
-        foster_care = util.to_bool_or_none(c.get('fosterCare'))
-        freshman_or_transfer = c.get('freshmanOrTransfer')
-        hispanic = util.to_bool_or_none(c.get('hispanic'))
-        is_student_single_parent = util.to_bool_or_none(c.get('isStudentSingleParent'))
-        last_school_lcff: Optional[bool] = util.to_bool_or_none(c.get('lastSchoolLCFF'))
-        reentry_status = util.to_bool_or_none(c.get('reentryStatus'))
-        single_parent = util.to_bool_or_none(c.get('singleParent'))
-        sir = util.to_bool_or_none(c.get('sir'))
-        special_program_cep = util.to_bool_or_none(c.get('specialProgramCEP'))
-        urem = util.to_bool_or_none(c.get('urem'))
-        x_ethnic = c.get('xEthnic')
-
-        cohort_json.update({
-            'criteria': {
-                'admitCollege': admit_college,
-                'coeAdvisorLdapUids': coe_advisor_ldap_uids,
-                'coeEthnicities': coe_ethnicities,
-                'coeGenders': coe_genders,
-                'coePrepStatuses': coe_prep_statuses,
-                'coeProbation': coe_probation,
-                'coeUnderrepresented': coe_underrepresented,
-                'cohortOwnerAcademicPlans': cohort_owner_academic_plans,
-                'colleges': colleges,
-                'curatedGroupIds': curated_group_ids,
-                'enteringTerms': entering_terms,
-                'ethnicities': ethnicities,
-                'expectedGradTerms': expected_grad_terms,
-                'feeWaiver': fee_waiver,
-                'firstGeneration': first_generation,
-                'fosterCare': foster_care,
-                'freshmanOrTransfer': freshman_or_transfer,
-                'genders': genders,
-                'gpaRanges': gpa_ranges,
-                'groupCodes': group_codes,
-                'hispanic': hispanic,
-                'inIntensiveCohort': in_intensive_cohort,
-                'isInactiveAsc': is_inactive_asc,
-                'isInactiveCoe': is_inactive_coe,
-                'isStudentSingleParent': is_student_single_parent,
-                'lastNameRanges': last_name_ranges,
-                'lastSchoolLCFF': last_school_lcff,
-                'lastTermGpaRanges': last_term_gpa_ranges,
-                'levels': levels,
-                'majors': majors,
-                'midpointDeficient': midpoint_deficient_grade,
-                'reentryStatus': reentry_status,
-                'singleParent': single_parent,
-                'sir': sir,
-                'specialProgramCEP': special_program_cep,
-                'transfer': transfer,
-                'underrepresented': underrepresented,
-                'unitRanges': unit_ranges,
-                'urem': urem,
-                'visaTypes': visa_types,
-                'xEthnic': x_ethnic,
-            },
-            'teamGroups': team_groups,
-        })
+        cohort_json = self.to_base_json()
         if not include_students and not include_alerts_for_user_id and self.student_count is not None:
             # No need for a students query; return the database-stashed student count.
             cohort_json.update({
@@ -392,53 +313,26 @@ class CohortFilter(Base):
         benchmark('begin students query')
         sids_only = not include_students
 
-        # Translate the "My Students" filter, if present, into queryable criteria. Although our database relationships allow
-        # for multiple cohort owners, we assume a single owner here since the "My Students" filter makes no sense
-        # in any other scenario.
-        if cohort_owner_academic_plans:
-            if self.owners:
-                owner_sid = get_csid_for_uid(app, self.owners[0].uid)
-            else:
-                owner_sid = current_user.get_csid()
-            advisor_plan_mappings = [{'advisor_sid': owner_sid, 'academic_plan_code': plan} for plan in cohort_owner_academic_plans]
+        if self.domain == 'admitted_students':
+            results = _query_admitted_students(
+                benchmark=benchmark,
+                criteria=cohort_json['criteria'],
+                limit=limit,
+                offset=offset,
+                order_by=order_by,
+                sids_only=sids_only,
+            )
         else:
-            advisor_plan_mappings = None
-
-        results = _mock_ce3_students() if self.domain == 'admitted_students' else query_students(
-            advisor_plan_mappings=advisor_plan_mappings,
-            coe_advisor_ldap_uids=coe_advisor_ldap_uids,
-            coe_ethnicities=coe_ethnicities,
-            coe_genders=coe_genders,
-            coe_prep_statuses=coe_prep_statuses,
-            coe_probation=coe_probation,
-            coe_underrepresented=coe_underrepresented,
-            colleges=colleges,
-            curated_group_ids=curated_group_ids,
-            entering_terms=entering_terms,
-            ethnicities=ethnicities,
-            expected_grad_terms=expected_grad_terms,
-            genders=genders,
-            gpa_ranges=gpa_ranges,
-            group_codes=group_codes,
-            in_intensive_cohort=in_intensive_cohort,
-            include_profiles=(include_students and include_profiles),
-            is_active_asc=None if is_inactive_asc is None else not is_inactive_asc,
-            is_active_coe=None if is_inactive_coe is None else not is_inactive_coe,
-            last_name_ranges=last_name_ranges,
-            last_term_gpa_ranges=last_term_gpa_ranges,
-            levels=levels,
-            limit=limit,
-            majors=majors,
-            midpoint_deficient_grade=midpoint_deficient_grade,
-            offset=offset,
-            order_by=order_by,
-            sids_only=sids_only,
-            transfer=transfer,
-            underrepresented=underrepresented,
-            unit_ranges=unit_ranges,
-            visa_types=visa_types,
-        )
-        benchmark('end students query')
+            results = _query_students(
+                benchmark=benchmark,
+                criteria=cohort_json['criteria'],
+                include_profiles=include_profiles,
+                limit=limit,
+                offset=offset,
+                order_by=order_by,
+                owners=self.owners,
+                sids_only=sids_only,
+            )
 
         if results:
             # Cohort might have tens of thousands of SIDs.
@@ -477,18 +371,85 @@ class CohortFilter(Base):
         return cohort_json
 
 
-def _mock_ce3_students():
-    total_student_count = random.randint(0, 15000)
-    sids = [f'{random.randint(100000, 1000000)}' for i in range(total_student_count)]
-    batch_size = 50 if total_student_count > 50 else total_student_count
-    students = []
-    for i in range(batch_size):
-        students.append({
-            'sid': sids[i],
-            'firstName': ['Joe', 'Mick', 'Paul', 'Topper'][random.randint(0, 3)],
-        })
-    return {
-        'sids': sids,
-        'students': students,
-        'totalStudentCount': total_student_count,
-    }
+def _query_students(
+        benchmark,
+        criteria,
+        include_profiles,
+        limit,
+        offset,
+        order_by,
+        owners,
+        sids_only,
+):
+    benchmark('begin students query')
+    # Translate the "My Students" filter, if present, into queryable criteria. Although our database relationships
+    # allow for multiple cohort owners, we assume a single owner here since the "My Students" filter makes no sense
+    # in any other scenario.
+    plans = criteria.get('cohortOwnerAcademicPlans')
+    if plans:
+        if owners:
+            owner_sid = get_csid_for_uid(app, owners[0].uid)
+        else:
+            owner_sid = current_user.get_csid()
+        advisor_plan_mappings = [{'advisor_sid': owner_sid, 'academic_plan_code': plan} for plan in plans]
+    else:
+        advisor_plan_mappings = None
+    coe_advisor_ldap_uids = util.get(criteria, 'coeAdvisorLdapUids')
+    if not isinstance(coe_advisor_ldap_uids, list):
+        coe_advisor_ldap_uids = [coe_advisor_ldap_uids] if coe_advisor_ldap_uids else None
+    results = query_students(
+        advisor_plan_mappings=advisor_plan_mappings,
+        coe_advisor_ldap_uids=coe_advisor_ldap_uids,
+        coe_ethnicities=criteria.get('coeEthnicities'),
+        coe_genders=criteria.get('coeGenders'),
+        coe_prep_statuses=criteria.get('coePrepStatuses'),
+        coe_probation=criteria.get('coeProbation'),
+        coe_underrepresented=criteria.get('coeUnderrepresented'),
+        colleges=criteria.get('colleges'),
+        curated_group_ids=criteria.get('curatedGroupIds'),
+        entering_terms=criteria.get('enteringTerms'),
+        ethnicities=criteria.get('ethnicities'),
+        expected_grad_terms=criteria.get('expectedGradTerms'),
+        genders=criteria.get('genders'),
+        gpa_ranges=criteria.get('gpaRanges'),
+        group_codes=criteria.get('groupCodes'),
+        in_intensive_cohort=criteria.get('inIntensiveCohort'),
+        include_profiles=include_profiles,
+        is_active_asc=None if criteria.get('isInactiveAsc') is None else not criteria.get('isInactiveAsc'),
+        is_active_coe=None if criteria.get('isInactiveCoe') is None else not criteria.get('isInactiveCoe'),
+        last_name_ranges=criteria.get('lastNameRanges'),
+        last_term_gpa_ranges=criteria.get('lastTermGpaRanges'),
+        levels=criteria.get('levels'),
+        limit=limit,
+        majors=criteria.get('majors'),
+        midpoint_deficient_grade=criteria.get('midpointDeficient'),
+        offset=offset,
+        order_by=order_by,
+        sids_only=sids_only,
+        transfer=criteria.get('transfer'),
+        underrepresented=criteria.get('underrepresented'),
+        unit_ranges=criteria.get('unitRanges'),
+        visa_types=criteria.get('visaTypes'),
+    )
+    benchmark('end students query')
+    return results
+
+
+def _query_admitted_students(
+        benchmark,
+        criteria,
+        limit,
+        offset,
+        order_by,
+        sids_only,
+):
+    benchmark('begin admitted_students query')
+    app.logger.info(f"""query_admitted_students:
+        criteria={criteria}
+        limit={limit}
+        offset={offset}
+        order_by={order_by}
+        sids_only={sids_only}
+    """)
+    benchmark('end admitted_students query')
+    return {}

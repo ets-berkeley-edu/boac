@@ -23,25 +23,28 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.util import authorized_users_api_feed
+from boac import db
 from boac.externals import data_loch
 from boac.lib.berkeley import COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
 from boac.merged import athletics
+from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.curated_group import CuratedGroup
 from flask import current_app as app
 from flask_login import current_user
+from sqlalchemy import text
 
 
 def get_coe_profiles():
     users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.get_all_active_users()))
+    calnet_users = get_calnet_users_for_uids(app, [u.uid for u in users])
     profiles = []
-    for user in authorized_users_api_feed(users):
-        uid = user['uid']
-        first_name = user.get('firstName')
-        last_name = user.get('lastName')
+    for user in users:
+        uid = user.uid
+        calnet_user = calnet_users[uid]
+        first_name = calnet_user.get('firstName')
+        last_name = calnet_user.get('lastName')
         name = f'{first_name} {last_name}' if first_name or last_name else f'UID: {uid}'
         profiles.append({'name': name, 'value': uid})
     return sorted(profiles, key=lambda p: p['name'])
@@ -71,7 +74,11 @@ def coe_gender_options():
 
 
 def curated_groups(user_id):
-    return [{'name': g.name, 'value': g.id} for g in CuratedGroup.get_curated_groups_by_owner_id(user_id)]
+    results = db.session.execute(
+        text('SELECT id, name FROM student_groups WHERE owner_id = :user_id'),
+        {'user_id': user_id},
+    )
+    return [{'name': row['name'], 'value': row['id']} for row in results]
 
 
 def colleges():

@@ -788,7 +788,7 @@ class TestCohortUpdate:
         assert updated_cohort['alertCount'] is not None
         assert updated_cohort['criteria']['majors'] == ['Engineering Undeclared UG']
         assert updated_cohort['criteria']['gpaRanges'] == [gpa_range]
-        assert updated_cohort['criteria']['groupCodes'] is None
+        assert updated_cohort['criteria'].get('groupCodes') is None
 
         def remove_empties(criteria):
             return {k: v for k, v in criteria.items() if v is not None}
@@ -983,7 +983,7 @@ class TestCohortPerFilters:
             'unitRanges',
             'visaTypes',
         ]:
-            assert criteria[key] is None
+            assert criteria.get(key) is None
 
     def test_my_students_filter_all_plans(self, client, coe_advisor_login):
         """Returns students mapped to advisor, across all academic plans."""

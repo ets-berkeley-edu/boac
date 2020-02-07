@@ -66,7 +66,7 @@ class CohortFilterOptions:
         return list(filter(lambda g: len(g), available_categories))
 
     def get_all_filter_categories(self):
-        owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid)
+        owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         return [
             [
                 _filter('colleges', 'College', options=colleges),
@@ -112,11 +112,11 @@ class CohortFilterOptions:
                     available_to=['COENG'],
                     validation='char',
                 ),
-                _filter('curatedGroupIds', 'My Curated Groups', options=lambda: curated_groups(owner_user_id)),
+                _filter('curatedGroupIds', 'My Curated Groups', options=lambda: curated_groups(owner_user_id) if owner_user_id else None),
                 _filter(
                     'cohortOwnerAcademicPlans',
                     'My Students',
-                    options=lambda: academic_plans_for_cohort_owner(self.owner_uid),
+                    options=lambda: academic_plans_for_cohort_owner(self.owner_uid) if self.owner_uid else None,
                 ),
                 _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
                 _boolean_filter_coe('coeProbation', 'Probation'),
