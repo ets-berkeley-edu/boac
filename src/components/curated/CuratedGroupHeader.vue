@@ -163,6 +163,8 @@
             @shown="focusModalById('export-list-confirm')">
             <ExportListModal
               :cancel-export-list-modal="cancelExportGroupModal"
+              :csv-columns="getCohortCsvExportColumns()"
+              :csv-columns-selected="['first_name', 'last_name', 'sid', 'email', 'phone']"
               :export-list="exportGroup" />
           </b-modal>
         </div>
@@ -191,6 +193,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CuratedEditSession from '@/mixins/CuratedEditSession';
 import CurrentUserExtras from "@/mixins/CurrentUserExtras";
@@ -204,7 +207,7 @@ import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
 export default {
   name: 'CuratedGroupHeader',
   components: { ExportListModal },
-  mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Util, Validator],
+  mixins: [Berkeley, Context, CuratedEditSession, CurrentUserExtras, Loading, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,

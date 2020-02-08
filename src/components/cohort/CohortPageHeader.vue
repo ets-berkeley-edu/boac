@@ -98,6 +98,8 @@
             @shown="focusModalById('export-list-confirm')">
             <ExportListModal
               :cancel-export-list-modal="cancelExportCohortModal"
+              :csv-columns-selected="getCsvExportColumnsSelected()"
+              :csv-columns="getCsvExportColumns()"
               :export-list="exportCohort" />
           </b-modal>
         </div>
@@ -180,6 +182,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import Context from '@/mixins/Context';
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
@@ -192,7 +195,7 @@ import { deleteCohort } from '@/api/cohort';
 export default {
   name: 'CohortPageHeader',
   components: { DeleteCohortModal, ExportListModal },
-  mixins: [CohortEditSession, Context, Util, Validator],
+  mixins: [Berkeley, CohortEditSession, Context, Util, Validator],
   props: {
     showHistory: {
       type: Boolean,
@@ -254,12 +257,34 @@ export default {
       });
     },
     exportCohort(csvColumnsSelected) {
-      this.showExportListModal = false
+      this.showExportListModal = false;
       this.exportEnabled = false;
       this.alertScreenReader(`Exporting ${this.name} cohort`);
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true;
       });
+    },
+    getCsvExportColumns() {
+      let columns;
+      if (this.domain === 'default') {
+        columns = this.getCohortCsvExportColumns();
+      } else {
+        columns = [
+          {text: 'First name', value: 'first_name'},
+          {text: 'Last name', value: 'last_name'},
+          {text: 'CS ID', value: 'cs_empl_id'},
+          {text: 'SIR', value: 'current_sir'},
+          {text: 'CEP', value: 'special_program_cep'},
+          {text: 'Re-entry', value: 'reentry_status'},
+          {text: 'URM', value: 'urem'},
+          {text: 'Waiver', value: 'application_fee_waiver_flag'},
+          {text: 'Freshman or Transfer', value: 'freshman_or_transfer'},
+        ]
+      }
+      return columns;
+    },
+    getCsvExportColumnsSelected() {
+      return this.domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : ['cs_empl_id', 'current_sir', 'first_name', 'last_name'];
     },
     submitRename() {
       this.renameError = this.validateCohortName({

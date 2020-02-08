@@ -216,9 +216,6 @@ def download_csv_per_filters():
     benchmark = get_benchmarker('cohort download_csv_per_filters')
     benchmark('begin')
     params = request.get_json()
-    domain = get_param(params, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     filters = get_param(params, 'filters', [])
     fieldnames = get_param(params, 'csvColumnsSelected', [])
     if not filters:
@@ -226,6 +223,7 @@ def download_csv_per_filters():
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
+    domain = get_param(params, 'domain', 'default')
     cohort = _construct_phantom_cohort(
         domain=domain,
         filters=filters,
