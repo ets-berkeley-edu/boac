@@ -73,7 +73,7 @@
                 <div class="drop-in-status-text pr-2">
                   {{ dropInStatus }}
                 </div>
-                <div class="faint-text pb-1">
+                <div class="drop-in-status-clear faint-text pb-1">
                   [<button
                     id="drop-in-status-clear"
                     class="btn btn-link m-0 p-0"
@@ -310,6 +310,9 @@ export default {
 .border-thick-grey {
   border-color: lightgrey !important;
   border-width: 3px !important;
+}
+.drop-in-status-clear {
+  white-space: nowrap;
 }
 .drop-in-status-form {
   max-height: 48px;
