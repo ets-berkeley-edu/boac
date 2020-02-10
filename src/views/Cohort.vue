@@ -178,7 +178,7 @@ export default {
     });
   },
   methods: {
-    filterRowUniqueKey: (filter, index) => `${filter.key}-${index}`,
+    filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
     goToPage(page) {
       if (page > 1) {
         const action = `Go to page ${page}`;
