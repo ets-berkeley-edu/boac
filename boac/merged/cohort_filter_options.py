@@ -154,9 +154,24 @@ class CohortFilterOptions:
                 _boolean_filter_ce3('feeWaiver', 'Application Fee Waiver'),
                 _boolean_filter_ce3('fosterCare', 'Foster Care'),
                 _boolean_filter_ce3('singleParent', 'Single Parent'),
+                _boolean_filter_ce3('isFamilySingleParent', 'Family is Single Parent'),
                 _boolean_filter_ce3('isStudentSingleParent', 'Student is Single Parent'),
-                # TODO: Family Dependents - number
-                # TODO: Student Dependents - number
+                _range_filter(
+                    'familyDependents',
+                    'Family Dependents',
+                    labels_range=['', '-'],
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    validation='dependents',
+                ),
+                _range_filter(
+                    'studentDependents',
+                    'Student Dependents',
+                    labels_range=['', '-'],
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    validation='dependents',
+                ),
                 _boolean_filter_ce3('reentryStatus', 'Re-entry Status'),
                 _boolean_filter_ce3('lastSchoolLCFF', 'Last School LCFF+'),
                 _boolean_filter_ce3('specialProgramCEP', 'Special Program CEP'),

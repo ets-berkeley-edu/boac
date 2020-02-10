@@ -16,6 +16,23 @@ export default {
       }
       return roles;
     },
+    getCohortCsvExportColumns() {
+      return [
+        {text: 'First name', value: 'first_name'},
+        {text: 'Last name', value: 'last_name'},
+        {text: 'SID', value: 'sid'},
+        {text: 'Email address', value: 'email'},
+        {text: 'Phone number', value: 'phone'},
+        {text: 'Major(s)', value: 'majors'},
+        {text: 'Level', value: 'level'},
+        {text: 'Terms in attendance', value: 'terms_in_attendance'},
+        {text: 'Expected graduation date', value: 'expected_graduation_date'},
+        {text: 'Units completed', value: 'units_completed'},
+        {text: 'Term GPA', value: 'term_gpa'},
+        {text: 'Cumulative GPA', value: 'cumulative_gpa'},
+        {text: 'Program status', value: 'program_status'}
+      ];
+    },
     isDirector: (user) => {
       return !!_.size(_.filter(user.departments, d => d.role === 'director'));
     },
