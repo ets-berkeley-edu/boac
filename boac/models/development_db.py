@@ -241,6 +241,14 @@ _test_users = [
         'canAccessCanvasData': True,
         'deleted': False,
     },
+    {
+        'uid': '3535',
+        'csid': None,
+        'isAdmin': False,
+        'inDemoMode': False,
+        'canAccessCanvasData': False,
+        'deleted': False,
+    },
 ]
 
 _university_depts = {
@@ -349,6 +357,12 @@ _university_depts = {
             {
                 'uid': '2525',
                 'role': 'advisor',
+                'isDropInAdvisor': False,
+                'automate_membership': False,
+            },
+            {
+                'uid': '3535',
+                'role': 'scheduler',
                 'isDropInAdvisor': False,
                 'automate_membership': False,
             },
