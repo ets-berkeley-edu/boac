@@ -91,6 +91,22 @@ def advisor_required(func):
     return _advisor_required
 
 
+def ce3_required(func):
+    @wraps(func)
+    def _ce3_required(*args, **kw):
+        is_authorized = app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] and current_user.is_authenticated \
+            and (
+                current_user.is_admin
+                or _is_advisor_in_department(current_user, 'ZCEEE')
+        )
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _ce3_required
+
+
 def drop_in_required(func):
     @wraps(func)
     def _drop_in_required(*args, **kw):
@@ -427,6 +443,10 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
 
 def _has_role_in_any_department(user, role):
     return next((d for d in user.departments if d['role'] == role), False)
+
+
+def _is_advisor_in_department(user, dept):
+    return next((d for d in user.departments if d['code'] == dept and d['role'] in ('advisor', 'director')), False)
 
 
 def _is_drop_in_advisor(user):

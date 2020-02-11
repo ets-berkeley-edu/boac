@@ -86,6 +86,10 @@ def e_i_schema():
     return app.config['DATA_LOCH_E_I_SCHEMA']
 
 
+def oua_schema():
+    return app.config['DATA_LOCH_OUA_SCHEMA']
+
+
 def sis_advising_notes_schema():
     return app.config['DATA_LOCH_SIS_ADVISING_NOTES_SCHEMA']
 
@@ -472,6 +476,22 @@ def get_e_i_advising_note_topics(sid):
         WHERE sid=:sid
         ORDER BY id"""
     return safe_execute_rds(sql, sid=sid)
+
+
+def get_admitted_student_by_sid(sid):
+    sql = f"""
+        SELECT applyuc_cpid, cs_empl_id AS sid, freshman_or_transfer, admit_status, current_sir, college, first_name, last_name, birthdate,
+        email, daytime, mobile, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country,
+        sex, gender_identity, xethnic, hispanic, urem, first_generation_student, first_generation_college, parent_1_education_level,
+        parent_2_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading,
+        act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis,
+        sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent,
+        family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status
+        athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep
+        FROM {oua_schema()}.student_admits
+        WHERE cs_empl_id=:sid"""
+    rows = safe_execute_rds(sql, sid=sid)
+    return None if not rows or (len(rows) == 0) else rows[0]
 
 
 def get_sis_advising_notes(sid):

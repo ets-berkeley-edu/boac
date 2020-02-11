@@ -77,6 +77,7 @@ DATA_LOCH_ASC_SCHEMA = 'boac_advising_asc'
 DATA_LOCH_BOAC_SCHEMA = 'boac_analytics'
 DATA_LOCH_COE_SCHEMA = 'boac_advising_coe'
 DATA_LOCH_E_I_SCHEMA = 'boac_advising_e_i'
+DATA_LOCH_OUA_SCHEMA = 'boac_advising_oua'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
 
 # The Data Loch provides read-only Postgres access.

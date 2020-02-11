@@ -98,6 +98,10 @@ class TestDataLoch:
         assert topics[0]['id'] == '11667051-151620'
         assert topics[0]['topic'] == 'Course Planning'
 
+    def test_get_admitted_student_by_sid(self, app):
+        admit = data_loch.get_admitted_student_by_sid('00005852')
+        assert admit['sid'] == '00005852'
+
     def test_get_sis_advising_note_attachment(self, app):
         attachment = data_loch.get_sis_advising_note_attachment('11667051', '11667051_00001_1.pdf')
         assert len(attachment) == 1
