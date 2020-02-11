@@ -228,6 +228,11 @@ class CohortFilterOptions:
             value = True if filter_type_per_key[key] == 'boolean' else existing_filter['value']
             selected_values_per_key[key].append(value)
 
+        cls.populate_cohort_filter_options(cohort_filter_per_key, selected_values_per_key)
+        return cohort_filter_options
+
+    @classmethod
+    def populate_cohort_filter_options(cls, cohort_filter_per_key, selected_values_per_key):
         for key, selected_values in selected_values_per_key.items():
             # Disable options that are represented in 'existing_filters'
             cohort_filter = cohort_filter_per_key[key]
@@ -237,7 +242,7 @@ class CohortFilterOptions:
                 # Populate dropdown
                 selected_values = selected_values_per_key[key]
                 available_options = cohort_filter['options']
-                if '*' in selected_values or len(available_options) == len(selected_values):
+                if len(available_options) == len(selected_values):
                     # This filter has zero available options.
                     cohort_filter['disabled'] = True
                     for option in available_options:
@@ -247,7 +252,10 @@ class CohortFilterOptions:
                         if option.get('value') in selected_values:
                             # Disable option
                             option['disabled'] = True
-        return cohort_filter_options
+                # When a filter value is 'Select all', don't allow a new filter to be created, but leave other
+                # options available so that existing filters can be edited.
+                if '*' in selected_values:
+                    cohort_filter['disabled'] = True
 
 
 def _filter(
