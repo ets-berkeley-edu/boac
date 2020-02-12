@@ -579,8 +579,8 @@ class TestCohortsEveryone:
         """The cohort history feature is not available if domain is 'admitted_students'."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             api_json = self._api_cohorts_all(client, domain='admitted_students')
-            cohort = api_json[0]['cohorts'][0]
-            api_cohort_events(client, cohort['id'], expected_status_code=400)
+            cohorts = next(row['cohorts'] for row in api_json if len(row['cohorts']))
+            api_cohort_events(client, cohorts[0]['id'], expected_status_code=400)
 
 
 class TestCohortCreate:
