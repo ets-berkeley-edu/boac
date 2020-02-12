@@ -91,6 +91,7 @@ export default {
       key: 'sortBy',
       value: 'last_name'
     });
+    this.setMode(undefined);
     this.init(parseInt(this.id)).then(group => {
       if (group) {
         this.loaded(group.name);
