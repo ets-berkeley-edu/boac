@@ -958,6 +958,66 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
     return o, o_secondary, o_tertiary, o_direction, supplemental_query_tables
 
 
+def get_admitted_students_query(
+    colleges=None,
+    family_dependent_ranges=None,
+    freshman_or_transfer=None,
+    has_fee_waiver=None,
+    in_foster_care=None,
+    is_cep=None,
+    is_family_single_parent=None,
+    is_first_generation_student=None,
+    is_hispanic=None,
+    is_last_school_lcff=None,
+    is_reentry=None,
+    is_student_single_parent=None,
+    is_urem=None,
+    sir=None,
+    student_dependent_ranges=None,
+    x_ethnicities=None,
+):
+    query_bindings = {
+        'college': colleges,
+        'freshman_or_transfer': freshman_or_transfer,
+        'has_fee_waiver': has_fee_waiver,
+        'in_foster_care': in_foster_care,
+        'is_cep': is_cep,
+        'is_family_single_parent': is_family_single_parent,
+        'is_first_generation_student': is_first_generation_student,
+        'is_hispanic': is_hispanic,
+        'is_last_school_lcff': is_last_school_lcff,
+        'is_reentry': is_reentry,
+        'is_student_single_parent': is_student_single_parent,
+        'is_urem': is_urem,
+        'sir': sir,
+        'x_ethnicities': x_ethnicities,
+    }
+    query_tables = f'FROM {oua_schema()}.student_admits'
+    query_filter = 'WHERE true'
+    query_filter += ' AND college = ANY(:admit_colleges)' if colleges else ''
+    query_filter += ' AND current_sir IS :sir' if sir is not None else ''
+    query_filter += ' AND freshman_or_transfer = ANY(:freshman_or_transfer)' if freshman_or_transfer else ''
+    query_filter += ' AND application_fee_waiver_flag IS :has_fee_waiver' if has_fee_waiver is not None else ''
+    query_filter += ' AND foster_care_flag IS :in_foster_care' if in_foster_care is not None else ''
+    query_filter += ' AND special_program_cep IS :is_cep' if is_cep is not None else ''
+    query_filter += ' AND family_is_single_parent IS :is_family_single_parent' if is_family_single_parent is not None else ''
+    query_filter += ' AND first_generation_student IS :is_first_generation_student' if is_first_generation_student is not None else ''
+    query_filter += ' AND hispanic IS :is_hispanic' if is_hispanic is not None else ''
+    query_filter += ' AND last_school_lcff_plus_flag IS :is_last_school_lcff' if is_last_school_lcff is not None else ''
+    query_filter += ' AND reentry_status IS :is_reentry' if is_reentry is not None else ''
+    query_filter += ' AND student_is_single_parent IS :is_student_single_parent' if is_student_single_parent is not None else ''
+    query_filter += ' AND urem IS :is_urem' if is_urem is not None else ''
+    query_filter += ' AND xethnic = ANY(:x_ethnicities)' if x_ethnicities else ''
+    # Ranges
+    if family_dependent_ranges:
+        sql_ready_ranges = [f"numrange({range_['min']}, {range_['max']}, '[]')" for range_ in family_dependent_ranges]
+        query_filter += _number_ranges_to_sql('family_dependents_num', sql_ready_ranges)
+    if student_dependent_ranges:
+        sql_ready_ranges = [f"numrange({range_['min']}, {range_['max']}, '[]')" for range_ in student_dependent_ranges]
+        query_filter += _number_ranges_to_sql('student_dependents_num', sql_ready_ranges)
+    return query_tables, query_filter, query_bindings
+
+
 def _level_to_code(level):
     codes = {
         'Freshman': '10',

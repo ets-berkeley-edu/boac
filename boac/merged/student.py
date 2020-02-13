@@ -29,6 +29,7 @@ import operator
 import re
 
 from boac.externals import data_loch, s3
+from boac.externals.data_loch import get_admitted_students_query
 from boac.lib import analytics
 from boac.lib.berkeley import dept_codes_where_advising, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
@@ -518,6 +519,62 @@ def search_for_student_historical(sid):
             'students': [],
             'totalStudentCount': 0,
         }
+
+
+def query_admitted_students(
+    colleges=None,
+    family_dependent_ranges=None,
+    freshman_or_transfer=None,
+    has_fee_waiver=None,
+    in_foster_care=None,
+    is_cep=None,
+    is_family_single_parent=None,
+    is_first_generation_student=None,
+    is_hispanic=None,
+    is_last_school_lcff=None,
+    is_reentry=None,
+    is_student_single_parent=None,
+    is_urem=None,
+    limit=50,
+    offset=0,
+    order_by=None,
+    sids_only=False,
+    sir=None,
+    student_dependent_ranges=None,
+    x_ethnicities=None,
+):
+    query_tables, query_filter, query_bindings = get_admitted_students_query(
+        colleges=colleges,
+        family_dependent_ranges=family_dependent_ranges,
+        freshman_or_transfer=freshman_or_transfer,
+        has_fee_waiver=has_fee_waiver,
+        in_foster_care=in_foster_care,
+        is_cep=is_cep,
+        is_family_single_parent=is_family_single_parent,
+        is_first_generation_student=is_first_generation_student,
+        is_hispanic=is_hispanic,
+        is_last_school_lcff=is_last_school_lcff,
+        is_reentry=is_reentry,
+        is_student_single_parent=is_student_single_parent,
+        is_urem=is_urem,
+        sir=sir,
+        student_dependent_ranges=student_dependent_ranges,
+        x_ethnicities=x_ethnicities,
+    )
+    sids_result = data_loch.safe_execute_rds(f'SELECT DISTINCT(cs_empl_id) as sid {query_tables} {query_filter}', **query_bindings)
+    sids = [row['sid'] for row in sids_result]
+    summary = {
+        'sids': sids,
+        'totalStudentCount': len(sids),
+    }
+    if not sids_only:
+        sql = f'SELECT {query_tables} {query_filter} ORDER BY {order_by}, cs_empl_id OFFSET :offset'
+        query_bindings['offset'] = offset
+        if limit and limit < 100:  # Sanity check large limits
+            query_bindings['limit'] = limit
+            sql += f' LIMIT :limit'
+        summary['students'] = data_loch.safe_execute_rds(sql, **query_bindings)
+    return summary
 
 
 def get_student_query_scope(user=None):
