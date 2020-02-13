@@ -146,8 +146,8 @@ CREATE TABLE boac_advising_oua.student_admits
     applyuc_cpid VARCHAR NOT NULL,
     cs_empl_id VARCHAR NOT NULL,
     freshman_or_transfer VARCHAR,
-    admit_status VARCHAR,
-    current_sir VARCHAR,
+    admit_status BOOLEAN,
+    current_sir BOOLEAN,
     college VARCHAR,
     first_name VARCHAR,
     last_name VARCHAR,
@@ -164,10 +164,10 @@ CREATE TABLE boac_advising_oua.student_admits
     sex VARCHAR,
     gender_identity VARCHAR,
     xethnic VARCHAR,
-    hispanic VARCHAR,
-    urem VARCHAR,
-    first_generation_student VARCHAR,
-    first_generation_college VARCHAR,
+    hispanic BOOLEAN,
+    urem BOOLEAN,
+    first_generation_student BOOLEAN,
+    first_generation_college BOOLEAN,
     parent_1_education_level VARCHAR,
     parent_2_education_level VARCHAR,
     hs_unweighted_gpa VARCHAR,
@@ -184,21 +184,21 @@ CREATE TABLE boac_advising_oua.student_admits
     sat_r_essay_reading INTEGER,
     sat_r_essay_analysis INTEGER,
     sat_r_essay_writing INTEGER,
-    application_fee_waiver_flag VARCHAR,
-    foster_care_flag VARCHAR,
-    family_is_single_parent VARCHAR,
-    student_is_single_parent VARCHAR,
+    application_fee_waiver_flag BOOLEAN,
+    foster_care_flag BOOLEAN,
+    family_is_single_parent BOOLEAN,
+    student_is_single_parent BOOLEAN,
     family_dependents_num VARCHAR,
     student_dependents_num VARCHAR,
     family_income VARCHAR,
     student_income VARCHAR,
-    is_military_dependent VARCHAR,
+    is_military_dependent BOOLEAN,
     military_status VARCHAR,
-    reentry_status VARCHAR,
+    reentry_status BOOLEAN,
     athlete_status VARCHAR,
-    summer_bridge_status VARCHAR,
-    last_school_lcff_plus_flag VARCHAR,
-    special_program_cep VARCHAR
+    summer_bridge_status BOOLEAN,
+    last_school_lcff_plus_flag BOOLEAN,
+    special_program_cep BOOLEAN
 );
 
 CREATE TABLE boac_advisor.advisor_roles
@@ -526,11 +526,11 @@ VALUES
 ('1133399', '800700600', 'Joni', 'Mitchell');
 
 INSERT INTO boac_advising_oua.student_admits
-(applyuc_cpid,cs_empl_id,freshman_or_transfer,admit_status,current_sir,college,first_name,last_name,birthdate,email,daytime,mobile,permanent_street_1,permanent_street_2,permanent_city,permanent_region,permanent_postal,permanent_country,sex,gender_identity,xethnic,hispanic,urem,first_generation_student,first_generation_college,parent_1_education_level,parent_2_education_level,hs_unweighted_gpa,hs_weighted_gpa,transfer_gpa,act_composite,act_math,act_english,act_reading,act_writing,sat_total,sat_r_evidence_based_rw_section,sat_r_math_section,sat_r_essay_reading,sat_r_essay_analysis,sat_r_essay_writing,application_fee_waiver_flag,foster_care_flag,family_is_single_parent,student_is_single_parent,family_dependents_num,student_dependents_num,family_income,student_income,is_military_dependent,military_status,reentry_status,athlete_status,summer_bridge_status,last_school_lcff_plus_flag,special_program_cep)
+(applyuc_cpid, cs_empl_id, freshman_or_transfer, admit_status, current_sir, college, first_name, last_name, birthdate, email, daytime, mobile, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country, sex, gender_identity, xethnic, hispanic, urem, first_generation_student, first_generation_college, parent_1_education_level, parent_2_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading, act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis, sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent, family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep)
 VALUES
-('19938035','00005852','Transfer','No','No','College of Letters and Science','Ralph','Burgess','1984-09-04','robert28@hotmail.com','984.110.7693x347','681-857-8070','9590 Chang Extensions','Suite 478','East Jacobton','NY','55531','GB','F','Other','','','No','F','','MasterDegree','BachelorDegree','0.86','0.51','2.47',7.18,17.8,29.18,18.43,3.14,603,707,241,3,2,4,'Yes','Yes','No','No','2','2','41852','942','Yes','Yes','No','','','',''),
-('98002344','00029117','Freshman','No','No','College of Engineering','Daniel','Mcknight','1993-07-06','umiles@gmail.com','859-319-8215x8689','231.865.8093','87758 Brown Throughway','Suite 657','West Andrea','M','25101','GB','','Other','White','T','','T','T','','CollegeAttended','2.51','2.7','3.23',25.08,19.28,1.83,14.98,9.02,1445,639,724,7,5,5,'','Yes','','Yes','0','2','23915','426','Yes','','','','No','','Yes'),
-('44631475','11667051','','Yes','Yes','','Deborah','Davies','1985-06-02','zmitchell@morgan.net','+1-589-507-0244x25165','891.337.1621','33770 Miller Fort','Apt. 408','New Alan','GA','27353','GB','','Male','NotSpecified','T','Yes','T','F','DoctoralDegree','HighSchoolGraduate','3.31','1.06','1.51',5.31,9.42,16.85,33.1,9.66,1148,476,511,4,5,8,'Yes','No','','','0','1','12509','242','','','No','No','','','No');
+('19938035', '00005852', 'Transfer', FALSE, FALSE, 'College of Letters and Science', 'Ralph', 'Burgess', '1984-09-04', 'robert28@hotmail.com', '984.110.7693x347', '681-857-8070', '9590 Chang Extensions', 'Suite 478', 'East Jacobton', 'NY', '55531', 'GB', FALSE, 'Other', '', NULL, FALSE, FALSE, NULL, 'MasterDegree', 'BachelorDegree', '0.86', '0.51', '2.47', 7.18, 17.8, 29.18, 18.43, 3.14, 603, 707, 241, 3, 2, 4, TRUE, TRUE, FALSE, FALSE, '2', '2', '41852', '942', TRUE, TRUE, FALSE, NULL, NULL, NULL, NULL),
+('98002344', '00029117', 'Freshman', FALSE, FALSE, 'College of Engineering', 'Daniel', 'Mcknight', '1993-07-06', 'umiles@gmail.com', '859-319-8215x8689', '231.865.8093', '87758 Brown Throughway', 'Suite 657', 'West Andrea', 'M', '25101', 'GB', '', 'Other', 'White', TRUE, NULL, TRUE, TRUE, '', 'CollegeAttended', '2.51', '2.7', '3.23', 25.08, 19.28, 1.83, 14.98, 9.02, 1445, 639, 724, 7, 5, 5, NULL, TRUE, NULL, TRUE, '0', '2', '23915', '426', TRUE, '', NULL, NULL, FALSE, NULL, TRUE),
+('44631475', '11667051', '', TRUE, TRUE, '', 'Deborah', 'Davies', '1985-06-02', 'zmitchell@morgan.net', '+1-589-507-0244x25165', '891.337.1621', '33770 Miller Fort', 'Apt. 408', 'New Alan', 'GA', '27353', 'GB', '', 'Male', 'NotSpecified', TRUE, TRUE, TRUE, FALSE, 'DoctoralDegree', 'HighSchoolGraduate', '3.31', '1.06', '1.51', 5.31, 9.42, 16.85, 33.1, 9.66, 1148, 476, 511, 4, 5, 8, TRUE, FALSE, NULL, NULL, '0', '1', '12509', '242', NULL, '', FALSE, FALSE, NULL, NULL, FALSE);
 
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
