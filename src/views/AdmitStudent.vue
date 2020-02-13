@@ -10,6 +10,13 @@
         tabindex="0">
         {{ admit.firstName }}&nbsp;{{ admit.lastName }}
       </h1>
+      <div v-if="admit.uid" class="pt-2 pb-3">
+        <router-link
+          :id="`link-to-student-${admit.uid}`"
+          :to="studentRoutePath(admit.uid, $currentUser.inDemoMode)"
+          v-html="`View ${admit.firstName} ${admit.lastName}'s profile page`">
+        </router-link>
+      </div>
       <table class="mb-4">
         <caption class="sr-only">Basic information for {{ admit.firstName }} {{ admit.lastName }}</caption>
         <tr>

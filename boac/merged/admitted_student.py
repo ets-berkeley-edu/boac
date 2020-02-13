@@ -32,4 +32,12 @@ from boac.lib.util import camelize
 
 def get_admitted_student_by_sid(sid):
     admit = data_loch.get_admitted_student_by_sid(sid)
+    if admit['current_sir'] == 'Yes':
+        _merge_student(admit)
     return {camelize(key): admit[key] for key in admit.keys()} if admit else None
+
+
+def _merge_student(admit):
+    student = data_loch.get_student_by_sid(admit['sid'])
+    if student:
+        admit['uid'] = student['uid']
