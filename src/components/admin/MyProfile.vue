@@ -44,7 +44,7 @@
           :key="department.code"
           class="flex-row pb-3">
           <div id="my-dept-roles">{{ upperFirst(department.role) }} in {{ department.name }}</div>
-          <div v-if="department.isDropInEnabled" class="ml-5">
+          <div v-if="canToggleDropInAdvising(department)" class="ml-5">
             Drop-in advising:
             <DropInAdvisingToggle
               :dept-code="department.code"
@@ -67,7 +67,12 @@ export default {
   components: {
     DropInAdvisingToggle,
   },
-  mixins: [Berkeley, Context, Util]
+  mixins: [Berkeley, Context, Util],
+  methods: {
+    canToggleDropInAdvising(dept) {
+      return dept.isDropInEnabled && (dept.role === 'advisor' || dept.role === 'director');
+    }
+  }
 }
 </script>
 
