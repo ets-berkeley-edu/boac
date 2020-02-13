@@ -33,3 +33,10 @@ class TestMergedAdmittedStudent:
         admit = admitted_student.get_admitted_student_by_sid('00005852')
         assert admit['applyucCpid'] == '19938035'
         assert admit['sid'] == '00005852'
+        assert 'uid' not in admit
+
+    def test_get_admitted_student_by_sid_post_sir(self):
+        admit = admitted_student.get_admitted_student_by_sid('11667051')
+        assert admit['applyucCpid'] == '44631475'
+        assert admit['sid'] == '11667051'
+        assert admit['uid'] == '61889'
