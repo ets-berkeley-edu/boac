@@ -292,27 +292,28 @@ export default {
       handler(rangeObject) {
         this.disableUpdateButton = false;
         this.errorPerRangeInput = undefined;
-        const trimToNil = v => this.isUndefined(v) ? v : this.trim(v) || undefined;
-        let min = trimToNil(this.get(rangeObject, 'min'));
-        let max = trimToNil(this.get(rangeObject, 'max'));
-        const isNilOrNan = v => this.isNil(v) || this.isNaN(v);
+        const trimToNil = v => this.$_.isUndefined(v) ? v : this.$_.trim(v) || undefined;
+        let min = trimToNil(this.$_.get(rangeObject, 'min'));
+        let max = trimToNil(this.$_.get(rangeObject, 'max'));
+        const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v);
         if (this.filter.validation === 'gpa') {
           min = min && parseFloat(min);
           max = max && parseFloat(max);
-          const isDefinedAndInvalid = v => (this.isNumber(v) && v < 0 || v > 4) || this.isNaN(v);
+          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0 || v > 4) || this.$_.isNaN(v);
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.';
-          } else if (this.isNumber(min) && this.isNumber(max) && min > max) {
+          } else if (this.$_.isNumber(min) && this.$_.isNumber(max) && min > max) {
             this.errorPerRangeInput = 'GPA inputs must be in ascending order.';
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
         } else if (this.filter.validation === 'char') {
-          if (min && max && min > max) {
-            this.disableUpdateButton = true;
-            this.errorPerRangeInput = 'Letters must be in ascending order.';
-          } else {
-            this.disableUpdateButton = isNilOrNan(min) || isNilOrNan(max) || min > max;
+          const isLetter = char => /^[a-zA-Z]$/.test(char);
+          const badData = () => (min && !isLetter(min)) || (max && !isLetter(max));
+          const descending = () => min && max && this.$_.upperCase(min) > this.$_.upperCase(max);
+          if (badData() || descending()) {
+            this.errorPerRangeInput = 'Requires letters in ascending order.';
           }
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
         } else if (this.filter.validation) {
           this.disableUpdateButton = true;
           this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`;
