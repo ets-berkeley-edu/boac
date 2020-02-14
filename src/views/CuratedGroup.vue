@@ -87,6 +87,7 @@ export default {
     anchor: () => location.hash
   },
   created() {
+    this.$eventHub.$off('sortBy-user-preference-change');
     store.commit('currentUserExtras/setUserPreference', {
       key: 'sortBy',
       value: 'last_name'
