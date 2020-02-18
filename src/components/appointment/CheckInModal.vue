@@ -11,7 +11,10 @@
     @hide.prevent="close">
     <div>
       <div class="modal-header">
-        <h3>Check In - {{ appointment.student.name }}</h3>
+        <h3>
+          Check In -
+          <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</span>
+        </h3>
       </div>
       <div class="modal-body w-100">
         <div class="mr-3">
