@@ -11,7 +11,7 @@
     @hide.prevent="close">
     <div>
       <div class="modal-header">
-        <h3>{{ appointment.student.name }}</h3>
+        <h3 :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</h3>
       </div>
       <div class="modal-body w-100">
         <div v-if="dropInAdvisors.length" class="pb-3 pt-3">
