@@ -335,6 +335,62 @@ def get_departments():
     return tolerant_jsonify(api_json)
 
 
+@app.route('/api/users/drop_in_schedulers')
+@advisor_required
+def get_drop_in_schedulers_for_my_depts():
+    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user))
+
+
+@app.route('/api/users/drop_in_schedulers/<dept_code>/add', methods=['POST'])
+@advisor_required
+def add_drop_in_scheduler_to_dept(dept_code):
+    _verify_membership_and_drop_in_enabled(current_user, dept_code)
+    params = request.get_json() or {}
+    scheduler_uid = params.get('uid', None)
+    if not scheduler_uid:
+        raise errors.BadRequestError('Scheduler UID missing')
+    calnet_user = calnet.get_calnet_user_for_uid(app, scheduler_uid, skip_expired_users=True)
+    if not calnet_user or not calnet_user.get('csid'):
+        raise errors.BadRequestError('Invalid scheduler UID')
+    user = AuthorizedUser.create_or_restore(
+        scheduler_uid,
+        created_by=current_user.get_uid(),
+        is_admin=False,
+        is_blocked=False,
+        can_access_canvas_data=False,
+    )
+    _create_department_memberships(user, [{'code': dept_code, 'role': 'scheduler', 'automateMembership': False}])
+    UserSession.flush_cache_for_id(user.id)
+    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user))
+
+
+@app.route('/api/users/drop_in_schedulers/<dept_code>/remove', methods=['POST'])
+@advisor_required
+def remove_drop_in_scheduler_from_dept(dept_code):
+    _verify_membership_and_drop_in_enabled(current_user, dept_code)
+    params = request.get_json() or {}
+    uid = params.get('uid')
+    user = uid and AuthorizedUser.find_by_uid(uid)
+    if not user:
+        raise errors.BadRequestError(f'UID {uid} missing or invalid')
+    scheduler_membership = next((d for d in user.department_memberships if d.university_dept.dept_code == dept_code and d.role == 'scheduler'), None)
+    if not scheduler_membership:
+        raise errors.BadRequestError(f'UID {uid} is not a scheduler for department {dept_code}')
+    UniversityDeptMember.delete_membership(
+        university_dept_id=scheduler_membership.university_dept_id,
+        authorized_user_id=user.id,
+    )
+    if not len(user.department_memberships):
+        AuthorizedUser.delete_and_block(uid)
+    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user))
+
+
+def _verify_membership_and_drop_in_enabled(user, dept_code):
+    membership = next((d for d in user.departments if d['code'] == dept_code and d['isDropInEnabled'] and d['role'] in ('advisor', 'director')), None)
+    if not membership:
+        raise errors.ForbiddenRequestError('No department membership found or drop-in scheduling not enabled')
+
+
 def _get_boa_user_groups():
     depts = {}
 
@@ -368,6 +424,27 @@ def _get_boa_user_groups():
         dept['users'] = sorted(users, key=lambda p: p.get('lastName') or '')
         user_groups.append(dept)
     return sorted(user_groups, key=lambda group: group['name'])
+
+
+def _get_drop_in_scheduler_list(advisor):
+    drop_in_enabled_depts = [d for d in advisor.departments if d['isDropInEnabled'] and d['role'] in ('advisor', 'director')]
+    api_json = []
+    for d in drop_in_enabled_depts:
+        scheduler_response = AuthorizedUser.get_users(
+            deleted=False,
+            dept_code=d['code'],
+            role='scheduler',
+        )
+
+        def _distill_scheduler_data(element):
+            return {k: element[k] for k in ['uid', 'csid', 'firstName', 'lastName']}
+        scheduler_data = [_distill_scheduler_data(s) for s in authorized_users_api_feed(scheduler_response[0], sort_by='lastName')]
+        api_json.append({
+            'code': d['code'],
+            'name': d['name'],
+            'schedulers': scheduler_data,
+        })
+    return api_json
 
 
 def _update_drop_in_availability(uid, dept_code, new_availability):

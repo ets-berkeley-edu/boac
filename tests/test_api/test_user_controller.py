@@ -423,6 +423,120 @@ class TestGetAdminUsers:
         assert next((u for u in users if u['deletedAt']), None) is None
 
 
+class TestManageSchedulers:
+
+    @classmethod
+    def _add_scheduler(cls, client, uid, dept_code, expected_status_code=200):
+        response = client.post(
+            f'/api/users/drop_in_schedulers/{dept_code}/add',
+            data=json.dumps({'uid': uid}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    @classmethod
+    def _remove_scheduler(cls, client, uid, dept_code, expected_status_code=200):
+        response = client.post(
+            f'/api/users/drop_in_schedulers/{dept_code}/remove',
+            data=json.dumps({'uid': uid}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_scheduler_list(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json) == 1
+            assert response.json[0]['code'] == 'QCADV'
+            assert len(response.json[0]['schedulers']) == 1
+            assert response.json[0]['schedulers'][0]['csid']
+            assert response.json[0]['schedulers'][0]['firstName']
+            assert response.json[0]['schedulers'][0]['lastName']
+            assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+
+    def test_scheduler_list_respects_drop_in_configs(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(l_s_college_advisor_uid)
+            response = client.get('/api/users/drop_in_schedulers')
+            assert response.status_code == 200
+            assert len(response.json) == 0
+
+    def test_scheduler_list_requires_advisor(self, client, fake_auth):
+        fake_auth.login(l_s_college_scheduler_uid)
+        assert client.get('/api/users/drop_in_schedulers').status_code == 401
+
+    def test_remove_then_add_scheduler(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 1
+
+            response = self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
+            assert len(response[0]['schedulers']) == 0
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 0
+
+            response = self._add_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
+            assert len(response[0]['schedulers']) == 1
+            assert response[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 1
+            assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+
+    def test_add_then_remove_scheduler(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 1
+
+            response = self._add_scheduler(client, coe_scheduler_uid, 'QCADV')
+            assert len(response[0]['schedulers']) == 2
+            assert coe_scheduler_uid in [s['uid'] for s in response[0]['schedulers']]
+            assert l_s_college_scheduler_uid in [s['uid'] for s in response[0]['schedulers']]
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 2
+            assert coe_scheduler_uid in [s['uid'] for s in response.json[0]['schedulers']]
+            assert l_s_college_scheduler_uid in [s['uid'] for s in response.json[0]['schedulers']]
+
+            response = self._remove_scheduler(client, coe_scheduler_uid, 'QCADV')
+            assert len(response[0]['schedulers']) == 1
+            assert response[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+            response = client.get('/api/users/drop_in_schedulers')
+            assert len(response.json[0]['schedulers']) == 1
+            assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+
+    def test_add_remove_scheduler_requires_advisor(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(coe_scheduler_uid)
+            self._add_scheduler(client, coe_scheduler_uid, 'QCADV', expected_status_code=401)
+            self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV', expected_status_code=401)
+
+    def test_add_remove_scheduler_requires_dept_membership(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(coe_advisor_uid)
+            self._add_scheduler(client, coe_scheduler_uid, 'QCADV', expected_status_code=403)
+            self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV', expected_status_code=403)
+
+    def test_add_remove_scheduler_respects_drop_in_config(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(l_s_college_advisor_uid)
+            self._add_scheduler(client, coe_scheduler_uid, 'QCADV', expected_status_code=403)
+            self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV', expected_status_code=403)
+
+    def test_add_nonexistent_scheduler_reports_error(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            self._add_scheduler(client, '999999999999999999', 'QCADV', expected_status_code=400)
+
+    def test_remove_non_scheduler_reports_error(self, client, fake_auth):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_advisor_uid)
+            self._remove_scheduler(client, coe_advisor_uid, 'QCADV', expected_status_code=400)
+
+
 class TestUserSearch:
 
     @classmethod
