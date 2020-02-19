@@ -27,10 +27,11 @@ from datetime import timedelta
 from itertools import islice
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import add_alert_counts, advisor_required, is_unauthorized_search
+from boac.api.util import add_alert_counts, advisor_required, ce3_required, is_unauthorized_search
 from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
+from boac.merged.admitted_student import search_for_admitted_students
 from boac.merged.advising_note import search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
@@ -78,6 +79,21 @@ def search():
         feed.update(_notes_search(search_phrase, params))
 
     return tolerant_jsonify(feed)
+
+
+@app.route('/api/search/admits', methods=['POST'])
+@ce3_required
+def search_admits():
+    params = request.get_json()
+    search_phrase = util.get(params, 'searchPhrase', '').strip()
+    order_by = util.get(params, 'orderBy', None)
+    limit = util.get(params, 'limit', 50)
+    admit_results = search_for_admitted_students(
+        search_phrase=search_phrase,
+        order_by=order_by,
+        limit=limit,
+    )
+    return tolerant_jsonify(admit_results)
 
 
 @app.route('/api/search/add_to_search_history', methods=['POST'])

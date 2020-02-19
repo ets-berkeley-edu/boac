@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.externals import data_loch
-from boac.lib.util import camelize
+from boac.lib.util import camelize, get_benchmarker
 
 
 """Provide merged admit data from external sources."""
@@ -35,6 +35,38 @@ def get_admitted_student_by_sid(sid):
     if admit['current_sir']:
         _merge_student(admit)
     return {camelize(key): admit[key] for key in admit.keys()} if admit else None
+
+
+def search_for_admitted_students(
+    search_phrase=None,
+    order_by=None,
+    limit=None,
+):
+    benchmark = get_benchmarker('search_for_admitted_students')
+    query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
+        search_phrase=search_phrase,
+    )
+    sql = f"""SELECT DISTINCT(sa.cs_empl_id),
+        sa.first_name,
+        sa.last_name,
+        sa.email,
+        sa.daytime,
+        sa.admit_status,
+        sa.current_sir,
+        sa.freshman_or_transfer
+        {query_tables}
+        {query_filter}
+        ORDER BY sa.{order_by}, sa.cs_empl_id"""
+    if limit and limit < 100:  # Sanity check large limits
+        query_bindings['limit'] = limit
+        sql += f' LIMIT :limit'
+
+    benchmark('begin admit search query')
+    admits = data_loch.safe_execute_rds(sql, **query_bindings)
+    benchmark('end')
+    return {
+        'admits': [{camelize(key): row[key] for key in row.keys()} for row in admits],
+    }
 
 
 def _merge_student(admit):
