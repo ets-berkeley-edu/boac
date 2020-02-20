@@ -42,7 +42,11 @@
             </div>
           </b-td>
           <b-td class="p-1">
-            <div :id="`event-${index}-sid`">{{ event.sid }}</div>
+            <div
+              :id="`event-${index}-sid`"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+              {{ event.sid }}
+            </div>
           </b-td>
         </b-tr>
       </b-tbody>
