@@ -34,7 +34,6 @@
           :id="`scheduler-row-${scheduler.uid}-name`"
           class="font-weight-500"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-          cols="5"
           {{ scheduler.lastName }}, {{ scheduler.firstName }}
         </b-col>
         <b-col
