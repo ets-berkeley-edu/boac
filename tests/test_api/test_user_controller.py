@@ -475,13 +475,13 @@ class TestManageSchedulers:
             assert len(response.json[0]['schedulers']) == 1
 
             response = self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
-            assert len(response[0]['schedulers']) == 0
+            assert len(response['schedulers']) == 0
             response = client.get('/api/users/drop_in_schedulers')
             assert len(response.json[0]['schedulers']) == 0
 
             response = self._add_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
-            assert len(response[0]['schedulers']) == 1
-            assert response[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+            assert len(response['schedulers']) == 1
+            assert response['schedulers'][0]['uid'] == l_s_college_scheduler_uid
             response = client.get('/api/users/drop_in_schedulers')
             assert len(response.json[0]['schedulers']) == 1
             assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
@@ -493,17 +493,17 @@ class TestManageSchedulers:
             assert len(response.json[0]['schedulers']) == 1
 
             response = self._add_scheduler(client, coe_scheduler_uid, 'QCADV')
-            assert len(response[0]['schedulers']) == 2
-            assert coe_scheduler_uid in [s['uid'] for s in response[0]['schedulers']]
-            assert l_s_college_scheduler_uid in [s['uid'] for s in response[0]['schedulers']]
+            assert len(response['schedulers']) == 2
+            assert coe_scheduler_uid in [s['uid'] for s in response['schedulers']]
+            assert l_s_college_scheduler_uid in [s['uid'] for s in response['schedulers']]
             response = client.get('/api/users/drop_in_schedulers')
             assert len(response.json[0]['schedulers']) == 2
             assert coe_scheduler_uid in [s['uid'] for s in response.json[0]['schedulers']]
             assert l_s_college_scheduler_uid in [s['uid'] for s in response.json[0]['schedulers']]
 
             response = self._remove_scheduler(client, coe_scheduler_uid, 'QCADV')
-            assert len(response[0]['schedulers']) == 1
-            assert response[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+            assert len(response['schedulers']) == 1
+            assert response['schedulers'][0]['uid'] == l_s_college_scheduler_uid
             response = client.get('/api/users/drop_in_schedulers')
             assert len(response.json[0]['schedulers']) == 1
             assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
