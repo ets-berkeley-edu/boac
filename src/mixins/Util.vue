@@ -77,6 +77,7 @@ export default {
         }, 500);
       });
     },
+    pull: _.pull,
     reduce: _.reduce,
     remove: _.remove,
     set: _.set,

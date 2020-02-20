@@ -56,7 +56,7 @@ def search_for_admitted_students(
         sa.freshman_or_transfer
         {query_tables}
         {query_filter}
-        ORDER BY sa.{order_by}, sa.cs_empl_id"""
+        ORDER BY sa.{order_by}, sa.first_name, sa.cs_empl_id"""
     if limit and limit < 100:  # Sanity check large limits
         query_bindings['limit'] = limit
         sql += f' LIMIT :limit'
