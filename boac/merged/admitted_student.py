@@ -50,7 +50,7 @@ def search_for_admitted_students(
         sa.first_name,
         sa.last_name,
         sa.email,
-        sa.daytime,
+        sa.daytime_phone,
         sa.admit_status,
         sa.current_sir,
         sa.freshman_or_transfer
@@ -65,7 +65,7 @@ def search_for_admitted_students(
     admits = data_loch.safe_execute_rds(sql, **query_bindings)
     benchmark('end')
     return {
-        'admits': [{camelize(key): row[key] for key in row.keys()} for row in admits],
+        'admits': [{camelize(key): row[key] for key in row.keys()} for row in admits] if admits else None,
     }
 
 
