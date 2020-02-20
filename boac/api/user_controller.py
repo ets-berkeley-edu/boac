@@ -361,7 +361,7 @@ def add_drop_in_scheduler_to_dept(dept_code):
     )
     _create_department_memberships(user, [{'code': dept_code, 'role': 'scheduler', 'automateMembership': False}])
     UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user))
+    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user, dept_code))
 
 
 @app.route('/api/users/drop_in_schedulers/<dept_code>/remove', methods=['POST'])
@@ -382,7 +382,7 @@ def remove_drop_in_scheduler_from_dept(dept_code):
     )
     if not len(user.department_memberships):
         AuthorizedUser.delete_and_block(uid)
-    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user))
+    return tolerant_jsonify(_get_drop_in_scheduler_list(current_user, dept_code))
 
 
 def _verify_membership_and_drop_in_enabled(user, dept_code):
@@ -426,25 +426,34 @@ def _get_boa_user_groups():
     return sorted(user_groups, key=lambda group: group['name'])
 
 
-def _get_drop_in_scheduler_list(advisor):
-    drop_in_enabled_depts = [d for d in advisor.departments if d['isDropInEnabled'] and d['role'] in ('advisor', 'director')]
-    api_json = []
-    for d in drop_in_enabled_depts:
+def _get_drop_in_scheduler_list(advisor, dept_code=None):
+
+    def _distill_scheduler_data(element):
+        return {k: element[k] for k in ['uid', 'csid', 'firstName', 'lastName']}
+
+    def _department_data(d):
         scheduler_response = AuthorizedUser.get_users(
             deleted=False,
             dept_code=d['code'],
             role='scheduler',
         )
-
-        def _distill_scheduler_data(element):
-            return {k: element[k] for k in ['uid', 'csid', 'firstName', 'lastName']}
         scheduler_data = [_distill_scheduler_data(s) for s in authorized_users_api_feed(scheduler_response[0], sort_by='lastName')]
-        api_json.append({
+
+        return {
             'code': d['code'],
             'name': d['name'],
             'schedulers': scheduler_data,
-        })
-    return api_json
+        }
+
+    drop_in_enabled_depts = [d for d in advisor.departments if d['isDropInEnabled'] and d['role'] in ('advisor', 'director')]
+
+    if dept_code:
+        dept_data = next((_department_data(d) for d in drop_in_enabled_depts if d['code'] == dept_code), None)
+        if not dept_data:
+            return {'code': dept_code, 'schedulers': []}
+        return dept_data
+    else:
+        return [_department_data(d) for d in drop_in_enabled_depts]
 
 
 def _update_drop_in_availability(uid, dept_code, new_availability):

@@ -113,6 +113,24 @@ export function setDropInStatus(deptCode: string, status?: string) {
     }, () => null);
 }
 
+export function getDropInSchedulers() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers`)
+    .then(response => response.data, () => null);
+}
+
+export function addDropInScheduler(deptCode: string, uid: string) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers/${deptCode}/add`, { uid: uid })
+    .then(response => response.data, () => null);
+}
+
+export function removeDropInScheduler(deptCode: string, uid: string) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers/${deptCode}/remove`, { uid: uid })
+    .then(response => response.data, () => null);
+}
+
 export function setDemoMode(demoMode: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, { demoMode: demoMode })

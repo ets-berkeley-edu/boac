@@ -1,24 +1,41 @@
 <template>
   <div :id="id">
-    <b-form-input
-      :id="`${id}-input`"
-      ref="autocompleteInput"
-      v-model="query"
-      :aria-readonly="disabled"
-      :class="inputClass"
-      :disabled="disabled"
-      :placeholder="placeholder"
-      :maxlength="maxlength"
-      name="autocomplete-name"
-      :required="isRequired"
-      :type="demoModeBlur && $currentUser.inDemoMode ? 'password': 'text'"
-      autocomplete="off"
-      @input="onTextInput"
-      @focusin="makeSuggestions"
-      @keypress.enter.prevent="onEnter"
-      @keyup.esc="onEscInput"
-      @keyup.down="onArrowDown">
-    </b-form-input>
+    <b-input-group>
+      <b-form-input
+        :id="`${id}-input`"
+        ref="autocompleteInput"
+        v-model="query"
+        :aria-readonly="disabled"
+        :class="inputClass"
+        :disabled="disabled"
+        :placeholder="placeholder"
+        :maxlength="maxlength"
+        name="autocomplete-name"
+        :required="isRequired"
+        :type="demoModeBlur && $currentUser.inDemoMode ? 'password': 'text'"
+        autocomplete="off"
+        @input="onTextInput"
+        @focusin="makeSuggestions"
+        @keypress.enter.prevent="onEnter"
+        @keyup.esc="onEscInput"
+        @keyup.down="onArrowDown">
+      </b-form-input>
+      <b-input-group-append v-if="showAddButton">
+        <b-button
+          :id="`${id}-add-button`"
+          class="btn btn-primary-color-override"
+          :disabled="!selectedSuggestion || addButtonLoading"
+          @click="addSuggestion()"
+          @keyup.enter="addSuggestion()">
+          <div v-if="!addButtonLoading">
+            <font-awesome icon="plus" /> Add
+          </div>
+          <div v-if="addButtonLoading">
+            <font-awesome icon="spinner" spin />
+          </div>
+        </b-button>
+      </b-input-group-append>
+    </b-input-group>
     <div v-if="restrict || suggestions.length" class="dropdown">
       <ul
         :id="`${id}-suggestions`"
@@ -50,7 +67,7 @@
             :class="{'demo-mode-blur': demoModeBlur && $currentUser.inDemoMode}"
             role="menuitem"
             class="dropdown-item"
-            href="#"
+            tabindex="0"
             @click="selectSuggestion(suggestion)"
             @keyup.enter="selectSuggestion(suggestion)">
             <span :class="suggestionLabelClass" v-html="highlightQuery(suggestion.label)"></span>
@@ -97,6 +114,10 @@ export default {
       required: false,
       type: String
     },
+    onAddButton: {
+      required: false,
+      type: Function
+    },
     onEscFormInput: {
       required: false,
       type: Function
@@ -112,6 +133,11 @@ export default {
     },
     restrict: {
       default: true,
+      required: false,
+      type: Boolean
+    },
+    showAddButton: {
+      default: false,
       required: false,
       type: Boolean
     },
@@ -133,14 +159,16 @@ export default {
   },
   data() {
     return {
+      addButtonLoading: false,
       isOpen: false,
       isLoading: false,
       limit: 20,
       query: null,
       onTextInput: this.debounce(this.makeSuggestions, 200),
+      selectedSuggestion: false,
       suggestions: [],
       suggestionElements: [],
-      suggestionFocusIndex: null,
+      suggestionFocusIndex: null
     };
   },
   watch: {
@@ -157,6 +185,13 @@ export default {
     document.removeEventListener('click', this.onClickOutside)
   },
   methods: {
+    addSuggestion() {
+      this.addButtonLoading = true;
+      this.onAddButton(this.selectedSuggestion).then(() => {
+        this.addButtonLoading = false;
+        this.closeSuggestions();
+      });
+    },
     closeSuggestions() {
       this.isOpen = false;
       this.$nextTick(() => {
@@ -178,6 +213,7 @@ export default {
       return string.replace(regex, `<strong>${matchedText}</strong>`);
     },
     makeSuggestions() {
+      this.selectedSuggestion = null;
       this.$emit('input', null);
       if (this.suggestWhen(this.query)) {
         this.isOpen = true;
@@ -254,6 +290,7 @@ export default {
     selectSuggestion(suggestion) {
       this.isOpen = false;
       this.query = suggestion.label;
+      this.selectedSuggestion = suggestion;
       this.$emit('input', suggestion);
     }
   }
@@ -263,5 +300,8 @@ export default {
 <style scoped>
 .dropdown {
   z-index: 100;
+}
+.dropdown-item {
+  cursor: pointer;
 }
 </style>
