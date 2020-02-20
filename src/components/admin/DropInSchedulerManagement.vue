@@ -30,10 +30,16 @@
         :key="scheduler.uid"
         align-v="start"
         class="border-top p-2">
-        <b-col :id="`scheduler-row-${scheduler.uid}-name`" class="font-weight-500" cols="5">
+        <b-col
+          :id="`scheduler-row-${scheduler.uid}-name`"
+          class="font-weight-500"
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+          cols="5"
           {{ scheduler.lastName }}, {{ scheduler.firstName }}
         </b-col>
-        <b-col :id="`scheduler-row-${scheduler.uid}-sid`">
+        <b-col
+          :id="`scheduler-row-${scheduler.uid}-sid`"
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}">
           {{ scheduler.csid }}
         </b-col>
         <b-col class="d-flex justify-content-end">

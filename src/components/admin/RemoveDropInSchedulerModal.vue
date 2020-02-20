@@ -4,7 +4,9 @@
       <h3 id="confirm-remove-scheduler-header">Remove Drop-in Scheduler</h3>
     </div>
     <div id="confirm-remove-scheduler-body" class="modal-body">
-      Are you sure you want to remove <strong>{{ schedulerName }}</strong> as a drop-in scheduler?
+      Are you sure you want to remove
+      <strong :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ schedulerName }}</strong>
+      as a drop-in scheduler?
     </div>
     <div class="modal-footer">
       <form @submit.prevent="removeScheduler()">
