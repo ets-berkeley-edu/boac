@@ -66,6 +66,19 @@
         </b-btn>
       </div>
       <b-collapse v-if="context === 'sidebar'" id="search-options-panel" class="mt-2 text-white">
+        <div v-if="domain.includes('admits')" class="d-flex">
+          <b-form-checkbox
+            id="search-include-admits-checkbox"
+            v-model="includeAdmits"
+            plain>
+          </b-form-checkbox>
+          <label
+            for="search-include-admits-checkbox"
+            class="search-form-label">
+            <span class="sr-only">Search for</span>
+            Admitted Students
+          </label>
+        </div>
         <div class="d-flex">
           <b-form-checkbox
             id="search-include-students-checkbox"
@@ -287,6 +300,7 @@ export default {
         student: null,
         topic: null,
       },
+      includeAdmits: this.domain.includes('admits'),
       includeCourses: this.domain.includes('courses'),
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
@@ -302,7 +316,7 @@ export default {
   },
   computed: {
     allOptionsUnchecked() {
-      return this.showSearchOptions && !this.includeCourses && !this.includeNotes && !this.includeStudents;
+      return this.showSearchOptions && !this.includeAdmits && !this.includeCourses && !this.includeNotes && !this.includeStudents;
     },
     noteAuthor: {
       get: function() {
@@ -338,6 +352,9 @@ export default {
     }
   },
   watch: {
+    includeAdmits(value) {
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`);
+    },
     includeCourses(value) {
       this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`);
     },
@@ -423,7 +440,10 @@ export default {
           notes: this.includeNotes,
           students: this.includeStudents
         };
-        if (this.domain.includes('courses')) {
+        if (this.includeAdmits) {
+          query.admits = this.includeAdmits;
+        }
+        if (this.includeCourses) {
           query.courses = this.includeCourses;
         }
         if (searchPhrase) {
@@ -459,7 +479,6 @@ export default {
         if (this.trim(searchPhrase)) {
           addToSearchHistory(searchPhrase).then(history => {
             this.searchHistory = history;
-            this.$ga.searchEvent(`Search with courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
           });
         }
       } else {

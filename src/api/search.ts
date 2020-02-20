@@ -1,6 +1,5 @@
 import axios from 'axios';
 import utils from '@/api/api-utils';
-import Vue from "vue";
 
 export function getMySearchHistory() {
   return axios
@@ -39,9 +38,15 @@ export function search(
       offset: offset || 0,
       limit: limit || 50
     })
-    .then(response => {
-      Vue.prototype.$ga.searchEvent(`Search phrase: ${phrase}`);
-      return response;
+    .then(response => response.data, () => null);
+}
+
+export function searchAdmittedStudents(phrase: string, orderBy?: string, limit?: number) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/search/admits`, {
+      searchPhrase: phrase,
+      orderBy: orderBy || 'last_name',
+      limit: limit || 50
     })
     .then(response => response.data, () => null);
 }

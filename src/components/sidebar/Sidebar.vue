@@ -2,7 +2,7 @@
   <div>
     <div>
       <SearchForm
-        :domain="$currentUser.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes']"
+        :domain="domain"
         context="sidebar" />
     </div>
     <div v-if="myCohorts">
@@ -42,6 +42,7 @@ import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue';
+import Util from '@/mixins/Util.vue';
 import SearchForm from '@/components/sidebar/SearchForm.vue';
 
 export default {
@@ -53,7 +54,20 @@ export default {
     MyAdmitCohorts,
     SearchForm
   },
-  mixins: [Context, CurrentUserExtras]
+  mixins: [Context, CurrentUserExtras, Util],
+  computed: {
+    domain() {
+      const isCE3 = this.$config.featureFlagAdmittedStudents && (
+        !!this.size(this.filterList(this.$currentUser.departments, d => d.code === 'ZCEEE' && this.includes(['advisor', 'director'], d.role))) ||
+        this.$currentUser.isAdmin
+      );
+      let domain = this.$currentUser.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes'];
+      if (isCE3) {
+        domain.push('admits');
+      }
+      return domain;
+    }
+  }
 };
 </script>
 

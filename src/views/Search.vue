@@ -1,7 +1,7 @@
 <template>
   <div class="m-3">
     <Spinner :is-plural="true" alert-prefix="Search results" />
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.notes) && !size(results.appointments)">
+    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.admits) && !size(results.notes) && !size(results.appointments)">
       <h1
         id="page-header-no-results"
         class="page-section-header"
@@ -106,7 +106,7 @@ import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
 import Spinner from '@/components/util/Spinner';
 import Util from '@/mixins/Util';
-import { search } from '@/api/search';
+import { search, searchAdmittedStudents } from '@/api/search';
 
 export default {
   name: 'Search',
@@ -141,6 +141,7 @@ export default {
     },
     phrase: null,
     results: {
+      admits: null,
       appointments: null,
       courses: null,
       notes: null,
@@ -165,6 +166,7 @@ export default {
   },
   mounted() {
     this.phrase = this.$route.query.q;
+    const includeAdmits = this.$route.query.admits;
     const includeCourses = this.$route.query.courses;
     const includeNotes = this.$route.query.notes;
     const includeStudents = this.$route.query.students;
@@ -177,33 +179,43 @@ export default {
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo;
     }
     if (this.phrase || includeNotes) {
-      this.alertScreenReader(`Searching for '${this.phrase}'`)
-      search(
-        this.phrase,
-        this.isNil(includeNotes) ? false : includeNotes,
-        this.isNil(includeCourses) ? false : includeCourses,
-        this.isNil(includeNotes) ? false : includeNotes,
-        this.isNil(includeStudents) ? false : includeStudents,
-        this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
-        this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
-      )
-        .then(data => {
-          this.assign(this.results, data);
-          this.each(this.results.students, student => {
-            student.alertCount = student.alertCount || 0;
-            student.term = student.term || {};
-            student.term.enrolledUnits = student.term.enrolledUnits || 0;
-          });
-        })
-        .then(() => {
-          this.loaded('Search results', );
-          const totalCount =
-            this.toInt(this.results.totalCourseCount, 0) +
-            this.toInt(this.results.totalStudentCount, 0);
-          const focusId = totalCount ? 'page-header' : 'page-header-no-results';
-          this.putFocusNextTick(focusId);
-          this.$ga.searchEvent(includeCourses ? 'classes and students' : 'students');
+      this.alertScreenReader(`Searching for '${this.phrase}'`);
+      let queries = [];
+      if (includeCourses || includeNotes || includeStudents) {
+        queries.push(
+          search(
+            this.phrase,
+            this.isNil(includeNotes) ? false : includeNotes,
+            this.isNil(includeCourses) ? false : includeCourses,
+            this.isNil(includeNotes) ? false : includeNotes,
+            this.isNil(includeStudents) ? false : includeStudents,
+            this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+            this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
+          )
+        );
+      }
+      if (includeAdmits) {
+        queries.push(searchAdmittedStudents(this.phrase));
+      }
+      Promise.all(queries).then(responses => {
+        this.each(responses, (response) => this.merge(this.results, response));
+        this.each(this.results.students, student => {
+          student.alertCount = student.alertCount || 0;
+          student.term = student.term || {};
+          student.term.enrolledUnits = student.term.enrolledUnits || 0;
         });
+      })
+      .then(() => {
+        this.loaded('Search results', );
+        const totalCount =
+          this.toInt(this.results.totalCourseCount, 0) +
+          this.toInt(this.results.totalStudentCount, 0);
+        const focusId = totalCount ? 'page-header' : 'page-header-no-results';
+        this.putFocusNextTick(focusId);
+        this.$ga.searchEvent(
+          `Search phrase: '${this.phrase || ''}'`,
+          `Search with admits: ${this.includeAdmits}; courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+      });
     } else {
       this.$router.push({ path: '/' }, this.noop);
     }
