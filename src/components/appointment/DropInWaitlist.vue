@@ -146,6 +146,29 @@
           :on-appointment-status-change="onAppointmentStatusChange" />
       </b-container>
     </div>
+    <div v-if="isHomepage" class="mt-4">
+      <b-container id="on-duty-advisor-list" fluid class="pl-0 pr-0">
+        <b-row class="border-bottom pb-2 sortable-table-header" no-gutters>
+          <b-col class="heading">On-duty advisor(s)</b-col>
+          <b-col class="d-flex justify-content-end">Status</b-col>
+        </b-row>
+        <b-row
+          v-for="advisor in availableAdvisors"
+          :id="`advisor-uid-${advisor.uid}`"
+          :key="advisor.uid"
+          no-gutters
+          class="border-bottom font-size-16 mt-2">
+          <b-col :id="`advisor-uid-${advisor.uid}-name`" class="pb-2">
+            {{ advisor.name }}
+          </b-col>
+          <b-col :id="`advisor-uid-${advisor.uid}-status`" class="d-flex justify-content-end pb-2">
+            <span v-if="advisor.status" class="text-muted">
+              {{ advisor.status }}
+            </span>
+          </b-col>
+        </b-row>
+      </b-container>
+    </div>
   </div>
 </template>
 
@@ -202,6 +225,9 @@ export default {
     showLogResolvedIssueModal: false
   }),
   computed: {
+    availableAdvisors: function() {
+      return this.filterList(this.advisors, 'available');
+    },
     myReservedAppointments: function() {
       return this.filterList(this.waitlist.unresolved, (appt) => {
         return appt.status === 'reserved' && appt.advisorUid === this.$currentUser.uid;
