@@ -757,7 +757,7 @@ class TestAdmittedStudentSearch:
             assert admit['firstName']
             assert admit['lastName']
             assert admit['email']
-            assert admit['daytime']
+            assert admit['daytimePhone']
             assert 'admitStatus' in admit
             assert 'currentSir' in admit
             assert 'freshmanOrTransfer' in admit

@@ -63,8 +63,8 @@
           <td id="admit-email" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell">{{ admit.email }}</td>
         </tr>
         <tr>
-          <th class="table-cell">Daytime</th>
-          <td id="admit-daytime" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell">{{ admit.daytime }}</td>
+          <th class="table-cell">Daytime Phone</th>
+          <td id="admit-daytime-phone" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell">{{ admit.daytimePhone }}</td>
         </tr>
         <tr>
           <th class="table-cell">Mobile</th>
