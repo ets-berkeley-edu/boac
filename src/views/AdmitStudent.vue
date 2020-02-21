@@ -37,19 +37,11 @@
         </tr>
         <tr>
           <th class="table-cell">Admit Status</th>
-          <td v-if="admit.admitStatus" id="admit-admit-status" class="table-cell">
-            <font-awesome v-if="admit.admitStatus" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.admitStatus" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.admitStatus }}
-          </td>
+          <td id="admit-admit-status" class="table-cell">{{ admit.admitStatus }}</td>
         </tr>
         <tr>
           <th class="table-cell">Current SIR</th>
-          <td v-if="admit.currentSir" id="admit-current-sir" class="table-cell">
-            <font-awesome v-if="admit.currentSir" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.currentSir" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.currentSir }}
-          </td>
+          <td id="admit-current-sir" class="table-cell">{{ admit.currentSir }}</td>
         </tr>
         <tr>
           <th class="table-cell">College</th>
@@ -209,35 +201,19 @@
         <caption class="sr-only">Family and status information for {{ admit.firstName }} {{ admit.lastName }}</caption>
         <tr>
           <th class="table-cell">Application Fee Waiver Flag</th>
-          <td v-if="admit.applicationFeeWaiverFlag" id="admit-application-fee-waiver-flag" class="table-cell">
-            <font-awesome v-if="admit.applicationFeeWaiverFlag" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.applicationFeeWaiverFlag" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.applicationFeeWaiverFlag }}
-          </td>
+          <td id="admit-application-fee-waiver-flag" class="table-cell">{{ admit.applicationFeeWaiverFlag }}</td>
         </tr>
         <tr>
           <th class="table-cell">Foster Care Flag</th>
-          <td v-if="admit.fosterCareFlag" id="admit-foster-care-flag" class="table-cell">
-            <font-awesome v-if="admit.fosterCareFlag" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.fosterCareFlag" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.fosterCareFlag }}
-          </td>
+          <td id="admit-foster-care-flag" class="table-cell">{{ admit.fosterCareFlag }}</td>
         </tr>
         <tr>
           <th class="table-cell">Family Is Single Parent</th>
-          <td v-if="admit.familyIsSingleParent" id="admit-family-is-single-parent" class="table-cell">
-            <font-awesome v-if="admit.familyIsSingleParent" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.familyIsSingleParent" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.familyIsSingleParent }}
-          </td>
+          <td id="admit-family-is-single-parent" class="table-cell">{{ admit.familyIsSingleParent }}</td>
         </tr>
         <tr>
           <th class="table-cell">Student Is Single Parent</th>
-          <td v-if="admit.studentIsSingleParent" id="admit-student-is-single-parent" class="table-cell">
-            <font-awesome v-if="admit.studentIsSingleParent" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.studentIsSingleParent" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.studentIsSingleParent }}
-          </td>
+          <td id="admit-student-is-single-parent" class="table-cell">{{ admit.studentIsSingleParent }}</td>
         </tr>
         <tr>
           <th class="table-cell">Family Dependents No.</th>
@@ -249,67 +225,39 @@
         </tr>
         <tr>
           <th class="table-cell">Family Income</th>
-          <td v-if="admit.familyIncome" id="admit-family-income" class="table-cell">{{ `$${toInt(admit.familyIncome).toLocaleString()}` }}</td>
+          <td id="admit-family-income" class="table-cell">{{ admit.familyIncome ? `$${toInt(admit.familyIncome).toLocaleString()}` : '' }}</td>
         </tr>
         <tr>
           <th class="table-cell">Student Income</th>
-          <td v-if="admit.studentIncome" id="admit-student-income" class="table-cell">{{ `$${toInt(admit.studentIncome).toLocaleString()}` }}</td>
+          <td id="admit-student-income" class="table-cell">{{ admit.studentIncome ? `$${toInt(admit.studentIncome).toLocaleString()}` : '' }}</td>
         </tr>
         <tr>
           <th class="table-cell">Is Military Dependent</th>
-          <td v-if="admit.isMilitaryDependent" class="table-cell">
-            <font-awesome v-if="admit.isMilitaryDependent" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.isMilitaryDependent" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.isMilitaryDependent }}
-          </td>
+          <td class="table-cell">{{ admit.isMilitaryDependent }}</td>
         </tr>
         <tr>
           <th class="table-cell">Military Status</th>
-          <td v-if="admit.militaryStatus" id="admit-military-status" class="table-cell">
-            <font-awesome v-if="admit.militaryStatus" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.militaryStatus" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.militaryStatus }}
-          </td>
+          <td id="admit-military-status" class="table-cell">{{ admit.militaryStatus }}</td>
         </tr>
         <tr>
           <th class="table-cell">Re-entry Status</th>
-          <td v-if="admit.reentryStatus" id="admit-reentry-status" class="table-cell">
-            <font-awesome v-if="admit.reentryStatus" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.reentryStatus" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.reentryStatus }}
-          </td>
+          <td id="admit-reentry-status" class="table-cell">{{ admit.reentryStatus }}</td>
         </tr>
         <tr>
           <th class="table-cell">Athlete Status</th>
-          <td v-if="admit.athleteStatus" id="admit-athlete-status" class="table-cell">
-            <font-awesome v-if="admit.athleteStatus" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.athleteStatus" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.athleteStatus }}
-          </td>
+          <td id="admit-athlete-status" class="table-cell">{{ admit.athleteStatus }}</td>
         </tr>
         <tr>
           <th class="table-cell">Summer Bridge Status</th>
-          <td v-if="admit.summerBridgeStatus" id="admit-summer-bridge-status" class="table-cell">
-            <font-awesome v-if="admit.summerBridgeStatus" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.summerBridgeStatus" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.summerBridgeStatus }}
-          </td>
+          <td id="admit-summer-bridge-status" class="table-cell">{{ admit.summerBridgeStatus }}</td>
         </tr>
         <tr>
           <th class="table-cell">Last School LCFF+ Flag</th>
-          <td v-if="admit.lastSchoolLcffPlusFlag" id="admit-last-school-lcff-plus-flag" class="table-cell">
-            <font-awesome v-if="admit.lastSchoolLcffPlusFlag" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.lastSchoolLcffPlusFlag" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.lastSchoolLcffPlusFlag }}
-          </td>
+          <td id="admit-last-school-lcff-plus-flag" class="table-cell">{{ admit.lastSchoolLcffPlusFlag }}</td>
         </tr>
         <tr>
           <th class="table-cell">Special Program - CEP</th>
-          <td v-if="admit.specialProgramCep" id="admit-special-program-cep" class="table-cell">
-            <font-awesome v-if="admit.specialProgramCep" icon="check-circle" class="boolean-true-icon" />
-            <font-awesome v-if="!admit.specialProgramCep" :icon="['far', 'circle']" class="boolean-false-icon" />
-            {{ admit.specialProgramCep }}
-          </td>
+          <td id="admit-special-program-cep" class="table-cell">{{ admit.specialProgramCep }}</td>
         </tr>
       </table>
     </div>
