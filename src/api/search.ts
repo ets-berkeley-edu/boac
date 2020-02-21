@@ -41,12 +41,11 @@ export function search(
     .then(response => response.data, () => null);
 }
 
-export function searchAdmittedStudents(phrase: string, orderBy?: string, limit?: number) {
+export function searchAdmittedStudents(phrase: string, orderBy?: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/search/admits`, {
       searchPhrase: phrase,
       orderBy: orderBy || 'last_name',
-      limit: limit || 50
     })
     .then(response => response.data, () => null);
 }

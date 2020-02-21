@@ -1,7 +1,7 @@
 <template>
   <div class="m-3">
     <Spinner :is-plural="true" alert-prefix="Search results" />
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !size(results.admits) && !size(results.notes) && !size(results.appointments)">
+    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !size(results.notes) && !size(results.appointments)">
       <h1
         id="page-header-no-results"
         class="page-section-header"
@@ -17,6 +17,19 @@
         <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
+    </div>
+    <div
+      v-if="!loading && size(results.admits)"
+      tabindex="0">
+      <h1 id="admit-results-page-header" class="page-section-header">
+        {{ 'admitted student' | pluralize(results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
+      </h1>
+      <div v-if="size(results.admits) < results.totalAdmitCount">
+        Showing the first {{ size(results.admits) }} admitted students.
+      </div>
+      <div>
+        <SortableAdmits :admitted-students="results.admits" />
+      </div>
     </div>
     <div
       v-if="!loading && results.totalStudentCount"
@@ -102,6 +115,7 @@ import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
+import SortableAdmits from '@/components/search/SortableAdmits';
 import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
 import Spinner from '@/components/util/Spinner';
@@ -115,6 +129,7 @@ export default {
     AppointmentSnippet,
     CuratedGroupSelector,
     SectionSpinner,
+    SortableAdmits,
     SortableCourseList,
     SortableStudents,
     Spinner
