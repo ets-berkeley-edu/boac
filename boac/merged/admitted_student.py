@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from itertools import islice
+
 from boac.externals import data_loch
 from boac.lib.util import camelize, get_benchmarker
 
@@ -40,7 +42,6 @@ def get_admitted_student_by_sid(sid):
 def search_for_admitted_students(
     search_phrase=None,
     order_by=None,
-    limit=None,
 ):
     benchmark = get_benchmarker('search_for_admitted_students')
     query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
@@ -49,23 +50,23 @@ def search_for_admitted_students(
     sql = f"""SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
         sa.last_name,
-        sa.email,
-        sa.daytime_phone,
-        sa.admit_status,
         sa.current_sir,
+        sa.special_program_cep,
+        sa.reentry_status,
+        sa.first_generation_student,
+        sa.urem,
+        sa.application_fee_waiver_flag,
         sa.freshman_or_transfer
         {query_tables}
         {query_filter}
         ORDER BY sa.{order_by}, sa.first_name, sa.cs_empl_id"""
-    if limit and limit < 100:  # Sanity check large limits
-        query_bindings['limit'] = limit
-        sql += f' LIMIT :limit'
 
     benchmark('begin admit search query')
     admits = data_loch.safe_execute_rds(sql, **query_bindings)
     benchmark('end')
     return {
-        'admits': [{camelize(key): row[key] for key in row.keys()} for row in admits] if admits else None,
+        'admits': [{camelize(key): row[key] for key in row.keys()} for row in islice(admits, 50)] if admits else None,
+        'totalAdmitCount': len(admits),
     }
 
 

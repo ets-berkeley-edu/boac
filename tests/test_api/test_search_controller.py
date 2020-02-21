@@ -734,14 +734,13 @@ class TestAdmittedStudentSearch:
     """Admitted students search API."""
 
     @classmethod
-    def _api_search_admits(cls, client, search_phrase, order_by='cs_empl_id', limit=None, expected_status_code=200):
+    def _api_search_admits(cls, client, search_phrase, order_by='cs_empl_id', expected_status_code=200):
         response = client.post(
             '/api/search/admits',
             content_type='application/json',
             data=json.dumps({
                 'searchPhrase': search_phrase,
                 'orderBy': order_by,
-                'limit': limit,
             }),
         )
         assert response.status_code == expected_status_code
@@ -750,16 +749,20 @@ class TestAdmittedStudentSearch:
     @classmethod
     def _assert(cls, api_json, admit_count=0):
         assert 'admits' in api_json
+        assert 'totalAdmitCount' in api_json
         admits = api_json['admits']
-        assert len(api_json['admits']) == admit_count
+        assert len(admits) == admit_count
+        assert api_json['totalAdmitCount'] == admit_count
         for admit in admits:
             assert admit['csEmplId']
             assert admit['firstName']
             assert admit['lastName']
-            assert admit['email']
-            assert admit['daytimePhone']
-            assert 'admitStatus' in admit
             assert 'currentSir' in admit
+            assert 'specialProgramCep' in admit
+            assert 'reentryStatus' in admit
+            assert 'firstGenerationStudent' in admit
+            assert 'urem' in admit
+            assert 'applicationFeeWaiverFlag' in admit
             assert 'freshmanOrTransfer' in admit
 
     def test_search_admits_when_feature_flag_false(self, client, ce3_advisor):
@@ -800,14 +803,6 @@ class TestAdmittedStudentSearch:
             self._assert(api_json, admit_count=2)
             assert(api_json['admits'][0]['lastName']) == 'Davies'
             assert(api_json['admits'][1]['lastName']) == 'Mcknight'
-
-    def test_search_admits_limit_results(self, client, ce3_advisor):
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
-            api_json = self._api_search_admits(client, '00')
-            self._assert(api_json, admit_count=2)
-
-            api_json = self._api_search_admits(client, '00', limit=1)
-            self._assert(api_json, admit_count=1)
 
 
 class TestSearchHistory:
