@@ -296,7 +296,17 @@ export default {
         let min = trimToNil(this.$_.get(rangeObject, 'min'));
         let max = trimToNil(this.$_.get(rangeObject, 'max'));
         const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v);
-        if (this.filter.validation === 'gpa') {
+        if (this.filter.validation === 'dependents') {
+          min = min && parseFloat(min);
+          max = max && parseFloat(max);
+          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0) || this.$_.isNaN(v);
+          if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
+            this.errorPerRangeInput = 'Dependents must be a number greater than or equal to 0.';
+          } else if (this.$_.isNumber(min) && this.$_.isNumber(max) && min > max) {
+            this.errorPerRangeInput = 'Dependents inputs must be in ascending order.';
+          }
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
+        } else if (this.filter.validation === 'gpa') {
           min = min && parseFloat(min);
           max = max && parseFloat(max);
           const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0 || v > 4) || this.$_.isNaN(v);
@@ -428,7 +438,7 @@ export default {
       let maxLength = undefined;
       if (this.filter.validation === 'char') {
         maxLength = 1;
-      } else if (this.filter.validation === 'gpa') {
+      } else if (this.filter.validation === 'gpa' || this.filter.validation === 'dependents') {
         maxLength = 5;
       }
       return maxLength;
