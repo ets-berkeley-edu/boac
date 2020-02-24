@@ -148,8 +148,8 @@ CREATE TABLE boac_advising_oua.student_admits
     residency_category VARCHAR,
     freshman_or_transfer VARCHAR,
     admit_term VARCHAR,
-    admit_status BOOLEAN,
-    current_sir BOOLEAN,
+    admit_status VARCHAR,
+    current_sir VARCHAR,
     college VARCHAR,
     first_name VARCHAR,
     middle_name VARCHAR,
@@ -168,10 +168,10 @@ CREATE TABLE boac_advising_oua.student_admits
     sex VARCHAR,
     gender_identity VARCHAR,
     xethnic VARCHAR,
-    hispanic BOOLEAN,
-    urem BOOLEAN,
-    first_generation_student BOOLEAN,
-    first_generation_college BOOLEAN,
+    hispanic VARCHAR,
+    urem VARCHAR,
+    first_generation_student VARCHAR,
+    first_generation_college VARCHAR,
     parent_1_education_level VARCHAR,
     parent_2_education_level VARCHAR,
     hs_unweighted_gpa VARCHAR,
@@ -188,21 +188,30 @@ CREATE TABLE boac_advising_oua.student_admits
     sat_r_essay_reading INTEGER,
     sat_r_essay_analysis INTEGER,
     sat_r_essay_writing INTEGER,
-    application_fee_waiver_flag BOOLEAN,
-    foster_care_flag BOOLEAN,
-    family_is_single_parent BOOLEAN,
-    student_is_single_parent BOOLEAN,
+    application_fee_waiver_flag VARCHAR,
+    foster_care_flag VARCHAR,
+    family_is_single_parent VARCHAR,
+    student_is_single_parent VARCHAR,
     family_dependents_num VARCHAR,
     student_dependents_num VARCHAR,
     family_income VARCHAR,
     student_income VARCHAR,
-    is_military_dependent BOOLEAN,
+    is_military_dependent VARCHAR,
     military_status VARCHAR,
-    reentry_status BOOLEAN,
+    reentry_status VARCHAR,
     athlete_status VARCHAR,
-    summer_bridge_status BOOLEAN,
-    last_school_lcff_plus_flag BOOLEAN,
-    special_program_cep BOOLEAN
+    summer_bridge_status VARCHAR,
+    last_school_lcff_plus_flag VARCHAR,
+    special_program_cep VARCHAR,
+    us_citizenship_status VARCHAR,
+    us_non_citizen_status VARCHAR,
+    citizenship_country VARCHAR,
+    permanent_residence_country VARCHAR,
+    non_immigrant_visa_current VARCHAR,
+    non_immigrant_visa_planned VARCHAR,
+    uid VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE boac_advisor.advisor_roles
@@ -530,11 +539,11 @@ VALUES
 ('1133399', '800700600', 'Joni', 'Mitchell');
 
 INSERT INTO boac_advising_oua.student_admits
-(applyuc_cpid, cs_empl_id, residency_category, freshman_or_transfer, admit_term, admit_status, current_sir, college, first_name, middle_name, last_name, birthdate, daytime_phone, mobile, email, campus_email_1, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country, sex, gender_identity, xethnic, hispanic, urem, first_generation_student, first_generation_college, parent_1_education_level, parent_2_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading, act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis, sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent, family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep)
+(applyuc_cpid, cs_empl_id, residency_category, freshman_or_transfer, admit_term, admit_status, current_sir, college, first_name, middle_name, last_name, birthdate, daytime_phone, mobile, email, campus_email_1, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country, sex, gender_identity, xethnic, hispanic, urem, first_generation_student, first_generation_college, parent_1_education_level, parent_2_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading, act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis, sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent, family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep, us_citizenship_status, us_non_citizen_status, citizenship_country, permanent_residence_country, non_immigrant_visa_current, non_immigrant_visa_planned, uid, created_at, updated_at)
 VALUES
-('19938035', '00005852', 'RES', 'Transfer', 'Spring', FALSE, FALSE, 'College of Letters and Science', 'Ralph', null, 'Burgess', '1984-09-04', '984.110.7693x347', '681-857-8070', 'robert28@hotmail.com', 'abc@b.e', '9590 Chang Extensions', 'Suite 478', 'East Jacobton', 'NY', '55531', 'GB', FALSE, 'Other', '', NULL, FALSE, FALSE, NULL, 'MasterDegree', 'BachelorDegree', '0.86', '0.51', '2.47', 7.18, 17.8, 29.18, 18.43, 3.14, 603, 707, 241, 3, 2, 4, TRUE, TRUE, FALSE, FALSE, '2', '2', '41852', '942', TRUE, TRUE, FALSE, NULL, NULL, NULL, NULL),
-('98002344', '00029117', 'INT', 'Freshman', 'Spring', FALSE, FALSE, 'College of Engineering', 'Daniel', 'J', 'Mcknight', '1993-07-06', '859-319-8215x8689', '231.865.8093', 'umiles@gmail.com', null, '87758 Brown Throughway', 'Suite 657', 'West Andrea', 'M', '25101', 'GB', '', 'Other', 'White', TRUE, NULL, TRUE, TRUE, '', 'CollegeAttended', '2.51', '2.7', '3.23', 25.08, 19.28, 1.83, 14.98, 9.02, 1445, 639, 724, 7, 5, 5, NULL, TRUE, NULL, TRUE, '0', '2', '23915', '426', TRUE, '', NULL, NULL, FALSE, NULL, TRUE),
-('44631475', '11667051', 'RES', '', 'Fall', TRUE, TRUE, '', 'Deborah', 'Jessica Lynn', 'Davies', '1985-06-02', '+1-589-507-0244x25165', '+891.337.1621', 'zmitchell@morgan.net', 'food@berkeley.edu', '33770 Miller Fort', 'Apt. 408', 'New Alan', 'GA', '27353', 'GB', '', 'Male', 'NotSpecified', TRUE, TRUE, TRUE, FALSE, 'DoctoralDegree', 'HighSchoolGraduate', '3.31', '1.06', '1.51', 5.31, 9.42, 16.85, 33.1, 9.66, 1148, 476, 511, 4, 5, 8, TRUE, FALSE, NULL, NULL, '0', '1', '12509', '242', NULL, '', FALSE, FALSE, NULL, NULL, FALSE);
+('19938035', '00005852', 'RES', 'Transfer', 'Spring', 'No', 'No', 'College of Letters and Science', 'Ralph', null, 'Burgess', '1984-09-04', '984.110.7693x347', '681-857-8070', 'robert28@hotmail.com', 'abc@b.e', '9590 Chang Extensions', 'Suite 478', 'East Jacobton', 'NY', '55531', 'United States', 'F', 'Other', 'International', 'F', 'No', 'T', 'Yes', 'MasterDegree', '3 - High School Graduate', '0.86', '0.51', '2.47', 7.18, 17.8, 29.18, 18.43, 3.14, 603, 707, 241, 3, 2, 4, 'FeeWaiver', 'Y', NULL, NULL, '02', '02', '41852', '942', 'Y', 'ReserveOfficersTrainingProgram', 'No', NULL, NULL, NULL, NULL, 'Citizen', NULL, 'United States', NULL, NULL, NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
+('98002344', '00029117', 'INT', 'Freshman', 'Spring', 'No', 'No', 'College of Engineering', 'Daniel', 'J', 'Mcknight', '1993-07-06', '859-319-8215x8689', '231.865.8093', 'umiles@gmail.com', null, '87758 Brown Throughway', 'Suite 657', 'West Andrea', 'M', '25101', 'United States', '', 'Other', 'White', 'T', NULL, 'T', 'Yes', '', '5 - College Attended', '2.51', '2.7', '3.23', 25.08, 19.28, 1.83, 14.98, 9.02, 1445, 639, 724, 7, 5, 5, NULL, NULL, NULL, 'Y', '0', '02', '23915', '426', 'Y', '', NULL, 'Committed', NULL, '1', 'Destination College', 'Citizen', NULL, 'United States', NULL, NULL, NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
+('44631475', '11667051', 'RES', '', 'Fall', 'Yes', 'Yes', '', 'Deborah', 'Jessica Lynn', 'Davies', '1985-06-02', '+1-589-507-0244x25165', '+891.337.1621', 'zmitchell@morgan.net', 'food@berkeley.edu', '33770 Miller Fort', 'Apt. 408', 'New Alan', 'GA', '27353', 'Greece', 'M', 'Male', 'NotSpecified', NULL, 'Yes', 'T', 'No', 'DoctoralDegree', '3 - High School Graduate', '3.31', '1.06', '1.51', 5.31, 9.42, 16.85, 33.1, 9.66, 1148, 476, 511, 4, 5, 8, 'FeeWaiver', NULL, 'Y', NULL, '05', '01', '12509', '242', NULL, 'Reserve', 'No', NULL, NULL, NULL, '', 'NonCitizen', 'NonImmigrant', 'Greece', NULL, NULL, 'F1', '61889', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00');
 
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)

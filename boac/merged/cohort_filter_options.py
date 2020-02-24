@@ -28,8 +28,9 @@ from copy import copy, deepcopy
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
-    get_coe_profiles, grad_terms, level_options, majors, student_admit_college_options, student_admit_ethnic_options, \
-    team_groups, unit_range_options, visa_types
+    get_coe_profiles, grad_terms, level_options, majors, student_admit_college_options, student_admit_ethnicity_options, \
+    student_admit_freshman_or_transfer_options, student_admit_special_program_cep_options, team_groups, \
+    unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
@@ -125,10 +126,7 @@ class CohortFilterOptions:
                 _filter(
                     'freshmanOrTransfer',
                     'Freshman or Transfer',
-                    options=[
-                        {'name': 'Freshman', 'value': 'freshman'},
-                        {'name': 'Transfer', 'value': 'transfer'},
-                    ],
+                    options=student_admit_freshman_or_transfer_options,
                     available_to=['ZCEEE'],
                     domain_='admitted_students',
                 ),
@@ -145,7 +143,7 @@ class CohortFilterOptions:
                     'XEthnic',
                     available_to=['ZCEEE'],
                     domain_='admitted_students',
-                    options=student_admit_ethnic_options,
+                    options=student_admit_ethnicity_options,
                 ),
                 _boolean_filter_ce3('isHispanic', 'Hispanic'),
                 _boolean_filter_ce3('isUrem', 'UREM'),
@@ -174,7 +172,13 @@ class CohortFilterOptions:
                 ),
                 _boolean_filter_ce3('isReentry', 'Re-entry Status'),
                 _boolean_filter_ce3('isLastSchoolLCFF', 'Last School LCFF+'),
-                _boolean_filter_ce3('isCEP', 'Special Program CEP'),
+                _filter(
+                    'specialProgramCep',
+                    'Special Program CEP',
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    options=student_admit_special_program_cep_options,
+                ),
             ],
         ]
 

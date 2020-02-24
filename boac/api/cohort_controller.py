@@ -201,7 +201,7 @@ def get_cohort_per_filters():
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
-        include_alerts_for_user_id=current_user.get_id(),
+        include_alerts_for_user_id=current_user.get_id() if domain == 'default' else None,
         include_profiles=True,
         include_students=include_students,
     )
