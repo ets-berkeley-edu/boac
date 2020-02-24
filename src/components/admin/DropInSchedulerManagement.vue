@@ -5,7 +5,7 @@
       <label
         for="add-scheduler-input"
         class="input-label text mt-2">
-        Add scheduler by name or ID
+        Add scheduler by name or SID
         <span class="sr-only">(expect auto-suggest based on what you enter)</span>
       </label>
     </div>
