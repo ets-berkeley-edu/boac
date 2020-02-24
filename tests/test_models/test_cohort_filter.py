@@ -31,6 +31,7 @@ from tests.test_api.api_test_utils import all_cohorts_owned_by
 
 asc_advisor_uid = '2040'
 coe_advisor_uid = '1133399'
+ce3_advisor_uid = '2525'
 
 
 @pytest.mark.usefixtures('db_session')
@@ -70,6 +71,36 @@ class TestCohortFilter:
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,
+        }
+        for key, value in expected.items():
+            assert cohort['criteria'][key] == expected[key]
+        assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
+
+    def test_ce3_filter_criteria(self):
+        colleges = ['College of Letters and Science', 'College of Engineering']
+        family_dependent_ranges = [
+            {'min': 0, 'max': 1},
+            {'min': 5, 'max': 5},
+        ]
+        freshman_or_transfer = 'Freshman'
+        has_fee_waiver = True
+        cohort = CohortFilter.create(
+            uid=ce3_advisor_uid,
+            name='All my admits',
+            filter_criteria={
+                'colleges': colleges,
+                'familyDependentRanges': family_dependent_ranges,
+                'freshmanOrTransfer': freshman_or_transfer,
+                'hasFeeWaiver': has_fee_waiver,
+            },
+        )
+        cohort_id = cohort['id']
+        cohort = CohortFilter.find_by_id(cohort_id)
+        expected = {
+            'colleges': colleges,
+            'familyDependentRanges': family_dependent_ranges,
+            'freshmanOrTransfer': freshman_or_transfer,
+            'hasFeeWaiver': has_fee_waiver,
         }
         for key, value in expected.items():
             assert cohort['criteria'][key] == expected[key]
@@ -125,6 +156,13 @@ class TestCohortFilter:
         cohort = next((c for c in cohorts if c.name == expected_name), None)
         assert cohort
         assert cohort.to_api_json()['name'] == expected_name
+
+        admit_cohorts = AuthorizedUser.find_by_uid(ce3_advisor_uid).cohort_filters
+        assert len(admit_cohorts)
+        expected_name = 'First Generation Students'
+        admit_cohort = next((c for c in admit_cohorts if c.name == expected_name), None)
+        assert admit_cohort
+        assert admit_cohort.to_api_json()['name'] == expected_name
 
 
 def cohort_count(user_uid):

@@ -146,7 +146,23 @@ def majors():
 
 
 def student_admit_college_options():
-    return []
+    college_results = [row['college'] for row in data_loch.get_admit_colleges()]
+    return [{'name': college, 'value': college} for college in college_results]
+
+
+def student_admit_ethnicity_options():
+    ethnicity_results = [row['xethnic'] for row in data_loch.get_admit_ethnicities()]
+    return [{'name': ethnicity, 'value': ethnicity} for ethnicity in ethnicity_results]
+
+
+def student_admit_freshman_or_transfer_options():
+    freshman_or_transfer_results = [row['freshman_or_transfer'] for row in data_loch.get_admit_freshman_or_transfer()]
+    return [{'name': freshman_or_transfer, 'value': freshman_or_transfer} for freshman_or_transfer in freshman_or_transfer_results]
+
+
+def student_admit_special_program_cep_options():
+    special_program_cep_results = [row['special_program_cep'] for row in data_loch.get_admit_special_program_cep()]
+    return [{'name': special_program_cep, 'value': special_program_cep} for special_program_cep in special_program_cep_results]
 
 
 def unit_range_options():
@@ -168,10 +184,6 @@ def visa_types():
         {'name': 'Permanent Resident', 'value': 'PR'},
         {'name': 'Other', 'value': ','.join(other_types)},
     ]
-
-
-def student_admit_ethnic_options():
-    return []
 
 
 def _get_dept_codes(user):

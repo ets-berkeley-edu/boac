@@ -30,10 +30,11 @@ from boac.api.errors import InternalServerError
 from boac.lib import util
 from boac.lib.util import get_benchmarker
 from boac.merged import athletics
+from boac.merged.admitted_student import query_admitted_students
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.cohort_filter_options import CohortFilterOptions
 from boac.merged.sis_terms import current_term_id
-from boac.merged.student import query_admitted_students, query_students, scope_for_criteria
+from boac.merged.student import query_students, scope_for_criteria
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user import cohort_filter_owners
@@ -458,7 +459,6 @@ def _query_admitted_students(
         freshman_or_transfer=criteria.get('freshmanOrTransfer'),
         has_fee_waiver=criteria.get('hasFeeWaiver'),
         in_foster_care=criteria.get('inFosterCare'),
-        is_cep=criteria.get('isCEP'),
         is_family_single_parent=criteria.get('isFamilySingleParent'),
         is_first_generation_student=criteria.get('isFirstGenerationStudent'),
         is_hispanic=criteria.get('isHispanic'),
@@ -471,6 +471,7 @@ def _query_admitted_students(
         order_by=order_by,
         sids_only=sids_only,
         sir=criteria.get('sir'),
+        special_program_cep=criteria.get('specialProgramCep'),
         student_dependent_ranges=criteria.get('studentDependentRanges'),
         x_ethnicities=criteria.get('xEthnicities'),
     )
