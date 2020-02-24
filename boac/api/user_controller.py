@@ -381,7 +381,7 @@ def remove_drop_in_scheduler_from_dept(dept_code):
         authorized_user_id=user.id,
     )
     if not len(user.department_memberships):
-        AuthorizedUser.delete_and_block(uid)
+        AuthorizedUser.delete(uid)
     return tolerant_jsonify(_get_drop_in_scheduler_list(current_user, dept_code))
 
 
