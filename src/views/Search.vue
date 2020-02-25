@@ -115,7 +115,7 @@ import Context from '@/mixins/Context';
 import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
 import Loading from '@/mixins/Loading';
 import SectionSpinner from '@/components/util/SectionSpinner';
-import SortableAdmits from '@/components/search/SortableAdmits';
+import SortableAdmits from '@/components/admit/SortableAdmits';
 import SortableCourseList from '@/components/course/SortableCourseList';
 import SortableStudents from '@/components/search/SortableStudents';
 import Spinner from '@/components/util/Spinner';

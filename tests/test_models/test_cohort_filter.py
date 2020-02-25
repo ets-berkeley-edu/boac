@@ -79,10 +79,10 @@ class TestCohortFilter:
     def test_ce3_filter_criteria(self):
         colleges = ['College of Letters and Science', 'College of Engineering']
         family_dependent_ranges = [
-            {'min': 0, 'max': 1},
+            {'min': 0, 'max': 2},
             {'min': 5, 'max': 5},
         ]
-        freshman_or_transfer = 'Freshman'
+        freshman_or_transfer = ['Transfer']
         has_fee_waiver = True
         cohort = CohortFilter.create(
             uid=ce3_advisor_uid,
@@ -93,6 +93,7 @@ class TestCohortFilter:
                 'freshmanOrTransfer': freshman_or_transfer,
                 'hasFeeWaiver': has_fee_waiver,
             },
+            domain='admitted_students',
         )
         cohort_id = cohort['id']
         cohort = CohortFilter.find_by_id(cohort_id)
@@ -105,6 +106,7 @@ class TestCohortFilter:
         for key, value in expected.items():
             assert cohort['criteria'][key] == expected[key]
         assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
+        assert cohort['students']
 
     def test_undefined_filter_criteria(self):
         with pytest.raises(InternalServerError):

@@ -47,6 +47,7 @@ def search_for_admitted_students(
     query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
         search_phrase=search_phrase,
     )
+    order_by = order_by or 'last_name'
     sql = f"""SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
         sa.last_name,
@@ -59,7 +60,7 @@ def search_for_admitted_students(
         sa.freshman_or_transfer
         {query_tables}
         {query_filter}
-        ORDER BY sa.{order_by}, sa.first_name, sa.cs_empl_id"""
+        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id"""
 
     benchmark('begin admit search query')
     admits = data_loch.safe_execute_rds(sql, **query_bindings)
@@ -118,6 +119,7 @@ def query_admitted_students(
         'sids': sids,
         'totalStudentCount': len(sids),
     }
+    order_by = order_by or 'last_name'
     if not sids_only:
         sql = f"""SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
@@ -131,12 +133,13 @@ def query_admitted_students(
         sa.freshman_or_transfer
         {query_tables}
         {query_filter}
-        ORDER BY {order_by}, cs_empl_id OFFSET :offset"""
+        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id OFFSET :offset"""
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
             sql += f' LIMIT :limit'
-        summary['students'] = data_loch.safe_execute_rds(sql, **query_bindings)
+        admits = data_loch.safe_execute_rds(sql, **query_bindings)
+        summary['students'] = [{camelize(key): row[key] for key in row.keys()} for row in admits] if admits else None
     return summary
 
 

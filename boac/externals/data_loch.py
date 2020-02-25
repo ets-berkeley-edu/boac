@@ -1003,26 +1003,26 @@ def get_admitted_students_query(
     query_tables = f'FROM {oua_schema()}.student_admits sa'
     query_filter = 'WHERE true'
     query_filter += ' AND sa.college = ANY(:college)' if colleges else ''
-    query_filter += ' AND sa.current_sir = \'Yes\'' if sir is not None else ''
+    query_filter += ' AND sa.current_sir = \'Yes\'' if sir else ''
     query_filter += ' AND sa.freshman_or_transfer = ANY(:freshman_or_transfer)' if freshman_or_transfer else ''
-    query_filter += ' AND sa.application_fee_waiver_flag = \'FeeWaiver\'' if has_fee_waiver is not None else ''
-    query_filter += ' AND sa.foster_care_flag = \'Y\'' if in_foster_care is not None else ''
-    query_filter += ' AND sa.special_program_cep = ANY(:special_program_cep)' if special_program_cep is not None else ''
-    query_filter += ' AND sa.family_is_single_parent = \'Y\'' if is_family_single_parent is not None else ''
-    query_filter += ' AND sa.first_generation_student = \'T\'' if is_first_generation_student is not None else ''
-    query_filter += ' AND sa.hispanic = \'T\'' if is_hispanic is not None else ''
-    query_filter += ' AND sa.last_school_lcff_plus_flag = \'1\'' if is_last_school_lcff is not None else ''
-    query_filter += ' AND sa.reentry_status = \'Yes\'' if is_reentry is not None else ''
-    query_filter += ' AND sa.student_is_single_parent = \'Y\'' if is_student_single_parent is not None else ''
-    query_filter += ' AND sa.urem = \'Yes\'' if is_urem is not None else ''
+    query_filter += ' AND sa.application_fee_waiver_flag = \'FeeWaiver\'' if has_fee_waiver else ''
+    query_filter += ' AND sa.foster_care_flag = \'Y\'' if in_foster_care else ''
+    query_filter += ' AND sa.special_program_cep = ANY(:special_program_cep)' if special_program_cep else ''
+    query_filter += ' AND sa.family_is_single_parent = \'Y\'' if is_family_single_parent else ''
+    query_filter += ' AND sa.first_generation_student = \'T\'' if is_first_generation_student else ''
+    query_filter += ' AND sa.hispanic = \'T\'' if is_hispanic else ''
+    query_filter += ' AND sa.last_school_lcff_plus_flag = \'1\'' if is_last_school_lcff else ''
+    query_filter += ' AND sa.reentry_status = \'Yes\'' if is_reentry else ''
+    query_filter += ' AND sa.student_is_single_parent = \'Y\'' if is_student_single_parent else ''
+    query_filter += ' AND sa.urem = \'Yes\'' if is_urem else ''
     query_filter += ' AND sa.xethnic = ANY(:x_ethnicities)' if x_ethnicities else ''
     # Ranges
     if family_dependent_ranges:
         sql_ready_ranges = [f"numrange({range_['min']}, {range_['max']}, '[]')" for range_ in family_dependent_ranges]
-        query_filter += _number_ranges_to_sql('family_dependents_num', sql_ready_ranges)
+        query_filter += _number_ranges_to_sql('CAST(NULLIF(family_dependents_num, \'\') AS INT)', sql_ready_ranges)
     if student_dependent_ranges:
         sql_ready_ranges = [f"numrange({range_['min']}, {range_['max']}, '[]')" for range_ in student_dependent_ranges]
-        query_filter += _number_ranges_to_sql('student_dependents_num', sql_ready_ranges)
+        query_filter += _number_ranges_to_sql('CAST(NULLIF(student_dependents_num, \'\') AS INT)', sql_ready_ranges)
     # Name or SID search
     if search_phrase:
         words = search_phrase.upper().split()
