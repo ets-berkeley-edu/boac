@@ -210,8 +210,12 @@ class Alert(Base):
             feed.append(alert)
         return feed
 
-    def activate(self):
+    def activate(self, preserve_creation_date=False):
         self.active = True
+        # Some alert types, such as withdrawals and midpoint deficient grades, don't include a time-shifted message
+        # and shouldn't be treated as updated after creation.
+        if preserve_creation_date:
+            self.updated_at = self.created_at
         std_commit()
 
     def deactivate(self):
@@ -219,11 +223,11 @@ class Alert(Base):
         std_commit()
 
     @classmethod
-    def create_or_activate(cls, sid, alert_type, key, message):
+    def create_or_activate(cls, sid, alert_type, key, message, preserve_creation_date=False):
         existing_alert = cls.query.filter_by(sid=sid, alert_type=alert_type, key=key).first()
         if existing_alert:
             existing_alert.message = message
-            existing_alert.activate()
+            existing_alert.activate(preserve_creation_date=preserve_creation_date)
         else:
             cls.create(sid=sid, alert_type=alert_type, key=key, message=message)
 
@@ -342,7 +346,7 @@ class Alert(Base):
     def update_midterm_grade_alerts(cls, sid, term_id, section_id, class_name, grade):
         key = f'{term_id}_{section_id}'
         message = f'{class_name} midpoint deficient grade of {grade}.'
-        cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message)
+        cls.create_or_activate(sid=sid, alert_type='midterm', key=key, message=message, preserve_creation_date=True)
 
     @classmethod
     def update_no_activity_alerts(cls, sid, term_id, class_name):
@@ -366,7 +370,7 @@ class Alert(Base):
     def update_withdrawal_cancel_alerts(cls, sid, term_id):
         key = f'{term_id}_withdrawal'
         message = f'Student is no longer enrolled in the {term_name_for_sis_id(term_id)} term.'
-        cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message)
+        cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message, preserve_creation_date=True)
 
     @classmethod
     def include_alert_counts_for_students(cls, viewer_user_id, group, count_only=False, offset=None, limit=None):
