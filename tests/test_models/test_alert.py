@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from time import sleep
+
 from boac.models.alert import Alert
 import pytest
 from tests.util import override_config
@@ -84,6 +86,26 @@ class TestAlert:
         Alert.deactivate_all_for_term(2178)
         assert len(get_current_alerts('11667051')) == 0
         assert len(get_current_alerts('3456789012')) == 0
+
+    def test_assignment_alerts_change_updated_at_timestamp(self):
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
+        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+        sleep(2)
+        Alert.deactivate_all_for_term(2178)
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
+        assert alerts[0]['updatedAt'] > alerts[0]['createdAt']
+
+    def test_midpoint_deficient_grade_alerts_preserve_updated_at_timestamp(self):
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
+        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+        sleep(2)
+        Alert.deactivate_all_for_term(2178)
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
+        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
 
     def test_alert_timezones(self):
         """For purposes of displaying due dates, loves LA."""
