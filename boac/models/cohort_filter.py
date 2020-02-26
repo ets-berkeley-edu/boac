@@ -351,7 +351,7 @@ class CohortFilter(Base):
                 cohort_json.update({
                     'students': results['students'],
                 })
-            if include_alerts_for_user_id:
+            if include_alerts_for_user_id and self.domain == 'default':
                 benchmark('begin alerts query')
                 alert_count_per_sid = Alert.include_alert_counts_for_students(
                     viewer_user_id=include_alerts_for_user_id,

@@ -49,15 +49,7 @@
                   class="list-group-item border-left-0 border-right-0" />
               </div>
               <div v-if="domain === 'admitted_students'" id="admitted-students-cohort-students" class="list-group mr-2">
-                <AdmitStudentRow
-                  v-for="(student, index) in students"
-                  :id="`admitted-student-student-${student.uid}`"
-                  :key="student.sid"
-                  :row-index="index"
-                  :student="student"
-                  :sorted-by="preferences.sortBy"
-                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
-                  class="list-group-item border-left-0 border-right-0" />
+                <SortableAdmits :admitted-students="students" />
               </div>
             </div>
             <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
@@ -79,7 +71,6 @@
 </template>
 
 <script>
-import AdmitStudentRow from '@/components/cohort/AdmitStudentRow';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortHistory from '@/components/cohort/CohortHistory';
@@ -92,6 +83,7 @@ import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';
+import SortableAdmits from '@/components/admit/SortableAdmits';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
 import StudentRow from '@/components/student/StudentRow';
@@ -100,7 +92,6 @@ import Util from '@/mixins/Util';
 export default {
   name: 'Cohort',
   components: {
-    AdmitStudentRow,
     ApplyAndSaveButtons,
     CohortHistory,
     CohortPageHeader,
@@ -108,6 +99,7 @@ export default {
     FilterRow,
     Pagination,
     SectionSpinner,
+    SortableAdmits,
     SortBy,
     Spinner,
     StudentRow
