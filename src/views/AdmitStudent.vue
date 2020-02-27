@@ -351,12 +351,6 @@ export default {
 </script>
 
 <style scoped>
-.boolean-false-icon {
-  color: grey;
-}
-.boolean-true-icon {
-  color: #00c13a;
-}
 .table-cell {
   font-weight: normal;
   padding: 5px 50px 5px 3px;

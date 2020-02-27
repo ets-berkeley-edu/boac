@@ -23,7 +23,8 @@
         <NavLink
           :id="`sidebar-admitted-students-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          :path="`/cohort/${cohort.id}`">
+          :path="`/cohort/${cohort.id}`"
+          :query-args="{domain: 'admitted_students'}">
           {{ cohort.name }}
         </NavLink>
       </div>

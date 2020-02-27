@@ -982,7 +982,7 @@ def get_admitted_students_query(
     has_fee_waiver=None,
     in_foster_care=None,
     is_family_single_parent=None,
-    is_first_generation_student=None,
+    is_first_generation_college=None,
     is_hispanic=None,
     is_last_school_lcff=None,
     is_reentry=None,
@@ -1009,7 +1009,7 @@ def get_admitted_students_query(
     query_filter += ' AND sa.foster_care_flag = \'Y\'' if in_foster_care else ''
     query_filter += ' AND sa.special_program_cep = ANY(:special_program_cep)' if special_program_cep else ''
     query_filter += ' AND sa.family_is_single_parent = \'Y\'' if is_family_single_parent else ''
-    query_filter += ' AND sa.first_generation_student = \'T\'' if is_first_generation_student else ''
+    query_filter += ' AND sa.first_generation_college = \'T\'' if is_first_generation_college else ''
     query_filter += ' AND sa.hispanic = \'T\'' if is_hispanic else ''
     query_filter += ' AND sa.last_school_lcff_plus_flag = \'1\'' if is_last_school_lcff else ''
     query_filter += ' AND sa.reentry_status = \'Yes\'' if is_reentry else ''

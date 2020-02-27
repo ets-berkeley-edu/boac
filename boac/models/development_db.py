@@ -773,7 +773,7 @@ def _create_cohorts():
         uid=ce3_advisor_uid,
         name='First Generation Students',
         filter_criteria={
-            'isFirstGenerationStudent': True,
+            'isFirstGenerationCollege': True,
         },
         domain='admitted_students',
     )
