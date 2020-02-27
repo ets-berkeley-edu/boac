@@ -94,7 +94,7 @@ const mutations = {
     state.editMode = null;
     state.cohortId = cohort && cohort.id;
     state.cohortName = cohort && cohort.name;
-    state.cohortOwnerUid = cohort && cohort.owners && cohort.owners[0] && cohort.owners[0].uid;
+    state.cohortOwnerUid = cohort && cohort.owner && cohort.owner.uid;
     state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
     state.filters = filters || [];
     state.students = students;
@@ -227,7 +227,7 @@ const actions = {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
           commit('setDomain', cohort.domain);
-          const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owners[0].uid');
+          const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owner.uid');
           translateToFilterOptions(state.domain, owner, cohort.criteria).then(filters => {
             commit('resetSession', {
               cohort,

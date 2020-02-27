@@ -142,8 +142,7 @@ class CuratedGroup(Base):
         query = text(f"""SELECT
             c.id, c.filter_criteria
             FROM cohort_filters c
-            JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND o.user_id = :user_id""")
+            WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND owner_id = :user_id""")
         results = db.session.execute(query, {'user_id': self.owner_id})
         cohort_filter_ids = []
         for row in results:
@@ -218,5 +217,4 @@ def _refresh_related_cohorts(curated_group):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.clear_sids_and_student_count()
         cohort.update_alert_count(None)
-        owner_id = cohort.owners[0].id if len(cohort.owners) else None
-        cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
+        cohort.to_api_json(include_students=False, include_alerts_for_user_id=cohort.owner_id)

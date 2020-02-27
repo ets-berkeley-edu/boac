@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.lib.util import utc_now, vacuum_whitespace
 from boac.models.base import Base
-from boac.models.db_relationships import cohort_filter_owners
 from flask import current_app as app
 from sqlalchemy import and_, text
 from sqlalchemy.dialects.postgresql import ARRAY
@@ -60,8 +59,7 @@ class AuthorizedUser(Base):
     )
     cohort_filters = db.relationship(
         'CohortFilter',
-        secondary=cohort_filter_owners,
-        back_populates='owners',
+        back_populates='owner',
         lazy='joined',
     )
     alert_views = db.relationship(

@@ -193,10 +193,8 @@ def load_filtered_cohort_counts():
         # Remove!
         cohort.clear_sids_and_student_count()
         cohort.update_alert_count(None)
-        # The db schema supports multiple cohort owners but in the real world it is one owner per cohort.
-        owner_id = cohort.owners[0].id if len(cohort.owners) else None
         # Reload!
-        cohort.to_api_json(include_students=False, include_alerts_for_user_id=owner_id)
+        cohort.to_api_json(include_students=False, include_alerts_for_user_id=cohort.owner_id)
 
 
 def update_curated_group_lists():

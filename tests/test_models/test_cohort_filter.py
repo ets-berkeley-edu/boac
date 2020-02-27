@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac import std_commit
 from boac.api.errors import InternalServerError
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -122,12 +123,10 @@ class TestCohortFilter:
     def test_create_and_delete_cohort(self):
         """Cohort_filter record to Flask-Login for recognized UID."""
         owner = AuthorizedUser.find_by_uid(asc_advisor_uid).uid
-        shared_with = AuthorizedUser.find_by_uid(coe_advisor_uid).uid
-        # Check validity of UIDs
+        # Check validity of UID
         assert owner
-        assert shared_with
 
-        # Create and share cohort
+        # Create cohort
         group_codes = ['MFB-DB', 'MFB-DL', 'MFB-MLB', 'MFB-OLB']
         cohort = CohortFilter.create(
             uid=owner,
@@ -137,18 +136,14 @@ class TestCohortFilter:
             },
         )
         cohort_id = cohort['id']
-        CohortFilter.share(cohort_id, shared_with)
-        owners = CohortFilter.find_by_id(cohort_id)['owners']
-        assert len(owners) == 2
-        assert owner, shared_with in [user['uid'] for user in owners]
+        assert CohortFilter.find_by_id(cohort_id)['owner']['uid'] == owner
         assert cohort['totalStudentCount'] == len(CohortFilter.get_sids(cohort_id))
 
         # Delete cohort and verify
         previous_owner_count = cohort_count(owner)
-        previous_shared_count = cohort_count(shared_with)
         CohortFilter.delete(cohort_id)
+        std_commit(allow_test_environment=True)
         assert cohort_count(owner) == previous_owner_count - 1
-        assert cohort_count(shared_with) == previous_shared_count - 1
 
     def test_jsonify_cohort(self):
         """Can be JSONified."""

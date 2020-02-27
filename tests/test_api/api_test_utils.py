@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import std_commit
-from boac.models.cohort_filter import CohortFilter
+from boac.models.authorized_user import AuthorizedUser
 import simplejson as json
 
 
@@ -37,7 +37,7 @@ def all_cohorts_owned_by(uid):
             'alertCount': c.alert_count,
             'totalStudentCount': c.student_count,
         }
-    cohorts = CohortFilter.query.filter(CohortFilter.owners.any(uid=uid)).order_by(CohortFilter.name).all()
+    cohorts = sorted(AuthorizedUser.query.filter_by(uid=uid).first().cohort_filters, key=lambda c: c.name)
     return [transform(cohort) for cohort in cohorts]
 
 

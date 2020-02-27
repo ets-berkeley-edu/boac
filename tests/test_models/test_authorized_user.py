@@ -48,9 +48,7 @@ class TestAuthorizedUser:
         assert loaded_user.is_admin
         assert len(loaded_user.cohort_filters) > 0
 
-        owners = loaded_user.cohort_filters[0].owners
-        assert len(owners) > 0
-        assert loaded_user in owners
+        assert loaded_user.cohort_filters[0].owner == loaded_user
 
     def test_delete_and_block(self):
         user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid)

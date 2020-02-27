@@ -63,8 +63,7 @@ def all_cohorts():
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     for cohort in CohortFilter.get_cohorts_owned_by_uids(uids, domain=domain):
-        for uid in cohort['owners']:
-            cohorts_per_uid[uid].append(cohort)
+        cohorts_per_uid[cohort['ownerUid']].append(cohort)
     api_json = []
     for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
         cohorts = cohorts_per_uid[uid]
@@ -334,14 +333,14 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
 
 
 def _decorate_cohort(cohort):
-    owner_uids = [o['uid'] for o in cohort['owners']]
-    cohort.update({'isOwnedByCurrentUser': current_user.get_uid() in owner_uids})
+    if cohort.get('owner'):
+        cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.get_uid()})
 
 
 def _can_current_user_view_cohort(cohort):
-    if current_user.is_admin or not cohort['owners']:
+    if current_user.is_admin or not cohort.get('owner'):
         return True
-    cohort_dept_codes = {dept_code for o in cohort['owners'] for dept_code in o['deptCodes']}
+    cohort_dept_codes = cohort['owner'].get('deptCodes', [])
     if len(cohort_dept_codes):
         user_dept_codes = dept_codes_where_advising(current_user)
         return len([c for c in user_dept_codes if c in cohort_dept_codes])
