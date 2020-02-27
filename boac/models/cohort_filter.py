@@ -37,7 +37,6 @@ from boac.merged.sis_terms import current_term_id
 from boac.merged.student import query_students, scope_for_criteria
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.authorized_user import cohort_filter_owners
 from boac.models.base import Base
 from boac.models.cohort_filter_event import CohortFilterEvent
 from flask import current_app as app
@@ -60,13 +59,15 @@ class CohortFilter(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     domain = db.Column(cohort_domain_type, nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     name = db.Column(db.String(255), nullable=False)
     filter_criteria = db.Column(JSONB, nullable=False)
     # Fetching a large array literal from Postgres can be expensive. We defer until invoking code demands it.
     sids = deferred(db.Column(ARRAY(db.String(80))))
     student_count = db.Column(db.Integer)
     alert_count = db.Column(db.Integer)
-    owners = db.relationship('AuthorizedUser', secondary=cohort_filter_owners, back_populates='cohort_filters')
+
+    owner = db.relationship('AuthorizedUser', back_populates='cohort_filters')
 
     def __init__(self, domain, name, filter_criteria):
         self.domain = domain
@@ -78,7 +79,7 @@ class CohortFilter(Base):
         return f"""<CohortFilter {self.id},
             domain={self.domain},
             name={self.name},
-            owners={self.owners},
+            owner_id={self.owner_id},
             filter_criteria={self.filter_criteria},
             sids={self.sids},
             student_count={self.student_count},
@@ -151,19 +152,11 @@ class CohortFilter(Base):
         self._transient_sids = []
 
     @classmethod
-    def share(cls, cohort_id, user_id):
-        cohort = cls.query.filter_by(id=cohort_id).first()
-        user = AuthorizedUser.find_by_uid(user_id)
-        user.cohort_filters.append(cohort)
-        std_commit()
-
-    @classmethod
     def get_cohorts_of_user_id(cls, user_id, domain='default'):
         query = text(f"""
             SELECT id, domain, name, filter_criteria, alert_count, student_count
             FROM cohort_filters c
-            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE o.user_id = :user_id AND c.domain = :domain
+            WHERE c.owner_id = :user_id AND c.domain = :domain
             ORDER BY c.name
         """)
         results = db.session.execute(query, {'domain': domain, 'user_id': user_id})
@@ -183,12 +176,11 @@ class CohortFilter(Base):
     def get_cohorts_owned_by_uids(cls, uids, domain='default'):
         query = text(f"""
             SELECT
-            c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, ARRAY_AGG(uid) authorized_users
+            c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
             FROM cohort_filters c
-            INNER JOIN cohort_filter_owners o ON c.id = o.cohort_filter_id
-            INNER JOIN authorized_users u ON o.user_id = u.id
+            INNER JOIN authorized_users u ON c.owner_id = u.id
             WHERE u.uid = ANY(:uids) AND c.domain = :domain
-            GROUP BY c.id, c.name, c.filter_criteria, c.alert_count, c.student_count
+            GROUP BY c.id, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
         """)
         results = db.session.execute(query, {'domain': domain, 'uids': uids})
 
@@ -198,7 +190,7 @@ class CohortFilter(Base):
                 'domain': row['domain'],
                 'name': row['name'],
                 'criteria': row['filter_criteria'],
-                'owners': row['authorized_users'],
+                'ownerUid': row['uid'],
                 'alertCount': row['alert_count'],
                 'totalStudentCount': row['student_count'],
             }
@@ -208,8 +200,7 @@ class CohortFilter(Base):
     def is_cohort_owned_by(cls, cohort_id, user_id):
         query = text(f"""
             SELECT count(*) FROM cohort_filters c
-            LEFT JOIN cohort_filter_owners o ON o.cohort_filter_id = c.id
-            WHERE o.user_id = :user_id AND c.id = :cohort_id
+            WHERE c.owner_id = :user_id AND c.id = :cohort_id
         """)
         results = db.session.execute(
             query, {
@@ -232,9 +223,7 @@ class CohortFilter(Base):
                     ON alerts.sid = ANY(cohort_filters.sids)
                     AND alerts.key LIKE :key
                     AND alerts.active IS TRUE
-                JOIN cohort_filter_owners
-                    ON cohort_filters.id = cohort_filter_owners.cohort_filter_id
-                    AND cohort_filter_owners.user_id = :owner_id
+                    AND cohort_filters.owner_id = :owner_id
                 LEFT JOIN alert_views
                     ON alert_views.alert_id = alerts.id
                     AND alert_views.viewer_id = :owner_id
@@ -261,7 +250,7 @@ class CohortFilter(Base):
     def to_base_json(self):
         c = self.filter_criteria
         c = c if isinstance(c, dict) else json.loads(c)
-        user_uid = self.owners[0].uid if self.owners else None
+        user_uid = self.owner.uid if self.owner else None
         for category in CohortFilterOptions(user_uid, scope_for_criteria()).get_all_filter_categories():
             for filter_ in category:
                 key = filter_['key']
@@ -273,6 +262,8 @@ class CohortFilter(Base):
                         c[key] = value
 
         def _owner_to_json(owner):
+            if not owner:
+                return None
             return {
                 'uid': owner.uid,
                 'deptCodes': [m.university_dept.dept_code for m in owner.department_memberships],
@@ -283,7 +274,7 @@ class CohortFilter(Base):
             'name': self.name,
             'code': self.id,
             'criteria': c,
-            'owners': [_owner_to_json(o) for o in self.owners],
+            'owner': _owner_to_json(self.owner),
             'teamGroups': athletics.get_team_groups(c.get('groupCodes')) if c.get('groupCodes') else [],
             'alertCount': self.alert_count,
         }
@@ -331,7 +322,7 @@ class CohortFilter(Base):
                 limit=limit,
                 offset=offset,
                 order_by=order_by,
-                owners=self.owners,
+                owner=self.owner,
                 sids_only=sids_only,
             )
 
@@ -380,17 +371,15 @@ def _query_students(
         limit,
         offset,
         order_by,
-        owners,
+        owner,
         sids_only,
 ):
     benchmark('begin students query')
-    # Translate the "My Students" filter, if present, into queryable criteria. Although our database relationships
-    # allow for multiple cohort owners, we assume a single owner here since the "My Students" filter makes no sense
-    # in any other scenario.
+    # Translate the "My Students" filter, if present, into queryable criteria.
     plans = criteria.get('cohortOwnerAcademicPlans')
     if plans:
-        if owners:
-            owner_sid = get_csid_for_uid(app, owners[0].uid)
+        if owner:
+            owner_sid = get_csid_for_uid(app, owner.uid)
         else:
             owner_sid = current_user.get_csid()
         advisor_plan_mappings = [{'advisor_sid': owner_sid, 'academic_plan_code': plan} for plan in plans]

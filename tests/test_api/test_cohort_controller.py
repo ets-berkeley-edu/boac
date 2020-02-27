@@ -871,7 +871,7 @@ class TestCohortDelete:
         assert response.status_code == 401
 
     def test_delete_cohort_wrong_user(self, client, fake_auth):
-        """Custom cohort deletion is only available to owners."""
+        """Custom cohort deletion is only available to the owner."""
         cohort = CohortFilter.create(
             uid=coe_advisor_uid,
             name='Badminton teams',

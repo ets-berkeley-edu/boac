@@ -26,15 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db
-from boac.models.base import Base
-
-
-cohort_filter_owners = db.Table(
-    'cohort_filter_owners',
-    Base.metadata,
-    db.Column('cohort_filter_id', db.Integer, db.ForeignKey('cohort_filters.id'), primary_key=True),
-    db.Column('user_id', db.Integer, db.ForeignKey('authorized_users.id'), primary_key=True),
-)
 
 
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in

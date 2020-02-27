@@ -42,7 +42,7 @@ from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 # Models below are included so that db.create_all will find them.
 from boac.models.alert import Alert # noqa
-from boac.models.db_relationships import AlertView, cohort_filter_owners  # noqa
+from boac.models.db_relationships import AlertView  # noqa
 from boac.models.job_progress import JobProgress # noqa
 from boac.models.json_cache import JsonCache # noqa
 from flask import current_app as app

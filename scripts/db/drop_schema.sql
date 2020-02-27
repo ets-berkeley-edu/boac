@@ -47,6 +47,7 @@ ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS a
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_appointment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_viewer_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_owner_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_events DROP CONSTRAINT IF EXISTS cohort_filter_events_cohort_filter_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_cohort_filter_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS cohort_filter_owners_user_id_fkey;
@@ -85,6 +86,7 @@ DROP INDEX IF EXISTS public.appointments_read_viewer_id_idx;
 DROP INDEX IF EXISTS public.alert_views_alert_id_idx;
 DROP INDEX IF EXISTS public.alert_views_viewer_id_idx;
 DROP INDEX IF EXISTS public.alerts_sid_idx;
+DROP INDEX IF EXISTS public.cohort_filters_owner_id_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_cohort_filter_id_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_sid_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_event_type_idx;

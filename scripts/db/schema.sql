@@ -267,22 +267,13 @@ CREATE INDEX cohort_filter_events_created_at_idx ON cohort_filter_events USING b
 
 --
 
-CREATE TABLE cohort_filter_owners (
-    cohort_filter_id integer NOT NULL,
-    user_id integer NOT NULL
-);
-ALTER TABLE cohort_filter_owners OWNER TO boac;
-ALTER TABLE ONLY cohort_filter_owners
-    ADD CONSTRAINT cohort_filter_owners_pkey PRIMARY KEY (cohort_filter_id, user_id);
-
---
-
 CREATE TYPE cohort_domain_types AS ENUM ('default', 'admitted_students');
 
 --
 
 CREATE TABLE cohort_filters (
     id integer NOT NULL,
+    owner_id integer NOT NULL,
     domain cohort_domain_types NOT NULL,
     name character varying(255) NOT NULL,
     filter_criteria jsonb NOT NULL,
@@ -304,6 +295,7 @@ ALTER SEQUENCE cohort_filters_id_seq OWNED BY cohort_filters.id;
 ALTER TABLE ONLY cohort_filters ALTER COLUMN id SET DEFAULT nextval('cohort_filters_id_seq'::regclass);
 ALTER TABLE ONLY cohort_filters
     ADD CONSTRAINT cohort_filters_pkey PRIMARY KEY (id);
+CREATE INDEX cohort_filters_owner_id_idx ON cohort_filters USING btree (owner_id);
 
 --
 
@@ -717,6 +709,11 @@ ALTER TABLE ONLY appointments_read
 
 --
 
+ALTER TABLE ONLY cohort_filters
+    ADD CONSTRAINT cohort_filters_owner_id_fkey FOREIGN KEY (owner_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
+
+--
+
 ALTER TABLE ONLY drop_in_advisors
     ADD CONSTRAINT drop_in_advisors_authorized_user_id_fkey FOREIGN KEY (authorized_user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
@@ -753,13 +750,6 @@ ALTER TABLE ONLY alert_views
 
 ALTER TABLE ONLY cohort_filter_events
     ADD CONSTRAINT cohort_filter_events_cohort_filter_id_fkey FOREIGN KEY (cohort_filter_id) REFERENCES cohort_filters(id) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY cohort_filter_owners
-    ADD CONSTRAINT cohort_filter_owners_cohort_filter_id_fkey FOREIGN KEY (cohort_filter_id) REFERENCES cohort_filters(id) ON DELETE CASCADE;
-ALTER TABLE ONLY cohort_filter_owners
-    ADD CONSTRAINT cohort_filter_owners_user_id_fkey FOREIGN KEY (user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
