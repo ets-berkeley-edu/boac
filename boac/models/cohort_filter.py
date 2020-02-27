@@ -460,7 +460,7 @@ def _query_admitted_students(
         has_fee_waiver=criteria.get('hasFeeWaiver'),
         in_foster_care=criteria.get('inFosterCare'),
         is_family_single_parent=criteria.get('isFamilySingleParent'),
-        is_first_generation_student=criteria.get('isFirstGenerationStudent'),
+        is_first_generation_college=criteria.get('isFirstGenerationCollege'),
         is_hispanic=criteria.get('isHispanic'),
         is_last_school_lcff=criteria.get('isLastSchoolLCFF'),
         is_reentry=criteria.get('isReentry'),

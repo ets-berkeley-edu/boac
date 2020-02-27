@@ -88,10 +88,6 @@ export default {
   },
   created() {
     this.$eventHub.$off('sortBy-user-preference-change');
-    store.commit('currentUserExtras/setUserPreference', {
-      key: 'sortBy',
-      value: 'last_name'
-    });
     this.setMode(undefined);
     this.init(parseInt(this.id)).then(group => {
       if (group) {

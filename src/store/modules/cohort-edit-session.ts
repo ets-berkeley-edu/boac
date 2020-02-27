@@ -128,7 +128,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     if (!_.get(state.filters, 'length')) {
       return resolve();
     }
-    store.dispatch('context/alertScreenReader', 'Getting the students');
+    store.dispatch('context/alertScreenReader', `Getting the ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`);
     commit('setEditMode', 'apply');
     let offset =
       (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
@@ -143,7 +143,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
         students: data.students,
         totalStudentCount: data.totalStudentCount
       });
-      store.dispatch('context/alertScreenReader', 'Students are ready');
+      store.dispatch('context/alertScreenReader', `${state.domain === 'admitted_students' ? 'Admitted ' : ''}Students are ready`);
       commit('stashOriginalFilters');
       commit('setEditMode', null);
       resolve();
@@ -159,8 +159,8 @@ const actions = {
       commit('setCurrentPage', 0);
       commit('setModifiedSinceLastSearch', null);
       store.commit('currentUserExtras/setUserPreference', {
-        key: 'sortBy',
-        value: 'last_name'
+        key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
+        value: orderBy
       });
       if (id) {
         store.dispatch('cohortEditSession/loadCohort', {
@@ -194,7 +194,7 @@ const actions = {
   },
   onPageNumberChange: ({ commit, state }) => {
     const preferences = store.getters['currentUserExtras/preferences'];
-    return $_cohortEditSession_applyFilters({ commit, state }, preferences.sortBy);
+    return $_cohortEditSession_applyFilters({ commit, state }, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'));
   },
   applyFilters: ({ commit, state }, orderBy: string) => {
     commit('setModifiedSinceLastSearch', false);

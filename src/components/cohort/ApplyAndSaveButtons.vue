@@ -85,7 +85,7 @@ export default {
     apply() {
       this.$eventHub.$emit('cohort-apply-filters');
       this.isPerforming = 'search';
-      this.applyFilters(this.preferences.sortBy).then(() => {
+      this.applyFilters(this.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')).then(() => {
         this.putFocusNextTick('cohort-results-header');
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search');
         this.isPerforming = null;

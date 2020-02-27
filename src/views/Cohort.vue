@@ -26,13 +26,14 @@
           @click="alertScreenReader('Go to another page of search results')"
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
-          <div v-if="domain === 'default'" class="d-flex justify-content-between align-items-center p-2">
+          <div :class="{'justify-content-end' : domain === 'admitted_students', 'justify-content-between' : domain === 'default'}" class="d-flex align-items-center p-2">
             <CuratedGroupSelector
+              v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
               :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students" />
-            <SortBy v-if="showSortBy" />
+            <SortBy v-if="showSortBy" :domain="domain" />
           </div>
           <div>
             <div class="cohort-column-results">
@@ -48,9 +49,30 @@
                   list-type="cohort"
                   class="list-group-item border-left-0 border-right-0" />
               </div>
-              <div v-if="domain === 'admitted_students'" id="admitted-students-cohort-students" class="list-group mr-2">
-                <SortableAdmits :admitted-students="students" />
-              </div>
+              <table v-if="domain === 'admitted_students'" id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
+                <thead class="sortable-table-header">
+                  <tr>
+                    <th class="pt-3">Name</th>
+                    <th class="pt-3">CS ID</th>
+                    <th class="pt-3">SIR</th>
+                    <th class="pt-3">CEP</th>
+                    <th class="pt-3">Re-entry</th>
+                    <th class="pt-3">1st Gen</th>
+                    <th class="pt-3">UREM</th>
+                    <th class="pt-3">Waiver</th>
+                    <th class="pt-3">INT'L</th>
+                    <th class="pt-3">Freshman/Transfer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AdmitStudentRow
+                    v-for="(student, index) in students"
+                    :id="`admit-${student.csEmplId}`"
+                    :key="student.csEmplId"
+                    :row-index="index"
+                    :admit-student="student" />
+                </tbody>
+              </table>
             </div>
             <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
               <Pagination
@@ -71,6 +93,7 @@
 </template>
 
 <script>
+import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
 import CohortHistory from '@/components/cohort/CohortHistory';
@@ -83,7 +106,6 @@ import Loading from '@/mixins/Loading';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';
-import SortableAdmits from '@/components/admit/SortableAdmits';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
 import StudentRow from '@/components/student/StudentRow';
@@ -92,6 +114,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'Cohort',
   components: {
+    AdmitStudentRow,
     ApplyAndSaveButtons,
     CohortHistory,
     CohortPageHeader,
@@ -99,7 +122,6 @@ export default {
     FilterRow,
     Pagination,
     SectionSpinner,
-    SortableAdmits,
     SortBy,
     Spinner,
     StudentRow
@@ -141,7 +163,7 @@ export default {
       const id = this.toInt(this.get(this.$route, 'params.id'));
       this.init({
         id,
-        orderBy: this.preferences.sortBy,
+        orderBy: this.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         domain
       }).then(() => {
         this.showFilters = !this.isCompactView;
@@ -157,13 +179,14 @@ export default {
     }
   },
   created() {
+    const domain = this.$route.query.domain || 'default';
     this.$eventHub.$on('cohort-apply-filters', () => {
       this.setPagination(1);
     });
-    this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
+    this.$eventHub.$on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
       if (!this.loading) {
         this.goToPage(1);
-        const action = `Sort students by ${sortBy}`;
+        const action = `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`;
         this.alertScreenReader(action);
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action);
       }
@@ -198,6 +221,10 @@ export default {
 </script>
 
 <style>
+.cohort-admitted-students {
+  border-top: 1px solid rgba(0,0,0,.125);
+  padding: 2px;
+}
 .cohort-column-results {
   flex: 0 0 70%;
   flex-grow: 1;
