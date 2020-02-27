@@ -8,7 +8,7 @@
           :aria-label="`Go to profile page of ${admitStudent.firstName} ${admitStudent.lastName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="$currentUser.inDemoMode ? `/admit/student/${window.btoa(admitStudent.csEmplId)}` : `/admit/student/${admitStudent.csEmplId}`"
-          v-html="`${admitStudent.lastName}, ${admitStudent.firstName}`"></router-link>
+          v-html="admitName"></router-link>
       </div>
     </td>
     <td>
@@ -76,10 +76,22 @@ export default {
       required: true,
       type: Number
     },
+    sortedBy: {
+      required: true,
+      type: String
+    },
     admitStudent: {
       required: true,
       type: Object
     }
   },
+  computed: {
+    admitName() {
+      if (this.sortedBy === 'first_name') {
+        return `${this.admitStudent.firstName} ${this.admitStudent.lastName}`;
+      }
+      return `${this.admitStudent.lastName}, ${this.admitStudent.firstName}`;
+    }
+  }
 }
 </script>

@@ -70,6 +70,7 @@
                     :id="`admit-${student.csEmplId}`"
                     :key="student.csEmplId"
                     :row-index="index"
+                    :sorted-by="preferences.admitSortBy"
                     :admit-student="student" />
                 </tbody>
               </table>
