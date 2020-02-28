@@ -17,6 +17,7 @@
           v-html="`View ${admit.firstName} ${admit.middleName} ${admit.lastName}'s profile page`">
         </router-link>
       </div>
+      <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
       <table class="mb-4 table-striped">
         <caption class="sr-only">Basic information for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
         <tbody>
@@ -319,6 +320,7 @@
 </template>
 
 <script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
 import Loading from '@/mixins/Loading.vue';
 import Util from '@/mixins/Util';
 import Spinner from '@/components/util/Spinner';
@@ -326,7 +328,7 @@ import { getAdmitBySid } from '@/api/admit';
 
 export default {
   name: 'AdmitStudent',
-  components: { Spinner },
+  components: { Spinner, AdmitDataWarning },
   mixins: [Loading, Util],
   data: () => ({
     admit: {}

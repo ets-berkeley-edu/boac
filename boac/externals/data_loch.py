@@ -504,7 +504,7 @@ def get_admitted_student_by_sid(sid):
         act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis,
         sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent,
         family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status,
-        reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep
+        reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep, updated_at
         FROM {oua_schema()}.student_admits
         WHERE cs_empl_id=:sid"""
     rows = safe_execute_rds(sql, sid=sid)
