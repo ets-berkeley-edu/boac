@@ -33,12 +33,15 @@ class TestMergedAdmittedStudent:
         admit = admitted_student.get_admitted_student_by_sid('00005852')
         assert admit['applyucCpid'] == '19938035'
         assert admit['sid'] == '00005852'
-        assert 'uid' not in admit
+        assert admit['uid'] == '123'
+        assert admit['studentUid'] is None
         assert admit['updatedAt'] == '2017-10-31T12:00:00+00:00'
 
-    def test_get_admitted_student_by_sid_post_sir(self):
+    def test_get_admit_with_student_record(self):
+        """When there is a corresponding student record, student uid is populated."""
         admit = admitted_student.get_admitted_student_by_sid('11667051')
         assert admit['applyucCpid'] == '44631475'
         assert admit['sid'] == '11667051'
         assert admit['uid'] == '61889'
+        assert admit['studentUid'] == '61889'
         assert admit['updatedAt'] == '2017-10-31T12:00:00+00:00'

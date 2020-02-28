@@ -35,8 +35,6 @@ from dateutil.tz import tzutc
 
 def get_admitted_student_by_sid(sid):
     admit = data_loch.get_admitted_student_by_sid(sid)
-    if admit['current_sir']:
-        _merge_student(admit)
     return _to_api_json(admit) if admit else None
 
 
@@ -147,12 +145,6 @@ def query_admitted_students(
 
 def _isoformat(value):
     return value and value.astimezone(tzutc()).isoformat()
-
-
-def _merge_student(admit):
-    student = data_loch.get_student_by_sid(admit['sid'])
-    if student:
-        admit['uid'] = student['uid']
 
 
 def _to_api_json(admit):
