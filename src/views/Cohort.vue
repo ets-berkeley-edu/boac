@@ -156,7 +156,8 @@ export default {
   },
   mounted() {
     const forwardPath = this.$routerHistory.hasForward() && this.get(this.$routerHistory.next(), 'path');
-    const continueExistingSession = this.startsWith(forwardPath, '/student') && this.size(this.filters);
+    const continueExistingSession =
+      (this.startsWith(forwardPath, '/student') || this.startsWith(forwardPath, '/admit/student')) && this.size(this.filters);
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView;
       this.pageNumber = this.pagination.currentPage;
