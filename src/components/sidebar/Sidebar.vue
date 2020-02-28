@@ -57,12 +57,8 @@ export default {
   mixins: [Context, CurrentUserExtras, Util],
   computed: {
     domain() {
-      const isCE3 = this.$config.featureFlagAdmittedStudents && (
-        !!this.size(this.filterList(this.$currentUser.departments, d => d.code === 'ZCEEE' && this.includes(['advisor', 'director'], d.role))) ||
-        this.$currentUser.isAdmin
-      );
       let domain = this.$currentUser.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes'];
-      if (isCE3) {
+      if (this.includeAdmits) {
         domain.push('admits');
       }
       return domain;
