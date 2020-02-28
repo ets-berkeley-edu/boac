@@ -454,7 +454,7 @@ def _query_admitted_students(
         is_last_school_lcff=criteria.get('isLastSchoolLCFF'),
         is_reentry=criteria.get('isReentry'),
         is_student_single_parent=criteria.get('isStudentSingleParent'),
-        is_urem=criteria.get('urem'),
+        is_urem=criteria.get('isUrem'),
         limit=limit,
         offset=offset,
         order_by=order_by,
