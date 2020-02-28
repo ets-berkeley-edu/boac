@@ -150,8 +150,8 @@ class CohortFilterOptions:
                 _boolean_filter_ce3('isFirstGenerationCollege', 'First Generation College'),
                 _boolean_filter_ce3('hasFeeWaiver', 'Application Fee Waiver'),
                 _boolean_filter_ce3('inFosterCare', 'Foster Care'),
-                _boolean_filter_ce3('isFamilySingleParent', 'Family is Single Parent'),
-                _boolean_filter_ce3('isStudentSingleParent', 'Student is Single Parent'),
+                _boolean_filter_ce3('isFamilySingleParent', 'Family Is Single Parent'),
+                _boolean_filter_ce3('isStudentSingleParent', 'Student Is Single Parent'),
                 _range_filter(
                     'familyDependentRanges',
                     'Family Dependents',

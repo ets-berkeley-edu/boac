@@ -57,7 +57,7 @@
       </template>
 
       <template v-slot:cell(freshmanOrTransfer)="row">
-        <span class="sr-only">Transfer</span>
+        <span class="sr-only">Freshman or Transfer</span>
         <span>{{ row.item.freshmanOrTransfer }}</span>
       </template>
     </b-table>
