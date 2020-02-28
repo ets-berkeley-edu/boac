@@ -111,12 +111,11 @@ def query_admitted_students(
         x_ethnicities=x_ethnicities,
     )
     sids_result = data_loch.safe_execute_rds(f'SELECT DISTINCT(cs_empl_id) as sid {query_tables} {query_filter}', **query_bindings)
-    sids = [row['sid'] for row in sids_result] if sids_result else None
-    if sids is None:
+    if sids_result is None:
         return None
     summary = {
-        'sids': sids,
-        'totalStudentCount': len(sids),
+        'sids': [row['sid'] for row in sids_result],
+        'totalStudentCount': len(sids_result),
     }
     order_by = order_by or 'last_name'
     if not sids_only:
