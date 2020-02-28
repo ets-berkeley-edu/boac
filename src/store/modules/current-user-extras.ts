@@ -14,6 +14,7 @@ const state = {
 };
 
 const getters = {
+  includeAdmits: (state: any): any => state.includeAdmits,
   myAdmitCohorts: (state: any): any => state.myAdmitCohorts,
   myCohorts: (state: any): any => state.myCohorts,
   myCuratedGroups: (state: any): any => state.myCuratedGroups,
@@ -69,6 +70,7 @@ const mutations = {
       Vue.prototype.$eventHub.$emit('drop-in-status-change', dropInAdvisorStatus);
     }
   },
+  setIncludeAdmits: (state: any, includeAdmits: Boolean) => state.includeAdmits = includeAdmits,
   setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value;
@@ -80,9 +82,9 @@ const mutations = {
 };
 
 const actions = {
-  async loadMyCohorts({ commit }) {
+  async loadMyCohorts({ commit, state }) {
     getMyCohorts('default').then(cohorts => commit('loadMyCohorts', cohorts));
-    if (Vue.prototype.$config.featureFlagAdmittedStudents) {
+    if (state.includeAdmits) {
       getMyCohorts('admitted_students').then(cohorts => commit('loadMyAdmitCohorts', cohorts));
     }
   },

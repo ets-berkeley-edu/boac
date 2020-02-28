@@ -39,6 +39,7 @@ const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.r
 export default {
   getSchedulerDeptCodes,
   isAdvisor,
+  isCE3,
   isDirector,
   requiresAdmin: (to: any, from: any, next: any) => {
     const currentUser = Vue.prototype.$currentUser;

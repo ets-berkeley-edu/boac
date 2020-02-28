@@ -3,7 +3,7 @@
     <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : cohortName" />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-      <AdmitDataWarning v-if="domain === 'admitted_students'" :updated-at="get(students, '[0].updatedAt')" />
+      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="get(students, '[0].updatedAt')" />
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
