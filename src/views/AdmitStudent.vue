@@ -346,8 +346,8 @@ export default {
     }
     getAdmitBySid(sid).then(admit => {
       if (admit) {
-        this.setPageTitle(this.$currentUser.inDemoMode ? 'Admitted Student' : admit.name);
         this.assign(this.admit, admit);
+        this.setPageTitle(this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName);
         this.loaded(this.admit);
       } else {
         this.$router.push({ path: '/404' });
