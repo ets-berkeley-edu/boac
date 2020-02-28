@@ -27,6 +27,7 @@ from itertools import islice
 
 from boac.externals import data_loch
 from boac.lib.util import camelize, get_benchmarker
+from dateutil.tz import tzutc
 
 
 """Provide merged admit data from external sources."""
@@ -36,7 +37,7 @@ def get_admitted_student_by_sid(sid):
     admit = data_loch.get_admitted_student_by_sid(sid)
     if admit['current_sir']:
         _merge_student(admit)
-    return {camelize(key): admit[key] for key in admit.keys()} if admit else None
+    return _to_api_json(admit) if admit else None
 
 
 def search_for_admitted_students(
@@ -130,7 +131,8 @@ def query_admitted_students(
         sa.first_generation_college,
         sa.urem,
         sa.application_fee_waiver_flag,
-        sa.freshman_or_transfer
+        sa.freshman_or_transfer,
+        sa.updated_at
         {query_tables}
         {query_filter}
         ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id OFFSET :offset"""
@@ -139,11 +141,22 @@ def query_admitted_students(
             query_bindings['limit'] = limit
             sql += f' LIMIT :limit'
         admits = data_loch.safe_execute_rds(sql, **query_bindings)
-        summary['students'] = [{camelize(key): row[key] for key in row.keys()} for row in admits] if admits else None
+        summary['students'] = [_to_api_json(row) for row in admits] if admits else None
     return summary
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()
 
 
 def _merge_student(admit):
     student = data_loch.get_student_by_sid(admit['sid'])
     if student:
         admit['uid'] = student['uid']
+
+
+def _to_api_json(admit):
+    updated_at = admit.pop('updated_at', None)
+    admit_json = {camelize(key): admit[key] for key in admit.keys()}
+    admit_json['updatedAt'] = _isoformat(updated_at) if updated_at else None
+    return admit_json

@@ -3,6 +3,7 @@
     <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : cohortName" />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
+      <AdmitDataWarning v-if="domain === 'admitted_students'" :updated-at="get(students, '[0].updatedAt')" />
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
@@ -94,6 +95,7 @@
 </template>
 
 <script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
 import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
 import CohortEditSession from '@/mixins/CohortEditSession';
@@ -115,6 +117,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'Cohort',
   components: {
+    AdmitDataWarning,
     AdmitStudentRow,
     ApplyAndSaveButtons,
     CohortHistory,
