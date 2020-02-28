@@ -8,18 +8,18 @@
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
         class="student-section-header"
         tabindex="0">
-        {{ admit.firstName }}&nbsp;{{ admit.middleName }}&nbsp;{{ admit.lastName }}
+        {{ fullName }}
       </h1>
       <div v-if="admit.studentUid" class="pt-2 pb-3">
         <router-link
           :id="`link-to-student-${admit.studentUid}`"
           :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
-          v-html="`View ${admit.firstName} ${admit.middleName} ${admit.lastName}'s profile page`">
+          v-html="`View ${fullName}'s profile page`">
         </router-link>
       </div>
       <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
       <table class="mb-4 table-striped">
-        <caption class="sr-only">Basic information for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
+        <caption class="sr-only">Basic information for {{ fullName }}</caption>
         <tbody>
           <tr>
             <th class="table-cell">ApplyUC CPID</th>
@@ -60,7 +60,7 @@
         </tbody>
       </table>
       <table class="mb-4 table-striped">
-        <caption class="sr-only">Contact information for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
+        <caption class="sr-only">Contact information for {{ fullName }}</caption>
         <tbody>
           <tr>
             <th class="table-cell">Email</th>
@@ -90,7 +90,7 @@
         </tbody>
       </table>
       <table class="mb-4 table-striped">
-        <caption class="sr-only">Demographic information for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
+        <caption class="sr-only">Demographic information for {{ fullName }}</caption>
         <tbody>
           <tr>
             <th class="table-cell">Sex</th>
@@ -102,7 +102,7 @@
           </tr>
           <tr>
             <th class="table-cell">XEthnic</th>
-            <td id="admit-x-ethnic" class="table-cell">{{ admit.xEthnic }}</td>
+            <td id="admit-x-ethnic" class="table-cell">{{ admit.xethnic }}</td>
           </tr>
           <tr>
             <th class="table-cell">Hispanic</th>
@@ -110,7 +110,7 @@
           </tr>
           <tr>
             <th class="table-cell">UREM</th>
-            <td id="admit-urem" class="table-cell">{{ admit.Urem }}</td>
+            <td id="admit-urem" class="table-cell">{{ admit.urem }}</td>
           </tr>
           <tr>
             <th class="table-cell">Residency Category</th>
@@ -126,7 +126,7 @@
           </tr>
           <tr>
             <th class="table-cell">Citizenship Country</th>
-            <td id="admit-citizenship-country" class="table-cell">{{ admit.citizenCountry }}</td>
+            <td id="admit-citizenship-country" class="table-cell">{{ admit.citizenshipCountry }}</td>
           </tr>
           <tr>
             <th class="table-cell">Permanent Residence Country</th>
@@ -163,7 +163,7 @@
         </tbody>
       </table>
       <table class="mb-4 table-striped">
-        <caption class="sr-only">GPA and test scores for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
+        <caption class="sr-only">GPA and test scores for {{ fullName }}</caption>
         <tbody>
           <tr>
             <th
@@ -251,7 +251,7 @@
         </tbody>
       </table>
       <table class="mb-4 table-striped">
-        <caption class="sr-only">Family and status information for {{ admit.firstName }} {{ admit.middleName }} {{ admit.lastName }}</caption>
+        <caption class="sr-only">Family and status information for {{ fullName }}</caption>
         <tbody>
           <tr>
             <th class="table-cell">Application Fee Waiver Flag</th>
@@ -333,6 +333,11 @@ export default {
   data: () => ({
     admit: {}
   }),
+  computed: {
+    fullName() {
+      return this.join(this.remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ');
+    }
+  },
   created() {
     let sid = this.get(this.$route, 'params.sid');
     if (this.$currentUser.inDemoMode) {

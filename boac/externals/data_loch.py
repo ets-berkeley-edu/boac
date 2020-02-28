@@ -497,15 +497,17 @@ def get_e_i_advising_note_topics(sid):
 def get_admitted_student_by_sid(sid):
     sql = f"""
         SELECT a.applyuc_cpid, a.cs_empl_id AS sid, a.uid, s.uid AS student_uid,
-        a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir,
-        college, a.first_name, a.middle_name, a.last_name, a.birthdate, a.daytime_phone, a.mobile, a.email, a.campus_email_1,
-        a.permanent_street_1, permanent_street_2, a.permanent_city, a.permanent_region, a.permanent_postal, a.permanent_country,
-        sex, a.gender_identity, a.xethnic, a.hispanic, a.urem, a.first_generation_student, a.first_generation_college, a.parent_1_education_level,
-        parent_2_education_level, a.hs_unweighted_gpa, a.hs_weighted_gpa, a.transfer_gpa, a.act_composite, a.act_math, a.act_english, a.act_reading,
-        act_writing, a.sat_total, a.sat_r_evidence_based_rw_section, a.sat_r_math_section, a.sat_r_essay_reading, a.sat_r_essay_analysis,
-        sat_r_essay_writing, a.application_fee_waiver_flag, a.foster_care_flag, a.family_is_single_parent, a.student_is_single_parent,
-        family_dependents_num, a.student_dependents_num, a.family_income, a.student_income, a.is_military_dependent, a.military_status,
-        reentry_status, a.athlete_status, a.summer_bridge_status, a.last_school_lcff_plus_flag, a.special_program_cep, updated_at
+        a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
+        a.last_name, a.birthdate, a.daytime_phone, a.mobile, a.email, a.campus_email_1, a.permanent_street_1, permanent_street_2,
+        a.permanent_city, a.permanent_region, a.permanent_postal, a.permanent_country, sex, a.gender_identity, a.xethnic, a.hispanic,
+        a.urem, a.first_generation_student, a.first_generation_college, a.parent_1_education_level, parent_2_education_level,
+        a.highest_parent_education_level, a.hs_unweighted_gpa, a.hs_weighted_gpa, a.transfer_gpa, a.act_composite, a.act_math, a.act_english,
+        a.act_reading, a.act_writing, a.sat_total, a.sat_r_evidence_based_rw_section, a.sat_r_math_section, a.sat_r_essay_reading,
+        a.sat_r_essay_analysis, a.sat_r_essay_writing, a.application_fee_waiver_flag, a.foster_care_flag, a.family_is_single_parent,
+        a.student_is_single_parent, a.family_dependents_num, a.student_dependents_num, a.family_income, a.student_income,
+        a.is_military_dependent, a.military_status, a.reentry_status, a.athlete_status, a.summer_bridge_status, a.last_school_lcff_plus_flag,
+        a.special_program_cep, a.us_citizenship_status, a.us_non_citizen_status, a.citizenship_country, a.permanent_residence_country,
+        a.non_immigrant_visa_current, a.non_immigrant_visa_planned, a.updated_at
         FROM {oua_schema()}.student_admits a
         LEFT JOIN {student_schema()}.student_academic_status s ON a.cs_empl_id = s.sid
         WHERE a.cs_empl_id=:sid"""
