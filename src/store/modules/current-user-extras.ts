@@ -4,6 +4,7 @@ import { getMyCohorts } from "@/api/cohort";
 import { getMyCuratedGroups } from "@/api/curated";
 
 const state = {
+  includeAdmits: false,
   myAdmitCohorts: undefined,
   myCohorts: undefined,
   myCuratedGroups: undefined,
