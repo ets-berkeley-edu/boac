@@ -495,6 +495,11 @@ def get_e_i_advising_note_topics(sid):
 
 
 def get_admitted_student_by_sid(sid):
+    rows = get_admitted_students_by_sids([sid])
+    return None if not rows or (len(rows) == 0) else rows[0]
+
+
+def get_admitted_students_by_sids(sids):
     sql = f"""
         SELECT a.applyuc_cpid, a.cs_empl_id AS sid, a.uid, s.uid AS student_uid,
         a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
@@ -510,9 +515,8 @@ def get_admitted_student_by_sid(sid):
         a.non_immigrant_visa_current, a.non_immigrant_visa_planned, a.updated_at
         FROM {oua_schema()}.student_admits a
         LEFT JOIN {student_schema()}.student_academic_status s ON a.cs_empl_id = s.sid
-        WHERE a.cs_empl_id=:sid"""
-    rows = safe_execute_rds(sql, sid=sid)
-    return None if not rows or (len(rows) == 0) else rows[0]
+        WHERE a.cs_empl_id = ANY(:sids)"""
+    return safe_execute_rds(sql, sids=sids)
 
 
 def get_sis_advising_notes(sid):

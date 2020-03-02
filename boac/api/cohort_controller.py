@@ -26,7 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search, response_with_students_csv_download
+from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search,\
+    response_with_admits_csv_download, response_with_students_csv_download
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
@@ -223,6 +224,8 @@ def download_csv_per_filters():
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
     domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     cohort = _construct_phantom_cohort(
         domain=domain,
         filters=filters,
@@ -232,7 +235,10 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
-    return response_with_students_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
+    if domain == 'admitted_students':
+        return response_with_admits_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
+    else:
+        return response_with_students_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
 
 
 @app.route('/api/cohort/create', methods=['POST'])

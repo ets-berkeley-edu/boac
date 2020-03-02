@@ -27,7 +27,7 @@ from functools import wraps
 import json
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.externals.data_loch import get_sis_holds, get_student_profiles
+from boac.externals.data_loch import get_admitted_students_by_sids, get_sis_holds, get_student_profiles
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
@@ -431,14 +431,34 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         rows.append(row)
     benchmark('end')
 
-    def _norm(row, key):
-        value = row.get(key)
-        return value and value.upper()
     return response_with_csv_download(
         rows=sorted(rows, key=lambda r: (_norm(r, 'last_name'), _norm(r, 'first_name'), _norm(r, 'sid'))),
         filename_prefix='cohort',
         fieldnames=fieldnames,
     )
+
+
+@ce3_required
+def response_with_admits_csv_download(sids, fieldnames, benchmark):
+    key_aliases = {
+        'cs_empl_id': 'sid',
+    }
+
+    def _row_for_csv(result):
+        return {f: result.get(key_aliases.get(f, f)) for f in fieldnames}
+    rows = [_row_for_csv(student) for student in get_admitted_students_by_sids(sids=sids)]
+    benchmark('end')
+
+    return response_with_csv_download(
+        rows=sorted(rows, key=lambda r: (_norm(r, 'last_name'), _norm(r, 'first_name'), _norm(r, 'cs_empl_id'))),
+        filename_prefix='cohort',
+        fieldnames=fieldnames,
+    )
+
+
+def _norm(row, key):
+    value = row.get(key)
+    return value and value.upper()
 
 
 def _has_role_in_any_department(user, role):
