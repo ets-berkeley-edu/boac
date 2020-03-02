@@ -35,7 +35,7 @@
           </tr>
           <tr>
             <th class="table-cell">Birthdate</th>
-            <td id="admit-birthdate" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell">{{ admit.birthdate | moment('MMM D, YYYY') }}</td>
+            <td id="admit-birthdate" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell">{{ birthDate }}</td>
           </tr>
           <tr>
             <th class="table-cell">Freshman or Transfer</th>
@@ -334,11 +334,19 @@ export default {
     admit: {}
   }),
   computed: {
+    birthDate() {
+      let birthDate = this.$moment(this.admit.birthdate, ['YYYY-MM-DD', 'M/D/YY']);
+      if (birthDate.isAfter(this.now)) {
+        birthDate.subtract(100, 'years');
+      }
+      return birthDate.format('MMM D, YYYY');
+    },
     fullName() {
       return this.join(this.remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ');
     }
   },
   created() {
+    this.now = this.$moment();
     let sid = this.get(this.$route, 'params.sid');
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
