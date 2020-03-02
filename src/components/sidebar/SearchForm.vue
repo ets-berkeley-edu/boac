@@ -352,6 +352,12 @@ export default {
     }
   },
   watch: {
+    domain(value) {
+      this.includeAdmits = value.includes('admits');
+      this.includeCourses = value.includes('courses');
+      this.includeNotes = value.includes('notes');
+      this.includeStudents = value.includes('students');
+    },
     includeAdmits(value) {
       this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`);
     },
