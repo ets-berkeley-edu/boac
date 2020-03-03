@@ -57,7 +57,8 @@ def search_for_admitted_students(
         sa.urem,
         sa.application_fee_waiver_flag,
         sa.residency_category,
-        sa.freshman_or_transfer
+        sa.freshman_or_transfer,
+        sa.updated_at
         {query_tables}
         {query_filter}
         ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id"""
@@ -66,7 +67,7 @@ def search_for_admitted_students(
     admits = data_loch.safe_execute_rds(sql, **query_bindings)
     benchmark('end')
     return {
-        'admits': [{camelize(key): row[key] for key in row.keys()} for row in islice(admits, 50)] if admits else None,
+        'admits': [_to_api_json(row) for row in islice(admits, 50)] if admits else None,
         'totalAdmitCount': len(admits),
     }
 
