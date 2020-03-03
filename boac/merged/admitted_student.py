@@ -53,7 +53,7 @@ def search_for_admitted_students(
         sa.current_sir,
         sa.special_program_cep,
         sa.reentry_status,
-        sa.first_generation_student,
+        sa.first_generation_college,
         sa.urem,
         sa.application_fee_waiver_flag,
         sa.residency_category,

@@ -760,7 +760,7 @@ class TestAdmittedStudentSearch:
             assert 'currentSir' in admit
             assert 'specialProgramCep' in admit
             assert 'reentryStatus' in admit
-            assert 'firstGenerationStudent' in admit
+            assert 'firstGenerationCollege' in admit
             assert 'urem' in admit
             assert 'applicationFeeWaiverFlag' in admit
             assert 'freshmanOrTransfer' in admit
