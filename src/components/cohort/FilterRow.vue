@@ -297,12 +297,11 @@ export default {
         let max = trimToNil(this.$_.get(rangeObject, 'max'));
         const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v);
         if (this.filter.validation === 'dependents') {
-          min = min && parseFloat(min);
-          max = max && parseFloat(max);
-          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0) || this.$_.isNaN(v);
+          const isInt = v => /^\d+$/.test(v);
+          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this.$_.isNaN(v);
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
-            this.errorPerRangeInput = 'Dependents must be a number greater than or equal to 0.';
-          } else if (this.$_.isNumber(min) && this.$_.isNumber(max) && min > max) {
+            this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.';
+          } else if (parseInt(min, 10) > parseInt(max, 10)) {
             this.errorPerRangeInput = 'Dependents inputs must be in ascending order.';
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
