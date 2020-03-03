@@ -7,7 +7,7 @@
           :id="`link-to-admit-${admitStudent.csEmplId}`"
           :aria-label="`Go to profile page of ${admitStudent.firstName} ${admitStudent.lastName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-          :to="$currentUser.inDemoMode ? `/admit/student/${window.btoa(admitStudent.csEmplId)}` : `/admit/student/${admitStudent.csEmplId}`"
+          :to="admitRoutePath()"
           v-html="admitName"></router-link>
       </div>
     </td>
@@ -91,6 +91,11 @@ export default {
         return `${this.admitStudent.firstName} ${this.admitStudent.lastName}`;
       }
       return `${this.admitStudent.lastName}, ${this.admitStudent.firstName}`;
+    }
+  },
+  methods: {
+    admitRoutePath() {
+      return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(this.admitStudent.csEmplId)}` : `/admit/student/${this.admitStudent.csEmplId}`
     }
   }
 }
