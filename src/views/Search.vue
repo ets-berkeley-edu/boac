@@ -27,6 +27,7 @@
       <div v-if="size(results.admits) < results.totalAdmitCount">
         Showing the first {{ size(results.admits) }} admitted students.
       </div>
+      <AdmitDataWarning :updated-at="get(results.admits, '[0].updatedAt')" />
       <div>
         <SortableAdmits :admitted-students="results.admits" />
       </div>
@@ -109,6 +110,7 @@
 </template>
 
 <script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
 import AppointmentSnippet from '@/components/search/AppointmentSnippet';
 import Context from '@/mixins/Context';
@@ -125,6 +127,7 @@ import { search, searchAdmittedStudents } from '@/api/search';
 export default {
   name: 'Search',
   components: {
+    AdmitDataWarning,
     AdvisingNoteSnippet,
     AppointmentSnippet,
     CuratedGroupSelector,
