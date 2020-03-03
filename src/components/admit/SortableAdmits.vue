@@ -41,9 +41,9 @@
         <span>{{ row.item.reentryStatus }}</span>
       </template>
 
-      <template v-slot:cell(firstGenerationStudent)="row">
+      <template v-slot:cell(firstGenerationCollege)="row">
         <span class="sr-only">First generation</span>
-        <span>{{ row.item.firstGenerationStudent }}</span>
+        <span>{{ row.item.firstGenerationCollege }}</span>
       </template>
 
       <template v-slot:cell(urem)="row">
@@ -104,7 +104,7 @@ export default {
       {key: 'currentSir', label: 'SIR', sortable: false},
       {key: 'specialProgramCep', label: 'CEP', sortable: false},
       {key: 'reentryStatus', label: 'Re-entry', sortable: false},
-      {key: 'firstGenerationStudent', label: '1st Gen', sortable: false},
+      {key: 'firstGenerationCollege', label: '1st Gen', sortable: false},
       {key: 'urem', label: 'UREM', sortable: false},
       {key: 'applicationFeeWaiverFlag', label: 'Waiver', sortable: false},
       {key: 'residencyCategory', label: 'Residency', sortable: false},
