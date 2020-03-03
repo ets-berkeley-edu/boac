@@ -458,6 +458,7 @@ def _query_admitted_students(
         limit=limit,
         offset=offset,
         order_by=order_by,
+        residency_categories=criteria.get('residencyCategories'),
         sids_only=sids_only,
         sir=criteria.get('sir'),
         special_program_cep=criteria.get('specialProgramCep'),

@@ -29,8 +29,8 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
     get_coe_profiles, grad_terms, level_options, majors, student_admit_college_options, student_admit_ethnicity_options, \
-    student_admit_freshman_or_transfer_options, student_admit_special_program_cep_options, team_groups, \
-    unit_range_options, visa_types
+    student_admit_freshman_or_transfer_options, student_admit_residency_category_options, student_admit_special_program_cep_options, \
+    team_groups, unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
@@ -149,6 +149,13 @@ class CohortFilterOptions:
                 _boolean_filter_ce3('isUrem', 'UREM'),
                 _boolean_filter_ce3('isFirstGenerationCollege', 'First Generation College'),
                 _boolean_filter_ce3('hasFeeWaiver', 'Application Fee Waiver'),
+                _filter(
+                    'residencyCategories',
+                    'Residency',
+                    available_to=['ZCEEE'],
+                    domain_='admitted_students',
+                    options=student_admit_residency_category_options,
+                ),
                 _boolean_filter_ce3('inFosterCare', 'Foster Care'),
                 _boolean_filter_ce3('isFamilySingleParent', 'Family Is Single Parent'),
                 _boolean_filter_ce3('isStudentSingleParent', 'Student Is Single Parent'),

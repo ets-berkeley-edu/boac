@@ -122,6 +122,10 @@ def get_admit_freshman_or_transfer():
     return safe_execute_rds(f'SELECT DISTINCT(freshman_or_transfer) FROM {oua_schema()}.student_admits WHERE freshman_or_transfer IS NOT NULL')
 
 
+def get_admit_residency_categories():
+    return safe_execute_rds(f'SELECT DISTINCT(residency_category) FROM {oua_schema()}.student_admits WHERE residency_category IS NOT NULL')
+
+
 def get_admit_special_program_cep():
     return safe_execute_rds(f'SELECT DISTINCT(special_program_cep) FROM {oua_schema()}.student_admits WHERE special_program_cep IS NOT NULL')
 
@@ -996,6 +1000,7 @@ def get_admitted_students_query(
     is_reentry=None,
     is_student_single_parent=None,
     is_urem=None,
+    residency_categories=None,
     search_phrase=None,
     sir=None,
     special_program_cep=None,
@@ -1005,6 +1010,7 @@ def get_admitted_students_query(
     query_bindings = {
         'college': colleges,
         'freshman_or_transfer': freshman_or_transfer,
+        'residency_categories': residency_categories,
         'special_program_cep': special_program_cep,
         'x_ethnicities': x_ethnicities,
     }
@@ -1021,6 +1027,7 @@ def get_admitted_students_query(
     query_filter += ' AND sa.hispanic = \'T\'' if is_hispanic else ''
     query_filter += ' AND sa.last_school_lcff_plus_flag = \'1\'' if is_last_school_lcff else ''
     query_filter += ' AND sa.reentry_status = \'Yes\'' if is_reentry else ''
+    query_filter += ' AND sa.residency_category = ANY(:residency_categories)' if residency_categories else ''
     query_filter += ' AND sa.student_is_single_parent = \'Y\'' if is_student_single_parent else ''
     query_filter += ' AND sa.urem = \'Yes\'' if is_urem else ''
     query_filter += ' AND sa.xethnic = ANY(:x_ethnicities)' if x_ethnicities else ''

@@ -160,6 +160,11 @@ def student_admit_freshman_or_transfer_options():
     return [{'name': freshman_or_transfer, 'value': freshman_or_transfer} for freshman_or_transfer in freshman_or_transfer_results]
 
 
+def student_admit_residency_category_options():
+    residency_category_results = [row['residency_category'] for row in data_loch.get_admit_residency_categories()]
+    return [{'name': residency_category, 'value': residency_category} for residency_category in residency_category_results]
+
+
 def student_admit_special_program_cep_options():
     special_program_cep_results = [row['special_program_cep'] for row in data_loch.get_admit_special_program_cep()]
     return [{'name': special_program_cep, 'value': special_program_cep} for special_program_cep in special_program_cep_results]
