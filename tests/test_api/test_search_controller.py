@@ -761,6 +761,7 @@ class TestAdmittedStudentSearch:
             assert 'specialProgramCep' in admit
             assert 'reentryStatus' in admit
             assert 'firstGenerationCollege' in admit
+            assert 'residencyCategory' in admit
             assert 'urem' in admit
             assert 'applicationFeeWaiverFlag' in admit
             assert 'freshmanOrTransfer' in admit
