@@ -56,6 +56,11 @@
         <span>{{ row.item.applicationFeeWaiverFlag }}</span>
       </template>
 
+      <template v-slot:cell(residencyCategory)="row">
+        <span class="sr-only">Residency</span>
+        <span>{{ row.item.residencyCategory }}</span>
+      </template>
+
       <template v-slot:cell(freshmanOrTransfer)="row">
         <span class="sr-only">Freshman or Transfer</span>
         <span>{{ row.item.freshmanOrTransfer }}</span>
@@ -102,6 +107,7 @@ export default {
       {key: 'firstGenerationStudent', label: '1st Gen', sortable: false},
       {key: 'urem', label: 'UREM', sortable: false},
       {key: 'applicationFeeWaiverFlag', label: 'Waiver', sortable: false},
+      {key: 'residencyCategory', label: 'Residency', sortable: false},
       {key: 'freshmanOrTransfer', label: 'Freshman/Transfer', sortable: false},
     ];
   },
