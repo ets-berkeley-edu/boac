@@ -56,6 +56,7 @@ def search_for_admitted_students(
         sa.first_generation_student,
         sa.urem,
         sa.application_fee_waiver_flag,
+        sa.residency_category,
         sa.freshman_or_transfer
         {query_tables}
         {query_filter}
@@ -128,6 +129,7 @@ def query_admitted_students(
         sa.first_generation_college,
         sa.urem,
         sa.application_fee_waiver_flag,
+        sa.residency_category,
         sa.freshman_or_transfer,
         sa.updated_at
         {query_tables}

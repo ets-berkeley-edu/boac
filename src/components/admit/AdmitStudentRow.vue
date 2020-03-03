@@ -55,7 +55,7 @@
     </td>
     <td>
       <div>
-        <span class="sr-only">International</span>
+        <span class="sr-only">Residency</span>
         <span :id="`row-${rowIndex}-residency-category`">{{ admitStudent.residencyCategory }}</span>
       </div>
     </td>
