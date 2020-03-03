@@ -293,8 +293,6 @@ export default {
           {text: 'SIR', value: 'current_sir'},
           {text: 'College', value: 'college'},
           {text: 'Admit Term', value: 'admit_term'},
-          {text: 'Email', value: 'email'},
-          {text: 'Campus Email', value: 'campus_email_1'},
           {text: 'Street 1', value: 'permanent_street_1'},
           {text: 'Street 2', value: 'permanent_street_2'},
           {text: 'City', value: 'permanent_city'},
