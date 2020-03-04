@@ -15,10 +15,10 @@
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${row.item.csEmplId}`"
-          :aria-label="`Go to profile page of ${row.item.firstName} ${row.item.lastName}`"
+          :aria-label="`Go to profile page of ${fullName(row.item)}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath(row.item.csEmplId)"
-          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
+          v-html="fullName(row.item)"></router-link>
       </template>
 
       <template v-slot:cell(csEmplId)="row">
@@ -114,6 +114,10 @@ export default {
   methods: {
     admitRoutePath(csEmplId) {
       return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
+    },
+    fullName(admit) {
+      const lastName = admit.lastName ? `${admit.lastName},` : null;
+      return this.join(this.remove([lastName, admit.firstName, admit.middleName]), ' ');
     },
     normalizeForSort(value) {
       return this.isString(value) ? value.toLowerCase() : value;

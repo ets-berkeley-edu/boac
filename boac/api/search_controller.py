@@ -88,7 +88,7 @@ def search_admits():
     search_phrase = util.get(params, 'searchPhrase', '').strip()
     order_by = util.get(params, 'orderBy', None)
     admit_results = search_for_admitted_students(
-        search_phrase=search_phrase,
+        search_phrase=search_phrase.replace(',', ' '),
         order_by=order_by,
     )
     return tolerant_jsonify(admit_results)
