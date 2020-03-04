@@ -785,12 +785,15 @@ class TestAdmittedStudentSearch:
             self._assert(api_json, admit_count=1)
 
     def test_search_admits_by_name(self, client, ce3_advisor):
-        """Search by name yields admits ordered by rank."""
+        """Search by first, last, and/or middle name yields admits."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             api_json = self._api_search_admits(client, 'da')
             self._assert(api_json, admit_count=2)
 
             api_json = self._api_search_admits(client, 'da de')
+            self._assert(api_json, admit_count=1)
+
+            api_json = self._api_search_admits(client, 'j ly')
             self._assert(api_json, admit_count=1)
 
     def test_search_admits_ordering(self, client, ce3_advisor):

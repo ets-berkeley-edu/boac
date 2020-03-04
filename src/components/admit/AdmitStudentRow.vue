@@ -5,10 +5,10 @@
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${admitStudent.csEmplId}`"
-          :aria-label="`Go to profile page of ${admitStudent.firstName} ${admitStudent.lastName}`"
+          :aria-label="`Go to profile page of ${fullName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath()"
-          v-html="admitName"></router-link>
+          v-html="fullName"></router-link>
       </div>
     </td>
     <td>
@@ -69,8 +69,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util';
+
 export default {
   name: 'AdmitStudentRow',
+  mixins: [Util],
   props: {
     rowIndex: {
       required: true,
@@ -86,11 +89,12 @@ export default {
     }
   },
   computed: {
-    admitName() {
+    fullName() {
       if (this.sortedBy === 'first_name') {
-        return `${this.admitStudent.firstName} ${this.admitStudent.lastName}`;
+        return this.join(this.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ');
       }
-      return `${this.admitStudent.lastName}, ${this.admitStudent.firstName}`;
+      const lastName = this.admitStudent.lastName ? `${this.admitStudent.lastName},` : null;
+      return this.join(this.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ');
     }
   },
   methods: {

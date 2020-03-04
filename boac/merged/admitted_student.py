@@ -43,12 +43,15 @@ def search_for_admitted_students(
     order_by=None,
 ):
     benchmark = get_benchmarker('search_for_admitted_students')
-    query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
+    query_tables, query_filter, query_bindings, temp_table = data_loch.get_admitted_students_query(
         search_phrase=search_phrase,
     )
     order_by = order_by or 'last_name'
-    sql = f"""SELECT DISTINCT(sa.cs_empl_id),
+    sql = f"""
+    {temp_table}
+    SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
+        sa.middle_name,
         sa.last_name,
         sa.current_sir,
         sa.special_program_cep,
@@ -61,7 +64,7 @@ def search_for_admitted_students(
         sa.updated_at
         {query_tables}
         {query_filter}
-        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id"""
+        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.middle_name, sa.cs_empl_id"""
 
     benchmark('begin admit search query')
     admits = data_loch.safe_execute_rds(sql, **query_bindings)
@@ -125,6 +128,7 @@ def query_admitted_students(
     if not sids_only:
         sql = f"""SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
+        sa.middle_name,
         sa.last_name,
         sa.current_sir,
         sa.special_program_cep,
