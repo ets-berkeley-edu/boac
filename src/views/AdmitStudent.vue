@@ -13,8 +13,8 @@
       <div v-if="admit.studentUid" class="pt-2 pb-3">
         <router-link
           :id="`link-to-student-${admit.studentUid}`"
-          :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
-          v-html="`View ${fullName}'s profile page`">
+          :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)">
+          <span>View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page</span>
         </router-link>
       </div>
       <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
