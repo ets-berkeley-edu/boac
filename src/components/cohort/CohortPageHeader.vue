@@ -311,7 +311,6 @@ export default {
           {text: 'Permanent Residence Country', value: 'permanent_residence_country'},
           {text: 'Non Immigrant Visa Current', value: 'non_immigrant_visa_current'},
           {text: 'Non Immigrant Visa Planned', value: 'non_immigrant_visa_planned'},
-          {text: 'First Generation Student', value: 'first_generation_student'},
           {text: 'First Generation College', value: 'first_generation_college'},
           {text: 'Parent 1 Education', value: 'parent_1_education_level'},
           {text: 'Parent 2 Education', value: 'parent_2_education_level'},

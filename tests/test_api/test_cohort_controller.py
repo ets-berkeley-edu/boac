@@ -1379,7 +1379,6 @@ program_status',
         'xethnic',
         'hispanic',
         'urem',
-        'first_generation_student',
         'first_generation_college',
         'parent_1_education_level',
         'parent_2_education_level',
@@ -1448,14 +1447,14 @@ program_status',
             assert (
                 '19938035,00005852,RES,Transfer,Spring,No,No,College of Letters and Science,'
                 'Ralph,,Burgess,1984-09-04,984.110.7693x347,681-857-8070,9590 Chang Extensions,'
-                'Suite 478,East Jacobton,NY,55531,United States,F,Other,International,F,No,T,Yes,MasterDegree,'
+                'Suite 478,East Jacobton,NY,55531,United States,F,Other,International,F,No,Yes,MasterDegree,'
                 '3 - High School Graduate,,0.86,0.51,2.47,7,18,29,18,3,603,707,241,3,2,4,FeeWaiver,Y,,,05,02,41852,942,Y,'
                 'ReserveOfficersTrainingProgram,No,,,,,Citizen,,United States,,,,123'
             ) in csv
             assert (
                 '98002344,00029117,INT,Freshman,Spring,No,No,College of Engineering,Daniel,J,Mcknight,1993-07-06,859-319-8215x8689,'
                 '231.865.8093,87758 Brown Throughway,Suite 657,West Andrea,M,25101,United States,,Other,White,T,,'
-                'T,Yes,,5 - College Attended,,2.51,2.7,3.23,25,19,2,15,9,1445,639,724,7,5,5,,,,Y,0,02,23915,426,Y,,,Committed,,1,'
+                'Yes,,5 - College Attended,,2.51,2.7,3.23,25,19,2,15,9,1445,639,724,7,5,5,,,,Y,0,02,23915,426,Y,,,Committed,,1,'
                 'Destination College,Citizen,,United States,,,,'
             ) in csv
 

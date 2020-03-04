@@ -141,10 +141,6 @@
             <td id="admit-non-immigrant-visa-planned" class="table-cell">{{ admit.nonImmigrantVisaPlanned }}</td>
           </tr>
           <tr>
-            <th class="table-cell">First Generation Student</th>
-            <td id="admit-first-generation-student" class="table-cell">{{ admit.firstGenerationStudent }}</td>
-          </tr>
-          <tr>
             <th class="table-cell">First Generation College</th>
             <td id="admit-first-generation-college" class="table-cell">{{ admit.firstGenerationCollege }}</td>
           </tr>

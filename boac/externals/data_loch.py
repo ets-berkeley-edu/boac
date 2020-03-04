@@ -509,7 +509,7 @@ def get_admitted_students_by_sids(sids):
         a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
         a.last_name, a.birthdate, a.daytime_phone, a.mobile, a.email, a.campus_email_1, a.permanent_street_1, permanent_street_2,
         a.permanent_city, a.permanent_region, a.permanent_postal, a.permanent_country, sex, a.gender_identity, a.xethnic, a.hispanic,
-        a.urem, a.first_generation_student, a.first_generation_college, a.parent_1_education_level, parent_2_education_level,
+        a.urem, a.first_generation_college, a.parent_1_education_level, parent_2_education_level,
         a.highest_parent_education_level, a.hs_unweighted_gpa, a.hs_weighted_gpa, a.transfer_gpa, a.act_composite, a.act_math, a.act_english,
         a.act_reading, a.act_writing, a.sat_total, a.sat_r_evidence_based_rw_section, a.sat_r_math_section, a.sat_r_essay_reading,
         a.sat_r_essay_analysis, a.sat_r_essay_writing, a.application_fee_waiver_flag, a.foster_care_flag, a.family_is_single_parent,
