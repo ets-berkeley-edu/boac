@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Admin from '@/views/Admin.vue';
 import AdmitStudent from '@/views/AdmitStudent.vue';
+import AdmitStudents from '@/views/AdmitStudents.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
 import AllGroups from '@/views/AllGroups.vue';
 import Analytics from '@/views/Analytics.vue';
@@ -212,7 +213,14 @@ const router = new Router({
           path: '/admit/student/:sid',
           component: AdmitStudent,
           meta: {
-            title: 'Admit Student'
+            title: 'Admitted Student'
+          }
+        },
+        {
+          path: '/admit/students',
+          component: AdmitStudents,
+          meta: {
+            title: 'Admitted Students'
           }
         }
       ]

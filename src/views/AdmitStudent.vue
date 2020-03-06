@@ -356,7 +356,7 @@ export default {
       } else {
         this.$router.push({ path: '/404' });
       }
-    })
+    });
   }
 }
 </script>

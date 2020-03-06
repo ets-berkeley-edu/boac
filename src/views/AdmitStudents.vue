@@ -1,0 +1,164 @@
+<template>
+  <div class="ml-3 mt-3">
+    <Spinner alert-prefix="CE3 Admissions" />
+    <div v-if="!loading">
+      <h1
+        id="cohort-name"
+        class="page-section-header"
+        tabindex="0">
+        CE3 Admissions
+        <span
+          v-if="totalAdmitCount !== undefined"
+          class="faint-text">{{ 'admitted student' | pluralize(totalAdmitCount) }}</span>
+      </h1>
+      <AdmitDataWarning v-if="admits" :updated-at="get(admits, '[0].updatedAt')" />
+      <div>
+        <a
+          v-if="totalAdmitCount > pagination.itemsPerPage"
+          id="skip-to-pagination-widget"
+          class="sr-only"
+          href="#pagination-widget"
+          @click="alertScreenReader('Go to another page of search results')"
+          @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
+        <SectionSpinner :loading="sorting" name="Admitted Students" />
+        <div v-if="!sorting" class="cohort-column-results">
+          <div class="justify-content-end d-flex align-items-center p-2">
+            <SortBy domain="admitted_students" />
+          </div>
+          <div>
+            <div class="cohort-column-results">
+              <table id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
+                <thead class="sortable-table-header">
+                  <tr>
+                    <th class="pt-3">Name</th>
+                    <th class="pt-3">CS ID</th>
+                    <th class="pt-3">SIR</th>
+                    <th class="pt-3">CEP</th>
+                    <th class="pt-3">Re-entry</th>
+                    <th class="pt-3">1st Gen</th>
+                    <th class="pt-3">UREM</th>
+                    <th class="pt-3">Waiver</th>
+                    <th class="pt-3">INT'L</th>
+                    <th class="pt-3">Freshman/Transfer</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <AdmitStudentRow
+                    v-for="(admit, index) in admits"
+                    :id="`admit-${admit.csEmplId}`"
+                    :key="admit.csEmplId"
+                    :row-index="index"
+                    :sorted-by="preferences.admitSortBy"
+                    :admit-student="admit" />
+                </tbody>
+              </table>
+            </div>
+            <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
+              <Pagination
+                :click-handler="goToPage"
+                :init-page-number="pagination.currentPage"
+                :limit="10"
+                :per-page="pagination.itemsPerPage"
+                :total-rows="totalAdmitCount" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
+import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
+import Context from '@/mixins/Context';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
+import Loading from '@/mixins/Loading';
+import Pagination from '@/components/util/Pagination';
+import Scrollable from '@/mixins/Scrollable';
+import SectionSpinner from '@/components/util/SectionSpinner';
+import SortBy from '@/components/student/SortBy';
+import Spinner from '@/components/util/Spinner';
+import Util from '@/mixins/Util';
+import { getAllAdmits } from '@/api/admit';
+
+export default {
+  name: 'AdmitStudents',
+  components: {
+    AdmitDataWarning,
+    AdmitStudentRow,
+    Pagination,
+    SectionSpinner,
+    SortBy,
+    Spinner
+  },
+  mixins: [
+    Context,
+    Loading,
+    Scrollable,
+    CurrentUserExtras,
+    Util
+  ],
+  data: () => ({
+    admits: undefined,
+    pagination: {
+      currentPage: 1,
+      itemsPerPage: 50
+    },
+    sorting: false,
+    totalAdmitCount: undefined
+  }),
+  mounted() {
+    this.initPagination();
+    this.loadAdmits();
+  },
+  created() {
+    this.$eventHub.$off('admitSortBy-user-preference-change');
+    this.$eventHub.$on('admitSortBy-user-preference-change', sortBy => {
+      this.sorting = true;
+      this.loadAdmits();
+      if (!this.loading) {
+        this.goToPage(1);
+        const action = `Sort admitted students by ${sortBy}`;
+        this.alertScreenReader(action);
+      }
+    });
+  },
+  methods: {
+    goToPage(page) {
+      if (page > 1) {
+        const action = `Go to page ${page}`;
+        this.alertScreenReader(action);
+      }
+      if (page !== this.pagination.currentPage) {
+        this.pagination.currentPage = page;
+        this.$router.push({
+          query: { ...this.$route.query, p: this.pagination.currentPage }
+        });
+      }
+    },
+    initPagination() {
+      if (this.$route.query.p && !isNaN(this.$route.query.p)) {
+        this.pagination.currentPage = parseInt(this.$route.query.p, 10);
+      }
+    },
+    loadAdmits() {
+      const limit = this.pagination.itemsPerPage;
+      const offset =
+        this.pagination.currentPage === 0
+          ? 0
+          : (this.pagination.currentPage - 1) * limit;
+      getAllAdmits(this.preferences.admitSortBy, limit, offset).then(response => {
+        if (response) {
+          this.admits = this.get(response, 'students');
+          this.totalAdmitCount = this.get(response, 'totalStudentCount');
+          this.loaded(this.admits);
+        } else {
+          this.$router.push({ path: '/404' });
+        }
+        this.sorting = false;
+      });
+    }
+  }
+};
+</script>

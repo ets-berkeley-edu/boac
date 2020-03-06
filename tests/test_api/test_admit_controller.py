@@ -54,8 +54,8 @@ def ce3_scheduler_login(fake_auth):
 
 
 @pytest.mark.usefixtures('db_session')
-class TestAdmit:
-    """Admit API."""
+class TestAdmitBySid:
+    """Admit by SID API."""
 
     @classmethod
     def _api_admit_by_sid(cls, client, sid, expected_status_code=200):
@@ -90,3 +90,41 @@ class TestAdmit:
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             response = self._api_admit_by_sid(client=client, sid=self.admit_sid)
             assert response['sid'] == self.admit_sid
+
+
+@pytest.mark.usefixtures('db_session')
+class TestAllAdmits:
+    """All Admits API."""
+
+    @classmethod
+    def _api_all_admits(cls, client, expected_status_code=200):
+        response = client.get('/api/admits/all')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_all_admits_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_all_admits(client=client, expected_status_code=401)
+
+    def test_all_admits_feature_flag(self, client, ce3_advisor_login):
+        """Returns 404 if feature flag is false."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            self._api_all_admits(client=client, expected_status_code=401)
+
+    def test_all_admits_ce3_scheduler(self, client, ce3_scheduler_login):
+        """Returns 401 if user is a CE3 scheduler."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_all_admits(client=client, expected_status_code=401)
+
+    def test_all_admits_non_ce3_advisor(self, client, asc_advisor_login):
+        """Returns 401 if user is a non-CE3 advisor."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            self._api_all_admits(client=client, expected_status_code=401)
+
+    def test_all_admits_ce3_advisor(self, client, ce3_advisor_login):
+        """Returns admit data if user is a CE3 advisor."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            response = self._api_all_admits(client=client)
+            assert len(response['students']) == 3
+            assert response['totalStudentCount'] == 3
