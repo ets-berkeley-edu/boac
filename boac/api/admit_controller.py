@@ -26,8 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import ce3_required
 from boac.lib.http import tolerant_jsonify
-from boac.merged.admitted_student import get_admitted_student_by_sid
-from flask import current_app as app
+from boac.lib.util import get as get_param
+from boac.merged.admitted_student import get_admitted_student_by_sid, query_admitted_students
+from flask import current_app as app, request
 
 
 @app.route('/api/admit/by_sid/<sid>')
@@ -37,3 +38,17 @@ def get_admit_by_sid(sid):
     if not admit:
         raise ResourceNotFoundError('Unknown admit')
     return tolerant_jsonify(admit)
+
+
+@app.route('/api/admits/all')
+@ce3_required
+def get_all_admits():
+    limit = get_param(request.args, 'limit', 50)
+    offset = get_param(request.args, 'offset', 0)
+    order_by = get_param(request.args, 'orderBy', None)
+    admits = query_admitted_students(
+        limit=int(limit),
+        offset=int(offset),
+        order_by=order_by,
+    )
+    return tolerant_jsonify(admits)
