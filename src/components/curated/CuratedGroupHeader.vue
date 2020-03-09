@@ -163,7 +163,7 @@
             @shown="focusModalById('export-list-confirm')">
             <ExportListModal
               :cancel-export-list-modal="cancelExportGroupModal"
-              :csv-columns="getCohortCsvExportColumns()"
+              :csv-columns="getDefaultCsvExportColumns()"
               :csv-columns-selected="['first_name', 'last_name', 'sid', 'email', 'phone']"
               :export-list="exportGroup" />
           </b-modal>

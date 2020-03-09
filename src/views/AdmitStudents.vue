@@ -2,16 +2,40 @@
   <div class="ml-3 mt-3">
     <Spinner alert-prefix="CE3 Admissions" />
     <div v-if="!loading">
-      <h1
-        id="cohort-name"
-        class="page-section-header"
-        tabindex="0">
-        CE3 Admissions
-        <span
-          v-if="totalAdmitCount !== undefined"
-          class="faint-text">{{ 'admitted student' | pluralize(totalAdmitCount) }}</span>
-      </h1>
+      <div class="d-flex flex-wrap justify-content-between">
+        <h1
+          id="cohort-name"
+          class="page-section-header"
+          tabindex="0">
+          CE3 Admissions
+          <span
+            v-if="totalAdmitCount !== undefined"
+            class="faint-text">{{ 'admitted student' | pluralize(totalAdmitCount) }}</span>
+        </h1>
+        <div class="d-flex align-self-baseline mr-4">
+          <NavLink
+            id="admitted-students-cohort-show-filters"
+            class="btn btn-link no-wrap pl-2 pr-2 pt-0"
+            aria-label="Create a CE3 Admissions cohort"
+            path="/cohort/new"
+            :query-args="{domain: 'admitted_students'}">
+            Create Cohort
+          </NavLink>
+          <div class="faint-text">|</div>
+          <b-btn
+            id="export-student-list-button"
+            :disabled="!exportEnabled || !totalAdmitCount"
+            class="no-wrap pl-2 pr-2 pt-0"
+            variant="link"
+            aria-label="Download CSV file containing all admitted students in this cohort"
+            @click.prevent="exportCohort()">
+            Export List
+          </b-btn>
+        </div>
+      </div>
       <AdmitDataWarning v-if="admits" :updated-at="get(admits, '[0].updatedAt')" />
+      <hr class="filters-section-separator mr-2 mt-3" />
+      <SectionSpinner :loading="sorting" name="Admitted Students" />
       <div>
         <a
           v-if="totalAdmitCount > pagination.itemsPerPage"
@@ -20,7 +44,6 @@
           href="#pagination-widget"
           @click="alertScreenReader('Go to another page of search results')"
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
-        <SectionSpinner :loading="sorting" name="Admitted Students" />
         <div v-if="!sorting" class="cohort-column-results">
           <div class="justify-content-end d-flex align-items-center p-2">
             <SortBy domain="admitted_students" />
@@ -71,9 +94,11 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
 import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
+import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Loading from '@/mixins/Loading';
+import NavLink from "@/components/util/NavLink";
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';
@@ -81,18 +106,21 @@ import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
 import Util from '@/mixins/Util';
 import { getAllAdmits } from '@/api/admit';
+import { downloadCsv } from '@/api/cohort';
 
 export default {
   name: 'AdmitStudents',
   components: {
     AdmitDataWarning,
     AdmitStudentRow,
+    NavLink,
     Pagination,
     SectionSpinner,
     SortBy,
     Spinner
   },
   mixins: [
+    Berkeley,
     Context,
     Loading,
     Scrollable,
@@ -101,6 +129,7 @@ export default {
   ],
   data: () => ({
     admits: undefined,
+    exportEnabled: true,
     pagination: {
       currentPage: 1,
       itemsPerPage: 50
@@ -125,6 +154,16 @@ export default {
     });
   },
   methods: {
+    exportCohort() {
+      const name = 'CE3 Admissions';
+      const fields = this.map(this.getAdmitCsvExportColumns(), 'value');
+      this.showExportListModal = false;
+      this.exportEnabled = false;
+      this.alertScreenReader(`Exporting ${name} cohort`);
+      downloadCsv('admitted_students', name, [], fields).then(() => {
+        this.exportEnabled = true;
+      });
+    },
     goToPage(page) {
       if (page > 1) {
         const action = `Go to page ${page}`;

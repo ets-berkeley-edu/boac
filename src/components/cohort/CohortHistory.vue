@@ -75,7 +75,7 @@ import Util from '@/mixins/Util';
 import { getCohortEvents } from '@/api/cohort';
 
 export default {
-  name: 'CohortPageHeader',
+  name: 'CohortHistory',
   components: {
     Pagination,
     SectionSpinner

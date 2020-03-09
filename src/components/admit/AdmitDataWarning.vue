@@ -8,7 +8,7 @@ export default {
   props: {
     updatedAt: {
       type: String,
-      required: true
+      required: false
     }
   },
   computed: {
