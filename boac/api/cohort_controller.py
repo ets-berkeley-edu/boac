@@ -218,7 +218,8 @@ def download_csv_per_filters():
     params = request.get_json()
     filters = get_param(params, 'filters', [])
     fieldnames = get_param(params, 'csvColumnsSelected', [])
-    if not filters:
+    domain = get_param(params, 'domain', 'default')
+    if (domain == 'default' and not filters) or filters is None:
         raise BadRequestError('API requires \'filters\'')
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
