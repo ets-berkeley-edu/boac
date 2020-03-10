@@ -22,12 +22,13 @@
             Create Cohort
           </NavLink>
           <div class="faint-text">|</div>
+          <span id="export-student-list-description" class="sr-only">Download CSV file containing all admitted students in this cohort</span>
           <b-btn
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalAdmitCount"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            aria-label="Download CSV file containing all admitted students in this cohort"
+            aria-describedby="export-student-list-description"
             @click.prevent="exportCohort()">
             Export List
           </b-btn>
@@ -191,7 +192,8 @@ export default {
         if (response) {
           this.admits = this.get(response, 'students');
           this.totalAdmitCount = this.get(response, 'totalStudentCount');
-          this.loaded(this.admits);
+          this.loaded();
+          this.putFocusNextTick('cohort-name');
         } else {
           this.$router.push({ path: '/404' });
         }

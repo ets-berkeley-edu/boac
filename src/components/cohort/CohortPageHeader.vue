@@ -80,6 +80,7 @@
         </div>
         <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && size(filters))" class="faint-text">|</div>
         <div v-if="cohortId || totalStudentCount !== undefined">
+          <span id="export-student-list-description" class="sr-only">Download CSV file containing all students in this cohort</span>
           <b-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
@@ -87,7 +88,7 @@
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            aria-label="Download CSV file containing all students in this cohort">
+            aria-describedby="export-student-list-description">
             Export List
           </b-btn>
           <b-btn
@@ -96,7 +97,7 @@
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            aria-label="Download CSV file containing all admitted students in this cohort"
+            aria-describedby="export-student-list-description"
             @click.prevent="exportCohort(getCsvExportColumnsSelected())">
             Export List
           </b-btn>

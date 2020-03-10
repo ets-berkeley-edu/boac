@@ -7,7 +7,7 @@
       :disabled="!!editMode"
       class="btn-filter-draft btn-primary-color-override"
       variant="primary"
-      aria-label="Search for students"
+      aria-label="Apply filters"
       @click="apply()">
       Apply
     </b-btn>
