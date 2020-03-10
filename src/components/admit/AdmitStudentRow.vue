@@ -5,7 +5,7 @@
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${admitStudent.csEmplId}`"
-          :aria-label="`Go to profile page of ${fullName}`"
+          :aria-label="`Go to admitted student profile page of ${fullName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath()"
           v-html="fullName"></router-link>

@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : cohortName" />
+    <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : 'Cohort page'" />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
       <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="get(students, '[0].updatedAt')" />
@@ -17,8 +17,8 @@
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
       <hr class="filters-section-separator mr-2 mt-3" />
-      <SectionSpinner :loading="editMode === 'apply'" name="Students" />
       <div v-if="!showHistory && showStudentsSection">
+        <SectionSpinner :loading="editMode === 'apply'" :name="domain === 'admitted_students' ? 'Admitted students' : 'Students'" />
         <a
           v-if="totalStudentCount > 50"
           id="skip-to-pagination-widget"
