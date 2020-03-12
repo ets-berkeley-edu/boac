@@ -17,8 +17,8 @@
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
       <hr class="filters-section-separator mr-2 mt-3" />
+      <SectionSpinner :loading="editMode === 'apply'" :name="domain === 'admitted_students' ? 'Admitted students' : 'Students'" />
       <div v-if="!showHistory && showStudentsSection">
-        <SectionSpinner :loading="editMode === 'apply'" :name="domain === 'admitted_students' ? 'Admitted students' : 'Students'" />
         <a
           v-if="totalStudentCount > 50"
           id="skip-to-pagination-widget"
