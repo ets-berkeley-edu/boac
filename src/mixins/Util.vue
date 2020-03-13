@@ -16,6 +16,14 @@ const toInt = (value, defaultValue = null) => {
   return Number.isInteger(parsed) ? parsed : defaultValue;
 };
 
+const toBoolean = (value) => {
+  if (!value || value === 'false') {
+    return false;
+  } else {
+    return true;
+  }
+};
+
 export default {
   name: 'Util',
   methods: {
@@ -114,6 +122,7 @@ export default {
       return _.trim(text);
     },
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
+    toBoolean,
     toInt,
     toString: _.toString,
     trim: _.trim,
