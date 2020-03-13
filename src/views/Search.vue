@@ -184,11 +184,11 @@ export default {
   },
   mounted() {
     this.phrase = this.$route.query.q;
-    const includeAdmits = this.$route.query.admits;
-    const includeCourses = this.$route.query.courses;
-    const includeNotes = this.$route.query.notes;
-    const includeStudents = this.$route.query.students;
-    if (includeNotes) {
+    const includeAdmits = this.toBoolean(this.$route.query.admits);
+    const includeCourses = this.toBoolean(this.$route.query.courses);
+    const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes);
+    const includeStudents = this.toBoolean(this.$route.query.students);
+    if (includeNotesAndAppointments) {
       this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid;
       this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid;
       this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid;
@@ -196,17 +196,17 @@ export default {
       this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom;
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo;
     }
-    if (this.phrase || includeNotes) {
+    if (this.phrase || includeNotesAndAppointments) {
       this.alertScreenReader(`Searching for '${this.phrase}'`);
       let queries = [];
-      if (includeCourses || includeNotes || includeStudents) {
+      if (includeCourses || includeNotesAndAppointments || includeStudents) {
         queries.push(
           search(
             this.phrase,
-            this.isNil(includeNotes) ? false : includeNotes,
-            this.isNil(includeCourses) ? false : includeCourses,
-            this.isNil(includeNotes) ? false : includeNotes,
-            this.isNil(includeStudents) ? false : includeStudents,
+            includeNotesAndAppointments,
+            includeCourses,
+            includeNotesAndAppointments,
+            includeStudents,
             this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
             this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
           )
@@ -232,7 +232,7 @@ export default {
         this.putFocusNextTick(focusId);
         this.$ga.searchEvent(
           `Search phrase: '${this.phrase || ''}'`,
-          `Search with admits: ${this.includeAdmits}; courses: ${this.includeCourses}; notes: ${this.includeNotes}; students: ${this.includeStudents}`);
+          `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`);
       });
     } else {
       this.$router.push({ path: '/' }, this.noop);
