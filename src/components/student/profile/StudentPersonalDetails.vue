@@ -39,7 +39,7 @@
               <div>
                 <strong>Other Email (preferred)</strong>
               </div>
-              <div id="student-profile-other-email">
+              <div id="student-profile-other-email" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
                 {{ student.sisProfile.emailAddressAlternate }}
               </div>
             </div>
