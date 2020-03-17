@@ -403,6 +403,9 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         'majors': lambda profile: ';'.join(
             [plan.get('description') for plan in profile.get('sisProfile', {}).get('plans', []) if plan.get('status') == 'Active'],
         ),
+        'intended_majors': lambda profile: ';'.join(
+            [major.get('description') for major in profile.get('sisProfile', {}).get('intendedMajors')],
+        ),
         'level': lambda profile: profile.get('sisProfile', {}).get('level', {}).get('description'),
         'terms_in_attendance': lambda profile: profile.get('sisProfile', {}).get('termsInAttendance'),
         'expected_graduation_date': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),

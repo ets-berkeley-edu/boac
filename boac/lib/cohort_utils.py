@@ -107,6 +107,11 @@ def grad_terms():
     return terms
 
 
+def intended_majors():
+    intended_major_results = [row['major'] for row in data_loch.get_intended_majors()]
+    return [{'name': major, 'value': major} for major in intended_major_results]
+
+
 def level_options():
     return [
         {'name': 'Freshman (0-29 Units)', 'value': 'Freshman'},

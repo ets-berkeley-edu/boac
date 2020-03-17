@@ -36,6 +36,13 @@
             "id": "2198",
             "name": "Fall 2019"
         },
+        "intendedMajors": [
+            {
+                "code": "25246U",
+                "description": "Letters & Sci Undeclared UG",
+                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/economics/"
+            }
+        ],
         "level": {
             "code": "30",
             "description": "Junior"

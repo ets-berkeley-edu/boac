@@ -331,6 +331,12 @@ CREATE TABLE student.ethnicities
     ethnicity VARCHAR NOT NULL
 );
 
+CREATE TABLE student.intended_majors
+(
+    sid VARCHAR NOT NULL,
+    major VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_holds
 (
     sid VARCHAR NOT NULL,
@@ -709,6 +715,18 @@ VALUES
 ('890127492', 'Thai'),
 ('9000000000', 'Japanese / Japanese American'),
 ('9100000000', 'Korean / Korean-American');
+
+INSERT INTO student.intended_majors
+(sid, major)
+VALUES
+('11667051', 'Global Studies BA'),
+('11667051', 'Electrical Eng & Comp Sci BS'),
+('2345678901', 'Letters & Sci Undeclared UG'),
+('3456789012', 'Public Health BA'),
+('5678901234', 'Letters & Sci Undeclared UG'),
+('8901234567', 'Economics BA'),
+('890127492', 'Mathematics'),
+('9100000000', 'Engineering Undeclared UG');
 
 INSERT INTO student.student_holds
 (sid, feed)

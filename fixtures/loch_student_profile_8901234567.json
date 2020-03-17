@@ -36,6 +36,13 @@
             "id": "1978",
             "name": "Fall 1997"
         },
+        "intendedMajors": [
+            {
+                "code": "25246U",
+                "description": "Mathematics",
+                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/economics/"
+            }
+        ],
         "level": {
             "code": "10",
             "description": "Freshman"

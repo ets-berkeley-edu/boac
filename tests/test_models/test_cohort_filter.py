@@ -45,6 +45,7 @@ class TestCohortFilter:
             {'min': 2, 'max': 2.499},
         ]
         group_codes = ['MFB-DB', 'MFB-DL']
+        intended_majors = ['Public Health BA']
         levels = ['Junior']
         majors = ['Environmental Economics & Policy', 'Gender and Women\'s Studies']
         unit_ranges = [
@@ -58,6 +59,7 @@ class TestCohortFilter:
                 'gpaRanges': gpa_ranges,
                 'groupCodes': group_codes,
                 'inIntensiveCohort': None,
+                'intendedMajors': intended_majors,
                 'levels': levels,
                 'majors': majors,
                 'unitRanges': unit_ranges,
@@ -69,6 +71,7 @@ class TestCohortFilter:
             'gpaRanges': gpa_ranges,
             'groupCodes': group_codes,
             'inIntensiveCohort': None,
+            'intendedMajors': intended_majors,
             'levels': levels,
             'majors': majors,
             'unitRanges': unit_ranges,
