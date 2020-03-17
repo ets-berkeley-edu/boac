@@ -715,6 +715,14 @@ def get_expected_graduation_terms():
     return safe_execute_rds(sql)
 
 
+def get_intended_majors():
+    sql = f"""SELECT DISTINCT im.major
+        FROM {student_schema()}.student_academic_status sas
+        JOIN {student_schema()}.intended_majors im ON im.sid = sas.sid
+        ORDER BY major"""
+    return safe_execute_rds(sql)
+
+
 def get_majors():
     sql = f"""SELECT DISTINCT maj.major AS major
         FROM {student_schema()}.student_academic_status sas
@@ -747,6 +755,7 @@ def get_students_query(     # noqa
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
+    intended_majors=None,
     is_active_asc=None,
     is_active_coe=None,
     last_name_ranges=None,
@@ -848,6 +857,10 @@ def get_students_query(     # noqa
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
         query_bindings.update({'levels': [_level_to_code(l) for l in levels]})
+    if intended_majors:
+        query_tables += f""" JOIN {student_schema()}.intended_majors i ON i.sid = sas.sid"""
+        query_filter += ' AND i.major = ANY(:intended_majors)'
+        query_bindings.update({'intended_majors': intended_majors})
     if colleges:
         query_filter += ' AND maj.college = ANY(:colleges)'
         query_bindings.update({'colleges': colleges})

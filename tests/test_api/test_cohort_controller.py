@@ -667,6 +667,8 @@ class TestCohortCreate:
                 {'key': 'genders', 'value': 'Genderqueer/Gender Non-Conform'},
                 {'key': 'gpaRanges', 'value': gpa_range_2},
                 {'key': 'majors', 'value': 'Environmental Economics & Policy'},
+                {'key': 'intendedMajors', 'value': 'Public Health BA'},
+                {'key': 'intendedMajors', 'value': 'Mathematics'},
             ],
         }
         cohort = api_cohort_create(client, data)
@@ -683,6 +685,11 @@ class TestCohortCreate:
         assert len(gpa_ranges) == 2
         assert gpa_range_1 in gpa_ranges
         assert gpa_range_2 in gpa_ranges
+        # Intended majors
+        intended_majors = criteria.get('intendedMajors')
+        assert len(intended_majors) == 2
+        assert 'Public Health BA' in intended_majors
+        assert 'Mathematics' in intended_majors
         # Levels
         assert criteria.get('levels') == ['Junior']
         # Majors
@@ -983,6 +990,7 @@ class TestCohortPerFilters:
             'groupCodes',
             'inIntensiveCohort',
             'isInactiveAsc',
+            'intendedMajors',
             'levels',
             'majors',
             'transfer',
@@ -1336,6 +1344,7 @@ program_status',
                 'term_gpa',
                 'cumulative_gpa',
                 'program_status',
+                'intended_majors',
             ],
         }
         response = client.post(
@@ -1347,7 +1356,7 @@ program_status',
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
+            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status,intended_majors',
             'Chemistry BS,Junior,4,Fall 2019,34,0.000,3.495,Active',
             'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
         ]:

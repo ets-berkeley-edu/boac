@@ -406,6 +406,7 @@ def _query_students(
         group_codes=criteria.get('groupCodes'),
         in_intensive_cohort=criteria.get('inIntensiveCohort'),
         include_profiles=include_profiles,
+        intended_majors=criteria.get('intendedMajors'),
         is_active_asc=None if criteria.get('isInactiveAsc') is None else not criteria.get('isInactiveAsc'),
         is_active_coe=None if criteria.get('isInactiveCoe') is None else not criteria.get('isInactiveCoe'),
         last_name_ranges=criteria.get('lastNameRanges'),

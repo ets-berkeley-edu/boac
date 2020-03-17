@@ -40,6 +40,18 @@
             "id": "2198",
             "name": "Fall 2019"
         },
+        "intendedMajors": [
+            {
+                "code": "25246U",
+                "description": "Global Studies BA",
+                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/economics/"
+            },
+            {
+                "code": "25246U",
+                "description": "Electrical Eng & Comp Sci BS",
+                "degreeProgramUrl": "http://guide.berkeley.edu/undergraduate/degree-programs/economics/"
+            }
+        ],
         "level": {
             "code": "30",
             "description": "Junior"
