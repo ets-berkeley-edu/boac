@@ -408,6 +408,29 @@ class TestStudent:
             assert dropped_sections[0]['component'] == 'TUT'
             assert dropped_sections[0]['sectionNumber'] == '002'
 
+    def test_generic_haas_advisor(self, client, coe_advisor_login):
+        """Populates UCBUGADHAAS advisor with name and email."""
+        sid = self.coe_student['sid']
+        uid = self.coe_student['uid']
+        student_by_sid = self._api_student_by_sid(client=client, sid=sid)
+        student_by_uid = self._api_student_by_uid(client=client, uid=uid)
+        for student in [student_by_sid, student_by_uid]:
+            advisors = student['advisors']
+            assert len(advisors) == 2
+            assert advisors[0] == {
+                'uid': '1',
+                'sid': '2',
+                'firstName': 'Real',
+                'lastName': 'Advisor',
+                'email': 'ARealLiveAdvisor@b.e',
+                'role': 'College Advisor',
+                'program': 'Undergrad Business',
+            }
+            assert advisors[1] == {
+                'firstName': 'Haas Undergraduate Program',
+                'email': 'UGMajorAdvising@haas.berkeley.edu',
+            }
+
     def test_sis_profile(self, client, coe_advisor_login):
         """Provides SIS profile data."""
         sid = self.asc_student_in_coe['sid']
