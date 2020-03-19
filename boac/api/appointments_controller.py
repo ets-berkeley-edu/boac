@@ -51,7 +51,7 @@ def get_waitlist(dept_code):
         statuses = appointment_event_type.enums if show_all_statuses else ['reserved', 'waiting']
         unresolved = []
         resolved = []
-        for appointment in Appointment.get_waitlist(dept_code, statuses):
+        for appointment in Appointment.get_drop_in_waitlist(dept_code, statuses):
             a = appointment.to_api_json(current_user.get_id())
             if a['status'] in ['reserved', 'waiting']:
                 unresolved.append(a)

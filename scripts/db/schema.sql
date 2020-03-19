@@ -111,6 +111,14 @@ CREATE TYPE appointment_event_types AS ENUM ('cancelled', 'checked_in', 'reserve
 
 --
 
+CREATE TYPE appointment_student_contact_types AS ENUM ('email', 'phone');
+
+--
+
+CREATE TYPE appointment_types AS ENUM ('Drop-in', 'Scheduled');
+
+--
+
 CREATE TABLE appointments (
     id INTEGER NOT NULL,
     advisor_uid character varying(255),
@@ -119,9 +127,12 @@ CREATE TABLE appointments (
     advisor_dept_codes character varying[],
     student_sid character varying(80) NOT NULL,
     details text,
-    appointment_type character varying(255) NOT NULL,
+    appointment_type appointment_types NOT NULL,
     dept_code character varying(80) NOT NULL,
     status appointment_event_types NOT NULL,
+    scheduled_time TIMESTAMP with time zone,
+    student_contact_info character varying(255),
+    student_contact_type appointment_student_contact_types,
     created_at timestamp with time zone NOT NULL,
     created_by INTEGER NOT NULL,
     updated_at timestamp with time zone NOT NULL,
@@ -143,6 +154,7 @@ ALTER TABLE ONLY appointments
     ADD CONSTRAINT appointments_pkey PRIMARY KEY (id);
 CREATE INDEX appointments_created_by_idx ON appointments(created_by);
 CREATE INDEX appointments_advisor_uid_idx ON appointments(advisor_uid);
+CREATE INDEX appointments_scheduled_time_idx ON appointments(scheduled_time);
 CREATE INDEX appointments_student_sid_idx ON appointments(student_sid);
 
 --

@@ -196,6 +196,8 @@ DROP TABLE IF EXISTS public.user_logins;
 DROP SEQUENCE IF EXISTS public.user_logins_id_seq;
 
 DROP TYPE IF EXISTS public.appointment_event_types;
+DROP TYPE IF EXISTS public.appointment_student_contact_types;
+DROP TYPE IF EXISTS public.appointment_types;
 DROP TYPE IF EXISTS public.cohort_filter_event_types;
 DROP TYPE IF EXISTS public.cohort_domain_types;
 DROP TYPE IF EXISTS public.drop_in_advisor_status_types;
