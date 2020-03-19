@@ -43,11 +43,27 @@ from boac.models.base import Base
 from dateutil.tz import tzutc
 from flask import current_app as app
 from sqlalchemy import and_
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
 
 
 APPOINTMENT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
+
+
+appointment_student_contact_type_enum = ENUM(
+    'email',
+    'phone',
+    name='appointment_student_contact_types',
+    create_type=False,
+)
+
+
+appointment_type_enum = ENUM(
+    'Drop-in',
+    'Scheduled',
+    name='appointment_types',
+    create_type=False,
+)
 
 
 class Appointment(Base):
@@ -58,13 +74,17 @@ class Appointment(Base):
     advisor_name = db.Column(db.String(255), nullable=True)
     advisor_role = db.Column(db.String(255), nullable=True)
     advisor_uid = db.Column(db.String(255), nullable=True)
-    appointment_type = db.Column(db.String(255), nullable=True)
+    appointment_type = db.Column(appointment_type_enum, nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     deleted_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     dept_code = db.Column(db.String(80), nullable=False)
     details = db.Column(db.Text, nullable=True)
+    scheduled_time = db.Column(db.DateTime, nullable=True)
     status = db.Column(appointment_event_type, nullable=False)
+    status = db.Column(appointment_event_type, nullable=False)
+    student_contact_info = db.Column(db.String(255), nullable=True)
+    student_contact_type = db.Column(appointment_student_contact_type_enum, nullable=True)
     student_sid = db.Column(db.String(80), nullable=False)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
     topics = db.relationship(
@@ -135,11 +155,12 @@ class Appointment(Base):
         return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).all()  # noqa: E711
 
     @classmethod
-    def get_waitlist(cls, dept_code, statuses=()):
+    def get_drop_in_waitlist(cls, dept_code, statuses=()):
         local_today = localize_datetime(datetime.now()).strftime('%Y-%m-%d')
         start_of_today = localized_timestamp_to_utc(f'{local_today}T00:00:00')
         criterion = and_(
             cls.created_at >= start_of_today,
+            cls.appointment_type == 'Drop-in',
             cls.status.in_(statuses),
             cls.deleted_at == None,
             cls.dept_code == dept_code,
