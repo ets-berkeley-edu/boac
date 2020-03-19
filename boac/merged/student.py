@@ -644,6 +644,14 @@ def _construct_student_profile(student):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
         if not sis_profile['withdrawalCancel'].get('termId'):
             sis_profile['withdrawalCancel']['termId'] = current_term_id()
+
+    advisors = profile.get('advisors', [])
+    for index, advisor in enumerate(advisors):
+        if advisor.get('sid') == 'UCBUGADHAAS':
+            profile['advisors'][index] = {
+                'firstName': 'Haas Undergraduate Program',
+                'email': 'UGMajorAdvising@haas.berkeley.edu',
+            }
     return profile
 
 

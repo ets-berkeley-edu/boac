@@ -55,5 +55,26 @@
         "termsInAttendance": 2,
         "transfer": false
     },
-    "uid": "1049291"
+    "uid": "1049291",
+    "advisors": [
+        {
+            "uid": "1",
+            "sid": "2",
+            "firstName": "Real",
+            "lastName": "Advisor",
+            "email": "ARealLiveAdvisor@b.e",
+            "role": "College Advisor",
+            "program": "Undergrad Business"
+        },
+        {
+            "uid": null,
+            "sid": "UCBUGADHAAS",
+            "firstName": null,
+            "lastName": null,
+            "email": null,
+            "role": "College Advisor",
+            "program": "Undergrad Engineering",
+            "plan": "Nuclear Engineering BS"
+        }
+    ]
 }
