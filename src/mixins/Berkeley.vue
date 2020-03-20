@@ -91,6 +91,7 @@ export default {
         {text: 'Email address', value: 'email'},
         {text: 'Phone number', value: 'phone'},
         {text: 'Major(s)', value: 'majors'},
+        {text: 'Minor(s)', value: 'minors'},
         {text: 'Level', value: 'level'},
         {text: 'Terms in attendance', value: 'terms_in_attendance'},
         {text: 'Expected graduation date', value: 'expected_graduation_date'},

@@ -669,6 +669,7 @@ class TestCohortCreate:
                 {'key': 'majors', 'value': 'Environmental Economics & Policy'},
                 {'key': 'intendedMajors', 'value': 'Public Health BA'},
                 {'key': 'intendedMajors', 'value': 'Mathematics'},
+                {'key': 'minors', 'value': 'Physics UG'},
             ],
         }
         cohort = api_cohort_create(client, data)
@@ -696,6 +697,10 @@ class TestCohortCreate:
         majors = criteria.get('majors')
         assert len(majors) == 2
         assert 'Gender and Women''s Studies' in majors
+        # Minors
+        minors = criteria.get('minors')
+        assert len(minors) == 1
+        assert 'Physics UG' in minors
 
     def test_admin_creation_of_asc_cohort(self, client, admin_login):
         """Admin can use ASC criteria."""
@@ -1345,6 +1350,7 @@ program_status',
                 'cumulative_gpa',
                 'program_status',
                 'intended_majors',
+                'minors',
             ],
         }
         response = client.post(
@@ -1356,9 +1362,9 @@ program_status',
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status,intended_majors',
-            'Chemistry BS,Junior,4,Fall 2019,34,0.000,3.495,Active',
-            'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
+            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status,intended_majors,minors',
+            'Chemistry BS,Junior,4,Fall 2019,34,0.000,3.495,Active,',
+            'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active,',
         ]:
             assert str(snippet) in csv
 

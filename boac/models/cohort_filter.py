@@ -415,6 +415,7 @@ def _query_students(
         limit=limit,
         majors=criteria.get('majors'),
         midpoint_deficient_grade=criteria.get('midpointDeficient'),
+        minors=criteria.get('minors'),
         offset=offset,
         order_by=order_by,
         sids_only=sids_only,
