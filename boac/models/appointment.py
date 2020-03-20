@@ -82,7 +82,6 @@ class Appointment(Base):
     details = db.Column(db.Text, nullable=True)
     scheduled_time = db.Column(db.DateTime, nullable=True)
     status = db.Column(appointment_event_type, nullable=False)
-    status = db.Column(appointment_event_type, nullable=False)
     student_contact_info = db.Column(db.String(255), nullable=True)
     student_contact_type = db.Column(appointment_student_contact_type_enum, nullable=True)
     student_sid = db.Column(db.String(80), nullable=False)
@@ -108,6 +107,9 @@ class Appointment(Base):
         advisor_name=None,
         advisor_role=None,
         advisor_uid=None,
+        scheduled_time=None,
+        student_contact_info=None,
+        student_contact_type=None,
     ):
         self.advisor_dept_codes = advisor_dept_codes
         self.advisor_name = advisor_name
@@ -117,7 +119,10 @@ class Appointment(Base):
         self.created_by = created_by
         self.dept_code = dept_code
         self.details = details
+        self.scheduled_time = scheduled_time
         self.status = status
+        self.student_contact_info = student_contact_info
+        self.student_contact_type = student_contact_type
         self.student_sid = student_sid
         self.updated_by = updated_by
 
@@ -168,15 +173,36 @@ class Appointment(Base):
         return cls.query.filter(criterion).order_by(cls.created_at).all()
 
     @classmethod
+    def get_scheduled(cls, dept_code, local_date, advisor_uid=None):
+        date_str = local_date.strftime('%Y-%m-%d')
+        start_of_today = localized_timestamp_to_utc(f'{date_str}T00:00:00')
+        end_of_today = localized_timestamp_to_utc(f'{date_str}T23:59:59')
+        query = cls.query.filter(
+            and_(
+                cls.scheduled_time >= start_of_today,
+                cls.scheduled_time <= end_of_today,
+                cls.appointment_type == 'Scheduled',
+                cls.deleted_at == None,
+                cls.dept_code == dept_code,
+            ),
+        )  # noqa: E711
+        if advisor_uid:
+            query = query.filter(cls.advisor_uid == advisor_uid)
+        return query.order_by(cls.scheduled_time).all()
+
+    @classmethod
     def create(
-            cls,
-            created_by,
-            dept_code,
-            details,
-            appointment_type,
-            student_sid,
-            advisor_attrs=None,
-            topics=(),
+        cls,
+        created_by,
+        dept_code,
+        details,
+        appointment_type,
+        student_sid,
+        advisor_attrs=None,
+        topics=(),
+        scheduled_time=None,
+        student_contact_info=None,
+        student_contact_type=None,
     ):
         # If this appointment comes in already assigned to the intake desk, we treat it as resolved.
         if advisor_attrs and advisor_attrs['role'] == 'Intake Desk':
@@ -195,7 +221,10 @@ class Appointment(Base):
             created_by=created_by,
             dept_code=dept_code,
             details=details,
+            scheduled_time=scheduled_time,
             status=status,
+            student_contact_info=student_contact_info,
+            student_contact_type=student_contact_type,
             student_sid=student_sid,
             updated_by=created_by,
         )
@@ -384,11 +413,22 @@ class Appointment(Base):
         response = [_to_json(search_terms, dict(zip(keys, row))) for row in result.fetchall()]
         return response
 
-    def update(self, updated_by, details=None, topics=()):
+    def update(
+        self,
+        updated_by,
+        details=None,
+        scheduled_time=None,
+        student_contact_info=None,
+        student_contact_type=None,
+        topics=(),
+    ):
         if details != self.details:
             self.updated_at = utc_now()
             self.updated_by = updated_by
         self.details = details
+        self.scheduled_time = scheduled_time
+        self.student_contact_info = student_contact_info
+        self.student_contact_type = student_contact_type
         _update_appointment_topics(self, topics, updated_by)
         std_commit()
         db.session.refresh(self)
@@ -438,6 +478,12 @@ class Appointment(Base):
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
+        if self.appointment_type == 'Scheduled':
+            api_json.update({
+                'scheduledTime': _isoformat(self.scheduled_time),
+                'studentContactInfo': self.student_contact_info,
+                'studentContactType': self.student_contact_type,
+            })
         return {
             **api_json,
             **_appointment_event_to_json(self.id, self.status),

@@ -770,14 +770,14 @@ class TestToggleDropInAppointmentStatus:
 
             # Reserve a couple of appointments for the advisor via different paths.
             details = 'Concurrent enrollment in beauty school'
-            pre_reserved_appointment = AppointmentTestUtil.create_appointment(
+            pre_reserved_appointment = AppointmentTestUtil.create_drop_in_appointment(
                 client=client,
                 dept_code='QCADV',
                 details=details,
                 advisor_uid=l_s_college_drop_in_advisor_uid,
             )
             pre_reserved_appointment_id = pre_reserved_appointment['id']
-            subsequently_reserved_appointment = AppointmentTestUtil.create_appointment(client, 'QCADV', details)
+            subsequently_reserved_appointment = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV', details)
             subsequently_reserved_appointment_id = subsequently_reserved_appointment['id']
             AppointmentTestUtil.reserve_appointment(client, subsequently_reserved_appointment_id, l_s_college_drop_in_advisor_uid)
 

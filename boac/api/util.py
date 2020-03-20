@@ -130,6 +130,7 @@ def scheduler_required(func):
                 current_user.is_admin
                 or _is_drop_in_advisor(current_user)
                 or _is_drop_in_scheduler(current_user)
+                or _is_same_day_scheduler(current_user)
             )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
@@ -483,6 +484,11 @@ def _is_drop_in_enabled(user):
 def _is_drop_in_scheduler(user):
     scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
     return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
+
+
+def _is_same_day_scheduler(user):
+    scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
+    return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']
 
 
 def _api_key_ok():
