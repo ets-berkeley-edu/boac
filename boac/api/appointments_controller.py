@@ -23,11 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import process_input_from_rich_text_editor
+from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_event import appointment_event_type
@@ -65,6 +67,28 @@ def get_waitlist(dept_code):
                 'unresolved': unresolved,
                 'resolved': resolved,
             },
+        })
+    else:
+        raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
+
+
+@app.route('/api/appointments/today/<dept_code>')
+@scheduler_required
+def get_today_scheduled_appointments(dept_code):
+    def _is_current_user_authorized():
+        return current_user.is_admin or dept_code in _dept_codes_with_scheduler_privilege()
+
+    dept_code = dept_code.upper()
+    if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
+        raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
+    elif _is_current_user_authorized():
+        local_date = localize_datetime(datetime.now())
+        advisor_uid = request.args.get('advisorUid')
+        scheduled_for_today = Appointment.get_scheduled(dept_code, local_date, advisor_uid)
+        appointments = [a.to_api_json(current_user.get_id()) for a in scheduled_for_today]
+        _put_student_profile_per_appointment(appointments)
+        return tolerant_jsonify({
+            'appointments': appointments,
         })
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')
@@ -185,9 +209,17 @@ def update_appointment(appointment_id):
         raise ForbiddenRequestError(f'You are unauthorized to manage {appointment.dept_code} appointments.')
     params = request.get_json()
     details = params.get('details', None)
+    scheduled_time = params.get('scheduledTime', None)
+    if scheduled_time:
+        scheduled_time = localized_timestamp_to_utc(scheduled_time)
+    student_contact_info = params.get('studentContactInfo', None)
+    student_contact_type = params.get('studentContactType', None)
     topics = params.get('topics', None)
     appointment.update(
         details=process_input_from_rich_text_editor(details),
+        scheduled_time=scheduled_time,
+        student_contact_info=student_contact_info,
+        student_contact_type=student_contact_type,
         topics=topics,
         updated_by=current_user.get_id(),
     )
@@ -224,12 +256,21 @@ def create_appointment():
         advisor_attrs = _advisor_attrs_for_uid(advisor_uid)
         if not advisor_attrs:
             raise BadRequestError('Invalid "advisorUid"')
+    details = params.get('details', None)
+    scheduled_time = params.get('scheduledTime', None)
+    if scheduled_time:
+        scheduled_time = localized_timestamp_to_utc(scheduled_time)
+    student_contact_info = params.get('studentContactInfo', None)
+    student_contact_type = params.get('studentContactType', None)
     appointment = Appointment.create(
         advisor_attrs=advisor_attrs,
         appointment_type=appointment_type,
         created_by=current_user.get_id(),
         dept_code=dept_code,
-        details=process_input_from_rich_text_editor(params.get('details', None)),
+        details=process_input_from_rich_text_editor(details),
+        scheduled_time=scheduled_time,
+        student_contact_info=student_contact_info,
+        student_contact_type=student_contact_type,
         student_sid=sid,
         topics=topics,
     )

@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import std_commit
+from boac.lib.util import localize_datetime, utc_now
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -83,19 +84,26 @@ class AppointmentTestUtil:
         assert response.status_code == expected_status_code
 
     @classmethod
-    def create_appointment(
+    def _create_appointment(
             cls,
             client,
+            appointment_type,
             dept_code,
             details=None,
             advisor_uid=None,
+            scheduled_time=None,
+            student_contact_info=None,
+            student_contact_type=None,
             expected_status_code=200,
     ):
         data = {
             'advisorUid': advisor_uid,
-            'appointmentType': 'Drop-in',
+            'appointmentType': appointment_type,
             'deptCode': dept_code,
             'details': details or '',
+            'scheduledTime': scheduled_time,
+            'studentContactInfo': student_contact_info,
+            'studentContactType': student_contact_type,
             'sid': student_sid,
             'topics': ['Topic for appointments, 1', 'Topic for appointments, 4'],
         }
@@ -106,6 +114,20 @@ class AppointmentTestUtil:
         )
         assert response.status_code == expected_status_code
         return response.json
+
+    @classmethod
+    def create_drop_in_appointment(cls, client, dept_code, details=None, **kwargs):
+        return cls._create_appointment(client, 'Drop-in', dept_code, details, **kwargs)
+
+    @classmethod
+    def create_scheduled_appointment(cls, client, dept_code, details=None, **kwargs):
+        today = localize_datetime(utc_now()).strftime('%Y-%m-%d')
+        kwargs.update({
+            'scheduled_time': f'{today}T13:00:00',
+            'student_contact_info': '+15108675309',
+            'student_contact_type': 'phone',
+        })
+        return cls._create_appointment(client, 'Scheduled', dept_code, details, **kwargs)
 
     @classmethod
     def reserve_appointment(cls, client, appointment_id, advisor_uid, expected_status_code=200):
@@ -120,7 +142,7 @@ class AppointmentTestUtil:
         assert response.status_code == expected_status_code
 
 
-class TestCreateAppointment:
+class TestCreateDropInAppointment:
 
     @classmethod
     def _get_waitlist(cls, client, dept_code, expected_status_code=200):
@@ -132,19 +154,19 @@ class TestCreateAppointment:
     def test_create_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
-            AppointmentTestUtil.create_appointment(client, 'COENG', expected_status_code=401)
+            AppointmentTestUtil.create_drop_in_appointment(client, 'COENG', expected_status_code=401)
 
     def test_not_drop_in_enabled(self, client, fake_auth):
         """Returns 401 if user's department is not configured for drop-in advising'."""
         fake_auth.login(coe_scheduler_uid)
-        AppointmentTestUtil.create_appointment(client, 'COENG', expected_status_code=401)
+        AppointmentTestUtil.create_drop_in_appointment(client, 'COENG', expected_status_code=401)
 
-    def test_create_appointment_as_coe_scheduler(self, app, client, fake_auth):
+    def test_create_drop_in_appointment_as_coe_scheduler(self, app, client, fake_auth):
         """Scheduler can create appointments."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
             details = 'Aloysius has some questions.'
-            appointment = AppointmentTestUtil.create_appointment(client, 'COENG', details)
+            appointment = AppointmentTestUtil.create_drop_in_appointment(client, 'COENG', details)
             appointment_id = appointment['id']
             waitlist = self._get_waitlist(client, 'COENG')
             matching = next((a for a in waitlist['unresolved'] if a['details'] == details), None)
@@ -167,7 +189,7 @@ class TestCreateAppointment:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
             details = 'Aloysius has some questions.'
-            appointment = AppointmentTestUtil.create_appointment(
+            appointment = AppointmentTestUtil.create_drop_in_appointment(
                 client=client,
                 dept_code='COENG',
                 details=details,
@@ -191,7 +213,7 @@ class TestCreateAppointment:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
             details = 'Turns out Aloysius just needed directions to La Val\'s.'
-            appointment = AppointmentTestUtil.create_appointment(
+            appointment = AppointmentTestUtil.create_drop_in_appointment(
                 client=client,
                 dept_code='COENG',
                 details=details,
@@ -212,12 +234,56 @@ class TestCreateAppointment:
     def test_other_departments_forbidden(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
-            AppointmentTestUtil.create_appointment(client, 'UWASC', expected_status_code=403)
+            AppointmentTestUtil.create_drop_in_appointment(client, 'UWASC', expected_status_code=403)
 
     def test_nonsense_department_not_found(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
-            AppointmentTestUtil.create_appointment(client, 'DINGO', expected_status_code=404)
+            AppointmentTestUtil.create_drop_in_appointment(client, 'DINGO', expected_status_code=404)
+
+
+class TestCreateScheduledAppointment:
+
+    @classmethod
+    def _get_scheduled_today(cls, client, dept_code, expected_status_code=200):
+        response = client.get(f'/api/appointments/today/{dept_code}')
+        assert response.status_code == expected_status_code
+        if response.status_code == 200:
+            return response.json['appointments']
+
+    def test_create_scheduled_appointment_as_coe_scheduler(self, app, client, fake_auth):
+        """Scheduler can create appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['COENG']):
+            fake_auth.login(coe_scheduler_uid)
+            details = 'Aloysius has some questions.'
+            appointment = AppointmentTestUtil.create_scheduled_appointment(
+                client=client,
+                dept_code='COENG',
+                details=details,
+            )
+            appointment_id = appointment['id']
+            scheduled_appts = self._get_scheduled_today(client, 'COENG')
+            matching = next((a for a in scheduled_appts if a['details'] == details), None)
+            assert matching
+            assert appointment_id == matching['id']
+            assert appointment['read'] is True
+            assert appointment['status'] == 'waiting'
+            assert appointment['statusBy']['uid'] == coe_scheduler_uid
+            assert appointment['student']['sid'] == student_sid
+            assert appointment['student']['name'] == 'Paul Kerschen'
+            assert appointment['student']['photoUrl']
+            assert appointment['appointmentType'] == 'Scheduled'
+            assert appointment['scheduledTime'].startswith(localize_datetime(utc_now()).strftime('%Y-%m-%d'))
+            assert appointment['scheduledTime'].endswith('+00:00')
+            # UTC time representation will vary dependending on time of year.
+            assert '20:00:00' in appointment['scheduledTime'] or '21:00:00' in appointment['scheduledTime']
+            assert appointment['studentContactInfo'] == '+15108675309'
+            assert appointment['studentContactType'] == 'phone'
+            assert len(appointment['topics']) == 2
+            # Verify that a deleted appointment is off the waitlist
+            Appointment.delete(appointment_id)
+            scheduled_appts = self._get_scheduled_today(client, 'COENG')
+            assert next((a for a in scheduled_appts if a['details'] == details), None) is None
 
 
 class TestGetAppointment:
@@ -257,12 +323,14 @@ class TestAppointmentUpdate:
             appointment_id,
             details,
             topics=(),
+            scheduled_time=None,
             expected_status_code=200,
     ):
         data = {
             'id': appointment_id,
             'details': details,
             'topics': topics,
+            'scheduledTime': scheduled_time,
         }
         response = client.post(
             f'/api/appointments/{appointment_id}/update',
@@ -298,7 +366,7 @@ class TestAppointmentUpdate:
         """Allows drop-in advisor to update appointment details."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            created = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            created = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             expected_details = 'Why lookst thou so? - With my crossbow I shot the albatross.'
             self._api_appointment_update(
                 client,
@@ -313,7 +381,7 @@ class TestAppointmentUpdate:
         """Allows drop-in advisor to update appointment topics."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            created = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            created = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             expected_topics = ['Practice Makes Perfect', 'French Film Blurred']
             details = created['details']
             appt_id = created['id']
@@ -330,6 +398,25 @@ class TestAppointmentUpdate:
             restored = self._api_appointment_update(client, appt_id, details, expected_topics)
             std_commit(allow_test_environment=True)
             assert set(restored['topics']) == set(expected_topics)
+
+    def test_reschedule_appointment(self, app, client, fake_auth):
+        """Scheduler can reschedule appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['COENG']):
+            fake_auth.login(coe_scheduler_uid)
+            details = 'Aloysius has some questions.'
+            appointment = AppointmentTestUtil.create_scheduled_appointment(
+                client=client,
+                dept_code='COENG',
+                details=details,
+            )
+            # UTC time representation will vary depending on time of year.
+            assert '20:00:00' in appointment['scheduledTime'] or '21:00:00' in appointment['scheduledTime']
+            appointment_id = appointment['id']
+
+            today = localize_datetime(utc_now()).strftime('%Y-%m-%d')
+            scheduled_time = f'{today}T15:00:00'
+            updated = self._api_appointment_update(client, appointment_id, details, scheduled_time=scheduled_time)
+            assert '22:00:00' in updated['scheduledTime'] or '23:00:00' in updated['scheduledTime']
 
 
 class TestAppointmentCancel:
@@ -353,7 +440,7 @@ class TestAppointmentCancel:
     def test_double_cancel_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by weasels')
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by stoats', expected_status_code=400)
@@ -361,7 +448,7 @@ class TestAppointmentCancel:
     def test_check_in_cancel_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves', expected_status_code=400)
@@ -373,7 +460,7 @@ class TestAppointmentCancel:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(user.uid)
-            waiting = AppointmentTestUtil.create_appointment(
+            waiting = AppointmentTestUtil.create_drop_in_appointment(
                 client=client,
                 dept_code=dept_code,
                 details='Minor in Klingon',
@@ -417,7 +504,7 @@ class TestAppointmentCheckIn:
     def test_double_check_in_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_scheduler_uid, expected_status_code=400)
@@ -425,7 +512,7 @@ class TestAppointmentCheckIn:
     def test_cancel_check_in_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
@@ -460,7 +547,7 @@ class TestAppointmentReserve:
     def test_cancel_reserve_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.cancel_appointment(client, waiting['id'], 'Cancelled by wolves')
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
@@ -468,7 +555,7 @@ class TestAppointmentReserve:
     def test_check_in_reserve_conflict(self, app, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_drop_in_advisor_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             AppointmentTestUtil.check_in_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid)
             fake_auth.login(l_s_college_scheduler_uid)
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], l_s_college_drop_in_advisor_uid, expected_status_code=400)
@@ -492,7 +579,7 @@ class TestAppointmentReserve:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(user.uid)
-            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], user.uid)
 
@@ -515,7 +602,7 @@ class TestAppointmentReserve:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(l_s_college_scheduler_uid)
-            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], user.uid)
 
@@ -539,7 +626,7 @@ class TestAppointmentReserve:
             advisor_1 = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user_1 = AuthorizedUser.find_by_id(advisor_1.authorized_user_id)
             fake_auth.login(user_1.uid)
-            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], user_1.uid)
 
@@ -575,7 +662,7 @@ class TestAppointmentReserve:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(user.uid)
-            waiting = AppointmentTestUtil.create_appointment(client, dept_code)
+            waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], user.uid)
             # Verify
@@ -638,7 +725,7 @@ class TestAppointmentReopen:
             advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
             user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
             fake_auth.login(user.uid)
-            appointment = AppointmentTestUtil.create_appointment(client, dept_code)
+            appointment = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
             AppointmentTestUtil.cancel_appointment(client, appointment['id'], 'Accidental cancel, whoopsie')
 
             cancelled = AppointmentTestUtil.get_appointment(client, appointment['id'])
@@ -758,7 +845,7 @@ class TestMarkAppointmentRead:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_scheduler_uid)
             # As scheduler, create appointment
-            appointment = AppointmentTestUtil.create_appointment(client, 'QCADV')
+            appointment = AppointmentTestUtil.create_drop_in_appointment(client, 'QCADV')
             appointment_id = appointment['id']
             client.get('/api/auth/logout')
             # Verify unread by advisor
