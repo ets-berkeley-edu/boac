@@ -305,7 +305,7 @@ class TestRefreshDepartmentMemberships:
 
     def test_deletes_drop_in_advisor_orphans(self):
         """Cleans up drop-in advisor record for a department membership that no longer exists."""
-        from boac.models.drop_in_advisor import DropInAdvisor
+        from boac.models.authorized_user_extension import DropInAdvisor
         dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
         bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
         UniversityDeptMember.create_or_update_membership(
