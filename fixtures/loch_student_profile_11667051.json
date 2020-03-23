@@ -72,6 +72,20 @@
                 "status": "Active"
             }
         ],
+        "plansMinor": [
+            {
+                "degreeProgramUrl": null,
+                "description": "Computer Science UG",
+                "program": "Undergrad Letters & Science",
+                "status": "Completed"
+            },
+            {
+                "degreeProgramUrl": null,
+                "description": "Phyics UG",
+                "program": "Engineering",
+                "status": "Active"
+            }
+        ],
         "preferredName": "Osk Bear",
         "primaryName": "Oski Bear",
         "termsInAttendance": null,

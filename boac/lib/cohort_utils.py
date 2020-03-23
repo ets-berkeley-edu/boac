@@ -150,6 +150,11 @@ def majors():
     return [{'name': major, 'value': major} for major in major_results]
 
 
+def minors():
+    minor_results = [row['minor'] for row in data_loch.get_minors()]
+    return [{'name': minor, 'value': minor} for minor in minor_results]
+
+
 def student_admit_college_options():
     college_results = [row['college'] for row in data_loch.get_admit_colleges()]
     return [{'name': college, 'value': college} for college in college_results]

@@ -7,7 +7,7 @@
       <b-form-group>
         <b-form-checkbox-group
           id="csv-column-options"
-          v-model="csvColumnsSelected"
+          v-model="selected"
           :options="csvColumns"
           class="flex-col flex-wrap csv-column-options"
           name="csv-column-options"
@@ -16,13 +16,13 @@
       </b-form-group>
     </div>
     <div class="modal-footer">
-      <form @submit.prevent="exportList(csvColumnsSelected)">
+      <form @submit.prevent="exportList(selected)">
         <b-btn
           id="export-list-confirm"
-          :disabled="!csvColumnsSelected.length"
+          :disabled="!selected.length"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="exportList(csvColumnsSelected)">
+          @click.prevent="exportList(selected)">
           Export
         </b-btn>
         <b-btn
@@ -56,6 +56,12 @@ export default {
       required: true,
       type: Function
     }
+  },
+  data: () => ({
+    selected: []
+  }),
+  created() {
+    this.selected = this.csvColumnsSelected;
   }
 };
 </script>

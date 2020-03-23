@@ -28,7 +28,7 @@ from copy import copy, deepcopy
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
-    get_coe_profiles, grad_terms, intended_majors, level_options, majors, student_admit_college_options, student_admit_ethnicity_options, \
+    get_coe_profiles, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, student_admit_ethnicity_options, \
     student_admit_freshman_or_transfer_options, student_admit_residency_category_options, student_admit_special_program_cep_options, \
     team_groups, unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
@@ -78,6 +78,7 @@ class CohortFilterOptions:
                 _filter('intendedMajors', 'Intended Major', options=intended_majors),
                 _filter('levels', 'Level', options=level_options),
                 _filter('majors', 'Major', options=majors),
+                _filter('minors', 'Minor', options=minors),
                 _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
                 _boolean_filter('transfer', 'Transfer Student'),
                 _filter('unitRanges', 'Units Completed', options=unit_range_options),

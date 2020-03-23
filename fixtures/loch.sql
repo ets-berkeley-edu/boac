@@ -337,6 +337,12 @@ CREATE TABLE student.intended_majors
     major VARCHAR NOT NULL
 );
 
+CREATE TABLE student.minors
+(
+    sid VARCHAR NOT NULL,
+    minor VARCHAR NOT NULL
+);
+
 CREATE TABLE student.student_holds
 (
     sid VARCHAR NOT NULL,
@@ -727,6 +733,12 @@ VALUES
 ('8901234567', 'Economics BA'),
 ('890127492', 'Mathematics'),
 ('9100000000', 'Engineering Undeclared UG');
+
+INSERT INTO student.minors
+(sid, minor)
+VALUES
+('11667051', 'Computer Science UG'),
+('11667051', 'Physics UG');
 
 INSERT INTO student.student_holds
 (sid, feed)

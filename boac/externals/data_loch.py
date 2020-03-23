@@ -731,6 +731,14 @@ def get_majors():
     return safe_execute_rds(sql)
 
 
+def get_minors():
+    sql = f"""SELECT DISTINCT min.minor AS minor
+        FROM {student_schema()}.student_academic_status sas
+        JOIN {student_schema()}.minors min ON min.sid = sas.sid
+        ORDER BY minor"""
+    return safe_execute_rds(sql)
+
+
 def get_other_visa_types():
     sql = f"""SELECT DISTINCT visa_type FROM {student_schema()}.visas
         WHERE visa_status = 'G' and visa_type NOT IN ('F1','J1','PR')"""
@@ -763,6 +771,7 @@ def get_students_query(     # noqa
     levels=None,
     majors=None,
     midpoint_deficient_grade=None,
+    minors=None,
     scope=(),
     search_phrase=None,
     sids=(),
@@ -886,6 +895,10 @@ def get_students_query(     # noqa
                              AND ser.term_id = :term_id
                              AND ser.midpoint_deficient_grade = TRUE"""
         query_bindings.update({'term_id': current_term_id})
+    if minors:
+        query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = sas.sid'
+        query_filter += ' AND min.minor = ANY(:minors)'
+        query_bindings.update({'minors': minors})
     if transfer is True:
         query_filter += ' AND sas.transfer = TRUE'
     if advisor_plan_mappings:
