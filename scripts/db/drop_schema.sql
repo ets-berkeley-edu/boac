@@ -40,6 +40,7 @@ ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_fk
 ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_created_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_deleted_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_updated_by_fkey;
+ALTER TABLE IF EXISTS ONLY public.appointment_availability DROP CONSTRAINT IF EXISTS appointment_availability_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_advisor_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_appointment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_user_id_updated_by_fkey;
@@ -76,6 +77,9 @@ ALTER TABLE IF EXISTS ONLY public.user_logins DROP CONSTRAINT IF EXISTS user_log
 --
 
 DROP INDEX IF EXISTS public.idx_appointments_fts_index;
+DROP INDEX IF EXISTS public.appointment_availability_authorized_user_id_dept_code_idx;
+DROP INDEX IF EXISTS public.appointment_availability_weekday_idx;
+DROP INDEX IF EXISTS public.appointment_availability_date_override_idx;
 DROP INDEX IF EXISTS public.appointment_events_appointment_id_idx;
 DROP INDEX IF EXISTS public.appointment_events_user_id_idx;
 DROP INDEX IF EXISTS public.appointment_topics_appointment_id_idx;
@@ -114,6 +118,7 @@ ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alem
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.appointment_availability DROP CONSTRAINT IF EXISTS appointment_availability_pkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_pkey;
 ALTER TABLE IF EXISTS ONLY public.appointments DROP CONSTRAINT IF EXISTS appointments_pkey;
@@ -175,6 +180,8 @@ DROP TABLE IF EXISTS public.cohort_filter_owners;
 DROP SEQUENCE IF EXISTS public.authorized_users_id_seq;
 DROP TABLE IF EXISTS public.authorized_users;
 DROP MATERIALIZED VIEW IF EXISTS public.appointments_fts_index;
+DROP TABLE IF EXISTS public.appointment_availability;
+DROP SEQUENCE IF EXISTS public.appointment_availability_id_seq;
 DROP TABLE IF EXISTS public.appointment_events;
 DROP SEQUENCE IF EXISTS public.appointment_events_id_seq;
 DROP TABLE IF EXISTS public.appointment_topics;
@@ -208,3 +215,4 @@ DROP TYPE IF EXISTS public.cohort_filter_event_types;
 DROP TYPE IF EXISTS public.cohort_domain_types;
 DROP TYPE IF EXISTS public.drop_in_advisor_status_types;
 DROP TYPE IF EXISTS public.university_dept_member_role_types;
+DROP TYPE IF EXISTS public.weekday_types;
