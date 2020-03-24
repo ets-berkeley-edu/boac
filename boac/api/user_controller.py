@@ -42,7 +42,7 @@ from boac.merged import calnet
 from boac.merged.user_session import UserSession
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.authorized_user_extension import DropInAdvisor, Scheduler
+from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor, Scheduler
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -152,25 +152,25 @@ def disable_drop_in_advising(dept_code):
     return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
 
 
-@app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
+@app.route('/api/user/same_day_advising/<dept_code>/enable', methods=['POST'])
 @drop_in_required
 def enable_same_day_advising(dept_code):
-    drop_in_membership = DropInAdvisor.create_or_update_membership(
+    same_day_membership = SameDayAdvisor.create_or_update_membership(
         dept_code,
         current_user.user_id,
-        is_available=False,
+        is_available=True,
     )
     UserSession.flush_cache_for_id(current_user.user_id)
-    return tolerant_jsonify(drop_in_membership.to_api_json())
+    return tolerant_jsonify(same_day_membership.to_api_json())
 
 
-@app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
+@app.route('/api/user/same_day_advising/<dept_code>/disable', methods=['POST'])
 @scheduler_required
 def disable_same_day_advising(dept_code):
     user = AuthorizedUser.find_by_id(current_user.get_id())
-    _delete_drop_in_advisor_status(user, dept_code)
+    SameDayAdvisor.delete(authorized_user_id=user.id, dept_code=dept_code)
     UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
+    return tolerant_jsonify({'message': f'Same-day advisor status has been disabled'}, status=200)
 
 
 @app.route('/api/user/<uid>/drop_in_advising/<dept_code>/available', methods=['POST'])
