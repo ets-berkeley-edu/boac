@@ -57,6 +57,16 @@ class AuthorizedUser(Base):
         back_populates='authorized_user',
         lazy='joined',
     )
+    same_day_departments = db.relationship(
+        'SameDayAdvisor',
+        back_populates='authorized_user',
+        lazy='joined',
+    )
+    scheduler_departments = db.relationship(
+        'Scheduler',
+        back_populates='authorized_user',
+        lazy='joined',
+    )
     cohort_filters = db.relationship(
         'CohortFilter',
         back_populates='owner',

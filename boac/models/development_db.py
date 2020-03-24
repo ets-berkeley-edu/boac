@@ -33,9 +33,9 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import utc_now
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.json_cache import insert_row as insert_in_json_cache
 from boac.models.topic import Topic
 from boac.models.university_dept import UniversityDept

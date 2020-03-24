@@ -36,8 +36,8 @@ from boac.merged.advising_note import get_advising_notes
 from boac.merged.student import get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.appointment import Appointment
+from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
-from boac.models.drop_in_advisor import DropInAdvisor
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -178,6 +178,7 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
                 'automateMembership': m.automate_membership,
             })
         profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
+        profile['sameDayAdvisorStatus'] = [d.to_api_json() for d in user.same_day_departments]
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
@@ -487,6 +488,14 @@ def _is_drop_in_enabled(user):
 def _is_drop_in_scheduler(user):
     scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
     return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
+
+
+def _is_same_day_advisor(user):
+    return next((d for d in user.same_day_advisor_departments if d['deptCode'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']), False)
+
+
+def _is_same_day_enabled(user):
+    return next((d for d in user.departments if d['code'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']), False)
 
 
 def _is_same_day_scheduler(user):

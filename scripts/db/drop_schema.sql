@@ -63,6 +63,8 @@ ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_top
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_note_id_topic_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_author_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_viewer_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.same_day_advisors DROP CONSTRAINT IF EXISTS same_day_advisors_authorized_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.schedulers DROP CONSTRAINT IF EXISTS schedulers_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_sid_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_student_group_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_owner_id_fkey;
@@ -131,6 +133,8 @@ ALTER TABLE IF EXISTS ONLY public.note_templates DROP CONSTRAINT IF EXISTS note_
 ALTER TABLE IF EXISTS ONLY public.note_topics DROP CONSTRAINT IF EXISTS note_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes DROP CONSTRAINT IF EXISTS notes_pkey;
 ALTER TABLE IF EXISTS ONLY public.notes_read DROP CONSTRAINT IF EXISTS notes_read_pkey;
+ALTER TABLE IF EXISTS ONLY public.same_day_advisors DROP CONSTRAINT IF EXISTS same_day_advisors_authorized_user_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.schedulers DROP CONSTRAINT IF EXISTS schedulers_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.student_group_members DROP CONSTRAINT IF EXISTS student_group_members_pkey;
 ALTER TABLE IF EXISTS ONLY public.student_groups DROP CONSTRAINT IF EXISTS student_groups_pkey;
 ALTER TABLE IF EXISTS ONLY public.tool_settings DROP CONSTRAINT IF EXISTS tool_settings_key_unique_constraint;
@@ -182,6 +186,8 @@ DROP SEQUENCE IF EXISTS public.alerts_id_seq;
 DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;
 DROP TABLE IF EXISTS public.alembic_version;
+DROP TABLE IF EXISTS public.same_day_advisors;
+DROP TABLE IF EXISTS public.schedulers;
 DROP TABLE IF EXISTS public.student_group_members;
 DROP TABLE IF EXISTS public.student_groups;
 DROP SEQUENCE IF EXISTS public.student_groups_id_seq;

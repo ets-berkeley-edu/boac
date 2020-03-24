@@ -115,19 +115,19 @@ export function setDropInStatus(deptCode: string, status?: string) {
 
 export function getDropInSchedulers() {
   return axios
-    .get(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers`)
+    .get(`${utils.apiBaseUrl()}/api/users/appointment_schedulers`)
     .then(response => response.data, () => null);
 }
 
 export function addDropInScheduler(deptCode: string, uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers/${deptCode}/add`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/add`, { uid: uid })
     .then(response => response.data, () => null);
 }
 
 export function removeDropInScheduler(deptCode: string, uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/drop_in_schedulers/${deptCode}/remove`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/remove`, { uid: uid })
     .then(response => response.data, () => null);
 }
 

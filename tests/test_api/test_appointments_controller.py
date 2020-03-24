@@ -28,7 +28,7 @@ from boac.lib.util import localize_datetime, utc_now
 from boac.models.appointment import Appointment
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.drop_in_advisor import DropInAdvisor
+from boac.models.authorized_user_extension import DropInAdvisor
 import simplejson as json
 from sqlalchemy import and_
 from tests.util import override_config

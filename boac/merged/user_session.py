@@ -82,12 +82,23 @@ class UserSession(UserMixin):
             return False
 
     @property
+    def is_same_day_advisor(self):
+        if self.api_json['sameDayAdvisorStatus']:
+            return True
+        else:
+            return False
+
+    @property
     def departments(self):
         return self.api_json['departments']
 
     @property
     def drop_in_advisor_departments(self):
         return self.api_json['dropInAdvisorStatus']
+
+    @property
+    def same_day_advisor_departments(self):
+        return self.api_json['sameDayAdvisorStatus']
 
     @property
     def is_admin(self):
@@ -126,10 +137,12 @@ class UserSession(UserMixin):
                     {
                         'code': dept_code,
                         'isDropInEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS'],
+                        'isSameDayEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS'],
                         'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
                         'role': m.role,
                     })
         drop_in_advisor_status = []
+        same_day_advisor_status = []
         is_active = False
         if user:
             if not calnet_profile:
@@ -144,12 +157,16 @@ class UserSession(UserMixin):
             drop_in_advisor_status = [
                 d.to_api_json() for d in user.drop_in_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
             ]
+            same_day_advisor_status = [
+                d.to_api_json() for d in user.same_day_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']
+            ]
         return {
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
                 'departments': departments,
                 'dropInAdvisorStatus': drop_in_advisor_status,
+                'sameDayAdvisorStatus': same_day_advisor_status,
                 'isActive': is_active,
                 'isAdmin': user and user.is_admin,
                 'isAnonymous': not is_active,
