@@ -13,14 +13,14 @@ CREATE TABLE appointment_availability (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-ALTER TABLE appointment_availability OWNER TO boac;
+ALTER TABLE appointment_availability OWNER TO app_boa;
 CREATE SEQUENCE appointment_availability_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER SEQUENCE appointment_availability_id_seq OWNER TO boac;
+ALTER SEQUENCE appointment_availability_id_seq OWNER TO app_boa;
 ALTER SEQUENCE appointment_availability_id_seq OWNED BY appointment_availability.id;
 ALTER TABLE ONLY appointment_availability ALTER COLUMN id SET DEFAULT nextval('appointment_availability_id_seq'::regclass);
 ALTER TABLE ONLY appointment_availability
