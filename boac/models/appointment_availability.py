@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import date
+from datetime import date, time
 from itertools import groupby
 
 from boac import db, std_commit
@@ -79,7 +79,8 @@ class AppointmentAvailability(Base):
         weekday=None,
         date_override=None,
     ):
-        availability_slot = cls(
+        start_time, end_time = cls._parse_and_validate(start_time, end_time, allow_null=(date_override is not None))
+        slot = cls(
             authorized_user_id=authorized_user_id,
             dept_code=dept_code,
             date_override=date_override,
@@ -87,21 +88,27 @@ class AppointmentAvailability(Base):
             start_time=start_time,
             weekday=weekday,
         )
-        db.session.add(availability_slot)
+        db.session.add(slot)
         std_commit()
-        return availability_slot
+        cls._merge_overlaps(slot.authorized_user_id, slot.dept_code, slot.weekday, slot.date_override)
+        return True
 
     @classmethod
     def update(cls, id_, start_time, end_time):
-        result = cls.query.filter_by(id=id_).update(start_time=start_time, end_time=end_time)
+        start_time, end_time = cls._parse_and_validate(start_time, end_time, allow_null=False)
+        slot = cls.query.filter_by(id=id_).first()
+        slot.start_time = start_time
+        slot.end_time = end_time
         std_commit()
-        return result
+        db.session.refresh(slot)
+        cls._merge_overlaps(slot.authorized_user_id, slot.dept_code, slot.weekday, slot.date_override)
+        return True
 
     @classmethod
     def delete(cls, id_):
-        result = cls.query.filter_by(id=id_).delete()
+        db.session.execute(cls.__table__.delete().where(cls.id == id_))
         std_commit()
-        return result
+        return True
 
     @classmethod
     def availability_for_advisor(cls, authorized_user_id, dept_code):
@@ -118,18 +125,20 @@ class AppointmentAvailability(Base):
                     date_key = 'recurring'
                 else:
                     date_key = str(date_key)
-                availability[weekday][date_key] = [a.to_api_json() for a in group_by_date_override]
+                availability[weekday][date_key] = [cls.to_api_json(a.id, a.start_time, a.end_time) for a in group_by_date_override]
         return availability
 
     @classmethod
     def daily_availability_for_department(cls, dept_code, date_):
         # Per distinct UID, select availability slots for the provided date if present as date_override; otherwise
         # fall back to slots with null date_override, indicating recurring per-weekday values.
-        sql = """SELECT u.uid, a.start_time, a.end_time FROM appointment_availability a
+        sql = """SELECT u.uid, a.id, a.start_time, a.end_time FROM appointment_availability a
                  JOIN (
                     SELECT authorized_user_id, weekday, MAX(date_override) AS date_override
                     FROM appointment_availability
-                    WHERE weekday = :weekday AND (date_override = :date_ OR date_override IS NULL)
+                    WHERE weekday = :weekday
+                        AND dept_code = :dept_code
+                        AND (date_override = :date_ OR date_override IS NULL)
                     GROUP BY authorized_user_id, weekday
                 ) t
                 ON a.authorized_user_id = t.authorized_user_id
@@ -137,14 +146,55 @@ class AppointmentAvailability(Base):
                 AND (a.date_override = t.date_override OR (a.date_override IS NULL AND t.date_override IS NULL))
                 JOIN authorized_users u on a.authorized_user_id = u.id
                 ORDER BY uid, start_time"""
-        results = db.session.execute(text(sql), {'date_': str(date_), 'weekday': date_.strftime('%a')})
+        results = db.session.execute(text(sql), {'date_': str(date_), 'weekday': date_.strftime('%a'), 'dept_code': dept_code})
         availability = {}
         for uid, group_by_uid in groupby(results, lambda x: x.uid):
-            availability[uid] = [a.to_api_json() for a in group_by_uid]
+            availability_for_uid = [cls.to_api_json(a['id'], a['start_time'], a['end_time']) for a in group_by_uid if a['start_time']]
+            if len(availability_for_uid):
+                availability[uid] = availability_for_uid
         return availability
 
-    def to_api_json(self):
+    @classmethod
+    def to_api_json(cls, id_, start_time, end_time):
         return {
-            'startTime': str(self.start_time) if self.start_time else None,
-            'endTime': str(self.end_time) if self.end_time else None,
+            'id': id_,
+            'startTime': str(start_time) if start_time else None,
+            'endTime': str(end_time) if end_time else None,
         }
+
+    @classmethod
+    def _parse_and_validate(cls, start_time, end_time, allow_null):
+        if start_time is None and (not allow_null or end_time is not None):
+            raise ValueError('Start time cannot be null')
+        elif end_time is None and (not allow_null or end_time is not None):
+            raise ValueError('End time cannot be null')
+        elif start_time is None and end_time is None:
+            return None, None
+        try:
+            start_time = time(*[int(i) for i in start_time.split(':')])
+        except Exception:
+            raise ValueError('Could not parse start time')
+        try:
+            end_time = time(*[int(i) for i in end_time.split(':')])
+        except Exception:
+            raise ValueError('Could not parse end time')
+        if start_time >= end_time:
+            raise ValueError('Start time must be before end time')
+        return start_time, end_time
+
+    @classmethod
+    def _merge_overlaps(cls, authorized_user_id, dept_code, weekday, date_override):
+        previous_slot = None
+        for slot in cls.query.filter_by(
+            authorized_user_id=authorized_user_id,
+            dept_code=dept_code,
+            weekday=weekday,
+            date_override=date_override,
+        ).order_by(cls.start_time):
+            if previous_slot is not None and previous_slot.end_time >= slot.start_time:
+                if previous_slot.end_time < slot.end_time:
+                    previous_slot.end_time = slot.end_time
+                db.session.delete(slot)
+            else:
+                previous_slot = slot
+        std_commit()
