@@ -9,7 +9,7 @@ CREATE TABLE same_day_advisors (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-ALTER TABLE same_day_advisors OWNER TO boac;
+ALTER TABLE same_day_advisors OWNER TO app_boa;
 ALTER TABLE same_day_advisors
     ADD CONSTRAINT same_day_advisors_pkey PRIMARY KEY (authorized_user_id, dept_code);
 
@@ -21,7 +21,7 @@ CREATE TABLE schedulers (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-ALTER TABLE schedulers OWNER TO boac;
+ALTER TABLE schedulers OWNER TO app_boa;
 ALTER TABLE schedulers
     ADD CONSTRAINT schedulers_pkey PRIMARY KEY (authorized_user_id, dept_code);
 
