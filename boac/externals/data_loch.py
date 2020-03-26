@@ -392,6 +392,26 @@ def get_enrollments_for_term(term_id, sids=None):
     return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
+def match_appointment_advisors_by_name(prefixes, limit=None):
+    prefix_conditions = []
+    prefix_kwargs = {}
+    for prefix in prefixes:
+        idx = prefixes.index(prefix)
+        prefix_conditions.append(
+            f"""JOIN {sis_advising_notes_schema()}.advising_appointment_advisor_names an{idx}
+            ON an{idx}.name LIKE :prefix_{idx}
+            AND an{idx}.uid = a.uid""",
+        )
+        prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+    sql = f"""SELECT DISTINCT a.first_name, a.last_name, a.sid, a.uid
+        FROM {sis_advising_notes_schema()}.advising_appointment_advisors a
+        {' '.join(prefix_conditions)}
+        ORDER BY a.first_name, a.last_name"""
+    if limit:
+        sql += f' LIMIT {limit}'
+    return safe_execute_rds(sql, **prefix_kwargs)
+
+
 def match_advising_note_authors_by_name(prefixes, limit=None):
     prefix_conditions = []
     prefix_kwargs = {}
@@ -565,6 +585,45 @@ def get_sis_advising_note_attachments(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def search_advising_appointments(
+    search_phrase,
+    advisor_uid=None,
+    advisor_csid=None,
+    student_csid=None,
+    topic=None,
+    datetime_from=None,
+    datetime_to=None,
+    offset=None,
+    limit=None,
+):
+    query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, aa.uid AS advisor_uid,
+            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
+            sas.uid, sas.first_name, sas.last_name, aa.first_name AS advisor_first_name, aa.last_name AS advisor_last_name"""
+    query_tables = f"""{sis_advising_notes_schema()}.advising_appointments an
+        JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
+        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
+    if search_phrase:
+        query_tables += f"""
+            JOIN {sis_advising_notes_schema()}.advising_appointments_search_index idx
+            ON idx.id = an.id
+            AND idx.fts_index @@ plainto_tsquery('english', :search_phrase)"""
+    uid_advisor_filter = 'aa.uid = :advisor_uid' if advisor_uid else None
+    return search_sis_advising(
+        query_columns=query_columns,
+        query_tables=query_tables,
+        uid_advisor_filter=uid_advisor_filter,
+        search_phrase=search_phrase,
+        advisor_uid=advisor_uid,
+        advisor_csid=advisor_csid,
+        student_csid=student_csid,
+        topic=topic,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=offset,
+        limit=limit,
+    )
+
+
 def search_advising_notes(
     search_phrase,
     author_uid=None,
@@ -576,17 +635,56 @@ def search_advising_notes(
     offset=None,
     limit=None,
 ):
+    query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
+            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
+            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name"""
+    query_tables = f"""{advising_notes_schema()}.advising_notes an
+        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
+    if search_phrase:
+        query_tables += f"""
+            JOIN {advising_notes_schema()}.advising_notes_search_index idx
+            ON idx.id = an.id
+            AND idx.fts_index @@ plainto_tsquery('english', :search_phrase)"""
+    uid_advisor_filter = 'an.advisor_uid = :advisor_uid' if author_uid else None
+    return search_sis_advising(
+        query_columns=query_columns,
+        query_tables=query_tables,
+        uid_advisor_filter=uid_advisor_filter,
+        search_phrase=search_phrase,
+        advisor_uid=author_uid,
+        advisor_csid=author_csid,
+        student_csid=student_csid,
+        topic=topic,
+        datetime_from=datetime_from,
+        datetime_to=datetime_to,
+        offset=offset,
+        limit=limit,
+    )
 
-    if author_uid or author_csid:
-        uid_author_filter = 'an.advisor_uid = :author_uid' if author_uid else None
-        sid_author_filter = 'an.advisor_sid = :author_csid' if author_csid else None
-        author_filter = 'AND (' + join_if_present(' OR ', [uid_author_filter, sid_author_filter]) + ')'
+
+def search_sis_advising(
+    query_columns,
+    query_tables,
+    uid_advisor_filter,
+    search_phrase,
+    advisor_uid=None,
+    advisor_csid=None,
+    student_csid=None,
+    topic=None,
+    datetime_from=None,
+    datetime_to=None,
+    offset=None,
+    limit=None,
+):
+
+    if advisor_uid or advisor_csid:
+        sid_advisor_filter = 'an.advisor_sid = :advisor_csid' if advisor_csid else None
+        advisor_filter = 'AND (' + join_if_present(' OR ', [uid_advisor_filter, sid_advisor_filter]) + ')'
     else:
-        author_filter = ''
+        advisor_filter = ''
 
     sid_filter = 'AND an.sid = :student_csid' if student_csid else ''
 
-    # Topic search is limited to SIS notes.
     if topic:
         topic_join = f"""JOIN {sis_advising_notes_schema()}.advising_note_topic_mappings antm
             ON antm.boa_topic = :topic
@@ -605,26 +703,15 @@ def search_advising_notes(
         date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < :datetime_to)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < :datetime_to))"""
 
-    query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
-            an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
-            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name"""
-
-    query_tables = f"""{advising_notes_schema()}.advising_notes an
-        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
-
     if search_phrase:
         query_columns += ", ts_rank(idx.fts_index, plainto_tsquery('english', :search_phrase)) AS rank"
-        query_tables += f"""
-            JOIN {advising_notes_schema()}.advising_notes_search_index idx
-            ON idx.id = an.id
-            AND idx.fts_index @@ plainto_tsquery('english', :search_phrase)"""
     else:
         query_columns += ', 0 AS rank'
 
     sql = f"""SELECT DISTINCT {query_columns} FROM {query_tables}
         {topic_join}
         WHERE TRUE
-        {author_filter}
+        {advisor_filter}
         {sid_filter}
         {date_filter}
         ORDER BY rank DESC, an.id"""
@@ -635,8 +722,8 @@ def search_advising_notes(
         sql += ' LIMIT :limit'
     params = dict(
         search_phrase=search_phrase,
-        author_csid=author_csid,
-        author_uid=author_uid,
+        advisor_csid=advisor_csid,
+        advisor_uid=advisor_uid,
         student_csid=student_csid,
         topic=topic,
         datetime_from=datetime_from,

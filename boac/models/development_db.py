@@ -105,6 +105,8 @@ _test_users = [
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
+        'firstName': 'Milicent',
+        'lastName': 'Balthazar',
     },
     {
         'uid': '19735',
@@ -147,6 +149,8 @@ _test_users = [
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
+        'firstName': 'Joni',
+        'lastName': 'Mitchell',
     },
     {
         'uid': '211159',
@@ -204,8 +208,8 @@ _test_users = [
     {
         'uid': '90412',
         'csid': '100100100',
-        'first_name': 'COE Add',
-        'last_name': 'Visor',
+        'firstName': 'COE Add',
+        'lastName': 'Visor',
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessCanvasData': True,
@@ -430,8 +434,8 @@ def _create_users():
         uid = test_user['uid']
         # Mock CSIDs and names are random unless we need them to correspond to test data elsewhere.
         csid = test_user['csid'] or datetime.now().strftime('%H%M%S%f')
-        first_name = test_user.get('first_name', ''.join(random.choices(string.ascii_uppercase, k=6)))
-        last_name = test_user.get('last_name', ''.join(random.choices(string.ascii_uppercase, k=6)))
+        first_name = test_user.get('firstName', ''.join(random.choices(string.ascii_uppercase, k=6)))
+        last_name = test_user.get('lastName', ''.join(random.choices(string.ascii_uppercase, k=6)))
 
         # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
         if uid != no_calnet_record_for_uid:

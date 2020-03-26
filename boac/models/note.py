@@ -309,8 +309,8 @@ class Note(Base):
             cls.refresh_search_index()
 
     def to_api_json(self):
-        attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
-        topics = [t.to_api_json() for t in self.topics if not t.deleted_at]
+        attachments = self.attachments_to_api_json()
+        topics = self.topics_to_api_json()
         return {
             'id': self.id,
             'attachments': attachments,
@@ -325,6 +325,12 @@ class Note(Base):
             'createdAt': self.created_at,
             'updatedAt': self.updated_at,
         }
+
+    def attachments_to_api_json(self):
+        return [a.to_api_json() for a in self.attachments if not a.deleted_at]
+
+    def topics_to_api_json(self):
+        return [t.to_api_json() for t in self.topics if not t.deleted_at]
 
 
 def _create_notes(author_id, author_uid, author_name, author_role, author_dept_codes, body, sids, subject):

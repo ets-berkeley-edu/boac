@@ -214,13 +214,10 @@ def add_attachment(note_id):
         note_id=note_id,
         attachment=attachments[0],
     )
-    note_json = note.to_api_json()
     return tolerant_jsonify(
-        note_to_compatible_json(
-            note=note_json,
+        _boa_note_to_compatible_json(
+            note=note,
             note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
-            attachments=note_json.get('attachments'),
-            topics=note_json.get('topics'),
         ),
     )
 
@@ -237,13 +234,10 @@ def remove_attachment(note_id, attachment_id):
         note_id=note_id,
         attachment_id=int(attachment_id),
     )
-    note_json = note.to_api_json()
     return tolerant_jsonify(
-        note_to_compatible_json(
-            note=note_json,
+        _boa_note_to_compatible_json(
+            note=note,
             note_read=NoteRead.find_or_create(current_user.get_id(), note_id),
-            attachments=note_json.get('attachments'),
-            topics=note_json.get('topics'),
         ),
     )
 
@@ -331,13 +325,12 @@ def _get_author_profile():
 
 
 def _boa_note_to_compatible_json(note, note_read):
-    note_json = note.to_api_json()
     return {
         **note_to_compatible_json(
-            note=note_json,
+            note=note.__dict__,
             note_read=note_read,
-            attachments=note_json.get('attachments'),
-            topics=note_json.get('topics'),
+            attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
+            topics=[t.to_api_json() for t in note.topics if not t.deleted_at],
         ),
         **{
             'message': note.body,

@@ -547,16 +547,15 @@ class TestAppointmentSearch:
             assert appointment['student']['firstName']
             assert appointment['student']['lastName']
             assert appointment['studentSid']
-            assert appointment['status']
 
     def test_search_with_missing_input_no_options(self, coe_advisor, client):
         """Appointments search is nothing without input when no additional options are set."""
         _api_search(client, ' \t  ', appointments=True, expected_status_code=400)
 
     def test_search_appointments(self, coe_advisor, client):
-        """Search results include appointments ordered by rank."""
+        """Search results include both legacy and BOA-generated appointments."""
         api_json = _api_search(client, 'life', appointments=True)
-        self._assert(api_json, appointment_count=2)
+        self._assert(api_json, appointment_count=3)
 
     def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
         """Appointments can be searched for by cancel reason and cancel reason explained."""
@@ -632,7 +631,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
         )
-        self._assert(api_json, appointment_count=1)
+        self._assert(api_json, appointment_count=3)
 
     def test_search_excludes_appointments_unless_requested(self, coe_advisor, client):
         """Excludes appointments from search results if appointments param is false."""
@@ -697,7 +696,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=2)
+        self._assert(api_json, appointment_count=5)
 
     def test_appointments_search_limit(self, coe_advisor, client):
         """Limits search to the first n appointments."""
@@ -717,7 +716,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'offset': '1'},
         )
-        self._assert(api_json, appointment_count=1)
+        self._assert(api_json, appointment_count=2)
 
     def test_search_appointments_no_canvas_data_access(self, client, no_canvas_access_advisor):
         """A user with no access to Canvas data can still search for appointments."""
@@ -727,7 +726,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=2)
+        self._assert(api_json, appointment_count=5)
 
 
 class TestAdmittedStudentSearch:

@@ -366,6 +366,8 @@
             "attributes": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
                 "berkeleyEduCSID": "100200300",
+                "departmentNumber": "UWASC",
+                "displayName": "Loramps Glub",
                 "objectClass": [
                     "top",
                     "eduPerson",
@@ -381,6 +383,9 @@
             "dn": "uid=1081940,ou=people,dc=berkeley,dc=edu",
             "raw": {
                 "berkeleyEduAffiliations": [ "EMPLOYEE-TYPE-STAFF" ],
+                "berkeleyEduCSID": [ "100200300" ],
+                "departmentNumber": [ "UWASC" ],
+                "displayName": [ "Loramps Glub" ],
                 "objectClass": [
                     "top",
                     "eduPerson",
