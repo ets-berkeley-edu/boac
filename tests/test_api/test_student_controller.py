@@ -425,10 +425,17 @@ class TestStudent:
                 'email': 'ARealLiveAdvisor@b.e',
                 'role': 'College Advisor',
                 'program': 'Undergrad Business',
+                'plan': 'Business Administration BS',
             }
             assert advisors[1] == {
+                'uid': None,
+                'sid': 'UCBUGADHAAS',
                 'firstName': 'Haas Undergraduate Program',
+                'lastName': None,
                 'email': 'UGMajorAdvising@haas.berkeley.edu',
+                'role': 'Major Advisor',
+                'program': 'Undergrad Business',
+                'plan': 'Business Administration BS',
             }
 
     def test_sis_profile(self, client, coe_advisor_login):

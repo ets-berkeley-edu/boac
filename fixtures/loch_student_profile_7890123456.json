@@ -64,7 +64,8 @@
             "lastName": "Advisor",
             "email": "ARealLiveAdvisor@b.e",
             "role": "College Advisor",
-            "program": "Undergrad Business"
+            "program": "Undergrad Business",
+            "plan": "Business Administration BS"
         },
         {
             "uid": null,
@@ -72,9 +73,9 @@
             "firstName": null,
             "lastName": null,
             "email": null,
-            "role": "College Advisor",
-            "program": "Undergrad Engineering",
-            "plan": "Nuclear Engineering BS"
+            "role": "Major Advisor",
+            "program": "Undergrad Business",
+            "plan": "Business Administration BS"
         }
     ]
 }
