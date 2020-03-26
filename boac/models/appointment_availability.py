@@ -23,11 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import date, time
+from datetime import date, datetime, time, timedelta
 from itertools import groupby
 
 from boac import db, std_commit
 from boac.models.base import Base
+from dateutil.tz import tzutc
+from flask import current_app as app
+import pytz
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 from sqlalchemy.sql.expression import nullsfirst
@@ -130,23 +133,7 @@ class AppointmentAvailability(Base):
 
     @classmethod
     def daily_availability_for_department(cls, dept_code, date_):
-        # Per distinct UID, select availability slots for the provided date if present as date_override; otherwise
-        # fall back to slots with null date_override, indicating recurring per-weekday values.
-        sql = """SELECT u.uid, a.id, a.start_time, a.end_time FROM appointment_availability a
-                 JOIN (
-                    SELECT authorized_user_id, weekday, MAX(date_override) AS date_override
-                    FROM appointment_availability
-                    WHERE weekday = :weekday
-                        AND dept_code = :dept_code
-                        AND (date_override = :date_ OR date_override IS NULL)
-                    GROUP BY authorized_user_id, weekday
-                ) t
-                ON a.authorized_user_id = t.authorized_user_id
-                AND a.weekday = t.weekday
-                AND (a.date_override = t.date_override OR (a.date_override IS NULL AND t.date_override IS NULL))
-                JOIN authorized_users u on a.authorized_user_id = u.id
-                ORDER BY uid, start_time"""
-        results = db.session.execute(text(sql), {'date_': str(date_), 'weekday': date_.strftime('%a'), 'dept_code': dept_code})
+        results = cls._query_availability(dept_code, date_)
         availability = {}
         for uid, group_by_uid in groupby(results, lambda x: x.uid):
             availability_for_uid = [cls.to_api_json(a['id'], a['start_time'], a['end_time']) for a in group_by_uid if a['start_time']]
@@ -155,11 +142,53 @@ class AppointmentAvailability(Base):
         return availability
 
     @classmethod
+    def get_openings(cls, dept_code, date_, appointments):
+        results = cls._query_availability(dept_code, date_)
+        openings = []
+        for uid, group_by_uid in groupby(results, lambda x: x.uid):
+            for a in group_by_uid:
+                if a['start_time'] and a['end_time']:
+                    start_opening = datetime.combine(date_, a['start_time']).replace(tzinfo=date_.tzinfo).astimezone(pytz.utc)
+                    end_availability = datetime.combine(date_, a['end_time']).replace(tzinfo=date_.tzinfo).astimezone(pytz.utc)
+                    while (end_availability - start_opening).total_seconds() >= app.config['SCHEDULED_APPOINTMENT_LENGTH'] * 60:
+                        end_opening = start_opening + timedelta(minutes=app.config['SCHEDULED_APPOINTMENT_LENGTH'])
+                        start_time_str = _isoformat(start_opening)
+                        if next((a for a in appointments if a['scheduledTime'] == start_time_str and a['advisorUid'] == uid), None) is None:
+                            openings.append({
+                                'uid': uid,
+                                'startTime': start_time_str,
+                                'endTime': str(end_opening),
+                            })
+                        start_opening = end_opening
+        return sorted(openings, key=lambda i: (i['startTime'], i['uid']))
+
+    @classmethod
+    def _query_availability(cls, dept_code, date_):
+        # Per distinct UID, select availability slots for the provided date if present as date_override; otherwise
+        # fall back to slots with null date_override, indicating recurring per-weekday values.
+        sql = """SELECT u.uid, a.id, a.start_time, a.end_time FROM appointment_availability a
+                 JOIN (
+                    SELECT authorized_user_id, weekday, dept_code, MAX(date_override) AS date_override
+                    FROM appointment_availability
+                    WHERE weekday = :weekday
+                        AND dept_code = :dept_code
+                        AND (date_override = :date_ OR date_override IS NULL)
+                    GROUP BY authorized_user_id, weekday, dept_code
+                ) t
+                ON a.authorized_user_id = t.authorized_user_id
+                AND a.weekday = t.weekday
+                AND a.dept_code = t.dept_code
+                AND (a.date_override = t.date_override OR (a.date_override IS NULL AND t.date_override IS NULL))
+                JOIN authorized_users u on a.authorized_user_id = u.id
+                ORDER BY uid, start_time"""
+        return db.session.execute(text(sql), {'date_': str(date_), 'weekday': date_.strftime('%a'), 'dept_code': dept_code})
+
+    @classmethod
     def to_api_json(cls, id_, start_time, end_time):
         return {
             'id': id_,
-            'startTime': str(start_time) if start_time else None,
-            'endTime': str(end_time) if end_time else None,
+            'startTime': start_time and str(start_time),
+            'endTime': start_time and str(end_time),
         }
 
     @classmethod
@@ -198,3 +227,7 @@ class AppointmentAvailability(Base):
             else:
                 previous_slot = slot
         std_commit()
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

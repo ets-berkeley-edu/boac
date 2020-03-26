@@ -23,15 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor
+from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor, utc_now
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
+from boac.models.appointment_availability import AppointmentAvailability
 from boac.models.appointment_event import appointment_event_type
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
@@ -82,13 +81,15 @@ def get_today_scheduled_appointments(dept_code):
     if dept_code not in BERKELEY_DEPT_CODE_TO_NAME:
         raise ResourceNotFoundError(f'Unrecognized department code: {dept_code}')
     elif _is_current_user_authorized():
-        local_date = localize_datetime(datetime.now())
+        local_today = localize_datetime(utc_now())
         advisor_uid = request.args.get('advisorUid')
-        scheduled_for_today = Appointment.get_scheduled(dept_code, local_date, advisor_uid)
+        scheduled_for_today = Appointment.get_scheduled(dept_code, local_today, advisor_uid)
         appointments = [a.to_api_json(current_user.get_id()) for a in scheduled_for_today]
+        openings = AppointmentAvailability.get_openings(dept_code, local_today, appointments)
         _put_student_profile_per_appointment(appointments)
         return tolerant_jsonify({
             'appointments': appointments,
+            'openings': openings,
         })
     else:
         raise ForbiddenRequestError(f'You are unauthorized to manage {dept_code} appointments.')

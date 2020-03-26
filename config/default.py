@@ -152,6 +152,9 @@ PHOTO_SIGNED_URL_EXPIRES_IN_SECONDS = 15 * 60
 # Millisecond interval for request to keep session alive
 PING_FREQUENCY = 900000
 
+# In minutes.
+SCHEDULED_APPOINTMENT_LENGTH = 30
+
 # Used to encrypt session cookie.
 SECRET_KEY = 'secret'
 
