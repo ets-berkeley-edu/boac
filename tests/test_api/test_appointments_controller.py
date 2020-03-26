@@ -26,9 +26,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import std_commit
 from boac.lib.util import localize_datetime, utc_now
 from boac.models.appointment import Appointment
+from boac.models.appointment_availability import AppointmentAvailability
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user_extension import DropInAdvisor
+import pytest
 import simplejson as json
 from sqlalchemy import and_
 from tests.util import override_config
@@ -41,6 +43,16 @@ l_s_college_advisor_uid = '188242'
 l_s_college_drop_in_advisor_uid = '53791'
 l_s_college_scheduler_uid = '19735'
 student_sid = '3456789012'
+
+
+@pytest.fixture()
+def coe_advisor_id():
+    return AuthorizedUser.get_id_per_uid(coe_advisor_uid)
+
+
+@pytest.fixture()
+def l_s_advisor_id():
+    return AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
 
 
 class AppointmentTestUtil:
@@ -84,6 +96,13 @@ class AppointmentTestUtil:
         assert response.status_code == expected_status_code
 
     @classmethod
+    def get_scheduled_today(cls, client, dept_code, expected_status_code=200):
+        response = client.get(f'/api/appointments/today/{dept_code}')
+        assert response.status_code == expected_status_code
+        if response.status_code == 200:
+            return response.json
+
+    @classmethod
     def _create_appointment(
             cls,
             client,
@@ -120,14 +139,14 @@ class AppointmentTestUtil:
         return cls._create_appointment(client, 'Drop-in', dept_code, details, **kwargs)
 
     @classmethod
-    def create_scheduled_appointment(cls, client, dept_code, details=None, **kwargs):
+    def create_scheduled_appointment(cls, client, dept_code, scheduled_time, advisor_uid, details=None, **kwargs):
         today = localize_datetime(utc_now()).strftime('%Y-%m-%d')
         kwargs.update({
-            'scheduled_time': f'{today}T13:00:00',
+            'scheduled_time': f'{today}T{scheduled_time}:00',
             'student_contact_info': '+15108675309',
             'student_contact_type': 'phone',
         })
-        return cls._create_appointment(client, 'Scheduled', dept_code, details, **kwargs)
+        return cls._create_appointment(client, 'Scheduled', dept_code, details, advisor_uid, **kwargs)
 
     @classmethod
     def reserve_appointment(cls, client, appointment_id, advisor_uid, expected_status_code=200):
@@ -244,30 +263,32 @@ class TestCreateDropInAppointment:
 
 class TestCreateScheduledAppointment:
 
-    @classmethod
-    def _get_scheduled_today(cls, client, dept_code, expected_status_code=200):
-        response = client.get(f'/api/appointments/today/{dept_code}')
-        assert response.status_code == expected_status_code
-        if response.status_code == 200:
-            return response.json['appointments']
-
-    def test_create_scheduled_appointment_as_coe_scheduler(self, app, client, fake_auth):
+    def test_create_scheduled_appointment_as_coe_scheduler(self, app, client, fake_auth, coe_advisor_id):
         """Scheduler can create appointments."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
+            today = localize_datetime(utc_now()).strftime('%a')
+            AppointmentAvailability.create(coe_advisor_id, 'COENG', '13:00', '14:00', today)
+            schedule_today = AppointmentTestUtil.get_scheduled_today(client, 'COENG')
+            assert len(schedule_today['openings']) == 2
+
             details = 'Aloysius has some questions.'
             appointment = AppointmentTestUtil.create_scheduled_appointment(
                 client=client,
                 dept_code='COENG',
                 details=details,
+                scheduled_time='13:00',
+                advisor_uid=coe_advisor_uid,
             )
             appointment_id = appointment['id']
-            scheduled_appts = self._get_scheduled_today(client, 'COENG')
-            matching = next((a for a in scheduled_appts if a['details'] == details), None)
+            schedule_today = AppointmentTestUtil.get_scheduled_today(client, 'COENG')
+            assert len(schedule_today['openings']) == 1
+
+            matching = next((a for a in schedule_today['appointments'] if a['details'] == details), None)
             assert matching
             assert appointment_id == matching['id']
             assert appointment['read'] is True
-            assert appointment['status'] == 'waiting'
+            assert appointment['status'] == 'reserved'
             assert appointment['statusBy']['uid'] == coe_scheduler_uid
             assert appointment['student']['sid'] == student_sid
             assert appointment['student']['name'] == 'Paul Kerschen'
@@ -280,10 +301,12 @@ class TestCreateScheduledAppointment:
             assert appointment['studentContactInfo'] == '+15108675309'
             assert appointment['studentContactType'] == 'phone'
             assert len(appointment['topics']) == 2
-            # Verify that a deleted appointment is off the waitlist
+
+            # Verify that a deleted appointment is off the waitlist.
             Appointment.delete(appointment_id)
-            scheduled_appts = self._get_scheduled_today(client, 'COENG')
-            assert next((a for a in scheduled_appts if a['details'] == details), None) is None
+            schedule_today = AppointmentTestUtil.get_scheduled_today(client, 'COENG')
+            assert next((a for a in schedule_today['appointments'] if a['details'] == details), None) is None
+            assert len(schedule_today['openings']) == 2
 
 
 class TestGetAppointment:
@@ -399,24 +422,70 @@ class TestAppointmentUpdate:
             std_commit(allow_test_environment=True)
             assert set(restored['topics']) == set(expected_topics)
 
-    def test_reschedule_appointment(self, app, client, fake_auth):
+    def test_reschedule_appointment(self, app, client, fake_auth, coe_advisor_id):
         """Scheduler can reschedule appointments."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['COENG']):
+            today = localize_datetime(utc_now()).strftime('%a')
+            AppointmentAvailability.create(coe_advisor_id, 'COENG', '13:00', '16:00', today)
             fake_auth.login(coe_scheduler_uid)
+
+            openings = AppointmentTestUtil.get_scheduled_today(client, 'COENG')['openings']
+            assert len(openings) == 6
+
             details = 'Aloysius has some questions.'
             appointment = AppointmentTestUtil.create_scheduled_appointment(
                 client=client,
                 dept_code='COENG',
                 details=details,
+                scheduled_time='13:00',
+                advisor_uid=coe_advisor_uid,
             )
             # UTC time representation will vary depending on time of year.
-            assert '20:00:00' in appointment['scheduledTime'] or '21:00:00' in appointment['scheduledTime']
+            scheduled_time = appointment['scheduledTime']
+            assert '20:00:00' in scheduled_time or '21:00:00' in scheduled_time
             appointment_id = appointment['id']
 
+            openings = AppointmentTestUtil.get_scheduled_today(client, 'COENG')['openings']
+            assert len(openings) == 5
+            assert next((o for o in openings if o['startTime'] == scheduled_time), None) is None
+
             today = localize_datetime(utc_now()).strftime('%Y-%m-%d')
-            scheduled_time = f'{today}T15:00:00'
-            updated = self._api_appointment_update(client, appointment_id, details, scheduled_time=scheduled_time)
-            assert '22:00:00' in updated['scheduledTime'] or '23:00:00' in updated['scheduledTime']
+            updated = self._api_appointment_update(client, appointment_id, details, scheduled_time=f'{today}T15:00:00')
+            updated_scheduled_time = updated['scheduledTime']
+            assert '22:00:00' in updated_scheduled_time or '23:00:00' in updated_scheduled_time
+
+            openings = AppointmentTestUtil.get_scheduled_today(client, 'COENG')['openings']
+            assert len(openings) == 5
+            assert next((o for o in openings if o['startTime'] == scheduled_time), None) is not None
+            assert next((o for o in openings if o['startTime'] == updated_scheduled_time), None) is None
+
+
+class TestAppointmentAvailability:
+
+    def test_per_department_schedule(self, app, client, fake_auth, l_s_advisor_id):
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['QCADV', 'QCADVMAJ']):
+            fake_auth.login(l_s_college_scheduler_uid)
+            today = localize_datetime(utc_now()).strftime('%a')
+            AppointmentAvailability.create(l_s_advisor_id, 'QCADV', '10:00', '12:00', today)
+            AppointmentAvailability.create(l_s_advisor_id, 'QCADVMAJ', '12:00', '13:00', today)
+            AppointmentAvailability.create(l_s_advisor_id, 'QCADV', '14:00', '15:30', today)
+            openings = AppointmentTestUtil.get_scheduled_today(client, 'QCADV')['openings']
+            assert len(openings) == 7
+            for o in openings:
+                assert o['uid'] == l_s_college_advisor_uid
+            if '17:00:00+00:00' in openings[0]['startTime']:
+                assert '17:30:00+00:00' in openings[0]['endTime']
+                assert '17:30:00+00:00' in openings[1]['startTime']
+                assert '18:00:00+00:00' in openings[1]['endTime']
+                assert '22:00:00+00:00' in openings[6]['startTime']
+                assert '22:30:00+00:00' in openings[6]['endTime']
+            else:
+                assert '18:00:00+00:00' in openings[0]['startTime']
+                assert '18:30:00+00:00' in openings[0]['endTime']
+                assert '18:30:00+00:00' in openings[1]['startTime']
+                assert '19:00:00+00:00' in openings[1]['endTime']
+                assert '23:00:00+00:00' in openings[6]['startTime']
+                assert '23:30:00+00:00' in openings[6]['endTime']
 
 
 class TestAppointmentCancel:
