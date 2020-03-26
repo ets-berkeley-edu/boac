@@ -12,10 +12,10 @@
               :id="`student-profile-advisor-${index}`"
               :key="index"
               class="mb-2">
-              <div v-if="advisor.role" :id="`student-profile-advisor-${index}-role`">
+              <div :id="`student-profile-advisor-${index}-role`">
                 <strong>{{ advisor.role }}</strong>
               </div>
-              <div v-if="advisor.plan" :id="`student-profile-advisor-${index}-plan`" class="text-muted">
+              <div :id="`student-profile-advisor-${index}-plan`" class="text-muted">
                 {{ advisor.plan }}
               </div>
               <div :id="`student-profile-advisor-${index}-name`" class="text-muted">

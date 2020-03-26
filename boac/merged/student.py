@@ -650,10 +650,8 @@ def _construct_student_profile(student):
     advisors = profile.get('advisors', [])
     for index, advisor in enumerate(advisors):
         if advisor.get('sid') == 'UCBUGADHAAS':
-            profile['advisors'][index] = {
-                'firstName': 'Haas Undergraduate Program',
-                'email': 'UGMajorAdvising@haas.berkeley.edu',
-            }
+            profile['advisors'][index]['firstName'] = 'Haas Undergraduate Program'
+            profile['advisors'][index]['email'] = 'UGMajorAdvising@haas.berkeley.edu'
     return profile
 
 
