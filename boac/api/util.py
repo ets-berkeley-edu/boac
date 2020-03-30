@@ -186,21 +186,6 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
     return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
 
 
-def canvas_course_api_feed(course):
-    return {
-        'canvasCourseId': course.get('canvas_course_id'),
-        'courseName': course.get('canvas_course_name'),
-        'courseCode': course.get('canvas_course_code'),
-        'courseTerm': course.get('canvas_course_term'),
-    }
-
-
-def canvas_courses_api_feed(courses):
-    if not courses:
-        return []
-    return [canvas_course_api_feed(course) for course in courses]
-
-
 def drop_in_advisors_for_dept_code(dept_code):
     dept_code = dept_code.upper()
     advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
@@ -211,32 +196,6 @@ def drop_in_advisors_for_dept_code(dept_code):
         advisor['status'] = a.status
         advisors.append(advisor)
     return sorted(advisors, key=lambda u: (u.get('firstName', '').upper(), u.get('lastName', '').upper(), u.get('id')))
-
-
-def sis_enrollment_class_feed(enrollment):
-    return {
-        'displayName': enrollment['sis_course_name'],
-        'title': enrollment['sis_course_title'],
-        'canvasSites': [],
-        'sections': [],
-    }
-
-
-def sis_enrollment_section_feed(enrollment):
-    section_data = enrollment.get('classSection', {})
-    grades = enrollment.get('grades', [])
-    grading_basis = enrollment.get('gradingBasis', {}).get('code')
-    return {
-        'ccn': section_data.get('id'),
-        'component': section_data.get('component', {}).get('code'),
-        'sectionNumber': section_data.get('number'),
-        'enrollmentStatus': enrollment.get('enrollmentStatus', {}).get('status', {}).get('code'),
-        'units': enrollment.get('enrolledUnits', {}).get('taken'),
-        'gradingBasis': translate_grading_basis(grading_basis),
-        'grade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'OFFL'), None),
-        'midtermGrade': next((grade.get('mark') for grade in grades if grade.get('type', {}).get('code') == 'MID'), None),
-        'primary': False if grading_basis == 'NON' else True,
-    }
 
 
 def put_notifications(student):
@@ -333,19 +292,6 @@ def get_template_attachment_ids_from_http_post():
 def get_note_topics_from_http_post():
     topics = request.form.get('topics', ())
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
-
-
-def translate_grading_basis(code):
-    bases = {
-        'CNC': 'C/NC',
-        'EPN': 'P/NP',
-        'ESU': 'S/U',
-        'GRD': 'Letter',
-        'LAW': 'Law',
-        'PNP': 'P/NP',
-        'SUS': 'S/U',
-    }
-    return bases.get(code) or code
 
 
 def get_my_curated_groups():
