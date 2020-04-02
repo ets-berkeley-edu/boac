@@ -18,6 +18,7 @@
             class="btn btn-link no-wrap pl-2 pr-2 pt-0"
             aria-label="Create a CE3 Admissions cohort"
             path="/cohort/new"
+            :default-counter="counter"
             :query-args="{domain: 'admitted_students'}">
             Create Cohort
           </NavLink>
@@ -130,6 +131,7 @@ export default {
   ],
   data: () => ({
     admits: undefined,
+    counter: null,
     exportEnabled: true,
     pagination: {
       currentPage: 1,
@@ -139,6 +141,7 @@ export default {
     totalAdmitCount: undefined
   }),
   mounted() {
+    this.counter = this.$route.query._;
     this.initPagination();
     this.loadAdmits();
   },

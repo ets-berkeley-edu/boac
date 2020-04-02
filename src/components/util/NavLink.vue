@@ -10,6 +10,11 @@
 export default {
   name: "NavLink",
   props: {
+    defaultCounter: {
+      type: Number,
+      required: true,
+      default: 0
+    },
     path: {
       type: String,
       required: true
@@ -19,10 +24,12 @@ export default {
       required: false
     }
   },
-  data: () => ({
-    counter: 0,
-    query: ''
-  }),
+  data() {
+    return {
+      counter: this.defaultCounter,
+      query: ''
+    };
+  },
   created() {
     if (this.queryArgs) {
       this.$_.each(this.$_.keys(this.queryArgs), key => {
