@@ -195,7 +195,7 @@ def drop_in_advisors_for_dept_code(dept_code):
         advisor['available'] = a.is_available
         advisor['status'] = a.status
         advisors.append(advisor)
-    return sorted(advisors, key=lambda u: (u.get('firstName', '').upper(), u.get('lastName', '').upper(), u.get('id')))
+    return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 
 def put_notifications(student):
