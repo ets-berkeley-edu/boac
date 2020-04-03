@@ -33,7 +33,7 @@ import re
 
 from boac import db
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import camelize, get_benchmarker, is_int, join_if_present, localize_datetime, search_result_text_snippet, utc_now
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
@@ -83,9 +83,8 @@ def get_sis_advising_notes(sid):
     legacy_attachments = _get_advising_note_attachments(sid)
     for legacy_note in legacy_notes:
         note_id = legacy_note['id']
-        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
         notes_by_id[note_id] = note_to_compatible_json(
-            note=note,
+            note=legacy_note,
             topics=legacy_topics.get(note_id),
             attachments=legacy_attachments.get(note_id),
         )
@@ -98,10 +97,9 @@ def get_asc_advising_notes(sid):
     legacy_topics = _get_asc_advising_note_topics(sid)
     for legacy_note in data_loch.get_asc_advising_notes(sid):
         note_id = legacy_note['id']
-        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
-        note['deptCode'] = ['UWASC']
+        legacy_note['dept_code'] = ['UWASC']
         notes_by_id[note_id] = note_to_compatible_json(
-            note=note,
+            note=legacy_note,
             topics=legacy_topics.get(note_id),
         )
         notes_by_id[note_id]['isLegacy'] = True
@@ -113,10 +111,9 @@ def get_e_i_advising_notes(sid):
     legacy_topics = _get_e_i_advising_note_topics(sid)
     for legacy_note in data_loch.get_e_i_advising_notes(sid):
         note_id = legacy_note['id']
-        note = {camelize(key): legacy_note[key] for key in legacy_note.keys()}
-        note['deptCode'] = ['ZCEEE']
+        legacy_note['dept_code'] = ['ZCEEE']
         notes_by_id[note_id] = note_to_compatible_json(
-            note=note,
+            note=legacy_note,
             topics=legacy_topics.get(note_id),
         )
         notes_by_id[note_id]['isLegacy'] = True
@@ -125,12 +122,13 @@ def get_e_i_advising_notes(sid):
 
 def get_non_legacy_advising_notes(sid):
     notes_by_id = {}
-    for note in [n.to_api_json() for n in Note.get_notes_by_sid(sid)]:
+    for row in Note.get_notes_by_sid(sid):
+        note = row.__dict__
         note_id = note['id']
         notes_by_id[str(note_id)] = note_to_compatible_json(
             note=note,
-            attachments=note.get('attachments'),
-            topics=note.get('topics'),
+            attachments=[a.to_api_json() for a in row.attachments if not a.deleted_at],
+            topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
         )
     return notes_by_id
 
@@ -173,7 +171,6 @@ def search_advising_notes(
     offset=0,
     limit=20,
 ):
-
     benchmark = get_benchmarker('search_advising_notes')
     benchmark('begin')
 
@@ -265,24 +262,23 @@ def _get_loch_notes_search_results(loch_results, search_terms):
         app,
         list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None])),
     )
-    for row in loch_results:
-        note = {camelize(key): row[key] for key in row.keys()}
-        advisor_feed = calnet_advisor_feeds.get(note.get('advisorSid'))
+    for note in loch_results:
+        advisor_feed = calnet_advisor_feeds.get(note.get('advisor_sid'))
         if advisor_feed:
-            advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('firstName'), advisor_feed.get('lastName')])
+            advisor_name = advisor_feed.get('name') or join_if_present(' ', [advisor_feed.get('first_name'), advisor_feed.get('last_name')])
         else:
             advisor_name = None
-        note_body = (note.get('noteBody') or '').strip() or join_if_present(', ', [note.get('noteCategory'), note.get('noteSubcategory')])
+        note_body = (note.get('note_body') or '').strip() or join_if_present(', ', [note.get('note_category'), note.get('note_subcategory')])
         results.append({
             'id': note.get('id'),
             'studentSid': note.get('sid'),
             'studentUid': note.get('uid'),
-            'studentName': join_if_present(' ', [note.get('firstName'), note.get('lastName')]),
-            'advisorSid': note.get('advisorSid'),
-            'advisorName': advisor_name or join_if_present(' ', [note.get('advisorFirstName'), note.get('advisorLastName')]),
+            'studentName': join_if_present(' ', [note.get('first_name'), note.get('last_name')]),
+            'advisorSid': note.get('advisor_sid'),
+            'advisorName': advisor_name or join_if_present(' ', [note.get('advisor_first_name'), note.get('advisor_last_name')]),
             'noteSnippet': search_result_text_snippet(note_body, search_terms, NOTE_SEARCH_PATTERN),
-            'createdAt': _resolve_created_at(note),
-            'updatedAt': _resolve_updated_at(note),
+            'createdAt': resolve_sis_created_at(note),
+            'updatedAt': resolve_sis_updated_at(note),
         })
     return results
 
@@ -417,7 +413,7 @@ def get_zip_stream_for_sid(sid):
 def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
     # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
     departments = []
-    dept_codes = note.get('deptCode') if 'deptCode' in note else note.get('authorDeptCodes') or []
+    dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
     for dept_code in dept_codes:
         departments.append({
             'code': dept_code,
@@ -427,44 +423,26 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
         'id': note.get('id'),
         'sid': note.get('sid'),
         'author': {
-            'id': note.get('authorId'),
-            'uid': note.get('authorUid'),
-            'sid': note.get('advisorSid'),
-            'name': note.get('authorName'),
-            'role': note.get('authorRole'),
+            'id': note.get('author_id'),
+            'uid': note.get('author_uid'),
+            'sid': note.get('advisor_sid'),
+            'name': note.get('author_name'),
+            'role': note.get('author_role'),
             'departments': departments,
         },
         'subject': note.get('subject'),
-        'body': note.get('body') or note.get('noteBody'),
-        'category': note.get('noteCategory'),
-        'subcategory': note.get('noteSubcategory'),
+        'body': note.get('body') or note.get('note_body'),
+        'category': note.get('note_category'),
+        'subcategory': note.get('note_subcategory'),
         'appointmentId': note.get('appointmentId'),
-        'createdBy': note.get('createdBy'),
-        'createdAt': _resolve_created_at(note),
+        'createdBy': note.get('created_by'),
+        'createdAt': resolve_sis_created_at(note),
         'updatedBy': note.get('updated_by'),
-        'updatedAt': _resolve_updated_at(note),
+        'updatedAt': resolve_sis_updated_at(note),
         'read': True if note_read else False,
         'topics': topics,
         'attachments': attachments,
     }
-
-
-def _resolve_created_at(note):
-    return note.get('createdAt').date().isoformat() if note.get('createdBy') == 'UCBCONVERSION' else _isoformat(note, 'createdAt')
-
-
-def _resolve_updated_at(note):
-    # Notes converted from pre-CS legacy systems have an updated_at value indicating (probably)
-    # time of conversion rather than an update by a human.
-    if note.get('createdBy') == 'UCBCONVERSION':
-        return None
-    else:
-        updated_at = note.get('updatedAt')
-        created_at = note.get('createdAt')
-        if created_at and updated_at and _tzinfo(updated_at) == _tzinfo(created_at):
-            return _isoformat(note, 'updatedAt') if (updated_at - created_at).seconds else None
-        else:
-            return _isoformat(note, 'updatedAt')
 
 
 def _get_sis_advising_note_topics(sid):
@@ -510,7 +488,3 @@ def _get_e_i_advising_note_topics(sid):
 def _isoformat(obj, key):
     value = obj.get(key)
     return value and value.astimezone(tzutc()).isoformat()
-
-
-def _tzinfo(_datetime):
-    return _datetime and _datetime.tzinfo

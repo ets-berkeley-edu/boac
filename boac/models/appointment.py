@@ -32,7 +32,7 @@ from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import (
     camelize, get_benchmarker, localize_datetime, localized_timestamp_to_utc,
-    search_result_text_snippet, titleize, utc_now, vacuum_whitespace,
+    search_result_text_snippet, TEXT_SEARCH_PATTERN, titleize, utc_now, vacuum_whitespace,
 )
 from boac.merged import calnet
 from boac.models.appointment_event import appointment_event_type, AppointmentEvent
@@ -45,9 +45,6 @@ from flask import current_app as app
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
-
-
-APPOINTMENT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
 appointment_student_contact_type_enum = ENUM(
@@ -136,7 +133,8 @@ class Appointment(Base):
         benchmark('begin')
         token_conditions = []
         params = {}
-        for idx, token in enumerate(tokens):
+        for token in tokens:
+            idx = tokens.index(token)
             token_conditions.append(
                 f"""JOIN appointments a{idx}
                 ON UPPER(a{idx}.advisor_name) LIKE :token_{idx}
@@ -153,7 +151,8 @@ class Appointment(Base):
         benchmark('execute query')
         results = db.session.execute(sql, params)
         benchmark('end')
-        return results
+        keys = results.keys()
+        return [dict(zip(keys, row)) for row in results.fetchall()]
 
     @classmethod
     def get_appointments_per_sid(cls, sid):
@@ -360,7 +359,7 @@ class Appointment(Base):
         offset=0,
     ):
         if search_phrase:
-            search_terms = [t.group(0) for t in list(re.finditer(APPOINTMENT_SEARCH_PATTERN, search_phrase)) if t]
+            search_terms = [t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t]
             search_phrase = ' & '.join(search_terms)
             fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM appointments_fts_index
@@ -410,8 +409,7 @@ class Appointment(Base):
         """).bindparams(**params)
         result = db.session.execute(query)
         keys = result.keys()
-        response = [_to_json(search_terms, dict(zip(keys, row))) for row in result.fetchall()]
-        return response
+        return [_to_json(search_terms, dict(zip(keys, row))) for row in result.fetchall()]
 
     def update(
         self,
@@ -504,7 +502,7 @@ def _to_json(search_terms, search_result):
         'createdBy': search_result['created_by'],
         'deptCode': search_result['dept_code'],
         'details': search_result['details'],
-        'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, APPOINTMENT_SEARCH_PATTERN),
+        'detailsSnippet': search_result_text_snippet(search_result['details'], search_terms, TEXT_SEARCH_PATTERN),
         'studentSid': sid,
         'updatedAt': _isoformat(search_result['updated_at']),
         'updatedBy': search_result['updated_by'],

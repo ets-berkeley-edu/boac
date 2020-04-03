@@ -248,6 +248,36 @@ CREATE TABLE boac_analytics.section_mean_gpas
     avg_gpa DOUBLE PRECISION NOT NULL
 );
 
+CREATE TABLE sis_advising_notes.advising_appointments
+(
+    id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    student_note_nr VARCHAR NOT NULL,
+    advisor_sid VARCHAR,
+    appointment_id VARCHAR,
+    note_category VARCHAR NOT NULL,
+    note_subcategory VARCHAR,
+    note_body VARCHAR NOT NULL,
+    created_by VARCHAR,
+    updated_by VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_appointment_advisor_names
+(
+    uid VARCHAR NOT NULL,
+    name VARCHAR NOT NULL
+);
+
+CREATE TABLE sis_advising_notes.advising_appointment_advisors
+(
+    uid VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL
+);
+
 CREATE TABLE sis_advising_notes.advising_notes
 (
     id VARCHAR NOT NULL,
@@ -595,14 +625,51 @@ VALUES
 ('2178','90200','2175',3.055),
 ('2178','90200','2172',3.23);
 
+INSERT INTO sis_advising_notes.advising_appointments
+(id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
+VALUES
+('11667051-00010', '11667051', '00010', '53791', '000000123', 'Appointment Type', 'Document', 'To my people who keep an impressive wingspan even when the cubicle shrink: you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
+('11667051-00011', '11667051', '00011', '700600500', NULL, 'Appointment Type', '', '', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
+('11667051-00012', '11667051', '00012', '100200300', NULL, 'Appointment Type', 'Entry w/o Contact', 'When soldering a perfect union it is vital to calculate any ornery loose ends so if mutiny ensues the aloof is assumed nuisance. The clue is in his vacancy, the proof is in his goosebumps.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
+('9100000000-00010', '9100000000', '00010', '100200300', NULL, 'Appointment Type', '', 'Art imitates life.', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+
+CREATE MATERIALIZED VIEW sis_advising_notes.advising_appointments_search_index AS (
+  SELECT id, to_tsvector(
+    'english',
+    CASE
+      WHEN note_body IS NOT NULL and TRIM(note_body) != '' THEN note_body
+      WHEN note_subcategory IS NOT NULL THEN note_category || ' ' || note_subcategory
+      ELSE note_category
+    END
+  ) AS fts_index
+  FROM sis_advising_notes.advising_appointments
+);
+
+INSERT INTO sis_advising_notes.advising_appointment_advisor_names
+(uid, name)
+VALUES
+('1081940', 'LORAMPS'),
+('1081940', 'GLUB'),
+('1133398', 'CHARLIE'),
+('1133398', 'CHRISTIAN'),
+('53791', 'MILICENT'),
+('53791', 'BALTHAZAR');
+
+INSERT INTO sis_advising_notes.advising_appointment_advisors
+(uid, sid, first_name, last_name)
+VALUES
+('1081940', '100200300', 'Loramps', 'Glub'),
+('1133398', '700600500', 'Charlie', 'Christian'),
+('53791', '53791', 'Milicent', 'Balthazar');
+
 INSERT INTO sis_advising_notes.advising_notes
 (id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
 VALUES
 ('11667051-00001', '11667051', '00001', '800700600', NULL, 'Quick Question', 'Hangouts', 'Brigitte is making athletic and moral progress', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
 ('11667051-00002', '11667051', '00002', '700600500', NULL, 'Evaluation', '', 'Brigitte demonstrates a cavalier attitude toward university requirements', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
-('11667051-00003', '11667051', '00003', '600500400', NULL, 'Appointment', '', 'But the iniquity of oblivion blindely scattereth her poppy, and deals with the memory of men without distinction to merit of perpetuity. Who can but pity the founder of the Pyramids? Herostratus lives that burnt the Temple of Diana, he is almost lost that built it; Time hath spared the Epitaph of Adrians horse, confounded that of himself. In vain we compute our felicities by the advantage of our good names, since bad have equall durations; and Thersites is like to live as long as Agamenon, without the favour of the everlasting Register: Who knows whether the best of men be known? or whether there be not more remarkable persons forgot, then any that stand remembred in the known account of time? the first man had been as unknown as the last, and Methuselahs long life had been his only Chronicle.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
+('11667051-00003', '11667051', '00003', '600500400', NULL, 'Student Request', '', 'But the iniquity of oblivion blindely scattereth her poppy, and deals with the memory of men without distinction to merit of perpetuity. Who can but pity the founder of the Pyramids? Herostratus lives that burnt the Temple of Diana, he is almost lost that built it; Time hath spared the Epitaph of Adrians horse, confounded that of himself. In vain we compute our felicities by the advantage of our good names, since bad have equall durations; and Thersites is like to live as long as Agamenon, without the favour of the everlasting Register: Who knows whether the best of men be known? or whether there be not more remarkable persons forgot, then any that stand remembred in the known account of time? the first man had been as unknown as the last, and Methuselahs long life had been his only Chronicle.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
 ('11667051-00004', '11667051', '00004', '600500400', NULL, 'Quick Question', 'Unanswered', ' ', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
-('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Appointment', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
+('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Administrative', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
 ('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
 ('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
 

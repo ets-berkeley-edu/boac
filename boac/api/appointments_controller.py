@@ -28,6 +28,7 @@ from boac.api.util import advisor_required, authorized_users_api_feed, drop_in_a
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor, utc_now
+from boac.merged.advising_appointment import get_appointment_advisors
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_availability import AppointmentAvailability
@@ -294,15 +295,9 @@ def find_appointment_advisors_by_name():
     if not query:
         raise BadRequestError('Search query must be supplied')
     limit = request.args.get('limit')
-    query_fragments = filter(None, query.upper().split(' '))
-    advisors = Appointment.find_advisors_by_name(query_fragments, limit=limit)
-
-    def _advisor_feed(a):
-        return {
-            'label': a.advisor_name,
-            'uid': a.advisor_uid,
-        }
-    return tolerant_jsonify([_advisor_feed(a) for a in advisors])
+    query_fragments = list(filter(None, query.upper().split(' ')))
+    advisors = get_appointment_advisors(query_fragments, limit=limit)
+    return tolerant_jsonify(advisors)
 
 
 def _advisor_attrs_for_uid(advisor_uid):

@@ -40,6 +40,8 @@ from titlecase import titlecase
 
 """Generic utilities."""
 
+TEXT_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
+
 
 def camelize(string):
     def lower_then_capitalize():

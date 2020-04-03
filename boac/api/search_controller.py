@@ -32,12 +32,12 @@ from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
+from boac.merged.advising_appointment import search_advising_appointments
 from boac.merged.advising_note import search_advising_notes
 from boac.merged.calnet import get_uid_for_csid
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import search_for_students
 from boac.models.alert import Alert
-from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
 from flask_login import current_user, login_required
@@ -150,7 +150,7 @@ def _appointments_search(search_phrase, params):
     if datetime_from and datetime_to and datetime_to <= datetime_from:
         raise BadRequestError('dateFrom must be less than dateTo')
 
-    appointment_results = Appointment.search(
+    appointment_results = search_advising_appointments(
         search_phrase=search_phrase,
         advisor_uid=advisor_uid,
         student_csid=student_csid,

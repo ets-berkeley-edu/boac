@@ -25,6 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import re
 
+from dateutil.tz import tzutc
+
 
 """A utility module collecting logic specific to the Berkeley campus."""
 
@@ -467,3 +469,32 @@ def section_is_eligible_for_alerts(enrollment, section):
         display_name = enrollment.get('displayName')
         decal_catalog_id_pattern = re.compile(' 1?9[89][A-Z]?[A-Z]?$')
         return not decal_catalog_id_pattern.search(display_name)
+
+
+def resolve_sis_created_at(advising_object):
+    if advising_object.get('created_by') == 'UCBCONVERSION':
+        return advising_object.get('created_at').date().isoformat()
+    return _isoformat(advising_object, 'created_at')
+
+
+def resolve_sis_updated_at(advising_object):
+    # Notes and appointments converted from pre-CS legacy systems have an updated_at value indicating (probably)
+    # time of conversion rather than an update by a human.
+    if advising_object.get('created_by') == 'UCBCONVERSION':
+        return None
+    else:
+        updated_at = advising_object.get('updated_at')
+        created_at = advising_object.get('created_at')
+        if created_at and updated_at and _tzinfo(updated_at) == _tzinfo(created_at):
+            return _isoformat(advising_object, 'updated_at') if (updated_at - created_at).seconds else None
+        else:
+            return _isoformat(advising_object, 'updated_at')
+
+
+def _isoformat(obj, key):
+    value = obj.get(key)
+    return value and value.astimezone(tzutc()).isoformat()
+
+
+def _tzinfo(_datetime):
+    return _datetime and _datetime.tzinfo
