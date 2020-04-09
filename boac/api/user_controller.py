@@ -328,6 +328,7 @@ def download_boa_users_csv():
                     'email': user.get('campusEmail') or user.get('email'),
                     'departments': _describe_dept_roles(user['departments']),
                     'appointment_roles': _describe_appointment_roles(user['departments'], user['dropInAdvisorStatus'], user['sameDayAdvisorStatus']),
+                    'can_access_advising_data': user.get('canAccessAdvisingData'),
                     'can_access_canvas_data': user.get('canAccessCanvasData'),
                     'is_blocked': user.get('isBlocked'),
                     'last_login': user.get('lastLogin'),

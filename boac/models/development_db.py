@@ -60,6 +60,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -67,6 +68,7 @@ _test_users = [
         'csid': '111111111',
         'isAdmin': False,
         'inDemoMode': True,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
     },
     {
@@ -74,6 +76,7 @@ _test_users = [
         'csid': '222222222',
         'isAdmin': False,
         'inDemoMode': True,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
     },
     {
@@ -82,6 +85,7 @@ _test_users = [
         'csid': '333333333',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': False,
         'canAccessCanvasData': False,
     },
     {
@@ -90,6 +94,7 @@ _test_users = [
         'csid': '444444444',
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
     },
     {
@@ -97,6 +102,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': True,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -104,6 +110,7 @@ _test_users = [
         'csid': '53791',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'firstName': 'Milicent',
         'lastName': 'Balthazar',
@@ -113,6 +120,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -120,6 +128,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -127,6 +136,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -134,6 +144,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -141,6 +152,7 @@ _test_users = [
         'csid': 'None',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -148,6 +160,7 @@ _test_users = [
         'csid': '800700600',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'firstName': 'Joni',
         'lastName': 'Mitchell',
@@ -157,6 +170,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -164,6 +178,7 @@ _test_users = [
         'csid': '100100600',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'title': 'Harmless Drudge',
         'calnetDeptCodes': ['HENGL'],
@@ -173,6 +188,7 @@ _test_users = [
         'csid': '100100300',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -180,6 +196,7 @@ _test_users = [
         'csid': '100400900',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
     },
     {
@@ -187,6 +204,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
     },
@@ -195,6 +213,7 @@ _test_users = [
         'csid': None,
         'isAdmin': True,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -202,6 +221,7 @@ _test_users = [
         'csid': '100200300',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'searchHistory': ['Moe', 'Larry', 'Curly'],
     },
@@ -212,6 +232,7 @@ _test_users = [
         'lastName': 'Visor',
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
     },
     {
@@ -219,6 +240,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -226,6 +248,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
     },
@@ -234,6 +257,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': True,
     },
@@ -242,6 +266,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
         'deleted': False,
     },
@@ -250,6 +275,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
         'deleted': False,
     },
@@ -465,6 +491,7 @@ def _create_users():
                 created_by='2040',
                 is_admin=test_user['isAdmin'],
                 in_demo_mode=test_user['inDemoMode'],
+                can_access_advising_data=test_user['canAccessAdvisingData'],
                 can_access_canvas_data=test_user['canAccessCanvasData'],
                 search_history=test_user.get('searchHistory', []),
             )

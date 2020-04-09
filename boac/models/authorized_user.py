@@ -41,6 +41,7 @@ class AuthorizedUser(Base):
     uid = db.Column(db.String(255), nullable=False, unique=True)
     is_admin = db.Column(db.Boolean)
     in_demo_mode = db.Column(db.Boolean, nullable=False)
+    can_access_advising_data = db.Column(db.Boolean, nullable=False)
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     created_by = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
@@ -85,6 +86,7 @@ class AuthorizedUser(Base):
             is_admin=False,
             is_blocked=False,
             in_demo_mode=False,
+            can_access_advising_data=True,
             can_access_canvas_data=True,
             search_history=(),
     ):
@@ -93,6 +95,7 @@ class AuthorizedUser(Base):
         self.is_admin = is_admin
         self.is_blocked = is_blocked
         self.in_demo_mode = in_demo_mode
+        self.can_access_advising_data = can_access_advising_data
         self.can_access_canvas_data = can_access_canvas_data
         self.search_history = search_history
 
@@ -100,6 +103,7 @@ class AuthorizedUser(Base):
         return f"""<AuthorizedUser {self.uid},
                     is_admin={self.is_admin},
                     in_demo_mode={self.in_demo_mode},
+                    can_access_advising_data={self.can_access_advising_data},
                     can_access_canvas_data={self.can_access_canvas_data},
                     search_history={self.search_history},
                     created={self.created_at},
@@ -140,6 +144,7 @@ class AuthorizedUser(Base):
             created_by,
             is_admin=False,
             is_blocked=False,
+            can_access_advising_data=True,
             can_access_canvas_data=True,
     ):
         existing_user = cls.query.filter_by(uid=uid).first()
@@ -150,12 +155,15 @@ class AuthorizedUser(Base):
             if existing_user.deleted_at:
                 existing_user.is_admin = is_admin
                 existing_user.is_blocked = is_blocked
+                existing_user.can_access_advising_data = can_access_advising_data
                 existing_user.can_access_canvas_data = can_access_canvas_data
                 existing_user.created_by = created_by
                 existing_user.deleted_at = None
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
             else:
+                if can_access_advising_data and not existing_user.can_access_advising_data:
+                    existing_user.can_access_advising_data = True
                 if can_access_canvas_data and not existing_user.can_access_canvas_data:
                     existing_user.can_access_canvas_data = True
                 if is_admin and not existing_user.is_admin:
@@ -171,6 +179,7 @@ class AuthorizedUser(Base):
                 is_admin=is_admin,
                 is_blocked=is_blocked,
                 in_demo_mode=False,
+                can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
             )
             db.session.add(user)
@@ -295,8 +304,17 @@ class AuthorizedUser(Base):
         return [row['uid'] for row in results]
 
     @classmethod
-    def update_user(cls, user_id, can_access_canvas_data=False, is_admin=False, is_blocked=False, include_deleted=False):
+    def update_user(
+        cls,
+        user_id,
+        can_access_advising_data=False,
+        can_access_canvas_data=False,
+        is_admin=False,
+        is_blocked=False,
+        include_deleted=False,
+    ):
         user = AuthorizedUser.find_by_id(user_id, include_deleted)
+        user.can_access_advising_data = can_access_advising_data
         user.can_access_canvas_data = can_access_canvas_data
         user.is_admin = is_admin
         user.is_blocked = is_blocked

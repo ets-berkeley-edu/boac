@@ -255,6 +255,7 @@ CREATE TABLE authorized_users (
     uid character varying(255) NOT NULL,
     is_admin boolean,
     in_demo_mode boolean DEFAULT false NOT NULL,
+    can_access_advising_data boolean DEFAULT true NOT NULL,
     can_access_canvas_data boolean DEFAULT true NOT NULL,
     search_history CHARACTER VARYING[],
     created_at timestamp with time zone NOT NULL,
