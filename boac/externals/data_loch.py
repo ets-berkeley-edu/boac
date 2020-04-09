@@ -745,6 +745,7 @@ def get_academic_plans_for_advisor(advisor_sid):
 
 def get_advisor_uids_for_affiliations(program, affiliations):
     sql = f"""SELECT DISTINCT uid,
+        CASE WHEN cs_permissions = 'UC_CS_AA_ADVISOR_VIEW' THEN false ELSE true END AS can_access_advising_data,
         CASE WHEN advisor_type_code IS NULL THEN false ELSE true END AS can_access_canvas_data
         FROM {advisor_schema()}.advisor_roles"""
     if program:

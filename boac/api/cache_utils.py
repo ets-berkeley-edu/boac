@@ -176,6 +176,7 @@ def refresh_department_memberships():
             user = AuthorizedUser.create_or_restore(
                 uid=membership['uid'],
                 created_by='0',
+                can_access_advising_data=membership['can_access_advising_data'],
                 can_access_canvas_data=membership['can_access_canvas_data'],
             )
             if user:
