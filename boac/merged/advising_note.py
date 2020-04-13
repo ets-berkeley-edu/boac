@@ -258,10 +258,10 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
 
 def _get_loch_notes_search_results(loch_results, search_terms):
     results = []
-    calnet_advisor_feeds = get_calnet_users_for_csids(
-        app,
-        list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None])),
-    )
+    if not loch_results:
+        return results
+    sids = list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None]))
+    calnet_advisor_feeds = get_calnet_users_for_csids(app, sids)
     for note in loch_results:
         advisor_feed = calnet_advisor_feeds.get(note.get('advisor_sid'))
         if advisor_feed:

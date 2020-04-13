@@ -28,6 +28,7 @@ import re
 from boac.api import errors
 from boac.api.util import (
     admin_required,
+    advising_data_access_required,
     advisor_required,
     authorized_users_api_feed,
     drop_in_advisors_for_dept_code,
@@ -358,13 +359,13 @@ def get_departments():
 
 
 @app.route('/api/users/appointment_schedulers')
-@advisor_required
+@advising_data_access_required
 def get_appointment_schedulers_for_my_depts():
     return tolerant_jsonify(_get_appointment_scheduler_list(current_user))
 
 
 @app.route('/api/users/appointment_schedulers/<dept_code>/add', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def add_appointment_scheduler_to_dept(dept_code):
     _verify_membership_and_appointments_enabled(current_user, dept_code)
     params = request.get_json() or {}
@@ -393,7 +394,7 @@ def add_appointment_scheduler_to_dept(dept_code):
 
 
 @app.route('/api/users/appointment_schedulers/<dept_code>/remove', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def remove_appointment_scheduler_from_dept(dept_code):
     _verify_membership_and_appointments_enabled(current_user, dept_code)
     params = request.get_json() or {}

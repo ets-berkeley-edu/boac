@@ -25,7 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from tests.util import override_config
 
-coe_advisor_uid = '90412'
+coe_drop_in_advisor_uid = '1133399'
+coe_advisor_no_advising_data_uid = '1022796'
 coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
 
@@ -42,12 +43,17 @@ class TestGetTopics:
         return response.json
 
     def test_not_authenticated(self, client):
-        """Deny anonymous access."""
+        """Denies anonymous access."""
+        self._api_all_topics(client, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_all_topics(client, expected_status_code=401)
 
     def test_not_include_deleted(self, client, fake_auth):
         """Get all topics, including deleted."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_topics(client)
         assert 'Topic for all, 1' in api_json
         assert 'Topic for appointments, 2' in api_json
@@ -58,7 +64,7 @@ class TestGetTopics:
 
     def test_get_all_topics(self, client, fake_auth):
         """Get all note topic options, not including deleted."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_topics(client, include_deleted=True)
         assert 'Topic for all, 1' in api_json
         assert 'Topic for notes, 9' in api_json
@@ -83,6 +89,12 @@ class TestTopicsForAppointment:
         """Returns 401 if not authenticated."""
         self._get_topics(client, expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            self._get_topics(client, expected_status_code=401)
+
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is not a drop-in advisor."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -105,7 +117,7 @@ class TestTopicsForAppointment:
     def test_advisor_get_appointment_topics(self, app, client, fake_auth):
         """COE advisor can get topics."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
-            fake_auth.login(coe_advisor_uid)
+            fake_auth.login(coe_drop_in_advisor_uid)
             topics = self._get_topics(client)
             assert len(topics) == 9
             assert topics[-1] == 'Other / Reason not listed'
@@ -113,7 +125,7 @@ class TestTopicsForAppointment:
     def test_get_all_topics_including_deleted(self, app, client, fake_auth):
         """Get all appointment topic options, including deleted."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
-            fake_auth.login(coe_advisor_uid)
+            fake_auth.login(coe_drop_in_advisor_uid)
             topics = self._get_topics(client, include_deleted=True)
             assert len(topics) == 11
             assert 'Topic for appointments, deleted' in topics
@@ -135,9 +147,14 @@ class TestTopicsForNotes:
         """Deny anonymous access to note topics."""
         self._api_all_note_topics(client, expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        self._api_all_note_topics(client, expected_status_code=401)
+
     def test_get_all_topics_for_notes_including_deleted(self, client, fake_auth):
         """Get all note topic options, including deleted."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_note_topics(client, include_deleted=True)
         assert 'Topic for all, 1' in api_json
         assert 'Topic for notes, 9' in api_json
@@ -146,7 +163,7 @@ class TestTopicsForNotes:
 
     def test_get_all_topics_for_notes(self, client, fake_auth):
         """Get all note topic options, not including deleted."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_note_topics(client)
         assert 'Topic for all, 1' in api_json
         assert 'Topic for notes, 9' in api_json

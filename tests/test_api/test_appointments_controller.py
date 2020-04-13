@@ -36,8 +36,10 @@ from sqlalchemy import and_
 from tests.util import override_config
 
 
-coe_advisor_uid = '90412'
+coe_advisor_uid = '211159'
+coe_advisor_no_advising_data_uid = '1022796'
 coe_drop_in_advisor_uid = '90412'
+coe_drop_in_advisor_2_uid = '1133399'
 coe_scheduler_uid = '6972201'
 l_s_college_advisor_uid = '188242'
 l_s_college_drop_in_advisor_uid = '53791'
@@ -175,6 +177,12 @@ class TestCreateDropInAppointment:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             AppointmentTestUtil.create_drop_in_appointment(client, 'COENG', expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.create_drop_in_appointment(client, 'COENG', expected_status_code=401)
+
     def test_not_drop_in_enabled(self, client, fake_auth):
         """Returns 401 if user's department is not configured for drop-in advising'."""
         fake_auth.login(coe_scheduler_uid)
@@ -263,6 +271,19 @@ class TestCreateDropInAppointment:
 
 class TestCreateScheduledAppointment:
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.create_scheduled_appointment(
+                client=client,
+                dept_code='COENG',
+                details='failed attempt',
+                scheduled_time='13:00',
+                advisor_uid=coe_advisor_no_advising_data_uid,
+                expected_status_code=401,
+            )
+
     def test_create_scheduled_appointment_as_coe_scheduler(self, app, client, fake_auth, coe_advisor_id):
         """Scheduler can create appointments."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['COENG']):
@@ -322,6 +343,12 @@ class TestGetAppointment:
             fake_auth.login(coe_scheduler_uid)
             AppointmentTestUtil.get_appointment(client, 1, 401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.get_appointment(client, 1, 401)
+
     def test_not_drop_in_enabled(self, client, fake_auth):
         """Returns 401 if user's department is not configured for drop-in advising'."""
         fake_auth.login(coe_scheduler_uid)
@@ -367,6 +394,12 @@ class TestAppointmentUpdate:
         """Returns 401 if not authenticated."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             self._api_appointment_update(client, 1, 'Hack the appointment!', expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            self._api_appointment_update(client, 1, 'Advise the appointment!', expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is a non-dropin advisor."""
@@ -462,6 +495,12 @@ class TestAppointmentUpdate:
 
 class TestAppointmentAvailability:
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.get_scheduled_today(client, 'COENG', expected_status_code=401)
+
     def test_per_department_schedule(self, app, client, fake_auth, l_s_advisor_id):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS', ['QCADV', 'QCADVMAJ']):
             fake_auth.login(l_s_college_scheduler_uid)
@@ -495,8 +534,14 @@ class TestAppointmentCancel:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             AppointmentTestUtil.cancel_appointment(client, 1, 'Cancelled by student', expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.cancel_appointment(client, 1, 'Cancelled by advisor', expected_status_code=401)
+
     def test_deny_advisor(self, app, client, fake_auth):
-        """Returns 403 if user is an advisor without drop_in responsibilities."""
+        """Returns 401 if user is an advisor without drop_in responsibilities."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             fake_auth.login(l_s_college_advisor_uid)
             AppointmentTestUtil.cancel_appointment(client, 1, 'Cancelled by advisor', expected_status_code=401)
@@ -559,6 +604,12 @@ class TestAppointmentCheckIn:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             AppointmentTestUtil.check_in_appointment(client, 1, l_s_college_advisor_uid, expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.check_in_appointment(client, 1, coe_advisor_no_advising_data_uid, expected_status_code=401)
+
     def test_deny_advisor(self, app, client, fake_auth):
         """Returns 401 if user is not a drop-in advisor."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -598,6 +649,13 @@ class TestAppointmentReserve:
         """Returns 401 if not authenticated."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             AppointmentTestUtil.reserve_appointment(client, 1, l_s_college_advisor_uid, expected_status_code=401)
+            self._unreserve_appointment(client, 1, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            AppointmentTestUtil.reserve_appointment(client, 1, coe_advisor_no_advising_data_uid, expected_status_code=401)
             self._unreserve_appointment(client, 1, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
@@ -692,8 +750,7 @@ class TestAppointmentReserve:
         """Reserve an appointment that another advisor has reserved."""
         dept_code = 'COENG'
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
-            advisor_1 = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-            user_1 = AuthorizedUser.find_by_id(advisor_1.authorized_user_id)
+            user_1 = AuthorizedUser.find_by_uid(coe_drop_in_advisor_uid)
             fake_auth.login(user_1.uid)
             waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
@@ -708,8 +765,7 @@ class TestAppointmentReserve:
             client.get('/api/auth/logout')
 
             # Another advisor comes along...
-            advisor_2 = DropInAdvisor.advisors_for_dept_code(dept_code)[1]
-            user_2 = AuthorizedUser.find_by_id(advisor_2.authorized_user_id)
+            user_2 = AuthorizedUser.find_by_uid(coe_drop_in_advisor_2_uid)
             fake_auth.login(user_2.uid)
 
             AppointmentTestUtil.reserve_appointment(client, waiting['id'], user_2.uid)
@@ -726,10 +782,9 @@ class TestAppointmentReserve:
 
     def test_unreserve_appointment(self, app, client, fake_auth):
         """Drop-in advisor can un-reserve an appointment."""
-        dept_code = 'QCADV'
+        dept_code = 'COENG'
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', [dept_code]):
-            advisor = DropInAdvisor.advisors_for_dept_code(dept_code)[0]
-            user = AuthorizedUser.find_by_id(advisor.authorized_user_id)
+            user = AuthorizedUser.find_by_uid(coe_drop_in_advisor_uid)
             fake_auth.login(user.uid)
             waiting = AppointmentTestUtil.create_drop_in_appointment(client, dept_code)
 
@@ -768,6 +823,12 @@ class TestAppointmentReopen:
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            self._reopen_appointment(client, 1, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
             self._reopen_appointment(client, 1, expected_status_code=401)
 
     def test_deny_advisor(self, app, client, fake_auth):
@@ -822,6 +883,12 @@ class TestAppointmentWaitlist:
     def test_mark_read_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            self._get_waitlist(client, 'COENG', expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
             self._get_waitlist(client, 'COENG', expected_status_code=401)
 
     def test_unrecognized_dept_code(self, app, client, fake_auth):
@@ -909,6 +976,12 @@ class TestMarkAppointmentRead:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             self._mark_appointment_read(client, 1, expected_status_code=401)
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            self._mark_appointment_read(client, 1, expected_status_code=401)
+
     def test_advisor_read_appointment(self, app, client, fake_auth):
         """L&S advisor reads an appointment."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -932,10 +1005,24 @@ class TestMarkAppointmentRead:
 
 class TestAuthorSearch:
 
+    @classmethod
+    def _api_search_advisors(cls, client, expected_status_code=200):
+        response = client.get('/api/appointments/advisors/find_by_name?q=Vis')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous access."""
+        self._api_search_advisors(client, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        self._api_search_advisors(client, expected_status_code=401)
+
     def test_find_appointment_advisors_by_name(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        response = client.get('/api/appointments/advisors/find_by_name?q=Vis')
-        assert response.status_code == 200
-        assert len(response.json) == 1
-        labels = [s['label'] for s in response.json]
+        response = self._api_search_advisors(client)
+        assert len(response) == 1
+        labels = [s['label'] for s in response]
         assert 'COE Add Visor' in labels

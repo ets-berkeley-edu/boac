@@ -168,7 +168,7 @@ _test_users = [
     {
         'uid': '211159',
         'csid': None,
-        'isAdmin': True,
+        'isAdmin': False,
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
@@ -188,7 +188,7 @@ _test_users = [
         'csid': '100100300',
         'isAdmin': False,
         'inDemoMode': False,
-        'canAccessAdvisingData': True,
+        'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
     },
     {
@@ -232,7 +232,7 @@ _test_users = [
         'lastName': 'Visor',
         'isAdmin': False,
         'inDemoMode': False,
-        'canAccessAdvisingData': False,
+        'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
     },
     {
@@ -309,6 +309,12 @@ _university_depts = {
                 'automate_membership': True,
             },
             {
+                'uid': '211159',
+                'role': 'advisor',
+                'isDropInAdvisor': False,
+                'automate_membership': True,
+            },
+            {
                 'uid': '13',
                 'role': 'advisor',
                 'isDropInAdvisor': False,
@@ -335,6 +341,12 @@ _university_depts = {
                 'role': 'scheduler',
                 'isDropInAdvisor': False,
                 'automate_membership': False,
+            },
+            {
+                'uid': '1022796',
+                'role': 'director',
+                'isDropInAdvisor': False,
+                'automate_membership': True,
             },
         ],
     },

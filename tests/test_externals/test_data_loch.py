@@ -37,16 +37,17 @@ class TestDataLoch:
     def test_get_advisor_uids_for_affiliations(self, app):
         """Returns one or more rows for each advisor in the program."""
         advisors = data_loch.get_advisor_uids_for_affiliations('UCOE', None)
-        assert len(advisors) == 5
+        assert len(advisors) == 6
 
         uids = [a['uid'] for a in advisors]
         advisors_by_uid = {uid: [a for a in advisors if a['uid'] == uid] for uid in uids}
         assert advisors_by_uid['13'] == [{'uid': '13', 'can_access_advising_data': True, 'can_access_canvas_data': False}]
-        assert advisors_by_uid['90412'] == [{'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': True}]
-        assert advisors_by_uid['1022796'] == [
-            {'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': True},
-            {'uid': '1022796', 'can_access_advising_data': True, 'can_access_canvas_data': True},
+        assert advisors_by_uid['90412'] == [
+            {'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': True},
+            {'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True},
         ]
+        assert advisors_by_uid['211159'] == [{'uid': '211159', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
+        assert advisors_by_uid['1022796'] == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': True}]
 
     def test_get_current_term_index(self):
         index = data_loch.get_current_term_index()
