@@ -40,9 +40,11 @@ from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
 asc_advisor_uid = '6446'
 coe_advisor_uid = '1133399'
+coe_advisor_no_advising_data_uid = '1022796'
 coe_scheduler_uid = '6972201'
 l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
+l_s_director_no_advising_data_uid = '1022796'
 admin_uid = '2040'
 
 coe_student = {
@@ -91,6 +93,11 @@ class TestGetNote:
 
     def test_not_authenticated(self, app, client, mock_coe_advising_note):
         """Returns 401 if not authenticated."""
+        self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
         self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
 
     def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
@@ -146,6 +153,20 @@ class TestNoteCreation:
             sid=coe_student['sid'],
             subject='Gobbledygook',
             body='Language made unintelligible by excessive use of abstruse technical terms.',
+            expected_status_code=401,
+        )
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_no_advising_data_uid)
+        assert _api_note_create(
+            app,
+            client,
+            author_id=user.id,
+            sid=coe_student['sid'],
+            subject='Verboten',
+            body='Diese Aktion ist nicht zulässig.',
             expected_status_code=401,
         )
 
@@ -264,33 +285,49 @@ class TestNoteCreation:
 
 class TestBatchNoteCreation:
 
+    sids = [
+        '960759268', '856024035', '370048698', '709706581', '518777297', '912902626', '466030628', '695508833',
+        '729680066', '534614253', '329221239', '882981218', '734373851', '968319871', '824231751', '904338427',
+        '849739234', '310798157', '301806363', '352212185', '3456789012', '5678901234', '11667051', '8901234567',
+        '3456789012', '11667051',
+    ]
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_no_advising_data_uid)
+        _api_batch_note_create(
+            app,
+            client,
+            author_id=user.id,
+            subject='Verboten',
+            body='Diese Aktion ist nicht zulässig.',
+            sids=self.sids,
+            expected_status_code=401,
+        )
+
     def test_batch_note_creation_with_sids(self, app, client, fake_auth, mock_note_template):
         """Batch note creation with list of SIDs."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
         advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
         subject = f'Elevate Me Later {datetime.now().timestamp()}'
-        sids = [
-            '960759268', '856024035', '370048698', '709706581', '518777297', '912902626', '466030628', '695508833',
-            '729680066', '534614253', '329221239', '882981218', '734373851', '968319871', '824231751', '904338427',
-            '849739234', '310798157', '301806363', '352212185', '3456789012', '5678901234', '11667051', '8901234567',
-            '3456789012', '11667051',
-        ]
+
         # Curated group
         curated_group_ids, sids_in_curated_groups = _get_curated_groups_ids_and_sids(advisor)
         # We need at least one curated_group SID that is NOT in the list o' sids above.
         sid_expected_in_curated_group = '7890123456'
         assert sid_expected_in_curated_group in sids_in_curated_groups
-        assert sid_expected_in_curated_group not in sids
+        assert sid_expected_in_curated_group not in self.sids
         # Cohort
         cohort_ids, sids_in_cohorts = _get_cohorts_ids_and_sids(advisor)
         # We need at least one cohort SID that is NOT in the list o' sids above.
         expected_sid_in_cohort = '9000000000'
-        assert expected_sid_in_cohort not in sids
+        assert expected_sid_in_cohort not in self.sids
         assert expected_sid_in_cohort in sids_in_cohorts
 
         # List above has duplicates - verify that it is de-duped.
-        distinct_sids = set(sids + sids_in_curated_groups + sids_in_cohorts)
+        distinct_sids = set(self.sids + sids_in_curated_groups + sids_in_cohorts)
         topics = ['Slanted', 'Enchanted']
         _api_batch_note_create(
             app,
@@ -298,7 +335,7 @@ class TestBatchNoteCreation:
             author_id=advisor.id,
             subject=subject,
             body='Well you greet the tokens and stamps, beneath the fake oil burnin\' lamps',
-            sids=sids,
+            sids=self.sids,
             curated_group_ids=curated_group_ids,
             cohort_ids=cohort_ids,
             topics=topics,
@@ -380,6 +417,23 @@ class TestBatchNoteCreation:
 
 class TestNoteAttachments:
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        delete_response = client.delete(f'/api/notes/1/attachment/1')
+        assert delete_response.status_code == 401
+
+        with mock_advising_note_s3_bucket(app):
+            base_dir = app.config['BASE_DIR']
+            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
+            response = client.post(
+                f'/api/notes/1/attachment',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+        assert response.status_code == 401
+
     def test_remove_attachment(self, app, client, fake_auth):
         """Remove an attachment from an existing note."""
         fake_auth.login(coe_advisor_uid)
@@ -448,6 +502,11 @@ class TestMarkNoteRead:
 
     def test_mark_read_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
+        assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
+
+    def test_user_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
         assert client.post('/api/notes/11667051-00001/mark_read').status_code == 401
 
     def test_mark_note_read(self, app, client, fake_auth):
@@ -525,6 +584,18 @@ class TestUpdateNotes:
             note_id=mock_advising_note.id,
             subject='Hack the subject!',
             body='Hack the body!',
+            expected_status_code=401,
+        )
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth, mock_coe_advising_note):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        assert self._api_note_update(
+            app,
+            client,
+            note_id=mock_coe_advising_note.id,
+            subject='Change the subject',
+            body='',
             expected_status_code=401,
         )
 
@@ -611,6 +682,13 @@ class TestDeleteNote:
         response = client.delete('/api/notes/delete/123')
         assert response.status_code == 401
 
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        response = client.delete(f'/api/notes/delete/{mock_coe_advising_note.id}')
+        assert response.status_code == 401
+        assert Note.find_by_id(mock_coe_advising_note.id)
+
     def test_unauthorized(self, client, fake_auth, mock_coe_advising_note):
         """Advisor cannot delete the note of another."""
         fake_auth.login('6446')
@@ -691,6 +769,12 @@ class TestStreamNoteAttachments:
         """Returns 401 if not authenticated."""
         assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
 
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with mock_legacy_note_attachment(app):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
+
     def test_stream_attachment(self, app, client, fake_auth):
         with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor_uid)
@@ -719,6 +803,11 @@ class TestStreamNotesZip:
         fake_auth.login(coe_advisor_uid)
         assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
 
+    def test_director_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a director who cannot access notes and appointments."""
+        fake_auth.login(l_s_director_no_advising_data_uid)
+        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+
     def test_not_found(self, client, fake_auth):
         """Returns 404 if SID not found."""
         fake_auth.login(admin_uid)
@@ -743,6 +832,12 @@ class TestStreamNotesZip:
 
 
 class TestAuthorSearch:
+
+    def test_user_without_advising_data_access(self, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        response = client.get('/api/notes/authors/find_by_name?q=Jo')
+        assert response.status_code == 401
 
     def test_note_author_prefix_search_by_name(self, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
@@ -823,7 +918,7 @@ def _api_batch_note_create(
             'curatedGroupIds': curated_group_ids or [],
             'subject': subject,
             'body': body,
-            'templateAttachmentIds': template_attachment_ids,
+            'templateAttachmentIds': template_attachment_ids or [],
             'topics': ','.join(topics),
         }
         for index, path in enumerate(attachments):

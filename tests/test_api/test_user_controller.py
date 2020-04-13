@@ -37,6 +37,7 @@ from tests.util import override_config
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
+coe_advisor_no_advising_data_uid = '1022796'
 coe_scheduler_uid = '6972201'
 deleted_user_csid = '333333333'
 deleted_user_uid = '33333'
@@ -82,6 +83,7 @@ class TestUserProfile:
         fake_auth.login(coe_scheduler_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAdmin'] is False
+        assert api_json['canAccessAdvisingData'] is True
         assert api_json['canAccessCanvasData'] is False
         assert not api_json['dropInAdvisorStatus']
         departments = api_json['departments']
@@ -101,6 +103,7 @@ class TestUserProfile:
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['UWASC']):
             fake_auth.login(asc_advisor_uid)
             api_json = self._api_my_profile(client)
+            assert api_json['canAccessAdvisingData'] is True
             assert api_json['canAccessCanvasData'] is True
             assert api_json['dropInAdvisorStatus'] == [{'deptCode': 'UWASC', 'available': True, 'status': None}]
             departments = api_json['departments']
@@ -465,8 +468,15 @@ class TestManageSchedulers:
             assert len(response.json) == 0
 
     def test_scheduler_list_requires_advisor(self, client, fake_auth):
-        fake_auth.login(l_s_college_scheduler_uid)
-        assert client.get('/api/users/appointment_schedulers').status_code == 401
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            fake_auth.login(l_s_college_scheduler_uid)
+            assert client.get('/api/users/appointment_schedulers').status_code == 401
+
+    def test_scheduler_list_requires_advising_data_access(self, app, client, fake_auth):
+        """Denies list access to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            assert client.get('/api/users/appointment_schedulers').status_code == 401
 
     def test_remove_then_add_scheduler(self, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -513,6 +523,13 @@ class TestManageSchedulers:
             fake_auth.login(coe_scheduler_uid)
             self._add_scheduler(client, coe_scheduler_uid, 'QCADV', expected_status_code=401)
             self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV', expected_status_code=401)
+
+    def test_add_remove_scheduler_requires_advising_data_access(self, app, client, fake_auth):
+        """Denies add/remove to a user who cannot access notes and appointments."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            self._add_scheduler(client, coe_scheduler_uid, 'COENG', expected_status_code=401)
+            self._remove_scheduler(client, coe_scheduler_uid, 'COENG', expected_status_code=401)
 
     def test_add_remove_scheduler_requires_dept_membership(self, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -822,6 +839,7 @@ class TestUserUpdate:
             authorized_user_id=None,
             is_admin=False,
             is_blocked=False,
+            can_access_advising_data=True,
             can_access_canvas_data=True,
     ):
         return {
@@ -829,6 +847,7 @@ class TestUserUpdate:
             'id': authorized_user_id,
             'isAdmin': is_admin,
             'isBlocked': is_blocked,
+            'canAccessAdvisingData': can_access_advising_data,
             'canAccessCanvasData': can_access_canvas_data,
         }
 
@@ -915,6 +934,7 @@ class TestUserUpdate:
         assert uid
         assert user['isAdmin'] is False
         assert user['isBlocked'] is False
+        assert user['canAccessAdvisingData'] is True
         assert user['canAccessCanvasData'] is True
         assert len(user['departments']) == 1
 

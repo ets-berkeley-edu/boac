@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.util import advisor_required, scheduler_required
+from boac.api.util import advising_data_access_required, scheduler_required
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.models.topic import Topic
@@ -31,7 +31,7 @@ from flask import current_app as app, request
 
 
 @app.route('/api/topics/all', methods=['GET'])
-@advisor_required
+@advising_data_access_required
 def get_all_topics():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(include_deleted=include_deleted)
@@ -47,7 +47,7 @@ def get_topics_for_appointment():
 
 
 @app.route('/api/topics/for_notes', methods=['GET'])
-@advisor_required
+@advising_data_access_required
 def get_topics_for_notes():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(available_in_notes=True, include_deleted=include_deleted)

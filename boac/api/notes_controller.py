@@ -27,8 +27,8 @@ import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
-    admin_or_director_required,
-    advisor_required,
+    advising_data_access_required,
+    director_advising_data_access_required,
     get_note_attachments_from_http_post,
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
@@ -54,7 +54,7 @@ from flask_login import current_user
 
 
 @app.route('/api/note/<note_id>')
-@advisor_required
+@advising_data_access_required
 def get_note(note_id):
     note = Note.find_by_id(note_id=note_id)
     if not note:
@@ -64,7 +64,7 @@ def get_note(note_id):
 
 
 @app.route('/api/notes/<note_id>/mark_read', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def mark_note_read(note_id):
     if NoteRead.find_or_create(current_user.get_id(), note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
@@ -73,7 +73,7 @@ def mark_note_read(note_id):
 
 
 @app.route('/api/notes/create', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def create_note():
     params = request.form
     sid = params.get('sid', None)
@@ -103,7 +103,7 @@ def create_note():
 
 
 @app.route('/api/notes/batch/create', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def batch_create_notes():
     params = request.form
     sids = _get_sids_for_note_creation()
@@ -133,7 +133,7 @@ def batch_create_notes():
 
 
 @app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def distinct_student_count():
     params = request.get_json()
     sids = get_param(params, 'sids', None)
@@ -149,7 +149,7 @@ def distinct_student_count():
 
 
 @app.route('/api/notes/update', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def update_note():
     params = request.form
     note_id = params.get('id', None)
@@ -171,7 +171,7 @@ def update_note():
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
-@advisor_required
+@advising_data_access_required
 def delete_note(note_id):
     if not current_user.is_admin:
         raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
@@ -183,7 +183,7 @@ def delete_note(note_id):
 
 
 @app.route('/api/notes/authors/find_by_name', methods=['GET'])
-@advisor_required
+@advising_data_access_required
 def find_note_authors_by_name():
     query = request.args.get('q')
     if not query:
@@ -203,7 +203,7 @@ def find_note_authors_by_name():
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def add_attachment(note_id):
     if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
@@ -223,7 +223,7 @@ def add_attachment(note_id):
 
 
 @app.route('/api/notes/<note_id>/attachment/<attachment_id>', methods=['DELETE'])
-@advisor_required
+@advising_data_access_required
 def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:
@@ -243,7 +243,7 @@ def remove_attachment(note_id, attachment_id):
 
 
 @app.route('/api/notes/attachment/<attachment_id>', methods=['GET'])
-@advisor_required
+@advising_data_access_required
 def download_attachment(attachment_id):
     is_legacy = not is_int(attachment_id)
     id_ = attachment_id if is_legacy else int(attachment_id)
@@ -258,7 +258,7 @@ def download_attachment(attachment_id):
 
 
 @app.route('/api/notes/download_for_sid/<sid>', methods=['GET'])
-@admin_or_director_required
+@director_advising_data_access_required
 def download_notes_and_attachments(sid):
     stream_data = get_zip_stream_for_sid(sid)
     if not stream_data or not stream_data['stream']:

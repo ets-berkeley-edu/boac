@@ -108,10 +108,10 @@ def get_appointment_advisors(query_fragments, limit=None):
 
 def _get_loch_appointments_search_results(loch_results, search_terms):
     results = []
-    calnet_advisor_feeds = get_calnet_users_for_csids(
-        app,
-        list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None])),
-    )
+    if not loch_results:
+        return results
+    sids = list(set([row.get('advisor_sid') for row in loch_results if row.get('advisor_sid') is not None]))
+    calnet_advisor_feeds = get_calnet_users_for_csids(app, sids)
     for appointment in loch_results:
         advisor_feed = calnet_advisor_feeds.get(appointment.get('advisor_sid'))
         if advisor_feed:

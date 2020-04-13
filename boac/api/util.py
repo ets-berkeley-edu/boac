@@ -74,6 +74,26 @@ def admin_or_director_required(func):
     return _admin_or_director_required
 
 
+def advising_data_access_required(func):
+    @wraps(func)
+    def _advising_data_access_required(*args, **kw):
+        is_authorized = (
+            current_user.is_authenticated
+            and current_user.can_access_advising_data
+            and (
+                current_user.is_admin
+                or _has_role_in_any_department(current_user, 'advisor')
+                or _has_role_in_any_department(current_user, 'director')
+            )
+        )
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _advising_data_access_required
+
+
 def advisor_required(func):
     @wraps(func)
     def _advisor_required(*args, **kw):
@@ -107,13 +127,35 @@ def ce3_required(func):
     return _ce3_required
 
 
+def director_advising_data_access_required(func):
+    @wraps(func)
+    def _director_advising_data_access_required(*args, **kw):
+        is_authorized = (
+            current_user.is_authenticated
+            and current_user.can_access_advising_data
+            and (
+                current_user.is_admin
+                or _has_role_in_any_department(current_user, 'director')
+            )
+        )
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _director_advising_data_access_required
+
+
 def drop_in_required(func):
     @wraps(func)
     def _drop_in_required(*args, **kw):
-        is_authorized = current_user.is_authenticated \
+        is_authorized = (
+            current_user.is_authenticated
+            and current_user.can_access_advising_data
             and (
                 current_user.is_admin or _is_drop_in_enabled(current_user)
             )
+        )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
@@ -125,13 +167,16 @@ def drop_in_required(func):
 def scheduler_required(func):
     @wraps(func)
     def _scheduler_required(*args, **kw):
-        is_authorized = current_user.is_authenticated \
+        is_authorized = (
+            current_user.is_authenticated
+            and current_user.can_access_advising_data
             and (
                 current_user.is_admin
                 or _is_drop_in_advisor(current_user)
                 or _is_drop_in_scheduler(current_user)
                 or _is_same_day_scheduler(current_user)
             )
+        )
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:
@@ -166,6 +211,7 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'id': user.id,
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
+            'canAccessAdvisingData': user.can_access_advising_data,
             'canAccessCanvasData': user.can_access_canvas_data,
             'deletedAt': _isoformat(user.deleted_at),
             'departments': [],
@@ -192,9 +238,10 @@ def drop_in_advisors_for_dept_code(dept_code):
     advisors = []
     for a in advisor_assignments:
         advisor = authorized_users_api_feed([a.authorized_user])[0]
-        advisor['available'] = a.is_available
-        advisor['status'] = a.status
-        advisors.append(advisor)
+        if advisor['canAccessAdvisingData']:
+            advisor['available'] = a.is_available
+            advisor['status'] = a.status
+            advisors.append(advisor)
     return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 

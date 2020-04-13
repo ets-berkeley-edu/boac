@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
+from boac.api.util import advising_data_access_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor, utc_now
@@ -97,7 +97,7 @@ def get_today_scheduled_appointments(dept_code):
 
 
 @app.route('/api/appointments/<appointment_id>')
-@advisor_required
+@advising_data_access_required
 def get_appointment(appointment_id):
     appointment = Appointment.find_by_id(appointment_id)
     if not appointment:
@@ -283,13 +283,13 @@ def create_appointment():
 
 
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
-@advisor_required
+@advising_data_access_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
 
 
 @app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
-@advisor_required
+@advising_data_access_required
 def find_appointment_advisors_by_name():
     query = request.args.get('q')
     if not query:

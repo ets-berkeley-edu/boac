@@ -109,6 +109,10 @@ class UserSession(UserMixin):
         return self.api_json['inDemoMode']
 
     @property
+    def can_access_advising_data(self):
+        return self.api_json['canAccessAdvisingData']
+
+    @property
     def can_access_canvas_data(self):
         return self.api_json['canAccessCanvasData']
 
@@ -172,6 +176,7 @@ class UserSession(UserMixin):
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
                 'inDemoMode': user and user.in_demo_mode,
+                'canAccessAdvisingData': user and user.can_access_advising_data,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
                 'uid': user and user.uid,
             },
