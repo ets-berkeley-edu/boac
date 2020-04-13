@@ -12,7 +12,7 @@ export default {
   props: {
     defaultCounter: {
       type: Number,
-      required: true,
+      required: false,
       default: 0
     },
     path: {
