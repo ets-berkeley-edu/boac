@@ -1092,6 +1092,41 @@ class TestUserUpdate:
         assert appointment.advisor_role is None
         assert appointment.advisor_dept_codes is None
 
+    def test_revoke_advising_and_canvas_data_access(self, client, fake_auth):
+        """Admin revokes user access to notes, appointments, and canvas data."""
+        fake_auth.login(admin_uid)
+        uid = '900000001'
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': '100000009',
+            },
+        )
+        user = self._api_create_or_update(
+            client,
+            profile=self._profile_object(
+                uid=uid,
+                can_access_advising_data=False,
+                can_access_canvas_data=False,
+            ),
+            memberships=[
+                {
+                    'code': 'QCADVMAJ',
+                    'role': 'scheduler',
+                    'automateMembership': False,
+                },
+            ],
+        )
+        uid = user['uid']
+        assert user['id']
+        assert uid
+        assert user['isAdmin'] is False
+        assert user['isBlocked'] is False
+        assert user['canAccessAdvisingData'] is False
+        assert user['canAccessCanvasData'] is False
+        assert len(user['departments']) == 1
+
 
 class TestDropInAdvising:
 

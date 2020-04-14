@@ -18,6 +18,7 @@
     "@ckeditor/ckeditor5-ui": "12.1.0",
     "@ckeditor/ckeditor5-vue": "1.0.0-beta.2",
     "@fortawesome/fontawesome-svg-core": "1.2.27",
+    "@fortawesome/free-regular-svg-icons": "5.12.1",
     "@fortawesome/free-solid-svg-icons": "5.12.1",
     "@fortawesome/vue-fontawesome": "0.1.9",
     "axios": "0.19.2",

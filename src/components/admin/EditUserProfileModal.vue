@@ -53,7 +53,7 @@
               placeholder="UID"
               size="lg"></b-form-input>
           </div>
-          <b-container fluid class="ml-2 w-50">
+          <b-container fluid class="ml-2">
             <b-row>
               <b-col><label for="is-admin">Admin</label></b-col>
               <b-col><b-form-checkbox id="is-admin" v-model="userProfile.isAdmin"></b-form-checkbox></b-col>
@@ -65,6 +65,10 @@
             <b-row>
               <b-col><label for="can-access-canvas-data">Canvas Data</label></b-col>
               <b-col><b-form-checkbox id="can-access-canvas-data" v-model="userProfile.canAccessCanvasData"></b-form-checkbox></b-col>
+            </b-row>
+            <b-row>
+              <b-col><label for="can-access-advising-data">Notes and Appointments</label></b-col>
+              <b-col><b-form-checkbox id="can-access-advising-data" v-model="userProfile.canAccessAdvisingData"></b-form-checkbox></b-col>
             </b-row>
             <b-row v-if="profile.id">
               <b-col><label for="is-deleted">Deleted</label></b-col>
@@ -184,6 +188,7 @@ export default {
     },
     profile: {
       default: () => ({
+        canAccessAdvisingData: true,
         canAccessCanvasData: true,
         departments: [],
         isAdmin: false,
@@ -236,6 +241,7 @@ export default {
         id: this.profile.id,
         uid: this.profile.uid,
         name: this.profile.name,
+        canAccessAdvisingData: this.profile.canAccessAdvisingData,
         canAccessCanvasData: this.profile.canAccessCanvasData,
         departments: [],
         isAdmin: this.profile.isAdmin,

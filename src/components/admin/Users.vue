@@ -51,6 +51,7 @@
                   {text: 'All', value: null},
                   {text: 'Advisors', value: 'advisor'},
                   {text: 'No Canvas Data', value: 'noCanvasDataAccess'},
+                  {text: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
                   {text: 'Directors', value: 'director'},
                   {text: 'Drop-In Advisors', value: 'dropInAdvisor'},
                   {text: 'Schedulers', value: 'scheduler'}
@@ -183,13 +184,23 @@
       </template>
       <template v-slot:cell(lastName)="row">
         <div class="d-flex">
-          <div class="pr-2">
+          <div v-if="!row.item.canAccessCanvasData" class="text-secondary pr-2 position-relative">
+            <span>C</span>
             <font-awesome
-              v-if="!row.item.canAccessCanvasData"
               :id="`permission-canvas-data-${row.item.uid}`"
-              class="text-secondary"
+              class="icon-slash"
               title="Cannot access Canvas data"
-              icon="eye-slash" />
+              icon="slash" />
+          </div>
+          <div v-if="!row.item.canAccessAdvisingData" class="text-secondary pr-2 position-relative">
+            <font-awesome
+              :id="`permission-advising-data-${row.item.uid}`"
+              :icon="['far', 'sticky-note']" />
+            <font-awesome
+              :id="`permission-advising-data-${row.item.uid}`"
+              class="icon-slash"
+              title="Cannot access Advising data"
+              icon="slash" />
           </div>
           <div v-if="row.item.name">
             <span class="sr-only">Name</span>
@@ -424,11 +435,20 @@ export default {
   padding: 0;
 }
 .column-uid {
-  width: 100px;
+  width: 140px;
 }
 .dept-name {
   color: #484;
   font-weight: 500;
+}
+.icon-slash {
+  color: #cf1715;
+  left: -4px;
+  position: absolute;
+  top: 4px;
+}
+.position-relative {
+  position: relative;
 }
 .total-user-count {
   max-height: 20px;
