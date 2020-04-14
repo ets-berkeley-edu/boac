@@ -513,11 +513,13 @@ def _update_drop_in_availability(uid, dept_code, new_availability):
 def _update_or_create_authorized_user(profile, include_deleted=False):
     user_id = profile.get('id')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
+    can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     is_admin = to_bool_or_none(profile.get('isAdmin'))
     is_blocked = to_bool_or_none(profile.get('isBlocked'))
     if user_id:
         return AuthorizedUser.update_user(
             user_id=user_id,
+            can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
             is_admin=is_admin,
             is_blocked=is_blocked,
@@ -535,6 +537,7 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
                 created_by=current_user.get_uid(),
                 is_admin=is_admin,
                 is_blocked=is_blocked,
+                can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
             )
         else:

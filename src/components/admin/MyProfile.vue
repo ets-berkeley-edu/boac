@@ -39,6 +39,7 @@
       <b-col>
         <div v-if="$currentUser.isAdmin" class="pb-3">You are a BOA Admin user.</div>
         <div v-if="!$currentUser.canAccessCanvasData" class="pb-3">You do not have access to bCourses (LMS) data.</div>
+        <div v-if="!$currentUser.canAccessAdvisingData" class="pb-3">You do not have access to advising notes or appointments.</div>
         <div
           v-for="department in $currentUser.departments"
           :key="department.code"

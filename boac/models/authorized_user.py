@@ -339,8 +339,7 @@ def _users_sql(
                     a.dept_code = :dept_code
                     AND a.authorized_user_id = u.id
             """
-        elif role == 'noCanvasDataAccess':
-            query_filter += 'AND u.can_access_canvas_data IS FALSE '
+        else:
             query_tables += f"""
                 JOIN university_depts d ON
                     d.dept_code = :dept_code
@@ -348,15 +347,12 @@ def _users_sql(
                     m.university_dept_id = d.id
                     AND m.authorized_user_id = u.id
             """
-        elif role in ['advisor', 'director', 'scheduler']:
-            query_tables += f"""
-                JOIN university_depts d ON
-                    d.dept_code = :dept_code
-                JOIN university_dept_members m ON
-                    m.university_dept_id = d.id
-                    AND m.authorized_user_id = u.id
-                    AND m.role = '{role}'
-            """
+            if role == 'noCanvasDataAccess':
+                query_filter += 'AND u.can_access_canvas_data IS FALSE '
+            elif role == 'noAdvisingDataAccess':
+                query_filter += 'AND u.can_access_advising_data IS FALSE '
+            elif role in ['advisor', 'director', 'scheduler']:
+                query_tables += f"AND m.role = '{role}'"
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
         if role == 'dropInAdvisor':
@@ -366,6 +362,8 @@ def _users_sql(
             """
         elif role == 'noCanvasDataAccess':
             query_filter += 'AND u.can_access_canvas_data IS FALSE '
+        elif role == 'noAdvisingDataAccess':
+            query_filter += 'AND u.can_access_advising_data IS FALSE '
         else:
             query_tables += f"""
                 JOIN university_dept_members m ON
