@@ -317,15 +317,16 @@
 
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
-import Loading from '@/mixins/Loading.vue';
-import Util from '@/mixins/Util';
+import Loading from '@/mixins/Loading';
+import Scrollable from '@/mixins/Scrollable';
 import Spinner from '@/components/util/Spinner';
+import Util from '@/mixins/Util';
 import { getAdmitBySid } from '@/api/admit';
 
 export default {
   name: 'AdmitStudent',
-  components: { Spinner, AdmitDataWarning },
-  mixins: [Loading, Util],
+  components: { AdmitDataWarning, Spinner },
+  mixins: [Loading, Scrollable, Util],
   data: () => ({
     admit: {}
   }),
@@ -357,7 +358,10 @@ export default {
         this.$router.push({ path: '/404' });
       }
     });
-  }
+  },
+  mounted() {
+    this.scrollToTop();
+  },
 }
 </script>
 
