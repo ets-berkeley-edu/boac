@@ -149,7 +149,7 @@ class TestRefreshDepartmentMemberships:
         assert len(coe_users) == 6
         assert next(u for u in coe_users if u.uid == coe_advisor_uid)
         user = AuthorizedUser.query.filter_by(uid=coe_advisor_uid).first()
-        assert user.can_access_canvas_data is True
+        assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
         assert user.deleted_at is None
         assert user.created_by == '0'
@@ -175,7 +175,7 @@ class TestRefreshDepartmentMemberships:
         assert len(coe_users) == 6
         assert next(u for u in coe_users if u.uid == coe_advisor_uid)
         user = AuthorizedUser.query.filter_by(uid=coe_advisor_uid).first()
-        assert user.can_access_canvas_data is True
+        assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
         assert user.deleted_at is None
         assert user.created_by == '0'

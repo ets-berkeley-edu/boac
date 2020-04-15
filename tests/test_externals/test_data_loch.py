@@ -43,11 +43,11 @@ class TestDataLoch:
         advisors_by_uid = {uid: [a for a in advisors if a['uid'] == uid] for uid in uids}
         assert advisors_by_uid['13'] == [{'uid': '13', 'can_access_advising_data': True, 'can_access_canvas_data': False}]
         assert advisors_by_uid['90412'] == [
-            {'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': True},
+            {'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': False},
             {'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True},
         ]
         assert advisors_by_uid['211159'] == [{'uid': '211159', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
-        assert advisors_by_uid['1022796'] == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': True}]
+        assert advisors_by_uid['1022796'] == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': False}]
 
     def test_get_current_term_index(self):
         index = data_loch.get_current_term_index()
