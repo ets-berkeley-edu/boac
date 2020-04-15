@@ -63,9 +63,11 @@ export default {
     dropInSchedulingDepartments: []
   }),
   created() {
-    getDropInSchedulers().then(departments => {
-      this.dropInSchedulingDepartments = departments;
-    });
+    if (this.$currentUser.canAccessAdvisingData) {
+      getDropInSchedulers().then(departments => {
+        this.dropInSchedulingDepartments = departments;
+      });
+    }
   },
   mounted() {
     this.loaded('Flight Deck');

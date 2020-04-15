@@ -27,7 +27,7 @@
         <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
       </div>
     </div>
-    <div v-if="!$currentUser.isAdmin">
+    <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
       <div class="batch-note-button fixed-bottom mb-3">
         <CreateNoteModal id="batch-note-button" />
       </div>
@@ -57,7 +57,13 @@ export default {
   mixins: [Context, CurrentUserExtras, Util],
   computed: {
     domain() {
-      let domain = this.$currentUser.canAccessCanvasData ? ['students', 'courses', 'notes'] : ['students', 'notes'];
+      let domain = ['students'];
+      if (this.$currentUser.canAccessCanvasData) {
+        domain.push('courses');
+      }
+      if (this.$currentUser.canAccessAdvisingData) {
+        domain.push('notes');
+      }
       if (this.includeAdmits) {
         domain.push('admits');
       }

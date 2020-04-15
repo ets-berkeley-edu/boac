@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!$currentUser.isAdmin">
+      <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
         <CreateNoteModal
           :on-create-note-start="onCreateNoteStart"
           :on-create-note-success="onCreateNoteSuccess"
@@ -363,28 +363,6 @@ export default {
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
     filter: undefined,
-    filterTypes: {
-      note: {
-        name: 'Advising Note',
-        tab: 'Notes'
-      },
-      appointment: {
-        name: 'Appointment',
-        tab: 'Appointments'
-      },
-      alert: {
-        name: 'Alert',
-        tab: 'Alerts'
-      },
-      hold: {
-        name: 'Hold',
-        tab: 'Holds'
-      },
-      requirement: {
-        name: 'Requirement',
-        tab: 'Reqs'
-      }
-    },
     isShowingAll: false,
     isTimelineLoading: true,
     messageForDelete: undefined,
@@ -408,6 +386,33 @@ export default {
     },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
+    },
+    filterTypes() {
+      let filterTypes = {
+        alert: {
+          name: 'Alert',
+          tab: 'Alerts'
+        },
+        hold: {
+          name: 'Hold',
+          tab: 'Holds'
+        },
+        requirement: {
+          name: 'Requirement',
+          tab: 'Reqs'
+        }
+      }
+      if (this.$currentUser.canAccessAdvisingData) {
+        filterTypes.note = {
+          name: 'Advising Note',
+          tab: 'Notes'
+        }
+        filterTypes.appointment = {
+          name: 'Appointment',
+          tab: 'Appointments'
+        }
+      }
+      return filterTypes;
     },
     isExpandAllAvailable() {
       return this.includes(['appointment', 'note'], this.filter);
@@ -456,13 +461,16 @@ export default {
         }
       }
     };
-    this.$eventHub.$on('advising-note-created', onCreateNewNote);
-    this.$eventHub.$on('batch-of-notes-created', note_ids_per_sid => {
-      const noteId = note_ids_per_sid[this.student.sid];
-      if (noteId) {
-        getNote(noteId).then(note => onCreateNewNote(note));
-      }
-    });
+    if (this.$currentUser.canAccessAdvisingData) {
+      this.$eventHub.$on('advising-note-created', onCreateNewNote);
+      this.$eventHub.$on('batch-of-notes-created', note_ids_per_sid => {
+        const noteId = note_ids_per_sid[this.student.sid];
+        if (noteId) {
+          getNote(noteId).then(note => onCreateNewNote(note));
+        }
+      });
+    }
+    
   },
   mounted() {
     if (this.anchor) {
