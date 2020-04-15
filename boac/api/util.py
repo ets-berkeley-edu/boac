@@ -248,31 +248,32 @@ def drop_in_advisors_for_dept_code(dept_code):
 def put_notifications(student):
     sid = student['sid']
     student['notifications'] = {
-        'note': [],
         'alert': [],
         'hold': [],
         'requirement': [],
     }
-    student['notifications']['appointment'] = []
-    for appointment in Appointment.get_appointments_per_sid(sid) or []:
-        student['notifications']['appointment'].append({
-            **appointment.to_api_json(current_user.get_id()),
-            **{
-                'message': appointment.details,
-                'type': 'appointment',
-            },
-        })
+    if current_user.can_access_advising_data:
+        student['notifications']['appointment'] = []
+        student['notifications']['note'] = []
+        for appointment in Appointment.get_appointments_per_sid(sid) or []:
+            student['notifications']['appointment'].append({
+                **appointment.to_api_json(current_user.get_id()),
+                **{
+                    'message': appointment.details,
+                    'type': 'appointment',
+                },
+            })
 
-    # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
-    for note in get_advising_notes(sid) or []:
-        message = note['body']
-        student['notifications']['note'].append({
-            **note,
-            **{
-                'message': message.strip() if message else None,
-                'type': 'note',
-            },
-        })
+        # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
+        for note in get_advising_notes(sid) or []:
+            message = note['body']
+            student['notifications']['note'].append({
+                **note,
+                **{
+                    'message': message.strip() if message else None,
+                    'type': 'note',
+                },
+            })
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
         student['notifications']['alert'].append({
             **alert,

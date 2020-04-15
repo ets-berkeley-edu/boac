@@ -105,7 +105,7 @@
             Classes
           </label>
         </div>
-        <div class="d-flex flex-wrap">
+        <div v-if="$currentUser.canAccessAdvisingData" class="d-flex flex-wrap">
           <b-form-checkbox
             id="search-include-notes-checkbox"
             v-model="includeNotes"
@@ -127,6 +127,7 @@
           </b-btn>
         </div>
         <b-collapse
+          v-if="$currentUser.canAccessAdvisingData"
           id="search-options-note-filters-subpanel"
           v-model="showNoteFilters"
           class="search-options-note-filters-subpanel text-white">
