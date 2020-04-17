@@ -238,7 +238,7 @@ USING gin(fts_index);
 --
 
 CREATE TABLE appointments_read (
-    appointment_id INTEGER NOT NULL,
+    appointment_id VARCHAR(255) NOT NULL,
     viewer_id INTEGER NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -779,8 +779,6 @@ ALTER TABLE ONLY appointment_events
 
 --
 
-ALTER TABLE ONLY appointments_read
-    ADD CONSTRAINT appointments_read_appointment_id_fkey FOREIGN KEY (appointment_id) REFERENCES appointments(id) ON DELETE CASCADE;
 ALTER TABLE ONLY appointments_read
     ADD CONSTRAINT appointments_read_viewer_id_fkey FOREIGN KEY (viewer_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 

@@ -285,7 +285,7 @@ def create_appointment():
 @app.route('/api/appointments/<appointment_id>/mark_read', methods=['POST'])
 @advising_data_access_required
 def mark_appointment_read(appointment_id):
-    return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), int(appointment_id)).to_api_json())
+    return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), appointment_id).to_api_json())
 
 
 @app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
