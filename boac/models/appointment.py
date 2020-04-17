@@ -484,8 +484,29 @@ class Appointment(Base):
             })
         return {
             **api_json,
-            **_appointment_event_to_json(self.id, self.status),
+            **appointment_event_to_json(self.id, self.status),
         }
+
+
+def appointment_event_to_json(appointment_id, event_type):
+    event = AppointmentEvent.get_most_recent_per_type(
+        appointment_id=appointment_id,
+        event_type=event_type,
+    ) if event_type else None
+
+    def _status_by_user():
+        uid = AuthorizedUser.get_uid_per_id(event.user_id)
+        return {
+            'id': event.user_id,
+            **calnet.get_calnet_user_for_uid(app, uid),
+        }
+    return {
+        'cancelReason': event and event.cancel_reason,
+        'cancelReasonExplained': event and event.cancel_reason_explained,
+        'status': event_type,
+        'statusBy': event and _status_by_user(),
+        'statusDate': event and _isoformat(event.created_at),
+    }
 
 
 def _to_json(search_terms, search_result):
@@ -509,29 +530,8 @@ def _to_json(search_terms, search_result):
     }
     return {
         **api_json,
-        **_appointment_event_to_json(appointment_id, search_result['status']),
+        **appointment_event_to_json(appointment_id, search_result['status']),
         **_student_to_json(sid),
-    }
-
-
-def _appointment_event_to_json(appointment_id, event_type):
-    event = AppointmentEvent.get_most_recent_per_type(
-        appointment_id=appointment_id,
-        event_type=event_type,
-    ) if event_type else None
-
-    def _status_by_user():
-        uid = AuthorizedUser.get_uid_per_id(event.user_id)
-        return {
-            'id': event.user_id,
-            **calnet.get_calnet_user_for_uid(app, uid),
-        }
-    return {
-        'cancelReason': event and event.cancel_reason,
-        'cancelReasonExplained': event and event.cancel_reason_explained,
-        'status': event_type,
-        'statusBy': event and _status_by_user(),
-        'statusDate': event and _isoformat(event.created_at),
     }
 
 

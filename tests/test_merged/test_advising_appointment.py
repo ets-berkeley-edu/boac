@@ -24,18 +24,121 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.merged.advising_appointment import get_appointment_advisors, search_advising_appointments
+from boac.merged.advising_appointment import (
+    get_advising_appointments,
+    get_appointment_advisors,
+    search_advising_appointments,
+)
 
 
-coe_advisor = '1133399'
+coe_advisor_uid = '1133399'
+student_sid = '11667051'
 
 
 class TestMergedAdvisingAppointment:
     """Advising appointment data, merged."""
 
+    def test_get_advising_appointments(self, app, fake_auth):
+        """Returns all legacy and BOA appointments for a given SID."""
+        appointments = get_advising_appointments(student_sid)
+        assert len(appointments) == 5
+
+        # Legacy SIS appointments
+        assert appointments[0]['id'] == '11667051-00010'
+        assert appointments[0]['advisor']
+        assert appointments[0]['advisor']['id'] == 7
+        assert appointments[0]['advisor']['name'] == 'Milicent Balthazar'
+        assert appointments[0]['advisor']['title'] is None
+        assert appointments[0]['advisor']['uid'] == '53791'
+        assert appointments[0]['advisor']['departments'] == []
+        assert appointments[0]['appointmentType'] is None
+        assert appointments[0]['attachments'] is None
+        assert appointments[0]['createdAt'] == '2017-10-31T12:00:00+00:00'
+        assert appointments[0]['createdBy'] is None
+        assert appointments[0]['deptCode'] is None
+        assert appointments[0]['details'] == 'To my people who keep an impressive wingspan even when the cubicle shrink: \
+you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine'
+        assert appointments[0]['isLegacy'] is True
+        assert appointments[0]['student']
+        assert appointments[0]['student']['sid'] == student_sid
+        assert appointments[0]['topics'] is None
+        assert appointments[0]['updatedAt'] is None
+        assert appointments[0]['updatedBy'] is None
+        assert 'cancelReason' not in appointments[0]
+        assert 'cancelReasonExplained' not in appointments[0]
+        assert 'status' not in appointments[0]
+        assert 'statusBy' not in appointments[0]
+        assert 'statusDate' not in appointments[0]
+
+        # Non-legacy appointments
+        assert appointments[3]['id'] == 10
+        assert appointments[3]['advisor']
+        assert appointments[3]['advisor']['id'] is None
+        assert appointments[3]['advisor']['name'] == ''
+        assert appointments[3]['advisor']['title'] is None
+        assert appointments[3]['advisor']['uid'] is None
+        assert appointments[3]['advisor']['departments'] == []
+        assert appointments[3]['appointmentType'] == 'Drop-in'
+        assert appointments[3]['attachments'] is None
+        assert appointments[3]['createdAt']
+        assert appointments[3]['createdBy'] == 7
+        assert appointments[3]['deptCode'] == 'QCADV'
+        assert appointments[3]['details'] == 'You be you.'
+        assert 'isLegacy' not in appointments[3]
+        assert appointments[3]['student']
+        assert appointments[3]['student']['sid'] == student_sid
+        assert appointments[3]['topics'] == ['Topic for appointments, 1']
+        assert appointments[3]['updatedAt'] is None
+        assert appointments[3]['updatedBy'] == 7
+        assert appointments[3]['cancelReason'] is None
+        assert appointments[3]['cancelReasonExplained'] is None
+        assert appointments[3]['status'] == 'waiting'
+        assert appointments[3]['statusBy']
+        assert appointments[3]['statusBy']['id'] == 7
+        assert appointments[3]['statusBy']['uid'] == '53791'
+        assert appointments[3]['statusBy']['csid'] == '53791'
+        assert appointments[3]['statusBy']['name'] == 'Milicent Balthazar'
+        assert appointments[3]['statusBy']['lastName'] == 'Balthazar'
+        assert appointments[3]['statusBy']['firstName'] == 'Milicent'
+        assert appointments[3]['statusDate']
+
+        assert appointments[4]['id'] == 5
+        assert appointments[4]['advisor']
+        assert appointments[4]['advisor']['id'] == 7
+        assert appointments[4]['advisor']['name'] == 'Milicent Balthazar'
+        assert appointments[4]['advisor']['title'] == 'Advisor'
+        assert appointments[4]['advisor']['uid'] == '53791'
+        assert appointments[4]['advisor']['departments'] == [
+            {'code': 'QCADV', 'name': 'L&S College Advising'},
+            {'code': 'QCADVMAJ', 'name': 'L&S Major Advising'},
+        ]
+        assert appointments[4]['appointmentType'] == 'Drop-in'
+        assert appointments[4]['attachments'] is None
+        assert appointments[4]['createdAt']
+        assert appointments[4]['createdBy'] == 7
+        assert appointments[4]['deptCode'] == 'QCADV'
+        assert appointments[4]['details'] == 'It is not the length of life, but depth of life.'
+        assert 'isLegacy' not in appointments[4]
+        assert appointments[4]['student']
+        assert appointments[4]['student']['sid'] == student_sid
+        assert appointments[4]['topics'] == ['Topic for appointments, 1']
+        assert appointments[4]['updatedAt'] is None
+        assert appointments[4]['updatedBy'] == 7
+        assert appointments[4]['cancelReason'] is None
+        assert appointments[4]['cancelReasonExplained'] is None
+        assert appointments[4]['status'] == 'checked_in'
+        assert appointments[4]['statusBy']
+        assert appointments[4]['statusBy']['id'] == 7
+        assert appointments[4]['statusBy']['uid'] == '53791'
+        assert appointments[4]['statusBy']['csid'] == '53791'
+        assert appointments[4]['statusBy']['name'] == 'Milicent Balthazar'
+        assert appointments[4]['statusBy']['lastName'] == 'Balthazar'
+        assert appointments[4]['statusBy']['firstName'] == 'Milicent'
+        assert appointments[4]['statusDate']
+
     def test_get_appointment_advisors(self, fake_auth):
         """Returns a combined list of appointment advisors past and present."""
-        fake_auth.login(coe_advisor)
+        fake_auth.login(coe_advisor_uid)
         advisors = get_appointment_advisors(['CO'])
         assert len(advisors) == 1
 
@@ -47,7 +150,7 @@ class TestMergedAdvisingAppointment:
 
     def test_search(self, fake_auth, app):
         """Finds new and legacy appointments matching the criteria, ordered by rank."""
-        fake_auth.login(coe_advisor)
+        fake_auth.login(coe_advisor_uid)
         results = search_advising_appointments(search_phrase='life')
         assert len(results) == 3
         assert results[0]['advisorName'] == 'Milicent Balthazar'

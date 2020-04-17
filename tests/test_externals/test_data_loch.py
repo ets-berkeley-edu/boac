@@ -126,6 +126,13 @@ class TestDataLoch:
         assert attachment[0]['user_file_name'] == 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'
         assert attachment[0]['is_historical'] is True
 
+    def test_get_sis_advising_appointments(self, app):
+        appointments = data_loch.get_sis_advising_appointments('11667051')
+        assert len(appointments) == 3
+        assert appointments[0]['id'] == '11667051-00010'
+        assert appointments[1]['id'] == '11667051-00011'
+        assert appointments[2]['id'] == '11667051-00012'
+
     def test_get_students_ordering_default(self):
         o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
             '2202',

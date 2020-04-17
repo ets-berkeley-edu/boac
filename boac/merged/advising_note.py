@@ -33,8 +33,18 @@ import re
 
 from boac import db
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, resolve_sis_created_at, resolve_sis_updated_at
-from boac.lib.util import camelize, get_benchmarker, is_int, join_if_present, localize_datetime, search_result_text_snippet, utc_now
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
+from boac.lib.util import (
+    camelize,
+    get_benchmarker,
+    is_int,
+    join_if_present,
+    localize_datetime,
+    search_result_text_snippet,
+    TEXT_SEARCH_PATTERN,
+    utc_now,
+)
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
@@ -47,8 +57,6 @@ from sqlalchemy import text
 import zipstream
 
 """Provide advising note data from local and external sources."""
-
-NOTE_SEARCH_PATTERN = r'(\w*[.:/-@]\w+([.:/-]\w+)*)|[^\s?!(),;:.`]+'
 
 
 def get_advising_notes(sid):
@@ -79,8 +87,9 @@ def get_advising_notes(sid):
 def get_sis_advising_notes(sid):
     notes_by_id = {}
     legacy_notes = data_loch.get_sis_advising_notes(sid)
-    legacy_topics = _get_sis_advising_note_topics(sid)
-    legacy_attachments = _get_advising_note_attachments(sid)
+    note_ids = [n['id'] for n in legacy_notes]
+    legacy_topics = get_sis_advising_topics(note_ids)
+    legacy_attachments = get_sis_advising_attachments(note_ids)
     for legacy_note in legacy_notes:
         note_id = legacy_note['id']
         notes_by_id[note_id] = note_to_compatible_json(
@@ -175,7 +184,7 @@ def search_advising_notes(
     benchmark('begin')
 
     if search_phrase:
-        search_terms = [t.group(0) for t in list(re.finditer(NOTE_SEARCH_PATTERN, search_phrase)) if t]
+        search_terms = [t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t]
         search_phrase = ' & '.join(search_terms)
     else:
         search_terms = []
@@ -247,7 +256,7 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
                 'studentName': join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')]),
                 'advisorUid': note.get('authorUid'),
                 'advisorName': note.get('authorName'),
-                'noteSnippet': search_result_text_snippet(text, search_terms, NOTE_SEARCH_PATTERN),
+                'noteSnippet': search_result_text_snippet(text, search_terms, TEXT_SEARCH_PATTERN),
                 'createdAt': _isoformat(note, 'createdAt'),
                 'updatedAt': _isoformat(note, 'updatedAt'),
             })
@@ -276,7 +285,7 @@ def _get_loch_notes_search_results(loch_results, search_terms):
             'studentName': join_if_present(' ', [note.get('first_name'), note.get('last_name')]),
             'advisorSid': note.get('advisor_sid'),
             'advisorName': advisor_name or join_if_present(' ', [note.get('advisor_first_name'), note.get('advisor_last_name')]),
-            'noteSnippet': search_result_text_snippet(note_body, search_terms, NOTE_SEARCH_PATTERN),
+            'noteSnippet': search_result_text_snippet(note_body, search_terms, TEXT_SEARCH_PATTERN),
             'createdAt': resolve_sis_created_at(note),
             'updatedAt': resolve_sis_updated_at(note),
         })
@@ -443,30 +452,6 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
         'topics': topics,
         'attachments': attachments,
     }
-
-
-def _get_sis_advising_note_topics(sid):
-    topics = data_loch.get_sis_advising_note_topics(sid)
-    topics_by_id = {}
-    for advising_note_id, topics in groupby(topics, key=itemgetter('advising_note_id')):
-        topics_by_id[advising_note_id] = [topic['note_topic'] for topic in topics]
-    return topics_by_id
-
-
-def _get_advising_note_attachments(sid):
-    attachments = data_loch.get_sis_advising_note_attachments(sid)
-    attachments_by_id = {}
-
-    def _attachment_to_json(attachment):
-        sis_file_name = attachment.get('sis_file_name')
-        return {
-            'id': sis_file_name,
-            'sisFilename': sis_file_name,
-            'displayName': sis_file_name if attachment.get('created_by') == 'UCBCONVERSION' else attachment.get('user_file_name'),
-        }
-    for advising_note_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
-        attachments_by_id[advising_note_id] = [_attachment_to_json(a) for a in attachments]
-    return attachments_by_id
 
 
 def _get_asc_advising_note_topics(sid):

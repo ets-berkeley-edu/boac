@@ -558,13 +558,13 @@ def get_sis_advising_note_count():
     return safe_execute_rds(f'SELECT COUNT(id) FROM {sis_advising_notes_schema()}.advising_notes')[0]['count']
 
 
-def get_sis_advising_note_topics(sid):
+def get_sis_advising_topics(ids):
     sql = f"""SELECT advising_note_id, note_topic
         FROM {sis_advising_notes_schema()}.advising_note_topics
-        WHERE sid=:sid
+        WHERE advising_note_id=ANY(:ids)
         AND note_topic IS NOT NULL
         ORDER BY advising_note_id"""
-    return safe_execute_rds(sql, sid=sid)
+    return safe_execute_rds(sql, ids=ids)
 
 
 def get_sis_advising_note_attachment(sid, filename):
@@ -575,13 +575,26 @@ def get_sis_advising_note_attachment(sid, filename):
     return safe_execute_rds(sql, sid=sid, filename=filename)
 
 
-def get_sis_advising_note_attachments(sid):
+def get_sis_advising_attachments(ids):
     # Priority is given to is_historical=FALSE.
     sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, MIN(is_historical::int)
         FROM {sis_advising_notes_schema()}.advising_note_attachments
-        WHERE sid=:sid
+        WHERE advising_note_id=ANY(:ids)
         GROUP BY advising_note_id, created_by, sis_file_name, user_file_name
         ORDER BY advising_note_id"""
+    return safe_execute_rds(sql, ids=ids)
+
+
+def get_sis_advising_appointments(sid):
+    sql = f"""
+        SELECT
+            a.id, a.sid AS student_sid, a.advisor_sid, aa.uid as advisor_uid, aa.first_name AS advisor_first_name,
+            aa.last_name AS advisor_last_name, a.appointment_id, a.created_by, a.updated_by,
+            a.note_body AS details, a.created_at, a.updated_at
+        FROM {sis_advising_notes_schema()}.advising_appointments a
+        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON a.advisor_sid = aa.sid
+        WHERE a.sid=:sid
+        ORDER BY created_at, updated_at, id"""
     return safe_execute_rds(sql, sid=sid)
 
 

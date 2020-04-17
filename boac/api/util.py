@@ -32,10 +32,10 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
 from boac.merged import calnet
+from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
 from boac.merged.student import get_term_gpas_by_sid
 from boac.models.alert import Alert
-from boac.models.appointment import Appointment
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
 from boac.models.user_login import UserLogin
@@ -255,11 +255,12 @@ def put_notifications(student):
     if current_user.can_access_advising_data:
         student['notifications']['appointment'] = []
         student['notifications']['note'] = []
-        for appointment in Appointment.get_appointments_per_sid(sid) or []:
+        for appointment in get_advising_appointments(sid) or []:
+            message = appointment['details']
             student['notifications']['appointment'].append({
-                **appointment.to_api_json(current_user.get_id()),
+                **appointment,
                 **{
-                    'message': appointment.details,
+                    'message': message.strip() if message else None,
                     'type': 'appointment',
                 },
             })
