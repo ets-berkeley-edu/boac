@@ -997,7 +997,7 @@ class TestMarkAppointmentRead:
             # Next, log in as advisor and read the appointment
             fake_auth.login(uid)
             api_json = self._mark_appointment_read(client, appointment_id)
-            assert api_json['appointmentId'] == appointment_id
+            assert api_json['appointmentId'] == str(appointment_id)
             assert api_json['viewerId'] == user_id
             assert AppointmentRead.was_read_by(user_id, appointment_id) is True
             Appointment.delete(appointment_id)
