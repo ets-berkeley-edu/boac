@@ -1002,6 +1002,19 @@ class TestMarkAppointmentRead:
             assert AppointmentRead.was_read_by(user_id, appointment_id) is True
             Appointment.delete(appointment_id)
 
+    def test_advisor_read_legacy_appointment(self, app, client, fake_auth):
+        """L&S advisor reads an imported SIS appointment."""
+        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
+            appointment_id = '11667051-00010'
+            user_id = AuthorizedUser.get_id_per_uid(l_s_college_advisor_uid)
+            assert AppointmentRead.was_read_by(user_id, appointment_id) is False
+
+            fake_auth.login(l_s_college_advisor_uid)
+            api_json = self._mark_appointment_read(client, appointment_id)
+            assert api_json['appointmentId'] == appointment_id
+            assert api_json['viewerId'] == user_id
+            assert AppointmentRead.was_read_by(user_id, appointment_id) is True
+
 
 class TestAuthorSearch:
 
