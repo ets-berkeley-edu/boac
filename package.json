@@ -11,7 +11,6 @@
     "serve-vue": "vue-cli-service serve --open"
   },
   "dependencies": {
-    "@apollographql/apollo-tools": "0.4.2",
     "@babel/core": "7.6.4",
     "@babel/runtime": "7.6.3",
     "@ckeditor/ckeditor5-basic-styles": "11.1.1",
