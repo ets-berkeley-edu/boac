@@ -46,7 +46,6 @@ ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS a
 ALTER TABLE IF EXISTS ONLY public.appointment_events DROP CONSTRAINT IF EXISTS appointment_events_user_id_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_appointment_id_topic_unique_constraint;
-ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_appointment_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_viewer_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_owner_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.cohort_filter_events DROP CONSTRAINT IF EXISTS cohort_filter_events_cohort_filter_id_fkey;
