@@ -239,6 +239,14 @@ def search_advising_notes(
     return notes_feed
 
 
+def get_note_authors(query_fragments, limit):
+    note_authors = Note.find_authors_by_name(query_fragments, limit=limit)
+    legacy_note_authors = data_loch.match_advising_note_authors_by_name(query_fragments, limit=limit)
+    authors_feed = _local_authors_feed(note_authors) + _loch_authors_feed(legacy_note_authors)
+    authors_by_uid = {a.get('uid'): a for a in authors_feed}
+    return list(authors_by_uid.values())
+
+
 def _get_local_notes_search_results(local_results, cutoff, search_terms):
     results = []
     student_rows = data_loch.get_basic_student_data([row.get('sid') for row in local_results])
@@ -468,6 +476,24 @@ def _get_e_i_advising_note_topics(sid):
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
+
+
+def _local_authors_feed(local_results):
+    return [
+        {
+            'label': a.get('author_name'),
+            'uid': a.get('author_uid'),
+        } for a in local_results
+    ]
+
+
+def _loch_authors_feed(loch_results):
+    return [
+        {
+            'label': f"{a.get('first_name')} {a.get('last_name')}",
+            'uid': a.get('uid'),
+        } for a in loch_results
+    ]
 
 
 def _isoformat(obj, key):

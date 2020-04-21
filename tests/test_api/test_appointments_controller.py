@@ -1016,7 +1016,7 @@ class TestMarkAppointmentRead:
             assert AppointmentRead.was_read_by(user_id, appointment_id) is True
 
 
-class TestAuthorSearch:
+class TestAdvisorSearch:
 
     @classmethod
     def _api_search_advisors(cls, client, expected_status_code=200):

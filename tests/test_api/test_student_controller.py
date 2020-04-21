@@ -721,7 +721,7 @@ class TestNotes:
         assert len(note)
         assert 'My darling dime store thief' in note['message']
         author = note['author']
-        assert author['name'] == 'Joni Mitchell'
+        assert author['name'] == 'Joni Mitchell CC'
         assert author['role'] == 'Director'
         assert author['departments'][0]['name'] == 'Athletic Study Center'
         # This note was not authored by coe_advisor_uid

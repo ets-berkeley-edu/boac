@@ -33,7 +33,6 @@ from boac.api.util import (
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
 )
-from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor
@@ -41,6 +40,7 @@ from boac.merged.advising_note import (
     get_batch_distinct_sids,
     get_boa_attachment_stream,
     get_legacy_attachment_stream,
+    get_note_authors,
     get_zip_stream_for_sid,
     note_to_compatible_json,
 )
@@ -189,17 +189,9 @@ def find_note_authors_by_name():
     if not query:
         raise BadRequestError('Search query must be supplied')
     limit = request.args.get('limit')
-    query_fragments = filter(None, query.upper().split(' '))
-    authors = data_loch.match_advising_note_authors_by_name(query_fragments, limit=limit)
-
-    def _author_feed(a):
-        label = a.get('name') or ' '.join([a.get('first_name', ''), a.get('last_name', '')])
-        return {
-            'label': label,
-            'sid': a.get('sid'),
-            'uid': a.get('uid'),
-        }
-    return tolerant_jsonify([_author_feed(a) for a in authors])
+    query_fragments = list(filter(None, query.upper().split(' ')))
+    authors = get_note_authors(query_fragments, limit=limit)
+    return tolerant_jsonify(authors)
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])
