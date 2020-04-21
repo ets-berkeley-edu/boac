@@ -248,7 +248,7 @@
                 Waiting
               </div>
             </div>
-            <div v-if="message.type === 'note'">
+            <div v-if="message.type === 'note' || message.type === 'appointment'">
               <font-awesome v-if="size(message.attachments)" icon="paperclip" class="mt-2" />
               <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
             </div>

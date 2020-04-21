@@ -34,7 +34,13 @@ import re
 from boac import db
 from boac.externals import data_loch, s3
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
+from boac.lib.sis_advising import (
+    get_legacy_attachment_stream,
+    get_sis_advising_attachments,
+    get_sis_advising_topics,
+    resolve_sis_created_at,
+    resolve_sis_updated_at,
+)
 from boac.lib.util import (
     camelize,
     get_benchmarker,
@@ -310,29 +316,6 @@ def get_boa_attachment_stream(attachment_id):
         }
     else:
         return None
-
-
-def get_legacy_attachment_stream(filename):
-    # Filenames come prefixed with SID by convention.
-    for i, c in enumerate(filename):
-        if not c.isdigit():
-            break
-    sid = filename[:i]
-    if not sid:
-        return None
-    # Ensure that the file exists.
-    attachment_result = data_loch.get_sis_advising_note_attachment(sid, filename)
-    if not attachment_result or not attachment_result[0]:
-        return None
-    if attachment_result[0].get('created_by') == 'UCBCONVERSION':
-        display_filename = filename
-    else:
-        display_filename = attachment_result[0].get('user_file_name')
-    s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH'], sid, filename])
-    return {
-        'filename': display_filename,
-        'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key),
-    }
 
 
 def get_zip_stream_for_sid(sid):

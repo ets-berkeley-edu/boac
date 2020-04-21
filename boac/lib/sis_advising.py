@@ -26,8 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 from operator import itemgetter
 
-from boac.externals import data_loch
+from boac.externals import data_loch, s3
 from dateutil.tz import tzutc
+from flask import current_app as app
 
 
 """A utility module collecting logic specific to SIS advising notes and appointments."""
@@ -55,6 +56,29 @@ def get_sis_advising_attachments(ids):
     for note_or_appointment_id, attachments in groupby(attachments, key=itemgetter('advising_note_id')):
         attachments_by_id[note_or_appointment_id] = [_attachment_to_json(a) for a in attachments]
     return attachments_by_id
+
+
+def get_legacy_attachment_stream(filename):
+    # Filenames come prefixed with SID by convention.
+    for i, c in enumerate(filename):
+        if not c.isdigit():
+            break
+    sid = filename[:i]
+    if not sid:
+        return None
+    # Ensure that the file exists.
+    attachment_result = data_loch.get_sis_advising_note_attachment(sid, filename)
+    if not attachment_result or not attachment_result[0]:
+        return None
+    if attachment_result[0].get('created_by') == 'UCBCONVERSION':
+        display_filename = filename
+    else:
+        display_filename = attachment_result[0].get('user_file_name')
+    s3_key = '/'.join([app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH'], sid, filename])
+    return {
+        'filename': display_filename,
+        'stream': s3.stream_object(app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET'], s3_key),
+    }
 
 
 def resolve_sis_created_at(note_or_appointment):
