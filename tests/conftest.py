@@ -194,7 +194,7 @@ def mock_advising_note(app, db):
         with open(path_to_file, 'r') as file:
             note = Note.create(
                 author_uid=note_author_uid,
-                author_name='Joni Mitchell',
+                author_name='Joni Mitchell CC',
                 author_role='Director',
                 author_dept_codes=['UWASC'],
                 sid='11667051',

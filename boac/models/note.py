@@ -27,7 +27,7 @@ import json
 import time
 
 from boac import db, std_commit
-from boac.lib.util import put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
+from boac.lib.util import get_benchmarker, put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
@@ -75,6 +75,33 @@ class Note(Base):
     @classmethod
     def find_by_id(cls, note_id):
         return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def find_authors_by_name(cls, tokens, limit=None):
+        benchmark = get_benchmarker('notes find_authors_by_name')
+        benchmark('begin')
+        token_conditions = []
+        params = {}
+        for token in tokens:
+            idx = tokens.index(token)
+            token_conditions.append(
+                f"""JOIN notes a{idx}
+                ON UPPER(a{idx}.author_name) LIKE :token_{idx}
+                AND a{idx}.author_uid = a.author_uid
+                AND a{idx}.author_name = a.author_name""",
+            )
+            params[f'token_{idx}'] = f'%{token}%'
+        sql = f"""SELECT DISTINCT a.author_name, a.author_uid
+            FROM notes a
+            {' '.join(token_conditions)}
+            ORDER BY a.author_name"""
+        if limit:
+            sql += f' LIMIT {limit}'
+        benchmark('execute query')
+        results = db.session.execute(sql, params)
+        benchmark('end')
+        keys = results.keys()
+        return [dict(zip(keys, row)) for row in results.fetchall()]
 
     @classmethod
     def create(
