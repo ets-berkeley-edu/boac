@@ -52,7 +52,7 @@ class TestMergedAdvisingAppointment:
         assert appointments[0]['advisor']['uid'] == '53791'
         assert appointments[0]['advisor']['departments'] == []
         assert appointments[0]['appointmentType'] is None
-        assert appointments[0]['attachments'] is None
+        assert len(appointments[0]['attachments']) == 1
         assert appointments[0]['createdAt'] == '2017-10-31T12:00:00+00:00'
         assert appointments[0]['createdBy'] is None
         assert appointments[0]['deptCode'] is None

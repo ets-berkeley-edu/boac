@@ -35,11 +35,11 @@ from boac.api.util import (
 )
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
+from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import (
     get_batch_distinct_sids,
     get_boa_attachment_stream,
-    get_legacy_attachment_stream,
     get_note_authors,
     get_zip_stream_for_sid,
     note_to_compatible_json,

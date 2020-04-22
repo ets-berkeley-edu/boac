@@ -33,7 +33,7 @@ from boac.models.authorized_user_extension import DropInAdvisor
 import pytest
 import simplejson as json
 from sqlalchemy import and_
-from tests.util import override_config
+from tests.util import mock_legacy_appointment_attachment, override_config
 
 
 coe_advisor_uid = '211159'
@@ -1014,6 +1014,35 @@ class TestMarkAppointmentRead:
             assert api_json['appointmentId'] == appointment_id
             assert api_json['viewerId'] == user_id
             assert AppointmentRead.was_read_by(user_id, appointment_id) is True
+
+
+class TestStreamLegacyAppointmentAttachments:
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        assert client.get('/api/appointments/attachment/9100000000_00010_1.pdf').status_code == 401
+
+    def test_user_without_advising_data_access(self, app, client, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        with mock_legacy_appointment_attachment(app):
+            fake_auth.login(coe_advisor_no_advising_data_uid)
+            assert client.get('/api/appointments/attachment/9100000000_00010_1.pdf').status_code == 401
+
+    def test_stream_attachment(self, app, client, fake_auth):
+        with mock_legacy_appointment_attachment(app):
+            fake_auth.login(coe_advisor_uid)
+            response = client.get('/api/appointments/attachment/9100000000_00010_1.pdf')
+            assert response.status_code == 200
+            assert response.headers['Content-Type'] == 'application/octet-stream'
+            assert response.headers['Content-Disposition'] == "attachment; filename*=UTF-8''not_a_virus.exe"
+            assert response.data == b'01001000 01100101 01101100 01101100 01101111 00100000 01010111 01101111 01110010 01101100 01100100'
+
+    def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
+        with mock_legacy_appointment_attachment(app):
+            fake_auth.login(l_s_college_advisor_uid)
+            response = client.get('/api/appointments/attachment/h0ax.lol')
+            assert response.status_code == 404
+            assert response.data == b'Sorry, attachment not available.'
 
 
 class TestAdvisorSearch:

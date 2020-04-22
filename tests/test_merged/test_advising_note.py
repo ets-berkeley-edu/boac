@@ -28,7 +28,7 @@ import io
 from zipfile import ZipFile
 
 from boac.lib.util import localize_datetime, utc_now
-from boac.merged.advising_note import get_advising_notes, get_legacy_attachment_stream, get_zip_stream_for_sid, search_advising_notes
+from boac.merged.advising_note import get_advising_notes, get_zip_stream_for_sid, search_advising_notes
 from boac.models.note import Note
 from dateutil.parser import parse
 import pytz
@@ -418,30 +418,6 @@ class TestMergedAdvisingNote:
         assert len(search_advising_notes(search_phrase='Bryant', datetime_from=tomorrow, datetime_to=tomorrow)) == 0
 
         assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)) == 1
-
-    def test_stream_attachment(self, app, fake_auth):
-        with mock_legacy_note_attachment(app):
-            fake_auth.login(coe_advisor)
-            stream = get_legacy_attachment_stream('9000000000_00002_1.pdf')['stream']
-            body = b''
-            for chunk in stream:
-                body += chunk
-            assert body == b'When in the course of human events, it becomes necessarf arf woof woof woof'
-
-    def test_stream_attachment_handles_malformed_filename(self, app):
-        with mock_legacy_note_attachment(app):
-            assert get_legacy_attachment_stream('h0ax.lol') is None
-
-    def test_stream_attachment_handles_file_not_in_database(self, app, fake_auth, caplog):
-        with mock_legacy_note_attachment(app):
-            fake_auth.login(coe_advisor)
-            assert get_legacy_attachment_stream('11667051_00002_1.pdf') is None
-
-    def test_stream_attachment_handles_file_not_in_s3(self, app, fake_auth, caplog):
-        with mock_legacy_note_attachment(app):
-            fake_auth.login(coe_advisor)
-            assert get_legacy_attachment_stream('11667051_00001_1.pdf')['stream'] is None
-            assert "the s3 key 'sis-attachment-path/11667051/11667051_00001_1.pdf' does not exist, or is forbidden" in caplog.text
 
     def test_stream_zipped_bundle(self, app, fake_auth):
         with mock_legacy_note_attachment(app):

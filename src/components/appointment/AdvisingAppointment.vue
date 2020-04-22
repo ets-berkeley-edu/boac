@@ -92,6 +92,24 @@
           </li>
         </ul>
       </div>
+      <div>
+        <ul class="pill-list pl-0 mt-3">
+          <li
+            v-for="(attachment, index) in appointment.attachments"
+            :id="`appointment-${appointment.id}-attachment-${index}`"
+            :key="attachment.name"
+            class="mt-2">
+            <span class="pill pill-attachment text-nowrap">
+              <a
+                :id="`appointment-${appointment.id}-attachment-${index}`"
+                :href="downloadUrl(attachment)">
+                <font-awesome icon="paperclip" />
+                {{ attachment.displayName }}
+              </a>
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -135,6 +153,9 @@ export default {
   methods: {
     datePerTimezone(date) {
       return this.$moment(date).tz(this.$config.timezone);
+    },
+    downloadUrl(attachment) {
+      return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`;
     },
     isUserDropInAdvisor(deptCode) {
       const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode');

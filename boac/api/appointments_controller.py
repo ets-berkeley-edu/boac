@@ -23,10 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import urllib.parse
+
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import advising_data_access_required, authorized_users_api_feed, drop_in_advisors_for_dept_code, scheduler_required
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
+from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor, utc_now
 from boac.merged.advising_appointment import get_appointment_advisors
 from boac.merged.student import get_distilled_student_profiles
@@ -286,6 +289,19 @@ def create_appointment():
 @advising_data_access_required
 def mark_appointment_read(appointment_id):
     return tolerant_jsonify(AppointmentRead.find_or_create(current_user.get_id(), appointment_id).to_api_json())
+
+
+@app.route('/api/appointments/attachment/<attachment_id>', methods=['GET'])
+@advising_data_access_required
+def download_legacy_appointment_attachment(attachment_id):
+    stream_data = get_legacy_attachment_stream(attachment_id)
+    if not stream_data or not stream_data['stream']:
+        return Response('Sorry, attachment not available.', mimetype='text/html', status=404)
+    r = Response(stream_data['stream'])
+    r.headers['Content-Type'] = 'application/octet-stream'
+    encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
+    r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
+    return r
 
 
 @app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
