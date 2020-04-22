@@ -1,13 +1,10 @@
 {
   "name": "boac",
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/ets-berkeley-edu/boac.git"
-  },
   "scripts": {
     "build-vue": "vue-cli-service build --modern --dest 'dist/static'",
     "lint-vue": "vue-cli-service lint --config .eslintrc.js --no-fix src",
     "lint-vue-fix": "vue-cli-service lint src",
+    "preinstall": "npx npm-force-resolutions",
     "serve-vue": "vue-cli-service serve --open"
   },
   "dependencies": {
@@ -50,10 +47,10 @@
     "@typescript-eslint/parser": "^2.19.0",
     "@typescript-eslint/typescript-estree": "^2.19.0",
     "@vue/cli": "^4.1.2",
-    "@vue/cli-plugin-babel": "^4.1.2",
-    "@vue/cli-plugin-eslint": "^4.1.2",
-    "@vue/cli-plugin-typescript": "^4.1.2",
-    "@vue/cli-service": "^4.1.2",
+    "@vue/cli-plugin-babel": "^4.3.1",
+    "@vue/cli-plugin-eslint": "^4.3.1",
+    "@vue/cli-plugin-typescript": "^4.3.1",
+    "@vue/cli-service": "^4.3.1",
     "@vue/eslint-config-typescript": "^5.0.1",
     "@vue/test-utils": "^1.0.0-beta.31",
     "eslint": "^6.8.0",
@@ -65,9 +62,16 @@
     "eslint-plugin-xss": "^0.1.9",
     "eslint-utils": "^2.0.0",
     "numeral": "^2.0.6",
-    "typescript": "^3.5.3",
+    "typescript": "~3.8.3",
     "vue-eslint-parser": "^7.0.0",
     "vue-template-compiler": "^2.6.11"
   },
-  "license": "SEE LICENSE IN LICENSE"
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ets-berkeley-edu/boac.git"
+  },
+  "resolutions": {
+    "minimist": ">=1.2.3"
+  }
 }
