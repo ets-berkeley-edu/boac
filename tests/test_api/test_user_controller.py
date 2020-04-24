@@ -338,7 +338,7 @@ class TestUsers:
         response = client.post('/api/users')
         assert response.status_code == 401
 
-    def test_authorized(self, client, fake_auth):
+    def test_authorized(self, app, client, fake_auth):
         """Returns a well-formed response including cached, uncached, and deleted users."""
         fake_auth.login(admin_uid)
         response = client.post(
@@ -350,7 +350,7 @@ class TestUsers:
         )
         assert response.status_code == 200
         users = response.json['users']
-        assert len(users) == 3
+        assert len(users) == 4
 
     def test_drop_in_advisors_for_dept(self, client, fake_auth):
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
@@ -689,7 +689,16 @@ class TestDownloadUsers:
         response = client.get('/api/users/csv')
         assert response.status_code == 200
         assert 'csv' in response.content_type
-        assert 'COENG' in str(response.data)
+        csv = str(response.data)
+        for snippet in [
+            'last_name,first_name,uid,title,email,department,appointment_roles,can_access_advising_data,can_access_canvas_data,is_blocked,\
+last_login',
+            'Balthazar,Milicent,53791,,,{ QCADVMAJ: director (automated=False) },{ QCADVMAJ: Drop-in Advisor },True,True,False',
+            'Balthazar,Milicent,53791,,,{ QCADV: director (automated=False) },{ QCADV: Drop-in Advisor },True,True,False',
+            'Visor,COE Add,90412,,,{ UWASC: director (automated=False) },{ },True,True,False',
+            'Visor,COE Add,90412,,,{ COENG: advisor (automated=True) },{ COENG: Drop-in Advisor },True,True,False',
+        ]:
+            assert str(snippet) in csv
 
 
 class TestToggleDropInAppointmentStatus:

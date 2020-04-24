@@ -36,7 +36,6 @@ from boac.api.util import (
     scheduler_required,
 )
 from boac.lib import util
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
@@ -316,29 +315,10 @@ def set_demo_mode():
 @app.route('/api/users/csv')
 @admin_required
 def download_boa_users_csv():
-    fieldnames = None
-    rows = []
-    for dept in _get_boa_user_groups():
-        for user in dept['users']:
-            rows.append(
-                {
-                    'last_name': user.get('lastName') or '',
-                    'first_name': user.get('firstName') or '',
-                    'uid': user.get('uid'),
-                    'title': user.get('title'),
-                    'email': user.get('campusEmail') or user.get('email'),
-                    'departments': _describe_dept_roles(user['departments']),
-                    'appointment_roles': _describe_appointment_roles(user['departments'], user['dropInAdvisorStatus'], user['sameDayAdvisorStatus']),
-                    'can_access_advising_data': user.get('canAccessAdvisingData'),
-                    'can_access_canvas_data': user.get('canAccessCanvasData'),
-                    'is_blocked': user.get('isBlocked'),
-                    'last_login': user.get('lastLogin'),
-                },
-            )
-            if not fieldnames:
-                fieldnames = rows[-1].keys()
+    users = _get_boa_users()
+    fieldnames = users[-1].keys()
     return response_with_csv_download(
-        rows=sorted(rows, key=lambda row: row['last_name'].upper()),
+        rows=sorted(users, key=lambda row: row['last_name'].upper()),
         filename_prefix='boa_users',
         fieldnames=fieldnames,
     )
@@ -421,39 +401,34 @@ def _verify_membership_and_appointments_enabled(user, dept_code):
         raise errors.ForbiddenRequestError('No department membership found or drop-in scheduling not enabled')
 
 
-def _get_boa_user_groups():
-    depts = {}
+def _get_boa_users():
+    users = []
 
-    def _put(_dept_code, _user):
-        if _dept_code not in depts:
-            if _dept_code == 'ADMIN':
-                dept_name = 'Admins'
-            elif _dept_code == 'GUEST':
-                dept_name = 'Guest Access'
-            elif _dept_code == 'NOTESONLY':
-                dept_name = 'Notes Only'
-            else:
-                dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(_dept_code, _dept_code)
-            depts[_dept_code] = {
-                'code': _dept_code,
-                'name': dept_name,
-                'users': [],
-            }
-        depts[_dept_code]['users'].append(_user)
-    for user in AuthorizedUser.get_all_active_users():
-        if user.is_admin:
-            _put('ADMIN', user)
-        if user.can_access_canvas_data:
-            for m in user.department_memberships:
-                _put(m.university_dept.dept_code, user)
-        else:
-            _put('NOTESONLY', user)
-    user_groups = []
-    for dept_code, dept in depts.items():
-        users = authorized_users_api_feed(dept['users'])
-        dept['users'] = sorted(users, key=lambda p: p.get('lastName') or '')
-        user_groups.append(dept)
-    return sorted(user_groups, key=lambda group: group['name'])
+    def _put(_dept, _user):
+        users.append({
+            'last_name': _user.get('lastName') or '',
+            'first_name': _user.get('firstName') or '',
+            'uid': _user.get('uid'),
+            'title': _user.get('title'),
+            'email': _user.get('campusEmail') or _user.get('email'),
+            'department': _describe_dept_roles(_dept),
+            'appointment_roles': _describe_appointment_roles(_dept, _user.get('dropInAdvisorStatus'), _user.get('sameDayAdvisorStatus')),
+            'can_access_advising_data': _user.get('canAccessAdvisingData'),
+            'can_access_canvas_data': _user.get('canAccessCanvasData'),
+            'is_blocked': _user.get('isBlocked'),
+            'last_login': _user.get('lastLogin'),
+        })
+
+    admin_dept = {
+        'code': 'ADMIN',
+        'name': 'Admins',
+    }
+    for user in authorized_users_api_feed(AuthorizedUser.get_all_active_users()):
+        if user.get('isAdmin'):
+            _put(admin_dept, user)
+        for dept in user.get('departments'):
+            _put(dept, user)
+    return users
 
 
 def _get_appointment_scheduler_list(advisor, dept_code=None):
@@ -573,23 +548,24 @@ def _create_department_memberships(authorized_user, memberships):
         UserSession.flush_cache_for_id(authorized_user.id)
 
 
-def _describe_dept_roles(departments):
-    s = '{ '
-    for d in departments:
-        s += f"[ {d.get('code')}: {d.get('role')} (automated={d.get('automateMembership')}) ] "
-    s += '}'
+def _describe_dept_roles(dept):
+    s = ''
+    if dept.get('role'):
+        s += f"{{ {dept.get('code')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
     return s
 
 
-def _describe_appointment_roles(departments, drop_in_advisor_statuses, same_day_advisor_statuses):
-    s = '{ '
-    for d in list(filter(lambda d: d['role'] == 'scheduler', departments)):
-        s += f"[ {d.get('code')}: Scheduler (automated={d.get('automateMembership')}) ] "
-    for d in drop_in_advisor_statuses:
-        s += f"[ {d.get('deptCode')}: Drop-in Advisor ] "
-    for d in same_day_advisor_statuses:
-        s += f"[ {d.get('deptCode')}: Same-day Advisor ] "
-    s += '}'
+def _describe_appointment_roles(dept, drop_in_advisor_statuses, same_day_advisor_statuses):
+    s = ''
+    if dept:
+        s += '{ '
+        if dept.get('role') == 'scheduler':
+            s += f"{dept.get('code')}: Scheduler (automated={dept.get('automateMembership')}) "
+        if next((d for d in drop_in_advisor_statuses if d.get('deptCode') == dept.get('code')), None):
+            s += f"{dept.get('code')}: Drop-in Advisor "
+        if next((d for d in same_day_advisor_statuses if d.get('deptCode') == dept.get('code')), None):
+            s += f"{dept.get('code')}: Same-day Advisor "
+        s += '}'
     return s
 
 
