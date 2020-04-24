@@ -319,7 +319,6 @@ class TestGetCuratedGroup:
         response = client.get('/api/curated_groups/all')
         assert response.status_code == 200
         api_json = response.json
-        print(api_json)
         count = len(api_json)
         for index, entry in enumerate(api_json):
             user = entry['user']
