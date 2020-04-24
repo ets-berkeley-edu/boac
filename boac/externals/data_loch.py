@@ -613,7 +613,7 @@ def search_advising_appointments(
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
             sas.uid, sas.first_name, sas.last_name, aa.first_name AS advisor_first_name, aa.last_name AS advisor_last_name"""
     query_tables = f"""{sis_advising_notes_schema()}.advising_appointments an
-        JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
+        LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
         JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
     if search_phrase:
         query_tables += f"""
