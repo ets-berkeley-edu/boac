@@ -111,23 +111,27 @@ def earliest_term_id():
 
 
 def get_admit_colleges():
-    return safe_execute_rds(f'SELECT DISTINCT(college) FROM {oua_schema()}.student_admits WHERE college IS NOT NULL')
+    return _get_admit_options_excluding_blanks('college')
 
 
 def get_admit_ethnicities():
-    return safe_execute_rds(f'SELECT DISTINCT(xethnic) FROM {oua_schema()}.student_admits WHERE xethnic IS NOT NULL')
+    return _get_admit_options_excluding_blanks('xethnic')
 
 
 def get_admit_freshman_or_transfer():
-    return safe_execute_rds(f'SELECT DISTINCT(freshman_or_transfer) FROM {oua_schema()}.student_admits WHERE freshman_or_transfer IS NOT NULL')
+    return _get_admit_options_excluding_blanks('freshman_or_transfer')
 
 
 def get_admit_residency_categories():
-    return safe_execute_rds(f'SELECT DISTINCT(residency_category) FROM {oua_schema()}.student_admits WHERE residency_category IS NOT NULL')
+    return _get_admit_options_excluding_blanks('residency_category')
 
 
 def get_admit_special_program_cep():
-    return safe_execute_rds(f'SELECT DISTINCT(special_program_cep) FROM {oua_schema()}.student_admits WHERE special_program_cep IS NOT NULL')
+    return _get_admit_options_excluding_blanks('special_program_cep')
+
+
+def _get_admit_options_excluding_blanks(column):
+    return safe_execute_rds(f"SELECT DISTINCT({column}) FROM {oua_schema()}.student_admits WHERE {column} IS NOT NULL AND {column} != ''")
 
 
 def get_current_term_index():
