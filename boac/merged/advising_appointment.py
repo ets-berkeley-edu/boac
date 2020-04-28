@@ -153,14 +153,6 @@ def search_advising_appointments(
     return appointments_feed
 
 
-def get_appointment_advisors(query_fragments, limit=None):
-    appointment_advisors = Appointment.find_advisors_by_name(query_fragments, limit=limit)
-    legacy_appointment_advisors = data_loch.match_appointment_advisors_by_name(query_fragments, limit=limit)
-    advisors_feed = _local_advisor_feed(appointment_advisors) + _loch_advisor_feed(legacy_appointment_advisors)
-    advisors_by_uid = {a.get('uid'): a for a in advisors_feed}
-    return list(advisors_by_uid.values())
-
-
 def appointment_to_compatible_json(appointment, topics=(), attachments=None, event=None):
     # We have legacy appointments and appointments created via BOA. The following sets a standard for the front-end.
     advisor_uid = appointment.get('advisor_uid')
@@ -250,21 +242,3 @@ def _get_loch_appointments_search_results(loch_results, search_terms):
 def _isoformat(obj, key):
     value = obj.get(key)
     return value and value.astimezone(tzutc()).isoformat()
-
-
-def _local_advisor_feed(local_results):
-    return [
-        {
-            'label': a.get('advisor_name'),
-            'uid': a.get('advisor_uid'),
-        } for a in local_results
-    ]
-
-
-def _loch_advisor_feed(loch_results):
-    return [
-        {
-            'label': f"{a.get('first_name')} {a.get('last_name')}",
-            'uid': a.get('uid'),
-        } for a in loch_results
-    ]

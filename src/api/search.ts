@@ -1,6 +1,21 @@
 import axios from 'axios';
 import utils from '@/api/api-utils';
 
+let $_findAdvisorsByNameCancel = axios.CancelToken.source();
+
+export function findAdvisorsByName(query: string, limit: number) {
+  if ($_findAdvisorsByNameCancel) {
+     $_findAdvisorsByNameCancel.cancel();
+  }
+  $_findAdvisorsByNameCancel = axios.CancelToken.source();
+  return axios
+    .get(
+      `${utils.apiBaseUrl()}/api/search/advisors/find_by_name?q=${query}&limit=${limit}`,
+      {cancelToken: $_findAdvisorsByNameCancel.token}
+    ).then(response => response.data)
+    .catch(error => error);
+}
+
 export function getMySearchHistory() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/search/my_search_history`)

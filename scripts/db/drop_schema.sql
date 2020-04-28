@@ -96,6 +96,7 @@ DROP INDEX IF EXISTS public.cohort_filter_events_cohort_filter_id_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_sid_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_event_type_idx;
 DROP INDEX IF EXISTS public.cohort_filter_events_created_at_idx;
+DROP INDEX IF EXISTS public.idx_advisor_author_index;
 DROP INDEX IF EXISTS public.idx_notes_fts_index;
 DROP INDEX IF EXISTS public.note_attachments_note_id_idx;
 DROP INDEX IF EXISTS public.note_template_attachments_note_template_id_idx;
@@ -154,6 +155,7 @@ ALTER TABLE IF EXISTS public.json_cache ALTER COLUMN id DROP DEFAULT;
 
 --
 
+DROP MATERIALIZED VIEW IF EXISTS public.advisor_author_index;
 DROP MATERIALIZED VIEW IF EXISTS public.notes_fts_index;
 DROP TABLE IF EXISTS public.notes;
 DROP TABLE IF EXISTS public.note_attachments;
