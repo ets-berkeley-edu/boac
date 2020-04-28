@@ -26,9 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import timedelta
 from itertools import islice
 
+from boac import db
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import add_alert_counts, advisor_required, ce3_required, is_unauthorized_search
-from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code
+from boac.api.util import add_alert_counts, advising_data_access_required, advisor_required, ce3_required, is_unauthorized_search
+from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, match_advising_note_authors_by_name
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
@@ -113,6 +114,66 @@ def add_to_search_history():
 def my_search_history():
     search_history = AuthorizedUser.get_search_history(current_user.get_id()) or []
     return tolerant_jsonify(search_history)
+
+
+@app.route('/api/search/advisors/find_by_name', methods=['GET'])
+@advising_data_access_required
+def find_advisors_by_name():
+    query = request.args.get('q')
+    if not query:
+        raise BadRequestError('Search query must be supplied')
+    limit = request.args.get('limit')
+    query_fragments = list(filter(None, set(query.upper().split(' '))))
+    advisors = _advisors_by_name(query_fragments, limit=limit)
+    legacy_note_authors = match_advising_note_authors_by_name(query_fragments, limit=limit)
+    advisors_feed = _local_advisors_feed(advisors) + _loch_authors_feed(legacy_note_authors)
+    advisors_by_uid = {a.get('uid'): a for a in advisors_feed}
+    return tolerant_jsonify(list(advisors_by_uid.values()))
+
+
+def _advisors_by_name(tokens, limit=None):
+    benchmark = util.get_benchmarker('search find_advisors_by_name')
+    benchmark('begin')
+    token_conditions = []
+    params = {}
+    for token in tokens:
+        idx = tokens.index(token)
+        token_conditions.append(
+            f"""JOIN advisor_author_index a{idx}
+            ON UPPER(a{idx}.advisor_name) LIKE :token_{idx}
+            AND a{idx}.advisor_uid = a.advisor_uid
+            AND a{idx}.advisor_name = a.advisor_name""",
+        )
+        params[f'token_{idx}'] = f'%{token}%'
+    sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
+        FROM advisor_author_index a
+        {' '.join(token_conditions)}
+        ORDER BY a.advisor_name"""
+    if limit:
+        sql += f' LIMIT {limit}'
+    benchmark('execute query')
+    results = db.session.execute(sql, params)
+    benchmark('end')
+    keys = results.keys()
+    return [dict(zip(keys, row)) for row in results.fetchall()]
+
+
+def _local_advisors_feed(local_results):
+    return [
+        {
+            'label': a.get('advisor_name'),
+            'uid': a.get('advisor_uid'),
+        } for a in local_results
+    ]
+
+
+def _loch_authors_feed(loch_results):
+    return [
+        {
+            'label': f"{a.get('first_name')} {a.get('last_name')}",
+            'uid': a.get('uid'),
+        } for a in loch_results
+    ]
 
 
 def _appointments_search(search_phrase, params):

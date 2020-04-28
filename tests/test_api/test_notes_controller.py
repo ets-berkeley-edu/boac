@@ -831,34 +831,6 @@ class TestStreamNotesZip:
         self._assert_zip_download(app, client)
 
 
-class TestAuthorSearch:
-
-    @classmethod
-    def _api_search_authors(cls, client, expected_status_code=200):
-        response = client.get('/api/notes/authors/find_by_name?q=Jo')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_not_authenticated(self, client):
-        """Denies anonymous access."""
-        self._api_search_authors(client, expected_status_code=401)
-
-    def test_user_without_advising_data_access(self, client, fake_auth):
-        """Denies access to a user who cannot access notes and appointments."""
-        fake_auth.login(coe_advisor_no_advising_data_uid)
-        self._api_search_authors(client, expected_status_code=401)
-
-    def test_find_note_authors_by_name(self, client, fake_auth, mock_asc_advising_note):
-        """Finds matches including authors of legacy and non-legacy notes."""
-        fake_auth.login(coe_advisor_uid)
-        response = self._api_search_authors(client)
-        assert len(response) == 3
-        labels = [s['label'] for s in response]
-        assert 'Robert Johnson' in labels
-        assert 'Joni Mitchell' in labels
-        assert 'Joni Mitchell CC' in labels
-
-
 def _get_notes(client, uid):
     response = client.get(f'/api/student/by_uid/{uid}')
     assert response.status_code == 200

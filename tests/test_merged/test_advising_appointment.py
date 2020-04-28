@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.merged.advising_appointment import (
     get_advising_appointments,
-    get_appointment_advisors,
     search_advising_appointments,
 )
 
@@ -135,18 +134,6 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['statusBy']['lastName'] == 'Balthazar'
         assert appointments[4]['statusBy']['firstName'] == 'Milicent'
         assert appointments[4]['statusDate']
-
-    def test_get_appointment_advisors(self, fake_auth):
-        """Returns a combined list of appointment advisors past and present."""
-        fake_auth.login(coe_advisor_uid)
-        advisors = get_appointment_advisors(['CO'])
-        assert len(advisors) == 1
-
-        advisors = get_appointment_advisors(['C'])
-        assert len(advisors) == 3
-
-        advisors = get_appointment_advisors(['MI', 'BA'])
-        assert len(advisors) == 1
 
     def test_search(self, fake_auth, app):
         """Finds new and legacy appointments matching the criteria, ordered by rank."""

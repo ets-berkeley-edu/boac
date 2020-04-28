@@ -53,6 +53,11 @@ def coe_advisor(fake_auth):
 
 
 @pytest.fixture()
+def coe_advisor_no_advising_data(fake_auth):
+    fake_auth.login('1022796')
+
+
+@pytest.fixture()
 def coe_scheduler(fake_auth):
     fake_auth.login('6972201')
 
@@ -919,6 +924,40 @@ class TestSearchHistory:
             'Golden Slumbers',
             'She Came In Through the Bathroom Window',
         ]
+
+
+class TestFindAdvisorsByName:
+    """Advisors by name API."""
+
+    @classmethod
+    def _api_search_advisors(cls, client, query, expected_status_code=200):
+        response = client.get(f'/api/search/advisors/find_by_name?q={query}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous access."""
+        self._api_search_advisors(client, 'Vis', expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, client, coe_advisor_no_advising_data):
+        """Denies access to a user who cannot access notes and appointments."""
+        self._api_search_advisors(client, 'Vis', expected_status_code=401)
+
+    def test_find_advisors_by_name(self, client, coe_advisor):
+        """Finds matches including appointment advisors."""
+        response = self._api_search_advisors(client, 'Vis')
+        assert len(response) == 1
+        labels = [s['label'] for s in response]
+        assert 'COE Add Visor' in labels
+
+    def test_find_note_authors_by_name(self, client, coe_advisor):
+        """Finds matches including authors of legacy and non-legacy notes."""
+        response = self._api_search_advisors(client, 'Jo')
+        assert len(response) == 3
+        labels = [s['label'] for s in response]
+        assert 'Robert Johnson' in labels
+        assert 'Joni Mitchell' in labels
+        assert 'Joni Mitchell CC' in labels
 
 
 def _api_search(

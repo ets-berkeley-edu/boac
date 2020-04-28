@@ -1043,28 +1043,3 @@ class TestStreamLegacyAppointmentAttachments:
             response = client.get('/api/appointments/attachment/h0ax.lol')
             assert response.status_code == 404
             assert response.data == b'Sorry, attachment not available.'
-
-
-class TestAdvisorSearch:
-
-    @classmethod
-    def _api_search_advisors(cls, client, expected_status_code=200):
-        response = client.get('/api/appointments/advisors/find_by_name?q=Vis')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_not_authenticated(self, client):
-        """Denies anonymous access."""
-        self._api_search_advisors(client, expected_status_code=401)
-
-    def test_user_without_advising_data_access(self, client, fake_auth):
-        """Denies access to a user who cannot access notes and appointments."""
-        fake_auth.login(coe_advisor_no_advising_data_uid)
-        self._api_search_advisors(client, expected_status_code=401)
-
-    def test_find_appointment_advisors_by_name(self, client, fake_auth):
-        fake_auth.login(coe_advisor_uid)
-        response = self._api_search_advisors(client)
-        assert len(response) == 1
-        labels = [s['label'] for s in response]
-        assert 'COE Add Visor' in labels

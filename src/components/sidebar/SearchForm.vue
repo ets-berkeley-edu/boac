@@ -275,11 +275,9 @@ import Autocomplete from '@/components/util/Autocomplete';
 import Context from '@/mixins/Context';
 import Scrollable from '@/mixins/Scrollable';
 import Util from '@/mixins/Util';
-import { findAdvisorsByName } from '@/api/appointments';
-import { findAuthorsByName } from '@/api/notes';
 import { findStudentsByNameOrSid } from '@/api/student';
 import { getAllTopics } from '@/api/topics';
-import { addToSearchHistory, getMySearchHistory } from '@/api/search';
+import { addToSearchHistory, findAdvisorsByName, getMySearchHistory } from '@/api/search';
 
 export default {
   name: 'SearchForm',
@@ -305,6 +303,7 @@ export default {
       includeCourses: this.domain.includes('courses'),
       includeNotes: this.domain.includes('notes'),
       includeStudents: this.domain.includes('students'),
+      findAdvisorsByName: findAdvisorsByName,
       findStudentsByNameOrSid: findStudentsByNameOrSid,
       noteFilters: null,
       searchHistory: [],
@@ -429,12 +428,6 @@ export default {
         resolve(this.map(suggestions, s => {
           return { label: s }
         }))
-      });
-    },
-    findAdvisorsByName(q, limit) {
-      const queries = [findAuthorsByName(q, limit), findAdvisorsByName(q, limit)];
-      return Promise.all(queries).then((results) => {
-        return this.orderBy(this.unionBy(this.flatten(results), 'uid'), 'label');
       });
     },
     resetNoteFilters() {
