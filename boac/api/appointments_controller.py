@@ -31,7 +31,6 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.lib.util import localize_datetime, localized_timestamp_to_utc, process_input_from_rich_text_editor, utc_now
-from boac.merged.advising_appointment import get_appointment_advisors
 from boac.merged.student import get_distilled_student_profiles
 from boac.models.appointment import Appointment
 from boac.models.appointment_availability import AppointmentAvailability
@@ -302,18 +301,6 @@ def download_legacy_appointment_attachment(attachment_id):
     encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
     r.headers['Content-Disposition'] = f"attachment; filename*=UTF-8''{encoding_safe_filename}"
     return r
-
-
-@app.route('/api/appointments/advisors/find_by_name', methods=['GET'])
-@advising_data_access_required
-def find_appointment_advisors_by_name():
-    query = request.args.get('q')
-    if not query:
-        raise BadRequestError('Search query must be supplied')
-    limit = request.args.get('limit')
-    query_fragments = list(filter(None, query.upper().split(' ')))
-    advisors = get_appointment_advisors(query_fragments, limit=limit)
-    return tolerant_jsonify(advisors)
 
 
 def _advisor_attrs_for_uid(advisor_uid):
