@@ -40,7 +40,6 @@ from boac.lib.util import get as get_param, is_int, process_input_from_rich_text
 from boac.merged.advising_note import (
     get_batch_distinct_sids,
     get_boa_attachment_stream,
-    get_note_authors,
     get_zip_stream_for_sid,
     note_to_compatible_json,
 )
@@ -180,18 +179,6 @@ def delete_note(note_id):
         raise ResourceNotFoundError('Note not found')
     Note.delete(note_id=note_id)
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
-
-
-@app.route('/api/notes/authors/find_by_name', methods=['GET'])
-@advising_data_access_required
-def find_note_authors_by_name():
-    query = request.args.get('q')
-    if not query:
-        raise BadRequestError('Search query must be supplied')
-    limit = request.args.get('limit')
-    query_fragments = list(filter(None, query.upper().split(' ')))
-    authors = get_note_authors(query_fragments, limit=limit)
-    return tolerant_jsonify(authors)
 
 
 @app.route('/api/notes/<note_id>/attachment', methods=['POST'])

@@ -70,7 +70,7 @@
             tabindex="0"
             @click="selectSuggestion(suggestion)"
             @keyup.enter="selectSuggestion(suggestion)">
-            <span :class="suggestionLabelClass" v-html="highlightQuery(suggestion.label)"></span>
+            <span :class="suggestionLabelClass" v-html="highlightQuery(suggestion)"></span>
           </a>
         </li>
       </ul>
@@ -203,14 +203,16 @@ export default {
     getQuery() {
       return this.query;
     },
-    highlightQuery(string) {
-      const regex = new RegExp(this.escapeForRegExp(this.query), 'i');
-      const match = string.match(regex);
-      if (!match) {
-        return string;
+    highlightQuery(suggestion) {
+      if (suggestion && suggestion.label) {
+        const regex = new RegExp(this.escapeForRegExp(this.query), 'i');
+        const match = suggestion.label.match(regex);
+        if (!match) {
+          return suggestion.label;
+        }
+        const matchedText = suggestion.label.substring(match.index, match.index + match[0].toString().length);
+        return suggestion.label.replace(regex, `<strong>${matchedText}</strong>`);
       }
-      const matchedText = string.substring(match.index, match.index + match[0].toString().length);
-      return string.replace(regex, `<strong>${matchedText}</strong>`);
     },
     makeSuggestions() {
       this.selectedSuggestion = null;

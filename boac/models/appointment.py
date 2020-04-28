@@ -31,7 +31,7 @@ from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import (
-    camelize, get_benchmarker, localize_datetime, localized_timestamp_to_utc,
+    camelize, localize_datetime, localized_timestamp_to_utc,
     search_result_text_snippet, TEXT_SEARCH_PATTERN, titleize, utc_now, vacuum_whitespace,
 )
 from boac.merged import calnet
@@ -126,33 +126,6 @@ class Appointment(Base):
     @classmethod
     def find_by_id(cls, appointment_id):
         return cls.query.filter(and_(cls.id == appointment_id, cls.deleted_at == None)).first()  # noqa: E711
-
-    @classmethod
-    def find_advisors_by_name(cls, tokens, limit=None):
-        benchmark = get_benchmarker('appointments find_advisors_by_name')
-        benchmark('begin')
-        token_conditions = []
-        params = {}
-        for token in tokens:
-            idx = tokens.index(token)
-            token_conditions.append(
-                f"""JOIN appointments a{idx}
-                ON UPPER(a{idx}.advisor_name) LIKE :token_{idx}
-                AND a{idx}.advisor_uid = a.advisor_uid
-                AND a{idx}.advisor_name = a.advisor_name""",
-            )
-            params[f'token_{idx}'] = f'%{token}%'
-        sql = f"""SELECT DISTINCT a.advisor_name, a.advisor_uid
-            FROM appointments a
-            {' '.join(token_conditions)}
-            ORDER BY a.advisor_name"""
-        if limit:
-            sql += f' LIMIT {limit}'
-        benchmark('execute query')
-        results = db.session.execute(sql, params)
-        benchmark('end')
-        keys = results.keys()
-        return [dict(zip(keys, row)) for row in results.fetchall()]
 
     @classmethod
     def get_appointments_per_sid(cls, sid):
@@ -435,6 +408,7 @@ class Appointment(Base):
     @classmethod
     def refresh_search_index(cls):
         db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
+        db.session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
         std_commit()
 
     @classmethod
