@@ -171,6 +171,7 @@ def _loch_authors_feed(loch_results):
     return [
         {
             'label': f"{a.get('first_name')} {a.get('last_name')}",
+            'sid': a.get('sid'),
             'uid': a.get('uid'),
         } for a in loch_results
     ]
