@@ -420,14 +420,14 @@ class TestNoteAttachments:
     def test_user_without_advising_data_access(self, app, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        delete_response = client.delete(f'/api/notes/1/attachment/1')
+        delete_response = client.delete('/api/notes/1/attachment/1')
         assert delete_response.status_code == 401
 
         with mock_advising_note_s3_bucket(app):
             base_dir = app.config['BASE_DIR']
             data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
-                f'/api/notes/1/attachment',
+                '/api/notes/1/attachment',
                 buffered=True,
                 content_type='multipart/form-data',
                 data=data,
@@ -520,7 +520,7 @@ class TestMarkNoteRead:
         # SIS notes
         response = client.post('/api/notes/11667051-00001/mark_read')
         assert response.status_code == 201
-        response = client.post(f'/api/notes/11667051-00003/mark_read')
+        response = client.post('/api/notes/11667051-00003/mark_read')
         assert response.status_code == 201
         # ASC note
         response = client.post('/api/notes/11667051-139379/mark_read')

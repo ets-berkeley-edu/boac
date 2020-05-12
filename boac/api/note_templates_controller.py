@@ -67,7 +67,7 @@ def get_note_template(note_template_id):
     if not note_template:
         raise ResourceNotFoundError('Template not found')
     if note_template.creator_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Template not available')
+        raise ForbiddenRequestError('Template not available')
     return tolerant_jsonify(note_template.to_api_json())
 
 
@@ -131,6 +131,6 @@ def delete_note_template(note_template_id):
     if not note_template:
         raise ResourceNotFoundError('Template not found')
     if note_template.creator_id != current_user.get_id():
-        raise ForbiddenRequestError(f'Template not available')
+        raise ForbiddenRequestError('Template not available')
     NoteTemplate.delete(note_template_id=note_template_id)
     return tolerant_jsonify({'message': f'Note template {note_template_id} deleted'}), 200

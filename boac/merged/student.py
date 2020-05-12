@@ -445,7 +445,7 @@ def query_students(
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
-            sql += f' LIMIT :limit'
+            sql += ' LIMIT :limit'
         students_result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
             summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result])
@@ -494,7 +494,7 @@ def search_for_students(
         sql += ', sas.sid'
     sql += f' OFFSET {offset}'
     if limit and limit < 100:  # Sanity check large limits
-        sql += f' LIMIT :limit'
+        sql += ' LIMIT :limit'
         query_bindings['limit'] = limit
     benchmark('begin student query')
     result = data_loch.safe_execute_rds(sql, **query_bindings)

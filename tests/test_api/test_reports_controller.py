@@ -119,7 +119,7 @@ class TestAvailableDeptCodesPerUser:
 
     @classmethod
     def _api_available_departments(cls, client, expected_status_code=200):
-        response = client.get(f'/api/reports/available_departments')
+        response = client.get('/api/reports/available_departments')
         assert response.status_code == expected_status_code
         return response.json
 

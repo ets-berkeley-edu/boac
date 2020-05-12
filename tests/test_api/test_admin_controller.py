@@ -89,7 +89,7 @@ class TestGetManuallyAddedAdvisees:
 
     @classmethod
     def _api_get_all(cls, client, headers=None, expected_status_code=200):
-        response = client.get(f'/api/admin/manually_added_advisees', headers=headers)
+        response = client.get('/api/admin/manually_added_advisees', headers=headers)
         assert response.status_code == expected_status_code
         return response.json
 

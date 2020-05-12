@@ -27,7 +27,6 @@ from datetime import datetime
 import glob
 import json
 import os
-os.environ['BOAC_ENV'] = 'test'  # noqa
 
 from boac import std_commit
 import boac.factory
@@ -37,6 +36,8 @@ from boac.models.note_template import NoteTemplate
 from moto import mock_sts
 import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
+
+os.environ['BOAC_ENV'] = 'test'  # noqa
 
 
 class FakeAuth(object):
@@ -229,7 +230,7 @@ def mock_note_template(app, db):
                 creator_id=AuthorizedUser.get_id_per_uid('242881'),
                 title=f'Potholes in my lawn ({timestamp})',
                 subject=f'It\'s unwise to leave my garden untended ({timestamp})',
-                body=f"""
+                body="""
                     See, I've found that everyone's sayin'
                     What to do when suckers are preyin'
                 """,

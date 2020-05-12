@@ -149,7 +149,7 @@ def disable_drop_in_advising(dept_code):
     user = AuthorizedUser.find_by_id(current_user.get_id())
     _delete_drop_in_advisor_status(user, dept_code)
     UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify({'message': f'Drop-in advisor status has been disabled'}, status=200)
+    return tolerant_jsonify({'message': 'Drop-in advisor status has been disabled'}, status=200)
 
 
 @app.route('/api/user/same_day_advising/<dept_code>/enable', methods=['POST'])
@@ -170,7 +170,7 @@ def disable_same_day_advising(dept_code):
     user = AuthorizedUser.find_by_id(current_user.get_id())
     SameDayAdvisor.delete(authorized_user_id=user.id, dept_code=dept_code)
     UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify({'message': f'Same-day advisor status has been disabled'}, status=200)
+    return tolerant_jsonify({'message': 'Same-day advisor status has been disabled'}, status=200)
 
 
 @app.route('/api/user/<uid>/drop_in_advising/<dept_code>/available', methods=['POST'])

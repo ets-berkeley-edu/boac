@@ -139,9 +139,9 @@ class Appointment(Base):
             cls.created_at >= start_of_today,
             cls.appointment_type == 'Drop-in',
             cls.status.in_(statuses),
-            cls.deleted_at == None,
+            cls.deleted_at == None,  # noqa: E711
             cls.dept_code == dept_code,
-        )  # noqa: E711
+        )
         return cls.query.filter(criterion).order_by(cls.created_at).all()
 
     @classmethod
@@ -154,10 +154,10 @@ class Appointment(Base):
                 cls.scheduled_time >= start_of_today,
                 cls.scheduled_time <= end_of_today,
                 cls.appointment_type == 'Scheduled',
-                cls.deleted_at == None,
+                cls.deleted_at == None,  # noqa: E711
                 cls.dept_code == dept_code,
             ),
-        )  # noqa: E711
+        )
         if advisor_uid:
             query = query.filter(cls.advisor_uid == advisor_uid)
         return query.order_by(cls.scheduled_time).all()

@@ -932,14 +932,14 @@ def get_students_query(     # noqa
     if visa_types:
         query_tables += f""" JOIN {student_schema()}.visas v ON v.sid = sas.sid"""
     if sids:
-        query_filter += f' AND sas.sid = ANY(:sids)'
+        query_filter += ' AND sas.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
     if curated_group_ids:
         results = db.session.execute(
-            f'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
+            'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
             {'curated_group_ids': curated_group_ids},
         )
-        query_filter += f' AND sas.sid = ANY(:sids_of_curated_groups)'
+        query_filter += ' AND sas.sid = ANY(:sids_of_curated_groups)'
         query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
 
     # Generic SIS criteria
@@ -973,7 +973,7 @@ def get_students_query(     # noqa
         query_bindings.update({'genders': genders})
     if levels:
         query_filter += ' AND sas.level = ANY(:levels)'
-        query_bindings.update({'levels': [_level_to_code(l) for l in levels]})
+        query_bindings.update({'levels': [_level_to_code(level) for level in levels]})
     if intended_majors:
         query_tables += f""" JOIN {student_schema()}.intended_majors i ON i.sid = sas.sid"""
         query_filter += ' AND i.major = ANY(:intended_majors)'
@@ -1057,9 +1057,9 @@ def get_students_query(     # noqa
     if coe_underrepresented is not None:
         query_filter += f' AND s.minority IS {coe_underrepresented}'
     if is_active_coe is False:
-        query_filter += f" AND s.status IN ('D','P','U','W','X','Z')"
+        query_filter += " AND s.status IN ('D','P','U','W','X','Z')"
     elif is_active_coe is True:
-        query_filter += f" AND s.status NOT IN ('D','P','U','W','X','Z')"
+        query_filter += " AND s.status NOT IN ('D','P','U','W','X','Z')"
 
     return query_tables, query_filter, query_bindings
 

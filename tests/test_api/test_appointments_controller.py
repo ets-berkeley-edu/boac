@@ -691,7 +691,11 @@ class TestAppointmentReserve:
         """Returns 401 if user un-reserves an appointment which is reserved by another."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['QCADV']):
             waiting = Appointment.query.filter(
-                and_(Appointment.status == 'waiting', Appointment.deleted_at == None), Appointment.dept_code == 'QCADV',
+                and_(
+                    Appointment.status == 'waiting',
+                    Appointment.deleted_at == None,  # noqa: E711
+                ),
+                Appointment.dept_code == 'QCADV',
             ).first()  # noqa: E711
             advisor = AuthorizedUser.find_by_id(waiting.created_by)
             fake_auth.login(advisor.uid)

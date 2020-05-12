@@ -122,7 +122,7 @@ class CohortFilter(Base):
 
     @classmethod
     def get_domain_of_cohort(cls, cohort_id):
-        query = text(f'SELECT domain FROM cohort_filters WHERE id = :id')
+        query = text('SELECT domain FROM cohort_filters WHERE id = :id')
         result = db.session.execute(query, {'id': cohort_id}).first()
         return result and result['domain']
 
@@ -153,7 +153,7 @@ class CohortFilter(Base):
 
     @classmethod
     def get_cohorts_of_user_id(cls, user_id, domain='default'):
-        query = text(f"""
+        query = text("""
             SELECT id, domain, name, filter_criteria, alert_count, student_count
             FROM cohort_filters c
             WHERE c.owner_id = :user_id AND c.domain = :domain
@@ -174,7 +174,7 @@ class CohortFilter(Base):
 
     @classmethod
     def get_cohorts_owned_by_uids(cls, uids, domain='default'):
-        query = text(f"""
+        query = text("""
             SELECT
             c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
             FROM cohort_filters c
@@ -198,7 +198,7 @@ class CohortFilter(Base):
 
     @classmethod
     def is_cohort_owned_by(cls, cohort_id, user_id):
-        query = text(f"""
+        query = text("""
             SELECT count(*) FROM cohort_filters c
             WHERE c.owner_id = :user_id AND c.id = :cohort_id
         """)
@@ -212,7 +212,7 @@ class CohortFilter(Base):
 
     @classmethod
     def refresh_alert_counts_for_owner(cls, owner_id):
-        query = text(f"""
+        query = text("""
             UPDATE cohort_filters
             SET alert_count = updated_cohort_counts.alert_count
             FROM

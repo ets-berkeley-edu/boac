@@ -126,13 +126,13 @@ def load_term(term_id=current_term_id(use_cache=False)):
     refresh_alerts(term_id)
 
     if term_id == current_term_id():
-        JobProgress().update(f'About to refresh department memberships')
+        JobProgress().update('About to refresh department memberships')
         refresh_department_memberships()
-        JobProgress().update(f'About to refresh CalNet attributes for active users')
+        JobProgress().update('About to refresh CalNet attributes for active users')
         refresh_calnet_attributes()
-        JobProgress().update(f'About to load filtered cohort counts')
+        JobProgress().update('About to load filtered cohort counts')
         load_filtered_cohort_counts()
-        JobProgress().update(f'About to update curated group memberships')
+        JobProgress().update('About to update curated group memberships')
         update_curated_group_lists()
 
 
