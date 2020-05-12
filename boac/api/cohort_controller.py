@@ -282,7 +282,7 @@ def update_cohort():
     if not name and not filters:
         raise BadRequestError('Invalid request')
     if not CohortFilter.is_cohort_owned_by(cohort_id, current_user.get_id()):
-        raise ForbiddenRequestError(f'Invalid or unauthorized request')
+        raise ForbiddenRequestError('Invalid or unauthorized request')
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')

@@ -73,7 +73,7 @@ class TestMyNoteTemplates:
 
     @classmethod
     def _api_my_note_templates(cls, client, expected_status_code=200):
-        response = client.get(f'/api/note_templates/my')
+        response = client.get('/api/note_templates/my')
         assert response.status_code == expected_status_code
         return response.json
 

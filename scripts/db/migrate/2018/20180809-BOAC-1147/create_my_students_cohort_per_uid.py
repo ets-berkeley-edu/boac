@@ -48,7 +48,7 @@ def main(app):
         )
         print(f'Cohort created: {cohort}')
     else:
-        print(f'ERROR: Failed to create cohort')
+        print('ERROR: Failed to create cohort')
 
     print('\nDone.\n')
 

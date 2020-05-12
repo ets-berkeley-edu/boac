@@ -78,7 +78,7 @@ def validate_sids():
     sids = [sid.strip() for sid in list(params.get('sids'))]
     if sids:
         if next((sid for sid in sids if not sid.isnumeric()), None):
-            raise BadRequestError(f'Each SID must be numeric')
+            raise BadRequestError('Each SID must be numeric')
         else:
             summary = []
             available_sids = query_students(sids=sids, sids_only=True)['sids']

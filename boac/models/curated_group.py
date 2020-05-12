@@ -59,7 +59,7 @@ class CuratedGroup(Base):
 
     @classmethod
     def get_groups_owned_by_uids(cls, uids):
-        query = text(f"""
+        query = text("""
             SELECT sg.id, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
             FROM student_groups sg
             LEFT JOIN student_group_members sgm ON sg.id = sgm.student_group_id
@@ -80,7 +80,7 @@ class CuratedGroup(Base):
 
     @classmethod
     def curated_group_ids_per_sid(cls, user_id, sid):
-        query = text(f"""SELECT
+        query = text("""SELECT
             student_group_id as id
             FROM student_group_members m
             JOIN student_groups g ON g.id = m.student_group_id
@@ -139,7 +139,7 @@ class CuratedGroup(Base):
                 std_commit()
 
     def get_referencing_cohort_ids(self):
-        query = text(f"""SELECT
+        query = text("""SELECT
             c.id, c.filter_criteria
             FROM cohort_filters c
             WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND owner_id = :user_id""")

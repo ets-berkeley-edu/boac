@@ -209,7 +209,7 @@ class TestUniversityDeptMember:
             'automateMembership': automate_membership,
         }
         response = client.post(
-            f'/api/user/dept_membership/add',
+            '/api/user/dept_membership/add',
             data=json.dumps(params),
             content_type='application/json',
         )
@@ -231,7 +231,7 @@ class TestUniversityDeptMember:
             'automateMembership': automate_membership,
         }
         response = client.post(
-            f'/api/user/dept_membership/update',
+            '/api/user/dept_membership/update',
             data=json.dumps(params),
             content_type='application/json',
         )
@@ -564,7 +564,7 @@ class TestUserSearch:
             expected_status_code=200,
     ):
         response = client.post(
-            f'/api/users/autocomplete',
+            '/api/users/autocomplete',
             data=json.dumps({'snippet': snippet}),
             content_type='application/json',
         )
@@ -808,7 +808,7 @@ class TestToggleDropInAppointmentStatus:
             AppointmentTestUtil.reserve_appointment(client, subsequently_reserved_appointment_id, l_s_college_drop_in_advisor_uid)
 
             # Verify reserved appointment data.
-            waitlist = client.get(f'/api/appointments/waitlist/QCADV').json['waitlist']
+            waitlist = client.get('/api/appointments/waitlist/QCADV').json['waitlist']
             pre_reserved_appointment_feed = next(appt for appt in waitlist['unresolved'] if appt['id'] == pre_reserved_appointment_id)
             assert pre_reserved_appointment_feed['status'] == 'reserved'
             assert pre_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
@@ -823,7 +823,7 @@ class TestToggleDropInAppointmentStatus:
             client.post(f'/api/user/{l_s_college_drop_in_advisor_uid}/drop_in_advising/QCADV/unavailable')
 
             # Verify appointments are back to waiting.
-            waitlist = client.get(f'/api/appointments/waitlist/QCADV').json['waitlist']
+            waitlist = client.get('/api/appointments/waitlist/QCADV').json['waitlist']
             pre_reserved_appointment_feed = next(appt for appt in waitlist['unresolved'] if appt['id'] == pre_reserved_appointment_id)
             assert pre_reserved_appointment_feed['status'] == 'waiting'
             assert pre_reserved_appointment_feed['statusBy']['uid'] == l_s_college_scheduler_uid
@@ -870,7 +870,7 @@ class TestUserUpdate:
             delete_action=None,
     ):
         response = client.post(
-            f'/api/users/create_or_update',
+            '/api/users/create_or_update',
             data=json.dumps({
                 'profile': profile,
                 'memberships': memberships,

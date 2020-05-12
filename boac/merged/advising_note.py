@@ -150,14 +150,14 @@ def get_non_legacy_advising_notes(sid):
 
 def get_batch_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
     all_sids = sids
-    query = text(f"""
+    query = text("""
         SELECT sids
         FROM cohort_filters
         WHERE id = ANY(:cohort_ids) AND owner_id = :current_user_id
     """)
     for row in db.session.execute(query, {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}):
         all_sids.extend(row['sids'])
-    query = text(f"""
+    query = text("""
         SELECT distinct(m.sid)
         FROM student_group_members m
         JOIN student_groups g ON g.id = m.student_group_id

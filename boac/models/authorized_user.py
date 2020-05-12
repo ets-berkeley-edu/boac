@@ -197,7 +197,7 @@ class AuthorizedUser(Base):
 
     @classmethod
     def get_uid_per_id(cls, user_id):
-        query = text(f'SELECT uid FROM authorized_users WHERE id = :user_id AND deleted_at IS NULL')
+        query = text('SELECT uid FROM authorized_users WHERE id = :user_id AND deleted_at IS NULL')
         result = db.session.execute(query, {'user_id': user_id}).first()
         return result and result['uid']
 
@@ -232,7 +232,7 @@ class AuthorizedUser(Base):
     @classmethod
     def add_to_search_history(cls, user_id, search_phrase):
         search_phrase = vacuum_whitespace(search_phrase)
-        query = text(f'SELECT search_history FROM authorized_users WHERE id = :user_id')
+        query = text('SELECT search_history FROM authorized_users WHERE id = :user_id')
         result = db.session.execute(query, {'user_id': user_id}).first()
         if result:
             search_history = result['search_history'] or []
@@ -258,7 +258,7 @@ class AuthorizedUser(Base):
 
     @classmethod
     def get_search_history(cls, user_id):
-        query = text(f'SELECT search_history FROM authorized_users WHERE id = :id')
+        query = text('SELECT search_history FROM authorized_users WHERE id = :id')
         result = db.session.execute(query, {'id': user_id}).first()
         return result and result['search_history']
 
@@ -340,7 +340,7 @@ def _users_sql(
                     AND a.authorized_user_id = u.id
             """
         else:
-            query_tables += f"""
+            query_tables += """
                 JOIN university_depts d ON
                     d.dept_code = :dept_code
                 JOIN university_dept_members m ON
@@ -371,7 +371,7 @@ def _users_sql(
                     AND m.role = '{role}'
             """
     elif dept_code and not role:
-        query_tables += f"""
+        query_tables += """
             JOIN university_depts d ON d.dept_code = :dept_code
             JOIN university_dept_members m ON
                 m.university_dept_id = d.id

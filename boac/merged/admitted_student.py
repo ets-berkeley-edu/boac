@@ -145,7 +145,7 @@ def query_admitted_students(
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
-            sql += f' LIMIT :limit'
+            sql += ' LIMIT :limit'
         admits = data_loch.safe_execute_rds(sql, **query_bindings)
         summary['students'] = [_to_api_json(row) for row in admits] if admits else None
     return summary
