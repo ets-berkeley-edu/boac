@@ -1,5 +1,6 @@
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
+DROP SCHEMA IF EXISTS boac_advising_data_science cascade;
 DROP SCHEMA IF EXISTS boac_advising_e_i cascade;
 DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
@@ -13,6 +14,7 @@ DROP SCHEMA IF EXISTS student cascade;
 
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
+CREATE SCHEMA boac_advising_data_science;
 CREATE SCHEMA boac_advising_e_i;
 CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
@@ -89,6 +91,19 @@ CREATE TABLE boac_advising_coe.student_profiles
 (
     sid VARCHAR NOT NULL,
     profile TEXT NOT NULL
+);
+
+CREATE TABLE boac_advising_data_science.advising_notes
+(
+    id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    student_first_name VARCHAR,
+    student_last_name VARCHAR,
+    advisor_email VARCHAR,
+    reason_for_appointment VARCHAR,
+    conversation_type VARCHAR,
+    body VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE boac_advising_e_i.advising_notes
@@ -535,6 +550,12 @@ VALUES
 ('7890123456', :coe_profile_7890123456),
 ('9000000000', :coe_profile_9000000000),
 ('9100000000', :coe_profile_9100000000);
+
+INSERT INTO boac_advising_data_science.advising_notes
+(id, sid, student_first_name, student_last_name, advisor_email, reason_for_appointment, conversation_type, body, created_at)
+VALUES
+('11667051-20190801112456','11667051','Deborah','Davies','joni@berkeley.edu','Degree Check','Scheduled appointment','Buyer beware: there are many data charlatans out there posing as data scientists. There’s no magic that makes certainty out of uncertainty.','2019-08-01 18:24:56+00'),
+('11667051-20181003051208','11667051','Deborah','Davies','33333@berkeley.edu','Declaring the major, Course planning, Domain Emphasis','Unscheduled Drop-in','Data that is loved tends to survive.','2018-10-04 00:12:08+00');
 
 INSERT INTO boac_advising_e_i.advising_notes
 (id, e_i_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)

@@ -82,6 +82,10 @@ def coe_schema():
     return app.config['DATA_LOCH_COE_SCHEMA']
 
 
+def data_science_advising_schema():
+    return app.config['DATA_LOCH_DATA_SCIENCE_ADVISING_SCHEMA']
+
+
 def e_i_schema():
     return app.config['DATA_LOCH_E_I_SCHEMA']
 
@@ -490,6 +494,17 @@ def get_asc_advising_note_topics(sid):
         FROM {asc_schema()}.advising_note_topics
         WHERE sid=:sid
         ORDER BY id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_data_science_advising_notes(sid):
+    sql = f"""
+        SELECT
+            id, sid, advisor_email, student_first_name, student_last_name,
+            reason_for_appointment, conversation_type, body, created_at
+        FROM {data_science_advising_schema()}.advising_notes
+        WHERE sid=:sid
+        ORDER BY created_at, id"""
     return safe_execute_rds(sql, sid=sid)
 
 

@@ -73,6 +73,8 @@ def get_advising_notes(sid):
     notes_by_id.update(get_sis_advising_notes(sid))
     benchmark('begin ASC advising notes query')
     notes_by_id.update(get_asc_advising_notes(sid))
+    benchmark('begin Data Science advising notes query')
+    notes_by_id.update(get_data_science_advising_notes(sid))
     benchmark('begin E&I advising notes query')
     notes_by_id.update(get_e_i_advising_notes(sid))
     benchmark('begin non legacy advising notes query')
@@ -116,6 +118,19 @@ def get_asc_advising_notes(sid):
         notes_by_id[note_id] = note_to_compatible_json(
             note=legacy_note,
             topics=legacy_topics.get(note_id),
+        )
+        notes_by_id[note_id]['isLegacy'] = True
+    return notes_by_id
+
+
+def get_data_science_advising_notes(sid):
+    notes_by_id = {}
+    for legacy_note in data_loch.get_data_science_advising_notes(sid):
+        note_id = legacy_note['id']
+        legacy_note['dept_code'] = ['DSDDO']
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=legacy_note,
+            topics=[t.strip() for t in legacy_note.get('reason_for_appointment', '').split(',')],
         )
         notes_by_id[note_id]['isLegacy'] = True
     return notes_by_id
@@ -421,6 +436,7 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
             'name': note.get('author_name'),
             'role': note.get('author_role'),
             'departments': departments,
+            'email': note.get('advisor_email'),
         },
         'subject': note.get('subject'),
         'body': note.get('body') or note.get('note_body'),

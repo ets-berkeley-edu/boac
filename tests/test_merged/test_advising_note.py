@@ -92,16 +92,24 @@ class TestMergedAdvisingNote:
         assert notes[5]['updatedAt'] is None
         assert notes[5]['read'] is False
 
-        # Legacy E&I notes
-        assert notes[6]['id'] == '11667051-151620'
+        # Legacy Data Science notes
+        assert notes[6]['id'] == '11667051-20181003051208'
         assert notes[6]['sid'] == '11667051'
-        assert notes[6]['body'] is None
-        assert notes[6]['author']['uid'] == '1133398'
-        assert notes[6]['author']['name'] == 'Charlie Christian'
-        assert notes[6]['topics'] == ['Course Planning', 'Personal']
-        assert notes[6]['createdAt']
-        assert notes[6]['updatedAt'] is None
-        assert notes[6]['read'] is False
+        assert notes[6]['body'] == 'Data that is loved tends to survive.'
+        assert notes[6]['author']['email'] == '33333@berkeley.edu'
+        assert notes[6]['createdAt'] == '2018-10-04T00:12:08+00:00'
+        assert notes[6]['topics'] == ['Declaring the major', 'Course planning', 'Domain Emphasis']
+
+        # Legacy E&I notes
+        assert notes[8]['id'] == '11667051-151620'
+        assert notes[8]['sid'] == '11667051'
+        assert notes[8]['body'] is None
+        assert notes[8]['author']['uid'] == '1133398'
+        assert notes[8]['author']['name'] == 'Charlie Christian'
+        assert notes[8]['topics'] == ['Course Planning', 'Personal']
+        assert notes[8]['createdAt']
+        assert notes[8]['updatedAt'] is None
+        assert notes[8]['read'] is False
 
         # Non-legacy note
         boa_created_note = next((n for n in notes if n['id'] == mock_advising_note.id), None)

@@ -513,7 +513,7 @@ class TestMarkNoteRead:
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
-        assert len(all_notes_unread) == 7
+        assert len(all_notes_unread) == 9
         for note in all_notes_unread:
             assert note['read'] is False
 
@@ -525,12 +525,15 @@ class TestMarkNoteRead:
         # ASC note
         response = client.post('/api/notes/11667051-139379/mark_read')
         assert response.status_code == 201
+        # Data Science note
+        response = client.post('/api/notes/11667051-20190801112456/mark_read')
+        assert response.status_code == 201
         # E&I note
         response = client.post('/api/notes/11667051-151620/mark_read')
         assert response.status_code == 201
 
         all_notes_after_read = _get_notes(client, 61889)
-        assert len(all_notes_after_read) == 7
+        assert len(all_notes_after_read) == 9
         assert all_notes_after_read[0]['id'] == '11667051-00001'
         assert all_notes_after_read[0]['read'] is True
         assert all_notes_after_read[1]['id'] == '11667051-00002'
@@ -543,8 +546,12 @@ class TestMarkNoteRead:
         assert all_notes_after_read[4]['read'] is False
         assert all_notes_after_read[5]['id'] == '11667051-139379'
         assert all_notes_after_read[5]['read'] is True
-        assert all_notes_after_read[6]['id'] == '11667051-151620'
-        assert all_notes_after_read[6]['read'] is True
+        assert all_notes_after_read[6]['id'] == '11667051-20181003051208'
+        assert all_notes_after_read[6]['read'] is False
+        assert all_notes_after_read[7]['id'] == '11667051-20190801112456'
+        assert all_notes_after_read[7]['read'] is True
+        assert all_notes_after_read[8]['id'] == '11667051-151620'
+        assert all_notes_after_read[8]['read'] is True
 
 
 class TestUpdateNotes:
