@@ -28,20 +28,23 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!isNil(note.author) && !note.author.name" class="mt-2 advisor-profile-not-found">
+      <div v-if="!isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 advisor-profile-not-found">
         Advisor profile not found
       </div>
       <div v-if="note.author" class="mt-2">
-        <div v-if="note.author.name">
+        <div v-if="note.author.name || note.author.email">
           <span class="sr-only">Note created by </span>
           <a
-            v-if="note.author.uid"
+            v-if="note.author.uid && note.author.name"
             :id="`note-${note.id}-author-name`"
             :aria-label="`Open UC Berkeley Directory page of ${note.author.name} in a new window`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
             target="_blank">{{ note.author.name }}</a>
-          <span v-if="!note.author.uid" :id="`note-${note.id}-author-name`">
+          <span v-if="!note.author.uid && note.author.name" :id="`note-${note.id}-author-name`">
             {{ note.author.name }}
+          </span>
+          <span v-if="!note.author.uid && !note.author.name && note.author.email" :id="`note-${note.id}-author-email`">
+            {{ note.author.email }}
           </span>
           <span v-if="note.author.role || note.author.title">
             - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role || note.author.title }}</span>
