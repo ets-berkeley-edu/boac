@@ -473,6 +473,16 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=1, note_ids=['11667051-139362'])
 
+    def test_search_by_note_author_data_science(self, coe_advisor, client):
+        """Searches Data Science notes by advisor CSID if posted by option is selected."""
+        api_json = _api_search(
+            client,
+            'Buyer beware',
+            notes=True,
+            note_options={'advisorCsid': '800700600'},
+        )
+        self._assert(api_json, note_count=1, note_ids=['11667051-20190801112456'])
+
     def test_search_with_no_input_and_author(self, coe_advisor, client):
         """Notes search needs no input when author set."""
         api_json = _api_search(
@@ -481,7 +491,7 @@ class TestNoteSearch:
             notes=True,
             note_options={'advisorCsid': '800700600'},
         )
-        self._assert(api_json, note_count=2)
+        self._assert(api_json, note_count=3)
 
     def test_search_by_student(self, coe_advisor, client):
         """Searches notes by student CSID."""
@@ -501,7 +511,7 @@ class TestNoteSearch:
             notes=True,
             note_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, note_count=8)
+        self._assert(api_json, note_count=10)
 
     def test_note_search_limit(self, coe_advisor, client):
         """Limits search to the first n notes."""
@@ -531,7 +541,7 @@ class TestNoteSearch:
             notes=True,
             note_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, note_count=8)
+        self._assert(api_json, note_count=10)
 
 
 class TestAppointmentSearch:
@@ -953,11 +963,12 @@ class TestFindAdvisorsByName:
     def test_find_note_authors_by_name(self, client, coe_advisor):
         """Finds matches including authors of legacy and non-legacy notes."""
         response = self._api_search_advisors(client, 'Jo')
-        assert len(response) == 3
+        assert len(response) == 4
         labels = [s['label'] for s in response]
         assert 'Robert Johnson' in labels
         assert 'Joni Mitchell' in labels
         assert 'Joni Mitchell CC' in labels
+        assert 'John Deleted-in-BOA' in labels
 
 
 def _api_search(
