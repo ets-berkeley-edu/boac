@@ -500,11 +500,13 @@ def get_asc_advising_note_topics(sid):
 def get_data_science_advising_notes(sid):
     sql = f"""
         SELECT
-            id, sid, advisor_email, student_first_name, student_last_name,
-            reason_for_appointment, conversation_type, body, created_at
-        FROM {data_science_advising_schema()}.advising_notes
-        WHERE sid=:sid
-        ORDER BY created_at, id"""
+            n.id, n.sid, n.advisor_sid AS author_sid, n.advisor_uid AS author_uid,
+            n.advisor_first_name || ' ' || n.advisor_last_name AS author_name, dsn.advisor_email,
+            dsn.reason_for_appointment, n.note_body, n.created_at
+        FROM {data_science_advising_schema()}.advising_notes dsn
+        JOIN {advising_notes_schema()}.advising_notes n ON dsn.id = n.id
+        WHERE n.sid=:sid
+        ORDER BY n.created_at, n.id"""
     return safe_execute_rds(sql, sid=sid)
 
 

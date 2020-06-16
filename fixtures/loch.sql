@@ -153,7 +153,8 @@ CREATE TABLE boac_advising_notes.advising_note_authors
     uid VARCHAR NOT NULL,
     sid VARCHAR NOT NULL,
     first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL
+    last_name VARCHAR NOT NULL,
+    campus_email VARCHAR
 );
 
 CREATE TABLE boac_advising_oua.student_admits
@@ -557,6 +558,11 @@ VALUES
 ('11667051-20190801112456','11667051','Deborah','Davies','joni@berkeley.edu','Degree Check','Scheduled appointment','Buyer beware: there are many data charlatans out there posing as data scientists. There’s no magic that makes certainty out of uncertainty.','2019-08-01 18:24:56+00'),
 ('11667051-20181003051208','11667051','Deborah','Davies','33333@berkeley.edu','Declaring the major, Course planning, Domain Emphasis','Unscheduled Drop-in','Data that is loved tends to survive.','2018-10-04 00:12:08+00');
 
+CREATE MATERIALIZED VIEW boac_advising_data_science.advising_notes_search_index AS (
+  SELECT n.id, to_tsvector('english', COALESCE(n.body || ' ', '') || n.reason_for_appointment) AS fts_index
+  FROM boac_advising_data_science.advising_notes n
+);
+
 INSERT INTO boac_advising_e_i.advising_notes
 (id, e_i_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
 VALUES
@@ -592,14 +598,17 @@ VALUES
 ('1133398', 'CHARLIE'),
 ('1133398', 'CHRISTIAN'),
 ('1133399', 'JONI'),
-('1133399', 'MITCHELL');
+('1133399', 'MITCHELL'),
+('33333', 'JOHN'),
+('33333', 'DELETED-IN-BOA');
 
 INSERT INTO boac_advising_notes.advising_note_authors
-(uid, sid, first_name, last_name)
+(uid, sid, first_name, last_name, campus_email)
 VALUES
-('1133397', '600500400', 'Robert', 'Johnson'),
-('1133398', '700600500', 'Charlie', 'Christian'),
-('1133399', '800700600', 'Joni', 'Mitchell');
+('1133397', '600500400', 'Robert', 'Johnson', NULL),
+('1133398', '700600500', 'Charlie', 'Christian', NULL),
+('1133399', '800700600', 'Joni', 'Mitchell', 'joni@berkeley.edu'),
+('33333', '333333333', 'John', 'Deleted-in-BOA', '33333@berkeley.edu');
 
 INSERT INTO boac_advising_oua.student_admits
 (applyuc_cpid, cs_empl_id, residency_category, freshman_or_transfer, admit_term, admit_status, current_sir, college, first_name, middle_name, last_name, birthdate, daytime_phone, mobile, email, campus_email_1, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country, sex, gender_identity, xethnic, hispanic, urem, first_generation_college, parent_1_education_level, parent_2_education_level, highest_parent_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading, act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis, sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent, family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep, us_citizenship_status, us_non_citizen_status, citizenship_country, permanent_residence_country, non_immigrant_visa_current, non_immigrant_visa_planned, uid, created_at, updated_at)
@@ -746,6 +755,11 @@ SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_u
        NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at
 FROM boac_advising_asc.advising_notes ascn
 UNION
+SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid, dsna.uid AS advisor_uid, dsna.first_name AS advisor_first_name,
+       dsna.last_name AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, dsn.created_at, NULL AS updated_at
+FROM boac_advising_data_science.advising_notes dsn
+JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
+UNION
 SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
        NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at
 FROM boac_advising_e_i.advising_notes ein
@@ -753,6 +767,7 @@ FROM boac_advising_e_i.advising_notes ein
 
 CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   SELECT id, fts_index FROM boac_advising_asc.advising_notes_search_index
+  UNION SELECT id, fts_index FROM boac_advising_data_science.advising_notes_search_index
   UNION SELECT id, fts_index FROM boac_advising_e_i.advising_notes_search_index
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );
