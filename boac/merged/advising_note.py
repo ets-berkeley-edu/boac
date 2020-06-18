@@ -130,7 +130,7 @@ def get_data_science_advising_notes(sid):
         legacy_note['dept_code'] = ['DSDDO']
         notes_by_id[note_id] = note_to_compatible_json(
             note=legacy_note,
-            topics=[t.strip() for t in legacy_note.get('reason_for_appointment', '').split(',')],
+            topics=list(filter(None, [t.strip() for t in legacy_note.get('reason_for_appointment', '').split(',')])),
         )
         notes_by_id[note_id]['isLegacy'] = True
     return notes_by_id
