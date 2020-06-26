@@ -6,8 +6,7 @@
     </div>
     <div v-if="size(existingAttachments) < $config.maxAttachmentsPerNote" class="w-100">
       <div class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
-        <span class="sr-only">Add attachment to note: </span>
-        Drop file to upload attachment or
+        Add attachment:
         <b-btn
           id="choose-file-for-note-attachment"
           :disabled="disabled"
@@ -16,7 +15,7 @@
           class="btn-file-upload mt-2 mb-2"
           size="sm"
           @keydown.enter.prevent="clickBrowseForAttachment">
-          Browse<span class="sr-only"> for file to upload</span>
+          Select File
         </b-btn>
         <b-form-file
           ref="attachmentFileInput"
