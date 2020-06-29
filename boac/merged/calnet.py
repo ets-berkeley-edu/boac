@@ -127,13 +127,7 @@ def _calnet_user_api_feed(person):
 
 
 def _get_dept_code(p):
-    def dept_code_fallback():
-        dept_hierarchy = _get_attribute(p, 'dept_unit_hierarchy')
-        if dept_hierarchy:
-            return dept_hierarchy.rsplit('-', 1)[-1]
-        else:
-            return None
-    return p and (p['primary_dept_code'] or p['dept_code'] or p['calnet_dept_code'] or dept_code_fallback())
+    return p and (p['primary_dept_code'] or p['dept_code'])
 
 
 def _get_attribute(person, key):
