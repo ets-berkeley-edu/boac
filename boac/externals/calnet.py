@@ -34,8 +34,6 @@ SCHEMA_DICT = {
     'berkeleyEduCSID': 'csid',
     'berkeleyEduOfficialEmail': 'campus_email',
     'berkeleyEduPrimaryDeptUnit': 'primary_dept_code',
-    'berkeleyEduUnitCalNetDeptName': 'calnet_dept_code',
-    'berkeleyEduDeptUnitHierarchyString': 'dept_unit_hierarchy',
     'cn': 'sortable_name',
     'departmentNumber': 'dept_code',
     'displayName': 'name',
