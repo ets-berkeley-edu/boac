@@ -129,7 +129,7 @@ class Appointment(Base):
 
     @classmethod
     def get_appointments_per_sid(cls, sid):
-        return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).all()  # noqa: E711
+        return cls.query.filter(and_(cls.student_sid == sid, cls.deleted_at == None)).order_by(cls.updated_at, cls.id).all()  # noqa: E711
 
     @classmethod
     def get_drop_in_waitlist(cls, dept_code, statuses=()):

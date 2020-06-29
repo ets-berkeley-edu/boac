@@ -70,19 +70,22 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert 'statusDate' not in appointments[0]
 
         # Non-legacy appointments
-        assert appointments[3]['id'] == 10
+        assert appointments[3]['id'] == 5
         assert appointments[3]['advisor']
-        assert appointments[3]['advisor']['id'] is None
-        assert appointments[3]['advisor']['name'] == ''
-        assert appointments[3]['advisor']['title'] is None
-        assert appointments[3]['advisor']['uid'] is None
-        assert appointments[3]['advisor']['departments'] == []
+        assert appointments[3]['advisor']['id'] == 7
+        assert appointments[3]['advisor']['name'] == 'Milicent Balthazar'
+        assert appointments[3]['advisor']['title'] == 'Advisor'
+        assert appointments[3]['advisor']['uid'] == '53791'
+        assert appointments[3]['advisor']['departments'] == [
+            {'code': 'QCADV', 'name': 'L&S College Advising'},
+            {'code': 'QCADVMAJ', 'name': 'L&S Major Advising'},
+        ]
         assert appointments[3]['appointmentType'] == 'Drop-in'
         assert appointments[3]['attachments'] is None
         assert appointments[3]['createdAt']
         assert appointments[3]['createdBy'] == 7
         assert appointments[3]['deptCode'] == 'QCADV'
-        assert appointments[3]['details'] == 'You be you.'
+        assert appointments[3]['details'] == 'It is not the length of life, but depth of life.'
         assert 'isLegacy' not in appointments[3]
         assert appointments[3]['student']
         assert appointments[3]['student']['sid'] == student_sid
@@ -91,7 +94,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['updatedBy'] == 7
         assert appointments[3]['cancelReason'] is None
         assert appointments[3]['cancelReasonExplained'] is None
-        assert appointments[3]['status'] == 'waiting'
+        assert appointments[3]['status'] == 'checked_in'
         assert appointments[3]['statusBy']
         assert appointments[3]['statusBy']['id'] == 7
         assert appointments[3]['statusBy']['uid'] == '53791'
@@ -101,22 +104,19 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['statusBy']['firstName'] == 'Milicent'
         assert appointments[3]['statusDate']
 
-        assert appointments[4]['id'] == 5
+        assert appointments[4]['id'] == 10
         assert appointments[4]['advisor']
-        assert appointments[4]['advisor']['id'] == 7
-        assert appointments[4]['advisor']['name'] == 'Milicent Balthazar'
-        assert appointments[4]['advisor']['title'] == 'Advisor'
-        assert appointments[4]['advisor']['uid'] == '53791'
-        assert appointments[4]['advisor']['departments'] == [
-            {'code': 'QCADV', 'name': 'L&S College Advising'},
-            {'code': 'QCADVMAJ', 'name': 'L&S Major Advising'},
-        ]
+        assert appointments[4]['advisor']['id'] is None
+        assert appointments[4]['advisor']['name'] == ''
+        assert appointments[4]['advisor']['title'] is None
+        assert appointments[4]['advisor']['uid'] is None
+        assert appointments[4]['advisor']['departments'] == []
         assert appointments[4]['appointmentType'] == 'Drop-in'
         assert appointments[4]['attachments'] is None
         assert appointments[4]['createdAt']
         assert appointments[4]['createdBy'] == 7
         assert appointments[4]['deptCode'] == 'QCADV'
-        assert appointments[4]['details'] == 'It is not the length of life, but depth of life.'
+        assert appointments[4]['details'] == 'You be you.'
         assert 'isLegacy' not in appointments[4]
         assert appointments[4]['student']
         assert appointments[4]['student']['sid'] == student_sid
@@ -125,7 +125,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['updatedBy'] == 7
         assert appointments[4]['cancelReason'] is None
         assert appointments[4]['cancelReasonExplained'] is None
-        assert appointments[4]['status'] == 'checked_in'
+        assert appointments[4]['status'] == 'waiting'
         assert appointments[4]['statusBy']
         assert appointments[4]['statusBy']['id'] == 7
         assert appointments[4]['statusBy']['uid'] == '53791'
