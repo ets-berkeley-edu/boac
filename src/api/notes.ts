@@ -86,11 +86,10 @@ export function deleteNote(noteId: number) {
     .then(response => response.data);
 }
 
-export function addAttachment(noteId: number, attachment: any) {
-  const data = {
-    'attachment[0]': attachment,
-  };
-  return utils.postMultipartFormData(`/api/notes/${noteId}/attachment`, data);
+export function addAttachments(noteId: number, attachments: any[]) {
+  let data = {};
+  _.each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment);
+  return utils.postMultipartFormData(`/api/notes/${noteId}/attachments`, data);
 }
 
 export function removeAttachment(noteId: number, attachmentId: number) {

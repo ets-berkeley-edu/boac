@@ -73,14 +73,14 @@
       v-if="showConfirmDeleteAttachment"
       :function-cancel="cancelRemoveAttachment"
       :function-confirm="confirmedRemoveAttachment"
-      :modal-body="`Are you sure you want to delete the <b>'${displayName(attachments, deleteAttachmentIndex)}'</b> attachment?`"
+      :modal-body="`Are you sure you want to delete the <b>'${displayName(existingAttachments, deleteAttachmentIndex)}'</b> attachment?`"
       :show-modal="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
       modal-header="Delete Attachment" />
     <div>
       <ul class="pill-list pl-0 mt-3">
         <li
-          v-for="(attachment, index) in attachments"
+          v-for="(attachment, index) in existingAttachments"
           :id="`note-${note.id}-attachment-${index}`"
           :key="attachment.name"
           class="mt-2">
@@ -109,12 +109,12 @@
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
         <div v-if="uploadingAttachment" class="w-100">
-          <font-awesome icon="sync" spin /> Uploading attachment...
+          <font-awesome icon="sync" spin /> Uploading {{ size(attachments) === 1 ? 'attachment' : 'attachments' }}...
         </div>
-        <div v-if="size(attachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
+        <div v-if="size(existingAttachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
-            Drop file to upload attachment or
+            Add attachment:
             <b-btn
               id="choose-file-for-note-attachment"
               type="file"
@@ -122,18 +122,19 @@
               class="btn-file-upload mt-2 mb-2"
               size="sm"
               @keydown.enter.prevent="clickBrowseForAttachment">
-              Browse<span class="sr-only"> for file to upload</span>
+              Select File
             </b-btn>
             <b-form-file
               ref="attachment-file-input"
-              v-model="attachment"
-              :disabled="size(attachments) === $config.maxAttachmentsPerNote"
-              :state="Boolean(attachment)"
+              v-model="attachments"
+              :disabled="size(existingAttachments) === $config.maxAttachmentsPerNote"
+              :state="Boolean(attachments && attachments.length)"
+              :multiple="true"
               :plain="true"
             ></b-form-file>
           </div>
         </div>
-        <div v-if="size(attachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
+        <div v-if="size(existingAttachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
           A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
         </div>
       </div>
@@ -146,7 +147,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Attachments from '@/mixins/Attachments';
 import Context from '@/mixins/Context';
 import Util from '@/mixins/Util';
-import { addAttachment, removeAttachment } from '@/api/notes';
+import { addAttachments, removeAttachment } from '@/api/notes';
 import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
 
 export default {
@@ -162,11 +163,11 @@ export default {
   },
   data: () => ({
     allUsers: undefined,
-    attachment: undefined,
     attachmentError: undefined,
-    attachments: undefined,
+    attachments: [],
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
+    existingAttachments: undefined,
     showConfirmDeleteAttachment: false,
     uploadingAttachment: false
   }),
@@ -176,25 +177,30 @@ export default {
     }
   },
   watch: {
-    attachment(file) {
-      if (file) {
-        this.attachmentError = this.validateAttachment(file, this.attachments);
+    attachments(files) {
+      if (this.size(files)) {
+        this.attachmentError = this.validateAttachment(files, this.existingAttachments);
         if (this.attachmentError) {
-          this.attachment = null;
           this.resetFileInput();
         } else {
           this.clearErrors();
-          this.attachment = file;
-          this.attachment.displayName = file.name;
-          this.alertScreenReader(`Uploading attachment '${this.attachment.displayName}'`);
+          this.each(files, attachment => {
+            attachment.displayName = attachment.name
+            this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`);
+          });
           this.uploadingAttachment = true;
-          addAttachment(this.note.id, this.attachment).then(updatedNote => {
-            this.alertScreenReader(`Attachment '${this.attachment.displayName}' added`);
-            this.uploadingAttachment = false;
+          addAttachments(this.note.id, files).then(updatedNote => {
+            this.alertScreenReader(`${this.size(files)} ${this.size(files) === 1 ? 'attachment' : 'attachments'} added.`);
             this.afterSaved(updatedNote);
             this.resetAttachments();
-            this.resetFileInput();
+            this.uploadingAttachment = false;
+          })
+          .catch(error => {
+            this.alertScreenReader();
+            this.attachmentError = this.get(error, 'message');
+            this.uploadingAttachment = false;
           });
+          this.resetFileInput();
         }
       }
     },
@@ -235,12 +241,12 @@ export default {
     },
     removeAttachment(index) {
       this.clearErrors();
-      const removeMe = this.attachments[index];
+      const removeMe = this.existingAttachments[index];
       if (removeMe.id) {
         this.deleteAttachmentIndex = index;
         this.showConfirmDeleteAttachment = true;
       } else {
-        this.attachments.splice(index, 1);
+        this.existingAttachments.splice(index, 1);
       }
     },
     cancelRemoveAttachment() {
@@ -252,8 +258,8 @@ export default {
     },
     confirmedRemoveAttachment() {
       this.showConfirmDeleteAttachment = false;
-      const attachment = this.attachments[this.deleteAttachmentIndex];
-      this.attachments.splice(this.deleteAttachmentIndex, 1);
+      const attachment = this.existingAttachments[this.deleteAttachmentIndex];
+      this.existingAttachments.splice(this.deleteAttachmentIndex, 1);
       removeAttachment(this.note.id, attachment.id).then(updatedNote => {
         this.alertScreenReader(`Attachment '${attachment.displayName}' removed`);
         this.afterSaved(updatedNote);
@@ -266,7 +272,7 @@ export default {
       return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`;
     },
     resetAttachments() {
-      this.attachments = this.cloneDeep(this.note.attachments);
+      this.existingAttachments = this.cloneDeep(this.note.attachments);
     },
     resetFileInput() {
       const inputElement = this.$refs['attachment-file-input'];

@@ -19,9 +19,10 @@
         </b-btn>
         <b-form-file
           ref="attachmentFileInput"
-          v-model="attachment"
+          v-model="attachments"
           :disabled="disabled || size(existingAttachments) === $config.maxAttachmentsPerNote"
-          :state="Boolean(attachment)"
+          :state="Boolean(attachments && attachments.length)"
+          :multiple="true"
           :plain="true"
         ></b-form-file>
       </div>
@@ -83,21 +84,23 @@ export default {
     }
   },
   data: () => ({
-    attachment: undefined,
+    attachments: [],
     attachmentError: undefined
   }),
   watch: {
-    attachment(file) {
-      if (file) {
-        this.attachmentError = this.validateAttachment(file, this.existingAttachments);
+    attachments(files) {
+      if (files) {
+        this.attachmentError = this.validateAttachment(files, this.existingAttachments);
         if (this.attachmentError) {
-          this.attachment = null;
+          this.attachments = [];
         } else {
           this.attachmentError = null;
-          this.attachment = file;
-          this.attachment.displayName = file.name;
-          this.addAttachment(this.attachment);
-          this.alertScreenReader(`Attachment '${this.attachment.displayName}' added`);
+          this.each(files, attachment => {
+            attachment.displayName = attachment.name
+            this.addAttachment(attachment);
+            this.alertScreenReader(`Attachment '${attachment.displayName}' added`);
+          });
+          this.attachments = files;
         }
       }
       this.$refs.attachmentFileInput.reset();

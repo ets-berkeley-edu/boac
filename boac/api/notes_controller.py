@@ -181,18 +181,21 @@ def delete_note(note_id):
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
 
-@app.route('/api/notes/<note_id>/attachment', methods=['POST'])
+@app.route('/api/notes/<note_id>/attachments', methods=['POST'])
 @advising_data_access_required
-def add_attachment(note_id):
-    if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
+def add_attachments(note_id):
+    note = Note.find_by_id(note_id=note_id)
+    if note.author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     attachments = get_note_attachments_from_http_post()
-    if len(attachments) != 1:
-        raise BadRequestError('A single attachment file must be supplied.')
-    note = Note.add_attachment(
-        note_id=note_id,
-        attachment=attachments[0],
-    )
+    attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
+    if len(attachments) + len(note.attachments) > attachment_limit:
+        raise BadRequestError(f'No more than {attachment_limit} attachments may be uploaded at once.')
+    for attachment in attachments:
+        note = Note.add_attachment(
+            note_id=note_id,
+            attachment=attachment,
+        )
     return tolerant_jsonify(
         _boa_note_to_compatible_json(
             note=note,
