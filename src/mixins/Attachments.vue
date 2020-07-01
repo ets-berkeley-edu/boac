@@ -19,22 +19,26 @@ export default {
     clickBrowseForAttachment() {
       this.$refs['attachment-file-input'].$el.click();
     },
-    validateAttachment(attachment, attachments) {
+    validateAttachment(attachments, existingAttachments) {
       const maxAttachmentMegabytes = 20;
       const maxAttachmentBytes = maxAttachmentMegabytes * 1024 * 1024;
+      if (!(attachments && attachments.length)) {
+        return 'No attachment provided.';
+      }
+      if (_.size(attachments) + _.size(existingAttachments) > parseInt(this.$config.maxAttachmentsPerNote)) {
+        return `A note can have no more than ${this.$config.maxAttachmentsPerNote} attachments.`;
+      }
       let error = null;
-      if (attachment) {
-        const name = attachment.name;
+      for (const attachment of attachments) {
         if (attachment.size > maxAttachmentBytes) {
-          error = `The file '${name}' is too large. Attachments are limited to ${maxAttachmentMegabytes} MB in size.`;
-        } else {
-          const matching = _.filter(attachments, a => name === a.displayName);
-          if (matching.length) {
-            error = `Another attachment has the name '${name}'. Please rename your file.`;
-          }
+          error = `The file '${attachment.name}' is too large. Attachments are limited to ${maxAttachmentMegabytes} MB in size.`;
+          break;
         }
-      } else {
-        error = 'No attachment provided.';
+        const matching = _.filter(existingAttachments, a => attachment.name === a.displayName);
+        if (matching.length) {
+          error = `Another attachment has the name '${attachment.name}'. Please rename your file.`;
+          break;
+        }
       }
       return error;
     }

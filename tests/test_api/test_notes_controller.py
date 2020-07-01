@@ -427,7 +427,7 @@ class TestNoteAttachments:
             base_dir = app.config['BASE_DIR']
             data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
-                '/api/notes/1/attachment',
+                '/api/notes/1/attachments',
                 buffered=True,
                 content_type='multipart/form-data',
                 data=data,
@@ -486,7 +486,7 @@ class TestNoteAttachments:
         with mock_advising_note_s3_bucket(app):
             data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
             response = client.post(
-                f'/api/notes/{note_id}/attachment',
+                f'/api/notes/{note_id}/attachments',
                 buffered=True,
                 content_type='multipart/form-data',
                 data=data,
@@ -495,6 +495,40 @@ class TestNoteAttachments:
         updated_note = response.json
         assert len(updated_note['attachments']) == 1
         assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert updated_note['updatedAt'] is not None
+
+    def test_add_attachments(self, app, client, fake_auth):
+        """Add multiple attachments to an existing note."""
+        fake_auth.login(coe_advisor_uid)
+        base_dir = app.config['BASE_DIR']
+        note = _api_note_create(
+            app,
+            client,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            sid=coe_student['sid'],
+            subject='No attachments yet',
+            body='I travel light',
+        )
+        assert note['updatedAt'] is None
+        # Pause one second to ensure a distinct updatedAt.
+        sleep(1)
+        note_id = note['id']
+        with mock_advising_note_s3_bucket(app):
+            data = {
+                'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb'),
+                'attachment[1]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt', 'rb'),
+            }
+            response = client.post(
+                f'/api/notes/{note_id}/attachments',
+                buffered=True,
+                content_type='multipart/form-data',
+                data=data,
+            )
+        assert response.status_code == 200
+        updated_note = response.json
+        assert len(updated_note['attachments']) == 2
+        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert updated_note['attachments'][1]['filename'] == 'mock_advising_note_attachment_2.txt'
         assert updated_note['updatedAt'] is not None
 
 
