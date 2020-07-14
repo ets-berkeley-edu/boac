@@ -118,6 +118,7 @@ ALTER TABLE IF EXISTS ONLY public.alembic_version DROP CONSTRAINT IF EXISTS alem
 ALTER TABLE IF EXISTS ONLY public.alert_views DROP CONSTRAINT IF EXISTS alert_views_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_pkey;
 ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_unique_constraint;
+ALTER TABLE IF EXISTS ONLY public.alerts DROP CONSTRAINT IF EXISTS alerts_sid_alert_type_key_created_at_unique_constraint;
 ALTER TABLE IF EXISTS ONLY public.appointment_availability DROP CONSTRAINT IF EXISTS appointment_availability_pkey;
 ALTER TABLE IF EXISTS ONLY public.appointment_topics DROP CONSTRAINT IF EXISTS appointment_topics_pkey;
 ALTER TABLE IF EXISTS ONLY public.appointments_read DROP CONSTRAINT IF EXISTS appointments_read_pkey;
