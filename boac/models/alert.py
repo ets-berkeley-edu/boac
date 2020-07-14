@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 import re
 import time
@@ -39,6 +39,7 @@ from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app
 from sqlalchemy import text
+from sqlalchemy.sql import desc
 
 
 def _get_current_term_start():
@@ -65,7 +66,8 @@ class Alert(Base):
         'sid',
         'alert_type',
         'key',
-        name='alerts_sid_alert_type_key_unique_constraint',
+        'created_at',
+        name='alerts_sid_alert_type_key_created_at_unique_constraint',
     ),)
 
     @classmethod
@@ -224,8 +226,12 @@ class Alert(Base):
 
     @classmethod
     def create_or_activate(cls, sid, alert_type, key, message, preserve_creation_date=False):
-        existing_alert = cls.query.filter_by(sid=sid, alert_type=alert_type, key=key).first()
-        if existing_alert:
+        # If any previous alerts exist with the same type, key and sid, grab the most recently updated one.
+        existing_alert = cls.query.filter_by(sid=sid, alert_type=alert_type, key=key).order_by(desc(cls.updated_at)).first()
+        # If the existing alert was only just deactivated in the last two hours, assume that the deactivation was part of the
+        # current refresh cycle, and go ahead and reactivate it. But if the alert was deactivated farther back in the past,
+        # assume that it represents a previous state of affairs, and create a new alert for current conditions.
+        if existing_alert and (datetime.now(timezone.utc) - existing_alert.updated_at).total_seconds() < (2 * 3600):
             existing_alert.message = message
             existing_alert.activate(preserve_creation_date=preserve_creation_date)
         else:
@@ -237,7 +243,8 @@ class Alert(Base):
             cls.query.
             filter(cls.sid == sid).
             filter(cls.alert_type.in_(alert_types)).
-            filter(cls.key.startswith(f'{term_id}_%'))
+            filter(cls.key.startswith(f'{term_id}_%')).
+            filter(cls.active == True)  # noqa: E712
         )
         results = query.update({cls.active: False}, synchronize_session='fetch')
         std_commit()
@@ -265,7 +272,8 @@ class Alert(Base):
     def deactivate_all_for_term(cls, term_id):
         query = (
             cls.query.
-            filter(cls.key.startswith(f'{term_id}_%'))
+            filter(cls.key.startswith(f'{term_id}_%')).
+            filter(cls.active == True)  # noqa: E712
         )
         results = query.update({cls.active: False}, synchronize_session='fetch')
         std_commit()

@@ -23,8 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime, timedelta, timezone
 from time import sleep
 
+from boac import std_commit
 from boac.models.alert import Alert
 import pytest
 from tests.util import override_config
@@ -76,6 +78,24 @@ class TestAlert:
         assert len(alerts) == 1
         assert alerts[0]['id'] == alert_id
 
+    def test_deactivate_create_new_alert(self):
+        """If a matching alert was deactivated in the past, a new alert will be created."""
+        assert len(get_current_alerts('11667051')) == 0
+        Alert.update_assignment_alerts(**alert_props)
+        alerts = get_current_alerts('11667051')
+        assert len(alerts) == 1
+        old_alert = alerts[0]
+
+        Alert.deactivate_all(sid='11667051', term_id='2178', alert_types=['missing_assignment'])
+        assert len(get_current_alerts('11667051')) == 0
+        Alert.query.filter_by(id=old_alert['id']).first().updated_at = datetime.now(timezone.utc) - timedelta(days=1)
+        std_commit(allow_test_environment=True)
+
+        Alert.update_assignment_alerts(**alert_props)
+        alerts = get_current_alerts('11667051')
+        assert len(alerts) == 1
+        assert alerts[0]['id'] != old_alert['id']
+
     def test_activation_deactivation_all_students(self):
         """Can activate and deactive across entire population for term."""
         assert len(get_current_alerts('11667051')) == 0
@@ -106,6 +126,29 @@ class TestAlert:
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
         assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+
+    def test_inactive_alert_preserves_timestamp(self):
+        # The 'updated_at' attribute of an inactive alert preserves the time at which it was deactivated.
+        Alert.update_all_for_term(2178)
+        Alert.deactivate_all(sid='11667051', term_id='2178', alert_types=['midterm'])
+        inactive_alert_1 = (Alert.query.
+                            filter(Alert.sid == '11667051').
+                            filter(Alert.key.startswith('2178_')).
+                            filter(Alert.active == False).  # noqa: E712
+                            first()
+                            )
+        inactivation_timestamp = inactive_alert_1.updated_at
+        sleep(2)
+        Alert.deactivate_all_for_term(2178)
+        inactive_alert_1 = Alert.query.filter_by(id=inactive_alert_1.id).first()
+        inactive_alert_2 = (Alert.query.
+                            filter(Alert.sid == '3456789012').
+                            filter(Alert.key.startswith('2178_%')).
+                            filter(Alert.active == False).  # noqa: E712
+                            first()
+                            )
+        assert inactive_alert_1.updated_at == inactivation_timestamp
+        assert inactive_alert_2.updated_at > inactivation_timestamp
 
     def test_alert_timezones(self):
         """For purposes of displaying due dates, loves LA."""

@@ -77,7 +77,7 @@ ALTER TABLE ONLY alerts ALTER COLUMN id SET DEFAULT nextval('alerts_id_seq'::reg
 ALTER TABLE ONLY alerts
     ADD CONSTRAINT alerts_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY alerts
-    ADD CONSTRAINT alerts_sid_alert_type_key_unique_constraint UNIQUE (sid, alert_type, key);
+    ADD CONSTRAINT alerts_sid_alert_type_key_created_at_unique_constraint UNIQUE (sid, alert_type, key, created_at);
 CREATE INDEX alerts_sid_idx ON alerts USING btree (sid);
 
 --
