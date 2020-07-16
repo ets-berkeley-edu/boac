@@ -24,7 +24,7 @@
     "d3": "5.9.7",
     "highcharts": "6.2.0",
     "js-file-download": "0.4.9",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "lodash.merge": "4.6.2",
     "moment-timezone": "0.5.27",
     "v-calendar": "0.9.7",
