@@ -424,6 +424,24 @@ CREATE TABLE student.student_academic_status
     terms_in_attendance INT
 );
 
+CREATE TABLE student.student_profile_index
+(
+    sid VARCHAR NOT NULL,
+    uid VARCHAR NOT NULL,
+    first_name VARCHAR NOT NULL,
+    last_name VARCHAR NOT NULL,
+    level VARCHAR(2),
+    gpa DECIMAL(5,3),
+    units DECIMAL (4,1),
+    transfer BOOLEAN,
+    email_address VARCHAR,
+    entering_term VARCHAR(4),
+    expected_grad_term VARCHAR(4),
+    terms_in_attendance INT,
+    academic_career_status VARCHAR,
+    hist_enr BOOLEAN
+);
+
 CREATE TABLE student.student_majors
 (
     sid VARCHAR NOT NULL,
@@ -664,7 +682,8 @@ VALUES
 ('11667051-00010', '11667051', '00010', '53791', '000000123', 'Appointment Type', 'Document', 'To my people who keep an impressive wingspan even when the cubicle shrink: you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine', NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
 ('11667051-00011', '11667051', '00011', '700600500', NULL, 'Appointment Type', '', '', NULL, NULL, '2017-11-01T12:00:00+00', '2017-11-01T12:00:00+00'),
 ('11667051-00012', '11667051', '00012', '100200300', NULL, 'Appointment Type', 'Entry w/o Contact', 'When soldering a perfect union it is vital to calculate any ornery loose ends so if mutiny ensues the aloof is assumed nuisance. The clue is in his vacancy, the proof is in his goosebumps.', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
-('9100000000-00010', '9100000000', '00010', '100200300', NULL, 'Appointment Type', '', 'Art imitates life.', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+('9100000000-00010', '9100000000', '00010', '100200300', NULL, 'Appointment Type', '', 'Art imitates life.', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
+('2718281828-00002', '2718281828', '00002', '600500400', NULL, 'Appointment Type', '', 'As the largest Pez dispenser on record recouped his numbers', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_appointments_search_index AS (
   SELECT id, to_tsvector(
@@ -704,7 +723,8 @@ VALUES
 ('11667051-00004', '11667051', '00004', '600500400', NULL, 'Quick Question', 'Unanswered', ' ', NULL, NULL, '2017-11-05T12:00:00+00', '2017-11-06T12:00:00+00'),
 ('9000000000-00001', '9000000000', '00001', '600500400', NULL, 'Administrative', '', 'Is this student even on campus?', NULL, NULL, '2017-11-02T12:00:00+00', '2017-11-02T13:00:00+00'),
 ('9000000000-00002', '9000000000', '00002', '700600500', NULL, 'Evaluation', '', 'I am confounded by this confounding student', 'UCBCONVERSION', NULL, '2017-11-02T07:00:00+00', '2017-11-02T07:00:00+00'),
-('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00');
+('9100000000-00001', '9100000000', '00001', '600500400', NULL, 'Evaluation', '', 'Met w/ stu; scheduled next appt. 2/1/2019 @ 1:30. Student continued on 2.0 prob (COP) until Sp ''19. E-mailed test@berkeley.edu: told her she''ll need to drop Eng. 123 by 1-24-19', 'UCBCONVERSION', NULL, '2017-11-02T12:00:00+00', '2017-11-02T12:00:00+00'),
+('2718281828-00001', '2718281828', '00001', '600500400', NULL, 'Conundrum', '', 'I fear this young fellow shall never settle upon a respectable vocation.', 'UCBCONVERSION', NULL, '2006-11-02T12:00:00+00', '2006-11-02T12:00:00+00');
 
 CREATE MATERIALIZED VIEW sis_advising_notes.advising_notes_search_index AS (
   SELECT id, to_tsvector(
@@ -885,6 +905,21 @@ VALUES
 ('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192', 2),
 ('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202', 2),
 ('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2);
+
+INSERT INTO student.student_profile_index
+(sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status, hist_enr)
+VALUES
+('11667051', '61889', 'Deborah', 'Davies', NULL, 3.8, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL, 'active', FALSE),
+('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4, 'active', FALSE),
+('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5, 'active', FALSE),
+('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', NULL, 'active', FALSE),
+('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202', 2, 'active', FALSE),
+('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978', 2, 'active', FALSE),
+('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192', 2, 'active', FALSE),
+('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202', 2, 'active', FALSE),
+('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2, 'active', FALSE),
+('2718281828', '271828', 'Ernest', 'Pontifex', 'GR', 4, 139, FALSE, 'ep@berkeley.edu', '2048', '2102', 12, 'completed', TRUE),
+('3141592653', '314159', 'Johannes', 'Climacus', '40', 2.784, 149.6, FALSE, 'jc@berkeley.edu', '2155', '2118', 9, 'inactive', TRUE);
 
 INSERT INTO student.student_majors
 (sid, college, major)
