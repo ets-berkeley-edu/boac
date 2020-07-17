@@ -632,10 +632,10 @@ def search_advising_appointments(
 ):
     query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, aa.uid AS advisor_uid,
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
-            sas.uid, sas.first_name, sas.last_name, aa.first_name AS advisor_first_name, aa.last_name AS advisor_last_name"""
+            spi.uid, spi.first_name, spi.last_name, aa.first_name AS advisor_first_name, aa.last_name AS advisor_last_name"""
     query_tables = f"""{sis_advising_notes_schema()}.advising_appointments an
         LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON an.advisor_sid = aa.sid
-        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
+        JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
     if search_phrase:
         query_tables += f"""
             JOIN {sis_advising_notes_schema()}.advising_appointments_search_index idx
@@ -671,9 +671,9 @@ def search_advising_notes(
 ):
     query_columns = """an.sid, an.id, an.note_body, an.advisor_sid, an.advisor_uid,
             an.created_by, an.created_at, an.updated_at, an.note_category, an.note_subcategory,
-            sas.uid, sas.first_name, sas.last_name, an.advisor_first_name, an.advisor_last_name"""
+            spi.uid, spi.first_name, spi.last_name, an.advisor_first_name, an.advisor_last_name"""
     query_tables = f"""{advising_notes_schema()}.advising_notes an
-        JOIN {student_schema()}.student_academic_status sas ON an.sid = sas.sid"""
+        JOIN {student_schema()}.student_profile_index spi ON an.sid = spi.sid"""
     if search_phrase:
         query_tables += f"""
             JOIN {advising_notes_schema()}.advising_notes_search_index idx

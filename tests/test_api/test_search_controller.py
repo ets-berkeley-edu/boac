@@ -543,6 +543,10 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=10)
 
+    def test_search_notes_includes_inactive_students(self, coe_advisor, client):
+        api_json = _api_search(client, 'vocation', notes=True)
+        self._assert(api_json, note_count=1, note_ids=['2718281828-00001'])
+
 
 class TestAppointmentSearch:
     """Appointments search API."""
@@ -742,6 +746,10 @@ class TestAppointmentSearch:
             appointment_options={'studentCsid': '11667051'},
         )
         self._assert(api_json, appointment_count=5)
+
+    def test_search_appointments_includes_inactive_students(self, coe_advisor, client):
+        api_json = _api_search(client, 'pez', appointments=True)
+        self._assert(api_json, appointment_count=1)
 
 
 class TestAdmittedStudentSearch:
