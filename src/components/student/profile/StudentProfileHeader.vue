@@ -88,6 +88,15 @@
               :plan="plan"
               :active="true" />
           </div>
+          <div v-if="student.sisProfile.subplans" id="student-bio-subplans" class="mb-3">
+            <h3 class="student-profile-section-header">Subplan</h3>
+            <div
+              v-for="subplan in student.sisProfile.subplans"
+              :key="subplan"
+              class="font-weight-bolder mb-2">
+              {{ subplan }}
+            </div>
+          </div>
           <div v-if="!plansPartitionedByStatus[0].length && plansPartitionedByStatus[1].length" id="student-details-discontinued-majors-outer" class="mb-3">
             <h3 class="student-profile-section-header">
               Discontinued Major(s)
