@@ -199,8 +199,8 @@ export default {
             this.alertScreenReader();
             this.attachmentError = this.get(error, 'message');
             this.uploadingAttachment = false;
+            this.resetFileInput();
           });
-          this.resetFileInput();
         }
       }
     },

@@ -18,7 +18,7 @@
           Select File
         </b-btn>
         <b-form-file
-          ref="attachmentFileInput"
+          ref="attachment-file-input"
           v-model="attachments"
           :disabled="disabled || size(existingAttachments) === $config.maxAttachmentsPerNote"
           :state="Boolean(attachments && attachments.length)"
@@ -103,7 +103,6 @@ export default {
           this.attachments = files;
         }
       }
-      this.$refs.attachmentFileInput.reset();
     }
   },
   methods: {
