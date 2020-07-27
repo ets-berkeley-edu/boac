@@ -88,7 +88,7 @@
               :plan="plan"
               :active="true" />
           </div>
-          <div v-if="student.sisProfile.subplans" id="student-bio-subplans" class="mb-3">
+          <div v-if="!isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
             <h3 class="student-profile-section-header">Subplan</h3>
             <div
               v-for="subplan in student.sisProfile.subplans"
