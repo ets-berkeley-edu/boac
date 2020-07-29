@@ -371,6 +371,14 @@ def extract_valid_sids(sids):
     return safe_execute_rds(sql, sids=sids)
 
 
+def get_academic_standing(sids):
+    sql = f"""SELECT sid, term_id, acad_standing_status as status
+        FROM {student_schema()}.academic_standing
+        WHERE sid = ANY(:sids)
+        ORDER BY sid, term_id DESC"""
+    return safe_execute_rds(sql, sids=sids)
+
+
 def get_term_gpas(sids):
     sql = f"""SELECT sid, term_id, gpa, units_taken_for_gpa
         FROM {student_schema()}.student_term_gpas

@@ -38,6 +38,7 @@
               <font-awesome icon="graduation-cap" />
             </span>
           </div>
+          <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" />
           <div v-if="student.sisProfile.emailAddress" class="mt-2">
             <span class="sr-only">Email</span>
             <a
@@ -163,6 +164,7 @@
 </template>
 
 <script>
+import StudentAcademicStanding from "@/components/student/profile/StudentAcademicStanding";
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
@@ -173,6 +175,7 @@ import Util from '@/mixins/Util';
 export default {
   name: 'StudentProfileHeader',
   components: {
+    StudentAcademicStanding,
     StudentAvatar,
     StudentGroupSelector,
     StudentPersonalDetails,

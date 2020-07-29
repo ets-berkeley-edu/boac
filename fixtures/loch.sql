@@ -364,6 +364,15 @@ CREATE TABLE sis_terms.term_definitions
     term_ends DATE NOT NULL
 );
 
+CREATE TABLE student.academic_standing
+(
+    sid VARCHAR NOT NULL,
+    term_id VARCHAR NOT NULL,
+    acad_standing_action VARCHAR NOT NULL,
+    acad_standing_status VARCHAR NOT NULL,
+    action_date VARCHAR NOT NULL
+);
+
 CREATE TABLE student.demographics
 (
     sid VARCHAR NOT NULL,
@@ -820,6 +829,19 @@ VALUES
 ('2175', 'Summer 2017', '2017-05-22', '2017-08-11'),
 ('2172', 'Spring 2017', '2017-01-10', '2017-05-12'),
 ('2168', 'Fall 2016', '2016-08-17', '2016-12-16');
+
+INSERT INTO student.academic_standing
+(sid, term_id, acad_standing_action, acad_standing_status, action_date)
+VALUES
+('11667051', '2162', 'GS', 'GST', '2016-05-31'),
+('11667051', '2172', 'GS', 'GST', '2017-05-31'),
+('11667051', '2175', 'GS', 'GST', '2017-08-15'),
+('11667051', '2178', 'AP', 'PRO', '2017-12-30'),
+('11667051', '2182', 'PE', 'GST', '2018-05-31'),
+('2345678901', '2172', 'SD', 'SUB', '2017-05-31'),
+('2345678901', '2175', 'GS', 'GST', '2017-08-15'),
+('3456789012', '2178', 'GS', 'GST', '2017-12-30'),
+('5678901234', '2178', 'GS', 'GST', '2017-12-30');
 
 INSERT INTO student.demographics
 (sid, gender, minority)
