@@ -20,7 +20,7 @@ export default {
     }
   },
   async mountGoogleAnalytics() {
-    let options = {
+    const options = {
       id: Vue.prototype.$config.googleAnalyticsId,
       checkDuplicatedScript: true,
       debug: {

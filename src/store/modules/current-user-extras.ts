@@ -29,7 +29,7 @@ const mutations = {
   },
   cohortDeleted: (state: any, id: any) => {
     const removeFromList = cohorts => {
-      let indexOf = cohorts.findIndex(cohort => cohort.id === id);
+      const indexOf = cohorts.findIndex(cohort => cohort.id === id);
       if (indexOf > -1) {
         cohorts.splice(indexOf, 1);
         return true;
@@ -41,18 +41,18 @@ const mutations = {
   },
   cohortUpdated: (state: any, updatedCohort: any) => {
     const cohorts = state.myCohorts.concat(state.myAdmitCohorts);
-    let cohort = cohorts.find(cohort => cohort.id === +updatedCohort.id);
+    const cohort = cohorts.find(cohort => cohort.id === +updatedCohort.id);
     Object.assign(cohort, updatedCohort);
   },
   curatedGroupCreated: (state: any, group: any) => state.myCuratedGroups.push(group),
   curatedGroupDeleted: (state: any, id: any) => {
-    let indexOf = state.myCuratedGroups.findIndex(curatedGroup => {
+    const indexOf = state.myCuratedGroups.findIndex(curatedGroup => {
       return curatedGroup.id === id;
     });
     state.myCuratedGroups.splice(indexOf, 1);
   },
   curatedGroupUpdated: (state: any, updatedGroup: any) => {
-    let group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
+    const group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id);
     Object.assign(group, updatedGroup);
   },
   dropInAdvisorAdded:(state: any, dropInAdvisor: any) => {

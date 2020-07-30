@@ -130,7 +130,7 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     }
     store.dispatch('context/alertScreenReader', `Searching for ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`);
     commit('setEditMode', 'apply');
-    let offset =
+    const offset =
       (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
     getStudentsPerFilters(
       state.domain,
