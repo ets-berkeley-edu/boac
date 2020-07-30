@@ -74,6 +74,7 @@
           {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | moment('MMM DD, YYYY') }}
         </span>
       </div>
+      <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" :row-index="`row-${rowIndex}`" />
       <div v-if="student.academicCareerStatus !== 'Completed'">
         <div
           :id="`row-${rowIndex}-student-level`"
@@ -261,6 +262,7 @@
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGpaChart from '@/components/student/StudentGpaChart';
@@ -271,6 +273,7 @@ export default {
   name: 'StudentRow',
   components: {
     CuratedStudentCheckbox,
+    StudentAcademicStanding,
     StudentAvatar,
     StudentGpaChart
   },

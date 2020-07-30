@@ -101,7 +101,7 @@ class TestStudent:
         if term:
             return next((course for course in term['enrollments'] if course['displayName'] == code), None)
 
-    def test_user_analytics_not_authenticated(self, client):
+    def test_user_feed_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
         self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
         self._api_student_by_uid(client=client, uid=self.asc_student['uid'], expected_status_code=401)
@@ -122,7 +122,7 @@ class TestStudent:
             assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017']
             assert student['hasCurrentTermEnrollments'] is False
 
-    def test_user_analytics_authenticated(self, client, coe_advisor_login):
+    def test_user_feed_authenticated(self, client, coe_advisor_login):
         """Returns a well-formed response if authenticated."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -133,6 +133,7 @@ class TestStudent:
             assert student['uid'] == uid
             assert student['canvasUserId'] == '9000100'
             assert student['hasCurrentTermEnrollments'] is True
+
             assert len(student['enrollmentTerms']) > 0
             for term in student['enrollmentTerms']:
                 assert len(term['enrollments']) > 0
@@ -144,7 +145,7 @@ class TestStudent:
                         assert canvas_site['courseCode']
                         assert canvas_site['analytics']
 
-    def test_user_analytics_holds(self, asc_advisor_login, client):
+    def test_user_feed_holds(self, asc_advisor_login, client):
         """Returns holds if any."""
         response = client.get('/api/student/by_uid/9933311')
         assert response.status_code == 200
@@ -155,7 +156,7 @@ class TestStudent:
         assert holds[1]['reason']['description'] == 'Semester Out'
         assert holds[1]['reason']['formalDescription'].startswith('You are not eligible to register')
 
-    def test_user_analytics_multiple_terms(self, client, coe_advisor_login):
+    def test_user_feed_multiple_terms(self, client, coe_advisor_login):
         """Returns all terms with enrollment data in reverse order."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -165,18 +166,37 @@ class TestStudent:
             assert len(student['enrollmentTerms']) == 4
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2018'
             assert student['enrollmentTerms'][0]['enrolledUnits'] == 3
+            assert student['enrollmentTerms'][0]['termGpa']['gpa'] == 2.9
+            assert student['enrollmentTerms'][0]['academicStanding']['status'] == 'GST'
             assert len(student['enrollmentTerms'][0]['enrollments']) == 1
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2017'
             assert student['enrollmentTerms'][1]['enrolledUnits'] == 12.5
+            assert student['enrollmentTerms'][1]['termGpa']['gpa'] == 1.8
+            assert student['enrollmentTerms'][1]['academicStanding']['status'] == 'PRO'
             assert len(student['enrollmentTerms'][1]['enrollments']) == 5
             assert student['enrollmentTerms'][2]['termName'] == 'Spring 2017'
             assert student['enrollmentTerms'][2]['enrolledUnits'] == 10
+            assert student['enrollmentTerms'][2]['termGpa']['gpa'] == 2.7
             assert len(student['enrollmentTerms'][2]['enrollments']) == 3
+            assert student['enrollmentTerms'][2]['academicStanding']['status'] == 'GST'
             assert student['enrollmentTerms'][3]['termName'] == 'Spring 2016'
             assert student['enrollmentTerms'][3]['enrolledUnits'] == 0
+            assert student['enrollmentTerms'][3]['termGpa']['gpa'] == 3.8
+            assert student['enrollmentTerms'][3]['academicStanding']['status'] == 'GST'
             assert len(student['enrollmentTerms'][3]['enrollments']) == 1
 
-    def test_user_analytics_earliest_term_cutoff(self, client, coe_advisor_login):
+    def test_user_feed_academic_standing(self, client, coe_advisor_login):
+        """Includes standalone academic standing feed, in addition to per-term merges."""
+        sid = self.asc_student_in_coe['sid']
+        uid = self.asc_student_in_coe['uid']
+        student_by_sid = self._api_student_by_sid(client=client, sid=sid)
+        student_by_uid = self._api_student_by_uid(client=client, uid=uid)
+        for student in [student_by_sid, student_by_uid]:
+            assert len(student['academicStanding']) == 5
+            assert student['academicStanding'][0] == {'termId': '2182', 'termName': 'Spring 2018', 'status': 'GST'}
+            assert student['academicStanding'][1] == {'termId': '2178', 'termName': 'Fall 2017', 'status': 'PRO'}
+
+    def test_user_feed_earliest_term_cutoff(self, client, coe_advisor_login):
         """Ignores terms before the configured earliest term."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -186,7 +206,7 @@ class TestStudent:
             for term in student['enrollmentTerms']:
                 assert term['termName'] != 'Spring 2001'
 
-    def test_user_analytics_future_term_cutoff(self, client, coe_advisor_login):
+    def test_user_feed_future_term_cutoff(self, client, coe_advisor_login):
         """Ignores terms after the configured future term."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']

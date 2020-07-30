@@ -16,6 +16,7 @@
           :term-id="$config.currentEnrollmentTermId" />
       </div>
       <h3 :id="`term-header-${index}`" tabindex="0" class="student-term-header">{{ term.termName }}</h3>
+      <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
       <StudentWithdrawalCancel
         v-if="student.sisProfile.withdrawalCancel"
         :withdrawal="student.sisProfile.withdrawalCancel"
@@ -271,14 +272,16 @@ v-if="section.isViewableOnCoursePage"
 
 <script>
 import Context from '@/mixins/Context';
+import StudentAcademicStanding from "@/components/student/profile/StudentAcademicStanding";
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
-import Util from '@/mixins/Util';
 import StudentWithdrawalCancel from "@/components/student/profile/StudentWithdrawalCancel";
+import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentClasses',
   components: {
+    StudentAcademicStanding,
     StudentWithdrawalCancel,
     StudentBoxplot
   },
@@ -475,9 +478,10 @@ export default {
   margin-bottom: 10px;
 }
 .student-term-header {
+  display: inline-block;
   font-size: 20px;
   font-weight: 600;
-  margin: 20px 0 15px 0;
+  margin: 0 15px 0 0;
   color: #666;
 }
 .term-no-enrollments {
@@ -487,6 +491,7 @@ export default {
 }
 .term-no-enrollments-description {
   border-top: 1px solid #999;
+  margin-top: 20px;
   padding-top: 20px;
 }
 </style>

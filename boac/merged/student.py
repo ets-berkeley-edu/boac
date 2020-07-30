@@ -148,6 +148,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    academic_standing = get_academic_standing_by_sid(sids, as_dicts=True)
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
     all_canvas_sites = {}
     benchmark('begin profile transformation')
@@ -185,6 +186,7 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
                         if site['canvasCourseId'] not in all_canvas_sites:
                             all_canvas_sites[site['canvasCourseId']] = site
                     continue
+        student['academicStanding'] = academic_standing.get(student['sid'])
         student['termGpa'] = term_gpas.get(student['sid'])
     benchmark('end profile transformation')
     mean_metrics = analytics.mean_metrics_across_sites(all_canvas_sites.values(), 'courseMean')
@@ -216,6 +218,9 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
+    benchmark('begin academic standing query')
+    academic_standing = get_academic_standing_by_sid(sids)
+    benchmark('end academic standing query')
     benchmark('begin term GPA query')
     term_gpas = get_term_gpas_by_sid(sids)
     benchmark('end term GPA query')
@@ -232,13 +237,13 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
 
     benchmark('begin profile transformation')
     for profile in profiles:
-        summarize_profile(profile, enrollments=enrollments_by_sid, term_gpas=term_gpas)
+        summarize_profile(profile, enrollments=enrollments_by_sid, academic_standing=academic_standing, term_gpas=term_gpas)
     benchmark('end')
 
     return profiles
 
 
-def summarize_profile(profile, enrollments=None, term_gpas=None):
+def summarize_profile(profile, enrollments=None, academic_standing=None, term_gpas=None):
     # Strip SIS details to lighten the API load.
     sis_profile = profile.pop('sisProfile', None)
     if sis_profile:
@@ -267,8 +272,25 @@ def summarize_profile(profile, enrollments=None, term_gpas=None):
             profile['term'] = term
             if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
                 profile['hasCurrentTermEnrollments'] = True
+    if academic_standing:
+        profile['academicStanding'] = academic_standing.get(profile['sid'])
     if term_gpas:
         profile['termGpa'] = term_gpas.get(profile['sid'])
+
+
+def _academic_standing_to_feed(standing):
+    return [{'termId': str(r['term_id']), 'termName': term_name_for_sis_id(r['term_id']), 'status': r['status']} for r in standing]
+
+
+def get_academic_standing_by_sid(sids, as_dicts=False):
+    results = data_loch.get_academic_standing(sids)
+    academic_standing_feed = {}
+    for sid, rows in groupby(results, key=operator.itemgetter('sid')):
+        if as_dicts:
+            academic_standing_feed[sid] = {str(r['term_id']): r['status'] for r in rows}
+        else:
+            academic_standing_feed[sid] = _academic_standing_to_feed(rows)
+    return academic_standing_feed
 
 
 def get_historical_student_profiles(sids):
@@ -639,8 +661,13 @@ def _construct_student_profile(student):
     if sis_profile and 'level' in sis_profile:
         sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
 
+    academic_standing = get_academic_standing_by_sid([student['sid']], as_dicts=False)
+    if academic_standing:
+        profile['academicStanding'] = academic_standing.get(student['sid'])
+        academic_standing = {term['termId']: term['status'] for term in profile['academicStanding']}
+
     enrollment_results = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
-    _merge_enrollment_terms(profile, enrollment_results)
+    _merge_enrollment_terms(profile, enrollment_results, academic_standing=academic_standing)
 
     if sis_profile and sis_profile.get('withdrawalCancel'):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
@@ -702,7 +729,7 @@ def _merge_coe_student_profile_data(profile, coe_profile):
             profile['coeProfile']['isActiveCoe'] = True
 
 
-def _merge_enrollment_terms(profile, enrollment_results):
+def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None):
     profile['hasCurrentTermEnrollments'] = False
     filtered_enrollment_terms = []
     for row in enrollment_results:
@@ -734,6 +761,8 @@ def _merge_enrollment_terms(profile, enrollment_results):
                         else:
                             course['sections'] = fixed_sections
 
+        if academic_standing:
+            term['academicStanding'] = {'status': academic_standing.get(term['termId'])}
         if not current_user.can_access_canvas_data:
             _suppress_canvas_sites(term)
         filtered_enrollment_terms.append(term)

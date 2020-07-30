@@ -140,6 +140,14 @@ class TestGetCuratedGroup:
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
 
+    def test_curated_group_includes_academic_standing(self, asc_advisor, asc_curated_groups, client):
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id)
+        students = api_json['students']
+        deborah = next(s for s in students if s['firstName'] == 'Deborah')
+        assert len(deborah['academicStanding']) == 5
+        assert deborah['academicStanding'][0] == {'termId': '2182', 'termName': 'Spring 2018', 'status': 'GST'}
+        assert deborah['academicStanding'][1] == {'termId': '2178', 'termName': 'Fall 2017', 'status': 'PRO'}
+
     def test_view_permitted_shared_dept(self, asc_curated_groups, asc_and_coe_advisor, client):
         """Advisor can view group if they share the group owner's department memberships."""
         group = self._api_get_curated_group(client, asc_curated_groups[0].id)
@@ -307,6 +315,7 @@ class TestGetCuratedGroup:
     def test_group_includes_student_summary(self, asc_advisor, asc_curated_groups, client, create_alerts):
         """Returns summary details but not full term and analytics data."""
         api_json = self._api_students_with_alerts(client, asc_curated_groups[0].id)
+        assert api_json[0]['academicStanding'][0]['status'] == 'GST'
         assert api_json[0]['cumulativeGPA'] == 3.8
         assert api_json[0]['cumulativeUnits'] == 101.3
         assert api_json[0]['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -434,7 +443,7 @@ class TestAddStudents:
         student = students[0]
         assert student['sid'] == '11667051'
         assert student['canvasUserId'] == '9000100'
-        for expected_key in ('cumulativeGPA', 'cumulativeGPA', 'cumulativeUnits', 'majors', 'termGpa'):
+        for expected_key in ('academicStanding', 'cumulativeGPA', 'cumulativeGPA', 'cumulativeUnits', 'majors', 'termGpa'):
             assert expected_key in student, f'Failed to find {expected_key} in student'
 
 

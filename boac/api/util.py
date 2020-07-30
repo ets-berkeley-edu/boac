@@ -34,7 +34,7 @@ from boac.lib.util import join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
-from boac.merged.student import get_term_gpas_by_sid
+from boac.merged.student import get_academic_standing_by_sid, get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
@@ -421,13 +421,19 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
                 ),
             ),
         ),
+        'academic_standing': lambda profile: profile.get('academicStanding'),
     }
+    academic_standing = get_academic_standing_by_sid(sids, as_dicts=True)
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
+
+    def _get_last_element(results):
+        return results[sorted(results)[-1]] if results else None
+
     for student in get_student_profiles(sids=sids):
         profile = student.get('profile')
         profile = profile and json.loads(profile)
-        student_term_gpas = term_gpas.get(profile['sid'])
-        profile['termGpa'] = student_term_gpas[sorted(student_term_gpas)[-1]] if student_term_gpas else None
+        profile['academicStanding'] = _get_last_element(academic_standing.get(profile['sid']))
+        profile['termGpa'] = _get_last_element(term_gpas.get(profile['sid']))
         row = {}
         for fieldname in fieldnames:
             row[fieldname] = getters[fieldname](profile)

@@ -190,6 +190,7 @@ class TestCohortById:
         assert deborah['sid'] == '11667051'
         assert deborah['alertCount'] == 3
         # Summary student data is included with alert counts, but full term feeds are not.
+        assert deborah['academicStanding'][0]['status'] == 'GST'
         assert deborah['cumulativeGPA'] == 3.8
         assert deborah['cumulativeUnits'] == 101.3
         assert deborah['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -306,6 +307,15 @@ class TestCohortById:
         assert len(deborah['termGpa']) == 4
         assert deborah['termGpa'][0] == {'termName': 'Spring 2018', 'gpa': 2.9}
         assert deborah['termGpa'][3] == {'termName': 'Spring 2016', 'gpa': 3.8}
+
+    def test_includes_cohort_member_academic_standing(self, asc_advisor_login, asc_owned_cohort, client):
+        cohort_id = asc_owned_cohort['id']
+        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
+        assert response.status_code == 200
+        deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        assert len(deborah['academicStanding']) == 5
+        assert deborah['academicStanding'][0] == {'termId': '2182', 'termName': 'Spring 2018', 'status': 'GST'}
+        assert deborah['academicStanding'][1] == {'termId': '2178', 'termName': 'Fall 2017', 'status': 'PRO'}
 
     def test_includes_cohort_member_athletics_asc(self, asc_advisor_login, asc_owned_cohort, client):
         """Includes athletic data custom cohort members for ASC advisors."""

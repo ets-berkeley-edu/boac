@@ -98,6 +98,7 @@ class TestCourseController:
         assert students[0]['sid'] == student_sid
         assert students[0]['firstName'] == 'Deborah'
         assert students[0]['lastName'] == 'Davies'
+        assert students[0]['academicStanding']['2182'] == 'GST'
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['level'] == 'Junior'
