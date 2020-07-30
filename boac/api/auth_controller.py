@@ -28,6 +28,7 @@ from urllib.parse import urlencode, urljoin, urlparse
 from boac.api.errors import ResourceNotFoundError
 from boac.api.util import admin_required
 from boac.lib.http import add_param_to_url, tolerant_jsonify
+from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.user_login import UserLogin
 import cas
@@ -51,34 +52,37 @@ def cas_login():
     uid, attributes, proxy_granting_ticket = _cas_client(target_url).verify_ticket(ticket)
     logger.info(f'Logged into CAS as user {uid}')
     user_id = AuthorizedUser.get_id_per_uid(uid)
-    user = user_id and app.login_manager.user_callback(user_id=user_id, flush_cached=True)
-    support_email = app.config['BOAC_SUPPORT_EMAIL']
-    if user is None:
+
+    if user_id is None:
         logger.error(f'UID {uid} is not an authorized user.')
         param = ('error', f"""
             Sorry, you are not registered to use BOA.
-            Please <a href="mailto:{support_email}">email us</a> for assistance.
+            Please <a href="mailto:{app.config['BOAC_SUPPORT_EMAIL']}">email us</a> for assistance.
         """)
         redirect_url = add_param_to_url('/', param)
-    elif not user.is_active:
-        logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
-        param = ('error', f"""
-            Sorry, you are not registered to use BOA.
-            Please <a href="mailto:{support_email}">email us</a> for assistance.
-        """)
-        redirect_url = add_param_to_url('/', param)
-    else:
-        login_user(user)
-        flash('Logged in successfully.')
-        UserLogin.record_user_login(uid)
 
-        # Check if url is safe for redirects per https://flask-login.readthedocs.io/en/latest/
-        if not _is_safe_url(request.args.get('next')):
-            return abort(400)
-        if not target_url:
-            target_url = '/'
-        # Our googleAnalyticsService uses 'casLogin' marker to track CAS login events
-        redirect_url = add_param_to_url(target_url, ('casLogin', 'true'))
+    else:
+        user = UserSession(user_id=user_id, flush_cached=True)
+        if not user.is_active:
+            logger.error(f'UID {uid} is in the BOA db but is not authorized to use the tool.')
+            param = ('error', f"""
+                Sorry, you are not registered to use BOA.
+                Please <a href="mailto:{app.config['BOAC_SUPPORT_EMAIL']}">email us</a> for assistance.
+            """)
+            redirect_url = add_param_to_url('/', param)
+        else:
+            login_user(user)
+            flash('Logged in successfully.')
+            UserLogin.record_user_login(uid)
+
+            # Check if url is safe for redirects per https://flask-login.readthedocs.io/en/latest/
+            if not _is_safe_url(request.args.get('next')):
+                return abort(400)
+            if not target_url:
+                target_url = '/'
+            # Our googleAnalyticsService uses 'casLogin' marker to track CAS login events
+            redirect_url = add_param_to_url(target_url, ('casLogin', 'true'))
+
     return redirect(redirect_url)
 
 
@@ -124,14 +128,16 @@ def _dev_auth_login(uid, password):
             logger.error('Dev-auth: Wrong password')
             return tolerant_jsonify({'message': 'Invalid credentials'}, 401)
         user_id = AuthorizedUser.get_id_per_uid(uid)
-        user = user_id and app.login_manager.user_callback(user_id=user_id, flush_cached=True)
-        if user is None:
+        if user_id is None:
             logger.error(f'Dev-auth: User with UID {uid} is not registered in BOA.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not registered to use BOA.'}, 403)
+
+        user = UserSession(user_id=user_id, flush_cached=True)
         if not user.is_active:
             logger.error(f'Dev-auth: UID {uid} is registered with BOA but not active.')
             return tolerant_jsonify({'message': f'Sorry, user with UID {uid} is not authorized to use BOA.'}, 403)
         logger.info(f'Dev-auth used to log in as UID {uid}')
+
         login_user(user, force=True, remember=True)
         UserLogin.record_user_login(uid)
         return tolerant_jsonify(current_user.to_api_json())
