@@ -87,7 +87,7 @@ export function deleteNote(noteId: number) {
 }
 
 export function addAttachments(noteId: number, attachments: any[]) {
-  let data = {};
+  const data = {};
   _.each(attachments, (attachment, index) => data[`attachment[${index}]`] = attachment);
   return utils.postMultipartFormData(`/api/notes/${noteId}/attachments`, data);
 }
