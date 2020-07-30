@@ -625,9 +625,9 @@ class TestDownloadCuratedGroupCSV:
                 'email',
                 'phone',
                 'majors',
-                'level',
+                'level_by_units',
                 'terms_in_attendance',
-                'expected_graduation_date',
+                'expected_graduation_term',
                 'units_completed',
                 'term_gpa',
                 'cumulative_gpa',
@@ -645,8 +645,7 @@ class TestDownloadCuratedGroupCSV:
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'first_name,last_name,sid,email,phone,majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,\
-program_status',
+            'first_name,last_name,sid,email,phone,majors,level_by_units,terms_in_attendance,expected_graduation_term,units_completed,term_gpa,cumulative_gpa,program_status',  # noqa: E501
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,Active',
             'Paul,Kerschen,3456789012,doctork@berkeley.edu,415/123-4567,English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
             'Sandeep,Jayaprakash,5678901234,ilovela@berkeley.edu,415/123-4567,Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,Active',
@@ -678,9 +677,9 @@ program_status',
         data = {
             'csvColumnsSelected': [
                 'majors',
-                'level',
+                'level_by_units',
                 'terms_in_attendance',
-                'expected_graduation_date',
+                'expected_graduation_term',
                 'units_completed',
                 'term_gpa',
                 'cumulative_gpa',
@@ -698,7 +697,7 @@ program_status',
         assert 'csv' in response.content_type
         csv = str(response.data)
         for snippet in [
-            'majors,level,terms_in_attendance,expected_graduation_date,units_completed,term_gpa,cumulative_gpa,program_status',
+            'majors,level_by_units,terms_in_attendance,expected_graduation_term,units_completed,term_gpa,cumulative_gpa,program_status',  # noqa: E501
             'English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.900,3.8,Active',
             'English BA;Political Economy BA,Junior,5,Fall 2019,70,3.200,3.005,Active',
             'Letters & Sci Undeclared UG,Senior,,Fall 2019,102,2.100,3.501,Active',
