@@ -403,12 +403,12 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         'intended_majors': lambda profile: ';'.join(
             [major.get('description') for major in profile.get('sisProfile', {}).get('intendedMajors')],
         ),
-        'level': lambda profile: profile.get('sisProfile', {}).get('level', {}).get('description'),
+        'level_by_units': lambda profile: profile.get('sisProfile', {}).get('level', {}).get('description'),
         'minors': lambda profile: ';'.join(
             [plan.get('description') for plan in profile.get('sisProfile', {}).get('plansMinor', []) if plan.get('status') == 'Active'],
         ),
         'terms_in_attendance': lambda profile: profile.get('sisProfile', {}).get('termsInAttendance'),
-        'expected_graduation_date': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
+        'expected_graduation_term': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
         'units_completed': lambda profile: profile.get('sisProfile', {}).get('cumulativeUnits'),
         'term_gpa': lambda profile: profile.get('termGpa'),
         'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
