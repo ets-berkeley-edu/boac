@@ -46,7 +46,7 @@ from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor,
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, login_user
 
 
 @app.route('/api/profile/my')
@@ -306,7 +306,7 @@ def set_demo_mode():
         user = AuthorizedUser.find_by_id(current_user.get_id())
         user.in_demo_mode = bool(in_demo_mode)
         current_user.flush_cached()
-        app.login_manager.reload_user()
+        login_user(UserSession(user_id=user.id, flush_cached=True), force=True, remember=True)
         return tolerant_jsonify(current_user.to_api_json())
     else:
         raise errors.ResourceNotFoundError('Unknown path')
