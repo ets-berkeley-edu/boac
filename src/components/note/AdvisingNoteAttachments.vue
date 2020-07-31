@@ -91,16 +91,12 @@ export default {
     attachments(files) {
       if (files) {
         this.attachmentError = this.validateAttachment(files, this.existingAttachments);
-        if (this.attachmentError) {
-          this.attachments = [];
-        } else {
-          this.attachmentError = null;
+        if (!this.attachmentError) {
           this.each(files, attachment => {
             attachment.displayName = attachment.name
             this.addAttachment(attachment);
             this.alertScreenReader(`Attachment '${attachment.displayName}' added`);
           });
-          this.attachments = files;
         }
       }
     }
