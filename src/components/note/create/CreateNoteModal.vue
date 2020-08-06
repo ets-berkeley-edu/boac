@@ -144,6 +144,7 @@ import NoteEditSession from '@/mixins/NoteEditSession';
 import RichTextEditor from '@/components/util/RichTextEditor';
 import store from "@/store";
 import Util from '@/mixins/Util';
+import Vue from "vue"
 import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
 
 export default {
@@ -243,12 +244,20 @@ export default {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60);
         }
-        this.createAdvisingNote(this.isBatchFeature).then(() => {
+        this.createAdvisingNotes().then(data => {
           this.setIsSaving(false);
-          this.isModalOpen = false;
+          this.exit();
+          // After modal is closed...
           this.onCreateNoteSuccess();
           this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.targetStudentCount} students.` : "New note saved.");
-          this.exit();
+          const uid = this.$currentUser.uid;
+          if (this.isBatchFeature) {
+            Vue.prototype.$eventHub.$emit('batch-of-notes-created', data);
+            Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a batch of notes`, 'batch_create');
+          } else {
+            Vue.prototype.$eventHub.$emit('advising-note-created', data);
+            Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a note`, 'create');
+          }
         });
       }
     },

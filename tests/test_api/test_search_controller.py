@@ -414,7 +414,7 @@ class TestNoteSearch:
             '/api/notes/create',
             data={
                 'authorId': AuthorizedUser.get_id_per_uid(asc_advisor_uid),
-                'sid': '9000000000',
+                'sids': ['9000000000'],
                 'subject': 'Patience is a conquering virtue',
             },
         )

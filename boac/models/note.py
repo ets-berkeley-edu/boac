@@ -28,6 +28,7 @@ import time
 
 from boac import db, std_commit
 from boac.lib.util import put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
@@ -90,32 +91,24 @@ class Note(Base):
             attachments=(),
             template_attachment_ids=(),
     ):
-        note = cls(author_uid, author_name, author_role, author_dept_codes, sid, subject, body)
-        for topic in topics:
-            note.topics.append(
-                NoteTopic.create(note, titleize(vacuum_whitespace(topic)), author_uid),
-            )
-        for byte_stream_bundle in attachments:
-            note.attachments.append(
-                NoteAttachment.create(
-                    note_id=note.id,
-                    name=byte_stream_bundle['name'],
-                    byte_stream=byte_stream_bundle['byte_stream'],
-                    uploaded_by=author_uid,
-                ),
-            )
-        for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
-            note.attachments.append(
-                NoteAttachment.create_using_template_attachment(
-                    note_id=note.id,
-                    template_attachment=template_attachment,
-                    uploaded_by=author_uid,
-                ),
-            )
-        db.session.add(note)
-        std_commit()
-        cls.refresh_search_index()
-        return note
+        ids_by_sid = cls.create_batch(
+            author_id=AuthorizedUser.get_id_per_uid(author_uid),
+            author_uid=author_uid,
+            author_name=author_name,
+            author_role=author_role,
+            author_dept_codes=author_dept_codes,
+            sids=[sid],
+            subject=subject,
+            body=body,
+            topics=topics,
+            attachments=attachments,
+            template_attachment_ids=template_attachment_ids,
+        )
+
+        def _get_note_id():
+            values = list(ids_by_sid.values())
+            return values[0] if len(values) > 0 else None
+        return cls.find_by_id(_get_note_id())
 
     @classmethod
     def create_batch(
@@ -133,7 +126,7 @@ class Note(Base):
             template_attachment_ids=(),
     ):
         t = time.time()
-        note_ids_per_sid = _create_notes(
+        ids_by_sid = _create_notes(
             author_id=author_id,
             author_uid=author_uid,
             author_name=author_name,
@@ -143,7 +136,7 @@ class Note(Base):
             sids=sids,
             subject=subject,
         )
-        note_ids = list(note_ids_per_sid.values())
+        note_ids = list(ids_by_sid.values())
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
         _add_attachments_to_notes(
             attachments=attachments,
@@ -152,8 +145,8 @@ class Note(Base):
             note_ids=note_ids,
         )
         cls.refresh_search_index()
-        app.logger.info(f'Batch note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
-        return note_ids_per_sid
+        app.logger.info(f'Note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
+        return ids_by_sid
 
     @classmethod
     def search(cls, search_phrase, author_uid, student_csid, topic, datetime_from, datetime_to):
@@ -335,7 +328,7 @@ class Note(Base):
 
 
 def _create_notes(author_id, author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
-    note_ids_per_sid = {}
+    ids_by_sid = {}
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
     joined_author_dept_codes = '{' + ','.join(author_dept_codes) + '}'
@@ -379,8 +372,8 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
             } for note_id in results_of_chunk_query.values()
         ]
         db.session.execute(notes_read_query, {'json_dumps': json.dumps(notes_read_data)})
-        note_ids_per_sid.update(results_of_chunk_query)
-    return note_ids_per_sid
+        ids_by_sid.update(results_of_chunk_query)
+    return ids_by_sid
 
 
 def _add_topics_to_notes(author_uid, note_ids, topics):

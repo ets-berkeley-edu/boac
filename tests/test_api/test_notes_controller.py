@@ -102,7 +102,7 @@ class TestGetNote:
 
     def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
         """Returns note in JSON compatible with BOA front-end."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(admin_uid)
         note = self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)
         assert note
         assert 'id' in note
@@ -110,7 +110,7 @@ class TestGetNote:
         assert note['body'] == note['message']
         assert note['read'] is False
         # Mark as read and re-test
-        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(coe_advisor_uid), note['id'])
+        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), note['id'])
         assert self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
 
 
@@ -122,7 +122,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=401,
@@ -136,7 +136,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=admin.id,
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Rusholme Ruffians',
             body='This is the last night of the fair, And the grease in the hair',
             expected_status_code=403,
@@ -150,7 +150,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=admin.id,
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Gobbledygook',
             body='Language made unintelligible by excessive use of abstruse technical terms.',
             expected_status_code=401,
@@ -164,7 +164,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=user.id,
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Verboten',
             body='Diese Aktion ist nicht zulässig.',
             expected_status_code=401,
@@ -178,7 +178,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject=subject,
             body='A scanty bit of a thing with a decorative ring',
         )
@@ -201,7 +201,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='A dreaded sunny day',
             body='Keats and Yeats are on your side',
         )
@@ -215,7 +215,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Creating is not updating',
             body=None,
         )
@@ -229,15 +229,14 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Incubate transparent web services',
             body='Facilitate value-added initiatives',
             topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
         )
         assert len(note.get('topics')) == 3
-        assert note.get('topics')[0] == 'Collaborative Synergies'
-        assert note.get('topics')[1] == 'Integrated Architectures'
-        assert note.get('topics')[2] == 'Vertical Solutions'
+        for topic in ('Collaborative Synergies', 'Integrated Architectures', 'Vertical Solutions'):
+            assert topic in note.get('topics')
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
 
@@ -248,7 +247,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Get rich quick',
             body='Get an online degree at send.money.edu university',
         )
@@ -265,7 +264,7 @@ class TestNoteCreation:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -442,7 +441,7 @@ class TestNoteAttachments:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='I come with attachments',
             body='I come correct',
             attachments=[
@@ -453,18 +452,20 @@ class TestNoteAttachments:
         assert note['updatedAt'] is None
         # Pause one second to ensure a distinct updatedAt.
         sleep(1)
+
         note_id = note['id']
         id_to_delete = note['attachments'][0]['id']
         id_to_keep = note['attachments'][1]['id']
+
         delete_response = client.delete(f'/api/notes/{note_id}/attachment/{id_to_delete}')
         assert delete_response.status_code == 200
         assert len(delete_response.json['attachments']) == 1
-        assert delete_response.json['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
+        assert delete_response.json['attachments'][0]['id'] == id_to_keep
+
         notes = _get_notes(client, coe_student['uid'])
         match = next((n for n in notes if n['id'] == note_id), None)
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
-        assert match['attachments'][0]['filename'] == 'mock_advising_note_attachment_2.txt'
         assert match['updatedAt'] is not None
 
     def test_add_attachment(self, app, client, fake_auth):
@@ -475,7 +476,7 @@ class TestNoteAttachments:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='No attachments yet',
             body='I travel light',
         )
@@ -505,7 +506,7 @@ class TestNoteAttachments:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='No attachments yet',
             body='I travel light',
         )
@@ -762,7 +763,7 @@ class TestDeleteNote:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='Recontextualize open-source supply-chains',
             body='Conveniently repurpose enterprise-wide action items',
             topics=['strategic interfaces'],
@@ -783,7 +784,7 @@ class TestDeleteNote:
             app,
             client,
             author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            sid=coe_student['sid'],
+            sids=[coe_student['sid']],
             subject='My little dog Lassie packed her bags and went out on to the porch',
             body='Then my little dog Lassie, she sailed off to the moon',
             attachments=[
@@ -889,7 +890,7 @@ def _api_note_create(
         app,
         client,
         author_id,
-        sid,
+        sids,
         subject,
         body,
         topics=(),
@@ -900,7 +901,7 @@ def _api_note_create(
     with mock_advising_note_s3_bucket(app):
         data = {
             'authorId': author_id,
-            'sid': sid,
+            'sids': sids,
             'subject': subject,
             'body': body,
             'topics': ','.join(topics),
@@ -947,7 +948,7 @@ def _api_batch_note_create(
         for index, path in enumerate(attachments):
             data[f'attachment[{index}]'] = open(path, 'rb')
         response = client.post(
-            '/api/notes/batch/create',
+            '/api/notes/create',
             buffered=True,
             content_type='multipart/form-data',
             data=data,

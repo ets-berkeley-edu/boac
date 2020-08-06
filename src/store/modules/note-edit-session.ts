@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import {createNote, createNoteBatch, getDistinctStudentCount} from '@/api/notes';
+import {createNotes, getDistinctStudentCount} from '@/api/notes';
 import { getMyNoteTemplates } from "@/api/note-templates";
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate'];
@@ -135,37 +135,22 @@ const actions = {
     $_recalculateStudentCount({ commit, state });
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
-  createAdvisingNote: ({commit, state}, isBatchFeature: boolean) => {
-    return new Promise(resolve => {
-      commit('setBody', _.trim(state.model.body));
-      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
-        result[a.noteTemplateId ? 0 : 1].push(a);
-        return result;
-      }, [[], []]);
-      if (isBatchFeature) {
-        const cohortIds = _.map(state.addedCohorts, 'id');
-        const curatedGroupIds = _.map(state.addedCuratedGroups, 'id');
-        createNoteBatch(
-          state.sids,
-          state.model.subject,
-          state.model.body,
-          state.model.topics,
-          attachments,
-          _.map(templateAttachments, 'id'),
-          cohortIds,
-          curatedGroupIds
-        ).then(resolve);
-      } else {
-        createNote(
-            state.sids[0],
-            state.model.subject,
-            state.model.body,
-            state.model.topics,
-            attachments,
-            _.map(templateAttachments, 'id'),
-        ).then(resolve);
-      }
-    });
+  createAdvisingNotes: ({commit, state}) => {
+    commit('setBody', _.trim(state.model.body));
+    const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
+      result[a.noteTemplateId ? 0 : 1].push(a);
+      return result;
+    }, [[], []]);
+    return createNotes(
+      state.sids,
+      state.model.subject,
+      state.model.body,
+      state.model.topics,
+      attachments,
+      _.map(templateAttachments, 'id'),
+      _.map(state.addedCohorts, 'id'),
+      _.map(state.addedCuratedGroups, 'id')
+    );
   },
   exitSession: ({ commit }) => commit('exitSession'),
   async loadNoteTemplates({ commit, state }) {

@@ -73,62 +73,46 @@ def mark_note_read(note_id):
 
 @app.route('/api/notes/create', methods=['POST'])
 @advising_data_access_required
-def create_note():
-    params = request.form
-    sid = params.get('sid', None)
-    subject = params.get('subject', None)
-    body = params.get('body', None)
-    topics = get_note_topics_from_http_post()
-    if not sid or not subject:
-        raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
-    user_dept_codes = dept_codes_where_advising(current_user)
-    if current_user.is_admin or not len(user_dept_codes):
-        raise ForbiddenRequestError('Sorry, only advisors can create advising notes.')
-
-    author_profile = _get_author_profile()
-    attachments = get_note_attachments_from_http_post(tolerate_none=True)
-
-    note = Note.create(
-        **author_profile,
-        subject=subject,
-        body=process_input_from_rich_text_editor(body),
-        topics=topics,
-        sid=sid,
-        attachments=attachments,
-        template_attachment_ids=get_template_attachment_ids_from_http_post(),
-    )
-    note_read = NoteRead.find_or_create(current_user.get_id(), note.id)
-    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
-
-
-@app.route('/api/notes/batch/create', methods=['POST'])
-@advising_data_access_required
-def batch_create_notes():
+def create_notes():
     params = request.form
     sids = _get_sids_for_note_creation()
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
-        raise BadRequestError('Note creation requires \'subject\' and \'sid\'')
-    user_dept_codes = dept_codes_where_advising(current_user)
-    if current_user.is_admin or not len(user_dept_codes):
+        raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
+    dept_codes = dept_codes_where_advising(current_user)
+    if current_user.is_admin or not len(dept_codes):
         raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
 
-    author_profile = _get_author_profile()
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    body = process_input_from_rich_text_editor(body)
+    template_attachment_ids = get_template_attachment_ids_from_http_post()
 
-    note_ids_per_sid = Note.create_batch(
-        author_id=current_user.to_api_json()['id'],
-        **author_profile,
-        subject=subject,
-        body=process_input_from_rich_text_editor(body),
-        topics=topics,
-        sids=sids,
-        attachments=attachments,
-        template_attachment_ids=get_template_attachment_ids_from_http_post(),
-    )
-    return tolerant_jsonify(note_ids_per_sid)
+    if len(sids) == 1:
+        note = Note.create(
+            **_get_author_profile(),
+            subject=subject,
+            body=body,
+            topics=topics,
+            sid=sids[0],
+            attachments=attachments,
+            template_attachment_ids=template_attachment_ids,
+        )
+        return tolerant_jsonify(_boa_note_to_compatible_json(note, note_read=True))
+    else:
+        return tolerant_jsonify(
+            Note.create_batch(
+                author_id=current_user.to_api_json()['id'],
+                **_get_author_profile(),
+                subject=subject,
+                body=body,
+                topics=topics,
+                sids=sids,
+                attachments=attachments,
+                template_attachment_ids=template_attachment_ids,
+            ),
+        )
 
 
 @app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
