@@ -25,25 +25,7 @@ export function markNoteRead(noteId) {
     }, () => null);
 }
 
-export function createNote(
-    sid: any,
-    subject: string,
-    body: string,
-    topics: string[],
-    attachments: any[],
-    templateAttachmentIds: []
-) {
-  const data = {sid, subject, body, topics, templateAttachmentIds};
-  _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
-    Vue.prototype.$eventHub.$emit('advising-note-created', data);
-    const uid = Vue.prototype.$currentUser.uid;
-    Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a note`, 'create');
-    return data;
-  });
-}
-
-export function createNoteBatch(
+export function createNotes(
     sids: any,
     subject: string,
     body: string,
@@ -55,11 +37,7 @@ export function createNoteBatch(
 ) {
   const data = {sids, subject, body, topics, templateAttachmentIds, cohortIds, curatedGroupIds};
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment);
-  return utils.postMultipartFormData('/api/notes/batch/create', data).then(data => {
-    Vue.prototype.$eventHub.$emit('batch-of-notes-created', data);
-    const uid = Vue.prototype.$currentUser.uid;
-    Vue.prototype.$ga.noteEvent(data.id, `Advisor ${uid} created a batch of notes`, 'batch_create');
-  });
+  return utils.postMultipartFormData('/api/notes/create', data);
 }
 
 export function updateNote(

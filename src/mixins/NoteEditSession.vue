@@ -25,7 +25,7 @@ export default {
       'addCuratedGroup',
       'addSid',
       'addTopic',
-      'createAdvisingNote',
+      'createAdvisingNotes',
       'exitSession',
       'removeAttachment',
       'removeCohort',
