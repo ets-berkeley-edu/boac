@@ -162,16 +162,6 @@ export default {
   },
   mixins: [Context, NoteEditSession, Util],
   props: {
-    onCreateNoteStart: {
-      required: false,
-      default: () => {},
-      type: Function
-    },
-    onCreateNoteSuccess: {
-      required: false,
-      default: () => {},
-      type: Function
-    },
     student: {
       required: false,
       type: Object
@@ -244,6 +234,7 @@ export default {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60);
         }
+        this.isModalOpen = false;
         this.createAdvisingNotes().then(data => {
           this.setIsSaving(false);
           this.exit();

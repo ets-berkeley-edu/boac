@@ -34,10 +34,7 @@
         </div>
       </div>
       <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
-        <CreateNoteModal
-          :on-create-note-start="onCreateNoteStart"
-          :on-create-note-success="onCreateNoteSuccess"
-          :student="student" />
+        <CreateNoteModal :student="student" />
       </div>
     </div>
 
@@ -331,6 +328,7 @@ import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CreateNoteModal from "@/components/note/create/CreateNoteModal";
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
+import NoteEditSession from '@/mixins/NoteEditSession';
 import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import Util from '@/mixins/Util';
@@ -349,7 +347,7 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
-  mixins: [Berkeley, Context, Scrollable, Util],
+  mixins: [Berkeley, Context, NoteEditSession, Scrollable, Util],
   props: {
     student: {
       required: true,
@@ -359,7 +357,6 @@ export default {
   data: () => ({
     allExpanded: false,
     countsPerType: undefined,
-    creatingNoteWithSubject: undefined,
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
     filter: undefined,
@@ -470,7 +467,6 @@ export default {
         }
       });
     }
-    
   },
   mounted() {
     if (this.anchor) {
@@ -601,12 +597,6 @@ export default {
           resolve();
         });
       });
-    },
-    onCreateNoteStart(subject) {
-      this.creatingNoteWithSubject = subject;
-    },
-    onCreateNoteSuccess() {
-      this.creatingNoteWithSubject = null;
     },
     open(message, screenreaderAlert) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {

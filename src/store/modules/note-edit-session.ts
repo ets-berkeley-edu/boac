@@ -31,6 +31,7 @@ const $_recalculateStudentCount = ({ commit, state }) => {
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
+  creatingNoteWithSubject: undefined,
   isFocusLockDisabled: undefined,
   isSaving: false,
   mode: undefined,
@@ -43,6 +44,7 @@ const state = {
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
+  creatingNoteWithSubject: (state: any): string => state.creatingNoteWithSubject,
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
@@ -69,6 +71,8 @@ const mutations = {
     state.sids = [];
     state.targetStudentCount = 0;
   },
+  onCreateNoteStart: (state: any, subject: string) => (state.creatingNoteWithSubject = subject),
+  onCreateNoteSuccess: (state: any) => (state.creatingNoteWithSubject = null),
   onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
   onDeleteTemplate: (state: any, templateId: any) => {
     const indexOf = state.noteTemplates.findIndex(template => template.id === templateId);
@@ -158,6 +162,8 @@ const actions = {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
     }
   },
+  onCreateNoteStart: ({ commit }, subject: string) => commit('onCreateNoteStart', subject),
+  onCreateNoteSuccess: ({ commit }) => commit('onCreateNoteSuccess'),
   onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
