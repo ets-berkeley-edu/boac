@@ -969,15 +969,12 @@ class TestFindAdvisorsByName:
         labels = [s['label'] for s in response]
         assert 'COE Add Visor' in labels
 
-    def test_find_note_authors_by_name(self, client, coe_advisor):
+    def test_find_note_authors_by_name(self, client, coe_advisor, mock_advising_note):
         """Finds matches including authors of legacy and non-legacy notes."""
         response = self._api_search_advisors(client, 'Jo')
         assert len(response) == 4
-        labels = [s['label'] for s in response]
-        assert 'Robert Johnson' in labels
-        assert 'Joni Mitchell' in labels
-        assert 'Joni Mitchell CC' in labels
-        assert 'John Deleted-in-BOA' in labels
+        labels = set([s['label'] for s in response])
+        assert labels == {'John Deleted-in-BOA', 'Joni Mitchell', 'Joni Mitchell CC', 'Robert Johnson'}
 
 
 def _api_search(

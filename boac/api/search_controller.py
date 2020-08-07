@@ -76,7 +76,7 @@ def search():
         feed.update(_student_search(search_phrase, params, order_by))
 
     if len(search_phrase) and domain['courses']:
-        feed.update(_course_search(search_phrase, params, order_by))
+        feed.update(_course_search(search_phrase))
 
     if domain['notes']:
         feed.update(_notes_search(search_phrase, params))
@@ -246,7 +246,7 @@ def _student_search(search_phrase, params, order_by):
     }
 
 
-def _course_search(search_phrase, params, order_by):
+def _course_search(search_phrase):
     term_id = current_term_id()
     course_rows = []
 
