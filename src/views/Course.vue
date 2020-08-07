@@ -55,7 +55,7 @@
               <div :id="'meetings-' + meetingIndex" class="course-details-meetings">
                 <div>{{ meeting.days }}</div>
                 <div>{{ meeting.time }}</div>
-                <div>{{ meeting.location }}</div>
+                <div>{{ meeting.location }}<span v-if="meeting.instructionModeName"> &mdash; {{ meeting.instructionModeName }}</span></div>
               </div>
             </div>
           </div>

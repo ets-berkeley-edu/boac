@@ -84,6 +84,7 @@ class TestCourseController:
         assert section['title'] == 'Introductory Burmese'
         assert section['units'] == 4
         assert section['meetings'][0]['days'] == 'Mon, Tue, Wed, Thu, Fri'
+        assert section['meetings'][0]['instructionMode'] == 'P'
         assert section['meetings'][0]['instructors'] == ['George Orwell']
         assert section['meetings'][0]['time'] == '12:00 pm - 12:59 pm'
         assert section['meetings'][0]['location'] == 'Wheeler 999'

@@ -1,2 +1,2 @@
-sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
-2178,90100,Introductory Burmese,BURMESE 1A,true,LEC,001,4.0,1122330,George Orwell,PI,Wheeler 999,MOTUWETHFR,12:00,12:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
+sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,instruction_mode,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
+2178,90100,Introductory Burmese,BURMESE 1A,true,LEC,P,001,4.0,1122330,George Orwell,PI,Wheeler 999,MOTUWETHFR,12:00,12:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
