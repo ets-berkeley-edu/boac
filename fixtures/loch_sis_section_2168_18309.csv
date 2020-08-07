@@ -1,13 +1,13 @@
-sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1004720,Mr. Tao Su,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1010798,Dr. Antonio Montalban,PI,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1073150,Alexander R. Rusciano,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1073861,Vrettos Moulos,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1504617,Mariana Vicaria Angel,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1518395,Zhewei Yao,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1004720,Mr. Tao Su,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1010798,Dr. Antonio Montalban,PI,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1073150,Alexander R. Rusciano,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1073861,Vrettos Moulos,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1504617,Mariana Vicaria Angel,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
-2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,001,3.0,1518395,Zhewei Yao,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,sis_instruction_mode,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1004720,Mr. Tao Su,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1010798,Dr. Antonio Montalban,PI,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1073150,Alexander R. Rusciano,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1073861,Vrettos Moulos,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1504617,Mariana Vicaria Angel,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1518395,Zhewei Yao,APRX,Valley Life Sciences 2050,MOWEFR,15:00,15:59,2016-08-24 00:00:00 UTC,2016-12-02 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1004720,Mr. Tao Su,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1010798,Dr. Antonio Montalban,PI,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1073150,Alexander R. Rusciano,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1073861,Vrettos Moulos,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1504617,Mariana Vicaria Angel,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC
+2168,18309,Analytic Geometry and Calculus,MATH 16B,true,LEC,P,001,3.0,1518395,Zhewei Yao,APRX,Valley Life Sciences 2050,WE,15:00,15:59,2016-12-05 00:00:00 UTC,2016-12-09 00:00:00 UTC

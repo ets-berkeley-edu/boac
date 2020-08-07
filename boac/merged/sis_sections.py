@@ -73,6 +73,7 @@ def _get_meetings(section_rows):
                 times = f'{start_time} - {end_time}'
         meeting = {
             'days': meeting_days,
+            'instructionMode': row['sis_instruction_mode'],
             'location': row['meeting_location'],
             'time': times,
         }

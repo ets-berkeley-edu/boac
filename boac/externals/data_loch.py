@@ -190,10 +190,10 @@ def get_sis_holds(sid):
 def get_sis_section(term_id, sis_section_id):
     sql = f"""SELECT
                   sc.sis_term_id, sc.sis_section_id, sc.sis_course_title, sc.sis_course_name,
-                  sc.is_primary, sc.sis_instruction_format, sc.sis_section_num, sc.allowed_units,
-                  sc.instructor_uid, sc.instructor_name, sc.instructor_role_code,
-                  sc.meeting_location, sc.meeting_days,
-                  sc.meeting_start_time, sc.meeting_end_time, sc.meeting_start_date, sc.meeting_end_date
+                  sc.is_primary, sc.sis_instruction_format, sc.sis_instruction_mode, sc.sis_section_num,
+                  sc.allowed_units, sc.instructor_uid, sc.instructor_name, sc.instructor_role_code,
+                  sc.meeting_location, sc.meeting_days, sc.meeting_start_time, sc.meeting_end_time,
+                  sc.meeting_start_date, sc.meeting_end_date
               FROM {sis_schema()}.sis_sections sc
               WHERE sc.sis_section_id = :sis_section_id
                   AND sc.sis_term_id = :term_id

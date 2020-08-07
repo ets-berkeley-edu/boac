@@ -61,10 +61,10 @@ class TestGetSisSection:
         section_id = 98000
         rows = [
             'sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,'
-            'sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,'
+            'sis_instruction_mode,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,'
             'meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date',
             '2178,98000,Rabelais en Indre-et-Loire,EAPFRENCH 1998,true,LEC,001,22.0,'
-            ',,,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
+            ',,,,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
         ]
         mr = MockRows(io.StringIO('\n'.join(rows)))
         with register_mock(data_loch.get_sis_section, mr):
@@ -82,13 +82,13 @@ class TestGetSisSection:
         section_id = 99000
         rows = [
             'sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,'
-            'sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,'
+            'sis_instruction_mode,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,'
             'meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date',
-            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,001,86.0,'
-            '9922330,Hal Colossus,PI,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
+            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,H,001,86.0,'
+            '9922330,Hal Colossus,PI,,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
             # Also include an empty instructor row, since they sometimes show up.
-            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,001,86.0,'
-            '9922330,,APRX,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
+            '2178,99000,MedXieval Dead,MED ST 1999,true,ONL,P,001,86.0,'
+            '9922330,,APRX,,,,,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC',
         ]
         mr = MockRows(io.StringIO('\n'.join(rows)))
         with register_mock(data_loch.get_sis_section, mr):

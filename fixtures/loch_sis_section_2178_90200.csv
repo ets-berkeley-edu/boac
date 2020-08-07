@@ -1,5 +1,5 @@
-sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
-2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,001,5.0,1122330,Johan Huizinga,PI,Dwinelle 117,TUTH,18:00,18:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
-2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,001,5.0,1122330,Ernst Robert Curtius,TNIC,Dwinelle 117,TUTH,18:00,18:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
-2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,001,5.0,1122330,Johan Huizinga,PI,Campbell Hall 501B,WE,13:30,14:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
-2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,001,5.0,1122330,Ernst Robert Curtius,TNIC,Campbell Hall 501B,WE,13:30,14:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
+sis_term_id,sis_section_id,sis_course_title,sis_course_name,is_primary,sis_instruction_format,sis_instruction_mode,sis_section_num,allowed_units,instructor_uid,instructor_name,instructor_role_code,meeting_location,meeting_days,meeting_start_time,meeting_end_time,meeting_start_date,meeting_end_date
+2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,H,001,5.0,1122330,Johan Huizinga,PI,Dwinelle 117,TUTH,18:00,18:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
+2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,H,001,5.0,1122330,Ernst Robert Curtius,TNIC,Dwinelle 117,TUTH,18:00,18:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
+2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,H,001,5.0,1122330,Johan Huizinga,PI,Campbell Hall 501B,WE,13:30,14:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
+2178,90200,Medieval Manuscripts as Primary Sources,MED ST 205,true,SEM,H,001,5.0,1122330,Ernst Robert Curtius,TNIC,Campbell Hall 501B,WE,13:30,14:59,2017-08-23 00:00:00 UTC,2017-12-08 00:00:00 UTC
