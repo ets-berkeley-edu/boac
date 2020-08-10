@@ -111,7 +111,7 @@ class TestAlert:
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
         assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
-        sleep(2)
+        sleep(1.0)
         Alert.deactivate_all_for_term(2178)
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='3456789012', viewer_id='2040')
@@ -121,7 +121,7 @@ class TestAlert:
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
         assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
-        sleep(2)
+        sleep(0.5)
         Alert.deactivate_all_for_term(2178)
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
@@ -138,7 +138,7 @@ class TestAlert:
                             first()
                             )
         inactivation_timestamp = inactive_alert_1.updated_at
-        sleep(2)
+        sleep(0.5)
         Alert.deactivate_all_for_term(2178)
         inactive_alert_1 = Alert.query.filter_by(id=inactive_alert_1.id).first()
         inactive_alert_2 = (Alert.query.

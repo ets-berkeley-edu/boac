@@ -82,19 +82,17 @@ def app(request):
 
 # TODO Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
 @pytest.fixture(scope='session')
-def db(app, request):
+def db(app):
     """Fixture database object, shared by all tests."""
     from boac.models import development_db
     # Drop all tables before re-loading the schemas.
     # If we dropped at teardown instead, an interrupted test run would block the next test run.
     development_db.clear()
-    _db = development_db.load(cohort_test_data=True)
-
-    return _db
+    return development_db.load(load_test_data=True)
 
 
 @pytest.fixture(scope='function', autouse=True)
-def db_session(db, request):
+def db_session(db):
     """Fixture database session used for the scope of a single test.
 
     All executions are wrapped in a session and then rolled back to keep individual tests isolated.
@@ -132,11 +130,11 @@ def fake_loch(app):
     from sqlalchemy import create_engine
     from sqlalchemy.sql import text
     fixture_path = f"{app.config['BASE_DIR']}/fixtures"
-    with open(f'{fixture_path}/loch.sql', 'r') as ddlfile:
+    with open(f'{fixture_path}/loch/loch.sql', 'r') as ddlfile:
         ddltext = ddlfile.read()
     params = {}
-    for fixture in glob.glob(f'{fixture_path}/loch_student_*.json'):
-        key = fixture.replace(f'{fixture_path}/loch_student_', '').replace('.json', '')
+    for fixture in glob.glob(f'{fixture_path}/loch/student_*.json'):
+        key = fixture.replace(f'{fixture_path}/loch/student_', '').replace('.json', '')
         with open(fixture, 'r') as f:
             params[key] = f.read()
     data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])

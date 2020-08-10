@@ -186,7 +186,7 @@ def get_sis_holds(sid):
     return safe_execute_rds(sql)
 
 
-@fixture('loch_sis_section_{term_id}_{sis_section_id}.csv')
+@fixture('loch/sis_section_{term_id}_{sis_section_id}.csv')
 def get_sis_section(term_id, sis_section_id):
     sql = f"""SELECT
                   sc.sis_term_id, sc.sis_section_id, sc.sis_course_title, sc.sis_course_name,
@@ -218,7 +218,7 @@ def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid):
     return safe_execute_rds(sql, **params)
 
 
-@fixture('loch_sis_section_enrollments_{term_id}_{sis_section_id}.csv')
+@fixture('loch/sis_section_enrollments_{term_id}_{sis_section_id}.csv')
 def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None):
     sql = f"""SELECT sas.sid, sas.uid, sas.first_name, sas.last_name
               FROM {student_schema()}.student_academic_status sas
