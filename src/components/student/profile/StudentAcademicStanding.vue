@@ -1,9 +1,9 @@
 <template>
-  <div 
+  <div
     v-if="get(standing, 'status') && standing.status !== 'GST'"
     class="student-academic-standing">
     <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId || 'latest'}`" class="red-flag-status">
-      {{ descriptions[standing.status] || standing.status }}
+      {{ $config.academicStandingDescriptions[standing.status] || standing.status }}
     </span>
   </div>
 </template>
@@ -21,14 +21,7 @@ export default {
     },
     rowIndex: String,
     termId: String
-  },
-  data: () => ({
-    descriptions: {
-      'DIS': 'Dismissed',
-      'PRO': 'Probation',
-      'SUB': 'Subject to Dismissal'
-    }
-  })
+  }
 }
 </script>
 

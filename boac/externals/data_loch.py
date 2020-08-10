@@ -879,6 +879,7 @@ def get_other_visa_types():
 
 
 def get_students_query(     # noqa
+    academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
     coe_ethnicities=None,
@@ -950,6 +951,8 @@ def get_students_query(     # noqa
                         AND n{i}.sid = sas.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+    if academic_standings:
+        query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = sas.sid"""
     if ethnicities:
         query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = sas.sid"""
     if genders or underrepresented is not None:
@@ -968,6 +971,12 @@ def get_students_query(     # noqa
         query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
 
     # Generic SIS criteria
+    if academic_standings:
+        query_filter += ' AND ass.acad_standing_status = ANY(:academic_standings)  AND ass.term_id = :term_id'
+        query_bindings.update({
+            'academic_standings': academic_standings,
+            'term_id': current_term_id,
+        })
     if gpa_ranges:
         sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
         query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)

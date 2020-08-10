@@ -757,6 +757,20 @@ class TestCohortCreate:
         """An advisor belonging to a single department cannot create a cohort using intersecting criteria."""
         api_cohort_create(client, self._intersecting_filter_criteria, expected_status_code=403)
 
+    def test_academic_standing_cohort(self, admin_login, client, fake_auth):
+        """Find students per academic standing."""
+        data = {
+            'name': 'Probation and Subject to Dismissal',
+            'filters': [
+                {'key': 'academicStandings', 'value': 'PRO'},
+                {'key': 'academicStandings', 'value': 'GST'},
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 3
+        sids = [s['sid'] for s in cohort['students']]
+        assert set(sids) == {'11667051', '3456789012', '5678901234'}
+
 
 class TestCohortUpdate:
     """Cohort Update API."""
@@ -1651,13 +1665,17 @@ class TestCohortFilterOptions:
 
     def test_range_of_entering_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        filter_options = api_json[0][1].get('options')
+        entering_terms_filter = next((f for f in api_json[0] if f['key'] == 'enteringTerms'), None)
+        assert entering_terms_filter
+        filter_options = entering_terms_filter.get('options')
         assert len(filter_options) == 4
         assert [o['name'] for o in filter_options] == ['2015 Fall', '2015 Summer', '2015 Spring', '1993 Fall']
 
     def test_range_of_expected_grad_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        filter_options = api_json[0][2].get('options')
+        entering_terms_filter = next((f for f in api_json[0] if f['key'] == 'expectedGradTerms'), None)
+        assert entering_terms_filter
+        filter_options = entering_terms_filter.get('options')
         assert [o['name'] for o in filter_options[-3:]] == ['2019 Spring', 'divider', '1997 Fall']
 
     def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):
