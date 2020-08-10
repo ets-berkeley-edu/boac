@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db
 from boac.externals import data_loch
-from boac.lib.berkeley import COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
+from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.calnet import get_csid_for_uid
@@ -64,6 +64,10 @@ def academic_plans_for_cohort_owner(owner_uid):
         if value:
             plans.append({'name': row['academic_plan'], 'value': value})
     return plans
+
+
+def academic_standing_options():
+    return [{'name': name, 'value': value} for value, name in ACADEMIC_STANDING_DESCRIPTIONS.items()]
 
 
 def coe_gender_options():

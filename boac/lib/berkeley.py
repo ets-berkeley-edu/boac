@@ -28,6 +28,13 @@ import re
 
 """A utility module collecting logic specific to the Berkeley campus."""
 
+ACADEMIC_STANDING_DESCRIPTIONS = {
+    'DIS': 'Dismissed',
+    'GST': 'Good Standing',
+    'PRO': 'Probation',
+    'SUB': 'Subject to Dismissal',
+}
+
 # This is not a complete mapping:
 #  - Not all SIS-defined academic plans map to a single Degree Programs page.
 #  - Not all Degree Programs pages map to a single SIS-defined academic plan.

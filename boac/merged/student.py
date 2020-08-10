@@ -334,6 +334,7 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 
 def query_students(
+    academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
     coe_ethnicities=None,
@@ -393,6 +394,7 @@ def query_students(
     scope = scope_for_criteria(**criteria)
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
+        academic_standings=academic_standings,
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
         coe_ethnicities=coe_ethnicities,

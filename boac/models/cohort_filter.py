@@ -389,6 +389,7 @@ def _query_students(
     if not isinstance(coe_advisor_ldap_uids, list):
         coe_advisor_ldap_uids = [coe_advisor_ldap_uids] if coe_advisor_ldap_uids else None
     results = query_students(
+        academic_standings=criteria.get('academicStandings'),
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
         coe_ethnicities=criteria.get('coeEthnicities'),

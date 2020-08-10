@@ -28,6 +28,7 @@ import json
 from boac import __version__ as version
 from boac.api.errors import BadRequestError
 from boac.api.util import admin_required
+from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.sis_terms import current_term_id, current_term_name
@@ -39,6 +40,7 @@ from flask_login import current_user
 @app.route('/api/config')
 def app_config():
     return tolerant_jsonify({
+        'academicStandingDescriptions': ACADEMIC_STANDING_DESCRIPTIONS,
         'apptDeskRefreshInterval': app.config['APPT_DESK_REFRESH_INTERVAL'],
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name(),

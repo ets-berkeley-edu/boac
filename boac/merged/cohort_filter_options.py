@@ -26,11 +26,12 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from copy import copy, deepcopy
 
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.cohort_utils import academic_plans_for_cohort_owner, coe_ethnicities, \
+from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
-    get_coe_profiles, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, student_admit_ethnicity_options, \
-    student_admit_freshman_or_transfer_options, student_admit_residency_category_options, student_admit_special_program_cep_options, \
-    team_groups, unit_range_options, visa_types
+    get_coe_profiles, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
+    student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
+    student_admit_residency_category_options, student_admit_special_program_cep_options, team_groups, \
+    unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
 
@@ -70,6 +71,7 @@ class CohortFilterOptions:
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         return [
             [
+                _filter('academicStandings', 'Academic Standing', options=academic_standing_options),
                 _filter('colleges', 'College', options=colleges),
                 _filter('enteringTerms', 'Entering Term', options=entering_terms),
                 _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms),
