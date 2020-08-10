@@ -46,29 +46,30 @@ class TestAlertsController:
     def test_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Can dismiss alerts for one user without affecting visibility for other users."""
         fake_auth.login(admin_uid)
-        advisor_1_deborah_alerts = self._get_alerts(client, 61889)
-        assert len(advisor_1_deborah_alerts) == 3
-        for alert in advisor_1_deborah_alerts:
-            assert not alert['dismissed']
-        alert_id = advisor_1_deborah_alerts[0]['id']
+        advisor_1_alerts = self._get_alerts(client, 61889)
+        assert len(advisor_1_alerts) == 4
+        assert next((a for a in advisor_1_alerts if a['message'] == "Student's academic standing is 'Probation'."), None)
+        assert not next((a for a in advisor_1_alerts if a['dismissed']), None)
+
+        alert_id = advisor_1_alerts[0]['id']
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
         assert response.status_code == 200
         assert response.json['message'] == 'Alert ' + str(alert_id) + ' dismissed by UID 2040'
 
-        advisor_1_deborah_alerts = self._get_alerts(client, 61889)
-        assert len(advisor_1_deborah_alerts) == 3
-        assert len(self._get_dismissed(advisor_1_deborah_alerts)) == 1
+        advisor_1_alerts = self._get_alerts(client, 61889)
+        assert len(advisor_1_alerts) == 4
+        assert len(self._get_dismissed(advisor_1_alerts)) == 1
 
         fake_auth.login(coe_advisor)
-        advisor_2_deborah_alerts = self._get_alerts(client, 61889)
-        assert len(advisor_2_deborah_alerts) == 3
-        assert len(self._get_dismissed(advisor_2_deborah_alerts)) == 0
+        advisor_2_alerts = self._get_alerts(client, 61889)
+        assert len(advisor_2_alerts) == 4
+        assert len(self._get_dismissed(advisor_2_alerts)) == 0
 
     def test_duplicate_dismiss_alerts(self, create_alerts, fake_auth, client):
         """Shrugs off duplicate dismissals."""
         fake_auth.login(admin_uid)
-        advisor_1_deborah_alerts = self._get_alerts(client, 61889)
-        alert_id = advisor_1_deborah_alerts[0]['id']
+        advisor_1_alerts = self._get_alerts(client, 61889)
+        alert_id = advisor_1_alerts[0]['id']
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
         assert response.status_code == 200
         response = client.get('/api/alerts/' + str(alert_id) + '/dismiss')
@@ -86,26 +87,26 @@ class TestAlertsController:
         Alert.query.filter_by(key='2178_800900300').first().deactivate()
 
         fake_auth.login(admin_uid)
-        advisor_1_deborah_alerts = self._get_alerts(client, 61889)
-        assert len(advisor_1_deborah_alerts) == 2
-        assert advisor_1_deborah_alerts[0]['key'] == '2178_500600700'
-        assert len(self._get_dismissed(advisor_1_deborah_alerts)) == 0
+        advisor_1_alerts = self._get_alerts(client, 61889)
+        assert len(advisor_1_alerts) == 3
+        assert advisor_1_alerts[0]['key'] == '2178_500600700'
+        assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
         fake_auth.login(coe_advisor)
-        advisor_2_deborah_alerts = self._get_alerts(client, 61889)
-        assert len(advisor_2_deborah_alerts) == 2
-        assert advisor_2_deborah_alerts[0]['key'] == '2178_500600700'
-        assert len(self._get_dismissed(advisor_1_deborah_alerts)) == 0
+        advisor_2_alerts = self._get_alerts(client, 61889)
+        assert len(advisor_2_alerts) == 3
+        assert advisor_2_alerts[0]['key'] == '2178_500600700'
+        assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
     def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):
         fake_auth.login(asc_advisor_uid)
         cohort_id = all_cohorts_owned_by(asc_advisor_uid)[0]['id']
         response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.json['alertCount'] == 5
+        assert response.json['alertCount'] == 6
 
         alerts = self._get_alerts(client, 61889)
         client.get('/api/alerts/' + str(alerts[0]['id']) + '/dismiss')
         db.session.expire_all()
 
         response = client.get(f'/api/cohort/{cohort_id}')
-        assert response.json['alertCount'] == 4
+        assert response.json['alertCount'] == 5

@@ -130,7 +130,7 @@ class TestGetCuratedGroup:
             assert isinstance(student.get('alertCount'), int)
         student_with_alerts = next((s for s in students if s['sid'] == '11667051'), None)
         assert student_with_alerts
-        assert student_with_alerts['alertCount'] == 3
+        assert student_with_alerts['alertCount'] == 4
 
     def test_curated_group_includes_term_gpa(self, asc_advisor, asc_curated_groups, client):
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id)
@@ -167,7 +167,7 @@ class TestGetCuratedGroup:
         last_names = [s.get('lastName') for s in api_json['students']]
         assert last_names == ['Davies', 'Farestveit', 'Kerschen', 'Jayaprakash']
         alert_counts = [s.get('alertCount') for s in api_json['students']]
-        assert alert_counts == [3, 0, 1, 0]
+        assert alert_counts == [4, 0, 1, 0]
 
     def test_order_by_level(self, asc_advisor, asc_curated_groups, client):
         """Includes students in response, ordered by level."""
@@ -303,14 +303,14 @@ class TestGetCuratedGroup:
         """Students with alerts per group id."""
         api_json = self._api_students_with_alerts(client, asc_curated_groups[0].id)
         assert len(api_json) == 2
-        assert api_json[0]['alertCount'] == 3
+        assert api_json[0]['alertCount'] == 4
         assert api_json[1]['alertCount'] == 1
 
         student = client.get('/api/student/by_uid/61889').json
         alert_to_dismiss = student['notifications']['alert'][0]['id']
         client.get('/api/alerts/' + str(alert_to_dismiss) + '/dismiss')
         students_with_alerts = client.get(f'/api/curated_group/{asc_curated_groups[0].id}/students_with_alerts').json
-        assert students_with_alerts[0]['alertCount'] == 2
+        assert students_with_alerts[0]['alertCount'] == 3
 
     def test_group_includes_student_summary(self, asc_advisor, asc_curated_groups, client, create_alerts):
         """Returns summary details but not full term and analytics data."""

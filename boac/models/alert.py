@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-
 from datetime import datetime, timezone
 import json
 import re
@@ -32,9 +31,10 @@ import time
 from boac import db, std_commit
 from boac.api.errors import BadRequestError
 from boac.externals import data_loch
-from boac.lib.berkeley import section_is_eligible_for_alerts, term_name_for_sis_id
+from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, section_is_eligible_for_alerts, term_name_for_sis_id
 from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
 from boac.merged.sis_terms import current_term_id
+from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app
@@ -288,14 +288,33 @@ class Alert(Base):
         for row in enrollments_for_term:
             enrollments = json.loads(row['enrollment_term']).get('enrollments', [])
             for enrollment in enrollments:
-                cls.update_alerts_for_enrollment(row['sid'], term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled)
+                cls.update_alerts_for_enrollment(
+                    sid=row['sid'],
+                    term_id=term_id,
+                    enrollment=enrollment,
+                    no_activity_alerts_enabled=no_activity_alerts_enabled,
+                    infrequent_activity_alerts_enabled=infrequent_activity_alerts_enabled,
+                )
+        profiles = data_loch.get_student_profiles()
         if app.config['ALERT_WITHDRAWAL_ENABLED'] and str(term_id) == current_term_id():
-            profiles = data_loch.get_student_profiles()
             for row in profiles:
                 profile_feed = json.loads(row['profile'])
                 if 'withdrawalCancel' in (profile_feed.get('sisProfile') or {}):
                     cls.update_withdrawal_cancel_alerts(row['sid'], term_id)
+
+        sids = [p['sid'] for p in profiles]
+        for sid, academic_standing in get_academic_standing_by_sid(sids, as_dicts=True).items():
+            status = academic_standing.get(str(term_id))
+            if status in ('DIS', 'PRO', 'SUB'):
+                cls.update_academic_standing_alerts(sid, status, term_id)
         app.logger.info('Alert update complete')
+
+    @classmethod
+    def update_academic_standing_alerts(cls, sid, status, term_id):
+        key = f'{term_id}_academic_standing_{status}'
+        status_description = ACADEMIC_STANDING_DESCRIPTIONS.get(status, status)
+        message = f"Student's academic standing is '{status_description}'."
+        cls.create_or_activate(sid=sid, alert_type='academic_standing', key=key, message=message)
 
     @classmethod
     def update_alerts_for_enrollment(cls, sid, term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled):

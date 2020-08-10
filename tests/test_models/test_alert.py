@@ -101,7 +101,7 @@ class TestAlert:
         assert len(get_current_alerts('11667051')) == 0
         assert len(get_current_alerts('3456789012')) == 0
         Alert.update_all_for_term(2178)
-        assert len(get_current_alerts('11667051')) == 1
+        assert len(get_current_alerts('11667051')) == 2
         assert len(get_current_alerts('3456789012')) == 1
         Alert.deactivate_all_for_term(2178)
         assert len(get_current_alerts('11667051')) == 0

@@ -678,19 +678,26 @@ class TestAlerts:
         """Returns current_user's current alerts for a given sid."""
         fake_auth.login(self.admin_uid)
         alerts = self._get_alerts(client, 61889)
-        assert len(alerts) == 3
+        assert len(alerts) == 4
         assert alerts[0]['alertType'] == 'late_assignment'
         assert alerts[0]['key'] == '2178_800900300'
         assert alerts[0]['message'] == 'Week 5 homework in RUSSIAN 13 is late.'
         assert not alerts[0]['dismissed']
+
         assert alerts[1]['alertType'] == 'missing_assignment'
         assert alerts[1]['key'] == '2178_500600700'
         assert alerts[1]['message'] == 'Week 6 homework in PORTUGUESE 12 is missing.'
         assert not alerts[1]['dismissed']
+
         assert alerts[2]['alertType'] == 'midterm'
         assert alerts[2]['key'] == '2178_90100'
         assert alerts[2]['message'] == 'BURMESE 1A midpoint deficient grade of D+.'
         assert not alerts[2]['dismissed']
+
+        assert alerts[3]['alertType'] == 'academic_standing'
+        assert alerts[3]['key'] == '2178_academic_standing_PRO'
+        assert alerts[3]['message'] == "Student's academic standing is 'Probation'."
+        assert not alerts[3]['dismissed']
 
 
 class TestPrefixSearch:
