@@ -46,11 +46,11 @@ class TestCacheUtils:
         from boac.api.cache_utils import refresh_alerts
         refresh_alerts(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
-        assert 1 == len(alerts)
-        assert 0 < alerts[0]['id']
-        assert 'midterm' == alerts[0]['alertType']
-        assert '2178_90100' == alerts[0]['key']
-        assert 'BURMESE 1A midpoint deficient grade of D+.' == alerts[0]['message']
+        alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
+        assert alert
+        assert 'midterm' == alert['alertType']
+        assert '2178_90100' == alert['key']
+        assert 'BURMESE 1A midpoint deficient grade of D+.' == alert['message']
 
     def test_update_curated_group_lists(self, app):
         from boac.api.cache_utils import update_curated_group_lists

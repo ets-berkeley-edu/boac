@@ -167,7 +167,7 @@ class TestStudentSearch:
         """Search results include alert counts."""
         fake_auth.login('2040')
         api_json = _api_search(client, 'davies', students=True)
-        assert api_json['students'][0]['alertCount'] == 3
+        assert api_json['students'][0]['alertCount'] == 4
 
     def test_summary_profiles_in_search_results(self, client, fake_auth):
         fake_auth.login('2040')

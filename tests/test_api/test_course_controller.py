@@ -163,4 +163,4 @@ class TestCourseController:
     def test_section_student_alert_count(self, create_alerts, coe_advisor, client):
         """Includes alert count of COE student."""
         response = client.get(f'/api/section/{term_id}/{section_id}')
-        assert response.json['students'][0].get('alertCount') == 3
+        assert response.json['students'][0].get('alertCount') == 4
