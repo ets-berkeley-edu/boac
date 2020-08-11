@@ -434,16 +434,16 @@ _university_depts = {
 
 
 def clear():
-    with open(app.config['BASE_DIR'] + '/scripts/db/drop_schema.sql', 'r') as ddlfile:
+    with open(f"{app.config['BASE_DIR']}/scripts/db/drop_schema.sql", 'r') as ddlfile:
         ddltext = ddlfile.read()
     db.session().execute(text(ddltext))
     std_commit()
 
 
-def load(cohort_test_data=False):
+def load(load_test_data=False):
     _load_schemas()
     _load_users_and_departments()
-    if cohort_test_data:
+    if load_test_data:
         _create_topics()
         _create_appointments()
         _create_curated_groups()
@@ -453,7 +453,7 @@ def load(cohort_test_data=False):
 
 def _load_schemas():
     """Create DB schema from SQL file."""
-    with open(app.config['BASE_DIR'] + '/scripts/db/schema.sql', 'r') as ddlfile:
+    with open(f"{app.config['BASE_DIR']}/scripts/db/schema.sql", 'r') as ddlfile:
         ddltext = ddlfile.read()
     db.session().execute(text(ddltext))
     std_commit()
