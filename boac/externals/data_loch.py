@@ -972,7 +972,10 @@ def get_students_query(     # noqa
 
     # Generic SIS criteria
     if academic_standings:
-        query_filter += ' AND ass.acad_standing_status = ANY(:academic_standings)  AND ass.term_id = :term_id'
+        null_is_good_standing = ' OR ass.acad_standing_status IS NULL' if 'GST' in academic_standings else ''
+        query_filter += f"""
+            AND (ass.acad_standing_status = ANY(:academic_standings) {null_is_good_standing})
+            AND ass.term_id = :term_id"""
         query_bindings.update({
             'academic_standings': academic_standings,
             'term_id': current_term_id,
