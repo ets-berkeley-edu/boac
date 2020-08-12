@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="get(standing, 'status') && standing.status !== 'GST'"
+    v-if="$_.get(standing, 'status') && standing.status !== 'GST'"
     class="student-academic-standing">
     <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId || 'latest'}`" class="red-flag-status">
       {{ $config.academicStandingDescriptions[standing.status] || standing.status }}
@@ -16,7 +16,6 @@ export default {
   mixins: [Util],
   props: {
     standing: {
-      required: true,
       type: Object
     },
     rowIndex: String,
