@@ -39,7 +39,7 @@ export default {
   }),
   computed: {
     totalPages() {
-      return (this.totalRows / this.perPage) | this.ceil;
+      return Math.ceil(this.totalRows / this.perPage);
     }
   },
   created() {

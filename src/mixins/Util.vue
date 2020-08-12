@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash';
+import numeral from 'numeral';
 
 const decodeHtml = (snippet) => {
   if (snippet && snippet.indexOf('&') > 0) {
@@ -62,6 +63,7 @@ export default {
     merge: _.merge,
     multiply: _.multiply,
     noop: _.noop,
+    numFormat: (num, format=null) => numeral(num).format(format),
     orderBy: _.orderBy,
     oxfordJoin: arr => {
       switch(arr.length) {
@@ -88,6 +90,7 @@ export default {
     pull: _.pull,
     reduce: _.reduce,
     remove: _.remove,
+    round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     set: _.set,
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     size: _.size,
