@@ -69,6 +69,11 @@
             id="student-bio-expected-graduation">
             Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
           </div>
+          <div v-if="student.athleticsProfile" id="student-bio-athletics">
+            <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
+              {{ membership.groupName }}
+            </div>
+          </div>
         </div>
       </div>
       <div class="col-sm mr-2 pr-2">

@@ -71,11 +71,6 @@
               <div v-if="visaDescription" id="student-profile-visa">
                 {{ visaDescription }}
               </div>
-              <div v-if="student.athleticsProfile" id="student-bio-athletics">
-                <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
-                  {{ membership.groupName }}
-                </div>
-              </div>
               <div class="no-wrap mt-1">
                 <a
                   id="link-to-calcentral"
