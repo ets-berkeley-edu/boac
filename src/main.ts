@@ -7,7 +7,6 @@ import axios from 'axios';
 import BootstrapVue from 'bootstrap-vue';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import core from './core';
-import filters from './filters';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
 import moment from 'moment-timezone';
@@ -40,8 +39,6 @@ Vue.use(VueMoment, { moment });
 HighchartsMore(Highcharts);
 Vue.use(VueHighcharts, { Highcharts });
 
-// Filters and directives
-_.each(filters, (filter, name) => Vue.filter(name, filter));
 Vue.directive('accessibleGrade', {
   bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
 });

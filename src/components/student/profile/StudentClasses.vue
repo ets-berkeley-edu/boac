@@ -69,7 +69,7 @@ v-if="section.isViewableOnCoursePage"
           </div>
           <div class="student-course-heading-end">
             <div v-if="'units' in course" class="student-course-heading-units">
-              {{ 'Unit' | pluralize(course.units) }}
+              {{ pluralize('Unit', course.units) }}
             </div>
             <div v-if="'grade' in course || 'gradingBasis' in course" class="student-course-heading-grades">
               <div class="text-nowrap">

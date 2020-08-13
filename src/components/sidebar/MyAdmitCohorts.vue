@@ -37,7 +37,7 @@
       <div class="ml-2 mr-2">
         <span
           :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
-          class="sidebar-pill">{{ cohort.totalStudentCount }}<span class="sr-only">{{ 'admitted student' | pluralize(cohort.totalStudentCount) }}</span>
+          class="sidebar-pill">{{ cohort.totalStudentCount }}<span class="sr-only">{{ pluralize('admitted student', cohort.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

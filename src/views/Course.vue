@@ -33,7 +33,7 @@
               <span v-if="section.instructionFormat">&mdash;</span>
               <span v-if="section.units === null">Unknown Units</span>
               <span v-if="section.units !== null">
-                {{ 'Unit' | pluralize(section.units) }}
+                {{ pluralize('Unit', section.units) }}
               </span>
             </div>
             <div v-if="section.title" class="course-section-title">
