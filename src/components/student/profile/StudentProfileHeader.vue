@@ -62,7 +62,7 @@
         </div>
         <div class="text-muted">
           <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
-            {{ 'Term' | pluralize(student.sisProfile.termsInAttendance) }} in Attendance
+            {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
           </div>
           <div
             v-if="student.sisProfile.expectedGraduationTerm && get(student.sisProfile, 'level.code') !== 'GR'"

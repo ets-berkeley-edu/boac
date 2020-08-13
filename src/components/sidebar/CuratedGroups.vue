@@ -29,7 +29,7 @@
       <div class="ml-2 mr-2">
         <span
           :id="`sidebar-curated-group-${index}-count`"
-          class="sidebar-pill">{{ group.totalStudentCount }}<span class="sr-only">{{ 'student' | pluralize(group.totalStudentCount) }}</span>
+          class="sidebar-pill">{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

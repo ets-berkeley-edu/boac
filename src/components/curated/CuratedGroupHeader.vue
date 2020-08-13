@@ -8,7 +8,7 @@
           class="page-section-header mt-0"
           tabindex="0">
           <span>{{ curatedGroupName || 'Curated Group' }}</span>
-          <span v-if="!isNil(totalStudentCount)" class="faint-text"> (<span>{{ 'student' | pluralize(totalStudentCount, {1: '1'}) }}</span>)</span>
+          <span v-if="!isNil(totalStudentCount)" class="faint-text"> (<span>{{ pluralize('student', totalStudentCount, {1: '1'}) }}</span>)</span>
         </h1>
       </div>
       <div v-if="mode === 'rename'" class="w-100 mr-3">

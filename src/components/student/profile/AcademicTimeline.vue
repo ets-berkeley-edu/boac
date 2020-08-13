@@ -83,7 +83,7 @@
 
     <div v-if="!searchResultsLoading && searchResults" class="mb-2">
       <strong>
-        {{ `advising ${filter}` | pluralize(searchResults.length) }} for&nbsp;
+        {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
         &nbsp;with '{{ timelineQuery }}'
       </strong>

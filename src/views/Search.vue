@@ -22,7 +22,7 @@
       v-if="!loading && size(results.admits)"
       tabindex="0">
       <h1 id="admit-results-page-header" class="page-section-header">
-        {{ 'admitted student' | pluralize(results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
+        {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h1>
       <div v-if="size(results.admits) < results.totalAdmitCount">
         Showing the first {{ size(results.admits) }} admitted students.
@@ -36,7 +36,7 @@
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
       <h1 id="student-results-page-header" class="page-section-header">
-        {{ 'student' | pluralize(results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
+        {{ pluralize('student', results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h1>
       <div v-if="results.totalStudentCount > studentLimit">
         Showing the first {{ studentLimit }} students.

@@ -10,7 +10,7 @@
           CE3 Admissions
           <span
             v-if="totalAdmitCount !== undefined"
-            class="faint-text">{{ 'admitted student' | pluralize(totalAdmitCount) }}</span>
+            class="faint-text">{{ pluralize('admitted student', totalAdmitCount) }}</span>
         </h1>
         <div class="d-flex align-self-baseline mr-4">
           <NavLink

@@ -131,7 +131,7 @@
     </div>
     <div class="font-size-14 mb-3 ml-4 total-user-count">
       <span v-if="totalUserCount === 0">No users found</span>
-      <span v-if="totalUserCount > 0">{{ 'user' | pluralize(totalUserCount) }}</span>
+      <span v-if="totalUserCount > 0">{{ pluralize('user', totalUserCount) }}</span>
     </div>
     <b-table
       id="users-table"

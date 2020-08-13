@@ -73,6 +73,9 @@ export default {
       }
     },
     partition: _.partition,
+    pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {
+      return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun));
+    },
     putFocusNextTick(id, cssSelector = null) {
       this.$nextTick(() => {
         let counter = 0;

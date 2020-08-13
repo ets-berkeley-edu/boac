@@ -7,13 +7,13 @@
         v-if="renderPrimaryHeader"
         id="course-results-page-h1"
         class="page-section-header">
-        {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
+        {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h1>
       <h2
         v-if="!renderPrimaryHeader"
         id="course-results-page-h2"
         class="page-section-header">
-        {{ 'class' | pluralize(totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
+        {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
       </h2>
       <div v-if="courses.length < totalCourseCount">
         Showing the first {{ courses.length }} classes.
@@ -72,10 +72,11 @@
 
 <script>
 import Context from '@/mixins/Context';
+import Util from '@/mixins/Util';
 
 export default {
   name: 'SortableCourseList',
-  mixins: [Context],
+  mixins: [Context, Util],
   props: {
     searchPhrase: String,
     courses: Array,

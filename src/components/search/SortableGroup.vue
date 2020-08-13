@@ -67,7 +67,7 @@
       <div v-if="openAndLoaded" class="mb-3 ml-4">
         <router-link :id="`sortable-${keyword}-${group.id}-view-all`" :to="`/${keyword}/${group.id}`">
           <span v-if="group.totalStudentCount">
-            View <span>{{ 'student' | pluralize(group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}</span>
+            View <span>{{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}</span>
             in "<span>{{ group.name }}</span>"
           </span>
           <div v-if="!group.totalStudentCount" class="pt-3">

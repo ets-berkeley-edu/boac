@@ -24,13 +24,13 @@
           {{ cohortName }}
           <span
             v-if="editMode !== 'apply' && totalStudentCount !== undefined"
-            class="faint-text">{{ 'student' | pluralize(totalStudentCount) }}</span>
+            class="faint-text">{{ pluralize('student', totalStudentCount) }}</span>
         </h1>
         <h1
           v-if="!cohortName && totalStudentCount !== undefined"
           id="cohort-results-header"
           tabindex="0">
-          {{ 'Result' | pluralize(totalStudentCount) }}
+          {{ pluralize('Result', totalStudentCount) }}
         </h1>
       </div>
       <div v-if="!showHistory" class="d-flex align-self-baseline mr-4">
