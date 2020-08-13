@@ -25,7 +25,7 @@
       <span class="sr-only">Notes report is loading.</span>
     </div>
     <div v-if="!isLoading">
-      <h3 class="font-size-16 m-0 pt-3" :class="{'font-weight-bold': isShowingReport}">A total of {{ report.boa.total | numFormat }} notes have been created in BOA.</h3>
+      <h3 class="font-size-16 m-0 pt-3" :class="{'font-weight-bold': isShowingReport}">A total of {{ numFormat(report.boa.total) }} notes have been created in BOA.</h3>
       <b-collapse v-model="isShowingReport" class="mt-0 pt-3">
         <div>
           <div class="pl-3">
@@ -34,7 +34,7 @@
                 <label for="notes-count-boa-authors">Distinct authors</label>
               </div>
               <div id="notes-count-boa-authors" class="font-weight-bolder">
-                {{ report.boa.authors | numFormat }}
+                {{ numFormat(report.boa.authors) }}
               </div>
             </div>
             <div class="d-flex justify-content-between">
@@ -42,7 +42,7 @@
                 <label for="notes-count-boa-with-attachments">Notes with one or more attachments</label>
               </div>
               <div id="notes-count-boa-with-attachments" class="font-weight-bolder">
-                {{ (report.boa.withAttachments / report.boa.total) * 100 | numFormat('0.0') }}%
+                {{ numFormat((report.boa.withAttachments / report.boa.total) * 100, '0.0') }}%
               </div>
             </div>
             <div class="d-flex justify-content-between">
@@ -50,7 +50,7 @@
                 <label for="notes-count-boa-with-topics">Notes with one or more topics</label>
               </div>
               <div id="notes-count-boa-with-topics" class="font-weight-bolder">
-                {{ (report.boa.withTopics / report.boa.total) * 100 | numFormat('0.0') }}%
+                {{ numFormat((report.boa.withTopics / report.boa.total) * 100, '0.0') }}%
               </div>
             </div>
           </div>
@@ -63,7 +63,7 @@
                 <label for="notes-count-sis">Total</label>
               </div>
               <div id="notes-count-sis" class="font-weight-bolder">
-                {{ report.sis | numFormat }}
+                {{ numFormat(report.sis) }}
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@
                 <label for="notes-count-asc">Total</label>
               </div>
               <div id="notes-count-asc" class="font-weight-bolder">
-                {{ report.asc | numFormat }}
+                {{ numFormat(report.asc) }}
               </div>
             </div>
           </div>
@@ -89,7 +89,7 @@
                 <label for="notes-count-ei">Total</label>
               </div>
               <div id="notes-count-ei" class="font-weight-bolder">
-                {{ report.ei | numFormat }}
+                {{ numFormat(report.ei) }}
               </div>
             </div>
           </div>

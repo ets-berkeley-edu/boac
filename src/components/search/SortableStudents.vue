@@ -72,13 +72,13 @@
       <template v-if="!options.compact" v-slot:cell(cumulativeUnits)="row">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
-        <div v-if="row.item.cumulativeUnits">{{ row.item.cumulativeUnits | numFormat('0.00') }}</div>
+        <div v-if="row.item.cumulativeUnits">{{ numFormat(row.item.cumulativeUnits, '0.00') }}</div>
       </template>
 
       <template v-if="!options.compact" v-slot:cell(cumulativeGPA)="row">
         <span class="sr-only">GPA</span>
         <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-        <div v-if="!isNil(row.item.cumulativeGPA)">{{ row.item.cumulativeGPA | round(3) }}</div>
+        <div v-if="!isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
       </template>
 
       <template v-slot:cell(alertCount)="row">

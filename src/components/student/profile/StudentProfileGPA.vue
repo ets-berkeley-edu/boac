@@ -3,7 +3,7 @@
     <div class="d-flex flex-wrap">
       <div class="gpa text-center">
         <div id="cumulative-gpa" class="data-number">
-          <span v-if="!isNil(cumulativeGPA)">{{ cumulativeGPA | round(3) }}</span>
+          <span v-if="!isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
           <span v-if="isNil(cumulativeGPA)">--</span>
           <span v-if="isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
@@ -35,7 +35,7 @@
             <span
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
               class="font-weight-bold">
-              {{ student.termGpa[0].gpa | round(3) }}
+              {{ round(student.termGpa[0].gpa, 3) }}
             </span>
           </div>
         </div>
@@ -69,7 +69,7 @@
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
                   :id="`student-gpa-term-${term.name}`"
-                  :class="{ 'text-danger': term.gpa < 2 }">{{ term.gpa | round(3) }}</span>
+                  :class="{ 'text-danger': term.gpa < 2 }">{{ round(term.gpa, 3) }}</span>
               </td>
             </tr>
             <tr

@@ -142,7 +142,7 @@
         <span
           v-if="!isNil(student.cumulativeGPA)"
           :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="student-gpa">{{ student.cumulativeGPA | round(3) }}</span>
+          class="student-gpa">{{ round(student.cumulativeGPA, 3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart
@@ -159,7 +159,7 @@
         <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
         <strong
           :id="`row-${rowIndex}-student-term-gpa`"
-          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ student.termGpa[0].gpa | round(3) }}</strong>
+          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ round(student.termGpa[0].gpa, 3) }}</strong>
       </div>
     </div>
     <div class="student-column">
