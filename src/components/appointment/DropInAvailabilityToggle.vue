@@ -121,7 +121,7 @@ export default {
     offDutyConfirmModalBody() {
       return `
         Setting status to "Off Duty" will unassign
-        ${this.$options.filters.pluralize('assigned student', this.reservedAppointments.length)}
+        ${this.pluralize('assigned student', this.reservedAppointments.length)}
         on the waitlist.`;
     },
     toggle: function() {
