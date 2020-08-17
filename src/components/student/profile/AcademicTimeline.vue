@@ -548,7 +548,7 @@ export default {
       let noun = this.filter
         ? this.filterTypes[this.filter].name.toLowerCase()
         : 'message';
-      const pluralize = this.$options.filters.pluralize(noun, inViewCount);
+      const pluralize = this.pluralize(noun, inViewCount);
       return this.isShowingAll && inViewCount > this.defaultShowPerTab
         ? `Showing all ${pluralize}`
         : `Showing ${pluralize}`;
