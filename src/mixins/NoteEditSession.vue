@@ -9,14 +9,13 @@ export default {
     ...mapGetters('noteEditSession', [
       'addedCohorts',
       'addedCuratedGroups',
+      'completeSidSet',
       'isFocusLockDisabled',
-      'creatingNoteWithSubject',
       'isSaving',
       'mode',
       'model',
       'noteTemplates',
-      'sids',
-      'targetStudentCount'
+      'sids'
     ])
   },
   methods: {
@@ -28,8 +27,6 @@ export default {
       'addTopic',
       'createAdvisingNotes',
       'exitSession',
-      'onCreateNoteStart',
-      'onCreateNoteSuccess',
       'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',

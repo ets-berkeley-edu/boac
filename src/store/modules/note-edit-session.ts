@@ -1,5 +1,7 @@
 import _ from 'lodash';
-import {createNotes, getDistinctStudentCount} from '@/api/notes';
+import Vue from "vue";
+import { createNotes } from '@/api/notes';
+import { getDistinctSids } from '@/api/student';
 import { getMyNoteTemplates } from "@/api/note-templates";
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate'];
@@ -20,31 +22,27 @@ const $_recalculateStudentCount = ({ commit, state }) => {
   const curatedGroupIds = _.map(state.addedCuratedGroups, 'id');
   const sids = state.sids;
   if (cohortIds.length || curatedGroupIds.length) {
-    getDistinctStudentCount(sids, cohortIds, curatedGroupIds).then(function(data) {
-      commit('setTargetStudentCount', data.count);
-    });
+    getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => commit('setCompleteSidSet', data.sids));
   } else {
-    commit('setTargetStudentCount', sids.length);
+    commit('setCompleteSidSet', sids);
   }
 };
 
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
-  creatingNoteWithSubject: undefined,
+  completeSidSet: [],
   isFocusLockDisabled: undefined,
   isSaving: false,
   mode: undefined,
   model: $_getDefaultModel(),
   noteTemplates: undefined,
-  sids: [],
-  targetStudentCount: 0
+  sids: []
 };
 
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
-  creatingNoteWithSubject: (state: any): string => state.creatingNoteWithSubject,
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
@@ -52,7 +50,7 @@ const getters = {
   model: (state: any): any => state.model,
   noteTemplates: (state: any): any[] => state.noteTemplates,
   sids: (state: any): string[] => state.sids,
-  targetStudentCount: (state: any): number => state.targetStudentCount,
+  completeSidSet: (state: any): number => state.completeSidSet,
   template: (state: any): any => state.template
 };
 
@@ -65,14 +63,12 @@ const mutations = {
   exitSession: (state: any) => {
     state.addedCohorts = [];
     state.addedCuratedGroups = [];
+    state.completeSidSet = [];
     state.isSaving = false;
     state.mode = undefined;
     state.model = $_getDefaultModel();
     state.sids = [];
-    state.targetStudentCount = 0;
   },
-  onCreateNoteStart: (state: any, subject: string) => (state.creatingNoteWithSubject = subject),
-  onCreateNoteSuccess: (state: any) => (state.creatingNoteWithSubject = null),
   onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
   onDeleteTemplate: (state: any, templateId: any) => {
     const indexOf = state.noteTemplates.findIndex(template => template.id === templateId);
@@ -94,6 +90,7 @@ const mutations = {
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
   setBody: (state: any, body: string) => (state.model.body = body),
+  setCompleteSidSet: (state: any, completeSidSet: number) => (state.completeSidSet = completeSidSet),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
   setMode: (state: any, mode: string) => {
@@ -120,8 +117,7 @@ const mutations = {
     }
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
-  setSubject: (state: any, subject: string) => (state.model.subject = subject),
-  setTargetStudentCount: (state: any, count: number) => (state.targetStudentCount = count)
+  setSubject: (state: any, subject: string) => (state.model.subject = subject)
 };
 
 const actions = {
@@ -140,21 +136,31 @@ const actions = {
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
   createAdvisingNotes: ({commit, state}) => {
-    commit('setBody', _.trim(state.model.body));
-    const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
-      result[a.noteTemplateId ? 0 : 1].push(a);
-      return result;
-    }, [[], []]);
-    return createNotes(
-      state.sids,
-      state.model.subject,
-      state.model.body,
-      state.model.topics,
-      attachments,
-      _.map(templateAttachments, 'id'),
-      _.map(state.addedCohorts, 'id'),
-      _.map(state.addedCuratedGroups, 'id')
-    );
+    return new Promise(resolve => {
+      commit('setBody', _.trim(state.model.body));
+      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
+        result[a.noteTemplateId ? 0 : 1].push(a);
+        return result;
+      }, [[], []]);
+      Vue.prototype.$eventHub.$emit('begin-note-creation', {
+        completeSidSet: state.completeSidSet,
+        subject: state.model.subject
+      });
+      createNotes(
+        state.sids,
+        state.model.subject,
+        state.model.body,
+        state.model.topics,
+        attachments,
+        _.map(templateAttachments, 'id'),
+        _.map(state.addedCohorts, 'id'),
+        _.map(state.addedCuratedGroups, 'id')
+      ).then(data => {
+        const eventType = state.completeSidSet.length > 1 ? 'batch-of-notes-created' : 'advising-note-created';
+        Vue.prototype.$eventHub.$emit(eventType, data);
+        resolve(data)
+      });
+    });
   },
   exitSession: ({ commit }) => commit('exitSession'),
   async loadNoteTemplates({ commit, state }) {
@@ -162,8 +168,6 @@ const actions = {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates));
     }
   },
-  onCreateNoteStart: ({ commit }, subject: string) => commit('onCreateNoteStart', subject),
-  onCreateNoteSuccess: ({ commit }) => commit('onCreateNoteSuccess'),
   onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),

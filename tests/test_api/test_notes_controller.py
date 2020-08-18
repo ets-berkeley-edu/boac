@@ -34,7 +34,6 @@ from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 import pytest
-import simplejson as json
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
 
@@ -363,55 +362,6 @@ class TestBatchNoteCreation:
             assert 'Slanted' in topics
             assert 'Enchanted' in topics
             assert len(note.attachments) == expected_attachment_count
-
-    def test_batch_student_count_not_authenticated(self, client):
-        """Deny anonymous access to batch note metadata."""
-        _api_batch_distinct_student_count(client, sids=['11667051'], cohort_ids=[1, 2], expected_status_code=401)
-
-    def test_scheduler_is_not_authorized(self, app, client, fake_auth):
-        """Returns 401 if user is a scheduler."""
-        fake_auth.login(coe_scheduler_uid)
-        _api_batch_distinct_student_count(client, sids=['11667051'], cohort_ids=[1, 2], expected_status_code=401)
-
-    def test_batch_student_count_not_owner(self, client, fake_auth):
-        """Deny user access to cohort owned by some other dept."""
-        user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-        cohorts = CohortFilter.get_cohorts_of_user_id(user_id)
-        # Assert non-zero student count
-        assert sum(list(map(lambda c: c['totalStudentCount'], cohorts)))
-        # Log in as non-owner
-        fake_auth.login(asc_advisor_uid)
-        count = _api_batch_distinct_student_count(client, cohort_ids=[c['id'] for c in cohorts])
-        assert count == 0
-
-    def test_batch_student_count(self, client, fake_auth):
-        """Get distinct number of SIDs in union of cohorts, curated groups, etc."""
-        user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-        cohort_ids = []
-        sids = set()
-        for cohort in CohortFilter.get_cohorts_of_user_id(user_id):
-            cohort_id = cohort['id']
-            cohort_ids.append(cohort_id)
-            sids.update(set(CohortFilter.get_sids(cohort_id)))
-
-        assert len(sids) > 1
-        curated_group = CuratedGroup.create(user_id, 'Like a lemon to a lime, a lime to a lemon')
-        curated_group_ids = [curated_group.id]
-        # We use SIDs from cohorts (above). Therefore, we expect no increase in 'batch_distinct_student_count'.
-        for sid in sids:
-            CuratedGroup.add_student(curated_group.id, sid)
-        # A specific student (SID) that is in neither cohorts nor curated groups.
-        some_other_sid = '5678901234'
-        assert some_other_sid not in sids
-        # Log in as authorized user
-        fake_auth.login(coe_advisor_uid)
-        count = _api_batch_distinct_student_count(
-            client,
-            cohort_ids=cohort_ids,
-            curated_group_ids=curated_group_ids,
-            sids=[some_other_sid],
-        )
-        assert len(sids) + 1 == count
 
 
 class TestNoteAttachments:
@@ -954,20 +904,6 @@ def _api_batch_note_create(
             data=data,
         )
         assert response.status_code == expected_status_code
-
-
-def _api_batch_distinct_student_count(client, sids=(), cohort_ids=(), curated_group_ids=(), expected_status_code=200):
-    response = client.post(
-        '/api/notes/batch/distinct_student_count',
-        data=json.dumps({
-            'sids': sids,
-            'cohortIds': cohort_ids,
-            'curatedGroupIds': curated_group_ids,
-        }),
-        content_type='application/json',
-    )
-    assert response.status_code == expected_status_code
-    return response.json['count'] if 'count' in response.json else None
 
 
 def _get_curated_groups_ids_and_sids(advisor):

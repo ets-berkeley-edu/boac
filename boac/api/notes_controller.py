@@ -36,9 +36,8 @@ from boac.api.util import (
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
-from boac.lib.util import get as get_param, is_int, process_input_from_rich_text_editor
+from boac.lib.util import is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import (
-    get_batch_distinct_sids,
     get_boa_attachment_stream,
     get_zip_stream_for_sid,
     note_to_compatible_json,
@@ -113,22 +112,6 @@ def create_notes():
                 template_attachment_ids=template_attachment_ids,
             ),
         )
-
-
-@app.route('/api/notes/batch/distinct_student_count', methods=['POST'])
-@advising_data_access_required
-def distinct_student_count():
-    params = request.get_json()
-    sids = get_param(params, 'sids', None)
-    cohort_ids = get_param(params, 'cohortIds', None)
-    curated_group_ids = get_param(params, 'curatedGroupIds', None)
-    if cohort_ids or curated_group_ids:
-        count = len(get_batch_distinct_sids(sids, cohort_ids, curated_group_ids))
-    else:
-        count = len(sids)
-    return tolerant_jsonify({
-        'count': count,
-    })
 
 
 @app.route('/api/notes/update', methods=['POST'])

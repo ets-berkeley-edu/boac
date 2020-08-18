@@ -23,14 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from boac.models.authorized_user import AuthorizedUser
+from boac.models.cohort_filter import CohortFilter
+from boac.models.curated_group import CuratedGroup
 import pytest
 import simplejson as json
 from tests.util import override_config
 
 admin_uid = '2040'
-asc_advisor_id = '1081940'
-coe_advisor_id = '1133399'
-coe_scheduler_id = '6972201'
+asc_advisor_uid = '1081940'
+coe_advisor_uid = '1133399'
+coe_scheduler_uid = '6972201'
 
 
 @pytest.fixture()
@@ -40,17 +43,17 @@ def admin_login(fake_auth):
 
 @pytest.fixture()
 def asc_advisor_login(fake_auth):
-    fake_auth.login(asc_advisor_id)
+    fake_auth.login(asc_advisor_uid)
 
 
 @pytest.fixture()
 def coe_advisor_login(fake_auth):
-    fake_auth.login(coe_advisor_id)
+    fake_auth.login(coe_advisor_uid)
 
 
 @pytest.fixture()
 def coe_scheduler_login(fake_auth):
-    fake_auth.login(coe_scheduler_id)
+    fake_auth.login(coe_scheduler_uid)
 
 
 @pytest.fixture()
@@ -632,7 +635,7 @@ class TestStudent:
         """Includes flag indicating whether user has seen each appointment."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             student_sid = '11667051'
-            fake_auth.login(coe_scheduler_id)
+            fake_auth.login(coe_scheduler_uid)
             response = client.post(
                 '/api/appointments/create',
                 data=json.dumps({
@@ -653,7 +656,7 @@ class TestStudent:
                 assert appointment is not None
                 return appointment.get('read') is True
 
-            fake_auth.login(asc_advisor_id)
+            fake_auth.login(asc_advisor_uid)
             assert _is_appointment_read(boa_appointment_id) is False
             client.post(f'/api/appointments/{boa_appointment_id}/mark_read')
             assert _is_appointment_read(boa_appointment_id) is True
@@ -772,6 +775,79 @@ class TestNotes:
         assert not len(author['departments'])
         advisor_sid = '800700600'
         assert author['sid'] == advisor_sid
+
+
+class TestDistinctSids:
+
+    @classmethod
+    def _api_distinct_sids(
+            cls,
+            client,
+            sids=(),
+            cohort_ids=(),
+            curated_group_ids=(),
+            expected_status_code=200,
+    ):
+        response = client.post(
+            '/api/students/distinct_sids',
+            data=json.dumps({
+                'sids': sids,
+                'cohortIds': cohort_ids,
+                'curatedGroupIds': curated_group_ids,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_distinct_sids_not_authenticated(self, client):
+        """Deny anonymous access to batch note metadata."""
+        self._api_distinct_sids(
+            client,
+            sids=['11667051'],
+            cohort_ids=[1, 2],
+            expected_status_code=401,
+        )
+
+    def test_distinct_sids_not_owner(self, client, fake_auth):
+        """Deny user access to cohort owned by some other dept."""
+        user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
+        cohorts = CohortFilter.get_cohorts_of_user_id(user_id)
+        # Assert non-zero student count
+        assert sum(list(map(lambda c: c['totalStudentCount'], cohorts)))
+        # Log in as non-owner
+        fake_auth.login(asc_advisor_uid)
+        cohort_ids = [c['id'] for c in cohorts]
+        assert self._api_distinct_sids(client, cohort_ids=cohort_ids)['sids'] == []
+
+    def test_distinct_sids(self, client, fake_auth):
+        """Get distinct SIDs across cohorts and curated groups."""
+        user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
+        cohort_ids = []
+        sids = set()
+        for cohort in CohortFilter.get_cohorts_of_user_id(user_id):
+            cohort_id = cohort['id']
+            cohort_ids.append(cohort_id)
+            sids.update(set(CohortFilter.get_sids(cohort_id)))
+
+        assert len(sids) > 1
+        curated_group = CuratedGroup.create(user_id, 'Like a lemon to a lime, a lime to a lemon')
+        curated_group_ids = [curated_group.id]
+        # We use SIDs from cohorts (above). Therefore, we expect no increase in 'batch_distinct_student_count'.
+        for sid in sids:
+            CuratedGroup.add_student(curated_group.id, sid)
+        # A specific student (SID) that is in neither cohorts nor curated groups.
+        some_other_sid = '5678901234'
+        assert some_other_sid not in sids
+        # Log in as authorized user
+        fake_auth.login(coe_advisor_uid)
+        data = self._api_distinct_sids(
+            client,
+            cohort_ids=cohort_ids,
+            curated_group_ids=curated_group_ids,
+            sids=[some_other_sid],
+        )
+        assert sids.union({some_other_sid}) == set(data['sids'])
 
 
 class TestValidateSids:
