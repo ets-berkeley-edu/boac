@@ -1,7 +1,7 @@
 <template>
   <div
     id="appointment-student-input"
-    :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
+    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
     class="d-flex pill pill-student text-uppercase text-nowrap">
     <div class="student-label">
       <span class="sr-only">Student: </span> {{ student.label }}

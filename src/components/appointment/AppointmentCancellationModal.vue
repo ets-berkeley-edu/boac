@@ -46,7 +46,7 @@
                 </label>
               </b-col>
               <b-col>
-                <span id="appointment-student" :class="{'demo-mode-blur' : $currentUser.inDemoMode}" v-html="appointment.student.name"></span>
+                <span id="appointment-student" :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="appointment.student.name"></span>
               </b-col>
             </b-row>
           </b-container>

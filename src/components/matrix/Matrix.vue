@@ -75,7 +75,7 @@
               v-for="student in studentsWithoutData"
               :id="student.uid"
               :key="student.uid"
-              :class="{'cohort-list-row-info': featured===student.uid}"
+              :class="{'cohort-list-row-info': featured === student.uid}"
               class="cohort-missing-student-data-row">
               <td class="student-avatar-container">
                 <StudentAvatar :student="student" />

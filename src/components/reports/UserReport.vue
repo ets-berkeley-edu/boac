@@ -8,7 +8,7 @@
         {key: 'depts', label: 'Department(s)'},
         {key: 'notesCreated', class: 'text-nowrap text-right pr-3'},
         {key: 'lastLogin', class: 'column-last-login text-nowrap text-right pr-1'},
-        {key: 'email', class: 'column-email text-center'},
+        {key: 'email', class: 'column-email text-center'}
       ]"
       hover
       responsive

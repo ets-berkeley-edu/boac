@@ -10,7 +10,7 @@
     @hide.prevent="close">
     <div>
       <div class="ml-3 modal-header">
-        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur' : $currentUser.inDemoMode}">{{ student.name }}</h3>
+        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h3>
       </div>
       <div class="modal-body w-100">
         <b-container fluid>

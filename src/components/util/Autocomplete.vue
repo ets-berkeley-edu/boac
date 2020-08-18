@@ -12,7 +12,7 @@
         :maxlength="maxlength"
         name="autocomplete-name"
         :required="isRequired"
-        :type="demoModeBlur && $currentUser.inDemoMode ? 'password': 'text'"
+        :type="demoModeBlur && $currentUser.inDemoMode ? 'password' : 'text'"
         autocomplete="off"
         @input="onTextInput"
         @focusin="makeSuggestions"
@@ -40,7 +40,7 @@
       <ul
         :id="`${id}-suggestions`"
         ref="autocompleteSuggestions"
-        :class="isOpen ? `d-block ${dropdownClass}`: dropdownClass"
+        :class="isOpen ? `d-block ${dropdownClass}` : dropdownClass"
         aria-expanded="true"
         class="dropdown-menu"
         role="menu"
