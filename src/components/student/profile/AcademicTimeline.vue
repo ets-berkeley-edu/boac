@@ -34,7 +34,25 @@
         </div>
       </div>
       <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
-        <CreateNoteModal :student="student" />
+        <div>
+          <b-btn
+            id="new-note-button"
+            :disabled="!!mode"
+            class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
+            variant="primary"
+            @click="isCreateNoteModalOpen = true">
+            <span class="m-1">
+              <font-awesome icon="file-alt" />
+              <span class="sr-only">Create </span>
+              New Note
+            </span>
+          </b-btn>
+        </div>
+        <CreateNoteModal
+          v-if="isCreateNoteModalOpen"
+          :is-batch-feature="false"
+          :on-close="onCreateNoteModalClose"
+          :sid="student.sid" />
       </div>
     </div>
 
@@ -42,7 +60,7 @@
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
         variant="link"
-        @click.prevent="toggleExpandAll()">
+        @click.prevent="toggleExpandAll">
         <font-awesome
           :icon="allExpanded ? 'caret-down' : 'caret-right'"
           class="toggle-expand-all-caret" />
@@ -67,7 +85,7 @@
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
         class="pl-2 pr-2 timeline-query-input"
-        @keypress.enter.stop="searchTimeline()" />
+        @keypress.enter.stop="searchTimeline" />
     </div>
 
     <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
@@ -321,12 +339,12 @@
 </template>
 
 <script>
-import AdvisingAppointment from "@/components/appointment/AdvisingAppointment";
-import AdvisingNote from "@/components/note/AdvisingNote";
+import AdvisingAppointment from '@/components/appointment/AdvisingAppointment';
+import AdvisingNote from '@/components/note/AdvisingNote';
 import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
-import CreateNoteModal from "@/components/note/create/CreateNoteModal";
+import CreateNoteModal from '@/components/note/create/CreateNoteModal';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
 import Scrollable from '@/mixins/Scrollable';
@@ -358,9 +376,10 @@ export default {
     allExpanded: false,
     countsPerType: undefined,
     creatingNoteEvent: undefined,
-    filter: undefined,
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
+    filter: undefined,
+    isCreateNoteModalOpen: false,
     isShowingAll: false,
     isTimelineLoading: true,
     messageForDelete: undefined,
@@ -604,6 +623,9 @@ export default {
           resolve();
         });
       });
+    },
+    onCreateNoteModalClose() {
+      this.isCreateNoteModalOpen = false;
     },
     open(message, screenreaderAlert) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {

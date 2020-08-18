@@ -1,22 +1,6 @@
 <template>
   <div>
-    <div :class="{'d-flex justify-content-center pl-3 pr-3': isBatchFeature}">
-      <b-btn
-        :id="isBatchFeature ? 'batch-note-button' : 'new-note-button'"
-        :class="{'w-100': isBatchFeature}"
-        :disabled="disableNewNoteButton"
-        class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-        variant="primary"
-        @click="openNoteModal()">
-        <span class="m-1">
-          <font-awesome icon="file-alt" />
-          <span class="sr-only">{{ isBatchFeature ? 'Batch create ' : 'Create ' }}</span>
-          New Note
-        </span>
-      </b-btn>
-    </div>
     <FocusLock
-      v-if="isModalOpen"
       :disabled="isFocusLockDisabled"
       class="create-note-container">
       <div
@@ -26,7 +10,7 @@
           'modal-content': includes(['batch', 'create', 'editTemplate'], mode),
           'mt-4': isBatchFeature
         }">
-        <form @submit.prevent="submitForm()">
+        <form @submit.prevent="submitForm">
           <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
           <hr class="m-0" />
           <div class="mt-2 mr-3 mb-1 ml-3">
@@ -69,8 +53,8 @@
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
-                @keydown.enter="submitForm()"
-                @keydown.esc="cancelRequested()">
+                @keydown.enter="submitForm"
+                @keydown.esc="cancelRequested">
             </div>
             <div>
               <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
@@ -138,13 +122,13 @@ import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures';
 import Context from '@/mixins/Context';
 import CreateNoteFooter from '@/components/note/create/CreateNoteFooter';
 import CreateNoteHeader from '@/components/note/create/CreateNoteHeader';
-import CreateTemplateModal from "@/components/note/create/CreateTemplateModal";
+import CreateTemplateModal from '@/components/note/create/CreateTemplateModal';
 import FocusLock from 'vue-focus-lock';
 import NoteEditSession from '@/mixins/NoteEditSession';
 import RichTextEditor from '@/components/util/RichTextEditor';
-import store from "@/store";
+import store from '@/store';
 import Util from '@/mixins/Util';
-import Vue from "vue";
+import Vue from 'vue';
 import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates';
 
 export default {
@@ -162,24 +146,38 @@ export default {
   },
   mixins: [Context, NoteEditSession, Util],
   props: {
-    student: {
+    isBatchFeature: {
+      required: true,
+      type: Boolean
+    },
+    onClose: {
+      default: () => {},
       required: false,
-      type: Object
+      type: Function
+    },
+    sid: {
+      default: undefined,
+      required: false,
+      type: String
     }
   },
   data: () => ({
     alert: undefined,
     dismissAlertSeconds: 0,
-    isBatchFeature: undefined,
-    isModalOpen: false,
     showCreateTemplateModal: false,
     showDiscardNoteModal: false,
     showDiscardTemplateModal: false,
     showErrorPopover: false
   }),
   mounted() {
-    this.isBatchFeature = !this.student;
     store.dispatch('noteEditSession/loadNoteTemplates');
+    this.resetModel();
+    if (this.sid) {
+      this.addSid(this.sid);
+    }
+    this.setMode(this.isBatchFeature ? 'batch' : 'create');
+    this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject');
+    this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open');
   },
   methods: {
     cancelRequested() {
@@ -219,7 +217,7 @@ export default {
       this.showDiscardNoteModal = false;
       this.setFocusLockDisabled(false);
       this.putFocusNextTick('create-note-subject');
-      this.alertScreenReader(`Continue editing note.`);
+      this.alertScreenReader('Continue editing note.');
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false;
@@ -233,11 +231,10 @@ export default {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60);
         }
-        this.isModalOpen = false;
         this.createAdvisingNotes().then(data => {
           this.setIsSaving(false);
           this.exit();
-          this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : "New note saved.");
+          this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.');
           if (this.isBatchFeature) {
             Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create');
           } else {
@@ -272,7 +269,6 @@ export default {
     discardNote() {
       this.showDiscardNoteModal = false;
       this.setFocusLockDisabled(false);
-      this.isModalOpen = false;
       this.dismissAlertSeconds = 0;
       this.alertScreenReader('Cancelled create new note');
       this.exit();
@@ -293,19 +289,9 @@ export default {
     },
     exit() {
       this.alert = this.dismissAlertSeconds = undefined;
-      this.isModalOpen = this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false;
+      this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false;
       this.exitSession();
-    },
-    openNoteModal() {
-      this.resetModel();
-      const sid = this.get(this.student, 'sid');
-      if (sid) {
-        this.addSid(sid);
-      }
-      this.setMode(this.isBatchFeature ? 'batch' : 'create');
-      this.isModalOpen = true;
-      this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject');
-      this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open');
+      this.onClose();
     },
     saveAsTemplate() {
       this.showCreateTemplateModal = true;

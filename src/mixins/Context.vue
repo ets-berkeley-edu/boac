@@ -9,13 +9,15 @@ export default {
       'hasUserDismissedFooterAlert',
       'screenReaderAlert'
     ]),
-    ...mapGetters('noteEditSession', ['disableNewNoteButton'])
+    ...mapGetters('noteEditSession', [
+        'disableNewNoteButton',
+        'mode'
+    ])
   },
   methods: {
     ...mapActions('context', [
       'alertScreenReader',
-      'dismissFooterAlert',
-      'initUserSession'
+      'dismissFooterAlert'
     ])
   }
 };
