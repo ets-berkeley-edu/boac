@@ -28,6 +28,7 @@ import json
 import operator
 import re
 
+from boac import db
 from boac.externals import data_loch, s3
 from boac.lib import analytics
 from boac.lib.berkeley import dept_codes_where_advising, term_name_for_sis_id
@@ -36,6 +37,7 @@ from boac.merged.sis_terms import current_term_id, future_term_id
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from flask_login import current_user
+from sqlalchemy import text
 
 
 """Provide merged student data from external sources."""
@@ -200,6 +202,33 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
         'totalStudentCount': total_student_count,
         'meanMetrics': mean_metrics,
     }
+
+
+def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
+    all_sids = sids
+    query = text("""
+        SELECT sids
+        FROM cohort_filters
+        WHERE id = ANY(:cohort_ids) AND owner_id = :current_user_id
+    """)
+    for row in db.session.execute(query, {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}):
+        all_sids.extend(row['sids'])
+    query = text("""
+        SELECT distinct(m.sid)
+        FROM student_group_members m
+        JOIN student_groups g ON g.id = m.student_group_id
+        WHERE m.student_group_id = ANY(:curated_group_ids) AND g.owner_id = :current_user_id
+    """)
+    rows = db.session.execute(
+        query,
+        {
+            'curated_group_ids': curated_group_ids,
+            'current_user_id': current_user.get_id(),
+        },
+    )
+    curated_group_sids = [row['sid'] for row in rows]
+    all_sids.extend(curated_group_sids)
+    return set(all_sids)
 
 
 def get_summary_student_profiles(sids, include_historical=False, term_id=None):

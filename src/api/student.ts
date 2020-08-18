@@ -7,6 +7,12 @@ export function dismissStudentAlert(alertId: string) {
     .then(response => response.data, () => null);
 }
 
+export function getDistinctSids(sids: string[], cohortIds: number[], curatedGroupIds: number[]) {
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/students/distinct_sids`, {sids, cohortIds, curatedGroupIds})
+    .then(response => response.data, () => null);
+}
+
 export function getStudentByUid(uid: string) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/student/by_uid/${uid}`)

@@ -97,7 +97,7 @@
           <th>Details</th>
           <th>Date</th>
         </tr>
-        <tr v-if="creatingNoteWithSubject" class="message-row-read message-row border-top border-bottom">
+        <tr v-if="creatingNoteEvent" class="message-row-read message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
             <div class="pill text-center text-uppercase text-white pill-note" tabindex="0">
               <span class="sr-only">Creating new</span> advising note
@@ -109,7 +109,7 @@
                 <font-awesome icon="sync" spin />
               </div>
               <div class="text-muted">
-                {{ creatingNoteWithSubject }}
+                {{ creatingNoteEvent.subject }}
               </div>
             </div>
           </td>
@@ -327,8 +327,8 @@ import AreYouSureModal from '@/components/util/AreYouSureModal';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CreateNoteModal from "@/components/note/create/CreateNoteModal";
+import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import EditAdvisingNote from '@/components/note/EditAdvisingNote';
-import NoteEditSession from '@/mixins/NoteEditSession';
 import Scrollable from '@/mixins/Scrollable';
 import TimelineDate from '@/components/student/profile/TimelineDate';
 import Util from '@/mixins/Util';
@@ -347,7 +347,7 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
-  mixins: [Berkeley, Context, NoteEditSession, Scrollable, Util],
+  mixins: [Berkeley, Context, CurrentUserExtras, Scrollable, Util],
   props: {
     student: {
       required: true,
@@ -357,17 +357,18 @@ export default {
   data: () => ({
     allExpanded: false,
     countsPerType: undefined,
+    creatingNoteEvent: undefined,
+    filter: undefined,
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
-    filter: undefined,
     isShowingAll: false,
     isTimelineLoading: true,
     messageForDelete: undefined,
     messages: undefined,
-    timelineQuery: null,
     openMessages: [],
     searchResults: null,
     searchResultsLoading: false,
+    timelineQuery: null
   }),
   computed: {
     activeTab() {
@@ -457,11 +458,17 @@ export default {
           this.alertScreenReader(`New advising note created for student ${this.student.name}.`);
         }
       }
+      this.creatingNoteEvent = null;
     };
     if (this.$currentUser.canAccessAdvisingData) {
+      this.$eventHub.$on('begin-note-creation', event => {
+        if (this.$_.includes(event.completeSidSet, this.student.sid)) {
+          this.creatingNoteEvent = event;
+        }
+      });
       this.$eventHub.$on('advising-note-created', onCreateNewNote);
-      this.$eventHub.$on('batch-of-notes-created', note_ids_per_sid => {
-        const noteId = note_ids_per_sid[this.student.sid];
+      this.$eventHub.$on('batch-of-notes-created', noteIdsBySid => {
+        const noteId = noteIdsBySid[this.student.sid];
         if (noteId) {
           getNote(noteId).then(note => onCreateNewNote(note));
         }

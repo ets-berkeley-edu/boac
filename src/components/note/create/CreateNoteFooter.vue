@@ -24,7 +24,7 @@
     <div v-if="mode !== 'editTemplate'">
       <b-btn
         id="create-note-button"
-        :disabled="isSaving || !targetStudentCount || !trim(model.subject)"
+        :disabled="isSaving || !completeSidSet.length || !trim(model.subject)"
         class="btn-primary-color-override"
         aria-label="Create note"
         variant="primary"

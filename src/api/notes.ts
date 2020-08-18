@@ -3,12 +3,6 @@ import axios from 'axios';
 import utils from '@/api/api-utils';
 import Vue from 'vue';
 
-export function getDistinctStudentCount(sids: string[], cohortIds: number[], curatedGroupIds: number[]) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/notes/batch/distinct_student_count`, {sids, cohortIds, curatedGroupIds})
-    .then(response => response.data, () => null);
-}
-
 export function getNote(noteId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/note/${noteId}`)
