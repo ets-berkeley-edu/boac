@@ -27,10 +27,24 @@
         <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
       </div>
     </div>
-    <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
-      <div class="batch-note-button fixed-bottom mb-3">
-        <CreateNoteModal id="batch-note-button" />
-      </div>
+    <div
+      v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData"
+      class="batch-note-button d-flex fixed-bottom justify-content-center mb-3 pl-3 pr-3">
+      <b-btn
+        id="batch-note-button"
+        :disabled="!!mode"
+        class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
+        variant="primary"
+        @click="isCreateNoteModalOpen = true">
+        <span class="m-1">
+          <font-awesome icon="file-alt" />
+          New Note<span class="sr-only"> for one or many students</span>
+        </span>
+      </b-btn>
+      <CreateNoteModal
+        v-if="isCreateNoteModalOpen"
+        :is-batch-feature="true"
+        :on-close="onCreateNoteModalClose" />
     </div>
   </div>
 </template>
@@ -55,6 +69,9 @@ export default {
     SearchForm
   },
   mixins: [Context, CurrentUserExtras, Util],
+  data: () => ({
+    isCreateNoteModalOpen: false
+  }),
   computed: {
     domain() {
       let domain = ['students'];
@@ -68,6 +85,11 @@ export default {
         domain.push('admits');
       }
       return domain;
+    }
+  },
+  methods: {
+    onCreateNoteModalClose() {
+      this.isCreateNoteModalOpen = false;
     }
   }
 };
