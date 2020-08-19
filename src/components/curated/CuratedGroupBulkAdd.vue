@@ -107,12 +107,12 @@ export default {
             const notFound = [];
             this.each(data, entry => {
               switch(entry.status) {
-                case 200:
-                case 401:
-                  this.sids.push(entry.sid);
-                  break;
-                default:
-                  notFound.push(entry.sid);
+              case 200:
+              case 401:
+                this.sids.push(entry.sid);
+                break;
+              default:
+                notFound.push(entry.sid);
               }
             });
             this.isValidating = false;

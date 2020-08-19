@@ -361,39 +361,39 @@ export default {
       this.totalUserCount = undefined;
       let promise = undefined;
       switch(this.filterType) {
-        case 'admins':
-          promise = getAdminUsers(this.sortBy, this.sortDescending, false).then(data => {
-            this.totalUserCount = data.totalUserCount;
-            return data.users;
+      case 'admins':
+        promise = getAdminUsers(this.sortBy, this.sortDescending, false).then(data => {
+          this.totalUserCount = data.totalUserCount;
+          return data.users;
+        });
+        break;
+      case 'filter':
+        promise = getUsers(
+          this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
+          this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
+          this.filterBy.deptCode,
+          this.filterBy.role,
+          this.sortBy,
+          this.sortDescending
+        ).then(data => {
+          this.totalUserCount = data.totalUserCount;
+          return data.users;
+        });
+        break;
+      case 'search':
+        if (this.userSelection) {
+          promise = getUserByUid(this.userSelection.uid, false).then(data => {
+            this.totalUserCount = 1;
+            this.userSelection = undefined;
+            return [ data ];
           });
-          break;
-        case 'filter':
-          promise = getUsers(
-            this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
-            this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
-            this.filterBy.deptCode,
-            this.filterBy.role,
-            this.sortBy,
-            this.sortDescending
-          ).then(data => {
-            this.totalUserCount = data.totalUserCount;
-            return data.users;
-          });
-          break;
-        case 'search':
-          if (this.userSelection) {
-            promise = getUserByUid(this.userSelection.uid, false).then(data => {
-              this.totalUserCount = 1;
-              this.userSelection = undefined;
-              return [ data ];
-            });
-          } else {
-            promise = new Promise(resolve => resolve([]));
-          }
-          this.putFocusNextTick('search-user-input');
-          break;
-        default:
+        } else {
           promise = new Promise(resolve => resolve([]));
+        }
+        this.putFocusNextTick('search-user-input');
+        break;
+      default:
+        promise = new Promise(resolve => resolve([]));
       }
       return promise;
     }

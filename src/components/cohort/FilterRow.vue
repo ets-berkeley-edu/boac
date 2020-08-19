@@ -352,21 +352,21 @@ export default {
     },
     onClickAddButton() {
       switch (this.get(this.filter, 'type.ux')) {
-        case 'dropdown':
-          this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`);
-          break;
-        case 'boolean':
-          this.alertScreenReader(`Added ${this.filter.label.primary}`);
-          this.filter.value = true;
-          break;
-        case 'range':
-          this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`);
-          this.filter.value = {
-            min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
-            max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
-          };
-          this.range.min = this.range.max = undefined;
-          break;
+      case 'dropdown':
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`);
+        break;
+      case 'boolean':
+        this.alertScreenReader(`Added ${this.filter.label.primary}`);
+        this.filter.value = true;
+        break;
+      case 'range':
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`);
+        this.filter.value = {
+          min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
+          max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
+        };
+        this.range.min = this.range.max = undefined;
+        break;
       }
       this.addFilter(this.filter);
       this.reset();
@@ -413,15 +413,15 @@ export default {
       this.showAdd = filter.type.ux === 'boolean';
       this.alertScreenReader(`${filter.label.primary} selected`);
       switch (filter.type.ux) {
-        case 'dropdown':
-          this.putFocusSecondaryDropdown();
-          break;
-        case 'boolean':
-          this.putFocusNextTick('unsaved-filter-add');
-          break;
-        case 'range':
-          this.putFocusNextTick(this.idRangeMin);
-          break;
+      case 'dropdown':
+        this.putFocusSecondaryDropdown();
+        break;
+      case 'boolean':
+        this.putFocusNextTick('unsaved-filter-add');
+        break;
+      case 'range':
+        this.putFocusNextTick(this.idRangeMin);
+        break;
       }
     },
     putFocusNewFilterDropdown() {

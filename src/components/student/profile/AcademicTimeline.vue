@@ -8,7 +8,7 @@
           <div>
             <b-btn
               id="timeline-tab-all"
-              :class="{ 'tab-active text-white': !filter, 'tab-inactive text-dark': filter }"
+              :class="{'tab-active text-white': !filter, 'tab-inactive text-dark': filter}"
               class="tab pl-2 pr-2"
               variant="link"
               @click="setFilter(null)">
@@ -144,7 +144,7 @@
           v-for="(message, index) in (searchResults ? filterSearchResults() : (isShowingAll ? messagesPerType(filter) : slice(messagesPerType(filter), 0, defaultShowPerTab)))"
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
-          :class="{ 'message-row-read': message.read }"
+          :class="{'message-row-read': message.read}"
           :tabindex="includes(openMessages, message.transientId) ? 0 : -1"
           class="message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
@@ -183,7 +183,7 @@
             </div>
           </td>
           <td
-            :class="{ 'font-weight-bold': !message.read }"
+            :class="{'font-weight-bold': !message.read}"
             class="column-message align-top">
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"

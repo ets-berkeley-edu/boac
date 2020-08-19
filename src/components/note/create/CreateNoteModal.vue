@@ -47,7 +47,7 @@
                 id="create-note-subject"
                 :value="model.subject"
                 :disabled="isSaving"
-                :class="{ 'bg-light': isSaving }"
+                :class="{'bg-light': isSaving}"
                 aria-labelledby="create-note-subject-label"
                 class="cohort-create-input-name"
                 maxlength="255"

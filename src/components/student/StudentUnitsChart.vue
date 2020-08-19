@@ -131,14 +131,14 @@ export default {
             <div class="student-chart-tooltip-swatch swatch-blue-medium"></div>
             <div class="student-chart-tooltip-label">Units Completed</div>
             <div class="student-chart-tooltip-value">${
-              this.cumulativeUnits || '0'
-            }</div>
+        this.cumulativeUnits || '0'
+      }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-swatch swatch-blue-light"></div>
             <div class="student-chart-tooltip-label">Currently Enrolled Units</div>
             <div class="student-chart-tooltip-value">${this
-              .currentEnrolledUnits || '0'}</div>
+      .currentEnrolledUnits || '0'}</div>
           </div>
         </div>`;
     }

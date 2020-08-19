@@ -140,32 +140,32 @@ export default {
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">Maximum</div>
             <div class="student-chart-tooltip-value">${
-              this.getCourseDecile(10) || '--'
-            }</div>
+        this.getCourseDecile(10) || '--'
+      }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">70th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.getCourseDecile(7) || '--'
-            }</div>
+        this.getCourseDecile(7) || '--'
+      }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">50th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.getCourseDecile(5) || '--'
-            }</div>
+        this.getCourseDecile(5) || '--'
+      }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">30th Percentile</div>
             <div class="student-chart-tooltip-value">${
-              this.getCourseDecile(3) || '--'
-            }</div>
+        this.getCourseDecile(3) || '--'
+      }</div>
           </div>
           <div class="student-chart-tooltip-row">
             <div class="student-chart-tooltip-label">Minimum</div>
             <div class="student-chart-tooltip-value">${
-              this.getCourseDecile(0) || '--'
-            }</div>
+        this.getCourseDecile(0) || '--'
+      }</div>
           </div>
         </div>`;
     },
@@ -174,8 +174,8 @@ export default {
         <div class="student-chart-tooltip-header">
           <div class="student-chart-tooltip-label">User Score</div>
           <div class="student-chart-tooltip-value">${
-            this.get(this.dataset.student, 'raw') || '--'
-          }</div>
+        this.get(this.dataset.student, 'raw') || '--'
+      }</div>
         </div>`;
     }
   }

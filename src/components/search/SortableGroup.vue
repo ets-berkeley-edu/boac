@@ -134,15 +134,15 @@ export default {
         const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent;
         const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts;
         apiCall(this.group.id).then(students => {
-            this.studentsWithAlerts = students;
-            this.isFetching = false;
-            this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`);
-            ga({
-              id: this.group.id,
-              name: this.group.name,
-              action: 'Fetch students with alerts'
-            });
+          this.studentsWithAlerts = students;
+          this.isFetching = false;
+          this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`);
+          ga({
+            id: this.group.id,
+            name: this.group.name,
+            action: 'Fetch students with alerts'
           });
+        });
       }
     }
   }

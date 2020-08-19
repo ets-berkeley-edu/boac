@@ -10,8 +10,8 @@ export default {
       'screenReaderAlert'
     ]),
     ...mapGetters('noteEditSession', [
-        'disableNewNoteButton',
-        'mode'
+      'disableNewNoteButton',
+      'mode'
     ])
   },
   methods: {

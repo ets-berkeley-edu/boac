@@ -69,7 +69,7 @@
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
                   :id="`student-gpa-term-${term.name}`"
-                  :class="{ 'text-danger': term.gpa < 2 }">{{ round(term.gpa, 3) }}</span>
+                  :class="{'text-danger': term.gpa < 2}">{{ round(term.gpa, 3) }}</span>
               </td>
             </tr>
             <tr

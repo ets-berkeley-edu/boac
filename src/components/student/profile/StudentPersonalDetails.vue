@@ -164,14 +164,14 @@ export default {
         return null;
       }
       switch (this.student.demographics.visa.type) {
-        case 'F1':
-          return 'F-1 International Student';
-        case 'J1':
-          return 'J-1 International Student';
-        case 'PR':
-          return 'PR Verified International Student';
-        default:
-          return 'Other Verified International Student';
+      case 'F1':
+        return 'F-1 International Student';
+      case 'J1':
+        return 'J-1 International Student';
+      case 'PR':
+        return 'PR Verified International Student';
+      default:
+        return 'Other Verified International Student';
       }
     }
   },
