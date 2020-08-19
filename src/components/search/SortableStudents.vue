@@ -174,7 +174,7 @@ export default {
     abbreviateTermName: termName =>
       termName &&
       termName
-        .replace('20', " '")
+        .replace('20', ' \'')
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
     normalizeForSort(value) {

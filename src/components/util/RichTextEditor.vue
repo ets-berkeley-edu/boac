@@ -16,7 +16,7 @@ import Util from '@/mixins/Util';
 require('@/assets/styles/ckeditor-custom.css');
 
 export default {
-  name: "RichTextEditor",
+  name: 'RichTextEditor',
   mixins: [ Util ],
   props: {
     disabled: {

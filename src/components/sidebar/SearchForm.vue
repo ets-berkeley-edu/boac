@@ -471,7 +471,7 @@ export default {
         }
         this.$router.push(
           {
-            path: `/search`,
+            path: '/search',
             query: query
           },
           this.noop

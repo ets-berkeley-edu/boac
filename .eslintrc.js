@@ -20,7 +20,7 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-unexpected-multiline': 2,
-    'quotes': [1, 'single'],
+    'quotes': [2, 'single'],
     'vue-a11y/label-has-for': [
       2,
       {

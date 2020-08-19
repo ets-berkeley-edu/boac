@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import axios from 'axios';
 import utils from '@/api/api-utils';
-import Vue from "vue";
+import Vue from 'vue';
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios

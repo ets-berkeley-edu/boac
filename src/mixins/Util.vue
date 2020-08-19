@@ -4,7 +4,7 @@ import numeral from 'numeral';
 
 const decodeHtml = (snippet) => {
   if (snippet && snippet.indexOf('&') > 0) {
-    const el = document.createElement("textarea");
+    const el = document.createElement('textarea');
     el.innerHTML = snippet;
     return el.value;
   } else {
@@ -123,7 +123,7 @@ export default {
     startsWith: _.startsWith,
     stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
     stripHtmlAndTrim: html => {
-      let text = html && html.replace(/<([^>]+)>/ig,"");
+      let text = html && html.replace(/<([^>]+)>/ig,'');
       text = text && text.replace(/&nbsp;/g, '');
       return _.trim(text);
     },

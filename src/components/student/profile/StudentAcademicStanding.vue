@@ -12,7 +12,7 @@
 import Util from '@/mixins/Util';
 
 export default {
-  name: "StudentAcademicStanding",
+  name: 'StudentAcademicStanding',
   mixins: [Util],
   props: {
     standing: {

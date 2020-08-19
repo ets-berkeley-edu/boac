@@ -101,13 +101,13 @@ export default {
   methods: {
     confirmExitAndEndSession(next) {
       if (this.noteMode) {
-        this.alertScreenReader("Are you sure you want to discard unsaved changes?");
+        this.alertScreenReader('Are you sure you want to discard unsaved changes?');
         this.cancelConfirmed = () => {
           this.exitSession();
           next();
         };
         this.cancelTheCancel = () => {
-          this.alertScreenReader("Please save changes before exiting the page.");
+          this.alertScreenReader('Please save changes before exiting the page.');
           this.showAreYouSureModal = false;
           next(false);
         };

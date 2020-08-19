@@ -1,5 +1,5 @@
-import axios from "axios";
-import utils from "@/api/api-utils";
+import axios from 'axios';
+import utils from '@/api/api-utils';
 
 export function getAllTopics(includeDeleted?: boolean) {
   return axios

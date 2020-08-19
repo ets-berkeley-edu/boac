@@ -59,7 +59,7 @@ import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SortBy from '@/components/student/SortBy';
 import Spinner from '@/components/util/Spinner';
-import store from "@/store";
+import store from '@/store';
 import StudentRow from '@/components/student/StudentRow';
 import Util from '@/mixins/Util';
 

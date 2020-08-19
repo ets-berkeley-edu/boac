@@ -46,7 +46,7 @@ export default {
     cancel() {
       this.showCreateModal = false;
       this.isSaving = false;
-      this.alertScreenReader(`You have cancelled the operation to create a new curated group.`);
+      this.alertScreenReader('You have cancelled the operation to create a new curated group.');
       this.putFocusNextTick('curated-group-bulk-add-sids');
     },
     create(name) {

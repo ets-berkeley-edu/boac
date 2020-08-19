@@ -272,10 +272,10 @@ v-if="section.isViewableOnCoursePage"
 
 <script>
 import Context from '@/mixins/Context';
-import StudentAcademicStanding from "@/components/student/profile/StudentAcademicStanding";
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
 import StudentAnalytics from '@/mixins/StudentAnalytics';
 import StudentBoxplot from '@/components/student/StudentBoxplot';
-import StudentWithdrawalCancel from "@/components/student/profile/StudentWithdrawalCancel";
+import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel';
 import Util from '@/mixins/Util';
 
 export default {

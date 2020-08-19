@@ -8,7 +8,7 @@
 
 <script>
 export default {
-  name: "NavLink",
+  name: 'NavLink',
   props: {
     defaultCounter: {
       type: Number,

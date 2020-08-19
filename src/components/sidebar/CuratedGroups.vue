@@ -38,7 +38,7 @@
 
 <script>
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import NavLink from "@/components/util/NavLink";
+import NavLink from '@/components/util/NavLink';
 import Util from '@/mixins/Util';
 
 export default {

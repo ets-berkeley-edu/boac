@@ -145,7 +145,7 @@ export default {
   created() {
     this.showCancellationModal = this.showModal;
     this.putFocusNextTick('cancellation-reason');
-    this.alertScreenReader(`Cancel appointment modal is open`);
+    this.alertScreenReader('Cancel appointment modal is open');
   },
   methods: {
     cancelTheAppointment() {

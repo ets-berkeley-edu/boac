@@ -131,7 +131,7 @@
 </template>
 
 <script>
-import StudentProfilePlan from "@/components/student/profile/StudentProfilePlan";
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan';
 import Util from '@/mixins/Util';
 
 export default {
