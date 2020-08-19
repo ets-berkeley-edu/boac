@@ -6,7 +6,7 @@
         id="btn-save-as-template"
         :disabled="isSaving || !trim(model.subject)"
         variant="link"
-        @click="saveAsTemplate()">
+        @click="saveAsTemplate">
         Save as template
       </b-btn>
     </div>
@@ -17,7 +17,7 @@
         class="btn-primary-color-override"
         aria-label="Update note template"
         variant="primary"
-        @click.prevent="updateTemplate()">
+        @click.prevent="updateTemplate">
         Update Template
       </b-btn>
     </div>
@@ -28,7 +28,7 @@
         class="btn-primary-color-override"
         aria-label="Create note"
         variant="primary"
-        @click.prevent="createNote()">
+        @click.prevent="createNote">
         Save
       </b-btn>
     </div>
@@ -37,7 +37,7 @@
         id="create-note-cancel"
         :disabled="isSaving"
         variant="link"
-        @click.prevent="cancel()">
+        @click.prevent="cancel">
         Cancel
       </b-btn>
     </div>

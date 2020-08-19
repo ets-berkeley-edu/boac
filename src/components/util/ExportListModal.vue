@@ -29,7 +29,7 @@
           id="export-list-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelExportListModal()">
+          @click="cancelExportListModal">
           Close
         </b-btn>
       </form>

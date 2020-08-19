@@ -9,19 +9,19 @@
       as a drop-in scheduler?
     </div>
     <div class="modal-footer">
-      <form @submit.prevent="removeScheduler()">
+      <form @submit.prevent="removeScheduler">
         <b-btn
           id="remove-scheduler-confirm"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="removeScheduler()">
+          @click.prevent="removeScheduler">
           Remove
         </b-btn>
         <b-btn
           id="remove-scheduler-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelModal()">
+          @click="cancelModal">
           Cancel
         </b-btn>
       </form>

@@ -13,8 +13,8 @@
         tabindex="0"
         role="button"
         href="#"
-        @click.prevent="fetchStudents()"
-        @keyup.enter.prevent="fetchStudents()">
+        @click.prevent="fetchStudents"
+        @keyup.enter.prevent="fetchStudents">
         <div
           :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}"
           class="accordion-heading d-flex justify-content-between">

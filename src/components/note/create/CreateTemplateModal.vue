@@ -9,7 +9,7 @@
     title="Name Your Template"
     @shown="focusModalById('template-title-input')">
     <div>
-      <form @submit.prevent="createTemplate()">
+      <form @submit.prevent="createTemplate">
         <div class="ml-3 mr-3">
           <div>
             <label class="pb-2" for="template-title-input">Template name:</label>
@@ -43,13 +43,13 @@
             :disabled="!title.length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="createTemplate()">
+            @click.prevent="createTemplate">
             Save
           </b-btn>
           <b-btn
             id="cancel-template-create"
             variant="link"
-            @click="cancelModal()">
+            @click="cancelModal">
             Cancel
           </b-btn>
         </div>

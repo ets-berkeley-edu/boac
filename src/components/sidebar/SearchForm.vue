@@ -51,7 +51,7 @@
             v-b-toggle="'search-options-panel'"
             class="pr-0 pt-0 search-options-panel-toggle"
             variant="link"
-            @click="toggleSearchOptions()">
+            @click="toggleSearchOptions">
             {{ showSearchOptions ? 'Hide' : 'Show' }} options
           </b-btn>
         </div>
@@ -122,7 +122,7 @@
             :class="includeNotes ? 'visible' : 'invisible'"
             class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
             variant="link"
-            @click="toggleNoteFilters()">
+            @click="toggleNoteFilters">
             ({{ showNoteFilters ? 'hide' : 'show' }} filters)
           </b-btn>
         </div>
@@ -261,7 +261,7 @@
         <b-button
           :disabled="validDateRange === false"
           variant="primary"
-          @click.stop="search()">
+          @click.stop="search">
           Search
         </b-button>
       </b-collapse>

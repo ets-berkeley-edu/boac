@@ -7,7 +7,7 @@
         variant="primary"
         class="btn-primary-color-override mr-2 pl-3 pr-3"
         aria-label="Create appointment. Modal window will open."
-        @click="$refs.dropInWaitlist.openCreateAppointmentModal()">
+        @click="$refs.dropInWaitlist.openCreateAppointmentModal">
         New Drop-in Appointment
       </b-btn>
       <b-btn
@@ -15,7 +15,7 @@
         variant="outline-primary"
         class="btn-primary-color-override btn-primary-color-outline-override ml-2 pl-3 pr-3"
         aria-label="Log resolved issue. Modal window will open."
-        @click="$refs.dropInWaitlist.openLogResolvedIssueModal()">
+        @click="$refs.dropInWaitlist.openLogResolvedIssueModal">
         Log Resolved Issue
       </b-btn>
     </div>

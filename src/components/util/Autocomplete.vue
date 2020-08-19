@@ -25,8 +25,8 @@
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
           :disabled="!selectedSuggestion || addButtonLoading"
-          @click="addSuggestion()"
-          @keyup.enter="addSuggestion()">
+          @click="addSuggestion"
+          @keyup.enter="addSuggestion">
           <div v-if="!addButtonLoading">
             <font-awesome icon="plus" /> Add
           </div>

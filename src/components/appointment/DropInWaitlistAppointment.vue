@@ -82,8 +82,8 @@
           <button
             v-if="!reopening"
             class="btn btn-link pr-1 pt-1"
-            @click="reopenAppointment()"
-            @keyup.enter="reopenAppointment()">
+            @click="reopenAppointment"
+            @keyup.enter="reopenAppointment">
             Undo<span class="sr-only"> {{ appointment.status }} status</span>
           </button>
           <div v-if="reopening" :id="`appointment-${appointment.id}-reopen-spinner`" class="float-right pl-2 pr-3 pt-1">

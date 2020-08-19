@@ -25,7 +25,7 @@
           aria-label="Log in to BOA"
           tabindex="0"
           placement="top"
-          @click.stop="logIn()">
+          @click.stop="logIn">
           Sign In
         </b-btn>
         <div class="contact-us">

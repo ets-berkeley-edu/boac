@@ -20,7 +20,7 @@
               id="show-hide-term-gpa-button"
               class="gpa-trends-more-button col-auto"
               variant="link"
-              @click="showHideTermGpa()">
+              @click="showHideTermGpa">
               {{ showTermGpa ? 'Less' : 'More' }}
             </b-btn>
           </div>

@@ -14,7 +14,7 @@
           <span aria-live="polite" role="alert">Log Resolved Issue</span>
         </h3>
       </div>
-      <form @submit.prevent="log()">
+      <form @submit.prevent="log">
         <div class="font-weight-500 ml-4 mr-3 mt-2">
           <div>
             <label
@@ -73,13 +73,13 @@
             :disabled="!student || isStudentInWaitlist || !topics.length || !trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="log()">
+            @click.prevent="log">
             Log Resolved Issue
           </b-btn>
           <b-btn
             id="log-resolved-issue-cancel"
             variant="link"
-            @click.prevent="cancelModal()">
+            @click.prevent="cancelModal">
             Cancel
           </b-btn>
         </div>

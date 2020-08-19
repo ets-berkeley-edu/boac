@@ -9,7 +9,7 @@
         id="matrix-choose-metrics-y-axis"
         v-model="selectedAxes.y"
         class="matrix-choose-metrics-select"
-        @change="refreshMatrix()">
+        @change="refreshMatrix">
         <option
           v-for="(yAxisName, yAxisValue) in axisLabels"
           :key="yAxisName"
@@ -22,7 +22,7 @@
         id="matrix-choose-metrics-x-axis"
         v-model="selectedAxes.x"
         class="matrix-choose-metrics-select"
-        @change="refreshMatrix()">
+        @change="refreshMatrix">
         <option
           v-for="(xAxisName, xAxisValue) in axisLabels"
           :key="xAxisName"
@@ -40,8 +40,8 @@
             id="btn-matrix-zoom-in"
             type="button"
             class="btn matrix-zoom-button"
-            @click="zoomIn()"
-            @keyup.enter="zoomIn()">
+            @click="zoomIn"
+            @keyup.enter="zoomIn">
             <font-awesome icon="plus" />
             <span class="sr-only">Zoom in</span>
           </button>
@@ -50,8 +50,8 @@
             :disabled="zoom.scale === 1"
             type="button"
             class="btn matrix-zoom-button"
-            @click="zoomOut()"
-            @keyup.enter="zoomOut()">
+            @click="zoomOut"
+            @keyup.enter="zoomOut">
             <font-awesome :class="{'matrix-zoom-disabled': zoom.scale === 1}" icon="minus" />
             <span class="sr-only">Zoom out</span>
           </button>

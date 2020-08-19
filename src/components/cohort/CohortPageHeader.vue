@@ -40,7 +40,7 @@
             :aria-label="isCompactView ? 'Show cohort filters' : 'Hide cohort filters'"
             class="no-wrap pr-2 p-0"
             variant="link"
-            @click="toggleShowHideDetails()">
+            @click="toggleShowHideDetails">
             {{ isCompactView ? 'Show' : 'Hide' }} Filters
           </b-btn>
         </div>
@@ -51,7 +51,7 @@
             class="pl-2 pr-2 pt-0"
             variant="link"
             aria-label="Rename this cohort"
-            @click="beginRename()">
+            @click="beginRename">
             Rename
           </b-btn>
         </div>
@@ -142,7 +142,7 @@
     <div v-if="renameMode" class="d-flex flex-wrap justify-content-between">
       <div class="flex-grow-1 mr-4">
         <div>
-          <form @submit.prevent="submitRename()">
+          <form @submit.prevent="submitRename">
             <input
               id="rename-cohort-input"
               v-model="name"
@@ -153,7 +153,7 @@
               maxlength="255"
               required
               type="text"
-              @keyup.esc="cancelRename()" />
+              @keyup.esc="cancelRename" />
           </form>
         </div>
         <div class="pt-1">
@@ -176,7 +176,7 @@
           variant="primary"
           aria-label="Save changes to cohort name"
           size="sm"
-          @click.prevent="submitRename()">
+          @click.prevent="submitRename">
           Rename
         </b-btn>
         <b-btn
@@ -185,7 +185,7 @@
           variant="link"
           aria-label="Cancel rename cohort"
           size="sm"
-          @click="cancelRename()">
+          @click="cancelRename">
           Cancel
         </b-btn>
       </div>

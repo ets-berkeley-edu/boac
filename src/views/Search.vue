@@ -77,7 +77,7 @@
           v-if="!completeNoteResults"
           id="fetch-more-notes"
           variant="link"
-          @click.prevent="fetchMoreNotes()">
+          @click.prevent="fetchMoreNotes">
           Show additional advising notes
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalNotes" name="Notes" />
@@ -100,7 +100,7 @@
           v-if="!completeAppointmentResults"
           id="fetch-more-appointments"
           variant="link"
-          @click.prevent="fetchMoreAppointments()">
+          @click.prevent="fetchMoreAppointments">
           Show additional advising appointments
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalAppointments" name="Appointments" />

@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="logIn()">
+  <form @submit.prevent="logIn">
     <div class="flex-container dev-auth">
       <div>
         <input
