@@ -14,7 +14,7 @@
           <span aria-live="polite" role="alert"><span class="sr-only">Create new </span>Advising Appointment</span>
         </h3>
       </div>
-      <form @submit.prevent="create()">
+      <form @submit.prevent="create">
         <div class="font-weight-500 ml-4 mr-3 mt-2">
           <div>
             <label
@@ -98,13 +98,13 @@
             :disabled="!student || isStudentInWaitlist || !topics.length || !trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="create()">
+            @click.prevent="create">
             Make Appointment
           </b-btn>
           <b-btn
             id="create-appointment-cancel"
             variant="link"
-            @click.prevent="cancelModal()">
+            @click.prevent="cancelModal">
             Cancel
           </b-btn>
         </div>

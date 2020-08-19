@@ -24,7 +24,7 @@
               maxlength="255"
               required
               type="text"
-              @keyup.esc="exitRenameMode()" />
+              @keyup.esc="exitRenameMode" />
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>

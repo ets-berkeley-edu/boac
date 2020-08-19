@@ -155,7 +155,7 @@
         class="btn-primary-color-override ml-2"
         variant="primary"
         aria-label="Add this new filter to the search criteria"
-        @click="onClickAddButton()">
+        @click="onClickAddButton">
         Add
       </b-btn>
     </div>
@@ -167,7 +167,7 @@
         class="p-0"
         variant="link"
         aria-label="Cancel this filter selection"
-        @click="reset()">
+        @click="reset">
         Cancel
       </b-btn>
     </div>
@@ -180,7 +180,7 @@
             class="btn-cohort-added-filter pr-1"
             variant="link"
             size="sm"
-            @click="onClickEditButton()">
+            @click="onClickEditButton">
             Edit
           </b-btn> |
         </span>
@@ -190,7 +190,7 @@
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
           size="sm"
-          @click="remove()">
+          @click="remove">
           Remove
         </b-btn>
       </div>
@@ -202,7 +202,7 @@
           class="btn-primary-color-override"
           variant="primary"
           size="sm"
-          @click="onClickUpdateButton()">
+          @click="onClickUpdateButton">
           Update
         </b-btn>
         <b-btn
@@ -211,7 +211,7 @@
           variant="link"
           aria-label="Cancel update"
           size="sm"
-          @click="onClickCancelEdit()">
+          @click="onClickCancelEdit">
           Cancel
         </b-btn>
       </div>

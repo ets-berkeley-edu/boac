@@ -6,7 +6,7 @@
       :title="`Edit profile of ${profile.name}`"
       class="pl-1 pr-1"
       variant="link"
-      @click="openEditUserModal()">
+      @click="openEditUserModal">
       <font-awesome icon="edit" />
     </b-btn>
     <b-btn
@@ -14,7 +14,7 @@
       id="add-new-user-btn"
       class="pl-1 pr-1"
       variant="link"
-      @click="openEditUserModal()">
+      @click="openEditUserModal">
       <div class="d-flex">
         <div class="pr-1">
           <font-awesome icon="plus" />
@@ -153,15 +153,15 @@
           id="save-changes-to-user-profile"
           class="btn-primary-color-override"
           variant="primary"
-          @click="save()">
+          @click="save">
           Save
         </b-btn>
         <b-btn
           id="delete-cancel"
           class="pl-2"
           variant="link"
-          @click="cancel()"
-          @keyup.enter="cancel()">
+          @click="cancel"
+          @keyup.enter="cancel">
           Cancel
         </b-btn>
       </div>

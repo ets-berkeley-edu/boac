@@ -9,7 +9,7 @@
     title="Rename Your Template"
     @shown="focusModalById('rename-template-input')">
     <div>
-      <form @submit.prevent="renameTemplate()">
+      <form @submit.prevent="renameTemplate">
         <div class="ml-3 mr-3">
           <div>
             <label for="rename-template-input" class="pb-2">Template name:</label>
@@ -43,13 +43,13 @@
             :disabled="!title.length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="renameTemplate()">
+            @click.prevent="renameTemplate">
             Rename
           </b-btn>
           <b-btn
             id="cancel-rename-template"
             variant="link"
-            @click="cancelModal()">
+            @click="cancelModal">
             Cancel
           </b-btn>
         </div>

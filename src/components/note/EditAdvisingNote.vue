@@ -1,5 +1,5 @@
 <template>
-  <form class="edit-note-form" @submit.prevent="save()">
+  <form class="edit-note-form" @submit.prevent="save">
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -12,7 +12,7 @@
         type="text"
         maxlength="255"
         @input="setSubjectPerEvent"
-        @keydown.esc="cancelRequested()">
+        @keydown.esc="cancelRequested">
     </div>
     <div>
       <label class="font-weight-bold mt-2" for="edit-note-details">
@@ -39,7 +39,7 @@
           id="save-note-button"
           class="btn-primary-color-override"
           variant="primary"
-          @click="save()">
+          @click="save">
           Save
         </b-btn>
       </div>
@@ -47,8 +47,8 @@
         <b-btn
           id="cancel-edit-note-button"
           variant="link"
-          @click.stop="cancelRequested()"
-          @keypress.enter.stop="cancelRequested()">
+          @click.stop="cancelRequested"
+          @keypress.enter.stop="cancelRequested">
           Cancel
         </b-btn>
       </div>

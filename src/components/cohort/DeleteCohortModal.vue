@@ -7,19 +7,19 @@
       Are you sure you want to delete "<strong>{{ cohortName }}</strong>"?
     </div>
     <div class="modal-footer">
-      <form @submit.prevent="deleteCohort()">
+      <form @submit.prevent="deleteCohort">
         <b-btn
           id="delete-confirm"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="deleteCohort()">
+          @click.prevent="deleteCohort">
           Delete
         </b-btn>
         <b-btn
           id="delete-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelDeleteModal()">
+          @click="cancelDeleteModal">
           Cancel
         </b-btn>
       </form>

@@ -8,7 +8,7 @@
       class="btn-filter-draft btn-primary-color-override"
       variant="primary"
       aria-label="Apply filters"
-      @click="apply()">
+      @click="apply">
       Apply
     </b-btn>
     <b-btn
@@ -17,7 +17,7 @@
       :disabled="!!editMode"
       class="btn-filter-draft"
       aria-label="Reset filters"
-      @click="resetToLastApply()">
+      @click="resetToLastApply">
       Reset
     </b-btn>
     <div v-if="showSaveButton && isPerforming !== 'search'">
@@ -30,7 +30,7 @@
         :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
         :disabled="!!editMode || showCreateModal || !!isPerforming"
         class="btn-filter-draft save-button-width mt-3"
-        @click="save()">
+        @click="save">
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
         <span v-if="isPerforming === 'save'"><font-awesome icon="spinner" spin /> Saving</span>
         <span v-if="!isPerforming && cohortId">Save Cohort</span>
@@ -42,7 +42,7 @@
         :disabled="!!editMode"
         class="btn-filter-draft"
         aria-label="Reset filters"
-        @click="resetToSaved()">
+        @click="resetToSaved">
         Reset
       </b-btn>
       <b-modal

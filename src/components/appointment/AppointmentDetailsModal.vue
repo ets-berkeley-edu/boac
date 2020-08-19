@@ -50,7 +50,7 @@
           class="pl-2"
           variant="primary"
           :disabled="!topics.length || !trim(details).length"
-          @click.stop="update()">
+          @click.stop="update">
           Update
         </b-btn>
         <b-btn

@@ -258,7 +258,7 @@ v-if="section.isViewableOnCoursePage"
       <b-btn
         id="toggle-show-all-terms"
         variant="link"
-        @click.prevent="toggleShowAllTerms()">
+        @click.prevent="toggleShowAllTerms">
         <font-awesome :icon="showAllTerms ? 'caret-up' : 'caret-right'" />
         <span class="no-wrap pl-1">{{ showAllTerms ? 'Hide' : 'Show' }} Previous Semesters</span>
       </b-btn>

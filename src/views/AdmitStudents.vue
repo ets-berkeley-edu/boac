@@ -30,7 +30,7 @@
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
             aria-describedby="export-student-list-description"
-            @click.prevent="exportCohort()">
+            @click.prevent="exportCohort">
             Export List
           </b-btn>
         </div>

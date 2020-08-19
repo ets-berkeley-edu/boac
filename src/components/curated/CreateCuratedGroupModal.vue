@@ -1,6 +1,6 @@
 <template>
   <div>
-    <form @submit.prevent="createCuratedGroup()" @keydown.esc="cancelModal">
+    <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
       <div class="text-left ml-3 mr-3">
         <div>
           <label class="pb-2" for="create-input">Name:</label>
@@ -34,13 +34,13 @@
           :disabled="!name.length"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="createCuratedGroup()">
+          @click.prevent="createCuratedGroup">
           Save
         </b-btn>
         <b-btn
           id="create-cancel"
           variant="link"
-          @click="cancelModal()">
+          @click="cancelModal">
           Cancel
         </b-btn>
       </div>

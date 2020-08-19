@@ -12,7 +12,7 @@
               {text: 'Search', value: 'search'},
               {text: 'Filter', value: 'filter'}
             ]"
-            @change="$refs.users.refresh()"></b-form-select>
+            @change="$refs.users.refresh"></b-form-select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <Autocomplete
@@ -36,7 +36,7 @@
                 value-field="code"
                 text-field="name"
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-                @change="$refs.users.refresh()">
+                @change="$refs.users.refresh">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
@@ -56,7 +56,7 @@
                   {text: 'Drop-In Advisors', value: 'dropInAdvisor'},
                   {text: 'Schedulers', value: 'scheduler'}
                 ]"
-                @change="$refs.users.refresh()"></b-form-select>
+                @change="$refs.users.refresh"></b-form-select>
             </div>
             <div class="pr-2">
               <b-form-select
@@ -69,7 +69,7 @@
                   {text: 'Deleted', value: 'deleted'},
                   {text: 'Blocked', value: 'blocked'}
                 ]"
-                @change="$refs.users.refresh()"></b-form-select>
+                @change="$refs.users.refresh"></b-form-select>
             </div>
           </div>
         </b-col>
