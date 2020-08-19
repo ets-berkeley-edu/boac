@@ -169,12 +169,12 @@
 </template>
 
 <script>
-import StudentAcademicStanding from "@/components/student/profile/StudentAcademicStanding";
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
 import StudentAvatar from '@/components/student/StudentAvatar';
 import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
 import StudentMetadata from '@/mixins/StudentMetadata';
-import StudentPersonalDetails from "@/components/student/profile/StudentPersonalDetails";
-import StudentProfilePlan from "@/components/student/profile/StudentProfilePlan";
+import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails';
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan';
 import Util from '@/mixins/Util';
 
 export default {

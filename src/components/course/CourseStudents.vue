@@ -213,7 +213,7 @@ import StudentMetadata from '@/mixins/StudentMetadata';
 import Util from '@/mixins/Util';
 
 export default {
-  name: "CourseStudents",
+  name: 'CourseStudents',
   components: {
     CuratedStudentCheckbox,
     StudentAvatar,

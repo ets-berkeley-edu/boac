@@ -1,6 +1,6 @@
 import _ from 'lodash';
-import axios from "axios";
-import Vue from "vue";
+import axios from 'axios';
+import Vue from 'vue';
 
 export default {
   apiBaseUrl: () => Vue.prototype.$config.apiBaseUrl,

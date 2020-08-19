@@ -2,7 +2,7 @@ import _ from 'lodash';
 import axios from 'axios';
 import store from '@/store';
 import utils from '@/api/api-utils';
-import Vue from "vue";
+import Vue from 'vue';
 
 export function getDepartments(excludeEmpty?: boolean) {
   return axios

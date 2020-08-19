@@ -89,8 +89,8 @@
 </template>
 
 <script>
-import AppointmentStudentPill from "@/components/appointment/AppointmentStudentPill";
-import AppointmentTopics from "@/components/appointment/AppointmentTopics";
+import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill';
+import AppointmentTopics from '@/components/appointment/AppointmentTopics';
 import Autocomplete from '@/components/util/Autocomplete';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
@@ -143,7 +143,7 @@ export default {
     this.reset();
     this.showLogResolvedIssueModal = this.showModal;
     this.putFocusNextTick('log-resolved-issue-student-input');
-    this.alertScreenReader(`Log resolved issue form is open`);
+    this.alertScreenReader('Log resolved issue form is open');
   },
   methods: {
     addStudent(student) {

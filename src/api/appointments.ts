@@ -1,6 +1,6 @@
 import axios from 'axios';
 import utils from '@/api/api-utils';
-import Vue from "vue";
+import Vue from 'vue';
 
 export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
   return axios

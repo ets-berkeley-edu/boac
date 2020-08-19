@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import Vue from "vue";
+import Vue from 'vue';
 import { createNotes } from '@/api/notes';
 import { getDistinctSids } from '@/api/student';
-import { getMyNoteTemplates } from "@/api/note-templates";
+import { getMyNoteTemplates } from '@/api/note-templates';
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate'];
 

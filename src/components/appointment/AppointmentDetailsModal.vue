@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import AppointmentTopics from "@/components/appointment/AppointmentTopics";
+import AppointmentTopics from '@/components/appointment/AppointmentTopics';
 import Context from '@/mixins/Context';
 import RichTextEditor from '@/components/util/RichTextEditor';
 import Util from '@/mixins/Util';
@@ -113,7 +113,7 @@ export default {
     this.topics = this.clone(this.appointment.topics);
     this.showDetailsModal = this.showModal;
     this.putFocusNextTick('create-modal-advisor-select');
-    this.alertScreenReader(`Appointment details form is open`);
+    this.alertScreenReader('Appointment details form is open');
   },
   methods: {
     addTopic(topic) {

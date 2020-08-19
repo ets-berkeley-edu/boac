@@ -114,8 +114,8 @@
 </template>
 
 <script>
-import AppointmentStudentPill from "@/components/appointment/AppointmentStudentPill";
-import AppointmentTopics from "@/components/appointment/AppointmentTopics";
+import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill';
+import AppointmentTopics from '@/components/appointment/AppointmentTopics';
 import Autocomplete from '@/components/util/Autocomplete';
 import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
@@ -182,7 +182,7 @@ export default {
     this.updateAvailableAdvisors();
     this.showCreateAppointmentModal = this.showModal;
     this.putFocusNextTick('appointment-student-input');
-    this.alertScreenReader(`Create appointment form is open`);
+    this.alertScreenReader('Create appointment form is open');
   },
   methods: {
     addStudent(student) {

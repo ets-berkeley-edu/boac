@@ -187,7 +187,7 @@ export default {
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false;
       this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`);
-      this.alertScreenReader(`Dialog closed`);
+      this.alertScreenReader('Dialog closed');
     },
     closeCheckInModal() {
       this.showCheckInModal = false;

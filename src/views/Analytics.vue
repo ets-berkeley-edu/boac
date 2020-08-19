@@ -40,9 +40,9 @@
 <script>
 import Context from '@/mixins/Context';
 import Loading from '@/mixins/Loading';
-import NotesReport from "@/components/reports/NotesReport";
+import NotesReport from '@/components/reports/NotesReport';
 import Spinner from '@/components/util/Spinner';
-import UserReport from "@/components/reports/UserReport";
+import UserReport from '@/components/reports/UserReport';
 import Util from '@/mixins/Util';
 import { getAvailableDepartmentReports } from '@/api/reports';
 

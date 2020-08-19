@@ -92,7 +92,7 @@ export default {
       });
     },
     cancelCreateModal() {
-      this.alertScreenReader(`Cancelled`);
+      this.alertScreenReader('Cancelled');
       this.showCreateModal = false;
     },
     create(name) {

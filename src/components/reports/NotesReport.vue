@@ -101,7 +101,7 @@
 
 <script>
 import Util from '@/mixins/Util';
-import { getNotesReport } from "@/api/reports";
+import { getNotesReport } from '@/api/reports';
 
 export default {
   name: 'NotesReport',

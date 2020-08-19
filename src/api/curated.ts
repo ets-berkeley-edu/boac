@@ -3,7 +3,7 @@ import axios from 'axios';
 import moment from 'moment-timezone';
 import store from '@/store';
 import utils from '@/api/api-utils';
-import Vue from "vue";
+import Vue from 'vue';
 
 export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
   return axios

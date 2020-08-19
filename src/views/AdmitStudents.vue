@@ -100,7 +100,7 @@ import Berkeley from '@/mixins/Berkeley';
 import Context from '@/mixins/Context';
 import CurrentUserExtras from '@/mixins/CurrentUserExtras';
 import Loading from '@/mixins/Loading';
-import NavLink from "@/components/util/NavLink";
+import NavLink from '@/components/util/NavLink';
 import Pagination from '@/components/util/Pagination';
 import Scrollable from '@/mixins/Scrollable';
 import SectionSpinner from '@/components/util/SectionSpinner';

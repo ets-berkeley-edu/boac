@@ -1,9 +1,9 @@
 import _ from 'lodash';
 import auth from '@/auth';
-import Vue from "vue";
+import Vue from 'vue';
 import VueAnalytics from 'vue-analytics';
-import router from "@/router";
-import store from "@/store";
+import router from '@/router';
+import store from '@/store';
 import { event } from 'vue-analytics';
 
 export default {

@@ -96,7 +96,7 @@ export default {
             this.scheduleRefreshJob();
           }
           if (announceUpdate) {
-            this.alertScreenReader("The drop-in waitlist has been updated");
+            this.alertScreenReader('The drop-in waitlist has been updated');
           } else if (response.waitlist) {
             this.loaded('Appointment waitlist');
           }

@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import Vue from 'vue';
-import { getMyCohorts } from "@/api/cohort";
-import { getMyCuratedGroups } from "@/api/curated";
+import { getMyCohorts } from '@/api/cohort';
+import { getMyCuratedGroups } from '@/api/curated';
 
 const state = {
   includeAdmits: false,

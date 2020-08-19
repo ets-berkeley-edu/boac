@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import axios from "axios";
-import utils from "@/api/api-utils";
-import store from "@/store";
-import Vue from "vue";
+import axios from 'axios';
+import utils from '@/api/api-utils';
+import store from '@/store';
+import Vue from 'vue';
 
 export function getMyNoteTemplates() {
   return axios
