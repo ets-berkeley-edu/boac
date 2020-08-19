@@ -2,8 +2,8 @@
   "name": "boac",
   "scripts": {
     "build-vue": "vue-cli-service build --modern --dest 'dist/static'",
-    "lint-vue": "vue-cli-service lint --config .eslintrc.js --no-fix src",
-    "lint-vue-fix": "vue-cli-service lint src",
+    "lint-vue": "vue-cli-service lint --config .eslintrc.js --no-fix",
+    "lint-vue-fix": "vue-cli-service lint --config .eslintrc.js",
     "preinstall": "npx npm-force-resolutions",
     "serve-vue": "vue-cli-service serve --open"
   },

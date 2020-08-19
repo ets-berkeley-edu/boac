@@ -27,7 +27,7 @@
           @click="alertScreenReader('Go to another page of search results')"
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
-          <div :class="{'justify-content-end' : domain === 'admitted_students', 'justify-content-between' : domain === 'default'}" class="d-flex align-items-center p-2">
+          <div :class="{'justify-content-end': domain === 'admitted_students', 'justify-content-between': domain === 'default'}" class="d-flex align-items-center p-2">
             <CuratedGroupSelector
               v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
@@ -46,7 +46,7 @@
                   :row-index="index"
                   :student="student"
                   :sorted-by="preferences.sortBy"
-                  :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                   list-type="cohort"
                   class="list-group-item border-left-0 border-right-0" />
               </div>

@@ -23,7 +23,7 @@
                 :student="student"
                 :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
-                :class="{'list-group-item-info' : anchor === `#${student.uid}`}"
+                :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                 class="list-group-item student-list-item" />
             </div>
             <div v-if="totalStudentCount > itemsPerPage" class="p-3">

@@ -17,21 +17,21 @@
               <router-link
                 v-if="linkToStudentProfiles"
                 :id="`appointment-${appointment.id}-student-name`"
-                :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
+                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                 :to="studentRoutePath(appointment.student.uid, $currentUser.inDemoMode)">
                 {{ appointment.student.name }}
               </router-link>
               <div v-if="!linkToStudentProfiles">
                 <span
                   :id="`appointment-${appointment.id}-student-name`"
-                  :class="{'demo-mode-blur' : $currentUser.inDemoMode}">{{ appointment.student.name }}</span>
+                  :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</span>
               </div>
             </div>
             <div>
               <span class="font-weight-bolder pr-1">
                 (<span
                   :id="`appointment-${appointment.id}-student-sid`"
-                  :class="{'demo-mode-blur' : $currentUser.inDemoMode}"
+                  :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                   aria-label="Student ID">{{ appointment.student.sid }}</span>)
               </span>
               <span
