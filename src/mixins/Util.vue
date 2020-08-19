@@ -45,6 +45,17 @@ export default {
     focusModalById: id => document.getElementById(id) && document.getElementById(id).focus(),
     get: _.get,
     groupBy: _.groupBy,
+    groupObjectsBy: (objects, property) => {
+      const groupings = {};
+      _.each(objects, object => {
+        const key = object[property]
+        if (!_.has(groupings, key)) {
+          groupings[key] = [];
+        }
+        groupings[key].push(object);
+      })
+      return groupings;
+    },
     has: _.has,
     includes: _.includes,
     indexOf: _.indexOf,

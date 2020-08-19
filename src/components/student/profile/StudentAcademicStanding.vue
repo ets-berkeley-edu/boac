@@ -2,24 +2,24 @@
   <div
     v-if="$_.get(standing, 'status') && standing.status !== 'GST'"
     class="student-academic-standing">
-    <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId || 'latest'}`" class="red-flag-status">
-      {{ $config.academicStandingDescriptions[standing.status] || standing.status }}
+    <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${standing.termId}`" class="red-flag-status">
+      {{ $config.academicStandingDescriptions[standing.status] || standing.status }} ({{ termNameForSisId(standing.termId) }})
     </span>
   </div>
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley';
 import Util from '@/mixins/Util';
 
 export default {
   name: 'StudentAcademicStanding',
-  mixins: [Util],
+  mixins: [Berkeley, Util],
   props: {
     standing: {
       type: Object
     },
-    rowIndex: String,
-    termId: String
+    rowIndex: String
   }
 }
 </script>

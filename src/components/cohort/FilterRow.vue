@@ -84,26 +84,54 @@
               </div>
             </div>
           </template>
-          <div v-for="option in filter.options" :key="option.key">
-            <b-dropdown-item
-              v-if="option.value !== 'divider'"
-              :id="`${filter.label.primary}-${option.value}`"
-              :aria-disabled="option.disabled"
-              :disabled="option.disabled"
-              class="dropdown-item"
-              @click="updateDropdownValue(option)"
-              @focusin.prevent.stop
-              @mouseover.prevent.stop>
-              <div
-                :class="{
-                  'font-weight-light pointer-default text-muted': option.disabled,
-                  'font-weight-normal text-dark': !option.disabled
-                }"
-                class="font-size-16 option-truncate">
-                {{ option.name }}
-              </div>
-            </b-dropdown-item>
-            <hr v-if="option.value === 'divider'" class="dropdown-divider">
+          <div v-if="isGrouped(filter.options)">
+            <div v-for="(options, name) in groupObjectsBy(filter.options, 'group')" :key="name">
+              <b-dropdown-group :id="`${filter.label.primary}-dropdown-group-${name}`" :header="name">
+                <div v-for="option in options" :key="option.key">
+                  <b-dropdown-item
+                    v-if="option.value !== 'divider'"
+                    :id="`${filter.label.primary}-${option.value}`"
+                    :aria-disabled="option.disabled"
+                    :disabled="option.disabled"
+                    class="dropdown-item"
+                    @click="updateDropdownValue(option)"
+                    @focusin.prevent.stop
+                    @mouseover.prevent.stop>
+                    <div
+                      :class="{
+                        'font-weight-light pointer-default text-muted': option.disabled,
+                        'font-weight-normal text-dark': !option.disabled
+                      }"
+                      class="font-size-16 option-truncate">
+                      {{ option.name }}
+                    </div>
+                  </b-dropdown-item>
+                </div>
+              </b-dropdown-group>
+            </div>
+          </div>
+          <div v-if="!isGrouped(filter.options)">
+            <div v-for="option in filter.options" :key="option.key">
+              <b-dropdown-item
+                v-if="option.value !== 'divider'"
+                :id="`${filter.label.primary}-${option.value}`"
+                :aria-disabled="option.disabled"
+                :disabled="option.disabled"
+                class="dropdown-item"
+                @click="updateDropdownValue(option)"
+                @focusin.prevent.stop
+                @mouseover.prevent.stop>
+                <div
+                  :class="{
+                    'font-weight-light pointer-default text-muted': option.disabled,
+                    'font-weight-normal text-dark': !option.disabled
+                  }"
+                  class="font-size-16 option-truncate">
+                  {{ option.name }}
+                </div>
+              </b-dropdown-item>
+              <hr v-if="option.value === 'divider'" class="dropdown-divider">
+            </div>
           </div>
         </b-dropdown>
       </div>
@@ -228,7 +256,11 @@ export default {
   name: 'FilterRow',
   mixins: [CohortEditSession, Context, Util],
   props: {
-    index: Number
+    index: {
+      default: undefined,
+      required: false,
+      type: Number
+    }
   },
   data: () => ({
     disableUpdateButton: false,
@@ -337,6 +369,7 @@ export default {
     this.valueOriginal = this.filter && this.cloneDeep(this.filter.value);
   },
   methods: {
+    isGrouped: options => !!options['0'].group,
     filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
     filterRowSecondaryDropdownId: index => `filter-row-dropdown-secondary-${index}`,
     formatGPA(value) {
@@ -345,7 +378,9 @@ export default {
       return parseFloat(gpa).toFixed(3);
     },
     getDropdownSelectedLabel() {
-      return this.get(this.find(this.filter.options, ['value', this.filter.value]), 'name');
+      const option = this.find(this.filter.options, ['value', this.filter.value])
+      const label = this.get(option, 'name')
+      return this.isGrouped(this.filter.options) ? `${label} (${option.group})` : label;
     },
     isUX(type) {
       return this.get(this.filter, 'type.ux') === type;

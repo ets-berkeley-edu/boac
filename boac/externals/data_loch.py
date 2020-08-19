@@ -379,6 +379,13 @@ def get_academic_standing(sids):
     return safe_execute_rds(sql, sids=sids)
 
 
+def get_academic_standing_terms(past_term_cutoff=0):
+    return safe_execute_rds(f"""SELECT DISTINCT term_id
+        FROM {student_schema()}.academic_standing
+        WHERE term_id >= '{past_term_cutoff}'
+        ORDER BY term_id DESC""")
+
+
 def get_term_gpas(sids):
     sql = f"""SELECT sid, term_id, gpa, units_taken_for_gpa
         FROM {student_schema()}.student_term_gpas
@@ -972,14 +979,16 @@ def get_students_query(     # noqa
 
     # Generic SIS criteria
     if academic_standings:
-        null_is_good_standing = ' OR ass.acad_standing_status IS NULL' if 'GST' in academic_standings else ''
-        query_filter += f"""
-            AND (ass.acad_standing_status = ANY(:academic_standings) {null_is_good_standing})
-            AND ass.term_id = :term_id"""
-        query_bindings.update({
-            'academic_standings': academic_standings,
-            'term_id': current_term_id,
-        })
+        query_filter += ' AND ('
+        for idx, value in enumerate(academic_standings):
+            query_filter += 'OR' if idx else ''
+            query_filter += f'(ass.acad_standing_status = :academic_standing_{idx} AND ass.term_id = :academic_standing_term_id_{idx})'
+            term_id, academic_standing = value.split(':')
+            query_bindings.update({
+                f'academic_standing_{idx}': academic_standing,
+                f'academic_standing_term_id_{idx}': term_id,
+            })
+        query_filter += ')'
     if gpa_ranges:
         sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
         query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
