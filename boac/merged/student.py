@@ -765,7 +765,8 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
     filtered_enrollment_terms = []
     for row in enrollment_results:
         term = json.loads(row['enrollment_term'])
-        if term['termId'] == current_term_id():
+        term_id = term['termId']
+        if term_id == current_term_id():
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
             # Omit dropped sections for non-current terms.
@@ -779,7 +780,7 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
             # Omit zombie waitlisted enrollments for past terms.
             # TODO Even for current terms, it may be a mistake when SIS data sources show both active and waitlisted
             #  section enrollments for a single class, but that needs confirmation.
-            if enrollments and term['termId'] < current_term_id():
+            if enrollments and term_id < current_term_id():
                 for course in enrollments:
                     sections = course['sections']
                     if sections:
@@ -793,7 +794,10 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
                             course['sections'] = fixed_sections
 
         if academic_standing:
-            term['academicStanding'] = {'status': academic_standing.get(term['termId'])}
+            term['academicStanding'] = {
+                'status': academic_standing.get(term_id),
+                'termId': term_id,
+            }
         if not current_user.can_access_canvas_data:
             _suppress_canvas_sites(term)
         filtered_enrollment_terms.append(term)

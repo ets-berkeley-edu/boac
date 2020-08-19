@@ -66,8 +66,17 @@ def academic_plans_for_cohort_owner(owner_uid):
     return plans
 
 
-def academic_standing_options():
-    return [{'name': name, 'value': value} for value, name in ACADEMIC_STANDING_DESCRIPTIONS.items()]
+def academic_standing_options(past_term_cutoff=0):
+    options = []
+    for term_id in (r['term_id'] for r in data_loch.get_academic_standing_terms(past_term_cutoff)):
+        group = term_name_for_sis_id(term_id)
+        for value, standing in ACADEMIC_STANDING_DESCRIPTIONS.items():
+            options.append({
+                'group': group,
+                'name': standing,
+                'value': f'{term_id}:{value}',
+            })
+    return options
 
 
 def coe_gender_options():

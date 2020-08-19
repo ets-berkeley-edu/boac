@@ -71,7 +71,11 @@ class CohortFilterOptions:
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         return [
             [
-                _filter('academicStandings', 'Academic Standing', options=academic_standing_options),
+                _filter(
+                    'academicStandings',
+                    'Academic Standing',
+                    options=academic_standing_options(past_term_cutoff=2000),
+                ),
                 _filter('colleges', 'College', options=colleges),
                 _filter('enteringTerms', 'Entering Term', options=entering_terms),
                 _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms),

@@ -762,8 +762,9 @@ class TestCohortCreate:
         data = {
             'name': 'Probation and Subject to Dismissal',
             'filters': [
-                {'key': 'academicStandings', 'value': 'PRO'},
-                {'key': 'academicStandings', 'value': 'GST'},
+                {'key': 'academicStandings', 'value': '2182:PRO'},
+                {'key': 'academicStandings', 'value': '2182:GST'},
+                {'key': 'academicStandings', 'value': '2178:GST'},
             ],
         }
         cohort = api_cohort_create(client, data)
