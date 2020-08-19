@@ -1,6 +1,6 @@
 <template>
   <b-row
-    :class="{'border-bottom': isLast, 'row-assigned-to-me': appointment.status === 'reserved' && appointment.advisorId === $currentUser.id }"
+    :class="{'border-bottom': isLast, 'row-assigned-to-me': appointment.status === 'reserved' && appointment.advisorId === $currentUser.id}"
     class="font-size-16 p-2 border-top"
     no-gutters>
     <b-col sm="2" class="pb-2 text-nowrap">

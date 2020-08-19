@@ -195,12 +195,12 @@ export default {
             this.resetAttachments();
             this.uploadingAttachment = false;
           })
-          .catch(error => {
-            this.alertScreenReader();
-            this.attachmentError = this.get(error, 'message');
-            this.uploadingAttachment = false;
-            this.resetFileInput();
-          });
+            .catch(error => {
+              this.alertScreenReader();
+              this.attachmentError = this.get(error, 'message');
+              this.uploadingAttachment = false;
+              this.resetFileInput();
+            });
         }
       }
     },

@@ -247,9 +247,9 @@ export default {
       );
     }
     cols = cols.concat([
-          {key: 'midtermGrade', label: 'Mid'},
-          {key: 'finalGrade', label: 'Final', class: 'pr-3'}
-        ]);
+      {key: 'midtermGrade', label: 'Mid'},
+      {key: 'finalGrade', label: 'Final', class: 'pr-3'}
+    ]);
     this.fields = cols;
   },
   methods: {

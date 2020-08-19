@@ -19,12 +19,12 @@ export default {
           86400000
       );
       switch (daysSince) {
-        case 0:
-          return 'Today';
-        case 1:
-          return 'Yesterday';
-        default:
-          return daysSince + ' days ago';
+      case 0:
+        return 'Today';
+      case 1:
+        return 'Yesterday';
+      default:
+        return daysSince + ' days ago';
       }
     },
     lastActivityInContext(analytics) {

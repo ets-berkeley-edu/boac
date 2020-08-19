@@ -223,17 +223,17 @@ export default {
           student.term.enrolledUnits = student.term.enrolledUnits || 0;
         });
       })
-      .then(() => {
-        this.loaded('Search results', );
-        const totalCount =
-          this.toInt(this.results.totalCourseCount, 0) +
-          this.toInt(this.results.totalStudentCount, 0);
-        const focusId = totalCount ? 'page-header' : 'page-header-no-results';
-        this.putFocusNextTick(focusId);
-        this.$ga.searchEvent(
-          `Search phrase: '${this.phrase || ''}'`,
-          `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`);
-      });
+        .then(() => {
+          this.loaded('Search results', );
+          const totalCount =
+            this.toInt(this.results.totalCourseCount, 0) +
+            this.toInt(this.results.totalStudentCount, 0);
+          const focusId = totalCount ? 'page-header' : 'page-header-no-results';
+          this.putFocusNextTick(focusId);
+          this.$ga.searchEvent(
+            `Search phrase: '${this.phrase || ''}'`,
+            `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`);
+        });
     } else {
       this.$router.push({ path: '/' }, this.noop);
     }
