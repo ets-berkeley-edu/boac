@@ -24,8 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from copy import copy, deepcopy
+from datetime import datetime
 
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, sis_term_id_for_name
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
     get_coe_profiles, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
@@ -68,13 +69,14 @@ class CohortFilterOptions:
         return list(filter(lambda g: len(g), available_categories))
 
     def get_all_filter_categories(self):
+        current_year = datetime.now().year
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
         return [
             [
                 _filter(
                     'academicStandings',
                     'Academic Standing',
-                    options=academic_standing_options(past_term_cutoff=2000),
+                    options=academic_standing_options(min_term_id=sis_term_id_for_name(f'Fall {current_year - 5}')),
                 ),
                 _filter('colleges', 'College', options=colleges),
                 _filter('enteringTerms', 'Entering Term', options=entering_terms),

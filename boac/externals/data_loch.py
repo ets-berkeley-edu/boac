@@ -379,10 +379,10 @@ def get_academic_standing(sids):
     return safe_execute_rds(sql, sids=sids)
 
 
-def get_academic_standing_terms(past_term_cutoff=0):
+def get_academic_standing_terms(min_term_id=0):
     return safe_execute_rds(f"""SELECT DISTINCT term_id
         FROM {student_schema()}.academic_standing
-        WHERE term_id >= '{past_term_cutoff}'
+        WHERE term_id >= '{min_term_id}'
         ORDER BY term_id DESC""")
 
 
