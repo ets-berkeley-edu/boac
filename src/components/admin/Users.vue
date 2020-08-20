@@ -12,7 +12,7 @@
               {text: 'Search', value: 'search'},
               {text: 'Filter', value: 'filter'}
             ]"
-            @change="$refs.users.refresh"></b-form-select>
+            @change="refreshUsers"></b-form-select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <Autocomplete
@@ -36,7 +36,7 @@
                 value-field="code"
                 text-field="name"
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-                @change="$refs.users.refresh">
+                @change="refreshUsers">
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
@@ -56,7 +56,7 @@
                   {text: 'Drop-In Advisors', value: 'dropInAdvisor'},
                   {text: 'Schedulers', value: 'scheduler'}
                 ]"
-                @change="$refs.users.refresh"></b-form-select>
+                @change="refreshUsers"></b-form-select>
             </div>
             <div class="pr-2">
               <b-form-select
@@ -69,7 +69,7 @@
                   {text: 'Deleted', value: 'deleted'},
                   {text: 'Blocked', value: 'blocked'}
                 ]"
-                @change="$refs.users.refresh"></b-form-select>
+                @change="refreshUsers"></b-form-select>
             </div>
           </div>
         </b-col>
@@ -282,7 +282,6 @@ export default {
       type: Array
     },
     refresh: {
-      default: false,
       required: false,
       type: Boolean
     }
@@ -305,12 +304,12 @@ export default {
   watch: {
     refresh(value) {
       if (value) {
-        this.$refs.users.refresh();
+        this.refreshUsers();
       }
     },
     userSelection(u) {
       if (u) {
-        this.$refs.users.refresh();
+        this.refreshUsers();
       }
     }
   },
@@ -320,7 +319,7 @@ export default {
       if (this.filterType === 'search') {
         this.userSelection = profile;
       }
-      this.$refs.users.refresh();
+      this.refreshUsers();
     },
     autocompleteUsers(q) {
       return userAutocomplete(q).then(results => this.orderBy(results, 'label'));
@@ -355,7 +354,12 @@ export default {
         searchPhrase: '',
         status: 'active'
       };
-      this.$refs.users.refresh();
+      this.refreshUsers();
+    },
+    refreshUsers() {
+      if (this.$refs.users) {
+        this.$refs.users.refresh();
+      }
     },
     usersProvider() {
       this.totalUserCount = undefined;
