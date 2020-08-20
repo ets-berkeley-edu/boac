@@ -7,7 +7,7 @@
         variant="primary"
         class="btn-primary-color-override mr-2 pl-3 pr-3"
         aria-label="Create appointment. Modal window will open."
-        @click="$refs.dropInWaitlist.openCreateAppointmentModal">
+        @click="openCreateAppointmentModal">
         New Drop-in Appointment
       </b-btn>
       <b-btn
@@ -15,7 +15,7 @@
         variant="outline-primary"
         class="btn-primary-color-override btn-primary-color-outline-override ml-2 pl-3 pr-3"
         aria-label="Log resolved issue. Modal window will open."
-        @click="$refs.dropInWaitlist.openLogResolvedIssueModal">
+        @click="openLogResolvedIssueModal">
         Log Resolved Issue
       </b-btn>
     </div>
@@ -106,6 +106,16 @@ export default {
     onAppointmentStatusChange() {
       // We return a Promise.
       return this.loadDropInWaitlist(false);
+    },
+    openCreateAppointmentModal() {
+      if (this.$refs.dropInWaitlist) {
+        this.$refs.dropInWaitlist.openCreateAppointmentModal();
+      }
+    },
+    openLogResolvedIssueModal() {
+      if (this.$refs.dropInWaitlist) {
+        this.$refs.dropInWaitlist.openLogResolvedIssueModal();
+      }
     },
     scheduleRefreshJob() {
       // Clear previous job, if pending. The following is null-safe.
