@@ -8,10 +8,10 @@
         Create {{ domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
       <div v-if="domain === 'default'">
-        Find a set of users, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
+        Find a set of students, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
       </div>
       <div v-if="domain === 'admitted_students'">
-        Find a set of users using the filters below.
+        Find a set of admitted students using the filters below.
       </div>
     </div>
     <div v-if="!renameMode" class="d-flex flex-wrap justify-content-between">
