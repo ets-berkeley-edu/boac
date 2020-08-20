@@ -2,6 +2,10 @@
 import _ from 'lodash';
 import Vue from 'vue';
 
+const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code');
+
+const isUserAny = roles => !!myDeptCodes(roles).length;
+
 export default {
   name: 'Berkeley',
   methods: {
@@ -102,12 +106,9 @@ export default {
         {text: 'Academic standing', value: 'academic_standing'}
       ];
     },
-    isDirector: (user) => {
-      return !!_.size(_.filter(user.departments, d => d.role === 'director'));
-    },
-    myDeptCodes: (roles) => {
-      return _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code');
-    },
+    isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
+    isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
+    myDeptCodes,
     previousSisTermId(termId) {
       let previousTermId = '';
       let strTermId = termId.toString();

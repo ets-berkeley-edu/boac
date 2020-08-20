@@ -1,38 +1,28 @@
 <template>
   <div id="drop-in-scheduler-management" class="pt-4 pr-4">
-    <h2 class="mb-0 page-section-header-sub">Drop-in Scheduler Management ({{ dept.name }})</h2>
-    <div>
-      <label
-        for="add-scheduler-input"
-        class="input-label text mt-2">
-        Add scheduler by name or SID
-        <span class="sr-only">(expect auto-suggest based on what you enter)</span>
-      </label>
-    </div>
+    <h2 class="page-section-header-sub">Drop-in Scheduler Management ({{ dept.name }})</h2>
     <div class="mb-2">
+      <span class="sr-only">The text input below will auto-suggest names.</span>
       <Autocomplete
         id="add-scheduler-input"
         :demo-mode-blur="true"
         :on-add-button="addScheduler"
         :show-add-button="true"
+        placeholder="Add scheduler by name or SID"
         :source="schedulersByNameOrSid"
         class="w-50">
       </Autocomplete>
     </div>
-    <b-container
-      v-if="schedulers.length"
-      id="scheduler-rows"
-      class="border-bottom m-3"
-      fluid>
+    <b-container v-if="schedulers.length" id="scheduler-rows" class="m-3 w-50">
       <b-row
         v-for="scheduler in schedulers"
         :id="`scheduler-row-${scheduler.uid}`"
         :key="scheduler.uid"
         align-v="start"
-        class="border-top p-2">
+        class="p-2">
         <b-col
           :id="`scheduler-row-${scheduler.uid}-name`"
-          class="font-weight-500"
+          class="font-weight-500 no-wrap"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}">
           {{ scheduler.lastName }}, {{ scheduler.firstName }}
         </b-col>
