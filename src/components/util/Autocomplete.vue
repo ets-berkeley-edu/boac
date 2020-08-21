@@ -137,7 +137,6 @@ export default {
       type: Boolean
     },
     showAddButton: {
-      default: false,
       required: false,
       type: Boolean
     },

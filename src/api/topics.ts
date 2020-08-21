@@ -1,6 +1,10 @@
 import axios from 'axios';
 import utils from '@/api/api-utils';
 
+export function deleteTopic(id) {
+  return axios.delete(`${utils.apiBaseUrl()}/api/topic/delete/${id}`);
+}
+
 export function getAllTopics(includeDeleted?: boolean) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/topics/all?includeDeleted=${includeDeleted}`)

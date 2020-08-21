@@ -21,7 +21,6 @@ export default {
   props: {
     disabled: {
       required: false,
-      default: false,
       type: Boolean
     },
     editorConfig: {
@@ -37,7 +36,6 @@ export default {
     },
     isInModal: {
       required: false,
-      default: false,
       type: Boolean
     },
     onValueUpdate: {
