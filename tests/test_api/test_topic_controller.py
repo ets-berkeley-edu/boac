@@ -198,10 +198,19 @@ class TestDeleteTopic:
         topic_id = topic['id']
         assert topic['deletedAt'] is None
         assert client.delete(f'/api/topic/delete/{topic_id}').status_code == 200
-        api_json = _topics_for_appointments(client, include_deleted=True)
-        deleted_topic = next((row for row in api_json if row['id'] == topic_id), None)
-        assert deleted_topic
-        assert deleted_topic['topic'] == topic_label
+
+        def _get_topic():
+            api_json = _topics_for_appointments(client, include_deleted=True)
+            topic_json = next((row for row in api_json if row['id'] == topic_id), None)
+            assert topic_json
+            return topic_json
+
+        topic = _get_topic()
+        assert topic['topic'] == topic_label
+        assert topic['deletedAt']
+        # Lastly, undelete.
+        _undelete_topic(client, topic_id)
+        assert _get_topic()['deletedAt'] is None
 
 
 class TestTopicsForAppointment:
@@ -332,5 +341,15 @@ def _topics_for_appointments(client, include_deleted=None, expected_status_code=
     api_path = '/api/topics/for_appointments'
     api_path += f'?includeDeleted={str(include_deleted).lower()}' if include_deleted else ''
     response = client.get(api_path)
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _undelete_topic(client, topic_id, expected_status_code=200):
+    response = client.post(
+        '/api/topic/undelete',
+        data=json.dumps({'id': topic_id}),
+        content_type='application/json',
+    )
     assert response.status_code == expected_status_code
     return response.json

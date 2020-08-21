@@ -66,6 +66,13 @@ class Topic(db.Model):
             std_commit()
 
     @classmethod
+    def undelete(cls, topic_id):
+        topic = cls.query.filter_by(id=topic_id).first()
+        if topic:
+            topic.deleted_at = None
+            std_commit()
+
+    @classmethod
     def create_topic(cls, topic, available_in_appointments=False, available_in_notes=False):
         topic = cls(
             topic=topic,

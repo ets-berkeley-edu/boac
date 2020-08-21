@@ -75,7 +75,7 @@ def create_topic():
 @admin_required
 def update_topic():
     params = request.json
-    topic_id = params.get('id', '')
+    topic_id = params.get('id')
     topic = params.get('topic', '').strip()
     available_in_notes = to_bool_or_none(params.get('availableInNotes')) or False
     available_in_appointments = to_bool_or_none(params.get('availableInAppointments')) or False
@@ -95,6 +95,15 @@ def update_topic():
 def delete_topic(topic_id):
     Topic.delete(topic_id=topic_id)
     return tolerant_jsonify({'message': f'Topic {topic_id} deleted'}), 200
+
+
+@app.route('/api/topic/undelete', methods=['POST'])
+@admin_required
+def undelete_topic():
+    params = request.json
+    topic_id = params.get('id')
+    Topic.undelete(topic_id=topic_id)
+    return tolerant_jsonify(Topic.find_by_id(topic_id).to_api_json())
 
 
 def _to_sorted_json(topics):

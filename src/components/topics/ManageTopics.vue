@@ -21,20 +21,31 @@
       :filter-included-fields="['topic']"
       sticky-header
       thead-class="sortable-table-header border-bottom">
-      <template v-slot:cell(actions)="row">
-        <b-button class="p-0" variant="link" @click="edit(row)">
-          Edit
-        </b-button>
-        <b-button class="p-0" variant="link" @click="openDeleteTopicModal(row)">
-          Delete
-        </b-button>
+      <template v-slot:cell(topic)="row">
+        <span :class="{'faint-text': !!row.item.deletedAt}">
+          {{ row.item.topic }} <span v-if="row.item.deletedAt" class="has-error">[DELETED]</span>
+        </span>
       </template>
-      <template v-slot:row-details="row">
-        <b-card>
-          <ul>
-            <li v-for="(value, key) in row.item" :key="key">{{ key }}: {{ value }}</li>
-          </ul>
-        </b-card>
+      <template v-slot:cell(actions)="row">
+        <div class="d-flex justify-content-end">
+          <b-button class="pr-2" variant="link" @click="edit(row.item)">
+            Edit
+          </b-button>
+          <b-button
+            v-if="row.item.deletedAt"
+            class="p-0"
+            variant="link"
+            @click="undelete(row.item)">
+            Undelete
+          </b-button>
+          <b-button
+            v-if="!row.item.deletedAt"
+            class="p-0"
+            variant="link"
+            @click="openDeleteTopicModal(row.item)">
+            Delete
+          </b-button>
+        </div>
       </template>
     </b-table>
     <EditTopicModal v-if="isEditTopicModalOpen" :topic="topicEdit" />
@@ -51,12 +62,14 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal';
+import Context from '@/mixins/Context';
 import EditTopicModal from '@/components/topics/EditTopicModal';
-import {deleteTopic, getAllTopics} from '@/api/topics';
+import {deleteTopic, getAllTopics, undeleteTopic} from '@/api/topics';
 
 export default {
   name: 'ManageTopics',
   components: {AreYouSureModal, EditTopicModal},
+  mixins: [Context],
   data() {
     return {
       fields: [
@@ -80,10 +93,12 @@ export default {
   },
   methods: {
     deleteCancel() {
+      this.isDeleteTopicModalOpen = false;
       this.topicDelete = undefined;
     },
     deleteConfirm() {
       deleteTopic(this.topicDelete.id).then(() => {
+        this.isDeleteTopicModalOpen = false;
         this.topicDelete = undefined;
         // TODO: screenreader
       })
@@ -95,6 +110,11 @@ export default {
     edit(topic) {
       this.topicEdit = topic;
       this.isEditTopicModalOpen = true;
+    },
+    undelete(topic) {
+      undeleteTopic(topic.id).then(() => {
+        // TODO: screenreader
+      })
     }
   }
 }

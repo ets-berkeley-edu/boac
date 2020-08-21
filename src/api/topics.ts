@@ -22,3 +22,7 @@ export function getTopicsForNotes(includeDeleted?: boolean) {
     .get(`${utils.apiBaseUrl()}/api/topics/for_notes?includeDeleted=${includeDeleted}`)
     .then(response => response.data, () => null);
 }
+
+export function undeleteTopic(id) {
+  return axios.post(`${utils.apiBaseUrl()}/api/topic/undelete/${id}`);
+}
