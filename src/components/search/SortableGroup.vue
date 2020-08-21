@@ -48,6 +48,7 @@
     </div>
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
+      v-model="openAndLoaded"
       :aria-expanded="openAndLoaded"
       :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
       class="panel-body mr-3">
@@ -92,7 +93,6 @@ export default {
   mixins: [Context, Util],
   props: {
     compact: {
-      default: false,
       type: Boolean
     },
     group: {
@@ -111,8 +111,13 @@ export default {
     studentsWithAlerts: undefined
   }),
   computed: {
-    openAndLoaded() {
-      return this.isOpen && !this.isFetching;
+    openAndLoaded: {
+      get: function() {
+        return this.isOpen && !this.isFetching;
+      },
+      set: function(value) {
+        this.isOpen = value;
+      }
     },
     sortableGroupOptions() {
       return {

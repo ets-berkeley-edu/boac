@@ -65,7 +65,11 @@
           Search
         </b-btn>
       </div>
-      <b-collapse v-if="context === 'sidebar'" id="search-options-panel" class="mt-2 text-white">
+      <b-collapse
+        v-if="context === 'sidebar'"
+        id="search-options-panel"
+        v-model="showSearchOptions"
+        class="mt-2 text-white">
         <div v-if="domain.includes('admits')" class="d-flex">
           <b-form-checkbox
             id="search-include-admits-checkbox"
