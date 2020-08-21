@@ -12,26 +12,32 @@
         </div>
       </template>
       <b-dropdown-item
-        v-if="$currentUser.isAdmin || getMyDirectorDept()"
-        id="header-link-to-analytics"
-        :href="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${getMyDirectorDept().toLowerCase()}`"
+        v-if="$currentUser.isAdmin || myDirectorDepartment"
+        id="header-menu-analytics"
+        :to="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
         class="nav-link-color text-decoration-none">
         Flight Data Recorder
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="!isUserSimplyScheduler() || size($currentUser.dropInAdvisorStatus) || $config.isDemoModeAvailable"
-        id="header-link-to-settings"
-        :href="isUserSimplyScheduler() ? '/scheduler/settings' : '/admin'"
-        class="nav-link-color text-decoration-none">
-        <span v-if="$currentUser.isAdmin">Flight Deck</span>
-        <span v-if="!$currentUser.isAdmin">Settings</span>
+        v-if="$currentUser.isAdmin"
+        id="header-menu-flight-deck"
+        class="nav-link-color text-decoration-none"
+        to="/admin">
+        Flight Deck
       </b-dropdown-item>
       <b-dropdown-item
         v-if="$currentUser.isAdmin"
-        id="header-link-to-passengers"
-        href="/admin/passengers"
+        id="header-menu-passengers"
+        to="/admin/passengers"
         class="nav-link-color text-decoration-none">
         Passenger Manifest
+      </b-dropdown-item>
+      <b-dropdown-item
+        v-if="!$currentUser.isAdmin"
+        id="header-menu-profile"
+        class="nav-link-color text-decoration-none"
+        :to="isSimplyScheduler($currentUser) ? '/scheduler/profile' : '/profile'">
+        Profile
       </b-dropdown-item>
       <b-dropdown-item
         :href="`mailto:${$config.supportEmailAddress}`"
@@ -53,18 +59,15 @@ import { getCasLogoutUrl } from '@/api/auth';
 export default {
   name: 'HeaderMenu',
   mixins: [Berkeley, Context, Util],
+  data: () => ({
+    myDirectorDepartment: undefined
+  }),
+  created() {
+    const deptCodes = this.myDeptCodes(['director']);
+    this.myDirectorDepartment = deptCodes && deptCodes[0];
+  },
   methods: {
-    getMyDirectorDept() {
-      const deptCodes = this.myDeptCodes(['director']);
-      return deptCodes && deptCodes[0];
-    },
-    isUserSimplyScheduler() {
-      const isScheduler = this.size(this.myDeptCodes(['scheduler']));
-      return isScheduler && !this.$currentUser.isAdmin && !this.size(this.myDeptCodes(['advisor', 'director']));
-    },
-    logOut() {
-      getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl);
-    }
+    logOut: () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
   }
 };
 </script>

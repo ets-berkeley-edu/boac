@@ -1,5 +1,4 @@
 import _ from 'lodash';
-import Admin from '@/views/Admin.vue';
 import AdmitStudent from '@/views/AdmitStudent.vue';
 import AdmitStudents from '@/views/AdmitStudents.vue';
 import AllCohorts from '@/views/AllCohorts.vue';
@@ -13,10 +12,12 @@ import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue';
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue';
 import DropInDesk from '@/views/DropInDesk.vue';
+import FlightDeck from '@/views/FlightDeck.vue';
 import Home from '@/views/Home.vue';
 import Login from '@/layouts/Login.vue';
 import NotFound from '@/views/NotFound.vue';
 import PassengerManifest from '@/views/PassengerManifest.vue';
+import Profile from '@/views/Profile.vue';
 import Router from 'vue-router';
 import Search from '@/views/Search.vue';
 import StandardLayout from '@/layouts/StandardLayout.vue';
@@ -74,10 +75,10 @@ const router = new Router({
           }
         },
         {
-          path: '/scheduler/settings',
-          component: Admin,
+          path: '/scheduler/profile',
+          component: Profile,
           meta: {
-            title: 'Admin'
+            title: 'Scheduler Profile'
           }
         },
         {
@@ -97,7 +98,7 @@ const router = new Router({
         {
           path: '/admin',
           name: 'admin',
-          component: Admin,
+          component: FlightDeck,
           meta: {
             title: 'Flight Deck'
           }
@@ -252,6 +253,14 @@ const router = new Router({
           component: Home,
           meta: {
             title: 'Home'
+          }
+        },
+        {
+          path: '/profile',
+          name: 'profile',
+          component: Profile,
+          meta: {
+            title: 'Profile'
           }
         },
         {

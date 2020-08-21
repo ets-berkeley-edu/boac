@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="border-bottom d-flex flex-row mb-2 mr-3 mt-3 pb-4">
+    <div class="d-flex flex-row mb-2 mr-3 mt-3 pb-4">
       <div class="ml-2 mr-2">
         <img
           id="avatar-verify-blur"

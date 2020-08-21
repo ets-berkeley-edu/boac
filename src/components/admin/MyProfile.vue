@@ -1,6 +1,6 @@
 <template>
-  <b-container class="m-3 pr-5" fluid>
-    <b-row align-v="start" class="border-bottom border-top p-2">
+  <b-container class="mr-5" fluid>
+    <b-row align-v="start" class="border-bottom p-2">
       <b-col class="font-weight-500" cols="5">
         Name
       </b-col>
@@ -32,7 +32,7 @@
         {{ $currentUser.email }}
       </b-col>
     </b-row>
-    <b-row align-v="start" class="border-bottom p-2">
+    <b-row align-v="start" class="p-2">
       <b-col class="font-weight-500 v-align-middle" cols="5">
         Roles
       </b-col>
@@ -70,9 +70,7 @@ export default {
   },
   mixins: [Berkeley, Context, Util],
   methods: {
-    canToggleDropInAdvising(dept) {
-      return dept.isDropInEnabled && (dept.role === 'advisor' || dept.role === 'director');
-    }
+    canToggleDropInAdvising: dept => dept.isDropInEnabled && (dept.role === 'advisor' || dept.role === 'director')
   }
 }
 </script>
