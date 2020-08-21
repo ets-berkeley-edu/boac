@@ -75,7 +75,6 @@ export default {
   mixins: [Context, Util],
   props: {
     disabled: {
-      default: false,
       required: false,
       type: Boolean
     },
@@ -88,6 +87,7 @@ export default {
       required: true
     },
     noteId: {
+      default: undefined,
       type: Number,
       required: false
     },
@@ -106,8 +106,9 @@ export default {
     }
   },
   created() {
-    getTopicsForNotes(false).then(topics => {
-      this.each(topics, topic => {
+    getTopicsForNotes(false).then(rows => {
+      this.each(rows, row => {
+        const topic = row['topic'];
         this.topicOptions.push({
           text: topic,
           value: topic,

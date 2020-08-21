@@ -286,8 +286,14 @@ export default {
   },
   mixins: [Context, Scrollable, Util],
   props: {
-    context: String,
-    domain: Array,
+    context: {
+      required: true,
+      type: String
+    },
+    domain: {
+      required: true,
+      type: Array
+    },
   },
   data() {
     return {
@@ -492,8 +498,9 @@ export default {
       this.showNoteFilters = !this.showNoteFilters;
       if (!this.topicOptions) {
         this.topicOptions = [];
-        getAllTopics(true).then(topics => {
-          this.each(topics, topic => {
+        getAllTopics(true).then(rows => {
+          this.each(rows, row => {
+            const topic = row['topic']
             this.topicOptions.push({
               text: topic,
               value: topic
