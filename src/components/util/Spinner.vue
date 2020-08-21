@@ -16,8 +16,7 @@ export default {
       default: 'The page'
     },
     isPlural: {
-      type: Boolean,
-      default: false
+      type: Boolean
     }
   },
   watch: {

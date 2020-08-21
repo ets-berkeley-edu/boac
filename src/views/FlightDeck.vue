@@ -22,19 +22,25 @@
         </div>
         <DemoModeToggle />
       </div>
-      <div>
+      <div class="pt-3">
+        <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
         <EditServiceAnnouncement />
       </div>
-      <div v-if="boa.version.build">
-        <h3>Build</h3>
-        <div>Artifact: {{ boa.version.build.artifact || '&mdash;' }}</div>
-        <div v-if="boa.version.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${boa.version.build.gitCommit}`">{{ boa.version.build.gitCommit }}</a></div>
-      </div>
       <div class="pt-4">
+        <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
+        <ManageTopics />
+      </div>
+      <div v-if="boa.build">
+        <div class="pb-3 pt-3">
+          <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
+        </div>
+        <ul>
+          <li>Artifact: {{ boa.build.artifact || '&mdash;' }}</li>
+          <li v-if="boa.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${boa.build.gitCommit}`">{{ boa.build.gitCommit }}</a></li>
+        </ul>
+      </div>
+      <div class="pl-3">
         <div class="align-items-center d-flex">
-          <div>
-            <h3 id="system-status-header" class="page-section-header-sub">Application Configs</h3>
-          </div>
           <div class="pb-1 pl-2">
             [<b-button
               class="m-0 p-0"
@@ -44,7 +50,7 @@
               variant="link"
               @click="showConfigs = !showConfigs">
               <div class="pb-1">
-                {{ showConfigs ? 'hide' : 'show' }}
+                {{ showConfigs ? 'Hide' : 'Show' }} configs
               </div>
             </b-button>]
           </div>
@@ -67,6 +73,7 @@ import DemoModeToggle from '@/components/admin/DemoModeToggle';
 import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement';
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement';
 import Loading from '@/mixins/Loading';
+import ManageTopics from '@/components/topics/ManageTopics';
 import Spinner from '@/components/util/Spinner';
 import Util from '@/mixins/Util';
 import { getVersion } from '@/api/config';
@@ -78,6 +85,7 @@ export default {
     DropInSchedulerManagement,
     DemoModeToggle,
     EditServiceAnnouncement,
+    ManageTopics,
     Spinner
   },
   mixins: [Context, Loading, Util],

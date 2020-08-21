@@ -102,8 +102,7 @@ export default {
         {text: 'Units completed', value: 'units_completed'},
         {text: 'Term GPA', value: 'term_gpa'},
         {text: 'Cumulative GPA', value: 'cumulative_gpa'},
-        {text: 'Program status', value: 'program_status'},
-        {text: 'Academic standing', value: 'academic_standing'}
+        {text: 'Program status', value: 'program_status'}
       ];
     },
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),

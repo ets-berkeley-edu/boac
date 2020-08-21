@@ -1,6 +1,5 @@
 <template>
-  <div v-if="announcement !== undefined && originalText !== undefined" class="mt-3">
-    <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
+  <div v-if="announcement !== undefined && originalText !== undefined">
     <div class="p-2">
       <div v-if="isTogglingPublish">
         <font-awesome icon="spinner" spin />
