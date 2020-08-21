@@ -66,17 +66,34 @@ class Topic(db.Model):
             std_commit()
 
     @classmethod
-    def create_topic(cls, topic, available_in_notes=False, available_in_appointments=False):
-        topic = cls(topic=topic, available_in_notes=available_in_notes, available_in_appointments=available_in_appointments)
+    def create_topic(cls, topic, available_in_appointments=False, available_in_notes=False):
+        topic = cls(
+            topic=topic,
+            available_in_notes=available_in_notes,
+            available_in_appointments=available_in_appointments,
+        )
         db.session.add(topic)
         std_commit()
         return topic
 
+    @classmethod
+    def update_topic(cls, topic_id, topic, available_in_appointments=False, available_in_notes=False):
+        existing = cls.find_by_id(topic_id=topic_id)
+        existing.topic = topic
+        existing.available_in_appointments = available_in_appointments
+        existing.available_in_notes = available_in_notes
+        std_commit()
+        return existing
+
+    @classmethod
+    def find_by_id(cls, topic_id):
+        return cls.query.filter(cls.id == topic_id).first()  # noqa: E711
+
     def to_api_json(self):
         return {
             'id': self.id,
-            'isAvailableInAppointments': self.available_in_appointments,
-            'isAvailableInNotes': self.available_in_notes,
+            'availableInAppointments': self.available_in_appointments,
+            'availableInNotes': self.available_in_notes,
             'topic': self.topic,
             'createdAt': _isoformat(self.created_at),
             'deletedAt': _isoformat(self.deleted_at),
