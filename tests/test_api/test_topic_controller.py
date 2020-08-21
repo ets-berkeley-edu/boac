@@ -55,23 +55,25 @@ class TestGetTopics:
         """Get all topics, including deleted."""
         fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_topics(client)
-        assert 'Topic for all, 1' in api_json
-        assert 'Topic for appointments, 2' in api_json
-        assert 'Topic for notes, 9' in api_json
-        assert 'Topic for appointments, deleted' not in api_json
-        assert 'Topic for notes, deleted' not in api_json
-        assert api_json[-1] == 'Other / Reason not listed'
+        topics = _get_topics(api_json)
+        assert 'Topic for all, 1' in topics
+        assert 'Topic for appointments, 2' in topics
+        assert 'Topic for notes, 9' in topics
+        assert 'Topic for appointments, deleted' not in topics
+        assert 'Topic for notes, deleted' not in topics
+        assert topics[-1] == 'Other / Reason not listed'
 
     def test_get_all_topics(self, client, fake_auth):
         """Get all note topic options, not including deleted."""
         fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_topics(client, include_deleted=True)
-        assert 'Topic for all, 1' in api_json
-        assert 'Topic for notes, 9' in api_json
-        assert 'Topic for appointments, 2' in api_json
-        assert 'Topic for appointments, deleted' in api_json
-        assert 'Topic for notes, deleted' in api_json
-        assert api_json[-1] == 'Other / Reason not listed'
+        topics = _get_topics(api_json)
+        assert 'Topic for all, 1' in topics
+        assert 'Topic for notes, 9' in topics
+        assert 'Topic for appointments, 2' in topics
+        assert 'Topic for appointments, deleted' in topics
+        assert 'Topic for notes, deleted' in topics
+        assert topics[-1] == 'Other / Reason not listed'
 
 
 class TestTopicsForAppointment:
@@ -110,7 +112,8 @@ class TestTopicsForAppointment:
         """COE scheduler can get topics."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_scheduler_uid)
-            topics = self._get_topics(client)
+            api_json = self._get_topics(client)
+            topics = _get_topics(api_json)
             assert len(topics) == 9
             assert topics[-1] == 'Other / Reason not listed'
 
@@ -118,7 +121,8 @@ class TestTopicsForAppointment:
         """COE advisor can get topics."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_drop_in_advisor_uid)
-            topics = self._get_topics(client)
+            api_json = self._get_topics(client)
+            topics = _get_topics(api_json)
             assert len(topics) == 9
             assert topics[-1] == 'Other / Reason not listed'
 
@@ -126,10 +130,11 @@ class TestTopicsForAppointment:
         """Get all appointment topic options, including deleted."""
         with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
             fake_auth.login(coe_drop_in_advisor_uid)
-            topics = self._get_topics(client, include_deleted=True)
-            assert len(topics) == 11
-            assert 'Topic for appointments, deleted' in topics
-            assert topics[-1] == 'Other / Reason not listed'
+            api_json = self._get_topics(client, include_deleted=True)
+            deleted_items = list(filter(lambda row: row['deletedAt'], api_json))
+            assert 'Topic for appointments, deleted' in _get_topics(deleted_items)
+            # Verify custom sort
+            assert _get_topics(api_json)[-1] == 'Other / Reason not listed'
 
 
 class TestTopicsForNotes:
@@ -156,16 +161,22 @@ class TestTopicsForNotes:
         """Get all note topic options, including deleted."""
         fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_note_topics(client, include_deleted=True)
-        assert 'Topic for all, 1' in api_json
-        assert 'Topic for notes, 9' in api_json
-        assert 'Topic for notes, deleted' in api_json
-        assert api_json[-1] == 'Other / Reason not listed'
+        topics = _get_topics(api_json)
+        assert 'Topic for all, 1' in topics
+        assert 'Topic for notes, 9' in topics
+        assert 'Topic for notes, deleted' in topics
+        assert topics[-1] == 'Other / Reason not listed'
 
     def test_get_all_topics_for_notes(self, client, fake_auth):
         """Get all note topic options, not including deleted."""
         fake_auth.login(coe_drop_in_advisor_uid)
         api_json = self._api_all_note_topics(client)
-        assert 'Topic for all, 1' in api_json
-        assert 'Topic for notes, 9' in api_json
-        assert 'Topic for notes, deleted' not in api_json
-        assert api_json[-1] == 'Other / Reason not listed'
+        topics = _get_topics(api_json)
+        assert 'Topic for all, 1' in topics
+        assert 'Topic for notes, 9' in topics
+        assert 'Topic for notes, deleted' not in topics
+        assert topics[-1] == 'Other / Reason not listed'
+
+
+def _get_topics(api_json):
+    return [row['topic'] for row in api_json]

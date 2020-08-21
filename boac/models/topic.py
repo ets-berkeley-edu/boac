@@ -27,6 +27,7 @@ from datetime import datetime
 
 from boac import db, std_commit
 from boac.lib.util import utc_now
+from dateutil.tz import tzutc
 
 
 class Topic(db.Model):
@@ -72,4 +73,15 @@ class Topic(db.Model):
         return topic
 
     def to_api_json(self):
-        return self.topic
+        return {
+            'id': self.id,
+            'isAvailableInAppointments': self.available_in_appointments,
+            'isAvailableInNotes': self.available_in_notes,
+            'topic': self.topic,
+            'createdAt': _isoformat(self.created_at),
+            'deletedAt': _isoformat(self.deleted_at),
+        }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

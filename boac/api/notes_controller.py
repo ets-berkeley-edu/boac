@@ -279,7 +279,7 @@ def _boa_note_to_compatible_json(note, note_read):
             note=note.__dict__,
             note_read=note_read,
             attachments=[a.to_api_json() for a in note.attachments if not a.deleted_at],
-            topics=[t.to_api_json() for t in note.topics if not t.deleted_at],
+            topics=[t.topic for t in note.topics if not t.deleted_at],
         ),
         **{
             'message': note.body,

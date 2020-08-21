@@ -81,11 +81,11 @@ export default {
   mixins: [Context, Util],
   props: {
     appointmentId: {
+      default: undefined,
       type: Number,
       required: false
     },
     disabled: {
-      default: false,
       required: false,
       type: Boolean
     },
@@ -107,8 +107,9 @@ export default {
     topicOptions: []
   }),
   created() {
-    getTopicsForAppointments().then(topics => {
-      this.each(topics, topic => {
+    getTopicsForAppointments().then(rows => {
+      this.each(rows, row => {
+        const topic = row['topic'];
         this.topicOptions.push({
           text: topic,
           value: topic,

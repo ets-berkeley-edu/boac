@@ -35,7 +35,7 @@ from flask import current_app as app, request
 def get_all_topics():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(include_deleted=include_deleted)
-    return tolerant_jsonify(_to_api_json(topics))
+    return tolerant_jsonify(_to_sorted_json(topics))
 
 
 @app.route('/api/topics/for_appointments', methods=['GET'])
@@ -43,7 +43,7 @@ def get_all_topics():
 def get_topics_for_appointment():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(available_in_appointments=True, include_deleted=include_deleted)
-    return tolerant_jsonify(_to_api_json(topics))
+    return tolerant_jsonify(_to_sorted_json(topics))
 
 
 @app.route('/api/topics/for_notes', methods=['GET'])
@@ -51,10 +51,10 @@ def get_topics_for_appointment():
 def get_topics_for_notes():
     include_deleted = to_bool_or_none(request.args.get('includeDeleted'))
     topics = Topic.get_all(available_in_notes=True, include_deleted=include_deleted)
-    return tolerant_jsonify(_to_api_json(topics))
+    return tolerant_jsonify(_to_sorted_json(topics))
 
 
-def _to_api_json(topics):
+def _to_sorted_json(topics):
     indices_of_other = [index for index, topic in enumerate(topics) if topic.topic.startswith('Other')]
     for index in indices_of_other:
         topics.append(topics.pop(index))
