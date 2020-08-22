@@ -86,12 +86,10 @@ export default {
   mixins: [Util],
   props: {
     demoModeBlur: {
-      default: false,
       required: false,
       type: Boolean
     },
     disabled: {
-      default: false,
       required: false,
       type: Boolean
     },
@@ -105,7 +103,6 @@ export default {
       type: String
     },
     isRequired: {
-      default: false,
       required: false,
       type: Boolean
     },
@@ -115,10 +112,12 @@ export default {
       type: String
     },
     onAddButton: {
+      default: () => {},
       required: false,
       type: Function
     },
     onEscFormInput: {
+      default: () => {},
       required: false,
       type: Function
     },
@@ -128,6 +127,7 @@ export default {
       type: String
     },
     placeholder: {
+      default: undefined,
       required: false,
       type: String
     },
@@ -154,7 +154,9 @@ export default {
       required: false,
       type: Function
     },
-    value: Object
+    value: {
+      type: Object
+    }
   },
   data() {
     return {

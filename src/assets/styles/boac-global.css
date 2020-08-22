@@ -179,6 +179,9 @@
   background-color: #f0ad4e;
   font-weight: 500;
 }
+.sidebar {
+  background-color: #125074;
+}
 .table-full-width {
   margin: 10px 0;
   table-layout: fixed;

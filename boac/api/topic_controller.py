@@ -106,6 +106,12 @@ def undelete_topic():
     return tolerant_jsonify(Topic.find_by_id(topic_id).to_api_json())
 
 
+@app.route('/api/topics/usage_statistics')
+@admin_required
+def usage_statistics():
+    return tolerant_jsonify(Topic.get_usage_statistics())
+
+
 def _to_sorted_json(topics):
     indices_of_other = [index for index, topic in enumerate(topics) if topic.topic.startswith('Other')]
     for index in indices_of_other:

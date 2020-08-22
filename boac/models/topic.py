@@ -28,6 +28,7 @@ from datetime import datetime
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from dateutil.tz import tzutc
+from sqlalchemy import text
 
 
 class Topic(db.Model):
@@ -95,6 +96,24 @@ class Topic(db.Model):
     @classmethod
     def find_by_id(cls, topic_id):
         return cls.query.filter(cls.id == topic_id).first()  # noqa: E711
+
+    @classmethod
+    def get_usage_statistics(cls):
+        statistics = {}
+        for usage_type in ('appointment', 'note'):
+            query = text(f"""
+                SELECT t.id AS topic_id, COUNT(n.id)
+                FROM {usage_type}_topics n
+                JOIN topics t ON t.topic = n.topic
+                WHERE n.deleted_at IS NULL
+                GROUP BY t.id, n.topic
+            """)
+            key = f'{usage_type}s'
+            statistics[key] = {}
+            for row in db.session.execute(query):
+                topic_id = row['topic_id']
+                statistics[key][topic_id] = row['count']
+        return statistics
 
     def to_api_json(self):
         return {
