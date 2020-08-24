@@ -22,15 +22,15 @@
         </div>
         <DemoModeToggle />
       </div>
-      <div class="pt-3">
+      <div class="mt-2 pt-5">
         <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
         <EditServiceAnnouncement />
       </div>
-      <div class="pt-4">
+      <div class="mt-2 pt-5">
         <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
         <ManageTopics />
       </div>
-      <div v-if="boa.build">
+      <div v-if="boa.build" class="mt-2 pt-5">
         <div class="pb-3 pt-3">
           <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
         </div>

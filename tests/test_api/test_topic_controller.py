@@ -25,6 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from boac.models.appointment import Appointment
+from boac.models.authorized_user import AuthorizedUser
 from boac.models.topic import Topic
 from sqlalchemy import and_
 from tests.util import override_config
@@ -304,6 +306,39 @@ class TestTopicsForNotes:
         assert 'Topic for notes, 9' in topics
         assert 'Topic for notes, deleted' not in topics
         assert topics[-1] == 'Other / Reason not listed'
+
+
+class TestTopicUsageStatistics:
+
+    @classmethod
+    def _api_usage_statistics(cls, client, expected_status_code=200):
+        response = client.get('/api/topics/usage_statistics')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Deny anonymous access."""
+        self._api_usage_statistics(client, expected_status_code=401)
+
+    def test_deny_non_admin_user(self, client, fake_auth):
+        """Denies access to non-admin user."""
+        fake_auth.login(l_s_college_advisor_uid)
+        self._api_usage_statistics(client, expected_status_code=401)
+
+    def test_get_topic_usage_statistics(self, client, fake_auth):
+        """Admin user can update a topic."""
+        fake_auth.login(admin_uid)
+        api_json = self._api_usage_statistics(client)
+        assert list(api_json.keys()) == ['appointments', 'notes']
+        assert len(api_json['appointments'])
+        # Verify counts
+        admin_user_id = AuthorizedUser.get_id_per_uid(uid=admin_uid)
+        all_appointments = Appointment.query.filter(Appointment.deleted_at == None).all()  # noqa: E711
+        all_appointments = [a.to_api_json(current_user_id=admin_user_id) for a in all_appointments]
+        for topic_id, count in api_json['appointments'].items():
+            topic = Topic.find_by_id(topic_id)
+            matches = list(filter(lambda a: topic.topic in a['topics'], all_appointments))
+            assert len(matches) == count
 
 
 def _api_create_topic(
