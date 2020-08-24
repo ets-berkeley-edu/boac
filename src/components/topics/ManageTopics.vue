@@ -39,16 +39,11 @@
         <template v-slot:thead-top="{}">
           <b-tr>
             <b-th class="border-top-0"><span class="sr-only">Topic</span></b-th>
-            <b-th class="service-announcement text-white" colspan="2" variant="primary">Notes</b-th>
-            <b-th class="sidebar text-white" colspan="2" variant="info">Appointments</b-th>
+            <b-th class="border-top-0"><span class="sr-only">Deleted?</span></b-th>
+            <b-th class="service-announcement th-top-notes" colspan="2" variant="primary">Notes</b-th>
+            <b-th class="sidebar th-top-notes" colspan="2" variant="info">Appointments</b-th>
             <b-th class="border-top-0"></b-th>
           </b-tr>
-        </template>
-        <template v-slot:cell(topic)="row">
-          <div :id="`topic-${row.item.id}`">
-            <span v-if="row.item.deletedAt" class="text-secondary"><span class="font-weight-bolder has-error">{{ row.item.topic }}</span> (deleted on {{ row.item.deletedAt | moment('MMM D, YYYY') }})</span>
-            <span v-if="!row.item.deletedAt">{{ row.item.topic }}</span>
-          </div>
         </template>
         <template v-slot:cell(actions)="row">
           <div class="d-flex justify-content-end">
@@ -121,10 +116,11 @@ export default {
     return {
       fields: [
         {key: 'topic', label: 'Label', sortable: true, tdClass: 'align-middle'},
-        {key: 'availableInNotes', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle pr-2 service-announcement text-center text-white'},
-        {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle service-announcement text-right text-white', thClass: 'no-wrap pr-2'},
-        {key: 'availableInAppointments', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle pr-2 sidebar text-center text-white'},
-        {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle sidebar text-right text-white', thClass: 'no-wrap pr-2'},
+        {key: 'deletedAt', label: 'Deleted?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle pr-5 text-right', thClass: 'text-right'},
+        {key: 'availableInNotes', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle border pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
+        {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle pr-5 service-announcement text-right text-white', thClass: 'text-right'},
+        {key: 'availableInAppointments', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-left text-right'},
+        {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-right text-right'},
         {key: 'actions', label: 'Actions', tdClass: 'align-middle text-right', thClass: 'text-right'}
       ],
       filter: null,
@@ -217,3 +213,11 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.th-top-notes {
+  color: white;
+  padding-right: 40px;
+  text-align: right;
+}
+</style>
