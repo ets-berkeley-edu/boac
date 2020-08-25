@@ -128,12 +128,12 @@ export default {
     return {
       fields: [
         {key: 'topic', label: 'Label', sortable: true, tdClass: 'align-middle'},
-        {key: 'deletedAt', label: 'Deleted?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle pr-5 text-right', thClass: 'text-right'},
-        {key: 'availableInNotes', label: 'Available?', sortable: true, tdClass: 'align-middle border pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
-        {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle pr-5 service-announcement text-right text-white', thClass: 'text-right'},
-        {key: 'availableInAppointments', label: 'Available?', sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-left text-right'},
-        {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-right text-right'},
-        {key: 'actions', label: 'Actions', tdClass: 'align-middle text-right', thClass: 'text-right'}
+        {key: 'deletedAt', label: 'Deleted?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle mr-3 pr-5 text-right', thClass: 'text-center'},
+        {key: 'availableInNotes', label: 'Available?', sortable: true, tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
+        {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle pr-5 service-announcement text-nowrap text-right text-white', thClass: 'text-right'},
+        {key: 'availableInAppointments', label: 'Available?', sortable: true, tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
+        {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle border pr-5 sidebar text-nowrap text-right text-white', thClass: 'border-right text-right'},
+        {key: 'actions', label: 'Actions', tdClass: 'align-middle text-right', thClass: 'text-right', sortable: false}
       ],
       filter: null,
       hasLoadedTopics: false,
@@ -229,7 +229,6 @@ export default {
 <style scoped>
 .th-top-notes {
   color: white;
-  padding-right: 40px;
-  text-align: right;
+  text-align: center;
 }
 </style>
