@@ -95,7 +95,7 @@
               :active="true" />
           </div>
           <div v-if="!isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
-            <h3 class="student-profile-section-header">Subplan</h3>
+            <h3 class="student-profile-section-header">{{ pluralize('Subplan', student.sisProfile.subplans.length) }}</h3>
             <div
               v-for="subplan in student.sisProfile.subplans"
               :key="subplan"
@@ -188,7 +188,10 @@ export default {
   },
   mixins: [StudentMetadata, Util],
   props: {
-    student: Object
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     degreePlans: [],
