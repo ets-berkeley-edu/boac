@@ -55,7 +55,9 @@ cohort_domain_type = ENUM(
 
 
 class CohortFilter(Base):
+
     __tablename__ = 'cohort_filters'
+    __transient_sids = []
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     domain = db.Column(cohort_domain_type, nullable=False)
@@ -73,7 +75,6 @@ class CohortFilter(Base):
         self.domain = domain
         self.name = name
         self.filter_criteria = filter_criteria
-        self._transient_sids = []
 
     def __repr__(self):
         return f"""<CohortFilter {self.id},
@@ -127,7 +128,7 @@ class CohortFilter(Base):
         return result and result['domain']
 
     def clear_sids_and_student_count(self):
-        self._transient_sids = self.sids
+        self.__transient_sids = self.sids
         self.update_sids_and_student_count(None, None)
 
     def update_sids_and_student_count(self, sids, student_count):
@@ -144,12 +145,12 @@ class CohortFilter(Base):
     def track_membership_changes(self):
         # Track membership changes only if the cohort has been saved and has an id.
         if self.id:
-            old_sids = set(self._transient_sids)
+            old_sids = set(self.__transient_sids)
             new_sids = set(self.sids)
             removed_sids = old_sids - new_sids
             added_sids = new_sids - old_sids
             CohortFilterEvent.create_bulk(self.id, added_sids, removed_sids)
-        self._transient_sids = []
+        self.__transient_sids = []
 
     @classmethod
     def get_cohorts_of_user_id(cls, user_id, domain='default'):
