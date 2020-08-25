@@ -46,16 +46,14 @@
           </b-tr>
         </template>
         <template v-slot:cell(availableInNotes)="row">
-          <div :id="`topic-available-in-notes-${row.item.id}`">
-            <span v-if="row.item.deletedAt">&mdash;</span>
-            <span v-if="!row.item.deletedAt">{{ row.item.availableInNotes ? 'Yes' : 'No' }}</span>
-          </div>
+          <span :id="`topic-available-in-notes-${row.item.id}`" :class="{'pr-1': row.item.deletedAt}">
+            {{ row.item.deletedAt ? '&mdash;' : row.item.availableInNotes ? 'Yes' : 'No' }}
+          </span>
         </template>
         <template v-slot:cell(availableInAppointments)="row">
-          <div :id="`topic-available-in-appointments-${row.item.id}`">
-            <span v-if="row.item.deletedAt">&mdash;</span>
-            <span v-if="!row.item.deletedAt">{{ row.item.availableInAppointments ? 'Yes' : 'No' }}</span>
-          </div>
+          <span :id="`topic-available-in-appointments-${row.item.id}`" :class="{'pr-1': row.item.deletedAt}">
+            {{ row.item.deletedAt ? '&mdash;' : row.item.availableInAppointments ? 'Yes' : 'No' }}
+          </span>
         </template>
         <template v-slot:cell(actions)="row">
           <div class="d-flex justify-content-end">
@@ -127,13 +125,61 @@ export default {
   data() {
     return {
       fields: [
-        {key: 'topic', label: 'Label', sortable: true, tdClass: 'align-middle'},
-        {key: 'deletedAt', label: 'Deleted?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle mr-3 pr-5 text-right', thClass: 'text-center'},
-        {key: 'availableInNotes', label: 'Available?', sortable: true, tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
-        {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle pr-5 service-announcement text-nowrap text-right text-white', thClass: 'text-right'},
-        {key: 'availableInAppointments', label: 'Available?', sortable: true, tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
-        {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle border pr-5 sidebar text-nowrap text-right text-white', thClass: 'border-right text-right'},
-        {key: 'actions', label: 'Actions', tdClass: 'align-middle text-right', thClass: 'text-right', sortable: false}
+        {
+          key: 'topic',
+          label: 'Label',
+          sortable: true,
+          tdClass: 'align-middle'
+        },
+        {
+          formatter: this.formatBoolean,
+          key: 'deletedAt',
+          label: 'Deleted?',
+          sortable: true,
+          tdClass: 'align-middle mr-3 pr-5 text-right',
+          thClass: 'text-center'
+        },
+        {
+          formatter: this.formatAvailableIn,
+          key: 'availableInNotes',
+          label: 'Available?',
+          sortable: true,
+          sortByFormatted: true,
+          tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white',
+          thClass: 'border-left text-right'
+        },
+        {
+          formatter: n => this.numFormat(n),
+          key: 'countNotes',
+          label: 'Usage',
+          sortable: true,
+          tdClass: 'align-middle pr-5 service-announcement text-nowrap text-right text-white',
+          thClass: 'text-right'
+        },
+        {
+          formatter: this.formatAvailableIn,
+          key: 'availableInAppointments',
+          label: 'Available?',
+          sortable: true,
+          sortByFormatted: true,
+          tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white',
+          thClass: 'border-left text-right'
+        },
+        {
+          formatter: n => this.numFormat(n),
+          key: 'countAppointments',
+          label: 'Usage',
+          sortable: true,
+          tdClass: 'align-middle border pr-5 sidebar text-nowrap text-right text-white',
+          thClass: 'border-right text-right'
+        },
+        {
+          key: 'actions',
+          label: 'Actions',
+          sortable: false,
+          tdClass: 'align-middle text-right',
+          thClass: 'text-right'
+        }
       ],
       filter: null,
       hasLoadedTopics: false,
@@ -162,6 +208,10 @@ export default {
       this.topicEdit = null;
       this.isEditTopicModalOpen = false;
     },
+    formatAvailableIn(value, key, item) {
+      return item.deletedAt ? null : this.formatBoolean(value);
+    },
+    formatBoolean: value => value ? 'Yes' : 'No',
     deleteCancel() {
       this.isDeleteTopicModalOpen = false;
       this.topicDelete = undefined;
