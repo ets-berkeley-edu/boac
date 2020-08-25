@@ -45,6 +45,18 @@
             <b-th class="border-top-0"></b-th>
           </b-tr>
         </template>
+        <template v-slot:cell(availableInNotes)="row">
+          <div :id="`topic-available-in-notes-${row.item.id}`">
+            <span v-if="row.item.deletedAt">&mdash;</span>
+            <span v-if="!row.item.deletedAt">{{ row.item.availableInNotes ? 'Yes' : 'No' }}</span>
+          </div>
+        </template>
+        <template v-slot:cell(availableInAppointments)="row">
+          <div :id="`topic-available-in-appointments-${row.item.id}`">
+            <span v-if="row.item.deletedAt">&mdash;</span>
+            <span v-if="!row.item.deletedAt">{{ row.item.availableInAppointments ? 'Yes' : 'No' }}</span>
+          </div>
+        </template>
         <template v-slot:cell(actions)="row">
           <div class="d-flex justify-content-end">
             <b-button
@@ -117,9 +129,9 @@ export default {
       fields: [
         {key: 'topic', label: 'Label', sortable: true, tdClass: 'align-middle'},
         {key: 'deletedAt', label: 'Deleted?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle pr-5 text-right', thClass: 'text-right'},
-        {key: 'availableInNotes', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle border pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
+        {key: 'availableInNotes', label: 'Available?', sortable: true, tdClass: 'align-middle border pr-5 service-announcement text-right text-white', thClass: 'border-left text-right'},
         {key: 'countNotes', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle pr-5 service-announcement text-right text-white', thClass: 'text-right'},
-        {key: 'availableInAppointments', label: 'Available?', formatter: b => b ? 'Yes' : 'No', sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-left text-right'},
+        {key: 'availableInAppointments', label: 'Available?', sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-left text-right'},
         {key: 'countAppointments', label: 'Usage', formatter: n => this.numFormat(n), sortable: true, tdClass: 'align-middle border pr-5 sidebar text-right text-white', thClass: 'border-right text-right'},
         {key: 'actions', label: 'Actions', tdClass: 'align-middle text-right', thClass: 'text-right'}
       ],
