@@ -52,6 +52,7 @@ legend {
 .table.b-table>thead>tr>[aria-sort=descending]
 {
   background-image: none !important;
+  white-space: nowrap;
 }
 .b-table th[aria-sort="none"] div::after {
   color: transparent;
