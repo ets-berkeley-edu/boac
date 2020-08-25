@@ -20,17 +20,17 @@
             id="topic-label"
             v-model="topic.topic"
             aria-describedby="input-live-help topic-label-error"
-            maxlength="255"
+            :maxlength="maxLabelLength"
             :state="!isLabelReserved && isValidLabel"
             required
             size="lg"></b-form-input>
           <b-form-invalid-feedback id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
             <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-            <span v-if="isLabelReserved">Sorry, the label '{{ topic.topic }}' is assigned to an existing topic.</span>
+            <span v-if="isLabelReserved">Sorry, the label '{{ $_.trim(topic.topic) }}' is assigned to an existing topic.</span>
           </b-form-invalid-feedback>
           <div class="faint-text font-size-14 pl-2 pt-2">
             <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
-              255 character limit <span v-if="topic.topic.length">({{ 255 - topic.topic.length }} left)</span>
+              {{ maxLabelLength }} character limit <span v-if="topic.topic.length">({{ maxLabelLength - topic.topic.length }} left)</span>
             </span>
           </div>
         </div>
@@ -104,6 +104,7 @@ export default {
   data: () => ({
     error: undefined,
     isSaving: false,
+    maxLabelLength: 50,
     minLabelLength: 3,
     showEditTopicModal: false
   }),
@@ -113,7 +114,8 @@ export default {
     },
     isLabelReserved() {
       return !!this.$_.find(this.allTopics, t => {
-        return t.topic === this.topic.topic && t.id !== this.topic.id;
+        const trimmed = this.$_.trim(this.topic.topic);
+        return t.id !== this.topic.id && (t.topic.toLowerCase() === trimmed.toLowerCase());
       });
     },
     isValidLabel() {
