@@ -162,7 +162,7 @@ export default {
           label: 'Available?',
           sortable: true,
           sortByFormatted: true,
-          tdClass: 'align-middle border mr-3 pr-5 service-announcement text-right text-white',
+          tdClass: 'align-middle border mr-3 pr-5 sidebar text-right text-white',
           thClass: 'border-left text-right'
         },
         {
