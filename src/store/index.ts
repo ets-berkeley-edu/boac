@@ -1,12 +1,12 @@
-import cohortEditSession from '@/store/modules/cohort-edit-session';
-import context from '@/store/modules/context';
-import curatedEditSession from '@/store/modules/curated-edit-session';
-import currentUserExtras from '@/store/modules/current-user-extras';
-import noteEditSession from '@/store/modules/note-edit-session';
-import Vue from 'vue';
-import Vuex from 'vuex';
+import cohortEditSession from '@/store/modules/cohort-edit-session'
+import context from '@/store/modules/context'
+import curatedEditSession from '@/store/modules/curated-edit-session'
+import currentUserExtras from '@/store/modules/current-user-extras'
+import noteEditSession from '@/store/modules/note-edit-session'
+import Vue from 'vue'
+import Vuex from 'vuex'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
@@ -17,4 +17,4 @@ export default new Vuex.Store({
     noteEditSession
   },
   strict: process.env.NODE_ENV !== 'production'
-});
+})

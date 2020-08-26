@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'CohortEditSession',
@@ -42,5 +42,5 @@ export default {
       'updateExistingFilter'
     ])
   }
-};
+}
 </script>

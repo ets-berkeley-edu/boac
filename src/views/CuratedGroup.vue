@@ -49,19 +49,19 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue';
-import CuratedEditSession from '@/mixins/CuratedEditSession';
-import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import Loading from '@/mixins/Loading';
-import Pagination from '@/components/util/Pagination';
-import Scrollable from '@/mixins/Scrollable';
-import SortBy from '@/components/student/SortBy';
-import Spinner from '@/components/util/Spinner';
-import store from '@/store';
-import StudentRow from '@/components/student/StudentRow';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
+import CuratedEditSession from '@/mixins/CuratedEditSession'
+import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import Loading from '@/mixins/Loading'
+import Pagination from '@/components/util/Pagination'
+import Scrollable from '@/mixins/Scrollable'
+import SortBy from '@/components/student/SortBy'
+import Spinner from '@/components/util/Spinner'
+import store from '@/store'
+import StudentRow from '@/components/student/StudentRow'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CuratedGroup',
@@ -87,74 +87,74 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    this.$eventHub.$off('sortBy-user-preference-change');
-    this.setMode(undefined);
+    this.$eventHub.$off('sortBy-user-preference-change')
+    this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        this.loaded(group.name);
-        this.setPageTitle(this.curatedGroupName);
-        this.putFocusNextTick('curated-group-name');
+        this.loaded(group.name)
+        this.setPageTitle(this.curatedGroupName)
+        this.putFocusNextTick('curated-group-name')
         if (this.pageNumber > 1) {
-          this.alertScreenReader(`Go to page ${this.pageNumber}`);
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
+          this.alertScreenReader(`Go to page ${this.pageNumber}`)
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
         }
       } else {
-        this.$router.push({ path: '/404' });
+        this.$router.push({ path: '/404' })
       }
-    });
+    })
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
-        this.loadingStart();
+        this.loadingStart()
         this.goToPage(1).then(() => {
-          this.loaded(this.curatedGroupName);
-          this.alertScreenReader(`Students sorted by ${sortBy}`);
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert);
-        });
+          this.loaded(this.curatedGroupName)
+          this.alertScreenReader(`Students sorted by ${sortBy}`)
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
+        })
       }
-    });
+    })
   },
   mounted() {
     this.$nextTick(function() {
       if (!this.anchor) {
-        return false;
+        return false
       }
       let anchor = this.anchor.replace(/(#)([0-9])/g, function(a, m1, m2) {
-        return `${m1}student-${m2}`;
-      });
-      this.scrollTo(anchor);
-    });
+        return `${m1}student-${m2}`
+      })
+      this.scrollTo(anchor)
+    })
   },
   methods: {
     bulkAddSids(sids) {
-      this.setMode(undefined);
+      this.setMode(undefined)
       if (this.size(sids)) {
-        this.alertScreenReader(`Adding ${sids.length} students`);
+        this.alertScreenReader(`Adding ${sids.length} students`)
         store.commit('currentUserExtras/setUserPreference', {
           key: 'sortBy',
           value: 'last_name'
-        });
-        this.loadingStart();
+        })
+        this.loadingStart()
         this.addStudents(sids).then(() => {
-          this.loaded(this.name);
-          this.putFocusNextTick('curated-group-name');
-          this.alertScreenReader(`${sids.length} students added to group '${this.name}'`);
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs');
-        });
+          this.loaded(this.name)
+          this.putFocusNextTick('curated-group-name')
+          this.alertScreenReader(`${sids.length} students added to group '${this.name}'`)
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
+        })
       } else {
-        this.alertScreenReader('Cancelled bulk add of students');
-        this.putFocusNextTick('curated-group-name');
+        this.alertScreenReader('Cancelled bulk add of students')
+        this.putFocusNextTick('curated-group-name')
       }
     },
     onClickPagination(pageNumber) {
-      this.loadingStart();
+      this.loadingStart()
       this.goToPage(pageNumber).then(() => {
-        this.loaded(this.name);
-        this.alertScreenReader(`Page ${pageNumber} of cohort ${this.curatedGroupName}`);
-        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName,this.screenReaderAlert);
-      });
+        this.loaded(this.name)
+        this.alertScreenReader(`Page ${pageNumber} of cohort ${this.curatedGroupName}`)
+        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName,this.screenReaderAlert)
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped>

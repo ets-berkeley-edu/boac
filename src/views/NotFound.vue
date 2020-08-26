@@ -14,16 +14,16 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading';
+import Loading from '@/mixins/Loading'
 
 export default {
   name: 'NotFound',
   mixins: [ Loading ],
   created() {
     // All top-level view components must identify themselves as "loaded".
-    this.loaded('404');
+    this.loaded('404')
   }
-};
+}
 </script>
 
 <style scoped>

@@ -28,13 +28,13 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import EditUserProfileModal from '@/components/admin/EditUserProfileModal';
-import Loading from '@/mixins/Loading';
-import Spinner from '@/components/util/Spinner';
-import Users from '@/components/admin/Users';
-import Util from '@/mixins/Util';
-import { getDepartments } from '@/api/user';
+import Context from '@/mixins/Context'
+import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
+import Loading from '@/mixins/Loading'
+import Spinner from '@/components/util/Spinner'
+import Users from '@/components/admin/Users'
+import Util from '@/mixins/Util'
+import { getDepartments } from '@/api/user'
 
 export default {
   name: 'PassengerManifest',
@@ -46,14 +46,14 @@ export default {
   }),
   created() {
     getDepartments(true).then(departments => {
-      this.departments = departments;
-      this.loaded('Passenger Manifest');
-    });
+      this.departments = departments
+      this.loaded('Passenger Manifest')
+    })
   },
   methods: {
     afterCreateUser(name) {
-      this.refreshUsers = true;
-      this.alertScreenReader(`${name} has been added to BOA.`);
+      this.refreshUsers = true
+      this.alertScreenReader(`${name} has been added to BOA.`)
     }
   }
 }

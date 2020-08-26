@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AdvisingNoteSnippet',
@@ -40,10 +40,10 @@ export default {
     lastModified: undefined
   }),
   created() {
-    const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt');
+    const timestamp = this.get(this.note, 'updatedAt') || this.get(this.note, 'createdAt')
     if (timestamp) {
-      this.lastModified = this.$moment(timestamp).tz(this.$config.timezone);
+      this.lastModified = this.$moment(timestamp).tz(this.$config.timezone)
     }
   }
-};
+}
 </script>

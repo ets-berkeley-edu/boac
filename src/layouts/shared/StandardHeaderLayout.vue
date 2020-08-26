@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import HeaderMenu from '@/components/HeaderMenu';
+import HeaderMenu from '@/components/HeaderMenu'
 
 export default {
   name: 'StandardHeaderLayout',

@@ -248,9 +248,9 @@
 </template>
 
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import CohortEditSession from '@/mixins/CohortEditSession'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'FilterRow',
@@ -279,17 +279,17 @@ export default {
   }),
   computed: {
     filterRowIndex() {
-      return this.isExistingFilter ? this.index : 'new';
+      return this.isExistingFilter ? this.index : 'new'
     },
     idRangeMax() {
       return this.isExistingFilter
         ? `filter-range-max-${this.index}`
-        : 'filter-range-max';
+        : 'filter-range-max'
     },
     idRangeMin() {
       return this.isExistingFilter
         ? `filter-range-min-${this.index}`
-        : 'filter-range-min';
+        : 'filter-range-min'
     }
   },
   watch: {
@@ -297,76 +297,76 @@ export default {
       // Reset the current filter-row if an edit session is initiated elsewhere.
       if (this.isNil(newEditMode)) {
         // Nothing is being edited. Let's make sure this row is in default state.
-        this.reset();
-        this.showRow = true;
+        this.reset()
+        this.showRow = true
       } else if (newEditMode === 'add') {
         if (this.isExistingFilter) {
           // User is adding a new filter so other rows, per existing filters, are put back in default state.
-          this.reset();
+          this.reset()
         }
       } else if (newEditMode.match('edit-[0-9]+')) {
         if (this.isExistingFilter) {
           if (newEditMode !== `edit-${this.index}`) {
             // We do not allow two rows to be in edit mode simultaneously. In this case, some other row is entering edit
             // mode so we effectively click cancel on this row.
-            this.reset();
+            this.reset()
           }
         } else {
           // Reset and then hide this 'New Filter' row because user has clicked to edit an existing filter.
-          this.reset();
-          this.showRow = false;
+          this.reset()
+          this.showRow = false
         }
       } else if (newEditMode === 'rename') {
-        this.reset();
+        this.reset()
       }
     },
     range: {
       handler(rangeObject) {
-        this.disableUpdateButton = false;
-        this.errorPerRangeInput = undefined;
-        const trimToNil = v => this.$_.isUndefined(v) ? v : this.$_.trim(v) || undefined;
-        let min = trimToNil(this.$_.get(rangeObject, 'min'));
-        let max = trimToNil(this.$_.get(rangeObject, 'max'));
-        const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v);
+        this.disableUpdateButton = false
+        this.errorPerRangeInput = undefined
+        const trimToNil = v => this.$_.isUndefined(v) ? v : this.$_.trim(v) || undefined
+        let min = trimToNil(this.$_.get(rangeObject, 'min'))
+        let max = trimToNil(this.$_.get(rangeObject, 'max'))
+        const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v)
         if (this.filter.validation === 'dependents') {
-          const isInt = v => /^\d+$/.test(v);
-          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this.$_.isNaN(v);
+          const isInt = v => /^\d+$/.test(v)
+          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this.$_.isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
-            this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.';
+            this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.'
           } else if (parseInt(min, 10) > parseInt(max, 10)) {
-            this.errorPerRangeInput = 'Dependents inputs must be in ascending order.';
+            this.errorPerRangeInput = 'Dependents inputs must be in ascending order.'
           }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation === 'gpa') {
-          min = min && parseFloat(min);
-          max = max && parseFloat(max);
-          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0 || v > 4) || this.$_.isNaN(v);
+          min = min && parseFloat(min)
+          max = max && parseFloat(max)
+          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0 || v > 4) || this.$_.isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
-            this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.';
+            this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.'
           } else if (this.$_.isNumber(min) && this.$_.isNumber(max) && min > max) {
-            this.errorPerRangeInput = 'GPA inputs must be in ascending order.';
+            this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
           }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation === 'char') {
-          const isLetter = char => /^[a-zA-Z]$/.test(char);
-          const badData = () => (min && !isLetter(min)) || (max && !isLetter(max));
-          const descending = () => min && max && this.$_.upperCase(min) > this.$_.upperCase(max);
+          const isLetter = char => /^[a-zA-Z]$/.test(char)
+          const badData = () => (min && !isLetter(min)) || (max && !isLetter(max))
+          const descending = () => min && max && this.$_.upperCase(min) > this.$_.upperCase(max)
           if (badData() || descending()) {
-            this.errorPerRangeInput = 'Requires letters in ascending order.';
+            this.errorPerRangeInput = 'Requires letters in ascending order.'
           }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max;
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation) {
-          this.disableUpdateButton = true;
-          this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`;
+          this.disableUpdateButton = true
+          this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`
         }
-        this.showAdd = !this.errorPerRangeInput && !isNilOrNan(min) && !isNilOrNan(max);
+        this.showAdd = !this.errorPerRangeInput && !isNilOrNan(min) && !isNilOrNan(max)
       },
       deep: true
     }
   },
   created() {
-    this.reset();
-    this.valueOriginal = this.filter && this.cloneDeep(this.filter.value);
+    this.reset()
+    this.valueOriginal = this.filter && this.cloneDeep(this.filter.value)
   },
   methods: {
     isGrouped: options => !!options['0'].group,
@@ -374,167 +374,167 @@ export default {
     filterRowSecondaryDropdownId: index => `filter-row-dropdown-secondary-${index}`,
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
-      const gpa = '0' + this.trim(value);
-      return parseFloat(gpa).toFixed(3);
+      const gpa = '0' + this.trim(value)
+      return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
       const option = this.find(this.filter.options, ['value', this.filter.value])
       const label = this.get(option, 'name')
-      return this.isGrouped(this.filter.options) ? `${label} (${option.group})` : label;
+      return this.isGrouped(this.filter.options) ? `${label} (${option.group})` : label
     },
     isUX(type) {
-      return this.get(this.filter, 'type.ux') === type;
+      return this.get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
       switch (this.get(this.filter, 'type.ux')) {
       case 'dropdown':
-        this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`);
-        break;
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
+        break
       case 'boolean':
-        this.alertScreenReader(`Added ${this.filter.label.primary}`);
-        this.filter.value = true;
-        break;
+        this.alertScreenReader(`Added ${this.filter.label.primary}`)
+        this.filter.value = true
+        break
       case 'range':
-        this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`);
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
         this.filter.value = {
           min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
           max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
-        };
-        this.range.min = this.range.max = undefined;
-        break;
+        }
+        this.range.min = this.range.max = undefined
+        break
       }
-      this.addFilter(this.filter);
-      this.reset();
-      this.putFocusNewFilterDropdown();
-      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert);
+      this.addFilter(this.filter)
+      this.reset()
+      this.putFocusNewFilterDropdown()
+      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert)
     },
     onClickCancelEdit() {
-      this.alertScreenReader('Cancelled');
-      this.isModifyingFilter = false;
-      this.setEditMode(null);
-      this.putFocusNewFilterDropdown();
+      this.alertScreenReader('Cancelled')
+      this.isModifyingFilter = false
+      this.setEditMode(null)
+      this.putFocusNewFilterDropdown()
     },
     onClickEditButton() {
-      this.disableUpdateButton = false;
+      this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
-        const category = this.find(this.flatten(this.menu), ['key', this.filter.key]);
-        this.filter.options = category.options;
+        const category = this.find(this.flatten(this.menu), ['key', this.filter.key])
+        this.filter.options = category.options
       } else if (this.isUX('range')) {
-        this.range.min = this.filter.value.min;
-        this.range.max = this.filter.value.max;
+        this.range.min = this.filter.value.min
+        this.range.max = this.filter.value.max
       }
-      this.isModifyingFilter = true;
-      this.setEditMode(`edit-${this.index}`);
-      this.putFocusSecondaryDropdown();
-      this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`);
+      this.isModifyingFilter = true
+      this.setEditMode(`edit-${this.index}`)
+      this.putFocusSecondaryDropdown()
+      this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`)
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
-        const isGPA = this.filter.validation === 'gpa';
+        const isGPA = this.filter.validation === 'gpa'
         this.filter.value = {
           min: isGPA ? this.formatGPA(this.range.min) : this.range.min,
           max: isGPA ? this.formatGPA(this.range.max) : this.range.max
-        };
+        }
       }
       this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
-        this.isModifyingFilter = false;
-        this.setEditMode(null);
-        this.alertScreenReader(`${this.filter.label.primary} filter updated`);
-        this.$ga.cohortEvent(this.cohortId, this.cohortName, this.screenReaderAlert);
-      });
+        this.isModifyingFilter = false
+        this.setEditMode(null)
+        this.alertScreenReader(`${this.filter.label.primary} filter updated`)
+        this.$ga.cohortEvent(this.cohortId, this.cohortName, this.screenReaderAlert)
+      })
     },
     onSelectFilter(filter) {
-      this.filter = this.cloneDeep(filter);
-      this.showAdd = filter.type.ux === 'boolean';
-      this.alertScreenReader(`${filter.label.primary} selected`);
+      this.filter = this.cloneDeep(filter)
+      this.showAdd = filter.type.ux === 'boolean'
+      this.alertScreenReader(`${filter.label.primary} selected`)
       switch (filter.type.ux) {
       case 'dropdown':
-        this.putFocusSecondaryDropdown();
-        break;
+        this.putFocusSecondaryDropdown()
+        break
       case 'boolean':
-        this.putFocusNextTick('unsaved-filter-add');
-        break;
+        this.putFocusNextTick('unsaved-filter-add')
+        break
       case 'range':
-        this.putFocusNextTick(this.idRangeMin);
-        break;
+        this.putFocusNextTick(this.idRangeMin)
+        break
       }
     },
     putFocusNewFilterDropdown() {
-      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button');
+      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button')
     },
     putFocusSecondaryDropdown() {
       this.putFocusNextTick(
         this.filterRowSecondaryDropdownId(this.filterRowIndex),
         'button'
-      );
+      )
     },
     rangeInputSize() {
-      let maxLength = undefined;
+      let maxLength = undefined
       if (this.filter.validation === 'char') {
-        maxLength = 1;
+        maxLength = 1
       } else if (this.filter.validation === 'gpa' || this.filter.validation === 'dependents') {
-        maxLength = 5;
+        maxLength = 5
       }
-      return maxLength;
+      return maxLength
     },
     rangeMaxLabel() {
-      let snippet = undefined;
+      let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.label.range[1];
+        snippet = this.filter.label.range[1]
       } else {
-        const min = this.get(this.filter, 'value.min');
-        const max = this.get(this.filter, 'value.max');
-        const minEqualsMax = !this.isNil(min) && min === max;
-        const labels = this.get(this.filter.label, 'range');
-        snippet = minEqualsMax ? '' : `${labels[1]} ${max}`;
+        const min = this.get(this.filter, 'value.min')
+        const max = this.get(this.filter, 'value.max')
+        const minEqualsMax = !this.isNil(min) && min === max
+        const labels = this.get(this.filter.label, 'range')
+        snippet = minEqualsMax ? '' : `${labels[1]} ${max}`
       }
-      return snippet;
+      return snippet
     },
     rangeMinLabel() {
-      let snippet = undefined;
+      let snippet = undefined
       if (this.isModifyingFilter) {
-        snippet = this.filter.label.range[0];
+        snippet = this.filter.label.range[0]
       } else {
-        const min = this.get(this.filter, 'value.min');
-        const max = this.get(this.filter, 'value.max');
-        const minEqualsMax = !this.isNil(min) && min === max;
-        const labels = this.get(this.filter.label, 'range');
-        snippet = minEqualsMax ? this.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`;
+        const min = this.get(this.filter, 'value.min')
+        const max = this.get(this.filter, 'value.max')
+        const minEqualsMax = !this.isNil(min) && min === max
+        const labels = this.get(this.filter.label, 'range')
+        snippet = minEqualsMax ? this.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
-      return snippet;
+      return snippet
     },
     remove() {
-      this.alertScreenReader(`${this.filter.label.primary} filter removed`);
-      this.removeFilter(this.index);
-      this.setEditMode(null);
-      this.putFocusNewFilterDropdown();
-      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert);
+      this.alertScreenReader(`${this.filter.label.primary} filter removed`)
+      this.removeFilter(this.index)
+      this.setEditMode(null)
+      this.putFocusNewFilterDropdown()
+      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert)
     },
     reset() {
-      this.disableUpdateButton = false;
-      this.showAdd = false;
-      this.range = this.mapValues(this.range, () => undefined);
+      this.disableUpdateButton = false
+      this.showAdd = false
+      this.range = this.mapValues(this.range, () => undefined)
       if (this.isNil(this.index)) {
-        this.filter = {};
-        this.isExistingFilter = false;
-        this.isModifyingFilter = true;
+        this.filter = {}
+        this.isExistingFilter = false
+        this.isModifyingFilter = true
       } else {
-        this.filter = this.cloneDeep(this.filters[this.index]);
-        this.isExistingFilter = true;
-        this.isModifyingFilter = false;
+        this.filter = this.cloneDeep(this.filters[this.index])
+        this.isExistingFilter = true
+        this.isModifyingFilter = false
       }
-      this.putFocusNewFilterDropdown();
+      this.putFocusNewFilterDropdown()
     },
     updateDropdownValue(option) {
       if (option) {
-        this.filter.value = option.value;
-        this.showAdd = true;
-        this.putFocusNextTick('unsaved-filter-add');
-        this.alertScreenReader(`${option.name} selected`);
+        this.filter.value = option.value
+        this.showAdd = true
+        this.putFocusNextTick('unsaved-filter-add')
+        this.alertScreenReader(`${option.name} selected`)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

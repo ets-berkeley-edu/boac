@@ -98,9 +98,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getDropInAdvisorsForDept } from '@/api/user';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getDropInAdvisorsForDept } from '@/api/user'
 
 export default {
   name: 'CheckInModal',
@@ -132,25 +132,25 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showCheckInModal = value;
+      this.showCheckInModal = value
     }
   },
   created() {
-    this.showCheckInModal = this.showModal;
+    this.showCheckInModal = this.showModal
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
       this.dropInAdvisors = this.$_.filter(dropInAdvisors, a => {
-        return a.available || a.uid === this.$currentUser.uid;
-      });
-    });
+        return a.available || a.uid === this.$currentUser.uid
+      })
+    })
   },
   methods: {
     checkIn() {
-      const advisor = this.$_.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
+      const advisor = this.$_.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
       if (advisor) {
-        this.appointmentCheckin(advisor);
+        this.appointmentCheckin(advisor)
       }
-      this.alertScreenReader(`Checked in ${this.appointment.student.name}`);
-      this.showCheckInModal = false;
+      this.alertScreenReader(`Checked in ${this.appointment.student.name}`)
+      this.showCheckInModal = false
     }
   }
 }

@@ -35,8 +35,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentSnippet',
@@ -48,10 +48,10 @@ export default {
     createdAt: undefined
   }),
   created() {
-    const timestamp = this.get(this.appointment, 'createdAt');
+    const timestamp = this.get(this.appointment, 'createdAt')
     if (timestamp) {
-      this.createdAt = this.$moment(timestamp).tz(this.$config.timezone);
+      this.createdAt = this.$moment(timestamp).tz(this.$config.timezone)
     }
   }
-};
+}
 </script>

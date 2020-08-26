@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AreYouSureModal',
@@ -84,11 +84,11 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showAreYouSureModal = value;
+      this.showAreYouSureModal = value
     }
   },
   created() {
-    this.showAreYouSureModal = this.showModal;
+    this.showAreYouSureModal = this.showModal
   }
 }
 </script>

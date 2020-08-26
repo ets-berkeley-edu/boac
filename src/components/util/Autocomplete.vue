@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
+import Util from '@/mixins/Util'
 
 export default {
   name: 'Autocomplete',
@@ -170,12 +170,12 @@ export default {
       suggestions: [],
       suggestionElements: [],
       suggestionFocusIndex: null
-    };
+    }
   },
   watch: {
     disabled(isDisabled) {
       if (isDisabled) {
-        this.closeSuggestions();
+        this.closeSuggestions()
       }
     }
   },
@@ -187,68 +187,68 @@ export default {
   },
   methods: {
     addSuggestion() {
-      this.addButtonLoading = true;
+      this.addButtonLoading = true
       this.onAddButton(this.selectedSuggestion).then(() => {
-        this.addButtonLoading = false;
-        this.closeSuggestions();
-      });
+        this.addButtonLoading = false
+        this.closeSuggestions()
+      })
     },
     closeSuggestions() {
-      this.isOpen = false;
+      this.isOpen = false
       this.$nextTick(() => {
         if (!this.value) {
-          this.query = null;
+          this.query = null
         }
-      });
+      })
     },
     getQuery() {
-      return this.query;
+      return this.query
     },
     highlightQuery(suggestion) {
       if (suggestion && suggestion.label) {
-        const regex = new RegExp(this.escapeForRegExp(this.query), 'i');
-        const match = suggestion.label.match(regex);
+        const regex = new RegExp(this.escapeForRegExp(this.query), 'i')
+        const match = suggestion.label.match(regex)
         if (!match) {
-          return suggestion.label;
+          return suggestion.label
         }
-        const matchedText = suggestion.label.substring(match.index, match.index + match[0].toString().length);
-        return suggestion.label.replace(regex, `<strong>${matchedText}</strong>`);
+        const matchedText = suggestion.label.substring(match.index, match.index + match[0].toString().length)
+        return suggestion.label.replace(regex, `<strong>${matchedText}</strong>`)
       }
     },
     makeSuggestions() {
-      this.selectedSuggestion = null;
-      this.$emit('input', null);
+      this.selectedSuggestion = null
+      this.$emit('input', null)
       if (this.suggestWhen(this.query)) {
-        this.isOpen = true;
-        this.isLoading = true;
-        this.suggestions = [];
-        const q = this.query && this.escapeForRegExp(this.query).replace(/[^\w ]+/g, '');
+        this.isOpen = true
+        this.isLoading = true
+        this.suggestions = []
+        const q = this.query && this.escapeForRegExp(this.query).replace(/[^\w ]+/g, '')
         this.source(q, this.limit).then(results => {
-          this.populateSuggestions(results);
-        });
+          this.populateSuggestions(results)
+        })
       } else {
-        this.isOpen = false;
+        this.isOpen = false
       }
     },
     onArrowDown() {
       if (this.suggestionElements.length) {
         if (this.suggestionFocusIndex === null) {
-          this.suggestionFocusIndex = 0;
-          this.suggestionElements[this.suggestionFocusIndex].focus();
+          this.suggestionFocusIndex = 0
+          this.suggestionElements[this.suggestionFocusIndex].focus()
         } else if (this.suggestionFocusIndex + 1 < this.suggestionElements.length) {
-          this.suggestionFocusIndex++;
-          this.suggestionElements[this.suggestionFocusIndex].focus();
+          this.suggestionFocusIndex++
+          this.suggestionElements[this.suggestionFocusIndex].focus()
         }
       }
     },
     onArrowUp() {
       if (this.suggestionElements.length) {
         if (this.suggestionFocusIndex === 0) {
-          this.suggestionFocusIndex = null;
-          this.$refs.autocompleteInput.$el.focus();
+          this.suggestionFocusIndex = null
+          this.$refs.autocompleteInput.$el.focus()
         } else if (this.suggestionFocusIndex) {
-          this.suggestionFocusIndex--;
-          this.suggestionElements[this.suggestionFocusIndex].focus();
+          this.suggestionFocusIndex--
+          this.suggestionElements[this.suggestionFocusIndex].focus()
         }
       }
     },
@@ -256,48 +256,48 @@ export default {
       if (!this.$el.contains(evt.target)) {
         if (this.restrict) {
           // Close suggestions and clear the input.
-          this.closeSuggestions();
+          this.closeSuggestions()
         } else {
           // Close only.
-          this.isOpen = false;
+          this.isOpen = false
         }
       }
     },
     onEnter() {
       if (this.restrict) {
-        this.onArrowDown();
+        this.onArrowDown()
       } else {
-        this.selectSuggestion({ label: this.query });
+        this.selectSuggestion({ label: this.query })
       }
     },
     onEsc() {
-      this.closeSuggestions();
+      this.closeSuggestions()
     },
     onEscInput() {
       if (this.onEscFormInput) {
-        this.onEscFormInput();
+        this.onEscFormInput()
       } else {
-        this.closeSuggestions();
+        this.closeSuggestions()
       }
     },
     populateSuggestions(results) {
-      this.suggestions = results;
-      this.isLoading = false;
-      this.isOpen = true;
-      this.suggestionFocusIndex = null;
+      this.suggestions = results
+      this.isLoading = false
+      this.isOpen = true
+      this.suggestionFocusIndex = null
       this.$nextTick(() => {
-        const el = this.$refs.autocompleteSuggestions;
-        this.suggestionElements = el ? el.querySelectorAll('.dropdown-item') : [];
-      });
+        const el = this.$refs.autocompleteSuggestions
+        this.suggestionElements = el ? el.querySelectorAll('.dropdown-item') : []
+      })
     },
     selectSuggestion(suggestion) {
-      this.isOpen = false;
-      this.query = suggestion.label;
-      this.selectedSuggestion = suggestion;
-      this.$emit('input', suggestion);
+      this.isOpen = false
+      this.query = suggestion.label
+      this.selectedSuggestion = suggestion
+      this.$emit('input', suggestion)
     }
   }
-};
+}
 </script>
 
 <style scoped>

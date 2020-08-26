@@ -72,9 +72,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getTopicsForAppointments } from '@/api/topics';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getTopicsForAppointments } from '@/api/topics'
 
 export default {
   name: 'AppointmentTopics',
@@ -109,36 +109,36 @@ export default {
   created() {
     getTopicsForAppointments().then(rows => {
       this.each(rows, row => {
-        const topic = row['topic'];
+        const topic = row['topic']
         this.topicOptions.push({
           text: topic,
           value: topic,
           disabled: this.includes(this.topics, topic)
         })
-      });
-    });
+      })
+    })
   },
   methods: {
     add(topic) {
       // Reset the dropdown
-      this.selected = null;
+      this.selected = null
       if (topic) {
-        this.setDisabled(topic, true);
-        this.functionAdd(topic);
-        this.topics.sort();
-        this.putFocusNextTick('add-topic-select-list');
-        this.alertScreenReader(`"${topic}" added.`);
+        this.setDisabled(topic, true)
+        this.functionAdd(topic)
+        this.topics.sort()
+        this.putFocusNextTick('add-topic-select-list')
+        this.alertScreenReader(`"${topic}" added.`)
       }
     },
     remove(topic) {
-      this.setDisabled(topic, false);
-      this.functionRemove(topic);
-      this.putFocusNextTick('add-topic-select-list');
-      this.alertScreenReader(`"${topic}" removed.`);
+      this.setDisabled(topic, false)
+      this.functionRemove(topic)
+      this.putFocusNextTick('add-topic-select-list')
+      this.alertScreenReader(`"${topic}" removed.`)
     },
     setDisabled(topic, disable) {
-      const option = this.find(this.topicOptions, ['value', topic]);
-      this.set(option, 'disabled', disable);
+      const option = this.find(this.topicOptions, ['value', topic])
+      this.set(option, 'disabled', disable)
     }
   }
 }

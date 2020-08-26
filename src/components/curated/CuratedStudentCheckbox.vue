@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
+import Context from '@/mixins/Context'
 
 export default {
   name: 'CuratedStudentCheckbox',
@@ -22,18 +22,18 @@ export default {
   }),
   computed: {
     checkboxDescription() {
-      const name = `${this.student.firstName} ${this.student.lastName}`;
+      const name = `${this.student.firstName} ${this.student.lastName}`
       return this.checked
         ? `${name} selected, ready to add to curated group`
-        : `Select ${name} to add to curated group`;
+        : `Select ${name} to add to curated group`
     }
   },
   created() {
-    this.$eventHub.$on('curated-group-select-all', () => (this.status = true));
+    this.$eventHub.$on('curated-group-select-all', () => (this.status = true))
     this.$eventHub.$on(
       'curated-group-deselect-all',
       () => (this.status = false)
-    );
+    )
   },
   methods: {
     toggle(checked) {
@@ -42,9 +42,9 @@ export default {
           ? 'curated-group-checkbox-checked'
           : 'curated-group-checkbox-unchecked',
         this.student.sid
-      );
-      this.alertScreenReader(`${this.student.name} ${checked ? 'selected' : 'deselected'}`);
+      )
+      this.alertScreenReader(`${this.student.name} ${checked ? 'selected' : 'deselected'}`)
     }
   }
-};
+}
 </script>

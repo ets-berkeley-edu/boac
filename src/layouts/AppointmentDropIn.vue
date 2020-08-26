@@ -25,12 +25,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Footer from '@/components/Footer';
-import Loading from '@/mixins/Loading';
-import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement';
-import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Footer from '@/components/Footer'
+import Loading from '@/mixins/Loading'
+import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
+import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentDropIn',
@@ -41,7 +41,7 @@ export default {
   },
   mixins: [Context, Loading, Util],
   created() {
-    this.loaded();
+    this.loaded()
   }
 }
 </script>

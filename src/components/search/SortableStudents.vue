@@ -105,11 +105,11 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentMetadata from '@/mixins/StudentMetadata';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentMetadata from '@/mixins/StudentMetadata'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableStudents',
@@ -142,10 +142,10 @@ export default {
   },
   watch: {
     sortBy() {
-      this.onChangeSortBy();
+      this.onChangeSortBy()
     },
     sortDescending() {
-      this.onChangeSortBy();
+      this.onChangeSortBy()
     }
   },
   created() {
@@ -154,11 +154,11 @@ export default {
       {key: 'avatar', label: '', class: 'pr-0'},
       {key: 'lastName', label: 'Name', sortable: true},
       {key: 'sid', label: 'SID', sortable: true}
-    ];
+    ]
     if (this.options.compact) {
       this.fields = this.fields.concat([
         {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
-      ]);
+      ])
     } else {
       this.fields = this.fields.concat([
         {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
@@ -167,7 +167,7 @@ export default {
         {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
         {key: 'cumulativeGPA', label: 'GPA', sortable: true},
         {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
-      ]);
+      ])
     }
   },
   methods: {
@@ -178,35 +178,35 @@ export default {
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
     normalizeForSort(value) {
-      return this.isString(value) ? value.toLowerCase() : value;
+      return this.isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this.find(this.fields, ['key', this.sortBy]);
-      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
+      const field = this.find(this.fields, ['key', this.sortBy])
+      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.get(a, sortBy);
-      let bValue = this.get(b, sortBy);
+      let aValue = this.get(a, sortBy)
+      let bValue = this.get(b, sortBy)
       // If column type is number then nil is treated as zero.
-      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : this.normalizeForSort(aValue);
-      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue);
-      let result = this.sortComparator(aValue, bValue);
+      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
+      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
+      let result = this.sortComparator(aValue, bValue)
       if (result === 0) {
         this.each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(
             this.normalizeForSort(this.get(a, field)),
             this.normalizeForSort(this.get(b, field))
-          );
+          )
           // Secondary sort is always ascending
-          result *= sortDesc ? -1 : 1;
+          result *= sortDesc ? -1 : 1
           // Break from loop if comparator result is non-zero
-          return result === 0;
-        });
+          return result === 0
+        })
       }
-      return result;
+      return result
     }
   }
-};
+}
 </script>
 
 <style>

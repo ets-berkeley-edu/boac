@@ -1,7 +1,7 @@
 <script>
-import _ from 'lodash';
-import store from '@/store';
-import { mapActions, mapGetters } from 'vuex';
+import _ from 'lodash'
+import store from '@/store'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'NoteEditSession',
@@ -41,8 +41,8 @@ export default {
       'setSubject'
     ]),
     setSubjectPerEvent(event) {
-      store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value);
+      store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value)
     }
   }
-};
+}
 </script>

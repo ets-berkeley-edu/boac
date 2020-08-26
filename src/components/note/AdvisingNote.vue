@@ -143,12 +143,12 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Attachments from '@/mixins/Attachments';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { addAttachments, removeAttachment } from '@/api/notes';
-import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user';
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Attachments from '@/mixins/Attachments'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { addAttachments, removeAttachment } from '@/api/notes'
+import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user'
 
 export default {
   name: 'AdvisingNote',
@@ -173,111 +173,111 @@ export default {
   }),
   computed: {
     isEditable() {
-      return !this.note.isLegacy;
+      return !this.note.isLegacy
     }
   },
   watch: {
     attachments(files) {
       if (this.size(files)) {
-        this.attachmentError = this.validateAttachment(files, this.existingAttachments);
+        this.attachmentError = this.validateAttachment(files, this.existingAttachments)
         if (this.attachmentError) {
-          this.resetFileInput();
+          this.resetFileInput()
         } else {
-          this.clearErrors();
+          this.clearErrors()
           this.each(files, attachment => {
             attachment.displayName = attachment.name
-            this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`);
-          });
-          this.uploadingAttachment = true;
+            this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
+          })
+          this.uploadingAttachment = true
           addAttachments(this.note.id, files).then(updatedNote => {
-            this.alertScreenReader(`${this.size(files)} ${this.size(files) === 1 ? 'attachment' : 'attachments'} added.`);
-            this.afterSaved(updatedNote);
-            this.resetAttachments();
-            this.uploadingAttachment = false;
+            this.alertScreenReader(`${this.size(files)} ${this.size(files) === 1 ? 'attachment' : 'attachments'} added.`)
+            this.afterSaved(updatedNote)
+            this.resetAttachments()
+            this.uploadingAttachment = false
           })
             .catch(error => {
-              this.alertScreenReader();
-              this.attachmentError = this.get(error, 'message');
-              this.uploadingAttachment = false;
-              this.resetFileInput();
-            });
+              this.alertScreenReader()
+              this.attachmentError = this.get(error, 'message')
+              this.uploadingAttachment = false
+              this.resetFileInput()
+            })
         }
       }
     },
     isOpen() {
-      this.clearErrors();
-      this.setAuthor();
+      this.clearErrors()
+      this.setAuthor()
     },
     note() {
-      this.resetAttachments();
+      this.resetAttachments()
     }
   },
   created() {
-    this.setAuthor();
-    this.resetAttachments();
+    this.setAuthor()
+    this.resetAttachments()
   },
   methods: {
     setAuthor() {
-      const requiresLazyLoad = this.isOpen && (!this.get(this.note, 'author.name') || !this.get(this.note, 'author.role'));
+      const requiresLazyLoad = this.isOpen && (!this.get(this.note, 'author.name') || !this.get(this.note, 'author.role'))
       if (requiresLazyLoad) {
-        const hasIdentifier = this.get(this.note, 'author.uid') || this.get(this.note, 'author.sid');
+        const hasIdentifier = this.get(this.note, 'author.uid') || this.get(this.note, 'author.sid')
         if (hasIdentifier) {
-          const author_uid = this.note.author.uid;
+          const author_uid = this.note.author.uid
           if (author_uid) {
             if (author_uid === this.$currentUser.uid) {
-              this.note.author = this.$currentUser;
+              this.note.author = this.$currentUser
             } else {
               getCalnetProfileByUid(author_uid).then(data => {
-                this.note.author = data;
-              });
+                this.note.author = data
+              })
             }
           } else if (this.note.author.sid) {
             getCalnetProfileByCsid(this.note.author.sid).then(data => {
-              this.note.author = data;
-            });
+              this.note.author = data
+            })
           }
         }
       }
     },
     removeAttachment(index) {
-      this.clearErrors();
-      const removeMe = this.existingAttachments[index];
+      this.clearErrors()
+      const removeMe = this.existingAttachments[index]
       if (removeMe.id) {
-        this.deleteAttachmentIndex = index;
-        this.showConfirmDeleteAttachment = true;
+        this.deleteAttachmentIndex = index
+        this.showConfirmDeleteAttachment = true
       } else {
-        this.existingAttachments.splice(index, 1);
+        this.existingAttachments.splice(index, 1)
       }
     },
     cancelRemoveAttachment() {
-      this.showConfirmDeleteAttachment = false;
-      this.deleteAttachmentIndex = null;
+      this.showConfirmDeleteAttachment = false
+      this.deleteAttachmentIndex = null
     },
     clearErrors() {
-      this.attachmentError = null;
+      this.attachmentError = null
     },
     confirmedRemoveAttachment() {
-      this.showConfirmDeleteAttachment = false;
-      const attachment = this.existingAttachments[this.deleteAttachmentIndex];
-      this.existingAttachments.splice(this.deleteAttachmentIndex, 1);
+      this.showConfirmDeleteAttachment = false
+      const attachment = this.existingAttachments[this.deleteAttachmentIndex]
+      this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
       removeAttachment(this.note.id, attachment.id).then(updatedNote => {
-        this.alertScreenReader(`Attachment '${attachment.displayName}' removed`);
-        this.afterSaved(updatedNote);
-      });
+        this.alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+        this.afterSaved(updatedNote)
+      })
     },
     displayName(attachments, index) {
-      return this.size(attachments) <= index ? '' : attachments[index].displayName;
+      return this.size(attachments) <= index ? '' : attachments[index].displayName
     },
     downloadUrl(attachment) {
-      return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`;
+      return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
     resetAttachments() {
-      this.existingAttachments = this.cloneDeep(this.note.attachments);
+      this.existingAttachments = this.cloneDeep(this.note.attachments)
     },
     resetFileInput() {
-      const inputElement = this.$refs['attachment-file-input'];
+      const inputElement = this.$refs['attachment-file-input']
       if (inputElement) {
-        inputElement.reset();
+        inputElement.reset()
       }
     }
   },

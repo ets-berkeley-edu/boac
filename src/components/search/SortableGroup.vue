@@ -81,11 +81,11 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import SortableStudents from '@/components/search/SortableStudents';
-import Util from '@/mixins/Util';
-import { getStudentsWithAlerts as getCohortStudentsWithAlerts } from '@/api/cohort';
-import { getStudentsWithAlerts as getCuratedStudentsWithAlerts } from '@/api/curated';
+import Context from '@/mixins/Context'
+import SortableStudents from '@/components/search/SortableStudents'
+import Util from '@/mixins/Util'
+import { getStudentsWithAlerts as getCohortStudentsWithAlerts } from '@/api/cohort'
+import { getStudentsWithAlerts as getCuratedStudentsWithAlerts } from '@/api/curated'
 
 export default {
   name: 'SortableGroup',
@@ -113,10 +113,10 @@ export default {
   computed: {
     openAndLoaded: {
       get: function() {
-        return this.isOpen && !this.isFetching;
+        return this.isOpen && !this.isFetching
       },
       set: function(value) {
-        this.isOpen = value;
+        this.isOpen = value
       }
     },
     sortableGroupOptions() {
@@ -129,29 +129,29 @@ export default {
     }
   },
   mounted() {
-    this.keyword = this.isCohort ? 'cohort' : 'curated';
+    this.keyword = this.isCohort ? 'cohort' : 'curated'
   },
   methods: {
     fetchStudents() {
-      this.isOpen = !this.isOpen;
+      this.isOpen = !this.isOpen
       if (this.isNil(this.studentsWithAlerts)) {
-        this.isFetching = true;
-        const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent;
-        const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts;
+        this.isFetching = true
+        const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent
+        const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
         apiCall(this.group.id).then(students => {
-          this.studentsWithAlerts = students;
-          this.isFetching = false;
-          this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`);
+          this.studentsWithAlerts = students
+          this.isFetching = false
+          this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`)
           ga({
             id: this.group.id,
             name: this.group.name,
             action: 'Fetch students with alerts'
-          });
-        });
+          })
+        })
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

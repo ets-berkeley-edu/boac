@@ -21,6 +21,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-unexpected-multiline': 2,
     'quotes': [2, 'single'],
+    'semi': [2, 'never'],
     'vue-a11y/label-has-for': [
       2,
       {

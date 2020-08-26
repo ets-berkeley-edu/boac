@@ -71,8 +71,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableCourseList',
@@ -94,66 +94,66 @@ export default {
     sortedCourses: []
   }),
   created() {
-    this.sort.by = 'section';
-    this.sortedCourses = this.courses.sort(this.courseComparator);
+    this.sort.by = 'section'
+    this.sortedCourses = this.courses.sort(this.courseComparator)
   },
   methods: {
     courseSort(sortBy) {
       if (this.sort.by !== sortBy) {
-        this.sort.by = sortBy;
-        this.sort.reverse[sortBy] = false;
-        this.sortedCourses = this.courses.sort(this.courseComparator);
+        this.sort.by = sortBy
+        this.sort.reverse[sortBy] = false
+        this.sortedCourses = this.courses.sort(this.courseComparator)
       } else {
-        this.sort.reverse[sortBy] = !this.sort.reverse[sortBy];
-        this.sortedCourses = this.sortedCourses.reverse();
+        this.sort.reverse[sortBy] = !this.sort.reverse[sortBy]
+        this.sortedCourses = this.sortedCourses.reverse()
       }
-      this.alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`);
+      this.alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
     },
     courseComparator(c1, c2) {
       if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {
-        return c1.courseTitle > c2.courseTitle ? 1 : -1;
+        return c1.courseTitle > c2.courseTitle ? 1 : -1
       }
       // If sorting by section name, attempt to compare by subject area.
-      let split1 = this.splitCourseName(c1);
-      let split2 = this.splitCourseName(c2);
+      let split1 = this.splitCourseName(c1)
+      let split2 = this.splitCourseName(c2)
       if (split1[0] > split2[0]) {
-        return 1;
+        return 1
       }
       if (split1[0] < split2[0]) {
-        return -1;
+        return -1
       }
       // If subject areas are identical, extract and compare numeric portion of catalog id.
-      let code1 = parseInt(split1[1].match(/\d+/)[0], 10);
-      let code2 = parseInt(split2[1].match(/\d+/)[0], 10);
+      let code1 = parseInt(split1[1].match(/\d+/)[0], 10)
+      let code2 = parseInt(split2[1].match(/\d+/)[0], 10)
       if (code1 > code2) {
-        return 1;
+        return 1
       }
       if (code1 < code2) {
-        return -1;
+        return -1
       }
       // If catalog ids are numerically identical then handle prefixes and suffixes with alphabetic comparison.
       if (split1[1] > split2[1]) {
-        return 1;
+        return 1
       }
       if (split1[1] < split2[1]) {
-        return -1;
+        return -1
       }
       // Instruction format and section number.
       if (c1.instructionFormat > c2.instructionFormat) {
-        return 1;
+        return 1
       }
       if (c1.instructionFormat < c2.instructionFormat) {
-        return -1;
+        return -1
       }
-      return c1.sectionNum > c2.sectionNum ? 1 : -1;
+      return c1.sectionNum > c2.sectionNum ? 1 : -1
     },
     splitCourseName(course) {
-      let split = course.courseName.split(' ');
-      return [split.slice(0, -1).join(' '), split[split.length - 1]];
+      let split = course.courseName.split(' ')
+      return [split.slice(0, -1).join(' '), split[split.length - 1]]
     },
     describeReverse: reverse => (reverse ? 'descending' : '')
   }
-};
+}
 </script>
 
 <style scoped>

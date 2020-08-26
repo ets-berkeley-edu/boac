@@ -28,18 +28,18 @@ export default {
     return {
       counter: this.defaultCounter,
       query: ''
-    };
+    }
   },
   created() {
     if (this.queryArgs) {
       this.$_.each(this.$_.keys(this.queryArgs), key => {
-        this.query += `&${key}=${this.queryArgs[key]}`;
-      });
+        this.query += `&${key}=${this.queryArgs[key]}`
+      })
     }
   },
   methods: {
     incrementCounter() {
-      this.counter = this.counter + 1;
+      this.counter = this.counter + 1
     }
   }
 }

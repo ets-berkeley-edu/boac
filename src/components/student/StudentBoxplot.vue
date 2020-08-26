@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentBoxplot',
@@ -59,7 +59,7 @@ export default {
           return {
             x: 90,
             y: -75
-          };
+          }
         },
         shadow: false,
         useHTML: true,
@@ -93,17 +93,17 @@ export default {
     courseDeciles: undefined
   }),
   mounted() {
-    this.courseDeciles = this.get(this.dataset, 'courseDeciles');
-    this.renderBoxplot();
+    this.courseDeciles = this.get(this.dataset, 'courseDeciles')
+    this.renderBoxplot()
   },
   methods: {
     getCourseDecile(index) {
-      return this.courseDeciles && this.courseDeciles.length > index ? this.courseDeciles[index] : null;
+      return this.courseDeciles && this.courseDeciles.length > index ? this.courseDeciles[index] : null
     },
     renderBoxplot() {
-      this.boxplotOptions.series = this.generateSeriesFromDataset();
-      this.boxplotOptions.tooltip.headerFormat = this.generateTooltipHeader();
-      this.boxplotOptions.tooltip.pointFormat = this.generateTooltipBody();
+      this.boxplotOptions.series = this.generateSeriesFromDataset()
+      this.boxplotOptions.tooltip.headerFormat = this.generateTooltipHeader()
+      this.boxplotOptions.tooltip.pointFormat = this.generateTooltipBody()
     },
     generateSeriesFromDataset() {
       return [
@@ -132,7 +132,7 @@ export default {
           },
           type: 'scatter'
         }
-      ];
+      ]
     },
     generateTooltipBody() {
       return `
@@ -167,7 +167,7 @@ export default {
         this.getCourseDecile(0) || '--'
       }</div>
           </div>
-        </div>`;
+        </div>`
     },
     generateTooltipHeader() {
       return `
@@ -176,10 +176,10 @@ export default {
           <div class="student-chart-tooltip-value">${
         this.get(this.dataset.student, 'raw') || '--'
       }</div>
-        </div>`;
+        </div>`
     }
   }
-};
+}
 </script>
 
 <style src="./student-chart.css">

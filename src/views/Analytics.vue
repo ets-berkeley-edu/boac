@@ -38,13 +38,13 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Loading from '@/mixins/Loading';
-import NotesReport from '@/components/reports/NotesReport';
-import Spinner from '@/components/util/Spinner';
-import UserReport from '@/components/reports/UserReport';
-import Util from '@/mixins/Util';
-import { getAvailableDepartmentReports } from '@/api/reports';
+import Context from '@/mixins/Context'
+import Loading from '@/mixins/Loading'
+import NotesReport from '@/components/reports/NotesReport'
+import Spinner from '@/components/util/Spinner'
+import UserReport from '@/components/reports/UserReport'
+import Util from '@/mixins/Util'
+import { getAvailableDepartmentReports } from '@/api/reports'
 
 export default {
   name: 'Admin',
@@ -59,21 +59,21 @@ export default {
     department: undefined,
   }),
   mounted() {
-    this.deptCode = this.trim(this.get(this.$route, 'params.deptCode')).toUpperCase();
+    this.deptCode = this.trim(this.get(this.$route, 'params.deptCode')).toUpperCase()
     getAvailableDepartmentReports().then(departments => {
       if (this.includes(this.map(departments, 'code'), this.deptCode)) {
-        this.availableDepartments = departments;
-        this.render();
-        this.loaded('Reports');
+        this.availableDepartments = departments
+        this.render()
+        this.loaded('Reports')
       } else {
-        this.$router.push({ path: '/404' });
+        this.$router.push({ path: '/404' })
       }
-    });
+    })
   },
   methods: {
     render() {
-      this.department = this.find(this.availableDepartments, ['code', this.deptCode]);
+      this.department = this.find(this.availableDepartments, ['code', this.deptCode])
     }
   }
-};
+}
 </script>

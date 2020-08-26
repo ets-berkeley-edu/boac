@@ -170,9 +170,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { createOrUpdateUser } from '@/api/user';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { createOrUpdateUser } from '@/api/user'
 
 export default {
   name: 'EditUserProfileModal',
@@ -208,35 +208,35 @@ export default {
   }),
   computed: {
     isExistingUser() {
-      return !!this.profile.id;
+      return !!this.profile.id
     }
   },
   methods: {
     addDepartment() {
       if (this.deptCode) {
-        const dept = this.find(this.departments, ['code', this.deptCode]);
+        const dept = this.find(this.departments, ['code', this.deptCode])
         this.memberships.push({
           code: dept.code,
           name: dept.name,
           role: undefined,
           automateMembership: true
-        });
-        const option = this.find(this.departmentOptions, ['value', this.deptCode]);
-        option.disabled = true;
-        this.deptCode = undefined;
+        })
+        const option = this.find(this.departmentOptions, ['value', this.deptCode])
+        option.disabled = true
+        this.deptCode = undefined
       }
     },
     cancel() {
-      this.closeModal();
+      this.closeModal()
     },
     closeModal() {
-      this.error = undefined;
-      this.userProfile = undefined;
-      this.memberships = undefined;
-      this.showEditUserModal = false;
+      this.error = undefined
+      this.userProfile = undefined
+      this.memberships = undefined
+      this.showEditUserModal = false
     },
     openEditUserModal() {
-      this.putFocusNextTick(this.profile.id ? 'edit-modal-header' : 'uid-input');
+      this.putFocusNextTick(this.profile.id ? 'edit-modal-header' : 'uid-input')
       this.userProfile = {
         id: this.profile.id,
         uid: this.profile.uid,
@@ -246,9 +246,9 @@ export default {
         departments: [],
         isAdmin: this.profile.isAdmin,
         isBlocked: this.profile.isBlocked
-      };
-      this.isDeleted = !!this.profile.deletedAt;
-      this.memberships = [];
+      }
+      this.isDeleted = !!this.profile.deletedAt
+      this.memberships = []
       this.each(this.profile.departments, d => {
         if (d.role) {
           this.memberships.push({
@@ -256,43 +256,43 @@ export default {
             code: d.code,
             name: d.name,
             role: d.role,
-          });
+          })
         }
-      });
-      this.departmentOptions = [];
+      })
+      this.departmentOptions = []
       this.each(this.departments, d => {
         this.departmentOptions.push({
           disabled: !!this.find(this.memberships, ['code', d.code]),
           value: d.code,
           text: d.name
-        });
-      });
-      this.showEditUserModal = true;
+        })
+      })
+      this.showEditUserModal = true
     },
     removeDepartment(deptCode) {
-      let indexOf = this.memberships.findIndex(d => d.code === deptCode);
-      this.memberships.splice(indexOf, 1);
-      const option = this.find(this.departmentOptions, ['value', deptCode]);
-      option.disabled = false;
+      let indexOf = this.memberships.findIndex(d => d.code === deptCode)
+      this.memberships.splice(indexOf, 1)
+      const option = this.find(this.departmentOptions, ['value', deptCode])
+      option.disabled = false
     },
     save() {
-      const undefinedRoles = this.filterList(this.memberships, r => this.isNil(r.role));
+      const undefinedRoles = this.filterList(this.memberships, r => this.isNil(r.role))
       if (undefinedRoles.length) {
-        const deptNames = this.map(undefinedRoles, 'name');
-        this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`;
+        const deptNames = this.map(undefinedRoles, 'name')
+        this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`
       } else {
         // If no change in deleted status then do not update 'deleted_at' in the database.
-        const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted;
+        const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted
         createOrUpdateUser(this.userProfile, this.memberships, deleteAction).then(() => {
-          this.afterUpdateUser(this.profile);
-          this.closeModal();
+          this.afterUpdateUser(this.profile)
+          this.closeModal()
         }).catch(error => {
-          this.error = this.get(error, 'response.data.message') || error;
-        });
+          this.error = this.get(error, 'response.data.message') || error
+        })
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

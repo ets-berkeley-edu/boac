@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import StudentUnitsChart from '@/components/student/StudentUnitsChart';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import StudentUnitsChart from '@/components/student/StudentUnitsChart'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentProfileUnits',
@@ -52,21 +52,21 @@ export default {
     currentEnrolledUnits: undefined
   }),
   created() {
-    this.cumulativeUnits = this.get(this.student, 'sisProfile.cumulativeUnits');
+    this.cumulativeUnits = this.get(this.student, 'sisProfile.cumulativeUnits')
     const currentEnrollmentTerm = this.find(
       this.get(this.student, 'enrollmentTerms'),
       {
         termId: this.toString(this.$config.currentEnrollmentTermId)
       }
-    );
+    )
     if (currentEnrollmentTerm) {
       this.currentEnrolledUnits = this.get(
         currentEnrollmentTerm,
         'enrolledUnits'
-      );
+      )
     }
   }
-};
+}
 </script>
 
 <style scoped>

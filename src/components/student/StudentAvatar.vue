@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
+import Context from '@/mixins/Context'
 
 export default {
   name: 'StudentAvatar',
@@ -36,17 +36,17 @@ export default {
     avatarUrl: undefined
   }),
   created() {
-    this.avatarUrl = this.student.photoUrl;
+    this.avatarUrl = this.student.photoUrl
     this.avatarStyle = `student-avatar-${this.size} ${
       this.$currentUser.inDemoMode ? 'img-blur' : ''
-    }`;
+    }`
   },
   methods: {
     avatarError() {
-      this.avatarUrl = require('@/assets/avatar-50.png');
+      this.avatarUrl = require('@/assets/avatar-50.png')
     }
   }
-};
+}
 </script>
 
 <style scoped>

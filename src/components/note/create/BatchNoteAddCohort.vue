@@ -41,9 +41,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'BatchNoteAddCohort',
@@ -78,24 +78,24 @@ export default {
   }),
   computed: {
     addedIds() {
-      return this.map(this.added, 'id');
+      return this.map(this.added, 'id')
     }
   },
   created() {
-    this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort';
-    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.myCohorts;
-    this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort';
+    this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
+    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.myCohorts
+    this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {
     addItem(object) {
-      this.added.push(object);
-      this.addObject(object);
-      this.alertScreenReader(`${this.header} ${object.name} added to batch note`);
+      this.added.push(object)
+      this.addObject(object)
+      this.alertScreenReader(`${this.header} ${object.name} added to batch note`)
     },
     remove(object) {
-      this.added = this.filterList(this.added, a => a.id !== object.id);
-      this.removeObject(object);
-      this.alertScreenReader(`${this.header} ${object.name} removed from batch note`);
+      this.added = this.filterList(this.added, a => a.id !== object.id)
+      this.removeObject(object)
+      this.alertScreenReader(`${this.header} ${object.name} removed from batch note`)
     }
   }
 }

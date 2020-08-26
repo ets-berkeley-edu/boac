@@ -62,11 +62,11 @@
 </template>
 
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession';
-import Context from '@/mixins/Context';
-import CreateCohortModal from '@/components/cohort/CreateCohortModal';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import Util from '@/mixins/Util';
+import CohortEditSession from '@/mixins/CohortEditSession'
+import Context from '@/mixins/Context'
+import CreateCohortModal from '@/components/cohort/CreateCohortModal'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'ApplyAndSaveButtons',
@@ -78,65 +78,65 @@ export default {
   }),
   computed: {
     saveButtonVariant() {
-      return this.isPerforming === 'acknowledgeSave' ? 'success' : 'primary';
+      return this.isPerforming === 'acknowledgeSave' ? 'success' : 'primary'
     }
   },
   methods: {
     apply() {
-      this.$eventHub.$emit('cohort-apply-filters');
-      this.isPerforming = 'search';
+      this.$eventHub.$emit('cohort-apply-filters')
+      this.isPerforming = 'search'
       this.applyFilters(this.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')).then(() => {
-        this.putFocusNextTick('cohort-results-header');
-        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search');
-        this.isPerforming = null;
-      });
+        this.putFocusNextTick('cohort-results-header')
+        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')
+        this.isPerforming = null
+      })
     },
     cancelCreateModal() {
-      this.alertScreenReader('Cancelled');
-      this.showCreateModal = false;
+      this.alertScreenReader('Cancelled')
+      this.showCreateModal = false
     },
     create(name) {
-      this.showCreateModal = false;
-      this.isPerforming = 'save';
+      this.showCreateModal = false
+      this.isPerforming = 'save'
       this.createCohort(name).then(() => {
-        this.savedCohortCallback(`Cohort "${name}" created`);
-        this.setPageTitle(this.cohortName);
-        this.$ga.cohortEvent(this.cohortId, name, 'create');
-        history.pushState({}, null, `/cohort/${this.cohortId}`);
-        this.isPerforming = null;
-      });
+        this.savedCohortCallback(`Cohort "${name}" created`)
+        this.setPageTitle(this.cohortName)
+        this.$ga.cohortEvent(this.cohortId, name, 'create')
+        history.pushState({}, null, `/cohort/${this.cohortId}`)
+        this.isPerforming = null
+      })
     },
     resetToLastApply() {
-      this.alertScreenReader('Resetting filters');
-      this.resetFiltersToLastApply();
+      this.alertScreenReader('Resetting filters')
+      this.resetFiltersToLastApply()
     },
     resetToSaved() {
-      this.isPerforming = 'search';
+      this.isPerforming = 'search'
       this.resetFiltersToSaved(this.cohortId).then(() => {
-        this.alertScreenReader('Filters reset');
-        this.isPerforming = null;
-      });
+        this.alertScreenReader('Filters reset')
+        this.isPerforming = null
+      })
     },
     save() {
       if (this.cohortId) {
-        this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`);
-        this.isPerforming = 'save';
+        this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`)
+        this.isPerforming = 'save'
         this.saveExistingCohort().then(() => {
-          this.$ga.cohortEvent(this.cohortId, this.cohortName, 'save');
-          this.savedCohortCallback(`Cohort "${this.cohortName}" saved`);
-        });
+          this.$ga.cohortEvent(this.cohortId, this.cohortName, 'save')
+          this.savedCohortCallback(`Cohort "${this.cohortName}" saved`)
+        })
       } else {
-        this.showCreateModal = true;
-        this.alertScreenReader('Create cohort form is open');
+        this.showCreateModal = true
+        this.alertScreenReader('Create cohort form is open')
       }
     },
     savedCohortCallback(updateStatus) {
-      this.alertScreenReader(updateStatus);
-      this.isPerforming = 'acknowledgeSave';
-      setTimeout(() => (this.isPerforming = null), 2000);
+      this.alertScreenReader(updateStatus)
+      this.isPerforming = 'acknowledgeSave'
+      setTimeout(() => (this.isPerforming = null), 2000)
     }
   }
-};
+}
 </script>
 
 <style scoped>

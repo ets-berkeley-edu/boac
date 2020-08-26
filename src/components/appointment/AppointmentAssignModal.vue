@@ -62,10 +62,10 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getDropInAdvisorsForDept } from '@/api/user';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getDropInAdvisorsForDept } from '@/api/user'
 
 export default {
   name: 'AppointmentAssignModal',
@@ -95,25 +95,25 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showAppointmentAssignModal = value;
+      this.showAppointmentAssignModal = value
     }
   },
   created() {
-    this.showAppointmentAssignModal = this.showModal;
+    this.showAppointmentAssignModal = this.showModal
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
       this.dropInAdvisors = this.$_.filter(dropInAdvisors, a => {
-        return a.available || a.uid === this.$currentUser.uid;
-      });
-    });
+        return a.available || a.uid === this.$currentUser.uid
+      })
+    })
   },
   methods: {
     assign() {
-      const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid});
+      const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
       if (advisor) {
-        this.appointmentAssign(advisor);
+        this.appointmentAssign(advisor)
       }
-      this.alertScreenReader(`Assigned to ${advisor.name}`);
-      this.showAppointmentAssignModal = false;
+      this.alertScreenReader(`Assigned to ${advisor.name}`)
+      this.showAppointmentAssignModal = false
     }
   }
 }

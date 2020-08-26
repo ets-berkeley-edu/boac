@@ -169,13 +169,13 @@
 </template>
 
 <script>
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector';
-import StudentMetadata from '@/mixins/StudentMetadata';
-import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails';
-import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan';
-import Util from '@/mixins/Util';
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector'
+import StudentMetadata from '@/mixins/StudentMetadata'
+import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails'
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentProfileHeader',
@@ -202,33 +202,33 @@ export default {
   }),
   computed: {
     academicCareerStatus() {
-      return this.get(this.student, 'sisProfile.academicCareerStatus');
+      return this.get(this.student, 'sisProfile.academicCareerStatus')
     },
     belowTheFoldMajors() {
       // Send inactive majors below the fold only if we have active majors to show above the fold.
-      return this.plansPartitionedByStatus[0].length ? this.plansPartitionedByStatus[1] : [];
+      return this.plansPartitionedByStatus[0].length ? this.plansPartitionedByStatus[1] : []
     },
     belowTheFoldMinors() {
       // Send inactive minors below the fold only if we have active majors to show above the fold.
-      return this.plansPartitionedByStatus[0].length ? this.plansMinorPartitionedByStatus[1] : [];
+      return this.plansPartitionedByStatus[0].length ? this.plansMinorPartitionedByStatus[1] : []
     },
     plansPartitionedByStatus() {
-      return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active');
+      return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
     },
     plansMinorPartitionedByStatus() {
-      return this.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active');
+      return this.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     }
   },
   created() {
-    this.isAscInactive = this.displayAsAscInactive(this.student);
-    this.isCoeInactive = this.displayAsCoeInactive(this.student);
-    const plans = this.get(this.student, 'sisProfile.degree.plans');
+    this.isAscInactive = this.displayAsAscInactive(this.student)
+    this.isCoeInactive = this.displayAsCoeInactive(this.student)
+    const plans = this.get(this.student, 'sisProfile.degree.plans')
     if (plans) {
-      this.degreePlans = this.uniq(this.map(plans, 'plan'));
-      this.degreePlanOwners = this.uniq(this.map(plans, 'group'));
+      this.degreePlans = this.uniq(this.map(plans, 'plan'))
+      this.degreePlanOwners = this.uniq(this.map(plans, 'group'))
     }
   }
-};
+}
 </script>
 
 <style>

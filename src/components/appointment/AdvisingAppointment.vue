@@ -115,10 +115,10 @@
 </template>
 
 <script>
-import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getCalnetProfileByUid } from '@/api/user';
+import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getCalnetProfileByUid } from '@/api/user'
 
 export default {
   name: 'AdvisingAppointment',
@@ -144,35 +144,35 @@ export default {
   },
   watch: {
     isOpen() {
-      this.setAdvisor();
+      this.setAdvisor()
     }
   },
   created() {
-    this.setAdvisor();
+    this.setAdvisor()
   },
   methods: {
     datePerTimezone(date) {
-      return this.$moment(date).tz(this.$config.timezone);
+      return this.$moment(date).tz(this.$config.timezone)
     },
     downloadUrl(attachment) {
-      return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`;
+      return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
     },
     isUserDropInAdvisor(deptCode) {
-      const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode');
-      return this.includes(deptCodes, this.upperCase(deptCode));
+      const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
+      return this.includes(deptCodes, this.upperCase(deptCode))
     },
     setAdvisor() {
-      const requiresLazyLoad = this.isOpen && (!this.get(this.appointment, 'advisor.name') || !this.get(this.appointment, 'advisor.title'));
+      const requiresLazyLoad = this.isOpen && (!this.get(this.appointment, 'advisor.name') || !this.get(this.appointment, 'advisor.title'))
       if (requiresLazyLoad) {
         if (this.get(this.appointment, 'advisor.uid')) {
-          const advisor_uid = this.appointment.advisor.uid;
+          const advisor_uid = this.appointment.advisor.uid
           if (advisor_uid) {
             if (advisor_uid === this.$currentUser.uid) {
-              this.appointment.advisor = this.$currentUser;
+              this.appointment.advisor = this.$currentUser
             } else {
               getCalnetProfileByUid(advisor_uid).then(data => {
-                this.appointment.advisor = data;
-              });
+                this.appointment.advisor = data
+              })
             }
           }
         }

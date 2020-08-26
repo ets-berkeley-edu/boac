@@ -58,10 +58,10 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import DropInAdvisingToggle from '@/components/admin/DropInAdvisingToggle';
-import Util from '@/mixins/Util';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import DropInAdvisingToggle from '@/components/admin/DropInAdvisingToggle'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'MyProfile',

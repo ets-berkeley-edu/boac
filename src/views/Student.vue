@@ -33,20 +33,20 @@
 </template>
 
 <script>
-import AcademicTimeline from '@/components/student/profile/AcademicTimeline';
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import Loading from '@/mixins/Loading';
-import Scrollable from '@/mixins/Scrollable';
-import Spinner from '@/components/util/Spinner';
-import StudentClasses from '@/components/student/profile/StudentClasses';
-import NoteEditSession from '@/mixins/NoteEditSession';
-import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA';
-import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader';
-import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits';
-import Util from '@/mixins/Util';
-import { getStudentByUid } from '@/api/student';
+import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import Loading from '@/mixins/Loading'
+import Scrollable from '@/mixins/Scrollable'
+import Spinner from '@/components/util/Spinner'
+import StudentClasses from '@/components/student/profile/StudentClasses'
+import NoteEditSession from '@/mixins/NoteEditSession'
+import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
+import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
+import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
+import Util from '@/mixins/Util'
+import { getStudentByUid } from '@/api/student'
 
 export default {
   name: 'Student',
@@ -73,86 +73,86 @@ export default {
     anchor: () => location.hash
   },
   beforeRouteLeave(to, from, next) {
-    this.confirmExitAndEndSession(next);
+    this.confirmExitAndEndSession(next)
   },
   created() {
-    let uid = this.get(this.$route, 'params.uid');
+    let uid = this.get(this.$route, 'params.uid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
-      uid = window.atob(uid);
+      uid = window.atob(uid)
     }
     getStudentByUid(uid).then(student => {
       if (student) {
-        this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name);
-        this.assign(this.student, student);
-        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm);
-        this.loaded(this.student);
+        this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
+        this.assign(this.student, student)
+        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
+        this.loaded(this.student)
       } else {
-        this.$router.push({ path: '/404' });
+        this.$router.push({ path: '/404' })
       }
-    });
+    })
 
   },
   mounted() {
     if (!this.anchor) {
-      this.scrollToTop();
+      this.scrollToTop()
     }
   },
   methods: {
     confirmExitAndEndSession(next) {
       if (this.noteMode) {
-        this.alertScreenReader('Are you sure you want to discard unsaved changes?');
+        this.alertScreenReader('Are you sure you want to discard unsaved changes?')
         this.cancelConfirmed = () => {
-          this.exitSession();
-          next();
-        };
+          this.exitSession()
+          next()
+        }
         this.cancelTheCancel = () => {
-          this.alertScreenReader('Please save changes before exiting the page.');
-          this.showAreYouSureModal = false;
-          next(false);
-        };
-        this.showAreYouSureModal = true;
+          this.alertScreenReader('Please save changes before exiting the page.')
+          this.showAreYouSureModal = false
+          next(false)
+        }
+        this.showAreYouSureModal = true
       } else {
-        this.exitSession();
-        next();
+        this.exitSession()
+        next()
       }
     },
     decorateCourse(course) {
       // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
-      const useCourseCode = /^[A-Z].*[A-Za-z]{3} \d/.test(course.courseCode);
+      const useCourseCode = /^[A-Z].*[A-Za-z]{3} \d/.test(course.courseCode)
       return this.merge(course, {
         displayName: useCourseCode ? course.courseCode : course.courseName,
         title: useCourseCode ? course.courseName : null,
         canvasSites: [course]
-      });
+      })
     },
     parseEnrollmentTerm(term) {
       // Merge in unmatched canvas sites
       const unmatched = this.map(
         term.unmatchedCanvasSites,
         this.decorateCourse
-      );
-      term.enrollments = this.concat(term.enrollments, unmatched);
-      this.each(term.enrollments, this.parseCourse);
+      )
+      term.enrollments = this.concat(term.enrollments, unmatched)
+      this.each(term.enrollments, this.parseCourse)
       if (this.get(term, 'termGpa.unitsTakenForGpa')) {
         this.student.termGpa.push({
           name: this.get(term, 'termName'),
           gpa: this.get(term, 'termGpa.gpa')
-        });
+        })
       }
     },
     parseCourse(course) {
-      const canAccessCanvasData = this.$currentUser.canAccessCanvasData;
-      const fullProfileAvailable = !this.student.fullProfilePending;
-      this.setWaitlistedStatus(course);
+      const canAccessCanvasData = this.$currentUser.canAccessCanvasData
+      const fullProfileAvailable = !this.student.fullProfilePending
+      this.setWaitlistedStatus(course)
       this.each(course.sections, function(section) {
-        course.isOpen = false;
-        section.displayName = section.component + ' ' + section.sectionNumber;
-        section.isViewableOnCoursePage = section.primary && canAccessCanvasData && fullProfileAvailable;
-      });
+        course.isOpen = false
+        section.displayName = section.component + ' ' + section.sectionNumber
+        section.isViewableOnCoursePage = section.primary && canAccessCanvasData && fullProfileAvailable
+      })
     }
   }
-};
+}
 </script>
 
 <style>

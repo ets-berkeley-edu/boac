@@ -59,8 +59,8 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator';
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
 
 export default {
   name: 'TemplateModalCreate',
@@ -90,32 +90,32 @@ export default {
   computed: {
     showModalProxy: {
       get() {
-        return this.showModal;
+        return this.showModal
       },
       set(value) {
-        this.toggleShow(value);
+        this.toggleShow(value)
       }
     }
   },
   watch: {
     title() {
-      this.error = undefined;
+      this.error = undefined
     }
   },
   methods: {
     reset() {
-      this.title = '';
-      this.error = undefined;
+      this.title = ''
+      this.error = undefined
     },
     cancelModal() {
-      this.cancel();
-      this.reset();
+      this.cancel()
+      this.reset()
     },
     createTemplate: function() {
-      this.error = this.validateTemplateTitle({ title: this.title });
+      this.error = this.validateTemplateTitle({ title: this.title })
       if (!this.error) {
-        this.create(this.title);
-        this.reset();
+        this.create(this.title)
+        this.reset()
       }
     }
   }

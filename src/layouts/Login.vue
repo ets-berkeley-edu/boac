@@ -50,10 +50,10 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import DevAuth from '@/components/admin/DevAuth';
-import Util from '@/mixins/Util';
-import { getCasLoginURL } from '@/api/auth';
+import Context from '@/mixins/Context'
+import DevAuth from '@/components/admin/DevAuth'
+import Util from '@/mixins/Util'
+import { getCasLoginURL } from '@/api/auth'
 
 export default {
   name: 'Login',
@@ -66,25 +66,25 @@ export default {
     showError: false
   }),
   created() {
-    this.reportError(this.$route.query.error);
+    this.reportError(this.$route.query.error)
   },
   methods: {
     logIn() {
-      getCasLoginURL().then(data => window.location.href = data.casLoginUrl);
+      getCasLoginURL().then(data => window.location.href = data.casLoginUrl)
     },
     onHidden() {
-      this.error = null;
-      this.showError = false;
+      this.error = null
+      this.showError = false
     },
     reportError(error) {
-      error = this.trim(error);
+      error = this.trim(error)
       if (error.length) {
-        this.error = error;
-        this.showError = true;
+        this.error = error
+        this.showError = true
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

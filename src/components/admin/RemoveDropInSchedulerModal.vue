@@ -38,5 +38,5 @@ export default {
     schedulerName: String,
     schedulerUid: String
   }
-};
+}
 </script>

@@ -86,8 +86,8 @@
 </template>
 
 <script>
-import StudentGpaChart from '@/components/student/StudentGpaChart';
-import Util from '@/mixins/Util';
+import StudentGpaChart from '@/components/student/StudentGpaChart'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentProfileGPA',
@@ -103,15 +103,15 @@ export default {
     showTermGpa: false
   }),
   created() {
-    this.cumulativeGPA = this.get(this.student, 'sisProfile.cumulativeGPA');
+    this.cumulativeGPA = this.get(this.student, 'sisProfile.cumulativeGPA')
   },
   methods: {
     showHideTermGpa() {
-      this.showTermGpa = !this.showTermGpa;
-      this.alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`);
+      this.showTermGpa = !this.showTermGpa
+      this.alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
     }
   }
-};
+}
 </script>
 
 <style scoped>

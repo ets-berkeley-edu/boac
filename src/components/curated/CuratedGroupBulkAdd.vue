@@ -43,8 +43,8 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
-import { validateSids } from '@/api/student';
+import Util from '@/mixins/Util'
+import { validateSids } from '@/api/student'
 
 export default {
   name: 'CuratedGroupBulkAdd',
@@ -66,67 +66,67 @@ export default {
   }),
   computed: {
     isUpdating() {
-      return this.isValidating || this.isSaving;
+      return this.isValidating || this.isSaving
     }
   },
   created() {
-    this.putFocusNextTick('curated-group-bulk-add-sids');
+    this.putFocusNextTick('curated-group-bulk-add-sids')
   },
   methods: {
     cancel() {
       if (this.curatedGroupId) {
         // Cancel is only supported in the add-students-to-existing-group case.
-        this.clearErrors();
-        this.bulkAddSids(null);
+        this.clearErrors()
+        this.bulkAddSids(null)
       }
     },
     clearErrors() {
-      this.error = null;
-      this.warning = null;
+      this.error = null
+      this.warning = null
     },
     describeNotFound(sidList) {
       if (sidList.length === 1) {
-        return `<strong>Uh oh!</strong> Student ${sidList[0]} not found. Please fix.`;
+        return `<strong>Uh oh!</strong> Student ${sidList[0]} not found. Please fix.`
       } else {
-        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.join(sidList, '</li><li>')}</li></ul>`;
+        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.join(sidList, '</li><li>')}</li></ul>`
       }
     },
     submitSids() {
-      this.sids = [];
-      this.clearErrors();
-      const trimmed = this.trim(this.textarea, ' ,\n\t');
+      this.sids = []
+      this.clearErrors()
+      const trimmed = this.trim(this.textarea, ' ,\n\t')
       if (trimmed) {
-        const split = this.split(trimmed, /[,\r\n\t ]+/);
-        const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1];
+        const split = this.split(trimmed, /[,\r\n\t ]+/)
+        const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1]
         if (notNumeric.length) {
-          this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.';
-          this.putFocusNextTick('curated-group-bulk-add-sids');
+          this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.'
+          this.putFocusNextTick('curated-group-bulk-add-sids')
         } else {
-          this.isValidating = true;
+          this.isValidating = true
           validateSids(split).then(data => {
-            const notFound = [];
+            const notFound = []
             this.each(data, entry => {
               switch(entry.status) {
               case 200:
               case 401:
-                this.sids.push(entry.sid);
-                break;
+                this.sids.push(entry.sid)
+                break
               default:
-                notFound.push(entry.sid);
+                notFound.push(entry.sid)
               }
-            });
-            this.isValidating = false;
+            })
+            this.isValidating = false
             if (notFound.length) {
-              this.warning = this.describeNotFound(notFound);
+              this.warning = this.describeNotFound(notFound)
             } else {
-              this.clearErrors();
-              this.bulkAddSids(this.sids);
+              this.clearErrors()
+              this.bulkAddSids(this.sids)
             }
-          });
+          })
         }
       } else {
-        this.warning = 'Please provide one or more SIDs.';
-        this.putFocusNextTick('curated-group-bulk-add-sids');
+        this.warning = 'Please provide one or more SIDs.'
+        this.putFocusNextTick('curated-group-bulk-add-sids')
       }
     }
   }

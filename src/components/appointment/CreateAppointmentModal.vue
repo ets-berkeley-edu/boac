@@ -114,15 +114,15 @@
 </template>
 
 <script>
-import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill';
-import AppointmentTopics from '@/components/appointment/AppointmentTopics';
-import Autocomplete from '@/components/util/Autocomplete';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import RichTextEditor from '@/components/util/RichTextEditor';
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator';
-import { findStudentsByNameOrSid } from '@/api/student';
+import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill'
+import AppointmentTopics from '@/components/appointment/AppointmentTopics'
+import Autocomplete from '@/components/util/Autocomplete'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
+import { findStudentsByNameOrSid } from '@/api/student'
 
 export default {
   name: 'CreateAppointmentModal',
@@ -166,73 +166,73 @@ export default {
   }),
   computed: {
     isStudentInWaitlist() {
-      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid);
+      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
     }
   },
   watch: {
     advisors() {
-      this.updateAvailableAdvisors();
+      this.updateAvailableAdvisors()
     },
     showModal(value) {
-      this.showCreateAppointmentModal = value;
+      this.showCreateAppointmentModal = value
     }
   },
   created() {
-    this.reset();
-    this.updateAvailableAdvisors();
-    this.showCreateAppointmentModal = this.showModal;
-    this.putFocusNextTick('appointment-student-input');
-    this.alertScreenReader('Create appointment form is open');
+    this.reset()
+    this.updateAvailableAdvisors()
+    this.showCreateAppointmentModal = this.showModal
+    this.putFocusNextTick('appointment-student-input')
+    this.alertScreenReader('Create appointment form is open')
   },
   methods: {
     addStudent(student) {
       if (student) {
-        this.student = student;
-        this.alertScreenReader(`Student ${this.student.label} selected`);
-        this.putFocusNextTick('add-topic-select-list');
+        this.student = student
+        this.alertScreenReader(`Student ${this.student.label} selected`)
+        this.putFocusNextTick('add-topic-select-list')
       }
     },
     addTopic(topic) {
-      this.topics.push(topic);
+      this.topics.push(topic)
     },
     cancelModal() {
-      this.cancel();
-      this.reset();
+      this.cancel()
+      this.reset()
     },
     create() {
-      this.saving = true;
+      this.saving = true
       this.createAppointment(
         this.details,
         this.student,
         this.topics,
         this.selectedAdvisorUid
-      );
-      this.showCreateAppointmentModal = false;
-      this.saving = false;
-      this.reset();
+      )
+      this.showCreateAppointmentModal = false
+      this.saving = false
+      this.reset()
     },
     removeStudent() {
-      this.alertScreenReader(`${this.student.label} removed`);
-      this.student = undefined;
+      this.alertScreenReader(`${this.student.label} removed`)
+      this.student = undefined
     },
     removeTopic(topic) {
-      const index = this.indexOf(this.topics, topic);
+      const index = this.indexOf(this.topics, topic)
       if (index !== -1) {
-        this.topics.splice(index, 1);
+        this.topics.splice(index, 1)
       }
     },
     reset() {
-      this.details = '';
-      this.resetAutoCompleteKey = undefined;
+      this.details = ''
+      this.resetAutoCompleteKey = undefined
     },
     studentsByNameOrSid(query, limit) {
-      return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
+      return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)))
     },
     updateAvailableAdvisors() {
       this.availableAdvisors = this.$_.filter(this.advisors, a => {
-        return a.available || a.uid === this.$currentUser.uid;
-      });
+        return a.available || a.uid === this.$currentUser.uid
+      })
     }
   }
-};
+}
 </script>

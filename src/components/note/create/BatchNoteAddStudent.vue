@@ -40,10 +40,10 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { findStudentsByNameOrSid } from '@/api/student';
+import Autocomplete from '@/components/util/Autocomplete'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { findStudentsByNameOrSid } from '@/api/student'
 
 export default {
   name: 'BatchNoteAddStudent',
@@ -78,26 +78,26 @@ export default {
   methods: {
     addStudent(student) {
       if (student) {
-        this.addedStudents.push(student);
-        this.addSid(student.sid);
-        this.resetAutoCompleteKey = new Date().getTime();
-        this.alertScreenReader(`${student.label} added to batch note`);
+        this.addedStudents.push(student)
+        this.addSid(student.sid)
+        this.resetAutoCompleteKey = new Date().getTime()
+        this.alertScreenReader(`${student.label} added to batch note`)
       }
     },
     removeStudent(student) {
       if (student) {
-        this.addedStudents = this.filterList(this.addedStudents, a => a.sid !== student.sid);
-        this.removeSid(student.sid);
-        this.alertScreenReader(`${student.label} removed from batch note`);
+        this.addedStudents = this.filterList(this.addedStudents, a => a.sid !== student.sid)
+        this.removeSid(student.sid)
+        this.alertScreenReader(`${student.label} removed from batch note`)
       }
     },
     studentsByNameOrSid(query, limit) {
-      const sids = this.map(this.addedStudents, 'sid');
+      const sids = this.map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.filterList(students, s => !this.includes(sids, s.sid)));
-        });
-      });
+          resolve(this.filterList(students, s => !this.includes(sids, s.sid)))
+        })
+      })
     }
   }
 }

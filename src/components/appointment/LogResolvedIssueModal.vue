@@ -89,15 +89,15 @@
 </template>
 
 <script>
-import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill';
-import AppointmentTopics from '@/components/appointment/AppointmentTopics';
-import Autocomplete from '@/components/util/Autocomplete';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import RichTextEditor from '@/components/util/RichTextEditor';
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator';
-import { findStudentsByNameOrSid } from '@/api/student';
+import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill'
+import AppointmentTopics from '@/components/appointment/AppointmentTopics'
+import Autocomplete from '@/components/util/Autocomplete'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
+import { findStudentsByNameOrSid } from '@/api/student'
 
 export default {
   name: 'LogResolvedIssueModal',
@@ -131,64 +131,64 @@ export default {
   }),
   computed: {
     isStudentInWaitlist() {
-      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid);
+      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
     }
   },
   watch: {
     showModal(value) {
-      this.showLogResolvedIssueModal = value;
+      this.showLogResolvedIssueModal = value
     }
   },
   created() {
-    this.reset();
-    this.showLogResolvedIssueModal = this.showModal;
-    this.putFocusNextTick('log-resolved-issue-student-input');
-    this.alertScreenReader('Log resolved issue form is open');
+    this.reset()
+    this.showLogResolvedIssueModal = this.showModal
+    this.putFocusNextTick('log-resolved-issue-student-input')
+    this.alertScreenReader('Log resolved issue form is open')
   },
   methods: {
     addStudent(student) {
       if (student) {
-        this.student = student;
-        this.alertScreenReader(`Student ${this.student.label} selected`);
-        this.putFocusNextTick('add-topic-select-list');
+        this.student = student
+        this.alertScreenReader(`Student ${this.student.label} selected`)
+        this.putFocusNextTick('add-topic-select-list')
       }
     },
     addTopic(topic) {
-      this.topics.push(topic);
+      this.topics.push(topic)
     },
     cancelModal() {
-      this.cancel();
-      this.reset();
+      this.cancel()
+      this.reset()
     },
     log() {
-      this.saving = true;
+      this.saving = true
       this.logResolvedIssue(
         this.details,
         this.student,
         this.topics,
         this.$currentUser.uid
-      );
-      this.showLogResolvedIssueModal = false;
-      this.saving = false;
-      this.reset();
+      )
+      this.showLogResolvedIssueModal = false
+      this.saving = false
+      this.reset()
     },
     removeStudent() {
-      this.alertScreenReader(`${this.student.label} removed`);
-      this.student = undefined;
+      this.alertScreenReader(`${this.student.label} removed`)
+      this.student = undefined
     },
     removeTopic(topic) {
-      const index = this.indexOf(this.topics, topic);
+      const index = this.indexOf(this.topics, topic)
       if (index !== -1) {
-        this.topics.splice(index, 1);
+        this.topics.splice(index, 1)
       }
     },
     reset() {
-      this.details = '';
-      this.resetAutoCompleteKey = undefined;
+      this.details = ''
+      this.resetAutoCompleteKey = undefined
     },
     studentsByNameOrSid(query, limit) {
-      return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)));
+      return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)))
     }
   }
-};
+}
 </script>

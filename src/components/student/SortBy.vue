@@ -16,11 +16,11 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import store from '@/store';
-import Util from '@/mixins/Util';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import store from '@/store'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'SortBy',
@@ -38,7 +38,7 @@ export default {
   }),
   computed: {
     sortByKey() {
-      return this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy';
+      return this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     }
   },
   watch: {
@@ -47,7 +47,7 @@ export default {
         store.commit('currentUserExtras/setUserPreference', {
           key: this.sortByKey,
           value
-        });
+        })
       }
     }
   },
@@ -55,16 +55,16 @@ export default {
     let options = [
       { name: 'First Name', value: 'first_name', available: true },
       { name: 'Last Name', value: 'last_name', available: true }
-    ];
-    this.$eventHub.$on(`${this.sortByKey}-user-preference-change`, sortBy => this.selected = sortBy);
-    this.selected = this.get(this.preferences, this.sortByKey);
+    ]
+    this.$eventHub.$on(`${this.sortByKey}-user-preference-change`, sortBy => this.selected = sortBy)
+    this.selected = this.get(this.preferences, this.sortByKey)
     if (this.domain === 'admitted_students') {
       options = options.concat([
         { name: 'CS ID', value: 'cs_empl_id', available: true }
-      ]);
+      ])
     } else {
-      const gpa_term_id_1 = this.previousSisTermId(this.$config.currentEnrollmentTermId);
-      const gpa_term_id_2 = this.previousSisTermId(gpa_term_id_1);
+      const gpa_term_id_1 = this.previousSisTermId(this.$config.currentEnrollmentTermId)
+      const gpa_term_id_2 = this.previousSisTermId(gpa_term_id_1)
       options = options.concat([
         { name: 'Level', value: 'level', available: true },
         { name: 'Major', value: 'major', available: true },
@@ -89,9 +89,9 @@ export default {
         { name: 'Units (In Progress - Low/High)', value: 'enrolled_units', available: true },
         { name: 'Units (Completed - High/Low)', value: 'units desc', available: true },
         { name: 'Units (Completed - Low/High)', value: 'units', available: true },
-      ]);
+      ])
     }
-    this.options = this.filterList(options, 'available');
+    this.options = this.filterList(options, 'available')
   }
-};
+}
 </script>

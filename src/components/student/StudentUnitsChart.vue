@@ -65,7 +65,7 @@ export default {
           return {
             x: -35,
             y: 35
-          };
+          }
         },
         width: 240,
         shadow: false,
@@ -107,7 +107,7 @@ export default {
     }
   }),
   mounted() {
-    this.renderUnitsToChart();
+    this.renderUnitsToChart()
   },
   methods: {
     renderUnitsToChart() {
@@ -120,9 +120,9 @@ export default {
           name: 'Cumulative units',
           data: [this.cumulativeUnits]
         }
-      ];
-      this.unitsChartOptions.tooltip.pointFormat = this.generateTooltipHtml();
-      this.unitsChartOptions.width = this.$refs.studentUnitsChart.$el.parentNode.clientWidth;
+      ]
+      this.unitsChartOptions.tooltip.pointFormat = this.generateTooltipHtml()
+      this.unitsChartOptions.width = this.$refs.studentUnitsChart.$el.parentNode.clientWidth
     },
     generateTooltipHtml() {
       return `
@@ -140,10 +140,10 @@ export default {
             <div class="student-chart-tooltip-value">${this
       .currentEnrolledUnits || '0'}</div>
           </div>
-        </div>`;
+        </div>`
     }
   }
-};
+}
 </script>
 
 <style src="./student-chart.css">

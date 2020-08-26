@@ -94,21 +94,21 @@
 </template>
 
 <script>
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
-import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import Loading from '@/mixins/Loading';
-import NavLink from '@/components/util/NavLink';
-import Pagination from '@/components/util/Pagination';
-import Scrollable from '@/mixins/Scrollable';
-import SectionSpinner from '@/components/util/SectionSpinner';
-import SortBy from '@/components/student/SortBy';
-import Spinner from '@/components/util/Spinner';
-import Util from '@/mixins/Util';
-import { getAllAdmits } from '@/api/admit';
-import { downloadCsv } from '@/api/cohort';
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import Loading from '@/mixins/Loading'
+import NavLink from '@/components/util/NavLink'
+import Pagination from '@/components/util/Pagination'
+import Scrollable from '@/mixins/Scrollable'
+import SectionSpinner from '@/components/util/SectionSpinner'
+import SortBy from '@/components/student/SortBy'
+import Spinner from '@/components/util/Spinner'
+import Util from '@/mixins/Util'
+import { getAllAdmits } from '@/api/admit'
+import { downloadCsv } from '@/api/cohort'
 
 export default {
   name: 'AdmitStudents',
@@ -141,68 +141,68 @@ export default {
     totalAdmitCount: undefined
   }),
   mounted() {
-    this.counter = this.$route.query._;
-    this.initPagination();
-    this.loadAdmits();
+    this.counter = this.$route.query._
+    this.initPagination()
+    this.loadAdmits()
   },
   created() {
-    this.$eventHub.$off('admitSortBy-user-preference-change');
+    this.$eventHub.$off('admitSortBy-user-preference-change')
     this.$eventHub.$on('admitSortBy-user-preference-change', sortBy => {
-      this.sorting = true;
-      this.loadAdmits();
+      this.sorting = true
+      this.loadAdmits()
       if (!this.loading) {
-        this.goToPage(1);
-        const action = `Sort admitted students by ${sortBy}`;
-        this.alertScreenReader(action);
+        this.goToPage(1)
+        const action = `Sort admitted students by ${sortBy}`
+        this.alertScreenReader(action)
       }
-    });
+    })
   },
   methods: {
     exportCohort() {
-      const name = 'CE3 Admissions';
-      const fields = this.map(this.getAdmitCsvExportColumns(), 'value');
-      this.showExportListModal = false;
-      this.exportEnabled = false;
-      this.alertScreenReader(`Exporting ${name} cohort`);
+      const name = 'CE3 Admissions'
+      const fields = this.map(this.getAdmitCsvExportColumns(), 'value')
+      this.showExportListModal = false
+      this.exportEnabled = false
+      this.alertScreenReader(`Exporting ${name} cohort`)
       downloadCsv('admitted_students', name, [], fields).then(() => {
-        this.exportEnabled = true;
-      });
+        this.exportEnabled = true
+      })
     },
     goToPage(page) {
       if (page > 1) {
-        const action = `Go to page ${page}`;
-        this.alertScreenReader(action);
+        const action = `Go to page ${page}`
+        this.alertScreenReader(action)
       }
       if (page !== this.pagination.currentPage) {
-        this.pagination.currentPage = page;
+        this.pagination.currentPage = page
         this.$router.push({
           query: { ...this.$route.query, p: this.pagination.currentPage }
-        });
+        })
       }
     },
     initPagination() {
       if (this.$route.query.p && !isNaN(this.$route.query.p)) {
-        this.pagination.currentPage = parseInt(this.$route.query.p, 10);
+        this.pagination.currentPage = parseInt(this.$route.query.p, 10)
       }
     },
     loadAdmits() {
-      const limit = this.pagination.itemsPerPage;
+      const limit = this.pagination.itemsPerPage
       const offset =
         this.pagination.currentPage === 0
           ? 0
-          : (this.pagination.currentPage - 1) * limit;
+          : (this.pagination.currentPage - 1) * limit
       getAllAdmits(this.preferences.admitSortBy, limit, offset).then(response => {
         if (response) {
-          this.admits = this.get(response, 'students');
-          this.totalAdmitCount = this.get(response, 'totalStudentCount');
-          this.loaded();
-          this.putFocusNextTick('cohort-name');
+          this.admits = this.get(response, 'students')
+          this.totalAdmitCount = this.get(response, 'totalStudentCount')
+          this.loaded()
+          this.putFocusNextTick('cohort-name')
         } else {
-          this.$router.push({ path: '/404' });
+          this.$router.push({ path: '/404' })
         }
-        this.sorting = false;
-      });
+        this.sorting = false
+      })
     }
   }
-};
+}
 </script>

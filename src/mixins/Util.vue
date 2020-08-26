@@ -1,29 +1,29 @@
 <script>
-import _ from 'lodash';
-import numeral from 'numeral';
+import _ from 'lodash'
+import numeral from 'numeral'
 
 const decodeHtml = (snippet) => {
   if (snippet && snippet.indexOf('&') > 0) {
-    const el = document.createElement('textarea');
-    el.innerHTML = snippet;
-    return el.value;
+    const el = document.createElement('textarea')
+    el.innerHTML = snippet
+    return el.value
   } else {
-    return snippet;
+    return snippet
   }
-};
+}
 
 const toInt = (value, defaultValue = null) => {
-  const parsed = parseInt(value, 10);
-  return Number.isInteger(parsed) ? parsed : defaultValue;
-};
+  const parsed = parseInt(value, 10)
+  return Number.isInteger(parsed) ? parsed : defaultValue
+}
 
 const toBoolean = (value) => {
   if (!value || value === 'false') {
-    return false;
+    return false
   } else {
-    return true;
+    return true
   }
-};
+}
 
 export default {
   name: 'Util',
@@ -46,15 +46,15 @@ export default {
     get: _.get,
     groupBy: _.groupBy,
     groupObjectsBy: (objects, property) => {
-      const groupings = {};
+      const groupings = {}
       _.each(objects, object => {
         const key = object[property]
         if (!_.has(groupings, key)) {
-          groupings[key] = [];
+          groupings[key] = []
         }
-        groupings[key].push(object);
+        groupings[key].push(object)
       })
-      return groupings;
+      return groupings
     },
     has: _.has,
     includes: _.includes,
@@ -78,28 +78,28 @@ export default {
     orderBy: _.orderBy,
     oxfordJoin: arr => {
       switch(arr.length) {
-      case 1: return _.head(arr);
-      case 2: return `${_.head(arr)} and ${_.last(arr)}`;
-      default: return _.join(_.concat(_.initial(arr), ` and ${_.last(arr)}`), ', ');
+      case 1: return _.head(arr)
+      case 2: return `${_.head(arr)} and ${_.last(arr)}`
+      default: return _.join(_.concat(_.initial(arr), ` and ${_.last(arr)}`), ', ')
       }
     },
     partition: _.partition,
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {
-      return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun));
+      return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
     },
     putFocusNextTick(id, cssSelector = null) {
       this.$nextTick(() => {
-        let counter = 0;
+        let counter = 0
         const putFocus = setInterval(() => {
-          let el = document.getElementById(id);
-          el = el && cssSelector ? el.querySelector(cssSelector) : el;
-          el && el.focus();
+          let el = document.getElementById(id)
+          el = el && cssSelector ? el.querySelector(cssSelector) : el
+          el && el.focus()
           if (el || ++counter > 3) {
             // Abort after success or three attempts
-            clearInterval(putFocus);
+            clearInterval(putFocus)
           }
-        }, 500);
-      });
+        }, 500)
+      })
     },
     pull: _.pull,
     reduce: _.reduce,
@@ -112,15 +112,15 @@ export default {
     sortComparator: (a, b, nullFirst=true) => {
       if (_.isNil(a) || _.isNil(b)) {
         if (nullFirst) {
-          return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1;
+          return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1
         } else {
-          return _.isNil(b) ? (_.isNil(a) ? 0 : -1) : 1;
+          return _.isNil(b) ? (_.isNil(a) ? 0 : -1) : 1
         }
       } else if (_.isNumber(a) && _.isNumber(b)) {
         return a < b ? -1 : a > b ? 1 : 0
       } else {
-        const aInt = toInt(a);
-        const bInt = toInt(b);
+        const aInt = toInt(a)
+        const bInt = toInt(b)
         if (aInt && bInt) {
           return aInt < bInt ? -1 : aInt > bInt ? 1 : 0
         } else {
@@ -134,9 +134,9 @@ export default {
     startsWith: _.startsWith,
     stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
     stripHtmlAndTrim: html => {
-      let text = html && html.replace(/<([^>]+)>/ig,'');
-      text = text && text.replace(/&nbsp;/g, '');
-      return _.trim(text);
+      let text = html && html.replace(/<([^>]+)>/ig,'')
+      text = text && text.replace(/&nbsp;/g, '')
+      return _.trim(text)
     },
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
     toBoolean,
@@ -154,5 +154,5 @@ export default {
     xor: _.xor,
     xorBy: _.xorBy
   }
-};
+}
 </script>

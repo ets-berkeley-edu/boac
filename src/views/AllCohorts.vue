@@ -26,9 +26,9 @@
 </template>
 
 <script>
-import { getUsersWithCohorts } from '@/api/cohort';
-import Spinner from '@/components/util/Spinner';
-import Loading from '@/mixins/Loading';
+import { getUsersWithCohorts } from '@/api/cohort'
+import Spinner from '@/components/util/Spinner'
+import Loading from '@/mixins/Loading'
 
 export default {
   name: 'AllCohorts',
@@ -39,9 +39,9 @@ export default {
   }),
   created() {
     getUsersWithCohorts('default').then(data => {
-      this.rows = data;
-      this.loaded('Everyone\'s Cohorts');
-    });
+      this.rows = data
+      this.loaded('Everyone\'s Cohorts')
+    })
   }
-};
+}
 </script>

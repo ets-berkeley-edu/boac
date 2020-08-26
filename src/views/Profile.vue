@@ -30,15 +30,15 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import DemoModeToggle from '@/components/admin/DemoModeToggle';
-import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement';
-import Loading from '@/mixins/Loading';
-import MyProfile from '@/components/admin/MyProfile';
-import Spinner from '@/components/util/Spinner';
-import Util from '@/mixins/Util';
-import { getDropInSchedulers } from '@/api/user';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import DemoModeToggle from '@/components/admin/DemoModeToggle'
+import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement'
+import Loading from '@/mixins/Loading'
+import MyProfile from '@/components/admin/MyProfile'
+import Spinner from '@/components/util/Spinner'
+import Util from '@/mixins/Util'
+import { getDropInSchedulers } from '@/api/user'
 
 export default {
   name: 'Profile',
@@ -55,12 +55,12 @@ export default {
   mounted() {
     if (!this.isSimplyScheduler(this.$currentUser) && this.$currentUser.canAccessAdvisingData) {
       getDropInSchedulers().then(data => {
-        this.dropInSchedulingDepartments = data;
-        this.loaded('Profile');
-      });
+        this.dropInSchedulingDepartments = data
+        this.loaded('Profile')
+      })
     } else {
-      this.loaded('Profile');
+      this.loaded('Profile')
     }
   }
-};
+}
 </script>

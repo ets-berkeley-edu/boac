@@ -36,9 +36,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { disableDropInAdvising, enableDropInAdvising } from '@/api/user';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { disableDropInAdvising, enableDropInAdvising } from '@/api/user'
 
 export default {
   name: 'DropInAdvisingToggle',
@@ -55,28 +55,28 @@ export default {
   }),
   computed: {
     buttonElementId() {
-      return `toggle-drop-in-advising-${this.deptCode}`;
+      return `toggle-drop-in-advising-${this.deptCode}`
     }
   },
   created() {
-    this.isEnabled = !!this.dropInStatus();
+    this.isEnabled = !!this.dropInStatus()
   },
   methods: {
     dropInStatus: function() {
-      return this.find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode]);
+      return this.find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode])
     },
     toggle: function() {
-      this.isToggling = true;
-      const toggleDropInAdvising = this.isEnabled ? disableDropInAdvising : enableDropInAdvising;
+      this.isToggling = true
+      const toggleDropInAdvising = this.isEnabled ? disableDropInAdvising : enableDropInAdvising
       toggleDropInAdvising(this.deptCode).then(() => {
-        this.isEnabled = !!this.dropInStatus();
-        this.isToggling = false;
-        this.alertScreenReader(`Switching drop-in advising ${this.isEnabled ? 'off' : 'on' }`);
+        this.isEnabled = !!this.dropInStatus()
+        this.isToggling = false
+        this.alertScreenReader(`Switching drop-in advising ${this.isEnabled ? 'off' : 'on' }`)
         this.putFocusNextTick(this.buttonElementId)
-      });
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped>

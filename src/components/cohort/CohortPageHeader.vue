@@ -194,15 +194,15 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import CohortEditSession from '@/mixins/CohortEditSession';
-import Context from '@/mixins/Context';
-import DeleteCohortModal from '@/components/cohort/DeleteCohortModal';
-import ExportListModal from '@/components/util/ExportListModal';
-import router from '@/router';
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator';
-import { deleteCohort } from '@/api/cohort';
+import Berkeley from '@/mixins/Berkeley'
+import CohortEditSession from '@/mixins/CohortEditSession'
+import Context from '@/mixins/Context'
+import DeleteCohortModal from '@/components/cohort/DeleteCohortModal'
+import ExportListModal from '@/components/util/ExportListModal'
+import router from '@/router'
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
+import { deleteCohort } from '@/api/cohort'
 
 export default {
   name: 'CohortPageHeader',
@@ -228,88 +228,88 @@ export default {
   }),
   computed: {
     renameMode() {
-      return this.editMode === 'rename';
+      return this.editMode === 'rename'
     }
   },
   watch: {
     name() {
-      this.renameError = undefined;
+      this.renameError = undefined
     }
   },
   created() {
-    this.isHistorySupported = this.cohortId && this.domain === 'default';
-    this.name = this.cohortName;
+    this.isHistorySupported = this.cohortId && this.domain === 'default'
+    this.name = this.cohortName
   },
   methods: {
     beginRename() {
-      this.name = this.cohortName;
-      this.setEditMode('rename');
-      this.alertScreenReader(`Renaming ${this.name} cohort`);
-      this.putFocusNextTick('rename-cohort-input');
+      this.name = this.cohortName
+      this.setEditMode('rename')
+      this.alertScreenReader(`Renaming ${this.name} cohort`)
+      this.putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
-      this.showDeleteModal = false;
-      this.alertScreenReader(`Cancel deletion of ${this.name} cohort`);
+      this.showDeleteModal = false
+      this.alertScreenReader(`Cancel deletion of ${this.name} cohort`)
     },
     cancelExportCohortModal() {
-      this.showExportListModal = false;
-      this.alertScreenReader(`Cancel export of ${this.name} cohort`);
+      this.showExportListModal = false
+      this.alertScreenReader(`Cancel export of ${this.name} cohort`)
     },
     cancelRename() {
-      this.name = this.cohortName;
-      this.setEditMode(null);
-      this.alertScreenReader(`Cancel renaming of ${this.name} cohort`);
+      this.name = this.cohortName
+      this.setEditMode(null)
+      this.alertScreenReader(`Cancel renaming of ${this.name} cohort`)
     },
     cohortDelete() {
-      this.alertScreenReader(`Deleting ${this.name} cohort`);
+      this.alertScreenReader(`Deleting ${this.name} cohort`)
       deleteCohort(this.cohortId).then(() => {
-        this.showDeleteModal = false;
-        this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete');
-        router.push({ path: '/' });
-      });
+        this.showDeleteModal = false
+        this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete')
+        router.push({ path: '/' })
+      })
     },
     exportCohort(csvColumnsSelected) {
-      this.showExportListModal = false;
-      this.exportEnabled = false;
-      this.alertScreenReader(`Exporting ${this.name} cohort`);
+      this.showExportListModal = false
+      this.exportEnabled = false
+      this.alertScreenReader(`Exporting ${this.name} cohort`)
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
-        this.exportEnabled = true;
-      });
+        this.exportEnabled = true
+      })
     },
     getCsvExportColumns() {
       if (this.domain === 'default') {
-        return this.getDefaultCsvExportColumns();
+        return this.getDefaultCsvExportColumns()
       }
-      return this.getAdmitCsvExportColumns();
+      return this.getAdmitCsvExportColumns()
     },
     getCsvExportColumnsSelected() {
       return this.domain === 'default' ?
         ['first_name', 'last_name', 'sid', 'email', 'phone'] :
-        this.map(this.getCsvExportColumns(), 'value');
+        this.map(this.getCsvExportColumns(), 'value')
     },
     submitRename() {
       this.renameError = this.validateCohortName({
         id: this.cohortId,
         name: this.name
-      });
+      })
       if (this.renameError) {
-        this.putFocusNextTick('rename-cohort-input');
+        this.putFocusNextTick('rename-cohort-input')
       } else {
         this.renameCohort(this.name).then(() => {
-          this.alertScreenReader(`Saved new cohort name: ${this.name}`);
-          this.setPageTitle(this.name);
-          this.putFocusNextTick('cohort-name');
-          this.$ga.cohortEvent(this.cohortId, this.name, 'rename');
-        });
-        this.setEditMode(null);
+          this.alertScreenReader(`Saved new cohort name: ${this.name}`)
+          this.setPageTitle(this.name)
+          this.putFocusNextTick('cohort-name')
+          this.$ga.cohortEvent(this.cohortId, this.name, 'rename')
+        })
+        this.setEditMode(null)
       }
     },
     toggleShowHideDetails() {
-      this.toggleCompactView();
-      this.alertScreenReader(this.isCompactView ? 'Filters are hidden' : 'Filters are visible');
+      this.toggleCompactView()
+      this.alertScreenReader(this.isCompactView ? 'Filters are hidden' : 'Filters are visible')
     }
   }
-};
+}
 </script>
 
 <style scoped>

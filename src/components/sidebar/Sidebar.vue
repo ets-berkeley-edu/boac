@@ -48,14 +48,14 @@
 </template>
 
 <script>
-import Cohorts from '@/components/sidebar/Cohorts.vue';
-import Context from '@/mixins/Context';
-import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue';
-import CuratedGroups from '@/components/sidebar/CuratedGroups.vue';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue';
-import Util from '@/mixins/Util.vue';
-import SearchForm from '@/components/sidebar/SearchForm.vue';
+import Cohorts from '@/components/sidebar/Cohorts.vue'
+import Context from '@/mixins/Context'
+import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue'
+import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
+import Util from '@/mixins/Util.vue'
+import SearchForm from '@/components/sidebar/SearchForm.vue'
 
 export default {
   name: 'Sidebar',
@@ -72,25 +72,25 @@ export default {
   }),
   computed: {
     domain() {
-      let domain = ['students'];
+      let domain = ['students']
       if (this.$currentUser.canAccessCanvasData) {
-        domain.push('courses');
+        domain.push('courses')
       }
       if (this.$currentUser.canAccessAdvisingData) {
-        domain.push('notes');
+        domain.push('notes')
       }
       if (this.includeAdmits) {
-        domain.push('admits');
+        domain.push('admits')
       }
-      return domain;
+      return domain
     }
   },
   methods: {
     onCreateNoteModalClose() {
-      this.isCreateNoteModalOpen = false;
+      this.isCreateNoteModalOpen = false
     }
   }
-};
+}
 </script>
 
 <style>

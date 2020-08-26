@@ -39,12 +39,12 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras.vue';
-import Loading from '@/mixins/Loading.vue';
-import Scrollable from '@/mixins/Scrollable';
-import SortableGroup from '@/components/search/SortableGroup.vue';
-import Spinner from '@/components/util/Spinner.vue';
-import Util from '@/mixins/Util.vue';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras.vue'
+import Loading from '@/mixins/Loading.vue'
+import Scrollable from '@/mixins/Scrollable'
+import SortableGroup from '@/components/search/SortableGroup.vue'
+import Spinner from '@/components/util/Spinner.vue'
+import Util from '@/mixins/Util.vue'
 
 export default {
   name: 'Home',
@@ -54,10 +54,10 @@ export default {
   },
   mixins: [CurrentUserExtras, Loading, Scrollable, Util],
   mounted() {
-    this.loaded('Home');
-    this.scrollToTop();
+    this.loaded('Home')
+    this.scrollToTop()
   }
-};
+}
 </script>
 
 <style scoped>

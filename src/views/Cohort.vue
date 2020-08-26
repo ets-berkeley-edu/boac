@@ -95,24 +95,24 @@
 </template>
 
 <script>
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
-import AdmitStudentRow from '@/components/admit/AdmitStudentRow';
-import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons';
-import CohortEditSession from '@/mixins/CohortEditSession';
-import CohortHistory from '@/components/cohort/CohortHistory';
-import CohortPageHeader from '@/components/cohort/CohortPageHeader';
-import Context from '@/mixins/Context';
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import FilterRow from '@/components/cohort/FilterRow';
-import Loading from '@/mixins/Loading';
-import Pagination from '@/components/util/Pagination';
-import Scrollable from '@/mixins/Scrollable';
-import SectionSpinner from '@/components/util/SectionSpinner';
-import SortBy from '@/components/student/SortBy';
-import Spinner from '@/components/util/Spinner';
-import StudentRow from '@/components/student/StudentRow';
-import Util from '@/mixins/Util';
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
+import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
+import CohortEditSession from '@/mixins/CohortEditSession'
+import CohortHistory from '@/components/cohort/CohortHistory'
+import CohortPageHeader from '@/components/cohort/CohortPageHeader'
+import Context from '@/mixins/Context'
+import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import FilterRow from '@/components/cohort/FilterRow'
+import Loading from '@/mixins/Loading'
+import Pagination from '@/components/util/Pagination'
+import Scrollable from '@/mixins/Scrollable'
+import SectionSpinner from '@/components/util/SectionSpinner'
+import SortBy from '@/components/student/SortBy'
+import Spinner from '@/components/util/Spinner'
+import StudentRow from '@/components/student/StudentRow'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'Cohort',
@@ -146,83 +146,83 @@ export default {
   computed: {
     anchor: () => location.hash,
     showStudentsSection() {
-      return this.size(this.students) && this.editMode !== 'apply';
+      return this.size(this.students) && this.editMode !== 'apply'
     }
   },
   watch: {
     isCompactView() {
-      this.showFilters = !this.isCompactView;
+      this.showFilters = !this.isCompactView
     }
   },
   mounted() {
-    const forwardPath = this.$routerHistory.hasForward() && this.get(this.$routerHistory.next(), 'path');
+    const forwardPath = this.$routerHistory.hasForward() && this.get(this.$routerHistory.next(), 'path')
     const continueExistingSession =
-      (this.startsWith(forwardPath, '/student') || this.startsWith(forwardPath, '/admit/student')) && this.size(this.filters);
+      (this.startsWith(forwardPath, '/student') || this.startsWith(forwardPath, '/admit/student')) && this.size(this.filters)
     if (continueExistingSession) {
-      this.showFilters = !this.isCompactView;
-      this.pageNumber = this.pagination.currentPage;
-      this.setPageTitle(this.cohortName);
-      this.loaded(this.cohortName);
+      this.showFilters = !this.isCompactView
+      this.pageNumber = this.pagination.currentPage
+      this.setPageTitle(this.cohortName)
+      this.loaded(this.cohortName)
     } else {
-      const domain = this.$route.query.domain || 'default';
-      const id = this.toInt(this.get(this.$route, 'params.id'));
+      const domain = this.$route.query.domain || 'default'
+      const id = this.toInt(this.get(this.$route, 'params.id'))
       this.init({
         id,
         orderBy: this.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         domain
       }).then(() => {
-        this.showFilters = !this.isCompactView;
-        this.pageNumber = this.pagination.currentPage;
-        const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort';
-        this.setPageTitle(pageTitle);
-        this.loaded(pageTitle);
+        this.showFilters = !this.isCompactView
+        this.pageNumber = this.pagination.currentPage
+        const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
+        this.setPageTitle(pageTitle)
+        this.loaded(pageTitle)
         this.putFocusNextTick(
           this.cohortId ? 'cohort-name' : 'create-cohort-h1'
-        );
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view');
-      });
+        )
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view')
+      })
     }
   },
   created() {
-    const domain = this.$route.query.domain || 'default';
+    const domain = this.$route.query.domain || 'default'
     this.$eventHub.$on('cohort-apply-filters', () => {
-      this.setPagination(1);
-    });
+      this.setPagination(1)
+    })
     this.$eventHub.$on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
       if (!this.loading) {
-        this.goToPage(1);
-        const action = `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`;
-        this.alertScreenReader(action);
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action);
+        this.goToPage(1)
+        const action = `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`
+        this.alertScreenReader(action)
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action)
       }
-    });
+    })
   },
   methods: {
     filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
     goToPage(page) {
       if (page > 1) {
-        const action = `Go to page ${page}`;
-        this.alertScreenReader(action);
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action);
+        const action = `Go to page ${page}`
+        this.alertScreenReader(action)
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action)
       }
-      this.setPagination(page);
-      this.onPageNumberChange().then(this.scrollToTop);
+      this.setPagination(page)
+      this.onPageNumberChange().then(this.scrollToTop)
     },
     setPagination(page) {
-      this.pageNumber = page;
-      this.setCurrentPage(this.pageNumber);
+      this.pageNumber = page
+      this.setCurrentPage(this.pageNumber)
     },
     toggleShowHistory(value) {
-      this.showHistory = value;
+      this.showHistory = value
       if (value && !this.isCompactView) {
-        this.toggleCompactView();
+        this.toggleCompactView()
       }
       if (!value) {
-        this.onPageNumberChange().then(this.scrollToTop);
+        this.onPageNumberChange().then(this.scrollToTop)
       }
     }
   }
-};
+}
 </script>
 
 <style>

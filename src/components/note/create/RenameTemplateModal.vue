@@ -59,8 +59,8 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator';
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
 
 export default {
   name: 'RenameTemplateModal',
@@ -94,30 +94,30 @@ export default {
   computed: {
     showModalProxy: {
       get() {
-        return this.showModal;
+        return this.showModal
       },
       set(value) {
-        this.toggleShow(value);
+        this.toggleShow(value)
       }
     }
   },
   watch: {
     title() {
-      this.error = undefined;
+      this.error = undefined
     }
   },
   mounted() {
-    this.title = this.template.title;
+    this.title = this.template.title
   },
   methods: {
     cancelModal() {
-      this.error = undefined;
-      this.cancel();
+      this.error = undefined
+      this.cancel()
     },
     renameTemplate: function() {
-      this.error = this.validateTemplateTitle({ id: this.template.id, title: this.title });
+      this.error = this.validateTemplateTitle({ id: this.template.id, title: this.title })
       if (!this.error) {
-        this.rename(this.title);
+        this.rename(this.title)
       }
     }
   }

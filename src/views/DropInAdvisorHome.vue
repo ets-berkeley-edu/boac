@@ -72,15 +72,15 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import DropInWaitlist from '@/components/appointment/DropInWaitlist';
-import Loading from '@/mixins/Loading';
-import SortableGroup from '@/components/search/SortableGroup';
-import Spinner from '@/components/util/Spinner';
-import store from '@/store';
-import Util from '@/mixins/Util';
-import { getDropInAppointmentWaitlist } from '@/api/appointments';
+import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import DropInWaitlist from '@/components/appointment/DropInWaitlist'
+import Loading from '@/mixins/Loading'
+import SortableGroup from '@/components/search/SortableGroup'
+import Spinner from '@/components/util/Spinner'
+import store from '@/store'
+import Util from '@/mixins/Util'
+import { getDropInAppointmentWaitlist } from '@/api/appointments'
 
 export default {
   name: 'DropInAdvisorHome',
@@ -98,45 +98,45 @@ export default {
     waitlist: undefined
   }),
   mounted() {
-    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase();
-    this.loadDropInWaitlist();
+    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase()
+    this.loadDropInWaitlist()
   },
   destroyed() {
-    clearTimeout(this.refreshJob);
+    clearTimeout(this.refreshJob)
   },
   methods: {
     loadDropInWaitlist(scheduleFutureRefresh=true) {
       return new Promise(resolve => {
         if (this.loadingWaitlist) {
-          resolve();
+          resolve()
           if (this.showWaitlist && scheduleFutureRefresh) {
-            this.scheduleRefreshJob();
+            this.scheduleRefreshJob()
           }
-          return;
+          return
         }
-        this.loadingWaitlist = true;
+        this.loadingWaitlist = true
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
-          const waitlist = response.waitlist;
-          let announceLoad = false;
-          let announceUpdate = false;
+          const waitlist = response.waitlist
+          let announceLoad = false
+          let announceUpdate = false
 
           if (!this.isEqual(response.advisors, this.advisors)) {
             if (this.advisors) {
-              announceUpdate = true;
+              announceUpdate = true
             }
-            this.advisors = response.advisors;
+            this.advisors = response.advisors
           }
           if (!this.isEqual(waitlist, this.waitlist)) {
             if (this.waitlist) {
-              announceUpdate = true;
+              announceUpdate = true
             } else {
-              announceLoad = true;
+              announceLoad = true
             }
-            this.waitlist = waitlist;
+            this.waitlist = waitlist
           }
 
-          const currentDropInStatus = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode});
-          const newDropInStatus = this.find(response.advisors, {'uid': this.$currentUser.uid});
+          const currentDropInStatus = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode})
+          const newDropInStatus = this.find(response.advisors, {'uid': this.$currentUser.uid})
           if (
             currentDropInStatus && newDropInStatus &&
             (currentDropInStatus.available !== newDropInStatus.available || currentDropInStatus.status !== newDropInStatus.status)
@@ -145,32 +145,32 @@ export default {
               available: newDropInStatus.available,
               deptCode: this.deptCode,
               status: newDropInStatus.status,
-            });
+            })
           }
 
-          this.loadingWaitlist = false;
-          resolve();
+          this.loadingWaitlist = false
+          resolve()
           if (scheduleFutureRefresh) {
-            this.scheduleRefreshJob();
+            this.scheduleRefreshJob()
           }
 
           if (announceLoad) {
-            this.loaded('Appointment waitlist');
+            this.loaded('Appointment waitlist')
           }
           if (announceUpdate) {
-            this.alertScreenReader('The appointment waitlist has been updated');
+            this.alertScreenReader('The appointment waitlist has been updated')
           }
-        });
-      });
+        })
+      })
     },
     onAppointmentStatusChange() {
       // We return a Promise.
-      return this.loadDropInWaitlist(false);
+      return this.loadDropInWaitlist(false)
     },
     scheduleRefreshJob() {
       // Clear previous job, if pending. The following is null-safe.
-      clearTimeout(this.refreshJob);
-      this.refreshJob = setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval);
+      clearTimeout(this.refreshJob)
+      this.refreshJob = setTimeout(this.loadDropInWaitlist, this.$config.apptDeskRefreshInterval)
     }
   }
 }
