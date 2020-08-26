@@ -10,6 +10,7 @@
   "dependencies": {
     "@babel/core": "7.11.4",
     "@babel/runtime": "7.11.2",
+    "@babel/plugin-transform-runtime": "7.11.0",
     "@ckeditor/ckeditor5-basic-styles": "11.1.1",
     "@ckeditor/ckeditor5-build-classic": "12.2.0",
     "@ckeditor/ckeditor5-ui": "12.1.0",
