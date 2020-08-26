@@ -9,12 +9,14 @@ import CKEditor from '@ckeditor/ckeditor5-vue';
 import core from './core';
 import Highcharts from 'highcharts';
 import HighchartsMore from 'highcharts/highcharts-more';
+import lodash from 'lodash';
 import moment from 'moment-timezone';
 import router from './router';
 import store from './store';
 import VDatePicker from 'v-calendar';
 import Vue from 'vue';
 import VueHighcharts from 'vue-highcharts';
+import VueLodash from 'vue-lodash';
 import VueMoment from 'vue-moment';
 import { routerHistory, writeHistory } from 'vue-router-back-button';
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -33,7 +35,7 @@ Vue.config.productionTip = false;
 Vue.use(BootstrapVue);
 Vue.use(CKEditor);
 Vue.use(VDatePicker);
-Vue.use(require('vue-lodash'));
+Vue.use(VueLodash, { lodash });
 Vue.use(VueMoment, { moment });
 
 HighchartsMore(Highcharts);
