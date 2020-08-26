@@ -112,11 +112,11 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Context from '@/mixins/Context';
-import EditTopicModal from '@/components/topics/EditTopicModal';
-import Util from '@/mixins/Util';
-import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics';
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
+import EditTopicModal from '@/components/topics/EditTopicModal'
+import Util from '@/mixins/Util'
+import {deleteTopic, getAllTopics, getUsageStatistics, undeleteTopic} from '@/api/topics'
 
 export default {
   name: 'ManageTopics',
@@ -191,85 +191,85 @@ export default {
     }
   },
   mounted() {
-    this.refresh();
+    this.refresh()
   },
   methods: {
     afterSaveTopic(topic) {
-      const match = this.$_.find(this.topics, ['id', topic.id]);
+      const match = this.$_.find(this.topics, ['id', topic.id])
       const focusTarget = `topic-${topic.id}`
       if (match) {
-        Object.assign(match, topic);
+        Object.assign(match, topic)
         this.alertScreenReader(`Topic '${topic.topic}' updated.`)
         this.putFocusNextTick(focusTarget)
       } else {
-        this.refresh(focusTarget);
+        this.refresh(focusTarget)
         this.alertScreenReader(`Topic '${topic.topic}' created.`)
       }
-      this.topicEdit = null;
-      this.isEditTopicModalOpen = false;
+      this.topicEdit = null
+      this.isEditTopicModalOpen = false
     },
     formatAvailableIn(value, key, item) {
-      return item.deletedAt ? null : this.formatBoolean(value);
+      return item.deletedAt ? null : this.formatBoolean(value)
     },
     formatBoolean: value => value ? 'Yes' : 'No',
     deleteCancel() {
-      this.isDeleteTopicModalOpen = false;
-      this.topicDelete = undefined;
-      this.alertScreenReader('Cancelled');
-      this.putFocusNextTick('filter-topics');
+      this.isDeleteTopicModalOpen = false
+      this.topicDelete = undefined
+      this.alertScreenReader('Cancelled')
+      this.putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       deleteTopic(this.topicDelete.id).then(() => {
-        this.isDeleteTopicModalOpen = false;
-        this.topicDelete.deletedAt = this.$moment();
-        this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`);
-        this.putFocusNextTick(`topic-${this.topicDelete.id}`);
-        this.topicDelete = undefined;
+        this.isDeleteTopicModalOpen = false
+        this.topicDelete.deletedAt = this.$moment()
+        this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
+        this.putFocusNextTick(`topic-${this.topicDelete.id}`)
+        this.topicDelete = undefined
       })
     },
     edit(topic) {
-      this.topicEdit = this.$_.clone(topic);
-      this.isEditTopicModalOpen = true;
-      this.alertScreenReader(`Begin to edit topic '${topic.topic}'`);
+      this.topicEdit = this.$_.clone(topic)
+      this.isEditTopicModalOpen = true
+      this.alertScreenReader(`Begin to edit topic '${topic.topic}'`)
     },
     onCancelEdit() {
-      this.isEditTopicModalOpen = false;
-      this.alertScreenReader('Cancelled');
-      this.putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics');
-      this.topicEdit = null;
+      this.isEditTopicModalOpen = false
+      this.alertScreenReader('Cancelled')
+      this.putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics')
+      this.topicEdit = null
     },
     openCreateTopicModal() {
       this.topicEdit = {
         topic: '',
         availableInAppointments: false,
         availableInNotes: false
-      };
-      this.isEditTopicModalOpen = true;
-      this.alertScreenReader('Opened modal to create new topic.');
+      }
+      this.isEditTopicModalOpen = true
+      this.alertScreenReader('Opened modal to create new topic.')
     },
     openDeleteTopicModal(topic) {
-      this.topicDelete = topic;
-      this.isDeleteTopicModalOpen = true;
-      this.alertScreenReader('Opened modal to confirm delete.');
+      this.topicDelete = topic
+      this.isDeleteTopicModalOpen = true
+      this.alertScreenReader('Opened modal to confirm delete.')
     },
     refresh(focusTarget) {
       getAllTopics(true).then(data => {
-        this.topics = data;
+        this.topics = data
         getUsageStatistics().then(statistics => {
           this.$_.each(this.topics, topic => {
-            topic.countAppointments = statistics.appointments[topic.id] || 0;
-            topic.countNotes = statistics.notes[topic.id] || 0;
-          });
-          this.hasLoadedTopics = true;
-          this.putFocusNextTick(focusTarget);
+            topic.countAppointments = statistics.appointments[topic.id] || 0
+            topic.countNotes = statistics.notes[topic.id] || 0
+          })
+          this.hasLoadedTopics = true
+          this.putFocusNextTick(focusTarget)
         })
       })
     },
     undelete(topic) {
       undeleteTopic(topic.id).then(() => {
-        topic.deletedAt = null;
+        topic.deletedAt = null
         this.alertScreenReader(`Topic ${topic.topic} un-deleted.`)
-        this.putFocusNextTick(`topic-${topic.id}`);
+        this.putFocusNextTick(`topic-${topic.id}`)
       })
     }
   }

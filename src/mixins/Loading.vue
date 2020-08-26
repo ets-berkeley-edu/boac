@@ -1,6 +1,6 @@
 <script>
-import store from '@/store';
-import { mapActions, mapGetters } from 'vuex';
+import store from '@/store'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'Loading',
@@ -14,8 +14,8 @@ export default {
       if (!!pageTitle && store.getters['context/loading']) {
         store.dispatch('context/alertScreenReader', `${pageTitle} page is ready`)
       }
-      store.dispatch('context/loadingComplete');
+      store.dispatch('context/loadingComplete')
     }
   }
-};
+}
 </script>

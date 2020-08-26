@@ -55,12 +55,12 @@
 </template>
 
 <script>
-import BatchNoteAddCohort from '@/components/note/create/BatchNoteAddCohort';
-import BatchNoteAddStudent from '@/components/note/create/BatchNoteAddStudent';
-import Context from '@/mixins/Context';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import NoteEditSession from '@/mixins/NoteEditSession';
-import Util from '@/mixins/Util';
+import BatchNoteAddCohort from '@/components/note/create/BatchNoteAddCohort'
+import BatchNoteAddStudent from '@/components/note/create/BatchNoteAddStudent'
+import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import NoteEditSession from '@/mixins/NoteEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'BatchNoteFeatures',
@@ -74,29 +74,29 @@ export default {
   },
   methods: {
     addCohortToBatch(cohort) {
-      this.addCohort(cohort);
-      this.alertScreenReader(`Added cohort '${cohort.name}'`);
+      this.addCohort(cohort)
+      this.alertScreenReader(`Added cohort '${cohort.name}'`)
     },
     addCuratedGroupToBatch(curatedGroup) {
-      this.addCuratedGroup(curatedGroup);
-      this.alertScreenReader(`Added curated group '${curatedGroup.name}'`);
+      this.addCuratedGroup(curatedGroup)
+      this.alertScreenReader(`Added curated group '${curatedGroup.name}'`)
     },
     addStudentBySid(sid) {
-      this.addSid(sid);
-      this.putFocusNextTick('create-note-add-student-input');
+      this.addSid(sid)
+      this.putFocusNextTick('create-note-add-student-input')
     },
     removeCohortFromBatch(cohort) {
-      this.removeCohort(cohort);
-      this.alertScreenReader(`Cohort '${cohort.name}' removed`);
+      this.removeCohort(cohort)
+      this.alertScreenReader(`Cohort '${cohort.name}' removed`)
     },
     removeCuratedGroupFromBatch(curatedGroup) {
-      this.removeCuratedGroup(curatedGroup);
-      this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`);
+      this.removeCuratedGroup(curatedGroup)
+      this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`)
     },
     removeSid(sid) {
       if (this.includes(this.sids, sid)) {
-        this.removeStudent(sid);
-        this.putFocusNextTick('create-note-add-student-input');
+        this.removeStudent(sid)
+        this.putFocusNextTick('create-note-add-student-input')
       }
     }
   }

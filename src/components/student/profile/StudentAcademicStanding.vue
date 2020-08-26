@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Util from '@/mixins/Util';
+import Berkeley from '@/mixins/Berkeley'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentAcademicStanding',

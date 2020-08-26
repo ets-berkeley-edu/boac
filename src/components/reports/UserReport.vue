@@ -65,9 +65,9 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Util from '@/mixins/Util';
-import { getUsersReport } from '@/api/reports';
+import Berkeley from '@/mixins/Berkeley'
+import Util from '@/mixins/Util'
+import { getUsersReport } from '@/api/reports'
 
 export default {
   name: 'UserReport',
@@ -84,15 +84,15 @@ export default {
   }),
   watch: {
     department() {
-      this.$refs.users.refresh();
+      this.$refs.users.refresh()
     }
   },
   methods: {
     usersProvider() {
       return getUsersReport(this.department.code).then(report => {
-        this.totalUserCount = report.totalUserCount;
-        return report.users;
-      });
+        this.totalUserCount = report.totalUserCount
+        return report.users
+      })
     }
   }
 }

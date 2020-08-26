@@ -204,13 +204,13 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import StudentAnalytics from '@/mixins/StudentAnalytics';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentBoxplot from '@/components/student/StudentBoxplot';
-import StudentMetadata from '@/mixins/StudentMetadata';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
+import StudentAnalytics from '@/mixins/StudentAnalytics'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentBoxplot from '@/components/student/StudentBoxplot'
+import StudentMetadata from '@/mixins/StudentMetadata'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CourseStudents',
@@ -240,30 +240,30 @@ export default {
       {key: 'courseSites', label: 'Course Site(s)'},
       {key: 'assignmentsSubmitted', label: 'Assignments Submitted'},
       {key: 'assignmentGrades', label: 'Assignment Grades'}
-    ];
+    ]
     if (this.$config.currentEnrollmentTermId === parseInt(this.section.termId)) {
       cols.push(
         {key: 'bCourses', label: 'bCourses Activity'}
-      );
+      )
     }
     cols = cols.concat([
       {key: 'midtermGrade', label: 'Mid'},
       {key: 'finalGrade', label: 'Final', class: 'pr-3'}
-    ]);
-    this.fields = cols;
+    ])
+    this.fields = cols
   },
   methods: {
     degreePlanOwners(student) {
-      const plans = this.get(student, 'degree.plans');
+      const plans = this.get(student, 'degree.plans')
       if (plans) {
-        return this.uniq(this.map(plans, 'group'));
+        return this.uniq(this.map(plans, 'group'))
       } else {
-        return [];
+        return []
       }
     },
     rowClass(item) {
-      const clazz = 'border-bottom pb-3 pt-3';
-      return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz;
+      const clazz = 'border-bottom pb-3 pt-3'
+      return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz
     }
   }
 }

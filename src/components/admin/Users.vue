@@ -265,12 +265,12 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import EditUserProfileModal from '@/components/admin/EditUserProfileModal';
-import Util from '@/mixins/Util';
-import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } from '@/api/user';
+import Autocomplete from '@/components/util/Autocomplete'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
+import Util from '@/mixins/Util'
+import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } from '@/api/user'
 
 export default {
   name: 'Users',
@@ -304,73 +304,73 @@ export default {
   watch: {
     refresh(value) {
       if (value) {
-        this.refreshUsers();
+        this.refreshUsers()
       }
     },
     userSelection(u) {
       if (u) {
-        this.refreshUsers();
+        this.refreshUsers()
       }
     }
   },
   methods: {
     afterUpdateUser(profile) {
-      this.alertScreenReader(`${profile.name} profile updated.`);
+      this.alertScreenReader(`${profile.name} profile updated.`)
       if (this.filterType === 'search') {
-        this.userSelection = profile;
+        this.userSelection = profile
       }
-      this.refreshUsers();
+      this.refreshUsers()
     },
     autocompleteUsers(q) {
-      return userAutocomplete(q).then(results => this.orderBy(results, 'label'));
+      return userAutocomplete(q).then(results => this.orderBy(results, 'label'))
     },
     become(uid) {
-      becomeUser(uid).then(() => (window.location.href = '/home'));
+      becomeUser(uid).then(() => (window.location.href = '/home'))
     },
     canBecome(user) {
-      const isNotMe = user.uid !== this.$currentUser.uid;
-      const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked;
-      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => !this.isNil(dept.role));
-      return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole;
+      const isNotMe = user.uid !== this.$currentUser.uid
+      const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
+      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => !this.isNil(dept.role))
+      return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {
-      const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ];
+      const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ]
       if (user.isBlocked) {
-        statuses.push('Blocked');
+        statuses.push('Blocked')
       }
       if (user.isExpiredPerLdap) {
         statuses.push('Expired, according to CalNet.')
       }
-      return statuses;
+      return statuses
     },
     openEditUserModal(user) {
-      user.showEditUserModal = true;
+      user.showEditUserModal = true
     },
     quickLink(role, deptCode=null) {
-      this.filterType = 'filter';
+      this.filterType = 'filter'
       this.filterBy = {
         deptCode: deptCode,
         role: role,
         searchPhrase: '',
         status: 'active'
-      };
-      this.refreshUsers();
+      }
+      this.refreshUsers()
     },
     refreshUsers() {
       if (this.$refs.users) {
-        this.$refs.users.refresh();
+        this.$refs.users.refresh()
       }
     },
     usersProvider() {
-      this.totalUserCount = undefined;
-      let promise = undefined;
+      this.totalUserCount = undefined
+      let promise = undefined
       switch(this.filterType) {
       case 'admins':
         promise = getAdminUsers(this.sortBy, this.sortDescending, false).then(data => {
-          this.totalUserCount = data.totalUserCount;
-          return data.users;
-        });
-        break;
+          this.totalUserCount = data.totalUserCount
+          return data.users
+        })
+        break
       case 'filter':
         promise = getUsers(
           this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
@@ -380,26 +380,26 @@ export default {
           this.sortBy,
           this.sortDescending
         ).then(data => {
-          this.totalUserCount = data.totalUserCount;
-          return data.users;
-        });
-        break;
+          this.totalUserCount = data.totalUserCount
+          return data.users
+        })
+        break
       case 'search':
         if (this.userSelection) {
           promise = getUserByUid(this.userSelection.uid, false).then(data => {
-            this.totalUserCount = 1;
-            this.userSelection = undefined;
-            return [ data ];
-          });
+            this.totalUserCount = 1
+            this.userSelection = undefined
+            return [ data ]
+          })
         } else {
-          promise = new Promise(resolve => resolve([]));
+          promise = new Promise(resolve => resolve([]))
         }
-        this.putFocusNextTick('search-user-input');
-        break;
+        this.putFocusNextTick('search-user-input')
+        break
       default:
-        promise = new Promise(resolve => resolve([]));
+        promise = new Promise(resolve => resolve([]))
       }
-      return promise;
+      return promise
     }
   }
 }

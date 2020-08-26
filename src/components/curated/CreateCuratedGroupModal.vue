@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import Validator from '@/mixins/Validator';
+import Validator from '@/mixins/Validator'
 
 export default {
   name: 'CreateCuratedGroupModal',
@@ -64,25 +64,25 @@ export default {
   }),
   watch: {
     name() {
-      this.error = undefined;
+      this.error = undefined
     }
   },
   methods: {
     reset() {
-      this.name = '';
-      this.error = undefined;
+      this.name = ''
+      this.error = undefined
     },
     cancelModal() {
-      this.cancel();
-      this.reset();
+      this.cancel()
+      this.reset()
     },
     createCuratedGroup: function() {
-      this.error = this.validateCohortName({ name: this.name });
+      this.error = this.validateCohortName({ name: this.name })
       if (!this.error) {
-        this.create(this.name);
-        this.reset();
+        this.create(this.name)
+        this.reset()
       }
     }
   }
-};
+}
 </script>

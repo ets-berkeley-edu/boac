@@ -57,9 +57,9 @@
 </template>
 
 <script>
-import Attachments from '@/mixins/Attachments';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Attachments from '@/mixins/Attachments'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AdvisingNoteAttachments',
@@ -90,21 +90,21 @@ export default {
   watch: {
     attachments(files) {
       if (files) {
-        this.attachmentError = this.validateAttachment(files, this.existingAttachments);
+        this.attachmentError = this.validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           this.each(files, attachment => {
             attachment.displayName = attachment.name
-            this.addAttachment(attachment);
-            this.alertScreenReader(`Attachment '${attachment.displayName}' added`);
-          });
+            this.addAttachment(attachment)
+            this.alertScreenReader(`Attachment '${attachment.displayName}' added`)
+          })
         }
       }
     }
   },
   methods: {
     removeAttachmentByIndex(index) {
-      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`);
-      this.removeAttachment(index);
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
+      this.removeAttachment(index)
     }
   }
 }

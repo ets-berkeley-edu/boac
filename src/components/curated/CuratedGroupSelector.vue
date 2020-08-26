@@ -81,11 +81,11 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import Util from '@/mixins/Util';
-import { addStudents, createCuratedGroup } from '@/api/curated';
+import Context from '@/mixins/Context'
+import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import Util from '@/mixins/Util'
+import { addStudents, createCuratedGroup } from '@/api/curated'
 
 export default {
   name: 'CuratedGroupSelector',
@@ -121,36 +121,36 @@ export default {
   }),
   computed: {
     disableSelector() {
-      return this.isSaving || this.isNil(this.myCuratedGroups);
+      return this.isSaving || this.isNil(this.myCuratedGroups)
     },
     dropdownVariant() {
-      return this.isSaving ? 'success' : 'primary';
+      return this.isSaving ? 'success' : 'primary'
     },
     showMenu() {
-      return this.size(this.sids);
+      return this.size(this.sids)
     }
   },
   created() {
     this.$eventHub.$on('curated-group-checkbox-checked', sid => {
-      this.sids.push(sid);
-      this.refresh();
-    });
+      this.sids.push(sid)
+      this.refresh()
+    })
     this.$eventHub.$on('curated-group-checkbox-unchecked', sid => {
-      this.sids = this.remove(this.sids, s => s !== sid);
-      this.refresh();
-    });
+      this.sids = this.remove(this.sids, s => s !== sid)
+      this.refresh()
+    })
   },
   methods: {
     toggle(checked) {
       if (checked) {
-        this.sids = this.map(this.students, 'sid');
-        this.$eventHub.$emit('curated-group-select-all');
-        this.putFocusNextTick('curated-group-dropdown-select', 'button');
-        this.alertScreenReader('All students on this page selected.');
+        this.sids = this.map(this.students, 'sid')
+        this.$eventHub.$emit('curated-group-select-all')
+        this.putFocusNextTick('curated-group-dropdown-select', 'button')
+        this.alertScreenReader('All students on this page selected.')
       } else {
-        this.sids = [];
-        this.$eventHub.$emit('curated-group-deselect-all');
-        this.alertScreenReader('All students on this page deselected.');
+        this.sids = []
+        this.$eventHub.$emit('curated-group-deselect-all')
+        this.alertScreenReader('All students on this page deselected.')
       }
     },
     refresh() {
@@ -158,35 +158,35 @@ export default {
         this.size(this.sids),
         1,
         this.size(this.students)
-      );
+      )
       this.isSelectAllChecked =
-        this.size(this.sids) === this.size(this.students);
+        this.size(this.sids) === this.size(this.students)
     },
     curatedGroupCheckboxClick(group) {
       const afterAddStudents = () => {
-        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to "${group.name}".`);
-        this.sids = [];
-        this.isSelectAllChecked = this.indeterminate = false;
-        this.$eventHub.$emit('curated-group-deselect-all');
-        this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`);
-      };
-      const done = () => (this.isSaving = false);
-      this.isSaving = true;
+        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to "${group.name}".`)
+        this.sids = []
+        this.isSelectAllChecked = this.indeterminate = false
+        this.$eventHub.$emit('curated-group-deselect-all')
+        this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
+      }
+      const done = () => (this.isSaving = false)
+      this.isSaving = true
       addStudents(group.id, this.sids)
         .then(afterAddStudents)
-        .finally(() => setTimeout(done, 2000));
+        .finally(() => setTimeout(done, 2000))
     },
     modalCreateCuratedGroup(name) {
-      this.isSaving = true;
-      this.showModal = false;
+      this.isSaving = true
+      this.showModal = false
       let done = () => {
-        this.sids = [];
-        this.refresh();
-        this.toggle(false);
-        this.isSaving = false;
-        this.onCreateCuratedGroup();
-        this.alertScreenReader('Selected students added to curated group');
-      };
+        this.sids = []
+        this.refresh()
+        this.toggle(false)
+        this.isSaving = false
+        this.onCreateCuratedGroup()
+        this.alertScreenReader('Selected students added to curated group')
+      }
       const trackEvent = group => {
         this.each(
           [
@@ -194,22 +194,22 @@ export default {
             `${this.contextDescription}: add students to Curated Group`
           ],
           action => {
-            this.$ga.curatedEvent(group.id, group.name, action);
+            this.$ga.curatedEvent(group.id, group.name, action)
           }
-        );
-      };
+        )
+      }
       createCuratedGroup(name, this.sids)
         .then(trackEvent)
-        .finally(() => setTimeout(() => done(), 2000));
+        .finally(() => setTimeout(() => done(), 2000))
     },
     modalCancel() {
-      this.sids = [];
-      this.refresh();
-      this.toggle(false);
-      this.showModal = false;
+      this.sids = []
+      this.refresh()
+      this.toggle(false)
+      this.showModal = false
     }
   }
-};
+}
 </script>
 
 <style scoped>

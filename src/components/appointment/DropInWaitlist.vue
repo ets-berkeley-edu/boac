@@ -173,14 +173,14 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal';
-import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
-import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment';
-import LogResolvedIssueModal from '@/components/appointment/LogResolvedIssueModal';
-import Util from '@/mixins/Util';
-import { create as apiCreate } from '@/api/appointments';
-import { setDropInStatus } from '@/api/user';
+import Context from '@/mixins/Context'
+import CreateAppointmentModal from '@/components/appointment/CreateAppointmentModal'
+import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle'
+import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment'
+import LogResolvedIssueModal from '@/components/appointment/LogResolvedIssueModal'
+import Util from '@/mixins/Util'
+import { create as apiCreate } from '@/api/appointments'
+import { setDropInStatus } from '@/api/user'
 
 export default {
   name: 'DropInWaitlist',
@@ -226,42 +226,42 @@ export default {
   }),
   computed: {
     availableAdvisors: function() {
-      return this.filterList(this.advisors, 'available');
+      return this.filterList(this.advisors, 'available')
     },
     myReservedAppointments: function() {
       return this.filterList(this.waitlist.unresolved, (appt) => {
-        return appt.status === 'reserved' && appt.advisorUid === this.$currentUser.uid;
-      });
+        return appt.status === 'reserved' && appt.advisorUid === this.$currentUser.uid
+      })
     }
   },
   created() {
-    const currentUserDropInStatus = this.get(this.$currentUser, 'dropInAdvisorStatus');
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.isEmpty(this.currentUserDropInStatus);
-    this.now = this.$moment();
+    const currentUserDropInStatus = this.get(this.$currentUser, 'dropInAdvisorStatus')
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.isEmpty(this.currentUserDropInStatus)
+    this.now = this.$moment()
     if (this.isHomepage) {
       this.$eventHub.$on('drop-in-status-change', newAttributes => {
-        this.updateDropInAttributes(newAttributes);
-      });
+        this.updateDropInAttributes(newAttributes)
+      })
       this.updateDropInAttributes(this.find(currentUserDropInStatus, {'deptCode': this.deptCode.toUpperCase()}))
     }
   },
   methods: {
     cancelCreateAppointment() {
-      this.showCreateAppointmentModal = false;
-      this.alertScreenReader('Dialog closed');
+      this.showCreateAppointmentModal = false
+      this.alertScreenReader('Dialog closed')
     },
     cancelLogResolvedIssue() {
-      this.showLogResolvedIssueModal = false;
-      this.alertScreenReader('Dialog closed');
+      this.showLogResolvedIssueModal = false
+      this.alertScreenReader('Dialog closed')
     },
     clearDropInStatus() {
-      this.dropInStatusLoading = true;
+      this.dropInStatusLoading = true
       setDropInStatus(this.deptCode).then(response => {
-        this.updateDropInAttributes(response);
-        this.dropInStatusLoading = false;
-        this.dropInStatusNew = null;
-        this.alertScreenReader('Drop-in status cleared');
-      });
+        this.updateDropInAttributes(response)
+        this.dropInStatusLoading = false
+        this.dropInStatusNew = null
+        this.alertScreenReader('Drop-in status cleared')
+      })
     },
     createAppointment(
       details,
@@ -269,7 +269,7 @@ export default {
       topics,
       advisorUid
     ) {
-      this.creating = true;
+      this.creating = true
       apiCreate(
         this.deptCode,
         details,
@@ -278,13 +278,13 @@ export default {
         topics,
         advisorUid
       ).then(() => {
-        this.showCreateAppointmentModal = false;
+        this.showCreateAppointmentModal = false
         this.onAppointmentStatusChange().then(() => {
-          this.creating = false;
-          this.alertScreenReader(`${student.label} appointment created`);
+          this.creating = false
+          this.alertScreenReader(`${student.label} appointment created`)
           this.putFocusNextTick(`waitlist-student-${student.sid}`)
-        });
-      });
+        })
+      })
     },
     logResolvedIssue(
       details,
@@ -300,32 +300,32 @@ export default {
         topics,
         schedulerUid
       ).then(() => {
-        this.showLogResolvedIssueModal = false;
+        this.showLogResolvedIssueModal = false
         this.onAppointmentStatusChange().then(() => {
-          this.alertScreenReader(`Resolved issue for ${student.label}`);
-        });
-      });
+          this.alertScreenReader(`Resolved issue for ${student.label}`)
+        })
+      })
     },
     openCreateAppointmentModal() {
-      this.showCreateAppointmentModal = true;
-      this.alertScreenReader('Create appointment form is open');
+      this.showCreateAppointmentModal = true
+      this.alertScreenReader('Create appointment form is open')
     },
     openLogResolvedIssueModal() {
-      this.showLogResolvedIssueModal = true;
-      this.alertScreenReader('Log resolved issue form is open');
+      this.showLogResolvedIssueModal = true
+      this.alertScreenReader('Log resolved issue form is open')
     },
     submitDropInStatus() {
-      this.dropInStatusLoading = true;
+      this.dropInStatusLoading = true
       setDropInStatus(this.deptCode, this.dropInStatusNew).then(response => {
-        this.updateDropInAttributes(response);
-        this.dropInStatusLoading = false;
-        this.alertScreenReader('Drop-in status updated');
-      });
+        this.updateDropInAttributes(response)
+        this.dropInStatusLoading = false
+        this.alertScreenReader('Drop-in status updated')
+      })
     },
     updateDropInAttributes(attrs) {
       if (attrs) {
-        this.dropInAvailability = attrs.available;
-        this.dropInStatus = attrs.status;
+        this.dropInAvailability = attrs.available
+        this.dropInStatus = attrs.status
       }
     }
   }

@@ -41,10 +41,10 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import RichTextEditor from '@/components/util/RichTextEditor';
-import Util from '@/mixins/Util';
-import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config';
+import Context from '@/mixins/Context'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import Util from '@/mixins/Util'
+import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config'
 
 export default {
   name: 'EditServiceAnnouncement',
@@ -60,42 +60,42 @@ export default {
   }),
   created() {
     getServiceAnnouncement().then(data => {
-      this.originalText = this.text = data.text || '';
-      this.isPublished = data.isPublished;
+      this.originalText = this.text = data.text || ''
+      this.isPublished = data.isPublished
     })
   },
   methods: {
     onEditorUpdate(value) {
-      this.text = value;
+      this.text = value
     },
     togglePublish() {
-      const publish = !this.isPublished;
-      this.error = null;
-      this.isTogglingPublish = true;
+      const publish = !this.isPublished
+      this.error = null
+      this.isTogglingPublish = true
       if (!this.originalText.length && publish) {
-        this.error = 'You are not allowed to publish empty text.';
-        this.isTogglingPublish = false;
+        this.error = 'You are not allowed to publish empty text.'
+        this.isTogglingPublish = false
       } else {
         publishAnnouncement(publish).then(data => {
-          this.isPublished = data.isPublished;
-          this.isTogglingPublish = false;
-          this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`);
-        });
+          this.isPublished = data.isPublished
+          this.isTogglingPublish = false
+          this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
+        })
       }
     },
     updateText() {
-      this.error = null;
-      this.isSaving = true;
+      this.error = null
+      this.isSaving = true
       if (!this.trim(this.text).length && this.isPublished) {
-        this.error = 'You are not allowed to publish empty text.';
-        this.isSaving = false;
+        this.error = 'You are not allowed to publish empty text.'
+        this.isSaving = false
       } else {
         updateAnnouncement(this.text).then(data => {
-          this.originalText = this.text = data.text;
-          this.isPublished = data.isPublished;
-          this.isSaving = false;
-          this.alertScreenReader('The service announcement has been updated.');
-        });
+          this.originalText = this.text = data.text
+          this.isPublished = data.isPublished
+          this.isSaving = false
+          this.alertScreenReader('The service announcement has been updated.')
+        })
       }
     }
   }

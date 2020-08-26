@@ -1,31 +1,31 @@
-import axios from 'axios';
-import utils from '@/api/api-utils';
+import axios from 'axios'
+import utils from '@/api/api-utils'
 
-let $_findAdvisorsByNameCancel = axios.CancelToken.source();
+let $_findAdvisorsByNameCancel = axios.CancelToken.source()
 
 export function findAdvisorsByName(query: string, limit: number) {
   if ($_findAdvisorsByNameCancel) {
-     $_findAdvisorsByNameCancel.cancel();
+     $_findAdvisorsByNameCancel.cancel()
   }
-  $_findAdvisorsByNameCancel = axios.CancelToken.source();
+  $_findAdvisorsByNameCancel = axios.CancelToken.source()
   return axios
     .get(
       `${utils.apiBaseUrl()}/api/search/advisors/find_by_name?q=${query}&limit=${limit}`,
       {cancelToken: $_findAdvisorsByNameCancel.token}
     ).then(response => response.data)
-    .catch(error => error);
+    .catch(error => error)
 }
 
 export function getMySearchHistory() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/search/my_search_history`)
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }
 
 export function addToSearchHistory(phrase) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/search/add_to_search_history`, { phrase })
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }
 
 export function search(
@@ -53,7 +53,7 @@ export function search(
       offset: offset || 0,
       limit: limit || 50
     })
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }
 
 export function searchAdmittedStudents(phrase: string, orderBy?: string) {
@@ -62,5 +62,5 @@ export function searchAdmittedStudents(phrase: string, orderBy?: string) {
       searchPhrase: phrase,
       orderBy: orderBy || 'last_name',
     })
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }

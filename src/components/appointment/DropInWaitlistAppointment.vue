@@ -109,12 +109,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentMetadata from '@/mixins/StudentMetadata';
-import Util from '@/mixins/Util';
-import { reopen as apiReopen } from '@/api/appointments';
+import Context from '@/mixins/Context'
+import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentMetadata from '@/mixins/StudentMetadata'
+import Util from '@/mixins/Util'
+import { reopen as apiReopen } from '@/api/appointments'
 
 export default {
   name: 'DropInWaitlist',
@@ -153,18 +153,18 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.$currentUser, 'dropInAdvisorStatus.length');
-    this.now = this.$moment();
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.get(this.$currentUser, 'dropInAdvisorStatus.length')
+    this.now = this.$moment()
   },
   methods: {
     reopenAppointment() {
-      this.reopening = true;
+      this.reopening = true
       apiReopen(this.appointment.id).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
-          this.reopening = false;
-          this.alertScreenReader(`${this.appointment.student.name} appointment reopened`);
-        });
-      }).catch(this.handleBadRequestError);
+          this.reopening = false
+          this.alertScreenReader(`${this.appointment.student.name} appointment reopened`)
+        })
+      }).catch(this.handleBadRequestError)
     }
   }
 }

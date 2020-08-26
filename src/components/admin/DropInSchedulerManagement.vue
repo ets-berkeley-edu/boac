@@ -63,12 +63,12 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete';
-import Context from '@/mixins/Context';
-import RemoveDropInSchedulerModal from '@/components/admin/RemoveDropInSchedulerModal';
-import Util from '@/mixins/Util';
-import { findStudentsByNameOrSid } from '@/api/student';
-import { addDropInScheduler, removeDropInScheduler } from '@/api/user';
+import Autocomplete from '@/components/util/Autocomplete'
+import Context from '@/mixins/Context'
+import RemoveDropInSchedulerModal from '@/components/admin/RemoveDropInSchedulerModal'
+import Util from '@/mixins/Util'
+import { findStudentsByNameOrSid } from '@/api/student'
+import { addDropInScheduler, removeDropInScheduler } from '@/api/user'
 
 export default {
   name: 'DropInSchedulerManagement',
@@ -90,38 +90,38 @@ export default {
     showRemoveSchedulerModal: false
   }),
   created() {
-    this.schedulers = this.dept.schedulers;
+    this.schedulers = this.dept.schedulers
   },
   methods: {
     addScheduler(scheduler) {
       return addDropInScheduler(this.dept.code, scheduler.uid).then(updatedDept => {
-        this.schedulers = updatedDept.schedulers;
-      });
+        this.schedulers = updatedDept.schedulers
+      })
     },
     cancelRemoveSchedulerModal() {
-      this.showRemoveSchedulerModal = false;
-      this.alertScreenReader(`Cancel removal of ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`);
+      this.showRemoveSchedulerModal = false
+      this.alertScreenReader(`Cancel removal of ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
     },
     confirmRemoveScheduler(scheduler) {
-      this.showRemoveSchedulerModal = true;
-      this.schedulerToRemove = scheduler;
+      this.showRemoveSchedulerModal = true
+      this.schedulerToRemove = scheduler
     },
     removeScheduler() {
-      this.alertScreenReader(`Removing ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`);
-      this.showRemoveSchedulerModal = false;
-      this.isRemoving = true;
+      this.alertScreenReader(`Removing ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
+      this.showRemoveSchedulerModal = false
+      this.isRemoving = true
       removeDropInScheduler(this.dept.code, this.schedulerToRemove.uid).then(updatedDept => {
-        this.schedulers = updatedDept.schedulers;
-        this.isRemoving = false;
-      });
+        this.schedulers = updatedDept.schedulers
+        this.isRemoving = false
+      })
     },
     schedulersByNameOrSid(query, limit) {
-      const csids = this.map(this.dept.schedulers, 'csid');
+      const csids = this.map(this.dept.schedulers, 'csid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.filterList(students, s => !this.includes(csids, s.sid)));
-        });
-      });
+          resolve(this.filterList(students, s => !this.includes(csids, s.sid)))
+        })
+      })
     }
   }
 }

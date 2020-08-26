@@ -5,8 +5,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context.vue';
-import Loading from '@/mixins/Loading.vue';
+import Context from '@/mixins/Context.vue'
+import Loading from '@/mixins/Loading.vue'
 
 export default {
   mixins: [Context, Loading],
@@ -21,22 +21,22 @@ export default {
   },
   watch: {
     loading(value) {
-      this.alert(value, true);
+      this.alert(value, true)
     }
   },
   created() {
-    this.alert(this.loading, false);
+    this.alert(this.loading, false)
   },
   methods: {
     alert(isLoading, voiceIfLoaded)  {
       if (isLoading) {
-        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...`);
+        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...`)
       } else if (voiceIfLoaded) {
-        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`);
+        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

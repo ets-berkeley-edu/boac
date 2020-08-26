@@ -61,9 +61,9 @@ export default {
     selected: []
   }),
   created() {
-    this.selected = this.csvColumnsSelected;
+    this.selected = this.csvColumnsSelected
   }
-};
+}
 </script>
 
 <style scoped>

@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableAdmits',
@@ -91,10 +91,10 @@ export default {
   },
   watch: {
     sortBy() {
-      this.onChangeSortBy();
+      this.onChangeSortBy()
     },
     sortDescending() {
-      this.onChangeSortBy();
+      this.onChangeSortBy()
     }
   },
   created() {
@@ -109,41 +109,41 @@ export default {
       {key: 'applicationFeeWaiverFlag', label: 'Waiver', sortable: false},
       {key: 'residencyCategory', label: 'Residency', sortable: false},
       {key: 'freshmanOrTransfer', label: 'Freshman/Transfer', sortable: false},
-    ];
+    ]
   },
   methods: {
     admitRoutePath(csEmplId) {
       return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
     },
     fullName(admit) {
-      const lastName = admit.lastName ? `${admit.lastName},` : null;
-      return this.join(this.remove([lastName, admit.firstName, admit.middleName]), ' ');
+      const lastName = admit.lastName ? `${admit.lastName},` : null
+      return this.join(this.remove([lastName, admit.firstName, admit.middleName]), ' ')
     },
     normalizeForSort(value) {
-      return this.isString(value) ? value.toLowerCase() : value;
+      return this.isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this.find(this.fields, ['key', this.sortBy]);
-      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`);
+      const field = this.find(this.fields, ['key', this.sortBy])
+      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.normalizeForSort(this.get(a, sortBy));
-      let bValue = this.normalizeForSort(this.get(b, sortBy));
-      let result = this.sortComparator(aValue, bValue);
+      let aValue = this.normalizeForSort(this.get(a, sortBy))
+      let bValue = this.normalizeForSort(this.get(b, sortBy))
+      let result = this.sortComparator(aValue, bValue)
       if (result === 0) {
         this.each(['lastName', 'firstName', 'csEmplId'], field => {
           result = this.sortComparator(
             this.normalizeForSort(this.get(a, field)),
             this.normalizeForSort(this.get(b, field))
-          );
+          )
           // Secondary sort is always ascending
-          result *= sortDesc ? -1 : 1;
+          result *= sortDesc ? -1 : 1
           // Break from loop if comparator result is non-zero
-          return result === 0;
-        });
+          return result === 0
+        })
       }
-      return result;
+      return result
     }
   }
-};
+}
 </script>

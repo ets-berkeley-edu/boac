@@ -45,9 +45,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import NoteEditSession from '@/mixins/NoteEditSession';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import NoteEditSession from '@/mixins/NoteEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CreateNoteFooter',

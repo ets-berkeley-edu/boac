@@ -45,13 +45,13 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import NavLink from '@/components/util/NavLink';
-import Util from '@/mixins/Util';
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import NavLink from '@/components/util/NavLink'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'MyAdmitCohorts',
   components: {NavLink},
   mixins: [CurrentUserExtras, Util]
-};
+}
 </script>

@@ -66,9 +66,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getTopicsForNotes } from '@/api/topics';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getTopicsForNotes } from '@/api/topics'
 
 export default {
   name: 'AdvisingNoteTopics',
@@ -102,41 +102,41 @@ export default {
   }),
   computed: {
     notePrefix() {
-      return this.noteId ? `note-${this.noteId}` : 'note';
+      return this.noteId ? `note-${this.noteId}` : 'note'
     }
   },
   created() {
     getTopicsForNotes(false).then(rows => {
       this.each(rows, row => {
-        const topic = row['topic'];
+        const topic = row['topic']
         this.topicOptions.push({
           text: topic,
           value: topic,
           disabled: this.includes(this.topics, topic)
         })
-      });
-    });
+      })
+    })
   },
   methods: {
     add(topic) {
       // Reset the dropdown
-      this.selected = null;
+      this.selected = null
       if (topic) {
-        this.setDisabled(topic, true);
-        this.functionAdd(topic);
-        this.putFocusNextTick('add-topic-select-list');
-        this.alertScreenReader(`Topic ${topic} added.`);
+        this.setDisabled(topic, true)
+        this.functionAdd(topic)
+        this.putFocusNextTick('add-topic-select-list')
+        this.alertScreenReader(`Topic ${topic} added.`)
       }
     },
     remove(topic) {
-      this.setDisabled(topic, false);
-      this.functionRemove(topic);
-      this.putFocusNextTick('add-topic-select-list');
-      this.alertScreenReader(`Topic ${topic} removed.`);
+      this.setDisabled(topic, false)
+      this.functionRemove(topic)
+      this.putFocusNextTick('add-topic-select-list')
+      this.alertScreenReader(`Topic ${topic} removed.`)
     },
     setDisabled(topic, disable) {
-      const option = this.find(this.topicOptions, ['value', topic]);
-      this.set(option, 'disabled', disable);
+      const option = this.find(this.topicOptions, ['value', topic])
+      this.set(option, 'disabled', disable)
     }
   }
 }

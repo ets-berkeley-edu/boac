@@ -141,16 +141,16 @@
 </template>
 
 <script>
-import CourseStudents from '@/components/course/CourseStudents';
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import Loading from '@/mixins/Loading';
-import Matrix from '@/components/matrix/Matrix';
-import MatrixUtil from '@/components/matrix/MatrixUtil';
-import Pagination from '@/components/util/Pagination';
-import Scrollable from '@/mixins/Scrollable';
-import Spinner from '@/components/util/Spinner';
-import Util from '@/mixins/Util';
-import { getSection } from '@/api/course';
+import CourseStudents from '@/components/course/CourseStudents'
+import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector'
+import Loading from '@/mixins/Loading'
+import Matrix from '@/components/matrix/Matrix'
+import MatrixUtil from '@/components/matrix/MatrixUtil'
+import Pagination from '@/components/util/Pagination'
+import Scrollable from '@/mixins/Scrollable'
+import Spinner from '@/components/util/Spinner'
+import Util from '@/mixins/Util'
+import { getSection } from '@/api/course'
 
 export default {
   name: 'Course',
@@ -183,63 +183,63 @@ export default {
     tab: 'list'
   }),
   created() {
-    this.initViewMode();
-    this.initPagination();
+    this.initViewMode()
+    this.initPagination()
     if (this.tab === 'matrix') {
-      this.loadMatrixView();
+      this.loadMatrixView()
     } else {
-      this.loadListView();
+      this.loadListView()
     }
   },
   mounted() {
-    this.scrollToTop();
+    this.scrollToTop()
   },
   methods: {
     featureSearchedStudent(data) {
-      const section = this.clone(data);
+      const section = this.clone(data)
       const subject = this.remove(section.students, student => {
-        return student.uid === this.featured;
-      });
-      const students = this.union(subject, section.students);
+        return student.uid === this.featured
+      })
+      const students = this.union(subject, section.students)
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.
       this.each(students, student => {
         if (!student.enrollment) {
-          student.enrollment = { canvasSites: [] };
+          student.enrollment = { canvasSites: [] }
         }
-      });
-      section.students = students;
-      return section;
+      })
+      section.students = students
+      return section
     },
     initViewMode() {
       this.tab = this.includes(['list', 'matrix'], this.$route.query.tab)
         ? this.$route.query.tab
-        : this.tab;
+        : this.tab
     },
     initPagination() {
       if (this.$route.query.p && !isNaN(this.$route.query.p)) {
-        this.pagination.currentPage = parseInt(this.$route.query.p, 10);
+        this.pagination.currentPage = parseInt(this.$route.query.p, 10)
       }
       if (this.$route.query.s && !isNaN(this.$route.query.s)) {
-        const itemsPerPage = parseInt(this.$route.query.s, 10);
+        const itemsPerPage = parseInt(this.$route.query.s, 10)
         if (this.includes(this.pagination.options, itemsPerPage)) {
-          this.pagination.itemsPerPage = itemsPerPage;
+          this.pagination.itemsPerPage = itemsPerPage
         } else {
           this.$router.push({
             query: { ...this.$route.query, s: this.pagination.itemsPerPage }
-          });
+          })
         }
       }
       if (this.$route.query.u) {
-        this.featured = this.$route.query.u;
+        this.featured = this.$route.query.u
       }
     },
     loadListView() {
-      const limit = this.pagination.itemsPerPage;
+      const limit = this.pagination.itemsPerPage
       const offset =
         this.pagination.currentPage === 0
           ? 0
-          : (this.pagination.currentPage - 1) * limit;
+          : (this.pagination.currentPage - 1) * limit
       getSection(
         this.$route.params.termId,
         this.$route.params.sectionId,
@@ -248,65 +248,65 @@ export default {
         this.featured
       ).then(data => {
         if (data) {
-          this.updateCourseData(data);
-          this.loaded();
+          this.updateCourseData(data)
+          this.loaded()
         } else {
-          this.$router.push({ path: '/404' });
+          this.$router.push({ path: '/404' })
         }
-      });
+      })
     },
     loadMatrixView() {
       getSection(this.$route.params.termId, this.$route.params.sectionId).then(
         data => {
-          this.updateCourseData(data);
-          this.loaded();
+          this.updateCourseData(data)
+          this.loaded()
         }
-      );
+      )
     },
     goToPage(page) {
-      this.pagination.currentPage = page;
+      this.pagination.currentPage = page
       this.$router.push({
         query: { ...this.$route.query, p: this.pagination.currentPage }
-      });
+      })
     },
     resizePage(selectedItemsPerPage) {
-      const currentItemsPerPage = this.pagination.itemsPerPage;
+      const currentItemsPerPage = this.pagination.itemsPerPage
       const newPage = Math.round(
         this.pagination.currentPage *
           (currentItemsPerPage / selectedItemsPerPage)
-      );
+      )
       this.$router.push({
         query: {
           ...this.$route.query,
           p: newPage,
           s: selectedItemsPerPage
         }
-      });
+      })
     },
     toggleView(tabName) {
       this.$router.push({
         query: { ...this.$route.query, tab: tabName }
-      });
+      })
     },
     updateCourseData(data) {
-      this.setPageTitle(data.displayName);
-      this.section = this.featureSearchedStudent(data);
+      this.setPageTitle(data.displayName)
+      this.section = this.featureSearchedStudent(data)
       if (
         this.exceedsMatrixThreshold(this.get(this.section, 'totalStudentCount'))
       ) {
-        this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`;
+        this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`
       } else {
-        var plottableStudents = this.partitionPlottableStudents();
+        var plottableStudents = this.partitionPlottableStudents()
         if (plottableStudents[0].length === 0) {
           this.matrixDisabledMessage =
-            'No student data is available to display.';
+            'No student data is available to display.'
         } else {
-          this.matrixDisabledMessage = null;
+          this.matrixDisabledMessage = null
         }
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

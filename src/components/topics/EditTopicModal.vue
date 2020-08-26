@@ -76,9 +76,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import {createTopic, updateTopic} from '@/api/topics';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import {createTopic, updateTopic} from '@/api/topics'
 
 export default {
   name: 'EditTopicModal',
@@ -110,30 +110,30 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return !this.isValidLabel || this.isSaving || (!this.topic.availableInAppointments && !this.topic.availableInNotes) || this.isLabelReserved;
+      return !this.isValidLabel || this.isSaving || (!this.topic.availableInAppointments && !this.topic.availableInNotes) || this.isLabelReserved
     },
     isLabelReserved() {
       return !!this.$_.find(this.allTopics, t => {
-        const trimmed = this.$_.trim(this.topic.topic);
-        return t.id !== this.topic.id && (t.topic.toLowerCase() === trimmed.toLowerCase());
-      });
+        const trimmed = this.$_.trim(this.topic.topic)
+        return t.id !== this.topic.id && (t.topic.toLowerCase() === trimmed.toLowerCase())
+      })
     },
     isValidLabel() {
-      return this.$_.trim(this.topic.topic).length >= this.minLabelLength;
+      return this.$_.trim(this.topic.topic).length >= this.minLabelLength
     }
   },
   created() {
-    this.showEditTopicModal = true;
-    this.putFocusNextTick('topic-label');
+    this.showEditTopicModal = true
+    this.putFocusNextTick('topic-label')
   },
   methods: {
     cancel() {
-      this.showEditTopicModal = false;
-      this.onCancel();
+      this.showEditTopicModal = false
+      this.onCancel()
     },
     save() {
-      this.isSaving = true;
-      this.topic.topic = this.$_.trim(this.topic.topic);
+      this.isSaving = true
+      this.topic.topic = this.$_.trim(this.topic.topic)
       if (this.topic.id) {
         updateTopic(
           this.topic.id,
@@ -141,15 +141,15 @@ export default {
           this.topic.availableInNotes,
           this.topic.topic
         ).then(data => {
-          this.afterSave(data);
-          this.isSaving = false;
-          this.showEditTopicModal = false;
-        });
+          this.afterSave(data)
+          this.isSaving = false
+          this.showEditTopicModal = false
+        })
       } else {
         createTopic(this.topic.availableInAppointments, this.topic.availableInNotes, this.topic.topic).then(data => {
-          this.afterSave(data);
-          this.isSaving = false;
-          this.showEditTopicModal = false;
+          this.afterSave(data)
+          this.isSaving = false
+          this.showEditTopicModal = false
         })
       }
     }

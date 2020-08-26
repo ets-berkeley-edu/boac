@@ -13,18 +13,18 @@ export default {
   },
   computed: {
     admitDataWarning() {
-      let warning = null;
+      let warning = null
       if (this.updatedAt) {
-        const localUpdatedAt = this.$moment(this.updatedAt).tz(this.$config.timezone);
+        const localUpdatedAt = this.$moment(this.updatedAt).tz(this.$config.timezone)
         if (this.$moment.duration(this.now.diff(localUpdatedAt)).as('hours') >= 24) {
-          warning = `Note: admit data was last updated on ${this.$options.filters.moment(localUpdatedAt, 'MMM D, YYYY')}`;
+          warning = `Note: admit data was last updated on ${this.$options.filters.moment(localUpdatedAt, 'MMM D, YYYY')}`
         }
       }
-      return warning;
+      return warning
     }
   },
   created() {
-    this.now = this.$moment();
+    this.now = this.$moment()
   }
 }
 </script>

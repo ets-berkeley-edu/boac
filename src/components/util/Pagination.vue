@@ -39,16 +39,16 @@ export default {
   }),
   computed: {
     totalPages() {
-      return Math.ceil(this.totalRows / this.perPage);
+      return Math.ceil(this.totalRows / this.perPage)
     }
   },
   created() {
-    this.currentPage = this.initPageNumber;
+    this.currentPage = this.initPageNumber
   },
   methods: {
     onClick(page) {
-      this.clickHandler(page);
+      this.clickHandler(page)
     }
   }
-};
+}
 </script>

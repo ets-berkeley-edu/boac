@@ -1,4 +1,4 @@
-import _ from 'lodash';
+import _ from 'lodash'
 import {
   createCohort,
   downloadCsv,
@@ -7,11 +7,11 @@ import {
   getStudentsPerFilters,
   saveCohort,
   translateToFilterOptions
-} from '@/api/cohort';
-import router from '@/router';
-import store from '@/store';
+} from '@/api/cohort'
+import router from '@/router'
+import store from '@/store'
 
-const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename'];
+const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
 const state = {
   cohortId: undefined,
@@ -32,16 +32,16 @@ const state = {
   },
   students: undefined,
   totalStudentCount: undefined
-};
+}
 
 const getters = {
   cohortId: (state: any): number => state.cohortId,
   cohortName: (state: any): string => state.cohortName,
   cohortOwner(state: any) {
     if (state.isOwnedByCurrentUser) {
-      return 'me';
+      return 'me'
     } else {
-      return state.cohortOwnerUid;
+      return state.cohortOwnerUid
     }
   },
   domain: (state: any) => state.domain,
@@ -54,55 +54,55 @@ const getters = {
   menu: (state: any): any[] => state.menu,
   pagination: (state: any) => state.pagination,
   showApplyButton(state: any) {
-    return state.isModifiedSinceLastSearch === true && !!_.size(state.filters);
+    return state.isModifiedSinceLastSearch === true && !!_.size(state.filters)
   },
   showSaveButton: (state: any): boolean =>
     state.isModifiedSinceLastSearch === false,
   showSortBy(state: any) {
-    return !state.isModifiedSinceLastSearch && state.totalStudentCount > 1;
+    return !state.isModifiedSinceLastSearch && state.totalStudentCount > 1
   },
   students: (state: any): any[] => state.students,
   totalStudentCount: (state: any): number => state.totalStudentCount
-};
+}
 
 const mutations = {
   addFilter: (state: any, filter: any) => {
-    state.filters.push(filter);
-    state.isModifiedSinceLastSearch = true;
+    state.filters.push(filter)
+    state.isModifiedSinceLastSearch = true
   },
   isCompactView: (state: any, compactView: boolean) =>
     (state.isCompactView = compactView),
   setEditMode(state: any, editMode: string) {
     if (_.isNil(editMode)) {
-      state.editMode = null;
+      state.editMode = null
     } else if (_.find(EDIT_MODE_TYPES, type => editMode.match(type))) {
       // Valid mode
-      state.editMode = editMode;
+      state.editMode = editMode
     } else {
-      throw new TypeError('Invalid page mode: ' + editMode);
+      throw new TypeError('Invalid page mode: ' + editMode)
     }
   },
   removeFilter: (state: any, index: number) => {
-    state.filters.splice(index, 1);
-    state.isModifiedSinceLastSearch = true;
+    state.filters.splice(index, 1)
+    state.isModifiedSinceLastSearch = true
   },
   renameCohort: (state: any, name: string) => (state.cohortName = name),
   resetSession: (
     state: any,
     { cohort, filters, students, totalStudentCount }
   ) => {
-    state.editMode = null;
-    state.cohortId = cohort && cohort.id;
-    state.cohortName = cohort && cohort.name;
-    state.cohortOwnerUid = cohort && cohort.owner && cohort.owner.uid;
-    state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser;
-    state.filters = filters || [];
-    state.students = students;
-    state.totalStudentCount = totalStudentCount;
-    state.pagination.currentPage = 1;
+    state.editMode = null
+    state.cohortId = cohort && cohort.id
+    state.cohortName = cohort && cohort.name
+    state.cohortOwnerUid = cohort && cohort.owner && cohort.owner.uid
+    state.isOwnedByCurrentUser = !cohort || cohort.isOwnedByCurrentUser
+    state.filters = filters || []
+    state.students = students
+    state.totalStudentCount = totalStudentCount
+    state.pagination.currentPage = 1
     if (!state.cohortId) {
       // If cohortId is null then show 'Save Cohort' for unsaved search results
-      state.isModifiedSinceLastSearch = true;
+      state.isModifiedSinceLastSearch = true
     }
   },
   restoreOriginalFilters: (state: any) =>  state.filters = _.cloneDeep(state.originalFilters),
@@ -114,24 +114,24 @@ const mutations = {
   toggleCompactView: (state: any) => state.isCompactView = !state.isCompactView,
   updateMenu: (state: any, menu: any[]) => state.menu = menu,
   updateStudents: (state: any, { students, totalStudentCount }) => {
-    state.students = students;
-    state.totalStudentCount = totalStudentCount;
+    state.students = students
+    state.totalStudentCount = totalStudentCount
   },
   updateExistingFilter: (state: any, { index, updatedFilter }) => {
-    state.filters[index] = updatedFilter;
-    state.isModifiedSinceLastSearch = true;
+    state.filters[index] = updatedFilter
+    state.isModifiedSinceLastSearch = true
   }
-};
+}
 
 export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: string) {
   return new Promise(resolve => {
     if (!_.get(state.filters, 'length')) {
-      return resolve();
+      return resolve()
     }
-    store.dispatch('context/alertScreenReader', `Searching for ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`);
-    commit('setEditMode', 'apply');
+    store.dispatch('context/alertScreenReader', `Searching for ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`)
+    commit('setEditMode', 'apply')
     const offset =
-      (state.pagination.currentPage - 1) * state.pagination.itemsPerPage;
+      (state.pagination.currentPage - 1) * state.pagination.itemsPerPage
     getStudentsPerFilters(
       state.domain,
       state.filters,
@@ -142,63 +142,63 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
       commit('updateStudents', {
         students: data.students,
         totalStudentCount: data.totalStudentCount
-      });
-      store.dispatch('context/alertScreenReader', `${state.domain === 'admitted_students' ? 'Admitted ' : ''}Students are ready`);
-      commit('stashOriginalFilters');
-      commit('setEditMode', null);
-      resolve();
-    });
-  });
+      })
+      store.dispatch('context/alertScreenReader', `${state.domain === 'admitted_students' ? 'Admitted ' : ''}Students are ready`)
+      commit('stashOriginalFilters')
+      commit('setEditMode', null)
+      resolve()
+    })
+  })
 }
 
 const actions = {
   init({ commit, state }, { id, orderBy, domain }) {
     return new Promise(resolve => {
-      commit('setEditMode', null);
-      commit('isCompactView', !!id);
-      commit('setCurrentPage', 0);
-      commit('setModifiedSinceLastSearch', null);
+      commit('setEditMode', null)
+      commit('isCompactView', !!id)
+      commit('setCurrentPage', 0)
+      commit('setModifiedSinceLastSearch', null)
       store.commit('currentUserExtras/setUserPreference', {
         key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
         value: orderBy
-      });
+      })
       if (id) {
         store.dispatch('cohortEditSession/loadCohort', {
           id: id,
           orderBy: orderBy
-        }).then(resolve);
+        }).then(resolve)
       } else {
         if (domain) {
-          commit('setDomain', domain);
+          commit('setDomain', domain)
         } else {
-          throw new TypeError('\'domain\' is required when creating a new cohort.');
+          throw new TypeError('\'domain\' is required when creating a new cohort.')
         }
         getCohortFilterOptions(state.domain, getters.cohortOwner(state), []).then(menu => {
-          commit('updateMenu', menu);
-          commit('resetSession', {});
-          commit('stashOriginalFilters');
-          resolve();
-        });
+          commit('updateMenu', menu)
+          commit('resetSession', {})
+          commit('stashOriginalFilters')
+          resolve()
+        })
       }
-    });
+    })
   },
   addFilter: ({ commit, state }, filter: any) => {
     return new Promise(resolve => {
-      commit('addFilter', filter);
-      commit('setModifiedSinceLastSearch', true);
+      commit('addFilter', filter)
+      commit('setModifiedSinceLastSearch', true)
       getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu);
-        resolve();
-      });
-    });
+        commit('updateMenu', menu)
+        resolve()
+      })
+    })
   },
   onPageNumberChange: ({ commit, state }) => {
-    const preferences = store.getters['currentUserExtras/preferences'];
-    return $_cohortEditSession_applyFilters({ commit, state }, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'));
+    const preferences = store.getters['currentUserExtras/preferences']
+    return $_cohortEditSession_applyFilters({ commit, state }, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'))
   },
   applyFilters: ({ commit, state }, orderBy: string) => {
-    commit('setModifiedSinceLastSearch', false);
-    return $_cohortEditSession_applyFilters({ commit, state }, orderBy);
+    commit('setModifiedSinceLastSearch', false)
+    return $_cohortEditSession_applyFilters({ commit, state }, orderBy)
   },
   createCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
@@ -209,88 +209,88 @@ const actions = {
             filters: state.filters,
             students: state.students,
             totalStudentCount: cohort.totalStudentCount
-          });
-          commit('stashOriginalFilters');
-          commit('setModifiedSinceLastSearch', null);
-          resolve();
+          })
+          commit('stashOriginalFilters')
+          commit('setModifiedSinceLastSearch', null)
+          resolve()
         }
-      );
-    });
+      )
+    })
   },
   downloadCsvPerFilters: ({ state }, csvColumnsSelected: any) => {
     return new Promise(resolve => {
-      downloadCsv(state.domain, state.cohortName, state.filters, csvColumnsSelected).then(resolve);
-    });
+      downloadCsv(state.domain, state.cohortName, state.filters, csvColumnsSelected).then(resolve)
+    })
   },
   loadCohort: ({ commit, state }, {id, orderBy} ) => {
     return new Promise(resolve => {
       getCohort(id, true, orderBy).then(cohort => {
         if (cohort) {
-          commit('setDomain', cohort.domain);
-          const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owner.uid');
+          commit('setDomain', cohort.domain)
+          const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owner.uid')
           translateToFilterOptions(state.domain, owner, cohort.criteria).then(filters => {
             commit('resetSession', {
               cohort,
               filters: filters,
               students: cohort.students,
               totalStudentCount: cohort.totalStudentCount
-            });
-            commit('stashOriginalFilters');
+            })
+            commit('stashOriginalFilters')
             getCohortFilterOptions(state.domain, owner, filters).then(menu => {
-              commit('updateMenu', menu);
-            });
-            resolve();
-          });
+              commit('updateMenu', menu)
+            })
+            resolve()
+          })
         } else {
-          router.push({ path: '/404' });
+          router.push({ path: '/404' })
         }
-      });
-    });
+      })
+    })
   },
   renameCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
-      commit('renameCohort', name);
+      commit('renameCohort', name)
       saveCohort(
         state.cohortId,
         state.cohortName,
         state.filters
-      ).then(resolve);
-    });
+      ).then(resolve)
+    })
   },
   removeFilter: ({ commit, state }, index: number) => {
     return new Promise(resolve => {
-      commit('removeFilter', index);
-      commit('setModifiedSinceLastSearch', true);
+      commit('removeFilter', index)
+      commit('setModifiedSinceLastSearch', true)
       getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu);
-        resolve();
-      });
-    });
+        commit('updateMenu', menu)
+        resolve()
+      })
+    })
   },
   resetFiltersToLastApply: ({ commit, state }) => {
     return new Promise(resolve => {
-      commit('restoreOriginalFilters');
-      commit('setEditMode', null);
-      commit('setModifiedSinceLastSearch', false);
+      commit('restoreOriginalFilters')
+      commit('setEditMode', null)
+      commit('setModifiedSinceLastSearch', false)
       getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu);
-        resolve();
-      });
-    });
+        commit('updateMenu', menu)
+        resolve()
+      })
+    })
   },
   resetFiltersToSaved: ({ commit, state }, cohortId) => {
-    commit('setCurrentPage', 0);
-    commit('setModifiedSinceLastSearch', null);
-    commit('setEditMode', 'apply');
+    commit('setCurrentPage', 0)
+    commit('setModifiedSinceLastSearch', null)
+    commit('setEditMode', 'apply')
     return new Promise(resolve => {
       store.dispatch('cohortEditSession/loadCohort', {
         id: cohortId,
         orderBy: state.orderBy
       }).then(() => {
-        commit('setEditMode', null);
-        resolve();
-      });
-    });
+        commit('setEditMode', null)
+        resolve()
+      })
+    })
   },
   saveExistingCohort: ({ commit, state }) => {
     return new Promise(resolve => {
@@ -299,10 +299,10 @@ const actions = {
         state.cohortName,
         state.filters
       ).then(() => {
-        commit('setModifiedSinceLastSearch', null);
-        resolve();
-      });
-    });
+        commit('setModifiedSinceLastSearch', null)
+        resolve()
+      })
+    })
   },
   setCurrentPage: ({ commit }, currentPage: number) =>
     commit('setCurrentPage', currentPage),
@@ -310,16 +310,16 @@ const actions = {
     commit('setEditMode', editMode),
   updateExistingFilter: ({ commit, state }, { index, updatedFilter }: any) => {
     return new Promise(resolve => {
-      commit('updateExistingFilter', { index, updatedFilter });
-      commit('setModifiedSinceLastSearch', true);
+      commit('updateExistingFilter', { index, updatedFilter })
+      commit('setModifiedSinceLastSearch', true)
       getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu);
-        resolve();
-      });
-    });
+        commit('updateMenu', menu)
+        resolve()
+      })
+    })
   },
   toggleCompactView: ({ commit }) => commit('toggleCompactView')
-};
+}
 
 export default {
   namespaced: true,
@@ -327,4 +327,4 @@ export default {
   getters,
   mutations,
   actions
-};
+}

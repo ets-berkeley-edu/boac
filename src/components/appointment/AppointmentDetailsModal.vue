@@ -66,10 +66,10 @@
 </template>
 
 <script>
-import AppointmentTopics from '@/components/appointment/AppointmentTopics';
-import Context from '@/mixins/Context';
-import RichTextEditor from '@/components/util/RichTextEditor';
-import Util from '@/mixins/Util';
+import AppointmentTopics from '@/components/appointment/AppointmentTopics'
+import Context from '@/mixins/Context'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentDetailsModal',
@@ -105,34 +105,34 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showDetailsModal = value;
+      this.showDetailsModal = value
     }
   },
   created() {
-    this.details = this.appointment.details;
-    this.topics = this.clone(this.appointment.topics);
-    this.showDetailsModal = this.showModal;
-    this.putFocusNextTick('create-modal-advisor-select');
-    this.alertScreenReader('Appointment details form is open');
+    this.details = this.appointment.details
+    this.topics = this.clone(this.appointment.topics)
+    this.showDetailsModal = this.showModal
+    this.putFocusNextTick('create-modal-advisor-select')
+    this.alertScreenReader('Appointment details form is open')
   },
   methods: {
     addTopic(topic) {
-      this.topics.push(topic);
+      this.topics.push(topic)
     },
     removeTopic(topic) {
-      const index = this.indexOf(this.topics, topic);
+      const index = this.indexOf(this.topics, topic)
       if (index !== -1) {
-        this.topics.splice(index, 1);
+        this.topics.splice(index, 1)
       }
     },
     update() {
-      this.isSaving = true;
+      this.isSaving = true
       this.updateAppointment(
         this.details,
         this.topics,
-      );
-      this.showDetailsModal = false;
-      this.isSaving = false;
+      )
+      this.showDetailsModal = false
+      this.isSaving = false
     }
   }
 }

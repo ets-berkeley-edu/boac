@@ -1,5 +1,5 @@
 <script>
-import { mapActions, mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'Context',
@@ -20,5 +20,5 @@ export default {
       'dismissFooterAlert'
     ])
   }
-};
+}
 </script>

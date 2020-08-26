@@ -40,9 +40,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { devAuthLogIn } from '@/api/auth';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { devAuthLogIn } from '@/api/auth'
 
 export default {
   name: 'DevAuth',
@@ -58,31 +58,31 @@ export default {
     password: null
   }),
   created() {
-    this.putFocusNextTick('dev-auth-uid');
+    this.putFocusNextTick('dev-auth-uid')
   },
   methods: {
     logIn() {
-      let uid = this.trim(this.uid);
-      let password = this.trim(this.password);
+      let uid = this.trim(this.uid)
+      let password = this.trim(this.password)
       if (uid && password) {
         devAuthLogIn(uid, password).then(user => {
           if (user.isAuthenticated) {
-            const redirect = this.get(this.$router, 'currentRoute.query.redirect');
-            this.$router.push({ path: redirect || '/home' }, this.noop);
+            const redirect = this.get(this.$router, 'currentRoute.query.redirect')
+            this.$router.push({ path: redirect || '/home' }, this.noop)
           } else {
-            this.reportError('Sorry, user is not authorized to use BOA.');
+            this.reportError('Sorry, user is not authorized to use BOA.')
           }
-        });
+        })
       } else if (uid) {
-        this.reportError('Password required');
-        this.putFocusNextTick('dev-auth-password');
+        this.reportError('Password required')
+        this.putFocusNextTick('dev-auth-password')
       } else {
-        this.reportError('Both UID and password are required');
-        this.putFocusNextTick('dev-auth-uid');
+        this.reportError('Both UID and password are required')
+        this.putFocusNextTick('dev-auth-uid')
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

@@ -47,10 +47,10 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { setDropInAvailability } from '@/api/user';
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { setDropInAvailability } from '@/api/user'
 
 export default {
   name: 'DropInAvailabilityToggle',
@@ -87,53 +87,53 @@ export default {
   }),
   computed: {
     buttonElementId() {
-      return `toggle-drop-in-availability-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`;
+      return `toggle-drop-in-availability-${this.uid === this.$currentUser.uid ? 'me' : this.uid}`
     }
   },
   watch: {
     availability(value) {
-      this.isAvailable = value;
+      this.isAvailable = value
     }
   },
   created() {
-    this.isAvailable = this.availability;
+    this.isAvailable = this.availability
   },
   methods: {
     cancelGoOffDuty() {
-      this.showOffDutyConfirmModal = false;
+      this.showOffDutyConfirmModal = false
       this.$nextTick(() => {
-        this.selectedStatus = this.status;
-      });
+        this.selectedStatus = this.status
+      })
     },
     confirmGoOffDuty() {
-      this.showOffDutyConfirmModal = false;
-      this.confirmChangeAvailability(false);
+      this.showOffDutyConfirmModal = false
+      this.confirmChangeAvailability(false)
     },
     confirmChangeAvailability(newStatus) {
-      this.isToggling = true;
+      this.isToggling = true
       setDropInAvailability(this.deptCode, this.uid, newStatus).then(() => {
-        this.isAvailable = newStatus;
-        this.isToggling = false;
-        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`);
-        this.putFocusNextTick(this.buttonElementId);
-      });
+        this.isAvailable = newStatus
+        this.isToggling = false
+        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`)
+        this.putFocusNextTick(this.buttonElementId)
+      })
     },
     offDutyConfirmModalBody() {
       return `
         Setting status to "Off Duty" will unassign
         ${this.pluralize('assigned student', this.reservedAppointments.length)}
-        on the waitlist.`;
+        on the waitlist.`
     },
     toggle: function() {
-      const newStatus = !this.isAvailable;
+      const newStatus = !this.isAvailable
       if (!newStatus && this.reservedAppointments.length) {
-        this.showOffDutyConfirmModal = true;
+        this.showOffDutyConfirmModal = true
       } else {
-        this.confirmChangeAvailability(newStatus);
+        this.confirmChangeAvailability(newStatus)
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

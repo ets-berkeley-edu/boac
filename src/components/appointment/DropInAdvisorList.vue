@@ -45,10 +45,10 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle';
-import Util from '@/mixins/Util';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilityToggle'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'DropInAdvisorList',
@@ -73,11 +73,11 @@ export default {
   computed: {
     reservedAppointmentsByAdvisor: function() {
       return this.groupBy(this.waitlist.unresolved, (appt) => {
-        return appt.status === 'reserved' && appt.advisorUid;
-      });
+        return appt.status === 'reserved' && appt.advisorUid
+      })
     },
     orderedAdvisors: function() {
-      return this.orderBy(this.advisors, 'name');
+      return this.orderBy(this.advisors, 'name')
     }
   }
 }

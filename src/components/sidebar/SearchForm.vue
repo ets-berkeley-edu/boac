@@ -275,13 +275,13 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete';
-import Context from '@/mixins/Context';
-import Scrollable from '@/mixins/Scrollable';
-import Util from '@/mixins/Util';
-import { findStudentsByNameOrSid } from '@/api/student';
-import { getAllTopics } from '@/api/topics';
-import { addToSearchHistory, findAdvisorsByName, getMySearchHistory } from '@/api/search';
+import Autocomplete from '@/components/util/Autocomplete'
+import Context from '@/mixins/Context'
+import Scrollable from '@/mixins/Scrollable'
+import Util from '@/mixins/Util'
+import { findStudentsByNameOrSid } from '@/api/student'
+import { getAllTopics } from '@/api/topics'
+import { addToSearchHistory, findAdvisorsByName, getMySearchHistory } from '@/api/search'
 
 export default {
   name: 'SearchForm',
@@ -322,23 +322,23 @@ export default {
       showErrorPopover: false,
       showSearchOptions: false,
       topicOptions: undefined
-    };
+    }
   },
   computed: {
     allOptionsUnchecked() {
-      return this.showSearchOptions && !this.includeAdmits && !this.includeCourses && !this.includeNotes && !this.includeStudents;
+      return this.showSearchOptions && !this.includeAdmits && !this.includeCourses && !this.includeNotes && !this.includeStudents
     },
     noteAuthor: {
       get: function() {
         if (this.noteFilters && this.noteFilters.postedBy === 'anyone') {
-          return this.noteFilters.author;
+          return this.noteFilters.author
         } else {
-          return null;
+          return null
         }
       },
       set: function(newValue) {
-        this.noteFilters.postedBy = 'anyone';
-        this.noteFilters.author = newValue;
+        this.noteFilters.postedBy = 'anyone'
+        this.noteFilters.author = newValue
       }
     },
     searchInputRequired() {
@@ -349,134 +349,134 @@ export default {
         this.noteFilters.postedBy !== 'anyone' ||
         this.noteFilters.student ||
         this.noteFilters.topic
-      ));
+      ))
     },
     validDateRange() {
       if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
-        return null;
+        return null
       } else if (this.noteFilters.dateTo < this.noteFilters.dateFrom) {
-        return false;
+        return false
       } else {
-        return null;
+        return null
       }
     }
   },
   watch: {
     domain(value) {
-      this.includeAdmits = value.includes('admits');
-      this.includeCourses = value.includes('courses');
-      this.includeNotes = value.includes('notes');
-      this.includeStudents = value.includes('students');
+      this.includeAdmits = value.includes('admits')
+      this.includeCourses = value.includes('courses')
+      this.includeNotes = value.includes('notes')
+      this.includeStudents = value.includes('students')
     },
     includeAdmits(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`);
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`)
     },
     includeCourses(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`);
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`)
     },
     includeNotes(value) {
       if (value) {
-        this.alertScreenReader('Search will include notes and appointments.');
+        this.alertScreenReader('Search will include notes and appointments.')
       } else {
-        this.showNoteFilters = false;
-        this.alertScreenReader('Search will include neither notes nor appointments.');
+        this.showNoteFilters = false
+        this.alertScreenReader('Search will include neither notes nor appointments.')
       }
     },
     includeStudents(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`);
+      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`)
     },
     searchPhrase() {
-      this.search();
+      this.search()
     },
     showNoteFilters(value) {
       if (value) {
-        this.alertScreenReader('Notes and Appointments search filters opened.');
-        this.putFocusNextTick('search-option-note-filters-topic');
+        this.alertScreenReader('Notes and Appointments search filters opened.')
+        this.putFocusNextTick('search-option-note-filters-topic')
       }
       else {
-        this.resetNoteFilters();
-        this.alertScreenReader('Notes and Appointments search filters closed.');
-        this.putFocusNextTick('search-options-note-filters-toggle');
+        this.resetNoteFilters()
+        this.alertScreenReader('Notes and Appointments search filters closed.')
+        this.putFocusNextTick('search-options-note-filters-toggle')
       }
     }
   },
   created() {
-    this.resetNoteFilters();
+    this.resetNoteFilters()
     getMySearchHistory().then(history => {
-      this.searchHistory = history;
-    });
-    document.addEventListener('keydown', this.hideError);
-    document.addEventListener('click', this.hideError);
+      this.searchHistory = history
+    })
+    document.addEventListener('keydown', this.hideError)
+    document.addEventListener('click', this.hideError)
   },
   methods: {
     dateFormat(value) {
-      const parsed = Date.parse(value);
+      const parsed = Date.parse(value)
       if (isNaN(parsed)) {
-        return null;
+        return null
       } else {
-        return this.dateString(parsed, 'MM/DD/YYYY');
+        return this.dateString(parsed, 'MM/DD/YYYY')
       }
     },
     clearAuthorFilter() {
-      this.noteFilters.author = null;
+      this.noteFilters.author = null
     },
     dateString(d, format) {
-      return this.$options.filters.moment(d, format);
+      return this.$options.filters.moment(d, format)
     },
     hideError() {
-      this.showErrorPopover = false;
+      this.showErrorPopover = false
     },
     searchSuggestions(q) {
       return new Promise(resolve => {
-        let suggestions;
+        let suggestions
         if (q) {
-          const normalized = q.toLowerCase();
-          suggestions = this.filterList(this.searchHistory, s => s.toLowerCase().startsWith(normalized));
+          const normalized = q.toLowerCase()
+          suggestions = this.filterList(this.searchHistory, s => s.toLowerCase().startsWith(normalized))
         } else {
-          suggestions = this.searchHistory;
+          suggestions = this.searchHistory
         }
         resolve(this.map(suggestions, s => {
           return { label: s }
         }))
-      });
+      })
     },
     resetNoteFilters() {
-      this.noteFilters = this.cloneDeep(this.defaultNoteFilters);
+      this.noteFilters = this.cloneDeep(this.defaultNoteFilters)
     },
     search() {
-      const searchPhrase = this.trim(this.$refs.searchInput.getQuery());
+      const searchPhrase = this.trim(this.$refs.searchInput.getQuery())
       if (searchPhrase || !this.searchInputRequired) {
         const query = {
           notes: this.includeNotes,
           students: this.includeStudents
-        };
+        }
         if (this.includeAdmits) {
-          query.admits = this.includeAdmits;
+          query.admits = this.includeAdmits
         }
         if (this.includeCourses) {
-          query.courses = this.includeCourses;
+          query.courses = this.includeCourses
         }
         if (searchPhrase) {
-          query.q = searchPhrase;
+          query.q = searchPhrase
         }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
-            query.advisorCsid = this.$currentUser.csid;
+            query.advisorCsid = this.$currentUser.csid
           } else if (this.noteFilters.author) {
-            query.advisorCsid = this.noteFilters.author.sid;
-            query.advisorUid = this.noteFilters.author.uid;
+            query.advisorCsid = this.noteFilters.author.sid
+            query.advisorUid = this.noteFilters.author.uid
           }
           if (this.noteFilters.student) {
-            query.studentCsid = this.noteFilters.student.sid;
+            query.studentCsid = this.noteFilters.student.sid
           }
           if (this.noteFilters.topic) {
-            query.noteTopic = this.noteFilters.topic;
+            query.noteTopic = this.noteFilters.topic
           }
           if (this.noteFilters.dateFrom) {
-            query.noteDateFrom = this.dateString(this.noteFilters.dateFrom, 'YYYY-MM-DD');
+            query.noteDateFrom = this.dateString(this.noteFilters.dateFrom, 'YYYY-MM-DD')
           }
           if (this.noteFilters.dateTo) {
-            query.noteDateTo = this.dateString(this.noteFilters.dateTo, 'YYYY-MM-DD');
+            query.noteDateTo = this.dateString(this.noteFilters.dateTo, 'YYYY-MM-DD')
           }
         }
         this.$router.push(
@@ -485,23 +485,23 @@ export default {
             query: query
           },
           this.noop
-        );
+        )
         if (this.trim(searchPhrase)) {
           addToSearchHistory(searchPhrase).then(history => {
-            this.searchHistory = history;
-          });
+            this.searchHistory = history
+          })
         }
       } else {
-        this.alertScreenReader('Search input is required');
-        this.showErrorPopover = true;
-        this.putFocusNextTick('search-students-input');
+        this.alertScreenReader('Search input is required')
+        this.showErrorPopover = true
+        this.putFocusNextTick('search-students-input')
       }
-      this.scrollToTop();
+      this.scrollToTop()
     },
     toggleNoteFilters() {
-      this.showNoteFilters = !this.showNoteFilters;
+      this.showNoteFilters = !this.showNoteFilters
       if (!this.topicOptions) {
-        this.topicOptions = [];
+        this.topicOptions = []
         getAllTopics(true).then(rows => {
           this.each(rows, row => {
             const topic = row['topic']
@@ -509,23 +509,23 @@ export default {
               text: topic,
               value: topic
             })
-          });
-        });
+          })
+        })
       }
     },
     toggleSearchOptions() {
-      this.showSearchOptions = !this.showSearchOptions;
+      this.showSearchOptions = !this.showSearchOptions
       if (this.showSearchOptions) {
-        this.alertScreenReader('Search options opened');
-        this.putFocusNextTick('search-include-students-checkbox');
+        this.alertScreenReader('Search options opened')
+        this.putFocusNextTick('search-include-students-checkbox')
       } else {
-        this.resetNoteFilters();
-        this.alertScreenReader('Search options closed');
-        this.putFocusNextTick('search-students-input');
+        this.resetNoteFilters()
+        this.alertScreenReader('Search options closed')
+        this.putFocusNextTick('search-students-input')
       }
     }
   }
-};
+}
 </script>
 
 <style>

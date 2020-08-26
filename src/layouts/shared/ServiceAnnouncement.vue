@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
+import Context from '@/mixins/Context'
 
 export default {
   name: 'ServiceAnnouncement',

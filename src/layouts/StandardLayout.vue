@@ -33,13 +33,13 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Footer from '@/components/Footer';
-import Loading from '@/mixins/Loading';
-import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement';
-import Sidebar from '@/components/sidebar/Sidebar';
-import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Footer from '@/components/Footer'
+import Loading from '@/mixins/Loading'
+import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
+import Sidebar from '@/components/sidebar/Sidebar'
+import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StandardLayout',
@@ -51,9 +51,9 @@ export default {
   },
   mixins: [Context, Loading, Util],
   created() {
-    this.putFocusNextTick('home-header');
+    this.putFocusNextTick('home-header')
   }
-};
+}
 </script>
 
 <style scoped>

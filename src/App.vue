@@ -30,22 +30,22 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'App',
   mixins: [Context, Util],
   methods: {
     dismissTheWarning() {
-      this.dismissFooterAlert();
-      this.alertScreenReader('Warning message dismissed');
+      this.dismissFooterAlert()
+      this.alertScreenReader('Warning message dismissed')
     },
     getBoaEnvLabel() {
-      return this.$config.ebEnvironment ? this.$config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test';
+      return this.$config.ebEnvironment ? this.$config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test'
     }
   }
-};
+}
 </script>
 
 <style>

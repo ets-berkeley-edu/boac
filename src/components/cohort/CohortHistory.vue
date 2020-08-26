@@ -66,13 +66,13 @@
 </template>
 
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession';
-import Context from '@/mixins/Context';
-import Pagination from '@/components/util/Pagination';
-import Scrollable from '@/mixins/Scrollable';
-import SectionSpinner from '@/components/util/SectionSpinner';
-import Util from '@/mixins/Util';
-import { getCohortEvents } from '@/api/cohort';
+import CohortEditSession from '@/mixins/CohortEditSession'
+import Context from '@/mixins/Context'
+import Pagination from '@/components/util/Pagination'
+import Scrollable from '@/mixins/Scrollable'
+import SectionSpinner from '@/components/util/SectionSpinner'
+import Util from '@/mixins/Util'
+import { getCohortEvents } from '@/api/cohort'
 
 export default {
   name: 'CohortHistory',
@@ -90,22 +90,22 @@ export default {
     totalEventsCount: 0
   }),
   created() {
-    this.goToPage(1);
+    this.goToPage(1)
   },
   methods: {
     goToPage(page) {
-      this.currentPage = page;
-      this.offset = (page - 1) * this.itemsPerPage;
-      this.loadEvents();
+      this.currentPage = page
+      this.offset = (page - 1) * this.itemsPerPage
+      this.loadEvents()
     },
     loadEvents() {
-      this.loading = true;
-      this.scrollToTop(10);
+      this.loading = true
+      this.scrollToTop(10)
       getCohortEvents(this.cohortId, this.offset, this.itemsPerPage).then((response) => {
-        this.totalEventsCount = response.count;
-        this.events = response.events;
-        this.loading = false;
-      });
+        this.totalEventsCount = response.count
+        this.events = response.events
+        this.loading = false
+      })
     }
   },
 }

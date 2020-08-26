@@ -100,8 +100,8 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
-import { getNotesReport } from '@/api/reports';
+import Util from '@/mixins/Util'
+import { getNotesReport } from '@/api/reports'
 
 export default {
   name: 'NotesReport',
@@ -119,9 +119,9 @@ export default {
   }),
   created() {
     getNotesReport(this.department.code).then(report => {
-      this.report = report;
-      this.isLoading = false;
-    });
+      this.report = report
+      this.isLoading = false
+    })
   }
 }
 </script>

@@ -124,13 +124,13 @@
 </template>
 
 <script>
-import * as d3 from 'd3';
-import _ from 'lodash';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import MatrixUtil from '@/components/matrix/MatrixUtil';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import Util from '@/mixins/Util';
+import * as d3 from 'd3'
+import _ from 'lodash'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import MatrixUtil from '@/components/matrix/MatrixUtil'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'Matrix',
@@ -155,77 +155,77 @@ export default {
     zoomOut: _.noop
   }),
   mounted() {
-    this.initAxisLabels();
-    this.refreshMatrix();
+    this.initAxisLabels()
+    this.refreshMatrix()
   },
   methods: {
     drawScatterplot(students) {
-      var svg;
+      var svg
 
-      var xAxisMeasure = this.selectedAxes.x;
-      var yAxisMeasure = this.selectedAxes.y;
+      var xAxisMeasure = this.selectedAxes.x
+      var yAxisMeasure = this.selectedAxes.y
 
-      var x = d => this.getPlottableProperty(d, xAxisMeasure);
-      var y = d => this.getPlottableProperty(d, yAxisMeasure);
-      var key = d => d.uid;
+      var x = d => this.getPlottableProperty(d, xAxisMeasure)
+      var y = d => this.getPlottableProperty(d, yAxisMeasure)
+      var key = d => d.uid
 
-      var classMean = students[0];
+      var classMean = students[0]
 
-      var width = 910;
-      var height = 500;
+      var width = 910
+      var height = 500
 
-      var xMax = this.isGpaProp(xAxisMeasure) ? 4 : 100;
-      var yMax = this.isGpaProp(yAxisMeasure) ? 4 : 100;
+      var xMax = this.isGpaProp(xAxisMeasure) ? 4 : 100
+      var yMax = this.isGpaProp(yAxisMeasure) ? 4 : 100
 
       var xScale = d3
         .scaleLinear()
         .domain([0, xMax])
         .range([0, width])
-        .nice();
+        .nice()
       var yScale = d3
         .scaleLinear()
         .domain([0, yMax])
         .range([height, 0])
-        .nice();
+        .nice()
 
       var zoomProperties = {
         scale: 1
-      };
+      }
 
       var xAxis = d3
         .axisBottom(xScale)
         .ticks(10)
         .tickFormat(this.getTickFormat(xAxisMeasure))
-        .tickSize(-height);
+        .tickSize(-height)
 
       var yAxis = d3
         .axisLeft(yScale)
         .ticks(10)
         .tickFormat(this.getTickFormat(yAxisMeasure))
-        .tickSize(-width);
+        .tickSize(-width)
 
-      var container = d3.select('#matrix-container');
+      var container = d3.select('#matrix-container')
 
       var clearTooltips = () => {
-        container.selectAll('.matrix-tooltip').remove();
-      };
+        container.selectAll('.matrix-tooltip').remove()
+      }
 
       var onZoom = () => {
-        clearTooltips();
-        var transform = d3.event.transform;
-        var xNewScale = transform.rescaleX(xScale);
-        xAxis.scale(xNewScale);
-        svg.select('.x.matrix-axis').call(xAxis);
-        var yNewScale = transform.rescaleY(yScale);
-        yAxis.scale(yNewScale);
-        svg.select('.y.matrix-axis').call(yAxis);
-        svg.selectAll('.matrix-quadrant-rect').attr('transform', transform);
+        clearTooltips()
+        var transform = d3.event.transform
+        var xNewScale = transform.rescaleX(xScale)
+        xAxis.scale(xNewScale)
+        svg.select('.x.matrix-axis').call(xAxis)
+        var yNewScale = transform.rescaleY(yScale)
+        yAxis.scale(yNewScale)
+        svg.select('.y.matrix-axis').call(yAxis)
+        svg.selectAll('.matrix-quadrant-rect').attr('transform', transform)
         svg
           .selectAll('.dot')
           .attr('cx', d => transform.applyX(xScale(x(d))))
-          .attr('cy', d => transform.applyY(yScale(y(d))));
-        zoomProperties.scale = transform.k;
-      };
+          .attr('cy', d => transform.applyY(yScale(y(d))))
+        zoomProperties.scale = transform.k
+      }
 
       var zoom = d3
         .zoom()
@@ -233,10 +233,10 @@ export default {
         .translateExtent([[0, 0], [width, height]])
         // Disable zoom events triggered by the mouse wheel.
         .filter(() => !d3.event.button && d3.event.type !== 'wheel')
-        .on('zoom', onZoom);
+        .on('zoom', onZoom)
 
       // Clear any lingering tooltips.
-      clearTooltips();
+      clearTooltips()
 
       // We clear the '#scatterplot' div with `html()` in case the current search results are replacing previous results.
       svg = d3
@@ -246,21 +246,21 @@ export default {
         .attr('class', 'matrix-svg')
         .attr('width', width)
         .attr('height', height)
-        .attr('stroke', 1);
+        .attr('stroke', 1)
 
-      svg.call(zoom);
+      svg.call(zoom)
 
       zoomProperties.programmaticZoom = scale => {
         svg
           .transition()
           .duration(300)
-          .call(zoom.scaleBy, scale);
-      };
+          .call(zoom.scaleBy, scale)
+      }
 
       // Make d3 zoom available to the page.
-      this.zoom = zoomProperties;
-      this.zoomIn = () => zoomProperties.programmaticZoom(2);
-      this.zoomOut = () => zoomProperties.programmaticZoom(0.5);
+      this.zoom = zoomProperties
+      this.zoomIn = () => zoomProperties.programmaticZoom(2)
+      this.zoomOut = () => zoomProperties.programmaticZoom(0.5)
 
       svg
         .append('g')
@@ -271,7 +271,7 @@ export default {
         .attr('height', yScale(y(classMean)))
         .attr('stroke', '#ccc')
         .attr('stroke-width', 1)
-        .attr('fill', '#fffbda');
+        .attr('fill', '#fffbda')
 
       svg
         .append('g')
@@ -283,7 +283,7 @@ export default {
         .attr('y', yScale(y(classMean)))
         .attr('stroke', '#ccc')
         .attr('stroke-width', 1)
-        .attr('fill', '#ffdcda');
+        .attr('fill', '#ffdcda')
 
       svg
         .append('g')
@@ -295,7 +295,7 @@ export default {
         .attr('x', xScale(x(classMean)))
         .attr('stroke', '#ccc')
         .attr('stroke-width', 1)
-        .attr('fill', '#e6ffda');
+        .attr('fill', '#e6ffda')
 
       svg
         .append('g')
@@ -308,21 +308,21 @@ export default {
         .attr('y', yScale(y(classMean)))
         .attr('stroke', '#ccc')
         .attr('stroke-width', 1)
-        .attr('fill', '#fffbda');
+        .attr('fill', '#fffbda')
 
       svg
         .append('g')
         .attr('class', 'x matrix-axis')
         .attr('transform', 'translate(0,' + height + ')')
-        .call(xAxis);
+        .call(xAxis)
 
       // Add the y-axis.
       svg
         .append('g')
         .attr('class', 'y matrix-axis')
-        .call(yAxis);
+        .call(yAxis)
 
-      var defs = svg.append('svg:defs');
+      var defs = svg.append('svg:defs')
 
       defs
         .append('svg:clipPath')
@@ -332,37 +332,37 @@ export default {
         .attr('x', 0)
         .attr('y', 0)
         .attr('width', width)
-        .attr('height', height);
+        .attr('height', height)
 
-      var avatarBackgroundPath = require('@/assets/avatar-50.png');
+      var avatarBackgroundPath = require('@/assets/avatar-50.png')
 
       var avatar = d => {
-        var avatarId = 'avatar_' + d.uid;
+        var avatarId = 'avatar_' + d.uid
         var pattern = defs
           .append('svg:pattern')
           .attr('id', avatarId)
           .attr('width', '100%')
           .attr('height', '100%')
-          .attr('patternContentUnits', 'objectBoundingBox');
-        var photoUri = null;
+          .attr('patternContentUnits', 'objectBoundingBox')
+        var photoUri = null
         if (d.isClassMean) {
-          photoUri = require('@/assets/class-mean-avatar.svg');
+          photoUri = require('@/assets/class-mean-avatar.svg')
         } else {
           photoUri = this.$currentUser.inDemoMode
             ? avatarBackgroundPath
-            : d.photoUrl;
+            : d.photoUrl
         }
         var avatarImage = pattern
           .append('svg:image')
           .attr('xlink:href', photoUri)
           .attr('width', 1)
           .attr('height', 1)
-          .attr('preserveAspectRatio', 'xMidYMid slice');
+          .attr('preserveAspectRatio', 'xMidYMid slice')
         avatarImage.on('error', () =>
           avatarImage.attr('xlink:href', avatarBackgroundPath)
-        );
-        return 'url(#' + avatarId + ')';
-      };
+        )
+        return 'url(#' + avatarId + ')'
+      }
 
       // Add x-axis labels.
       svg
@@ -370,21 +370,21 @@ export default {
         .attr('class', 'matrix-axis-title')
         .attr('x', width / 2)
         .attr('y', height + 35)
-        .text(this.formatForDisplay(xAxisMeasure));
+        .text(this.formatForDisplay(xAxisMeasure))
       svg
         .append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'start')
         .attr('x', 0)
         .attr('y', height + 22)
-        .text(this.getLabelLower(xAxisMeasure));
+        .text(this.getLabelLower(xAxisMeasure))
       svg
         .append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', width)
         .attr('y', height + 22)
-        .text(this.getLabelUpper(xAxisMeasure));
+        .text(this.getLabelUpper(xAxisMeasure))
 
       // Add y-axis labels, breaking lines to conserve space.
       svg
@@ -393,33 +393,33 @@ export default {
         .attr('y', -35)
         .attr('x', 0 - height / 2)
         .attr('transform', 'rotate(-90)')
-        .text(this.formatForDisplay(yAxisMeasure));
+        .text(this.formatForDisplay(yAxisMeasure))
       var lowerYText = svg
         .append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', -10)
-        .attr('y', height - 20);
+        .attr('y', height - 20)
       _.each(this.getLabelLower(yAxisMeasure).split(' '), word => {
         lowerYText
           .append('tspan')
           .attr('x', -10)
           .attr('dy', 12)
-          .text(word);
-      });
+          .text(word)
+      })
       var upperYText = svg
         .append('text')
         .attr('class', 'matrix-axis-label')
         .attr('text-anchor', 'end')
         .attr('x', 0)
-        .attr('y', 0);
+        .attr('y', 0)
       _.each(this.getLabelUpper(yAxisMeasure).split(' '), word => {
         upperYText
           .append('tspan')
           .attr('x', -10)
           .attr('dy', 12)
-          .text(word);
-      });
+          .text(word)
+      })
 
       var objects = svg
         .append('svg')
@@ -427,7 +427,7 @@ export default {
         .attr('height', height)
         .attr('fill', 'none')
         .classed('matrix-svg', true)
-        .classed('objects', true);
+        .classed('objects', true)
 
       objects
         .append('svg:defs')
@@ -438,9 +438,9 @@ export default {
         .attr('x', -55)
         .attr('y', -55)
         .attr('width', width + 110)
-        .attr('height', height + 110);
+        .attr('height', height + 110)
 
-      var dotGroup = objects.append('g').attr('clip-path', 'url(#clip-inner)');
+      var dotGroup = objects.append('g').attr('clip-path', 'url(#clip-inner)')
 
       var dot = dotGroup
         .attr('class', 'dots')
@@ -457,70 +457,70 @@ export default {
         .style('stroke-width', 0)
         .attr('cx', d => xScale(x(d)))
         .attr('cy', d => yScale(y(d)))
-        .attr('r', d => (d.isClassMean ? 22 : 9));
+        .attr('r', d => (d.isClassMean ? 22 : 9))
 
       dot.on('click', d => {
         if (!d.isClassMean) {
-          this.$router.push(this.studentRoutePath(d.uid, this.$currentUser.inDemoMode));
+          this.$router.push(this.studentRoutePath(d.uid, this.$currentUser.inDemoMode))
         }
-      });
+      })
 
       var onDotDeselected = (d, element, isProgrammatic) => {
         if (isProgrammatic !== true) {
-          element = d3.event.currentTarget;
+          element = d3.event.currentTarget
         }
 
         // Return the dot to the path-clipped dot group.
-        dotGroup.node().appendChild(element);
+        dotGroup.node().appendChild(element)
 
         d3.select(element)
           .attr('r', _d => (_d.isClassMean ? 22 : 9))
           .style('fill', _d => (_d.isClassMean ? avatar(_d) : '#8bbdda'))
           .style('opacity', _d => (_d.isClassMean ? 1 : 0.66))
-          .style('stroke-width', 0);
+          .style('stroke-width', 0)
 
-        var tooltip = container.select('.matrix-tooltip');
+        var tooltip = container.select('.matrix-tooltip')
         tooltip
           .transition(d3.transition().duration(500))
           .on('end', () => tooltip.remove())
-          .style('opacity', 0);
-      };
+          .style('opacity', 0)
+      }
 
       // The "featured" UID passed in as a URL param, if any, will start out selected.
       var getFeaturedStudent = () => {
-        var featuredData;
-        var featuredElement;
-        var featuredUid = this.featured;
+        var featuredData
+        var featuredElement
+        var featuredUid = this.featured
         if (featuredUid) {
           dot.each(function(d) {
             if (d.uid === featuredUid) {
-              featuredData = d;
-              featuredElement = this;
+              featuredData = d
+              featuredElement = this
             }
-          });
+          })
         }
         return [featuredData, featuredElement]
-      };
+      }
 
       var onDotSelected = (d, element, isProgrammatic) => {
         if (isProgrammatic !== true) {
-          element = d3.event.currentTarget;
+          element = d3.event.currentTarget
         }
         // Clear any existing selections and tooltips.
-        var featuredStudent = getFeaturedStudent();
+        var featuredStudent = getFeaturedStudent()
         if (featuredStudent[0]) {
-          onDotDeselected(featuredStudent[0], featuredStudent[1], true);
+          onDotDeselected(featuredStudent[0], featuredStudent[1], true)
         }
-        clearTooltips();
+        clearTooltips()
         /*
          * If the dot represents a real student, lift it outside the path-clipped dotGroup so it can
          * overlap the edge of the matrix if need be.
          */
         if (!d.isClassMean) {
-          objects.node().appendChild(element);
+          objects.node().appendChild(element)
         }
         // Stroke highlight.
-        var selection = d3.select(element);
+        var selection = d3.select(element)
         selection
           .attr('r', '45')
           .style('stroke-width', _d => (_d.isClassMean ? 0 : 5))
@@ -528,56 +528,56 @@ export default {
           .style('fill', _d => avatar(_d))
           .style('background-image', 'url(' + avatarBackgroundPath + ')')
           .style('background-size', 'cover')
-          .style('opacity', 1);
+          .style('opacity', 1)
 
         var tooltip = container
           .append('div')
           .attr('class', 'matrix-tooltip')
           .style('top', parseInt(selection.attr('cy'), 10) + 80 + 'px')
-          .style('left', parseInt(selection.attr('cx'), 10) - 120 + 'px');
+          .style('left', parseInt(selection.attr('cx'), 10) - 120 + 'px')
 
         // The tooltip starts out hidden while inserting data...
-        tooltip.style('opacity', 0);
+        tooltip.style('opacity', 0)
         var headerOuter = tooltip
           .append('div')
-          .attr('class', 'matrix-tooltip-header-outer');
+          .attr('class', 'matrix-tooltip-header-outer')
         var fullName = d.firstName
           ? d.firstName + ' ' + d.lastName
-          : d.lastName;
+          : d.lastName
         headerOuter
           .append('h4')
           .attr(
             'class',
             this.$currentUser.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
           )
-          .text(fullName);
+          .text(fullName)
         _.each(d.majors, major =>
           headerOuter
             .append('div')
             .attr('class', 'matrix-tooltip-major')
             .text(major)
-        );
+        )
         var table = tooltip
           .append('table')
-          .attr('class', 'matrix-tooltip-table');
-        var daysSinceRow = table.append('tr');
+          .attr('class', 'matrix-tooltip-table')
+        var daysSinceRow = table.append('tr')
         daysSinceRow
           .append('td')
           .attr('class', 'matrix-tooltip-label')
-          .text(this.formatForDisplay(xAxisMeasure));
+          .text(this.formatForDisplay(xAxisMeasure))
         daysSinceRow
           .append('td')
           .attr('class', 'matrix-tooltip-value')
-          .text(this.getDisplayProperty(d, xAxisMeasure));
-        var yAxisRow = table.append('tr');
+          .text(this.getDisplayProperty(d, xAxisMeasure))
+        var yAxisRow = table.append('tr')
         yAxisRow
           .append('td')
           .attr('class', 'matrix-tooltip-label')
-          .text(this.formatForDisplay(yAxisMeasure));
+          .text(this.formatForDisplay(yAxisMeasure))
         yAxisRow
           .append('td')
           .attr('class', 'matrix-tooltip-value')
-          .text(this.getDisplayProperty(d, yAxisMeasure));
+          .text(this.getDisplayProperty(d, yAxisMeasure))
 
         // ...and transitions to visible.
         tooltip
@@ -588,90 +588,90 @@ export default {
               .ease(d3.easeLinear)
           )
           .on('start', () => tooltip.style('display', 'block'))
-          .style('opacity', 1);
-      };
+          .style('opacity', 1)
+      }
 
-      dot.on('mouseover', onDotSelected);
-      dot.on('mouseout', onDotDeselected);
+      dot.on('mouseover', onDotSelected)
+      dot.on('mouseout', onDotDeselected)
 
-      var featuredStudent = getFeaturedStudent();
+      var featuredStudent = getFeaturedStudent()
       if (featuredStudent[0]) {
-        onDotSelected(featuredStudent[0], featuredStudent[1], true);
+        onDotSelected(featuredStudent[0], featuredStudent[1], true)
       }
     },
     formatForDisplay(prop) {
       if (prop === 'analytics.currentScore') {
-        return 'Assignment grades';
+        return 'Assignment grades'
       }
       if (prop === 'analytics.lastActivity') {
-        return 'Days since bCourses site viewed';
+        return 'Days since bCourses site viewed'
       }
       if (prop === 'cumulativeGPA') {
-        return 'Cumulative GPA';
+        return 'Cumulative GPA'
       }
       if (prop.startsWith('termGpa')) {
-        var termId = prop.slice(-4);
-        return this.termNameForSisId(termId) + ' GPA';
+        var termId = prop.slice(-4)
+        return this.termNameForSisId(termId) + ' GPA'
       }
-      return '';
+      return ''
     },
     isGpaProp(prop) {
-      return prop === 'cumulativeGPA' || prop.startsWith('termGpa');
+      return prop === 'cumulativeGPA' || prop.startsWith('termGpa')
     },
     getDisplayProperty(obj, prop) {
       if (_.has(obj, prop + '.displayPercentile')) {
-        return _.get(obj, prop + '.displayPercentile') + ' percentile';
+        return _.get(obj, prop + '.displayPercentile') + ' percentile'
       }
       if (_.has(obj, prop)) {
-        const isGPA = prop.toLowerCase().includes('gpa');
-        const value = _.get(obj, prop);
-        return isGPA ? parseFloat('0' + this.trim(value)).toFixed(3) : value;
+        const isGPA = prop.toLowerCase().includes('gpa')
+        const value = _.get(obj, prop)
+        return isGPA ? parseFloat('0' + this.trim(value)).toFixed(3) : value
       }
-      return 'No data';
+      return 'No data'
     },
     getLabelLower(prop) {
       if (prop === 'analytics.currentScore') {
-        return 'Low';
+        return 'Low'
       }
       if (prop === 'analytics.lastActivity') {
-        return 'Less recent';
+        return 'Less recent'
       }
-      return '';
+      return ''
     },
     getLabelUpper(prop) {
       if (prop === 'analytics.currentScore') {
-        return 'High';
+        return 'High'
       }
       if (prop === 'analytics.lastActivity') {
-        return 'More recent';
+        return 'More recent'
       }
-      return '';
+      return ''
     },
     getTickFormat(prop) {
-      return this.isGpaProp(prop) ? d3.format('.2f') : '';
+      return this.isGpaProp(prop) ? d3.format('.2f') : ''
     },
     initAxisLabels() {
       let metrics = [
         'analytics.currentScore',
         'analytics.lastActivity',
         'cumulativeGPA'
-      ];
-      var lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId);
-      var previousTermId = this.previousSisTermId(lastTermId);
-      metrics.push('termGpa.' + previousTermId);
-      metrics.push('termGpa.' + lastTermId);
+      ]
+      var lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)
+      var previousTermId = this.previousSisTermId(lastTermId)
+      metrics.push('termGpa.' + previousTermId)
+      metrics.push('termGpa.' + lastTermId)
       _.each(metrics, metric => {
-        this.axisLabels[metric] = this.formatForDisplay(metric);
-      });
+        this.axisLabels[metric] = this.formatForDisplay(metric)
+      })
     },
     refreshMatrix() {
-      var partitions = this.partitionPlottableStudents();
-      var plottableStudents = partitions[0];
-      this.plottable = plottableStudents.length > 0;
+      var partitions = this.partitionPlottableStudents()
+      var plottableStudents = partitions[0]
+      this.plottable = plottableStudents.length > 0
       this.studentsWithoutData = _.orderBy(partitions[1], [
         'last_name',
         'first_name'
-      ]);
+      ])
 
       if (this.plottable) {
         if (this.section.meanMetrics) {
@@ -682,15 +682,15 @@ export default {
             isClassMean: true,
             lastName: 'Class Average',
             termGpa: this.section.meanMetrics.gpa
-          });
+          })
         }
         this.$nextTick(() => {
-          this.drawScatterplot(plottableStudents);
-        });
+          this.drawScatterplot(plottableStudents)
+        })
       }
     }
   }
-};
+}
 </script>
 
 <style>

@@ -271,12 +271,12 @@ v-if="section.isViewableOnCoursePage"
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
-import StudentAnalytics from '@/mixins/StudentAnalytics';
-import StudentBoxplot from '@/components/student/StudentBoxplot';
-import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import StudentAnalytics from '@/mixins/StudentAnalytics'
+import StudentBoxplot from '@/components/student/StudentBoxplot'
+import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentClasses',
@@ -296,17 +296,17 @@ export default {
   created() {
     const currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
       return term.termId === this.toString(this.$config.currentEnrollmentTermId)
-    });
-    const index = currentTermIndex < 0 ? 0 : currentTermIndex;
-    this.relevantTerms = this.student.enrollmentTerms.slice(0, index + 1);
+    })
+    const index = currentTermIndex < 0 ? 0 : currentTermIndex
+    this.relevantTerms = this.student.enrollmentTerms.slice(0, index + 1)
   },
   methods: {
     toggleShowAllTerms() {
-      this.showAllTerms = !this.showAllTerms;
-      this.putFocusNextTick(this.showAllTerms ? 'term-header-1' : 'term-header-0');
+      this.showAllTerms = !this.showAllTerms
+      this.putFocusNextTick(this.showAllTerms ? 'term-header-1' : 'term-header-0')
     }
   }
-};
+}
 </script>
 
 <style>

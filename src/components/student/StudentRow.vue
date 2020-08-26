@@ -259,15 +259,15 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox';
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding';
-import StudentAnalytics from '@/mixins/StudentAnalytics';
-import StudentAvatar from '@/components/student/StudentAvatar';
-import StudentGpaChart from '@/components/student/StudentGpaChart';
-import StudentMetadata from '@/mixins/StudentMetadata';
-import Util from '@/mixins/Util';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
+import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import StudentAnalytics from '@/mixins/StudentAnalytics'
+import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentGpaChart from '@/components/student/StudentGpaChart'
+import StudentMetadata from '@/mixins/StudentMetadata'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentRow',
@@ -312,20 +312,20 @@ export default {
   }),
   computed: {
     degreePlanOwners() {
-      const plans = this.get(this.student, 'degree.plans');
+      const plans = this.get(this.student, 'degree.plans')
       if (plans) {
-        return this.uniq(this.map(plans, 'group'));
+        return this.uniq(this.map(plans, 'group'))
       } else {
-        return [];
+        return []
       }
     }
   },
   created() {
-    const termEnrollments = this.get(this.student.term, 'enrollments', []);
-    this.each(termEnrollments, this.setWaitlistedStatus);
-    this.termEnrollments = termEnrollments;
+    const termEnrollments = this.get(this.student.term, 'enrollments', [])
+    this.each(termEnrollments, this.setWaitlistedStatus)
+    this.termEnrollments = termEnrollments
   }
-};
+}
 </script>
 
 <style scoped>

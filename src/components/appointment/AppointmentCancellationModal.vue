@@ -100,8 +100,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentCancellationModal',
@@ -139,23 +139,23 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showCancellationModal = value;
+      this.showCancellationModal = value
     }
   },
   created() {
-    this.showCancellationModal = this.showModal;
-    this.putFocusNextTick('cancellation-reason');
-    this.alertScreenReader('Cancel appointment modal is open');
+    this.showCancellationModal = this.showModal
+    this.putFocusNextTick('cancellation-reason')
+    this.alertScreenReader('Cancel appointment modal is open')
   },
   methods: {
     cancelTheAppointment() {
-      this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained);
-      this.alertScreenReader(`Appointment with ${this.student.name} cancelled`);
-      this.showCancellationModal = false;
+      this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained)
+      this.alertScreenReader(`Appointment with ${this.student.name} cancelled`)
+      this.showCancellationModal = false
     },
     reasonSelected() {
-      this.alertScreenReader(`Reason '${this.reason}' selected`);
-      this.putFocusNextTick('cancellation-reason-explained');
+      this.alertScreenReader(`Reason '${this.reason}' selected`)
+      this.putFocusNextTick('cancellation-reason-explained')
     }
   }
 }

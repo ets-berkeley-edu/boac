@@ -1,6 +1,6 @@
-import axios from 'axios';
-import utils from '@/api/api-utils';
-import Vue from 'vue';
+import axios from 'axios'
+import utils from '@/api/api-utils'
+import Vue from 'vue'
 
 export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
   return axios
@@ -9,10 +9,10 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
       cancelReasonExplained
     })
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} cancelled a drop-in appointment`, 'cancel');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} cancelled a drop-in appointment`, 'cancel')
       return response.data
-    });
+    })
 }
 
 export function checkIn(
@@ -23,10 +23,10 @@ export function checkIn(
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/check_in`, {
       advisorUid
     }).then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} checked in a drop-in appointment`, 'check_in');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} checked in a drop-in appointment`, 'check_in')
       return response.data
-    });
+    })
 }
 
 export function create(
@@ -46,43 +46,43 @@ export function create(
       sid,
       topics
     }).then(response => {
-      const appointmentId = response.data.id;
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} created an appointment`, 'create');
+      const appointmentId = response.data.id
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} created an appointment`, 'create')
       return response.data
-    }, () => null);
+    }, () => null)
 }
 
 export function getAppointment(appointmentId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}`)
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }
 
 export function getDropInAppointmentWaitlist(deptCode) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/waitlist/${deptCode}`)
-    .then(response => response.data, () => null);
+    .then(response => response.data, () => null)
 }
 
 export function markAppointmentRead(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/mark_read`)
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} read an appointment`, 'read');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} read an appointment`, 'read')
       return response.data
-    }, () => null);
+    }, () => null)
 }
 
 export function reopen(appointmentId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reopen`)
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} reopened a drop-in appointment`, 'reopen');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} reopened a drop-in appointment`, 'reopen')
       return response.data
-    });
+    })
 }
 
 export function reserve(appointmentId, advisorUid) {
@@ -90,19 +90,19 @@ export function reserve(appointmentId, advisorUid) {
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`, {
       advisorUid,
     }).then(response => {
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${advisorUid} reserved a drop-in appointment`, 'reserve');
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${advisorUid} reserved a drop-in appointment`, 'reserve')
       return response.data
-    });
+    })
 }
 
 export function unreserve(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} unreserve a drop-in appointment`, 'unreserve');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} unreserve a drop-in appointment`, 'unreserve')
       return response.data
-    });
+    })
 }
 
 export function update(appointmentId, details, topics) {
@@ -112,8 +112,8 @@ export function update(appointmentId, details, topics) {
       topics
     })
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid;
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} updated a drop-in appointment`, 'update');
+      const uid = Vue.prototype.$currentUser.uid
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} updated a drop-in appointment`, 'update')
       return response.data
-    });
+    })
 }

@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import Vue from 'vue';
+import _ from 'lodash'
+import Vue from 'vue'
 
 const $_goToLogin = (to: any, next: any) => {
   next({
@@ -8,33 +8,33 @@ const $_goToLogin = (to: any, next: any) => {
       error: to.query.error,
       redirect: to.name === 'home' ? undefined : to.fullPath
     }
-  });
-};
+  })
+}
 
 const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) => {
   if (authorizedDeptCodes.length) {
     if (to.params.deptCode) {
       if (_.includes(authorizedDeptCodes, to.params.deptCode.toUpperCase())) {
-        next();
+        next()
       } else {
-        next({ path: '/404' });
+        next({ path: '/404' })
       }
     } else {
       // URL path has no dept code; Drop-in Advisor or Scheduler can proceed.
-      next();
+      next()
     }
   } else {
-     next({ path: '/404' });
+     next({ path: '/404' })
   }
-};
+}
 
-const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.role === 'advisor'));
+const isAdvisor = user => !!_.size(_.filter(user.departments, d => d.role === 'advisor'))
 
-const isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE' && _.includes(['advisor', 'director'], d.role)));
+const isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE' && _.includes(['advisor', 'director'], d.role)))
 
-const isDirector = user => !!_.size(_.filter(user.departments, d => d.role === 'director'));
+const isDirector = user => !!_.size(_.filter(user.departments, d => d.role === 'director'))
 
-const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code');
+const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code')
 
 export default {
   getSchedulerDeptCodes,
@@ -42,82 +42,82 @@ export default {
   isCE3,
   isDirector,
   requiresAdmin: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
-        next();
+        next()
       } else {
-        next({ path: '/404' });
+        next({ path: '/404' })
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresAdvisor: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
-        next();
+        next()
       } else {
-        next({ path: '/404' });
+        next({ path: '/404' })
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresAuthenticated: (to: any, from: any, next: any) => {
     if (Vue.prototype.$currentUser.isAuthenticated) {
-      next();
+      next()
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresCE3: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin || isCE3(currentUser)) {
-        next();
+        next()
       } else {
-        next({ path: '/404' });
+        next({ path: '/404' })
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresDirector: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (isDirector(currentUser) || currentUser.isAdmin) {
-        next();
+        next()
       } else {
-        next({ path: '/404' });
+        next({ path: '/404' })
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresDropInAdvisor: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
-        next();
+        next()
       } else {
-        $_requiresScheduler(to, next, _.map(currentUser.dropInAdvisorStatus, 'deptCode'));
+        $_requiresScheduler(to, next, _.map(currentUser.dropInAdvisorStatus, 'deptCode'))
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   },
   requiresScheduler: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser;
+    const currentUser = Vue.prototype.$currentUser
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
-        next();
+        next()
       } else {
-        $_requiresScheduler(to, next, getSchedulerDeptCodes(Vue.prototype.$currentUser));
+        $_requiresScheduler(to, next, getSchedulerDeptCodes(Vue.prototype.$currentUser))
       }
     } else {
-      $_goToLogin(to, next);
+      $_goToLogin(to, next)
     }
   }
-};
+}

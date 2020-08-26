@@ -339,21 +339,21 @@
 </template>
 
 <script>
-import AdvisingAppointment from '@/components/appointment/AdvisingAppointment';
-import AdvisingNote from '@/components/note/AdvisingNote';
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import CreateNoteModal from '@/components/note/create/CreateNoteModal';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import EditAdvisingNote from '@/components/note/EditAdvisingNote';
-import Scrollable from '@/mixins/Scrollable';
-import TimelineDate from '@/components/student/profile/TimelineDate';
-import Util from '@/mixins/Util';
-import { dismissStudentAlert } from '@/api/student';
-import { getAppointment, markAppointmentRead } from '@/api/appointments';
-import { deleteNote, getNote, markNoteRead } from '@/api/notes';
-import { search } from '@/api/search';
+import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
+import AdvisingNote from '@/components/note/AdvisingNote'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import CreateNoteModal from '@/components/note/create/CreateNoteModal'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import EditAdvisingNote from '@/components/note/EditAdvisingNote'
+import Scrollable from '@/mixins/Scrollable'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import Util from '@/mixins/Util'
+import { dismissStudentAlert } from '@/api/student'
+import { getAppointment, markAppointmentRead } from '@/api/appointments'
+import { deleteNote, getNote, markNoteRead } from '@/api/notes'
+import { search } from '@/api/search'
 
 export default {
   name: 'AcademicTimeline',
@@ -391,18 +391,18 @@ export default {
   }),
   computed: {
     activeTab() {
-      return this.filter || 'all';
+      return this.filter || 'all'
     },
     anchor() {
-      return location.hash;
+      return location.hash
     },
     countPerActiveTab() {
       return this.filter
         ? this.countsPerType[this.filter]
-        : this.size(this.messages);
+        : this.size(this.messages)
     },
     deleteConfirmModalBody() {
-      return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : '';
+      return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
     },
     filterTypes() {
       let filterTypes = {
@@ -429,237 +429,237 @@ export default {
           tab: 'Appointments'
         }
       }
-      return filterTypes;
+      return filterTypes
     },
     isExpandAllAvailable() {
-      return this.includes(['appointment', 'note'], this.filter);
+      return this.includes(['appointment', 'note'], this.filter)
     },
     notesDownloadUrl() {
-      return `${this.$config.apiBaseUrl}/api/notes/download_for_sid/${this.student.sid}`;
+      return `${this.$config.apiBaseUrl}/api/notes/download_for_sid/${this.student.sid}`
     },
     showDeleteConfirmModal() {
-      return !!this.messageForDelete;
+      return !!this.messageForDelete
     }
   },
   watch: {
     filter() {
-      this.alertScreenReader(this.describeTheActiveTab());
-      this.openMessages = [];
+      this.alertScreenReader(this.describeTheActiveTab())
+      this.openMessages = []
     },
     isShowingAll() {
-      this.alertScreenReader(this.describeTheActiveTab());
+      this.alertScreenReader(this.describeTheActiveTab())
     }
   },
   created() {
-    this.messages = [];
-    this.countsPerType = {};
+    this.messages = []
+    this.countsPerType = {}
     this.each(this.keys(this.filterTypes), (type, typeIndex) => {
-      let notifications = this.student.notifications[type];
-      this.countsPerType[type] = this.size(notifications);
+      let notifications = this.student.notifications[type]
+      this.countsPerType[type] = this.size(notifications)
       this.each(notifications, (message, index) => {
-        this.messages.push(message);
+        this.messages.push(message)
         // If object is not a BOA advising note then generate a transient and non-zero primary key.
-        message.transientId = (typeIndex + 1) * 1000 + index;
-      });
-    });
-    this.sortMessages();
-    this.alertScreenReader(`${this.student.name} profile loaded.`);
-    this.isTimelineLoading = false;
+        message.transientId = (typeIndex + 1) * 1000 + index
+      })
+    })
+    this.sortMessages()
+    this.alertScreenReader(`${this.student.name} profile loaded.`)
+    this.isTimelineLoading = false
     const onCreateNewNote = note => {
       if (note.sid === this.student.sid) {
-        const currentNoteIds = this.map(this.filterList(this.messages, ['type', 'note']), 'id');
-        const isNotInView = !this.includes(currentNoteIds, note.id);
+        const currentNoteIds = this.map(this.filterList(this.messages, ['type', 'note']), 'id')
+        const isNotInView = !this.includes(currentNoteIds, note.id)
         if (isNotInView) {
-          note.transientId = note.id;
-          this.messages.push(note);
-          this.countsPerType.note++;
-          this.sortMessages();
-          this.alertScreenReader(`New advising note created for student ${this.student.name}.`);
+          note.transientId = note.id
+          this.messages.push(note)
+          this.countsPerType.note++
+          this.sortMessages()
+          this.alertScreenReader(`New advising note created for student ${this.student.name}.`)
         }
       }
-      this.creatingNoteEvent = null;
-    };
+      this.creatingNoteEvent = null
+    }
     if (this.$currentUser.canAccessAdvisingData) {
       this.$eventHub.$on('begin-note-creation', event => {
         if (this.$_.includes(event.completeSidSet, this.student.sid)) {
-          this.creatingNoteEvent = event;
+          this.creatingNoteEvent = event
         }
-      });
-      this.$eventHub.$on('advising-note-created', onCreateNewNote);
+      })
+      this.$eventHub.$on('advising-note-created', onCreateNewNote)
       this.$eventHub.$on('batch-of-notes-created', noteIdsBySid => {
-        const noteId = noteIdsBySid[this.student.sid];
+        const noteId = noteIdsBySid[this.student.sid]
         if (noteId) {
-          getNote(noteId).then(note => onCreateNewNote(note));
+          getNote(noteId).then(note => onCreateNewNote(note))
         }
-      });
+      })
     }
   },
   mounted() {
     if (this.anchor) {
-      const match = this.anchor.match(/^#(\w+)-([\d\w-]+)/);
+      const match = this.anchor.match(/^#(\w+)-([\d\w-]+)/)
       if (match && match.length > 2) {
-        const messageType = match[1].toLowerCase();
-        const messageId = match[2];
+        const messageType = match[1].toLowerCase()
+        const messageId = match[2]
         const obj = this.find(this.messages, function(m) {
           // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
           if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
-            return true;
+            return true
           }
-        });
+        })
         if (obj) {
-          this.isShowingAll = true;
+          this.isShowingAll = true
           this.$nextTick(function() {
-            this.open(obj, true);
-            this.scrollToPermalink(messageType, messageId);
-          });
+            this.open(obj, true)
+            this.scrollToPermalink(messageType, messageId)
+          })
         }
       }
     }
   },
   methods: {
     afterNoteEdit(updatedNote) {
-      this.editModeNoteId = null;
-      const note = this.find(this.messages, ['id', updatedNote.id]);
-      note.subject = updatedNote.subject;
-      note.body = note.message = updatedNote.body;
-      note.topics = updatedNote.topics;
-      note.attachments = updatedNote.attachments;
-      note.updatedAt = updatedNote.updatedAt;
+      this.editModeNoteId = null
+      const note = this.find(this.messages, ['id', updatedNote.id])
+      note.subject = updatedNote.subject
+      note.body = note.message = updatedNote.body
+      note.topics = updatedNote.topics
+      note.attachments = updatedNote.attachments
+      note.updatedAt = updatedNote.updatedAt
     },
     afterNoteEditCancel() {
-      this.editModeNoteId = null;
+      this.editModeNoteId = null
     },
     cancelTheDelete() {
-      this.alertScreenReader('Cancelled');
-      this.messageForDelete = undefined;
+      this.alertScreenReader('Cancelled')
+      this.messageForDelete = undefined
     },
     close(message, screenreaderAlert) {
       if (this.editModeNoteId) {
-        return false;
+        return false
       }
       if (this.includes(this.openMessages, message.transientId)) {
         this.openMessages = this.remove(
           this.openMessages,
           id => id !== message.transientId
-        );
+        )
       }
       if (this.openMessages.length === 0) {
-        this.allExpanded = false;
+        this.allExpanded = false
       }
       if (screenreaderAlert) {
-        this.alertScreenReader(`${this.capitalize(message.type)} closed`);
+        this.alertScreenReader(`${this.capitalize(message.type)} closed`)
       }
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
-      this.alertScreenReader('Please confirm delete');
-      this.messageForDelete = message;
+      this.alertScreenReader('Please confirm delete')
+      this.messageForDelete = message
     },
     deleteConfirmed() {
-      const transientId = this.messageForDelete.transientId;
-      const predicate = ['transientId', transientId];
-      const note = this.find(this.messages, predicate);
-      this.remove(this.messages, predicate);
-      this.remove(this.openMessages, value => transientId === value);
-      this.messageForDelete = undefined;
+      const transientId = this.messageForDelete.transientId
+      const predicate = ['transientId', transientId]
+      const note = this.find(this.messages, predicate)
+      this.remove(this.messages, predicate)
+      this.remove(this.openMessages, value => transientId === value)
+      this.messageForDelete = undefined
       deleteNote(note.id).then(() => {
-        this.alertScreenReader('Note deleted');
-      });
+        this.alertScreenReader('Note deleted')
+      })
     },
     describeTheActiveTab() {
       const inViewCount =
         this.isShowAll || this.countPerActiveTab <= this.defaultShowPerTab
           ? this.countPerActiveTab
-          : this.defaultShowPerTab;
+          : this.defaultShowPerTab
       let noun = this.filter
         ? this.filterTypes[this.filter].name.toLowerCase()
-        : 'message';
-      const pluralize = this.pluralize(noun, inViewCount);
+        : 'message'
+      const pluralize = this.pluralize(noun, inViewCount)
       return this.isShowingAll && inViewCount > this.defaultShowPerTab
         ? `Showing all ${pluralize}`
-        : `Showing ${pluralize}`;
+        : `Showing ${pluralize}`
     },
     displayUpdatedAt(message) {
-      return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment');
+      return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
     },
     editNote(note) {
-      this.editModeNoteId = note.id;
-      this.putFocusNextTick('edit-note-subject');
+      this.editModeNoteId = note.id
+      this.putFocusNextTick('edit-note-subject')
     },
     filterSearchResults() {
-      return this.filterList(this.messages, message => this.searchResults.includes(message.id));
+      return this.filterList(this.messages, message => this.searchResults.includes(message.id))
     },
     id(rowIndex) {
-      return `timeline-tab-${this.activeTab}-message-${rowIndex}`;
+      return `timeline-tab-${this.activeTab}-message-${rowIndex}`
     },
     isEditable(message) {
-      return message.type === 'note' && !message.isLegacy;
+      return message.type === 'note' && !message.isLegacy
     },
     markRead(message) {
       if (!message.read) {
-        message.read = true;
+        message.read = true
         if (this.includes(['alert', 'hold'], message.type)) {
-          dismissStudentAlert(message.id);
-          this.$ga.studentAlert(`Advisor ${this.$currentUser.uid} dismissed alert`);
+          dismissStudentAlert(message.id)
+          this.$ga.studentAlert(`Advisor ${this.$currentUser.uid} dismissed alert`)
         } else if (message.type === 'note') {
-          markNoteRead(message.id);
-          this.$ga.noteEvent(message.id, null, `Advisor ${this.$currentUser.uid} read note`);
+          markNoteRead(message.id)
+          this.$ga.noteEvent(message.id, null, `Advisor ${this.$currentUser.uid} read note`)
         } else if (message.type === 'appointment') {
-          markAppointmentRead(message.id);
-          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.$currentUser.uid} read appointment`);
+          markAppointmentRead(message.id)
+          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.$currentUser.uid} read appointment`)
         }
       }
     },
     messagesPerType(type) {
       return type
         ? this.filterList(this.messages, ['type', type])
-        : this.messages;
+        : this.messages
     },
     onAppointmentStatusChange(appointmentId) {
       return new Promise(resolve => {
         getAppointment(appointmentId).then(appointment => {
-          let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id);
-          Object.assign(timelineAppointment, appointment);
-          resolve();
-        });
-      });
+          let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id)
+          Object.assign(timelineAppointment, appointment)
+          resolve()
+        })
+      })
     },
     onCreateNoteModalClose() {
-      this.isCreateNoteModalOpen = false;
+      this.isCreateNoteModalOpen = false
     },
     open(message, screenreaderAlert) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {
-        return false;
+        return false
       }
       if (!this.includes(this.openMessages, message.transientId)) {
-        this.openMessages.push(message.transientId);
+        this.openMessages.push(message.transientId)
       }
-      this.markRead(message);
+      this.markRead(message)
       if (this.isExpandAllAvailable && this.openMessages.length === this.messagesPerType(this.filter).length) {
-        this.allExpanded = true;
+        this.allExpanded = true
       }
       if (screenreaderAlert) {
-        this.alertScreenReader(`${this.capitalize(message.type)} opened`);
+        this.alertScreenReader(`${this.capitalize(message.type)} opened`)
       }
     },
     scrollToPermalink(messageType, messageId) {
-      this.scrollTo(`#permalink-${messageType}-${messageId}`);
-      this.putFocusNextTick(`message-row-${messageId}`);
+      this.scrollTo(`#permalink-${messageType}-${messageId}`)
+      this.putFocusNextTick(`message-row-${messageId}`)
     },
     searchTimeline() {
       if (this.timelineQuery && this.timelineQuery.length) {
-        this.searchResultsLoading = true;
-        var includeAppointments = false;
-        var includeNotes = false;
-        var appointmentOptions = null;
-        var noteOptions = null;
+        this.searchResultsLoading = true
+        var includeAppointments = false
+        var includeNotes = false
+        var appointmentOptions = null
+        var noteOptions = null
         if (this.filter === 'appointment') {
-          includeAppointments = true;
-          appointmentOptions = {studentCsid: this.student.sid};
+          includeAppointments = true
+          appointmentOptions = {studentCsid: this.student.sid}
         }
         if (this.filter === 'note') {
-          includeNotes = true;
-          noteOptions = {studentCsid: this.student.sid};
+          includeNotes = true
+          noteOptions = {studentCsid: this.student.sid}
         }
         search(
           this.timelineQuery,
@@ -670,58 +670,58 @@ export default {
           appointmentOptions,
           noteOptions
         ).then(data => {
-          const items = this.filter === 'appointment' ? this.get(data, 'appointments') : this.get(data, 'notes');
-          this.searchResults = this.map(items, 'id');
-          this.isShowingAll = true;
-          this.searchResultsLoading = false;
-        });
+          const items = this.filter === 'appointment' ? this.get(data, 'appointments') : this.get(data, 'notes')
+          this.searchResults = this.map(items, 'id')
+          this.isShowingAll = true
+          this.searchResultsLoading = false
+        })
       } else {
-        this.searchResults = null;
+        this.searchResults = null
       }
     },
     setFilter(filter) {
-      this.searchResults = null;
-      this.timelineQuery = null;
+      this.searchResults = null
+      this.timelineQuery = null
       if (filter !== this.filter) {
-        this.filter = filter;
-        this.allExpanded = false;
+        this.filter = filter
+        this.allExpanded = false
       }
     },
     sortDate(message) {
       if (message.type === 'appointment') {
-        return message.createdAt;
+        return message.createdAt
       } else {
-        return message.updatedAt || message.createdAt;
+        return message.updatedAt || message.createdAt
       }
     },
     sortMessages() {
       this.messages.sort((m1, m2) => {
-        let d1 = this.sortDate(m1);
-        let d2 = this.sortDate(m2);
+        let d1 = this.sortDate(m1)
+        let d2 = this.sortDate(m2)
         if (d1 && d2 && d1 !== d2) {
-          return d2.localeCompare(d1);
+          return d2.localeCompare(d1)
         } else if (d1 === d2 && m1.id && m2.id) {
-          return m2.id < m1.id ? -1 : 1;
+          return m2.id < m1.id ? -1 : 1
         } else if (!d1 && !d2) {
-          return m2.transientId - m1.transientId;
+          return m2.transientId - m1.transientId
         } else {
-          return d1 ? -1 : 1;
+          return d1 ? -1 : 1
         }
-      });
+      })
     },
     toggleExpandAll() {
-      this.isShowingAll = true;
-      this.allExpanded = !this.allExpanded;
+      this.isShowingAll = true
+      this.allExpanded = !this.allExpanded
       if (this.allExpanded) {
-        this.each(this.messagesPerType(this.filter), this.open);
-        this.alertScreenReader(`All ${this.filter}s expanded`);
+        this.each(this.messagesPerType(this.filter), this.open)
+        this.alertScreenReader(`All ${this.filter}s expanded`)
       } else {
-        this.each(this.messagesPerType(this.filter), this.close);
-        this.alertScreenReader(`All ${this.filter}s collapsed`);
+        this.each(this.messagesPerType(this.filter), this.close)
+        this.alertScreenReader(`All ${this.filter}s collapsed`)
       }
     }
   }
-};
+}
 </script>
 
 <style>

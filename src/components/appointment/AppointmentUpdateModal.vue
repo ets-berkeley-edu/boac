@@ -30,8 +30,8 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentUpdateModal',
@@ -55,13 +55,13 @@ export default {
   }),
   watch: {
     showModal(value) {
-      this.showUpdateModal = value;
+      this.showUpdateModal = value
     }
   },
   created() {
-    this.showUpdateModal = this.showModal;
-    this.alertScreenReader('Drop-in Update');
-    this.putFocusNextTick('appointment-update-modal-body');
+    this.showUpdateModal = this.showModal
+    this.alertScreenReader('Drop-in Update')
+    this.putFocusNextTick('appointment-update-modal-body')
   }
 }
 </script>

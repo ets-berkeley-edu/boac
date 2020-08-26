@@ -33,9 +33,9 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { setDemoMode } from '@/api/user';
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { setDemoMode } from '@/api/user'
 
 export default {
   name: 'DemoModeToggle',
@@ -46,19 +46,19 @@ export default {
     isToggling: undefined
   }),
   created() {
-    this.inDemoMode = this.$currentUser.inDemoMode;
+    this.inDemoMode = this.$currentUser.inDemoMode
   },
   methods: {
     toggle: function() {
-      this.isToggling = true;
+      this.isToggling = true
       setDemoMode(!this.inDemoMode).then(() => {
-        this.inDemoMode = !this.inDemoMode;
-        this.isToggling = false;
-        this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`);
-      });
+        this.inDemoMode = !this.inDemoMode
+        this.isToggling = false
+        this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
+      })
     }
   }
-};
+}
 </script>
 
 <style scoped>

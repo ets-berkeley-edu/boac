@@ -26,9 +26,9 @@
 </template>
 
 <script>
-import { getUsersWithGroups } from '@/api/curated';
-import Spinner from '@/components/util/Spinner';
-import Loading from '@/mixins/Loading';
+import { getUsersWithGroups } from '@/api/curated'
+import Spinner from '@/components/util/Spinner'
+import Loading from '@/mixins/Loading'
 
 export default {
   name: 'AllGroups',
@@ -39,9 +39,9 @@ export default {
   }),
   created() {
     getUsersWithGroups().then(data => {
-      this.rows = data;
-      this.loaded('Everyone\'s Groups');
-    });
+      this.rows = data
+      this.loaded('Everyone\'s Groups')
+    })
   }
-};
+}
 </script>

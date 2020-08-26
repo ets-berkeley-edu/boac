@@ -68,16 +68,16 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context';
-import DemoModeToggle from '@/components/admin/DemoModeToggle';
-import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement';
-import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement';
-import Loading from '@/mixins/Loading';
-import ManageTopics from '@/components/topics/ManageTopics';
-import Spinner from '@/components/util/Spinner';
-import Util from '@/mixins/Util';
-import { getVersion } from '@/api/config';
-import { getDropInSchedulers } from '@/api/user';
+import Context from '@/mixins/Context'
+import DemoModeToggle from '@/components/admin/DemoModeToggle'
+import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement'
+import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
+import Loading from '@/mixins/Loading'
+import ManageTopics from '@/components/topics/ManageTopics'
+import Spinner from '@/components/util/Spinner'
+import Util from '@/mixins/Util'
+import { getVersion } from '@/api/config'
+import { getDropInSchedulers } from '@/api/user'
 
 export default {
   name: 'Admin',
@@ -99,14 +99,14 @@ export default {
     this.configs = []
     this.$_.each(this.$config, (value, key) => {
       this.configs.push({key, value})
-    });
+    })
     getDropInSchedulers().then(departments => {
-      this.dropInSchedulingDepartments = departments;
+      this.dropInSchedulingDepartments = departments
       getVersion().then(data => {
-        this.boa = data;
-        this.loaded('Flight Deck');
-      });
-    });
+        this.boa = data
+        this.loaded('Flight Deck')
+      })
+    })
   }
-};
+}
 </script>

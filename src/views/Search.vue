@@ -110,19 +110,19 @@
 </template>
 
 <script>
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning';
-import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet';
-import AppointmentSnippet from '@/components/search/AppointmentSnippet';
-import Context from '@/mixins/Context';
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector';
-import Loading from '@/mixins/Loading';
-import SectionSpinner from '@/components/util/SectionSpinner';
-import SortableAdmits from '@/components/admit/SortableAdmits';
-import SortableCourseList from '@/components/course/SortableCourseList';
-import SortableStudents from '@/components/search/SortableStudents';
-import Spinner from '@/components/util/Spinner';
-import Util from '@/mixins/Util';
-import { search, searchAdmittedStudents } from '@/api/search';
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
+import AppointmentSnippet from '@/components/search/AppointmentSnippet'
+import Context from '@/mixins/Context'
+import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector'
+import Loading from '@/mixins/Loading'
+import SectionSpinner from '@/components/util/SectionSpinner'
+import SortableAdmits from '@/components/admit/SortableAdmits'
+import SortableCourseList from '@/components/course/SortableCourseList'
+import SortableStudents from '@/components/search/SortableStudents'
+import Spinner from '@/components/util/Spinner'
+import Util from '@/mixins/Util'
+import { search, searchAdmittedStudents } from '@/api/search'
 
 export default {
   name: 'Search',
@@ -176,29 +176,29 @@ export default {
   }),
   computed: {
     completeAppointmentResults() {
-      return this.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset;
+      return this.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
     },
     completeNoteResults() {
-      return this.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset;
+      return this.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
     }
   },
   mounted() {
-    this.phrase = this.$route.query.q;
-    const includeAdmits = this.toBoolean(this.$route.query.admits);
-    const includeCourses = this.toBoolean(this.$route.query.courses);
-    const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes);
-    const includeStudents = this.toBoolean(this.$route.query.students);
+    this.phrase = this.$route.query.q
+    const includeAdmits = this.toBoolean(this.$route.query.admits)
+    const includeCourses = this.toBoolean(this.$route.query.courses)
+    const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
+    const includeStudents = this.toBoolean(this.$route.query.students)
     if (includeNotesAndAppointments) {
-      this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid;
-      this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid;
-      this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid;
-      this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic;
-      this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom;
-      this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo;
+      this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid
+      this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid
+      this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid
+      this.noteAndAppointmentOptions.topic = this.$route.query.noteTopic
+      this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom
+      this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo
     }
     if (this.phrase || includeNotesAndAppointments) {
-      this.alertScreenReader(`Searching for '${this.phrase}'`);
-      let queries = [];
+      this.alertScreenReader(`Searching for '${this.phrase}'`)
+      let queries = []
       if (includeCourses || includeNotesAndAppointments || includeStudents) {
         queries.push(
           search(
@@ -210,39 +210,39 @@ export default {
             this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
             this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
           )
-        );
+        )
       }
       if (includeAdmits) {
-        queries.push(searchAdmittedStudents(this.phrase));
+        queries.push(searchAdmittedStudents(this.phrase))
       }
       Promise.all(queries).then(responses => {
-        this.each(responses, (response) => this.merge(this.results, response));
+        this.each(responses, (response) => this.merge(this.results, response))
         this.each(this.results.students, student => {
-          student.alertCount = student.alertCount || 0;
-          student.term = student.term || {};
-          student.term.enrolledUnits = student.term.enrolledUnits || 0;
-        });
+          student.alertCount = student.alertCount || 0
+          student.term = student.term || {}
+          student.term.enrolledUnits = student.term.enrolledUnits || 0
+        })
       })
         .then(() => {
-          this.loaded('Search results', );
+          this.loaded('Search results', )
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
-            this.toInt(this.results.totalStudentCount, 0);
-          const focusId = totalCount ? 'page-header' : 'page-header-no-results';
-          this.putFocusNextTick(focusId);
+            this.toInt(this.results.totalStudentCount, 0)
+          const focusId = totalCount ? 'page-header' : 'page-header-no-results'
+          this.putFocusNextTick(focusId)
           this.$ga.searchEvent(
             `Search phrase: '${this.phrase || ''}'`,
-            `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`);
-        });
+            `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`)
+        })
     } else {
-      this.$router.push({ path: '/' }, this.noop);
+      this.$router.push({ path: '/' }, this.noop)
     }
   },
   methods: {
     fetchMoreAppointments() {
-      this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit;
-      this.appointmentOptions.limit = 20;
-      this.loadingAdditionalAppointments = true;
+      this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit
+      this.appointmentOptions.limit = 20
+      this.loadingAdditionalAppointments = true
       search(
         this.phrase,
         true,
@@ -253,14 +253,14 @@ export default {
         null
       )
         .then(data => {
-          this.results.appointments = this.concat(this.results.appointments, data.appointments);
-          this.loadingAdditionalAppointments = false;
-        });
+          this.results.appointments = this.concat(this.results.appointments, data.appointments)
+          this.loadingAdditionalAppointments = false
+        })
     },
     fetchMoreNotes() {
-      this.noteOptions.offset = this.noteOptions.offset + this.noteOptions.limit;
-      this.noteOptions.limit = 20;
-      this.loadingAdditionalNotes = true;
+      this.noteOptions.offset = this.noteOptions.offset + this.noteOptions.limit
+      this.noteOptions.limit = 20
+      this.loadingAdditionalNotes = true
       search(
         this.phrase,
         false,
@@ -271,12 +271,12 @@ export default {
         this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
       )
         .then(data => {
-          this.results.notes = this.concat(this.results.notes, data.notes);
-          this.loadingAdditionalNotes = false;
-        });
+          this.results.notes = this.concat(this.results.notes, data.notes)
+          this.loadingAdditionalNotes = false
+        })
     }
   }
-};
+}
 </script>
 
 <style>

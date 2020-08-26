@@ -193,16 +193,16 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import CuratedEditSession from '@/mixins/CuratedEditSession';
-import CurrentUserExtras from '@/mixins/CurrentUserExtras';
-import ExportListModal from '@/components/util/ExportListModal';
-import Loading from '@/mixins/Loading.vue';
-import router from '@/router';
-import Util from '@/mixins/Util';
-import Validator from '@/mixins/Validator.vue';
-import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import CuratedEditSession from '@/mixins/CuratedEditSession'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import ExportListModal from '@/components/util/ExportListModal'
+import Loading from '@/mixins/Loading.vue'
+import router from '@/router'
+import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator.vue'
+import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated'
 
 export default {
   name: 'CuratedGroupHeader',
@@ -219,77 +219,77 @@ export default {
   }),
   computed: {
     isOwnedByCurrentUser() {
-      return this.ownerId === this.$currentUser.id;
+      return this.ownerId === this.$currentUser.id
     }
   },
   watch: {
     renameInput() {
-      this.renameError = undefined;
+      this.renameError = undefined
     }
   },
   mounted() {
     if (this.referencingCohortIds.length) {
       this.each(this.referencingCohortIds, cohortId => {
-        const cohort = this.find(this.myCohorts, ['id', cohortId]);
-        this.referencingCohorts.push(cohort);
-      });
-      this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name']);
+        const cohort = this.find(this.myCohorts, ['id', cohortId])
+        this.referencingCohorts.push(cohort)
+      })
+      this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name'])
     }
-    this.loaded();
-    this.putFocusNextTick('curated-group-name');
+    this.loaded()
+    this.putFocusNextTick('curated-group-name')
   },
   methods: {
     cancelExportGroupModal() {
-      this.showExportListModal = false;
-      this.alertScreenReader(`Cancel export of ${this.name} curated group`);
+      this.showExportListModal = false
+      this.alertScreenReader(`Cancel export of ${this.name} curated group`)
     },
     enterBulkAddMode() {
-      this.setMode('bulkAdd');
+      this.setMode('bulkAdd')
     },
     enterRenameMode() {
-      this.renameInput = this.curatedGroupName;
-      this.setMode('rename');
-      this.putFocusNextTick('rename-input');
+      this.renameInput = this.curatedGroupName
+      this.setMode('rename')
+      this.putFocusNextTick('rename-input')
     },
     exitRenameMode() {
-      this.renameInput = undefined;
-      this.setMode(undefined);
-      this.putFocusNextTick('curated-group-name');
+      this.renameInput = undefined
+      this.setMode(undefined)
+      this.putFocusNextTick('curated-group-name')
     },
     deleteGroup() {
       deleteCuratedGroup(this.curatedGroupId)
         .then(() => {
-          this.isDeleteModalOpen = false;
-          router.push({ path: '/home' });
+          this.isDeleteModalOpen = false
+          router.push({ path: '/home' })
         })
         .catch(error => {
-          this.error = error;
-        });
+          this.error = error
+        })
     },
     exportGroup(csvColumnsSelected) {
       this.showExportListModal = false
-      this.exportEnabled = false;
-      this.alertScreenReader(`Exporting ${this.name} curated group`);
+      this.exportEnabled = false
+      this.alertScreenReader(`Exporting ${this.name} curated group`)
       downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
-        this.exportEnabled = true;
-      });
+        this.exportEnabled = true
+      })
     },
     rename() {
       this.renameError = this.validateCohortName({
         name: this.renameInput
-      });
+      })
       if (this.renameError) {
-        this.putFocusNextTick('rename-input');
+        this.putFocusNextTick('rename-input')
       } else {
         this.renameCuratedGroup(this.renameInput).then(() => {
-          this.setPageTitle(this.renameInput);
-          this.exitRenameMode();
-          this.putFocusNextTick('curated-group-name');
-        });
+          this.setPageTitle(this.renameInput)
+          this.exitRenameMode()
+          this.putFocusNextTick('curated-group-name')
+        })
       }
     }
   }
-};
+}
 </script>
 
 <style scoped>

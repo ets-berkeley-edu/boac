@@ -35,7 +35,7 @@ export default {
     cohortName: String,
     deleteCohort: Function
   }
-};
+}
 </script>
 
 <style scoped>

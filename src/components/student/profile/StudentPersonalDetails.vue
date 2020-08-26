@@ -131,8 +131,8 @@
 </template>
 
 <script>
-import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan';
-import Util from '@/mixins/Util';
+import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentPersonalDetails',
@@ -161,23 +161,23 @@ export default {
   computed: {
     visaDescription() {
       if (this.get(this.student, 'demographics.visa.status') !== 'G') {
-        return null;
+        return null
       }
       switch (this.student.demographics.visa.type) {
       case 'F1':
-        return 'F-1 International Student';
+        return 'F-1 International Student'
       case 'J1':
-        return 'J-1 International Student';
+        return 'J-1 International Student'
       case 'PR':
-        return 'PR Verified International Student';
+        return 'PR Verified International Student'
       default:
-        return 'Other Verified International Student';
+        return 'Other Verified International Student'
       }
     }
   },
   methods: {
     advisorName(advisor) {
-      return this.join(this.remove([advisor.firstName, advisor.lastName]), ' ');
+      return this.join(this.remove([advisor.firstName, advisor.lastName]), ' ')
     },
   }
 }

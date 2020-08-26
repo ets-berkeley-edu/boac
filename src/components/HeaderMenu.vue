@@ -51,10 +51,10 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley';
-import Context from '@/mixins/Context';
-import Util from '@/mixins/Util';
-import { getCasLogoutUrl } from '@/api/auth';
+import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
+import { getCasLogoutUrl } from '@/api/auth'
 
 export default {
   name: 'HeaderMenu',
@@ -63,13 +63,13 @@ export default {
     myDirectorDepartment: undefined
   }),
   created() {
-    const deptCodes = this.myDeptCodes(['director']);
-    this.myDirectorDepartment = deptCodes && deptCodes[0];
+    const deptCodes = this.myDeptCodes(['director'])
+    this.myDirectorDepartment = deptCodes && deptCodes[0]
   },
   methods: {
     logOut: () => getCasLogoutUrl().then(data => window.location.href = data.casLogoutUrl)
   }
-};
+}
 </script>
 
 <style scoped>

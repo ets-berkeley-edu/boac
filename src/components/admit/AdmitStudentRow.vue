@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import Util from '@/mixins/Util';
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmitStudentRow',
@@ -91,10 +91,10 @@ export default {
   computed: {
     fullName() {
       if (this.sortedBy === 'first_name') {
-        return this.join(this.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ');
+        return this.join(this.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ')
       }
-      const lastName = this.admitStudent.lastName ? `${this.admitStudent.lastName},` : null;
-      return this.join(this.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ');
+      const lastName = this.admitStudent.lastName ? `${this.admitStudent.lastName},` : null
+      return this.join(this.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ')
     }
   },
   methods: {

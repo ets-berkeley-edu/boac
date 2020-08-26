@@ -89,13 +89,13 @@
 </template>
 
 <script>
-import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics';
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Context from '@/mixins/Context';
-import NoteEditSession from '@/mixins/NoteEditSession';
-import RichTextEditor from '@/components/util/RichTextEditor';
-import Util from '@/mixins/Util';
-import { getNote, updateNote } from '@/api/notes';
+import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
+import NoteEditSession from '@/mixins/NoteEditSession'
+import RichTextEditor from '@/components/util/RichTextEditor'
+import Util from '@/mixins/Util'
+import { getNote, updateNote } from '@/api/notes'
 
 export default {
   name: 'EditAdvisingNote',
@@ -114,58 +114,58 @@ export default {
   }),
   created() {
     getNote(this.noteId).then(note => {
-      this.resetModel();
-      this.setModel(this.cloneDeep(note));
-      this.addSid(note.sid);
-      this.setMode('edit');
-      this.putFocusNextTick('edit-note-subject');
-      this.alertScreenReader('Edit note form is open.');
-    });
+      this.resetModel()
+      this.setModel(this.cloneDeep(note))
+      this.addSid(note.sid)
+      this.setMode('edit')
+      this.putFocusNextTick('edit-note-subject')
+      this.alertScreenReader('Edit note form is open.')
+    })
   },
   methods: {
     cancelRequested() {
-      this.clearErrors();
+      this.clearErrors()
       getNote(this.noteId).then(note => {
         const isPristine = this.trim(this.model.subject) === note.subject
-          && this.stripHtmlAndTrim(this.model.body) === this.stripHtmlAndTrim(note.body);
+          && this.stripHtmlAndTrim(this.model.body) === this.stripHtmlAndTrim(note.body)
         if (isPristine) {
-          this.cancelConfirmed();
+          this.cancelConfirmed()
         } else {
-          this.showAreYouSureModal = true;
+          this.showAreYouSureModal = true
         }
-      });
+      })
     },
     cancelConfirmed() {
-      this.afterCancel();
-      this.alertScreenReader('Edit note form cancelled.');
-      this.exit();
+      this.afterCancel()
+      this.alertScreenReader('Edit note form cancelled.')
+      this.exit()
     },
     cancelTheCancel() {
-      this.alertScreenReader('Continue editing note.');
-      this.showAreYouSureModal = false;
-      this.putFocusNextTick('edit-note-subject');
+      this.alertScreenReader('Continue editing note.')
+      this.showAreYouSureModal = false
+      this.putFocusNextTick('edit-note-subject')
     },
     clearErrors() {
-      this.error = null;
-      this.showErrorPopover = false;
+      this.error = null
+      this.showErrorPopover = false
     },
     exit() {
-      this.clearErrors();
-      this.exitSession();
+      this.clearErrors()
+      this.exitSession()
     },
     save() {
-      const trimmedSubject = this.trim(this.model.subject);
+      const trimmedSubject = this.trim(this.model.subject)
       if (trimmedSubject) {
         updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
-          this.afterSaved(updatedNote);
-          this.alertScreenReader('Changes to note have been saved');
-          this.exit();
-        });
+          this.afterSaved(updatedNote)
+          this.alertScreenReader('Changes to note have been saved')
+          this.exit()
+        })
       } else {
-        this.error = 'Subject is required';
-        this.showErrorPopover = true;
-        this.alertScreenReader(`Validation failed: ${this.error}`);
-        this.putFocusNextTick('edit-note-subject');
+        this.error = 'Subject is required'
+        this.showErrorPopover = true
+        this.alertScreenReader(`Validation failed: ${this.error}`)
+        this.putFocusNextTick('edit-note-subject')
       }
     }
   }

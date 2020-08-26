@@ -1,24 +1,24 @@
 <script>
-import _ from 'lodash';
-import Vue from 'vue';
+import _ from 'lodash'
+import Vue from 'vue'
 
-const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code');
+const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
 
-const isUserAny = roles => !!myDeptCodes(roles).length;
+const isUserAny = roles => !!myDeptCodes(roles).length
 
 export default {
   name: 'Berkeley',
   methods: {
     getBoaUserRoles(user, department) {
-      const roles = [];
-      const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code]);
+      const roles = []
+      const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code])
       if (department.role) {
-        roles.push(_.upperFirst(department.role));
+        roles.push(_.upperFirst(department.role))
       }
       if (dropInAdvisorStatus) {
-        roles.push('Drop-in Advisor');
+        roles.push('Drop-in Advisor')
       }
-      return roles;
+      return roles
     },
     getAdmitCsvExportColumns() {
       return [
@@ -85,7 +85,7 @@ export default {
         {text: 'Summer Bridge', value: 'summer_bridge_status'},
         {text: 'Last School LCFF+', value: 'last_school_lcff_plus_flag'},
         {text: 'CEP', value: 'special_program_cep'}
-      ];
+      ]
     },
     getDefaultCsvExportColumns() {
       return [
@@ -104,57 +104,57 @@ export default {
         {text: 'Term GPA', value: 'term_gpa'},
         {text: 'Cumulative GPA', value: 'cumulative_gpa'},
         {text: 'Program status', value: 'program_status'}
-      ];
+      ]
     },
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
     isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
     myDeptCodes,
     previousSisTermId(termId) {
-      let previousTermId = '';
-      let strTermId = termId.toString();
+      let previousTermId = ''
+      let strTermId = termId.toString()
       switch (strTermId.slice(3)) {
       case '2':
         previousTermId =
-          (parseInt(strTermId.slice(0, 3), 10) - 1).toString() + '8';
-        break;
+          (parseInt(strTermId.slice(0, 3), 10) - 1).toString() + '8'
+        break
       case '5':
-        previousTermId = strTermId.slice(0, 3) + '2';
-        break;
+        previousTermId = strTermId.slice(0, 3) + '2'
+        break
       case '8':
-        previousTermId = strTermId.slice(0, 3) + '5';
-        break;
+        previousTermId = strTermId.slice(0, 3) + '5'
+        break
       default:
-        break;
+        break
       }
-      return previousTermId;
+      return previousTermId
     },
     setWaitlistedStatus(course) {
       _.each(course.sections, function(section) {
         course.waitlisted =
-          course.waitlisted || section.enrollmentStatus === 'W';
-      });
+          course.waitlisted || section.enrollmentStatus === 'W'
+      })
     },
     termNameForSisId(termId) {
-      let termName = '';
+      let termName = ''
       if (termId) {
-        const strTermId = termId.toString();
-        termName = '20' + strTermId.slice(1, 3);
+        const strTermId = termId.toString()
+        termName = '20' + strTermId.slice(1, 3)
         switch (strTermId.slice(3)) {
         case '2':
-          termName = 'Spring ' + termName;
-          break;
+          termName = 'Spring ' + termName
+          break
         case '5':
-          termName = 'Summer ' + termName;
-          break;
+          termName = 'Summer ' + termName
+          break
         case '8':
-          termName = 'Fall ' + termName;
-          break;
+          termName = 'Fall ' + termName
+          break
         default:
-          break;
+          break
         }
       }
-      return termName;
+      return termName
     }
   }
-};
+}
 </script>

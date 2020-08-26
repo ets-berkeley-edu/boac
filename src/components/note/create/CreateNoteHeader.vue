@@ -89,12 +89,12 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal';
-import Context from '@/mixins/Context';
-import NoteEditSession from '@/mixins/NoteEditSession';
-import RenameTemplateModal from '@/components/note/create/RenameTemplateModal';
-import Util from '@/mixins/Util';
-import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates';
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
+import NoteEditSession from '@/mixins/NoteEditSession'
+import RenameTemplateModal from '@/components/note/create/RenameTemplateModal'
+import Util from '@/mixins/Util'
+import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 
 export default {
   name: 'CreateNoteHeader',
@@ -113,50 +113,50 @@ export default {
   }),
   methods: {
     cancel() {
-      this.showDeleteTemplateModal = false;
-      this.showRenameTemplateModal = false;
-      this.targetTemplate = null;
-      this.putFocusNextTick('create-note-subject');
-      this.setFocusLockDisabled(false);
+      this.showDeleteTemplateModal = false
+      this.showRenameTemplateModal = false
+      this.targetTemplate = null
+      this.putFocusNextTick('create-note-subject')
+      this.setFocusLockDisabled(false)
     },
     deleteTemplateConfirmed() {
       deleteNoteTemplate(this.targetTemplate.id).then(() => {
-        this.showDeleteTemplateModal = false;
-        this.setFocusLockDisabled(false);
-        this.targetTemplate = null;
-        this.putFocusNextTick('create-note-subject');
+        this.showDeleteTemplateModal = false
+        this.setFocusLockDisabled(false)
+        this.targetTemplate = null
+        this.putFocusNextTick('create-note-subject')
       })
     },
     editTemplate(template) {
-      this.setModel(this.cloneDeep(template));
-      this.setMode('editTemplate');
-      this.putFocusNextTick('create-note-subject');
+      this.setModel(this.cloneDeep(template))
+      this.setMode('editTemplate')
+      this.putFocusNextTick('create-note-subject')
     },
     loadTemplate(template) {
-      this.setModel(this.cloneDeep(template));
-      this.putFocusNextTick('create-note-subject');
-      this.alertScreenReader(`Template ${template.title} loaded`);
+      this.setModel(this.cloneDeep(template))
+      this.putFocusNextTick('create-note-subject')
+      this.alertScreenReader(`Template ${template.title} loaded`)
     },
     openDeleteTemplateModal(template) {
-      this.targetTemplate = template;
-      this.setFocusLockDisabled(true);
-      this.showDeleteTemplateModal = true;
+      this.targetTemplate = template
+      this.setFocusLockDisabled(true)
+      this.showDeleteTemplateModal = true
     },
     openRenameTemplateModal(template) {
-      this.targetTemplate = template;
-      this.setFocusLockDisabled(true);
-      this.showRenameTemplateModal = true;
+      this.targetTemplate = template
+      this.setFocusLockDisabled(true)
+      this.showRenameTemplateModal = true
     },
     renameTemplate(title) {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
-        this.targetTemplate = null;
-        this.showRenameTemplateModal = false;
-        this.setFocusLockDisabled(false);
-      });
+        this.targetTemplate = null
+        this.showRenameTemplateModal = false
+        this.setFocusLockDisabled(false)
+      })
     },
     toggleShowRenameTemplateModal(show) {
-      this.showRenameTemplateModal = show;
-      this.setFocusLockDisabled(show);
+      this.showRenameTemplateModal = show
+      this.setFocusLockDisabled(show)
     }
   }
 }

@@ -32,7 +32,7 @@ export default {
     },
     loading: Boolean
   }
-};
+}
 </script>
 
 <style scoped>

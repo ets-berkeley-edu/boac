@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import _ from 'lodash';
+import _ from 'lodash'
 
 export default {
   name: 'StudentGpaChart',
@@ -94,34 +94,34 @@ export default {
     }
   }),
   mounted() {
-    this.renderGpaToChart();
+    this.renderGpaToChart()
   },
   methods: {
     generateGpaDataSeries() {
-      var series = [];
-      var i = 0;
+      var series = []
+      var i = 0
       _.eachRight(this.student.termGpa, term => {
         series.push({
           x: i,
           y: term.gpa
-        });
-        i++;
-      });
+        })
+        i++
+      })
       if (series.length) {
-        var lastElement = series[series.length - 1];
-        var fillColor = lastElement.y < 2 ? '#d0021b' : '#3b7ea5';
+        var lastElement = series[series.length - 1]
+        var fillColor = lastElement.y < 2 ? '#d0021b' : '#3b7ea5'
         lastElement.marker = {
           fillColor: fillColor,
           radius: 5
-        };
+        }
       }
-      return series;
+      return series
     },
     renderGpaToChart() {
-      this.gpaChartOptions.series[0].data = this.generateGpaDataSeries();
+      this.gpaChartOptions.series[0].data = this.generateGpaDataSeries()
       this.gpaChartOptions.chart.width =
-        this.width || this.$refs.studentGpaChart.$el.parentNode.clientWidth - 5;
+        this.width || this.$refs.studentGpaChart.$el.parentNode.clientWidth - 5
     }
   }
-};
+}
 </script>
