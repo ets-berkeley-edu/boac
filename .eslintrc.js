@@ -76,4 +76,4 @@ module.exports = {
   parserOptions: {
     parser: require.resolve('@typescript-eslint/parser')
   }
-};
+}
