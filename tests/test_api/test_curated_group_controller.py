@@ -145,8 +145,20 @@ class TestGetCuratedGroup:
         students = api_json['students']
         deborah = next(s for s in students if s['firstName'] == 'Deborah')
         assert len(deborah['academicStanding']) == 5
-        assert deborah['academicStanding'][0] == {'termId': '2182', 'termName': 'Spring 2018', 'status': 'GST'}
-        assert deborah['academicStanding'][1] == {'termId': '2178', 'termName': 'Fall 2017', 'status': 'PRO'}
+        assert deborah['academicStanding'][0] == {
+            'actionDate': '2018-05-31',
+            'sid': '11667051',
+            'status': 'GST',
+            'termId': '2182',
+            'termName': 'Spring 2018',
+        }
+        assert deborah['academicStanding'][1] == {
+            'actionDate': '2017-12-30',
+            'termId': '2178',
+            'termName': 'Fall 2017',
+            'sid': '11667051',
+            'status': 'PRO',
+        }
 
     def test_view_permitted_shared_dept(self, asc_curated_groups, asc_and_coe_advisor, client):
         """Advisor can view group if they share the group owner's department memberships."""
