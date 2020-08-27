@@ -89,13 +89,13 @@ class TestAlertsController:
         fake_auth.login(admin_uid)
         advisor_1_alerts = self._get_alerts(client, 61889)
         assert len(advisor_1_alerts) == 3
-        assert advisor_1_alerts[0]['key'] == '2178_500600700'
+        assert next((a for a in advisor_1_alerts if a['key'] == '2178_500600700'), None)
         assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
         fake_auth.login(coe_advisor)
         advisor_2_alerts = self._get_alerts(client, 61889)
         assert len(advisor_2_alerts) == 3
-        assert advisor_2_alerts[0]['key'] == '2178_500600700'
+        assert next((a for a in advisor_2_alerts if a['key'] == '2178_500600700'), None)
         assert len(self._get_dismissed(advisor_1_alerts)) == 0
 
     def test_alert_dismissal_updates_cohort_alert_counts(self, db, create_alerts, fake_auth, client):

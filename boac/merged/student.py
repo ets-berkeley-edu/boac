@@ -307,8 +307,16 @@ def summarize_profile(profile, enrollments=None, academic_standing=None, term_gp
         profile['termGpa'] = term_gpas.get(profile['sid'])
 
 
-def _academic_standing_to_feed(standing):
-    return [{'termId': str(r['term_id']), 'termName': term_name_for_sis_id(r['term_id']), 'status': r['status']} for r in standing]
+def _academic_standing_to_feed(rows):
+    def _row_to_json(row):
+        return {
+            'actionDate': row['action_date'],
+            'sid': row['sid'],
+            'status': row['status'],
+            'termId': str(row['term_id']),
+            'termName': term_name_for_sis_id(row['term_id']),
+        }
+    return [_row_to_json(row) for row in rows]
 
 
 def get_academic_standing_by_sid(sids, as_dicts=False):
