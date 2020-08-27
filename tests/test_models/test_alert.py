@@ -120,12 +120,14 @@ class TestAlert:
     def test_midpoint_deficient_grade_alerts_preserve_updated_at_timestamp(self):
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
-        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+        alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
+        assert alert['updatedAt'] == alert['createdAt']
         sleep(0.5)
         Alert.deactivate_all_for_term(2178)
         Alert.update_all_for_term(2178)
         alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
-        assert alerts[0]['updatedAt'] == alerts[0]['createdAt']
+        alert = next((a for a in alerts if a['alertType'] == 'midterm'), None)
+        assert alert['updatedAt'] == alert['createdAt']
 
     def test_inactive_alert_preserves_timestamp(self):
         # The 'updated_at' attribute of an inactive alert preserves the time at which it was deactivated.
@@ -160,6 +162,24 @@ class TestAlert:
         assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Jun 16, 2017.'
         Alert.update_assignment_alerts(**dict(alert_props, due_at='2017-06-17T07:00:01Z'))
         assert get_current_alerts('11667051')[0]['message'] == 'MED ST 205 assignment due on Jun 17, 2017.'
+
+    def test_academic_standing_action_date_as_created_at(self):
+        actual_action_date = '2017-12-30'
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
+        alert = next((a for a in alerts if a['alertType'] == 'academic_standing'), None)
+        created_at = alert['createdAt']
+        assert created_at.startswith(actual_action_date)
+        assert alert['updatedAt'] == created_at
+
+        sleep(1.0)
+        Alert.deactivate_all_for_term(2178)
+        Alert.update_all_for_term(2178)
+        alerts = Alert.current_alerts_for_sid(sid='11667051', viewer_id='2040')
+        academic_standing_alert = next((a for a in alerts if a['alertType'] == 'academic_standing'), None)
+        created_at = academic_standing_alert['createdAt']
+        assert created_at.startswith(actual_action_date)
+        assert academic_standing_alert['updatedAt'] == created_at
 
 
 class TestAssignmentAlert:

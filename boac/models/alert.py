@@ -71,7 +71,7 @@ class Alert(Base):
     ),)
 
     @classmethod
-    def create(cls, sid, alert_type, key=None, message=None, active=True):
+    def create(cls, sid, alert_type, key=None, message=None, active=True, created_at=None):
         # Alerts must contain a key, unique per SID and alert type, which will allow them to be located
         # and modified on updates to the data that originally generated the alert. The key defaults
         # to a string representation of today's date, but will more often (depending on the alert type)
@@ -84,6 +84,9 @@ class Alert(Base):
             if not key:
                 raise ValueError('Blank string submitted for alert key')
         alert = cls(sid, alert_type, key, message, active)
+        if created_at:
+            alert.created_at = created_at
+            alert.updated_at = created_at
         db.session.add(alert)
         std_commit()
 
@@ -225,17 +228,32 @@ class Alert(Base):
         std_commit()
 
     @classmethod
-    def create_or_activate(cls, sid, alert_type, key, message, preserve_creation_date=False):
+    def create_or_activate(
+            cls,
+            alert_type,
+            key,
+            message,
+            sid,
+            created_at=None,
+            force_use_existing=False,
+            preserve_creation_date=False,
+    ):
         # If any previous alerts exist with the same type, key and sid, grab the most recently updated one.
         existing_alert = cls.query.filter_by(sid=sid, alert_type=alert_type, key=key).order_by(desc(cls.updated_at)).first()
         # If the existing alert was only just deactivated in the last two hours, assume that the deactivation was part of the
         # current refresh cycle, and go ahead and reactivate it. But if the alert was deactivated farther back in the past,
         # assume that it represents a previous state of affairs, and create a new alert for current conditions.
-        if existing_alert and (datetime.now(timezone.utc) - existing_alert.updated_at).total_seconds() < (2 * 3600):
+        if existing_alert and (force_use_existing or (datetime.now(timezone.utc) - existing_alert.updated_at).total_seconds() < (2 * 3600)):
             existing_alert.message = message
             existing_alert.activate(preserve_creation_date=preserve_creation_date)
         else:
-            cls.create(sid=sid, alert_type=alert_type, key=key, message=message)
+            cls.create(
+                alert_type=alert_type,
+                created_at=created_at,
+                key=key,
+                message=message,
+                sid=sid,
+            )
 
     @classmethod
     def deactivate_all(cls, sid, term_id, alert_types):
@@ -303,18 +321,32 @@ class Alert(Base):
                     cls.update_withdrawal_cancel_alerts(row['sid'], term_id)
 
         sids = [p['sid'] for p in profiles]
-        for sid, academic_standing in get_academic_standing_by_sid(sids, as_dicts=True).items():
-            status = academic_standing.get(str(term_id))
-            if status in ('DIS', 'PRO', 'SUB'):
-                cls.update_academic_standing_alerts(sid, status, term_id)
+        for sid, academic_standing_list in get_academic_standing_by_sid(sids).items():
+            standing = next((s for s in academic_standing_list if s['termId'] == str(term_id)), None)
+            if standing and standing['status'] in ('DIS', 'PRO', 'SUB'):
+                cls.update_academic_standing_alerts(
+                    action_date=standing['actionDate'],
+                    sid=standing['sid'],
+                    status=standing['status'],
+                    term_id=term_id,
+                )
         app.logger.info('Alert update complete')
 
     @classmethod
-    def update_academic_standing_alerts(cls, sid, status, term_id):
-        key = f'{term_id}_academic_standing_{status}'
+    def update_academic_standing_alerts(cls, action_date, sid, status, term_id):
+        key = f'{term_id}_{action_date}_academic_standing_{status}'
         status_description = ACADEMIC_STANDING_DESCRIPTIONS.get(status, status)
         message = f"Student's academic standing is '{status_description}'."
-        cls.create_or_activate(sid=sid, alert_type='academic_standing', key=key, message=message)
+        datetime.strptime(action_date, '%Y-%m-%d')
+        cls.create_or_activate(
+            alert_type='academic_standing',
+            created_at=action_date,
+            force_use_existing=True,
+            key=key,
+            message=message,
+            preserve_creation_date=True,
+            sid=sid,
+        )
 
     @classmethod
     def update_alerts_for_enrollment(cls, sid, term_id, enrollment, no_activity_alerts_enabled, infrequent_activity_alerts_enabled):
