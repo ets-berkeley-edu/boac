@@ -11,10 +11,10 @@
     @hide.prevent="cancel">
     <div>
       <div class="modal-header">
-        <h3 id="are-you-sure-header" class="new-note-header pl-2">{{ topic.id ? 'Edit' : 'Create' }} Topic</h3>
+        <h3 id="are-you-sure-header" class="new-note-header pl-2" :class="{'text-secondary': topic.id}">{{ topic.id ? topic.topic : 'Create Topic' }}</h3>
       </div>
       <div class="modal-body pl-4 pr-5">
-        <div class="topic-label-input-container">
+        <div v-if="!topic.id" class="topic-label-input-container">
           <label for="topic-label" class="font-size-18 font-weight-bolder mb-1">Label</label>
           <b-form-input
             id="topic-label"
@@ -34,7 +34,7 @@
             </span>
           </div>
         </div>
-        <h4 class="font-size-18 font-weight-bolder mb-0 pt-2">Type</h4>
+        <h4 class="font-size-18 font-weight-bolder mb-0" :class="{'pt-2': !topic.id}">Type</h4>
         <span class="font-size-12 text-secondary">You must choose at least one.</span>
         <b-form-checkbox
           id="topic-available-in-notes"
