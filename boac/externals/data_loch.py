@@ -372,7 +372,7 @@ def extract_valid_sids(sids):
 
 
 def get_academic_standing(sids):
-    sql = f"""SELECT sid, term_id, acad_standing_status as status
+    sql = f"""SELECT acad_standing_status as status, action_date, sid, term_id
         FROM {student_schema()}.academic_standing
         WHERE sid = ANY(:sids)
         ORDER BY sid, term_id DESC"""
