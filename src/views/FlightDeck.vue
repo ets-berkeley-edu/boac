@@ -22,7 +22,7 @@
         </div>
         <DemoModeToggle />
       </div>
-      <div class="mt-2 pt-5">
+      <div class="mt-2 pt-4">
         <h2 id="edit-service-announcement" class="page-section-header-sub">Service Alert</h2>
         <EditServiceAnnouncement />
       </div>
