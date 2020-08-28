@@ -24,16 +24,14 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
-import time
 
 from boac import db, std_commit
-from boac.lib.util import put_attachment_to_s3, utc_now
+from boac.lib.util import get_benchmarker, put_attachment_to_s3, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
-from flask import current_app as app
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.sql import text
@@ -125,7 +123,8 @@ class Note(Base):
             attachments=(),
             template_attachment_ids=(),
     ):
-        t = time.time()
+        sid_count = len(sids)
+        benchmark = get_benchmarker('begin note creation' if sid_count == 1 else f'begin creation of {sid_count} notes')
         ids_by_sid = _create_notes(
             author_id=author_id,
             author_uid=author_uid,
@@ -137,15 +136,18 @@ class Note(Base):
             subject=subject,
         )
         note_ids = list(ids_by_sid.values())
+        benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {topics} topics')
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
+        benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {attachments} attachments')
         _add_attachments_to_notes(
             attachments=attachments,
             template_attachment_ids=template_attachment_ids,
             author_uid=author_uid,
             note_ids=note_ids,
         )
+        benchmark('begin refresh search index')
         cls.refresh_search_index()
-        app.logger.info(f'Note creation: {len(sids)} records inserted in {str(time.time() - t)} seconds')
+        benchmark('end note creation' if sid_count == 1 else f'end creation of {sid_count} notes')
         return ids_by_sid
 
     @classmethod
