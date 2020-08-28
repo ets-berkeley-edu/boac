@@ -27,7 +27,7 @@ import json
 import time
 
 from boac import db, std_commit
-from boac.lib.util import put_attachment_to_s3, titleize, utc_now, vacuum_whitespace
+from boac.lib.util import put_attachment_to_s3, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
@@ -244,7 +244,7 @@ class Note(Base):
     def _update_note_topics(cls, note, topics):
         modified = False
         now = utc_now()
-        topics = set([titleize(vacuum_whitespace(topic)) for topic in topics])
+        topics = set(topics)
         existing_topics = set(note_topic.topic for note_topic in NoteTopic.find_by_note_id(note.id))
         topics_to_delete = existing_topics - topics
         topics_to_add = topics - existing_topics
@@ -373,7 +373,7 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
 
 
 def _add_topics_to_notes(author_uid, note_ids, topics):
-    for prepared_topic in [titleize(vacuum_whitespace(topic)) for topic in topics]:
+    for topic in topics:
         count_per_chunk = 10000
         for chunk in range(0, len(note_ids), count_per_chunk):
             query = """
@@ -386,7 +386,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
                 {
                     'author_uid': author_uid,
                     'note_id': note_id,
-                    'topic': prepared_topic,
+                    'topic': topic,
                 } for note_id in note_ids_subset
             ]
             db.session.execute(query, {'json_dumps': json.dumps(data)})
