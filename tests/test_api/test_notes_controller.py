@@ -231,10 +231,10 @@ class TestNoteCreation:
             sids=[coe_student['sid']],
             subject='Incubate transparent web services',
             body='Facilitate value-added initiatives',
-            topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
+            topics=['Shadrach', 'Meshach', 'Abednego'],
         )
         assert len(note.get('topics')) == 3
-        for topic in ('Collaborative Synergies', 'Integrated Architectures', 'Vertical Solutions'):
+        for topic in ('Shadrach', 'Meshach', 'Abednego'):
             assert topic in note.get('topics')
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
@@ -626,7 +626,7 @@ class TestUpdateNotes:
     def test_update_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
         """Update note topics."""
         fake_auth.login(mock_asc_advising_note.author_uid)
-        expected_topics = ['no color no contrast', 'joyful mask']
+        expected_topics = ['Blinking lights', ' and other revelations']
         api_json = self._api_note_update(
             app,
             client,
@@ -637,8 +637,8 @@ class TestUpdateNotes:
         )
         assert api_json['read'] is True
         assert len(api_json['topics']) == 2
-        assert 'Joyful Mask' in api_json['topics']
-        assert 'No Color No Contrast' in api_json['topics']
+        assert 'Blinking lights' in api_json['topics']
+        assert ' and other revelations' in api_json['topics']
 
     def test_remove_note_topics(self, app, client, fake_auth, mock_asc_advising_note):
         """Delete note topics."""
