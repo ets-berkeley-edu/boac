@@ -136,9 +136,9 @@ class Note(Base):
             subject=subject,
         )
         note_ids = list(ids_by_sid.values())
-        benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {topics} topics')
+        benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {len(topics)} topics')
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
-        benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {attachments} attachments')
+        benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {len(attachments)} attachments')
         _add_attachments_to_notes(
             attachments=attachments,
             template_attachment_ids=template_attachment_ids,
