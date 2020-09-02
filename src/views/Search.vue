@@ -212,7 +212,7 @@ export default {
           )
         )
       }
-      if (includeAdmits) {
+      if (includeAdmits && this.trim(this.phrase)) {
         queries.push(searchAdmittedStudents(this.phrase))
       }
       Promise.all(queries).then(responses => {
