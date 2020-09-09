@@ -49,12 +49,13 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
 export function getCohort(
   id: number,
   includeStudents = true,
+  limit: number = 50,
+  offset: number = 0,
   orderBy = 'lastName'
 ) {
+  const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}`
   return axios
-    .get(
-      `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&orderBy=${orderBy}`
-    )
+    .get(url)
     .then(response => response.data, () => null)
 }
 
