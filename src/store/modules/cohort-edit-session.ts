@@ -130,15 +130,9 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     }
     store.dispatch('context/alertScreenReader', `Searching for ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`)
     commit('setEditMode', 'apply')
-    const offset =
-      (state.pagination.currentPage - 1) * state.pagination.itemsPerPage
-    getStudentsPerFilters(
-      state.domain,
-      state.filters,
-      orderBy,
-      offset,
-      state.pagination.itemsPerPage
-    ).then(data => {
+    const limit = state.pagination.itemsPerPage
+    const offset = (state.pagination.currentPage - 1) * limit
+    const done = data => {
       commit('updateStudents', {
         students: data.students,
         totalStudentCount: data.totalStudentCount
@@ -147,7 +141,13 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
       commit('stashOriginalFilters')
       commit('setEditMode', null)
       resolve()
-    })
+    }
+    const isReadOnly = state.cohortId && !state.isOwnedByCurrentUser
+    if (isReadOnly) {
+      getCohort(state.cohortId, true, limit, offset, orderBy).then(done)
+    } else {
+      getStudentsPerFilters(state.domain, state.filters, orderBy, offset, limit).then(done)
+    }
   })
 }
 
@@ -224,7 +224,7 @@ const actions = {
   },
   loadCohort: ({ commit, state }, {id, orderBy} ) => {
     return new Promise(resolve => {
-      getCohort(id, true, orderBy).then(cohort => {
+      getCohort(id, true, state.pagination.itemsPerPage, 0, orderBy).then(cohort => {
         if (cohort) {
           commit('setDomain', cohort.domain)
           const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owner.uid')
