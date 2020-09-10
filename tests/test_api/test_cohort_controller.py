@@ -1294,6 +1294,65 @@ class TestCohortPerFilters:
         assert sids == ['2345678901', '5678901234']
 
 
+class TestDownloadCohortCsv:
+
+    @classmethod
+    def _api_download_cohort_csv(cls, client, cohort_id, csv_columns_selected, expected_status_code=200):
+        response = client.post(
+            '/api/cohort/download_csv',
+            data=json.dumps({
+                'cohortId': cohort_id,
+                'csvColumnsSelected': csv_columns_selected,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.data
+
+    def test_download_csv_not_authenticated(self, client, coe_owned_cohort):
+        """API requires authentication."""
+        self._api_download_cohort_csv(
+            client,
+            coe_owned_cohort['id'],
+            csv_columns_selected=['sid'],
+            expected_status_code=401,
+        )
+
+    def test_download_csv_unauthorized(self, client, asc_owned_cohort, coe_advisor_login):
+        """ASC advisor cannot download cohort CSV containing COE attributes."""
+        self._api_download_cohort_csv(
+            client,
+            cohort_id=asc_owned_cohort['id'],
+            csv_columns_selected=['first_name', 'last_name', 'sid'],
+            expected_status_code=404,
+        )
+
+    def test_download_csv(self, asc_advisor_login, client, fake_auth):
+        """Advisor can download cohort CSV."""
+        expected_sids = ['11667051', '2345678901', '3456789012', '5678901234', '7890123456', '9100000000']
+        cohort = CohortFilter.create(
+            uid=asc_advisor_uid,
+            name='Download Me',
+            filter_criteria={
+                'cohortOwnerAcademicPlans': ['*'],
+            },
+        )
+        response = client.get(f"/api/cohort/{cohort['id']}")
+        assert response.status_code == 200
+        sids = sorted([s['sid'] for s in response.json['students']])
+        assert sids == expected_sids
+        data = self._api_download_cohort_csv(client, cohort['id'], csv_columns_selected=['sid'])
+        sids_in_csv = [s for s in data.decode('utf-8').split() if s.isdigit()]
+        assert sids_in_csv == expected_sids
+
+        # Another ASC advisor downloads same CSV
+        client.get('/api/auth/logout')
+        fake_auth.login('6446')
+        data = self._api_download_cohort_csv(client, cohort['id'], csv_columns_selected=['sid'])
+        sids_in_csv = [s for s in data.decode('utf-8').split() if s.isdigit()]
+        assert sids_in_csv == expected_sids
+
+
 class TestDownloadCsvPerFilters:
     """Download Cohort CSV API."""
 
