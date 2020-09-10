@@ -210,6 +210,29 @@ def get_cohort_per_filters():
     return tolerant_jsonify(cohort)
 
 
+@app.route('/api/cohort/download_csv', methods=['POST'])
+@advisor_required
+def download_cohort_csv():
+    benchmark = get_benchmarker('cohort download_csv')
+    benchmark('begin')
+    params = request.get_json()
+    cohort_id = int(get_param(params, 'cohortId'))
+    cohort = CohortFilter.find_by_id(
+        cohort_id,
+        offset=0,
+        limit=None,
+        include_profiles=False,
+        include_sids=True,
+        include_students=False,
+    )
+    if cohort and _can_current_user_view_cohort(cohort):
+        fieldnames = get_param(params, 'csvColumnsSelected', [])
+        sids = CohortFilter.get_sids(cohort['id'])
+        return _response_with_csv_download(benchmark, cohort['domain'], fieldnames, sids)
+    else:
+        raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
+
+
 @app.route('/api/cohort/download_csv_per_filters', methods=['POST'])
 @advisor_required
 def download_csv_per_filters():
@@ -236,10 +259,7 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
-    if domain == 'admitted_students':
-        return response_with_admits_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
-    else:
-        return response_with_students_csv_download(sids=cohort['sids'], fieldnames=fieldnames, benchmark=benchmark)
+    return _response_with_csv_download(benchmark, domain, fieldnames, cohort['sids'])
 
 
 @app.route('/api/cohort/create', methods=['POST'])
@@ -386,3 +406,10 @@ def _get_filter_db_type_per_key(domain):
         for _filter in category:
             filter_type_per_key[_filter['key']] = _filter['type']['db']
     return filter_type_per_key
+
+
+def _response_with_csv_download(benchmark, domain, fieldnames, sids):
+    if domain == 'admitted_students':
+        return response_with_admits_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
+    else:
+        return response_with_students_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)

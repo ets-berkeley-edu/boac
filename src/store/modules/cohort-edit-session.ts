@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import {
-  createCohort,
+  createCohort, downloadCohortCsv,
   downloadCsv,
   getCohort,
   getCohortFilterOptions,
@@ -219,7 +219,12 @@ const actions = {
   },
   downloadCsvPerFilters: ({ state }, csvColumnsSelected: any) => {
     return new Promise(resolve => {
-      downloadCsv(state.domain, state.cohortName, state.filters, csvColumnsSelected).then(resolve)
+      const isReadOnly = state.cohortId && !state.isOwnedByCurrentUser
+      if (isReadOnly) {
+        downloadCohortCsv(state.cohortId, state.cohortName, csvColumnsSelected).then(resolve)
+      } else {
+        downloadCsv(state.domain, state.cohortName, state.filters, csvColumnsSelected).then(resolve)
+      }
     })
   },
   loadCohort: ({ commit, state }, {id, orderBy} ) => {
