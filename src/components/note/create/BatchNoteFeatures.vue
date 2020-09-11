@@ -28,7 +28,7 @@
     <div>
       <BatchNoteAddStudent
         :add-sid="addStudentBySid"
-        :disabled="isSaving"
+        :disabled="isSaving || boaSessionExpired"
         :on-esc-form-input="cancel"
         :remove-sid="removeSid"
         dropdown-class="position-relative" />
@@ -37,7 +37,7 @@
       <BatchNoteAddCohort
         v-if="myCohorts && myCohorts.length"
         :add-object="addCohortToBatch"
-        :disabled="isSaving"
+        :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="false"
         :objects="myCohorts"
         :remove-object="removeCohortFromBatch" />
@@ -46,7 +46,7 @@
       <BatchNoteAddCohort
         v-if="myCuratedGroups && myCuratedGroups.length"
         :add-object="addCuratedGroupToBatch"
-        :disabled="isSaving"
+        :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
         :objects="myCuratedGroups"
         :remove-object="removeCuratedGroupFromBatch" />

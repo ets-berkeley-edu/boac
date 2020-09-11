@@ -83,7 +83,13 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
 
     if (Vue.prototype.$config.pingFrequency) {
       // Keep session alive with periodic requests
-      setInterval(() => axios.get(`${apiBaseUrl}/api/ping`), Vue.prototype.$config.pingFrequency)
+      setInterval(() => {
+        axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+          if (!response.data.isAuthenticated) {
+            Vue.prototype.$eventHub.$emit('user-session-expired')
+          }
+        })
+      }, Vue.prototype.$config.pingFrequency)
     }
     // The 'core' functions strictly manage state changes in $currentUser and other "prototype" objects.
     // For example, core functions might be invoked after a successful dev-auth login.

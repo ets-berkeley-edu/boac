@@ -9,6 +9,7 @@ export default {
     ...mapGetters('noteEditSession', [
       'addedCohorts',
       'addedCuratedGroups',
+      'boaSessionExpired',
       'completeSidSet',
       'isFocusLockDisabled',
       'isSaving',
@@ -27,6 +28,7 @@ export default {
       'addTopic',
       'createAdvisingNotes',
       'exitSession',
+      'onBoaSessionExpires',
       'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',

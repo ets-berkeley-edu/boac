@@ -31,6 +31,7 @@ const $_recalculateStudentCount = ({ commit, state }) => {
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
+  boaSessionExpired: false,
   completeSidSet: [],
   isFocusLockDisabled: undefined,
   isSaving: false,
@@ -43,6 +44,7 @@ const state = {
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
+  boaSessionExpired: (state: any): any[] => state.boaSessionExpired,
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
@@ -60,6 +62,7 @@ const mutations = {
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
   addSid: (state: any, sid: string) => state.sids.push(sid),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
+  onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
   exitSession: (state: any) => {
     state.addedCohorts = []
     state.addedCuratedGroups = []
@@ -135,6 +138,7 @@ const actions = {
     $_recalculateStudentCount({ commit, state })
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
+  onBoaSessionExpires: ({ commit }) => commit('onBoaSessionExpires'),
   createAdvisingNotes: ({commit, state}) => {
     return new Promise(resolve => {
       commit('setBody', _.trim(state.model.body))
