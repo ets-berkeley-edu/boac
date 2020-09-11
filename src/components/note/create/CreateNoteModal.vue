@@ -46,7 +46,7 @@
               <input
                 id="create-note-subject"
                 :value="model.subject"
-                :disabled="isSaving"
+                :disabled="isSaving || boaSessionExpired"
                 :class="{'bg-light': isSaving}"
                 aria-labelledby="create-note-subject-label"
                 class="cohort-create-input-name"
@@ -63,7 +63,7 @@
               <RichTextEditor
                 id="create-note-body"
                 :initial-value="model.body || ''"
-                :disabled="isSaving"
+                :disabled="isSaving || boaSessionExpired"
                 :is-in-modal="true"
                 :on-value-update="setBody" />
             </div>
@@ -71,14 +71,14 @@
           <div>
             <AdvisingNoteTopics
               :key="mode"
-              :disabled="isSaving"
+              :disabled="isSaving || boaSessionExpired"
               :function-add="addTopic"
               :function-remove="removeTopic"
               :topics="model.topics"
               class="mt-2 mr-3 mb-1 ml-3" />
             <AdvisingNoteAttachments
               :add-attachment="addAttachment"
-              :disabled="isSaving"
+              :disabled="isSaving || boaSessionExpired"
               :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment"
               class="mt-2 mr-3 mb-1 ml-3" />
@@ -178,6 +178,9 @@ export default {
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
     this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject')
     this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
+    this.$eventHub.$on('user-session-expired', () => {
+      this.onBoaSessionExpires()
+    })
   },
   methods: {
     cancelRequested() {

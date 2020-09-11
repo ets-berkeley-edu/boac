@@ -22,35 +22,47 @@
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
         <RichTextEditor
+          :disabled="boaSessionExpired"
           :initial-value="model.body || ''"
           :on-value-update="setBody" />
       </span>
     </div>
     <div>
       <AdvisingNoteTopics
+        :disabled="boaSessionExpired"
         :function-add="addTopic"
         :function-remove="removeTopic"
         :note-id="model.id"
         :topics="model.topics" />
     </div>
-    <div class="d-flex mt-2 mb-2">
-      <div>
-        <b-btn
-          id="save-note-button"
-          class="btn-primary-color-override"
-          variant="primary"
-          @click="save">
-          Save
-        </b-btn>
+    <div>
+      <div
+        v-if="boaSessionExpired"
+        id="uh-oh-session-time-out"
+        aria-live="polite"
+        class="pl-3 pr-3"
+        role="alert">
+        <SessionExpired />
       </div>
-      <div>
-        <b-btn
-          id="cancel-edit-note-button"
-          variant="link"
-          @click.stop="cancelRequested"
-          @keypress.enter.stop="cancelRequested">
-          Cancel
-        </b-btn>
+      <div v-if="!boaSessionExpired" class="d-flex mt-2 mb-2">
+        <div>
+          <b-btn
+            id="save-note-button"
+            class="btn-primary-color-override"
+            variant="primary"
+            @click="save">
+            Save
+          </b-btn>
+        </div>
+        <div>
+          <b-btn
+            id="cancel-edit-note-button"
+            variant="link"
+            @click.stop="cancelRequested"
+            @keypress.enter.stop="cancelRequested">
+            Cancel
+          </b-btn>
+        </div>
       </div>
     </div>
     <AreYouSureModal
@@ -94,12 +106,13 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import RichTextEditor from '@/components/util/RichTextEditor'
+import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
 import { getNote, updateNote } from '@/api/notes'
 
 export default {
   name: 'EditAdvisingNote',
-  components: {AdvisingNoteTopics, AreYouSureModal, RichTextEditor},
+  components: {AdvisingNoteTopics, AreYouSureModal, RichTextEditor, SessionExpired},
   mixins: [Context, NoteEditSession, Util],
   props: {
     afterCancel: Function,
@@ -120,6 +133,9 @@ export default {
       this.setMode('edit')
       this.putFocusNextTick('edit-note-subject')
       this.alertScreenReader('Edit note form is open.')
+    })
+    this.$eventHub.$on('user-session-expired', () => {
+      this.onBoaSessionExpires()
     })
   },
   methods: {
