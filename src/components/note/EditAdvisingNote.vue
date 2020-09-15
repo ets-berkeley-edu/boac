@@ -109,6 +109,7 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
 import { getNote, updateNote } from '@/api/notes'
+import { getUserProfile } from '@/api/user'
 
 export default {
   name: 'EditAdvisingNote',
@@ -170,19 +171,28 @@ export default {
       this.exitSession()
     },
     save() {
-      const trimmedSubject = this.trim(this.model.subject)
-      if (trimmedSubject) {
-        updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
-          this.afterSaved(updatedNote)
-          this.alertScreenReader('Changes to note have been saved')
-          this.exit()
-        })
-      } else {
-        this.error = 'Subject is required'
-        this.showErrorPopover = true
-        this.alertScreenReader(`Validation failed: ${this.error}`)
-        this.putFocusNextTick('edit-note-subject')
+      const ifAuthenticated = () => {
+        const trimmedSubject = this.trim(this.model.subject)
+        if (trimmedSubject) {
+          updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
+            this.afterSaved(updatedNote)
+            this.alertScreenReader('Changes to note have been saved')
+            this.exit()
+          })
+        } else {
+          this.error = 'Subject is required'
+          this.showErrorPopover = true
+          this.alertScreenReader(`Validation failed: ${this.error}`)
+          this.putFocusNextTick('edit-note-subject')
+        }
       }
+      getUserProfile().then(data => {
+        if (data.isAuthenticated) {
+          ifAuthenticated()
+        } else {
+          this.onBoaSessionExpires()
+        }
+      })
     }
   }
 }

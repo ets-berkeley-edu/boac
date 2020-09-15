@@ -23,7 +23,13 @@ export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDel
 export function getUserProfile() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/profile/my`)
-    .then(response => response.data, () => null)
+    .then(response => {
+      const user = response.data
+      if (!user.isAuthenticated) {
+        Vue.prototype.$eventHub.$emit('user-session-expired')
+      }
+      return user
+    }, () => null)
 }
 
 export function getCalnetProfileByCsid(csid) {

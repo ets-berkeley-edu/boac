@@ -130,6 +130,7 @@ import store from '@/store'
 import Util from '@/mixins/Util'
 import Vue from 'vue'
 import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates'
+import { getUserProfile } from '@/api/user'
 
 export default {
   name: 'CreateNoteModal',
@@ -228,45 +229,56 @@ export default {
       this.putFocusNextTick('create-note-subject')
     },
     createNote() {
-      if (this.model.subject && this.completeSidSet.length) {
-        this.setIsSaving(true)
-        if (this.model.attachments.length) {
-          // File upload might take time; alert will be overwritten when API call is done.
-          this.showAlert('Creating note...', 60)
-        }
-        this.createAdvisingNotes().then(data => {
-          this.setIsSaving(false)
-          this.exit()
-          this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
-          if (this.isBatchFeature) {
-            Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
-          } else {
-            Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
+      const ifAuthenticated = () => {
+        if (this.model.subject && this.completeSidSet.length) {
+          this.setIsSaving(true)
+          if (this.model.attachments.length) {
+            // File upload might take time; alert will be overwritten when API call is done.
+            this.showAlert('Creating note...', 60)
           }
-        })
+          this.createAdvisingNotes().then(data => {
+            this.setIsSaving(false)
+            this.exit()
+            this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
+            if (this.isBatchFeature) {
+              Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
+            } else {
+              Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
+            }
+          })
+        }
       }
+      this.invokeIfAuthenticated(ifAuthenticated, () => {
+        this.setIsSaving(false)
+      })
     },
     createTemplate(title) {
-      this.showCreateTemplateModal = false
-      this.setIsSaving(true)
-      this.setFocusLockDisabled(false)
-      if (this.model.attachments.length) {
-        // File upload might take time; alert will be overwritten when API call is done.
-        this.showAlert('Creating template...', 60)
-      }
-      createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(template => {
-        this.showAlert(`Template '${title}' created.`)
-        this.setIsSaving(false)
-        this.setModel({
-          id: undefined,
-          subject: template.subject,
-          body: template.body,
-          topics: template.topics,
-          attachments: template.attachments,
-          deleteAttachmentIds: []
+      const ifAuthenticated = () => {
+        this.showCreateTemplateModal = false
+        this.setIsSaving(true)
+        this.setFocusLockDisabled(false)
+        if (this.model.attachments.length) {
+          // File upload might take time; alert will be overwritten when API call is done.
+          this.showAlert('Creating template...', 60)
+        }
+        createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(template => {
+          this.showAlert(`Template '${title}' created.`)
+          this.setIsSaving(false)
+          this.setModel({
+            id: undefined,
+            subject: template.subject,
+            body: template.body,
+            topics: template.topics,
+            attachments: template.attachments,
+            deleteAttachmentIds: []
+          })
+          this.setMode(this.isBatchFeature ? 'batch' : 'create')
+          this.putFocusNextTick('create-note-subject')
         })
-        this.setMode(this.isBatchFeature ? 'batch' : 'create')
-        this.putFocusNextTick('create-note-subject')
+      }
+      this.invokeIfAuthenticated(ifAuthenticated, () => {
+        this.showCreateTemplateModal = false
+        this.setIsSaving(false)
       })
     },
     discardNote() {
@@ -296,10 +308,23 @@ export default {
       this.exitSession()
       this.onClose()
     },
+    invokeIfAuthenticated(callback, onReject = () => {}) {
+      getUserProfile().then(data => {
+        if (data.isAuthenticated) {
+          callback()
+        } else {
+          this.onBoaSessionExpires()
+          onReject()
+        }
+      })
+    },
     saveAsTemplate() {
-      this.showCreateTemplateModal = true
-      this.setFocusLockDisabled(true)
-      this.putFocusNextTick('template-title-input')
+      const ifAuthenticated = () => {
+        this.showCreateTemplateModal = true
+        this.setFocusLockDisabled(true)
+        this.putFocusNextTick('template-title-input')
+      }
+      this.invokeIfAuthenticated(ifAuthenticated)
     },
     showAlert(alert, seconds=3) {
       this.alert = alert
