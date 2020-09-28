@@ -74,6 +74,7 @@
   },
   "resolutions": {
     "minimist": ">=1.2.3",
-    "selfsigned": ">=1.10.8"
+    "selfsigned": ">=1.10.8",
+    "bl": "^2.2.1"
   }
 }
