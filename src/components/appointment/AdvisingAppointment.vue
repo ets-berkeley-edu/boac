@@ -10,7 +10,7 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="!(appointment.status === 'checked_in' && appointment.advisor.title === 'Intake Desk') && !appointment.isLegacy" class="mt-3">
+      <div v-if="!(appointment.status === 'checked_in' && appointment.advisor.title === 'Intake Desk') && !appointment.legacySource" class="mt-3">
         <font-awesome icon="clock" class="status-arrived-icon" />
         <span class="text-secondary ml-1">
           Arrived @
@@ -58,7 +58,7 @@
           </div>
         </div>
       </div>
-      <div v-if="appointment.advisor.name && (appointment.status === 'checked_in' || appointment.isLegacy)" class="mt-2">
+      <div v-if="appointment.advisor.name && (appointment.status === 'checked_in' || appointment.legacySource)" class="mt-2">
         <a
           v-if="appointment.advisor.uid"
           :id="`appointment-${appointment.id}-advisor-name`"

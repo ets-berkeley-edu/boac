@@ -75,7 +75,7 @@ def get_sis_advising_appointments(sid):
             topics=legacy_topics.get(appointment_id),
             attachments=legacy_attachments.get(appointment_id),
         )
-        appointments_by_id[appointment_id]['isLegacy'] = True
+        appointments_by_id[appointment_id]['legacySource'] = 'SIS'
     return appointments_by_id
 
 

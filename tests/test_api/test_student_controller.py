@@ -779,7 +779,7 @@ class TestNotes:
         assert len(notes)
         note = next((n for n in notes if n.get('id') == '11667051-00001'), None)
         assert len(note)
-        assert note['isLegacy'] is True
+        assert note['legacySource'] == 'SIS'
         assert 'Brigitte is making athletic and moral progress' == note['message']
         author = note['author']
         assert not author['name']

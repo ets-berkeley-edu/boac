@@ -57,7 +57,7 @@ class TestMergedAdvisingAppointment:
         assert appointments[0]['deptCode'] is None
         assert appointments[0]['details'] == 'To my people who keep an impressive wingspan even when the cubicle shrink: \
 you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine'
-        assert appointments[0]['isLegacy'] is True
+        assert appointments[0]['legacySource'] == 'SIS'
         assert appointments[0]['student']
         assert appointments[0]['student']['sid'] == student_sid
         assert appointments[0]['topics'] is None
@@ -86,7 +86,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['createdBy'] == 7
         assert appointments[3]['deptCode'] == 'QCADV'
         assert appointments[3]['details'] == 'It is not the length of life, but depth of life.'
-        assert 'isLegacy' not in appointments[3]
+        assert 'legacySource' not in appointments[3]
         assert appointments[3]['student']
         assert appointments[3]['student']['sid'] == student_sid
         assert appointments[3]['topics'] == ['Topic for appointments, 1']
@@ -117,7 +117,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['createdBy'] == 7
         assert appointments[4]['deptCode'] == 'QCADV'
         assert appointments[4]['details'] == 'You be you.'
-        assert 'isLegacy' not in appointments[4]
+        assert 'legacySource' not in appointments[4]
         assert appointments[4]['student']
         assert appointments[4]['student']['sid'] == student_sid
         assert appointments[4]['topics'] == ['Topic for appointments, 1']

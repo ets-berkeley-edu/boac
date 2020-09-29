@@ -28,8 +28,11 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 advisor-profile-not-found">
+      <div v-if="!isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 text-black-50 advisor-profile-not-found">
         Advisor profile not found
+        <span v-if="note.legacySource" class="font-italic">
+          (note imported from {{ note.legacySource }})
+        </span>
       </div>
       <div v-if="note.author" class="mt-2">
         <div v-if="note.author.name || note.author.email">
@@ -48,6 +51,9 @@
           </span>
           <span v-if="note.author.role || note.author.title">
             - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role || note.author.title }}</span>
+          </span>
+          <span v-if="note.legacySource" class="font-italic text-black-50">
+            (note imported from {{ note.legacySource }})
           </span>
         </div>
         <div v-if="size(note.author.departments)" class="text-secondary">
@@ -155,11 +161,23 @@ export default {
   components: { AreYouSureModal },
   mixins: [Attachments, Context, Util],
   props: {
-    afterSaved: Function,
-    deleteNote: Function,
-    editNote: Function,
+    afterSaved: {
+      required: true,
+      type: Function
+    },
+    deleteNote: {
+      required: true,
+      type: Function
+    },
+    editNote: {
+      required: true,
+      type: Function
+    },
     isOpen: Boolean,
-    note: Object
+    note: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     allUsers: undefined,
@@ -173,7 +191,7 @@ export default {
   }),
   computed: {
     isEditable() {
-      return !this.note.isLegacy
+      return !this.note.legacySource
     }
   },
   watch: {
@@ -289,7 +307,6 @@ export default {
   flex-basis: 100%;
 }
 .advisor-profile-not-found {
-  color: #999;
   font-size: 14px;
 }
 </style>
