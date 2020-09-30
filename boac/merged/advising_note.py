@@ -103,7 +103,7 @@ def get_sis_advising_notes(sid):
             topics=legacy_topics.get(note_id),
             attachments=legacy_attachments.get(note_id),
         )
-        notes_by_id[note_id]['isLegacy'] = True
+        notes_by_id[note_id]['legacySource'] = 'SIS'
     return notes_by_id
 
 
@@ -117,7 +117,7 @@ def get_asc_advising_notes(sid):
             note=legacy_note,
             topics=legacy_topics.get(note_id),
         )
-        notes_by_id[note_id]['isLegacy'] = True
+        notes_by_id[note_id]['legacySource'] = 'ASC'
     return notes_by_id
 
 
@@ -130,7 +130,7 @@ def get_data_science_advising_notes(sid):
             note=legacy_note,
             topics=list(filter(None, [t.strip() for t in legacy_note.get('reason_for_appointment', '').split(',')])),
         )
-        notes_by_id[note_id]['isLegacy'] = True
+        notes_by_id[note_id]['legacySource'] = 'Data Science'
     return notes_by_id
 
 
@@ -144,7 +144,7 @@ def get_e_i_advising_notes(sid):
             note=legacy_note,
             topics=legacy_topics.get(note_id),
         )
-        notes_by_id[note_id]['isLegacy'] = True
+        notes_by_id[note_id]['legacySource'] = 'CE3'
     return notes_by_id
 
 

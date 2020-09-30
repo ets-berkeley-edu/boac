@@ -593,7 +593,7 @@ export default {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`
     },
     isEditable(message) {
-      return message.type === 'note' && !message.isLegacy
+      return message.type === 'note' && !message.legacySource
     },
     markRead(message) {
       if (!message.read) {
