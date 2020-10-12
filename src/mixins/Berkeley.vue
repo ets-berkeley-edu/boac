@@ -9,6 +9,9 @@ const isUserAny = roles => !!myDeptCodes(roles).length
 export default {
   name: 'Berkeley',
   methods: {
+    getAdvisorSortOrder(advisor) {
+      return advisor.title && advisor.title.toLowerCase().includes('director') ? 1 : 0
+    },
     getBoaUserRoles(user, department) {
       const roles = []
       const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code])

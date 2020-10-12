@@ -8,7 +8,7 @@
           </h3>
           <div v-if="size(student.advisors)" id="student-profile-advisors">
             <div
-              v-for="(advisor, index) in student.advisors"
+              v-for="(advisor, index) in advisorsSorted"
               :id="`student-profile-advisor-${index}`"
               :key="index"
               class="mb-2">
@@ -131,6 +131,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
 
@@ -139,7 +140,7 @@ export default {
   components: {
     StudentProfilePlan
   },
-  mixins: [Util],
+  mixins: [Berkeley, Util],
   props: {
     inactiveMajors: {
       required: true,
@@ -159,6 +160,9 @@ export default {
     }
   },
   computed: {
+    advisorsSorted() {
+      return this.orderBy(this.student.advisors, this.getAdvisorSortOrder)
+    },
     visaDescription() {
       if (this.get(this.student, 'demographics.visa.status') !== 'G') {
         return null
