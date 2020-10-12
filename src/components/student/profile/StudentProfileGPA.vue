@@ -18,6 +18,8 @@
             <b-btn
               v-if="!isEmpty(student.termGpa)"
               id="show-hide-term-gpa-button"
+              aria-controls="term-gpa-collapse"
+              :aria-expanded="showTermGpa"
               class="gpa-trends-more-button col-auto"
               variant="link"
               @click="showHideTermGpa">

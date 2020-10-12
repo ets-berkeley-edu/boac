@@ -128,7 +128,7 @@ export default {
       required: true
     },
     includeDetailsOption: {
-      default: true,
+      default: true,  // eslint-disable-line vue/no-boolean-default
       type: Boolean,
       required: false
     },

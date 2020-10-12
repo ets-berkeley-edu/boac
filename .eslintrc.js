@@ -6,7 +6,7 @@ module.exports = {
   },
   extends: [
     '@vue/typescript',
-    'plugin:vue/recommended',
+    'plugin:vue/strongly-recommended',
     'eslint:recommended',
     'plugin:vue-a11y/recommended'
   ],
@@ -57,21 +57,23 @@ module.exports = {
         allowFirstLine: false
       }
     }],
-    'vue/no-boolean-default': 1,
+    'vue/no-boolean-default': 2,
     'vue/no-restricted-syntax': 2,
     'vue/no-use-v-if-with-v-for': 2,
     'vue/no-v-html': 0,
     'vue/object-curly-spacing': 2,
-    'vue/require-default-prop': 1,
+    'vue/require-default-prop': 0,
     'vue/require-direct-export': 2,
     'vue/require-prop-types': 2,
     'vue/script-indent': 2,
     'vue/singleline-html-element-content-newline': 0,
     'vue/space-infix-ops': 2,
     'vue/space-unary-ops': 2,
+    'vue/valid-v-slot': 0,
     'vue/v-bind-style': 2,
     'vue/v-on-function-call': 2,
-    'vue/v-on-style': 2
+    'vue/v-on-style': 2,
+    'vue/v-slot-style': 0
   },
   parserOptions: {
     parser: require.resolve('@typescript-eslint/parser')

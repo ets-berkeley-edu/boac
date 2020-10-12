@@ -168,10 +168,12 @@ export default {
           const advisor_uid = this.appointment.advisor.uid
           if (advisor_uid) {
             if (advisor_uid === this.$currentUser.uid) {
-              this.appointment.advisor = this.$currentUser
+              // TODO: do not mutate prop
+              this.appointment.advisor = this.$currentUser  // eslint-disable-line vue/no-mutating-props
             } else {
               getCalnetProfileByUid(advisor_uid).then(data => {
-                this.appointment.advisor = data
+                // TODO: do not mutate prop
+                this.appointment.advisor = data  // eslint-disable-line vue/no-mutating-props
               })
             }
           }

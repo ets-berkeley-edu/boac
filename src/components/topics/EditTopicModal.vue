@@ -16,6 +16,8 @@
       <div class="modal-body pl-4 pr-5">
         <div v-if="!topic.id" class="topic-label-input-container">
           <label for="topic-label" class="font-size-18 font-weight-bolder mb-1">Label</label>
+          <!-- TODO: Fix vue/no-mutating-props offenders below. -->
+          <!-- eslint-disable vue/no-mutating-props -->
           <b-form-input
             id="topic-label"
             v-model="topic.topic"
@@ -51,6 +53,7 @@
           Appointment Reason
         </b-form-checkbox>
       </div>
+      <!-- eslint-enable vue/no-mutating-props -->
       <div class="modal-footer">
         <form @submit.prevent="save">
           <b-btn
@@ -133,7 +136,8 @@ export default {
     },
     save() {
       this.isSaving = true
-      this.topic.topic = this.$_.trim(this.topic.topic)
+      // TODO: do not mutate prop
+      this.topic.topic = this.$_.trim(this.topic.topic)  // eslint-disable-line vue/no-mutating-props
       if (this.topic.id) {
         updateTopic(
           this.topic.id,

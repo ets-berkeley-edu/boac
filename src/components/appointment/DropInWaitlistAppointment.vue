@@ -133,12 +133,10 @@ export default {
       required: true
     },
     isHomepage: {
-      type: Boolean,
-      default: false
+      type: Boolean
     },
     isLast: {
-      type: Boolean,
-      default: false
+      type: Boolean
     },
     onAppointmentStatusChange: {
       type: Function,

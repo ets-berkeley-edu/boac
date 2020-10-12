@@ -53,8 +53,7 @@ export default {
     bulkAddSids: Function,
     curatedGroupId: Number,
     isSaving: {
-      type: Boolean,
-      default: false
+      type: Boolean
     }
   },
   data: () => ({

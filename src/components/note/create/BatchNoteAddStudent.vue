@@ -57,7 +57,6 @@ export default {
       type: Function
     },
     disabled: {
-      default: false,
       required: false,
       type: Boolean
     },

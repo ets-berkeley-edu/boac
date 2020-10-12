@@ -243,15 +243,18 @@ export default {
           const author_uid = this.note.author.uid
           if (author_uid) {
             if (author_uid === this.$currentUser.uid) {
-              this.note.author = this.$currentUser
+              // TODO: do not mutate prop
+              this.note.author = this.$currentUser  // eslint-disable-line vue/no-mutating-props
             } else {
               getCalnetProfileByUid(author_uid).then(data => {
-                this.note.author = data
+                // TODO: do not mutate prop
+                this.note.author = data  // eslint-disable-line vue/no-mutating-props
               })
             }
           } else if (this.note.author.sid) {
             getCalnetProfileByCsid(this.note.author.sid).then(data => {
-              this.note.author = data
+              // TODO: do not mutate prop
+              this.note.author = data  // eslint-disable-line vue/no-mutating-props
             })
           }
         }

@@ -1,6 +1,5 @@
 import 'bootstrap-vue/dist/bootstrap-vue.min.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
-import 'v-calendar/lib/v-calendar.min.css'
 import _ from 'lodash'
 import App from './App.vue'
 import axios from 'axios'
@@ -13,7 +12,7 @@ import lodash from 'lodash'
 import moment from 'moment-timezone'
 import router from './router'
 import store from './store'
-import VDatePicker from 'v-calendar'
+import VCalendar from 'v-calendar'
 import Vue from 'vue'
 import VueHighcharts from 'vue-highcharts'
 import VueLodash from 'vue-lodash'
@@ -26,7 +25,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(far, fas, faSpinner)
-Vue.component('font-awesome', FontAwesomeIcon)
+Vue.component('font-awesome', FontAwesomeIcon)  // eslint-disable-line vue/component-definition-name-casing
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true
@@ -34,7 +33,7 @@ axios.defaults.withCredentials = true
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(CKEditor)
-Vue.use(VDatePicker)
+Vue.use(VCalendar)
 Vue.use(VueLodash, { lodash })
 Vue.use(VueMoment, { moment })
 

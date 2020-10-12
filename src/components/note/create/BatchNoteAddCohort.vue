@@ -54,7 +54,6 @@ export default {
       type: Function
     },
     disabled: {
-      default: false,
       required: false,
       type: Boolean
     },
@@ -83,7 +82,8 @@ export default {
   },
   created() {
     this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
-    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.myCohorts
+    // TODO: do not mutate prop
+    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.myCohorts  // eslint-disable-line vue/no-mutating-props
     this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {
