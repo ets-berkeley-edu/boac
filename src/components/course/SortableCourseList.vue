@@ -95,14 +95,16 @@ export default {
   }),
   created() {
     this.sort.by = 'section'
-    this.sortedCourses = this.courses.sort(this.courseComparator)
+    // TODO: do not mutate prop
+    this.sortedCourses = this.courses.sort(this.courseComparator)  // eslint-disable-line vue/no-mutating-props
   },
   methods: {
     courseSort(sortBy) {
       if (this.sort.by !== sortBy) {
         this.sort.by = sortBy
         this.sort.reverse[sortBy] = false
-        this.sortedCourses = this.courses.sort(this.courseComparator)
+        // TODO: do not mutate prop
+        this.sortedCourses = this.courses.sort(this.courseComparator)  // eslint-disable-line vue/no-mutating-props
       } else {
         this.sort.reverse[sortBy] = !this.sort.reverse[sortBy]
         this.sortedCourses = this.sortedCourses.reverse()

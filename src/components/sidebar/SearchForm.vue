@@ -48,7 +48,8 @@
           </div>
           <b-btn
             id="search-options-panel-toggle"
-            v-b-toggle="'search-options-panel'"
+            aria-controls="search-options-panel"
+            :aria-expanded="showSearchOptions"
             class="pr-0 pt-0 search-options-panel-toggle"
             variant="link"
             @click="toggleSearchOptions">
@@ -123,6 +124,8 @@
           </label>
           <b-btn
             id="search-options-note-filters-toggle"
+            aria-controls="search-options-note-filters-subpanel"
+            :aria-expanded="showNoteFilters"
             :class="includeNotes ? 'visible' : 'invisible'"
             class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
             variant="link"
