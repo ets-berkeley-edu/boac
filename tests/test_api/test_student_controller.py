@@ -459,6 +459,7 @@ class TestStudent:
                 'lastName': 'Advisor',
                 'email': 'ARealLiveAdvisor@b.e',
                 'role': 'College Advisor',
+                'title': 'Director of Advising',
                 'program': 'Undergrad Business',
                 'plan': 'Business Administration BS',
             }
@@ -469,6 +470,7 @@ class TestStudent:
                 'lastName': None,
                 'email': 'UGMajorAdvising@haas.berkeley.edu',
                 'role': 'Major Advisor',
+                'title': None,
                 'program': 'Undergrad Business',
                 'plan': 'Business Administration BS',
             }
