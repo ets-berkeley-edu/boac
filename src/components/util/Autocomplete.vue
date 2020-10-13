@@ -11,7 +11,6 @@
         :placeholder="placeholder"
         :maxlength="maxlength"
         name="autocomplete-name"
-        :required="isRequired"
         :type="demoModeBlur && $currentUser.inDemoMode ? 'password' : 'text'"
         autocomplete="off"
         @input="onTextInput"
@@ -79,11 +78,12 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Autocomplete',
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     demoModeBlur: {
       required: false,
@@ -101,10 +101,6 @@ export default {
     id: {
       required: true,
       type: String
-    },
-    isRequired: {
-      required: false,
-      type: Boolean
     },
     inputClass: {
       default: '',
@@ -194,6 +190,9 @@ export default {
       })
     },
     closeSuggestions() {
+      if (this.isOpen) {
+        this.alertScreenReader('Closing auto-suggest dropdown')
+      }
       this.isOpen = false
       this.$nextTick(() => {
         if (!this.value) {

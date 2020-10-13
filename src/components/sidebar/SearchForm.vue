@@ -22,11 +22,10 @@
             :disabled="allOptionsUnchecked"
             :source="searchSuggestions"
             :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
-            :is-required="searchInputRequired"
             :on-esc-form-input="hideError"
             :suggest-when="() => true"
             suggestion-label-class="suggestion-label"
-            aria-label="Hit enter to execute search"
+            :aria-label="$_.trim(searchPhrase) ? 'Hit enter to execute search' : (searchInputRequired ? 'Search input required' : 'Search input')"
             type="text"
             maxlength="255" />
           <b-popover
@@ -71,6 +70,9 @@
         id="search-options-panel"
         v-model="showSearchOptions"
         class="mt-2 text-white">
+        <div id="search-options-header" class="sr-only" tabindex="0">
+          Search options
+        </div>
         <div v-if="domain.includes('admits')" class="d-flex">
           <b-form-checkbox
             id="search-include-admits-checkbox"
@@ -260,7 +262,9 @@
               </v-date-picker>
               <b-form-invalid-feedback :state="validDateRange" class="search-panel-feedback">
                 <font-awesome icon="exclamation-triangle" class="text-warning pr-1" />
-                "To" must be later than or equal to "From."
+                <span aria-live="polite" role="alert">
+                  "To" must be later than or equal to "From."
+                </span>
               </b-form-invalid-feedback>
             </b-form-group>
           </div>
@@ -495,8 +499,8 @@ export default {
           })
         }
       } else {
-        this.alertScreenReader('Search input is required')
         this.showErrorPopover = true
+        this.alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
@@ -520,7 +524,7 @@ export default {
       this.showSearchOptions = !this.showSearchOptions
       if (this.showSearchOptions) {
         this.alertScreenReader('Search options opened')
-        this.putFocusNextTick('search-include-students-checkbox')
+        this.putFocusNextTick('search-options-header')
       } else {
         this.resetNoteFilters()
         this.alertScreenReader('Search options closed')
