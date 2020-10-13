@@ -9,25 +9,21 @@
       size="sm"
       no-caret>
       <template slot="button-content">
-        <span
-          :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
-          class="p-3">
-          <span v-if="!isAdding && !isRemoving">
-            <span class="pr-1">Add to Group</span>
-            <font-awesome
-              v-if="disableSelector || groupsLoading"
-              icon="spinner"
-              spin
-              class="caret-down-width" />
-            <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" class="caret-down-width" />
-          </span>
+        <div :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')">
+          <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
+            <div class="pl-3">Add to Group</div>
+            <div class="pr-2">
+              <font-awesome v-if="disableSelector || groupsLoading" icon="spinner" spin />
+              <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" />
+            </div>
+          </div>
           <span v-if="isRemoving">
             <font-awesome icon="times" /> Removed
           </span>
           <span v-if="isAdding">
             <font-awesome icon="check" /> Added
           </span>
-        </span>
+        </div>
       </template>
       <b-dropdown-item v-if="!size(myCuratedGroups)">
         <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
@@ -38,32 +34,25 @@
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
-          @keyup.space.prevent.stop="groupCheckboxClick(group)">
-          <input
+          @click="groupCheckboxClick(group)"
+          @keyup.enter="groupCheckboxClick(group)">
+          <b-form-checkbox
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"
             :value="group.id"
-            :aria-label="`${checkedGroups.includes(group.id) ? 'Checked' : 'Not checked'}`"
-            type="checkbox"
-            @click="groupCheckboxClick(group)"
-            @keyup.enter="groupCheckboxClick(group)" />
-          <label
-            :id="`curated-group-${group.id}-name`"
-            :for="`curated-group-${group.id}-checkbox`"
-            :aria-label="`${checkedGroups.includes(group.id) ? 'Remove student from' : 'Add student to'} group '${group.name}'`"
-            class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
+            :aria-labelledby="`curated-group-${group.id}-name`">
+            {{ group.name }}<span class="sr-only">{{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
+          </b-form-checkbox>
         </b-dropdown-item>
       </div>
       <hr class="dropdown-divider">
-      <b-dropdown-item>
-        <b-btn
-          id="create-curated-group"
-          v-b-modal="'modal'"
-          class="create-new-button mb-0 pl-0 text-dark"
-          variant="link"
-          aria-label="Create a new curated group">
-          <font-awesome icon="plus" /> Create New Curated Group
-        </b-btn>
+      <b-dropdown-item
+        id="create-curated-group"
+        v-b-modal.modal
+        class="create-new-button mb-0 pl-0 text-dark"
+        aria-label="Create a new curated group"
+      >
+        <font-awesome icon="plus" /> Create New Curated Group
       </b-dropdown-item>
     </b-dropdown>
     <b-modal
@@ -185,9 +174,6 @@ export default {
 </script>
 
 <style scoped>
-.caret-down-width {
-  width: 15px;
-}
 .create-new-button {
   font-size: 16px;
 }
