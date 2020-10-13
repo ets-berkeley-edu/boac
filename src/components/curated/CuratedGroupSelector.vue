@@ -5,7 +5,7 @@
       v-model="isSelectAllChecked"
       :disabled="isSaving"
       :indeterminate="indeterminate"
-      class="add-all-checkbox mr-1"
+      class="add-all-checkbox mr-1 pt-1"
       plain
       aria-controls="curated-group-dropdown-select"
       @change="toggle">
@@ -22,18 +22,18 @@
         size="sm"
         no-caret>
         <template slot="button-content">
-          <span
-            :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'"
-            class="p-3">
-            <span v-if="!isSaving">
-              <span class="pr-2">Add to Curated Group</span>
-              <font-awesome v-if="disableSelector" icon="spinner" spin />
-              <font-awesome v-if="!disableSelector" icon="caret-down" />
-            </span>
-            <span v-if="isSaving">
+          <div :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'" class="px-1">
+            <div v-if="!isSaving" class="d-flex justify-content-between">
+              <div class="pr-2">Add to Curated Group</div>
+              <div>
+                <font-awesome v-if="disableSelector" icon="spinner" spin />
+                <font-awesome v-if="!disableSelector" icon="caret-down" />
+              </div>
+            </div>
+            <div v-if="isSaving">
               <font-awesome icon="check" /> Added to Curated Group
-            </span>
-          </span>
+            </div>
+          </div>
         </template>
         <b-dropdown-item v-if="!size(myCuratedGroups)">
           <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
@@ -41,27 +41,26 @@
         <b-dropdown-item
           v-for="group in myCuratedGroups"
           :key="group.id"
-          class="b-dd-item-override">
-          <input
+          class="b-dd-item-override"
+          @click="curatedGroupCheckboxClick(group)"
+        >
+          <b-form-checkbox
             :id="`curated-group-${group.id}-checkbox`"
-            :aria-label="`Add students to curated group '${group.name}'`"
-            type="checkbox"
-            @click.prevent="curatedGroupCheckboxClick(group)"
-            @keyup.enter="curatedGroupCheckboxClick(group)" />
-          <label
-            :for="`curated-group-${group.id}-checkbox`"
-            class="curated-checkbox-label pb-0 pt-0">{{ group.name }}</label>
+            :aria-labelledby="`curated-group-${group.id}-checkbox`"
+            @click="curatedGroupCheckboxClick(group)"
+            @keyup.enter="curatedGroupCheckboxClick(group)">
+            <span class="sr-only">Add students to curated group </span>{{ group.name }}
+          </b-form-checkbox>
         </b-dropdown-item>
         <hr class="dropdown-divider">
-        <b-dropdown-item>
-          <b-btn
-            id="create-curated-group"
-            v-b-modal="'create-curated-group-modal'"
-            class="text-dark"
-            variant="link"
-            aria-label="Create a new curated group">
-            <font-awesome icon="plus" /> Create New Curated Group
-          </b-btn>
+        <b-dropdown-item
+          id="create-curated-group"
+          v-b-modal.create-curated-group-modal
+          class="pl-0 text-dark"
+          variant="link"
+          aria-label="Create a new curated group"
+        >
+          <font-awesome icon="plus" /> Create New Curated Group
         </b-dropdown-item>
       </b-dropdown>
       <b-modal
@@ -164,7 +163,7 @@ export default {
     },
     curatedGroupCheckboxClick(group) {
       const afterAddStudents = () => {
-        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to "${group.name}".`)
+        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
         this.sids = []
         this.isSelectAllChecked = this.indeterminate = false
         this.$eventHub.$emit('curated-group-deselect-all')

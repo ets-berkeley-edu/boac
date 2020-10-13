@@ -376,7 +376,9 @@ export default {
       this.includeStudents = value.includes('students')
     },
     includeAdmits(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`)
+      if (this.showSearchOptions) {
+        this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`)
+      }
     },
     includeCourses(value) {
       this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`)
@@ -390,7 +392,9 @@ export default {
       }
     },
     includeStudents(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`)
+      if (this.showSearchOptions) {
+        this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`)
+      }
     },
     searchPhrase() {
       this.search()
