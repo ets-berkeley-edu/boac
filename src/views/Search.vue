@@ -18,12 +18,15 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
+    <div v-if="!loading && (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
+      <h1 id="page-header" class="sr-only sr-only-focusable">Search Results</h1>
+    </div>
     <div
       v-if="!loading && size(results.admits)"
       tabindex="0">
-      <h1 id="admit-results-page-header" class="page-section-header">
+      <h2 id="admit-results-page-header" class="page-section-header">
         {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
-      </h1>
+      </h2>
       <div v-if="size(results.admits) < results.totalAdmitCount">
         Showing the first {{ size(results.admits) }} admitted students.
       </div>
@@ -35,9 +38,9 @@
     <div
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
-      <h1 id="student-results-page-header" class="page-section-header">
+      <h2 id="student-results-page-header" class="page-section-header">
         {{ pluralize('student', results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
-      </h1>
+      </h2>
       <div v-if="results.totalStudentCount > studentLimit">
         Showing the first {{ studentLimit }} students.
       </div>
@@ -61,13 +64,13 @@
         :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
     </div>
     <div v-if="!loading && size(results.notes)" class="pt-4">
-      <h2
+      <h3
         id="search-results-category-header-notes"
         class="page-section-header">
         {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
-      </h2>
+      </h3>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
         :key="advisingNote.id"
@@ -84,13 +87,13 @@
       </div>
     </div>
     <div v-if="!loading && size(results.appointments)" class="pt-4">
-      <h2
+      <h3
         id="search-results-category-header-appointments"
         class="page-section-header">
         {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
-      </h2>
+      </h3>
       <AppointmentSnippet
         v-for="appointment in results.appointments"
         :key="appointment.id"
@@ -224,7 +227,7 @@ export default {
         })
       })
         .then(() => {
-          this.loaded('Search results', )
+          this.loaded('Search results')
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0)
