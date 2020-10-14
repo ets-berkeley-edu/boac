@@ -7,7 +7,7 @@
         aria-live="polite"
         class="sr-only">Loading...</span>
     </div>
-    <div v-if="!loading">
+    <div v-if="!loading && !noAnnounce">
       <span
         role="alert"
         aria-live="polite"
@@ -22,6 +22,9 @@
 export default {
   name: 'SectionSpinner',
   props: {
+    noAnnounce: {
+      type: Boolean
+    },
     name: {
       type: String,
       default: 'Page content'
