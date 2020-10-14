@@ -2,7 +2,7 @@
   <div class="m-3">
     <Spinner :is-plural="true" alert-prefix="Search results" />
     <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
-      <h1 id="page-header" class="sr-only sr-only-focusable">Search Results</h1>
+      <h1 id="page-header" class="sr-only" tabindex="0">Search Results</h1>
     </div>
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !size(results.notes) && !size(results.appointments)">
       <h1
@@ -10,7 +10,7 @@
         class="page-section-header"
         aria-live="polite"
         role="alert"
-      >
+        tabindex="0">
         No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
       <div>Suggestions:</div>
@@ -76,7 +76,7 @@
         :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
     </div>
     <div v-if="!loading && size(results.notes)" class="pt-4">
-      <h3
+      <h2
         id="search-results-category-header-notes"
         class="page-section-header"
         aria-live="polite"
@@ -85,7 +85,7 @@
         {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
-      </h3>
+      </h2>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
         :key="advisingNote.id"
@@ -102,7 +102,7 @@
       </div>
     </div>
     <div v-if="!loading && size(results.appointments)" class="pt-4">
-      <h3
+      <h2
         id="search-results-category-header-appointments"
         class="page-section-header"
         aria-live="polite"
@@ -111,7 +111,7 @@
         {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
-      </h3>
+      </h2>
       <AppointmentSnippet
         v-for="appointment in results.appointments"
         :key="appointment.id"
