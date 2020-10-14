@@ -568,7 +568,7 @@ export default {
     },
     describeTheActiveTab() {
       const inViewCount =
-        this.isShowAll || this.countPerActiveTab <= this.defaultShowPerTab
+        this.isShowingAll || this.countPerActiveTab <= this.defaultShowPerTab
           ? this.countPerActiveTab
           : this.defaultShowPerTab
       let noun = this.filter
