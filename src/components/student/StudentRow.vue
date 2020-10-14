@@ -213,7 +213,11 @@
             <span
               v-if="enrollment.waitlisted"
               :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
+              aria-hidden="true"
               class="pl-1 red-flag-status">(W)</span>
+            <span v-if="enrollment.waitlisted" class="sr-only">
+              Waitlisted
+            </span>
           </td>
           <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
             <div
