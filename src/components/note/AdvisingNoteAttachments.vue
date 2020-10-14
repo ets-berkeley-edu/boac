@@ -16,6 +16,7 @@
           size="sm"
           @keydown.enter.prevent="clickBrowseForAttachment">
           Select File
+          <span class="sr-only">to upload as attachment</span>
         </b-btn>
         <b-form-file
           ref="attachment-file-input"
