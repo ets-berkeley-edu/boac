@@ -6,16 +6,10 @@ phases:
       nodejs: 12
       python: 3.8
     commands:
-      - npm -v
-      - npm install
-
-  pre_build:
-    commands:
-      - echo "pre_build phase"
+      - npm install --unsafe-perm
 
   build:
     commands:
-      - node -v
       - npm run build-vue
 
   post_build:
