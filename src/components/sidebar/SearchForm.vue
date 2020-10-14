@@ -52,7 +52,9 @@
             class="pr-0 pt-0 search-options-panel-toggle"
             variant="link"
             @click="toggleSearchOptions">
-            {{ showSearchOptions ? 'Hide' : 'Show' }} options
+            {{ showSearchOptions ? 'Hide' : 'Show' }}
+            <span class="sr-only">search</span>
+            options
           </b-btn>
         </div>
       </div>
@@ -132,7 +134,9 @@
             class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
             variant="link"
             @click="toggleNoteFilters">
-            ({{ showNoteFilters ? 'hide' : 'show' }} filters)
+            ({{ showNoteFilters ? 'hide' : 'show' }}
+            <span class="sr-only">search</span>
+            filters)
           </b-btn>
         </div>
         <b-collapse
