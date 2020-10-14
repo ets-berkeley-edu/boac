@@ -1,11 +1,16 @@
 <template>
   <div class="m-3">
     <Spinner :is-plural="true" alert-prefix="Search results" />
+    <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
+      <h1 id="page-header" class="sr-only sr-only-focusable">Search Results</h1>
+    </div>
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !size(results.notes) && !size(results.appointments)">
       <h1
         id="page-header-no-results"
         class="page-section-header"
-        aria-live="polite">
+        aria-live="polite"
+        role="alert"
+      >
         No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
       <div>Suggestions:</div>
@@ -18,13 +23,15 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div v-if="!loading && (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
-      <h1 id="page-header" class="sr-only sr-only-focusable">Search Results</h1>
-    </div>
     <div
       v-if="!loading && size(results.admits)"
       tabindex="0">
-      <h2 id="admit-results-page-header" class="page-section-header">
+      <h2
+        id="admit-results-page-header"
+        class="page-section-header"
+        aria-live="polite"
+        role="alert"
+      >
         {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h2>
       <div v-if="size(results.admits) < results.totalAdmitCount">
@@ -38,7 +45,12 @@
     <div
       v-if="!loading && results.totalStudentCount"
       tabindex="0">
-      <h2 id="student-results-page-header" class="page-section-header">
+      <h2
+        id="student-results-page-header"
+        class="page-section-header"
+        aria-live="polite"
+        role="alert"
+      >
         {{ pluralize('student', results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h2>
       <div v-if="results.totalStudentCount > studentLimit">
@@ -66,7 +78,10 @@
     <div v-if="!loading && size(results.notes)" class="pt-4">
       <h3
         id="search-results-category-header-notes"
-        class="page-section-header">
+        class="page-section-header"
+        aria-live="polite"
+        role="alert"
+      >
         {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
@@ -89,7 +104,10 @@
     <div v-if="!loading && size(results.appointments)" class="pt-4">
       <h3
         id="search-results-category-header-appointments"
-        class="page-section-header">
+        class="page-section-header"
+        aria-live="polite"
+        role="alert"
+      >
         {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
@@ -186,6 +204,7 @@ export default {
     }
   },
   mounted() {
+    this.putFocusNextTick('page-header')
     this.phrase = this.$route.query.q
     const includeAdmits = this.toBoolean(this.$route.query.admits)
     const includeCourses = this.toBoolean(this.$route.query.courses)
