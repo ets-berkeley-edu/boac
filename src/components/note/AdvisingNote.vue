@@ -83,7 +83,7 @@
       :show-modal="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
       modal-header="Delete Attachment" />
-    <div>
+    <div v-if="isOpen">
       <ul class="pill-list pl-0 mt-3">
         <li
           v-for="(attachment, index) in existingAttachments"
