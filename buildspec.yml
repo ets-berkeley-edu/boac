@@ -16,7 +16,6 @@ phases:
   build:
     commands:
       - node -v
-      - nvm use
       - npm run build-vue
 
   post_build:
