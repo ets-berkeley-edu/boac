@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div role="dialog">
     <FocusLock
       :disabled="isFocusLockDisabled"
       class="create-note-container">
