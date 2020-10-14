@@ -194,9 +194,18 @@
       <table class="cohort-course-activity-table">
         <tr>
           <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
-          <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">BCOURSES ACTIVITY</th>
-          <th class="cohort-course-activity-header">MID</th>
-          <th class="cohort-course-activity-header">FINAL</th>
+          <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">
+            <span aria-hidden="true">BCOURSES ACTIVITY</span>
+            <span class="sr-only">Most recent B Courses activity</span>
+          </th>
+          <th class="cohort-course-activity-header">
+            <span aria-hidden="true">MID</span>
+            <span class="sr-only">Midpoint grade</span>
+          </th>
+          <th class="cohort-course-activity-header">
+            <span aria-hidden="true">FINAL</span>
+            <span class="sr-only">Final grade</span>
+          </th>
         </tr>
         <tr v-for="(enrollment, index) in termEnrollments" :key="index">
           <td class="cohort-course-activity-data cohort-course-activity-course-name">
