@@ -11,6 +11,7 @@
           id="choose-file-for-note-attachment"
           :disabled="disabled"
           type="file"
+          aria-hidden="true"
           variant="outline-primary"
           class="btn-file-upload mt-2 mb-2"
           size="sm"
@@ -20,6 +21,7 @@
         <b-form-file
           ref="attachment-file-input"
           v-model="attachments"
+          aria-label="Select file for attachment"
           :disabled="disabled || size(existingAttachments) === $config.maxAttachmentsPerNote"
           :state="Boolean(attachments && attachments.length)"
           :multiple="true"
