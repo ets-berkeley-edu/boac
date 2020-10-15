@@ -103,6 +103,7 @@
                         'font-weight-normal text-dark': !option.disabled
                       }"
                       class="font-size-16 option-truncate">
+                      <span class="sr-only">{{ name }}</span>
                       {{ option.name }}
                     </div>
                   </b-dropdown-item>
