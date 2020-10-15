@@ -2,7 +2,7 @@
   <div>
     <div>
       <label
-        for="create-note-add-student"
+        for="create-note-add-student-input"
         class="font-size-14 input-label text mt-2">
         <span class="sr-only">Add a </span><span class="font-weight-bolder">Student</span> (name or SID)
         <span class="sr-only">(expect auto-suggest based on what you enter)</span>
