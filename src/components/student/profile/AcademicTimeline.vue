@@ -85,6 +85,7 @@
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
         class="pl-2 pr-2 timeline-query-input"
+        aria-owns="timeline-messages"
         @keypress.enter.stop="searchTimeline" />
     </div>
 
@@ -93,22 +94,30 @@
     </div>
 
     <div v-if="!searchResultsLoading && !countPerActiveTab" class="pb-4 pl-2">
-      <span id="zero-messages" class="messages-none">
+      <h3
+        id="zero-messages"
+        class="messages-none"
+        aria-live="polite"
+        tabindex="0">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
-      </span>
+      </h3>
     </div>
 
     <div v-if="!searchResultsLoading && searchResults" class="mb-2">
-      <strong>
+      <h3
+        id="search-results-header"
+        class="messages-none"
+        aria-live="polite"
+        tabindex="0">
         {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
-        &nbsp;with '{{ timelineQuery }}'
-      </strong>
+        &nbsp;with '{{ lastTimelineQuery }}'
+      </h3>
     </div>
 
     <div v-if="!searchResultsLoading && countPerActiveTab">
-      <table class="w-100">
+      <table id="timeline-messages" class="w-100">
         <tr class="sr-only">
           <th>Type</th>
           <th>Summary</th>
@@ -382,6 +391,7 @@ export default {
     isCreateNoteModalOpen: false,
     isShowingAll: false,
     isTimelineLoading: true,
+    lastTimelineQuery: undefined,
     messageForDelete: undefined,
     messages: undefined,
     openMessages: [],
@@ -448,6 +458,14 @@ export default {
     },
     isShowingAll() {
       this.alertScreenReader(this.describeTheActiveTab())
+    },
+    searchResultsLoading() {
+      if (this.searchResultsLoading) {
+        this.alertScreenReader(`Searching ${this.filter}s for '${this.timelineQuery}'`)
+      } else {
+        this.alertScreenReader('Search results loaded.')
+        this.putFocusNextTick(this.searchResults ? 'search-results-header' : 'zero-messages')
+      }
     }
   },
   created() {
@@ -672,7 +690,7 @@ export default {
         ).then(data => {
           const items = this.filter === 'appointment' ? this.get(data, 'appointments') : this.get(data, 'notes')
           this.searchResults = this.map(items, 'id')
-          this.isShowingAll = true
+          this.lastTimelineQuery = this.clone(this.timelineQuery)
           this.searchResultsLoading = false
         })
       } else {
@@ -680,6 +698,7 @@ export default {
       }
     },
     setFilter(filter) {
+      this.lastTimelineQuery = null
       this.searchResults = null
       this.timelineQuery = null
       if (filter !== this.filter) {
@@ -777,8 +796,8 @@ export default {
   font-size: 15px;
 }
 .messages-none {
-  font-size: 18px;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: bolder;
 }
 .message-open {
   flex-flow: row wrap;
