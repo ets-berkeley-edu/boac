@@ -7,8 +7,9 @@
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
-        @click="removeStudent(student.sid)"
-        @keyup.enter="removeStudent(student.sid)">
+        :aria-label="`Remove ${student.firstName} ${student.lastName} from group`"
+        @click="onClickRemoveStudent(student)"
+        @keyup.enter="onClickRemoveStudent(student)">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
       <div v-if="listType === 'cohort'">
@@ -323,6 +324,12 @@ export default {
   data: () => ({
     termEnrollments: []
   }),
+  methods: {
+    onClickRemoveStudent(student) {
+      this.removeStudent(student.sid)
+      this.alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
+    }
+  },
   computed: {
     degreePlanOwners() {
       const plans = this.get(this.student, 'degree.plans')
