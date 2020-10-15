@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="pagination-widget-outer" role="navigation" aria-label="pagination">
     <span class="sr-only"><span id="total-rows">{{ totalPages }}</span>
       pages of search results</span>
     <b-pagination
