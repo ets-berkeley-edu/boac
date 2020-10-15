@@ -166,11 +166,18 @@
             :size="rangeInputSize()"
             class="filter-range-input" />
         </div>
-        <div class="sr-only" aria-live="polite">{{ errorPerRangeInput }}</div>
+        <div
+          v-if="size(errorPerRangeInput)"
+          class="sr-only"
+          aria-live="polite"
+          tabindex="0"
+        >
+          Error: {{ errorPerRangeInput }}
+        </div>
         <b-popover
           v-if="size(errorPerRangeInput)"
           :show="true"
-          :target="isExistingFilter ? `filter-range-min-${index}` : 'filter-range-min'"
+          :target="isExistingFilter ? `filter-range-max-${index}` : 'filter-range-max'"
           placement="top">
           <span class="has-error">{{ errorPerRangeInput }}</span>
         </b-popover>
