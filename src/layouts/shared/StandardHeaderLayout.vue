@@ -1,11 +1,6 @@
 <template>
   <b-row class="header" no-gutters>
     <b-col cols="auto" class="mr-auto m-3">
-      <a
-        id="skip-to-content-link"
-        href="#content"
-        class="sr-only sr-only-focusable"
-        tabindex="0">Skip to main content</a>
       <router-link
         id="home-header"
         class="header-text"
@@ -13,6 +8,11 @@
         tabindex="0">
         <span class="sr-only">Return to </span>Home
       </router-link>
+      <a
+        id="skip-to-content-link"
+        href="#content"
+        class="sr-only"
+        tabindex="0">Skip to main content</a>
     </b-col>
     <b-col cols="auto" class="p-0 mt-2">
       <HeaderMenu />
