@@ -38,12 +38,14 @@
                 v-if="appointment.student.academicCareerStatus === 'Inactive' || displayAsAscInactive(appointment.student) || displayAsCoeInactive(appointment.student)"
                 class="inactive-info-icon"
                 uib-tooltip="Inactive"
+                aria-label="Inactive"
                 tooltip-placement="bottom">
                 <font-awesome icon="info-circle" />
               </span>
               <span
                 v-if="appointment.student.academicCareerStatus === 'Completed'"
                 uib-tooltip="Graduated"
+                aria-label="Graduated"
                 tooltip-placement="bottom">
                 <font-awesome icon="graduation-cap" />
               </span>

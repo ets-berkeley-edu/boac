@@ -34,6 +34,7 @@
               v-if="academicCareerStatus === 'Completed'"
               class="ml-1"
               uib-tooltip="Graduated"
+              aria-label="Graduated"
               tooltip-placement="bottom">
               <font-awesome icon="graduation-cap" />
             </span>
