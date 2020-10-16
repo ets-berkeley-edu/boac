@@ -31,6 +31,7 @@
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"
           uib-tooltip="Inactive"
+          aria-label="Inactive"
           tooltip-placement="bottom">
           <font-awesome icon="info-circle" />
         </span>
@@ -38,6 +39,7 @@
           v-if="row.item.academicCareerStatus === 'Completed'"
           class="sortable-students-icon"
           uib-tooltip="Graduated"
+          aria-label="Graduated"
           tooltip-placement="bottom">
           <font-awesome icon="graduation-cap" />
         </span>
