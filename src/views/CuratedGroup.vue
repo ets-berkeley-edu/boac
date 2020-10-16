@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner alert-prefix="Curated group" />
+    <Spinner :alert-prefix="`Curated group ${curatedGroupName || ''}, sorted by ${preferences.sortBy} ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`" />
     <div v-if="!loading">
       <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">
@@ -91,11 +91,10 @@ export default {
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        this.loaded(group.name)
+        this.loaded()
         this.setPageTitle(this.curatedGroupName)
         this.putFocusNextTick('curated-group-name')
         if (this.pageNumber > 1) {
-          this.alertScreenReader(`Go to page ${this.pageNumber}`)
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
         }
       } else {
@@ -105,9 +104,9 @@ export default {
     this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
         this.loadingStart()
+        this.alertScreenReader(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
           this.loaded(this.curatedGroupName)
-          this.alertScreenReader(`Students sorted by ${sortBy}`)
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
         })
       }
