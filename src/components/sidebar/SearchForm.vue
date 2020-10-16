@@ -135,7 +135,7 @@
             variant="link"
             @click="toggleNoteFilters">
             ({{ showNoteFilters ? 'hide' : 'show' }}
-            <span class="sr-only">search</span>
+            <span class="sr-only">note and appointment search</span>
             filters)
           </b-btn>
         </div>
