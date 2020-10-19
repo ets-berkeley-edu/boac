@@ -5,11 +5,10 @@ phases:
     runtime-versions:
       nodejs: 12
       python: 3.8
-    commands:
-      - npm install --unsafe-perm
 
   build:
     commands:
+      - npm install
       - npm run build-vue
 
   post_build:
