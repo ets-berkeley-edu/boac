@@ -30,14 +30,12 @@
               :topics="topics" />
           </div>
           <div class="mb-4 mr-3 mt-1">
-            <label for="appointment-details" class="font-size-14 input-label text">
-              <span class="font-weight-bolder">Additional Information</span>
-            </label>
             <div id="appointment-details">
               <RichTextEditor
                 :initial-value="details || ''"
                 :disabled="isSaving"
                 :is-in-modal="true"
+                label="Additional Information"
                 :on-value-update="d => details = d" />
             </div>
           </div>

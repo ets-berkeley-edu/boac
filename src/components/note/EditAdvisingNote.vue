@@ -15,15 +15,11 @@
         @keydown.esc="cancelRequested">
     </div>
     <div>
-      <label class="font-weight-bold mt-2" for="edit-note-details">
-        Note Details
-      </label>
-    </div>
-    <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
         <RichTextEditor
           :disabled="boaSessionExpired"
           :initial-value="model.body || ''"
+          label="Note Details"
           :on-value-update="setBody" />
       </span>
     </div>

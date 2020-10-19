@@ -55,14 +55,12 @@
               :topics="topics" />
           </div>
           <div class="mb-4 mr-3 mt-1">
-            <label for="log-resolved-issue-details" class="font-size-14 input-label text">
-              <span class="font-weight-bolder">Issue &amp; Resolution</span>
-            </label>
             <div id="log-resolved-issue-details">
               <RichTextEditor
                 :initial-value="details || ''"
                 :disabled="isSaving"
                 :is-in-modal="true"
+                label="Issue &amp; Resolution"
                 :on-value-update="d => details = d" />
             </div>
           </div>
