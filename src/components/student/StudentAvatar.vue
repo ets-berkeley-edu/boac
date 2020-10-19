@@ -2,8 +2,8 @@
   <div class="position-relative">
     <img
       :class="avatarStyle"
-      :aria-label="`Photo of ${student.firstName} ${student.lastName}`"
-      :alt="`Photo of ${student.firstName} ${student.lastName}`"
+      :aria-label="ariaLabel"
+      :alt="ariaLabel"
       :src="avatarUrl"
       class="avatar"
       tabindex="0"
@@ -32,10 +32,15 @@ export default {
     alertCount: Number
   },
   data: () => ({
+    ariaLabel: undefined,
     avatarStyle: undefined,
     avatarUrl: undefined
   }),
   created() {
+    this.ariaLabel = `Photo of ${this.student.firstName} ${this.student.lastName}`
+    if (!this.$_.isNil(this.alertCount)) {
+      this.ariaLabel += this.alertCount === 1 ? ' (one alert)' : ` (${this.alertCount} alerts)`
+    }
     this.avatarUrl = this.student.photoUrl
     this.avatarStyle = `student-avatar-${this.size} ${
       this.$currentUser.inDemoMode ? 'img-blur' : ''
