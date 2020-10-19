@@ -37,9 +37,9 @@
                   class="student-course-collapse-button"
                   variant="link">
                   <font-awesome icon="caret-right" class="when-course-closed" />
-                  <span class="when-course-closed sr-only">Show course details</span>
+                  <span class="when-course-closed sr-only">Show <span class="sr-only">{{ course.displayName }}</span> course details</span>
                   <font-awesome icon="caret-down" class="when-course-open" />
-                  <span class="when-course-open sr-only">Hide course details</span>
+                  <span class="when-course-open sr-only">Hide <span class="sr-only">{{ course.displayName }}</span> course details</span>
                 </b-btn>
               </div>
               <div>
@@ -50,9 +50,9 @@
                     <span v-if="section.displayName">
                       <span v-if="sectionIndex === 0">(</span><!--
                         --><router-link
-v-if="section.isViewableOnCoursePage"
-                           :id="`term-${term.termId}-section-${section.ccn}`"
-                      :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`">{{ section.displayName }}</router-link><!--
+                      v-if="section.isViewableOnCoursePage"
+                      :id="`term-${term.termId}-section-${section.ccn}`"
+                      :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
                         --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
                         --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
                         --><span v-if="sectionIndex === course.sections.length - 1">)</span>
