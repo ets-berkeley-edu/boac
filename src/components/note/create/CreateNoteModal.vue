@@ -174,8 +174,8 @@ export default {
       this.addSid(this.sid)
     }
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
-    this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject')
     this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
+    this.putFocusNextTick(this.isBatchFeature ? 'create-note-add-student-input' : 'create-note-subject')
     this.$eventHub.$on('user-session-expired', () => {
       this.onBoaSessionExpires()
     })
@@ -217,8 +217,8 @@ export default {
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
-      this.putFocusNextTick('create-note-subject')
       this.alertScreenReader('Continue editing note.')
+      this.putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false
@@ -229,14 +229,12 @@ export default {
       const ifAuthenticated = () => {
         if (this.model.subject && this.completeSidSet.length) {
           this.setIsSaving(true)
-          if (this.model.attachments.length) {
-            // File upload might take time; alert will be overwritten when API call is done.
-            this.showAlert('Creating note...', 60)
-          }
+          // File upload might take time; alert will be overwritten when API call is done.
+          this.showAlert('Creating note...', 60)
           this.createAdvisingNotes().then(data => {
             this.setIsSaving(false)
-            this.exit()
             this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
+            this.exit()
             if (this.isBatchFeature) {
               Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
             } else {
@@ -254,10 +252,8 @@ export default {
         this.showCreateTemplateModal = false
         this.setIsSaving(true)
         this.setFocusLockDisabled(false)
-        if (this.model.attachments.length) {
-          // File upload might take time; alert will be overwritten when API call is done.
-          this.showAlert('Creating template...', 60)
-        }
+        // File upload might take time; alert will be overwritten when API call is done.
+        this.showAlert('Creating template...', 60)
         createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(template => {
           this.showAlert(`Template '${title}' created.`)
           this.setIsSaving(false)
@@ -290,8 +286,8 @@ export default {
       this.setFocusLockDisabled(false)
       this.resetModel()
       this.setMode(this.isBatchFeature ? 'batch' : 'create')
-      this.putFocusNextTick('create-note-subject')
       this.alertScreenReader('Cancelled create template.')
+      this.putFocusNextTick('create-note-subject')
     },
     dismissAlert(seconds) {
       this.dismissAlertSeconds = seconds
