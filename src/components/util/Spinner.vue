@@ -35,11 +35,13 @@ export default {
   },
   methods: {
     srAlert() {
-      const alert = this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading` : `${this.alertPrefix} loaded`
-      const isRedundant = this.$_.includes(this.alertHistory, alert)
-      if (!isRedundant) {
-        this.alertScreenReader(alert)
-        this.alertHistory.push(alert)
+      if (this.alertPrefix) {
+        const alert = this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading` : `${this.alertPrefix} loaded`
+        const isRedundant = this.$_.includes(this.alertHistory, alert)
+        if (!isRedundant) {
+          this.alertScreenReader(alert)
+          this.alertHistory.push(alert)
+        }
       }
     }
   }

@@ -94,22 +94,14 @@
     </div>
 
     <div v-if="!searchResultsLoading && !countPerActiveTab" class="pb-4 pl-2">
-      <h3
-        id="zero-messages"
-        class="messages-none"
-        aria-live="polite"
-        tabindex="0">
+      <h3 id="zero-messages" class="messages-none" tabindex="0">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </h3>
     </div>
 
     <div v-if="!searchResultsLoading && searchResults" class="mb-2">
-      <h3
-        id="search-results-header"
-        class="messages-none"
-        aria-live="polite"
-        tabindex="0">
+      <h3 id="search-results-header" class="messages-none" tabindex="0">
         {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
         &nbsp;with '{{ lastTimelineQuery }}'
