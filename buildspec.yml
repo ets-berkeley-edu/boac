@@ -5,11 +5,13 @@ phases:
     runtime-versions:
       nodejs: 12
       python: 3.8
+    commands:
+      - npm install
 
   build:
     commands:
-      - npm install
       - npm run build-vue
+      - sudo cat "/root/.npm/_logs/*-debug.log"
 
   post_build:
     commands:
