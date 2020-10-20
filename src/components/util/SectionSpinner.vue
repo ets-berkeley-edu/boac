@@ -9,6 +9,7 @@
     </div>
     <div v-if="!loading && !noAnnounce">
       <span
+        v-if="name"
         role="alert"
         aria-live="polite"
         class="sr-only">
@@ -27,7 +28,7 @@ export default {
     },
     name: {
       type: String,
-      default: 'Page content'
+      default: undefined
     },
     faSize: {
       type: Number,

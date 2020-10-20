@@ -1,16 +1,11 @@
 <template>
   <div class="m-3">
-    <Spinner :is-plural="true" alert-prefix="Search results" />
+    <Spinner />
     <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
       <h1 id="page-header" class="sr-only" tabindex="0">Search Results</h1>
     </div>
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !size(results.notes) && !size(results.appointments)">
-      <h1
-        id="page-header-no-results"
-        class="page-section-header"
-        aria-live="polite"
-        role="alert"
-        tabindex="0">
+      <h1 id="page-header-no-results" class="page-section-header" tabindex="0">
         No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
       <div>Suggestions:</div>
@@ -23,15 +18,8 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div
-      v-if="!loading && size(results.admits)"
-      tabindex="0">
-      <h2
-        id="admit-results-page-header"
-        class="page-section-header"
-        aria-live="polite"
-        role="alert"
-      >
+    <div v-if="!loading && size(results.admits)">
+      <h2 id="admit-results-page-header" class="page-section-header">
         {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h2>
       <div v-if="size(results.admits) < results.totalAdmitCount">
@@ -42,15 +30,8 @@
         <SortableAdmits :admitted-students="results.admits" />
       </div>
     </div>
-    <div
-      v-if="!loading && results.totalStudentCount"
-      tabindex="0">
-      <h2
-        id="student-results-page-header"
-        class="page-section-header"
-        aria-live="polite"
-        role="alert"
-      >
+    <div v-if="!loading && results.totalStudentCount">
+      <h2 id="student-results-page-header" class="page-section-header">
         {{ pluralize('student', results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h2>
       <div v-if="results.totalStudentCount > studentLimit">
@@ -76,12 +57,7 @@
         :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
     </div>
     <div v-if="!loading && size(results.notes)" class="pt-4">
-      <h2
-        id="search-results-category-header-notes"
-        class="page-section-header"
-        aria-live="polite"
-        role="alert"
-      >
+      <h2 id="search-results-category-header-notes" class="page-section-header">
         {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
@@ -98,16 +74,11 @@
           @click.prevent="fetchMoreNotes">
           Show additional advising notes
         </b-btn>
-        <SectionSpinner :loading="loadingAdditionalNotes" name="Notes" />
+        <SectionSpinner :loading="loadingAdditionalNotes" />
       </div>
     </div>
     <div v-if="!loading && size(results.appointments)" class="pt-4">
-      <h2
-        id="search-results-category-header-appointments"
-        class="page-section-header"
-        aria-live="polite"
-        role="alert"
-      >
+      <h2 id="search-results-category-header-appointments" class="page-section-header">
         {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
@@ -124,7 +95,7 @@
           @click.prevent="fetchMoreAppointments">
           Show additional advising appointments
         </b-btn>
-        <SectionSpinner :loading="loadingAdditionalAppointments" name="Appointments" />
+        <SectionSpinner :loading="loadingAdditionalAppointments" />
       </div>
     </div>
   </div>
@@ -246,7 +217,8 @@ export default {
         })
       })
         .then(() => {
-          this.loaded('Search results')
+          this.loaded()
+          this.describeResults()
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0)
@@ -261,6 +233,15 @@ export default {
     }
   },
   methods: {
+    describeResults() {
+      const describe = (noun, count) => count > 0 ? `${count} ${noun}${count === 1 ? '' : 's'}, ` : ''
+      let alert = `Search results include ${describe('Admits', this.results.totalAdmitCount)}`
+      alert += describe('student', this.results.totalStudentCount)
+      alert += describe('course', this.results.totalCourseCount)
+      alert += describe('note', this.$_.size(this.results.notes))
+      alert += describe('appointment', this.$_.size(this.results.appointments))
+      this.alertScreenReader(alert)
+    },
     fetchMoreAppointments() {
       this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit
       this.appointmentOptions.limit = 20
