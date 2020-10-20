@@ -15,15 +15,17 @@
             @change="refreshUsers"></b-form-select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
+          <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
           <Autocomplete
             id="search-user"
             v-model="userSelection"
-            :disabled="isBusy"
-            :source="autocompleteUsers"
-            dropdown-class="w-100"
             class="w-50"
-            placeholder="Name or UID...">
-          </Autocomplete>
+            :disabled="isBusy"
+            dropdown-class="w-100"
+            input-labelled-by=""
+            placeholder="Name or UID..."
+            :source="autocompleteUsers"
+          />
         </b-col>
         <b-col v-if="filterType === 'filter'">
           <div class="d-flex">

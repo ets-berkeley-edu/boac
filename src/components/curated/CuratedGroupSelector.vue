@@ -49,7 +49,7 @@
             :aria-labelledby="`curated-group-${group.id}-checkbox`"
             @click="curatedGroupCheckboxClick(group)"
             @keyup.enter="curatedGroupCheckboxClick(group)">
-            <span class="sr-only">Add students to curated group </span>{{ group.name }}
+            <span class="sr-only">Hit enter to add students to </span>{{ group.name }}
           </b-form-checkbox>
         </b-dropdown-item>
         <hr class="dropdown-divider">

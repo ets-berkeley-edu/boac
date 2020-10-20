@@ -6,6 +6,7 @@
         ref="autocompleteInput"
         v-model="query"
         :aria-readonly="disabled"
+        :aria-labelledby="inputLabelledBy"
         :class="inputClass"
         :disabled="disabled"
         :placeholder="placeholder"
@@ -42,8 +43,6 @@
         :class="isOpen ? `d-block ${dropdownClass}` : dropdownClass"
         aria-expanded="true"
         class="dropdown-menu"
-        role="menu"
-        tabIndex="0"
         @keyup.down="onArrowDown"
         @keyup.up="onArrowUp"
         @keyup.esc="onEsc">
@@ -58,11 +57,10 @@
           class="dropdown-item">
           No results.
         </li>
-        <li
-          v-for="(suggestion, i) in suggestions"
-          :key="i">
+        <li v-for="(suggestion, index) in suggestions" :key="index" role="menuitem">
           <a
-            :id="`${id}-suggestion-${i}`"
+            :id="`${id}-suggestion-${index}`"
+            :aria-label="getAriaLabelForSuggestion(index)"
             :class="{'demo-mode-blur': demoModeBlur && $currentUser.inDemoMode}"
             role="menuitem"
             class="dropdown-item"
@@ -105,6 +103,10 @@ export default {
     inputClass: {
       default: '',
       required: false,
+      type: String
+    },
+    inputLabelledBy: {
+      required: true,
       type: String
     },
     onAddButton: {
@@ -199,6 +201,9 @@ export default {
           this.query = null
         }
       })
+    },
+    getAriaLabelForSuggestion(index) {
+      return (index === 0 ? `You have ${this.suggestions.length} auto-suggestion${this.suggestions.length === 1 ? '' : 's'}. ` : '') + `Hit enter to search '${this.suggestions[index].label}'`
     },
     getQuery() {
       return this.query

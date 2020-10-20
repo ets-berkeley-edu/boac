@@ -9,17 +9,19 @@
       </label>
     </div>
     <div class="mb-2">
+      <span id="create-note-add-student-label" class="sr-only">Select student for note. Expect auto-suggest as you type name or SID.</span>
       <Autocomplete
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
-        :disabled="disabled"
+        class="w-75"
         :demo-mode-blur="true"
+        :disabled="disabled"
+        input-labelled-by="create-note-add-student-label"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
         :source="studentsByNameOrSid"
-        class="w-75"
-        @input="addStudent">
-      </Autocomplete>
+        @input="addStudent"
+      />
     </div>
     <div>
       <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">

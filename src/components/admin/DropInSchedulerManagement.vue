@@ -2,16 +2,17 @@
   <div id="drop-in-scheduler-management" class="pt-4 pr-4">
     <h2 class="page-section-header-sub">Drop-in Scheduler Management ({{ dept.name }})</h2>
     <div class="mb-2">
-      <span class="sr-only">The text input below will auto-suggest names.</span>
+      <span id="add-scheduler-input-label" class="sr-only">Choose a scheduler. Expect auto-suggest as you type name or SID.</span>
       <Autocomplete
         id="add-scheduler-input"
+        class="w-50"
         :demo-mode-blur="true"
+        input-labelled-by="add-scheduler-input-label"
         :on-add-button="addScheduler"
-        :show-add-button="true"
         placeholder="Add scheduler by name or SID"
+        :show-add-button="true"
         :source="schedulersByNameOrSid"
-        class="w-50">
-      </Autocomplete>
+      />
     </div>
     <b-container v-if="schedulers.length" id="scheduler-rows" class="m-3 w-50">
       <b-row
