@@ -1,11 +1,24 @@
 <template>
-  <div :id="ckElementId">
-    <ckeditor
-      :value="initialValue"
-      :disabled="disabled"
-      :editor="editor"
-      :config="editorConfig"
-      @input="onUpdate"></ckeditor>
+  <div>
+    <div>
+      <label
+        :id="`${ckElementId}-label`"
+        :for="ckElementId"
+        class="font-size-14 font-weight-bolder mt-3 mb-1">
+        {{ label }}
+      </label>
+    </div>
+    <div
+      :id="ckElementId"
+      :aria-labelledby="`${ckElementId}-label`"
+      role="textbox">
+      <ckeditor
+        :value="initialValue"
+        :disabled="disabled"
+        :editor="editor"
+        :config="editorConfig"
+        @input="onUpdate"></ckeditor>
+    </div>
   </div>
 </template>
 
@@ -37,6 +50,10 @@ export default {
     isInModal: {
       required: false,
       type: Boolean
+    },
+    label: {
+      required: true,
+      type: String
     },
     onValueUpdate: {
       required: true,

@@ -40,7 +40,7 @@
               </b-alert>
             </div>
             <div>
-              <label for="create-note-subject" class="font-size-14 font-weight-bolder mb-1"><span class="sr-only">Note </span>Subject</label>
+              <label id="create-note-subject-label" for="create-note-subject" class="font-size-14 font-weight-bolder mb-1"><span class="sr-only">Note </span>Subject</label>
             </div>
             <div>
               <input
@@ -56,15 +56,12 @@
                 @keydown.enter="submitForm"
                 @keydown.esc="cancelRequested">
             </div>
-            <div>
-              <label for="create-note-body" class="font-size-14 font-weight-bolder mt-3 mb-1">Note Details</label>
-            </div>
             <div id="note-details">
               <RichTextEditor
-                id="create-note-body"
                 :initial-value="model.body || ''"
                 :disabled="isSaving || boaSessionExpired"
                 :is-in-modal="true"
+                label="Note Details"
                 :on-value-update="setBody" />
             </div>
           </div>

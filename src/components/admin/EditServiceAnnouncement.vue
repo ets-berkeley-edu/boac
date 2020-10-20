@@ -22,8 +22,8 @@
           id="textarea-update-service-announcement"
           :initial-value="originalText"
           :disabled="isSaving"
-          :on-value-update="onEditorUpdate"
-          aria-label="Service announcement input" />
+          label="Service alert input"
+          :on-value-update="onEditorUpdate" />
         <div>
           <b-btn
             id="button-update-service-announcement"
