@@ -1,6 +1,9 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner :alert-prefix="!cohortId && totalStudentCount === undefined ? 'Create cohort page' : 'Cohort page'" />
+    <Spinner
+      :key="$route.params.id"
+      :alert-prefix="cohortId === 'new' ? 'Create cohort page' : `Cohort ${cohortName || ''}, sorted by ${preferences.sortBy} ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`"
+    />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
       <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="get(students, '[0].updatedAt')" />
@@ -166,7 +169,7 @@ export default {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
-      this.loaded(this.cohortName)
+      this.loaded()
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this.get(this.$route, 'params.id'))
@@ -179,10 +182,8 @@ export default {
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
-        this.loaded(pageTitle)
-        this.putFocusNextTick(
-          this.cohortId ? 'cohort-name' : 'create-cohort-h1'
-        )
+        this.loaded()
+        this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view')
       })
     }
@@ -195,9 +196,7 @@ export default {
     this.$eventHub.$on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
       if (!this.loading) {
         this.goToPage(1)
-        const action = `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`
-        this.alertScreenReader(action)
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action)
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`)
       }
     })
   },
@@ -205,9 +204,7 @@ export default {
     filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
     goToPage(page) {
       if (page > 1) {
-        const action = `Go to page ${page}`
-        this.alertScreenReader(action)
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', action)
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Go to page ${page}`)
       }
       this.setPagination(page)
       this.onPageNumberChange().then(this.scrollToTop)

@@ -37,30 +37,18 @@ const state = {
 const getters = {
   cohortId: (state: any): number => state.cohortId,
   cohortName: (state: any): string => state.cohortName,
-  cohortOwner(state: any) {
-    if (state.isOwnedByCurrentUser) {
-      return 'me'
-    } else {
-      return state.cohortOwnerUid
-    }
-  },
+  cohortOwner: (state: any) => state.isOwnedByCurrentUser ? 'me' : state.cohortOwnerUid,
   domain: (state: any) => state.domain,
   editMode: (state: any) => state.editMode,
   filters: (state: any): any[] => state.filters,
   isCompactView: (state: any): boolean => state.isCompactView,
-  isModifiedSinceLastSearch: (state: any): boolean =>
-    state.isModifiedSinceLastSearch,
+  isModifiedSinceLastSearch: (state: any): boolean => state.isModifiedSinceLastSearch,
   isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
   menu: (state: any): any[] => state.menu,
   pagination: (state: any) => state.pagination,
-  showApplyButton(state: any) {
-    return state.isModifiedSinceLastSearch === true && !!_.size(state.filters)
-  },
-  showSaveButton: (state: any): boolean =>
-    state.isModifiedSinceLastSearch === false,
-  showSortBy(state: any) {
-    return !state.isModifiedSinceLastSearch && state.totalStudentCount > 1
-  },
+  showApplyButton: (state: any) => state.isModifiedSinceLastSearch === true && !!_.size(state.filters),
+  showSaveButton: (state: any): boolean => state.isModifiedSinceLastSearch === false,
+  showSortBy: (state: any) =>!state.isModifiedSinceLastSearch && state.totalStudentCount > 1,
   students: (state: any): any[] => state.students,
   totalStudentCount: (state: any): number => state.totalStudentCount
 }
@@ -70,8 +58,7 @@ const mutations = {
     state.filters.push(filter)
     state.isModifiedSinceLastSearch = true
   },
-  isCompactView: (state: any, compactView: boolean) =>
-    (state.isCompactView = compactView),
+  isCompactView: (state: any, compactView: boolean) => state.isCompactView = compactView,
   setEditMode(state: any, editMode: string) {
     if (_.isNil(editMode)) {
       state.editMode = null
@@ -128,7 +115,6 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
     if (!_.get(state.filters, 'length')) {
       return resolve()
     }
-    store.dispatch('context/alertScreenReader', `Searching for ${state.domain === 'admitted_students' ? 'admitted ' : ''}students`)
     commit('setEditMode', 'apply')
     const limit = state.pagination.itemsPerPage
     const offset = (state.pagination.currentPage - 1) * limit
@@ -137,7 +123,6 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
         students: data.students,
         totalStudentCount: data.totalStudentCount
       })
-      store.dispatch('context/alertScreenReader', `${state.domain === 'admitted_students' ? 'Admitted ' : ''}Students are ready`)
       commit('stashOriginalFilters')
       commit('setEditMode', null)
       resolve()
@@ -154,10 +139,9 @@ export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: str
 const actions = {
   init({ commit, state }, { id, orderBy, domain }) {
     return new Promise(resolve => {
-      commit('setEditMode', null)
+      commit('resetSession', {})
       commit('isCompactView', !!id)
-      commit('setCurrentPage', 0)
-      commit('setModifiedSinceLastSearch', null)
+      commit('setModifiedSinceLastSearch', undefined)
       store.commit('currentUserExtras/setUserPreference', {
         key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
         value: orderBy
@@ -309,10 +293,8 @@ const actions = {
       })
     })
   },
-  setCurrentPage: ({ commit }, currentPage: number) =>
-    commit('setCurrentPage', currentPage),
-  setEditMode: ({ commit }, editMode: string) =>
-    commit('setEditMode', editMode),
+  setCurrentPage: ({ commit }, currentPage: number) => commit('setCurrentPage', currentPage),
+  setEditMode: ({ commit }, editMode: string) => commit('setEditMode', editMode),
   updateExistingFilter: ({ commit, state }, { index, updatedFilter }: any) => {
     return new Promise(resolve => {
       commit('updateExistingFilter', { index, updatedFilter })
