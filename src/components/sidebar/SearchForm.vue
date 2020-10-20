@@ -13,21 +13,27 @@
             role="alert">
             At least one search option must be checked.
           </span>
+          <span id="search-input-label" class="sr-only">
+            Search for students, courses, or notes.
+            {{ searchInputRequired ? 'Input is required.' : '' }}
+            {{ searchSuggestions.length ? 'Expect auto-suggest of previous searches.' : '' }}
+          </span>
           <Autocomplete
             id="search-students"
             ref="searchInput"
             v-model="searchPhrase"
             :demo-mode-blur="false"
-            :restrict="false"
             :disabled="allOptionsUnchecked"
-            :source="searchSuggestions"
             :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
+            input-labelled-by="search-input-label"
+            maxlength="255"
             :on-esc-form-input="hideError"
+            :restrict="false"
+            :source="searchSuggestions"
             :suggest-when="() => true"
             suggestion-label-class="suggestion-label"
-            :aria-label="$_.trim(searchPhrase) ? 'Hit enter to execute search' : (searchInputRequired ? 'Search input required' : 'Search input')"
             type="text"
-            maxlength="255" />
+          />
           <b-popover
             v-if="showErrorPopover"
             :show.sync="showErrorPopover"
@@ -176,22 +182,26 @@
               </b-form-radio>
             </b-form-group>
             <b-form-group label="Advisor" label-for="search-options-note-filters-author-input">
+              <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
               <Autocomplete
                 id="search-options-note-filters-author"
                 v-model="noteAuthor"
-                :source="findAdvisorsByName"
                 :disabled="noteFilters.postedBy === 'you'"
-                :placeholder="noteFilters.postedBy === 'you' ? $currentUser.name : 'Enter name...'">
-              </Autocomplete>
+                input-labelled-by="notes-search-author-input-label"
+                :placeholder="noteFilters.postedBy === 'you' ? $currentUser.name : 'Enter name...'"
+                :source="findAdvisorsByName"
+              />
             </b-form-group>
             <b-form-group label="Student (name or SID)" label-for="search-options-note-filters-student-input">
+              <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
               <Autocomplete
                 id="search-options-note-filters-student"
                 v-model="noteFilters.student"
                 :demo-mode-blur="true"
+                input-labelled-by="notes-search-student-input-label"
+                placeholder="Enter name or SID..."
                 :source="findStudentsByNameOrSid"
-                placeholder="Enter name or SID...">
-              </Autocomplete>
+              />
             </b-form-group>
             <b-form-group label="Date Range">
               <label

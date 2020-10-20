@@ -32,15 +32,18 @@
           </div>
           <div v-if="!student">
             <div class="mb-2">
+              <span id="log-resolved-issue-student-label" class="sr-only">Select student to resolve. Expect auto-suggest as you type name or SID.</span>
               <Autocomplete
                 id="log-resolved-issue-student"
                 :key="resetAutoCompleteKey"
+                class="w-75"
                 :demo-mode-blur="true"
+                input-labelled-by="log-resolved-issue-student-label"
                 :on-esc-form-input="cancelModal"
                 :show-add-button="true"
                 :source="studentsByNameOrSid"
-                class="w-75"
-                @input="addStudent" />
+                @input="addStudent"
+              />
             </div>
           </div>
           <div v-if="isStudentInWaitlist" class="mt-2 text-danger">
