@@ -10,8 +10,7 @@ phases:
 
   build:
     commands:
-      - npm run build-vue
-      - cat "/root/.npm/_logs/*-debug.log"
+      - npm --verbose run build-vue
 
   post_build:
     commands:

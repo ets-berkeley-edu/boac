@@ -12,27 +12,34 @@ export default {
   mixins: [Context, Loading],
   props: {
     alertPrefix: {
-      type: String,
-      default: 'The page'
+      default: undefined,
+      type: String
     },
     isPlural: {
       type: Boolean
     }
   },
   watch: {
-    loading(value) {
-      this.alert(value, true)
+    alertPrefix() {
+      this.srAlert()
+    },
+    loading() {
+      this.srAlert()
     }
   },
+  data: () => ({
+    alertHistory: []
+  }),
   created() {
-    this.alert(this.loading, false)
+    this.srAlert()
   },
   methods: {
-    alert(isLoading, voiceIfLoaded)  {
-      if (isLoading) {
-        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading...`)
-      } else if (voiceIfLoaded) {
-        this.alertScreenReader(`${this.alertPrefix} ${this.isPlural ? 'have' : 'has'} loaded.`)
+    srAlert() {
+      const alert = this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading` : `${this.alertPrefix} loaded`
+      const isRedundant = this.$_.includes(this.alertHistory, alert)
+      if (!isRedundant) {
+        this.alertScreenReader(alert)
+        this.alertHistory.push(alert)
       }
     }
   }
