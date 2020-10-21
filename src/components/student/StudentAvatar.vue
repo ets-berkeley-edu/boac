@@ -10,6 +10,7 @@
       @error="avatarError" />
     <div
       v-if="alertCount"
+      aria-hidden="true"
       class="student-avatar-alert-count">
       <span
         v-b-tooltip.hover.bottom
