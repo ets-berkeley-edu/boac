@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner :alert-prefix="`Curated group ${curatedGroupName || ''}, sorted by ${preferences.sortBy} ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`" />
+    <Spinner :alert-prefix="`Curated group ${curatedGroupName || ''}, sorted by ${preferences.sortBy}, ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`" />
     <div v-if="!loading">
       <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">

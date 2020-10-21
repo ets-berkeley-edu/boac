@@ -2,7 +2,7 @@
   <div class="ml-3 mt-3">
     <Spinner
       :key="$route.params.id"
-      :alert-prefix="cohortId === 'new' ? 'Create cohort page' : `Cohort ${cohortName || ''}, sorted by ${preferences.sortBy} ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`"
+      :alert-prefix="cohortId === 'new' ? 'Create cohort page' : `Cohort ${cohortName || ''}, sorted by ${preferences.sortBy}, ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`"
     />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
