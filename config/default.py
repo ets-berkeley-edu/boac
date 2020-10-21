@@ -51,6 +51,9 @@ APPT_DESK_REFRESH_INTERVAL = 60000
 # BOAC-specific AWS credentials.
 AWS_APP_ROLE_ARN = 'aws:arn::<account>:role/<app_boa_role>'
 
+# Spawn asynchronous tasks (e.g., search reindexing) in background theads; disabled in test runs.
+BACKGROUND_TASKS = True
+
 # Base directory for the application (one level up from this config file).
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 

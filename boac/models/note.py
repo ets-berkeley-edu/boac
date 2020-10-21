@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 
 from boac import db, std_commit
+from boac.lib.background import bg_execute
 from boac.lib.util import get_benchmarker, put_attachment_to_s3, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
@@ -204,9 +205,11 @@ class Note(Base):
 
     @classmethod
     def refresh_search_index(cls):
-        db.session.execute(text('REFRESH MATERIALIZED VIEW notes_fts_index'))
-        db.session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
-        std_commit()
+        def _refresh_search_index(db_session):
+            db_session.execute(text('REFRESH MATERIALIZED VIEW notes_fts_index'))
+            db_session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
+            std_commit(session=db_session)
+        bg_execute(_refresh_search_index)
 
     @classmethod
     def update(cls, note_id, subject, body=None, topics=()):
