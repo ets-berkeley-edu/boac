@@ -39,9 +39,10 @@
             v-for="(option, index) in group.options"
             :id="`sort-by-option-${option.value}`"
             :key="`group-option-${index}`"
+            class="pl-3"
             @click="onSelect(option.value)"
           >
-            <span :class="{'font-weight-bolder': option.value === sortBy}">{{ option.label }}</span>
+            &nbsp;&nbsp;{{ option.label }}
           </b-dropdown-item-button>
         </b-dropdown-group>
       </b-dropdown>
@@ -101,8 +102,7 @@ export default {
             {label: 'First Name', value: 'first_name'},
             {label: 'Last Name', value: 'last_name'},
             {label: 'Level', value: 'level'},
-            {label: 'Major', value: 'major'},
-            {label: 'Entering Term', value: 'entering_term'}
+            {label: 'Major', value: 'major'}
           ]
         })
         if (this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
@@ -111,6 +111,7 @@ export default {
         optionGroups.push({
           label: 'Terms',
           options: [
+            {label: 'Entering Term', value: 'entering_term'},
             {label: 'Terms in Attendance, ascending', value: 'terms_in_attendance'},
             {label: 'Terms in Attendance, descending', value: 'terms_in_attendance desc'}
           ]

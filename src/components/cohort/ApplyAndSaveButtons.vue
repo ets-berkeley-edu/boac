@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div class="sr-only" aria-live="polite">{{ screenReaderAlert }}</div>
     <b-btn
       v-if="showApplyButton"
       id="unsaved-filter-apply"
