@@ -13,6 +13,7 @@ export default {
       'completeSidSet',
       'isFocusLockDisabled',
       'isSaving',
+      'isRecalculating',
       'mode',
       'model',
       'noteTemplates',
@@ -38,6 +39,7 @@ export default {
       'setBody',
       'setFocusLockDisabled',
       'setIsSaving',
+      'setIsRecalculating',
       'setMode',
       'setModel',
       'setSubject'

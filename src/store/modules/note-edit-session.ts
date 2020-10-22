@@ -17,17 +17,17 @@ const $_getDefaultModel = () => {
   }
 }
 
-const $_recalculateStudentCount = ({ commit, state }) => {
-  const cohortIds = _.map(state.addedCohorts, 'id')
-  const curatedGroupIds = _.map(state.addedCuratedGroups, 'id')
-  const sids = state.sids
-  if (cohortIds.length || curatedGroupIds.length) {
-    getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => commit('setCompleteSidSet', data.sids))
-  } else {
-    commit('setCompleteSidSet', sids)
-  }
+const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
+  return new Promise(resolve => {
+    const cohortIds = _.map(cohorts, 'id')
+    const curatedGroupIds = _.map(curatedGroups, 'id')
+    if (cohortIds.length || curatedGroupIds.length) {
+      getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => resolve(data.sids))
+    } else {
+      resolve(sids)
+    }
+  })
 }
-
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
@@ -35,6 +35,7 @@ const state = {
   completeSidSet: [],
   isFocusLockDisabled: undefined,
   isSaving: false,
+  isRecalculating: false,
   mode: undefined,
   model: $_getDefaultModel(),
   noteTemplates: undefined,
@@ -48,6 +49,7 @@ const getters = {
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
+  isRecalculating: (state: any): boolean => state.isRecalculating,
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
   noteTemplates: (state: any): any[] => state.noteTemplates,
@@ -96,6 +98,7 @@ const mutations = {
   setCompleteSidSet: (state: any, completeSidSet: number) => (state.completeSidSet = completeSidSet),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
+  setIsRecalculating: (state: any, isRecalculating: boolean) => (state.isRecalculating = isRecalculating),
   setMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.mode = undefined
@@ -126,16 +129,25 @@ const mutations = {
 const actions = {
   addAttachment: ({ commit }, attachment: any) => commit('addAttachment', attachment),
   addCohort: ({commit, state}, cohort: any) => {
-    commit('addCohort', cohort)
-    $_recalculateStudentCount({ commit, state })
+    const cohorts = state.addedCohorts.concat(cohort)
+    $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
+      commit('addCohort', cohort)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   addCuratedGroup: ({commit, state}, curatedGroup: any) => {
-    commit('addCuratedGroup', curatedGroup)
-    $_recalculateStudentCount({ commit, state })
+    const curatedGroups = state.addedCuratedGroups.concat(curatedGroup)
+    $_recalculateStudentCount(state.sids, state.addedCohorts, curatedGroups).then(sids => {
+      commit('addCuratedGroup', curatedGroup)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   addSid: ({commit, state}, sid: string) => {
-    commit('addSid', sid)
-    $_recalculateStudentCount({ commit, state })
+    const sids = state.sids.concat(sid)
+    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
+      commit('addSid', sid)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
   onBoaSessionExpires: ({ commit }) => commit('onBoaSessionExpires'),
@@ -177,16 +189,25 @@ const actions = {
   onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
   removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
-    commit('removeCohort', cohort)
-    $_recalculateStudentCount({ commit, state })
+    const cohorts = _.reject(state.addedCohorts, ['id', cohort.id])
+    $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
+      commit('removeCohort', cohort)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   removeCuratedGroup: ({commit, state}, curatedGroup: any) => {
-    commit('removeCuratedGroup', curatedGroup)
-    $_recalculateStudentCount({ commit, state })
+    const curatedGroups = _.reject(state.addedCuratedGroups, ['id', curatedGroup.id])
+    $_recalculateStudentCount(state.sids, state.addedCohorts, curatedGroups).then(sids => {
+      commit('removeCuratedGroup', curatedGroup)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   removeStudent: ({commit, state}, sid: string) => {
-    commit('removeStudent', sid)
-    $_recalculateStudentCount({ commit, state })
+    const sids = _.without(state.sids, sid)
+    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
+      commit('removeStudent', sid)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
   },
   removeTopic: ({ commit }, topic: string) => commit('removeTopic', topic),
   resetModel: ({ commit }) => commit('setModel', $_getDefaultModel()),
