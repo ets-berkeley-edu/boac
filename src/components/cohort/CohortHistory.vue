@@ -1,6 +1,17 @@
 <template>
   <div>
     <SectionSpinner :loading="loading" name="History" />
+    <div v-if="!loading && totalEventsCount > itemsPerPage">
+      <div class="pt-3">
+        <Pagination
+          :click-handler="goToPage"
+          :init-page-number="currentPage"
+          :limit="10"
+          :per-page="itemsPerPage"
+          :total-rows="totalEventsCount" />
+      </div>
+      <hr class="filters-section-separator " />
+    </div>
     <b-table-simple
       v-if="!loading && !isEmpty(events)"
       id="cohort-history-table"

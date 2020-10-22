@@ -43,6 +43,15 @@
               :students="students" />
             <SortBy v-if="showSortBy" :domain="domain" />
           </div>
+          <hr class="filters-section-separator mr-2 mb-2" />
+          <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
+            <Pagination
+              :click-handler="goToPage"
+              :init-page-number="pageNumber"
+              :limit="10"
+              :per-page="pagination.itemsPerPage"
+              :total-rows="totalStudentCount" />
+          </div>
           <div>
             <div class="cohort-column-results">
               <div v-if="domain === 'default'" id="cohort-students" class="list-group mr-2">

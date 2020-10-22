@@ -12,6 +12,15 @@
               <SortBy v-if="totalStudentCount > 1" />
             </div>
           </div>
+          <hr class="filters-section-separator mr-3" />
+          <div v-if="totalStudentCount > itemsPerPage" class="pt-3">
+            <Pagination
+              :click-handler="onClickPagination"
+              :init-page-number="pageNumber"
+              :limit="10"
+              :per-page="itemsPerPage"
+              :total-rows="totalStudentCount" />
+          </div>
           <div v-if="size(students)">
             <div id="curated-cohort-students" class="list-group">
               <StudentRow
