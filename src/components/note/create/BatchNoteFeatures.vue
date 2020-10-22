@@ -1,9 +1,10 @@
 <template>
   <div>
     <div>
-      <span aria-live="polite" role="alert">
+      <span role="alert">
+        <span v-if="isRecalculating" />
         <span
-          v-if="completeSidSet.length"
+          v-if="!isRecalculating && completeSidSet.length"
           id="target-student-count-alert"
           :class="{'has-error': completeSidSet.length >= 250, 'font-weight-bolder': completeSidSet.length >= 500}"
           class="font-italic">
@@ -74,27 +75,33 @@ export default {
   },
   methods: {
     addCohortToBatch(cohort) {
+      this.setIsRecalculating(true)
       this.addCohort(cohort)
       this.alertScreenReader(`Added cohort '${cohort.name}'`)
     },
     addCuratedGroupToBatch(curatedGroup) {
+      this.setIsRecalculating(true)
       this.addCuratedGroup(curatedGroup)
       this.alertScreenReader(`Added curated group '${curatedGroup.name}'`)
     },
     addStudentBySid(sid) {
+      this.setIsRecalculating(true)
       this.addSid(sid)
       this.putFocusNextTick('create-note-add-student-input')
     },
     removeCohortFromBatch(cohort) {
+      this.setIsRecalculating(true)
       this.removeCohort(cohort)
       this.alertScreenReader(`Cohort '${cohort.name}' removed`)
     },
     removeCuratedGroupFromBatch(curatedGroup) {
+      this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
       this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`)
     },
     removeSid(sid) {
       if (this.includes(this.sids, sid)) {
+        this.setIsRecalculating(true)
         this.removeStudent(sid)
         this.putFocusNextTick('create-note-add-student-input')
       }
