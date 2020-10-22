@@ -29,6 +29,7 @@ import re
 
 from boac import db, std_commit
 from boac.externals import data_loch
+from boac.lib.background import bg_execute
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import (
     camelize, localize_datetime, localized_timestamp_to_utc,
@@ -407,9 +408,11 @@ class Appointment(Base):
 
     @classmethod
     def refresh_search_index(cls):
-        db.session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
-        db.session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
-        std_commit()
+        def _refresh_search_index(db_session):
+            db_session.execute(text('REFRESH MATERIALIZED VIEW appointments_fts_index'))
+            db_session.execute(text('REFRESH MATERIALIZED VIEW advisor_author_index'))
+            std_commit(session=db_session)
+        bg_execute(_refresh_search_index)
 
     @classmethod
     def delete(cls, appointment_id):
