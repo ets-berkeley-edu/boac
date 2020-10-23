@@ -9,7 +9,6 @@
       <b-dropdown
         id="students-sort-by"
         aria-labelledby="sort-by"
-        ar
         block
         no-caret
         right

@@ -5,95 +5,107 @@
     class="d-flex flex-wrap">
     <div
       v-if="isExistingFilter"
-      :id="`existing-name-${index}`"
-      class="existing-filter-name p-2">
-      <span class="sr-only">Filter name:</span> {{ filter.label.primary }}
+      :id="`existing-filter-${index}`"
+      class="existing-filter-name px-2">
+      {{ filter.label.primary }}<span class="sr-only"> is filter number {{ index }}</span>
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
+      <span :id="`new-filter-${index}-label`" class="sr-only">Filter options:</span>
       <b-dropdown
         id="new-filter-button"
+        :aria-labelledby="`new-filter-${index}-label`"
+        class="h-100"
+        no-caret
         toggle-class="dd-override"
         variant="link"
-        no-caret>
+      >
         <template slot="button-content">
           <div class="d-flex dropdown-width justify-content-between text-dark">
-            <div v-if="filter.label"><span class="sr-only">Filter: </span>{{ filter.label.primary || 'New Filter' }}</div>
-            <div v-if="!filter.label"><span class="sr-only">Select a </span>New Filter</div>
+            <div v-if="filter.label">{{ `${filter.label.primary} is selected filter` || 'New Filter' }}</div>
+            <div v-if="!filter.label"><span class="sr-only">Select </span>New Filter</div>
             <div class="ml-2">
               <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
             </div>
           </div>
         </template>
-        <div
+        <b-dropdown-group
           v-for="(category, mIndex) in menu"
+          :id="`primary-filter-group-${filterRowIndex}-${mIndex}`"
           :key="mIndex"
-          :aria-labelledby="'filter-option-group-header-' + mIndex"
-          role="group">
-          <b-dropdown-header :id="'filter-option-group-header-' + mIndex" class="sr-only">
-            Filter option group {{ mIndex + 1 }} of {{ menu.length }}
-          </b-dropdown-header>
-          <b-dropdown-item
-            v-for="subCategory in category"
+        >
+          <b-dropdown-item-button
+            v-for="(subCategory, sIndex) in category"
             :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
             :key="subCategory.key"
             :aria-disabled="subCategory.disabled"
+            class="font-size-16 h-100"
+            :class="{
+              'pb-1': mIndex === menu.length - 1 && sIndex === category.length - 1,
+              'pt-1': !mIndex && !sIndex
+            }"
             :disabled="subCategory.disabled"
-            class="dropdown-item"
             @click="onSelectFilter(subCategory)"
             @focusin.prevent.stop
-            @mouseover.prevent.stop>
+            @mouseover.prevent.stop
+          >
             <span
               :class="{
                 'font-weight-light pointer-default text-muted': subCategory.disabled,
                 'font-weight-normal text-dark': !subCategory.disabled
               }"
               class="font-size-16">{{ subCategory.label.primary }}</span>
-          </b-dropdown-item>
-          <hr v-if="mIndex !== (menu.length - 1)" class="dropdown-divider">
-        </div>
+          </b-dropdown-item-button>
+          <b-dropdown-divider v-if="mIndex !== (menu.length - 1)" />
+        </b-dropdown-group>
       </b-dropdown>
     </div>
     <div v-if="!isModifyingFilter">
-      <span class="sr-only">Selected filter value: </span>
+      <span class="sr-only">Selected filter value is </span>
       <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
     </div>
-    <div
-      v-if="isModifyingFilter"
-      class="filter-row-column-02 mt-1">
-      <div
-        v-if="isUX('dropdown')"
-        :id="`filter-row-dropdown-secondary-${filterRowIndex}`">
+    <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
+      <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
+      <div v-if="isUX('dropdown')">
         <b-dropdown
+          :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
+          :aria-labelledby="`filter-secondary-${filterRowIndex}-label`"
+          no-caret
           toggle-class="dd-override"
           variant="link"
-          no-caret>
+          @hidden="isSubMenuOpen = false"
+          @shown="isSubMenuOpen = true"
+        >
           <template slot="button-content">
-            <div class="d-flex dropdown-width justify-content-between text-secondary">
-              <div v-if="filter.value" class="option-truncate">
-                <span class="sr-only">Selected value is </span>
+            <div class="d-flex dropdown-width justify-content-between text-dark">
+              <div v-if="filter.value" class="option-truncate text-left">
+                <span class="sr-only">Filter value is </span>
                 <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
                 <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
               </div>
-              <div v-if="!filter.value">Choose...<span class="sr-only"> a filter value option</span></div>
+              <div v-if="!filter.value">Choose...<span class="sr-only"> filter value</span></div>
               <div class="ml-2">
-                <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
+                <font-awesome :icon="isSubMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
               </div>
             </div>
           </template>
           <div v-if="isGrouped(filter.options)">
-            <div v-for="(options, name) in groupObjectsBy(filter.options, 'group')" :key="name">
+            <div v-for="(options, name, gIndex) in groupObjectsBy(filter.options, 'group')" :key="name">
               <b-dropdown-group :id="`${filter.label.primary}-dropdown-group-${name}`" :header="name">
-                <div v-for="option in options" :key="option.key">
-                  <b-dropdown-item
+                <div v-for="(option, oIndex) in options" :key="option.key">
+                  <b-dropdown-item-button
                     v-if="option.value !== 'divider'"
                     :id="`${filter.label.primary}-${option.value}`"
                     :aria-disabled="option.disabled"
+                    class="h-100"
+                    :class="{
+                      'pb-1': gIndex === filter.options.length - 1 && oIndex === options.length - 1,
+                      'pt-1': !gIndex && !oIndex
+                    }"
                     :disabled="option.disabled"
-                    class="dropdown-item"
                     @click="updateDropdownValue(option)"
                     @focusin.prevent.stop
                     @mouseover.prevent.stop>
@@ -103,22 +115,25 @@
                         'font-weight-normal text-dark': !option.disabled
                       }"
                       class="font-size-16 option-truncate">
-                      <span class="sr-only">{{ name }}</span>
                       {{ option.name }}
                     </div>
-                  </b-dropdown-item>
+                  </b-dropdown-item-button>
                 </div>
               </b-dropdown-group>
             </div>
           </div>
           <div v-if="!isGrouped(filter.options)">
-            <div v-for="option in filter.options" :key="option.key">
-              <b-dropdown-item
+            <div v-for="(option, fIndex) in filter.options" :key="option.key">
+              <b-dropdown-item-button
                 v-if="option.value !== 'divider'"
                 :id="`${filter.label.primary}-${option.value}`"
                 :aria-disabled="option.disabled"
+                class="h-100"
+                :class="{
+                  'pb-1': fIndex === filter.options.length - 1,
+                  'pt-1': !fIndex
+                }"
                 :disabled="option.disabled"
-                class="dropdown-item"
                 @click="updateDropdownValue(option)"
                 @focusin.prevent.stop
                 @mouseover.prevent.stop>
@@ -130,8 +145,8 @@
                   class="font-size-16 option-truncate">
                   {{ option.name }}
                 </div>
-              </b-dropdown-item>
-              <hr v-if="option.value === 'divider'" class="dropdown-divider">
+              </b-dropdown-item-button>
+              <b-dropdown-divider v-if="option.value === 'divider'" />
             </div>
           </div>
         </b-dropdown>
@@ -277,6 +292,7 @@ export default {
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: undefined,
+    isSubMenuOpen: false,
     range: {
       min: undefined,
       max: undefined
@@ -567,15 +583,11 @@ export default {
   vertical-align: middle;
   white-space: nowrap;
 }
-.dropdown-item {
-  font-size: 14px;
-  padding-top: 3px;
-}
 .filter-row-column-01 {
   border-left: 6px solid #3b7ea5;
   flex: 0 0 240px;
 }
-.filter-row-column-01 .dropdown-item {
+.filter-row-column-01 .option-truncate {
   width: 330px;
 }
 .filter-row-column-01 .dropdown-width {
@@ -584,7 +596,7 @@ export default {
 .filter-row-column-02 {
   flex: 0;
 }
-.filter-row-column-02 .dropdown-item {
+.filter-row-column-02 .option-truncate {
   width: 340px;
 }
 .filter-row-column-02 .dropdown-width {
