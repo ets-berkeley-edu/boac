@@ -217,8 +217,7 @@ export default {
         })
       })
         .then(() => {
-          this.loaded()
-          this.describeResults()
+          this.loaded(this.describeResults())
           const totalCount =
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0)
@@ -240,7 +239,7 @@ export default {
       alert += describe('course', this.results.totalCourseCount)
       alert += describe('note', this.$_.size(this.results.notes))
       alert += describe('appointment', this.$_.size(this.results.appointments))
-      this.alertScreenReader(alert)
+      return alert
     },
     fetchMoreAppointments() {
       this.appointmentOptions.offset = this.appointmentOptions.offset + this.appointmentOptions.limit

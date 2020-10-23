@@ -235,7 +235,6 @@ export default {
       })
       this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name'])
     }
-    this.loaded()
     this.putFocusNextTick('curated-group-name')
   },
   methods: {

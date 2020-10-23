@@ -394,16 +394,20 @@ export default {
       return this.get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
+      const announce = alert => {
+        this.alertScreenReader(alert)
+        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
+      }
       switch (this.get(this.filter, 'type.ux')) {
       case 'dropdown':
-        this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
+        announce(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        this.alertScreenReader(`Added ${this.filter.label.primary}`)
+        announce(`Added ${this.filter.label.primary}`)
         this.filter.value = true
         break
       case 'range':
-        this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
+        announce(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
         this.filter.value = {
           min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
           max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
@@ -414,7 +418,6 @@ export default {
       this.addFilter(this.filter)
       this.reset()
       this.putFocusNewFilterDropdown()
-      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert)
     },
     onClickCancelEdit() {
       this.alertScreenReader('Cancelled')
@@ -447,8 +450,9 @@ export default {
       this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
-        this.alertScreenReader(`${this.filter.label.primary} filter updated`)
-        this.$ga.cohortEvent(this.cohortId, this.cohortName, this.screenReaderAlert)
+        let alert = `${this.filter.label.primary} filter updated`
+        this.alertScreenReader(alert)
+        this.$ga.cohortEvent(this.cohortId, this.cohortName, alert)
       })
     },
     onSelectFilter(filter) {
@@ -512,11 +516,12 @@ export default {
       return snippet
     },
     remove() {
-      this.alertScreenReader(`${this.filter.label.primary} filter removed`)
       this.removeFilter(this.index)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
-      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', this.screenReaderAlert)
+      let alert = `${this.filter.label.primary} filter removed`
+      this.alertScreenReader(alert)
+      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
     },
     reset() {
       this.disableUpdateButton = false

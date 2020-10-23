@@ -12,7 +12,7 @@
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div>
-          {{ $config.isVueAppDebugMode ? screenReaderAlert : $config.fixedWarningOnAllPages }}
+          {{ $config.isVueAppDebugMode ? $_.get($announcer, 'data.content') || '&mdash;' : $config.fixedWarningOnAllPages }}
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn

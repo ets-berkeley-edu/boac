@@ -5,46 +5,11 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context.vue'
 import Loading from '@/mixins/Loading.vue'
 
 export default {
-  mixins: [Context, Loading],
-  props: {
-    alertPrefix: {
-      default: undefined,
-      type: String
-    },
-    isPlural: {
-      type: Boolean
-    }
-  },
-  watch: {
-    alertPrefix() {
-      this.srAlert()
-    },
-    loading() {
-      this.srAlert()
-    }
-  },
-  data: () => ({
-    alertHistory: []
-  }),
-  created() {
-    this.srAlert()
-  },
-  methods: {
-    srAlert() {
-      if (this.alertPrefix) {
-        const alert = this.loading ? `${this.alertPrefix} ${this.isPlural ? 'are' : 'is'} loading` : `${this.alertPrefix} loaded`
-        const isRedundant = this.$_.includes(this.alertHistory, alert)
-        if (!isRedundant) {
-          this.alertScreenReader(alert)
-          this.alertHistory.push(alert)
-        }
-      }
-    }
-  }
+  name: 'Spinner',
+  mixins: [Loading],
 }
 </script>
 

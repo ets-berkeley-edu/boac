@@ -6,8 +6,7 @@ export default {
   computed: {
     ...mapGetters('context', [
       'announcement',
-      'hasUserDismissedFooterAlert',
-      'screenReaderAlert'
+      'hasUserDismissedFooterAlert'
     ]),
     ...mapGetters('noteEditSession', [
       'disableNewNoteButton',
@@ -16,9 +15,11 @@ export default {
   },
   methods: {
     ...mapActions('context', [
-      'alertScreenReader',
       'dismissFooterAlert'
-    ])
+    ]),
+    alertScreenReader(message, politeness='polite') {
+      this.$announcer.set(message, politeness)
+    }
   }
 }
 </script>

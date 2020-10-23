@@ -1,6 +1,6 @@
 <template>
   <div class="course-container">
-    <Spinner alert-prefix="Course" />
+    <Spinner />
 
     <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>
@@ -37,9 +37,7 @@
               </span>
             </div>
             <div v-if="section.title" class="course-section-title">
-              <span role="alert" aria-live="polite">
-                {{ section.title }}
-              </span>
+              {{ section.title }}
             </div>
           </div>
           <div class="course-column-schedule">
@@ -211,6 +209,9 @@ export default {
       section.students = students
       return section
     },
+    getLoadedAlert() {
+      return `${this.section.title || this.section.displayName} has loaded`
+    },
     initViewMode() {
       this.tab = this.includes(['list', 'matrix'], this.$route.query.tab)
         ? this.$route.query.tab
@@ -249,7 +250,7 @@ export default {
       ).then(data => {
         if (data) {
           this.updateCourseData(data)
-          this.loaded()
+          this.loaded(this.getLoadedAlert())
         } else {
           this.$router.push({ path: '/404' })
         }
@@ -259,7 +260,7 @@ export default {
       getSection(this.$route.params.termId, this.$route.params.sectionId).then(
         data => {
           this.updateCourseData(data)
-          this.loaded()
+          this.loaded(this.getLoadedAlert())
         }
       )
     },

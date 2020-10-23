@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Spinner alert-prefix="Admit profile" />
+    <Spinner />
     <div v-if="!loading" class="m-3">
       <h1
         id="admit-name-header"
@@ -352,8 +352,9 @@ export default {
     getAdmitBySid(sid).then(admit => {
       if (admit) {
         this.assign(this.admit, admit)
-        this.setPageTitle(this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName)
-        this.loaded(this.admit)
+        let pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
+        this.setPageTitle(pageTitle)
+        this.loaded(`${pageTitle} has loaded`)
       } else {
         this.$router.push({ path: '/404' })
       }

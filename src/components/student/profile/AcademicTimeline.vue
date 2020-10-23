@@ -543,7 +543,7 @@ export default {
       this.alertScreenReader('Cancelled')
       this.messageForDelete = undefined
     },
-    close(message, screenreaderAlert) {
+    close(message, notifyScreenReader) {
       if (this.editModeNoteId) {
         return false
       }
@@ -556,7 +556,7 @@ export default {
       if (this.openMessages.length === 0) {
         this.allExpanded = false
       }
-      if (screenreaderAlert) {
+      if (notifyScreenReader) {
         this.alertScreenReader(`${this.capitalize(message.type)} closed`)
       }
     },
@@ -637,7 +637,7 @@ export default {
     onCreateNoteModalClose() {
       this.isCreateNoteModalOpen = false
     },
-    open(message, screenreaderAlert) {
+    open(message, notifyScreenReader) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {
         return false
       }
@@ -648,7 +648,7 @@ export default {
       if (this.isExpandAllAvailable && this.openMessages.length === this.messagesPerType(this.filter).length) {
         this.allExpanded = true
       }
-      if (screenreaderAlert) {
+      if (notifyScreenReader) {
         this.alertScreenReader(`${this.capitalize(message.type)} opened`)
       }
     },
