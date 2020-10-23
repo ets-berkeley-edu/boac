@@ -20,6 +20,7 @@
               id="show-hide-term-gpa-button"
               aria-controls="term-gpa-collapse"
               :aria-expanded="showTermGpa"
+              :aria-label="showTermGpa ? `Hide term GPA for ${student.name}` : `Show term GPA for ${student.name}`"
               class="gpa-trends-more-button col-auto"
               variant="link"
               @click="showHideTermGpa">

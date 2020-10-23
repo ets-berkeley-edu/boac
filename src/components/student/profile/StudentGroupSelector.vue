@@ -9,7 +9,10 @@
       size="sm"
       no-caret>
       <template slot="button-content">
-        <div :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')">
+        <div
+          :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
+          :aria-label="`Add ${student.name} to a group`"
+          role="button">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div class="pl-3">Add to Group</div>
             <div class="pr-2">
