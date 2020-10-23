@@ -37,9 +37,9 @@
                   class="student-course-collapse-button"
                   variant="link">
                   <font-awesome icon="caret-right" class="when-course-closed" />
-                  <span class="when-course-closed sr-only">Show details of {{ course.displayName }}</span>
+                  <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
                   <font-awesome icon="caret-down" class="when-course-open" />
-                  <span class="when-course-open sr-only">Hide details of {{ course.displayName }}</span>
+                  <span class="when-course-open sr-only">Hide {{ course.displayName }} class details for {{ student.name }}</span>
                 </b-btn>
               </div>
               <div>

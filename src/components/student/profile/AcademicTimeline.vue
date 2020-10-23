@@ -10,6 +10,9 @@
               id="timeline-tab-all"
               :class="{'tab-active text-white': !filter, 'tab-inactive text-dark': filter}"
               class="tab pl-2 pr-2"
+              aria-controls="timeline-messages"
+              aria-label="Include all Academic Timeline messages"
+              :aria-selected="!filter"
               variant="link"
               @click="setFilter(null)">
               All
@@ -23,7 +26,9 @@
                 'tab-inactive text-dark': type !== filter && countsPerType[type],
                 'tab-disabled text-muted': !countsPerType[type]
               }"
-              :aria-label="`${filterTypes[type].name}s tab`"
+              aria-controls="timeline-messages"
+              :aria-label="`Apply ${filterTypes[type].name}s filter to Academic Timeline messages`"
+              :aria-selected="type === filter"
               :disabled="!countsPerType[type]"
               class="tab ml-2 pl-2 pr-2 text-center"
               variant="link"
@@ -45,6 +50,7 @@
               <font-awesome icon="file-alt" />
               <span class="sr-only">Create </span>
               New Note
+              <span class="sr-only">for {{ student.name }}</span>
             </span>
           </b-btn>
         </div>
@@ -320,7 +326,7 @@
     <div v-if="!searchResults && !searchResultsLoading && (countPerActiveTab > defaultShowPerTab)" class="text-center">
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
-        :aria-label="isShowingAll ? 'Hide previous messages' : 'Show previous messages'"
+        :aria-label="isShowingAll ? 'Hide previous Academic Timeline messages' : 'Show previous Academic Timeline messages'"
         class="no-wrap pr-2 pt-0"
         variant="link"
         @click="isShowingAll = !isShowingAll">
@@ -587,7 +593,7 @@ export default {
       const pluralize = this.pluralize(noun, inViewCount)
       return this.isShowingAll && inViewCount > this.defaultShowPerTab
         ? `Showing all ${pluralize}`
-        : `Showing ${pluralize}`
+        : `Showing ${this.countPerActiveTab > this.defaultShowPerTab ? 'the first' : ''} ${pluralize}`
     },
     displayUpdatedAt(message) {
       return message.updatedAt && (message.updatedAt !== message.createdAt) && (message.type !== 'appointment')
