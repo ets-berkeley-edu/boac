@@ -2,7 +2,7 @@
   <div class="ml-3 mt-4 w-100">
     <h1 class="sr-only">Welcome to BOA</h1>
 
-    <Spinner alert-prefix="Drop-in Advisor homepage" />
+    <Spinner />
 
     <b-container v-if="!loading" fluid>
       <b-row no-gutters>
@@ -155,7 +155,7 @@ export default {
           }
 
           if (announceLoad) {
-            this.loaded('Appointment waitlist')
+            this.loaded('Drop-in Advisor homepage has loaded')
           }
           if (announceUpdate) {
             this.alertScreenReader('The appointment waitlist has been updated')

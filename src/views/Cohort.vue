@@ -1,9 +1,6 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner
-      :key="$route.params.id"
-      :alert-prefix="cohortId === 'new' ? 'Create cohort page' : `Cohort ${cohortName || ''}, sorted by ${preferences.sortBy}, ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`"
-    />
+    <Spinner />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
       <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="get(students, '[0].updatedAt')" />
@@ -20,11 +17,7 @@
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
       <hr class="filters-section-separator mr-2 mt-3" />
-      <SectionSpinner
-        :loading="editMode === 'apply'"
-        :name="domain === 'admitted_students' ? 'Admitted students' : 'Students'"
-        :no-announce="!cohortId && totalStudentCount === undefined"
-      />
+      <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
         <a
           v-if="totalStudentCount > 50"
@@ -178,7 +171,7 @@ export default {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
-      this.loaded()
+      this.loaded(this.getLoadedAlert())
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this.get(this.$route, 'params.id'))
@@ -191,7 +184,7 @@ export default {
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
-        this.loaded()
+        this.loaded(this.getLoadedAlert())
         this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view')
       })
@@ -211,6 +204,13 @@ export default {
   },
   methods: {
     filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
+    getLoadedAlert() {
+      if (!this.cohortId) {
+        return 'Create cohort page has loaded'
+      } else {
+        return `Cohort ${this.cohortName || ''}, sorted by ${this.preferences.sortBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+      }
+    },
     goToPage(page) {
       if (page > 1) {
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Go to page ${page}`)

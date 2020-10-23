@@ -1,7 +1,7 @@
 <template>
   <div class="ml-3 mt-3">
     <h1 class="sr-only">Welcome to BOA</h1>
-    <Spinner alert-prefix="The BOA homepage" />
+    <Spinner />
     <div v-if="!loading" class="home-content">
       <div>
         <div id="filtered-cohorts-header-row">
@@ -54,7 +54,7 @@ export default {
   },
   mixins: [CurrentUserExtras, Loading, Scrollable, Util],
   mounted() {
-    this.loaded('Home')
+    this.loaded('BOA has loaded')
     this.scrollToTop()
   }
 }

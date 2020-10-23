@@ -11,16 +11,8 @@
         role="main"
         sm="10">
         <ServiceAnnouncement />
-        <div>
-          <span
-            v-if="screenReaderAlert"
-            class="sr-only"
-            aria-live="polite"
-            role="alert">
-            {{ screenReaderAlert }}
-          </span>
-          <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
-        </div>
+        <VueAnnouncer />
+        <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
       </b-col>
     </b-row>
     <b-row class="row-footer" no-gutters>

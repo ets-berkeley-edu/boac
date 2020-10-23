@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
-    <Spinner alert-prefix="Profile page" />
+    <Spinner />
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
         <div class="pr-2">
@@ -59,7 +59,7 @@ export default {
         this.loaded('Profile')
       })
     } else {
-      this.loaded('Profile')
+      this.loaded('Profile page has loaded')
     }
     this.putFocusNextTick('profile-header')
   }

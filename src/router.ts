@@ -288,8 +288,9 @@ const router = new Router({
 })
 
 router.afterEach((to: any) => {
-  const title = _.get(to, 'meta.title') || _.capitalize(to.name) || 'Welcome'
-  document.title = `${title} | BOA`
+  const pageTitle = _.get(to, 'meta.title')
+  document.title = `${pageTitle || _.capitalize(to.name) || 'Welcome'} | BOA`
+  Vue.prototype.$announcer.assertive(`${pageTitle || 'Page'} is loading`)
 })
 
 export default router

@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <Spinner alert-prefix="The Admin page" />
+    <Spinner />
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
         <div class="pr-3">
@@ -104,7 +104,7 @@ export default {
       this.dropInSchedulingDepartments = departments
       getVersion().then(data => {
         this.boa = data
-        this.loaded('Flight Deck')
+        this.loaded('Flight Deck has loaded')
       })
     })
   }

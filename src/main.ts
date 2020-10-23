@@ -14,6 +14,7 @@ import router from './router'
 import store from './store'
 import VCalendar from 'v-calendar'
 import Vue from 'vue'
+import VueAnnouncer from '@vue-a11y/announcer'
 import VueHighcharts from 'vue-highcharts'
 import VueLodash from 'vue-lodash'
 import VueMoment from 'vue-moment'
@@ -34,6 +35,7 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(CKEditor)
 Vue.use(VCalendar)
+Vue.use(VueAnnouncer)
 Vue.use(VueLodash, { lodash })
 Vue.use(VueMoment, { moment })
 

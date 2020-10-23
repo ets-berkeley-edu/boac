@@ -2,19 +2,6 @@
   <div>
     <div v-if="loading" class="spinner">
       <font-awesome :size="`${faSize}x`" icon="sync" spin />
-      <span
-        role="alert"
-        aria-live="polite"
-        class="sr-only">Loading...</span>
-    </div>
-    <div v-if="!loading && !noAnnounce">
-      <span
-        v-if="name"
-        role="alert"
-        aria-live="polite"
-        class="sr-only">
-        <span>{{ name }} loaded</span>
-      </span>
     </div>
   </div>
 </template>
@@ -23,13 +10,6 @@
 export default {
   name: 'SectionSpinner',
   props: {
-    noAnnounce: {
-      type: Boolean
-    },
-    name: {
-      type: String,
-      default: undefined
-    },
     faSize: {
       type: Number,
       default: 3

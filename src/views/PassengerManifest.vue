@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <Spinner alert-prefix="The Passenger Manifest" />
+    <Spinner />
     <div v-if="!loading">
       <div class="list-group">
         <div class="align-items-baseline d-flex mb-2 mt-2">
@@ -47,7 +47,7 @@ export default {
   created() {
     getDepartments(true).then(departments => {
       this.departments = departments
-      this.loaded('Passenger Manifest')
+      this.loaded('Passenger Manifest has loaded')
     })
   },
   methods: {

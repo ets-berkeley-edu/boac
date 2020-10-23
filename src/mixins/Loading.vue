@@ -10,9 +10,9 @@ export default {
   beforeCreate: () => store.dispatch('context/loadingStart'),
   methods: {
     ...mapActions('context', ['loadingStart']),
-    loaded(pageTitle) {
-      if (!!pageTitle && store.getters['context/loading']) {
-        store.dispatch('context/alertScreenReader', `${pageTitle} page is ready`)
+    loaded(srAlert) {
+      if (srAlert) {
+        this.$announcer.polite(srAlert)
       }
       store.dispatch('context/loadingComplete')
     }

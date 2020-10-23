@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Spinner alert-prefix="Student profile" />
+    <Spinner />
     <div v-if="!loading">
       <div class="light-blue-background border-bottom">
         <StudentProfileHeader :student="student" />
@@ -86,7 +86,7 @@ export default {
         this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
         this.assign(this.student, student)
         this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-        this.loaded(this.student)
+        this.loaded(`${this.student.name} loaded`)
       } else {
         this.$router.push({ path: '/404' })
       }

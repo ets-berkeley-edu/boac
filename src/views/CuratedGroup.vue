@@ -1,6 +1,6 @@
 <template>
   <div class="m-3">
-    <Spinner :alert-prefix="`Curated group ${curatedGroupName || ''}, sorted by ${preferences.sortBy}, ${pageNumber > 1 ? `(page ${pageNumber})` : ''}`" />
+    <Spinner />
     <div v-if="!loading">
       <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">
@@ -100,11 +100,11 @@ export default {
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        this.loaded()
+        this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
         this.putFocusNextTick('curated-group-name')
         if (this.pageNumber > 1) {
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'view')
         }
       } else {
         this.$router.push({ path: '/404' })
@@ -115,8 +115,8 @@ export default {
         this.loadingStart()
         this.alertScreenReader(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
-          this.loaded(this.curatedGroupName)
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, this.screenReaderAlert)
+          this.loaded(this.getLoadedAlert())
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `sort by ${sortBy}`)
         })
       }
     })
@@ -143,7 +143,7 @@ export default {
         })
         this.loadingStart()
         this.addStudents(sids).then(() => {
-          this.loaded(this.name)
+          this.loaded(this.getLoadedAlert())
           this.putFocusNextTick('curated-group-name')
           this.alertScreenReader(`${sids.length} students added to group '${this.name}'`)
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
@@ -153,12 +153,14 @@ export default {
         this.putFocusNextTick('curated-group-name')
       }
     },
+    getLoadedAlert() {
+      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.preferences.sortBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+    },
     onClickPagination(pageNumber) {
       this.loadingStart()
       this.goToPage(pageNumber).then(() => {
-        this.loaded(this.name)
-        this.alertScreenReader(`Page ${pageNumber} of cohort ${this.curatedGroupName}`)
-        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName,this.screenReaderAlert)
+        this.loaded(this.getLoadedAlert())
+        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Page ${pageNumber}`)
       })
     }
   }

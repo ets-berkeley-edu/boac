@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
-    <Spinner alert-prefix="Appointment waitlist" />
+    <Spinner />
     <div v-if="!loading && !$currentUser.isAdmin" class="mb-2 pb-3 pt-3 text-center">
       <b-btn
         id="btn-create-appointment"
@@ -96,9 +96,9 @@ export default {
             this.scheduleRefreshJob()
           }
           if (announceUpdate) {
-            this.alertScreenReader('The drop-in waitlist has been updated')
+            this.alertScreenReader('The drop-in wait-list has been updated')
           } else if (response.waitlist) {
-            this.loaded('Appointment waitlist')
+            this.loaded('The Appointment wait-list has loaded')
           }
         })
       })

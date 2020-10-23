@@ -1,6 +1,6 @@
 <template>
   <div class="ml-3 mt-3">
-    <Spinner alert-prefix="CE3 Admissions" />
+    <Spinner />
     <div v-if="!loading">
       <div class="d-flex flex-wrap justify-content-between">
         <h1
@@ -37,7 +37,7 @@
       </div>
       <AdmitDataWarning v-if="admits" :updated-at="get(admits, '[0].updatedAt')" />
       <hr class="filters-section-separator mr-2 mt-3" />
-      <SectionSpinner :loading="sorting" name="Admitted Students" />
+      <SectionSpinner :loading="sorting" />
       <div>
         <a
           v-if="totalAdmitCount > pagination.itemsPerPage"
@@ -169,11 +169,10 @@ export default {
       })
     },
     goToPage(page) {
-      if (page > 1) {
-        const action = `Go to page ${page}`
-        this.alertScreenReader(action)
-      }
       if (page !== this.pagination.currentPage) {
+        if (this.pagination.currentPage) {
+          this.alertScreenReader(`Loading page ${page} of this cohort's students`)
+        }
         this.pagination.currentPage = page
         this.$router.push({
           query: { ...this.$route.query, p: this.pagination.currentPage }
@@ -195,7 +194,7 @@ export default {
         if (response) {
           this.admits = this.get(response, 'students')
           this.totalAdmitCount = this.get(response, 'totalStudentCount')
-          this.loaded()
+          this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {
           this.$router.push({ path: '/404' })

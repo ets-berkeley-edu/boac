@@ -1,6 +1,6 @@
 <template>
   <div class="p-3">
-    <Spinner alert-prefix="Analytics page" />
+    <Spinner />
     <div v-if="!loading">
       <div class="d-flex justify-content-between">
         <div>
@@ -64,7 +64,7 @@ export default {
       if (this.includes(this.map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
-        this.loaded('Reports')
+        this.loaded('Reports loaded')
       } else {
         this.$router.push({ path: '/404' })
       }

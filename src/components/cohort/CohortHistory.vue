@@ -1,6 +1,6 @@
 <template>
   <div>
-    <SectionSpinner :loading="loading" name="History" />
+    <SectionSpinner :loading="loading" />
     <div v-if="!loading && totalEventsCount > itemsPerPage">
       <div class="pt-3">
         <Pagination
@@ -111,11 +111,13 @@ export default {
     },
     loadEvents() {
       this.loading = true
+      this.alertScreenReader('Cohort history is loading')
       this.scrollToTop(10)
       getCohortEvents(this.cohortId, this.offset, this.itemsPerPage).then((response) => {
         this.totalEventsCount = response.count
         this.events = response.events
         this.loading = false
+        this.alertScreenReader('Cohort history has loaded')
       })
     }
   },
