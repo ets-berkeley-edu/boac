@@ -198,7 +198,6 @@ import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import ExportListModal from '@/components/util/ExportListModal'
-import Loading from '@/mixins/Loading.vue'
 import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
@@ -207,7 +206,7 @@ import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated'
 export default {
   name: 'CuratedGroupHeader',
   components: { ExportListModal },
-  mixins: [Berkeley, Context, CuratedEditSession, CurrentUserExtras, Loading, Util, Validator],
+  mixins: [Berkeley, Context, CuratedEditSession, CurrentUserExtras, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,
