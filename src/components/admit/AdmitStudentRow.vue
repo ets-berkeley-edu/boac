@@ -91,10 +91,10 @@ export default {
   computed: {
     fullName() {
       if (this.sortedBy === 'first_name') {
-        return this.join(this.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ')
+        return this.$_.join(this.$_.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ')
       }
       const lastName = this.admitStudent.lastName ? `${this.admitStudent.lastName},` : null
-      return this.join(this.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ')
+      return this.$_.join(this.$_.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ')
     }
   },
   methods: {

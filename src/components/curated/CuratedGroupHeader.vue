@@ -8,7 +8,7 @@
           class="page-section-header mt-0"
           tabindex="0">
           <span>{{ curatedGroupName || 'Curated Group' }}</span>
-          <span v-if="!isNil(totalStudentCount)" class="faint-text"> (<span>{{ pluralize('student', totalStudentCount, {1: '1'}) }}</span>)</span>
+          <span v-if="!$_.isNil(totalStudentCount)" class="faint-text"> (<span>{{ pluralize('student', totalStudentCount, {1: '1'}) }}</span>)</span>
         </h1>
       </div>
       <div v-if="mode === 'rename'" class="w-100 mr-3">
@@ -28,10 +28,10 @@
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
-        <div class="faint-text m-2">255 character limit <span v-if="size(renameInput)">({{ 255 - size(renameInput) }} left)</span></div>
+        <div class="faint-text m-2">255 character limit <span v-if="$_.size(renameInput)">({{ 255 - $_.size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
         <div
-          v-if="size(renameInput) === 255"
+          v-if="$_.size(renameInput) === 255"
           class="sr-only"
           aria-live="polite">
           Name cannot exceed 255 characters.
@@ -40,7 +40,7 @@
       <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-4">
         <b-btn
           id="rename-confirm"
-          :disabled="!size(renameInput)"
+          :disabled="!$_.size(renameInput)"
           class="btn-primary-color-override"
           variant="primary"
           size="sm"

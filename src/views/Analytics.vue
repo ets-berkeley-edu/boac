@@ -61,7 +61,7 @@ export default {
   mounted() {
     this.deptCode = this.$_.trim(this.$_.get(this.$route, 'params.deptCode')).toUpperCase()
     getAvailableDepartmentReports().then(departments => {
-      if (this.$_.includes(this.map(departments, 'code'), this.deptCode)) {
+      if (this.$_.includes(this.$_.map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
         this.loaded('Reports loaded')

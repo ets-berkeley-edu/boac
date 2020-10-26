@@ -117,7 +117,7 @@ export default {
     },
     fullName(admit) {
       const lastName = admit.lastName ? `${admit.lastName},` : null
-      return this.join(this.remove([lastName, admit.firstName, admit.middleName]), ' ')
+      return this.$_.join(this.$_.remove([lastName, admit.firstName, admit.middleName]), ' ')
     },
     normalizeForSort(value) {
       return this.$_.isString(value) ? value.toLowerCase() : value

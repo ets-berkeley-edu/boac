@@ -14,7 +14,7 @@
           <b-btn
             v-if="mode !== 'editTemplate'"
             id="btn-save-as-template"
-            :disabled="isSaving || !trim(model.subject)"
+            :disabled="isSaving || !$_.trim(model.subject)"
             variant="link"
             @click="saveAsTemplate">
             Save as template
@@ -34,7 +34,7 @@
         <div v-if="mode !== 'editTemplate'">
           <b-btn
             id="create-note-button"
-            :disabled="isSaving || !completeSidSet.length || !trim(model.subject)"
+            :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
             aria-label="Create note"
             variant="primary"

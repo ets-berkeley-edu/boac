@@ -5,14 +5,14 @@
     <div v-if="!loading" class="home-content">
       <div>
         <div id="filtered-cohorts-header-row">
-          <h2 v-if="myCohorts && !size(myCohorts)" id="no-cohorts-header" class="page-section-header">
+          <h2 v-if="myCohorts && !$_.size(myCohorts)" id="no-cohorts-header" class="page-section-header">
             You have no saved cohorts.
           </h2>
-          <h1 v-if="myCohorts && size(myCohorts)" class="page-section-header">
+          <h1 v-if="myCohorts && $_.size(myCohorts)" class="page-section-header">
             Cohorts
           </h1>
         </div>
-        <div v-if="myCohorts && !size(myCohorts)">
+        <div v-if="myCohorts && !$_.size(myCohorts)">
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
@@ -24,7 +24,7 @@
             :is-cohort="true" />
         </div>
       </div>
-      <div v-if="size(myCuratedGroups)">
+      <div v-if="$_.size(myCuratedGroups)">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>

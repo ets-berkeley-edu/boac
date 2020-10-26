@@ -28,7 +28,7 @@
           </span>
         </div>
       </template>
-      <b-dropdown-item v-if="!size(myCuratedGroups)">
+      <b-dropdown-item v-if="!$_.size(myCuratedGroups)">
         <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
       </b-dropdown-item>
       <div v-if="!groupsLoading" class="pt-1">

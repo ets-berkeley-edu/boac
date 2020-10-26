@@ -77,7 +77,7 @@ export default {
       this.showError = false
     },
     reportError(error) {
-      error = this.trim(error)
+      error = this.$_.trim(error)
       if (error.length) {
         this.error = error
         this.showError = true

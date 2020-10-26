@@ -625,7 +625,7 @@ export default {
       if (_.has(obj, prop)) {
         const isGPA = prop.toLowerCase().includes('gpa')
         const value = _.get(obj, prop)
-        return isGPA ? parseFloat('0' + this.trim(value)).toFixed(3) : value
+        return isGPA ? parseFloat('0' + this.$_.trim(value)).toFixed(3) : value
       }
       return 'No data'
     },

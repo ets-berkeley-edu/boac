@@ -195,7 +195,7 @@ export default {
   methods: {
     featureSearchedStudent(data) {
       const section = this.$_.clone(data)
-      const subject = this.remove(section.students, student => {
+      const subject = this.$_.remove(section.students, student => {
         return student.uid === this.featured
       })
       const students = this.$_.union(subject, section.students)

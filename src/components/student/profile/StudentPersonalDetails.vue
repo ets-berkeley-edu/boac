@@ -6,7 +6,7 @@
           <h3 class="student-profile-section-header">
             Advisor(s)
           </h3>
-          <div v-if="size(student.advisors)" id="student-profile-advisors">
+          <div v-if="$_.size(student.advisors)" id="student-profile-advisors">
             <div
               v-for="(advisor, index) in advisorsSorted"
               :id="`student-profile-advisor-${index}`"
@@ -26,7 +26,7 @@
               </div>
             </div>
           </div>
-          <div v-if="!size(student.advisors)" id="student-profile-advisors-none">
+          <div v-if="!$_.size(student.advisors)" id="student-profile-advisors-none">
             None assigned.
           </div>
         </div>
@@ -181,7 +181,7 @@ export default {
   },
   methods: {
     advisorName(advisor) {
-      return this.join(this.remove([advisor.firstName, advisor.lastName]), ' ')
+      return this.$_.join(this.$_.remove([advisor.firstName, advisor.lastName]), ' ')
     },
   }
 }

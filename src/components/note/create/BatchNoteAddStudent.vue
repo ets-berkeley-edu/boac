@@ -93,7 +93,7 @@ export default {
       }
     },
     studentsByNameOrSid(query, limit) {
-      const sids = this.map(this.addedStudents, 'sid')
+      const sids = this.$_.map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
           resolve(this.$_.filter(students, s => !this.$_.includes(sids, s.sid)))

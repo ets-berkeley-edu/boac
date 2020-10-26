@@ -47,7 +47,7 @@
           id="btn-appointment-details-update"
           class="pl-2"
           variant="primary"
-          :disabled="!topics.length || !trim(details).length"
+          :disabled="!topics.length || !$_.trim(details).length"
           @click.stop="update">
           Update
         </b-btn>

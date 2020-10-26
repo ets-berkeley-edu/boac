@@ -77,7 +77,7 @@ export default {
   }),
   computed: {
     addedIds() {
-      return this.map(this.added, 'id')
+      return this.$_.map(this.added, 'id')
     }
   },
   created() {

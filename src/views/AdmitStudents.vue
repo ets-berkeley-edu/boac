@@ -160,7 +160,7 @@ export default {
   methods: {
     exportCohort() {
       const name = 'CE3 Admissions'
-      const fields = this.map(this.getAdmitCsvExportColumns(), 'value')
+      const fields = this.$_.map(this.getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
       this.alertScreenReader(`Exporting ${name} cohort`)

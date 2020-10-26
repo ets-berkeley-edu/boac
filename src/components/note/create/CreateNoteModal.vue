@@ -6,7 +6,7 @@
       <div
         id="new-note-modal-container"
         :class="{
-          'd-none': isNil(mode),
+          'd-none': $_.isNil(mode),
           'modal-content': $_.includes(['batch', 'create', 'editTemplate'], mode),
           'mt-4': isBatchFeature
         }">
@@ -185,10 +185,10 @@ export default {
       if (this.mode === 'editTemplate') {
         const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id)
         const template = this.noteTemplates[indexOf]
-        const noDiff = this.trim(this.model.subject) === template.subject
+        const noDiff = this.$_.trim(this.model.subject) === template.subject
           && this.model.body === template.body
-          && !this.size(this.$_.xor(this.model.topics, template.topics))
-          && !this.size(this.$_.xorBy(this.model.attachments, template.attachments, 'displayName'))
+          && !this.$_.size(this.$_.xor(this.model.topics, template.topics))
+          && !this.$_.size(this.$_.xorBy(this.model.attachments, template.attachments, 'displayName'))
         if (noDiff) {
           this.discardTemplate()
         } else {
@@ -196,10 +196,10 @@ export default {
           this.setFocusLockDisabled(true)
         }
       } else {
-        const unsavedChanges = this.trim(this.model.subject)
+        const unsavedChanges = this.$_.trim(this.model.subject)
           || this.stripHtmlAndTrim(this.model.body)
-          || this.size(this.model.topics)
-          || this.size(this.model.attachments)
+          || this.$_.size(this.model.topics)
+          || this.$_.size(this.model.attachments)
           || this.addedCohorts.length
           || this.addedCuratedGroups.length
         if (unsavedChanges) {

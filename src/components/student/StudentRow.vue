@@ -137,21 +137,21 @@
     <div class="student-column student-column-gpa">
       <div>
         <span
-          v-if="isNil(student.cumulativeGPA)"
+          v-if="$_.isNil(student.cumulativeGPA)"
           :id="`row-${rowIndex}-student-cumulative-gpa`"
           class="student-gpa">--<span class="sr-only">No data</span></span>
         <span
-          v-if="!isNil(student.cumulativeGPA)"
+          v-if="!$_.isNil(student.cumulativeGPA)"
           :id="`row-${rowIndex}-student-cumulative-gpa`"
           class="student-gpa">{{ round(student.cumulativeGPA, 3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart
-        v-if="size(student.termGpa) > 1"
+        v-if="$_.size(student.termGpa) > 1"
         :student="student"
         :width="'130'" />
       <div
-        v-if="size(student.termGpa)"
+        v-if="$_.size(student.termGpa)"
         class="student-bio-status-legend profile-last-term-gpa-outer pl-0">
         <font-awesome
           v-if="student.termGpa[0].gpa < 2"
@@ -334,7 +334,7 @@ export default {
     degreePlanOwners() {
       const plans = this.$_.get(this.student, 'degree.plans')
       if (plans) {
-        return this.$_.uniq(this.map(plans, 'group'))
+        return this.$_.uniq(this.$_.map(plans, 'group'))
       } else {
         return []
       }

@@ -117,7 +117,7 @@ export default {
       })
     },
     schedulersByNameOrSid(query, limit) {
-      const csids = this.map(this.dept.schedulers, 'csid')
+      const csids = this.$_.map(this.dept.schedulers, 'csid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
           resolve(this.$_.filter(students, s => !this.$_.includes(csids, s.sid)))

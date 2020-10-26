@@ -332,7 +332,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.$currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-      const hasAnyRole = user.isAdmin || this.$_.find(user.departments, (dept) => !this.isNil(dept.role))
+      const hasAnyRole = user.isAdmin || this.$_.find(user.departments, (dept) => !this.$_.isNil(dept.role))
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {
@@ -375,8 +375,8 @@ export default {
         break
       case 'filter':
         promise = getUsers(
-          this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
-          this.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
+          this.$_.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
+          this.$_.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
           this.filterBy.deptCode,
           this.filterBy.role,
           this.sortBy,

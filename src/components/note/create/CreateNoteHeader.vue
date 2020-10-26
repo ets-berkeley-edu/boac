@@ -14,7 +14,7 @@
         variant="primary"
         class="mb-2 ml-0"
         right>
-        <b-dropdown-header v-if="!size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
+        <b-dropdown-header v-if="!$_.size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
             You have no saved templates.

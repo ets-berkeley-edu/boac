@@ -47,7 +47,7 @@
                   automatically by your filtering preferences, such as GPA or units.
                 </div>
               </div>
-              <div v-if="size(myCuratedGroups)" class="mt-4">
+              <div v-if="$_.size(myCuratedGroups)" class="mt-4">
                 <div class="d-flex justify-content-between mr-3">
                   <div>
                     <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Curated Groups</h3>

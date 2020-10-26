@@ -155,7 +155,7 @@ export default {
   computed: {
     anchor: () => location.hash,
     showStudentsSection() {
-      return this.size(this.students) && this.editMode !== 'apply'
+      return this.$_.size(this.students) && this.editMode !== 'apply'
     }
   },
   watch: {
@@ -166,7 +166,7 @@ export default {
   mounted() {
     const forwardPath = this.$routerHistory.hasForward() && this.$_.get(this.$routerHistory.next(), 'path')
     const continueExistingSession =
-      (this.$_.startsWith(forwardPath, '/student') || this.$_.startsWith(forwardPath, '/admit/student')) && this.size(this.filters)
+      (this.$_.startsWith(forwardPath, '/student') || this.$_.startsWith(forwardPath, '/admit/student')) && this.$_.size(this.filters)
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage

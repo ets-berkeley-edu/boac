@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    v-if="!isNil(dropInAdvisors)"
+    v-if="!$_.isNil(dropInAdvisors)"
     id="advising-appointment-check-in"
     v-model="showCheckInModal"
     :no-close-on-backdrop="true"

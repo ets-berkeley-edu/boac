@@ -183,7 +183,7 @@
             class="filter-range-input" />
         </div>
         <div
-          v-if="size(errorPerRangeInput)"
+          v-if="$_.size(errorPerRangeInput)"
           class="sr-only"
           aria-live="polite"
           tabindex="0"
@@ -191,7 +191,7 @@
           Error: {{ errorPerRangeInput }}
         </div>
         <b-popover
-          v-if="size(errorPerRangeInput)"
+          v-if="$_.size(errorPerRangeInput)"
           :show="true"
           :target="isExistingFilter ? `filter-range-max-${index}` : 'filter-range-max'"
           placement="top">
@@ -319,7 +319,7 @@ export default {
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
-      if (this.isNil(newEditMode)) {
+      if (this.$_.isNil(newEditMode)) {
         // Nothing is being edited. Let's make sure this row is in default state.
         this.reset()
         this.showRow = true
@@ -398,7 +398,7 @@ export default {
     filterRowSecondaryDropdownId: index => `filter-row-dropdown-secondary-${index}`,
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
-      const gpa = '0' + this.trim(value)
+      const gpa = '0' + this.$_.trim(value)
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
@@ -512,7 +512,7 @@ export default {
       } else {
         const min = this.$_.get(this.filter, 'value.min')
         const max = this.$_.get(this.filter, 'value.max')
-        const minEqualsMax = !this.isNil(min) && min === max
+        const minEqualsMax = !this.$_.isNil(min) && min === max
         const labels = this.$_.get(this.filter.label, 'range')
         snippet = minEqualsMax ? '' : `${labels[1]} ${max}`
       }
@@ -525,7 +525,7 @@ export default {
       } else {
         const min = this.$_.get(this.filter, 'value.min')
         const max = this.$_.get(this.filter, 'value.max')
-        const minEqualsMax = !this.isNil(min) && min === max
+        const minEqualsMax = !this.$_.isNil(min) && min === max
         const labels = this.$_.get(this.filter.label, 'range')
         snippet = minEqualsMax ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
@@ -543,7 +543,7 @@ export default {
       this.disableUpdateButton = false
       this.showAdd = false
       this.range = this.$_.mapValues(this.range, () => undefined)
-      if (this.isNil(this.index)) {
+      if (this.$_.isNil(this.index)) {
         this.filter = {}
         this.isExistingFilter = false
         this.isModifyingFilter = true

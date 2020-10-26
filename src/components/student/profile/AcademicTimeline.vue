@@ -271,8 +271,8 @@
               </div>
             </div>
             <div v-if="message.type === 'note' || message.type === 'appointment'">
-              <font-awesome v-if="size(message.attachments)" icon="paperclip" class="mt-2" />
-              <span class="sr-only">{{ size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
+              <font-awesome v-if="$_.size(message.attachments)" icon="paperclip" class="mt-2" />
+              <span class="sr-only">{{ $_.size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
             </div>
           </td>
           <td class="column-right align-top">
@@ -407,7 +407,7 @@ export default {
     countPerActiveTab() {
       return this.filter
         ? this.countsPerType[this.filter]
-        : this.size(this.messages)
+        : this.$_.size(this.messages)
     },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
@@ -471,7 +471,7 @@ export default {
     this.countsPerType = {}
     this.$_.each(this.$_.keys(this.filterTypes), (type, typeIndex) => {
       let notifications = this.student.notifications[type]
-      this.countsPerType[type] = this.size(notifications)
+      this.countsPerType[type] = this.$_.size(notifications)
       this.$_.each(notifications, (message, index) => {
         this.messages.push(message)
         // If object is not a BOA advising note then generate a transient and non-zero primary key.
@@ -483,7 +483,7 @@ export default {
     this.isTimelineLoading = false
     const onCreateNewNote = note => {
       if (note.sid === this.student.sid) {
-        const currentNoteIds = this.map(this.$_.filter(this.messages, ['type', 'note']), 'id')
+        const currentNoteIds = this.$_.map(this.$_.filter(this.messages, ['type', 'note']), 'id')
         const isNotInView = !this.$_.includes(currentNoteIds, note.id)
         if (isNotInView) {
           note.transientId = note.id
@@ -554,7 +554,7 @@ export default {
         return false
       }
       if (this.$_.includes(this.openMessages, message.transientId)) {
-        this.openMessages = this.remove(
+        this.openMessages = this.$_.remove(
           this.openMessages,
           id => id !== message.transientId
         )
@@ -575,8 +575,8 @@ export default {
       const transientId = this.messageForDelete.transientId
       const predicate = ['transientId', transientId]
       const note = this.$_.find(this.messages, predicate)
-      this.remove(this.messages, predicate)
-      this.remove(this.openMessages, value => transientId === value)
+      this.$_.remove(this.messages, predicate)
+      this.$_.remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
       deleteNote(note.id).then(() => {
         this.alertScreenReader('Note deleted')
@@ -687,7 +687,7 @@ export default {
           noteOptions
         ).then(data => {
           const items = this.filter === 'appointment' ? this.$_.get(data, 'appointments') : this.$_.get(data, 'notes')
-          this.searchResults = this.map(items, 'id')
+          this.searchResults = this.$_.map(items, 'id')
           this.lastTimelineQuery = this.$_.clone(this.timelineQuery)
           this.searchResultsLoading = false
         })

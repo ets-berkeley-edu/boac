@@ -34,7 +34,7 @@
         </h1>
       </div>
       <div v-if="!showHistory" class="d-flex align-self-baseline mr-4">
-        <div v-if="cohortId && size(filters)">
+        <div v-if="cohortId && $_.size(filters)">
           <b-btn
             id="show-hide-details-button"
             :aria-label="isCompactView ? 'Show cohort filters' : 'Hide cohort filters'"
@@ -44,7 +44,7 @@
             {{ isCompactView ? 'Show' : 'Hide' }} Filters
           </b-btn>
         </div>
-        <div v-if="cohortId && isOwnedByCurrentUser && size(filters)" class="faint-text">|</div>
+        <div v-if="cohortId && isOwnedByCurrentUser && $_.size(filters)" class="faint-text">|</div>
         <div v-if="cohortId && isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
@@ -78,7 +78,7 @@
               :delete-cohort="cohortDelete" />
           </b-modal>
         </div>
-        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && size(filters))" class="faint-text">|</div>
+        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && $_.size(filters))" class="faint-text">|</div>
         <div v-if="cohortId || totalStudentCount !== undefined">
           <span id="export-student-list-description" class="sr-only">Download CSV file containing all students in this cohort</span>
           <b-btn
@@ -285,7 +285,7 @@ export default {
     getCsvExportColumnsSelected() {
       return this.domain === 'default' ?
         ['first_name', 'last_name', 'sid', 'email', 'phone'] :
-        this.map(this.getCsvExportColumns(), 'value')
+        this.$_.map(this.getCsvExportColumns(), 'value')
     },
     submitRename() {
       this.renameError = this.validateCohortName({
