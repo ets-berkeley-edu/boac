@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     apply() {
-      this.$eventHub.$emit('cohort-apply-filters')
+      this.$eventHub.emit('cohort-apply-filters')
       this.isPerforming = 'search'
       this.applyFilters(this.$_.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')).then(() => {
         this.putFocusNextTick('cohort-results-header')

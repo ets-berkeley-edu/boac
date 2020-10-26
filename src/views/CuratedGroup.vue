@@ -96,7 +96,7 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    this.$eventHub.$off('sortBy-user-preference-change')
+    this.$eventHub.off('sortBy-user-preference-change')
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
@@ -110,7 +110,7 @@ export default {
         this.$router.push({ path: '/404' })
       }
     })
-    this.$eventHub.$on('sortBy-user-preference-change', sortBy => {
+    this.$eventHub.on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
         this.loadingStart()
         this.alertScreenReader(`Sorting students by ${sortBy}`)
