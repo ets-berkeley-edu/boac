@@ -214,14 +214,14 @@ export default {
   methods: {
     addDepartment() {
       if (this.deptCode) {
-        const dept = this.find(this.departments, ['code', this.deptCode])
+        const dept = this.$_.find(this.departments, ['code', this.deptCode])
         this.memberships.push({
           code: dept.code,
           name: dept.name,
           role: undefined,
           automateMembership: true
         })
-        const option = this.find(this.departmentOptions, ['value', this.deptCode])
+        const option = this.$_.find(this.departmentOptions, ['value', this.deptCode])
         option.disabled = true
         this.deptCode = undefined
       }
@@ -249,7 +249,7 @@ export default {
       }
       this.isDeleted = !!this.profile.deletedAt
       this.memberships = []
-      this.each(this.profile.departments, d => {
+      this.$_.each(this.profile.departments, d => {
         if (d.role) {
           this.memberships.push({
             automateMembership: d.automateMembership,
@@ -260,9 +260,9 @@ export default {
         }
       })
       this.departmentOptions = []
-      this.each(this.departments, d => {
+      this.$_.each(this.departments, d => {
         this.departmentOptions.push({
-          disabled: !!this.find(this.memberships, ['code', d.code]),
+          disabled: !!this.$_.find(this.memberships, ['code', d.code]),
           value: d.code,
           text: d.name
         })
@@ -272,11 +272,11 @@ export default {
     removeDepartment(deptCode) {
       let indexOf = this.memberships.findIndex(d => d.code === deptCode)
       this.memberships.splice(indexOf, 1)
-      const option = this.find(this.departmentOptions, ['value', deptCode])
+      const option = this.$_.find(this.departmentOptions, ['value', deptCode])
       option.disabled = false
     },
     save() {
-      const undefinedRoles = this.filterList(this.memberships, r => this.isNil(r.role))
+      const undefinedRoles = this.$_.filter(this.memberships, r => this.isNil(r.role))
       if (undefinedRoles.length) {
         const deptNames = this.map(undefinedRoles, 'name')
         this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`
@@ -287,7 +287,7 @@ export default {
           this.afterUpdateUser(this.profile)
           this.closeModal()
         }).catch(error => {
-          this.error = this.get(error, 'response.data.message') || error
+          this.error = this.$_.get(error, 'response.data.message') || error
         })
       }
     }

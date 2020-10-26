@@ -228,8 +228,8 @@ export default {
   },
   mounted() {
     if (this.referencingCohortIds.length) {
-      this.each(this.referencingCohortIds, cohortId => {
-        const cohort = this.find(this.myCohorts, ['id', cohortId])
+      this.$_.each(this.referencingCohortIds, cohortId => {
+        const cohort = this.$_.find(this.myCohorts, ['id', cohortId])
         this.referencingCohorts.push(cohort)
       })
       this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name'])

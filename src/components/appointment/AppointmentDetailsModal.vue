@@ -108,7 +108,7 @@ export default {
   },
   created() {
     this.details = this.appointment.details
-    this.topics = this.clone(this.appointment.topics)
+    this.topics = this.$_.clone(this.appointment.topics)
     this.showDetailsModal = this.showModal
     this.putFocusNextTick('create-modal-advisor-select')
     this.alertScreenReader('Appointment details form is open')
@@ -118,7 +118,7 @@ export default {
       this.topics.push(topic)
     },
     removeTopic(topic) {
-      const index = this.indexOf(this.topics, topic)
+      const index = this.$_.indexOf(this.topics, topic)
       if (index !== -1) {
         this.topics.splice(index, 1)
       }

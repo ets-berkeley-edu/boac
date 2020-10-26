@@ -20,7 +20,7 @@
         </span>
       </div>
       <div class="d-flex align-items-center mt-1 mb-3">
-        <div v-if="isUserDropInAdvisor(appointment.deptCode) && includes(['waiting', 'reserved'], appointment.status)">
+        <div v-if="isUserDropInAdvisor(appointment.deptCode) && $_.includes(['waiting', 'reserved'], appointment.status)">
           <DropInAppointmentDropdown
             :appointment="appointment"
             :dept-code="appointment.deptCode"
@@ -159,12 +159,12 @@ export default {
     },
     isUserDropInAdvisor(deptCode) {
       const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
-      return this.includes(deptCodes, this.upperCase(deptCode))
+      return this.$_.includes(deptCodes, this.$_.upperCase(deptCode))
     },
     setAdvisor() {
-      const requiresLazyLoad = this.isOpen && (!this.get(this.appointment, 'advisor.name') || !this.get(this.appointment, 'advisor.title'))
+      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.appointment, 'advisor.name') || !this.$_.get(this.appointment, 'advisor.title'))
       if (requiresLazyLoad) {
-        if (this.get(this.appointment, 'advisor.uid')) {
+        if (this.$_.get(this.appointment, 'advisor.uid')) {
           const advisor_uid = this.appointment.advisor.uid
           if (advisor_uid) {
             if (advisor_uid === this.$currentUser.uid) {

@@ -96,7 +96,7 @@ export default {
       const trimmed = this.trim(this.textarea, ' ,\n\t')
       if (trimmed) {
         const split = this.split(trimmed, /[,\r\n\t ]+/)
-        const notNumeric = this.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1]
+        const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1]
         if (notNumeric.length) {
           this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.'
           this.putFocusNextTick('curated-group-bulk-add-sids')
@@ -104,7 +104,7 @@ export default {
           this.isValidating = true
           validateSids(split).then(data => {
             const notFound = []
-            this.each(data, entry => {
+            this.$_.each(data, entry => {
               switch(entry.status) {
               case 200:
               case 401:

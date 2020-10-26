@@ -324,7 +324,7 @@ export default {
       this.refreshUsers()
     },
     autocompleteUsers(q) {
-      return userAutocomplete(q).then(results => this.orderBy(results, 'label'))
+      return userAutocomplete(q).then(results => this.$_.orderBy(results, 'label'))
     },
     become(uid) {
       becomeUser(uid).then(() => (window.location.href = '/home'))
@@ -332,7 +332,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.$currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-      const hasAnyRole = user.isAdmin || this.find(user.departments, (dept) => !this.isNil(dept.role))
+      const hasAnyRole = user.isAdmin || this.$_.find(user.departments, (dept) => !this.isNil(dept.role))
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {

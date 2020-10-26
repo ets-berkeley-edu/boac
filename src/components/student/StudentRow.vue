@@ -118,7 +118,7 @@
           aria-label="Entering term">
           Entered {{ student.matriculation }}
         </div>
-        <div v-if="get(student, 'degree.dateAwarded')">
+        <div v-if="$_.get(student, 'degree.dateAwarded')">
           <span class="student-text">Graduated {{ student.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
         </div>
         <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
@@ -164,7 +164,7 @@
       </div>
     </div>
     <div class="student-column">
-      <div :id="`row-${rowIndex}-student-enrolled-units`" class="student-gpa">{{ get(student.term, 'enrolledUnits', 0) }}</div>
+      <div :id="`row-${rowIndex}-student-enrolled-units`" class="student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
       <div class="student-text">Units in Progress</div>
       <!--
       TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.
@@ -232,7 +232,7 @@
               </span>
               <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
             </div>
-            <div v-if="!get(enrollment, 'canvasSites').length">
+            <div v-if="!$_.get(enrollment, 'canvasSites').length">
               <span class="sr-only">No data </span>&mdash;
             </div>
           </td>
@@ -332,17 +332,17 @@ export default {
   },
   computed: {
     degreePlanOwners() {
-      const plans = this.get(this.student, 'degree.plans')
+      const plans = this.$_.get(this.student, 'degree.plans')
       if (plans) {
-        return this.uniq(this.map(plans, 'group'))
+        return this.$_.uniq(this.map(plans, 'group'))
       } else {
         return []
       }
     }
   },
   created() {
-    const termEnrollments = this.get(this.student.term, 'enrollments', [])
-    this.each(termEnrollments, this.setWaitlistedStatus)
+    const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
+    this.$_.each(termEnrollments, this.setWaitlistedStatus)
     this.termEnrollments = termEnrollments
   }
 }

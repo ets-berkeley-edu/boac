@@ -63,7 +63,7 @@ export default {
   },
   methods: {
     dropInStatus: function() {
-      return this.find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode])
+      return this.$_.find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode])
     },
     toggle: function() {
       this.isToggling = true

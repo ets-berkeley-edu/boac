@@ -87,7 +87,7 @@ export default {
     },
     removeStudent(student) {
       if (student) {
-        this.addedStudents = this.filterList(this.addedStudents, a => a.sid !== student.sid)
+        this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
         this.removeSid(student.sid)
         this.alertScreenReader(`${student.label} removed from batch note`)
       }
@@ -96,7 +96,7 @@ export default {
       const sids = this.map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.filterList(students, s => !this.includes(sids, s.sid)))
+          resolve(this.$_.filter(students, s => !this.$_.includes(sids, s.sid)))
         })
       })
     }

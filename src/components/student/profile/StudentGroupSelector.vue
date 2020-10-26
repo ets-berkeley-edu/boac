@@ -126,10 +126,10 @@ export default {
   },
   methods: {
     groupCheckboxClick(group) {
-      if (this.includes(this.checkedGroups, group.id)) {
+      if (this.$_.includes(this.checkedGroups, group.id)) {
         this.isRemoving = true
         const done = () => {
-          this.checkedGroups = this.without(this.checkedGroups, group.id)
+          this.checkedGroups = this.$_.without(this.checkedGroups, group.id)
           this.isRemoving = false
           this.putFocusNextTick('curated-group-dropdown', 'button')
           this.alertScreenReader(`${this.student.name} removed from "${group.name}"`)
@@ -157,7 +157,7 @@ export default {
         .then(group => {
           this.checkedGroups.push(group.id)
           this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
-          this.each(
+          this.$_.each(
             [
               'create',
               `Student profile: Added SID ${this.student.sid}, after create group`

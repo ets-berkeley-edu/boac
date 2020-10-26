@@ -107,12 +107,12 @@ export default {
   },
   created() {
     getTopicsForNotes(false).then(rows => {
-      this.each(rows, row => {
+      this.$_.each(rows, row => {
         const topic = row['topic']
         this.topicOptions.push({
           text: topic,
           value: topic,
-          disabled: this.includes(this.topics, topic)
+          disabled: this.$_.includes(this.topics, topic)
         })
       })
     })
@@ -135,7 +135,7 @@ export default {
       this.alertScreenReader(`Topic ${topic} removed.`)
     },
     setDisabled(topic, disable) {
-      const option = this.find(this.topicOptions, ['value', topic])
+      const option = this.$_.find(this.topicOptions, ['value', topic])
       this.set(option, 'disabled', disable)
     }
   }

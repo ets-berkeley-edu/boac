@@ -72,12 +72,12 @@ export default {
   },
   computed: {
     reservedAppointmentsByAdvisor: function() {
-      return this.groupBy(this.waitlist.unresolved, (appt) => {
+      return this.$_.groupBy(this.waitlist.unresolved, (appt) => {
         return appt.status === 'reserved' && appt.advisorUid
       })
     },
     orderedAdvisors: function() {
-      return this.orderBy(this.advisors, 'name')
+      return this.$_.orderBy(this.advisors, 'name')
     }
   }
 }

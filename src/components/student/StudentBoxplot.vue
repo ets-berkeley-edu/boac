@@ -93,7 +93,7 @@ export default {
     courseDeciles: undefined
   }),
   mounted() {
-    this.courseDeciles = this.get(this.dataset, 'courseDeciles')
+    this.courseDeciles = this.$_.get(this.dataset, 'courseDeciles')
     this.renderBoxplot()
   },
   methods: {
@@ -174,7 +174,7 @@ export default {
         <div class="student-chart-tooltip-header">
           <div class="student-chart-tooltip-label">User Score</div>
           <div class="student-chart-tooltip-value">${
-        this.get(this.dataset.student, 'raw') || '--'
+        this.$_.get(this.dataset.student, 'raw') || '--'
       }</div>
         </div>`
     }

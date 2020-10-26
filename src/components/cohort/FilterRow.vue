@@ -211,7 +211,7 @@
       </b-btn>
     </div>
     <div
-      v-if="isModifyingFilter && get(filter, 'type.ux') && !isExistingFilter"
+      v-if="isModifyingFilter && $_.get(filter, 'type.ux') && !isExistingFilter"
       class="filter-row-column-04">
       <b-btn
         id="unsaved-filter-reset"
@@ -390,7 +390,7 @@ export default {
   },
   created() {
     this.reset()
-    this.valueOriginal = this.filter && this.cloneDeep(this.filter.value)
+    this.valueOriginal = this.filter && this.$_.cloneDeep(this.filter.value)
   },
   methods: {
     isGrouped: options => !!options['0'].group,
@@ -402,19 +402,19 @@ export default {
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
-      const option = this.find(this.filter.options, ['value', this.filter.value])
-      const label = this.get(option, 'name')
+      const option = this.$_.find(this.filter.options, ['value', this.filter.value])
+      const label = this.$_.get(option, 'name')
       return this.isGrouped(this.filter.options) ? `${label} (${option.group})` : label
     },
     isUX(type) {
-      return this.get(this.filter, 'type.ux') === type
+      return this.$_.get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
       const announce = alert => {
         this.alertScreenReader(alert)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
       }
-      switch (this.get(this.filter, 'type.ux')) {
+      switch (this.$_.get(this.filter, 'type.ux')) {
       case 'dropdown':
         announce(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
         break
@@ -444,7 +444,7 @@ export default {
     onClickEditButton() {
       this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
-        const category = this.find(this.flatten(this.menu), ['key', this.filter.key])
+        const category = this.$_.find(this.$_.flatten(this.menu), ['key', this.filter.key])
         this.filter.options = category.options
       } else if (this.isUX('range')) {
         this.range.min = this.filter.value.min
@@ -472,7 +472,7 @@ export default {
       })
     },
     onSelectFilter(filter) {
-      this.filter = this.cloneDeep(filter)
+      this.filter = this.$_.cloneDeep(filter)
       this.showAdd = filter.type.ux === 'boolean'
       this.alertScreenReader(`${filter.label.primary} selected`)
       switch (filter.type.ux) {
@@ -510,10 +510,10 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[1]
       } else {
-        const min = this.get(this.filter, 'value.min')
-        const max = this.get(this.filter, 'value.max')
+        const min = this.$_.get(this.filter, 'value.min')
+        const max = this.$_.get(this.filter, 'value.max')
         const minEqualsMax = !this.isNil(min) && min === max
-        const labels = this.get(this.filter.label, 'range')
+        const labels = this.$_.get(this.filter.label, 'range')
         snippet = minEqualsMax ? '' : `${labels[1]} ${max}`
       }
       return snippet
@@ -523,11 +523,11 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[0]
       } else {
-        const min = this.get(this.filter, 'value.min')
-        const max = this.get(this.filter, 'value.max')
+        const min = this.$_.get(this.filter, 'value.min')
+        const max = this.$_.get(this.filter, 'value.max')
         const minEqualsMax = !this.isNil(min) && min === max
-        const labels = this.get(this.filter.label, 'range')
-        snippet = minEqualsMax ? this.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
+        const labels = this.$_.get(this.filter.label, 'range')
+        snippet = minEqualsMax ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
       return snippet
     },
@@ -542,13 +542,13 @@ export default {
     reset() {
       this.disableUpdateButton = false
       this.showAdd = false
-      this.range = this.mapValues(this.range, () => undefined)
+      this.range = this.$_.mapValues(this.range, () => undefined)
       if (this.isNil(this.index)) {
         this.filter = {}
         this.isExistingFilter = false
         this.isModifyingFilter = true
       } else {
-        this.filter = this.cloneDeep(this.filters[this.index])
+        this.filter = this.$_.cloneDeep(this.filters[this.index])
         this.isExistingFilter = true
         this.isModifyingFilter = false
       }

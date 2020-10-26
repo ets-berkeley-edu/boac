@@ -81,7 +81,7 @@
       v-if="showDeleteTemplateModal"
       :function-cancel="cancel"
       :function-confirm="deleteTemplateConfirmed"
-      :modal-body="`Are you sure you want to delete the <b>'${get(targetTemplate, 'title')}'</b> template?`"
+      :modal-body="`Are you sure you want to delete the <b>'${$_.get(targetTemplate, 'title')}'</b> template?`"
       :show-modal="showDeleteTemplateModal"
       button-label-confirm="Delete"
       modal-header="Delete Template" />
@@ -128,12 +128,12 @@ export default {
       })
     },
     editTemplate(template) {
-      this.setModel(this.cloneDeep(template))
+      this.setModel(this.$_.cloneDeep(template))
       this.setMode('editTemplate')
       this.putFocusNextTick('create-note-subject')
     },
     loadTemplate(template) {
-      this.setModel(this.cloneDeep(template))
+      this.setModel(this.$_.cloneDeep(template))
       this.putFocusNextTick('create-note-subject')
       this.alertScreenReader(`Template ${template.title} loaded`)
     },

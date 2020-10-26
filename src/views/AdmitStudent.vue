@@ -17,7 +17,7 @@
           <span>View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page</span>
         </router-link>
       </div>
-      <AdmitDataWarning :updated-at="get(admit, 'updatedAt')" />
+      <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />
       <table class="mb-4 table-striped">
         <caption class="sr-only">Basic information for {{ fullName }}</caption>
         <tbody>
@@ -344,14 +344,14 @@ export default {
   },
   created() {
     this.now = this.$moment()
-    let sid = this.get(this.$route, 'params.sid')
+    let sid = this.$_.get(this.$route, 'params.sid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       sid = window.atob(sid)
     }
     getAdmitBySid(sid).then(admit => {
       if (admit) {
-        this.assign(this.admit, admit)
+        this.$_.assign(this.admit, admit)
         let pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
         this.loaded(`${pageTitle} has loaded`)

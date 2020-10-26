@@ -153,7 +153,7 @@ export default {
       }
     },
     refresh() {
-      this.indeterminate = this.inRange(
+      this.indeterminate = this.$_.inRange(
         this.size(this.sids),
         1,
         this.size(this.students)
@@ -187,7 +187,7 @@ export default {
         this.alertScreenReader('Selected students added to curated group')
       }
       const trackEvent = group => {
-        this.each(
+        this.$_.each(
           [
             'create',
             `${this.contextDescription}: add students to Curated Group`

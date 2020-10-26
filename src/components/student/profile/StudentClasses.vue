@@ -213,7 +213,7 @@
               </tr>
             </table>
           </div>
-          <div v-if="isEmpty(course.canvasSites)" class="student-bcourses-wrapper student-course-notation">
+          <div v-if="$_.isEmpty(course.canvasSites)" class="student-bcourses-wrapper student-course-notation">
             No additional information
           </div>
         </b-collapse>
@@ -241,7 +241,7 @@
         </div>
       </div>
       <div
-        v-if="!isEmpty(term.droppedSections)"
+        v-if="!$_.isEmpty(term.droppedSections)"
         class="student-course mt-3 pt-1"
         is-open="true">
         <div v-for="(droppedSection, dsIndex) in term.droppedSections" :key="dsIndex" class="ml-4">
@@ -254,7 +254,7 @@
         </div>
       </div>
     </div>
-    <div v-if="get(student, 'enrollmentTerms.length') > size(relevantTerms)" class="text-center">
+    <div v-if="$_.get(student, 'enrollmentTerms.length') > $_.size(relevantTerms)" class="text-center">
       <b-btn
         id="toggle-show-all-terms"
         variant="link"
@@ -263,7 +263,7 @@
         <span class="no-wrap pl-1">{{ showAllTerms ? 'Hide' : 'Show' }} Previous Semesters</span>
       </b-btn>
     </div>
-    <div v-if="isEmpty(student.enrollmentTerms)">
+    <div v-if="$_.isEmpty(student.enrollmentTerms)">
       No courses
       <StudentWithdrawalCancel v-if="student.sisProfile.withdrawalCancel" :withdrawal="student.sisProfile.withdrawalCancel" />
     </div>
@@ -294,8 +294,8 @@ export default {
     showAllTerms: false
   }),
   created() {
-    const currentTermIndex = this.findIndex(this.student.enrollmentTerms, term => {
-      return term.termId === this.toString(this.$config.currentEnrollmentTermId)
+    const currentTermIndex = this.$_.findIndex(this.student.enrollmentTerms, term => {
+      return term.termId === this.$_.toString(this.$config.currentEnrollmentTermId)
     })
     const index = currentTermIndex < 0 ? 0 : currentTermIndex
     this.relevantTerms = this.student.enrollmentTerms.slice(0, index + 1)

@@ -100,7 +100,7 @@ export default {
       this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`)
     },
     removeSid(sid) {
-      if (this.includes(this.sids, sid)) {
+      if (this.$_.includes(this.sids, sid)) {
         this.setIsRecalculating(true)
         this.removeStudent(sid)
         this.putFocusNextTick('create-note-add-student-input')

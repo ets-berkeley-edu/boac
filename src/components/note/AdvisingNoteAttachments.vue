@@ -93,7 +93,7 @@ export default {
       if (files) {
         this.attachmentError = this.validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
-          this.each(files, attachment => {
+          this.$_.each(files, attachment => {
             attachment.displayName = attachment.name
             this.addAttachment(attachment)
             this.alertScreenReader(`Attachment '${attachment.displayName}' added`)

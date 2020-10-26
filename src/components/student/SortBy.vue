@@ -76,7 +76,7 @@ export default {
     this.optionGroups = this.getSortByOptionGroups(this.domain)
     this.sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     this.$eventHub.$on(`${this.sortByKey}-user-preference-change`, v => this.sortBy = v)
-    this.sortBy = this.get(this.preferences, this.sortByKey)
+    this.sortBy = this.$_.get(this.preferences, this.sortByKey)
     this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
     this.isReady = true
   },
@@ -104,7 +104,7 @@ export default {
             {label: 'Major', value: 'major'}
           ]
         })
-        if (this.$currentUser.isAdmin || this.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
+        if (this.$currentUser.isAdmin || this.$_.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
           optionGroups[0].options.push({label: 'Team', value: 'group_name'})
         }
         optionGroups.push({
@@ -154,7 +154,7 @@ export default {
       return label
     },
     onSelect(value) {
-      if (value !== this.get(this.preferences, this.sortByKey)) {
+      if (value !== this.$_.get(this.preferences, this.sortByKey)) {
         this.sortBy = value
         this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
         this.alertScreenReader(`${this.dropdownLabel} selected`)

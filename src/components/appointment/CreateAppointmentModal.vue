@@ -167,7 +167,7 @@ export default {
   }),
   computed: {
     isStudentInWaitlist() {
-      return this.student && !!this.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
+      return this.student && !!this.$_.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
     }
   },
   watch: {
@@ -217,7 +217,7 @@ export default {
       this.student = undefined
     },
     removeTopic(topic) {
-      const index = this.indexOf(this.topics, topic)
+      const index = this.$_.indexOf(this.topics, topic)
       if (index !== -1) {
         this.topics.splice(index, 1)
       }

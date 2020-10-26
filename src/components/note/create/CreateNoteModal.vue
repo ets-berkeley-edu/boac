@@ -7,7 +7,7 @@
         id="new-note-modal-container"
         :class="{
           'd-none': isNil(mode),
-          'modal-content': includes(['batch', 'create', 'editTemplate'], mode),
+          'modal-content': $_.includes(['batch', 'create', 'editTemplate'], mode),
           'mt-4': isBatchFeature
         }">
         <form @submit.prevent="submitForm">
@@ -187,8 +187,8 @@ export default {
         const template = this.noteTemplates[indexOf]
         const noDiff = this.trim(this.model.subject) === template.subject
           && this.model.body === template.body
-          && !this.size(this.xor(this.model.topics, template.topics))
-          && !this.size(this.xorBy(this.model.attachments, template.attachments, 'displayName'))
+          && !this.size(this.$_.xor(this.model.topics, template.topics))
+          && !this.size(this.$_.xorBy(this.model.attachments, template.attachments, 'displayName'))
         if (noDiff) {
           this.discardTemplate()
         } else {
@@ -336,7 +336,7 @@ export default {
     },
     updateTemplate() {
       this.setIsSaving(true)
-      const newAttachments = this.filterList(this.model.attachments, a => !a.id)
+      const newAttachments = this.$_.filter(this.model.attachments, a => !a.id)
       if (newAttachments.length) {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Updating template...', 60)
