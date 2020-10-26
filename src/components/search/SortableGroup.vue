@@ -48,7 +48,6 @@
     </div>
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
-      v-model="openAndLoaded"
       :aria-expanded="openAndLoaded"
       :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
       class="panel-body mr-3">
