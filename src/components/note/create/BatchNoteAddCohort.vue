@@ -17,15 +17,15 @@
         :id="`batch-note-${type}-option-${object.id}`"
         :key="object.id"
         :aria-label="`Add ${type} ${object.name}`"
-        :disabled="includes(addedIds, object.id)"
+        :disabled="$_.includes(addedIds, object.id)"
         @click="addItem(object)">
-        {{ truncate(object.name) }}
+        {{ $_.truncate(object.name) }}
       </b-dropdown-item>
     </b-dropdown>
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          <span :id="`batch-note-${type}-${index}`">{{ truncate(addedObject.name) }}</span>
+          <span :id="`batch-note-${type}-${index}`">{{ $_.truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
             :aria-label="`Remove ${type} ${addedObject.name}`"
@@ -93,7 +93,7 @@ export default {
       this.alertScreenReader(`${this.header} ${object.name} added to batch note`)
     },
     remove(object) {
-      this.added = this.filterList(this.added, a => a.id !== object.id)
+      this.added = this.$_.filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
       this.alertScreenReader(`${this.header} ${object.name} removed from batch note`)
     }

@@ -163,7 +163,7 @@ export default {
       isLoading: false,
       limit: 20,
       query: null,
-      onTextInput: this.debounce(this.makeSuggestions, 200),
+      onTextInput: this.$_.debounce(this.makeSuggestions, 200),
       selectedSuggestion: false,
       suggestions: [],
       suggestionElements: [],

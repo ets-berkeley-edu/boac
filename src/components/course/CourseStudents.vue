@@ -67,7 +67,7 @@
         </div>
       </div>
       <div v-if="row.item.academicCareerStatus === 'Completed'">
-        <div v-if="get(row.item, 'degree.dateAwarded')" :id="`student-${row.item.uid}-graduated-date`">
+        <div v-if="$_.get(row.item, 'degree.dateAwarded')" :id="`student-${row.item.uid}-graduated-date`">
           <span class="student-text">Graduated {{ row.item.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
         </div>
         <div :id="`student-${row.item.uid}-graduated-colleges`">
@@ -254,9 +254,9 @@ export default {
   },
   methods: {
     degreePlanOwners(student) {
-      const plans = this.get(student, 'degree.plans')
+      const plans = this.$_.get(student, 'degree.plans')
       if (plans) {
-        return this.uniq(this.map(plans, 'group'))
+        return this.$_.uniq(this.map(plans, 'group'))
       } else {
         return []
       }

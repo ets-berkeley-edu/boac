@@ -108,7 +108,7 @@ export default {
   },
   methods: {
     assign() {
-      const advisor = this.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
+      const advisor = this.$_.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
       if (advisor) {
         this.appointmentAssign(advisor)
       }

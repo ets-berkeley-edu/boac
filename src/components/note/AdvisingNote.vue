@@ -57,7 +57,7 @@
           </span>
         </div>
         <div v-if="size(note.author.departments)" class="text-secondary">
-          <div v-for="(deptName, index) in orderBy(map(note.author.departments, 'name'))" :key="index">
+          <div v-for="(deptName, index) in $_.orderBy(map(note.author.departments, 'name'))" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
         </div>
@@ -202,7 +202,7 @@ export default {
           this.resetFileInput()
         } else {
           this.clearErrors()
-          this.each(files, attachment => {
+          this.$_.each(files, attachment => {
             attachment.displayName = attachment.name
             this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
           })
@@ -215,7 +215,7 @@ export default {
           })
             .catch(error => {
               this.alertScreenReader()
-              this.attachmentError = this.get(error, 'message')
+              this.attachmentError = this.$_.get(error, 'message')
               this.uploadingAttachment = false
               this.resetFileInput()
             })
@@ -236,9 +236,9 @@ export default {
   },
   methods: {
     setAuthor() {
-      const requiresLazyLoad = this.isOpen && (!this.get(this.note, 'author.name') || !this.get(this.note, 'author.role'))
+      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.note, 'author.name') || !this.$_.get(this.note, 'author.role'))
       if (requiresLazyLoad) {
-        const hasIdentifier = this.get(this.note, 'author.uid') || this.get(this.note, 'author.sid')
+        const hasIdentifier = this.$_.get(this.note, 'author.uid') || this.$_.get(this.note, 'author.sid')
         if (hasIdentifier) {
           const author_uid = this.note.author.uid
           if (author_uid) {
@@ -293,7 +293,7 @@ export default {
       return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
     resetAttachments() {
-      this.existingAttachments = this.cloneDeep(this.note.attachments)
+      this.existingAttachments = this.$_.cloneDeep(this.note.attachments)
     },
     resetFileInput() {
       const inputElement = this.$refs['attachment-file-input']

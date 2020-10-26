@@ -3,7 +3,7 @@
     <Spinner />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="get(students, '[0].updatedAt')" />
+      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="$_.get(students, '[0].updatedAt')" />
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
@@ -164,9 +164,9 @@ export default {
     }
   },
   mounted() {
-    const forwardPath = this.$routerHistory.hasForward() && this.get(this.$routerHistory.next(), 'path')
+    const forwardPath = this.$routerHistory.hasForward() && this.$_.get(this.$routerHistory.next(), 'path')
     const continueExistingSession =
-      (this.startsWith(forwardPath, '/student') || this.startsWith(forwardPath, '/admit/student')) && this.size(this.filters)
+      (this.$_.startsWith(forwardPath, '/student') || this.$_.startsWith(forwardPath, '/admit/student')) && this.size(this.filters)
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
@@ -174,10 +174,10 @@ export default {
       this.loaded(this.getLoadedAlert())
     } else {
       const domain = this.$route.query.domain || 'default'
-      const id = this.toInt(this.get(this.$route, 'params.id'))
+      const id = this.toInt(this.$_.get(this.$route, 'params.id'))
       this.init({
         id,
-        orderBy: this.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        orderBy: this.$_.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         domain
       }).then(() => {
         this.showFilters = !this.isCompactView

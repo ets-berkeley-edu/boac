@@ -35,7 +35,7 @@
           </b-btn>
         </div>
       </div>
-      <AdmitDataWarning v-if="admits" :updated-at="get(admits, '[0].updatedAt')" />
+      <AdmitDataWarning v-if="admits" :updated-at="$_.get(admits, '[0].updatedAt')" />
       <hr class="filters-section-separator mr-2 mt-3" />
       <SectionSpinner :loading="sorting" />
       <div>
@@ -192,8 +192,8 @@ export default {
           : (this.pagination.currentPage - 1) * limit
       getAllAdmits(this.preferences.admitSortBy, limit, offset).then(response => {
         if (response) {
-          this.admits = this.get(response, 'students')
-          this.totalAdmitCount = this.get(response, 'totalStudentCount')
+          this.admits = this.$_.get(response, 'students')
+          this.totalAdmitCount = this.$_.get(response, 'totalStudentCount')
           this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {

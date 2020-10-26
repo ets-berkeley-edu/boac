@@ -98,7 +98,7 @@ export default {
     waitlist: undefined
   }),
   mounted() {
-    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase()
+    this.deptCode = this.$_.get(this.$route, 'params.deptCode').toUpperCase()
     this.loadDropInWaitlist()
   },
   destroyed() {
@@ -120,13 +120,13 @@ export default {
           let announceLoad = false
           let announceUpdate = false
 
-          if (!this.isEqual(response.advisors, this.advisors)) {
+          if (!this.$_.isEqual(response.advisors, this.advisors)) {
             if (this.advisors) {
               announceUpdate = true
             }
             this.advisors = response.advisors
           }
-          if (!this.isEqual(waitlist, this.waitlist)) {
+          if (!this.$_.isEqual(waitlist, this.waitlist)) {
             if (this.waitlist) {
               announceUpdate = true
             } else {
@@ -135,8 +135,8 @@ export default {
             this.waitlist = waitlist
           }
 
-          const currentDropInStatus = this.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode})
-          const newDropInStatus = this.find(response.advisors, {'uid': this.$currentUser.uid})
+          const currentDropInStatus = this.$_.find(this.$currentUser.dropInAdvisorStatus, {'deptCode': this.deptCode})
+          const newDropInStatus = this.$_.find(response.advisors, {'uid': this.$currentUser.uid})
           if (
             currentDropInStatus && newDropInStatus &&
             (currentDropInStatus.available !== newDropInStatus.available || currentDropInStatus.status !== newDropInStatus.status)

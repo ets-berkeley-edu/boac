@@ -59,9 +59,9 @@ export default {
     department: undefined,
   }),
   mounted() {
-    this.deptCode = this.trim(this.get(this.$route, 'params.deptCode')).toUpperCase()
+    this.deptCode = this.$_.trim(this.$_.get(this.$route, 'params.deptCode')).toUpperCase()
     getAvailableDepartmentReports().then(departments => {
-      if (this.includes(this.map(departments, 'code'), this.deptCode)) {
+      if (this.$_.includes(this.map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
         this.loaded('Reports loaded')
@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     render() {
-      this.department = this.find(this.availableDepartments, ['code', this.deptCode])
+      this.department = this.$_.find(this.availableDepartments, ['code', this.deptCode])
     }
   }
 }

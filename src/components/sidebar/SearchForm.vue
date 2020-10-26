@@ -456,7 +456,7 @@ export default {
         let suggestions
         if (q) {
           const normalized = q.toLowerCase()
-          suggestions = this.filterList(this.searchHistory, s => s.toLowerCase().startsWith(normalized))
+          suggestions = this.$_.filter(this.searchHistory, s => s.toLowerCase().startsWith(normalized))
         } else {
           suggestions = this.searchHistory
         }
@@ -466,7 +466,7 @@ export default {
       })
     },
     resetNoteFilters() {
-      this.noteFilters = this.cloneDeep(this.defaultNoteFilters)
+      this.noteFilters = this.$_.cloneDeep(this.defaultNoteFilters)
     },
     search() {
       const searchPhrase = this.trim(this.$refs.searchInput.getQuery())
@@ -509,7 +509,7 @@ export default {
             path: '/search',
             query: query
           },
-          this.noop
+          this.$_.noop
         )
         if (this.trim(searchPhrase)) {
           addToSearchHistory(searchPhrase).then(history => {
@@ -528,7 +528,7 @@ export default {
       if (!this.topicOptions) {
         this.topicOptions = []
         getAllTopics(true).then(rows => {
-          this.each(rows, row => {
+          this.$_.each(rows, row => {
             const topic = row['topic']
             this.topicOptions.push({
               text: topic,

@@ -57,14 +57,14 @@
             </div>
             <div id="student-bio-level" class="mt-2">
               <h3 class="sr-only">Level</h3>
-              <div class="font-weight-bolder">{{ get(student, 'sisProfile.level.description') }}</div>
+              <div class="font-weight-bolder">{{ $_.get(student, 'sisProfile.level.description') }}</div>
             </div>
             <div class="text-muted">
               <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
                 {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
               </div>
               <div
-                v-if="student.sisProfile.expectedGraduationTerm && get(student.sisProfile, 'level.code') !== 'GR'"
+                v-if="student.sisProfile.expectedGraduationTerm && $_.get(student.sisProfile, 'level.code') !== 'GR'"
                 id="student-bio-expected-graduation">
                 Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
               </div>
@@ -99,7 +99,7 @@
               :plan="plan"
               :active="true" />
           </div>
-          <div v-if="!isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
+          <div v-if="!$_.isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
             <h3 class="student-profile-section-header">{{ pluralize('Subplan', student.sisProfile.subplans.length) }}</h3>
             <div
               v-for="subplan in student.sisProfile.subplans"
@@ -136,7 +136,7 @@
         <div v-if="academicCareerStatus === 'Completed' && student.sisProfile.degree" class="mb-3">
           <h3 class="student-profile-section-header">Degree</h3>
           <div id="student-bio-degree-type" class="font-weight-bolder">
-            <span v-if="!includes(degreePlanOwners, 'Graduate Division')">
+            <span v-if="!$_.includes(degreePlanOwners, 'Graduate Division')">
               {{ student.sisProfile.degree.description }} in
             </span>
             {{ degreePlans.join(', ') }}
@@ -207,7 +207,7 @@ export default {
   }),
   computed: {
     academicCareerStatus() {
-      return this.get(this.student, 'sisProfile.academicCareerStatus')
+      return this.$_.get(this.student, 'sisProfile.academicCareerStatus')
     },
     belowTheFoldMajors() {
       // Send inactive majors below the fold only if we have active majors to show above the fold.
@@ -218,19 +218,19 @@ export default {
       return this.plansPartitionedByStatus[0].length ? this.plansMinorPartitionedByStatus[1] : []
     },
     plansPartitionedByStatus() {
-      return this.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
+      return this.$_.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
     },
     plansMinorPartitionedByStatus() {
-      return this.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
+      return this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     }
   },
   created() {
     this.isAscInactive = this.displayAsAscInactive(this.student)
     this.isCoeInactive = this.displayAsCoeInactive(this.student)
-    const plans = this.get(this.student, 'sisProfile.degree.plans')
+    const plans = this.$_.get(this.student, 'sisProfile.degree.plans')
     if (plans) {
-      this.degreePlans = this.uniq(this.map(plans, 'plan'))
-      this.degreePlanOwners = this.uniq(this.map(plans, 'group'))
+      this.degreePlans = this.$_.uniq(this.map(plans, 'plan'))
+      this.degreePlanOwners = this.$_.uniq(this.map(plans, 'group'))
     }
   }
 }

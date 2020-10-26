@@ -58,7 +58,7 @@ export default {
     waitlist: undefined
   }),
   created() {
-    this.deptCode = this.get(this.$route, 'params.deptCode').toUpperCase()
+    this.deptCode = this.$_.get(this.$route, 'params.deptCode').toUpperCase()
     this.loadDropInWaitlist()
   },
   destroyed() {
@@ -77,13 +77,13 @@ export default {
         this.loadingWaitlist = true
         getDropInAppointmentWaitlist(this.deptCode).then(response => {
           let announceUpdate = false
-          if (!this.isEqual(response.advisors, this.advisors)) {
+          if (!this.$_.isEqual(response.advisors, this.advisors)) {
             if (this.advisors) {
               announceUpdate = true
             }
             this.advisors = response.advisors
           }
-          if (!this.isEqual(response.waitlist, this.waitlist)) {
+          if (!this.$_.isEqual(response.waitlist, this.waitlist)) {
             if (this.waitlist) {
               announceUpdate = true
             }

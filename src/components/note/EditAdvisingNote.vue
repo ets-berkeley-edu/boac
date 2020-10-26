@@ -125,7 +125,7 @@ export default {
   created() {
     getNote(this.noteId).then(note => {
       this.resetModel()
-      this.setModel(this.cloneDeep(note))
+      this.setModel(this.$_.cloneDeep(note))
       this.addSid(note.sid)
       this.setMode('edit')
       this.putFocusNextTick('edit-note-subject')

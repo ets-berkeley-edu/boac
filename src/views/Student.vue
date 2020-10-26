@@ -76,7 +76,7 @@ export default {
     this.confirmExitAndEndSession(next)
   },
   created() {
-    let uid = this.get(this.$route, 'params.uid')
+    let uid = this.$_.get(this.$route, 'params.uid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       uid = window.atob(uid)
@@ -84,8 +84,8 @@ export default {
     getStudentByUid(uid).then(student => {
       if (student) {
         this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
-        this.assign(this.student, student)
-        this.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
+        this.$_.assign(this.student, student)
+        this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
         this.loaded(`${this.student.name} loaded`)
       } else {
         this.$router.push({ path: '/404' })
@@ -120,7 +120,7 @@ export default {
     decorateCourse(course) {
       // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
       const useCourseCode = /^[A-Z].*[A-Za-z]{3} \d/.test(course.courseCode)
-      return this.merge(course, {
+      return this.$_.merge(course, {
         displayName: useCourseCode ? course.courseCode : course.courseName,
         title: useCourseCode ? course.courseName : null,
         canvasSites: [course]
@@ -132,12 +132,12 @@ export default {
         term.unmatchedCanvasSites,
         this.decorateCourse
       )
-      term.enrollments = this.concat(term.enrollments, unmatched)
-      this.each(term.enrollments, this.parseCourse)
-      if (this.get(term, 'termGpa.unitsTakenForGpa')) {
+      term.enrollments = this.$_.concat(term.enrollments, unmatched)
+      this.$_.each(term.enrollments, this.parseCourse)
+      if (this.$_.get(term, 'termGpa.unitsTakenForGpa')) {
         this.student.termGpa.push({
-          name: this.get(term, 'termName'),
-          gpa: this.get(term, 'termGpa.gpa')
+          name: this.$_.get(term, 'termName'),
+          gpa: this.$_.get(term, 'termGpa.gpa')
         })
       }
     },
@@ -145,7 +145,7 @@ export default {
       const canAccessCanvasData = this.$currentUser.canAccessCanvasData
       const fullProfileAvailable = !this.student.fullProfilePending
       this.setWaitlistedStatus(course)
-      this.each(course.sections, function(section) {
+      this.$_.each(course.sections, function(section) {
         course.isOpen = false
         section.displayName = section.component + ' ' + section.sectionNumber
         section.isViewableOnCoursePage = section.primary && canAccessCanvasData && fullProfileAvailable

@@ -68,7 +68,7 @@
 
       <template v-if="!options.compact" v-slot:cell(term.enrolledUnits)="row">
         <span class="sr-only">Term units</span>
-        <div>{{ get(row.item.term, 'enrolledUnits', 0) }}</div>
+        <div>{{ $_.get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
       <template v-if="!options.compact" v-slot:cell(cumulativeUnits)="row">
@@ -180,24 +180,24 @@ export default {
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
     normalizeForSort(value) {
-      return this.isString(value) ? value.toLowerCase() : value
+      return this.$_.isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this.find(this.fields, ['key', this.sortBy])
+      const field = this.$_.find(this.fields, ['key', this.sortBy])
       this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.get(a, sortBy)
-      let bValue = this.get(b, sortBy)
+      let aValue = this.$_.get(a, sortBy)
+      let bValue = this.$_.get(b, sortBy)
       // If column type is number then nil is treated as zero.
-      aValue = this.isNil(aValue) && this.isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
-      bValue = this.isNil(bValue) && this.isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
+      aValue = this.$_.isNil(aValue) && this.$_.isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
+      bValue = this.$_.isNil(bValue) && this.$_.isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
       let result = this.sortComparator(aValue, bValue)
       if (result === 0) {
-        this.each(['lastName', 'firstName', 'sid'], field => {
+        this.$_.each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(
-            this.normalizeForSort(this.get(a, field)),
-            this.normalizeForSort(this.get(b, field))
+            this.normalizeForSort(this.$_.get(a, field)),
+            this.normalizeForSort(this.$_.get(b, field))
           )
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1

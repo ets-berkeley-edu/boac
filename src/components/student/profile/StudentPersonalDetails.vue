@@ -161,10 +161,10 @@ export default {
   },
   computed: {
     advisorsSorted() {
-      return this.orderBy(this.student.advisors, this.getAdvisorSortOrder)
+      return this.$_.orderBy(this.student.advisors, this.getAdvisorSortOrder)
     },
     visaDescription() {
-      if (this.get(this.student, 'demographics.visa.status') !== 'G') {
+      if (this.$_.get(this.student, 'demographics.visa.status') !== 'G') {
         return null
       }
       switch (this.student.demographics.visa.type) {

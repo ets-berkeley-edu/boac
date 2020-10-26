@@ -225,23 +225,23 @@ export default {
   }),
   computed: {
     availableAdvisors: function() {
-      return this.filterList(this.advisors, 'available')
+      return this.$_.filter(this.advisors, 'available')
     },
     myReservedAppointments: function() {
-      return this.filterList(this.waitlist.unresolved, (appt) => {
+      return this.$_.filter(this.waitlist.unresolved, (appt) => {
         return appt.status === 'reserved' && appt.advisorUid === this.$currentUser.uid
       })
     }
   },
   created() {
-    const currentUserDropInStatus = this.get(this.$currentUser, 'dropInAdvisorStatus')
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.isEmpty(this.currentUserDropInStatus)
+    const currentUserDropInStatus = this.$_.get(this.$currentUser, 'dropInAdvisorStatus')
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.$_.isEmpty(this.currentUserDropInStatus)
     this.now = this.$moment()
     if (this.isHomepage) {
       this.$eventHub.$on('drop-in-status-change', newAttributes => {
         this.updateDropInAttributes(newAttributes)
       })
-      this.updateDropInAttributes(this.find(currentUserDropInStatus, {'deptCode': this.deptCode.toUpperCase()}))
+      this.updateDropInAttributes(this.$_.find(currentUserDropInStatus, {'deptCode': this.deptCode.toUpperCase()}))
     }
   },
   methods: {

@@ -16,7 +16,7 @@
               GPA Trends
             </div>
             <b-btn
-              v-if="!isEmpty(student.termGpa)"
+              v-if="!$_.isEmpty(student.termGpa)"
               id="show-hide-term-gpa-button"
               aria-controls="term-gpa-collapse"
               :aria-expanded="showTermGpa"
@@ -28,12 +28,12 @@
             </b-btn>
           </div>
           <StudentGpaChart
-            v-if="get(student, 'termGpa.length') > 1"
+            v-if="$_.get(student, 'termGpa.length') > 1"
             :student="student" />
-          <div v-if="isEmpty(student.termGpa)" class="gpa-trends-label">
+          <div v-if="$_.isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
-          <div v-if="!isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
+          <div v-if="!$_.isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
@@ -76,7 +76,7 @@
               </td>
             </tr>
             <tr
-              v-if="isEmpty(student.termGpa)"
+              v-if="$_.isEmpty(student.termGpa)"
               id="student-gpa-no-terms">
               <td>No previous terms</td>
               <td>--</td>
@@ -106,7 +106,7 @@ export default {
     showTermGpa: false
   }),
   created() {
-    this.cumulativeGPA = this.get(this.student, 'sisProfile.cumulativeGPA')
+    this.cumulativeGPA = this.$_.get(this.student, 'sisProfile.cumulativeGPA')
   },
   methods: {
     showHideTermGpa() {

@@ -58,7 +58,7 @@
       <RemoveDropInSchedulerModal
         :cancel-modal="cancelRemoveSchedulerModal"
         :remove-scheduler="removeScheduler"
-        :scheduler-name="`${get(schedulerToRemove, 'firstName')} ${get(schedulerToRemove, 'lastName')}`" />
+        :scheduler-name="`${$_.get(schedulerToRemove, 'firstName')} ${$_.get(schedulerToRemove, 'lastName')}`" />
     </b-modal>
   </div>
 </template>
@@ -120,7 +120,7 @@ export default {
       const csids = this.map(this.dept.schedulers, 'csid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.filterList(students, s => !this.includes(csids, s.sid)))
+          resolve(this.$_.filter(students, s => !this.$_.includes(csids, s.sid)))
         })
       })
     }

@@ -25,7 +25,7 @@
       <div v-if="size(results.admits) < results.totalAdmitCount">
         Showing the first {{ size(results.admits) }} admitted students.
       </div>
-      <AdmitDataWarning :updated-at="get(results.admits, '[0].updatedAt')" />
+      <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
       <div>
         <SortableAdmits :admitted-students="results.admits" />
       </div>
@@ -200,8 +200,8 @@ export default {
             includeCourses,
             includeNotesAndAppointments,
             includeStudents,
-            this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
-            this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
+            this.$_.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+            this.$_.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
           )
         )
       }
@@ -209,8 +209,8 @@ export default {
         queries.push(searchAdmittedStudents(this.phrase))
       }
       Promise.all(queries).then(responses => {
-        this.each(responses, (response) => this.merge(this.results, response))
-        this.each(this.results.students, student => {
+        this.$_.each(responses, (response) => this.$_.merge(this.results, response))
+        this.$_.each(this.results.students, student => {
           student.alertCount = student.alertCount || 0
           student.term = student.term || {}
           student.term.enrolledUnits = student.term.enrolledUnits || 0
@@ -228,7 +228,7 @@ export default {
             `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`)
         })
     } else {
-      this.$router.push({ path: '/' }, this.noop)
+      this.$router.push({ path: '/' }, this.$_.noop)
     }
   },
   methods: {
@@ -251,11 +251,11 @@ export default {
         false,
         false,
         false,
-        this.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+        this.$_.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
         null
       )
         .then(data => {
-          this.results.appointments = this.concat(this.results.appointments, data.appointments)
+          this.results.appointments = this.$_.concat(this.results.appointments, data.appointments)
           this.loadingAdditionalAppointments = false
         })
     },
@@ -270,10 +270,10 @@ export default {
         true,
         false,
         null,
-        this.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
+        this.$_.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
       )
         .then(data => {
-          this.results.notes = this.concat(this.results.notes, data.notes)
+          this.results.notes = this.$_.concat(this.results.notes, data.notes)
           this.loadingAdditionalNotes = false
         })
     }
