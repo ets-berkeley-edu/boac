@@ -146,8 +146,8 @@ export default {
     this.loadAdmits()
   },
   created() {
-    this.$eventHub.$off('admitSortBy-user-preference-change')
-    this.$eventHub.$on('admitSortBy-user-preference-change', sortBy => {
+    this.$eventHub.off('admitSortBy-user-preference-change')
+    this.$eventHub.on('admitSortBy-user-preference-change', sortBy => {
       this.sorting = true
       this.loadAdmits()
       if (!this.loading) {

@@ -130,11 +130,11 @@ export default {
     }
   },
   created() {
-    this.$eventHub.$on('curated-group-checkbox-checked', sid => {
+    this.$eventHub.on('curated-group-checkbox-checked', sid => {
       this.sids.push(sid)
       this.refresh()
     })
-    this.$eventHub.$on('curated-group-checkbox-unchecked', sid => {
+    this.$eventHub.on('curated-group-checkbox-unchecked', sid => {
       this.sids = this.remove(this.sids, s => s !== sid)
       this.refresh()
     })
@@ -143,12 +143,12 @@ export default {
     toggle(checked) {
       if (checked) {
         this.sids = this.map(this.students, 'sid')
-        this.$eventHub.$emit('curated-group-select-all')
+        this.$eventHub.emit('curated-group-select-all')
         this.putFocusNextTick('curated-group-dropdown-select', 'button')
         this.alertScreenReader('All students on this page selected.')
       } else {
         this.sids = []
-        this.$eventHub.$emit('curated-group-deselect-all')
+        this.$eventHub.emit('curated-group-deselect-all')
         this.alertScreenReader('All students on this page deselected.')
       }
     },
@@ -166,7 +166,7 @@ export default {
         this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
         this.sids = []
         this.isSelectAllChecked = this.indeterminate = false
-        this.$eventHub.$emit('curated-group-deselect-all')
+        this.$eventHub.emit('curated-group-deselect-all')
         this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
       }
       const done = () => (this.isSaving = false)

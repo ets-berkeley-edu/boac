@@ -158,7 +158,7 @@ const actions = {
         result[a.noteTemplateId ? 0 : 1].push(a)
         return result
       }, [[], []])
-      Vue.prototype.$eventHub.$emit('begin-note-creation', {
+      Vue.prototype.$eventHub.emit('begin-note-creation', {
         completeSidSet: state.completeSidSet,
         subject: state.model.subject
       })
@@ -173,7 +173,7 @@ const actions = {
         _.map(state.addedCuratedGroups, 'id')
       ).then(data => {
         const eventType = state.completeSidSet.length > 1 ? 'batch-of-notes-created' : 'advising-note-created'
-        Vue.prototype.$eventHub.$emit(eventType, data)
+        Vue.prototype.$eventHub.emit(eventType, data)
         resolve(data)
       })
     })

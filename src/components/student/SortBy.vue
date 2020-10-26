@@ -75,7 +75,7 @@ export default {
   created() {
     this.optionGroups = this.getSortByOptionGroups(this.domain)
     this.sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.$eventHub.$on(`${this.sortByKey}-user-preference-change`, v => this.sortBy = v)
+    this.$eventHub.on(`${this.sortByKey}-user-preference-change`, v => this.sortBy = v)
     this.sortBy = this.$_.get(this.preferences, this.sortByKey)
     this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
     this.isReady = true

@@ -192,10 +192,10 @@ export default {
   },
   created() {
     const domain = this.$route.query.domain || 'default'
-    this.$eventHub.$on('cohort-apply-filters', () => {
+    this.$eventHub.on('cohort-apply-filters', () => {
       this.setPagination(1)
     })
-    this.$eventHub.$on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
+    this.$eventHub.on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
       if (!this.loading) {
         this.goToPage(1)
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`)

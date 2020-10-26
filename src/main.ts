@@ -9,6 +9,7 @@ import core from './core'
 import Highcharts from 'highcharts'
 import HighchartsMore from 'highcharts/highcharts-more'
 import lodash from 'lodash'
+import mitt from 'mitt'
 import moment from 'moment-timezone'
 import router from './router'
 import store from './store'
@@ -46,8 +47,8 @@ Vue.directive('accessibleGrade', {
   bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
 })
 
-// Emit, and listen for, events via hub
-Vue.prototype.$eventHub = new Vue()
+// Emit and listen for events
+Vue.prototype.$eventHub = mitt()
 
 // Lodash
 Vue.prototype.$_ = _
@@ -87,7 +88,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
       setInterval(() => {
         axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
           if (!response.data.isAuthenticated) {
-            Vue.prototype.$eventHub.$emit('user-session-expired')
+            Vue.prototype.$eventHub.emit('user-session-expired')
           }
         })
       }, Vue.prototype.$config.pingFrequency)

@@ -68,14 +68,14 @@ const mutations = {
     if (dropInAdvisorStatus) {
       dropInAdvisorStatus.available = available
       dropInAdvisorStatus.status = status
-      Vue.prototype.$eventHub.$emit('drop-in-status-change', dropInAdvisorStatus)
+      Vue.prototype.$eventHub.emit('drop-in-status-change', dropInAdvisorStatus)
     }
   },
   setIncludeAdmits: (state: any, includeAdmits: Boolean) => state.includeAdmits = includeAdmits,
   setUserPreference: (state: any, {key, value}) => {
     if (_.has(state.preferences, key)) {
       state.preferences[key] = value
-      Vue.prototype.$eventHub.$emit(`${key}-user-preference-change`, value)
+      Vue.prototype.$eventHub.emit(`${key}-user-preference-change`, value)
     } else {
       throw new TypeError('Invalid user preference type: ' + key)
     }

@@ -26,7 +26,7 @@ export function getUserProfile() {
     .then(response => {
       const user = response.data
       if (!user.isAuthenticated) {
-        Vue.prototype.$eventHub.$emit('user-session-expired')
+        Vue.prototype.$eventHub.emit('user-session-expired')
       }
       return user
     }, () => null)

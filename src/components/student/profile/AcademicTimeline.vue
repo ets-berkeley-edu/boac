@@ -496,13 +496,13 @@ export default {
       this.creatingNoteEvent = null
     }
     if (this.$currentUser.canAccessAdvisingData) {
-      this.$eventHub.$on('begin-note-creation', event => {
+      this.$eventHub.on('begin-note-creation', event => {
         if (this.$_.includes(event.completeSidSet, this.student.sid)) {
           this.creatingNoteEvent = event
         }
       })
-      this.$eventHub.$on('advising-note-created', onCreateNewNote)
-      this.$eventHub.$on('batch-of-notes-created', noteIdsBySid => {
+      this.$eventHub.on('advising-note-created', onCreateNewNote)
+      this.$eventHub.on('batch-of-notes-created', noteIdsBySid => {
         const noteId = noteIdsBySid[this.student.sid]
         if (noteId) {
           getNote(noteId).then(note => onCreateNewNote(note))
