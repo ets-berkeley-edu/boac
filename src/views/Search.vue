@@ -1,10 +1,10 @@
 <template>
   <div class="m-3">
     <Spinner />
-    <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || size(results.notes) || size(results.appointments))">
+    <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || $_.size(results.notes) || $_.size(results.appointments))">
       <h1 id="page-header" class="sr-only" tabindex="0">Search Results</h1>
     </div>
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !size(results.notes) && !size(results.appointments)">
+    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !$_.size(results.notes) && !$_.size(results.appointments)">
       <h1 id="page-header-no-results" class="page-section-header" tabindex="0">
         No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
@@ -18,12 +18,12 @@
         <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
       </ul>
     </div>
-    <div v-if="!loading && size(results.admits)">
+    <div v-if="!loading && $_.size(results.admits)">
       <h2 id="admit-results-page-header" class="page-section-header">
         {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
       </h2>
-      <div v-if="size(results.admits) < results.totalAdmitCount">
-        Showing the first {{ size(results.admits) }} admitted students.
+      <div v-if="$_.size(results.admits) < results.totalAdmitCount">
+        Showing the first {{ $_.size(results.admits) }} admitted students.
       </div>
       <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
       <div>
@@ -54,12 +54,12 @@
         :search-phrase="phrase"
         :courses="results.courses"
         :total-course-count="results.totalCourseCount"
-        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !size(results.notes)" />
+        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes)" />
     </div>
-    <div v-if="!loading && size(results.notes)" class="pt-4">
+    <div v-if="!loading && $_.size(results.notes)" class="pt-4">
       <h2 id="search-results-category-header-notes" class="page-section-header">
-        {{ size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
-        {{ size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
+        {{ $_.size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
+        {{ $_.size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
       </h2>
       <AdvisingNoteSnippet
@@ -77,10 +77,10 @@
         <SectionSpinner :loading="loadingAdditionalNotes" />
       </div>
     </div>
-    <div v-if="!loading && size(results.appointments)" class="pt-4">
+    <div v-if="!loading && $_.size(results.appointments)" class="pt-4">
       <h2 id="search-results-category-header-appointments" class="page-section-header">
-        {{ size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
-        {{ size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
+        {{ $_.size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
+        {{ $_.size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="phrase"> with '{{ phrase }}'</span>
       </h2>
       <AppointmentSnippet
@@ -168,10 +168,10 @@ export default {
   }),
   computed: {
     completeAppointmentResults() {
-      return this.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
+      return this.$_.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
     },
     completeNoteResults() {
-      return this.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
+      return this.$_.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
     }
   },
   mounted() {
@@ -205,7 +205,7 @@ export default {
           )
         )
       }
-      if (includeAdmits && this.trim(this.phrase)) {
+      if (includeAdmits && this.$_.trim(this.phrase)) {
         queries.push(searchAdmittedStudents(this.phrase))
       }
       Promise.all(queries).then(responses => {

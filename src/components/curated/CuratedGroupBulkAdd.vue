@@ -19,7 +19,7 @@
         <b-btn
           id="btn-curated-group-bulk-add-sids"
           :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
-          :disabled="!trim(textarea) || (curatedGroupId && isUpdating)"
+          :disabled="!$_.trim(textarea) || (curatedGroupId && isUpdating)"
           class="pl-2"
           variant="primary"
           @click="submitSids">
@@ -87,16 +87,16 @@ export default {
       if (sidList.length === 1) {
         return `<strong>Uh oh!</strong> Student ${sidList[0]} not found. Please fix.`
       } else {
-        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.join(sidList, '</li><li>')}</li></ul>`
+        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(sidList, '</li><li>')}</li></ul>`
       }
     },
     submitSids() {
       this.sids = []
       this.clearErrors()
-      const trimmed = this.trim(this.textarea, ' ,\n\t')
+      const trimmed = this.$_.trim(this.textarea, ' ,\n\t')
       if (trimmed) {
-        const split = this.split(trimmed, /[,\r\n\t ]+/)
-        const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.trim(sid)))[1]
+        const split = this.$_.split(trimmed, /[,\r\n\t ]+/)
+        const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.$_.trim(sid)))[1]
         if (notNumeric.length) {
           this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.'
           this.putFocusNextTick('curated-group-bulk-add-sids')

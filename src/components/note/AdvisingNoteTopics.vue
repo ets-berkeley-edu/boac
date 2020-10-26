@@ -136,7 +136,7 @@ export default {
     },
     setDisabled(topic, disable) {
       const option = this.$_.find(this.topicOptions, ['value', topic])
-      this.set(option, 'disabled', disable)
+      this.$_.set(option, 'disabled', disable)
     }
   }
 }

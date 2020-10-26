@@ -460,7 +460,7 @@ export default {
         } else {
           suggestions = this.searchHistory
         }
-        resolve(this.map(suggestions, s => {
+        resolve(this.$_.map(suggestions, s => {
           return { label: s }
         }))
       })
@@ -469,7 +469,7 @@ export default {
       this.noteFilters = this.$_.cloneDeep(this.defaultNoteFilters)
     },
     search() {
-      const searchPhrase = this.trim(this.$refs.searchInput.getQuery())
+      const searchPhrase = this.$_.trim(this.$refs.searchInput.getQuery())
       if (searchPhrase || !this.searchInputRequired) {
         const query = {
           notes: this.includeNotes,
@@ -511,7 +511,7 @@ export default {
           },
           this.$_.noop
         )
-        if (this.trim(searchPhrase)) {
+        if (this.$_.trim(searchPhrase)) {
           addToSearchHistory(searchPhrase).then(history => {
             this.searchHistory = history
           })

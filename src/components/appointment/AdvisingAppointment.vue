@@ -72,7 +72,7 @@
           - {{ appointment.advisor.title }}
         </span>
       </div>
-      <div v-if="size(appointment.advisor.departments)" class="text-secondary">
+      <div v-if="$_.size(appointment.advisor.departments)" class="text-secondary">
         <span v-for="(dept, index) in appointment.advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>
@@ -80,8 +80,8 @@
       <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
         {{ appointment.appointmentType }}
       </div>
-      <div v-if="appointment.topics && size(appointment.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+      <div v-if="appointment.topics && $_.size(appointment.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ $_.size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in appointment.topics"
@@ -158,7 +158,7 @@ export default {
       return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
     },
     isUserDropInAdvisor(deptCode) {
-      const deptCodes = this.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
+      const deptCodes = this.$_.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
       return this.$_.includes(deptCodes, this.$_.upperCase(deptCode))
     },
     setAdvisor() {

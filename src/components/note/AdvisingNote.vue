@@ -2,10 +2,10 @@
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
     <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
       <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
-      <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
-      <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments && note.author.departments[0].name }}
-        advisor {{ note.author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+      <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
+      <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments && note.author.departments[0].name }}
+        advisor {{ note.author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
@@ -28,7 +28,7 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 text-black-50 advisor-profile-not-found">
+      <div v-if="!$_.isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 text-black-50 advisor-profile-not-found">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
@@ -56,14 +56,14 @@
             (note imported from {{ note.legacySource }})
           </span>
         </div>
-        <div v-if="size(note.author.departments)" class="text-secondary">
-          <div v-for="(deptName, index) in $_.orderBy(map(note.author.departments, 'name'))" :key="index">
+        <div v-if="$_.size(note.author.departments)" class="text-secondary">
+          <div v-for="(deptName, index) in $_.orderBy($_.map(note.author.departments, 'name'))" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
         </div>
       </div>
-      <div v-if="note.topics && size(note.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
+      <div v-if="note.topics && $_.size(note.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ $_.size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in note.topics"
@@ -115,9 +115,9 @@
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
         <div v-if="uploadingAttachment" class="w-100">
-          <font-awesome icon="sync" spin /> Uploading {{ size(attachments) === 1 ? 'attachment' : 'attachments' }}...
+          <font-awesome icon="sync" spin /> Uploading {{ $_.size(attachments) === 1 ? 'attachment' : 'attachments' }}...
         </div>
-        <div v-if="size(existingAttachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
+        <div v-if="$_.size(existingAttachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
             Add attachment:
@@ -133,14 +133,14 @@
             <b-form-file
               ref="attachment-file-input"
               v-model="attachments"
-              :disabled="size(existingAttachments) === $config.maxAttachmentsPerNote"
+              :disabled="$_.size(existingAttachments) === $config.maxAttachmentsPerNote"
               :state="Boolean(attachments && attachments.length)"
               :multiple="true"
               :plain="true"
             ></b-form-file>
           </div>
         </div>
-        <div v-if="size(existingAttachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
+        <div v-if="$_.size(existingAttachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
           A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
         </div>
       </div>
@@ -196,7 +196,7 @@ export default {
   },
   watch: {
     attachments(files) {
-      if (this.size(files)) {
+      if (this.$_.size(files)) {
         this.attachmentError = this.validateAttachment(files, this.existingAttachments)
         if (this.attachmentError) {
           this.resetFileInput()
@@ -208,7 +208,7 @@ export default {
           })
           this.uploadingAttachment = true
           addAttachments(this.note.id, files).then(updatedNote => {
-            this.alertScreenReader(`${this.size(files)} ${this.size(files) === 1 ? 'attachment' : 'attachments'} added.`)
+            this.alertScreenReader(`${this.$_.size(files)} ${this.$_.size(files) === 1 ? 'attachment' : 'attachments'} added.`)
             this.afterSaved(updatedNote)
             this.resetAttachments()
             this.uploadingAttachment = false
@@ -287,7 +287,7 @@ export default {
       })
     },
     displayName(attachments, index) {
-      return this.size(attachments) <= index ? '' : attachments[index].displayName
+      return this.$_.size(attachments) <= index ? '' : attachments[index].displayName
     },
     downloadUrl(attachment) {
       return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`

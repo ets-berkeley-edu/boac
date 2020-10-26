@@ -86,7 +86,7 @@ export default {
     updateText() {
       this.error = null
       this.isSaving = true
-      if (!this.trim(this.text).length && this.isPublished) {
+      if (!this.$_.trim(this.text).length && this.isPublished) {
         this.error = 'You are not allowed to publish empty text.'
         this.isSaving = false
       } else {

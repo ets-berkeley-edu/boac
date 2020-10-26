@@ -67,8 +67,8 @@
       :function-confirm="cancelConfirmed"
       :show-modal="showAreYouSureModal"
       modal-header="Discard unsaved changes?" />
-    <div v-if="size(model.attachments)">
-      <div class="pill-list-header mt-3 mb-1">{{ size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
+    <div v-if="$_.size(model.attachments)">
+      <div class="pill-list-header mt-3 mb-1">{{ $_.size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
         <li
           v-for="(attachment, index) in model.attachments"
@@ -139,7 +139,7 @@ export default {
     cancelRequested() {
       this.clearErrors()
       getNote(this.noteId).then(note => {
-        const isPristine = this.trim(this.model.subject) === note.subject
+        const isPristine = this.$_.trim(this.model.subject) === note.subject
           && this.stripHtmlAndTrim(this.model.body) === this.stripHtmlAndTrim(note.body)
         if (isPristine) {
           this.cancelConfirmed()
@@ -168,9 +168,9 @@ export default {
     },
     save() {
       const ifAuthenticated = () => {
-        const trimmedSubject = this.trim(this.model.subject)
+        const trimmedSubject = this.$_.trim(this.model.subject)
         if (trimmedSubject) {
-          updateNote(this.model.id, trimmedSubject, this.trim(this.model.body), this.model.topics).then(updatedNote => {
+          updateNote(this.model.id, trimmedSubject, this.$_.trim(this.model.body), this.model.topics).then(updatedNote => {
             this.afterSaved(updatedNote)
             this.alertScreenReader('Changes to note have been saved')
             this.exit()

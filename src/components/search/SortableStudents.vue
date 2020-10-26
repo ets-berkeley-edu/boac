@@ -79,8 +79,8 @@
 
       <template v-if="!options.compact" v-slot:cell(cumulativeGPA)="row">
         <span class="sr-only">GPA</span>
-        <div v-if="isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-        <div v-if="!isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
+        <div v-if="$_.isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+        <div v-if="!$_.isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
       </template>
 
       <template v-slot:cell(alertCount)="row">

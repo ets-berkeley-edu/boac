@@ -276,9 +276,9 @@ export default {
       option.disabled = false
     },
     save() {
-      const undefinedRoles = this.$_.filter(this.memberships, r => this.isNil(r.role))
+      const undefinedRoles = this.$_.filter(this.memberships, r => this.$_.isNil(r.role))
       if (undefinedRoles.length) {
-        const deptNames = this.map(undefinedRoles, 'name')
+        const deptNames = this.$_.map(undefinedRoles, 'name')
         this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`
       } else {
         // If no change in deleted status then do not update 'deleted_at' in the database.

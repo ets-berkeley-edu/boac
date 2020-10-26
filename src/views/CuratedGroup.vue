@@ -21,7 +21,7 @@
               :per-page="itemsPerPage"
               :total-rows="totalStudentCount" />
           </div>
-          <div v-if="size(students)">
+          <div v-if="$_.size(students)">
             <div id="curated-cohort-students" class="list-group">
               <StudentRow
                 v-for="(student, index) in students"
@@ -135,7 +135,7 @@ export default {
   methods: {
     bulkAddSids(sids) {
       this.setMode(undefined)
-      if (this.size(sids)) {
+      if (this.$_.size(sids)) {
         this.alertScreenReader(`Adding ${sids.length} students`)
         store.commit('currentUserExtras/setUserPreference', {
           key: 'sortBy',

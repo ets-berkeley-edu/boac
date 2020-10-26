@@ -10,7 +10,7 @@
           class="avatar student-avatar-large" />
       </div>
       <div class="pl-2 pt-2">
-        <div v-if="!isNil($currentUser.inDemoMode)">
+        <div v-if="!$_.isNil($currentUser.inDemoMode)">
           <b-form-checkbox
             v-if="!isToggling"
             id="toggle-demo-mode"

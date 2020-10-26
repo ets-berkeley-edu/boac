@@ -128,7 +128,7 @@ export default {
     },
     parseEnrollmentTerm(term) {
       // Merge in unmatched canvas sites
-      const unmatched = this.map(
+      const unmatched = this.$_.map(
         term.unmatchedCanvasSites,
         this.decorateCourse
       )

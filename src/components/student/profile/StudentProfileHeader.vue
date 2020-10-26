@@ -229,8 +229,8 @@ export default {
     this.isCoeInactive = this.displayAsCoeInactive(this.student)
     const plans = this.$_.get(this.student, 'sisProfile.degree.plans')
     if (plans) {
-      this.degreePlans = this.$_.uniq(this.map(plans, 'plan'))
-      this.degreePlanOwners = this.$_.uniq(this.map(plans, 'group'))
+      this.degreePlans = this.$_.uniq(this.$_.map(plans, 'plan'))
+      this.degreePlanOwners = this.$_.uniq(this.$_.map(plans, 'group'))
     }
   }
 }

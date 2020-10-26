@@ -339,7 +339,7 @@ export default {
       return birthDate.format('MMM D, YYYY')
     },
     fullName() {
-      return this.join(this.remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ')
+      return this.$_.join(this.$_.remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ')
     }
   },
   created() {

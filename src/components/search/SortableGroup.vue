@@ -51,8 +51,8 @@
       :aria-expanded="openAndLoaded"
       :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
       class="panel-body mr-3">
-      <div v-if="size(studentsWithAlerts)">
-        <div v-if="!compact && size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
+      <div v-if="$_.size(studentsWithAlerts)">
+        <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
             View all {{ group.totalStudentCount }} students in "{{ group.name }}"
@@ -133,7 +133,7 @@ export default {
   methods: {
     fetchStudents() {
       this.isOpen = !this.isOpen
-      if (this.isNil(this.studentsWithAlerts)) {
+      if (this.$_.isNil(this.studentsWithAlerts)) {
         this.isFetching = true
         const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent
         const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts

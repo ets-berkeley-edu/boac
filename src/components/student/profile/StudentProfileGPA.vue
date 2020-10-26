@@ -3,9 +3,9 @@
     <div class="d-flex flex-wrap">
       <div class="gpa text-center">
         <div id="cumulative-gpa" class="data-number">
-          <span v-if="!isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
-          <span v-if="isNil(cumulativeGPA)">--</span>
-          <span v-if="isNil(cumulativeGPA)" class="sr-only">No data</span>
+          <span v-if="!$_.isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
+          <span v-if="$_.isNil(cumulativeGPA)">--</span>
+          <span v-if="$_.isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>

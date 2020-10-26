@@ -96,7 +96,7 @@
         <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="create-appointment-confirm"
-            :disabled="!student || isStudentInWaitlist || !topics.length || !trim(details).length"
+            :disabled="!student || isStudentInWaitlist || !topics.length || !$_.trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="create">

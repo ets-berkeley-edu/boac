@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <div v-if="!isNil(isEnabled)" class="advising-status-outer flex-row">
+      <div v-if="!$_.isNil(isEnabled)" class="advising-status-outer flex-row">
         <div
           :class="isEnabled ? 'advising-status-disabled' : 'advising-status-enabled'"
           class="aria-hidden advising-status">

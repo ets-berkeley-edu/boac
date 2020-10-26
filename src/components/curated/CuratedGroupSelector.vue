@@ -35,7 +35,7 @@
             </div>
           </div>
         </template>
-        <b-dropdown-item v-if="!size(myCuratedGroups)">
+        <b-dropdown-item v-if="!$_.size(myCuratedGroups)">
           <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
         </b-dropdown-item>
         <b-dropdown-item
@@ -120,13 +120,13 @@ export default {
   }),
   computed: {
     disableSelector() {
-      return this.isSaving || this.isNil(this.myCuratedGroups)
+      return this.isSaving || this.$_.isNil(this.myCuratedGroups)
     },
     dropdownVariant() {
       return this.isSaving ? 'success' : 'primary'
     },
     showMenu() {
-      return this.size(this.sids)
+      return this.$_.size(this.sids)
     }
   },
   created() {
@@ -135,14 +135,14 @@ export default {
       this.refresh()
     })
     this.$eventHub.on('curated-group-checkbox-unchecked', sid => {
-      this.sids = this.remove(this.sids, s => s !== sid)
+      this.sids = this.$_.remove(this.sids, s => s !== sid)
       this.refresh()
     })
   },
   methods: {
     toggle(checked) {
       if (checked) {
-        this.sids = this.map(this.students, 'sid')
+        this.sids = this.$_.map(this.students, 'sid')
         this.$eventHub.emit('curated-group-select-all')
         this.putFocusNextTick('curated-group-dropdown-select', 'button')
         this.alertScreenReader('All students on this page selected.')
@@ -154,12 +154,12 @@ export default {
     },
     refresh() {
       this.indeterminate = this.$_.inRange(
-        this.size(this.sids),
+        this.$_.size(this.sids),
         1,
-        this.size(this.students)
+        this.$_.size(this.students)
       )
       this.isSelectAllChecked =
-        this.size(this.sids) === this.size(this.students)
+        this.$_.size(this.sids) === this.$_.size(this.students)
     },
     curatedGroupCheckboxClick(group) {
       const afterAddStudents = () => {

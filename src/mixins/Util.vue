@@ -35,10 +35,6 @@ export default {
       })
       return groupings
     },
-    isNil: _.isNil,
-    isNumber: _.isNumber,
-    join: _.join,
-    map: _.map,
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin: arr => {
       switch(arr.length) {
@@ -64,11 +60,8 @@ export default {
         }, 500)
       })
     },
-    remove: _.remove,
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
-    set: _.set,
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
-    size: _.size,
     sortComparator: (a, b, nullFirst=true) => {
       if (_.isNil(a) || _.isNil(b)) {
         if (nullFirst) {
@@ -90,7 +83,6 @@ export default {
         }
       }
     },
-    split: _.split,
     stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
     stripHtmlAndTrim: html => {
       let text = html && html.replace(/<([^>]+)>/ig,'')
@@ -99,8 +91,7 @@ export default {
     },
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
     toBoolean,
-    toInt,
-    trim: _.trim
+    toInt
   }
 }
 </script>

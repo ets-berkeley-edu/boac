@@ -62,8 +62,8 @@ export default {
   },
   methods: {
     logIn() {
-      let uid = this.trim(this.uid)
-      let password = this.trim(this.password)
+      let uid = this.$_.trim(this.uid)
+      let password = this.$_.trim(this.password)
       if (uid && password) {
         devAuthLogIn(uid, password).then(user => {
           if (user.isAuthenticated) {
