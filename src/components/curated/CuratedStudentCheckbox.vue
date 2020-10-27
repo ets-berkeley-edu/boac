@@ -2,10 +2,10 @@
   <b-form-checkbox
     :id="`student-${student.sid}-curated-group-checkbox`"
     v-model="status"
-    plain
-    @change="toggle">
-    <span class="sr-only">{{ checkboxDescription }}</span>
-  </b-form-checkbox>
+    :aria-label="checkboxDescription"
+    size="md"
+    @change="toggle"
+  />
 </template>
 
 <script>

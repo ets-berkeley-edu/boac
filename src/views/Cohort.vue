@@ -27,7 +27,13 @@
           @click="alertScreenReader('Go to another page of search results')"
           @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
-          <div :class="{'justify-content-end': domain === 'admitted_students', 'justify-content-between': domain === 'default'}" class="d-flex align-items-center p-2">
+          <div
+            :class="{
+              'justify-content-end': domain === 'admitted_students',
+              'justify-content-between': domain === 'default'
+            }"
+            class="d-flex pb-2 pt-2"
+          >
             <CuratedGroupSelector
               v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
@@ -36,14 +42,16 @@
               :students="students" />
             <SortBy v-if="showSortBy" :domain="domain" />
           </div>
-          <hr class="filters-section-separator mr-2 mb-2" />
-          <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
-            <Pagination
-              :click-handler="goToPage"
-              :init-page-number="pageNumber"
-              :limit="10"
-              :per-page="pagination.itemsPerPage"
-              :total-rows="totalStudentCount" />
+          <div v-if="totalStudentCount > pagination.itemsPerPage">
+            <hr class="filters-section-separator mr-2 mb-2" />
+            <div class="p-3">
+              <Pagination
+                :click-handler="goToPage"
+                :init-page-number="pageNumber"
+                :limit="10"
+                :per-page="pagination.itemsPerPage"
+                :total-rows="totalStudentCount" />
+            </div>
           </div>
           <div>
             <div class="cohort-column-results">
@@ -57,7 +65,7 @@
                   :sorted-by="preferences.sortBy"
                   :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                   list-type="cohort"
-                  class="list-group-item border-left-0 border-right-0" />
+                  class="border-right-0 list-group-item border-left-0 pl-0" />
               </div>
               <table v-if="domain === 'admitted_students'" id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
                 <thead class="sortable-table-header">

@@ -1,16 +1,20 @@
 <template>
   <div class="d-flex">
-    <b-form-checkbox
-      id="add-all-to-curated-group"
-      v-model="isSelectAllChecked"
-      :disabled="isSaving"
-      :indeterminate="indeterminate"
-      class="add-all-checkbox mr-1 pt-1"
-      plain
-      aria-controls="curated-group-dropdown-select"
-      @change="toggle">
-      <span class="sr-only">{{ 'Select all students to add to a curated group' }}</span>
-    </b-form-checkbox>
+    <label id="add-all-checkbox-label" for="add-all-to-curated-group" class="sr-only">
+      Select all students to add to a curated group
+    </label>
+    <div class="add-all-checkbox">
+      <b-form-checkbox
+        id="add-all-to-curated-group"
+        v-model="isSelectAllChecked"
+        aria-controls="curated-group-dropdown-select"
+        aria-labelledby="add-all-checkbox-label"
+        :disabled="isSaving"
+        :indeterminate="indeterminate"
+        size="lg"
+        @change="toggle"
+      />
+    </div>
     <div>
       <b-dropdown
         v-if="showMenu"
@@ -220,12 +224,11 @@ label {
 .add-all-checkbox {
   background-color: #eee;
   border: 1px solid #aaa;
-  border-radius: 4px;
-  height: 34px;
-  padding-left: 25px;
-  padding-top: 3px;
-  text-align: center;
-  width: 34px;
+  border-radius: 6px;
+  height: 36px;
+  padding-left: 7px;
+  padding-top: 2px;
+  width: 36px;
 }
 .curated-selector {
   height: 35px;

@@ -1,8 +1,14 @@
 <template>
-  <div class="d-flex flex-wrap">
+  <div
+    class="d-flex flex-wrap"
+    @focusin="hover = true"
+    @focusout="hover = false"
+    @mouseover="hover = true"
+    @mouseleave="hover = false"
+  >
     <span :id="`row-index-of-${student.sid}`" hidden aria-hidden="true">{{ rowIndex }}</span>
     <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
-    <div class="cohort-list-view-column-01">
+    <div class="align-items-center d-flex position-relative">
       <button
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
@@ -16,11 +22,17 @@
         <CuratedStudentCheckbox :student="student" />
       </div>
     </div>
-    <div class="cohort-list-view-column-01">
-      <StudentAvatar
-        :student="student"
-        :alert-count="student.alertCount"
-        size="medium" />
+    <div>
+      <div>
+        <StudentAvatar
+          :student="student"
+          :alert-count="student.alertCount"
+          size="medium"
+        />
+      </div>
+      <div v-if="listType === 'cohort'" class="text-center" :class="{'sr-only': !hover}">
+        <CuratedStudentSelector :student="student" />
+      </div>
     </div>
     <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
@@ -275,6 +287,7 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import CuratedStudentSelector from '@/components/curated/CuratedStudentSelector'
 import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
@@ -287,6 +300,7 @@ export default {
   name: 'StudentRow',
   components: {
     CuratedStudentCheckbox,
+    CuratedStudentSelector,
     StudentAcademicStanding,
     StudentAvatar,
     StudentGpaChart
@@ -322,6 +336,7 @@ export default {
     }
   },
   data: () => ({
+    hover: false,
     termEnrollments: []
   }),
   methods: {
@@ -384,12 +399,6 @@ export default {
   align-self: center;
   flex: 0 0 30px;
   margin-right: 5px;
-}
-.cohort-list-view-column-01 {
-  align-items: center;
-  display: flex;
-  flex: 0 0 30px;
-  position: relative;
 }
 .cohort-student-name-container {
   display: flex;
