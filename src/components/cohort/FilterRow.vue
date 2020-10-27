@@ -24,8 +24,8 @@
       >
         <template slot="button-content">
           <div class="d-flex dropdown-width justify-content-between text-dark">
-            <div v-if="filter.label">{{ `${filter.label.primary} is selected filter` || 'New Filter' }}</div>
-            <div v-if="!filter.label"><span class="sr-only">Select </span>New Filter</div>
+            <div v-if="$_.get(filter.label, 'primary')">{{ filter.label.primary }}<span class="sr-only">is selected</span></div>
+            <div v-if="!$_.get(filter.label, 'primary')"><span class="sr-only">Select </span>New Filter</div>
             <div class="ml-2">
               <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
             </div>

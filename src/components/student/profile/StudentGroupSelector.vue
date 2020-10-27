@@ -51,25 +51,22 @@
       <hr class="dropdown-divider">
       <b-dropdown-item
         id="create-curated-group"
-        v-b-modal.modal
-        class="create-new-button mb-0 pl-0 text-dark"
         aria-label="Create a new curated group"
+        class="create-new-button mb-0 pl-0 text-dark"
+        @click="showModal = true"
       >
         <font-awesome icon="plus" /> Create New Curated Group
       </b-dropdown-item>
     </b-dropdown>
     <b-modal
-      id="modal"
       v-model="showModal"
       body-class="pl-0 pr-0"
       hide-footer
       hide-header-close
-      title="Name Your Curated Group"
-      aria-label="Name Your Curated Group"
-      @shown="focusModalById('create-input')">
-      <CreateCuratedGroupModal
-        :create="modalCreateGroup"
-        :cancel="modalCancel" />
+      title="Create Curated Group"
+      @shown="focusModalById('create-input')"
+    >
+      <CreateCuratedGroupModal :cancel="modalCancel" :create="modalCreateGroup" />
     </b-modal>
   </div>
 </template>
@@ -153,24 +150,28 @@ export default {
     modalCreateGroup(name) {
       this.isAdding = true
       this.showModal = false
-      createCuratedGroup(name, [this.student.sid])
-        .then(group => {
-          this.checkedGroups.push(group.id)
-          this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
-          this.$_.each(
-            [
-              'create',
-              `Student profile: Added SID ${this.student.sid}, after create group`
-            ],
-            action => {
-              this.$ga.curatedEvent(group.id, group.name, action)
-            }
-          )
-          setTimeout(() => this.isAdding = false, 2000)
-        })
+      const done = () => {
+        this.putFocusNextTick('curated-group-dropdown')
+      }
+      createCuratedGroup(name, [this.student.sid]).then(group => {
+        this.checkedGroups.push(group.id)
+        this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
+        this.$_.each(
+          [
+            'create',
+            `Student profile: Added SID ${this.student.sid}, after create group`
+          ],
+          action => {
+            this.$ga.curatedEvent(group.id, group.name, action)
+          }
+        )
+        setTimeout(done, 2000)
+      })
     },
     modalCancel() {
       this.showModal = false
+      this.alertScreenReader('Cancelled')
+      this.putFocusNextTick('curated-group-dropdown')
     }
   }
 }
