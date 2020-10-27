@@ -57,6 +57,7 @@ module.exports = {
         allowFirstLine: false
       }
     }],
+    'vue/multiline-html-element-content-newline': 2,
     'vue/no-boolean-default': 2,
     'vue/no-restricted-syntax': 2,
     'vue/no-use-v-if-with-v-for': 2,

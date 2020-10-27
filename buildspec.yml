@@ -10,7 +10,6 @@ phases:
 
   build:
     commands:
-      - npm install -g @vue/cli
       - npm --verbose run build-vue
 
   post_build:
