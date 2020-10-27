@@ -55,25 +55,23 @@
         <hr class="dropdown-divider">
         <b-dropdown-item
           id="create-curated-group"
-          v-b-modal.create-curated-group-modal
           class="pl-0 text-dark"
           variant="link"
           aria-label="Create a new curated group"
+          @click="showModal = true"
         >
           <font-awesome icon="plus" /> Create New Curated Group
         </b-dropdown-item>
       </b-dropdown>
       <b-modal
-        id="create-curated-group-modal"
         v-model="showModal"
         body-class="pl-0 pr-0"
         hide-footer
         hide-header-close
-        title="Name Your Curated Group"
-        @shown="focusModalById('create-input')">
-        <CreateCuratedGroupModal
-          :create="modalCreateCuratedGroup"
-          :cancel="modalCancel" />
+        title="Create Curated Group"
+        @shown="focusModalById('create-input')"
+      >
+        <CreateCuratedGroupModal :cancel="modalCancel" :create="modalCreateCuratedGroup" />
       </b-modal>
     </div>
   </div>
@@ -184,7 +182,8 @@ export default {
         this.toggle(false)
         this.isSaving = false
         this.onCreateCuratedGroup()
-        this.alertScreenReader('Selected students added to curated group')
+        this.alertScreenReader(`Students added to curated group ${name}`)
+        this.putFocusNextTick('add-all-to-curated-group')
       }
       const trackEvent = group => {
         this.$_.each(
@@ -206,6 +205,8 @@ export default {
       this.refresh()
       this.toggle(false)
       this.showModal = false
+      this.alertScreenReader('Cancelled')
+      this.putFocusNextTick('add-all-to-curated-group')
     }
   }
 }

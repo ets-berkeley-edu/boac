@@ -1,17 +1,16 @@
 <template>
   <div>
-    <form @submit.prevent="createCohort">
+    <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
       <div class="ml-3 mr-3">
-        <div>
-          <label for="create-input" class="pb-2">Name:</label>
-          <input
-            id="create-input"
-            v-model="name"
-            class="cohort-create-input-name"
-            type="text"
-            maxlength="255"
-            required>
-        </div>
+        <label id="label-of-create-input" for="create-input"><span class="sr-only">Cohort </span>Name:</label>
+        <b-form-input
+          id="create-input"
+          v-model="name"
+          aria-labelledby="label-of-create-input"
+          class="cohort-create-input-name"
+          maxlength="255"
+          size="lg"
+        />
         <div class="faint-text mb-3"><span class="sr-only">Cohort name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
         <div
           v-if="error"
@@ -28,7 +27,7 @@
           Cohort name cannot exceed 255 characters.
         </div>
       </div>
-      <div class="modal-footer pl-0 mr-2">
+      <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
         <b-btn
           id="create-confirm"
           :disabled="!name.length"
