@@ -1,25 +1,25 @@
 <template>
-  <div
+  <b-card
     :id="`sortable-${keyword}-${group.id}`"
-    :class="{'panel-open pb-3': openAndLoaded}"
-    class="accordion panel">
-    <div
-      :class="{'background-when-open': isOpen, 'bg-white': compact && !isOpen, 'p-0': compact}"
-      class="panel-heading mr-3">
-      <a
+    body-class="p-0"
+    :border-variant="isFetching || openAndLoaded ? 'primary' : 'light'"
+    class="mt-2 mr-3 sortable-group"
+    :class="{'bg-pale-blue': isFetching || openAndLoaded}"
+  >
+    <b-card-header class="bg-transparent border-0 p-1" :class="{'p-0': compact}">
+      <b-button
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
-        class="accordion-heading-link"
-        tabindex="0"
-        role="button"
-        href="#"
+        block
+        class="shadow-none"
+        :pressed="null"
+        variant="link"
         @click.prevent="fetchStudents"
-        @keyup.enter.prevent="fetchStudents">
-        <div
-          :class="{'compact-header compact-border-bottom': compact && openAndLoaded, 'bg-white': isFetching || !isOpen}"
-          class="accordion-heading d-flex justify-content-between">
-          <div class="accordion-heading-name align-items-start d-flex">
-            <div class="accordion-heading-caret">
+        @keyup.enter.prevent="fetchStudents"
+      >
+        <div class="d-flex justify-content-between">
+          <div class="align-items-start d-flex">
+            <div class="caret pale-blue pr-4">
               <font-awesome v-if="isFetching" icon="spinner" spin />
               <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
@@ -30,41 +30,47 @@
               <span class="sr-only">&nbsp;students</span>)
             </h2>
           </div>
-          <div class="accordion-heading-count align-items-start d-flex justify-content-end">
-            <div v-if="!compact" class="sortable-table-header accordion-heading-count-label">
+          <div class="count align-items-center d-flex justify-content-end">
+            <div v-if="!compact" class="pr-2 sortable-table-header">
               Total Alerts:
             </div>
             <div
               v-if="!group.alertCount"
               class="pill-alerts pill-alerts-zero"
-              aria-label="`No issues for ${group.name}`">0</div>
+              aria-label="`No issues for ${group.name}`"
+            >
+              0
+            </div>
             <div
               v-if="group.alertCount"
-              class="font-weight-normal pill-alerts pill-alerts-nonzero pl-2 pr-2"
-              aria-label="`${group.alertCount} alerts for ${group.name}`">{{ group.alertCount }}</div>
+              class="font-weight-normal pill-alerts pill-alerts-nonzero mb-1 pl-2 pr-2"
+              aria-label="`${group.alertCount} alerts for ${group.name}`"
+            >
+              {{ group.alertCount }}
+            </div>
           </div>
         </div>
-      </a>
-    </div>
+      </b-button>
+    </b-card-header>
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
       :aria-expanded="openAndLoaded"
-      :class="{'panel-open': openAndLoaded, 'background-when-open': !isFetching, 'compact-border-bottom': openAndLoaded}"
-      class="panel-body mr-3">
+      class="mr-3"
+    >
       <div v-if="$_.size(studentsWithAlerts)">
-        <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="p-3">
+        <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
             View all {{ group.totalStudentCount }} students in "{{ group.name }}"
           </router-link>
         </div>
-        <div class="pt-2">
+        <div class="pt-4">
           <SortableStudents
             :students="studentsWithAlerts"
             :options="sortableGroupOptions" />
         </div>
       </div>
-      <div v-if="openAndLoaded" class="mb-3 ml-4">
+      <div v-if="openAndLoaded" class="mb-3 ml-3">
         <router-link :id="`sortable-${keyword}-${group.id}-view-all`" :to="`/${keyword}/${group.id}`">
           <span v-if="group.totalStudentCount">
             View <span>{{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}</span>
@@ -76,7 +82,7 @@
         </router-link>
       </div>
     </b-collapse>
-  </div>
+  </b-card>
 </template>
 
 <script>
@@ -153,53 +159,23 @@ export default {
 }
 </script>
 
-<style scoped>
-.background-when-open {
-  background-color: #f3fbff;
-}
-.compact-border-bottom {
-  border-bottom-color: #ccc;
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-}
-.compact-header {
-  border-top-color: #999;
-  border-top-style: solid;
-  border-top-width: 1px;
-}
-.panel-heading {
-  padding: 10px 15px 10px 0;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
+<style>
+.card-header .btn {
+  /*box-shadow: none !important;*/
 }
 </style>
 
-<style>
-.accordion .panel-title a:focus,
-.accordion .panel-title a:hover {
-  text-decoration: none;
+<style scoped>
+.bg-pale-blue {
+  background-color: #f3fbff;
 }
-.accordion-heading {
-  background: #f3fbff;
-}
-.accordion-heading-caret {
-  color: #337ab7;
-  margin-right: 15px;
+.caret {
   width: 10px;
 }
-.accordion-heading-count {
-  margin: 10px 15px;
+.count {
   min-width: 130px;
 }
-.accordion-heading-count-label {
-  margin: 0 5px;
-}
-.accordion-heading-name {
-  margin: 10px 15px;
-}
-.accordion-heading-link:active,
-.accordion-heading-link:focus,
-.accordion-heading-link:hover {
-  text-decoration: none;
+.pale-blue {
+  color: #337ab7;
 }
 </style>
