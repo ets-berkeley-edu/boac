@@ -8,9 +8,6 @@
     "serve-vue": "vue-cli-service serve --open"
   },
   "dependencies": {
-    "@babel/core": "7.12.3",
-    "@babel/runtime": "7.12.1",
-    "@babel/plugin-transform-runtime": "7.12.1",
     "@ckeditor/ckeditor5-basic-styles": "11.1.1",
     "@ckeditor/ckeditor5-build-classic": "12.2.0",
     "@ckeditor/ckeditor5-ui": "12.1.0",
@@ -46,6 +43,7 @@
     "vuex": "3.5.1"
   },
   "devDependencies": {
+    "@babel/core": "^7.5.5",
     "@typescript-eslint/eslint-plugin": "^4.6.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.6.0",
     "@typescript-eslint/parser": "^4.6.0",
@@ -65,7 +63,6 @@
     "eslint-plugin-vue-a11y": "^0.0.31",
     "eslint-plugin-xss": "^0.1.10",
     "eslint-utils": "^2.1.0",
-    "execa": "4.0.3",
     "typescript": "~4.0.3",
     "vue-eslint-parser": "^7.1.1",
     "vue-template-compiler": "^2.6.12"
@@ -76,6 +73,7 @@
     "url": "git://github.com/ets-berkeley-edu/boac.git"
   },
   "resolutions": {
+    "execa": "4.0.3",
     "minimist": ">=1.2.3",
     "selfsigned": ">=1.10.8",
     "bl": "^2.2.1"
