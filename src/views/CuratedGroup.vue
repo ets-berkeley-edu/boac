@@ -154,7 +154,7 @@ export default {
       }
     },
     getLoadedAlert() {
-      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.preferences.sortBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.translateSortByOption(this.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
       this.loadingStart()

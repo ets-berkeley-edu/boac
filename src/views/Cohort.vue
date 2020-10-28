@@ -216,7 +216,7 @@ export default {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
       } else {
-        return `Cohort ${this.cohortName || ''}, sorted by ${this.preferences.sortBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     goToPage(page) {
