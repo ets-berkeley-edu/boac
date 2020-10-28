@@ -17,6 +17,7 @@
 
       <template v-slot:cell(avatar)="row">
         <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
+        <ManageStudent :is-button-variant-link="true" :sr-only="true" :student="row.item" />
       </template>
 
       <template v-slot:cell(lastName)="row">
@@ -108,6 +109,7 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentMetadata from '@/mixins/StudentMetadata'
@@ -116,6 +118,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'SortableStudents',
   components: {
+    ManageStudent,
     StudentAvatar,
     StudentCheckbox
   },

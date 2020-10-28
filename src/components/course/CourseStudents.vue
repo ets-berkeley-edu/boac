@@ -6,17 +6,23 @@
     :small="true"
     :tbody-tr-class="rowClass"
     stacked="md"
-    thead-class="sortable-table-header border-bottom">
+    thead-class="sortable-table-header border-bottom"
+    @row-hovered="rowHovered"
+    @row-unhovered="rowUnhovered"
+  >
     <template v-slot:cell(curated)="row">
-      <div>
-        <StudentCheckbox :student="row.item" class="curated-checkbox" />
+      <div class="pt-2">
+        <StudentCheckbox :student="row.item" />
       </div>
     </template>
-
     <template v-slot:cell(avatar)="row">
-      <StudentAvatar :key="row.item.sid" :student="row.item" size="medium" />
+      <div>
+        <StudentAvatar :key="row.item.sid" :student="row.item" size="medium" />
+      </div>
+      <div class="manage-curated-student mb-1 text-center">
+        <ManageStudent :is-button-variant-link="true" :sr-only="hoverSid !== row.item.sid" :student="row.item" />
+      </div>
     </template>
-
     <template v-slot:cell(profile)="row">
       <div>
         <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)">
@@ -205,6 +211,7 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
@@ -215,6 +222,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CourseStudents',
   components: {
+    ManageStudent,
     StudentAvatar,
     StudentBoxplot,
     StudentCheckbox
@@ -230,7 +238,8 @@ export default {
     section: Object
   },
   data: () => ({
-    fields: undefined
+    fields: undefined,
+    hoverSid: undefined
   }),
   created() {
     let cols = [
@@ -264,6 +273,12 @@ export default {
     rowClass(item) {
       const clazz = 'border-bottom pb-3 pt-3'
       return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz
+    },
+    rowHovered(item) {
+      this.hoverSid = item.sid
+    },
+    rowUnhovered() {
+      this.hoverSid = null
     }
   }
 }
@@ -273,15 +288,16 @@ export default {
 .course-sites {
   border-left: 1px solid #ddd;
 }
-.curated-checkbox {
-  padding-top: 36px;
-}
 .course-list-view-column-profile button {
   padding: 2px 0 0 5px;
 }
 .flex-col > div {
   align-items: flex-start;
   flex: 0 0 50px;
+}
+.manage-curated-student {
+  height: 24px;
+  width: 92px;
 }
 .student-name {
   color: #49b;
