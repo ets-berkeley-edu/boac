@@ -131,8 +131,8 @@ export default {
     remove(topic) {
       this.setDisabled(topic, false)
       this.functionRemove(topic)
+      this.alertScreenReader(`Removed topic ${topic}.`)
       this.putFocusNextTick('add-topic-select-list')
-      this.alertScreenReader(`Topic ${topic} removed.`)
     },
     setDisabled(topic, disable) {
       const option = this.$_.find(this.topicOptions, ['value', topic])
