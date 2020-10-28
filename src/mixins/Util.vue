@@ -35,6 +35,7 @@ export default {
       })
       return groupings
     },
+    lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin: arr => {
       switch(arr.length) {

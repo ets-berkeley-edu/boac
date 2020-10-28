@@ -81,15 +81,13 @@
                 <StudentAvatar :student="student" />
               </td>
               <td class="cohort-student-bio-container">
-                <div class="flex-container">
-                  <div class="flex-container student-name">
-                    <router-link
-                      :id="`link-to-student-${student.uid}`"
-                      :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                      :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
-                      {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
-                    </router-link>
-                  </div>
+                <div class="student-name">
+                  <router-link
+                    :id="`link-to-student-${student.uid}`"
+                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                    :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
+                    {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
+                  </router-link>
                 </div>
                 <div
                   v-if="student.sid"
@@ -770,9 +768,6 @@ export default {
 }
 .matrix-header {
   font-size: 18px;
-}
-.matrix-outer {
-  margin-left: 20px;
 }
 .matrix-student-performance-header {
   margin: 5px 20px 10px 0;
