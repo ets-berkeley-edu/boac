@@ -4,8 +4,8 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
       <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
       <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ note.author.departments && note.author.departments[0].name }}
-        advisor {{ note.author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
+        advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
@@ -18,7 +18,7 @@
           Delete Note
         </b-btn>
         <b-btn
-          v-if="$currentUser.uid === note.author.uid"
+          v-if="$currentUser.uid === author.uid"
           :id="`btn-edit-note-${note.id}`"
           class="sr-only"
           @click.stop="editNote(note)">
@@ -28,36 +28,36 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!$_.isNil(note.author) && !note.author.name && !note.author.email" class="mt-2 text-black-50 advisor-profile-not-found">
+      <div v-if="!$_.isNil(author) && !author.name && !author.email" class="mt-2 text-black-50 advisor-profile-not-found">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
         </span>
       </div>
-      <div v-if="note.author" class="mt-2">
-        <div v-if="note.author.name || note.author.email">
+      <div v-if="author" class="mt-2">
+        <div v-if="author.name || author.email">
           <span class="sr-only">Note created by </span>
           <a
-            v-if="note.author.uid && note.author.name"
+            v-if="author.uid && author.name"
             :id="`note-${note.id}-author-name`"
-            :aria-label="`Open UC Berkeley Directory page of ${note.author.name} in a new window`"
-            :href="`https://www.berkeley.edu/directory/results?search-term=${note.author.name}`"
-            target="_blank">{{ note.author.name }}</a>
-          <span v-if="!note.author.uid && note.author.name" :id="`note-${note.id}-author-name`">
-            {{ note.author.name }}
+            :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
+            :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
+            target="_blank">{{ author.name }}</a>
+          <span v-if="!author.uid && author.name" :id="`note-${note.id}-author-name`">
+            {{ author.name }}
           </span>
-          <span v-if="!note.author.uid && !note.author.name && note.author.email" :id="`note-${note.id}-author-email`">
-            {{ note.author.email }}
+          <span v-if="!author.uid && !author.name && author.email" :id="`note-${note.id}-author-email`">
+            {{ author.email }}
           </span>
-          <span v-if="note.author.role || note.author.title">
-            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ note.author.role || note.author.title }}</span>
+          <span v-if="author.role || author.title">
+            - <span :id="`note-${note.id}-author-role`" class="text-dark">{{ author.role || author.title }}</span>
           </span>
           <span v-if="note.legacySource" class="font-italic text-black-50">
             (note imported from {{ note.legacySource }})
           </span>
         </div>
-        <div v-if="$_.size(note.author.departments)" class="text-secondary">
-          <div v-for="(deptName, index) in $_.orderBy($_.map(note.author.departments, 'name'))" :key="index">
+        <div v-if="$_.size(author.departments)" class="text-secondary">
+          <div v-for="(deptName, index) in $_.orderBy($_.map(author.departments, 'name'))" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
         </div>
@@ -98,7 +98,7 @@
               {{ attachment.displayName }}
             </a>
             <b-btn
-              v-if="isEditable && ($currentUser.isAdmin || $currentUser.uid === note.author.uid)"
+              v-if="isEditable && ($currentUser.isAdmin || $currentUser.uid === author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
@@ -109,7 +109,7 @@
           </span>
         </li>
       </ul>
-      <div v-if="isEditable && $currentUser.uid === note.author.uid">
+      <div v-if="isEditable && $currentUser.uid === author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
           <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
@@ -183,6 +183,7 @@ export default {
     allUsers: undefined,
     attachmentError: undefined,
     attachments: [],
+    author: undefined,
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
     existingAttachments: undefined,
@@ -243,21 +244,21 @@ export default {
           const author_uid = this.note.author.uid
           if (author_uid) {
             if (author_uid === this.$currentUser.uid) {
-              // TODO: do not mutate prop
-              this.note.author = this.$currentUser  // eslint-disable-line vue/no-mutating-props
+              this.author = this.$currentUser
             } else {
               getCalnetProfileByUid(author_uid).then(data => {
-                // TODO: do not mutate prop
-                this.note.author = data  // eslint-disable-line vue/no-mutating-props
+                this.author = data
               })
             }
           } else if (this.note.author.sid) {
             getCalnetProfileByCsid(this.note.author.sid).then(data => {
-              // TODO: do not mutate prop
-              this.note.author = data  // eslint-disable-line vue/no-mutating-props
+              this.author = data
             })
           }
         }
+      }
+      if (this.$_.isNil(this.author)) {
+        this.author = this.$_.get(this.note, 'author')
       }
     },
     removeAttachment(index) {
