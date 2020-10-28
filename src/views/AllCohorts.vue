@@ -2,8 +2,14 @@
   <div class="m-3">
     <Spinner />
     <div v-if="!loading">
-      <h1 ref="pageHeader" class="mb-4">Everyone's Cohorts</h1>
-
+      <h1
+        id="everyones-cohorts-header"
+        ref="pageHeader"
+        class="mb-4"
+        tabindex="0"
+      >
+        Everyone's Cohorts
+      </h1>
       <div v-if="!rows.length">
         <div>There are no saved cohorts</div>
       </div>
@@ -29,11 +35,12 @@
 import { getUsersWithCohorts } from '@/api/cohort'
 import Spinner from '@/components/util/Spinner'
 import Loading from '@/mixins/Loading'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AllCohorts',
   components: { Spinner },
-  mixins: [Loading],
+  mixins: [Loading, Util],
   data: () => ({
     rows: []
   }),
@@ -42,6 +49,9 @@ export default {
       this.rows = data
       this.loaded('Everyone\'s Cohorts page has loaded')
     })
+  },
+  mounted() {
+    this.putFocusNextTick('everyones-cohorts-header')
   }
 }
 </script>
