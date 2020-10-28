@@ -32,19 +32,11 @@ export default {
   },
   created() {
     this.$eventHub.on('curated-group-select-all', () => (this.status = true))
-    this.$eventHub.on(
-      'curated-group-deselect-all',
-      () => (this.status = false)
-    )
+    this.$eventHub.on('curated-group-deselect-all', () => (this.status = false))
   },
   methods: {
     toggle(checked) {
-      this.$eventHub.emit(
-        checked
-          ? 'curated-group-checkbox-checked'
-          : 'curated-group-checkbox-unchecked',
-        this.student.sid
-      )
+      this.$eventHub.emit(checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked', this.student.sid)
       this.alertScreenReader(`${this.student.name} ${checked ? 'selected' : 'deselected'}`)
     }
   }

@@ -44,16 +44,21 @@ const mutations = {
     const cohort = cohorts.find(cohort => cohort.id === +updatedCohort.id)
     Object.assign(cohort, updatedCohort)
   },
-  curatedGroupCreated: (state: any, group: any) => state.myCuratedGroups.push(group),
+  curatedGroupCreated: (state: any, group: any) => {
+    state.myCuratedGroups.push(group)
+    Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+  },
   curatedGroupDeleted: (state: any, id: any) => {
     const indexOf = state.myCuratedGroups.findIndex(curatedGroup => {
       return curatedGroup.id === id
     })
     state.myCuratedGroups.splice(indexOf, 1)
+    Vue.prototype.$eventHub.emit('my-curated-groups-updated')
   },
   curatedGroupUpdated: (state: any, updatedGroup: any) => {
     const group = state.myCuratedGroups.find(group => group.id === +updatedGroup.id)
     Object.assign(group, updatedGroup)
+    Vue.prototype.$eventHub.emit('my-curated-groups-updated')
   },
   dropInAdvisorAdded:(state: any, dropInAdvisor: any) => {
     Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, dropInAdvisor)

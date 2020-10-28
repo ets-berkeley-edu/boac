@@ -50,7 +50,7 @@
           </b-form-checkbox>
         </b-dropdown-item>
       </div>
-      <hr class="dropdown-divider">
+      <b-dropdown-divider />
       <b-dropdown-item
         id="create-curated-group"
         aria-label="Create a new curated group"
@@ -123,9 +123,8 @@ export default {
     }
   },
   created() {
-    getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
-      this.checkedGroups = data
-      this.groupsLoading = false
+    this.refresh().then(() => {
+      this.$eventHub.on('my-curated-groups-updated', this.refresh)
     })
   },
   methods: {
@@ -147,7 +146,7 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.putFocusNextTick('add-to-curated-group')
+          this.putFocusNextTick('curated-group-dropdown', 'button')
           this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
@@ -159,6 +158,7 @@ export default {
       this.showModal = false
       const done = () => {
         this.putFocusNextTick('curated-group-dropdown', 'button')
+        this.isAdding = false
       }
       createCuratedGroup(name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
@@ -179,6 +179,12 @@ export default {
       this.showModal = false
       this.alertScreenReader('Cancelled')
       this.putFocusNextTick('curated-group-dropdown', 'button')
+    },
+    refresh() {
+      return getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
+        this.checkedGroups = data
+        this.groupsLoading = false
+      })
     }
   }
 }

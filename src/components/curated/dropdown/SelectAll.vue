@@ -56,7 +56,7 @@
             <span class="sr-only">Hit enter to add students to </span>{{ group.name }}
           </b-form-checkbox>
         </b-dropdown-item>
-        <hr class="dropdown-divider">
+        <b-dropdown-divider />
         <b-dropdown-item
           id="create-curated-group"
           class="pl-0 text-dark"
