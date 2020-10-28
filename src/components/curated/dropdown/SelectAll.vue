@@ -17,9 +17,9 @@
     </div>
     <div>
       <b-dropdown
-        v-if="showMenu"
+        v-if="!!$_.size(sids)"
         id="curated-group-dropdown-select"
-        :variant="dropdownVariant"
+        :variant="isSaving ? 'success' : 'primary'"
         :disabled="disableSelector"
         class="curated-selector mr-2"
         toggle-class="b-dd-override"
@@ -82,17 +82,15 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
+import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Util from '@/mixins/Util'
-import { addStudents, createCuratedGroup } from '@/api/curated'
+import {addStudents, createCuratedGroup} from '@/api/curated'
 
 export default {
-  name: 'CuratedGroupSelector',
-  components: {
-    CreateCuratedGroupModal
-  },
+  name: 'SelectAll',
+  components: {CreateCuratedGroupModal},
   mixins: [Context, CurrentUserExtras, Util],
   props: {
     contextDescription: {
@@ -123,12 +121,6 @@ export default {
   computed: {
     disableSelector() {
       return this.isSaving || this.$_.isNil(this.myCuratedGroups)
-    },
-    dropdownVariant() {
-      return this.isSaving ? 'success' : 'primary'
-    },
-    showMenu() {
-      return this.$_.size(this.sids)
     }
   },
   created() {
@@ -142,6 +134,73 @@ export default {
     })
   },
   methods: {
+    afterAddStudents(group) {
+      this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
+      this.sids = []
+      this.isSelectAllChecked = this.indeterminate = false
+      this.$eventHub.emit('curated-group-deselect-all')
+      this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
+    },
+    afterCreateGroup() {
+      this.sids = []
+      this.refresh()
+      this.toggle(false)
+      this.putFocusNextTick('add-all-to-curated-group')
+      this.onCreateCuratedGroup()
+    },
+    afterCreateGroupModalCancel() {
+      this.sids = []
+      this.refresh()
+      this.toggle(false)
+      this.putFocusNextTick('add-all-to-curated-group')
+    },
+    curatedGroupCheckboxClick(group) {
+      this.isSaving = true
+      const done = () => {
+        this.isSaving = false
+      }
+      addStudents(group.id, this.sids)
+        .then(() => {
+          this.afterAddStudents(group)
+        })
+        .finally(() => setTimeout(done, 2000))
+    },
+    refresh() {
+      this.indeterminate = this.$_.inRange(
+        this.$_.size(this.sids),
+        1,
+        this.$_.size(this.students)
+      )
+      this.isSelectAllChecked = this.$_.size(this.sids) === this.$_.size(this.students)
+    },
+    modalCancel() {
+      this.showModal = false
+      this.alertScreenReader('Cancelled')
+      this.afterModalCancel()
+    },
+    modalCreateCuratedGroup(name) {
+      this.isSaving = true
+      this.showModal = false
+      let done = () => {
+        this.isSaving = false
+        this.alertScreenReader(`Student${this.sids.length === 1 ? 's' : ''} added to curated group ${name}`)
+        this.afterCreateGroup()
+      }
+      const trackEvent = group => {
+        this.$_.each(
+          [
+            'create',
+            `${this.contextDescription}: add student${this.sids.length === 1 ? 's' : ''} to Curated Group`
+          ],
+          action => {
+            this.$ga.curatedEvent(group.id, group.name, action)
+          }
+        )
+      }
+      createCuratedGroup(name, this.sids)
+        .then(trackEvent)
+        .finally(() => setTimeout(() => done(), 2000))
+    },
     toggle(checked) {
       if (checked) {
         this.sids = this.$_.map(this.students, 'sid')
@@ -153,64 +212,6 @@ export default {
         this.$eventHub.emit('curated-group-deselect-all')
         this.alertScreenReader('All students on this page deselected.')
       }
-    },
-    refresh() {
-      this.indeterminate = this.$_.inRange(
-        this.$_.size(this.sids),
-        1,
-        this.$_.size(this.students)
-      )
-      this.isSelectAllChecked =
-        this.$_.size(this.sids) === this.$_.size(this.students)
-    },
-    curatedGroupCheckboxClick(group) {
-      const afterAddStudents = () => {
-        this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
-        this.sids = []
-        this.isSelectAllChecked = this.indeterminate = false
-        this.$eventHub.emit('curated-group-deselect-all')
-        this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
-      }
-      const done = () => (this.isSaving = false)
-      this.isSaving = true
-      addStudents(group.id, this.sids)
-        .then(afterAddStudents)
-        .finally(() => setTimeout(done, 2000))
-    },
-    modalCreateCuratedGroup(name) {
-      this.isSaving = true
-      this.showModal = false
-      let done = () => {
-        this.sids = []
-        this.refresh()
-        this.toggle(false)
-        this.isSaving = false
-        this.onCreateCuratedGroup()
-        this.alertScreenReader(`Students added to curated group ${name}`)
-        this.putFocusNextTick('add-all-to-curated-group')
-      }
-      const trackEvent = group => {
-        this.$_.each(
-          [
-            'create',
-            `${this.contextDescription}: add students to Curated Group`
-          ],
-          action => {
-            this.$ga.curatedEvent(group.id, group.name, action)
-          }
-        )
-      }
-      createCuratedGroup(name, this.sids)
-        .then(trackEvent)
-        .finally(() => setTimeout(() => done(), 2000))
-    },
-    modalCancel() {
-      this.sids = []
-      this.refresh()
-      this.toggle(false)
-      this.showModal = false
-      this.alertScreenReader('Cancelled')
-      this.putFocusNextTick('add-all-to-curated-group')
     }
   }
 }

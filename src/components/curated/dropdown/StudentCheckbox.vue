@@ -1,18 +1,20 @@
 <template>
-  <b-form-checkbox
-    :id="`student-${student.sid}-curated-group-checkbox`"
-    v-model="status"
-    :aria-label="checkboxDescription"
-    size="md"
-    @change="toggle"
-  />
+  <div class="student-checkbox">
+    <b-form-checkbox
+      :id="`student-${student.sid}-curated-group-checkbox`"
+      v-model="status"
+      :aria-label="checkboxDescription"
+      size="sm"
+      @change="toggle"
+    />
+  </div>
 </template>
 
 <script>
 import Context from '@/mixins/Context'
 
 export default {
-  name: 'CuratedStudentCheckbox',
+  name: 'StudentCheckbox',
   mixins: [Context],
   props: {
     student: Object
@@ -48,3 +50,14 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.student-checkbox {
+  background-color: #eee;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  height: 24px;
+  padding-left: 4px;
+  width: 24px;
+}
+</style>

@@ -34,7 +34,7 @@
             }"
             class="d-flex pb-2 pt-2"
           >
-            <CuratedGroupSelector
+            <SelectAll
               v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
               :ga-event-tracker="$ga.cohortEvent"
@@ -119,13 +119,13 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import CohortHistory from '@/components/cohort/CohortHistory'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import Context from '@/mixins/Context'
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import FilterRow from '@/components/cohort/FilterRow'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
+import SelectAll from '@/components/curated/dropdown/SelectAll'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
@@ -139,10 +139,10 @@ export default {
     ApplyAndSaveButtons,
     CohortHistory,
     CohortPageHeader,
-    CuratedGroupSelector,
     FilterRow,
     Pagination,
     SectionSpinner,
+    SelectAll,
     SortBy,
     Spinner,
     StudentRow

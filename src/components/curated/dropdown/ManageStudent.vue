@@ -2,20 +2,22 @@
   <div>
     <b-dropdown
       id="curated-group-dropdown"
-      :variant="dropdownVariant"
+      :class="{'p-0': isButtonVariantLink}"
       :disabled="disableSelector"
-      toggle-class="b-dd-override b-dd-narrow"
-      menu-class="groups-menu-class"
+      :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
+      no-caret
       size="sm"
-      no-caret>
+      :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow'"
+      variant="dropdownVariant"
+    >
       <template slot="button-content">
         <div
           :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
           :aria-label="`Add ${student.name} to a group`"
           role="button">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
-            <div class="pl-3">Add to Group</div>
-            <div class="pr-2">
+            <div :class="{'font-size-14': isButtonVariantLink, 'pl-3': !isButtonVariantLink}">Add to Group</div>
+            <div v-if="!isButtonVariantLink" class="pr-2">
               <font-awesome v-if="disableSelector || groupsLoading" icon="spinner" spin />
               <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" />
             </div>
@@ -85,15 +87,19 @@ import {
 } from '@/api/curated'
 
 export default {
-  name: 'StudentGroupSelector',
+  name: 'ManageStudent',
   components: {
     CreateCuratedGroupModal
   },
   mixins: [Context, CurrentUserExtras, Scrollable, Util],
   props: {
+    isButtonVariantLink: {
+      required: false,
+      type: Boolean
+    },
     student: {
-      type: Object,
-      required: true
+      required: true,
+      type: Object
     }
   },
   data: () => ({
@@ -108,11 +114,7 @@ export default {
       return this.isAdding || this.isRemoving
     },
     dropdownVariant() {
-      return this.isAdding
-        ? 'success'
-        : this.isRemoving
-          ? 'warning'
-          : 'primary'
+      return this.isButtonVariantLink ? 'link' : (this.isAdding ? 'success' : (this.isRemoving ? 'warning' : 'primary'))
     }
   },
   created() {

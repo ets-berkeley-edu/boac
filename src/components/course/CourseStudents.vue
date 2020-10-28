@@ -9,7 +9,7 @@
     thead-class="sortable-table-header border-bottom">
     <template v-slot:cell(curated)="row">
       <div>
-        <CuratedStudentCheckbox :student="row.item" class="curated-checkbox" />
+        <StudentCheckbox :student="row.item" class="curated-checkbox" />
       </div>
     </template>
 
@@ -205,19 +205,19 @@
 
 <script>
 import Context from '@/mixins/Context'
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
+import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CourseStudents',
   components: {
-    CuratedStudentCheckbox,
     StudentAvatar,
-    StudentBoxplot
+    StudentBoxplot,
+    StudentCheckbox
   },
   mixins: [
     Context,
