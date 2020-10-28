@@ -26,7 +26,7 @@
           :aria-label="`Go to profile page of ${row.item.name}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
-          v-html="`${row.item.lastName}, ${row.item.firstName}`"></router-link>
+          v-html="lastNameFirst(row.item)"></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"

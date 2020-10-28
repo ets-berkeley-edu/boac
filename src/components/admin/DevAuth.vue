@@ -1,6 +1,6 @@
 <template>
   <form @submit.prevent="logIn">
-    <div class="flex-container dev-auth">
+    <div class="d-flex dev-auth">
       <div>
         <input
           id="dev-auth-uid"

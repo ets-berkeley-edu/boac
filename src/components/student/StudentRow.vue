@@ -43,7 +43,7 @@
               :id="`row-${rowIndex}-student-name`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               class="student-name"
-              v-html="`${student.lastName}, ${student.firstName}`"></h3>
+              v-html="lastNameFirst(student)"></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"

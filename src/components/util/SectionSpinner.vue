@@ -1,8 +1,6 @@
 <template>
-  <div>
-    <div v-if="loading" class="spinner">
-      <font-awesome :size="`${faSize}x`" icon="sync" spin />
-    </div>
+  <div v-if="loading" class="spinner">
+    <font-awesome :size="`${faSize}x`" icon="sync" spin />
   </div>
 </template>
 
