@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="{'sr-only': srOnly && !isAdding && !isRemoving && !showModal}">
     <b-dropdown
       id="curated-group-dropdown"
       :class="{'p-0': isButtonVariantLink}"
@@ -8,13 +8,13 @@
       no-caret
       size="sm"
       :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow'"
-      variant="dropdownVariant"
+      :variant="dropdownVariant"
     >
       <template slot="button-content">
         <div
           :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
           :aria-label="`Add ${student.name} to a group`"
-          role="button">
+        >
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div :class="{'font-size-14': isButtonVariantLink, 'pl-3': !isButtonVariantLink}">Add to Group</div>
             <div v-if="!isButtonVariantLink" class="pr-2">
@@ -22,10 +22,10 @@
               <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" />
             </div>
           </div>
-          <span v-if="isRemoving">
+          <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink}">
             <font-awesome icon="times" /> Removed
           </span>
-          <span v-if="isAdding">
+          <span v-if="isAdding" :class="{'text-success': isButtonVariantLink}">
             <font-awesome icon="check" /> Added
           </span>
         </div>
@@ -68,7 +68,7 @@
       title="Create Curated Group"
       @shown="focusModalById('create-input')"
     >
-      <CreateCuratedGroupModal :cancel="modalCancel" :create="modalCreateGroup" />
+      <CreateCuratedGroupModal :cancel="onModalCancel" :create="onCreateCuratedGroup" />
     </b-modal>
   </div>
 </template>
@@ -93,6 +93,10 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Scrollable, Util],
   props: {
+    srOnly: {
+      required: false,
+      type: Boolean
+    },
     isButtonVariantLink: {
       required: false,
       type: Boolean
@@ -104,6 +108,7 @@ export default {
   },
   data: () => ({
     checkedGroups: undefined,
+    confirmationTimeout: 1500,
     groupsLoading: true,
     isAdding: false,
     isRemoving: false,
@@ -135,25 +140,25 @@ export default {
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Removed SID ${this.student.sid}`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
-          setTimeout(done, 2000)
+          setTimeout(done, this.confirmationTimeout)
         )
       } else {
         this.isAdding = true
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.putFocusNextTick('curated-group-dropdown', 'button')
+          this.putFocusNextTick('add-to-curated-group')
           this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
-        addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, 2000))
+        addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
     },
-    modalCreateGroup(name) {
+    onCreateCuratedGroup(name) {
       this.isAdding = true
       this.showModal = false
       const done = () => {
-        this.putFocusNextTick('curated-group-dropdown')
+        this.putFocusNextTick('curated-group-dropdown', 'button')
       }
       createCuratedGroup(name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
@@ -167,13 +172,13 @@ export default {
             this.$ga.curatedEvent(group.id, group.name, action)
           }
         )
-        setTimeout(done, 2000)
+        setTimeout(done, this.confirmationTimeout)
       })
     },
-    modalCancel() {
+    onModalCancel() {
       this.showModal = false
       this.alertScreenReader('Cancelled')
-      this.putFocusNextTick('curated-group-dropdown')
+      this.putFocusNextTick('curated-group-dropdown', 'button')
     }
   }
 }

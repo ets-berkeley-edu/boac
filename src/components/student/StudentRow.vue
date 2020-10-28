@@ -30,10 +30,8 @@
           size="medium"
         />
       </div>
-      <div v-if="listType === 'cohort'" class="curated-student-selector text-center">
-        <div :class="{'sr-only': !hover}">
-          <ManageStudent :is-button-variant-link="true" :student="student" />
-        </div>
+      <div v-if="listType === 'cohort'" class="manage-curated-student mb-1 text-center">
+        <ManageStudent :is-button-variant-link="true" :sr-only="!hover" :student="student" />
       </div>
     </div>
     <div class="cohort-student-bio-container mb-1">
@@ -397,19 +395,15 @@ export default {
   margin-left: 0;
   min-width: 340px;
 }
-.cohort-list-view-column-00 {
-  align-self: center;
-  flex: 0 0 30px;
-  margin-right: 5px;
-}
 .cohort-student-name-container {
   display: flex;
 }
 .cohort-student-name-container div:first-child {
   flex-basis: 70%;
 }
-.curated-student-selector {
+.manage-curated-student {
   height: 24px;
+  width: 92px;
 }
 .profile-gpa-alert {
   color: #d0021b;
