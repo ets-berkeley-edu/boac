@@ -77,7 +77,7 @@
           </div>
           <div class="col-sm bb-2 mr-2 text-center">
             <StudentAvatar :student="student" class="mb-2" size="large" />
-            <StudentGroupSelector :student="student" />
+            <ManageStudent :student="student" />
           </div>
         </div>
       </div>
@@ -174,9 +174,9 @@
 </template>
 
 <script>
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import StudentGroupSelector from '@/components/student/profile/StudentGroupSelector'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentPersonalDetails from '@/components/student/profile/StudentPersonalDetails'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
@@ -185,9 +185,9 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentProfileHeader',
   components: {
+    ManageStudent,
     StudentAcademicStanding,
     StudentAvatar,
-    StudentGroupSelector,
     StudentPersonalDetails,
     StudentProfilePlan
   },

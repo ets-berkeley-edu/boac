@@ -67,7 +67,7 @@
         </div>
         <div v-if="section.totalStudentCount" class="d-flex justify-content-start align-items-baseline m-3">
           <div>
-            <CuratedGroupSelector
+            <SelectAll
               v-if="!$_.isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
               :ga-event-tracker="$ga.courseEvent"
@@ -140,12 +140,12 @@
 
 <script>
 import CourseStudents from '@/components/course/CourseStudents'
-import CuratedGroupSelector from '@/components/curated/CuratedGroupSelector'
 import Loading from '@/mixins/Loading'
 import Matrix from '@/components/matrix/Matrix'
 import MatrixUtil from '@/components/matrix/MatrixUtil'
 import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
+import SelectAll from '@/components/curated/dropdown/SelectAll'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import { getSection } from '@/api/course'
@@ -154,9 +154,9 @@ export default {
   name: 'Course',
   components: {
     CourseStudents,
-    CuratedGroupSelector,
     Matrix,
     Pagination,
+    SelectAll,
     Spinner,
   },
   mixins: [

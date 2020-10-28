@@ -8,7 +8,7 @@
   >
     <span :id="`row-index-of-${student.sid}`" hidden aria-hidden="true">{{ rowIndex }}</span>
     <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
-    <div class="align-items-center d-flex position-relative">
+    <div>
       <button
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
@@ -18,9 +18,9 @@
         @keyup.enter="onClickRemoveStudent(student)">
         <font-awesome icon="times-circle" class="font-size-24" />
       </button>
-      <div v-if="listType === 'cohort'">
-        <CuratedStudentCheckbox :student="student" />
-      </div>
+    </div>
+    <div v-if="listType === 'cohort'" class="mr-3">
+      <StudentCheckbox :student="student" />
     </div>
     <div>
       <div>
@@ -30,8 +30,10 @@
           size="medium"
         />
       </div>
-      <div v-if="listType === 'cohort'" class="text-center" :class="{'sr-only': !hover}">
-        <CuratedStudentSelector :student="student" />
+      <div v-if="listType === 'cohort'" class="curated-student-selector text-center">
+        <div :class="{'sr-only': !hover}">
+          <ManageStudent :is-button-variant-link="true" :student="student" />
+        </div>
       </div>
     </div>
     <div class="cohort-student-bio-container mb-1">
@@ -287,11 +289,11 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CuratedStudentSelector from '@/components/curated/CuratedStudentSelector'
-import CuratedStudentCheckbox from '@/components/curated/CuratedStudentCheckbox'
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
+import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
@@ -299,10 +301,10 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentRow',
   components: {
-    CuratedStudentCheckbox,
-    CuratedStudentSelector,
+    ManageStudent,
     StudentAcademicStanding,
     StudentAvatar,
+    StudentCheckbox,
     StudentGpaChart
   },
   mixins: [
@@ -405,6 +407,9 @@ export default {
 }
 .cohort-student-name-container div:first-child {
   flex-basis: 70%;
+}
+.curated-student-selector {
+  height: 24px;
 }
 .profile-gpa-alert {
   color: #d0021b;
