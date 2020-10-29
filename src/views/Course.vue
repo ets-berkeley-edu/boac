@@ -1,5 +1,5 @@
 <template>
-  <div class="course-container">
+  <div class="w-100">
     <Spinner />
     <div v-if="!loading && !isToggling && error">
       <h1 class="page-section-header">Error</h1>
@@ -8,7 +8,7 @@
         <span v-if="!error.message">Sorry, there was an error retrieving data.</span>
       </div>
     </div>
-    <div v-if="!error" class="course-container-inner">
+    <div v-if="!error">
       <div v-if="!loading">
         <a
           v-if="section.totalStudentCount > pagination.itemsPerPage"
@@ -16,7 +16,7 @@
           href="#pagination-widget"
           class="sr-only">Skip to pagination widget</a>
         <div>
-          <div class="course-container-summary">
+          <div class="d-flex">
             <div class="course-column-description">
               <h1
                 id="course-header"
@@ -25,7 +25,7 @@
                 tabindex="0">
                 {{ section.displayName }}
               </h1>
-              <div class="course-details-section">
+              <div class="font-size-14">
                 <h2 class="sr-only">Details</h2>
                 {{ section.instructionFormat }}
                 {{ section.sectionNum }}
@@ -43,13 +43,13 @@
               <h2 class="sr-only">Schedule</h2>
               <div class="course-term-name">{{ section.termName }}</div>
               <div v-for="(meeting, meetingIndex) in section.meetings" :key="meetingIndex">
-                <div v-if="!$_.isEmpty(meeting.instructors)" class="course-details-instructors">
+                <div v-if="!$_.isEmpty(meeting.instructors)" class="mt-2">
                   <span :id="'instructors-' + meetingIndex" class="course-instructors-header">
                     {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
                   </span>
                   {{ meeting.instructors.join(', ') }}
                 </div>
-                <div :id="'meetings-' + meetingIndex" class="course-details-meetings">
+                <div :id="'meetings-' + meetingIndex" class="font-size-16">
                   <div>{{ meeting.days }}</div>
                   <div>{{ meeting.time }}</div>
                   <div>{{ meeting.location }}<span v-if="meeting.instructionModeName"><span v-if="meeting.location"> &mdash; </span>{{ meeting.instructionModeName }}</span></div>
@@ -66,7 +66,7 @@
           <span class="has-error"><font-awesome icon="exclamation-triangle" /></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
-        <div v-if="section.totalStudentCount" class="d-flex ml-3 mt-3">
+        <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">
           <div>
             <SelectAll
               v-if="!$_.isEmpty(section.students) && (tab === 'list')"
@@ -78,7 +78,7 @@
           <div v-if="!matrixDisabledMessage" class="d-flex mb-2 text-nowrap">
             <b-button-group
               id="tabs-button-group"
-              :aria-label="`You are in ${tab} view. Switch to ${tab === 'list' ? 'matrix' : 'list'} with the available button below.`"
+              :aria-label="`You are in ${tab} view. Click button to enter ${tab === 'list' ? 'matrix' : 'list'} view.`"
             >
               <b-button
                 id="btn-tab-list"
@@ -97,6 +97,7 @@
                 aria-labelledby="tabs-button-group"
                 class="tab-button"
                 :class="{'tab-button-selected': tab === 'matrix'}"
+                :disabled="tab === 'matrix'"
                 variant="secondary"
                 @click="toggleView('matrix')"
                 @keyup.enter="toggleView('matrix')"
@@ -105,10 +106,7 @@
               </b-button>
             </b-button-group>
           </div>
-          <div
-            v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)"
-            class="align-items-center d-flex mb-3 ml-auto mr-3"
-          >
+          <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-items-center d-flex ml-auto mr-3">
             <div class="pr-1">
               {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
             </div>
@@ -116,8 +114,8 @@
               <b-button
                 :id="`view-per-page-${option}`"
                 :aria-label="`Show ${option} results per page`"
-                class="pl-1 pr-0 py-0"
-                :class="{'font-size-18 font-weight-bold text-secondary': option === pagination.itemsPerPage}"
+                class="px-1"
+                :class="{'font-size-16 font-weight-bold text-dark': option === pagination.itemsPerPage}"
                 :disabled="option === pagination.itemsPerPage"
                 variant="link"
                 @click="resizePage(option)"
@@ -204,7 +202,7 @@ export default {
     this.termId = this.$route.params.termId
     this.tab = this.$_.includes(['list', 'matrix'], this.$route.query.tab) ? this.$route.query.tab : this.tab
     this.initPagination()
-    this.toggleView(this.tab)
+    this.toggleView(this.tab, 'course-header')
   },
   mounted() {
     this.scrollToTop()
@@ -265,7 +263,7 @@ export default {
       this.pagination.currentPage = Math.round(this.pagination.currentPage * (previousItemsPerPage / this.pagination.itemsPerPage))
       this.toggleView(this.tab)
     },
-    toggleView(tabName) {
+    toggleView(tabName, focusAfter) {
       this.isToggling = true
       this.tab = tabName
       this.alertScreenReader(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
@@ -285,6 +283,7 @@ export default {
         this.isToggling = false
         this.loaded()
         this.alertScreenReader(`${tabName} view loaded`)
+        this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView
       loadView().then(done)
@@ -307,26 +306,6 @@ export default {
   color: #fff;
   flex: 2 0 0;
   padding: 10px 10px 20px 10px;
-}
-.course-container {
-  width: 100%;
-}
-.course-container-inner {
-  display: flex;
-  flex-direction: column;
-}
-.course-container-summary {
-  display: flex;
-  flex-direction: row;
-}
-.course-details-instructors {
-  margin-top: 15px;
-}
-.course-details-meetings {
-  font-size: 16px;
-}
-.course-details-section {
-  font-size: 14px;
 }
 .course-header {
   font-size: 24px;
