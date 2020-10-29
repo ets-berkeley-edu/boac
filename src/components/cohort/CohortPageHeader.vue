@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!cohortId && totalStudentCount === undefined" class="mb-2">
+    <div v-if="!cohortId && totalStudentCount === undefined" class="pb-3">
       <h1
         id="create-cohort-h1"
         class="page-section-header"

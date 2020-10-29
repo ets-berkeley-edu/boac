@@ -13,7 +13,6 @@
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
-      <span :id="`new-filter-${index}-label`" class="sr-only">Filter options:</span>
       <b-dropdown
         id="new-filter-button"
         :aria-labelledby="`new-filter-${index}-label`"
@@ -36,28 +35,35 @@
           :id="`primary-filter-group-${filterRowIndex}-${mIndex}`"
           :key="mIndex"
         >
-          <b-dropdown-item-button
-            v-for="(subCategory, sIndex) in category"
-            :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
-            :key="subCategory.key"
-            :aria-disabled="subCategory.disabled"
-            class="font-size-16 h-100"
-            :class="{
-              'pb-1': mIndex === menu.length - 1 && sIndex === category.length - 1,
-              'pt-1': !mIndex && !sIndex
-            }"
-            :disabled="subCategory.disabled"
-            @click="onSelectFilter(subCategory)"
-            @focusin.prevent.stop
-            @mouseover.prevent.stop
-          >
-            <span
+          <div v-for="(subCategory, sIndex) in category" :key="subCategory.key">
+            <b-dropdown-item-button v-if="subCategory.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
+              '{{ subCategory.label.primary }}' is disabled.
+            </b-dropdown-item-button>
+            <b-dropdown-item-button
+              :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
+              :aria-disabled="subCategory.disabled"
+              :aria-hidden="subCategory.disabled"
+              class="font-size-16 h-100"
               :class="{
-                'font-weight-light pointer-default text-muted': subCategory.disabled,
-                'font-weight-normal text-dark': !subCategory.disabled
+                'pb-1': mIndex === menu.length - 1 && sIndex === category.length - 1,
+                'pt-1': !mIndex && !sIndex
               }"
-              class="font-size-16">{{ subCategory.label.primary }}</span>
-          </b-dropdown-item-button>
+              :disabled="subCategory.disabled"
+              @click="onSelectFilter(subCategory)"
+              @focusin.prevent.stop
+              @mouseover.prevent.stop
+            >
+              <span
+                :class="{
+                  'font-weight-light pointer-default text-muted': subCategory.disabled,
+                  'font-weight-normal text-dark': !subCategory.disabled
+                }"
+                class="font-size-16"
+              >
+                {{ subCategory.label.primary }}
+              </span>
+            </b-dropdown-item-button>
+          </div>
           <b-dropdown-divider v-if="mIndex !== (menu.length - 1)" />
         </b-dropdown-group>
       </b-dropdown>
@@ -96,6 +102,9 @@
             <div v-for="(options, name, gIndex) in groupObjectsBy(filter.options, 'group')" :key="name">
               <b-dropdown-group :id="`${filter.label.primary}-dropdown-group-${name}`" :header="name">
                 <div v-for="(option, oIndex) in options" :key="option.key">
+                  <b-dropdown-item-button v-if="option.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
+                    '{{ option.name }}' is disabled.
+                  </b-dropdown-item-button>
                   <b-dropdown-item-button
                     v-if="option.value !== 'divider'"
                     :id="`${filter.label.primary}-${option.value}`"
@@ -124,6 +133,9 @@
           </div>
           <div v-if="!isGrouped(filter.options)">
             <div v-for="(option, fIndex) in filter.options" :key="option.key">
+              <b-dropdown-item-button v-if="option.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
+                '{{ option.name }}' is disabled.
+              </b-dropdown-item-button>
               <b-dropdown-item-button
                 v-if="option.value !== 'divider'"
                 :id="`${filter.label.primary}-${option.value}`"
