@@ -58,7 +58,7 @@
           Cancel
         </b-btn>
       </div>
-      <div v-if="!mode" class="d-flex align-items-center mr-2">
+      <div v-if="!mode" class="d-flex align-items-center">
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="bulk-add-sids-button"
@@ -149,9 +149,10 @@
           <b-btn
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
+            aria-label="Download CSV file containing all students"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
-            aria-label="Download CSV file containing all students">
+          >
             Export List
           </b-btn>
           <b-modal

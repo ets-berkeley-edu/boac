@@ -6,22 +6,21 @@
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount" class="filters-section-separator" />
         <div class="cohort-column-results">
-          <div v-if="totalStudentCount > 1" class="d-flex m-2">
-            <div class="cohort-list-header-column-01"></div>
-            <div class="cohort-list-header-column-02">
-              <SortBy v-if="totalStudentCount > 1" />
+          <div v-if="totalStudentCount > 1" class="align-items-start d-flex justify-content-between mt-3">
+            <div v-if="totalStudentCount > itemsPerPage">
+              <Pagination
+                :click-handler="onClickPagination"
+                :init-page-number="pageNumber"
+                :limit="10"
+                :per-page="itemsPerPage"
+                :total-rows="totalStudentCount"
+              />
+            </div>
+            <div>
+              <SortBy />
             </div>
           </div>
-          <hr class="filters-section-separator mr-3" />
-          <div v-if="totalStudentCount > itemsPerPage" class="pt-3">
-            <Pagination
-              :click-handler="onClickPagination"
-              :init-page-number="pageNumber"
-              :limit="10"
-              :per-page="itemsPerPage"
-              :total-rows="totalStudentCount" />
-          </div>
-          <div v-if="$_.size(students)">
+          <div v-if="$_.size(students)" class="mt-2">
             <div id="curated-cohort-students" class="list-group">
               <StudentRow
                 v-for="(student, index) in students"
@@ -35,7 +34,7 @@
                 :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                 class="list-group-item student-list-item" />
             </div>
-            <div v-if="totalStudentCount > itemsPerPage" class="p-3">
+            <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
               <Pagination
                 :click-handler="onClickPagination"
                 :init-page-number="pageNumber"
@@ -171,13 +170,6 @@ export default {
 h3 {
   color: #666;
   font-size: 18px;
-}
-.cohort-list-header-column-01 {
-  flex: 0 0 52px;
-}
-.cohort-list-header-column-02 {
-  margin-left: auto;
-  white-space: nowrap;
 }
 .student-list-item {
   border-left: none;

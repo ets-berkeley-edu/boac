@@ -7,7 +7,7 @@
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
-        class="mr-3">
+        class="mr-3 my-3">
         <FilterRow
           v-for="(filter, index) in filters"
           :key="filterRowUniqueKey(filter, index)"
@@ -16,7 +16,7 @@
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
-      <hr class="filters-section-separator mr-2 mt-3" />
+      <hr class="filters-section-separator mr-2 mt-0" />
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
         <a
@@ -32,7 +32,7 @@
               'justify-content-end': domain === 'admitted_students',
               'justify-content-between': domain === 'default'
             }"
-            class="d-flex pb-2 pt-2"
+            class="align-items-center d-flex mr-3 pb-1 pt-2"
           >
             <SelectAll
               v-if="domain === 'default'"
@@ -40,11 +40,13 @@
               :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students" />
-            <SortBy v-if="showSortBy" :domain="domain" />
+            <div class="pt-1">
+              <SortBy v-if="showSortBy" :domain="domain" />
+            </div>
           </div>
           <div v-if="totalStudentCount > pagination.itemsPerPage">
-            <hr class="filters-section-separator mr-2 mb-2" />
-            <div class="p-3">
+            <hr class="filters-section-separator mr-3" />
+            <div class="mt-3">
               <Pagination
                 :click-handler="goToPage"
                 :init-page-number="pageNumber"
