@@ -11,7 +11,6 @@
         role="main"
         sm="10">
         <ServiceAnnouncement />
-        <VueAnnouncer />
         <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
       </b-col>
     </b-row>

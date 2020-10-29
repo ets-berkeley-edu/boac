@@ -1,18 +1,17 @@
 <template>
   <div id="app" class="fill-viewport">
+    <VueAnnouncer />
     <router-view></router-view>
     <div v-if="$config.fixedWarningOnAllPages && !hasUserDismissedFooterAlert" id="fixed_bottom">
-      <div
-        id="fixed-warning-on-all-pages"
-        class="d-flex fixed-bottom fixed-warning"
-        aria-expanded="true"
-        aria-live="polite"
-        role="alert">
+      <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
         <div class="flex-grow-1">
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
-        <div>
-          {{ $config.isVueAppDebugMode ? $_.get($announcer, 'data.content') || '&mdash;' : $config.fixedWarningOnAllPages }}
+        <div v-if="$config.isVueAppDebugMode">
+          {{ $_.get($announcer.data, 'content') }}
+        </div>
+        <div v-if="!$config.isVueAppDebugMode">
+          <span aria-live="polite" role="alert">{{ $config.fixedWarningOnAllPages }}</span>
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
@@ -31,11 +30,10 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 
 export default {
   name: 'App',
-  mixins: [Context, Util],
+  mixins: [Context],
   methods: {
     dismissTheWarning() {
       this.dismissFooterAlert()
