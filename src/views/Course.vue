@@ -271,7 +271,8 @@ export default {
       const done = data => {
         this.setPageTitle(data.displayName)
         this.section = this.featureSearchedStudent(data)
-        if (this.exceedsMatrixThreshold(this.$_.get(this.section, 'totalStudentCount'))) {
+        let totalStudentCount = this.$_.get(this.section, 'totalStudentCount')
+        if (this.exceedsMatrixThreshold(totalStudentCount)) {
           this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`
         } else {
           if (this.partitionPlottableStudents()[0].length === 0) {
@@ -282,7 +283,13 @@ export default {
         }
         this.isToggling = false
         this.loaded()
-        this.alertScreenReader(`${tabName} view loaded`)
+        if (tabName === 'matrix') {
+          this.alertScreenReader(`Matrix loaded, with ${totalStudentCount} in view.`)
+        } else if (totalStudentCount < this.pagination.itemsPerPage) {
+          this.alertScreenReader(`List view loaded. Showing all ${totalStudentCount} students.`)
+        } else {
+          this.alertScreenReader(`List view loaded, page ${this.pagination.currentPage}. Showing ${this.section.students.length} of the total ${totalStudentCount} students.`)
+        }
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView
