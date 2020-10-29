@@ -2,6 +2,7 @@
   <div :class="{'sr-only': srOnly && !isAdding && !isRemoving && !showModal}">
     <b-dropdown
       id="curated-group-dropdown"
+      :aria-label="`Curated groups for ${student.name}`"
       :class="{'p-0': isButtonVariantLink}"
       :disabled="disableSelector"
       :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
@@ -11,10 +12,7 @@
       :variant="dropdownVariant"
     >
       <template slot="button-content">
-        <div
-          :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')"
-          :aria-label="`Add ${student.name} to a group`"
-        >
+        <div :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div :class="{'font-size-14': isButtonVariantLink, 'pl-3': !isButtonVariantLink}">Add to Group</div>
             <div v-if="!isButtonVariantLink" class="pr-2">
@@ -45,8 +43,8 @@
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"
             :value="group.id"
-            :aria-labelledby="`curated-group-${group.id}-name`">
-            {{ group.name }}<span class="sr-only">{{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
+          >
+            <span class="sr-only">Curated group </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
           </b-form-checkbox>
         </b-dropdown-item>
       </div>
