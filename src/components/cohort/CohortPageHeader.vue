@@ -19,7 +19,7 @@
         <h1
           v-if="cohortName"
           id="cohort-name"
-          class="page-section-header"
+          class="page-section-header pb-0"
           tabindex="0">
           {{ cohortName }}
           <span
@@ -33,7 +33,7 @@
           {{ pluralize('Result', totalStudentCount) }}
         </h1>
       </div>
-      <div v-if="!showHistory" class="d-flex align-self-baseline mr-4">
+      <div v-if="!showHistory" class="d-flex align-self-baseline mr-3">
         <div v-if="cohortId && $_.size(filters)">
           <b-btn
             id="show-hide-details-button"
