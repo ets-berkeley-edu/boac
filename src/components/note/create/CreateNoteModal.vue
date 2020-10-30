@@ -231,14 +231,15 @@ export default {
           this.setIsSaving(true)
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
-          this.createAdvisingNotes().then(data => {
+          this.createAdvisingNotes().then(note => {
             this.setIsSaving(false)
             this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
             this.exit()
             if (this.isBatchFeature) {
-              Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
+              Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
             } else {
-              Vue.prototype.$ga.noteEvent(data.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
+              Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
+              this.putFocusNextTick(`note-${note.id}-outer`)
             }
           })
         }

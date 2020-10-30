@@ -15,7 +15,6 @@
         :pressed="null"
         variant="link"
         @click.prevent="fetchStudents"
-        @keyup.enter.prevent="fetchStudents"
       >
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
