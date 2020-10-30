@@ -141,7 +141,7 @@ export default {
     totalAdmitCount: undefined
   }),
   mounted() {
-    this.counter = this.$route.query._
+    this.counter = this.toInt(this.$route.query._, 0)
     this.initPagination()
     this.loadAdmits()
   },
