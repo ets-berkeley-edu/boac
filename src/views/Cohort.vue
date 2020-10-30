@@ -238,43 +238,6 @@ export default {
 }
 </script>
 
-<style>
-.cohort-admitted-students {
-  border-top: 1px solid rgba(0,0,0,.125);
-  padding: 2px;
-}
-.cohort-column-results {
-  flex: 0 0 70%;
-  flex-grow: 1;
-}
-.cohort-create-input-name {
-  border: 1px solid #d9d9d9;
-  border-color: #66afe9;
-  border-radius: 4px;
-  box-sizing: border-box;
-  padding: 10px 10px 10px 10px;
-  width: 100%;
-}
-.cohort-grading-basis {
-  color: #666;
-  font-size: 14px;
-  font-style: italic;
-}
-.cohort-manage-btn {
-  height: 38px;
-  margin: 0 0 0 5px;
-}
-.cohort-student-bio-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
-}
-.filters-section-separator {
-  border-top: 2px solid #eee;
-  margin: 5px 0 0 0;
-}
-</style>
-
 <style scoped>
 .filter-row {
   align-items: center;

@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <CuratedGroupHeader />
       <div v-show="mode !== 'bulkAdd'">
-        <hr v-if="!error && totalStudentCount" class="filters-section-separator" />
+        <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div class="cohort-column-results">
           <div v-if="totalStudentCount > 1" class="align-items-start d-flex justify-content-between mt-3">
             <div v-if="totalStudentCount > itemsPerPage">
