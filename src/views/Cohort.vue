@@ -19,13 +19,6 @@
       <hr class="filters-section-separator mr-2 mt-0" />
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <a
-          v-if="totalStudentCount > 50"
-          id="skip-to-pagination-widget"
-          class="sr-only"
-          href="#pagination-widget"
-          @click="alertScreenReader('Go to another page of search results')"
-          @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
         <div class="cohort-column-results">
           <div
             :class="{
