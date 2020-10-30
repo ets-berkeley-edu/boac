@@ -7,7 +7,7 @@
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
-        class="mr-3 my-3">
+        class="mr-3 mb-3">
         <FilterRow
           v-for="(filter, index) in filters"
           :key="filterRowUniqueKey(filter, index)"
