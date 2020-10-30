@@ -20,7 +20,7 @@ const mutations = {
   loadingComplete: (state: any) => (state.loading = false),
   loadingStart: (state: any) => (state.loading = true),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
-  storeAnnouncement: (state: any, data: any) => (state.announcement = data),
+  setAnnouncement: (state: any, data: any) => (state.announcement = data),
 }
 
 const actions = {
@@ -28,7 +28,7 @@ const actions = {
   dismissServiceAnnouncement: ({ commit }) => commit('dismissServiceAnnouncement'),
   loadingComplete: ({ commit }) => commit('loadingComplete'),
   loadingStart: ({ commit }) => commit('loadingStart'),
-  loadServiceAnnouncement: ({ commit }) => new Promise(() => getServiceAnnouncement().then(data => commit('storeAnnouncement', data))),
+  loadServiceAnnouncement: ({ commit }) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
   restoreServiceAnnouncement: ({ commit }) => commit('restoreServiceAnnouncement')
 }
 

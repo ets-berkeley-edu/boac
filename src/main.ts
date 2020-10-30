@@ -99,6 +99,6 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     Vue.prototype.$core.initializeCurrentUser().then(_.noop)
     Vue.prototype.$core.mountGoogleAnalytics().then(_.noop)
     // The following non-core function(s) do not involve "prototype" objects.
-    store.dispatch('context/loadServiceAnnouncement')
+    store.dispatch('context/loadServiceAnnouncement').then(_.noop)
   })
 })
