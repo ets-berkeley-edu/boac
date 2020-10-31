@@ -147,6 +147,15 @@
           <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
             <span class="student-text">{{ owner }}</span>
           </div>
+          <div v-if="minorPlans.length > 0">
+            <h3 class="student-profile-section-header mt-3">Minor</h3>
+            <div v-for="minorPlan in minorPlans" :key="minorPlan">
+              <div id="student-bio-degree-type">
+                {{ minorPlan + " UG" }}
+              </div>
+            </div>
+            <span class="student-text">Awarded {{ student.sisProfile.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -200,6 +209,7 @@ export default {
   },
   data: () => ({
     degreePlans: [],
+    minorPlans: [],
     degreePlanOwners: [],
     isAscInactive: undefined,
     isCoeInactive: undefined,
@@ -223,13 +233,18 @@ export default {
     plansMinorPartitionedByStatus() {
       return this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     }
+    
   },
   created() {
     this.isAscInactive = this.displayAsAscInactive(this.student)
     this.isCoeInactive = this.displayAsCoeInactive(this.student)
     const plans = this.$_.get(this.student, 'sisProfile.degree.plans')
     if (plans) {
-      this.degreePlans = this.$_.uniq(this.$_.map(plans, 'plan'))
+      this.degreePlans = plans.filter(plan => plan.type === 'MAJ')
+        .map(minor => minor.plan)
+      this.minorPlans = plans.filter(plan => plan.type === 'MIN')
+        .map(minor => minor.plan)
+        .map(part => part.replace('Minor in ', ''))
       this.degreePlanOwners = this.$_.uniq(this.$_.map(plans, 'group'))
     }
   }
