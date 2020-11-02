@@ -92,8 +92,8 @@
               :active="true" />
           </div>
           <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
-            <h3 v-if="plansMinorPartitionedByStatus.length > 1 " class="student-profile-section-header">Minors</h3>
-            <h3 v-if="plansMinorPartitionedByStatus.length === 1 " class="student-profile-section-header">Minor</h3>
+            <h3 v-if="plansMinorPartitionedByStatus.length > 1" class="student-profile-section-header">Minors</h3>
+            <h3 v-if="plansMinorPartitionedByStatus.length === 1" class="student-profile-section-header">Minor</h3>
             <StudentProfilePlan
               v-for="plan in plansMinorPartitionedByStatus[0]"
               :key="plan.description"
@@ -211,11 +211,11 @@ export default {
   },
   data: () => ({
     degreePlans: [],
-    minorPlans: [],
     degreePlanOwners: [],
     isAscInactive: undefined,
     isCoeInactive: undefined,
-    isShowingPersonalDetails: false
+    isShowingPersonalDetails: false,
+    minorPlans: []
   }),
   computed: {
     academicCareerStatus() {
