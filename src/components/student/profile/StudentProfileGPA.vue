@@ -90,6 +90,7 @@
 
 <script>
 import StudentGpaChart from '@/components/student/StudentGpaChart'
+import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 
 export default {
@@ -97,7 +98,7 @@ export default {
   components: {
     StudentGpaChart
   },
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     student: Object
   },
