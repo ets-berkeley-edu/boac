@@ -1,146 +1,175 @@
 <template>
   <highcharts
+    v-if="options"
     id="student-chart-units-container"
     ref="studentUnitsChart"
-    :options="unitsChartOptions"
     class="student-chart-container student-chart-units-container"
-    aria-hidden="true">
-  </highcharts>
+    :options="options"
+  />
 </template>
 
 <script>
 export default {
   name: 'StudentUnitsChart',
   props: {
-    cumulativeUnits: Number,
-    currentEnrolledUnits: Number
+    chartDescription: {
+      required: true,
+      type: String
+    },
+    cumulativeUnits: {
+      required: true,
+      type: Number
+    },
+    currentEnrolledUnits: {
+      required: true,
+      type: Number
+    }
   },
   data: () => ({
-    unitsChartOptions: {
-      chart: {
-        backgroundColor: 'transparent',
-        height: 40,
-        inverted: true,
-        spacingLeft: 5,
-        spacingTop: 5,
-        spacingBottom: 5,
-        type: 'column'
-      },
-      colors: ['#d6e4f9', '#aec9eb'],
-      credits: {
-        enabled: false
-      },
-      legend: {
-        enabled: false
-      },
-      navigation: {
-        buttonOptions: {
-          enabled: false
-        }
-      },
-      plotOptions: {
-        column: {
-          stacking: 'normal',
-          groupPadding: 0,
-          pointPadding: 0
-        },
-        series: {
-          states: {
-            hover: {
-              enabled: false
-            }
-          }
-        }
-      },
-      series: [],
-      title: {
-        text: ''
-      },
-      tooltip: {
-        borderColor: '#666',
-        headerFormat: '',
-        hideDelay: 0,
-        pointFormat: '',
-        positioner: function() {
-          return {
-            x: -35,
-            y: 35
-          }
-        },
-        width: 240,
-        shadow: false,
-        useHTML: true
-      },
-      xAxis: {
-        labels: {
-          enabled: false
-        },
-        lineWidth: 0,
-        startOnTick: false,
-        tickLength: 0
-      },
-      yAxis: {
-        min: 0,
-        max: 120,
-        gridLineColor: '#000000',
-        tickInterval: 30,
-        labels: {
-          align: 'center',
-          overflow: true,
-          padding: 0,
-          style: {
-            color: '#999999',
-            fontFamily: 'Helvetica, Arial, sans',
-            fontSize: '11px',
-            fontWeight: 'bold'
-          },
-          y: 12
-        },
-        stackLabels: {
-          enabled: false
-        },
-        title: {
-          enabled: false
-        },
-        gridZIndex: 1000
-      }
-    }
+    options: undefined
   }),
   mounted() {
-    this.renderUnitsToChart()
+    this.options = this.getOptions()
   },
   methods: {
-    renderUnitsToChart() {
-      this.unitsChartOptions.series = [
-        {
-          name: 'Term units',
-          data: [this.currentEnrolledUnits]
+    getOptions() {
+      return {
+        accessibility: {
+          enabled: true,
+          keyboardNavigation: {
+            enabled: true
+          },
+          point: {
+            valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
+          }
         },
-        {
-          name: 'Cumulative units',
-          data: [this.cumulativeUnits]
+        chart: {
+          backgroundColor: 'transparent',
+          height: 40,
+          inverted: true,
+          spacingLeft: 5,
+          spacingTop: 5,
+          spacingBottom: 5,
+          type: 'column'
+        },
+        colors: ['#d6e4f9', '#aec9eb'],
+        credits: {
+          enabled: false
+        },
+        legend: {
+          enabled: false
+        },
+        navigation: {
+          buttonOptions: {
+            enabled: false
+          }
+        },
+        plotOptions: {
+          accessibility: {
+            description: this.chartDescription,
+            enabled: true,
+            exposeAsGroupOnly: true,
+            keyboardNavigation: {
+              enabled: true
+            },
+            pointDescriptionFormatter: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
+          },
+          column: {
+            stacking: 'normal',
+            groupPadding: 0,
+            pointPadding: 0
+          },
+          series: {
+            states: {
+              hover: {
+                enabled: false
+              }
+            }
+          }
+        },
+        series: [
+          {
+            name: 'Term units',
+            data: [this.currentEnrolledUnits]
+          },
+          {
+            name: 'Cumulative units',
+            data: [this.cumulativeUnits]
+          }
+        ],
+        title: {
+          text: ''
+        },
+        tooltip: {
+          borderColor: '#666',
+          headerFormat: '',
+          hideDelay: 0,
+          pointFormat: `
+            <div class="student-chart-tooltip-content">
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-swatch swatch-blue-medium"></div>
+                <div class="student-chart-tooltip-label">Units Completed</div>
+                <div class="student-chart-tooltip-value">${this.cumulativeUnits || '0'}</div>
+              </div>
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-swatch swatch-blue-light"></div>
+                <div class="student-chart-tooltip-label">Currently Enrolled Units</div>
+                <div class="student-chart-tooltip-value">${this.currentEnrolledUnits || '0'}</div>
+              </div>
+            </div>
+          `,
+          positioner: () => {
+            return {
+              x: -35,
+              y: 35
+            }
+          },
+          width: 240,
+          shadow: false,
+          useHTML: true
+        },
+        xAxis: {
+          accessibility: {
+            description: 'Time',
+            enabled: true
+          },
+          labels: {
+            enabled: false
+          },
+          lineWidth: 0,
+          startOnTick: false,
+          tickLength: 0
+        },
+        yAxis: {
+          accessibility: {
+            description: 'Units',
+            enabled: true
+          },
+          min: 0,
+          max: 120,
+          gridLineColor: '#000000',
+          tickInterval: 30,
+          labels: {
+            align: 'center',
+            overflow: true,
+            padding: 0,
+            style: {
+              color: '#999999',
+              fontFamily: 'Helvetica, Arial, sans',
+              fontSize: '11px',
+              fontWeight: 'bold'
+            },
+            y: 12
+          },
+          stackLabels: {
+            enabled: false
+          },
+          title: {
+            enabled: false
+          },
+          gridZIndex: 1000
         }
-      ]
-      this.unitsChartOptions.tooltip.pointFormat = this.generateTooltipHtml()
-      this.unitsChartOptions.width = this.$refs.studentUnitsChart.$el.parentNode.clientWidth
-    },
-    generateTooltipHtml() {
-      return `
-        <div class="student-chart-tooltip-content">
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-swatch swatch-blue-medium"></div>
-            <div class="student-chart-tooltip-label">Units Completed</div>
-            <div class="student-chart-tooltip-value">${
-        this.cumulativeUnits || '0'
-      }</div>
-          </div>
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-swatch swatch-blue-light"></div>
-            <div class="student-chart-tooltip-label">Currently Enrolled Units</div>
-            <div class="student-chart-tooltip-value">${this
-      .currentEnrolledUnits || '0'}</div>
-          </div>
-        </div>`
+      }
     }
   }
 }

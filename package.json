@@ -21,7 +21,7 @@
     "axios": "0.21.0",
     "bootstrap-vue": "2.18.1",
     "d3": "5.9.7",
-    "highcharts": "6.2.0",
+    "highcharts": "7.2.2",
     "js-file-download": "0.4.12",
     "lodash": "4.17.20",
     "lodash.merge": "4.6.2",
@@ -73,9 +73,10 @@
     "url": "git://github.com/ets-berkeley-edu/boac.git"
   },
   "resolutions": {
+    "acorn": "^7.4.1",
+    "bl": "^2.2.1",
     "execa": "4.0.3",
     "minimist": ">=1.2.3",
-    "selfsigned": ">=1.10.8",
-    "bl": "^2.2.1"
+    "selfsigned": ">=1.10.8"
   }
 }

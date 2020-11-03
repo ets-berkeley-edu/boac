@@ -160,8 +160,10 @@
       </div>
       <StudentGpaChart
         v-if="$_.size(student.termGpa) > 1"
+        :chart-description="`Chart of ${student.name}'s GPA over time.`"
         :student="student"
-        :width="'130'" />
+        width="130"
+      />
       <div
         v-if="$_.size(student.termGpa)"
         class="student-bio-status-legend profile-last-term-gpa-outer pl-0">

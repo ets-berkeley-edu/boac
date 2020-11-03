@@ -7,6 +7,7 @@ import BootstrapVue from 'bootstrap-vue'
 import CKEditor from '@ckeditor/ckeditor5-vue'
 import core from './core'
 import Highcharts from 'highcharts'
+import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
 import lodash from 'lodash'
 import mitt from 'mitt'
@@ -42,6 +43,7 @@ Vue.use(VueMoment, { moment })
 
 HighchartsMore(Highcharts)
 Vue.use(VueHighcharts, { Highcharts })
+highchartsAccessibility(Highcharts)
 
 Vue.directive('accessibleGrade', {
   bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')

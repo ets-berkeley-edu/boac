@@ -125,6 +125,7 @@
                 <td class="profile-boxplot-container">
                   <StudentBoxplot
                     v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+                    :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
                     :dataset="canvasSite.analytics.assignmentsSubmitted"
                     :numeric-id="canvasSite.canvasCourseId.toString()" />
                   <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
@@ -168,6 +169,7 @@
                 <td class="profile-boxplot-container">
                   <StudentBoxplot
                     v-if="canvasSite.analytics.currentScore.boxPlottable"
+                    :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
                     :dataset="canvasSite.analytics.currentScore"
                     :numeric-id="canvasSite.canvasCourseId.toString()" />
                   <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">

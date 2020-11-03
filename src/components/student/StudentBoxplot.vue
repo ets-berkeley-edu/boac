@@ -1,110 +1,38 @@
 <template>
   <highcharts
-    :id="'student-chart-boxplot-container-' + numericId"
-    :options="boxplotOptions"
+    v-if="options"
+    :id="`student-chart-boxplot-container-${numericId}`"
     class="student-chart-container student-chart-boxplot-container"
-    aria-hidden="true">
-  </highcharts>
+    :options="options"
+  />
 </template>
 
 <script>
-import Util from '@/mixins/Util'
-
 export default {
   name: 'StudentBoxplot',
-  mixins: [Util],
   props: {
-    dataset: Object,
-    numericId: String
+    chartDescription: {
+      required: true,
+      type: String
+    },
+    dataset: {
+      required: true,
+      type: Object
+    },
+    numericId: {
+      required: true,
+      type: String
+    }
   },
   data: () => ({
-    boxplotOptions: {
-      chart: {
-        backgroundColor: 'transparent',
-        height: 18,
-        inverted: true,
-        // This unfortunate negative-margin hack compensates for an apparent Highcharts bug when rendering narrow boxplots.
-        margin: [-5, 0, 0, 0],
-        type: 'boxplot',
-        width: 75
-      },
-      credits: {
-        enabled: false
-      },
-      legend: {
-        enabled: false
-      },
-      plotOptions: {
-        boxplot: {
-          animation: false,
-          color: '#ccc',
-          fillColor: '#ccc',
-          lineWidth: 1,
-          medianColor: '#666',
-          medianWidth: 3,
-          whiskerLength: 9,
-          whiskerWidth: 1
-        }
-      },
-      series: [],
-      title: {
-        text: ''
-      },
-      tooltip: {
-        borderColor: '#666',
-        headerFormat: null,
-        hideDelay: 0,
-        pointFormat: null,
-        positioner: function() {
-          return {
-            x: 90,
-            y: -75
-          }
-        },
-        shadow: false,
-        useHTML: true,
-        width: 400
-      },
-      xAxis: {
-        endOnTick: false,
-        labels: {
-          enabled: false
-        },
-        lineWidth: 0,
-        startOnTick: false,
-        tickLength: 0
-      },
-      yAxis: {
-        endOnTick: false,
-        gridLineWidth: 0,
-        labels: {
-          enabled: false
-        },
-        lineWidth: 0,
-        maxPadding: 0.001,
-        minPadding: 0.001,
-        startOnTick: false,
-        tickLength: 0,
-        title: {
-          enabled: false
-        }
-      }
-    },
+    options: undefined,
     courseDeciles: undefined
   }),
   mounted() {
     this.courseDeciles = this.$_.get(this.dataset, 'courseDeciles')
-    this.renderBoxplot()
+    this.options = this.getOptions()
   },
   methods: {
-    getCourseDecile(index) {
-      return this.courseDeciles && this.courseDeciles.length > index ? this.courseDeciles[index] : null
-    },
-    renderBoxplot() {
-      this.boxplotOptions.series = this.generateSeriesFromDataset()
-      this.boxplotOptions.tooltip.headerFormat = this.generateTooltipHeader()
-      this.boxplotOptions.tooltip.pointFormat = this.generateTooltipBody()
-    },
     generateSeriesFromDataset() {
       return [
         {
@@ -134,49 +62,135 @@ export default {
         }
       ]
     },
-    generateTooltipBody() {
-      return `
-        <div class="student-chart-tooltip-content">
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-label">Maximum</div>
-            <div class="student-chart-tooltip-value">${
-        this.getCourseDecile(10) || '--'
-      }</div>
-          </div>
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-label">70th Percentile</div>
-            <div class="student-chart-tooltip-value">${
-        this.getCourseDecile(7) || '--'
-      }</div>
-          </div>
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-label">50th Percentile</div>
-            <div class="student-chart-tooltip-value">${
-        this.getCourseDecile(5) || '--'
-      }</div>
-          </div>
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-label">30th Percentile</div>
-            <div class="student-chart-tooltip-value">${
-        this.getCourseDecile(3) || '--'
-      }</div>
-          </div>
-          <div class="student-chart-tooltip-row">
-            <div class="student-chart-tooltip-label">Minimum</div>
-            <div class="student-chart-tooltip-value">${
-        this.getCourseDecile(0) || '--'
-      }</div>
-          </div>
-        </div>`
+    getCourseDecile(index) {
+      return this.courseDeciles && this.courseDeciles.length > index ? this.courseDeciles[index] : null
     },
-    generateTooltipHeader() {
-      return `
-        <div class="student-chart-tooltip-header">
-          <div class="student-chart-tooltip-label">User Score</div>
-          <div class="student-chart-tooltip-value">${
-        this.$_.get(this.dataset.student, 'raw') || '--'
-      }</div>
-        </div>`
+    getOptions() {
+      return {
+        accessibility: {
+          enabled:true,
+          keyboardNavigation: {
+            enabled: true
+          },
+          point: {
+            valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
+          }
+        },
+        chart: {
+          backgroundColor: 'transparent',
+          height: 18,
+          inverted: true,
+          // This unfortunate negative-margin hack compensates for an apparent Highcharts bug when rendering narrow boxplots.
+          margin: [-5, 0, 0, 0],
+          type: 'boxplot',
+          width: 75
+        },
+        credits: {
+          enabled: false
+        },
+        legend: {
+          enabled: false
+        },
+        plotOptions: {
+          boxplot: {
+            accessibility: {
+              description: this.chartDescription,
+              enabled: true,
+              exposeAsGroupOnly: true,
+              keyboardNavigation: {
+                enabled: true
+              },
+              pointDescriptionFormatter: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
+            },
+            color: '#ccc',
+            fillColor: '#ccc',
+            lineWidth: 1,
+            medianColor: '#666',
+            medianWidth: 3,
+            whiskerLength: 9,
+            whiskerWidth: 1
+          }
+        },
+        series: this.generateSeriesFromDataset(),
+        title: {
+          text: ''
+        },
+        tooltip: {
+          borderColor: '#666',
+          headerFormat: `
+            <div class="student-chart-tooltip-header">
+              <div class="student-chart-tooltip-label">User Score</div>
+              <div class="student-chart-tooltip-value">${this.$_.get(this.dataset.student, 'raw') || '--'}</div>
+            </div>
+          `,
+          hideDelay: 0,
+          pointFormat: `
+            <div class="student-chart-tooltip-content visible">
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-label">Maximum</div>
+                <div class="student-chart-tooltip-value">${this.getCourseDecile(10) || '--'}</div>
+              </div>
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-label">70th Percentile</div>
+                <div class="student-chart-tooltip-value">${this.getCourseDecile(7) || '--'}</div>
+              </div>
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-label">50th Percentile</div>
+                <div class="student-chart-tooltip-value">${this.getCourseDecile(5) || '--'}</div>
+              </div>
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-label">30th Percentile</div>
+                <div class="student-chart-tooltip-value">${this.getCourseDecile(3) || '--'}</div>
+              </div>
+              <div class="student-chart-tooltip-row">
+                <div class="student-chart-tooltip-label">Minimum</div>
+                <div class="student-chart-tooltip-value">${this.getCourseDecile(0) || '--'}</div>
+              </div>
+            </div>
+          `,
+          positioner: () => {
+            return {
+              x: 90,
+              y: -75
+            }
+          },
+          shadow: false,
+          useHTML: true,
+          width: 400
+        },
+        xAxis: {
+          accessibility: {
+            description: '',
+            enabled: true
+          },
+          endOnTick: false,
+          labels: {
+            enabled: false
+          },
+          lineWidth: 0,
+          startOnTick: false,
+          tickLength: 0
+        },
+        yAxis: {
+          accessibility: {
+            description: '',
+            enabled: true
+          },
+          endOnTick: false,
+          gridLineWidth: 0,
+          labels: {
+            enabled: false
+          },
+          lineWidth: 0,
+          maxPadding: 0.001,
+          minPadding: 0.001,
+          startOnTick: false,
+          tickLength: 0,
+          title: {
+            enabled: false
+          }
+        }
+      }
     }
   }
 }

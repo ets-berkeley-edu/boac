@@ -13,9 +13,11 @@
         <div>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
-            :current-enrolled-units="currentEnrolledUnits"
+            :chart-description="`Chart of ${student.firstName} ${student.lastName}'s unit totals`"
+            class="student-units-chart"
             :cumulative-units="cumulativeUnits"
-            class="student-units-chart" />
+            :current-enrolled-units="currentEnrolledUnits"
+          />
           <div
             v-if="!cumulativeUnits && !currentEnrolledUnits"
             class="section-label">
@@ -45,7 +47,10 @@ export default {
   },
   mixins: [Context, Util],
   props: {
-    student: Object
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     cumulativeUnits: undefined,
@@ -60,10 +65,7 @@ export default {
       }
     )
     if (currentEnrollmentTerm) {
-      this.currentEnrolledUnits = this.$_.get(
-        currentEnrollmentTerm,
-        'enrolledUnits'
-      )
+      this.currentEnrolledUnits = this.$_.get(currentEnrollmentTerm, 'enrolledUnits')
     }
   }
 }
