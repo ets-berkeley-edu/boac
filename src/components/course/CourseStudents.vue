@@ -114,8 +114,10 @@
           </span>
           <StudentBoxplot
             v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
+            :chart-description="`Chart of ${row.item.firstName} ${row.item.lastName}'s assignments submitted in ${canvasSite.courseCode}`"
             :dataset="canvasSite.analytics.assignmentsSubmitted"
-            :numeric-id="`${row.item.uid}-${canvasSite.canvasCourseId.toString()}-assignments`"></StudentBoxplot>
+            :numeric-id="`${row.item.uid}-${canvasSite.canvasCourseId}-assignments`"
+          />
           <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
             <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
             <div>Maximum:  {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
@@ -152,8 +154,10 @@
           </span>
           <StudentBoxplot
             v-if="canvasSite.analytics.currentScore.boxPlottable"
+            :chart-description="`Chart of ${row.item.firstName} ${row.item.lastName}'s assignment grades in ${canvasSite.courseCode}`"
             :dataset="canvasSite.analytics.currentScore"
-            :numeric-id="row.item.uid + '-' + canvasSite.canvasCourseId.toString()"></StudentBoxplot>
+            :numeric-id="`${row.item.uid}-${canvasSite.canvasCourseId}`"
+          />
           <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
             <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
             <div>Maximum:  {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>

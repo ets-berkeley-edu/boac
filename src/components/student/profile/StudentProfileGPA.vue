@@ -29,7 +29,10 @@
           </div>
           <StudentGpaChart
             v-if="$_.get(student, 'termGpa.length') > 1"
-            :student="student" />
+            :chart-description="`Chart of ${student.name}'s GPA over time.`"
+            :student="student"
+            width="200"
+          />
           <div v-if="$_.isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
