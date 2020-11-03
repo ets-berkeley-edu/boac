@@ -34,7 +34,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../.
 
 
 @scriptify.in_app  # noqa: C901
-def main(app):
+def main(app):  # noqa: C901
     from boac import std_commit
     from boac.models.cohort_filter import CohortFilter
 
