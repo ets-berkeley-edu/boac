@@ -44,14 +44,12 @@
               </div>
             </div>
             <div v-if="student.sisProfile.phoneNumber" id="student-profile-phone-number-outer" class="mb-2">
-              <div>
-                <strong>Phone</strong>
-              </div>
+              <div id="student-phone-number-label" class="font-weight-bold">Phone</div>
               <a
                 id="student-phone-number"
-                :href="`tel:${student.sisProfile.phoneNumber}`"
+                aria-labelledby="student-phone-number-label"
                 :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                tabindex="0">
+                :href="`tel:${student.sisProfile.phoneNumber}`">
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
