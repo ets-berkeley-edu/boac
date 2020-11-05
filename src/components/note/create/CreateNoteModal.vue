@@ -53,7 +53,6 @@
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
-                @keydown.enter="submitForm"
                 @keydown.esc="cancelRequested">
             </div>
             <div id="note-details">
@@ -234,12 +233,11 @@ export default {
           this.createAdvisingNotes().then(note => {
             this.setIsSaving(false)
             this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
-            this.exit()
+            this.exit(note)
             if (this.isBatchFeature) {
               Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
             } else {
               Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
-              this.putFocusNextTick(`note-${note.id}-outer`)
             }
           })
         }
@@ -296,11 +294,11 @@ export default {
         this.alert = undefined
       }
     },
-    exit() {
+    exit(note=undefined) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
       this.exitSession()
-      this.onClose()
+      this.onClose(note)
     },
     invokeIfAuthenticated(callback, onReject = () => {}) {
       getUserProfile().then(data => {
