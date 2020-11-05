@@ -640,8 +640,9 @@ export default {
         })
       })
     },
-    onCreateNoteModalClose() {
+    onCreateNoteModalClose(note) {
       this.isCreateNoteModalOpen = false
+      this.putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
     },
     open(message, notifyScreenReader) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {
