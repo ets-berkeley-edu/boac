@@ -39,13 +39,12 @@
               </div>
               <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" />
               <div v-if="student.sisProfile.emailAddress" class="mt-2">
-                <span class="sr-only">Email</span>
                 <a
                   id="student-mailto"
                   :href="`mailto:${student.sisProfile.emailAddress}`"
                   :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                   target="_blank">
-                  {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
+                  <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
                 </a>
               </div>
             </div>
