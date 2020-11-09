@@ -288,7 +288,7 @@ export default {
         } else if (totalStudentCount < this.pagination.itemsPerPage) {
           this.alertScreenReader(`List view loaded. Showing all ${totalStudentCount} students.`)
         } else {
-          this.alertScreenReader(`List view loaded, page ${this.pagination.currentPage}. Showing ${this.section.students.length} of the total ${totalStudentCount} students.`)
+          this.alertScreenReader(`List view loaded, page ${this.pagination.currentPage}. Showing ${this.pagination.itemsPerPage} of the total ${totalStudentCount} students.`)
         }
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
