@@ -11,7 +11,7 @@
       </div>
       <div id="gpa-trends" class="border-left">
         <div id="gpa-chart" class="ml-3">
-          <div class="align-items-end d-flex justify-content-between pb-2">
+          <div class="align-items-end d-flex justify-content-between">
             <div class="gpa-trends-label text-uppercase font-weight-bold">
               GPA Trends
             </div>
@@ -29,9 +29,8 @@
           </div>
           <StudentGpaChart
             v-if="$_.get(student, 'termGpa.length') > 1"
-            :chart-description="`Chart of ${student.name}'s GPA over time.`"
+            :chart-description="`Chart of GPA over time. ${student.name}'s `"
             :student="student"
-            width="200"
           />
           <div v-if="$_.isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
