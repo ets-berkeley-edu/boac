@@ -59,8 +59,7 @@
             variant="link"
             @click="toggleSearchOptions">
             {{ showSearchOptions ? 'Hide' : 'Show' }}
-            <span class="sr-only">search</span>
-            options
+            <span class="sr-only"> search </span>options
           </b-btn>
         </div>
       </div>
