@@ -1,10 +1,10 @@
 <template>
-  <highcharts
-    v-if="options"
-    :id="`student-chart-gpa-container-${student.uid}`"
-    ref="studentGpaChart"
-    :options="options"
-  />
+  <div v-if="options">
+    <highcharts
+      :id="`student-chart-gpa-container-${student.uid}`"
+      :options="options"
+    />
+  </div>
 </template>
 
 <script>
@@ -20,8 +20,9 @@ export default {
       type: Object
     },
     width: {
-      required: true,
-      type: String
+      default: undefined,
+      required: false,
+      type: Number
     }
   },
   data: () => ({
@@ -36,6 +37,12 @@ export default {
       let i = 0
       this.$_.eachRight(this.student.termGpa, term => {
         series.push({
+          accessibility: {
+            description: `${term.gpa} GPA`
+          },
+          marker: {
+            enabled: true
+          },
           x: i,
           y: term.gpa
         })
@@ -45,6 +52,7 @@ export default {
         const lastElement = series[series.length - 1]
         const fillColor = lastElement.y < 2 ? '#d0021b' : '#3b7ea5'
         lastElement.marker = {
+          enabled: true,
           fillColor: fillColor,
           radius: 5
         }
@@ -54,27 +62,22 @@ export default {
     getOptions() {
       return {
         accessibility: {
+          description: this.chartDescription,
           enabled:true,
           keyboardNavigation: {
             enabled: true
-          },
-          point: {
-            valueDescriptionFormat: '{index}. {point.name}, {point.y}.'
           }
         },
         title: {
-          text: ''
+          style: {display: 'none'},
+          text: this.chartDescription,
+          useHTML: true
         },
         credits: false,
         chart: {
-          height: 30,
-          margin: [2, 0, 2, 0],
-          skipClone: true,
-          style: {
-            overflow: 'visible'
-          },
+          height: 50,
           type: 'area',
-          width: undefined
+          width: this.width
         },
         yAxis: {
           accessibility: {
@@ -134,18 +137,26 @@ export default {
           line: {
             states: {
               hover: {
-                enabled: false
+                enabled: true
               }
             }
           },
           series: {
             marker: {
+              enabled: true,
               radius: 0
             }
           }
         },
         series: [
           {
+            accessibility: {
+              description: this.chartDescription,
+              enabled: true,
+              keyboardNavigation: {
+                enabled: true
+              }
+            },
             type: 'line',
             data: this.generateGpaDataSeries()
           }

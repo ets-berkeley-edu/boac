@@ -13,10 +13,10 @@
         <div>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
-            :chart-description="`Chart of ${student.firstName} ${student.lastName}'s unit totals`"
             class="student-units-chart"
             :cumulative-units="cumulativeUnits"
-            :current-enrolled-units="currentEnrolledUnits"
+            :current-enrolled-units="currentEnrolledUnits || 0"
+            :student="student"
           />
           <div
             v-if="!cumulativeUnits && !currentEnrolledUnits"
