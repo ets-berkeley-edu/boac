@@ -1,10 +1,7 @@
 <template>
-  <highcharts
-    v-if="options"
-    :id="`student-chart-boxplot-container-${numericId}`"
-    class="student-chart-container student-chart-boxplot-container"
-    :options="options"
-  />
+  <div v-if="options">
+    <highcharts :id="`student-chart-boxplot-container-${numericId}`" :options="options" />
+  </div>
 </template>
 
 <script>
@@ -25,8 +22,8 @@ export default {
     }
   },
   data: () => ({
-    options: undefined,
-    courseDeciles: undefined
+    courseDeciles: undefined,
+    options: undefined
   }),
   mounted() {
     this.courseDeciles = this.$_.get(this.dataset, 'courseDeciles')
@@ -103,6 +100,7 @@ export default {
               pointDescriptionFormatter: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
             },
             color: '#ccc',
+            enableMouseTracking: false,
             fillColor: '#ccc',
             lineWidth: 1,
             medianColor: '#666',
@@ -116,47 +114,48 @@ export default {
           text: ''
         },
         tooltip: {
-          borderColor: '#666',
+          backgroundColor: '#fff',
+          borderColor: '#eee',
+          borderRadius: 16,
           headerFormat: `
-            <div class="student-chart-tooltip-header">
-              <div class="student-chart-tooltip-label">User Score</div>
-              <div class="student-chart-tooltip-value">${this.$_.get(this.dataset.student, 'raw') || '--'}</div>
+            <div class="align-items-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-content-between px-3 py-2">
+              <div>User Score</div>
+              <div class="ml-3 pl-5">${this.$_.get(this.dataset.student, 'raw') || '&mdash;'}</div>
             </div>
           `,
           hideDelay: 0,
+          outside: true,
+          padding: 0,
           pointFormat: `
-            <div class="student-chart-tooltip-content visible">
-              <div class="student-chart-tooltip-row">
-                <div class="student-chart-tooltip-label">Maximum</div>
-                <div class="student-chart-tooltip-value">${this.getCourseDecile(10) || '--'}</div>
+            <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
+              <div class="align-items-center d-flex justify-content-between">
+                <div>Maximum</div>
+                <div class="ml-3 pl-5">${this.getCourseDecile(10) || '&mdash;'}</div>
               </div>
-              <div class="student-chart-tooltip-row">
-                <div class="student-chart-tooltip-label">70th Percentile</div>
-                <div class="student-chart-tooltip-value">${this.getCourseDecile(7) || '--'}</div>
+              <div class="align-items-center d-flex justify-content-between pt-1">
+                <div>70th Percentile</div>
+                <div class="ml-3 pl-5">${this.getCourseDecile(7) || '&mdash;'}</div>
               </div>
-              <div class="student-chart-tooltip-row">
-                <div class="student-chart-tooltip-label">50th Percentile</div>
-                <div class="student-chart-tooltip-value">${this.getCourseDecile(5) || '--'}</div>
+              <div class="align-items-center d-flex justify-content-between pt-1">
+                <div>50th Percentile</div>
+                <div class="ml-3 pl-5">${this.getCourseDecile(5) || '&mdash;'}</div>
               </div>
-              <div class="student-chart-tooltip-row">
-                <div class="student-chart-tooltip-label">30th Percentile</div>
-                <div class="student-chart-tooltip-value">${this.getCourseDecile(3) || '--'}</div>
+              <div class="align-items-center d-flex justify-content-between pt-1">
+                <div>30th Percentile</div>
+                <div class="ml-3 pl-5">${this.getCourseDecile(3) || '&mdash;'}</div>
               </div>
-              <div class="student-chart-tooltip-row">
-                <div class="student-chart-tooltip-label">Minimum</div>
-                <div class="student-chart-tooltip-value">${this.getCourseDecile(0) || '--'}</div>
+              <div class="align-items-center d-flex justify-content-between pt-1">
+                <div>Minimum</div>
+                <div class="ml-3 pl-5">${this.getCourseDecile(0) || '&mdash;'}</div>
               </div>
             </div>
           `,
-          positioner: () => {
-            return {
-              x: 90,
-              y: -75
-            }
+          style: {
+            fontSize: '14px',
+            width: 400,
+            whiteSpace: 'nowrap'
           },
-          shadow: false,
-          useHTML: true,
-          width: 400
+          useHTML: true
         },
         xAxis: {
           accessibility: {
@@ -196,28 +195,16 @@ export default {
 }
 </script>
 
-<style src="./student-chart.css">
-</style>
-
 <style>
-.student-chart-boxplot-container {
-  height: 18px;
-  width: 75px;
+.boxplot-tooltip-font-family {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
-.student-chart-boxplot-container .highcharts-tooltip {
-  z-index: 1;
-}
-.student-chart-boxplot-container .highcharts-tooltip::after {
-  background: #fff;
-  border: 1px solid #aaa;
-  border-width: 0 1px 1px 0;
-  content: '';
-  display: block;
-  height: 10px;
-  position: absolute;
-  top: 75px;
-  left: -6px;
-  transform: rotate(135deg);
-  width: 10px;
+.boxplot-tooltip-header {
+  background-color: #eee;
+  border-bottom: 1px solid #eee;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
 }
 </style>
