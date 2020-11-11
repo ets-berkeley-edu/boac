@@ -282,14 +282,13 @@ export default {
           }
         }
         this.isToggling = false
-        this.loaded()
-        if (tabName === 'matrix') {
-          this.alertScreenReader(`Matrix loaded, with ${totalStudentCount} in view.`)
-        } else if (totalStudentCount < this.pagination.itemsPerPage) {
-          this.alertScreenReader(`List view loaded. Showing all ${totalStudentCount} students.`)
+        let message = `Course ${data.displayName} loaded in ${tabName} view. `
+        if (tabName === 'matrix' || totalStudentCount < this.pagination.itemsPerPage) {
+          message += `Showing all ${totalStudentCount} students.`
         } else {
-          this.alertScreenReader(`List view loaded, page ${this.pagination.currentPage}. Showing ${this.pagination.itemsPerPage} of the total ${totalStudentCount} students.`)
+          message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
         }
+        this.loaded(message)
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView
