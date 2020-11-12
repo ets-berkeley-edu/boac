@@ -248,6 +248,9 @@ export default {
         .map(part => part.replace('Minor in ', ''))
       this.degreePlanOwners = this.$_.uniq(this.$_.map(plans, 'group'))
     }
+  },
+  mounted() {
+    this.putFocusNextTick('student-name-header')
   }
 }
 </script>
