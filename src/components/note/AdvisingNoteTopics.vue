@@ -1,39 +1,53 @@
 <template>
   <div>
     <div>
-      <label id="add-note-topic-label" class="font-weight-bold mt-2" for="add-note-topic">
-        Topic Categories
+      <label id="add-note-topic-label" class="font-weight-bold mt-2" for="add-topic-select-list">
+        Topic Categories<span class="sr-only"> Use up and down arrows to scroll. Hit enter to select topic.</span>
       </label>
     </div>
     <b-container class="pl-0 ml-0">
-      <b-form-row class="pb-1">
+      <b-row class="pb-1">
         <b-col cols="9">
-          <b-form-select
-            v-if="topicOptions.length"
-            id="add-topic-select-list"
-            :key="topics.length"
-            v-model="selected"
-            :disabled="disabled"
-            role="listbox"
-            aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            @input="add">
-            <template v-slot:first>
-              <option :value="null" disabled>Select...</option>
-            </template>
-            <option
-              v-for="option in topicOptions"
-              :key="option.value"
-              :disabled="option.disabled"
-              :value="option.value">
-              {{ option.text }}
-            </option>
-          </b-form-select>
+          <div class="dropdown">
+            <b-dropdown
+              v-if="topicOptions.length"
+              id="add-topic-select-list"
+              aria-labelledby="add-note-topic-label"
+              block
+              :disabled="disabled"
+              no-caret
+              toggle-class="dd-override"
+              variant="link"
+              @hidden="alertScreenReader('Topic menu closed')"
+              @shown="alertScreenReader('Topic menu opened')"
+            >
+              <template slot="button-content">
+                <div class="d-flex dropdown-width justify-content-between text-dark">
+                  <div>Select...</div>
+                  <div class="ml-2">
+                    <font-awesome icon="angle-down" class="menu-caret" />
+                  </div>
+                </div>
+              </template>
+              <b-dropdown-item-button
+                v-for="(option, index) in topicOptions"
+                :id="`add-topic-option-${option.value}`"
+                :key="index"
+                class="pl-3"
+                :disabled="option.disabled"
+                @click="add(option.value)"
+                @keypress.enter="add(option.value)"
+              >
+                {{ option.text }}
+              </b-dropdown-item-button>
+            </b-dropdown>
+          </div>
         </b-col>
-      </b-form-row>
-      <div>
+      </b-row>
+      <b-row>
         <ul
           id="note-topics-list"
-          class="pill-list pl-0"
+          class="pill-list pl-3 pt-1"
           aria-labelledby="note-topics-label">
           <li
             v-for="(addedTopic, index) in topics"
@@ -60,7 +74,7 @@
         <label id="note-topics-label" class="sr-only" for="note-topics-list">
           topics
         </label>
-      </div>
+      </b-row>
     </b-container>
   </div>
 </template>
@@ -141,3 +155,16 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.dropdown {
+  background-color: #fefefe;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  color: #000;
+  height: 42px;
+  text-align: left;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+</style>
