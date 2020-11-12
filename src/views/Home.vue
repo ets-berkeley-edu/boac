@@ -8,9 +8,9 @@
           <h2 v-if="myCohorts && !$_.size(myCohorts)" id="no-cohorts-header" class="page-section-header">
             You have no saved cohorts.
           </h2>
-          <h1 v-if="myCohorts && $_.size(myCohorts)" class="page-section-header">
+          <h2 v-if="myCohorts && $_.size(myCohorts)" class="page-section-header">
             Cohorts
-          </h1>
+          </h2>
         </div>
         <div v-if="myCohorts && !$_.size(myCohorts)">
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
