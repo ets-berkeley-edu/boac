@@ -22,12 +22,12 @@
               <font-awesome v-if="isFetching" icon="spinner" spin />
               <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
-            <h2 class="page-section-header-sub m-0 text-wrap">
+            <h3 class="page-section-header-sub m-0 text-wrap">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${keyword} ` }}</span>
               <span>{{ group.name }}</span>
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
-            </h2>
+            </h3>
           </div>
           <div class="count align-items-center d-flex justify-content-end">
             <div v-if="!compact" class="pr-2 sortable-table-header">
