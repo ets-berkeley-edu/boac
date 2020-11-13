@@ -49,7 +49,7 @@
         <span
           v-if="admitStudent.firstGenerationCollege === '' || $_.isNil(admitStudent.firstGenerationCollege)"
           :id="`row-${rowIndex}-first-generation-college`"
-        >—<span class="sr-only">No data</span></span>
+        >&mdash;<span class="sr-only">No data</span></span>
 
         <span
           v-if="!$_.isNil(admitStudent.firstGenerationCollege)"
@@ -69,7 +69,7 @@
         <span
           v-if="admitStudent.applicationFeeWaiverFlag === '' || $_.isNil(admitStudent.applicationFeeWaiverFlag)"
           :id="`row-${rowIndex}-application-fee-waiver-flag`"
-        >—<span class="sr-only">No data</span></span>
+        >&mdash;<span class="sr-only">No data</span></span>
 
         <span
           v-if="!$_.isNil(admitStudent.applicationFeeWaiverFlag)"
