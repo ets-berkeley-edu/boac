@@ -229,6 +229,7 @@ export default {
     },
     note() {
       this.resetAttachments()
+      this.setAuthor()
     }
   },
   created() {
@@ -237,7 +238,15 @@ export default {
   },
   methods: {
     setAuthor() {
-      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.note, 'author.name') || !this.$_.get(this.note, 'author.role'))
+      const requiresLazyLoad = (
+        this.isOpen &&
+        (
+          !this.$_.get(this.note, 'author.name') ||
+          !this.$_.get(this.note, 'author.role') ||
+          this.$_.get(this.author, 'uid') !== this.$_.get(this.note, 'author.uid') ||
+          this.$_.get(this.author, 'sid') !== this.$_.get(this.note, 'author.sid')
+        )
+      )
       if (requiresLazyLoad) {
         const hasIdentifier = this.$_.get(this.note, 'author.uid') || this.$_.get(this.note, 'author.sid')
         if (hasIdentifier) {
