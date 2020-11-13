@@ -42,6 +42,7 @@
           <b-form-checkbox
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"
+            :aria-label="$_.includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
             :value="group.id"
           >
             <span class="sr-only">Curated group </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
