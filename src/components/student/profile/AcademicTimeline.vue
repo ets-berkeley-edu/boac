@@ -83,6 +83,7 @@
       </div>
       |
       <label
+        :id="`timeline-${filter}s-query-label`"
         :for="`timeline-${filter}s-query-input`"
         class="mb-0 ml-2 mr-2">
         Search {{ $_.capitalize(filter) }}s:
@@ -90,9 +91,10 @@
       <input
         :id="`timeline-${filter}s-query-input`"
         v-model="timelineQuery"
+        :aria-labelledby="`timeline-${filter}s-query-label`"
         class="pl-2 pr-2 timeline-query-input"
-        aria-owns="timeline-messages"
-        @keypress.enter.stop="searchTimeline" />
+        @keypress.enter.stop="searchTimeline"
+      />
     </div>
 
     <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
