@@ -26,7 +26,15 @@
     <td>
       <div>
         <span class="sr-only">C E P</span>
-        <span :id="`row-${rowIndex}-special-program-cep`">{{ admitStudent.specialProgramCep }}</span>
+        <span
+          v-if="admitStudent.specialProgramCep === '' || $_.isNil(admitStudent.specialProgramCep)"
+          :id="`row-${rowIndex}-special-program-cep`"
+        ><span class="sr-only">No data</span></span>
+
+        <span
+          v-if="!$_.isNil(admitStudent.specialProgramCep)"
+          :id="`row-${rowIndex}-special-program-cep`"
+        >{{ admitStudent.specialProgramCep }}</span>
       </div>
     </td>
     <td>
@@ -38,7 +46,15 @@
     <td>
       <div>
         <span class="sr-only">First generation</span>
-        <span :id="`row-${rowIndex}-first-generation-college`">{{ admitStudent.firstGenerationCollege }}</span>
+        <span
+          v-if="admitStudent.firstGenerationCollege === '' || $_.isNil(admitStudent.firstGenerationCollege)"
+          :id="`row-${rowIndex}-first-generation-college`"
+        >&mdash;<span class="sr-only">No data</span></span>
+
+        <span
+          v-if="!$_.isNil(admitStudent.firstGenerationCollege)"
+          :id="`row-${rowIndex}-first-generation-college`"
+        >{{ admitStudent.firstGenerationCollege }}</span>
       </div>
     </td>
     <td>
@@ -50,7 +66,15 @@
     <td>
       <div>
         <span class="sr-only">Waiver</span>
-        <span :id="`row-${rowIndex}-application-fee-waiver-flag`">{{ admitStudent.applicationFeeWaiverFlag }}</span>
+        <span
+          v-if="admitStudent.applicationFeeWaiverFlag === '' || $_.isNil(admitStudent.applicationFeeWaiverFlag)"
+          :id="`row-${rowIndex}-application-fee-waiver-flag`"
+        >&mdash;<span class="sr-only">No data</span></span>
+
+        <span
+          v-if="!$_.isNil(admitStudent.applicationFeeWaiverFlag)"
+          :id="`row-${rowIndex}-application-fee-waiver-flag`"
+        >{{ admitStudent.applicationFeeWaiverFlag }}</span>
       </div>
     </td>
     <td>
