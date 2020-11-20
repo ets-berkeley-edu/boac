@@ -916,6 +916,7 @@ def get_students_query(     # noqa
     scope=(),
     search_phrase=None,
     sids=(),
+    student_holds=None,
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
@@ -1053,6 +1054,8 @@ def get_students_query(     # noqa
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = sas.sid'
         query_filter += ' AND min.minor = ANY(:minors)'
         query_bindings.update({'minors': minors})
+    if student_holds is True:
+        query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = sas.sid'
     if transfer is True:
         query_filter += ' AND sas.transfer = TRUE'
     if advisor_plan_mappings:

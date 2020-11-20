@@ -403,6 +403,7 @@ def query_students(
     order_by=None,
     sids=(),
     sids_only=False,
+    student_holds=None,
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
@@ -464,6 +465,7 @@ def query_students(
         underrepresented=underrepresented,
         unit_ranges=unit_ranges,
         visa_types=visa_types,
+        student_holds=student_holds,
     )
     if not query_tables:
         return {
