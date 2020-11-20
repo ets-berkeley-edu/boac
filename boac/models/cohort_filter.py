@@ -425,6 +425,7 @@ def _query_students(
         underrepresented=criteria.get('underrepresented'),
         unit_ranges=criteria.get('unitRanges'),
         visa_types=criteria.get('visaTypes'),
+        student_holds=criteria.get('studentHolds'),
     )
     benchmark('end students query')
     return results
