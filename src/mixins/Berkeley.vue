@@ -107,7 +107,8 @@ export default {
         {text: 'Term GPA', value: 'term_gpa'},
         {text: 'Cumulative GPA', value: 'cumulative_gpa'},
         {text: 'Program status', value: 'program_status'},
-        {text: 'Transfer status', value: 'transfer'}
+        {text: 'Transfer status', value: 'transfer'},
+        {text: 'Intended Major', value: 'intended_major'}
       ]
     },
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
