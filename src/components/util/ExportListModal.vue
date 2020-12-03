@@ -68,6 +68,6 @@ export default {
 
 <style scoped>
 .csv-column-options {
-  height: 200px;
+  height: 225px;
 }
 </style>
