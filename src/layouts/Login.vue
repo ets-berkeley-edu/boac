@@ -43,7 +43,7 @@
         </div>
       </div>
       <div class="copyright pt-2" role="contentinfo">
-        <span class="font-size-12 text-white">&copy; 2020 The Regents of the University of California</span>
+        <span class="font-size-12 text-white">&copy; 2021 The Regents of the University of California</span>
       </div>
     </div>
   </div>
