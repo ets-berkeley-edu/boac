@@ -29,7 +29,7 @@ from datetime import datetime
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, sis_term_id_for_name
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
-    get_coe_profiles, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
+    get_coe_profiles, get_coe_terms, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
     student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
     student_admit_residency_category_options, student_admit_special_program_cep_options, team_groups, \
     unit_range_options, visa_types
@@ -109,6 +109,7 @@ class CohortFilterOptions:
             ],
             [
                 _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
+                _filter('coeEpn', 'EPN Grading Option (COE)', options=get_coe_terms, available_to=['COENG']),
                 _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
                 _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
                 _boolean_filter_coe(

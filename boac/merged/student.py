@@ -374,6 +374,7 @@ def query_students(
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
+    coe_epn=None,
     coe_ethnicities=None,
     coe_genders=None,
     coe_prep_statuses=None,
@@ -413,6 +414,7 @@ def query_students(
     criteria = {
         'advisor_plan_mappings': advisor_plan_mappings,
         'coe_advisor_ldap_uids': coe_advisor_ldap_uids,
+        'coe_epn': coe_epn,
         'coe_ethnicities': coe_ethnicities,
         'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
@@ -435,6 +437,7 @@ def query_students(
         academic_standings=academic_standings,
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
+        coe_epn=coe_epn,
         coe_ethnicities=coe_ethnicities,
         coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
@@ -620,6 +623,7 @@ def scope_for_criteria(**kwargs):
         'COENG': [
             'is_active_coe',
             'coe_advisor_ldap_uids',
+            'coe_epn',
             'coe_ethnicities',
             'coe_genders',
             'coe_prep_statuses',
