@@ -168,21 +168,25 @@ class TestStudent:
         for student in [student_by_sid, student_by_uid]:
             assert len(student['enrollmentTerms']) == 4
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2018'
+            assert student['enrollmentTerms'][0]['academicYear'] == 'Fall 2017 - Summer 2018'
             assert student['enrollmentTerms'][0]['enrolledUnits'] == 3
             assert student['enrollmentTerms'][0]['termGpa']['gpa'] == 2.9
             assert student['enrollmentTerms'][0]['academicStanding']['status'] == 'GST'
             assert len(student['enrollmentTerms'][0]['enrollments']) == 1
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2017'
+            assert student['enrollmentTerms'][1]['academicYear'] == 'Fall 2017 - Summer 2018'
             assert student['enrollmentTerms'][1]['enrolledUnits'] == 12.5
             assert student['enrollmentTerms'][1]['termGpa']['gpa'] == 1.8
             assert student['enrollmentTerms'][1]['academicStanding']['status'] == 'PRO'
             assert len(student['enrollmentTerms'][1]['enrollments']) == 5
             assert student['enrollmentTerms'][2]['termName'] == 'Spring 2017'
+            assert student['enrollmentTerms'][2]['academicYear'] == 'Fall 2016 - Summer 2017'
             assert student['enrollmentTerms'][2]['enrolledUnits'] == 10
             assert student['enrollmentTerms'][2]['termGpa']['gpa'] == 2.7
             assert len(student['enrollmentTerms'][2]['enrollments']) == 3
             assert student['enrollmentTerms'][2]['academicStanding']['status'] == 'GST'
             assert student['enrollmentTerms'][3]['termName'] == 'Spring 2016'
+            assert student['enrollmentTerms'][3]['academicYear'] == 'Fall 2015 - Summer 2016'
             assert student['enrollmentTerms'][3]['enrolledUnits'] == 0
             assert student['enrollmentTerms'][3]['termGpa']['gpa'] == 3.8
             assert student['enrollmentTerms'][3]['academicStanding']['status'] == 'GST'

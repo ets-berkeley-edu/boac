@@ -93,3 +93,16 @@ class TestBerkeleyDepartmentCodes:
     def test_unique_department_names(self):
         """We must have unique dept codes and unique names."""
         assert len(BERKELEY_DEPT_CODE_TO_NAME) == len(BERKELEY_DEPT_NAME_TO_CODE)
+
+
+class TestAcademicYearForTermName:
+    """Matches a term name to its academic year."""
+
+    def test_academic_year_for_term_name(self):
+        assert berkeley.academic_year_for_term_name('Fall 1990') == 'Fall 1990 - Summer 1991'
+        assert berkeley.academic_year_for_term_name('Winter 1971') == 'Fall 1970 - Summer 1971'
+        assert berkeley.academic_year_for_term_name('Spring 2025') == 'Fall 2024 - Summer 2025'
+        assert berkeley.academic_year_for_term_name('Summer 2007') == 'Fall 2006 - Summer 2007'
+        assert berkeley.academic_year_for_term_name('') is None
+        assert berkeley.academic_year_for_term_name('Septober 2007') == 'Septober 2007'
+        assert berkeley.academic_year_for_term_name('Fall2007') == 'Fall2007'

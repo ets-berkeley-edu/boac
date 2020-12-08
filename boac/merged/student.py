@@ -31,7 +31,7 @@ import re
 from boac import db
 from boac.externals import data_loch, s3
 from boac.lib import analytics
-from boac.lib.berkeley import dept_codes_where_advising, term_name_for_sis_id
+from boac.lib.berkeley import academic_year_for_term_name, dept_codes_where_advising, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
 from boac.merged.sis_terms import current_term_id, future_term_id
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
@@ -802,7 +802,7 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
                             app.logger.warn(f'SIS provided only waitlisted enrollments in a past term: {term}')
                         else:
                             course['sections'] = fixed_sections
-
+        term['academicYear'] = academic_year_for_term_name(term.get('termName'))
         if academic_standing:
             term['academicStanding'] = {
                 'status': academic_standing.get(term_id),
