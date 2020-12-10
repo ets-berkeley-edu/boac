@@ -393,6 +393,7 @@ def _query_students(
         academic_standings=criteria.get('academicStandings'),
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
+        coe_epn=criteria.get('coeEpn'),
         coe_ethnicities=criteria.get('coeEthnicities'),
         coe_genders=criteria.get('coeGenders'),
         coe_prep_statuses=criteria.get('coePrepStatuses'),

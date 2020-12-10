@@ -889,6 +889,7 @@ def get_students_query(     # noqa
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
+    coe_epn=None,
     coe_ethnicities=None,
     coe_genders=None,
     coe_prep_statuses=None,
@@ -1093,6 +1094,10 @@ def get_students_query(     # noqa
     if coe_advisor_ldap_uids:
         query_filter += ' AND s.advisor_ldap_uid = ANY(:coe_advisor_ldap_uids)'
         query_bindings.update({'coe_advisor_ldap_uids': coe_advisor_ldap_uids})
+    if coe_epn:
+        query_tables += ' JOIN student.student_enrollment_terms e ON e.sid=sas.sid '
+        query_filter += ' AND e.enrollment_term LIKE \'%gradingBasis": "EPN"%\' AND e.term_id = ANY(:coe_epn)'
+        query_bindings.update({'coe_epn': coe_epn})
     if coe_ethnicities:
         query_filter += ' AND s.ethnicity = ANY(:coe_ethnicities)'
         query_bindings.update({'coe_ethnicities': coe_ethnicities})
@@ -1109,7 +1114,6 @@ def get_students_query(     # noqa
         query_filter += " AND s.status IN ('D','P','U','W','X','Z')"
     elif is_active_coe is True:
         query_filter += " AND s.status NOT IN ('D','P','U','W','X','Z')"
-
     return query_tables, query_filter, query_bindings
 
 
