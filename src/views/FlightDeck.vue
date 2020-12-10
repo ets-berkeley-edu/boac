@@ -30,11 +30,15 @@
         <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
         <ManageTopics />
       </div>
-      <div v-if="boa.build" class="mt-2 pt-5">
+      <div class="mt-2 pt-5">
+        <h2 class="page-section-header-sub">Alerts Log Export</h2>
+        <AlertsLogExport />
+      </div>
+      <div class="mt-2 pt-5">
         <div class="pb-3 pt-3">
           <h2 class="mb-0 page-section-header-sub">Application Profile</h2>
         </div>
-        <ul>
+        <ul v-if="boa.build">
           <li>Artifact: {{ boa.build.artifact || '&mdash;' }}</li>
           <li v-if="boa.build.gitCommit">Git commit: <a :href="`https://github.com/ets-berkeley-edu/boac/commit/${boa.build.gitCommit}`">{{ boa.build.gitCommit }}</a></li>
         </ul>
@@ -68,6 +72,7 @@
 </template>
 
 <script>
+import AlertsLogExport from '@/components/admin/AlertsLogExport'
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement'
@@ -82,6 +87,7 @@ import { getDropInSchedulers } from '@/api/user'
 export default {
   name: 'Admin',
   components: {
+    AlertsLogExport,
     DropInSchedulerManagement,
     DemoModeToggle,
     EditServiceAnnouncement,
