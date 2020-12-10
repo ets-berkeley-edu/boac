@@ -38,7 +38,7 @@ from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
 from flask import current_app as app
-from sqlalchemy import text
+from sqlalchemy import and_, text
 from sqlalchemy.sql import desc
 
 
@@ -267,6 +267,14 @@ class Alert(Base):
         results = query.update({cls.active: False}, synchronize_session='fetch')
         std_commit()
         return results
+
+    @classmethod
+    def get_alerts_per_date_range(cls, from_date_utc, to_date_utc):
+        criterion = and_(
+            cls.created_at >= from_date_utc,
+            cls.created_at <= to_date_utc,
+        )
+        return cls.query.filter(criterion).order_by(cls.created_at).all()
 
     @classmethod
     def infrequent_activity_alerts_enabled(cls):

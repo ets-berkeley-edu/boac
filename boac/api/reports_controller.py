@@ -23,18 +23,51 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import ForbiddenRequestError, ResourceNotFoundError
+import re
+
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import admin_or_director_required, admin_required, authorized_users_api_feed
 from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
-from boac.lib.http import tolerant_jsonify
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
+from boac.lib.http import response_with_csv_download, tolerant_jsonify
+from boac.lib.util import localized_timestamp_to_utc
 from boac.merged.reports import get_note_author_count, get_note_count, get_note_count_per_user,\
     get_note_with_attachments_count, get_note_with_topics_count, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
+from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
 from flask_login import current_user
+
+
+@app.route('/api/reports/download_alerts_csv', methods=['POST'])
+@admin_required
+def alerts_log_export():
+    def _param_to_utc_date(key):
+        value = (params.get(key) or '').strip()
+        return localized_timestamp_to_utc(value) if value else None
+
+    params = request.get_json()
+    from_date_utc = _param_to_utc_date('fromDate')
+    to_date_utc = _param_to_utc_date('toDate')
+    if from_date_utc and to_date_utc:
+        def _to_api_json(alert):
+            term_id_match = re.search(r'^2[012]\d[0258]', alert.key[0:4])
+            return {
+                'sid': alert.sid,
+                'term': term_name_for_sis_id(term_id_match.string) if term_id_match else None,
+                'type': alert.alert_type,
+                'created_at': alert.created_at,
+            }
+        alerts = Alert.get_alerts_per_date_range(from_date_utc, to_date_utc)
+        return response_with_csv_download(
+            rows=[_to_api_json(a) for a in alerts],
+            filename_prefix='alerts_log',
+            fieldnames=['sid', 'term', 'type', 'created_at'],
+        )
+    else:
+        raise BadRequestError('Invalid arguments')
 
 
 @app.route('/api/reports/notes/<dept_code>')
