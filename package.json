@@ -28,7 +28,7 @@
     "mitt": "2.1.0",
     "moment-timezone": "0.5.31",
     "numeral": "2.0.6",
-    "v-calendar": "1.0.8",
+    "v-calendar": "2.1.1",
     "vue": "2.6.12",
     "vue-analytics": "5.22.1",
     "vue-class-component": "7.2.6",

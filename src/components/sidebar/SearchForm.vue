@@ -213,7 +213,7 @@
                 v-model="noteFilters.dateFrom"
                 popover-visibility="focus"
                 mode="single">
-                <template v-slot="{inputValue, updateValue}">
+                <template v-slot="{inputValue, inputEvents}">
                   <b-input-group>
                     <b-form-input
                       id="search-options-note-filters-last-updated-from"
@@ -225,8 +225,8 @@
                       placeholder="MM/DD/YYYY"
                       expanded
                       lazy-formatter
-                      @change.native="updateValue($event.target.value)">
-                    </b-form-input>
+                      v-on="inputEvents"
+                    />
                     <b-btn
                       v-if="noteFilters.dateFrom"
                       id="search-options-note-filters-last-updated-from-clear"
@@ -248,7 +248,7 @@
                 v-model="noteFilters.dateTo"
                 popover-visibility="focus"
                 mode="single">
-                <template v-slot="{inputValue, updateValue}">
+                <template v-slot="{inputValue, inputEvents}">
                   <b-input-group>
                     <b-form-input
                       id="search-options-note-filters-last-updated-to"
@@ -260,8 +260,8 @@
                       placeholder="MM/DD/YYYY"
                       expanded
                       lazy-formatter
-                      @change.native="updateValue($event.target.value)">
-                    </b-form-input>
+                      v-on="inputEvents"
+                    />
                     <b-btn
                       v-if="noteFilters.dateTo"
                       id="search-options-note-filters-last-updated-to-clear"
