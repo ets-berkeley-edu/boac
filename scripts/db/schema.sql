@@ -60,7 +60,7 @@ CREATE TABLE alerts (
     alert_type character varying(80) NOT NULL,
     key character varying(255) NOT NULL,
     message text NOT NULL,
-    active boolean DEFAULT true NOT NULL,
+    deleted_at timestamp with time zone,
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );

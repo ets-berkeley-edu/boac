@@ -136,7 +136,7 @@ class TestAlert:
         inactive_alert_1 = (Alert.query.
                             filter(Alert.sid == '11667051').
                             filter(Alert.key.startswith('2178_')).
-                            filter(Alert.active == False).  # noqa: E712
+                            filter(Alert.deleted_at != None).  # noqa: E711
                             first()
                             )
         inactivation_timestamp = inactive_alert_1.updated_at
@@ -146,7 +146,7 @@ class TestAlert:
         inactive_alert_2 = (Alert.query.
                             filter(Alert.sid == '3456789012').
                             filter(Alert.key.startswith('2178_%')).
-                            filter(Alert.active == False).  # noqa: E712
+                            filter(Alert.deleted_at != None).  # noqa: E711
                             first()
                             )
         assert inactive_alert_1.updated_at == inactivation_timestamp
