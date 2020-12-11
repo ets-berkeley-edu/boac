@@ -63,17 +63,18 @@ class TestAlertsLogExport:
         response = self._api_download_alerts_csv(client)
         assert 'csv' in response.content_type
         csv = str(response.data)
-        for snippet in [
-            'sid,term,type,created_at',
-            '11667051,Fall 2017,academic_standing',
-            '11667051,Spring 2017,late_assignment',
-            '11667051,Fall 2017,late_assignment',
-            '11667051,Fall 2017,missing_assignment',
-            '2345678901,Fall 2017,late_assignment',
-            '11667051,Fall 2017,midterm',
-            '3456789012,Fall 2017,no_activity',
+        for snippets in [
+            ['sid,term,key,type,active,created_at'],
+            ['11667051', 'Fall 2017', 'academic_standing,true'],
+            ['11667051', 'Spring 2017', 'late_assignment,true'],
+            ['11667051', 'Fall 2017', 'late_assignment,true'],
+            ['11667051', 'Fall 2017', 'missing_assignment,true'],
+            ['2345678901', 'Fall 2017', 'late_assignment,true'],
+            ['11667051', 'Fall 2017', 'midterm,true'],
+            ['3456789012', 'Fall 2017', 'no_activity,true'],
         ]:
-            assert str(snippet) in csv
+            for snippet in snippets:
+                assert snippet in csv, f'Failed on snippet: {snippet}'
 
 
 class TestNotesReport:

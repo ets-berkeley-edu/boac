@@ -14,7 +14,7 @@
                 <b-input-group>
                   <b-form-input
                     id="alerts-log-export-from-date"
-                    class="date-input text-center"
+                    class="date-input"
                     :disabled="isDownloading"
                     :formatter="dateFormat"
                     :placeholder="dateInputFormat"
@@ -35,7 +35,7 @@
                 <b-input-group>
                   <b-form-input
                     id="alerts-log-export-to-date"
-                    class="date-input text-center"
+                    class="date-input"
                     :disabled="isDownloading"
                     :formatter="dateFormat"
                     :placeholder="dateInputFormat"
@@ -99,6 +99,6 @@ export default {
 
 <style scoped>
 .date-input {
-  width: 110px;
+  width: 130px;
 }
 </style>
