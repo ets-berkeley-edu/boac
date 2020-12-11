@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import timedelta
 import re
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
@@ -46,11 +47,11 @@ from flask_login import current_user
 def alerts_log_export():
     def _param_to_utc_date(key):
         value = (params.get(key) or '').strip()
-        return localized_timestamp_to_utc(value) if value else None
+        return localized_timestamp_to_utc(value, date_format='%m/%d/%Y') if value else None
 
     params = request.get_json()
     from_date_utc = _param_to_utc_date('fromDate')
-    to_date_utc = _param_to_utc_date('toDate')
+    to_date_utc = _param_to_utc_date('toDate') + timedelta(days=1)
     if from_date_utc and to_date_utc:
         def _to_api_json(alert):
             term_id_match = re.search(r'^2[012]\d[0258]', alert.key[0:4])

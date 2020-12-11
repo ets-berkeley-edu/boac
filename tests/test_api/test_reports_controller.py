@@ -40,8 +40,8 @@ class TestAlertsLogExport:
         response = client.post(
             '/api/reports/download_alerts_csv',
             data=json.dumps({
-                'fromDate': '1900-08-01T00:00:00',
-                'toDate': '2525-08-01T00:00:00',
+                'fromDate': '08/01/1900',
+                'toDate': '08/01/2525',
             }),
             content_type='application/json',
         )
