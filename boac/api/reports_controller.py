@@ -58,14 +58,16 @@ def alerts_log_export():
             return {
                 'sid': alert.sid,
                 'term': term_name_for_sis_id(term_id_match.string) if term_id_match else None,
+                'key': alert.key,
                 'type': alert.alert_type,
+                'active': str(alert.active).lower(),
                 'created_at': alert.created_at,
             }
         alerts = Alert.get_alerts_per_date_range(from_date_utc, to_date_utc)
         return response_with_csv_download(
             rows=[_to_api_json(a) for a in alerts],
             filename_prefix='alerts_log',
-            fieldnames=['sid', 'term', 'type', 'created_at'],
+            fieldnames=['sid', 'term', 'key', 'type', 'active', 'created_at'],
         )
     else:
         raise BadRequestError('Invalid arguments')
