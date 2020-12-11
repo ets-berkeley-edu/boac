@@ -15,6 +15,7 @@
                   <b-form-input
                     id="alerts-log-export-from-date"
                     class="date-input text-center"
+                    :disabled="isDownloading"
                     :formatter="dateFormat"
                     :placeholder="dateInputFormat"
                     :value="inputValue"
@@ -35,6 +36,7 @@
                   <b-form-input
                     id="alerts-log-export-to-date"
                     class="date-input text-center"
+                    :disabled="isDownloading"
                     :formatter="dateFormat"
                     :placeholder="dateInputFormat"
                     :value="inputValue"
@@ -47,11 +49,12 @@
           <div class="pl-3">
             <b-button
               id="alerts-log-export-submit"
-              :disabled="!fromDate || !toDate"
+              :disabled="isDownloading || !fromDate || !toDate"
               variant="primary"
               @click="onSubmit"
             >
-              Export
+              <span v-if="isDownloading"><font-awesome icon="spinner" spin /> Fetching CSV</span>
+              <span v-if="!isDownloading">Export</span>
             </b-button>
           </div>
         </div>
@@ -61,11 +64,16 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
+import {downloadAlertsCSV} from '@/api/reports'
+
 export default {
   name: 'AlertsLogExport',
+  mixins: [Context],
   data: () => ({
     dateInputFormat: 'MM/DD/YYYY',
     fromDate: undefined,
+    isDownloading: false,
     maxDate: new Date(),
     minDate: new Date('01/01/2014'),
     toDate: undefined
@@ -76,7 +84,14 @@ export default {
       return isNaN(parsed) ? null : this.$options.filters.moment(parsed, this.dateInputFormat)
     },
     onSubmit() {
-      console.log('Download CSV')
+      this.isDownloading = true
+      downloadAlertsCSV(
+        this.$options.filters.moment(this.fromDate, this.dateInputFormat),
+        this.$options.filters.moment(this.toDate, this.dateInputFormat)
+      ).then(() => {
+        this.alertScreenReader('Alerts CSV file downloaded')
+        this.isDownloading = false
+      })
     }
   }
 }

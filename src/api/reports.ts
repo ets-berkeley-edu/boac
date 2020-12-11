@@ -1,9 +1,16 @@
+import _ from 'lodash'
 import axios from 'axios'
 import utils from '@/api/api-utils'
 
-export function downloadAlertsCSV() {
-  const url = `${utils.apiBaseUrl()}/api/reports/download_alerts_csv`
-  return axios.get(url).then(response => response.data, () => null)
+export function downloadAlertsCSV(fromDate: string, toDate: string) {
+  const fileDownload = require('js-file-download')
+  const filename = `boa-alerts-${_.replace(fromDate, '/', '-')}-to-${_.replace(toDate, '/', '-')}`
+  return axios
+    .post(`${utils.apiBaseUrl()}/api/reports/download_alerts_csv`, {
+      fromDate,
+      toDate
+    })
+    .then(response => fileDownload(response.data, `${filename}.csv`), () => null)
 }
 
 export function getNotesReport(deptCode) {
