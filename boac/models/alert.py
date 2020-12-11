@@ -55,7 +55,7 @@ class Alert(Base):
     alert_type = db.Column(db.String(80), nullable=False)
     key = db.Column(db.String(255), nullable=False)
     message = db.Column(db.Text, nullable=False)
-    active = db.Column(db.Boolean, nullable=False)
+    deleted_at = db.Column(db.DateTime)
     views = db.relationship(
         'AlertView',
         back_populates='alert',
@@ -71,7 +71,7 @@ class Alert(Base):
     ),)
 
     @classmethod
-    def create(cls, sid, alert_type, key=None, message=None, active=True, created_at=None):
+    def create(cls, sid, alert_type, key=None, message=None, deleted_at=None, created_at=None):
         # Alerts must contain a key, unique per SID and alert type, which will allow them to be located
         # and modified on updates to the data that originally generated the alert. The key defaults
         # to a string representation of today's date, but will more often (depending on the alert type)
@@ -83,19 +83,19 @@ class Alert(Base):
             key = key.strip()
             if not key:
                 raise ValueError('Blank string submitted for alert key')
-        alert = cls(sid, alert_type, key, message, active)
+        alert = cls(sid, alert_type, key, message, deleted_at)
         if created_at:
             alert.created_at = created_at
             alert.updated_at = created_at
         db.session.add(alert)
         std_commit()
 
-    def __init__(self, sid, alert_type, key, message=None, active=True):
+    def __init__(self, sid, alert_type, key, message=None, deleted_at=None):
         self.sid = sid
         self.alert_type = alert_type
         self.key = key
         self.message = message
-        self.active = active
+        self.deleted_at = deleted_at
 
     def __repr__(self):
         return f"""<Alert {self.id},
@@ -103,7 +103,7 @@ class Alert(Base):
                     alert_type={self.alert_type},
                     key={self.key},
                     message={self.message},
-                    active={self.active},
+                    deleted_at={self.deleted_at},
                     updated={self.updated_at},
                     created={self.created_at}>
                 """
@@ -128,7 +128,7 @@ class Alert(Base):
             FROM alerts LEFT JOIN alert_views
                 ON alert_views.alert_id = alerts.id
                 AND alert_views.viewer_id = :viewer_id
-            WHERE alerts.active = true
+            WHERE alerts.deleted_at IS NULL
                 AND alerts.key LIKE :key
                 AND alert_views.dismissed_at IS NULL
             GROUP BY alerts.sid
@@ -143,7 +143,7 @@ class Alert(Base):
             FROM alerts LEFT JOIN alert_views
                 ON alert_views.alert_id = alerts.id
                 AND alert_views.viewer_id = :viewer_id
-            WHERE alerts.active = true
+            WHERE alerts.deleted_at IS NULL
                 AND alerts.key LIKE :key
                 AND alerts.sid = ANY(:sids)
                 AND alert_views.dismissed_at IS NULL
@@ -192,7 +192,7 @@ class Alert(Base):
             FROM alerts LEFT JOIN alert_views
                 ON alert_views.alert_id = alerts.id
                 AND alert_views.viewer_id = :viewer_id
-            WHERE alerts.active = true
+            WHERE alerts.deleted_at IS NULL
                 AND alerts.key LIKE :key
                 AND alerts.sid = :sid
             ORDER BY alerts.created_at
@@ -216,7 +216,7 @@ class Alert(Base):
         return feed
 
     def activate(self, preserve_creation_date=False):
-        self.active = True
+        self.deleted_at = None
         # Some alert types, such as withdrawals and midpoint deficient grades, don't include a time-shifted message
         # and shouldn't be treated as updated after creation.
         if preserve_creation_date:
@@ -224,7 +224,7 @@ class Alert(Base):
         std_commit()
 
     def deactivate(self):
-        self.active = False
+        self.deleted_at = datetime.now()
         std_commit()
 
     @classmethod
@@ -262,9 +262,9 @@ class Alert(Base):
             filter(cls.sid == sid).
             filter(cls.alert_type.in_(alert_types)).
             filter(cls.key.startswith(f'{term_id}_%')).
-            filter(cls.active == True)  # noqa: E712
+            filter(cls.deleted_at == None)  # noqa: E711
         )
-        results = query.update({cls.active: False}, synchronize_session='fetch')
+        results = query.update({cls.deleted_at: datetime.now()}, synchronize_session='fetch')
         std_commit()
         return results
 
@@ -299,9 +299,9 @@ class Alert(Base):
         query = (
             cls.query.
             filter(cls.key.startswith(f'{term_id}_%')).
-            filter(cls.active == True)  # noqa: E712
+            filter(cls.deleted_at == None)  # noqa: E711
         )
-        results = query.update({cls.active: False}, synchronize_session='fetch')
+        results = query.update({cls.deleted_at: datetime.now()}, synchronize_session='fetch')
         std_commit()
         return results
 
@@ -426,7 +426,7 @@ class Alert(Base):
         key = f'{term_id}_{class_name}'
         message = f'Infrequent activity! Last {class_name} bCourses activity was {days_since} days ago.'
         # If an active infrequent activity alert already exists and is more recent, skip the update.
-        existing_alert = cls.query.filter_by(sid=sid, alert_type='infrequent_activity', key=key, active=True).first()
+        existing_alert = cls.query.filter_by(sid=sid, alert_type='infrequent_activity', key=key, deleted_at=None).first()
         if existing_alert:
             match = re.search('(\d+) days ago.$', message)
             if match and match[1] and int(match[1]) < days_since:

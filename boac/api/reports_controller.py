@@ -31,7 +31,7 @@ from boac.api.util import admin_or_director_required, admin_required, authorized
 from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
-from boac.lib.util import localized_timestamp_to_utc
+from boac.lib.util import localized_timestamp_to_utc, utc_now
 from boac.merged.reports import get_note_author_count, get_note_count, get_note_count_per_user,\
     get_note_with_attachments_count, get_note_with_topics_count, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
@@ -55,19 +55,22 @@ def alerts_log_export():
     if from_date_utc and to_date_utc:
         def _to_api_json(alert):
             term_id_match = re.search(r'^2[012]\d[0258]', alert.key[0:4])
+            active_until = alert.deleted_at or utc_now()
             return {
                 'sid': alert.sid,
                 'term': term_name_for_sis_id(term_id_match.string) if term_id_match else None,
                 'key': alert.key,
                 'type': alert.alert_type,
-                'active': str(alert.active).lower(),
+                'is_active': not alert.deleted_at,
+                'active_duration_hours': round((active_until - alert.created_at).total_seconds() / 3600),
                 'created_at': alert.created_at,
+                'deleted_at': alert.deleted_at,
             }
         alerts = Alert.get_alerts_per_date_range(from_date_utc, to_date_utc)
         return response_with_csv_download(
             rows=[_to_api_json(a) for a in alerts],
             filename_prefix='alerts_log',
-            fieldnames=['sid', 'term', 'key', 'type', 'active', 'created_at'],
+            fieldnames=['sid', 'term', 'key', 'type', 'is_active', 'active_duration_hours', 'created_at', 'deleted_at'],
         )
     else:
         raise BadRequestError('Invalid arguments')

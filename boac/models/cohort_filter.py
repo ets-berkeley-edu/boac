@@ -223,7 +223,7 @@ class CohortFilter(Base):
                 JOIN cohort_filters
                     ON alerts.sid = ANY(cohort_filters.sids)
                     AND alerts.key LIKE :key
-                    AND alerts.active IS TRUE
+                    AND alerts.deleted_at IS NULL
                     AND cohort_filters.owner_id = :owner_id
                 LEFT JOIN alert_views
                     ON alert_views.alert_id = alerts.id
