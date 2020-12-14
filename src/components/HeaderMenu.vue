@@ -2,7 +2,7 @@
   <div>
     <b-dropdown
       id="header-dropdown-under-name"
-      class="mr-3"
+      class="mr-2"
       variant="link"
       no-caret
       right>
