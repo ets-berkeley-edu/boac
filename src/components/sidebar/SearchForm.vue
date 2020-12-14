@@ -284,7 +284,6 @@
             <b-btn
               id="search-options-panel-toggle"
               aria-controls="search-options-panel"
-              :aria-expanded="showSearchOptions"
               class="pr-0 pt-0 search-options-panel-toggle"
               variant="link"
               @click="toggleSearchOptions">

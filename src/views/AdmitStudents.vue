@@ -23,13 +23,11 @@
             Create Cohort
           </NavLink>
           <div class="faint-text">|</div>
-          <span id="export-student-list-description" class="sr-only">Download CSV file containing all admitted students in this cohort</span>
           <b-btn
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalAdmitCount"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            aria-describedby="export-student-list-description"
             @click.prevent="exportCohort">
             Export List
           </b-btn>

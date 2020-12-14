@@ -44,7 +44,6 @@
           class="btn-primary-color-override"
           variant="primary"
           size="sm"
-          aria-label="Save changes to curated group name"
           @click.stop="rename">
           Rename
         </b-btn>
@@ -52,7 +51,6 @@
           id="rename-cancel"
           class="cohort-manage-btn"
           variant="link"
-          aria-label="Cancel rename curated group"
           size="sm"
           @click="exitRenameMode">
           Cancel
@@ -63,7 +61,6 @@
           <b-btn
             id="bulk-add-sids-button"
             variant="link"
-            aria-label="Add students to this curated group by entering a list of student IDs"
             @click="enterBulkAddMode">
             Add Students
           </b-btn>
@@ -73,7 +70,6 @@
           <b-btn
             id="rename-button"
             variant="link"
-            aria-label="Rename this curated group"
             @click="enterRenameMode">
             Rename
           </b-btn>
@@ -84,7 +80,7 @@
             id="delete-button"
             v-b-modal="referencingCohorts.length ? 'cohort-warning-modal' : 'confirm-delete-modal'"
             variant="link"
-            aria-label="Delete this curated group">
+          >
             Delete
           </b-btn>
           <b-modal
@@ -149,7 +145,6 @@
           <b-btn
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
-            aria-label="Download CSV file containing all students"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
           >

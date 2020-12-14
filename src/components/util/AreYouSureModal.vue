@@ -20,7 +20,6 @@
         <form @submit.prevent="functionConfirm">
           <b-btn
             id="are-you-sure-confirm"
-            :aria-label="modalHeader"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="functionConfirm">

@@ -1,9 +1,9 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
-    <div class="flex-grow-1 new-note-header font-weight-bolder">
+    <h2 id="create-note-modal-header" class="flex-grow-1 new-note-header font-weight-bolder">
       <span v-if="mode === 'editTemplate'">Edit Template</span>
       <span v-if="mode !== 'editTemplate'">New Note</span>
-    </div>
+    </h2>
     <div class="mr-4">
       <b-dropdown
         v-if="mode !== 'editTemplate'"

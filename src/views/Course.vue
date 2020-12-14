@@ -82,7 +82,6 @@
             >
               <b-button
                 id="btn-tab-list"
-                aria-labelledby="tabs-button-group"
                 class="tab-button"
                 :class="{'tab-button-selected': tab === 'list'}"
                 :disabled="tab === 'list'"
@@ -94,7 +93,6 @@
               </b-button>
               <b-button
                 id="btn-tab-matrix"
-                aria-labelledby="tabs-button-group"
                 class="tab-button"
                 :class="{'tab-button-selected': tab === 'matrix'}"
                 :disabled="tab === 'matrix'"
@@ -107,26 +105,27 @@
             </b-button-group>
           </div>
           <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-items-center d-flex ml-auto mr-3">
-            <div class="pr-1">
+            <div id="view-per-page-label" class="pr-1">
               {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
             </div>
-            <div v-for="(option, index) in pagination.options" :key="index">
-              <b-button
-                :id="`view-per-page-${option}`"
-                :aria-label="`Show ${option} results per page`"
-                class="px-1"
-                :class="{'font-size-16 font-weight-bold text-dark': option === pagination.itemsPerPage}"
-                :disabled="option === pagination.itemsPerPage"
-                variant="link"
-                @click="resizePage(option)"
-                @keyup.enter="resizePage(option)"
-              >
-                {{ option }}
-              </b-button>
-              <span v-if="index + 1 < pagination.options.length">
-                |
-              </span>
-            </div>
+            <b-button-group aria-labelledby="view-per-page-label">
+              <div v-for="(option, index) in pagination.options" :key="index">
+                <b-button
+                  :id="`view-per-page-${option}`"
+                  class="px-1"
+                  :class="{'font-size-16 font-weight-bold text-dark': option === pagination.itemsPerPage}"
+                  :disabled="option === pagination.itemsPerPage"
+                  variant="link"
+                  @click="resizePage(option)"
+                  @keyup.enter="resizePage(option)"
+                >
+                  {{ option }}
+                </b-button>
+                <span v-if="index + 1 < pagination.options.length">
+                  |
+                </span>
+              </div>
+            </b-button-group>
           </div>
         </div>
         <div v-if="tab === 'list' && section.totalStudentCount" class="ml-2 mr-2">

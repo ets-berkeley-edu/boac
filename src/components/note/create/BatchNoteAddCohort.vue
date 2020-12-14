@@ -28,11 +28,11 @@
           <span :id="`batch-note-${type}-${index}`">{{ $_.truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
-            :aria-label="`Remove ${type} ${addedObject.name}`"
             variant="link"
             class="p-0"
             @click.prevent="remove(addedObject)">
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+            <span class="sr-only">Remove</span>
           </b-btn>
         </span>
       </div>

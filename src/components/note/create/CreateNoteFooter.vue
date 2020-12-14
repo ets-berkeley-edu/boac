@@ -25,7 +25,6 @@
             id="btn-update-template"
             :disabled="isSaving || !model.subject"
             class="btn-primary-color-override"
-            aria-label="Update note template"
             variant="primary"
             @click.prevent="updateTemplate">
             Update Template
@@ -36,7 +35,6 @@
             id="create-note-button"
             :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
-            aria-label="Create note"
             variant="primary"
             @click.prevent="createNote">
             Save
