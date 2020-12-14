@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <SearchForm context="sidebar" :domain="domain" />
+      <SearchForm :domain="domain" />
     </div>
     <div v-if="myCohorts">
       <Cohorts />

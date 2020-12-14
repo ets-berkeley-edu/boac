@@ -49,10 +49,9 @@ export default {
     this.inDemoMode = this.$currentUser.inDemoMode
   },
   methods: {
-    toggle: function() {
+    toggle() {
       this.isToggling = true
-      setDemoMode(!this.inDemoMode).then(() => {
-        this.inDemoMode = !this.inDemoMode
+      setDemoMode(this.inDemoMode).then(() => {
         this.isToggling = false
         this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
       })
