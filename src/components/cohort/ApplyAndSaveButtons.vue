@@ -6,7 +6,6 @@
       :disabled="!!editMode"
       class="btn-filter-draft btn-primary-color-override"
       variant="primary"
-      aria-label="Apply filters"
       @click="apply">
       Apply
     </b-btn>
@@ -15,7 +14,6 @@
       id="unsaved-filter-reset"
       :disabled="!!editMode"
       class="btn-filter-draft"
-      aria-label="Reset filters"
       @click="resetToLastApply">
       Reset
     </b-btn>
@@ -26,7 +24,6 @@
           'btn-primary-color-override': isPerforming !== 'acknowledgeSave'
         }"
         :variant="saveButtonVariant"
-        :aria-label="cohortId ? 'Save cohort' : 'Create cohort'"
         :disabled="!!editMode || showCreateModal || !!isPerforming"
         class="btn-filter-draft save-button-width mt-3"
         @click="save">
@@ -40,7 +37,6 @@
         id="reset-to-saved-cohort"
         :disabled="!!editMode"
         class="btn-filter-draft"
-        aria-label="Reset filters"
         @click="resetToSaved">
         Reset
       </b-btn>

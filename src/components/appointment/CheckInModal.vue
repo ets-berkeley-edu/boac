@@ -77,7 +77,6 @@
           <b-btn
             v-if="dropInAdvisors.length"
             id="btn-appointment-check-in"
-            :aria-label="`Check in ${appointment.student.name}`"
             :disabled="!selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"

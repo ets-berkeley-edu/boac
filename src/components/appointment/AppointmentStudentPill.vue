@@ -13,10 +13,8 @@
         class="p-0"
         @click.prevent="removeStudent">
         <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
+        <span class="sr-only">Remove student</span>
       </b-btn>
-      <label class="sr-only" for="appointment-student-remove">
-        Remove student
-      </label>
     </div>
   </div>
 </template>

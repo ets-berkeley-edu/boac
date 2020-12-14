@@ -24,9 +24,9 @@
             id="btn-homepage-create-appointment"
             variant="link"
             class="mb-1"
-            aria-label="Create appointment. Modal window will open."
             @click="showCreateAppointmentModal = true">
             <font-awesome icon="plus" />
+            <span class="sr-only">Create appointment</span>
           </b-btn>
         </div>
       </div>

@@ -6,7 +6,6 @@
         id="btn-create-appointment"
         variant="primary"
         class="btn-primary-color-override mr-2 pl-3 pr-3"
-        aria-label="Create appointment. Modal window will open."
         @click="openCreateAppointmentModal">
         New Drop-in Appointment
       </b-btn>
@@ -14,7 +13,6 @@
         id="btn-log-resolved-isse"
         variant="outline-primary"
         class="btn-primary-color-override btn-primary-color-outline-override ml-2 pl-3 pr-3"
-        aria-label="Log resolved issue. Modal window will open."
         @click="openLogResolvedIssueModal">
         Log Resolved Issue
       </b-btn>

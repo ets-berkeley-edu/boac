@@ -81,7 +81,6 @@
           <b-btn
             id="btn-appointment-cancel"
             :disabled="!reason"
-            :aria-label="`Cancel appointment with ${student.name}`"
             class="btn-primary-color-override mr-2"
             variant="primary"
             @click.prevent="cancelTheAppointment">

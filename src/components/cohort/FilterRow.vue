@@ -218,7 +218,6 @@
         id="unsaved-filter-add"
         class="btn-primary-color-override ml-2"
         variant="primary"
-        aria-label="Add this new filter to the search criteria"
         @click="onClickAddButton">
         Add
       </b-btn>
@@ -230,7 +229,6 @@
         id="unsaved-filter-reset"
         class="p-0"
         variant="link"
-        aria-label="Cancel this filter selection"
         @click="reset">
         Cancel
       </b-btn>
@@ -240,7 +238,6 @@
         <span v-if="!isUX('boolean')">
           <b-btn
             :id="`edit-added-filter-${index}`"
-            :aria-label="`Edit ${filter.label.primary} filter (row ${index})`"
             class="btn-cohort-added-filter pr-1"
             variant="link"
             size="sm"
@@ -250,7 +247,6 @@
         </span>
         <b-btn
           :id="`remove-added-filter-${index}`"
-          :aria-label="`Remove this ${filter.label.primary} filter`"
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
           size="sm"
@@ -261,7 +257,6 @@
       <div v-if="isModifyingFilter" class="d-flex flex-row">
         <b-btn
           :id="`update-added-filter-${index}`"
-          :aria-label="`Update this ${filter.label.primary} filter`"
           :disabled="disableUpdateButton"
           class="btn-primary-color-override"
           variant="primary"
@@ -273,7 +268,6 @@
           :id="`cancel-edit-added-filter-${index}`"
           class="btn-cohort-added-filter"
           variant="link"
-          aria-label="Cancel update"
           size="sm"
           @click="onClickCancelEdit">
           Cancel

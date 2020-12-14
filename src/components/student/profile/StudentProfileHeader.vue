@@ -164,7 +164,6 @@
       <div>
         <b-btn
           id="show-hide-personal-details"
-          :aria-label="isShowingPersonalDetails ? `Hide personal details for ${student.name}` : `Show personal details for ${student.name}`"
           class="no-wrap"
           variant="link"
           @click="isShowingPersonalDetails = !isShowingPersonalDetails">

@@ -48,16 +48,13 @@
                   <b-btn
                     :id="`remove-appointment-topic-${index}`"
                     :disabled="disabled"
-                    :aria-labelledby="`remove-appointment-topic-${index}-label`"
                     variant="link"
                     class="m-0 p-0"
                     tabindex="0"
                     @click.prevent="remove(addedTopic)">
                     <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                    <span class="sr-only">Remove topic "{{ topics[index] }}"</span>
                   </b-btn>
-                  <label :id="`remove-appointment-topic-${index}-label`" :for="`remove-appointment-topic-${index}`" class="sr-only">
-                    Remove topic "{{ topics[index] }}"
-                  </label>
                 </div>
               </div>
             </div>

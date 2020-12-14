@@ -49,7 +49,6 @@
             [<b-button
               class="m-0 p-0"
               :class="{'collapsed': showConfigs}"
-              :aria-expanded="showConfigs"
               aria-controls="collapse-configs"
               variant="link"
               @click="showConfigs = !showConfigs">

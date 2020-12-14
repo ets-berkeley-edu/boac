@@ -256,10 +256,10 @@
         <b-btn
           v-if="canBecome(row.item)"
           :id="'become-' + row.item.uid"
-          :title="`Log in as ${row.item.name}`"
           variant="link"
           @click="become(row.item.uid)">
           <font-awesome icon="sign-in-alt" />
+          <span class="sr-only">Log in as {{ row.item.name }}</span>
         </b-btn>
       </template>
     </b-table>

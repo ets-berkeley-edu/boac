@@ -41,7 +41,6 @@
           <b-btn
             v-if="dropInAdvisors.length"
             id="btn-appointment-assign"
-            aria-label="Assign appointment"
             :disabled="!selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"

@@ -18,7 +18,6 @@
       <div class="d-flex justify-content-end mt-3">
         <b-btn
           id="btn-curated-group-bulk-add-sids"
-          :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
           :disabled="!$_.trim(textarea) || (curatedGroupId && isUpdating)"
           class="pl-2"
           variant="primary"
@@ -32,7 +31,6 @@
         <b-btn
           v-if="curatedGroupId"
           id="btn-cancel-bulk-add-sids"
-          :aria-label="curatedGroupId ? 'Add SIDs to current group' : 'Next, create curated group'"
           variant="link"
           @click="cancel">
           Cancel

@@ -11,7 +11,6 @@
               :class="{'tab-active text-white': !filter, 'tab-inactive text-dark': filter}"
               class="tab pl-2 pr-2"
               aria-controls="timeline-messages"
-              aria-label="Include all Academic Timeline messages"
               :aria-selected="!filter"
               variant="link"
               @click="setFilter(null)">
@@ -27,7 +26,6 @@
                 'tab-disabled text-muted': !countsPerType[type]
               }"
               aria-controls="timeline-messages"
-              :aria-label="`Apply ${filterTypes[type].name}s filter to Academic Timeline messages`"
               :aria-selected="type === filter"
               :disabled="!countsPerType[type]"
               class="tab ml-2 pl-2 pr-2 text-center"
@@ -328,7 +326,6 @@
     <div v-if="!searchResults && !searchResultsLoading && (countPerActiveTab > defaultShowPerTab)" class="text-center">
       <b-btn
         :id="`timeline-tab-${activeTab}-previous-messages`"
-        :aria-label="isShowingAll ? 'Hide previous Academic Timeline messages' : 'Show previous Academic Timeline messages'"
         class="no-wrap pr-2 pt-0"
         variant="link"
         @click="isShowingAll = !isShowingAll">

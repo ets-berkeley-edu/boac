@@ -3,11 +3,10 @@
     <b-btn
       v-if="isExistingUser"
       :id="`edit-${profile.uid}`"
-      :title="`Edit profile of ${profile.name}`"
       class="pl-1 pr-1"
       variant="link"
       @click="openEditUserModal">
-      <font-awesome icon="edit" />
+      <font-awesome icon="edit" /><span class="sr-only"> Edit profile of {{ profile.name }}</span>
     </b-btn>
     <b-btn
       v-if="!isExistingUser"

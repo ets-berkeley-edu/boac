@@ -22,7 +22,6 @@
           id="sign-in"
           class="btn-sign-in btn-primary-color-override"
           variant="primary"
-          aria-label="Log in to BOA"
           tabindex="0"
           placement="top"
           @click.stop="logIn">
@@ -32,8 +31,7 @@
           Questions or feedback? Contact us at
           <a
             :href="`mailto:${$config.supportEmailAddress}`"
-            aria-label="BOA support email address"
-            target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (will open new browser tab)</span></a>
+            target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
         </div>
         <DevAuth v-if="$config.devAuthEnabled" :report-error="reportError" />
       </div>
