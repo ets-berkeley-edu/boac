@@ -3,26 +3,28 @@
     <div>
       <SearchForm :domain="domain" />
     </div>
-    <div v-if="myCohorts">
-      <Cohorts />
-      <hr class="ml-2 mr-2 section-divider" />
-    </div>
-    <div v-if="myCuratedGroups">
-      <CuratedGroups />
-      <hr class="ml-2 mr-2 section-divider" />
-    </div>
-    <div v-if="$config.featureFlagAdmittedStudents && myAdmitCohorts">
-      <MyAdmitCohorts />
-      <hr class="ml-2 mr-2 section-divider" />
-    </div>
-    <div class="mb-2 sidebar-row-link">
-      <div class="ml-2 mr-2">
-        <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
+    <div role="navigation" aria-label="Cohorts and Curated Groups">
+      <div v-if="myCohorts">
+        <Cohorts />
+        <hr class="ml-2 mr-2 section-divider" />
       </div>
-    </div>
-    <div class="mb-2 sidebar-row-link">
-      <div class="ml-2 mr-2">
-        <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
+      <div v-if="myCuratedGroups">
+        <CuratedGroups />
+        <hr class="ml-2 mr-2 section-divider" />
+      </div>
+      <div v-if="$config.featureFlagAdmittedStudents && myAdmitCohorts">
+        <MyAdmitCohorts />
+        <hr class="ml-2 mr-2 section-divider" />
+      </div>
+      <div class="mb-2 sidebar-row-link">
+        <div class="ml-2 mr-2">
+          <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
+        </div>
+      </div>
+      <div class="mb-2 sidebar-row-link">
+        <div class="ml-2 mr-2">
+          <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
+        </div>
       </div>
     </div>
     <div

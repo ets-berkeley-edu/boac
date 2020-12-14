@@ -17,7 +17,7 @@
               All
             </b-btn>
           </div>
-          <div v-for="type in $_.keys(filterTypes)" :key="type">
+          <div v-for="type in $_.keys(filterTypes)" :key="type" role="tablist">
             <b-btn
               :id="`timeline-tab-${type}`"
               :class="{
