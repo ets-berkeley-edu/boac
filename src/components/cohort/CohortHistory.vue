@@ -42,7 +42,6 @@
             <router-link
               v-if="event.uid"
               :id="`event-${index}-student-name`"
-              :aria-label="`Go to profile page of ${event.firstName} ${event.lastName}`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               :to="studentRoutePath(event.uid, $currentUser.inDemoMode)"
               v-html="lastNameFirst(event)"></router-link>

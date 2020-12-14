@@ -13,10 +13,10 @@
         v-if="listType === 'curatedGroupForOwner'"
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
-        :aria-label="`Remove ${student.firstName} ${student.lastName} from group`"
         @click="onClickRemoveStudent(student)"
         @keyup.enter="onClickRemoveStudent(student)">
         <font-awesome icon="times-circle" class="font-size-24" />
+        <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
       </button>
     </div>
     <div v-if="listType === 'cohort'" class="mr-3">

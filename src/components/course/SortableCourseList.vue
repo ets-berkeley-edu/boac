@@ -24,7 +24,6 @@
         <th>
           <button
             id="column-sort-button-section"
-            :aria-label="`Sort by section ${describeReverse(sort.reverse.section)}`"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
             tabindex="0"
             @click="courseSort('section')"
@@ -38,7 +37,6 @@
         <th>
           <button
             id="column-sort-button-title"
-            :aria-label="`Sort by course name ${describeReverse(sort.reverse.title)}`"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
             tabindex="0"
             @click="courseSort('title')"

@@ -26,7 +26,6 @@
         <span class="sr-only">Student name</span>
         <router-link
           :id="`link-to-student-${row.item.uid}`"
-          :aria-label="`Go to profile page of ${row.item.name}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
           v-html="lastNameFirst(row.item)"></router-link>
