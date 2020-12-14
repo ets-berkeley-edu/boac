@@ -17,6 +17,7 @@
         id="new-filter-button"
         :aria-labelledby="`new-filter-${index}-label`"
         class="h-100"
+        menu-class="min-width-100"
         no-caret
         toggle-class="dd-override"
         variant="link"

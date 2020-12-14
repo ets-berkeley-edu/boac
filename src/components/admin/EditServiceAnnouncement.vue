@@ -14,7 +14,7 @@
           <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
         </b-form-checkbox>
       </div>
-      <div class="mt-3">
+      <div>
         <div v-if="error" class="mt-2 has-error w-100">
           <span aria-live="polite" role="alert">{{ error }}</span>
         </div>
@@ -69,14 +69,13 @@ export default {
       this.text = value
     },
     togglePublish() {
-      const publish = !this.isPublished
       this.error = null
       this.isTogglingPublish = true
-      if (!this.originalText.length && publish) {
+      if (!this.originalText.length && this.isPublished) {
         this.error = 'You are not allowed to publish empty text.'
         this.isTogglingPublish = false
       } else {
-        publishAnnouncement(publish).then(data => {
+        publishAnnouncement(this.isPublished).then(data => {
           this.isPublished = data.isPublished
           this.isTogglingPublish = false
           this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
