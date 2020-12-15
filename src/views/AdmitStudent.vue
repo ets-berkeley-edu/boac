@@ -4,10 +4,8 @@
     <div v-if="!loading" class="m-3">
       <h1
         id="admit-name-header"
-        ref="pageHeader"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-        class="student-section-header"
-        tabindex="0">
+        class="student-section-header">
         {{ fullName }}
       </h1>
       <div v-if="admit.studentUid" class="pt-2 pb-3">

@@ -1,6 +1,6 @@
 <template>
   <transition name="drawer">
-    <div v-show="isOpen" class="drawer">
+    <div v-show="isOpen" :aria-expanded="isOpen" class="drawer">
       <div class="ml-4 mr-4 pb-4 pt-4 row">
         <div class="col-sm mr-2 pr-2">
           <h3 class="student-profile-section-header">

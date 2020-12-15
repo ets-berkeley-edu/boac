@@ -7,10 +7,8 @@
             <div>
               <h1
                 id="student-name-header"
-                ref="pageHeader"
                 :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                 class="student-section-header"
-                tabindex="0"
                 v-html="student.name"></h1>
               <h2 class="sr-only">Profile</h2>
               <div

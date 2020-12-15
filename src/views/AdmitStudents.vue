@@ -3,10 +3,7 @@
     <Spinner />
     <div v-if="!loading">
       <div class="d-flex flex-wrap justify-content-between">
-        <h1
-          id="cohort-name"
-          class="page-section-header"
-          tabindex="0">
+        <h1 id="cohort-name" class="page-section-header">
           CE3 Admissions
           <span
             v-if="totalAdmitCount !== undefined"

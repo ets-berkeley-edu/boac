@@ -50,7 +50,6 @@
                     :disabled="disabled"
                     variant="link"
                     class="m-0 p-0"
-                    tabindex="0"
                     @click.prevent="remove(addedTopic)">
                     <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                     <span class="sr-only">Remove topic "{{ topics[index] }}"</span>

@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div
-      v-if="totalCourseCount"
-      tabindex="0">
+    <div v-if="totalCourseCount">
       <h1
         v-if="renderPrimaryHeader"
         id="course-results-page-h1"
@@ -25,7 +23,6 @@
           <button
             id="column-sort-button-section"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            tabindex="0"
             @click="courseSort('section')"
             @keyup.enter="courseSort('section')">
             Section
@@ -38,7 +35,6 @@
           <button
             id="column-sort-button-title"
             class="btn btn-link table-header-text sortable-table-header cursor-pointer table-cell"
-            tabindex="0"
             @click="courseSort('title')"
             @keyup.enter="courseSort('title')">
             Course Name

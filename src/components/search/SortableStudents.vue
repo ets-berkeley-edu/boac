@@ -91,15 +91,13 @@
           <div
             v-if="!row.item.alertCount"
             :aria-label="`No alerts for ${row.item.name}`"
-            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
-            tabindex="0">
+            class="bg-white border pl-3 pr-3 rounded-pill text-muted">
             0
           </div>
           <div
             v-if="row.item.alertCount"
             :aria-label="`${row.item.alertCount} alerts for ${row.item.name}`"
-            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
-            tabindex="0">
+            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill">
             {{ row.item.alertCount }}
           </div>
         </div>

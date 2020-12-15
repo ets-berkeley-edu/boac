@@ -2,12 +2,7 @@
   <div class="m-3">
     <Spinner />
     <div v-if="!loading">
-      <h1
-        id="everyones-cohorts-header"
-        ref="pageHeader"
-        class="mb-4"
-        tabindex="0"
-      >
+      <h1 class="mb-4">
         Everyone's Cohorts
       </h1>
       <div v-if="!rows.length">
@@ -49,9 +44,6 @@ export default {
       this.rows = data
       this.loaded('Everyone\'s Cohorts page has loaded')
     })
-  },
-  mounted() {
-    this.putFocusNextTick('everyones-cohorts-header')
   }
 }
 </script>

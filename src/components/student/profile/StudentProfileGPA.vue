@@ -63,12 +63,7 @@
               :class="{'bg-light': index % 2 === 0}">
               <td class="text-nowrap">{{ term.name }}</td>
               <td class="text-nowrap text-right">
-                <font-awesome
-                  v-if="term.gpa < 2"
-                  icon="exclamation-triangle"
-                  aria-label="Icon of danger sign"
-                  class="text-danger pr-2"
-                  tabindex="0" />
+                <font-awesome v-if="term.gpa < 2" icon="exclamation-triangle" class="text-danger pr-2" />
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
                   :id="`student-gpa-term-${term.name}`"

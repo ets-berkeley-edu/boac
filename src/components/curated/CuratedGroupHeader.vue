@@ -2,11 +2,7 @@
   <div>
     <div class="d-flex justify-content-between">
       <div v-if="mode !== 'rename'">
-        <h1
-          id="curated-group-name"
-          ref="pageHeader"
-          class="page-section-header mt-0"
-          tabindex="0">
+        <h1 id="curated-group-name" class="page-section-header mt-0">
           <span>{{ curatedGroupName || 'Curated Group' }}</span>
           <span v-if="!$_.isNil(totalStudentCount)" class="faint-text"> (<span>{{ pluralize('student', totalStudentCount, {1: '1'}) }}</span>)</span>
         </h1>

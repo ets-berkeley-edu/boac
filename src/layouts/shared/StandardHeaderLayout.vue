@@ -5,7 +5,9 @@
         id="skip-to-content-link"
         href="#content"
         class="sr-only"
-        tabindex="0">Skip to main content</a>
+      >
+        Skip to main content
+      </a>
       <div class="font-size-16 header-text pl-2 text-white" role="banner">
         <div v-if="$_.startsWith($route.path, '/home')">
           <span class="font-weight-bolder">UC Berkeley</span>
@@ -15,7 +17,7 @@
           v-if="!$_.startsWith($route.path, '/home')"
           id="home-header"
           to="/"
-          tabindex="0">
+        >
           <span class="font-weight-bolder">UC Berkeley</span>
           Online Advising
         </router-link>

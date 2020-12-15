@@ -7,14 +7,14 @@ export default {
   computed: {
     ...mapGetters('context', ['loading'])
   },
-  beforeCreate: () => store.dispatch('context/loadingStart'),
+  beforeCreate: () => store.commit('context/loadingStart'),
   methods: {
     ...mapActions('context', ['loadingStart']),
-    loaded(srAlert) {
+    loaded(srAlert, focusTarget) {
       if (srAlert) {
         this.$announcer.polite(srAlert)
       }
-      store.dispatch('context/loadingComplete')
+      store.commit('context/loadingComplete', focusTarget)
     }
   }
 }
