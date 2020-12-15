@@ -15,7 +15,6 @@
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${row.item.csEmplId}`"
-          :aria-label="`Go to profile page of ${fullName(row.item)}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath(row.item.csEmplId)"
           v-html="fullName(row.item)"></router-link>
