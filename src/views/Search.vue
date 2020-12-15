@@ -2,10 +2,10 @@
   <div class="m-3">
     <Spinner />
     <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || $_.size(results.notes) || $_.size(results.appointments))">
-      <h1 id="page-header" class="sr-only" tabindex="0">Search Results</h1>
+      <h1 id="page-header" class="sr-only" tabindex="-1">Search Results</h1>
     </div>
     <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !$_.size(results.notes) && !$_.size(results.appointments)">
-      <h1 id="page-header-no-results" class="page-section-header" tabindex="0">
+      <h1 id="page-header-no-results" class="page-section-header" tabindex="-1">
         No results<span v-if="phrase"> matching '{{ phrase }}'</span>
       </h1>
       <div>Suggestions:</div>
@@ -175,7 +175,6 @@ export default {
     }
   },
   mounted() {
-    this.putFocusNextTick('page-header')
     this.phrase = this.$route.query.q
     const includeAdmits = this.toBoolean(this.$route.query.admits)
     const includeCourses = this.toBoolean(this.$route.query.courses)

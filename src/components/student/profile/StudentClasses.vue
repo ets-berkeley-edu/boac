@@ -43,7 +43,7 @@
               :withdrawal="student.sisProfile.withdrawalCancel"
               :term-id="$config.currentEnrollmentTermId" />
           </div>
-          <h3 :id="`term-header-${index}`" tabindex="0" class="student-term-header">{{ term.termName }}</h3>
+          <h3 :id="`term-header-${index}`" class="student-term-header">{{ term.termName }}</h3>
           <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
           <StudentWithdrawalCancel
             v-if="student.sisProfile.withdrawalCancel"

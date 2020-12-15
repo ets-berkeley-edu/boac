@@ -1,10 +1,7 @@
 <template>
   <div>
     <div v-if="!cohortId && totalStudentCount === undefined" class="pb-3">
-      <h1
-        id="create-cohort-h1"
-        class="page-section-header"
-        tabindex="0">
+      <h1 id="create-cohort-h1" class="page-section-header">
         Create {{ domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
       <div v-if="domain === 'default'">
@@ -16,20 +13,13 @@
     </div>
     <div v-if="!renameMode" class="d-flex flex-wrap justify-content-between">
       <div>
-        <h1
-          v-if="cohortName"
-          id="cohort-name"
-          class="page-section-header pb-0"
-          tabindex="0">
+        <h1 v-if="cohortName" id="cohort-name" class="page-section-header pb-0">
           {{ cohortName }}
           <span
             v-if="editMode !== 'apply' && totalStudentCount !== undefined"
             class="faint-text">{{ pluralize('student', totalStudentCount) }}</span>
         </h1>
-        <h1
-          v-if="!cohortName && totalStudentCount !== undefined"
-          id="cohort-results-header"
-          tabindex="0">
+        <h1 v-if="!cohortName && totalStudentCount !== undefined" id="cohort-results-header">
           {{ pluralize('Result', totalStudentCount) }}
         </h1>
       </div>

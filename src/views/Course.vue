@@ -18,11 +18,7 @@
         <div>
           <div class="d-flex">
             <div class="course-column-description">
-              <h1
-                id="course-header"
-                ref="pageHeader"
-                class="course-header"
-                tabindex="0">
+              <h1 id="course-header" class="course-header">
                 {{ section.displayName }}
               </h1>
               <div class="font-size-14">

@@ -22,7 +22,6 @@
           id="sign-in"
           class="btn-sign-in btn-primary-color-override"
           variant="primary"
-          tabindex="0"
           placement="top"
           @click.stop="logIn">
           Sign In

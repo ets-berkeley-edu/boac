@@ -199,7 +199,6 @@
           v-if="$_.size(errorPerRangeInput)"
           class="sr-only"
           aria-live="polite"
-          tabindex="0"
         >
           Error: {{ errorPerRangeInput }}
         </div>

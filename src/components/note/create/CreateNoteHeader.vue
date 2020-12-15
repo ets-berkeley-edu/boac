@@ -16,7 +16,7 @@
         right>
         <b-dropdown-header v-if="!$_.size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
-          <div class="templates-dropdown-instructions">
+          <div aria-live="polite" class="templates-dropdown-instructions" role="alert">
             You have no saved templates.
           </div>
         </b-dropdown-header>

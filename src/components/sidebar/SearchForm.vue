@@ -11,7 +11,7 @@
             id="search-options-panel"
             v-model="showSearchOptions"
             class="mt-2 text-white">
-            <div id="search-options-header" class="sr-only" tabindex="0">
+            <div id="search-options-header" class="sr-only">
               Search options
             </div>
             <div v-if="domain.includes('admits')" class="d-flex">

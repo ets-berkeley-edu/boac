@@ -7,7 +7,7 @@
           <font-awesome :style="{color: '#3b7ea5'}" icon="user-circle" size="2x" />
         </div>
         <div class="pt-2">
-          <h1 id="profile-header" class="page-section-header" tabindex="0">Profile</h1>
+          <h1 class="page-section-header">Profile</h1>
         </div>
       </div>
       <div>
@@ -61,7 +61,6 @@ export default {
     } else {
       this.loaded('Profile page has loaded')
     }
-    this.putFocusNextTick('profile-header')
   }
 }
 </script>

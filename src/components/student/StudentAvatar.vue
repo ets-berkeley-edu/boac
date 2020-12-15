@@ -6,7 +6,6 @@
       :alt="ariaLabel"
       :src="avatarUrl"
       class="avatar"
-      tabindex="0"
       @error="avatarError" />
     <div
       v-if="alertCount"

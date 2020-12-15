@@ -100,14 +100,14 @@
     </div>
 
     <div v-if="!searchResultsLoading && !countPerActiveTab" class="pb-4 pl-2">
-      <h3 id="zero-messages" class="messages-none" tabindex="0">
+      <h3 id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </h3>
     </div>
 
     <div v-if="!searchResultsLoading && searchResults" class="mb-2">
-      <h3 id="search-results-header" class="messages-none" tabindex="0">
+      <h3 id="search-results-header" class="messages-none">
         {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
         &nbsp;with '{{ lastTimelineQuery }}'
@@ -124,7 +124,7 @@
         </tr>
         <tr v-if="creatingNoteEvent" class="message-row-read message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
-            <div class="pill text-center text-uppercase text-white pill-note" tabindex="0">
+            <div class="pill text-center text-uppercase text-white pill-note">
               <span class="sr-only">Creating new</span> advising note
             </div>
           </td>
@@ -152,14 +152,12 @@
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
           :class="{'message-row-read': message.read}"
-          :tabindex="$_.includes(openMessages, message.transientId) ? 0 : -1"
           class="message-row border-top border-bottom">
           <td class="column-pill align-top p-2">
             <div
               :id="`timeline-tab-${activeTab}-pill-${index}`"
               :class="`pill-${message.type}`"
-              class="pill text-center text-uppercase text-white"
-              tabindex="0">
+              class="pill text-center text-uppercase text-white">
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
@@ -194,11 +192,13 @@
             class="column-message align-top">
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"
+              :aria-pressed="$_.includes(openMessages, message.transientId)"
               :class="{
                 'align-top message-open': $_.includes(openMessages, message.transientId),
                 'truncate': !$_.includes(openMessages, message.transientId),
                 'img-blur': $currentUser.inDemoMode && ['appointment', 'note'].includes(message.type)
               }"
+              role="button"
               :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)">
@@ -314,10 +314,7 @@
                   </router-link>
                 </div>
               </div>
-              <span
-                v-if="!message.updatedAt && !message.createdAt"
-                class="sr-only"
-                tabindex="0">No last-updated date</span>
+              <span v-if="!message.updatedAt && !message.createdAt" class="sr-only">No last-updated date</span>
             </div>
           </td>
         </tr>
