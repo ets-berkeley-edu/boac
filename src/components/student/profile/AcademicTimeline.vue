@@ -61,6 +61,7 @@
     </div>
 
     <div v-if="isExpandAllAvailable" class="mt-1 mb-1 timeline-submenu">
+      <h3 class="sr-only">Quick Links</h3>
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
         variant="link"
@@ -115,6 +116,7 @@
     </div>
 
     <div v-if="!searchResultsLoading && countPerActiveTab">
+      <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${$_.capitalize(activeTab)}s` }}</h3>
       <table id="timeline-messages" class="w-100">
         <tr class="sr-only">
           <th>Type</th>
