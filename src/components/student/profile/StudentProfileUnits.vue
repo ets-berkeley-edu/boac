@@ -9,7 +9,7 @@
     </div>
     <div id="units-chart" class="border-left">
       <div class="ml-3">
-        <div class="unit-totals-label font-weight-bold">Unit Totals</div>
+        <h4 class="font-weight-bold mb-1 unit-totals-label">Unit Totals</h4>
         <div>
           <StudentUnitsChart
             v-if="cumulativeUnits || currentEnrolledUnits"
