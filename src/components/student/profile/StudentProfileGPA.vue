@@ -12,9 +12,7 @@
       <div id="gpa-trends" class="border-left">
         <div id="gpa-chart" class="ml-3">
           <div class="align-items-end d-flex justify-content-between">
-            <div class="gpa-trends-label text-uppercase font-weight-bold">
-              GPA Trends
-            </div>
+            <h4 class="font-weight-bold gpa-trends-label mb-1 text-uppercase">GPA Trends</h4>
             <b-btn
               v-if="!$_.isEmpty(student.termGpa)"
               id="show-hide-term-gpa-button"
