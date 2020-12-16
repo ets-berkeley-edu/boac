@@ -244,7 +244,7 @@
                 class="sr-only">
                 {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
               </span>
-              <span>{{ lastActivityDays(canvasSite.analytics) }}</span>
+              {{ lastActivityDays(canvasSite.analytics) }}
             </div>
             <div v-if="!$_.get(enrollment, 'canvasSites').length">
               <span class="sr-only">No data </span>&mdash;

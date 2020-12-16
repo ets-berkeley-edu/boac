@@ -12,7 +12,7 @@
         <router-link
           :id="`link-to-student-${admit.studentUid}`"
           :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)">
-          <span>View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page</span>
+          View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
         </router-link>
       </div>
       <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />

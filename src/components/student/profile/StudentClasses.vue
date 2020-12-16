@@ -252,7 +252,7 @@
             <div class="student-course-heading-start"></div>
             <div class="student-course-heading-end">
               <div class="student-course-heading-units-total">
-                <span>Total {{ term.enrolledUnits }}</span>
+                Total {{ term.enrolledUnits }}
                 <span class="sr-only">units</span>
                 <!--
                 TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.

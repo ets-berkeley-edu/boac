@@ -137,13 +137,11 @@ export default {
       type: Array
     }
   },
-  data() {
-    return {
-      fields: undefined,
-      sortBy: this.options.sortBy,
-      sortDescending: this.options.reverse
-    }
-  },
+  data: () => ({
+    fields: undefined,
+    sortBy: undefined,
+    sortDescending: undefined
+  }),
   watch: {
     sortBy() {
       this.onChangeSortBy()
@@ -153,24 +151,28 @@ export default {
     }
   },
   created() {
+    this.sortBy = this.options.sortBy
+    this.sortDescending = this.options.reverse
+
+    const sortable = this.students.length > 1
     this.fields = [
       {key: 'curated', label: ''},
       {key: 'avatar', label: '', class: 'pr-0'},
-      {key: 'lastName', label: 'Name', sortable: true},
-      {key: 'sid', label: 'SID', sortable: true}
+      {key: 'lastName', label: 'Name', sortable},
+      {key: 'sid', label: 'SID', sortable}
     ]
     if (this.options.compact) {
       this.fields = this.fields.concat([
-        {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
+        {key: 'alertCount', label: 'Alerts', sortable, class: 'alert-count text-right'}
       ])
     } else {
       this.fields = this.fields.concat([
-        {key: 'majors[0]', label: 'Major', sortable: true, class: 'truncate-with-ellipsis'},
-        {key: 'expectedGraduationTerm.id', label: 'Grad', sortable: true},
-        {key: 'term.enrolledUnits', label: 'Term units', sortable: true},
-        {key: 'cumulativeUnits', label: 'Units completed', sortable: true},
-        {key: 'cumulativeGPA', label: 'GPA', sortable: true},
-        {key: 'alertCount', label: 'Alerts', sortable: true, class: 'alert-count text-right'}
+        {key: 'majors[0]', label: 'Major', sortable, class: 'truncate-with-ellipsis'},
+        {key: 'expectedGraduationTerm.id', label: 'Grad', sortable},
+        {key: 'term.enrolledUnits', label: 'Term units', sortable},
+        {key: 'cumulativeUnits', label: 'Units completed', sortable},
+        {key: 'cumulativeGPA', label: 'GPA', sortable},
+        {key: 'alertCount', label: 'Alerts', sortable, class: 'alert-count text-right'}
       ])
     }
   },

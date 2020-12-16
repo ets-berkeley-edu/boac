@@ -27,42 +27,42 @@
 
       <template v-slot:cell(currentSir)="row">
         <span class="sr-only">S I R</span>
-        <span>{{ row.item.currentSir }}</span>
+        {{ row.item.currentSir }}
       </template>
 
       <template v-slot:cell(specialProgramCep)="row">
         <span class="sr-only">C E P</span>
-        <span>{{ row.item.specialProgramCep }}</span>
+        {{ row.item.specialProgramCep }}
       </template>
 
       <template v-slot:cell(reentryStatus)="row">
         <span class="sr-only">Re-entry</span>
-        <span>{{ row.item.reentryStatus }}</span>
+        {{ row.item.reentryStatus }}
       </template>
 
       <template v-slot:cell(firstGenerationCollege)="row">
         <span class="sr-only">First generation</span>
-        <span>{{ row.item.firstGenerationCollege }}</span>
+        {{ row.item.firstGenerationCollege }}
       </template>
 
       <template v-slot:cell(urem)="row">
         <span class="sr-only">U R E M</span>
-        <span>{{ row.item.urem }}</span>
+        {{ row.item.urem }}
       </template>
 
       <template v-slot:cell(applicationFeeWaiverFlag)="row">
         <span class="sr-only">Waiver</span>
-        <span>{{ row.item.applicationFeeWaiverFlag }}</span>
+        {{ row.item.applicationFeeWaiverFlag }}
       </template>
 
       <template v-slot:cell(residencyCategory)="row">
         <span class="sr-only">Residency</span>
-        <span>{{ row.item.residencyCategory }}</span>
+        {{ row.item.residencyCategory }}
       </template>
 
       <template v-slot:cell(freshmanOrTransfer)="row">
         <span class="sr-only">Freshman or Transfer</span>
-        <span>{{ row.item.freshmanOrTransfer }}</span>
+        {{ row.item.freshmanOrTransfer }}
       </template>
     </b-table>
   </div>

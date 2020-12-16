@@ -11,10 +11,12 @@
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
         block
-        class="shadow-none"
+        :class="{'shadow-none': !isOpen && !buttonHasFocus}"
         :pressed="null"
         variant="link"
         @click.prevent="fetchStudents"
+        @focus="buttonHasFocus = true"
+        @blur="buttonHasFocus = false"
       >
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
@@ -23,8 +25,8 @@
               <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
             <h3 class="page-section-header-sub m-0 text-wrap">
-              <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${keyword} ` }}</span>
-              <span>{{ group.name }}</span>
+              <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
+              {{ group.name }}
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
             </h3>
@@ -36,14 +38,14 @@
             <div
               v-if="!group.alertCount"
               class="pill-alerts pill-alerts-zero"
-              aria-label="`No issues for ${group.name}`"
+              :aria-label="`No issues for ${groupTypeName} '${group.name}'`"
             >
               0
             </div>
             <div
               v-if="group.alertCount"
               class="font-weight-normal pill-alerts pill-alerts-nonzero mb-1 pl-2 pr-2"
-              aria-label="`${group.alertCount} alerts for ${group.name}`"
+              :aria-label="`${group.alertCount} alerts for ${groupTypeName} '${group.name}'`"
             >
               {{ group.alertCount }}
             </div>
@@ -60,7 +62,7 @@
         <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
           Showing 50 students with a high number of alerts.
           <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
-            View all {{ group.totalStudentCount }} students in "{{ group.name }}"
+            View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
           </router-link>
         </div>
         <div class="pt-4">
@@ -72,11 +74,11 @@
       <div v-if="openAndLoaded" class="mb-3 ml-3">
         <router-link :id="`sortable-${keyword}-${group.id}-view-all`" :to="`/${keyword}/${group.id}`">
           <span v-if="group.totalStudentCount">
-            View <span>{{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}</span>
-            in "<span>{{ group.name }}</span>"
+            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
+            in {{ groupTypeName }} "{{ group.name }}"
           </span>
           <div v-if="!group.totalStudentCount" class="pt-3">
-            "<span>{{ group.name }}</span>" has 0 students
+            {{ $_.capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
           </div>
         </router-link>
       </div>
@@ -109,6 +111,8 @@ export default {
     }
   },
   data: () => ({
+    buttonHasFocus: false,
+    groupTypeName: undefined,
     isFetching: undefined,
     isOpen: undefined,
     keyword: undefined,
@@ -134,6 +138,7 @@ export default {
   },
   mounted() {
     this.keyword = this.isCohort ? 'cohort' : 'curated'
+    this.groupTypeName = this.isCohort ? 'cohort' : 'curated group'
   },
   methods: {
     fetchStudents() {
@@ -145,7 +150,7 @@ export default {
         apiCall(this.group.id).then(students => {
           this.studentsWithAlerts = students
           this.isFetching = false
-          this.alertScreenReader(`Loaded students with alerts who are in ${this.keyword} ${this.group.name}`)
+          this.alertScreenReader(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
           ga({
             id: this.group.id,
             name: this.group.name,
@@ -157,12 +162,6 @@ export default {
   }
 }
 </script>
-
-<style>
-.card-header .btn {
-  /*box-shadow: none !important;*/
-}
-</style>
 
 <style scoped>
 .bg-pale-blue {
