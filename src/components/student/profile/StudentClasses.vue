@@ -26,10 +26,9 @@
         :id="`academic-year-${$_.kebabCase(academicYear)}-toggle`"
         v-b-toggle="`academic-year-${$_.kebabCase(academicYear)}`"
         block
-        class="shadow-none background-light mb-3"
+        class="shadow-none background-light mb-2"
         :pressed="null"
-        variant="link"
-      >
+        variant="link">
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
             <div class="pr-3">
@@ -45,12 +44,11 @@
       </b-button>
       <b-collapse
         :id="`academic-year-${$_.kebabCase(academicYear)}`"
-        class="mr-3"
-      >
+        class="mr-3">
         <div
           v-for="(term, index) in terms"
-          :key="index"
-          class="student-term">
+          :key="index">
+          <StudentEnrollmentTerm :student="student" :term="term" />
           <div
             v-if="index === 0 && !student.hasCurrentTermEnrollments && ($config.currentEnrollmentTermId > parseInt(term.termId))"
             class="term-no-enrollments">
@@ -316,6 +314,7 @@ import Context from '@/mixins/Context'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
+import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
 import Util from '@/mixins/Util'
 
@@ -323,6 +322,7 @@ export default {
   name: 'StudentClasses',
   components: {
     StudentAcademicStanding,
+    StudentEnrollmentTerm,
     StudentWithdrawalCancel,
     StudentBoxplot
   },
