@@ -158,7 +158,7 @@ export default {
       const fields = this.$_.map(this.getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
-      this.alertScreenReader(`Exporting ${name} cohort`)
+      this.alertScreenReader(`Exporting cohort ${name}`)
       downloadCsv('admitted_students', name, [], fields).then(() => {
         this.exportEnabled = true
       })

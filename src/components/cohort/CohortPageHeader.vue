@@ -224,24 +224,24 @@ export default {
     beginRename() {
       this.name = this.cohortName
       this.setEditMode('rename')
-      this.alertScreenReader(`Renaming ${this.name} cohort`)
+      this.alertScreenReader(`Renaming cohort '${this.name}'`)
       this.putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
       this.showDeleteModal = false
-      this.alertScreenReader(`Cancel deletion of ${this.name} cohort`)
+      this.alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
     },
     cancelExportCohortModal() {
       this.showExportListModal = false
-      this.alertScreenReader(`Cancel export of ${this.name} cohort`)
+      this.alertScreenReader(`Cancel export of cohort '${this.name}'`)
     },
     cancelRename() {
       this.name = this.cohortName
       this.setEditMode(null)
-      this.alertScreenReader(`Cancel renaming of ${this.name} cohort`)
+      this.alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
     },
     cohortDelete() {
-      this.alertScreenReader(`Deleting ${this.name} cohort`)
+      this.alertScreenReader(`Deleting cohort '${this.name}'`)
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false
         this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete')
@@ -251,7 +251,7 @@ export default {
     exportCohort(csvColumnsSelected) {
       this.showExportListModal = false
       this.exportEnabled = false
-      this.alertScreenReader(`Exporting ${this.name} cohort`)
+      this.alertScreenReader(`Exporting cohort '${this.name}'`)
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
       })
@@ -276,7 +276,7 @@ export default {
         this.putFocusNextTick('rename-cohort-input')
       } else {
         this.renameCohort(this.name).then(() => {
-          this.alertScreenReader(`Saved new cohort name: ${this.name}`)
+          this.alertScreenReader(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
           this.putFocusNextTick('cohort-name')
           this.$ga.cohortEvent(this.cohortId, this.name, 'rename')
