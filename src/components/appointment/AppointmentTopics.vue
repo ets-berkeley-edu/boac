@@ -122,7 +122,7 @@ export default {
         this.setDisabled(topic, true)
         this.functionAdd(topic)
         // TODO: do not mutate prop
-        this.topics.sort()  // eslint-disable-line vue/no-mutating-props
+        this.topics.sort() // eslint-disable-line vue/no-mutating-props
         this.putFocusNextTick('add-topic-select-list')
         this.alertScreenReader(`"${topic}" added.`)
       }

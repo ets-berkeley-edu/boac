@@ -38,7 +38,7 @@
         @click="isCreateNoteModalOpen = true">
         <span class="m-1">
           <font-awesome icon="file-alt" />
-          New Note <span class="sr-only">for one or many students</span>
+          New Note
         </span>
       </b-btn>
       <CreateNoteModal

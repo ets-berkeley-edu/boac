@@ -28,7 +28,7 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 library.add(far, fas, faSpinner)
-Vue.component('font-awesome', FontAwesomeIcon)  // eslint-disable-line vue/component-definition-name-casing
+Vue.component('font-awesome', FontAwesomeIcon) // eslint-disable-line vue/component-definition-name-casing
 
 // Allow cookies in Access-Control requests
 axios.defaults.withCredentials = true

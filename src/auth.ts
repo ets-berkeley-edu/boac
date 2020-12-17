@@ -34,7 +34,7 @@ const isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE
 
 const isDirector = user => !!_.size(_.filter(user.departments, d => d.role === 'director'))
 
-const getSchedulerDeptCodes = user =>  _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code')
+const getSchedulerDeptCodes = user => _.map(_.filter(user.departments, d => d.role === 'scheduler'), 'code')
 
 export default {
   getSchedulerDeptCodes,
