@@ -138,75 +138,84 @@
                 </b-form-group>
                 <b-form-group label="Date Range">
                   <label
+                    id="note-filters-date-from-label"
                     for="search-options-note-filters-last-updated-from"
                     class="search-form-label">
                     <span class="sr-only">Date</span>
                     From
                   </label>
-                  <v-date-picker
-                    v-model="noteFilters.dateFrom"
-                    popover-visibility="focus"
-                    mode="single">
-                    <template v-slot="{inputValue, inputEvents}">
-                      <b-input-group>
-                        <b-form-input
-                          id="search-options-note-filters-last-updated-from"
-                          :value="inputValue"
-                          :formatter="dateFormat"
-                          type="text"
-                          name="note-filters-date-from"
-                          class="search-input-date"
-                          placeholder="MM/DD/YYYY"
-                          expanded
-                          lazy-formatter
-                          v-on="inputEvents"
-                        />
-                        <b-btn
-                          v-if="noteFilters.dateFrom"
-                          id="search-options-note-filters-last-updated-from-clear"
-                          class="search-input-date"
-                          @click="noteFilters.dateFrom = null">
-                          <font-awesome icon="times" />
-                          <span class="sr-only">Clear date from</span>
-                        </b-btn>
-                      </b-input-group>
-                    </template>
-                  </v-date-picker>
+                  <div class="d-flex">
+                    <div class="w-100">
+                      <v-date-picker
+                        v-model="noteFilters.dateFrom"
+                        :max-date="maxDate"
+                        mode="single"
+                        popover-visibility="focus"
+                      >
+                        <template v-slot="{inputValue, inputEvents}">
+                          <input
+                            id="search-options-note-filters-last-updated-from"
+                            aria-labelledby="note-filters-date-from-label"
+                            class="search-input-date form-control"
+                            name="note-filters-date-from"
+                            placeholder="MM/DD/YYYY"
+                            type="text"
+                            :value="inputValue"
+                            v-on="inputEvents"
+                          />
+                        </template>
+                      </v-date-picker>
+                    </div>
+                    <div v-if="noteFilters.dateFrom">
+                      <b-btn
+                        id="search-options-note-filters-last-updated-from-clear"
+                        class="search-input-date"
+                        @click="noteFilters.dateFrom = null">
+                        <font-awesome icon="times" />
+                        <span class="sr-only">Clear date from</span>
+                      </b-btn>
+                    </div>
+                  </div>
                   <label
+                    id="note-filters-date-to-label"
                     for="search-options-note-filters-last-updated-to"
                     class="search-form-label">
                     <span class="sr-only">Date</span>
                     To
                   </label>
-                  <v-date-picker
-                    v-model="noteFilters.dateTo"
-                    popover-visibility="focus"
-                    mode="single">
-                    <template v-slot="{inputValue, inputEvents}">
-                      <b-input-group>
-                        <b-form-input
-                          id="search-options-note-filters-last-updated-to"
-                          :value="inputValue"
-                          :formatter="dateFormat"
-                          type="text"
-                          name="note-filters-date-to"
-                          class="search-input-date"
-                          placeholder="MM/DD/YYYY"
-                          expanded
-                          lazy-formatter
-                          v-on="inputEvents"
-                        />
-                        <b-btn
-                          v-if="noteFilters.dateTo"
-                          id="search-options-note-filters-last-updated-to-clear"
-                          class="search-input-date"
-                          @click="noteFilters.dateTo = null">
-                          <font-awesome icon="times"></font-awesome>
-                          <span class="sr-only">Clear date to</span>
-                        </b-btn>
-                      </b-input-group>
-                    </template>
-                  </v-date-picker>
+                  <div class="d-flex">
+                    <div class="w-100">
+                      <v-date-picker
+                        v-model="noteFilters.dateTo"
+                        :max-date="maxDate"
+                        :min-date="noteFilters.dateFrom || minDate"
+                        mode="single"
+                        popover-visibility="focus"
+                      >
+                        <template v-slot="{inputValue, inputEvents}">
+                          <input
+                            id="search-options-note-filters-last-updated-to"
+                            aria-labelledby="note-filters-date-to-label"
+                            class="search-input-date form-control"
+                            name="note-filters-date-to"
+                            placeholder="MM/DD/YYYY"
+                            type="text"
+                            :value="inputValue"
+                            v-on="inputEvents"
+                          />
+                        </template>
+                      </v-date-picker>
+                    </div>
+                    <div v-if="noteFilters.dateTo">
+                      <b-btn
+                        id="search-options-note-filters-last-updated-to-clear"
+                        class="search-input-date"
+                        @click="noteFilters.dateTo = null">
+                        <font-awesome icon="times"></font-awesome>
+                        <span class="sr-only">Clear date to</span>
+                      </b-btn>
+                    </div>
+                  </div>
                   <b-form-invalid-feedback :state="validDateRange" class="search-panel-feedback">
                     <font-awesome icon="exclamation-triangle" class="text-warning pr-1" />
                     <span aria-live="polite" role="alert">
@@ -335,6 +344,8 @@ export default {
       includeStudents: this.domain.includes('students'),
       findAdvisorsByName: findAdvisorsByName,
       findStudentsByNameOrSid: findStudentsByNameOrSid,
+      maxDate: new Date(),
+      minDate: new Date('01/01/1900'),
       noteFilters: null,
       searchHistory: [],
       searchPhrase: null,
@@ -433,14 +444,6 @@ export default {
     document.addEventListener('click', this.hideError)
   },
   methods: {
-    dateFormat(value) {
-      const parsed = Date.parse(value)
-      if (isNaN(parsed)) {
-        return null
-      } else {
-        return this.dateString(parsed, 'MM/DD/YYYY')
-      }
-    },
     clearAuthorFilter() {
       this.noteFilters.author = null
     },

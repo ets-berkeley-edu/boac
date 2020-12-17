@@ -9,19 +9,21 @@
               <span class="sr-only">Date</span>
               From
             </label>
-            <v-date-picker v-model="fromDate" :max-date="toDate || maxDate" :min-date="minDate">
+            <v-date-picker
+              v-model="fromDate"
+              :max-date="toDate || maxDate"
+              :min-date="minDate"
+              popover-visibility="focus"
+            >
               <template v-slot="{inputValue, inputEvents}">
-                <b-input-group>
-                  <b-form-input
-                    id="alerts-log-export-from-date"
-                    class="date-input"
-                    :disabled="isDownloading"
-                    :formatter="dateFormat"
-                    :placeholder="dateInputFormat"
-                    :value="inputValue"
-                    v-on="inputEvents"
-                  />
-                </b-input-group>
+                <input
+                  id="alerts-log-export-from-date"
+                  class="date-input form-control"
+                  :disabled="isDownloading"
+                  :placeholder="dateInputFormat"
+                  :value="inputValue"
+                  v-on="inputEvents"
+                />
               </template>
             </v-date-picker>
           </div>
@@ -30,19 +32,21 @@
               <span class="sr-only">Date</span>
               To
             </label>
-            <v-date-picker v-model="toDate" :max-date="maxDate" :min-date="fromDate || minDate">
+            <v-date-picker
+              v-model="toDate"
+              :max-date="maxDate"
+              :min-date="fromDate || minDate"
+              popover-visibility="focus"
+            >
               <template v-slot="{inputValue, inputEvents}">
-                <b-input-group>
-                  <b-form-input
-                    id="alerts-log-export-to-date"
-                    class="date-input"
-                    :disabled="isDownloading"
-                    :formatter="dateFormat"
-                    :placeholder="dateInputFormat"
-                    :value="inputValue"
-                    v-on="inputEvents"
-                  />
-                </b-input-group>
+                <input
+                  id="alerts-log-export-to-date"
+                  class="date-input form-control"
+                  :disabled="isDownloading"
+                  :placeholder="dateInputFormat"
+                  :value="inputValue"
+                  v-on="inputEvents"
+                />
               </template>
             </v-date-picker>
           </div>
@@ -79,10 +83,6 @@ export default {
     toDate: undefined
   }),
   methods: {
-    dateFormat(value) {
-      const parsed = Date.parse(value)
-      return isNaN(parsed) ? null : this.$options.filters.moment(parsed, this.dateInputFormat)
-    },
     onSubmit() {
       this.isDownloading = true
       downloadAlertsCSV(
