@@ -1,6 +1,24 @@
 <template>
   <div id="student-terms-container" class="m-3">
-    <h2 class="student-section-header">Classes</h2>
+    <div>
+      <div class="d-inline mr-3">
+        <h2 class=" d-inline-block student-section-header">Classes </h2>
+      </div>
+      <div class="d-inline">
+        <b-link
+          id="sort-academic-year"
+          @click="setOrder"
+        > 
+          Sort academic year
+          <span v-if="currentOrder === 'asc' ">
+            <font-awesome icon="long-arrow-alt-down" />
+          </span>
+          <span v-if="currentOrder === 'desc' ">
+            <font-awesome icon="long-arrow-alt-up" />
+          </span>
+        </b-link>
+      </div>
+    </div>
     <div
       v-for="(terms, academicYear, yearIndex) in enrollmentTermsByYear"
       :key="yearIndex">
@@ -312,14 +330,25 @@ export default {
   props: {
     student: Object
   },
+  data: () => ({
+    currentOrder: undefined
+  }),
+  created () {
+    this.currentOrder = 'desc'
+  },
   computed: {
     enrollmentTermsByYear: function() {
-      return this.$_.groupBy(this.student.enrollmentTerms, 'academicYear')
-    }
+      let orderedTerms = this.$_.orderBy(this.student.enrollmentTerms, 'academicYear', this.currentOrder)
+      return this.$_.groupBy(orderedTerms, 'academicYear')
+    },
   },
   methods: {
     totalUnits(terms) {
       return this.$_.sumBy(terms, 'enrolledUnits')
+    },
+    setOrder() { 
+      this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
+      this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     }
   }
 }
