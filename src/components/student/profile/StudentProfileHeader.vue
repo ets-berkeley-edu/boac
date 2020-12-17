@@ -231,7 +231,7 @@ export default {
     plansMinorPartitionedByStatus() {
       return this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     }
-    
+
   },
   created() {
     this.isAscInactive = this.displayAsAscInactive(this.student)

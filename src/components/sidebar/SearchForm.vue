@@ -148,8 +148,7 @@
                     <div class="w-100">
                       <v-date-picker
                         v-model="noteFilters.dateFrom"
-                        :max-date="maxDate"
-                        mode="single"
+                        :max-date="noteFilters.dateTo || maxDate"
                         popover-visibility="focus"
                       >
                         <template v-slot="{inputValue, inputEvents}">
@@ -189,7 +188,6 @@
                         v-model="noteFilters.dateTo"
                         :max-date="maxDate"
                         :min-date="noteFilters.dateFrom || minDate"
-                        mode="single"
                         popover-visibility="focus"
                       >
                         <template v-slot="{inputValue, inputEvents}">

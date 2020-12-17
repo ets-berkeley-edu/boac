@@ -46,9 +46,7 @@
             @click="isCreateNoteModalOpen = true">
             <span class="m-1">
               <font-awesome icon="file-alt" />
-              <span class="sr-only">Create </span>
               New Note
-              <span class="sr-only">for {{ student.name }}</span>
             </span>
           </b-btn>
         </div>

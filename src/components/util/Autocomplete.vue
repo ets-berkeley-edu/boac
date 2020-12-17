@@ -130,7 +130,7 @@ export default {
       type: String
     },
     restrict: {
-      default: true,  // eslint-disable-line vue/no-boolean-default
+      default: true, // eslint-disable-line vue/no-boolean-default
       required: false,
       type: Boolean
     },

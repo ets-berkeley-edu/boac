@@ -63,7 +63,7 @@ export default {
       return {
         accessibility: {
           description: this.chartDescription,
-          enabled:true,
+          enabled: true,
           keyboardNavigation: {
             enabled: true
           }

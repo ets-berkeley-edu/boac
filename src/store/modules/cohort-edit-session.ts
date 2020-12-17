@@ -92,7 +92,7 @@ const mutations = {
       state.isModifiedSinceLastSearch = true
     }
   },
-  restoreOriginalFilters: (state: any) =>  state.filters = _.cloneDeep(state.originalFilters),
+  restoreOriginalFilters: (state: any) => state.filters = _.cloneDeep(state.originalFilters),
   setCurrentPage: (state: any, currentPage: number) => state.pagination.currentPage = currentPage,
   setDomain: (state: any, domain: string) => state.domain = domain,
   setModifiedSinceLastSearch: (state: any, value: boolean) => state.isModifiedSinceLastSearch = value,

@@ -137,7 +137,7 @@ export default {
     save() {
       this.isSaving = true
       // TODO: do not mutate prop
-      this.topic.topic = this.$_.trim(this.topic.topic)  // eslint-disable-line vue/no-mutating-props
+      this.topic.topic = this.$_.trim(this.topic.topic) // eslint-disable-line vue/no-mutating-props
       if (this.topic.id) {
         updateTopic(
           this.topic.id,

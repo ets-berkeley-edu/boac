@@ -2,13 +2,13 @@
   <div id="student-terms-container" class="m-3">
     <div>
       <div class="d-inline mr-3">
-        <h2 class=" d-inline-block student-section-header">Classes </h2>
+        <h2 class="d-inline-block student-section-header">Classes</h2>
       </div>
       <div class="d-inline">
         <b-link
           id="sort-academic-year"
           @click="setOrder"
-        > 
+        >
           Sort academic year
           <span v-if="currentOrder === 'asc' ">
             <font-awesome icon="long-arrow-alt-down" />
@@ -346,7 +346,7 @@ export default {
     totalUnits(terms) {
       return this.$_.sumBy(terms, 'enrolledUnits')
     },
-    setOrder() { 
+    setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
       this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     }

@@ -65,7 +65,7 @@ export default {
     getOptions() {
       return {
         accessibility: {
-          enabled:true,
+          enabled: true,
           keyboardNavigation: {
             enabled: true
           },

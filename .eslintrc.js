@@ -16,9 +16,12 @@ module.exports = {
   ],
   rules: {
     'eqeqeq': 2,
+    'key-spacing': 2,
     'multiline-html-element-content-newline': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-multi-spaces': 2,
+    'no-trailing-spaces': 2,
     'no-unexpected-multiline': 2,
     'quotes': [2, 'single'],
     'semi': [2, 'never'],

@@ -60,10 +60,10 @@ const mutations = {
     Object.assign(group, updatedGroup)
     Vue.prototype.$eventHub.emit('my-curated-groups-updated')
   },
-  dropInAdvisorAdded:(state: any, dropInAdvisor: any) => {
+  dropInAdvisorAdded: (state: any, dropInAdvisor: any) => {
     Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, dropInAdvisor)
   },
-  dropInAdvisorDeleted:(state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
+  dropInAdvisorDeleted: (state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
   loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
   loadMyAdmitCohorts: (state: any, cohorts: any[]) => state.myAdmitCohorts = cohorts,
   loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
