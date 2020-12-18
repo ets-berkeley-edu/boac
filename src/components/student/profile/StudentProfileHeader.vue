@@ -162,9 +162,11 @@
       <div>
         <b-btn
           id="show-hide-personal-details"
+          :aria-expanded="isShowingPersonalDetails"
           class="no-wrap"
           variant="link"
-          @click="isShowingPersonalDetails = !isShowingPersonalDetails">
+          @click="toggleShowDetails"
+        >
           <font-awesome :icon="isShowingPersonalDetails ? 'caret-down' : 'caret-right'" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
           {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
         </b-btn>
@@ -181,6 +183,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAvatar from '@/components/student/StudentAvatar'
@@ -198,7 +201,7 @@ export default {
     StudentPersonalDetails,
     StudentProfilePlan
   },
-  mixins: [StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   props: {
     student: {
       required: true,
@@ -248,6 +251,12 @@ export default {
   },
   mounted() {
     this.putFocusNextTick('student-name-header')
+  },
+  methods: {
+    toggleShowDetails() {
+      this.isShowingPersonalDetails = !this.isShowingPersonalDetails
+      this.alertScreenReader(`Student details are ${this.isShowingPersonalDetails ? 'showing' : 'hidden'}.`)
+    }
   }
 }
 </script>
