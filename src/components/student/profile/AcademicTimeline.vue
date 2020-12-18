@@ -176,7 +176,7 @@
               </div>
               <div v-if="$currentUser.isAdmin">
                 <b-btn
-                  id="delete-note-button"
+                  :id="`delete-note-button-${message.id}`"
                   :disabled="disableNewNoteButton"
                   variant="link"
                   class="p-0 edit-note-button"
@@ -543,6 +543,7 @@ export default {
     },
     cancelTheDelete() {
       this.alertScreenReader('Cancelled')
+      this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
     close(message, notifyScreenReader) {
