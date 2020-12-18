@@ -1,6 +1,10 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
-    <h2 id="create-note-modal-header" class="flex-grow-1 new-note-header font-weight-bolder">
+    <h2
+      id="create-note-modal-header"
+      class="flex-grow-1 new-note-header font-weight-bolder"
+      tabindex="-1"
+    >
       <span v-if="mode === 'editTemplate'">Edit Template</span>
       <span v-if="mode !== 'editTemplate'">New Note</span>
     </h2>
