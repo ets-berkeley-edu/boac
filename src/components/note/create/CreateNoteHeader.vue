@@ -10,13 +10,15 @@
         id="my-templates-button"
         :disabled="isSaving || boaSessionExpired"
         text="Templates"
-        aria-label="Select a note template"
         variant="primary"
         class="mb-2 ml-0"
-        right>
+        right
+        @show="onShowTemplatesMenu"
+        @hide="alertScreenReader('Templates menu closed.')"
+      >
         <b-dropdown-header v-if="!$_.size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
-          <div aria-live="polite" class="templates-dropdown-instructions" role="alert">
+          <div class="templates-dropdown-instructions">
             You have no saved templates.
           </div>
         </b-dropdown-header>
@@ -118,6 +120,7 @@ export default {
       this.targetTemplate = null
       this.putFocusNextTick('create-note-subject')
       this.setFocusLockDisabled(false)
+      this.alertScreenReader('Cancelled')
     },
     deleteTemplateConfirmed() {
       deleteNoteTemplate(this.targetTemplate.id).then(() => {
@@ -125,38 +128,49 @@ export default {
         this.setFocusLockDisabled(false)
         this.targetTemplate = null
         this.putFocusNextTick('create-note-subject')
+        this.alertScreenReader('Template deleted.')
       })
     },
     editTemplate(template) {
       this.setModel(this.$_.cloneDeep(template))
       this.setMode('editTemplate')
       this.putFocusNextTick('create-note-subject')
+      this.alertScreenReader(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
       this.setModel(this.$_.cloneDeep(template))
       this.putFocusNextTick('create-note-subject')
-      this.alertScreenReader(`Template ${template.title} loaded`)
+      this.alertScreenReader(`Template ${template.title} loaded.`)
+    },
+    onShowTemplatesMenu() {
+      let count = this.$_.size(this.noteTemplates)
+      const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
+      this.alertScreenReader(`Template menu open. You have ${suffix}.`)
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
       this.setFocusLockDisabled(true)
       this.showDeleteTemplateModal = true
+      this.alertScreenReader('Delete template modal opened.')
     },
     openRenameTemplateModal(template) {
       this.targetTemplate = template
       this.setFocusLockDisabled(true)
       this.showRenameTemplateModal = true
+      this.alertScreenReader('Rename template modal opened.')
     },
     renameTemplate(title) {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
         this.setFocusLockDisabled(false)
+        this.alertScreenReader(`Template renamed '${title}'.`)
       })
     },
     toggleShowRenameTemplateModal(show) {
       this.showRenameTemplateModal = show
       this.setFocusLockDisabled(show)
+      this.alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
     }
   }
 }
