@@ -1,6 +1,9 @@
 <template>
   <div v-if="options">
-    <highcharts id="student-chart-units-container" :options="options" />
+    <highcharts
+      id="student-chart-units-container"
+      class="student-chart-units-container"
+      :options="options" />
   </div>
 </template>
 
@@ -30,6 +33,7 @@ export default {
   methods: {
     getOptions() {
       const description = `${this.student.firstName} ${this.student.lastName} is currently enrolled in ${this.currentEnrolledUnits || 'zero'} units and has completed ${this.cumulativeUnits || '0'} units.`
+      const yMax = this.$_.max([140, this.currentEnrolledUnits + this.cumulativeUnits])
       return {
         accessibility: {
           description,
@@ -111,7 +115,7 @@ export default {
           distance: 16,
           headerFormat: '',
           hideDelay: 0,
-          outside: true,
+          outside: false,
           pointFormat: `
             <div class="units-chart-font-family w-100">
               <div class="align-items-center d-flex">
@@ -126,6 +130,12 @@ export default {
               </div>
             </div>
           `,
+          positioner: (w, h, point) => {
+            return {
+              x: point.plotX - 35,
+              y: point.plotY + 35
+            }
+          },
           style: {
             fontSize: '14px',
             whiteSpace: 'nowrap',
@@ -151,7 +161,7 @@ export default {
             enabled: true
           },
           min: 0,
-          max: 120,
+          max: yMax,
           gridLineColor: '#000000',
           tickInterval: 30,
           labels: {
@@ -181,6 +191,11 @@ export default {
 </script>
 
 <style>
+.student-chart-units-container,
+.student-chart-units-container .highcharts-container,
+.student-chart-units-container .highcharts-root {
+  overflow: visible !important;
+}
 .units-chart-font-family {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
