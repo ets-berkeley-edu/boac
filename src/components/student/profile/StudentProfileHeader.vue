@@ -149,7 +149,7 @@
             <h3 v-if="minorPlans.length === 1" class="student-profile-section-header mt-3">Minor</h3>
             <h3 v-if="minorPlans.length > 1" class="student-profile-section-header mt-3">Minors</h3>
             <div v-for="minorPlan in minorPlans" :key="minorPlan">
-              <div id="student-bio-degree-type">
+              <div id="student-bio-degree-type" class="font-weight-bolder">
                 {{ minorPlan + " UG" }}
               </div>
             </div>
