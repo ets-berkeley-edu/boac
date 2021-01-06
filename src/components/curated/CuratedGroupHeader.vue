@@ -190,7 +190,6 @@ import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import ExportListModal from '@/components/util/ExportListModal'
-import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
 import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated'
@@ -250,7 +249,7 @@ export default {
       deleteCuratedGroup(this.curatedGroupId)
         .then(() => {
           this.isDeleteModalOpen = false
-          router.push({ path: '/home' })
+          this.$router.push({ path: '/' }, this.$_.noop)
         })
         .catch(error => {
           this.error = error
