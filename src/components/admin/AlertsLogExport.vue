@@ -53,6 +53,7 @@
           <div class="pl-3">
             <b-button
               id="alerts-log-export-submit"
+              class="btn-primary-color-override"
               :disabled="isDownloading || !fromDate || !toDate"
               variant="primary"
               @click="onSubmit"

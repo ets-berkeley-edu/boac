@@ -327,7 +327,7 @@ export default {
       return userAutocomplete(q).then(results => this.$_.orderBy(results, 'label'))
     },
     become(uid) {
-      becomeUser(uid).then(() => (window.location.href = '/home'))
+      becomeUser(uid).then(() => window.location.href = '/')
     },
     canBecome(user) {
       const isNotMe = user.uid !== this.$currentUser.uid

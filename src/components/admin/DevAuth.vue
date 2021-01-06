@@ -67,7 +67,7 @@ export default {
         devAuthLogIn(uid, password).then(user => {
           if (user.isAuthenticated) {
             const redirect = this.$_.get(this.$router, 'currentRoute.query.redirect')
-            this.$router.push({ path: redirect || '/home' }, this.$_.noop)
+            this.$router.push({ path: redirect || '/' }, this.$_.noop)
           } else {
             this.reportError('Sorry, user is not authorized to use BOA.')
           }

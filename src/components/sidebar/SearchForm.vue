@@ -270,7 +270,7 @@
               <div>
                 <b-button
                   id="go-search"
-                  class="h-100 ml-1 mr-0"
+                  class="btn-primary-color-override h-100 ml-1 mr-0"
                   :disabled="validDateRange === false"
                   variant="primary"
                   @keypress="search"
