@@ -5,69 +5,40 @@
     class="d-flex flex-wrap">
     <div
       v-if="isExistingFilter"
-      :id="`existing-filter-${index}`"
+      :id="`existing-filter-${position}`"
       class="existing-filter-name px-2">
-      {{ filter.label.primary }}<span class="sr-only"> is filter number {{ index }}</span>
+      {{ filter.label.primary }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
-      <b-dropdown
+      <b-select
         id="new-filter-button"
-        :aria-labelledby="`new-filter-${index}-label`"
-        class="h-100"
-        menu-class="min-width-100"
-        no-caret
-        toggle-class="dd-override"
-        variant="link"
+        v-model="selectedFilter"
+        :aria-labelledby="`new-filter-${position}-label`"
+        class="select-menu"
+        @change="onSelectFilter"
       >
-        <template slot="button-content">
-          <div class="d-flex dropdown-width justify-content-between text-dark">
-            <div v-if="$_.get(filter.label, 'primary')">{{ filter.label.primary }}<span class="sr-only">is selected</span></div>
-            <div v-if="!$_.get(filter.label, 'primary')"><span class="sr-only">Select </span>New Filter</div>
-            <div class="ml-2">
-              <font-awesome :icon="isMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
-            </div>
-          </div>
+        <template v-if="!selectedFilter" #first>
+          <b-select-option :value="undefined">Select...</b-select-option>
         </template>
-        <b-dropdown-group
-          v-for="(category, mIndex) in menu"
-          :id="`primary-filter-group-${filterRowIndex}-${mIndex}`"
-          :key="mIndex"
+        <b-select-option-group
+          v-for="(optionGroup, gIndex) in filterOptionGroups"
+          :key="gIndex"
+          :label="labels[gIndex]"
         >
-          <div v-for="(subCategory, sIndex) in category" :key="subCategory.key">
-            <b-dropdown-item-button v-if="subCategory.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
-              '{{ subCategory.label.primary }}' is disabled.
-            </b-dropdown-item-button>
-            <b-dropdown-item-button
-              :id="`dropdown-primary-menuitem-${subCategory.key}-${filterRowIndex}`"
-              :aria-disabled="subCategory.disabled"
-              :aria-hidden="subCategory.disabled"
-              class="font-size-16 h-100"
-              :class="{
-                'pb-1': mIndex === menu.length - 1 && sIndex === category.length - 1,
-                'pt-1': !mIndex && !sIndex
-              }"
-              :disabled="subCategory.disabled"
-              @click="onSelectFilter(subCategory)"
-              @focusin.prevent.stop
-              @mouseover.prevent.stop
-            >
-              <span
-                :class="{
-                  'font-weight-light pointer-default text-muted': subCategory.disabled,
-                  'font-weight-normal text-dark': !subCategory.disabled
-                }"
-                class="font-size-16"
-              >
-                {{ subCategory.label.primary }}
-              </span>
-            </b-dropdown-item-button>
-          </div>
-          <b-dropdown-divider v-if="mIndex !== (menu.length - 1)" />
-        </b-dropdown-group>
-      </b-dropdown>
+          <b-select-option
+            v-for="option in optionGroup"
+            :id="`dropdown-primary-menuitem-${option.key}-${filterRowIndex}`"
+            :key="option.key"
+            :disabled="option.disabled"
+            :value="option"
+          >
+            {{ option.label.primary }}
+          </b-select-option>
+        </b-select-option-group>
+      </b-select>
     </div>
     <div v-if="!isModifyingFilter">
       <span class="sr-only">Selected filter value is </span>
@@ -77,92 +48,53 @@
     <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
       <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
       <div v-if="isUX('dropdown')">
-        <b-dropdown
+        <b-select
+          v-if="isGrouped(filter.options)"
           :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
+          v-model="selectedOption"
           :aria-labelledby="`filter-secondary-${filterRowIndex}-label`"
-          no-caret
-          toggle-class="dd-override"
-          variant="link"
-          @hidden="isSubMenuOpen = false"
-          @shown="isSubMenuOpen = true"
+          class="select-menu"
+          @change="onSelectFilterOption"
         >
-          <template slot="button-content">
-            <div class="d-flex dropdown-width justify-content-between text-dark">
-              <div v-if="filter.value" class="option-truncate text-left">
-                <span class="sr-only">Filter value is </span>
-                <span v-if="isUX('dropdown')">{{ getDropdownSelectedLabel() }}</span>
-                <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
-              </div>
-              <div v-if="!filter.value">Choose...<span class="sr-only"> filter value</span></div>
-              <div class="ml-2">
-                <font-awesome :icon="isSubMenuOpen ? 'angle-up' : 'angle-down'" class="menu-caret" />
-              </div>
-            </div>
-          </template>
-          <div v-if="isGrouped(filter.options)">
-            <div v-for="(options, name, gIndex) in groupObjectsBy(filter.options, 'group')" :key="name">
-              <b-dropdown-group :id="`${filter.label.primary}-dropdown-group-${name}`" :header="name">
-                <div v-for="(option, oIndex) in options" :key="option.key">
-                  <b-dropdown-item-button v-if="option.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
-                    '{{ option.name }}' is disabled.
-                  </b-dropdown-item-button>
-                  <b-dropdown-item-button
-                    v-if="option.value !== 'divider'"
-                    :id="`${filter.label.primary}-${option.value}`"
-                    :aria-disabled="option.disabled"
-                    class="h-100"
-                    :class="{
-                      'pb-1': gIndex === filter.options.length - 1 && oIndex === options.length - 1,
-                      'pt-1': !gIndex && !oIndex
-                    }"
-                    :disabled="option.disabled"
-                    @click="updateDropdownValue(option)"
-                    @focusin.prevent.stop
-                    @mouseover.prevent.stop>
-                    <div
-                      :class="{
-                        'font-weight-light pointer-default text-muted': option.disabled,
-                        'font-weight-normal text-dark': !option.disabled
-                      }"
-                      class="font-size-16 option-truncate">
-                      {{ option.name }}
-                    </div>
-                  </b-dropdown-item-button>
-                </div>
-              </b-dropdown-group>
-            </div>
-          </div>
-          <div v-if="!isGrouped(filter.options)">
-            <div v-for="(option, fIndex) in filter.options" :key="option.key">
-              <b-dropdown-item-button v-if="option.disabled" :aria-disabled="true" class="sr-only sr-only-focusable">
-                '{{ option.name }}' is disabled.
-              </b-dropdown-item-button>
-              <b-dropdown-item-button
-                v-if="option.value !== 'divider'"
-                :id="`${filter.label.primary}-${option.value}`"
-                :aria-disabled="option.disabled"
-                class="h-100"
-                :class="{
-                  'pb-1': fIndex === filter.options.length - 1,
-                  'pt-1': !fIndex
-                }"
-                :disabled="option.disabled"
-                @click="updateDropdownValue(option)"
-                @focusin.prevent.stop
-                @mouseover.prevent.stop>
-                <div
-                  :class="{
-                    'font-weight-light pointer-default text-muted': option.disabled,
-                    'font-weight-normal text-dark': !option.disabled
-                  }"
-                  class="font-size-16 option-truncate">
-                  {{ option.name }}
-                </div>
-              </b-dropdown-item-button>
-              <b-dropdown-divider v-if="option.value === 'divider'" />
-            </div>
-          </div>
-        </b-dropdown>
+          <b-select-option v-if="!selectedOption" :value="undefined">Select...</b-select-option>
+          <b-select-option-group
+            v-for="(options, label) in groupObjectsBy(filter.options, 'group')"
+            :id="`${filter.label.primary}-dropdown-group-${label}`"
+            :key="label"
+            :label="label"
+          >
+            <b-select-option
+              v-for="option in options"
+              :id="`${filter.label.primary}-${option.value}`"
+              :key="option.key"
+              :aria-disabled="option.disabled"
+              class="h-100"
+              :disabled="option.disabled"
+              :value="option"
+            >
+              {{ option.name }}
+            </b-select-option>
+          </b-select-option-group>
+        </b-select>
+        <b-select
+          v-if="!isGrouped(filter.options)"
+          :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
+          v-model="selectedOption"
+          :aria-labelledby="`filter-secondary-${filterRowIndex}-label`"
+          class="select-menu"
+          @change="onSelectFilterOption"
+        >
+          <b-select-option v-if="!selectedOption" :value="undefined">Select...</b-select-option>
+          <b-select-option
+            v-for="option in filter.options"
+            :id="`${filter.label.primary}-${option.value}`"
+            :key="option.key"
+            :disabled="option.disabled"
+            :value="option"
+          >
+            {{ option.name }}
+          </b-select-option>
+        </b-select>
       </div>
       <div v-if="isUX('range')" class="filter-range-container">
         <div class="filter-range-label-min">
@@ -170,12 +102,12 @@
         </div>
         <div>
           <span
-            :id="isExistingFilter ? `filter-range-min-${index}-label` : 'filter-range-min-label'"
+            :id="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
             class="sr-only">beginning of range</span>
           <input
             :id="idRangeMin"
             v-model="range.min"
-            :aria-labelledby="isExistingFilter ? `filter-range-min-${index}-label` : 'filter-range-min-label'"
+            :aria-labelledby="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
             class="filter-range-input" />
@@ -185,12 +117,12 @@
         </div>
         <div>
           <span
-            :id="isExistingFilter ? `filter-range-max-${index}-label` : 'filter-range-max-label'"
+            :id="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
             class="sr-only">end of range</span>
           <input
             :id="idRangeMax"
             v-model="range.max"
-            :aria-labelledby="isExistingFilter ? `filter-range-max-${index}-label` : 'filter-range-max-label'"
+            :aria-labelledby="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
             class="filter-range-input" />
@@ -205,7 +137,7 @@
         <b-popover
           v-if="$_.size(errorPerRangeInput)"
           :show="true"
-          :target="isExistingFilter ? `filter-range-max-${index}` : 'filter-range-max'"
+          :target="isExistingFilter ? `filter-range-max-${position}` : 'filter-range-max'"
           placement="top">
           <span class="has-error">{{ errorPerRangeInput }}</span>
         </b-popover>
@@ -236,7 +168,7 @@
       <div v-if="!isModifyingFilter" class="d-flex flex-row">
         <span v-if="!isUX('boolean')">
           <b-btn
-            :id="`edit-added-filter-${index}`"
+            :id="`edit-added-filter-${position}`"
             class="btn-cohort-added-filter pr-1"
             variant="link"
             size="sm"
@@ -245,7 +177,7 @@
           </b-btn> |
         </span>
         <b-btn
-          :id="`remove-added-filter-${index}`"
+          :id="`remove-added-filter-${position}`"
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
           size="sm"
@@ -255,7 +187,7 @@
       </div>
       <div v-if="isModifyingFilter" class="d-flex flex-row">
         <b-btn
-          :id="`update-added-filter-${index}`"
+          :id="`update-added-filter-${position}`"
           :disabled="disableUpdateButton"
           class="btn-primary-color-override"
           variant="primary"
@@ -264,7 +196,7 @@
           Update
         </b-btn>
         <b-btn
-          :id="`cancel-edit-added-filter-${index}`"
+          :id="`cancel-edit-added-filter-${position}`"
           class="btn-cohort-added-filter"
           variant="link"
           size="sm"
@@ -285,7 +217,7 @@ export default {
   name: 'FilterRow',
   mixins: [CohortEditSession, Context, Util],
   props: {
-    index: {
+    position: {
       default: undefined,
       required: false,
       type: Number
@@ -298,27 +230,36 @@ export default {
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: undefined,
-    isSubMenuOpen: false,
+    // TODO: Assign these labels server-side (see BOAC-3852)
+    labels: [
+      'Academic',
+      'Bio',
+      'Departmental',
+      'Advising',
+      'Other'
+    ],
     range: {
       min: undefined,
       max: undefined
     },
+    selectedFilter: undefined,
+    selectedOption: undefined,
     showAdd: false,
     showRow: true,
     valueOriginal: undefined
   }),
   computed: {
     filterRowIndex() {
-      return this.isExistingFilter ? this.index : 'new'
+      return this.isExistingFilter ? this.position : 'new'
     },
     idRangeMax() {
       return this.isExistingFilter
-        ? `filter-range-max-${this.index}`
+        ? `filter-range-max-${this.position}`
         : 'filter-range-max'
     },
     idRangeMin() {
       return this.isExistingFilter
-        ? `filter-range-min-${this.index}`
+        ? `filter-range-min-${this.position}`
         : 'filter-range-min'
     }
   },
@@ -336,7 +277,7 @@ export default {
         }
       } else if (newEditMode.match('edit-[0-9]+')) {
         if (this.isExistingFilter) {
-          if (newEditMode !== `edit-${this.index}`) {
+          if (newEditMode !== `edit-${this.position}`) {
             // We do not allow two rows to be in edit mode simultaneously. In this case, some other row is entering edit
             // mode so we effectively click cancel on this row.
             this.reset()
@@ -400,8 +341,8 @@ export default {
   },
   methods: {
     isGrouped: options => !!options['0'].group,
-    filterRowPrimaryDropdownId: index => `filter-row-dropdown-primary-${index}`,
-    filterRowSecondaryDropdownId: index => `filter-row-dropdown-secondary-${index}`,
+    filterRowPrimaryDropdownId: n => `filter-row-dropdown-primary-${n}`,
+    filterRowSecondaryDropdownId: n => `filter-row-dropdown-secondary-${n}`,
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
       const gpa = '0' + this.$_.trim(value)
@@ -450,14 +391,14 @@ export default {
     onClickEditButton() {
       this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
-        const category = this.$_.find(this.$_.flatten(this.menu), ['key', this.filter.key])
-        this.filter.options = category.options
+        const optionGroup = this.$_.find(this.$_.flatten(this.filterOptionGroups), ['key', this.filter.key])
+        this.filter.options = optionGroup.options
       } else if (this.isUX('range')) {
         this.range.min = this.filter.value.min
         this.range.max = this.filter.value.max
       }
       this.isModifyingFilter = true
-      this.setEditMode(`edit-${this.index}`)
+      this.setEditMode(`edit-${this.position}`)
       this.putFocusSecondaryDropdown()
       this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`)
     },
@@ -469,7 +410,7 @@ export default {
           max: isGPA ? this.formatGPA(this.range.max) : this.range.max
         }
       }
-      this.updateExistingFilter({index: this.index, updatedFilter: this.filter}).then(() => {
+      this.updateExistingFilter({index: this.position, updatedFilter: this.filter}).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
         let alert = `${this.filter.label.primary} filter updated`
@@ -477,30 +418,38 @@ export default {
         this.$ga.cohortEvent(this.cohortId, this.cohortName, alert)
       })
     },
-    onSelectFilter(filter) {
-      this.filter = this.$_.cloneDeep(filter)
-      this.showAdd = filter.type.ux === 'boolean'
-      this.alertScreenReader(`${filter.label.primary} selected`)
-      switch (filter.type.ux) {
-      case 'dropdown':
-        this.putFocusSecondaryDropdown()
-        break
-      case 'boolean':
+    onSelectFilter() {
+      this.selectedOption = undefined
+      this.filter = this.$_.cloneDeep(this.selectedFilter)
+      this.showAdd = this.$_.get(this.filter, 'type.ux') === 'boolean'
+      if (this.filter) {
+        this.alertScreenReader(`${this.filter.label.primary} selected`)
+        switch (this.filter.type.ux) {
+        case 'dropdown':
+          this.putFocusSecondaryDropdown()
+          break
+        case 'boolean':
+          this.putFocusNextTick('unsaved-filter-add')
+          break
+        case 'range':
+          this.putFocusNextTick(this.idRangeMin)
+          break
+        }
+      }
+    },
+    onSelectFilterOption() {
+      this.filter.value = this.$_.get(this.selectedOption, 'value')
+      this.showAdd = !!this.selectedOption
+      if (this.selectedOption) {
         this.putFocusNextTick('unsaved-filter-add')
-        break
-      case 'range':
-        this.putFocusNextTick(this.idRangeMin)
-        break
+        this.alertScreenReader(`${this.selectedOption.name} selected`)
       }
     },
     putFocusNewFilterDropdown() {
-      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'), 'button')
+      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'))
     },
     putFocusSecondaryDropdown() {
-      this.putFocusNextTick(
-        this.filterRowSecondaryDropdownId(this.filterRowIndex),
-        'button'
-      )
+      this.putFocusNextTick(this.filterRowSecondaryDropdownId(this.filterRowIndex))
     },
     rangeInputSize() {
       let maxLength = undefined
@@ -538,7 +487,7 @@ export default {
       return snippet
     },
     remove() {
-      this.removeFilter(this.index)
+      this.removeFilter(this.position)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
       let alert = `${this.filter.label.primary} filter removed`
@@ -546,27 +495,20 @@ export default {
       this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
     },
     reset() {
+      this.selectedFilter = this.selectedOption = undefined
       this.disableUpdateButton = false
       this.showAdd = false
       this.range = this.$_.mapValues(this.range, () => undefined)
-      if (this.$_.isNil(this.index)) {
+      if (this.$_.isNil(this.position)) {
         this.filter = {}
         this.isExistingFilter = false
         this.isModifyingFilter = true
       } else {
-        this.filter = this.$_.cloneDeep(this.filters[this.index])
+        this.filter = this.$_.cloneDeep(this.filters[this.position])
         this.isExistingFilter = true
         this.isModifyingFilter = false
       }
       this.putFocusNewFilterDropdown()
-    },
-    updateDropdownValue(option) {
-      if (option) {
-        this.filter.value = option.value
-        this.showAdd = true
-        this.putFocusNextTick('unsaved-filter-add')
-        this.alertScreenReader(`${option.name} selected`)
-      }
     }
   }
 }
@@ -578,8 +520,8 @@ export default {
   font-size: 0.8em;
   padding: 4px 1px 5px 5px;
 }
-.filter-row-column-01 .b-dropdown,
-.filter-row-column-02 .b-dropdown {
+.filter-row-column-01 .custom-select,
+.filter-row-column-02 .custom-select {
   background-color: #f3f3f3;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -593,27 +535,15 @@ export default {
   border-left: 6px solid #3b7ea5;
   flex: 0 0 240px;
 }
-.filter-row-column-01 .option-truncate {
-  width: 330px;
-}
-.filter-row-column-01 .dropdown-width {
-  width: 260px;
-}
 .filter-row-column-02 {
   flex: 0;
-}
-.filter-row-column-02 .option-truncate {
-  width: 340px;
-}
-.filter-row-column-02 .dropdown-width {
-  width: 320px;
 }
 .filter-row-column-03 {
   flex-basis: auto;
 }
 .filter-row-column-03 button {
   height: 40px;
-  margin-left: 10px;
+  margin-left: 12px;
   width: 80px;
 }
 .filter-row-column-04 {
@@ -621,7 +551,7 @@ export default {
   vertical-align: middle;
 }
 .filter-row-column-04 button {
-  margin: 8px 0 0 10px;
+  margin: 12px 0 0 12px;
 }
 .existing-filter-name {
   width: 260px;
@@ -643,18 +573,11 @@ export default {
   box-sizing: border-box;
   color: #333;
   font-size: 18px;
-  padding: 8px 15px 8px 17px;
+  padding: 6px 15px 6px 17px;
   text-transform: uppercase;
 }
-.menu-caret {
-  font-size: 22px;
-}
-.pointer-default {
-  cursor: default;
-}
-.option-truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.select-menu {
+  background-color: #fff;
+  width: 320px;
 }
 </style>

@@ -135,7 +135,8 @@ def grad_terms():
 
 def intended_majors():
     intended_major_results = [row['major'] for row in data_loch.get_intended_majors()]
-    return [{'name': major, 'value': major} for major in intended_major_results]
+    options = [{'name': major, 'value': major} for major in intended_major_results]
+    return list(filter(lambda o: o['value'], options))
 
 
 def level_options():

@@ -19,11 +19,11 @@ const state = {
   cohortOwnerUid: undefined,
   domain: undefined,
   editMode: undefined,
+  filterOptionGroups: undefined,
   filters: undefined,
   isCompactView: undefined,
   isModifiedSinceLastSearch: undefined,
   isOwnedByCurrentUser: undefined,
-  menu: undefined,
   orderBy: undefined,
   originalFilters: undefined,
   pagination: {
@@ -40,11 +40,11 @@ const getters = {
   cohortOwner: (state: any) => state.isOwnedByCurrentUser ? 'me' : state.cohortOwnerUid,
   domain: (state: any) => state.domain,
   editMode: (state: any) => state.editMode,
+  filterOptionGroups: (state: any): any[] => state.filterOptionGroups,
   filters: (state: any): any[] => state.filters,
   isCompactView: (state: any): boolean => state.isCompactView,
   isModifiedSinceLastSearch: (state: any): boolean => state.isModifiedSinceLastSearch,
   isOwnedByCurrentUser: (state: any): boolean => state.isOwnedByCurrentUser,
-  menu: (state: any): any[] => state.menu,
   pagination: (state: any) => state.pagination,
   showApplyButton: (state: any) => state.isModifiedSinceLastSearch === true && !!_.size(state.filters),
   showSaveButton: (state: any): boolean => state.isModifiedSinceLastSearch === false,
@@ -99,7 +99,7 @@ const mutations = {
   // Store an unmodified copy of the most recently applied filters in case of cancellation.
   stashOriginalFilters: (state: any) => state.originalFilters = _.cloneDeep(state.filters),
   toggleCompactView: (state: any) => state.isCompactView = !state.isCompactView,
-  updateMenu: (state: any, menu: any[]) => state.menu = menu,
+  updateMenu: (state: any, filterOptionGroups: any[]) => state.filterOptionGroups = filterOptionGroups,
   updateStudents: (state: any, { students, totalStudentCount }) => {
     state.students = students
     state.totalStudentCount = totalStudentCount
@@ -157,8 +157,8 @@ const actions = {
         } else {
           throw new TypeError('\'domain\' is required when creating a new cohort.')
         }
-        getCohortFilterOptions(state.domain, getters.cohortOwner(state), []).then(menu => {
-          commit('updateMenu', menu)
+        getCohortFilterOptions(state.domain, getters.cohortOwner(state), []).then(data => {
+          commit('updateMenu', data)
           commit('resetSession', {})
           commit('stashOriginalFilters')
           resolve()
@@ -170,8 +170,8 @@ const actions = {
     return new Promise(resolve => {
       commit('addFilter', filter)
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu)
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
+        commit('updateMenu', data)
         resolve()
       })
     })
@@ -225,8 +225,8 @@ const actions = {
               totalStudentCount: cohort.totalStudentCount
             })
             commit('stashOriginalFilters')
-            getCohortFilterOptions(state.domain, owner, filters).then(menu => {
-              commit('updateMenu', menu)
+            getCohortFilterOptions(state.domain, owner, filters).then(data => {
+              commit('updateMenu', data)
             })
             resolve()
           })
@@ -250,8 +250,8 @@ const actions = {
     return new Promise(resolve => {
       commit('removeFilter', index)
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu)
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
+        commit('updateMenu', data)
         resolve()
       })
     })
@@ -261,8 +261,8 @@ const actions = {
       commit('restoreOriginalFilters')
       commit('setEditMode', null)
       commit('setModifiedSinceLastSearch', false)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu)
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
+        commit('updateMenu', data)
         resolve()
       })
     })
@@ -299,8 +299,8 @@ const actions = {
     return new Promise(resolve => {
       commit('updateExistingFilter', { index, updatedFilter })
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(menu => {
-        commit('updateMenu', menu)
+      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
+        commit('updateMenu', data)
         resolve()
       })
     })

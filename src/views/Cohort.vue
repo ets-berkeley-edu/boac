@@ -11,8 +11,8 @@
         <FilterRow
           v-for="(filter, index) in filters"
           :key="filterRowUniqueKey(filter, index)"
-          :index="index"
-          class="filter-row" />
+          class="filter-row"
+          :position="index" />
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
