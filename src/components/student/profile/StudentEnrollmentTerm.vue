@@ -12,7 +12,7 @@
       :term-id="term.termId" />
     <div role="table">
       <div role="rowgroup">
-        <div role="row" class="student-course student-course-label student-course-header">
+        <div role="row" class="student-course-label student-course-header">
           <div role="columnheader" class="student-course-column-name">Course</div>
           <div role="columnheader" class="student-course-column-mid-grade">Mid</div>
           <div role="columnheader" class="student-course-column-final-grade">Final</div>
@@ -22,43 +22,12 @@
       <div role="rowgroup">
         <div
           v-for="(course, courseIndex) in term.enrollments"
-          :key="courseIndex"
-          role="row"
-          class="student-course">
-          <div role="cell" class="student-course-column-name">
-            <b-btn
-              v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending"
-              :id="`term-${term.termId}-course-${courseIndex}-toggle`"
-              v-b-toggle="`course-canvas-data-${term.termId}-${courseIndex}`"
-              class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
-              variant="link">
-              <span>{{ course.displayName }}</span>
-              <font-awesome icon="caret-right" class="student-course-collapse-icon when-course-closed mr-1" />
-              <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
-              <font-awesome icon="caret-down" class="student-course-collapse-icon when-course-open mr-1" />
-              <span class="when-course-open sr-only">Hide {{ course.displayName }} class details for {{ student.name }}</span>
-            </b-btn>
-          </div>
-          <div role="cell" class="student-course-column-mid-grade text-nowrap">
-            <span
-              v-if="course.midtermGrade"
-              v-accessible-grade="course.midtermGrade"></span>
-            <span
-              v-if="!course.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-          </div>
-          <div role="cell" class="student-course-column-final-grade text-nowrap">
-            <span
-              v-if="course.grade"
-              v-accessible-grade="course.grade"></span>
-            <span
-              v-if="!course.grade"
-              class="font-italic text-muted">{{ course.gradingBasis }}</span>
-            <span
-              v-if="!course.grade && !course.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-          </div>
-          <div role="cell" class="student-course-column-units text-nowrap">
-            {{ course.units }}
-          </div>
+          :key="courseIndex">
+          <StudentCourse
+            :course="course"
+            :index="courseIndex"
+            :student="student"
+            :term="term" />
         </div>
       </div>
     </div>
@@ -71,12 +40,26 @@
       <div :id="`term-${term.termId}-units`">
         <span class="student-course-label mr-1">Total Units: </span>{{ $_.get(term, 'enrolledUnits', 0) }}
       </div>
+      <div
+        v-if="!$_.isEmpty(term.droppedSections)"
+        class="student-course mt-3 pt-1"
+        is-open="true">
+        <div v-for="(droppedSection, dsIndex) in term.droppedSections" :key="dsIndex" class="ml-4">
+          <div class="font-weight-bold">
+            {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
+            <div class="student-course-notation">
+              <font-awesome icon="exclamation-triangle" class="student-course-dropped-icon" /> Dropped
+            </div>
+          </div>
+        </div>
+      </div>
     </b-card-footer>
   </b-card>
 </template>
 
 <script>
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
+import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
 import Util from '@/mixins/Util'
 
@@ -84,6 +67,7 @@ export default {
   name: 'StudentEnrollmentTerm',
   components: {
     StudentAcademicStanding,
+    StudentCourse,
     StudentWithdrawalCancel
   },
   mixins: [Util],
@@ -101,51 +85,16 @@ export default {
 </script>
 
 <style scoped>
-.collapsed > .when-course-open,
-:not(.collapsed) > .when-course-closed {
-  display: none;
-}
-.student-course {
-  display: flex;
-  flex-direction: row;
-  line-height: 1.1;
-  margin: 15px 0;
-  width: 100%;
-}
-.student-course-collapse-button {
-  color: #337ab7;
-  font-weight: bold;
-  height: 15px;
-  line-height: 1;
-  padding: 0;
-}
-.student-course-collapse-icon {
-  width: 15px;
-}
 .student-course-dropped-icon {
   color: #f0ad4e;
 }
-.student-course-footer {
-  margin: 5px 0;
-  padding: 10px 0;
-}
 .student-course-header {
   border-bottom: 1px #999 solid;
+  display: flex;
+  flex-direction: row;
+  line-height: 1.1;
   margin: 5px 0;
-  padding: 10px 0;
-}
-.student-course-column-name {
-  width: 65%;
-}
-.student-course-column-mid-grade {
-  width: 15%;
-}
-.student-course-column-final-grade {
-  width: 15%;
-}
-.student-course-column-units {
-  text-align: right;
-  width: 10%;
+  padding: 10px;
 }
 .student-course-label {
   color: #999;
@@ -168,5 +117,21 @@ export default {
   flex-direction: row;
   justify-content: space-between;
   padding: 5px 0 0;
+}
+</style>
+
+<style>
+.student-course-column-name {
+  width: 65%;
+}
+.student-course-column-mid-grade {
+  width: 15%;
+}
+.student-course-column-final-grade {
+  width: 15%;
+}
+.student-course-column-units {
+  text-align: right;
+  width: 10%;
 }
 </style>
