@@ -24,17 +24,6 @@ export default {
   methods: {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
     focusModalById: id => document.getElementById(id) && document.getElementById(id).focus(),
-    groupObjectsBy: (objects, property) => {
-      const groupings = {}
-      _.each(objects, object => {
-        const key = object[property]
-        if (!_.has(groupings, key)) {
-          groupings[key] = []
-        }
-        groupings[key].push(object)
-      })
-      return groupings
-    },
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin: arr => {

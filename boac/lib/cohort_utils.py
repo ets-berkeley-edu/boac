@@ -80,16 +80,16 @@ def academic_plans_for_cohort_owner(owner_uid):
 
 
 def academic_standing_options(min_term_id=0):
-    options = []
+    option_groups = {}
     for term_id in (r['term_id'] for r in data_loch.get_academic_standing_terms(min_term_id)):
         group = term_name_for_sis_id(term_id)
+        option_groups[group] = []
         for value, standing in ACADEMIC_STANDING_DESCRIPTIONS.items():
-            options.append({
-                'group': group,
+            option_groups[group].append({
                 'name': standing,
                 'value': f'{term_id}:{value}',
             })
-    return options
+    return option_groups
 
 
 def coe_gender_options():
@@ -126,12 +126,18 @@ def genders():
 
 
 def grad_terms():
-    term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]
-    terms = [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
     current_term_id_ = current_term_id()
-    for index, term in enumerate(terms):
-        term['group'] = 'Past' if term['value'] < current_term_id_ else 'Future'
-    return terms
+    option_groups = {
+        'Past': [],
+        'Future': [],
+    }
+    for term_id in [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]:
+        key = 'Past' if term_id < current_term_id_ else 'Future'
+        option_groups[key].append({
+            'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]),
+            'value': term_id,
+        })
+    return option_groups
 
 
 def intended_majors():

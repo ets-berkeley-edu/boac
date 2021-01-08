@@ -264,16 +264,22 @@ class CohortFilterOptions:
                 # Populate dropdown
                 selected_values = selected_values_per_key[key]
                 available_options = cohort_filter['options']
-                if len(available_options) == len(selected_values):
-                    # This filter has zero available options.
-                    cohort_filter['disabled'] = True
-                    for option in available_options:
-                        option['disabled'] = True
+                all_options_disabled = True
+                if isinstance(available_options, dict):
+                    for group_name, options in available_options.items():
+                        for option in options:
+                            if option.get('value') in selected_values:
+                                option['disabled'] = True
+                            all_options_disabled = all_options_disabled and option.get('disabled')
                 else:
                     for option in available_options:
                         if option.get('value') in selected_values:
-                            # Disable option
                             option['disabled'] = True
+                        all_options_disabled = all_options_disabled and option.get('disabled')
+
+                if all_options_disabled:
+                    cohort_filter['disabled'] = True
+
                 # When a filter value is 'Select all', don't allow a new filter to be created, but leave other
                 # options available so that existing filters can be edited.
                 if '*' in selected_values:
