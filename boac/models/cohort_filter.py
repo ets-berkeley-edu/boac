@@ -252,12 +252,13 @@ class CohortFilter(Base):
         c = self.filter_criteria
         c = c if isinstance(c, dict) else json.loads(c)
         user_uid = self.owner.uid if self.owner else None
-        for category in CohortFilterOptions(user_uid, scope_for_criteria()).get_all_filter_categories():
-            for filter_ in category:
-                key = filter_['key']
+        option_groups = CohortFilterOptions(user_uid, scope_for_criteria()).get_filter_option_groups()
+        for label, option_group in option_groups.items():
+            for option in option_group:
+                key = option['key']
                 if key in c:
                     value = c.get(key)
-                    if filter_['type']['db'] == 'boolean':
+                    if option['type']['db'] == 'boolean':
                         c[key] = util.to_bool_or_none(value)
                     else:
                         c[key] = value

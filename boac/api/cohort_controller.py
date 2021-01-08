@@ -343,7 +343,13 @@ def all_cohort_filter_options(cohort_owner_uid):
     domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    return tolerant_jsonify(CohortFilterOptions.get_cohort_filter_options(cohort_owner_uid, domain, existing_filters))
+    return tolerant_jsonify(
+        CohortFilterOptions.get_cohort_filter_option_groups(
+            cohort_owner_uid,
+            domain,
+            existing_filters,
+        ),
+    )
 
 
 @app.route('/api/cohort/translate_to_filter_options/<cohort_owner_uid>', methods=['POST'])
@@ -402,9 +408,10 @@ def _translate_filters_to_cohort_criteria(filters, domain):
 
 def _get_filter_db_type_per_key(domain):
     filter_type_per_key = {}
-    for category in CohortFilterOptions.get_cohort_filter_options(current_user.get_uid(), domain):
-        for _filter in category:
-            filter_type_per_key[_filter['key']] = _filter['type']['db']
+    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(current_user.get_uid(), domain)
+    for label, option_group in option_groups.items():
+        for option in option_group:
+            filter_type_per_key[option['key']] = option['type']['db']
     return filter_type_per_key
 
 

@@ -24,9 +24,9 @@
           <b-select-option :value="undefined">Select...</b-select-option>
         </template>
         <b-select-option-group
-          v-for="(optionGroup, gIndex) in filterOptionGroups"
+          v-for="(optionGroup, label, gIndex) in filterOptionGroups"
           :key="gIndex"
-          :label="labels[gIndex]"
+          :label="label"
         >
           <b-select-option
             v-for="option in optionGroup"
@@ -230,14 +230,6 @@ export default {
     isExistingFilter: undefined,
     isMenuOpen: false,
     isModifyingFilter: undefined,
-    // TODO: Assign these labels server-side (see BOAC-3852)
-    labels: [
-      'Academic',
-      'Bio',
-      'Departmental',
-      'Advising',
-      'Other'
-    ],
     range: {
       min: undefined,
       max: undefined
