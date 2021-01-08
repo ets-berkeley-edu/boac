@@ -1,9 +1,8 @@
 <template>
   <div class="student-course">
-    <div role="row" class="student-course-row" :class="{'student-course-expanded': detailsVisible}">
+    <div role="row" :class="{'student-course-expanded': detailsVisible}" class="student-course-row">
       <div role="cell" class="student-course-column-name">
         <b-btn
-          v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending"
           :id="`term-${term.termId}-course-${index}-toggle`"
           v-b-toggle="`course-details-${term.termId}-${index}`"
           class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
@@ -11,12 +10,18 @@
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`course-details-${term.termId}-${index}`"
           @click="detailsVisible = !detailsVisible">
-          <span>{{ course.displayName }}</span>
-          <font-awesome icon="caret-right" class="student-course-collapse-icon when-course-closed mr-1" />
+          <span class="mx-2">{{ course.displayName }}</span>
+          <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
-          <font-awesome icon="caret-down" class="student-course-collapse-icon when-course-open mr-1" />
+          <font-awesome icon="caret-down" class="caret when-course-open" />
           <span class="when-course-open sr-only">Hide {{ course.displayName }} class details for {{ student.name }}</span>
         </b-btn>
+        <div
+          v-if="course.waitlisted"
+          :id="`waitlisted-for-${term.termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
+          class="red-flag-status text-uppercase font-size-14 mt-1">
+          Waitlisted
+        </div>
       </div>
       <div role="cell" class="student-course-column-mid-grade text-nowrap">
         <span
@@ -178,7 +183,7 @@
             </tr>
           </table>
         </div>
-        <div v-if="$_.isEmpty(course.canvasSites)" class="student-bcourses-wrapper student-course-notation">
+        <div v-if="$_.isEmpty(course.canvasSites)" class="font-italic text-muted">
           No additional information
         </div>
       </div>
@@ -221,6 +226,9 @@ export default {
 </script>
 
 <style scoped>
+.caret {
+  width: 10px;
+}
 .collapsed > .when-course-open,
 .not-collapsed > .when-course-closed {
   display: none;
@@ -264,22 +272,21 @@ export default {
   line-height: 1;
   padding: 0;
 }
-.student-course-collapse-icon {
-  width: 15px;
-}
 .student-course-details {
   background-color: #f3fbff;
   border: 1px #ccc solid;
   border-top: none;
-  padding: 10px 10px 0 30px;
+  margin: 0 -11px;
+  padding: 10px 30px;
   position: relative;
-  top: -10px;
-  width: 100%;
-  z-index: 1;
+  top: -1px;
 }
 .student-course-expanded {
   background-color: #f3fbff;
   border: 1px #ccc solid;
+  margin: 0 -11px;
+  padding: 7px 10px!important;
+  z-index: 1;
 }
 .student-course-name {
   color: #666;
@@ -291,8 +298,7 @@ export default {
   display: flex;
   flex-direction: row;
   line-height: 1.1;
-  padding: 8px 10px;
-  width: 100%;
+  padding: 8px 0;
 }
 .student-course-sections {
   display: inline-block;
