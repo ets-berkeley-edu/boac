@@ -13,32 +13,16 @@
       v-if="isModifyingFilter && !isExistingFilter"
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
-      <b-select
-        id="new-filter-button"
-        v-model="selectedFilter"
-        :aria-labelledby="`new-filter-${position}-label`"
-        class="select-menu"
-        @change="onSelectFilter"
-      >
-        <template v-if="!selectedFilter" #first>
-          <b-select-option :value="undefined">Select...</b-select-option>
-        </template>
-        <b-select-option-group
-          v-for="(optionGroup, label, gIndex) in filterOptionGroups"
-          :key="gIndex"
-          :label="label"
-        >
-          <b-select-option
-            v-for="option in optionGroup"
-            :id="`dropdown-primary-menuitem-${option.key}-${filterRowIndex}`"
-            :key="option.key"
-            :disabled="option.disabled"
-            :value="option"
-          >
-            {{ option.label.primary }}
-          </b-select-option>
-        </b-select-option-group>
-      </b-select>
+      <FilterSelect
+        v-if="filterOptionGroups"
+        :filter-row-index="filterRowIndex"
+        :labelledby="`new-filter-${position}-label`"
+        :on-select-change="onSelectFilter"
+        :options="filterOptionGroups"
+        :set-model-object="value => (selectedFilter = value)"
+        type="primary"
+        :v-model-object="selectedFilter"
+      />
     </div>
     <div v-if="!isModifyingFilter">
       <span class="sr-only">Selected filter value is </span>
@@ -48,53 +32,15 @@
     <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
       <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
       <div v-if="isUX('dropdown')">
-        <b-select
-          v-if="isGrouped(filter.options)"
-          :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
-          v-model="selectedOption"
-          :aria-labelledby="`filter-secondary-${filterRowIndex}-label`"
-          class="select-menu"
-          @change="onSelectFilterOption"
-        >
-          <b-select-option v-if="!selectedOption" :value="undefined">Select...</b-select-option>
-          <b-select-option-group
-            v-for="(options, label) in groupObjectsBy(filter.options, 'group')"
-            :id="`${filter.label.primary}-dropdown-group-${label}`"
-            :key="label"
-            :label="label"
-          >
-            <b-select-option
-              v-for="option in options"
-              :id="`${filter.label.primary}-${option.value}`"
-              :key="option.key"
-              :aria-disabled="option.disabled"
-              class="h-100"
-              :disabled="option.disabled"
-              :value="option"
-            >
-              {{ option.name }}
-            </b-select-option>
-          </b-select-option-group>
-        </b-select>
-        <b-select
-          v-if="!isGrouped(filter.options)"
-          :id="`filter-row-dropdown-secondary-${filterRowIndex}`"
-          v-model="selectedOption"
-          :aria-labelledby="`filter-secondary-${filterRowIndex}-label`"
-          class="select-menu"
-          @change="onSelectFilterOption"
-        >
-          <b-select-option v-if="!selectedOption" :value="undefined">Select...</b-select-option>
-          <b-select-option
-            v-for="option in filter.options"
-            :id="`${filter.label.primary}-${option.value}`"
-            :key="option.key"
-            :disabled="option.disabled"
-            :value="option"
-          >
-            {{ option.name }}
-          </b-select-option>
-        </b-select>
+        <FilterSelect
+          :filter-row-index="filterRowIndex"
+          :labelledby="`filter-secondary-${filterRowIndex}-label`"
+          :on-select-change="onSelectFilterOption"
+          :options="filter.options"
+          :set-model-object="value => (selectedOption = value)"
+          type="secondary"
+          :v-model-object="selectedOption"
+        />
       </div>
       <div v-if="isUX('range')" class="filter-range-container">
         <div class="filter-range-label-min">
@@ -211,11 +157,13 @@
 <script>
 import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
+import FilterSelect from '@/components/cohort/FilterSelect'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'FilterRow',
   mixins: [CohortEditSession, Context, Util],
+  components: {FilterSelect},
   props: {
     position: {
       default: undefined,
@@ -332,7 +280,6 @@ export default {
     this.valueOriginal = this.filter && this.$_.cloneDeep(this.filter.value)
   },
   methods: {
-    isGrouped: options => !!options['0'].group,
     filterRowPrimaryDropdownId: n => `filter-row-dropdown-primary-${n}`,
     filterRowSecondaryDropdownId: n => `filter-row-dropdown-secondary-${n}`,
     formatGPA(value) {
@@ -341,9 +288,18 @@ export default {
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
-      const option = this.$_.find(this.filter.options, ['value', this.filter.value])
-      const label = this.$_.get(option, 'name')
-      return this.isGrouped(this.filter.options) ? `${label} (${option.group})` : label
+      if (Array.isArray(this.filter.options)) {
+        const option = this.$_.find(this.filter.options, ['value', this.filter.value])
+        return this.$_.get(option, 'name')
+      } else {
+        let label = ''
+        this.$_.each(this.filter.options, (options, group) => {
+          const option = this.$_.find(options, ['value', this.filter.value])
+          label = option && `${this.$_.get(option, 'name')} (${group})`
+          return !option
+        })
+        return label
+      }
     },
     isUX(type) {
       return this.$_.get(this.filter, 'type.ux') === type
@@ -567,9 +523,5 @@ export default {
   font-size: 18px;
   padding: 6px 15px 6px 17px;
   text-transform: uppercase;
-}
-.select-menu {
-  background-color: #fff;
-  width: 320px;
 }
 </style>

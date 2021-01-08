@@ -1741,7 +1741,8 @@ class TestCohortFilterOptions:
         entering_terms_filter = next((f for f in api_json['Academic'] if f['key'] == 'expectedGradTerms'), None)
         assert entering_terms_filter
         filter_options = entering_terms_filter.get('options')
-        assert [o['name'] for o in filter_options if o['group'] == 'Past'] == ['1997 Fall']
+        assert len(filter_options['Past']) == 1
+        assert filter_options['Past'][0]['name'] == '1997 Fall'
 
     def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):
         """User with no curated groups gets no cohort filter option where key='curatedGroupIds'."""
