@@ -45,8 +45,8 @@ class CohortFilterOptions:
         self.owner_uid = owner_uid
         self.scope = scope
 
-    def get_filter_options(self, domain, populate_options=True):
-        available_categories = []
+    def get_available_filter_option_groups(self, domain, populate_options=True):
+        option_groups = {}
 
         def is_available(d):
             if domain in [d['domain'], '*']:
@@ -63,16 +63,17 @@ class CohortFilterOptions:
             else:
                 return False
 
-        for category in self.get_all_filter_categories():
-            available_categories.append(list(filter(lambda d: is_available(d), category)))
-        # Remove unavailable (ie, empty) categories
-        return list(filter(lambda g: len(g), available_categories))
+        for label, option_group in self.get_filter_option_groups().items():
+            options = list(filter(lambda option: is_available(option), option_group))
+            if len(options):
+                option_groups[label] = options
+        return option_groups
 
-    def get_all_filter_categories(self):
+    def get_filter_option_groups(self):
         current_year = datetime.now().year
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
-        return [
-            [
+        return {
+            'Academic': [
                 _filter(
                     'academicStandings',
                     'Academic Standing',
@@ -92,13 +93,20 @@ class CohortFilterOptions:
                 _boolean_filter('transfer', 'Transfer Student'),
                 _filter('unitRanges', 'Units Completed', options=unit_range_options),
             ],
-            [
+            'Demographics': [
                 _filter('ethnicities', 'Ethnicity', options=ethnicities),
                 _filter('genders', 'Gender', options=genders),
+                _range_filter(
+                    'lastNameRanges',
+                    'Last Name',
+                    labels_range=['Initials', 'through'],
+                    label_min_equals_max='Starts with',
+                    validation='char',
+                ),
                 _boolean_filter('underrepresented', 'Underrepresented Minority'),
                 _filter('visaTypes', 'Visa Type', options=visa_types),
             ],
-            [
+            'Departmental (ASC)': [
                 _boolean_filter_asc(
                     'isInactiveAsc',
                     'Inactive (ASC)',
@@ -107,34 +115,24 @@ class CohortFilterOptions:
                 _boolean_filter('inIntensiveCohort', 'Intensive', available_to=['UWASC']),
                 _filter('groupCodes', 'Team', options=team_groups, available_to=['UWASC']),
             ],
-            [
+            'Departmental (COE)': [
                 _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
                 _filter('coeEpn', 'EPN Grading Option (COE)', options=get_coe_terms, available_to=['COENG']),
                 _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
                 _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
-                _boolean_filter_coe(
-                    'isInactiveCoe',
-                    'Inactive (COE)',
-                    default_value=False if 'COENG' in self.scope else None,
-                ),
-                _range_filter(
-                    'lastNameRanges',
-                    'Last Name',
-                    labels_range=['Initials', 'through'],
-                    label_min_equals_max='Starts with',
-                    validation='char',
-                ),
+                _boolean_filter_coe('isInactiveCoe', 'Inactive (COE)', default_value=False if 'COENG' in self.scope else None),
+                _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
+                _boolean_filter_coe('coeProbation', 'Probation'),
+                _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
+            ],
+            'Advising': [
                 _filter('curatedGroupIds', 'My Curated Groups', options=lambda: curated_groups(owner_user_id) if owner_user_id else None),
                 _filter(
                     'cohortOwnerAcademicPlans',
                     'My Students',
                     options=lambda: academic_plans_for_cohort_owner(self.owner_uid) if self.owner_uid else None,
                 ),
-                _filter('coePrepStatuses', 'PREP', options=coe_prep_status_options, available_to=['COENG']),
-                _boolean_filter_coe('coeProbation', 'Probation'),
-                _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
-            ],
-            [
+
                 _filter(
                     'freshmanOrTransfer',
                     'Freshman or Transfer',
@@ -199,25 +197,26 @@ class CohortFilterOptions:
                     options=student_admit_special_program_cep_options,
                 ),
             ],
-        ]
+        }
 
     @classmethod
     def translate_to_filter_options(cls, owner_uid, domain, criteria=None):
         # Transform cohort filter criteria in the database to a UX-compatible data structure.
         rows = []
         if criteria:
-            for category in cls(owner_uid, get_student_query_scope()).get_filter_options(domain):
-                for filter_option in category:
-                    selected = criteria.get(filter_option['key'])
+            option_groups = cls(owner_uid, get_student_query_scope()).get_available_filter_option_groups(domain)
+            for label, option_group in option_groups.items():
+                for option in option_group:
+                    selected = criteria.get(option['key'])
                     if selected is not None:
                         def _append_row(value_):
-                            clone = deepcopy(filter_option)
+                            clone = deepcopy(option)
                             row = {k: clone.get(k) for k in ['key', 'label', 'options', 'type', 'validation']}
                             row['value'] = value_
                             rows.append(row)
-                        filter_type = filter_option['type']['db']
+                        filter_type = option['type']['db']
                         if filter_type == 'string[]':
-                            all_options = filter_option.get('options')
+                            all_options = option.get('options')
                             for selection in selected:
                                 value = next((o.get('value') for o in all_options if o.get('value') == selection), None)
                                 if value:
@@ -232,16 +231,16 @@ class CohortFilterOptions:
         return rows
 
     @classmethod
-    def get_cohort_filter_options(cls, owner_uid, domain, existing_filters=()):
+    def get_cohort_filter_option_groups(cls, owner_uid, domain, existing_filters=()):
         # Disable filter options based on existing cohort criteria.
-        cohort_filter_options = cls(owner_uid, get_student_query_scope()).get_filter_options(domain)
+        option_groups = cls(owner_uid, get_student_query_scope()).get_available_filter_option_groups(domain)
         cohort_filter_per_key = {}
         filter_type_per_key = {}
-        for category in cohort_filter_options:
-            for filter_ in category:
-                _key = filter_['key']
-                cohort_filter_per_key[_key] = filter_
-                filter_type_per_key[_key] = filter_['type']['db']
+        for label, option_group in option_groups.items():
+            for option in option_group:
+                _key = option['key']
+                cohort_filter_per_key[_key] = option
+                filter_type_per_key[_key] = option['type']['db']
 
         selected_values_per_key = {}
         for existing_filter in existing_filters:
@@ -252,7 +251,7 @@ class CohortFilterOptions:
             selected_values_per_key[key].append(value)
 
         cls.populate_cohort_filter_options(cohort_filter_per_key, selected_values_per_key)
-        return cohort_filter_options
+        return option_groups
 
     @classmethod
     def populate_cohort_filter_options(cls, cohort_filter_per_key, selected_values_per_key):

@@ -128,8 +128,9 @@ def genders():
 def grad_terms():
     term_ids = [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]
     terms = [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
-    first_previous_term_index = next((i for i, term in enumerate(terms) if term['value'] < current_term_id()), None)
-    terms.insert(first_previous_term_index, {'name': 'divider', 'value': 'divider'})
+    current_term_id_ = current_term_id()
+    for index, term in enumerate(terms):
+        term['group'] = 'Past' if term['value'] < current_term_id_ else 'Future'
     return terms
 
 

@@ -1596,32 +1596,25 @@ class TestCohortFilterOptions:
 
     def test_filter_options_with_nothing_disabled(self, client, coe_advisor_login):
         """Menu API with all menu options available."""
-        api_json = self._api_cohort_filter_options(
-            client,
-            {
-                'existingFilters': [],
-            },
-        )
-        for category in api_json:
-            for menu in category:
-                assert 'disabled' not in menu
-                if menu['type']['ux'] == 'dropdown':
-                    for option in menu['options']:
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        for label, option_group in api_json.items():
+            for entry in option_group:
+                assert 'disabled' not in entry
+                if entry['type']['ux'] == 'dropdown':
+                    for option in entry['options']:
                         assert 'disabled' not in option
 
     def test_filter_options_for_guest_user(self, client, guest_user_login):
         """Filter options available to GUEST user."""
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         assert len(api_json)
-        assert len(api_json[0])
-        assert 'options' in api_json[0][0]
+        assert 'options' in list(api_json.values())[0][0]
 
     def test_filter_options_for_user_of_type_other(self, client, zzzzz_user_login):
         """Filter options available to ZZZZZ user."""
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         assert len(api_json)
-        assert len(api_json[0])
-        assert 'options' in api_json[0][0]
+        assert 'options' in list(api_json.values())[0][0]
 
     def test_filter_options_my_students_for_me(self, client, coe_advisor_login):
         """Returns user's own academic plans under 'My Students'."""
@@ -1631,7 +1624,7 @@ class TestCohortFilterOptions:
                 'existingFilters': [],
             },
         )
-        my_students = next(opt for group in api_json for opt in group if opt['label']['primary'] == 'My Students')
+        my_students = next(opt for label, group in api_json.items() for opt in group if opt['label']['primary'] == 'My Students')
         assert len(my_students['options']) == 5
         assert {'name': 'All plans', 'value': '*'} in my_students['options']
         assert {'name': 'Bioengineering BS', 'value': '16288U'} in my_students['options']
@@ -1648,7 +1641,7 @@ class TestCohortFilterOptions:
             },
             asc_advisor_uid,
         )
-        my_students = next(opt for group in api_json for opt in group if opt['label']['primary'] == 'My Students')
+        my_students = next(opt for label, group in api_json.items() for opt in group if opt['label']['primary'] == 'My Students')
         assert len(my_students['options']) == 4
         assert {'name': 'All plans', 'value': '*'} in my_students['options']
         assert {'name': 'English BA', 'value': '25345U'} in my_students['options']
@@ -1666,13 +1659,13 @@ class TestCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 3
-        for category in api_json:
-            for menu in category:
-                if menu['key'] == 'coeProbation':
-                    assert menu['disabled'] is True
+        assert len(api_json.keys())
+        for label, option_group in api_json.items():
+            for entry in option_group:
+                if entry['key'] == 'coeProbation':
+                    assert entry['disabled'] is True
                 else:
-                    assert 'disabled' not in menu
+                    assert 'disabled' not in entry
 
     def test_filter_options_with_one_disabled(self, client, coe_advisor_login):
         """The 'Freshman' sub-menu option is disabled if it is already in cohort filter set."""
@@ -1688,14 +1681,14 @@ class TestCohortFilterOptions:
                     ],
             },
         )
-        assert len(api_json) == 3
+        assert len(api_json.keys())
         assertion_count = 0
-        for category in api_json:
-            for menu in category:
+        for label, opt_group in api_json.items():
+            for entry in opt_group:
                 # All top-level category menus are enabled
-                assert 'disabled' not in menu
-                if menu['key'] == 'levels':
-                    for option in menu['options']:
+                assert 'disabled' not in entry
+                if entry['key'] == 'levels':
+                    for option in entry['options']:
                         disabled = option.get('disabled')
                         if option['value'] in ['Freshman', 'Sophomore', 'Junior']:
                             assert disabled is True
@@ -1703,7 +1696,7 @@ class TestCohortFilterOptions:
                         else:
                             assert disabled is None
                 else:
-                    assert 'disabled' not in menu
+                    assert 'disabled' not in entry
         assert assertion_count == 3
 
     def test_all_options_in_category_disabled(self, client, coe_advisor_login):
@@ -1722,22 +1715,22 @@ class TestCohortFilterOptions:
                     ],
             },
         )
-        for category in api_json:
-            for menu in category:
-                if menu['key'] == 'cohortOwnerAcademicPlans':
-                    assert menu.get('disabled') is True
-                elif menu['key'] == 'levels':
-                    assert menu.get('disabled') is True
-                    for option in menu['options']:
+        for label, option_group in api_json.items():
+            for entry in option_group:
+                if entry['key'] == 'cohortOwnerAcademicPlans':
+                    assert entry.get('disabled') is True
+                elif entry['key'] == 'levels':
+                    assert entry.get('disabled') is True
+                    for option in entry['options']:
                         assert option.get('disabled') is True
-                elif menu['key'] == 'visaTypes':
-                    assert menu.get('disabled') is True
+                elif entry['key'] == 'visaTypes':
+                    assert entry.get('disabled') is True
                 else:
-                    assert 'disabled' not in menu
+                    assert 'disabled' not in entry
 
     def test_range_of_entering_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        entering_terms_filter = next((f for f in api_json[0] if f['key'] == 'enteringTerms'), None)
+        entering_terms_filter = next((f for f in api_json['Academic'] if f['key'] == 'enteringTerms'), None)
         assert entering_terms_filter
         filter_options = entering_terms_filter.get('options')
         assert len(filter_options) == 4
@@ -1745,10 +1738,10 @@ class TestCohortFilterOptions:
 
     def test_range_of_expected_grad_terms(self, client, guest_user_login):
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
-        entering_terms_filter = next((f for f in api_json[0] if f['key'] == 'expectedGradTerms'), None)
+        entering_terms_filter = next((f for f in api_json['Academic'] if f['key'] == 'expectedGradTerms'), None)
         assert entering_terms_filter
         filter_options = entering_terms_filter.get('options')
-        assert [o['name'] for o in filter_options[-3:]] == ['2019 Spring', 'divider', '1997 Fall']
+        assert [o['name'] for o in filter_options if o['group'] == 'Past'] == ['1997 Fall']
 
     def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):
         """User with no curated groups gets no cohort filter option where key='curatedGroupIds'."""
@@ -1756,8 +1749,8 @@ class TestCohortFilterOptions:
         assert not CuratedGroup.get_curated_groups_by_owner_id(user_id)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         verified = False
-        for category in api_json:
-            for filter_ in category:
+        for label, option_group in api_json.items():
+            for filter_ in option_group:
                 if filter_['key'] == 'curatedGroupIds':
                     assert filter_['disabled'] is True
                     verified = True
@@ -1805,13 +1798,12 @@ class TestCohortFilterOptions:
                     'existingFilters': [],
                 },
             )
-            assert len(api_json) == 1
-            assert len(api_json[0]) > 1
-            for category in api_json:
-                for filter_ in category:
+            assert len(api_json)
+            for label, option_group in api_json.items():
+                for entry in option_group:
                     # Verify the 'default' filters are not present.
-                    assert 'unitRanges' != filter_['key']
-                    assert filter_['domain'] == 'admitted_students'
+                    assert 'unitRanges' != entry['key']
+                    assert entry['domain'] == 'admitted_students'
 
 
 class TestTranslateToFilterOptions:
