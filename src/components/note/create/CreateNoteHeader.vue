@@ -12,11 +12,12 @@
       <b-dropdown
         v-if="mode !== 'editTemplate'"
         id="my-templates-button"
-        :disabled="isSaving || boaSessionExpired"
-        text="Templates"
-        variant="primary"
         class="mb-2 ml-0"
+        :disabled="isSaving || boaSessionExpired"
         right
+        text="Templates"
+        toggle-class="btn-primary-color-override"
+        variant="primary"
         @show="onShowTemplatesMenu"
         @hide="alertScreenReader('Templates menu closed.')"
       >
