@@ -14,7 +14,6 @@
       :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
       <FilterSelect
-        v-if="filterOptionGroups"
         :filter-row-index="filterRowIndex"
         :labelledby="`new-filter-${position}-label`"
         :on-select-change="onSelectFilter"
