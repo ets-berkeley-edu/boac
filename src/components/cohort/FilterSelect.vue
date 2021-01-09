@@ -2,7 +2,7 @@
   <div>
     <b-select
       v-if="hasOptGroups(options)"
-      :id="`filter-dropdown-${type}-${filterRowIndex}`"
+      :id="`filter-select-${type}-${filterRowIndex}`"
       v-model="vModelProxy"
       :aria-labelledby="labelledby"
       class="select-menu"

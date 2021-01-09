@@ -243,5 +243,6 @@ export default {
   align-items: center;
   background-color: #f3f3f3;
   border-left: 6px solid #3b7ea5 !important;
+  min-height: 46px;
 }
 </style>
