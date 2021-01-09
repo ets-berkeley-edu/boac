@@ -17,7 +17,7 @@
         :filter-row-index="filterRowIndex"
         :labelledby="`new-filter-${position}-label`"
         :on-select-change="onSelectFilter"
-        :options="filterOptionGroups"
+        :options="prepareFilterOptionGroups()"
         :set-model-object="value => (selectedFilter = value)"
         type="primary"
         :v-model-object="selectedFilter"
@@ -391,6 +391,11 @@ export default {
         this.putFocusNextTick('unsaved-filter-add')
         this.alertScreenReader(`${this.selectedOption.name} selected`)
       }
+    },
+    prepareFilterOptionGroups() {
+      // If we have only one option-group then flatten the object to an array of options.
+      const flatten = this.$_.size(this.filterOptionGroups) === 1
+      return flatten ? this.$_.values(this.filterOptionGroups)[0] : this.filterOptionGroups
     },
     putFocusNewFilterDropdown() {
       this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'))
