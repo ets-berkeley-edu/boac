@@ -104,7 +104,7 @@ export default {
 <style scoped>
 .select-menu {
   background-color: #fff;
-  height: 42px;
+  height: 44px;
   width: 320px;
 }
 </style>
