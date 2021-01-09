@@ -13,6 +13,42 @@ import store from '@/store'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
+export function $_applyFilters({ commit, state }, orderBy: string) {
+  return new Promise(resolve => {
+    if (!_.get(state.filters, 'length')) {
+      return resolve()
+    }
+    commit('setEditMode', 'apply')
+    const limit = state.pagination.itemsPerPage
+    const offset = (state.pagination.currentPage - 1) * limit
+    const done = data => {
+      commit('updateStudents', {
+        students: data.students,
+        totalStudentCount: data.totalStudentCount
+      })
+      commit('stashOriginalFilters')
+      commit('setEditMode', null)
+      resolve()
+    }
+    const isReadOnly = state.cohortId && !state.isOwnedByCurrentUser
+    if (isReadOnly) {
+      getCohort(state.cohortId, true, limit, offset, orderBy).then(done)
+    } else {
+      getStudentsPerFilters(state.domain, state.filters, orderBy, offset, limit).then(done)
+    }
+  })
+}
+
+export function $_updateFilterOptions(commit, domain: string, owner: string, existingFilters: any[]) {
+  return new Promise(resolve => {
+    commit('updateFilterOptions', undefined)
+    getCohortFilterOptions(domain, owner, existingFilters).then(data => {
+      commit('updateFilterOptions', data)
+      resolve()
+    })
+  })
+}
+
 const state = {
   cohortId: undefined,
   cohortName: undefined,
@@ -99,7 +135,7 @@ const mutations = {
   // Store an unmodified copy of the most recently applied filters in case of cancellation.
   stashOriginalFilters: (state: any) => state.originalFilters = _.cloneDeep(state.filters),
   toggleCompactView: (state: any) => state.isCompactView = !state.isCompactView,
-  updateMenu: (state: any, filterOptionGroups: any[]) => state.filterOptionGroups = filterOptionGroups,
+  updateFilterOptions: (state: any, filterOptionGroups: any[]) => state.filterOptionGroups = filterOptionGroups,
   updateStudents: (state: any, { students, totalStudentCount }) => {
     state.students = students
     state.totalStudentCount = totalStudentCount
@@ -108,32 +144,6 @@ const mutations = {
     state.filters[index] = updatedFilter
     state.isModifiedSinceLastSearch = true
   }
-}
-
-export function $_cohortEditSession_applyFilters({ commit, state }, orderBy: string) {
-  return new Promise(resolve => {
-    if (!_.get(state.filters, 'length')) {
-      return resolve()
-    }
-    commit('setEditMode', 'apply')
-    const limit = state.pagination.itemsPerPage
-    const offset = (state.pagination.currentPage - 1) * limit
-    const done = data => {
-      commit('updateStudents', {
-        students: data.students,
-        totalStudentCount: data.totalStudentCount
-      })
-      commit('stashOriginalFilters')
-      commit('setEditMode', null)
-      resolve()
-    }
-    const isReadOnly = state.cohortId && !state.isOwnedByCurrentUser
-    if (isReadOnly) {
-      getCohort(state.cohortId, true, limit, offset, orderBy).then(done)
-    } else {
-      getStudentsPerFilters(state.domain, state.filters, orderBy, offset, limit).then(done)
-    }
-  })
 }
 
 const actions = {
@@ -157,8 +167,7 @@ const actions = {
         } else {
           throw new TypeError('\'domain\' is required when creating a new cohort.')
         }
-        getCohortFilterOptions(state.domain, getters.cohortOwner(state), []).then(data => {
-          commit('updateMenu', data)
+        $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), []).then(() => {
           commit('resetSession', {})
           commit('stashOriginalFilters')
           resolve()
@@ -170,19 +179,16 @@ const actions = {
     return new Promise(resolve => {
       commit('addFilter', filter)
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
-        commit('updateMenu', data)
-        resolve()
-      })
+      $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), state.filters).then(resolve)
     })
   },
   onPageNumberChange: ({ commit, state }) => {
     const preferences = store.getters['currentUserExtras/preferences']
-    return $_cohortEditSession_applyFilters({ commit, state }, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'))
+    return $_applyFilters({ commit, state }, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'))
   },
   applyFilters: ({ commit, state }, orderBy: string) => {
     commit('setModifiedSinceLastSearch', false)
-    return $_cohortEditSession_applyFilters({ commit, state }, orderBy)
+    return $_applyFilters({ commit, state }, orderBy)
   },
   createCohort: ({ commit, state }, name: string) => {
     return new Promise(resolve => {
@@ -225,10 +231,7 @@ const actions = {
               totalStudentCount: cohort.totalStudentCount
             })
             commit('stashOriginalFilters')
-            getCohortFilterOptions(state.domain, owner, filters).then(data => {
-              commit('updateMenu', data)
-            })
-            resolve()
+            $_updateFilterOptions(commit, state.domain, owner, filters).then(resolve)
           })
         } else {
           router.push({ path: '/404' })
@@ -250,10 +253,7 @@ const actions = {
     return new Promise(resolve => {
       commit('removeFilter', index)
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
-        commit('updateMenu', data)
-        resolve()
-      })
+      $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), state.filters).then(resolve)
     })
   },
   resetFiltersToLastApply: ({ commit, state }) => {
@@ -261,10 +261,7 @@ const actions = {
       commit('restoreOriginalFilters')
       commit('setEditMode', null)
       commit('setModifiedSinceLastSearch', false)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
-        commit('updateMenu', data)
-        resolve()
-      })
+      $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), state.filters).then(resolve)
     })
   },
   resetFiltersToSaved: ({ commit, state }, cohortId) => {
@@ -299,10 +296,7 @@ const actions = {
     return new Promise(resolve => {
       commit('updateExistingFilter', { index, updatedFilter })
       commit('setModifiedSinceLastSearch', true)
-      getCohortFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(data => {
-        commit('updateMenu', data)
-        resolve()
-      })
+      $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), state.filters).then(resolve)
     })
   },
   toggleCompactView: ({ commit }) => commit('toggleCompactView')

@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from copy import copy, deepcopy
 from datetime import datetime
 
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, sis_term_id_for_name
+from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
     get_coe_profiles, get_coe_terms, grad_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
@@ -50,7 +50,9 @@ class CohortFilterOptions:
 
         def is_available(d):
             if domain in [d['domain'], '*']:
-                available = 'ADMIN' in self.scope or next((dept_code for dept_code in d['availableTo'] if dept_code in self.scope), False)
+                available = 'ADMIN' in self.scope \
+                            or d['availableTo'] == '*' \
+                            or next((dept_code for dept_code in d['availableTo'] if dept_code in self.scope), False)
                 if available and populate_options and 'options' in d:
                     # If it is available then populate menu options
                     options = d.pop('options')
@@ -300,7 +302,7 @@ def _filter(
         validation=None,
 ):
     return {
-        'availableTo': available_to or tuple(BERKELEY_DEPT_CODE_TO_NAME.keys()),
+        'availableTo': available_to or '*',
         'defaultValue': default_value,
         'domain': domain_,
         'key': key,

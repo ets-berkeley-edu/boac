@@ -1,11 +1,12 @@
 <template>
-  <div v-if="options">
+  <div>
     <b-select
       v-if="hasOptGroups(options)"
       :id="`filter-dropdown-${type}-${filterRowIndex}`"
       v-model="vModelProxy"
       :aria-labelledby="labelledby"
       class="select-menu"
+      :disabled="!options"
       @change="onSelectChange"
     >
       <b-select-option v-if="!vModelProxy" :value="undefined">Select...</b-select-option>
@@ -67,8 +68,8 @@ export default {
       type: Function
     },
     options: {
-      required: true,
-      type: [Array, Object]
+      required: false,
+      type: [Object, Array, undefined]
     },
     type: {
       required: true,
