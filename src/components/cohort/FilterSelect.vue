@@ -9,15 +9,22 @@
       :disabled="!options"
       @change="onSelectChange"
     >
-      <b-select-option v-if="!vModelProxy" :value="undefined">Select...</b-select-option>
+      <b-select-option
+        v-if="!vModelProxy"
+        :id="`${type}-option-null`"
+        :value="undefined"
+      >
+        Select...
+      </b-select-option>
       <b-select-option-group
         v-for="(groupOptions, label) in options"
+        :id="normalizeId(`${type}-option-group-${label}`)"
         :key="label"
         :label="label"
       >
         <b-select-option
           v-for="option in groupOptions"
-          :id="`${type}-${option.value}`"
+          :id="normalizeId(`${type}-option-${getLabel(option)}`)"
           :key="option.key"
           :aria-disabled="option.disabled"
           class="h-100"
@@ -30,16 +37,22 @@
     </b-select>
     <b-select
       v-if="!hasOptGroups(options)"
-      :id="`filter-select-${type}-${filterRowIndex}`"
+      :id="normalizeId(`filter-select-${type}-${filterRowIndex}`)"
       v-model="vModelProxy"
       :aria-labelledby="labelledby"
       class="select-menu"
       @change="onSelectChange"
     >
-      <b-select-option v-if="!vModelProxy" :value="undefined">Select...</b-select-option>
+      <b-select-option
+        v-if="!vModelProxy"
+        :id="`${type}-option-null`"
+        :value="undefined"
+      >
+        Select...
+      </b-select-option>
       <b-select-option
         v-for="option in options"
-        :id="`${type}-${option.value}`"
+        :id="normalizeId(`${type}-option-${getLabel(option)}`)"
         :key="option.key"
         class="h-100"
         :disabled="option.disabled"
@@ -96,7 +109,8 @@ export default {
   },
   methods: {
     getLabel: option => option.name || option.label.primary,
-    hasOptGroups: options => !Array.isArray(options)
+    hasOptGroups: options => !Array.isArray(options),
+    normalizeId: id => id.toLowerCase().replace(/\W/g, ' ').trim().replace(/[ ]+/g, '-')
   }
 }
 </script>
