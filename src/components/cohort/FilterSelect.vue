@@ -24,7 +24,7 @@
       >
         <b-select-option
           v-for="option in groupOptions"
-          :id="normalizeId(`${type}-option-${getLabel(option)}`)"
+          :id="normalizeId(`${type}-option-${option.value}`)"
           :key="option.key"
           :aria-disabled="option.disabled"
           class="h-100"
@@ -52,7 +52,7 @@
       </b-select-option>
       <b-select-option
         v-for="option in options"
-        :id="normalizeId(`${type}-option-${getLabel(option)}`)"
+        :id="normalizeId(`${type}-option-${option.value}`)"
         :key="option.key"
         class="h-100"
         :disabled="option.disabled"
