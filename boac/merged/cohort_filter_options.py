@@ -220,9 +220,8 @@ class CohortFilterOptions:
                         if filter_type == 'string[]':
                             all_options = option.get('options')
                             for selection in selected:
-                                value = next((o.get('value') for o in all_options if o.get('value') == selection), None)
-                                if value:
-                                    _append_row(value)
+                                if cls._is_value_in_filter_options(selection, all_options):
+                                    _append_row(selection)
                         elif filter_type == 'boolean':
                             _append_row(selected)
                         elif filter_type == 'json[]':
@@ -231,6 +230,12 @@ class CohortFilterOptions:
                         else:
                             raise ValueError(f'Unrecognized filter_type "{filter_type}"')
         return rows
+
+    @classmethod
+    def _is_value_in_filter_options(cls, value, options):
+        # Options are either a list or option groups (dict) in which each group is a list of options.
+        flattened = options if isinstance(options, list) else [o for group in options.values() for o in group]
+        return value in [item['value'] for item in flattened]
 
     @classmethod
     def get_cohort_filter_option_groups(cls, owner_uid, domain, existing_filters=()):

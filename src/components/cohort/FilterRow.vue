@@ -11,7 +11,6 @@
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
-      :id="filterRowPrimaryDropdownId(filterRowIndex)"
       class="filter-row-column-01 mt-1 pr-2">
       <FilterSelect
         :filter-row-index="filterRowIndex"
@@ -29,8 +28,8 @@
       <span v-if="isUX('range')">{{ rangeMinLabel() }} {{ rangeMaxLabel() }}</span>
     </div>
     <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
-      <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
       <div v-if="isUX('dropdown')">
+        <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
         <FilterSelect
           :filter-row-index="filterRowIndex"
           :labelledby="`filter-secondary-${filterRowIndex}-label`"
@@ -279,8 +278,6 @@ export default {
     this.valueOriginal = this.filter && this.$_.cloneDeep(this.filter.value)
   },
   methods: {
-    filterRowPrimaryDropdownId: n => `filter-row-dropdown-primary-${n}`,
-    filterRowSecondaryDropdownId: n => `filter-row-dropdown-secondary-${n}`,
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
       const gpa = '0' + this.$_.trim(value)
@@ -398,10 +395,10 @@ export default {
       return flatten ? this.$_.values(this.filterOptionGroups)[0] : this.filterOptionGroups
     },
     putFocusNewFilterDropdown() {
-      this.putFocusNextTick(this.filterRowPrimaryDropdownId('new'))
+      this.putFocusNextTick('filter-select-primary-new')
     },
     putFocusSecondaryDropdown() {
-      this.putFocusNextTick(this.filterRowSecondaryDropdownId(this.filterRowIndex))
+      this.putFocusNextTick(`filter-select-secondary-${this.filterRowIndex}`)
     },
     rangeInputSize() {
       let maxLength = undefined
