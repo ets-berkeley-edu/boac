@@ -5,22 +5,22 @@
         :id="`${id}-input`"
         ref="autocompleteInput"
         v-model="query"
-        :aria-readonly="disabled"
         :aria-labelledby="inputLabelledBy"
+        :aria-readonly="disabled"
+        autocomplete="off"
         :class="inputClass"
         :disabled="disabled"
-        :placeholder="placeholder"
         :maxlength="maxlength"
         name="autocomplete-name"
-        :type="demoModeBlur && $currentUser.inDemoMode ? 'password' : 'text'"
-        autocomplete="off"
-        @input="onTextInput"
+        :placeholder="placeholder"
+        :type="demoModeBlur && $currentUser.inDemoMode ? 'password' : formInputType"
         @focusin="makeSuggestions"
+        @input="onTextInput"
         @keypress.enter.prevent="onEnter"
         @keyup.esc="onEscInput"
         @keyup.down="onArrowDown"
-      >
-      </b-form-input>
+      />
+      <slot name="append"></slot>
       <b-input-group-append v-if="showAddButton">
         <b-button
           :id="`${id}-add-button`"
@@ -99,6 +99,11 @@ export default {
     },
     dropdownClass: {
       default: '',
+      required: false,
+      type: String
+    },
+    formInputType: {
+      default: 'text',
       required: false,
       type: String
     },
