@@ -11,7 +11,8 @@
           :options="csvColumns"
           class="flex-col flex-wrap csv-column-options"
           name="csv-column-options"
-          stacked>
+          stacked
+        >
         </b-form-checkbox-group>
       </b-form-group>
     </div>
@@ -22,14 +23,16 @@
           :disabled="!selected.length"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="exportList(selected)">
+          @click.prevent="exportList(selected)"
+        >
           Export
         </b-btn>
         <b-btn
           id="export-list-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelExportListModal">
+          @click="cancelExportListModal"
+        >
           Close
         </b-btn>
       </form>

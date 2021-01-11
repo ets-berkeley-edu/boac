@@ -17,7 +17,8 @@
           {{ cohortName }}
           <span
             v-if="editMode !== 'apply' && totalStudentCount !== undefined"
-            class="faint-text">{{ pluralize('student', totalStudentCount) }}</span>
+            class="faint-text"
+          >{{ pluralize('student', totalStudentCount) }}</span>
         </h1>
         <h1 v-if="!cohortName && totalStudentCount !== undefined" id="cohort-results-header">
           {{ pluralize('Result', totalStudentCount) }}
@@ -29,7 +30,8 @@
             id="show-hide-details-button"
             class="no-wrap pr-2 p-0"
             variant="link"
-            @click="toggleShowHideDetails">
+            @click="toggleShowHideDetails"
+          >
             {{ isCompactView ? 'Show' : 'Hide' }} Filters
           </b-btn>
         </div>
@@ -39,7 +41,8 @@
             id="rename-button"
             class="pl-2 pr-2 pt-0"
             variant="link"
-            @click="beginRename">
+            @click="beginRename"
+          >
             Rename
           </b-btn>
         </div>
@@ -49,7 +52,8 @@
             id="delete-button"
             v-b-modal="'confirm-delete-modal'"
             class="pl-2 pr-2 pt-0"
-            variant="link">
+            variant="link"
+          >
             Delete
           </b-btn>
           <b-modal
@@ -58,11 +62,13 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('delete-confirm')">
+            @shown="focusModalById('delete-confirm')"
+          >
             <DeleteCohortModal
               :cohort-name="cohortName"
               :cancel-delete-modal="cancelDeleteModal"
-              :delete-cohort="cohortDelete" />
+              :delete-cohort="cohortDelete"
+            />
           </b-modal>
         </div>
         <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && $_.size(filters))" class="faint-text">|</div>
@@ -73,7 +79,8 @@
             v-b-modal="'export-list-modal'"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-2 pt-0"
-            variant="link">
+            variant="link"
+          >
             Export List
           </b-btn>
           <b-btn
@@ -82,7 +89,8 @@
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            @click.prevent="exportCohort(getCsvExportColumnsSelected())">
+            @click.prevent="exportCohort(getCsvExportColumnsSelected())"
+          >
             Export List
           </b-btn>
           <b-modal
@@ -91,12 +99,14 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('export-list-confirm')">
+            @shown="focusModalById('export-list-confirm')"
+          >
             <ExportListModal
               :cancel-export-list-modal="cancelExportCohortModal"
               :csv-columns-selected="getCsvExportColumnsSelected()"
               :csv-columns="getCsvExportColumns()"
-              :export-list="exportCohort" />
+              :export-list="exportCohort"
+            />
           </b-modal>
         </div>
         <div v-if="isHistorySupported" class="faint-text">|</div>
@@ -106,7 +116,8 @@
             :disabled="isModifiedSinceLastSearch"
             class="no-wrap pl-2 pr-0 pt-0"
             variant="link"
-            @click="toggleShowHistory(true)">
+            @click="toggleShowHistory(true)"
+          >
             History
           </b-btn>
         </div>
@@ -116,7 +127,8 @@
           id="show-cohort-history-button"
           class="no-wrap pl-2 pr-0 pt-0"
           variant="link"
-          @click="toggleShowHistory(false)">
+          @click="toggleShowHistory(false)"
+        >
           Back to Cohort
         </b-btn>
       </div>
@@ -135,7 +147,8 @@
               maxlength="255"
               required
               type="text"
-              @keyup.esc="cancelRename" />
+              @keyup.esc="cancelRename"
+            />
           </form>
         </div>
         <div class="pt-1">
@@ -146,7 +159,8 @@
         <div
           v-if="name.length === 255"
           class="sr-only"
-          aria-live="polite">
+          aria-live="polite"
+        >
           Cohort name cannot exceed 255 characters.
         </div>
       </div>
@@ -157,7 +171,8 @@
           class="cohort-manage-btn btn-primary-color-override"
           variant="primary"
           size="sm"
-          @click.prevent="submitRename">
+          @click.prevent="submitRename"
+        >
           Rename
         </b-btn>
         <b-btn
@@ -165,7 +180,8 @@
           class="cohort-manage-btn"
           variant="link"
           size="sm"
-          @click="cancelRename">
+          @click="cancelRename"
+        >
           Cancel
         </b-btn>
       </div>

@@ -16,7 +16,8 @@
             :disabled="disabled"
             role="listbox"
             aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            @input="add">
+            @input="add"
+          >
             <template v-slot:first>
               <option :value="null">Select...</option>
             </template>
@@ -24,7 +25,8 @@
               v-for="option in topicOptions"
               :key="option.value"
               :disabled="option.disabled"
-              :value="option.value">
+              :value="option.value"
+            >
               {{ option.text }}
             </option>
           </b-form-select>
@@ -34,11 +36,13 @@
         <ul
           id="appointment-topics-list"
           class="pill-list pl-0"
-          aria-labelledby="appointment-topics-label">
+          aria-labelledby="appointment-topics-label"
+        >
           <li
             v-for="(addedTopic, index) in topics"
             :id="`appointment-topic-${index}`"
-            :key="index">
+            :key="index"
+          >
             <div class="d-inline-block">
               <div class="d-flex pill pill-topic text-uppercase text-nowrap">
                 <div :id="`topic-label-${index}`" class="added-topic">
@@ -50,7 +54,8 @@
                     :disabled="disabled"
                     variant="link"
                     class="m-0 p-0"
-                    @click.prevent="remove(addedTopic)">
+                    @click.prevent="remove(addedTopic)"
+                  >
                     <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                     <span class="sr-only">Remove topic "{{ topics[index] }}"</span>
                   </b-btn>

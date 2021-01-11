@@ -10,7 +10,8 @@
           type="text"
           aria-required="true"
           aria-label="Input UID of an authorized user"
-          size="8">
+          size="8"
+        >
       </div>
       <div class="ml-1">
         <input
@@ -23,14 +24,16 @@
           aria-required="true"
           aria-label="Password"
           autocomplete="off"
-          size="8">
+          size="8"
+        >
       </div>
       <div class="ml-1">
         <b-btn
           id="dev-auth-submit"
           class="btn-dev-auth btn-primary-color-override"
           variant="primary"
-          type="submit">
+          type="submit"
+        >
           DevAuth!
         </b-btn>
       </div>

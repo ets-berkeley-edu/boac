@@ -24,7 +24,8 @@
         class="curated-selector mr-2"
         toggle-class="b-dd-override"
         size="sm"
-        no-caret>
+        no-caret
+      >
         <template slot="button-content">
           <div :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'" class="px-1">
             <div v-if="!isSaving" class="d-flex justify-content-between">
@@ -52,7 +53,8 @@
             :id="`curated-group-${group.id}-checkbox`"
             :aria-labelledby="`curated-group-${group.id}-checkbox`"
             @click="curatedGroupCheckboxClick(group)"
-            @keyup.enter="curatedGroupCheckboxClick(group)">
+            @keyup.enter="curatedGroupCheckboxClick(group)"
+          >
             <span class="sr-only">Hit enter to add students to </span>{{ group.name }}
           </b-form-checkbox>
         </b-dropdown-item>

@@ -5,7 +5,8 @@
       :id="`edit-${profile.uid}`"
       class="pl-1 pr-1"
       variant="link"
-      @click="openEditUserModal">
+      @click="openEditUserModal"
+    >
       <font-awesome icon="edit" /><span class="sr-only"> Edit profile of {{ profile.name }}</span>
     </b-btn>
     <b-btn
@@ -13,7 +14,8 @@
       id="add-new-user-btn"
       class="pl-1 pr-1"
       variant="link"
-      @click="openEditUserModal">
+      @click="openEditUserModal"
+    >
       <div class="d-flex">
         <div class="pr-1">
           <font-awesome icon="plus" />
@@ -29,7 +31,8 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="focusModalById('edit-modal-header')">
+      @shown="focusModalById('edit-modal-header')"
+    >
       <div class="modal-header">
         <h2 id="edit-modal-header" class="student-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
       </div>
@@ -39,7 +42,8 @@
             v-if="error"
             class="align-items-center has-error mb-3 ml-4 mt-1"
             aria-live="polite"
-            role="alert">
+            role="alert"
+          >
             <span class="font-weight-bolder">Error:</span> {{ error }}
           </div>
           <div v-if="!isExistingUser" class="align-items-center mb-3 ml-4 mt-3">
@@ -50,7 +54,8 @@
               class="w-260px"
               maxlength="10"
               placeholder="UID"
-              size="lg"></b-form-input>
+              size="lg"
+            ></b-form-input>
           </div>
           <b-container fluid class="ml-2">
             <b-row>
@@ -81,7 +86,8 @@
           <div
             v-for="dept in memberships"
             :key="dept.code"
-            class="ml-2 mt-2">
+            class="ml-2 mt-2"
+          >
             <div class="align-items-center d-flex">
               <div>
                 <h4 class="font-size-16">
@@ -93,7 +99,8 @@
                   :id="`remove-department-${dept.code}`"
                   variant="link"
                   class="p-0"
-                  @click.prevent="removeDepartment(dept.code)">
+                  @click.prevent="removeDepartment(dept.code)"
+                >
                   <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
                   <span class="sr-only">Remove department '{{ dept.name }}'</span>
                 </b-btn>
@@ -113,7 +120,8 @@
                     {text: 'Scheduler', value: 'scheduler'}
                   ]"
                   :aria-label="`User's role in department ${dept.name}`"
-                  class="w-260px">
+                  class="w-260px"
+                >
                   <template v-slot:first>
                     <option :value="undefined">Select...</option>
                   </template>
@@ -139,7 +147,8 @@
               :options="departmentOptions"
               class="w-auto"
               aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-              @change="addDepartment">
+              @change="addDepartment"
+            >
               <template v-slot:first>
                 <option :value="undefined">Add department...</option>
               </template>
@@ -152,7 +161,8 @@
           id="save-changes-to-user-profile"
           class="btn-primary-color-override"
           variant="primary"
-          @click="save">
+          @click="save"
+        >
           Save
         </b-btn>
         <b-btn
@@ -160,7 +170,8 @@
           class="pl-2"
           variant="link"
           @click="cancel"
-          @keyup.enter="cancel">
+          @keyup.enter="cancel"
+        >
           Cancel
         </b-btn>
       </div>

@@ -8,7 +8,8 @@
     hide-header
     @cancel.prevent="functionCancel"
     @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')">
+    @shown="putFocusNextTick('are-you-sure-confirm')"
+  >
     <div>
       <div class="modal-header">
         <h3 id="are-you-sure-header">{{ modalHeader }}</h3>
@@ -22,14 +23,16 @@
             id="are-you-sure-confirm"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="functionConfirm">
+            @click.prevent="functionConfirm"
+          >
             {{ buttonLabelConfirm }}
           </b-btn>
           <b-btn
             id="are-you-sure-cancel"
             class="pl-2"
             variant="link"
-            @click.stop="functionCancel">
+            @click.stop="functionCancel"
+          >
             {{ buttonLabelCancel }}
           </b-btn>
         </form>

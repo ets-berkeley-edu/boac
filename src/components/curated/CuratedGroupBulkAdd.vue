@@ -21,7 +21,8 @@
           :disabled="!$_.trim(textarea) || (curatedGroupId && isUpdating)"
           class="pl-2"
           variant="primary"
-          @click="submitSids">
+          @click="submitSids"
+        >
           <span v-if="curatedGroupId">
             <span v-if="isUpdating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
             <span v-if="!isUpdating">Add</span>
@@ -32,7 +33,8 @@
           v-if="curatedGroupId"
           id="btn-cancel-bulk-add-sids"
           variant="link"
-          @click="cancel">
+          @click="cancel"
+        >
           Cancel
         </b-btn>
       </div>

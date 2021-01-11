@@ -13,7 +13,8 @@
               aria-controls="timeline-messages"
               :aria-selected="!filter"
               variant="link"
-              @click="setFilter(null)">
+              @click="setFilter(null)"
+            >
               All
             </b-btn>
           </div>
@@ -30,7 +31,8 @@
               :disabled="!countsPerType[type]"
               class="tab ml-2 pl-2 pr-2 text-center"
               variant="link"
-              @click="setFilter(type)">
+              @click="setFilter(type)"
+            >
               {{ filterTypes[type].tab }}
             </b-btn>
           </div>
@@ -43,7 +45,8 @@
             :disabled="!!mode"
             class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
             variant="primary"
-            @click="isCreateNoteModalOpen = true">
+            @click="isCreateNoteModalOpen = true"
+          >
             <span class="m-1">
               <font-awesome icon="file-alt" />
               New Note
@@ -54,7 +57,8 @@
           v-if="isCreateNoteModalOpen"
           :is-batch-feature="false"
           :on-close="onCreateNoteModalClose"
-          :sid="student.sid" />
+          :sid="student.sid"
+        />
       </div>
     </div>
 
@@ -63,10 +67,12 @@
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
         variant="link"
-        @click.prevent="toggleExpandAll">
+        @click.prevent="toggleExpandAll"
+      >
         <font-awesome
           :icon="allExpanded ? 'caret-down' : 'caret-right'"
-          class="toggle-expand-all-caret" />
+          class="toggle-expand-all-caret"
+        />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
       <div v-if="filter === 'note' && ($currentUser.isAdmin || isDirector($currentUser))">
@@ -74,7 +80,8 @@
         <a
           id="download-notes-link"
           class="p-2"
-          :href="notesDownloadUrl">
+          :href="notesDownloadUrl"
+        >
           Download notes
         </a>
       </div>
@@ -82,7 +89,8 @@
       <label
         :id="`timeline-${filter}s-query-label`"
         :for="`timeline-${filter}s-query-input`"
-        class="mb-0 ml-2 mr-2">
+        class="mb-0 ml-2 mr-2"
+      >
         Search {{ $_.capitalize(filter) }}s:
       </label>
       <input
@@ -143,7 +151,8 @@
             <div class="align-top pr-2 float-right text-nowrap text-muted">
               <TimelineDate
                 :date="new Date()"
-                :include-time-of-day="false" />
+                :include-time-of-day="false"
+              />
             </div>
           </td>
         </tr>
@@ -152,17 +161,20 @@
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
           :class="{'message-row-read': message.read}"
-          class="message-row border-top border-bottom">
+          class="message-row border-top border-bottom"
+        >
           <td class="column-pill align-top p-2">
             <div
               :id="`timeline-tab-${activeTab}-pill-${index}`"
               :class="`pill-${message.type}`"
-              class="pill text-center text-uppercase text-white">
+              class="pill text-center text-uppercase text-white"
+            >
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
               v-if="isEditable(message) && !editModeNoteId && $_.includes(openMessages, message.transientId)"
-              class="mt-2">
+              class="mt-2"
+            >
               <div v-if="$currentUser.uid === message.author.uid">
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
@@ -170,7 +182,8 @@
                   variant="link"
                   class="p-0 edit-note-button"
                   @keypress.enter.stop="editNote(message)"
-                  @click.stop="editNote(message)">
+                  @click.stop="editNote(message)"
+                >
                   Edit Note
                 </b-btn>
               </div>
@@ -181,7 +194,8 @@
                   variant="link"
                   class="p-0 edit-note-button"
                   @keypress.enter.stop="deleteNote(message)"
-                  @click.stop="deleteNote(message)">
+                  @click.stop="deleteNote(message)"
+                >
                   Delete Note
                 </b-btn>
               </div>
@@ -189,7 +203,8 @@
           </td>
           <td
             :class="{'font-weight-bold': !message.read}"
-            class="column-message align-top">
+            class="column-message align-top"
+          >
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"
               :aria-pressed="$_.includes(openMessages, message.transientId)"
@@ -201,7 +216,8 @@
               role="button"
               :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
-              @click="open(message, true)">
+              @click="open(message, true)"
+            >
               <span v-if="['appointment', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
@@ -213,24 +229,28 @@
                 :edit-note="editNote"
                 :note="message"
                 :after-saved="afterNoteEdit"
-                :is-open="$_.includes(openMessages, message.transientId)" />
+                :is-open="$_.includes(openMessages, message.transientId)"
+              />
               <EditAdvisingNote
                 v-if="message.type === 'note' && message.id === editModeNoteId"
                 :note-id="message.id"
                 :after-cancel="afterNoteEditCancel"
-                :after-saved="afterNoteEdit" />
+                :after-saved="afterNoteEdit"
+              />
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
                 :is-open="$_.includes(openMessages, message.transientId)"
                 :on-appointment-status-change="onAppointmentStatusChange"
-                :student="student" />
+                :student="student"
+              />
               <div v-if="$_.includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`timeline-tab-${activeTab}-close-message`"
                   variant="link"
                   @keyup.enter.stop="close(message, true)"
-                  @click.stop="close(message, true)">
+                  @click.stop="close(message, true)"
+                >
                   <div class="d-flex">
                     <div class="mr-1">
                       <font-awesome icon="times-circle" class="font-size-24" />
@@ -248,25 +268,29 @@
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'cancelled'"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                class="pill-appointment-status pill-cancelled pl-2 pr-2 mr-2 text-nowrap">
+                class="pill-appointment-status pill-cancelled pl-2 pr-2 mr-2 text-nowrap"
+              >
                 Cancelled
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
                 :id="`collapsed-${message.type}-${message.id}-status-checked-in`"
-                class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap">
+                class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap"
+              >
                 Checked In
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'reserved'"
                 :id="`collapsed-${message.type}-${message.id}-status-waiting`"
-                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
+                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap"
+              >
                 Assigned
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'waiting'"
                 :id="`collapsed-${message.type}-${message.id}-status-waiting`"
-                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap">
+                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap"
+              >
                 Waiting
               </div>
             </div>
@@ -278,13 +302,15 @@
           <td class="column-right align-top">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
-              class="pt-2 pr-2 text-nowrap">
+              class="pt-2 pr-2 text-nowrap"
+            >
               <div v-if="!$_.includes(openMessages, message.transientId) || !$_.includes(['note', 'appointment'], message.type)">
                 <TimelineDate
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.updatedAt || message.createdAt"
                   :include-time-of-day="false"
-                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'" />
+                  :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
+                />
               </div>
               <div v-if="$_.includes(openMessages, message.transientId) && ['appointment', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
@@ -293,7 +319,8 @@
                     :id="`expanded-${message.type}-${message.id}-created-at`"
                     :date="message.createdAt"
                     :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
-                    :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')" />
+                    :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
+                  />
                 </div>
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
@@ -302,14 +329,16 @@
                     :date="message.updatedAt"
                     :include-time-of-day="message.updatedAt.length > 10"
                     class="mb-2"
-                    sr-prefix="Last updated on" />
+                    sr-prefix="Last updated on"
+                  />
                 </div>
                 <div class="text-muted">
                   <router-link
                     v-if="message.type === 'note' && message.id !== editModeNoteId"
                     :id="`advising-note-permalink-${message.id}`"
                     :to="`#${message.type}-${message.id}`"
-                    @click.native="scrollToPermalink(message.type, message.id)">
+                    @click.native="scrollToPermalink(message.type, message.id)"
+                  >
                     Permalink <font-awesome icon="link" />
                   </router-link>
                 </div>
@@ -325,7 +354,8 @@
         :id="`timeline-tab-${activeTab}-previous-messages`"
         class="no-wrap pr-2 pt-0"
         variant="link"
-        @click="isShowingAll = !isShowingAll">
+        @click="isShowingAll = !isShowingAll"
+      >
         <font-awesome :icon="isShowingAll ? 'caret-up' : 'caret-right'" />
         {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
       </b-btn>
@@ -337,7 +367,8 @@
       :modal-body="deleteConfirmModalBody"
       :show-modal="showDeleteConfirmModal"
       button-label-confirm="Delete"
-      modal-header="Delete note" />
+      modal-header="Delete note"
+    />
   </div>
 </template>
 

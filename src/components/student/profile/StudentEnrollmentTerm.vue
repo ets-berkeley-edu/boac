@@ -3,14 +3,16 @@
     no-body
     border-variant="white"
     class="student-term"
-    :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}">
+    :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}"
+  >
     <b-card-header header-bg-variant="transparent" header-class="student-term-header">
       <h3 :id="`term-header-${term.termId}`" class="font-size-18 mr-3">{{ term.termName }}</h3>
       <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
       <StudentWithdrawalCancel
         v-if="student.sisProfile.withdrawalCancel"
         :withdrawal="student.sisProfile.withdrawalCancel"
-        :term-id="term.termId" />
+        :term-id="term.termId"
+      />
     </b-card-header>
     <b-card-body body-class="student-courses" role="table">
       <div role="rowgroup">
@@ -27,19 +29,22 @@
         </div>
         <div
           v-for="(course, courseIndex) in term.enrollments"
-          :key="courseIndex">
+          :key="courseIndex"
+        >
           <StudentCourse
             :course="course"
             :index="courseIndex"
             :student="student"
-            :term="term" />
+            :term="term"
+          />
         </div>
         <div>
           <div
             v-for="(droppedSection, dsIndex) in term.droppedSections"
             :key="dsIndex"
             class="student-course-dropped"
-            role="row">
+            role="row"
+          >
             <div role="cell">
               {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }} (Dropped)
             </div>
@@ -49,7 +54,8 @@
     </b-card-body>
     <b-card-footer
       footer-bg-variant="transparent"
-      footer-class="student-term-footer">
+      footer-class="student-term-footer"
+    >
       <div :id="`term-${term.termId}-gpa`">
         <span class="student-course-label mr-1">Term GPA: </span>{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}
       </div>

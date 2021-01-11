@@ -10,7 +10,8 @@
       :sort-compare="sortCompare"
       :sort-desc.sync="sortDescending"
       stacked="md"
-      thead-class="sortable-table-header text-nowrap">
+      thead-class="sortable-table-header text-nowrap"
+    >
       <template v-slot:cell(curated)="row">
         <StudentCheckbox v-if="options.includeCuratedCheckbox" :student="row.item" />
       </template>
@@ -28,13 +29,15 @@
           :id="`link-to-student-${row.item.uid}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
-          v-html="lastNameFirst(row.item)"></router-link>
+          v-html="lastNameFirst(row.item)"
+        ></router-link>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
           class="inactive-info-icon sortable-students-icon"
           uib-tooltip="Inactive"
           aria-label="Inactive"
-          tooltip-placement="bottom">
+          tooltip-placement="bottom"
+        >
           <font-awesome icon="info-circle" />
         </span>
         <span
@@ -42,7 +45,8 @@
           class="sortable-students-icon"
           uib-tooltip="Graduated"
           aria-label="Graduated"
-          tooltip-placement="bottom">
+          tooltip-placement="bottom"
+        >
           <font-awesome icon="graduation-cap" />
         </span>
       </template>
@@ -57,7 +61,8 @@
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
           v-for="major in row.item.majors"
-          :key="major">
+          :key="major"
+        >
           {{ major }}
         </div>
       </template>
@@ -91,13 +96,15 @@
           <div
             v-if="!row.item.alertCount"
             :aria-label="`No alerts for ${row.item.name}`"
-            class="bg-white border pl-3 pr-3 rounded-pill text-muted">
+            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
+          >
             0
           </div>
           <div
             v-if="row.item.alertCount"
             :aria-label="`${row.item.alertCount} alerts for ${row.item.name}`"
-            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill">
+            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
+          >
             {{ row.item.alertCount }}
           </div>
         </div>

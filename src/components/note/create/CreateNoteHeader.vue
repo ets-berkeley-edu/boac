@@ -29,13 +29,15 @@
         </b-dropdown-header>
         <b-dropdown-text
           v-for="template in noteTemplates"
-          :key="template.id">
+          :key="template.id"
+        >
           <div class="align-items-center d-flex font-weight-normal justify-content-between text-nowrap">
             <b-link
               :id="`load-note-template-${template.id}`"
               :title="template.title"
               class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
-              @click="loadTemplate(template)">
+              @click="loadTemplate(template)"
+            >
               {{ template.title }}
             </b-link>
             <div class="align-items-center d-flex ml-3">
@@ -44,7 +46,8 @@
                   :id="`btn-rename-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
-                  @click="openRenameTemplateModal(template)">
+                  @click="openRenameTemplateModal(template)"
+                >
                   Rename<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -56,7 +59,8 @@
                   :id="`btn-edit-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
-                  @click="editTemplate(template)">
+                  @click="editTemplate(template)"
+                >
                   Edit<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -68,7 +72,8 @@
                   :id="`btn-delete-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
-                  @click="openDeleteTemplateModal(template)">
+                  @click="openDeleteTemplateModal(template)"
+                >
                   Delete<span class="sr-only"> template {{ template.title }}</span>
                 </b-btn>
               </div>
@@ -83,7 +88,8 @@
       :cancel="cancel"
       :rename="renameTemplate"
       :template="targetTemplate"
-      :toggle-show="toggleShowRenameTemplateModal" />
+      :toggle-show="toggleShowRenameTemplateModal"
+    />
     <AreYouSureModal
       v-if="showDeleteTemplateModal"
       :function-cancel="cancel"
@@ -91,7 +97,8 @@
       :modal-body="`Are you sure you want to delete the <b>'${$_.get(targetTemplate, 'title')}'</b> template?`"
       :show-modal="showDeleteTemplateModal"
       button-label-confirm="Delete"
-      modal-header="Delete Template" />
+      modal-header="Delete Template"
+    />
   </div>
 </template>
 

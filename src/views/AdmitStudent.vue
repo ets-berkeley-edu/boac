@@ -5,13 +5,15 @@
       <h1
         id="admit-name-header"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-        class="student-section-header">
+        class="student-section-header"
+      >
         {{ fullName }}
       </h1>
       <div v-if="admit.studentUid" class="pt-2 pb-3">
         <router-link
           :id="`link-to-student-${admit.studentUid}`"
-          :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)">
+          :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
+        >
           View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
         </router-link>
       </div>
@@ -164,7 +166,8 @@
               id="admit-gpa"
               class="table-cell"
               colspan="2"
-              scope="colgroup">
+              scope="colgroup"
+            >
               GPA
             </th>
           </tr>
@@ -185,7 +188,8 @@
               id="admit-act"
               class="table-cell"
               colspan="2"
-              scope="colgroup">
+              scope="colgroup"
+            >
               ACT
             </th>
           </tr>
@@ -214,7 +218,8 @@
               id="admit-sat"
               class="table-cell"
               colspan="2"
-              scope="colgroup">
+              scope="colgroup"
+            >
               SAT
             </th>
           </tr>

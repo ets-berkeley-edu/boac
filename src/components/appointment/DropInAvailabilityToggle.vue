@@ -7,7 +7,8 @@
       <div
         v-if="!isAvailable || !$currentUser.isAdmin"
         :class="isAvailable ? 'availability-status-disabled' : 'availability-status-active'"
-        class="aria-hidden availability-status">
+        class="aria-hidden availability-status"
+      >
         Off duty
       </div>
       <div v-if="!$currentUser.isAdmin" class="toggle-btn-column">
@@ -17,7 +18,8 @@
           type="button"
           class="btn btn-link pt-0 pb-0 pl-1 pr-1"
           @click="toggle"
-          @keyup.down="toggle">
+          @keyup.down="toggle"
+        >
           <span class="status-toggle-label">
             <font-awesome v-if="isAvailable" icon="toggle-on" class="toggle toggle-on"></font-awesome>
             <font-awesome v-if="!isAvailable" icon="toggle-off" class="toggle toggle-off"></font-awesome>
@@ -31,7 +33,8 @@
       <div
         v-if="isAvailable || !$currentUser.isAdmin"
         :class="isAvailable ? 'availability-status-active' : 'availability-status-disabled'"
-        class="aria-hidden availability-status">
+        class="aria-hidden availability-status"
+      >
         On duty
       </div>
     </div>
@@ -42,7 +45,8 @@
       :modal-body="offDutyConfirmModalBody()"
       :show-modal="showOffDutyConfirmModal"
       button-label-confirm="Confirm"
-      modal-header="Go off duty?" />
+      modal-header="Go off duty?"
+    />
   </div>
 </template>
 

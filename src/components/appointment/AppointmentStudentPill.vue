@@ -2,7 +2,8 @@
   <div
     id="appointment-student-input"
     :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-    class="d-flex pill pill-student text-uppercase text-nowrap">
+    class="d-flex pill pill-student text-uppercase text-nowrap"
+  >
     <div class="student-label">
       <span class="sr-only">Student: </span> {{ student.label }}
     </div>
@@ -11,7 +12,8 @@
         id="appointment-student-remove"
         variant="link"
         class="p-0"
-        @click.prevent="removeStudent">
+        @click.prevent="removeStudent"
+      >
         <font-awesome icon="times-circle" class="font-size-24 faint-text pl-2" />
         <span class="sr-only">Remove student</span>
       </b-btn>

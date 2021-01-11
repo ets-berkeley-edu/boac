@@ -8,7 +8,8 @@
           :aria-label="`Go to admitted student profile page of ${fullName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath()"
-          v-html="fullName"></router-link>
+          v-html="fullName"
+        ></router-link>
       </div>
     </td>
     <td>

@@ -12,7 +12,8 @@
               {text: 'Search', value: 'search'},
               {text: 'Filter', value: 'filter'}
             ]"
-            @change="refreshUsers"></b-form-select>
+            @change="refreshUsers"
+          ></b-form-select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
@@ -38,7 +39,8 @@
                 value-field="code"
                 text-field="name"
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department."
-                @change="refreshUsers">
+                @change="refreshUsers"
+              >
                 <template v-slot:first>
                   <option :value="null">All</option>
                 </template>
@@ -58,7 +60,8 @@
                   {text: 'Drop-In Advisors', value: 'dropInAdvisor'},
                   {text: 'Schedulers', value: 'scheduler'}
                 ]"
-                @change="refreshUsers"></b-form-select>
+                @change="refreshUsers"
+              ></b-form-select>
             </div>
             <div class="pr-2">
               <b-form-select
@@ -71,7 +74,8 @@
                   {text: 'Deleted', value: 'deleted'},
                   {text: 'Blocked', value: 'blocked'}
                 ]"
-                @change="refreshUsers"></b-form-select>
+                @change="refreshUsers"
+              ></b-form-select>
             </div>
           </div>
         </b-col>
@@ -87,7 +91,8 @@
           :disabled="isBusy"
           class="pl-2 pr-2"
           variant="link"
-          @click="quickLink('director')">
+          @click="quickLink('director')"
+        >
           Directors
         </b-btn>
       </div>
@@ -100,7 +105,8 @@
           :disabled="isBusy"
           class="pl-2 pr-2"
           variant="link"
-          @click="quickLink('dropInAdvisor')">
+          @click="quickLink('dropInAdvisor')"
+        >
           Drop-in Advisors
         </b-btn>
       </div>
@@ -113,7 +119,8 @@
           :disabled="isBusy"
           class="pl-2 pr-2"
           variant="link"
-          @click="quickLink('advisor', 'QCADV')">
+          @click="quickLink('advisor', 'QCADV')"
+        >
           L&amp;S Advisors
         </b-btn>
       </div>
@@ -126,7 +133,8 @@
           :disabled="isBusy"
           class="pl-2 pr-2"
           variant="link"
-          @click="quickLink('scheduler')">
+          @click="quickLink('scheduler')"
+        >
           Schedulers
         </b-btn>
       </div>
@@ -161,13 +169,15 @@
       sort-icon-left
       stacked="md"
       striped
-      thead-class="sortable-table-header text-nowrap">
+      thead-class="sortable-table-header text-nowrap"
+    >
       <template v-slot:cell(toggleDetails)="row">
         <b-btn
           :id="`user-${row.item.uid}-details-toggle`"
           class="column-toggle-details-button"
           variant="link"
-          @click="row.toggleDetails">
+          @click="row.toggleDetails"
+        >
           <font-awesome v-if="!row.detailsShowing" icon="caret-right" />
           <span v-if="!row.detailsShowing" class="sr-only">Show user details</span>
           <font-awesome v-if="row.detailsShowing" icon="caret-down" />
@@ -182,7 +192,8 @@
         <EditUserProfileModal
           :after-update-user="afterUpdateUser"
           :departments="departments"
-          :profile="row.item" />
+          :profile="row.item"
+        />
       </template>
       <template v-slot:cell(lastName)="row">
         <div class="d-flex">
@@ -192,17 +203,20 @@
               :id="`permission-canvas-data-${row.item.uid}`"
               class="icon-slash"
               title="Cannot access Canvas data"
-              icon="slash" />
+              icon="slash"
+            />
           </div>
           <div v-if="!row.item.canAccessAdvisingData" class="text-secondary pr-2 position-relative">
             <font-awesome
               :id="`permission-advising-data-${row.item.uid}`"
-              :icon="['far', 'sticky-note']" />
+              :icon="['far', 'sticky-note']"
+            />
             <font-awesome
               :id="`permission-advising-data-${row.item.uid}`"
               class="icon-slash"
               title="Cannot access Advising data"
-              icon="slash" />
+              icon="slash"
+            />
           </div>
           <div v-if="row.item.name">
             <span class="sr-only">Name</span>
@@ -211,7 +225,8 @@
               :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
               :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
               class="m-0"
-              target="_blank">
+              target="_blank"
+            >
               {{ row.item.name }}
             </a>
           </div>
@@ -226,7 +241,8 @@
             v-if="!department.automateMembership"
             class="text-warning pr-1"
             title="Membership is not automated"
-            icon="exclamation-triangle" />
+            icon="exclamation-triangle"
+          />
           <span :id="`dept-${department.code}-${row.item.uid}`">
             <span class="dept-name">{{ department.name }}</span> ({{ oxfordJoin(getBoaUserRoles(row.item, department)) }})
           </span>
@@ -244,7 +260,8 @@
           <a
             :aria-label="`Send email to ${row.item.name}`"
             :href="`mailto:${row.item.campusEmail}`"
-            target="_blank"><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
+            target="_blank"
+          ><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
       </template>
       <template v-slot:row-details="row">
@@ -257,7 +274,8 @@
           v-if="canBecome(row.item)"
           :id="'become-' + row.item.uid"
           variant="link"
-          @click="become(row.item.uid)">
+          @click="become(row.item.uid)"
+        >
           <font-awesome icon="sign-in-alt" />
           <span class="sr-only">Log in as {{ row.item.name }}</span>
         </b-btn>

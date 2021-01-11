@@ -43,13 +43,15 @@
         <div
           v-for="department in $currentUser.departments"
           :key="department.code"
-          class="flex-row pb-3">
+          class="flex-row pb-3"
+        >
           <div id="my-dept-roles">{{ $_.upperFirst(department.role) }} in {{ department.name }}</div>
           <div v-if="$currentUser.canAccessAdvisingData && canToggleDropInAdvising(department)" class="ml-5">
             Drop-in advising:
             <DropInAdvisingToggle
               :dept-code="department.code"
-              class="drop-in-advising-toggle" />
+              class="drop-in-advising-toggle"
+            />
           </div>
         </div>
       </b-col>

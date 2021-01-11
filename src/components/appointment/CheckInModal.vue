@@ -8,7 +8,8 @@
     hide-footer
     hide-header
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+  >
     <div>
       <div class="modal-header">
         <h3>
@@ -62,7 +63,8 @@
             v-model="selectedAdvisorUid"
             :options="dropInAdvisors"
             value-field="uid"
-            text-field="name">
+            text-field="name"
+          >
             <template v-slot:first>
               <option :value="null">Select...</option>
             </template>
@@ -80,14 +82,16 @@
             :disabled="!selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="checkIn">
+            @click.prevent="checkIn"
+          >
             Check In
           </b-btn>
           <b-btn
             id="btn-appointment-close"
             class="pl-2"
             variant="link"
-            @click.stop="close">
+            @click.stop="close"
+          >
             Close
           </b-btn>
         </form>

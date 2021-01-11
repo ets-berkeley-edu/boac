@@ -9,7 +9,8 @@
           variant="link"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`course-details-${term.termId}-${index}`"
-          @click="detailsVisible = !detailsVisible">
+          @click="detailsVisible = !detailsVisible"
+        >
           <span class="mx-2">{{ course.displayName }}</span>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
@@ -19,26 +20,32 @@
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${term.termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="red-flag-status text-uppercase font-size-14 mt-1">
+          class="red-flag-status text-uppercase font-size-14 mt-1"
+        >
           Waitlisted
         </div>
       </div>
       <div role="cell" class="student-course-column-mid-grade text-nowrap">
         <span
           v-if="course.midtermGrade"
-          v-accessible-grade="course.midtermGrade"></span>
+          v-accessible-grade="course.midtermGrade"
+        ></span>
         <span
-          v-if="!course.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
+          v-if="!course.midtermGrade"
+        ><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-final-grade text-nowrap">
         <span
           v-if="course.grade"
-          v-accessible-grade="course.grade"></span>
+          v-accessible-grade="course.grade"
+        ></span>
         <span
           v-if="!course.grade"
-          class="font-italic text-muted">{{ course.gradingBasis }}</span>
+          class="font-italic text-muted"
+        >{{ course.gradingBasis }}</span>
         <span
-          v-if="!course.grade && !course.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
+          v-if="!course.grade && !course.gradingBasis"
+        ><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units text-nowrap">
         {{ course.units }}
@@ -47,18 +54,21 @@
     <b-collapse
       :id="`course-details-${term.termId}-${index}`"
       role="row"
-      class="student-course-details">
+      class="student-course-details"
+    >
       <div class="student-course-name">{{ course.displayName }}</div>
       <div class="student-course-sections">
         <span
           v-for="(section, sectionIndex) in course.sections"
-          :key="sectionIndex">
+          :key="sectionIndex"
+        >
           <span v-if="section.displayName">
             <span v-if="sectionIndex === 0"></span><!--
               --><router-link
             v-if="section.isViewableOnCoursePage"
             :id="`term-${term.termId}-section-${section.ccn}`"
-            :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
+            :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
+            ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
               --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
               --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
               --><span v-if="sectionIndex === course.sections.length - 1"></span>
@@ -70,7 +80,8 @@
         <div
           v-for="(canvasSite, csIndex) in course.canvasSites"
           :key="csIndex"
-          class="student-bcourses-wrapper">
+          class="student-bcourses-wrapper"
+        >
           <h5 class="student-bcourses-site-code">
             <span class="sr-only">Course Site</span>
             {{ canvasSite.courseCode }}
@@ -86,7 +97,8 @@
                 </span>
                 <span
                   v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
-                  class="font-italic text-muted">
+                  class="font-italic text-muted"
+                >
                   No Assignments
                 </span>
               </td>
@@ -95,7 +107,8 @@
                   v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable"
                   :chart-description="`Boxplot of ${student.name}'s assignments submitted in ${canvasSite.courseCode}`"
                   :dataset="canvasSite.analytics.assignmentsSubmitted"
-                  :numeric-id="canvasSite.canvasCourseId.toString()" />
+                  :numeric-id="canvasSite.canvasCourseId.toString()"
+                />
                 <div v-if="canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="sr-only">
                   <div>User score: {{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</div>
                   <div>Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }}</div>
@@ -114,7 +127,8 @@
                   </span>
                   <span
                     v-if="!canvasSite.analytics.assignmentsSubmitted.courseDeciles"
-                    class="font-italic text-muted">
+                    class="font-italic text-muted"
+                  >
                     No Data
                   </span>
                 </div>
@@ -130,7 +144,8 @@
                 </span>
                 <span
                   v-if="!canvasSite.analytics.currentScore.displayPercentile"
-                  class="font-italic text-muted">
+                  class="font-italic text-muted"
+                >
                   No Grades
                 </span>
               </td>
@@ -139,7 +154,8 @@
                   v-if="canvasSite.analytics.currentScore.boxPlottable"
                   :chart-description="`Boxplot of ${student.name}'s assignment grades in ${canvasSite.courseCode}`"
                   :dataset="canvasSite.analytics.currentScore"
-                  :numeric-id="canvasSite.canvasCourseId.toString()" />
+                  :numeric-id="canvasSite.canvasCourseId.toString()"
+                />
                 <div v-if="canvasSite.analytics.currentScore.boxPlottable" class="sr-only">
                   <div>User score: {{ canvasSite.analytics.currentScore.student.raw }}</div>
                   <div>Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }}</div>
@@ -151,7 +167,8 @@
                 <div v-if="!canvasSite.analytics.currentScore.boxPlottable">
                   <span
                     v-if="canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-muted">
+                    class="font-italic text-muted"
+                  >
                     Score:
                     <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
                     <span class="text-muted">
@@ -160,7 +177,8 @@
                   </span>
                   <span
                     v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-muted">
+                    class="font-italic text-muted"
+                  >
                     No Data
                   </span>
                 </div>

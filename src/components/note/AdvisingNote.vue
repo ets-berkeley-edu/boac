@@ -14,14 +14,16 @@
           v-if="$currentUser.isAdmin"
           :id="`btn-delete-note-${note.id}`"
           class="sr-only"
-          @click.stop="deleteNote(note)">
+          @click.stop="deleteNote(note)"
+        >
           Delete Note
         </b-btn>
         <b-btn
           v-if="$currentUser.uid === author.uid"
           :id="`btn-edit-note-${note.id}`"
           class="sr-only"
-          @click.stop="editNote(note)">
+          @click.stop="editNote(note)"
+        >
           Edit Note
         </b-btn>
       </div>
@@ -42,7 +44,8 @@
             :id="`note-${note.id}-author-name`"
             :aria-label="`Open UC Berkeley Directory page of ${author.name} in a new window`"
             :href="`https://www.berkeley.edu/directory/results?search-term=${author.name}`"
-            target="_blank">{{ author.name }}</a>
+            target="_blank"
+          >{{ author.name }}</a>
           <span v-if="!author.uid && author.name" :id="`note-${note.id}-author-name`">
             {{ author.name }}
           </span>
@@ -69,7 +72,8 @@
             v-for="(topic, index) in note.topics"
             :id="`note-${note.id}-topic-${index}`"
             :key="topic"
-            class="mt-2">
+            class="mt-2"
+          >
             <span class="pill pill-attachment text-uppercase text-nowrap">{{ topic }}</span>
           </li>
         </ul>
@@ -82,18 +86,21 @@
       :modal-body="`Are you sure you want to delete the <b>'${displayName(existingAttachments, deleteAttachmentIndex)}'</b> attachment?`"
       :show-modal="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
-      modal-header="Delete Attachment" />
+      modal-header="Delete Attachment"
+    />
     <div v-if="isOpen">
       <ul class="pill-list pl-0 mt-3">
         <li
           v-for="(attachment, index) in existingAttachments"
           :id="`note-${note.id}-attachment-${index}`"
           :key="attachment.name"
-          class="mt-2">
+          class="mt-2"
+        >
           <span class="pill pill-attachment text-nowrap">
             <a
               :id="`note-${note.id}-attachment-${index}`"
-              :href="downloadUrl(attachment)">
+              :href="downloadUrl(attachment)"
+            >
               <font-awesome icon="paperclip" />
               {{ attachment.displayName }}
             </a>
@@ -102,7 +109,8 @@
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
-              @click.prevent="removeAttachment(index)">
+              @click.prevent="removeAttachment(index)"
+            >
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
@@ -127,7 +135,8 @@
               variant="outline-primary"
               class="btn-file-upload mt-2 mb-2"
               size="sm"
-              @keydown.enter.prevent="clickBrowseForAttachment">
+              @keydown.enter.prevent="clickBrowseForAttachment"
+            >
               Select File
             </b-btn>
             <b-form-file

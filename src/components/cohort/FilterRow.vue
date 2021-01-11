@@ -2,16 +2,19 @@
   <div
     v-if="showRow"
     :class="{'pt-2': !isExistingFilter}"
-    class="d-flex flex-wrap">
+    class="d-flex flex-wrap"
+  >
     <div
       v-if="isExistingFilter"
       :id="`existing-filter-${position}`"
-      class="existing-filter-name px-2">
+      class="existing-filter-name px-2"
+    >
       {{ filter.label.primary }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
-      class="filter-row-column-01 mt-1 pr-2">
+      class="filter-row-column-01 mt-1 pr-2"
+    >
       <FilterSelect
         :filter-row-index="filterRowIndex"
         :labelledby="`new-filter-${position}-label`"
@@ -47,14 +50,16 @@
         <div>
           <span
             :id="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
-            class="sr-only">beginning of range</span>
+            class="sr-only"
+          >beginning of range</span>
           <input
             :id="idRangeMin"
             v-model="range.min"
             :aria-labelledby="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
-            class="filter-range-input" />
+            class="filter-range-input"
+          />
         </div>
         <div class="filter-range-label-max">
           {{ rangeMaxLabel() }}
@@ -62,14 +67,16 @@
         <div>
           <span
             :id="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
-            class="sr-only">end of range</span>
+            class="sr-only"
+          >end of range</span>
           <input
             :id="idRangeMax"
             v-model="range.max"
             :aria-labelledby="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
-            class="filter-range-input" />
+            class="filter-range-input"
+          />
         </div>
         <div
           v-if="$_.size(errorPerRangeInput)"
@@ -82,7 +89,8 @@
           v-if="$_.size(errorPerRangeInput)"
           :show="true"
           :target="isExistingFilter ? `filter-range-max-${position}` : 'filter-range-max'"
-          placement="top">
+          placement="top"
+        >
           <span class="has-error">{{ errorPerRangeInput }}</span>
         </b-popover>
       </div>
@@ -93,18 +101,21 @@
         id="unsaved-filter-add"
         class="btn-primary-color-override ml-2"
         variant="primary"
-        @click="onClickAddButton">
+        @click="onClickAddButton"
+      >
         Add
       </b-btn>
     </div>
     <div
       v-if="isModifyingFilter && $_.get(filter, 'type.ux') && !isExistingFilter"
-      class="filter-row-column-04">
+      class="filter-row-column-04"
+    >
       <b-btn
         id="unsaved-filter-reset"
         class="p-0"
         variant="link"
-        @click="reset">
+        @click="reset"
+      >
         Cancel
       </b-btn>
     </div>
@@ -116,7 +127,8 @@
             class="btn-cohort-added-filter pr-1"
             variant="link"
             size="sm"
-            @click="onClickEditButton">
+            @click="onClickEditButton"
+          >
             Edit
           </b-btn> |
         </span>
@@ -125,7 +137,8 @@
           class="btn-cohort-added-filter pl-2 pr-0"
           variant="link"
           size="sm"
-          @click="remove">
+          @click="remove"
+        >
           Remove
         </b-btn>
       </div>
@@ -136,7 +149,8 @@
           class="btn-primary-color-override"
           variant="primary"
           size="sm"
-          @click="onClickUpdateButton">
+          @click="onClickUpdateButton"
+        >
           Update
         </b-btn>
         <b-btn
@@ -144,7 +158,8 @@
           class="btn-cohort-added-filter"
           variant="link"
           size="sm"
-          @click="onClickCancelEdit">
+          @click="onClickCancelEdit"
+        >
           Cancel
         </b-btn>
       </div>

@@ -7,7 +7,8 @@
     hide-footer
     hide-header
     @cancel.prevent="cancel"
-    @hide.prevent="cancel">
+    @hide.prevent="cancel"
+  >
     <div>
       <div class="modal-header">
         <h3 class="ml-2">
@@ -19,7 +20,8 @@
           <div>
             <label
               for="log-resolved-issue-student-input"
-              class="font-size-14 input-label text mt-2">
+              class="font-size-14 input-label text mt-2"
+            >
               <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span>
               <span v-if="!student"> (name or SID)</span>
               <span class="sr-only">(expect auto-suggest based on what you enter)</span>
@@ -28,7 +30,8 @@
           <div v-if="student" class="d-inline-block">
             <AppointmentStudentPill
               :remove-student="removeStudent"
-              :student="student" />
+              :student="student"
+            />
           </div>
           <div v-if="!student">
             <div class="mb-2">
@@ -55,7 +58,8 @@
               :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="topics" />
+              :topics="topics"
+            />
           </div>
           <div class="mb-4 mr-3 mt-1">
             <div id="log-resolved-issue-details">
@@ -64,7 +68,8 @@
                 :disabled="isSaving"
                 :is-in-modal="true"
                 label="Issue &amp; Resolution"
-                :on-value-update="d => details = d" />
+                :on-value-update="d => details = d"
+              />
             </div>
           </div>
         </div>
@@ -74,13 +79,15 @@
             :disabled="!student || isStudentInWaitlist || !topics.length || !$_.trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="log">
+            @click.prevent="log"
+          >
             Log Resolved Issue
           </b-btn>
           <b-btn
             id="log-resolved-issue-cancel"
             variant="link"
-            @click.prevent="cancelModal">
+            @click.prevent="cancelModal"
+          >
             Cancel
           </b-btn>
         </div>

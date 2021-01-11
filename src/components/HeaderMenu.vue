@@ -5,7 +5,8 @@
       class="mr-2"
       variant="link"
       no-caret
-      right>
+      right
+    >
       <template slot="button-content">
         <div class="d-flex align-items-center">
           <div class="b-link-text">{{ $currentUser.firstName || `UID:${$currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
@@ -15,34 +16,39 @@
         v-if="$currentUser.isAdmin || myDirectorDepartment"
         id="header-menu-analytics"
         :to="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
-        class="nav-link-color text-decoration-none">
+        class="nav-link-color text-decoration-none"
+      >
         Flight Data Recorder
       </b-dropdown-item>
       <b-dropdown-item
         v-if="$currentUser.isAdmin"
         id="header-menu-flight-deck"
         class="nav-link-color text-decoration-none"
-        to="/admin">
+        to="/admin"
+      >
         Flight Deck
       </b-dropdown-item>
       <b-dropdown-item
         v-if="$currentUser.isAdmin"
         id="header-menu-passengers"
         to="/admin/passengers"
-        class="nav-link-color text-decoration-none">
+        class="nav-link-color text-decoration-none"
+      >
         Passenger Manifest
       </b-dropdown-item>
       <b-dropdown-item
         v-if="!$currentUser.isAdmin"
         id="header-menu-profile"
         class="nav-link-color text-decoration-none"
-        :to="isSimplyScheduler($currentUser) ? '/scheduler/profile' : '/profile'">
+        :to="isSimplyScheduler($currentUser) ? '/scheduler/profile' : '/profile'"
+      >
         Profile
       </b-dropdown-item>
       <b-dropdown-item
         :href="`mailto:${$config.supportEmailAddress}`"
         target="_blank"
-        aria-label="Send email to the BOA team">
+        aria-label="Send email to the BOA team"
+      >
         Feedback/Help<span class="sr-only"> (new browser tab will open)</span>
       </b-dropdown-item>
       <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>

@@ -21,7 +21,8 @@
             v-for="cohort in myCohorts"
             :key="cohort.id"
             :group="cohort"
-            :is-cohort="true" />
+            :is-cohort="true"
+          />
         </div>
       </div>
       <div v-if="$_.size(myCuratedGroups)">
@@ -32,7 +33,8 @@
           v-for="curatedGroup in myCuratedGroups"
           :key="curatedGroup.id"
           :group="curatedGroup"
-          :is-cohort="false" />
+          :is-cohort="false"
+        />
       </div>
     </div>
   </div>

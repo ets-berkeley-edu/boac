@@ -3,7 +3,8 @@
     <div>
       <label
         :for="`batch-note-${type}`"
-        class="font-size-14 font-weight-bolder input-label text mt-2"><span class="sr-only">Select a </span>{{ header }}</label>
+        class="font-size-14 font-weight-bolder input-label text mt-2"
+      ><span class="sr-only">Select a </span>{{ header }}</label>
     </div>
     <b-dropdown
       :id="`batch-note-${type}`"
@@ -11,14 +12,16 @@
       :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
       :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
-      class="mb-2 ml-0 transparent">
+      class="mb-2 ml-0 transparent"
+    >
       <b-dropdown-item
         v-for="object in objects"
         :id="`batch-note-${type}-option-${object.id}`"
         :key="object.id"
         :aria-label="`Add ${type} ${object.name}`"
         :disabled="$_.includes(addedIds, object.id)"
-        @click="addItem(object)">
+        @click="addItem(object)"
+      >
         {{ $_.truncate(object.name) }}
       </b-dropdown-item>
     </b-dropdown>
@@ -30,7 +33,8 @@
             :id="`remove-${type}-from-batch-${index}`"
             variant="link"
             class="p-0"
-            @click.prevent="remove(addedObject)">
+            @click.prevent="remove(addedObject)"
+          >
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
             <span class="sr-only">Remove</span>
           </b-btn>

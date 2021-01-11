@@ -10,14 +10,16 @@
       :sort-compare="sortCompare"
       :sort-desc.sync="sortDescending"
       stacked="md"
-      thead-class="sortable-table-header text-nowrap">
+      thead-class="sortable-table-header text-nowrap"
+    >
       <template v-slot:cell(lastName)="row">
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${row.item.csEmplId}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath(row.item.csEmplId)"
-          v-html="fullName(row.item)"></router-link>
+          v-html="fullName(row.item)"
+        ></router-link>
       </template>
 
       <template v-slot:cell(csEmplId)="row">

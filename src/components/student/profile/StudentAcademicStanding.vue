@@ -1,7 +1,8 @@
 <template>
   <div
     v-if="$_.get(standing, 'status') && standing.status !== 'GST'"
-    class="student-academic-standing">
+    class="student-academic-standing"
+  >
     <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${standing.termId}`" class="red-flag-status">
       {{ $config.academicStandingDescriptions[standing.status] || standing.status }} ({{ termNameForSisId(standing.termId) }})
     </span>

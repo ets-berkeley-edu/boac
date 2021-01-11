@@ -9,7 +9,8 @@
           id="create-curated-group-from-sidebar"
           aria-label="Create a new curated group"
           class="sidebar-create-link"
-          path="/curate">
+          path="/curate"
+        >
           <font-awesome icon="plus" class="sidebar-header" />
         </NavLink>
       </div>
@@ -17,19 +18,22 @@
     <div
       v-for="(group, index) in myCuratedGroups"
       :key="group.id"
-      class="d-flex justify-content-between sidebar-row-link">
+      class="d-flex justify-content-between sidebar-row-link"
+    >
       <div class="ml-2 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
-          :path="`/curated/${group.id}`">
+          :path="`/curated/${group.id}`"
+        >
           {{ group.name }}
         </NavLink>
       </div>
       <div class="ml-2 mr-2">
         <span
           :id="`sidebar-curated-group-${index}-count`"
-          class="sidebar-pill">{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
+          class="sidebar-pill"
+        >{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

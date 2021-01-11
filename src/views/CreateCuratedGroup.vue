@@ -12,11 +12,13 @@
       hide-footer
       hide-header-close
       title="Name Your Curated Group"
-      @shown="focusModalById('create-input')">
+      @shown="focusModalById('create-input')"
+    >
       <CreateCuratedGroupModal
         :sids="sids"
         :create="create"
-        :cancel="cancel" />
+        :cancel="cancel"
+      />
     </b-modal>
   </div>
 </template>

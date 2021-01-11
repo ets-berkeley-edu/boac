@@ -8,7 +8,8 @@
     hide-footer
     hide-header
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+  >
     <div>
       <div class="modal-header">
         <h3 :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</h3>
@@ -20,14 +21,16 @@
           </label>
           <b-form-select
             id="assign-modal-advisor-select"
-            v-model="selectedAdvisorUid">
+            v-model="selectedAdvisorUid"
+          >
             <template v-slot:first>
               <option :value="null">Select...</option>
             </template>
             <option
               v-for="advisor in dropInAdvisors"
               :key="advisor.uid"
-              :value="advisor.uid">
+              :value="advisor.uid"
+            >
               {{ advisor.name }}
             </option>
           </b-form-select>
@@ -44,14 +47,16 @@
             :disabled="!selectedAdvisorUid"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="assign">
+            @click.prevent="assign"
+          >
             Assign
           </b-btn>
           <b-btn
             id="btn-appointment-close"
             class="pl-2"
             variant="link"
-            @click.stop="close">
+            @click.stop="close"
+          >
             Close
           </b-btn>
         </form>

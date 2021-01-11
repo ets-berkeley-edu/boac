@@ -68,7 +68,8 @@
         <div class="pt-4">
           <SortableStudents
             :students="studentsWithAlerts"
-            :options="sortableGroupOptions" />
+            :options="sortableGroupOptions"
+          />
         </div>
       </div>
       <div v-if="openAndLoaded" class="mb-3 ml-3">

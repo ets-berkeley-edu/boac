@@ -6,14 +6,17 @@
       :alt="ariaLabel"
       :src="avatarUrl"
       class="avatar"
-      @error="avatarError" />
+      @error="avatarError"
+    />
     <div
       v-if="alertCount"
       aria-hidden="true"
-      class="student-avatar-alert-count">
+      class="student-avatar-alert-count"
+    >
       <span
         v-b-tooltip.hover.bottom
-        :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`">
+        :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`"
+      >
         {{ alertCount }}
       </span>
     </div>

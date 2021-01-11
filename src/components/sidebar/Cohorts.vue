@@ -9,7 +9,8 @@
           id="cohort-create"
           class="sidebar-create-link"
           aria-label="Create cohort"
-          path="/cohort/new">
+          path="/cohort/new"
+        >
           <font-awesome icon="plus" class="sidebar-header" />
         </NavLink>
       </div>
@@ -17,19 +18,22 @@
     <div
       v-for="cohort in myCohorts"
       :key="cohort.id"
-      class="d-flex justify-content-between sidebar-row-link">
+      class="d-flex justify-content-between sidebar-row-link"
+    >
       <div class="ml-2 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          :path="`/cohort/${cohort.id}`">
+          :path="`/cohort/${cohort.id}`"
+        >
           {{ cohort.name }}
         </NavLink>
       </div>
       <div class="ml-2 mr-2">
         <span
           :id="`sidebar-cohort-${cohort.id}-total-student-count`"
-          class="sidebar-pill">{{ cohort.totalStudentCount }}<span class="sr-only">{{ pluralize('student', cohort.totalStudentCount) }}</span>
+          class="sidebar-pill"
+        >{{ cohort.totalStudentCount }}<span class="sr-only">{{ pluralize('student', cohort.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

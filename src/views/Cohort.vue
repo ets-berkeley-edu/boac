@@ -7,12 +7,14 @@
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
-        class="mr-3 mb-3">
+        class="mr-3 mb-3"
+      >
         <FilterRow
           v-for="(filter, index) in filters"
           :key="filterRowUniqueKey(filter, index)"
           class="filter-row"
-          :position="index" />
+          :position="index"
+        />
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
@@ -32,7 +34,8 @@
               :context-description="`Cohort ${cohortName || ''}`"
               :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
-              :students="students" />
+              :students="students"
+            />
             <div class="pt-1">
               <SortBy v-if="showSortBy" :domain="domain" />
             </div>
@@ -45,7 +48,8 @@
                 :init-page-number="pageNumber"
                 :limit="10"
                 :per-page="pagination.itemsPerPage"
-                :total-rows="totalStudentCount" />
+                :total-rows="totalStudentCount"
+              />
             </div>
           </div>
           <div>
@@ -60,7 +64,8 @@
                   :sorted-by="preferences.sortBy"
                   :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                   list-type="cohort"
-                  class="border-right-0 list-group-item border-left-0 pl-0" />
+                  class="border-right-0 list-group-item border-left-0 pl-0"
+                />
               </div>
               <table v-if="domain === 'admitted_students'" id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
                 <thead class="sortable-table-header">
@@ -84,7 +89,8 @@
                     :key="student.csEmplId"
                     :row-index="index"
                     :sorted-by="preferences.admitSortBy"
-                    :admit-student="student" />
+                    :admit-student="student"
+                  />
                 </tbody>
               </table>
             </div>
@@ -94,7 +100,8 @@
                 :init-page-number="pageNumber"
                 :limit="10"
                 :per-page="pagination.itemsPerPage"
-                :total-rows="totalStudentCount" />
+                :total-rows="totalStudentCount"
+              />
             </div>
           </div>
         </div>

@@ -20,7 +20,8 @@
               maxlength="255"
               required
               type="text"
-              @keyup.esc="exitRenameMode" />
+              @keyup.esc="exitRenameMode"
+            />
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
@@ -29,7 +30,8 @@
         <div
           v-if="$_.size(renameInput) === 255"
           class="sr-only"
-          aria-live="polite">
+          aria-live="polite"
+        >
           Name cannot exceed 255 characters.
         </div>
       </div>
@@ -40,7 +42,8 @@
           class="btn-primary-color-override"
           variant="primary"
           size="sm"
-          @click.stop="rename">
+          @click.stop="rename"
+        >
           Rename
         </b-btn>
         <b-btn
@@ -48,7 +51,8 @@
           class="cohort-manage-btn"
           variant="link"
           size="sm"
-          @click="exitRenameMode">
+          @click="exitRenameMode"
+        >
           Cancel
         </b-btn>
       </div>
@@ -57,7 +61,8 @@
           <b-btn
             id="bulk-add-sids-button"
             variant="link"
-            @click="enterBulkAddMode">
+            @click="enterBulkAddMode"
+          >
             Add Students
           </b-btn>
         </div>
@@ -66,7 +71,8 @@
           <b-btn
             id="rename-button"
             variant="link"
-            @click="enterRenameMode">
+            @click="enterRenameMode"
+          >
             Rename
           </b-btn>
         </div>
@@ -81,7 +87,8 @@
           </b-btn>
           <b-modal
             id="confirm-delete-modal"
-            v-model="isDeleteModalOpen">
+            v-model="isDeleteModalOpen"
+          >
             <div slot="modal-header">
               <h3>Delete Curated Group</h3>
             </div>
@@ -93,20 +100,23 @@
                 id="delete-confirm"
                 class="btn-primary-color-override"
                 variant="primary"
-                @click="deleteGroup">
+                @click="deleteGroup"
+              >
                 Delete
               </b-btn>
               <b-btn
                 id="delete-cancel"
                 variant="link"
-                @click="isDeleteModalOpen = false">
+                @click="isDeleteModalOpen = false"
+              >
                 Cancel
               </b-btn>
             </div>
           </b-modal>
           <b-modal
             id="cohort-warning-modal"
-            v-model="isCohortWarningModalOpen">
+            v-model="isCohortWarningModalOpen"
+          >
             <div slot="modal-header" class="ml-3 mt-3">
               <h3 class="font-size-24">This group is in use as a cohort filter</h3>
             </div>
@@ -114,7 +124,8 @@
               id="cohort-warning-body"
               class="modal-body"
               aria-live="polite"
-              role="alert">
+              role="alert"
+            >
               Sorry, you cannot delete this curated group until you have removed the filter
               from
               <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bolder">{{ referencingCohorts[0].name }}</span>.</span>
@@ -130,7 +141,8 @@
                 id="cohort-warning-modal-close"
                 class="mb-1 mr-3"
                 variant="link"
-                @click="isCohortWarningModalOpen = false">
+                @click="isCohortWarningModalOpen = false"
+              >
                 Close
               </b-btn>
             </div>
@@ -152,12 +164,14 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('export-list-confirm')">
+            @shown="focusModalById('export-list-confirm')"
+          >
             <ExportListModal
               :cancel-export-list-modal="cancelExportGroupModal"
               :csv-columns="getDefaultCsvExportColumns()"
               :csv-columns-selected="['first_name', 'last_name', 'sid', 'email', 'phone']"
-              :export-list="exportGroup" />
+              :export-list="exportGroup"
+            />
           </b-modal>
         </div>
       </div>
@@ -168,7 +182,8 @@
         v-if="referencingCohorts.length === 1"
         id="referencing-cohort-0"
         aria-label="Link to cohort"
-        :to="`/cohort/${referencingCohorts[0].id}`">
+        :to="`/cohort/${referencingCohorts[0].id}`"
+      >
         {{ referencingCohorts[0].name }}.
       </router-link>
       <span v-if="referencingCohorts.length > 1">
@@ -177,7 +192,8 @@
           <router-link
             :id="`referencing-cohort-${index}`"
             aria-label="Link to cohort"
-            :to="`/cohort/${cohort.id}`">{{ cohort.name }}</router-link>{{ index === referencingCohorts.length - 1 ? '.' : (referencingCohorts.length > 2 ? ',' : '') }}
+            :to="`/cohort/${cohort.id}`"
+          >{{ cohort.name }}</router-link>{{ index === referencingCohorts.length - 1 ? '.' : (referencingCohorts.length > 2 ? ',' : '') }}
         </span>
       </span>
     </div>

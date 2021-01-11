@@ -15,7 +15,8 @@
           variant="outline-primary"
           class="btn-file-upload mt-2 mb-2"
           size="sm"
-          @keydown.enter.prevent="clickBrowseForAttachment">
+          @keydown.enter.prevent="clickBrowseForAttachment"
+        >
           Select File
         </b-btn>
         <b-form-file
@@ -38,7 +39,8 @@
           v-for="(attachment, index) in existingAttachments"
           :id="`new-note-attachment-${index}`"
           :key="attachment.name"
-          class="mt-2">
+          class="mt-2"
+        >
           <span class="pill pill-attachment text-nowrap">
             <font-awesome icon="paperclip" />
             {{ attachment.displayName }}
@@ -47,7 +49,8 @@
               :disabled="disabled"
               variant="link"
               class="p-0"
-              @click.prevent="removeAttachmentByIndex(index)">
+              @click.prevent="removeAttachmentByIndex(index)"
+            >
               <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>

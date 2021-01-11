@@ -15,7 +15,8 @@
           id="speedbird"
           class="btn-dismiss pl-2 pt-0 text-white"
           variant="link"
-          @click="dismissTheWarning">
+          @click="dismissTheWarning"
+        >
           <font-awesome icon="plane-departure" />
           <span class="sr-only">Dismiss warning about BOA environment type</span>
         </b-btn>

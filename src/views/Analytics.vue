@@ -27,7 +27,8 @@
               class="form-control font-size-16 pb-1 pl-2 pr-5 pt-1 w-auto"
               text-field="name"
               value-field="code"
-              @change="render">
+              @change="render"
+            >
             </b-form-select>
           </div>
         </div>

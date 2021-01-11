@@ -14,7 +14,8 @@
           v-if="section.totalStudentCount > pagination.itemsPerPage"
           id="skip-to-pagination-widget"
           href="#pagination-widget"
-          class="sr-only">Skip to pagination widget</a>
+          class="sr-only"
+        >Skip to pagination widget</a>
         <div>
           <div class="d-flex">
             <div class="course-column-description">
@@ -69,7 +70,8 @@
               :context-description="`Course ${section.displayName}`"
               :ga-event-tracker="$ga.courseEvent"
               :students="section.students"
-              class="mr-2" />
+              class="mr-2"
+            />
           </div>
           <div v-if="!matrixDisabledMessage" class="d-flex mb-2 text-nowrap">
             <b-button-group
@@ -133,7 +135,8 @@
                 :init-page-number="pagination.currentPage"
                 :limit="20"
                 :per-page="pagination.itemsPerPage"
-                :total-rows="section.totalStudentCount" />
+                :total-rows="section.totalStudentCount"
+              />
             </div>
           </div>
         </div>

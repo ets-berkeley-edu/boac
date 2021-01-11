@@ -7,7 +7,8 @@
     hide-footer
     hide-header
     @cancel.prevent="cancel"
-    @hide.prevent="cancel">
+    @hide.prevent="cancel"
+  >
     <div>
       <div class="modal-header">
         <h3 class="ml-2">
@@ -19,7 +20,8 @@
           <div>
             <label
               for="appointment-student-input"
-              class="font-size-14 input-label text mt-2">
+              class="font-size-14 input-label text mt-2"
+            >
               <span class="sr-only">Select a </span><span class="font-weight-bolder">Student</span>
               <span v-if="!student"> (name or SID)</span>
               <span class="sr-only">(expect auto-suggest based on what you enter)</span>
@@ -28,7 +30,8 @@
           <div v-if="student" class="d-inline-block">
             <AppointmentStudentPill
               :remove-student="removeStudent"
-              :student="student" />
+              :student="student"
+            />
           </div>
           <div v-if="!student">
             <div class="mb-2">
@@ -53,20 +56,23 @@
           <div v-if="advisors">
             <label
               for="create-modal-advisor-select"
-              class="font-size-14 input-label text mt-2">
+              class="font-size-14 input-label text mt-2"
+            >
               <span class="sr-only">Select an </span><span class="font-weight-bolder">Advisor</span> (optional)
             </label>
             <b-col v-if="availableAdvisors.length" cols="9" class="pl-0">
               <b-form-select
                 id="create-modal-advisor-select"
-                v-model="selectedAdvisorUid">
+                v-model="selectedAdvisorUid"
+              >
                 <template v-slot:first>
                   <option :value="null">Select...</option>
                 </template>
                 <option
                   v-for="advisor in availableAdvisors"
                   :key="advisor.uid"
-                  :value="advisor.uid">
+                  :value="advisor.uid"
+                >
                   {{ advisor.name }}
                 </option>
               </b-form-select>
@@ -80,7 +86,8 @@
               :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="topics" />
+              :topics="topics"
+            />
           </div>
           <div class="mb-4 mr-3 mt-1">
             <div id="appointment-details">
@@ -89,7 +96,8 @@
                 :disabled="isSaving"
                 :is-in-modal="true"
                 label="Description"
-                :on-value-update="d => details = d" />
+                :on-value-update="d => details = d"
+              />
             </div>
           </div>
         </div>
@@ -99,13 +107,15 @@
             :disabled="!student || isStudentInWaitlist || !topics.length || !$_.trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="create">
+            @click.prevent="create"
+          >
             Make Appointment
           </b-btn>
           <b-btn
             id="create-appointment-cancel"
             variant="link"
-            @click.prevent="cancelModal">
+            @click.prevent="cancelModal"
+          >
             Cancel
           </b-btn>
         </div>

@@ -10,7 +10,8 @@
           <b-collapse
             id="search-options-panel"
             v-model="showSearchOptions"
-            class="mt-2 text-white">
+            class="mt-2 text-white"
+          >
             <div id="search-options-header" class="sr-only">
               Search options
             </div>
@@ -18,11 +19,13 @@
               <b-form-checkbox
                 id="search-include-admits-checkbox"
                 v-model="includeAdmits"
-                plain>
+                plain
+              >
               </b-form-checkbox>
               <label
                 for="search-include-admits-checkbox"
-                class="search-form-label">
+                class="search-form-label"
+              >
                 <span class="sr-only">Search for</span>
                 Admitted Students
               </label>
@@ -31,11 +34,13 @@
               <b-form-checkbox
                 id="search-include-students-checkbox"
                 v-model="includeStudents"
-                plain>
+                plain
+              >
               </b-form-checkbox>
               <label
                 for="search-include-students-checkbox"
-                class="search-form-label">
+                class="search-form-label"
+              >
                 <span class="sr-only">Search for</span>
                 Students
               </label>
@@ -44,11 +49,13 @@
               <b-form-checkbox
                 id="search-include-courses-checkbox"
                 v-model="includeCourses"
-                plain>
+                plain
+              >
               </b-form-checkbox>
               <label
                 for="search-include-courses-checkbox"
-                class="search-form-label">
+                class="search-form-label"
+              >
                 <span class="sr-only">Search for</span>
                 Classes
               </label>
@@ -57,11 +64,13 @@
               <b-form-checkbox
                 id="search-include-notes-checkbox"
                 v-model="includeNotes"
-                plain>
+                plain
+              >
               </b-form-checkbox>
               <label
                 for="search-include-notes-checkbox"
-                class="search-form-label">
+                class="search-form-label"
+              >
                 <span class="sr-only">Search for</span>
                 Notes &amp; Appointments
               </label>
@@ -73,7 +82,8 @@
                   :class="includeNotes ? 'visible' : 'invisible'"
                   class="search-options-panel-toggle search-options-panel-toggle-subpanel text-nowrap"
                   variant="link"
-                  @click="toggleNoteFilters">
+                  @click="toggleNoteFilters"
+                >
                   ({{ showNoteFilters ? 'hide' : 'show' }} <span class="sr-only">note and appointment search </span>filters)
                 </b-btn>
               </div>
@@ -82,13 +92,15 @@
               v-if="$currentUser.canAccessAdvisingData"
               id="search-options-note-filters-subpanel"
               v-model="showNoteFilters"
-              class="search-options-note-filters-subpanel text-white">
+              class="search-options-note-filters-subpanel text-white"
+            >
               <div>
                 <b-form-group label="Topic" label-for="search-option-note-filters-topic">
                   <b-form-select
                     id="search-option-note-filters-topic"
                     v-model="noteFilters.topic"
-                    :options="topicOptions">
+                    :options="topicOptions"
+                  >
                     <template v-slot:first>
                       <option :value="null">Any topic</option>
                     </template>
@@ -101,7 +113,8 @@
                     :ischecked="noteFilters.postedBy === 'anyone'"
                     name="note-filters-posted-by"
                     value="anyone"
-                    @change.native="clearAuthorFilter">
+                    @change.native="clearAuthorFilter"
+                  >
                     Anyone
                   </b-form-radio>
                   <b-form-radio
@@ -110,7 +123,8 @@
                     :ischecked="noteFilters.postedBy === 'you'"
                     name="note-filters-posted-by"
                     value="you"
-                    @change.native="clearAuthorFilter">
+                    @change.native="clearAuthorFilter"
+                  >
                     You
                   </b-form-radio>
                 </b-form-group>
@@ -140,7 +154,8 @@
                   <label
                     id="note-filters-date-from-label"
                     for="search-options-note-filters-last-updated-from"
-                    class="search-form-label">
+                    class="search-form-label"
+                  >
                     <span class="sr-only">Date</span>
                     From
                   </label>
@@ -169,7 +184,8 @@
                       <b-btn
                         id="search-options-note-filters-last-updated-from-clear"
                         class="search-input-date"
-                        @click="noteFilters.dateFrom = null">
+                        @click="noteFilters.dateFrom = null"
+                      >
                         <font-awesome icon="times" />
                         <span class="sr-only">Clear date from</span>
                       </b-btn>
@@ -178,7 +194,8 @@
                   <label
                     id="note-filters-date-to-label"
                     for="search-options-note-filters-last-updated-to"
-                    class="search-form-label">
+                    class="search-form-label"
+                  >
                     <span class="sr-only">Date</span>
                     To
                   </label>
@@ -208,7 +225,8 @@
                       <b-btn
                         id="search-options-note-filters-last-updated-to-clear"
                         class="search-input-date"
-                        @click="noteFilters.dateTo = null">
+                        @click="noteFilters.dateTo = null"
+                      >
                         <font-awesome icon="times"></font-awesome>
                         <span class="sr-only">Clear date to</span>
                       </b-btn>
@@ -231,7 +249,8 @@
               v-if="allOptionsUnchecked"
               class="sr-only"
               aria-live="polite"
-              role="alert">
+              role="alert"
+            >
               At least one search option must be checked.
             </span>
             <span id="search-input-label" class="sr-only">
@@ -263,7 +282,8 @@
                   aria-live="polite"
                   placement="top"
                   role="alert"
-                  target="search-students-input">
+                  target="search-students-input"
+                >
                   <span id="popover-error-message" class="has-error"><font-awesome icon="exclamation-triangle" class="text-warning pr-1" /> Search input is required</span>
                 </b-popover>
               </div>
@@ -286,14 +306,16 @@
               <font-awesome icon="search" />
               <label
                 for="search-students-input"
-                class="search-form-label pl-1">Search</label>
+                class="search-form-label pl-1"
+              >Search</label>
             </div>
             <b-btn
               id="search-options-panel-toggle"
               aria-controls="search-options-panel"
               class="pr-0 pt-0 search-options-panel-toggle"
               variant="link"
-              @click="toggleSearchOptions">
+              @click="toggleSearchOptions"
+            >
               {{ showSearchOptions ? 'Hide' : 'Show' }}
               <span class="sr-only"> search </span>options
             </b-btn>

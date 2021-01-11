@@ -17,13 +17,15 @@
           id="create-error"
           class="has-error"
           aria-live="polite"
-          role="alert">
+          role="alert"
+        >
           {{ error }}
         </div>
         <div
           v-if="name.length === 255"
           class="sr-only"
-          aria-live="polite">
+          aria-live="polite"
+        >
           Curated group name cannot exceed 255 characters.
         </div>
       </div>
@@ -33,13 +35,15 @@
           :disabled="!name.length"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="createCuratedGroup">
+          @click.prevent="createCuratedGroup"
+        >
           Save
         </b-btn>
         <b-btn
           id="create-cancel"
           variant="link"
-          @click="cancelModal">
+          @click="cancelModal"
+        >
           Cancel
         </b-btn>
       </div>

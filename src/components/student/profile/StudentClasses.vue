@@ -18,14 +18,16 @@
     </div>
     <div
       v-for="(terms, academicYear, yearIndex) in enrollmentTermsByYear"
-      :key="yearIndex">
+      :key="yearIndex"
+    >
       <b-button
         :id="`academic-year-${$_.kebabCase(academicYear)}-toggle`"
         v-b-toggle="`academic-year-${$_.kebabCase(academicYear)}`"
         block
         class="profile-academic-year-toggle background-light"
         :pressed="null"
-        variant="link">
+        variant="link"
+      >
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
             <div class="pr-3">
@@ -41,13 +43,15 @@
       </b-button>
       <b-collapse
         :id="`academic-year-${$_.kebabCase(academicYear)}`"
-        class="mr-3 mb-2">
+        class="mr-3 mb-2"
+      >
         <b-card-group deck class="pl-3 pr-1">
           <StudentEnrollmentTerm
             v-for="(term, index) in terms"
             :key="index"
             :student="student"
-            :term="term" />
+            :term="term"
+          />
         </b-card-group>
       </b-collapse>
     </div>

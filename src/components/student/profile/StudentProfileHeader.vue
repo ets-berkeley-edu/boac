@@ -9,12 +9,14 @@
                 id="student-name-header"
                 :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                 class="student-section-header"
-                v-html="student.name"></h1>
+                v-html="student.name"
+              ></h1>
               <h2 class="sr-only">Profile</h2>
               <div
                 v-if="student.sisProfile.preferredName !== student.name"
                 id="student-preferred-name"
-                :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+              >
                 <span class="sr-only">Preferred name</span>
                 <span v-html="student.sisProfile.preferredName"></span>
               </div>
@@ -23,7 +25,8 @@
                 <span
                   v-if="academicCareerStatus === 'Inactive'"
                   id="student-bio-inactive"
-                  class="red-flag-status ml-1">
+                  class="red-flag-status ml-1"
+                >
                   INACTIVE
                 </span>
                 <span
@@ -31,7 +34,8 @@
                   class="ml-1"
                   uib-tooltip="Graduated"
                   aria-label="Graduated"
-                  tooltip-placement="bottom">
+                  tooltip-placement="bottom"
+                >
                   <font-awesome icon="graduation-cap" />
                 </span>
               </div>
@@ -41,7 +45,8 @@
                   id="student-mailto"
                   :href="`mailto:${student.sisProfile.emailAddress}`"
                   :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                  target="_blank">
+                  target="_blank"
+                >
                   <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
                 </a>
               </div>
@@ -62,7 +67,8 @@
               </div>
               <div
                 v-if="student.sisProfile.expectedGraduationTerm && $_.get(student.sisProfile, 'level.code') !== 'GR'"
-                id="student-bio-expected-graduation">
+                id="student-bio-expected-graduation"
+              >
                 Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
               </div>
               <div v-if="student.athleticsProfile" id="student-bio-athletics">
@@ -86,7 +92,8 @@
               v-for="plan in plansPartitionedByStatus[0]"
               :key="plan.description"
               :plan="plan"
-              :active="true" />
+              :active="true"
+            />
           </div>
           <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
             <h3 v-if="plansMinorPartitionedByStatus.length > 1" class="student-profile-section-header">Minors</h3>
@@ -95,14 +102,16 @@
               v-for="plan in plansMinorPartitionedByStatus[0]"
               :key="plan.description"
               :plan="plan"
-              :active="true" />
+              :active="true"
+            />
           </div>
           <div v-if="!$_.isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
             <h3 class="student-profile-section-header">{{ pluralize('Subplan', student.sisProfile.subplans.length) }}</h3>
             <div
               v-for="subplan in student.sisProfile.subplans"
               :key="subplan"
-              class="font-weight-bolder mb-2">
+              class="font-weight-bolder mb-2"
+            >
               {{ subplan }}
             </div>
           </div>
@@ -115,7 +124,8 @@
                 v-for="plan in plansPartitionedByStatus[1]"
                 :key="plan.description"
                 :plan="plan"
-                :active="false" />
+                :active="false"
+              />
             </div>
           </div>
           <div v-if="!plansPartitionedByStatus[0].length && plansMinorPartitionedByStatus[1].length" id="student-details-discontinued-minors-outer" class="mb-3">
@@ -127,7 +137,8 @@
                 v-for="plan in plansMinorPartitionedByStatus[1]"
                 :key="plan.description"
                 :plan="plan"
-                :active="false" />
+                :active="false"
+              />
             </div>
           </div>
         </div>
@@ -177,7 +188,8 @@
         :inactive-majors="belowTheFoldMajors"
         :inactive-minors="belowTheFoldMinors"
         :is-open="isShowingPersonalDetails"
-        :student="student" />
+        :student="student"
+      />
     </div>
   </div>
 </template>

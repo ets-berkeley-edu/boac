@@ -12,7 +12,8 @@
         type="text"
         maxlength="255"
         @input="setSubjectPerEvent"
-        @keydown.esc="cancelRequested">
+        @keydown.esc="cancelRequested"
+      >
     </div>
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
@@ -20,7 +21,8 @@
           :disabled="boaSessionExpired"
           :initial-value="model.body || ''"
           label="Note Details"
-          :on-value-update="setBody" />
+          :on-value-update="setBody"
+        />
       </span>
     </div>
     <div>
@@ -29,7 +31,8 @@
         :function-add="addTopic"
         :function-remove="removeTopic"
         :note-id="model.id"
-        :topics="model.topics" />
+        :topics="model.topics"
+      />
     </div>
     <div>
       <div
@@ -37,7 +40,8 @@
         id="uh-oh-session-time-out"
         aria-live="polite"
         class="pl-3 pr-3"
-        role="alert">
+        role="alert"
+      >
         <SessionExpired />
       </div>
       <div v-if="!boaSessionExpired" class="d-flex mt-2 mb-2">
@@ -46,7 +50,8 @@
             id="save-note-button"
             class="btn-primary-color-override"
             variant="primary"
-            @click="save">
+            @click="save"
+          >
             Save
           </b-btn>
         </div>
@@ -55,7 +60,8 @@
             id="cancel-edit-note-button"
             variant="link"
             @click.stop="cancelRequested"
-            @keypress.enter.stop="cancelRequested">
+            @keypress.enter.stop="cancelRequested"
+          >
             Cancel
           </b-btn>
         </div>
@@ -66,7 +72,8 @@
       :function-cancel="cancelTheCancel"
       :function-confirm="cancelConfirmed"
       :show-modal="showAreYouSureModal"
-      modal-header="Discard unsaved changes?" />
+      modal-header="Discard unsaved changes?"
+    />
     <div v-if="$_.size(model.attachments)">
       <div class="pill-list-header mt-3 mb-1">{{ $_.size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
@@ -76,7 +83,8 @@
           :key="attachment.id"
           class="mt-2"
           @click.stop
-          @keyup.stop>
+          @keyup.stop
+        >
           <span class="pill pill-attachment text-nowrap">
             <font-awesome icon="paperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}
@@ -90,7 +98,8 @@
       placement="top"
       target="edit-note-subject"
       aria-live="polite"
-      role="alert">
+      role="alert"
+    >
       <span id="popover-error-message" class="has-error">{{ error }}</span>
     </b-popover>
   </form>

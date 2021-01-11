@@ -7,7 +7,8 @@
     hide-footer
     hide-header
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+  >
     <div>
       <div class="modal-header">
         <h3>Cancel Appointment</h3>
@@ -59,7 +60,8 @@
             id="cancellation-reason"
             v-model="reason"
             :options="reasonOptions"
-            @input="reasonSelected">
+            @input="reasonSelected"
+          >
             <template v-slot:first>
               <option :value="undefined">Select...</option>
             </template>
@@ -72,7 +74,8 @@
           <b-form-textarea
             id="cancellation-reason-explained"
             v-model="reasonExplained"
-            rows="4">
+            rows="4"
+          >
           </b-form-textarea>
         </div>
       </div>
@@ -83,13 +86,15 @@
             :disabled="!reason"
             class="btn-primary-color-override mr-2"
             variant="primary"
-            @click.prevent="cancelTheAppointment">
+            @click.prevent="cancelTheAppointment"
+          >
             Cancel Appointment
           </b-btn>
           <b-btn
             id="btn-appointment-close"
             variant="link"
-            @click.stop="close">
+            @click.stop="close"
+          >
             Close
           </b-btn>
         </form>

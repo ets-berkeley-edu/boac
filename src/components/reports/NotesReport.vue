@@ -12,7 +12,8 @@
           id="show-hide-notes-report"
           class="p-0"
           variant="link"
-          @click="isShowingReport = !isShowingReport">
+          @click="isShowingReport = !isShowingReport"
+        >
           {{ isShowingReport ? 'Hide' : 'Show' }} complete notes report
         </b-btn>)
       </div>
@@ -20,7 +21,8 @@
     <div
       v-if="isLoading"
       aria-live="polite"
-      role="alert">
+      role="alert"
+    >
       <span class="sr-only">Notes report is loading.</span>
     </div>
     <div v-if="!isLoading">

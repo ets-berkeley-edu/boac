@@ -43,7 +43,8 @@
         <SelectAll
           context-description="Search"
           :ga-event-tracker="$ga.searchEvent"
-          :students="results.students" />
+          :students="results.students"
+        />
       </div>
       <div>
         <SortableStudents :students="results.students" :options="studentListOptions" />
@@ -54,7 +55,8 @@
         :search-phrase="phrase"
         :courses="results.courses"
         :total-course-count="results.totalCourseCount"
-        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes)" />
+        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes)"
+      />
     </div>
     <div v-if="!loading && $_.size(results.notes)" class="pt-4">
       <h2 id="search-results-category-header-notes" class="page-section-header">
@@ -65,13 +67,15 @@
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
         :key="advisingNote.id"
-        :note="advisingNote" />
+        :note="advisingNote"
+      />
       <div class="text-center">
         <b-btn
           v-if="!completeNoteResults"
           id="fetch-more-notes"
           variant="link"
-          @click.prevent="fetchMoreNotes">
+          @click.prevent="fetchMoreNotes"
+        >
           Show additional advising notes
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalNotes" />
@@ -86,13 +90,15 @@
       <AppointmentSnippet
         v-for="appointment in results.appointments"
         :key="appointment.id"
-        :appointment="appointment" />
+        :appointment="appointment"
+      />
       <div class="text-center">
         <b-btn
           v-if="!completeAppointmentResults"
           id="fetch-more-appointments"
           variant="link"
-          @click.prevent="fetchMoreAppointments">
+          @click.prevent="fetchMoreAppointments"
+        >
           Show additional advising appointments
         </b-btn>
         <SectionSpinner :loading="loadingAdditionalAppointments" />

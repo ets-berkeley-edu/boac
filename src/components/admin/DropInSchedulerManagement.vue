@@ -20,16 +20,19 @@
         :id="`scheduler-row-${scheduler.uid}`"
         :key="scheduler.uid"
         align-v="start"
-        class="p-2">
+        class="p-2"
+      >
         <b-col
           :id="`scheduler-row-${scheduler.uid}-name`"
           class="font-weight-500 no-wrap"
-          :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        >
           {{ scheduler.lastName }}, {{ scheduler.firstName }}
         </b-col>
         <b-col
           :id="`scheduler-row-${scheduler.uid}-sid`"
-          :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        >
           {{ scheduler.csid }}
         </b-col>
         <b-col class="d-flex justify-content-end">
@@ -39,7 +42,8 @@
             class="btn btn-link p-0"
             variant="link"
             @click="confirmRemoveScheduler(scheduler)"
-            @keyup.enter="confirmRemoveScheduler(scheduler)">
+            @keyup.enter="confirmRemoveScheduler(scheduler)"
+          >
             Remove
           </b-btn>
           <div v-if="isRemoving && scheduler.uid === schedulerToRemove.uid">
@@ -54,11 +58,13 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="focusModalById('confirm-remove-scheduler-modal')">
+      @shown="focusModalById('confirm-remove-scheduler-modal')"
+    >
       <RemoveDropInSchedulerModal
         :cancel-modal="cancelRemoveSchedulerModal"
         :remove-scheduler="removeScheduler"
-        :scheduler-name="`${$_.get(schedulerToRemove, 'firstName')} ${$_.get(schedulerToRemove, 'lastName')}`" />
+        :scheduler-name="`${$_.get(schedulerToRemove, 'firstName')} ${$_.get(schedulerToRemove, 'lastName')}`"
+      />
     </b-modal>
   </div>
 </template>
