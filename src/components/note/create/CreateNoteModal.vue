@@ -2,14 +2,16 @@
   <div role="dialog">
     <FocusLock
       :disabled="isFocusLockDisabled"
-      class="create-note-container">
+      class="create-note-container"
+    >
       <div
         id="new-note-modal-container"
         :class="{
           'd-none': $_.isNil(mode),
           'modal-content': $_.includes(['batch', 'create', 'editTemplate'], mode),
           'mt-4': isBatchFeature
-        }">
+        }"
+      >
         <form @submit.prevent="submitForm">
           <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
           <hr class="m-0" />
@@ -30,7 +32,8 @@
                 variant="info"
                 aria-live="polite"
                 role="alert"
-                @dismiss-count-down="dismissAlert">
+                @dismiss-count-down="dismissAlert"
+              >
                 <div class="d-flex">
                   <div v-if="isSaving" class="mr-2">
                     <font-awesome icon="sync" spin />
@@ -53,7 +56,8 @@
                 maxlength="255"
                 type="text"
                 @input="setSubjectPerEvent"
-                @keydown.esc="cancelRequested">
+                @keydown.esc="cancelRequested"
+              >
             </div>
             <div id="note-details">
               <RichTextEditor
@@ -61,7 +65,8 @@
                 :disabled="isSaving || boaSessionExpired"
                 :is-in-modal="true"
                 label="Note Details"
-                :on-value-update="setBody" />
+                :on-value-update="setBody"
+              />
             </div>
           </div>
           <div>
@@ -71,13 +76,15 @@
               :function-add="addTopic"
               :function-remove="removeTopic"
               :topics="model.topics"
-              class="mt-2 mr-3 mb-1 ml-3" />
+              class="mt-2 mr-3 mb-1 ml-3"
+            />
             <AdvisingNoteAttachments
               :add-attachment="addAttachment"
               :disabled="isSaving || boaSessionExpired"
               :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment"
-              class="mt-2 mr-3 mb-1 ml-3" />
+              class="mt-2 mr-3 mb-1 ml-3"
+            />
           </div>
           <hr />
           <div>
@@ -85,7 +92,8 @@
               :cancel="cancelRequested"
               :create-note="createNote"
               :save-as-template="saveAsTemplate"
-              :update-template="updateTemplate" />
+              :update-template="updateTemplate"
+            />
           </div>
         </form>
       </div>
@@ -95,18 +103,21 @@
       :function-cancel="cancelDiscardNote"
       :function-confirm="discardNote"
       :show-modal="showDiscardNoteModal"
-      modal-header="Discard unsaved note?" />
+      modal-header="Discard unsaved note?"
+    />
     <CreateTemplateModal
       :show-modal="showCreateTemplateModal"
       :cancel="cancelCreateTemplate"
       :create="createTemplate"
-      :toggle-show="toggleShowCreateTemplateModal" />
+      :toggle-show="toggleShowCreateTemplateModal"
+    />
     <AreYouSureModal
       v-if="showDiscardTemplateModal"
       :function-cancel="cancelDiscardTemplate"
       :function-confirm="discardTemplate"
       :show-modal="showDiscardTemplateModal"
-      modal-header="Discard unsaved template?" />
+      modal-header="Discard unsaved template?"
+    />
   </div>
 </template>
 

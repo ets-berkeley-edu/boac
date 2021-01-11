@@ -45,7 +45,7 @@ module.exports = {
     'vue/comma-dangle': 2,
     'vue/component-name-in-template-casing': 2,
     'vue/eqeqeq': 2,
-    'vue/html-closing-bracket-newline': 0,
+    'vue/html-closing-bracket-newline': 2,
     'vue/html-closing-bracket-spacing': 2,
     'vue/html-end-tags': 2,
     'vue/html-indent': 2,

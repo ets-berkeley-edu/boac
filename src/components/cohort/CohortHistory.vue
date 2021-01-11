@@ -8,7 +8,8 @@
           :init-page-number="currentPage"
           :limit="10"
           :per-page="itemsPerPage"
-          :total-rows="totalEventsCount" />
+          :total-rows="totalEventsCount"
+        />
       </div>
       <hr class="filters-section-separator " />
     </div>
@@ -16,7 +17,8 @@
       v-if="!loading && !$_.isEmpty(events)"
       id="cohort-history-table"
       class="cohort-history-table mt-3"
-      :borderless="true">
+      :borderless="true"
+    >
       <b-thead>
         <b-tr>
           <b-th class="p-1 pb-2 sortable-table-header">Status</b-th>
@@ -31,7 +33,8 @@
             <div
               :id="`event-${index}-status`"
               class="pill-membership-change"
-              :class="event.eventType === 'added' ? 'pill-added' : 'pill-removed'">
+              :class="event.eventType === 'added' ? 'pill-added' : 'pill-removed'"
+            >
               {{ event.eventType }}
             </div>
           </b-td>
@@ -44,17 +47,20 @@
               :id="`event-${index}-student-name`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               :to="studentRoutePath(event.uid, $currentUser.inDemoMode)"
-              v-html="lastNameFirst(event)"></router-link>
+              v-html="lastNameFirst(event)"
+            ></router-link>
             <div
               v-if="!event.uid"
-              :id="`event-${index}-student-name-not-available`">
+              :id="`event-${index}-student-name-not-available`"
+            >
               Not available
             </div>
           </b-td>
           <b-td class="p-1">
             <div
               :id="`event-${index}-sid`"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            >
               {{ event.sid }}
             </div>
           </b-td>
@@ -67,7 +73,8 @@
         :init-page-number="currentPage"
         :limit="10"
         :per-page="itemsPerPage"
-        :total-rows="totalEventsCount" />
+        :total-rows="totalEventsCount"
+      />
     </div>
     <div v-if="!loading && $_.isEmpty(events)" id="cohort-history-no-events" class="mt-3">
       This cohort has no history available.

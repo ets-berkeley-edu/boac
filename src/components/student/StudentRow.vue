@@ -14,7 +14,8 @@
         :id="`row-${rowIndex}-remove-student-from-curated-group`"
         class="btn btn-link"
         @click="onClickRemoveStudent(student)"
-        @keyup.enter="onClickRemoveStudent(student)">
+        @keyup.enter="onClickRemoveStudent(student)"
+      >
         <font-awesome icon="times-circle" class="font-size-24" />
         <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
       </button>
@@ -43,12 +44,14 @@
               :id="`row-${rowIndex}-student-name`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               class="student-name"
-              v-html="lastNameFirst(student)"></h3>
+              v-html="lastNameFirst(student)"
+            ></h3>
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-              class="student-name">
+              class="student-name"
+            >
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
@@ -59,27 +62,31 @@
         <div
           v-if="student.academicCareerStatus === 'Inactive'"
           :id="`row-${rowIndex}-inactive`"
-          class="red-flag-status ml-1">
+          class="red-flag-status ml-1"
+        >
           INACTIVE
         </div>
         <div
           v-if="student.academicCareerStatus === 'Completed'"
           class="ml-1"
           uib-tooltip="Graduated"
-          tooltip-placement="bottom">
+          tooltip-placement="bottom"
+        >
           <font-awesome icon="graduation-cap" />
         </div>
       </div>
       <div
         v-if="displayAsAscInactive(student)"
         :id="`row-${rowIndex}-inactive-asc`"
-        class="d-flex student-sid red-flag-status">
+        class="d-flex student-sid red-flag-status"
+      >
         ASC INACTIVE
       </div>
       <div
         v-if="displayAsCoeInactive(student)"
         :id="`row-${rowIndex}-inactive-coe`"
-        class="d-flex student-sid red-flag-status">
+        class="d-flex student-sid red-flag-status"
+      >
         CoE INACTIVE
       </div>
       <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
@@ -91,34 +98,39 @@
       <div v-if="student.academicCareerStatus !== 'Completed'">
         <div
           :id="`row-${rowIndex}-student-level`"
-          class="student-text">
+          class="student-text"
+        >
           {{ student.level }}
         </div>
         <div
           v-if="student.matriculation"
           :id="`row-${rowIndex}-student-matriculation`"
           class="student-text"
-          aria-label="Entering term">
+          aria-label="Entering term"
+        >
           Entered {{ student.matriculation }}
         </div>
         <div
           v-if="student.expectedGraduationTerm"
           :id="`row-${rowIndex}-student-grad-term`"
           class="student-text"
-          aria-label="Expected graduation term">
+          aria-label="Expected graduation term"
+        >
           Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
         </div>
         <div
           v-if="student.termsInAttendance"
           :id="`row-${rowIndex}-student-terms-in-attendance`"
           class="student-text"
-          aria-label="Terms in attendance">
+          aria-label="Terms in attendance"
+        >
           Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
         </div>
         <div
           v-for="(major, index) in student.majors"
           :key="index"
-          class="student-text">
+          class="student-text"
+        >
           <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
         </div>
       </div>
@@ -127,7 +139,8 @@
           v-if="student.matriculation"
           :id="`row-${rowIndex}-student-matriculation`"
           class="student-text"
-          aria-label="Entering term">
+          aria-label="Entering term"
+        >
           Entered {{ student.matriculation }}
         </div>
         <div v-if="$_.get(student, 'degree.dateAwarded')">
@@ -141,7 +154,8 @@
         <div
           v-for="(team, index) in student.athleticsProfile.athletics"
           :key="index"
-          class="student-text">
+          class="student-text"
+        >
           <span :id="`row-${rowIndex}-student-team-${index}`">{{ team.groupName }}</span>
         </div>
       </div>
@@ -151,11 +165,13 @@
         <span
           v-if="$_.isNil(student.cumulativeGPA)"
           :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="student-gpa">--<span class="sr-only">No data</span></span>
+          class="student-gpa"
+        >--<span class="sr-only">No data</span></span>
         <span
           v-if="!$_.isNil(student.cumulativeGPA)"
           :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="student-gpa">{{ round(student.cumulativeGPA, 3) }}</span>
+          class="student-gpa"
+        >{{ round(student.cumulativeGPA, 3) }}</span>
         <span class="student-text"> GPA (Cumulative)</span>
       </div>
       <StudentGpaChart
@@ -166,15 +182,18 @@
       />
       <div
         v-if="$_.size(student.termGpa)"
-        class="student-bio-status-legend profile-last-term-gpa-outer pl-0">
+        class="student-bio-status-legend profile-last-term-gpa-outer pl-0"
+      >
         <font-awesome
           v-if="student.termGpa[0].gpa < 2"
           icon="exclamation-triangle"
-          class="boac-exclamation mr-1" />
+          class="boac-exclamation mr-1"
+        />
         <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
         <strong
           :id="`row-${rowIndex}-student-term-gpa`"
-          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'">{{ round(student.termGpa[0].gpa, 3) }}</strong>
+          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'"
+        >{{ round(student.termGpa[0].gpa, 3) }}</strong>
       </div>
     </div>
     <div class="student-column">
@@ -194,13 +213,15 @@
       <div
         v-if="student.cumulativeUnits"
         :id="`row-${rowIndex}-student-cumulative-units`"
-        class="student-gpa">
+        class="student-gpa"
+      >
         {{ student.cumulativeUnits }}
       </div>
       <div
         v-if="!student.cumulativeUnits"
         :id="`row-${rowIndex}-student-cumulative-units`"
-        class="student-gpa">
+        class="student-gpa"
+      >
         --<span class="sr-only">No data</span>
       </div>
       <div class="student-text">Units Completed</div>
@@ -229,7 +250,8 @@
               v-if="enrollment.waitlisted"
               :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
               aria-hidden="true"
-              class="pl-1 red-flag-status">(W)</span>
+              class="pl-1 red-flag-status"
+            >(W)</span>
             <span v-if="enrollment.waitlisted" class="sr-only">
               Waitlisted
             </span>
@@ -238,10 +260,12 @@
             <div
               v-for="(canvasSite, cIndex) in enrollment.canvasSites"
               :key="cIndex"
-              class="cohort-boxplot-container">
+              class="cohort-boxplot-container"
+            >
               <span
                 v-if="enrollment.canvasSites.length > 1"
-                class="sr-only">
+                class="sr-only"
+              >
                 {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
               </span>
               {{ lastActivityDays(canvasSite.analytics) }}
@@ -259,11 +283,13 @@
             <span
               v-if="enrollment.grade"
               v-accessible-grade="enrollment.grade"
-              class="font-weight-bold"></span>
+              class="font-weight-bold"
+            ></span>
             <font-awesome v-if="isAlertGrade(enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
             <span
               v-if="!enrollment.grade"
-              class="cohort-grading-basis">{{ enrollment.gradingBasis }}</span>
+              class="cohort-grading-basis"
+            >{{ enrollment.gradingBasis }}</span>
             <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
           </td>
         </tr>

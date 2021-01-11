@@ -1,7 +1,8 @@
 <template>
   <router-link
     :to="`${path}?_=${counter}&${query}`"
-    @click.native="incrementCounter">
+    @click.native="incrementCounter"
+  >
     <slot></slot>
   </router-link>
 </template>

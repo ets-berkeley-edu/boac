@@ -18,7 +18,8 @@
         @focusin="makeSuggestions"
         @keypress.enter.prevent="onEnter"
         @keyup.esc="onEscInput"
-        @keyup.down="onArrowDown">
+        @keyup.down="onArrowDown"
+      >
       </b-form-input>
       <b-input-group-append v-if="showAddButton">
         <b-button
@@ -26,7 +27,8 @@
           class="btn btn-primary-color-override"
           :disabled="!selectedSuggestion || addButtonLoading"
           @click="addSuggestion"
-          @keyup.enter="addSuggestion">
+          @keyup.enter="addSuggestion"
+        >
           <div v-if="!addButtonLoading">
             <font-awesome icon="plus" /> Add
           </div>
@@ -45,16 +47,19 @@
         class="dropdown-menu"
         @keyup.down="onArrowDown"
         @keyup.up="onArrowUp"
-        @keyup.esc="onEsc">
+        @keyup.esc="onEsc"
+      >
         <li
           v-if="isLoading"
-          class="dropdown-item">
+          class="dropdown-item"
+        >
           <font-awesome icon="spinner" spin />
         </li>
         <li
           v-if="restrict && !isLoading && !suggestions.length"
           :id="`${id}-no-results`"
-          class="dropdown-item">
+          class="dropdown-item"
+        >
           No results.
         </li>
         <li v-for="(suggestion, index) in suggestions" :key="index" role="menuitem">
@@ -66,7 +71,8 @@
             class="dropdown-item"
             tabindex="0"
             @click="selectSuggestion(suggestion)"
-            @keyup.enter="selectSuggestion(suggestion)">
+            @keyup.enter="selectSuggestion(suggestion)"
+          >
             <span :class="suggestionLabelClass" v-html="highlightQuery(suggestion)"></span>
           </a>
         </li>

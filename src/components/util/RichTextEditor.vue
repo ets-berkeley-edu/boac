@@ -4,20 +4,23 @@
       <label
         :id="`${ckElementId}-label`"
         :for="ckElementId"
-        class="font-size-14 font-weight-bolder mt-3 mb-1">
+        class="font-size-14 font-weight-bolder mt-3 mb-1"
+      >
         {{ label }}
       </label>
     </div>
     <div
       :id="ckElementId"
       :aria-labelledby="`${ckElementId}-label`"
-      role="textbox">
+      role="textbox"
+    >
       <ckeditor
         :value="initialValue"
         :disabled="disabled"
         :editor="editor"
         :config="editorConfig"
-        @input="onUpdate"></ckeditor>
+        @input="onUpdate"
+      ></ckeditor>
     </div>
   </div>
 </template>

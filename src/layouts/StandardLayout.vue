@@ -9,7 +9,8 @@
         id="content"
         class="body-text h-100 pb-2"
         role="main"
-        sm="10">
+        sm="10"
+      >
         <ServiceAnnouncement />
         <router-view :key="stripAnchorRef($route.fullPath)"></router-view>
       </b-col>

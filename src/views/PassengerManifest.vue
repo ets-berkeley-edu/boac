@@ -18,7 +18,8 @@
           <div class="flex-grow-1 text-right">
             <EditUserProfileModal
               :after-update-user="afterCreateUser"
-              :departments="departments" />
+              :departments="departments"
+            />
           </div>
         </div>
         <Users :departments="departments" :refresh="refreshUsers" />

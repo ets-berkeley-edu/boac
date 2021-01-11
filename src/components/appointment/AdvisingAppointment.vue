@@ -3,7 +3,8 @@
     <div
       v-if="!isOpen"
       :id="`appointment-${appointment.id}-is-closed`"
-      :class="{'truncate-with-ellipsis': !isOpen}">
+      :class="{'truncate-with-ellipsis': !isOpen}"
+    >
       <span :id="`appointment-${appointment.id}-details-closed`" v-html="appointment.details"></span>
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
@@ -27,7 +28,8 @@
             :include-details-option="false"
             :on-appointment-status-change="onAppointmentStatusChange"
             :self-check-in="true"
-            class="mr-3" />
+            class="mr-3"
+          />
         </div>
         <div v-if="appointment.status === 'reserved' && ($currentUser.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
           <span class="text-secondary">
@@ -64,7 +66,8 @@
           :id="`appointment-${appointment.id}-advisor-name`"
           :aria-label="`Open UC Berkeley Directory page of ${appointment.advisor.name} in a new window`"
           :href="`https://www.berkeley.edu/directory/results?search-term=${appointment.advisor.name}`"
-          target="_blank">{{ appointment.advisor.name }}</a>
+          target="_blank"
+        >{{ appointment.advisor.name }}</a>
         <span v-if="!appointment.advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
           {{ appointment.advisor.name }}
         </span>
@@ -87,7 +90,8 @@
             v-for="(topic, index) in appointment.topics"
             :id="`appointment-${appointment.id}-topic-${index}`"
             :key="topic"
-            class="mt-2">
+            class="mt-2"
+          >
             <span class="pill pill-attachment text-uppercase text-nowrap">{{ topic }}</span>
           </li>
         </ul>
@@ -98,11 +102,13 @@
             v-for="(attachment, index) in appointment.attachments"
             :id="`appointment-${appointment.id}-attachment-${index}`"
             :key="attachment.name"
-            class="mt-2">
+            class="mt-2"
+          >
             <span class="pill pill-attachment text-nowrap">
               <a
                 :id="`appointment-${appointment.id}-attachment-${index}`"
-                :href="downloadUrl(attachment)">
+                :href="downloadUrl(attachment)"
+              >
                 <font-awesome icon="paperclip" />
                 {{ attachment.displayName }}
               </a>

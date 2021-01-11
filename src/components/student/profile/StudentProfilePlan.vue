@@ -6,7 +6,8 @@
         v-if="plan.degreeProgramUrl"
         :href="plan.degreeProgramUrl"
         :aria-label="`Open ${plan.description} program page in new window`"
-        target="_blank">
+        target="_blank"
+      >
         {{ plan.description }}</a>
     </div>
     <div v-if="plan.program" class="text-muted">

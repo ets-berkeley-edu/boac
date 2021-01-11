@@ -2,7 +2,8 @@
   <div class="d-flex flex-wrap pt-2">
     <div
       id="cumulative-units"
-      class="cumulative-units text-center">
+      class="cumulative-units text-center"
+    >
       <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
       <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-uppercase">Units Completed</div>
@@ -20,14 +21,16 @@
           />
           <div
             v-if="!cumulativeUnits && !currentEnrolledUnits"
-            class="section-label">
+            class="section-label"
+          >
             Units Not Yet Available
           </div>
         </div>
         <div
           v-if="cumulativeUnits || currentEnrolledUnits"
           id="currently-enrolled-units"
-          class="sr-only">
+          class="sr-only"
+        >
           Currently enrolled units: {{ currentEnrolledUnits || '0' }}
         </div>
       </div>

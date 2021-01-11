@@ -19,7 +19,8 @@
               aria-controls="term-gpa-collapse"
               class="gpa-trends-more-button col-auto"
               variant="link"
-              @click="showHideTermGpa">
+              @click="showHideTermGpa"
+            >
               {{ showTermGpa ? 'Less' : 'More' }}
             </b-btn>
           </div>
@@ -35,7 +36,8 @@
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
-              class="font-weight-bold">
+              class="font-weight-bold"
+            >
               {{ round(student.termGpa[0].gpa, 3) }}
             </span>
           </div>
@@ -46,11 +48,13 @@
       <b-collapse
         id="term-gpa-collapse"
         v-model="showTermGpa"
-        class="border-top ml-3 mr-3">
+        class="border-top ml-3 mr-3"
+      >
         <div class="pl-3 pr-4">
           <table
             id="table-with-gpa-per-term"
-            class="term-gpa-table w-100">
+            class="term-gpa-table w-100"
+          >
             <tr>
               <th class="pt-0 pb-3 text-muted">Term</th>
               <th class="pt-0 pb-3 text-muted text-right">GPA</th>
@@ -58,19 +62,22 @@
             <tr
               v-for="(term, index) in student.termGpa"
               :key="index"
-              :class="{'bg-light': index % 2 === 0}">
+              :class="{'bg-light': index % 2 === 0}"
+            >
               <td class="text-nowrap">{{ term.name }}</td>
               <td class="text-nowrap text-right">
                 <font-awesome v-if="term.gpa < 2" icon="exclamation-triangle" class="text-danger pr-2" />
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
                   :id="`student-gpa-term-${term.name}`"
-                  :class="{'text-danger': term.gpa < 2}">{{ round(term.gpa, 3) }}</span>
+                  :class="{'text-danger': term.gpa < 2}"
+                >{{ round(term.gpa, 3) }}</span>
               </td>
             </tr>
             <tr
               v-if="$_.isEmpty(student.termGpa)"
-              id="student-gpa-no-terms">
+              id="student-gpa-no-terms"
+            >
               <td>No previous terms</td>
               <td>--</td>
             </tr>

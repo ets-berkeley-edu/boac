@@ -11,7 +11,8 @@
               v-for="(advisor, index) in advisorsSorted"
               :id="`student-profile-advisor-${index}`"
               :key="index"
-              class="mb-2">
+              class="mb-2"
+            >
               <div :id="`student-profile-advisor-${index}-role`">
                 <strong>{{ advisor.role }}</strong>
               </div>
@@ -49,7 +50,8 @@
                 id="student-phone-number"
                 :aria-label="`Link to student phone number ${student.sisProfile.phoneNumber}`"
                 :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                :href="`tel:${student.sisProfile.phoneNumber}`">
+                :href="`tel:${student.sisProfile.phoneNumber}`"
+              >
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
@@ -63,7 +65,8 @@
               </div>
               <div
                 v-if="student.sisProfile.matriculation"
-                id="student-bio-matriculation">
+                id="student-bio-matriculation"
+              >
                 Entered {{ student.sisProfile.matriculation }}
               </div>
               <div v-if="visaDescription" id="student-profile-visa">
@@ -74,7 +77,8 @@
                   id="link-to-calcentral"
                   :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                   target="_blank"
-                  aria-label="Open CalCentral in new window">Student profile in CalCentral <font-awesome icon="external-link-alt" class="pr-1" /></a>
+                  aria-label="Open CalCentral in new window"
+                >Student profile in CalCentral <font-awesome icon="external-link-alt" class="pr-1" /></a>
               </div>
             </div>
           </div>
@@ -92,7 +96,8 @@
                     v-if="plan.degreeProgramUrl"
                     :href="plan.degreeProgramUrl"
                     :aria-label="`Open ${plan.description} program page in new window`"
-                    target="_blank">
+                    target="_blank"
+                  >
                     {{ plan.description }}</a>
                 </div>
               </div>
@@ -107,7 +112,8 @@
                 v-for="plan in inactiveMajors"
                 :key="plan.description"
                 :plan="plan"
-                :active="false" />
+                :active="false"
+              />
             </div>
           </div>
           <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer" class="mb-3">
@@ -119,7 +125,8 @@
                 v-for="plan in inactiveMinors"
                 :key="plan.description"
                 :plan="plan"
-                :active="false" />
+                :active="false"
+              />
             </div>
           </div>
         </div>

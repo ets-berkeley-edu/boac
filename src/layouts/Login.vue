@@ -6,11 +6,13 @@
       show
       target="sign-in"
       triggers="focus"
-      @hidden="onHidden">
+      @hidden="onHidden"
+    >
       <span
         class="has-error"
         aria-live="polite"
-        v-html="error"></span>
+        v-html="error"
+      ></span>
     </b-popover>
     <div class="container">
       <div class="stripe"></div>
@@ -23,14 +25,16 @@
           class="btn-sign-in btn-primary-color-override"
           variant="primary"
           placement="top"
-          @click.stop="logIn">
+          @click.stop="logIn"
+        >
           Sign In
         </b-btn>
         <div class="contact-us">
           Questions or feedback? Contact us at
           <a
             :href="`mailto:${$config.supportEmailAddress}`"
-            target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
+            target="_blank"
+          >{{ $config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
         </div>
         <DevAuth v-if="$config.devAuthEnabled" :report-error="reportError" />
       </div>

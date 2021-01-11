@@ -14,7 +14,8 @@
       responsive
       stacked="md"
       striped
-      thead-class="text-nowrap">
+      thead-class="text-nowrap"
+    >
       <template v-slot:cell(name)="row">
         <div class="d-flex">
           <div v-if="row.item.name" class="text-nowrap">
@@ -24,7 +25,8 @@
               :aria-label="`Go to UC Berkeley Directory page of ${row.item.name}`"
               :href="`https://www.berkeley.edu/directory/results?search-term=${row.item.name}`"
               class="m-0"
-              target="_blank">
+              target="_blank"
+            >
               {{ row.item.name }}
             </a>
           </div>
@@ -52,7 +54,8 @@
           <a
             :aria-label="`Send email to ${row.item.name}`"
             :href="`mailto:${row.item.campusEmail}`"
-            target="_blank"><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
+            target="_blank"
+          ><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
       </template>
       <template v-slot:row-details="row">

@@ -14,7 +14,8 @@
         <DropInSchedulerManagement
           v-for="dept in dropInSchedulingDepartments"
           :key="dept.code"
-          :dept="dept" />
+          :dept="dept"
+        />
       </div>
       <div v-if="$config.isDemoModeAvailable">
         <div class="pt-3">
@@ -51,7 +52,8 @@
               :class="{'collapsed': showConfigs}"
               aria-controls="collapse-configs"
               variant="link"
-              @click="showConfigs = !showConfigs">
+              @click="showConfigs = !showConfigs"
+            >
               <div class="pb-1">
                 {{ showConfigs ? 'Hide' : 'Show' }} configs
               </div>
@@ -63,7 +65,8 @@
             hover
             :items="configs"
             striped
-            thead-class="sr-only"></b-table>
+            thead-class="sr-only"
+          ></b-table>
         </b-collapse>
       </div>
     </div>

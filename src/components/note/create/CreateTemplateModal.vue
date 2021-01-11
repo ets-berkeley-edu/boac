@@ -7,7 +7,8 @@
     hide-footer
     hide-header-close
     title="Name Your Template"
-    @shown="focusModalById('template-title-input')">
+    @shown="focusModalById('template-title-input')"
+  >
     <div>
       <form @submit.prevent="createTemplate">
         <div class="ml-3 mr-3">
@@ -19,7 +20,8 @@
               class="cohort-create-input-name"
               type="text"
               maxlength="255"
-              required>
+              required
+            >
           </div>
           <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
           <div
@@ -27,13 +29,15 @@
             id="create-error"
             aria-live="polite"
             role="alert"
-            class="has-error">
+            class="has-error"
+          >
             {{ error }}
           </div>
           <div
             v-if="title.length === 255"
             class="sr-only"
-            aria-live="polite">
+            aria-live="polite"
+          >
             Template name cannot exceed 255 characters.
           </div>
         </div>
@@ -43,13 +47,15 @@
             :disabled="!title.length"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="createTemplate">
+            @click.prevent="createTemplate"
+          >
             Save
           </b-btn>
           <b-btn
             id="cancel-template-create"
             variant="link"
-            @click="cancelModal">
+            @click="cancelModal"
+          >
             Cancel
           </b-btn>
         </div>

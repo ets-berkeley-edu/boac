@@ -17,7 +17,8 @@
         <DropInSchedulerManagement
           v-for="dept in dropInSchedulingDepartments"
           :key="dept.code"
-          :dept="dept" />
+          :dept="dept"
+        />
       </div>
       <div v-if="$config.isDemoModeAvailable">
         <div class="pt-4">

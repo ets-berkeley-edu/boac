@@ -5,32 +5,37 @@
       :appointment="appointment"
       :appointment-assign="reserveAppointment"
       :close="closeAppointmentAssignModal"
-      :show-modal="showAppointmentAssignModal" />
+      :show-modal="showAppointmentAssignModal"
+    />
     <AppointmentCancellationModal
       v-if="showCancelAppointmentModal"
       :appointment="appointment"
       :appointment-cancellation="appointmentCancellation"
       :close="closeAppointmentCancellationModal"
       :show-modal="showCancelAppointmentModal"
-      :student="appointment.student" />
+      :student="appointment.student"
+    />
     <AppointmentDetailsModal
       v-if="showAppointmentDetailsModal"
       :appointment="appointment"
       :close="closeAppointmentDetailsModal"
       :show-modal="showAppointmentDetailsModal"
       :student="appointment.student"
-      :update-appointment="updateAppointment" />
+      :update-appointment="updateAppointment"
+    />
     <CheckInModal
       v-if="showCheckInModal"
       :appointment="appointment"
       :appointment-checkin="checkInAppointment"
       :close="closeCheckInModal"
-      :show-modal="showCheckInModal" />
+      :show-modal="showCheckInModal"
+    />
     <AppointmentUpdateModal
       v-if="showUpdateModal"
       :appointment-update="appointmentUpdate"
       :close="closeUpdateModal"
-      :show-modal="showUpdateModal" />
+      :show-modal="showUpdateModal"
+    />
     <div v-if="!loading && $_.includes(['reserved', 'waiting'], appointment.status)">
       <div v-if="$currentUser.isAdmin">
         <b-dropdown
@@ -40,10 +45,12 @@
           split
           text="Details"
           variant="outline-dark"
-          @click="showAppointmentDetails">
+          @click="showAppointmentDetails"
+        >
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
-            @click="openCancelAppointmentModal">
+            @click="openCancelAppointmentModal"
+          >
             <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
             <span class="sr-only">Cancel Appointment</span>
           </b-dropdown-item-button>
@@ -58,28 +65,33 @@
           split
           text="Check In"
           variant="outline-dark"
-          @click="launchCheckIn">
+          @click="launchCheckIn"
+        >
           <b-dropdown-item-button
             v-if="includeDetailsOption"
             :id="`btn-appointment-${appointment.id}-details`"
-            @click="showAppointmentDetails">
+            @click="showAppointmentDetails"
+          >
             Details
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status !== 'reserved'"
             :id="`btn-appointment-${appointment.id}-reserve`"
-            @click="launchAppointmentAssign">
+            @click="launchAppointmentAssign"
+          >
             <span class="text-nowrap">Assign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             v-if="appointment.status === 'reserved'"
             :id="`btn-appointment-${appointment.id}-unreserve`"
-            @click="unreserveAppointment">
+            @click="unreserveAppointment"
+          >
             <span class="text-nowrap">Unassign</span>
           </b-dropdown-item-button>
           <b-dropdown-item-button
             :id="`btn-appointment-${appointment.id}-cancel`"
-            @click="openCancelAppointmentModal">
+            @click="openCancelAppointmentModal"
+          >
             <span aria-hidden="true" class="text-nowrap">Cancel Appt</span>
             <span class="sr-only">Cancel Appointment</span>
           </b-dropdown-item-button>

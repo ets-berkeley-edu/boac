@@ -9,12 +9,14 @@
         id="matrix-choose-metrics-y-axis"
         v-model="selectedAxes.y"
         class="matrix-choose-metrics-select"
-        @change="refreshMatrix">
+        @change="refreshMatrix"
+      >
         <option
           v-for="(yAxisName, yAxisValue) in axisLabels"
           :key="yAxisName"
           :value="yAxisValue"
-          :disabled="yAxisValue === selectedAxes.x">
+          :disabled="yAxisValue === selectedAxes.x"
+        >
           {{ yAxisName }}
         </option>
       </select>
@@ -22,12 +24,14 @@
         id="matrix-choose-metrics-x-axis"
         v-model="selectedAxes.x"
         class="matrix-choose-metrics-select"
-        @change="refreshMatrix">
+        @change="refreshMatrix"
+      >
         <option
           v-for="(xAxisName, xAxisValue) in axisLabels"
           :key="xAxisName"
           :value="xAxisValue"
-          :disabled="xAxisValue === selectedAxes.y">
+          :disabled="xAxisValue === selectedAxes.y"
+        >
           {{ xAxisName }}
         </option>
       </select>
@@ -41,7 +45,8 @@
             type="button"
             class="btn matrix-zoom-button"
             @click="zoomIn"
-            @keyup.enter="zoomIn">
+            @keyup.enter="zoomIn"
+          >
             <font-awesome icon="plus" />
             <span class="sr-only">Zoom in</span>
           </button>
@@ -51,7 +56,8 @@
             type="button"
             class="btn matrix-zoom-button"
             @click="zoomOut"
-            @keyup.enter="zoomOut">
+            @keyup.enter="zoomOut"
+          >
             <font-awesome :class="{'matrix-zoom-disabled': zoom.scale === 1}" icon="minus" />
             <span class="sr-only">Zoom out</span>
           </button>
@@ -76,7 +82,8 @@
               :id="student.uid"
               :key="student.uid"
               :class="{'cohort-list-row-info': featured === student.uid}"
-              class="cohort-missing-student-data-row">
+              class="cohort-missing-student-data-row"
+            >
               <td class="student-avatar-container">
                 <StudentAvatar :student="student" />
               </td>
@@ -85,14 +92,16 @@
                   <router-link
                     :id="`link-to-student-${student.uid}`"
                     :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                    :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
+                    :to="studentRoutePath(student.uid, $currentUser.inDemoMode)"
+                  >
                     {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                   </router-link>
                 </div>
                 <div
                   v-if="student.sid"
                   :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                  class="student-sid">
+                  class="student-sid"
+                >
                   SID: {{ student.sid }}
                 </div>
               </td>

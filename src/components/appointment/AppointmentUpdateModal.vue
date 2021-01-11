@@ -7,7 +7,8 @@
     hide-footer
     hide-header
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+  >
     <div>
       <div class="ml-3 modal-header">
         <h3 id="appointment-update-modal-header">Drop-in Update</h3>
@@ -21,7 +22,8 @@
           id="btn-update-modal-close"
           class="pl-2"
           variant="primary"
-          @click.stop="close">
+          @click.stop="close"
+        >
           Okay
         </b-btn>
       </div>

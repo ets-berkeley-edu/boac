@@ -5,7 +5,8 @@
       id="uh-oh-session-time-out"
       aria-live="polite"
       class="pl-3 pr-3"
-      role="alert">
+      role="alert"
+    >
       <SessionExpired />
     </div>
     <div v-if="!boaSessionExpired">
@@ -16,7 +17,8 @@
             id="btn-save-as-template"
             :disabled="isSaving || !$_.trim(model.subject)"
             variant="link"
-            @click="saveAsTemplate">
+            @click="saveAsTemplate"
+          >
             Save as template
           </b-btn>
         </div>
@@ -26,7 +28,8 @@
             :disabled="isSaving || !model.subject"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="updateTemplate">
+            @click.prevent="updateTemplate"
+          >
             Update Template
           </b-btn>
         </div>
@@ -36,7 +39,8 @@
             :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="createNote">
+            @click.prevent="createNote"
+          >
             Save
           </b-btn>
         </div>
@@ -45,7 +49,8 @@
             id="create-note-cancel"
             :disabled="isSaving"
             variant="link"
-            @click.prevent="cancel">
+            @click.prevent="cancel"
+          >
             Cancel
           </b-btn>
         </div>

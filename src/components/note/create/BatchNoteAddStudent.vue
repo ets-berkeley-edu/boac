@@ -3,7 +3,8 @@
     <div>
       <label
         for="create-note-add-student-input"
-        class="font-size-14 input-label text mt-2">
+        class="font-size-14 input-label text mt-2"
+      >
         <span class="sr-only">Add a </span><span class="font-weight-bolder">Student</span> (name or SID)
         <span class="sr-only">(expect auto-suggest based on what you enter)</span>
       </label>
@@ -31,7 +32,8 @@
             :id="`remove-student-from-batch-${index}`"
             variant="link"
             class="p-0"
-            @click.prevent="removeStudent(addedStudent)">
+            @click.prevent="removeStudent(addedStudent)"
+          >
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
             <span class="sr-only">Remove {{ addedStudent.label }} from batch note</span>
           </b-btn>

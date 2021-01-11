@@ -7,13 +7,15 @@
       :create-appointment="createAppointment"
       :dept-code="deptCode"
       :show-modal="showCreateAppointmentModal"
-      :waitlist-unresolved="waitlist.unresolved" />
+      :waitlist-unresolved="waitlist.unresolved"
+    />
     <LogResolvedIssueModal
       v-if="showLogResolvedIssueModal"
       :cancel="cancelLogResolvedIssue"
       :log-resolved-issue="logResolvedIssue"
       :show-modal="showLogResolvedIssueModal"
-      :waitlist-unresolved="waitlist.unresolved" />
+      :waitlist-unresolved="waitlist.unresolved"
+    />
     <div v-if="isHomepage" class="pb-2">
       <div class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
         <div aria-live="polite" role="alert">
@@ -24,7 +26,8 @@
             id="btn-homepage-create-appointment"
             variant="link"
             class="mb-1"
-            @click="showCreateAppointmentModal = true">
+            @click="showCreateAppointmentModal = true"
+          >
             <font-awesome icon="plus" />
             <span class="sr-only">Create appointment</span>
           </b-btn>
@@ -36,13 +39,15 @@
           :dept-code="deptCode"
           :is-homepage="isHomepage"
           :reserved-appointments="myReservedAppointments"
-          :uid="$currentUser.uid" />
+          :uid="$currentUser.uid"
+        />
       </div>
       <div>
         <b-form @submit.prevent="submitDropInStatus">
           <div
             class="d-flex mt-1 mb-2"
-            :class="(dropInStatus && !dropInStatusLoading) ? 'drop-in-status-outer' : 'align-items-center drop-in-status-form'">
+            :class="(dropInStatus && !dropInStatusLoading) ? 'drop-in-status-outer' : 'align-items-center drop-in-status-form'"
+          >
             <div class="pr-2">
               <label class="drop-in-status-label" for="drop-in-status-input">My Status:</label>
             </div>
@@ -55,7 +60,8 @@
                 id="drop-in-status-input"
                 v-model="dropInStatusNew"
                 class="drop-in-status-input"
-                maxlength="255"></b-form-input>
+                maxlength="255"
+              ></b-form-input>
             </div>
             <div v-if="!dropInStatus">
               <b-btn
@@ -64,7 +70,8 @@
                 class="btn-primary-color-override"
                 :disabled="!dropInStatusNew"
                 type="submit"
-                variant="primary">
+                variant="primary"
+              >
                 Save
               </b-btn>
             </div>
@@ -78,7 +85,8 @@
                     id="drop-in-status-clear"
                     class="btn btn-link m-0 p-0"
                     @click="clearDropInStatus"
-                    @keyup.enter="clearDropInStatus">
+                    @keyup.enter="clearDropInStatus"
+                  >
                     Clear<span class="sr-only"> Status</span>
                   </button>]
                 </div>
@@ -105,7 +113,8 @@
         id="waitlist-is-empty"
         class="font-size-16 mb-3 ml-1 mt-3"
         aria-live="polite"
-        role="alert">
+        role="alert"
+      >
         No appointments yet
       </div>
     </div>
@@ -121,12 +130,14 @@
           :dept-code="deptCode"
           :is-homepage="isHomepage"
           :is-last="!creating && (index + 1 === waitlist.unresolved.length)"
-          :on-appointment-status-change="onAppointmentStatusChange" />
+          :on-appointment-status-change="onAppointmentStatusChange"
+        />
         <b-row
           v-if="creating"
           id="waitlist-appointment-creation-spinner"
           no-gutters
-          class="font-size-16 mt-2 pb-4 pt-1">
+          class="font-size-16 mt-2 pb-4 pt-1"
+        >
           <b-col sm="12" class="text-center">
             <font-awesome icon="spinner" spin />
           </b-col>
@@ -134,7 +145,8 @@
         <b-row
           :class="waitlist.unresolved.length && waitlist.resolved.length ? 'border-thick-grey' : ''"
           no-gutters
-          class="border-top">
+          class="border-top"
+        >
           <span v-if="waitlist.resolved.length" class="sr-only">{{ waitlist.resolved.length }} appointments checked in or cancelled</span>
         </b-row>
         <DropInWaitlistAppointment
@@ -143,7 +155,8 @@
           :appointment="appointment"
           :is-homepage="isHomepage"
           :dept-code="deptCode"
-          :on-appointment-status-change="onAppointmentStatusChange" />
+          :on-appointment-status-change="onAppointmentStatusChange"
+        />
       </b-container>
     </div>
     <div v-if="isHomepage" class="mt-4">
@@ -157,7 +170,8 @@
           :id="`advisor-uid-${advisor.uid}`"
           :key="advisor.uid"
           no-gutters
-          class="border-bottom font-size-16 mt-2">
+          class="border-bottom font-size-16 mt-2"
+        >
           <b-col :id="`advisor-uid-${advisor.uid}-name`" class="pb-2">
             {{ advisor.name }}
           </b-col>

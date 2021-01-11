@@ -7,7 +7,8 @@
             id="filter-topics"
             v-model="filter"
             type="search"
-            placeholder="Search"></b-form-input>
+            placeholder="Search"
+          ></b-form-input>
           <b-input-group-append>
             <b-button :disabled="!filter" @click="filter = ''">Clear</b-button>
           </b-input-group-append>
@@ -19,7 +20,8 @@
           class="p-0 pb-1"
           :disabled="isEditTopicModalOpen"
           variant="link"
-          @click="openCreateTopicModal">
+          @click="openCreateTopicModal"
+        >
           <font-awesome icon="plus-square" />
           Create New Topic
         </b-btn>
@@ -35,7 +37,8 @@
         :no-border-collapse="true"
         show-empty
         sticky-header
-        thead-class="sortable-table-header border-bottom">
+        thead-class="sortable-table-header border-bottom"
+      >
         <template v-slot:thead-top="{}">
           <b-tr>
             <b-th class="border-top-0"><span class="sr-only">Topic</span></b-th>
@@ -61,34 +64,40 @@
               v-if="!row.item.deletedAt"
               class="pr-1"
               variant="link"
-              @click="edit(row.item)">
+              @click="edit(row.item)"
+            >
               <font-awesome
                 aria-label="Edit"
                 class="text-secondary"
                 icon="pencil-alt"
-                title="Edit" />
+                title="Edit"
+              />
             </b-button>
             <b-button
               v-if="row.item.deletedAt"
               class="pr-0"
               variant="link"
-              @click="undelete(row.item)">
+              @click="undelete(row.item)"
+            >
               <font-awesome
                 aria-label="Un-delete"
                 class="text-warning"
                 icon="trash-restore"
-                title="Un-delete" />
+                title="Un-delete"
+              />
             </b-button>
             <b-button
               v-if="!row.item.deletedAt"
               class="pr-0"
               variant="link"
-              @click="openDeleteTopicModal(row.item)">
+              @click="openDeleteTopicModal(row.item)"
+            >
               <font-awesome
                 icon="trash-alt"
                 aria-label="Delete"
                 class="text-secondary"
-                title="Delete" />
+                title="Delete"
+              />
             </b-button>
           </div>
         </template>
@@ -99,7 +108,8 @@
       :after-save="afterSaveTopic"
       :all-topics="topics"
       :on-cancel="onCancelEdit"
-      :topic="topicEdit" />
+      :topic="topicEdit"
+    />
     <AreYouSureModal
       v-if="isDeleteTopicModalOpen"
       :function-cancel="deleteCancel"
@@ -107,7 +117,8 @@
       :modal-body="`Are you sure you want to delete <b>'${topicDelete.topic}'</b>?`"
       :show-modal="isDeleteTopicModalOpen"
       button-label-confirm="Delete"
-      modal-header="Delete Topic" />
+      modal-header="Delete Topic"
+    />
   </div>
 </template>
 

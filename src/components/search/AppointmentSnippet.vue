@@ -2,14 +2,16 @@
   <div
     :id="`appointment-search-result-${appointment.id}`"
     :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-    class="advising-note-search-result">
+    class="advising-note-search-result"
+  >
     <h3 v-if="appointment.student" class="advising-note-search-result-header">
       <router-link
         :id="`appointment-link-to-student-${appointment.student.uid}`"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
         :to="`${studentRoutePath(appointment.student.uid, $currentUser.inDemoMode)}#appointment-${appointment.id}`"
         class="advising-note-search-result-header-link"
-        v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"></router-link>
+        v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"
+      ></router-link>
       ({{ appointment.student.sid }})
     </h3>
     <div v-if="!appointment.student">
@@ -23,7 +25,8 @@
     <div
       :id="`appointment-search-result-snippet-${appointment.id}`"
       class="advising-note-search-result-snippet"
-      v-html="appointment.detailsSnippet">
+      v-html="appointment.detailsSnippet"
+    >
     </div>
     <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">

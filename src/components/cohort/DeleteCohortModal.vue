@@ -12,14 +12,16 @@
           id="delete-confirm"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="deleteCohort">
+          @click.prevent="deleteCohort"
+        >
           Delete
         </b-btn>
         <b-btn
           id="delete-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelDeleteModal">
+          @click="cancelDeleteModal"
+        >
           Cancel
         </b-btn>
       </form>

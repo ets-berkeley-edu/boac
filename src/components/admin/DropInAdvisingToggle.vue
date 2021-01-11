@@ -4,7 +4,8 @@
       <div v-if="!$_.isNil(isEnabled)" class="advising-status-outer flex-row">
         <div
           :class="isEnabled ? 'advising-status-disabled' : 'advising-status-enabled'"
-          class="aria-hidden advising-status">
+          class="aria-hidden advising-status"
+        >
           NO
         </div>
         <div class="toggle-btn-column">
@@ -14,7 +15,8 @@
             type="button"
             class="btn btn-link pt-0 pb-0 pl-1 pr-1"
             @click="toggle"
-            @keyup.down="toggle">
+            @keyup.down="toggle"
+          >
             <span class="status-toggle-label">
               <font-awesome v-if="isEnabled" icon="toggle-on" class="toggle toggle-on"></font-awesome>
               <font-awesome v-if="!isEnabled" icon="toggle-off" class="toggle toggle-off"></font-awesome>
@@ -27,7 +29,8 @@
         </div>
         <div
           :class="isEnabled ? 'advising-status-enabled' : 'advising-status-disabled'"
-          class="aria-hidden advising-status">
+          class="aria-hidden advising-status"
+        >
           YES
         </div>
       </div>

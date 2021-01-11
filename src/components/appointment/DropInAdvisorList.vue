@@ -13,7 +13,8 @@
         id="no-advisors"
         class="font-size-16 mb-3 ml-1 mt-3"
         aria-live="polite"
-        role="alert">
+        role="alert"
+      >
         No advisors found
       </div>
     </div>
@@ -23,7 +24,8 @@
           v-for="advisor in orderedAdvisors"
           :key="advisor.uid"
           no-gutters
-          class="border-bottom font-size-16 mt-2">
+          class="border-bottom font-size-16 mt-2"
+        >
           <b-col sm="8" class="pb-2">
             {{ advisor.name }}
             <span v-if="advisor.status" class="text-muted">
@@ -36,7 +38,8 @@
               :dept-code="deptCode"
               :is-homepage="false"
               :reserved-appointments="reservedAppointmentsByAdvisor[advisor.uid] || []"
-              :uid="advisor.uid" />
+              :uid="advisor.uid"
+            />
           </b-col>
         </b-row>
       </b-container>

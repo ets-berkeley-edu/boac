@@ -38,7 +38,8 @@
           :key="group.id"
           class="b-dd-item-override"
           @click="groupCheckboxClick(group)"
-          @keyup.enter="groupCheckboxClick(group)">
+          @keyup.enter="groupCheckboxClick(group)"
+        >
           <b-form-checkbox
             :id="`curated-group-${group.id}-checkbox`"
             v-model="checkedGroups"

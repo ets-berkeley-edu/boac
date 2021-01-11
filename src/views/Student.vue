@@ -23,7 +23,8 @@
           :function-cancel="cancelTheCancel"
           :function-confirm="cancelConfirmed"
           :show-modal="showAreYouSureModal"
-          modal-header="Discard unsaved note?" />
+          modal-header="Discard unsaved note?"
+        />
       </div>
       <div>
         <StudentClasses :student="student" />

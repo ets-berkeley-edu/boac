@@ -28,7 +28,8 @@
         <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)">
           <h3
             :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-            class="student-name m-0 p-0">
+            class="student-name m-0 p-0"
+          >
             <span v-if="row.item.firstName" v-html="lastNameFirst(row.item)"></span>
             <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
           </h3>
@@ -39,29 +40,34 @@
         <span
           v-if="row.item.enrollment.enrollmentStatus === 'W'"
           :id="`student-${row.item.uid}-waitlisted-for-${section.termId}-${section.sectionId}`"
-          class="red-flag-status">WAITLISTED</span>
+          class="red-flag-status"
+        >WAITLISTED</span>
         <span
           v-if="row.item.academicCareerStatus === 'Inactive'"
           :id="`student-${row.item.uid}-inactive-for-${section.termId}-${section.sectionId}`"
-          class="red-flag-status">INACTIVE</span>
+          class="red-flag-status"
+        >INACTIVE</span>
         <span
           v-if="row.item.academicCareerStatus === 'Completed'"
           class="ml-1"
           uib-tooltip="Graduated"
-          tooltip-placement="bottom">
+          tooltip-placement="bottom"
+        >
           <font-awesome icon="graduation-cap" />
         </span>
       </div>
       <div
         v-if="displayAsAscInactive(row.item)"
         :id="`student-${row.item.uid}-asc-inactive-for-${section.termId}-${section.sectionId}`"
-        class="student-sid red-flag-status">
+        class="student-sid red-flag-status"
+      >
         ASC INACTIVE
       </div>
       <div
         v-if="displayAsCoeInactive(row.item)"
         :id="`student-${row.item.uid}-coe-inactive-for-${section.termId}-${section.sectionId}`"
-        class="student-sid red-flag-status">
+        class="student-sid red-flag-status"
+      >
         CoE INACTIVE
       </div>
       <div v-if="row.item.academicCareerStatus !== 'Completed'">
@@ -95,7 +101,8 @@
       <div class="course-sites flex-col font-size-14 pl-2">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
-          :key="canvasSite.courseCode">
+          :key="canvasSite.courseCode"
+        >
           <strong>{{ canvasSite.courseCode }}</strong>
         </div>
         <div v-if="!row.item.enrollment.canvasSites.length">
@@ -108,7 +115,8 @@
       <div v-if="row.item.enrollment.canvasSites.length" class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
-          :key="canvasSite.canvasCourseId">
+          :key="canvasSite.canvasCourseId"
+        >
           <span v-if="row.item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
           </span>
@@ -140,7 +148,8 @@
         </div>
       </div>
       <span
-        v-if="!row.item.enrollment.canvasSites.length"><span class="sr-only">No data</span>&mdash;</span>
+        v-if="!row.item.enrollment.canvasSites.length"
+      ><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
     <template v-slot:cell(assignmentGrades)="row">
@@ -148,7 +157,8 @@
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="profile-boxplot-container">
+          class="profile-boxplot-container"
+        >
           <span v-if="row.item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
           </span>
@@ -187,7 +197,8 @@
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
           :key="canvasSite.canvasCourseId"
-          class="profile-boxplot-container">
+          class="profile-boxplot-container"
+        >
           <span v-if="row.item.enrollment.canvasSites.length > 1" class="sr-only">
             {{ canvasSite.courseCode }}
           </span>

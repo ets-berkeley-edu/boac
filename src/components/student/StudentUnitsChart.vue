@@ -3,7 +3,8 @@
     <highcharts
       id="student-chart-units-container"
       class="student-chart-units-container"
-      :options="options" />
+      :options="options"
+    />
   </div>
 </template>
 

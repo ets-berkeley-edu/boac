@@ -10,7 +10,8 @@
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
           :disabled="isSaving || !originalText || !originalText.length"
-          @change="togglePublish">
+          @change="togglePublish"
+        >
           <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
         </b-form-checkbox>
       </div>
@@ -23,14 +24,16 @@
           :initial-value="originalText"
           :disabled="isSaving"
           label="Service alert input"
-          :on-value-update="onEditorUpdate" />
+          :on-value-update="onEditorUpdate"
+        />
         <div>
           <b-btn
             id="button-update-service-announcement"
             :disabled="text === originalText"
             variant="primary"
             class="btn-primary-color-override mt-2"
-            @click="updateText">
+            @click="updateText"
+          >
             <span v-if="isSaving"><font-awesome icon="spinner" spin /> Update...</span>
             <span v-if="!isSaving">Update</span>
           </b-btn>

@@ -15,7 +15,8 @@
       last-text="Last"
       hide-ellipsis
       size="md"
-      @change="onClick">
+      @change="onClick"
+    >
     </b-pagination>
   </div>
 </template>

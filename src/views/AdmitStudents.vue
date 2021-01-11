@@ -7,7 +7,8 @@
           CE3 Admissions
           <span
             v-if="totalAdmitCount !== undefined"
-            class="faint-text">{{ pluralize('admitted student', totalAdmitCount) }}</span>
+            class="faint-text"
+          >{{ pluralize('admitted student', totalAdmitCount) }}</span>
         </h1>
         <div class="d-flex align-self-baseline mr-4">
           <NavLink
@@ -16,7 +17,8 @@
             aria-label="Create a CE3 Admissions cohort"
             path="/cohort/new"
             :default-counter="counter"
-            :query-args="{domain: 'admitted_students'}">
+            :query-args="{domain: 'admitted_students'}"
+          >
             Create Cohort
           </NavLink>
           <div class="faint-text">|</div>
@@ -25,7 +27,8 @@
             :disabled="!exportEnabled || !totalAdmitCount"
             class="no-wrap pl-2 pr-2 pt-0"
             variant="link"
-            @click.prevent="exportCohort">
+            @click.prevent="exportCohort"
+          >
             Export List
           </b-btn>
         </div>
@@ -40,7 +43,8 @@
           class="sr-only"
           href="#pagination-widget"
           @click="alertScreenReader('Go to another page of search results')"
-          @keyup.enter="alertScreenReader('Go to another page of search results')">Skip to bottom, other pages of search results</a>
+          @keyup.enter="alertScreenReader('Go to another page of search results')"
+        >Skip to bottom, other pages of search results</a>
         <div v-if="!sorting" class="cohort-column-results">
           <div class="justify-content-end d-flex align-items-center p-2">
             <SortBy domain="admitted_students" />
@@ -69,7 +73,8 @@
                     :key="admit.csEmplId"
                     :row-index="index"
                     :sorted-by="preferences.admitSortBy"
-                    :admit-student="admit" />
+                    :admit-student="admit"
+                  />
                 </tbody>
               </table>
             </div>
@@ -79,7 +84,8 @@
                 :init-page-number="pagination.currentPage"
                 :limit="10"
                 :per-page="pagination.itemsPerPage"
-                :total-rows="totalAdmitCount" />
+                :total-rows="totalAdmitCount"
+              />
             </div>
           </div>
         </div>

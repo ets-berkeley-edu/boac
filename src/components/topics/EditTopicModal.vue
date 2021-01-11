@@ -8,7 +8,8 @@
     :no-close-on-backdrop="true"
     :ok-disabled="isSaving"
     @cancel.prevent="cancel"
-    @hide.prevent="cancel">
+    @hide.prevent="cancel"
+  >
     <div>
       <div class="modal-header">
         <h3 id="are-you-sure-header" class="new-note-header pl-2" :class="{'text-secondary': topic.id}">{{ topic.id ? topic.topic : 'Create Topic' }}</h3>
@@ -25,7 +26,8 @@
             :maxlength="maxLabelLength"
             :state="!isLabelReserved && isValidLabel"
             required
-            size="lg"></b-form-input>
+            size="lg"
+          ></b-form-input>
           <b-form-invalid-feedback id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
             <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
             <span v-if="isLabelReserved">Sorry, the label '{{ $_.trim(topic.topic) }}' is assigned to an existing topic.</span>
@@ -42,14 +44,16 @@
           id="topic-available-in-notes"
           v-model="topic.availableInNotes"
           class="m-2"
-          name="topic-available-in-notes">
+          name="topic-available-in-notes"
+        >
           Note Topic
         </b-form-checkbox>
         <b-form-checkbox
           id="topic-available-in-appointments"
           v-model="topic.availableInAppointments"
           class="m-2"
-          name="topic-available-in-appointments">
+          name="topic-available-in-appointments"
+        >
           Appointment Reason
         </b-form-checkbox>
       </div>
@@ -61,7 +65,8 @@
             class="btn-primary-color-override"
             :disabled="disableSaveButton"
             variant="primary"
-            @click.prevent="save">
+            @click.prevent="save"
+          >
             Save
           </b-btn>
           <b-btn
@@ -69,7 +74,8 @@
             class="pl-3"
             :disabled="isSaving"
             variant="link"
-            @click.stop="cancel">
+            @click.stop="cancel"
+          >
             Cancel
           </b-btn>
         </form>

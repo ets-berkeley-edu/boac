@@ -29,13 +29,15 @@
     </div>
     <div
       v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData"
-      class="batch-note-button d-flex fixed-bottom justify-content-center mb-3 pl-3 pr-3">
+      class="batch-note-button d-flex fixed-bottom justify-content-center mb-3 pl-3 pr-3"
+    >
       <b-btn
         id="batch-note-button"
         :disabled="!!mode"
         class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
         variant="primary"
-        @click="isCreateNoteModalOpen = true">
+        @click="isCreateNoteModalOpen = true"
+      >
         <span class="m-1">
           <font-awesome icon="file-alt" />
           New Note
@@ -44,7 +46,8 @@
       <CreateNoteModal
         v-if="isCreateNoteModalOpen"
         :is-batch-feature="true"
-        :on-close="onCreateNoteModalClose" />
+        :on-close="onCreateNoteModalClose"
+      />
     </div>
   </div>
 </template>

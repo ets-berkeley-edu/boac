@@ -7,7 +7,8 @@
     hide-footer
     hide-header
     @cancel.prevent="close"
-    @hide.prevent="close">
+    @hide.prevent="close"
+  >
     <div>
       <div class="ml-3 modal-header">
         <h3 id="appointment-check-in-student" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h3>
@@ -27,7 +28,8 @@
               :disabled="isSaving"
               :function-add="addTopic"
               :function-remove="removeTopic"
-              :topics="topics" />
+              :topics="topics"
+            />
           </div>
           <div class="mb-4 mr-3 mt-1">
             <div id="appointment-details">
@@ -36,7 +38,8 @@
                 :disabled="isSaving"
                 :is-in-modal="true"
                 label="Additional Information"
-                :on-value-update="d => details = d" />
+                :on-value-update="d => details = d"
+              />
             </div>
           </div>
         </b-container>
@@ -48,14 +51,16 @@
           class="pl-2"
           variant="primary"
           :disabled="!topics.length || !$_.trim(details).length"
-          @click.stop="update">
+          @click.stop="update"
+        >
           Update
         </b-btn>
         <b-btn
           id="btn-appointment-cancel"
           class="pl-2"
           variant="link"
-          @click.stop="close">
+          @click.stop="close"
+        >
           Close
         </b-btn>
       </div>

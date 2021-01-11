@@ -6,14 +6,16 @@
         id="btn-create-appointment"
         variant="primary"
         class="btn-primary-color-override mr-2 pl-3 pr-3"
-        @click="openCreateAppointmentModal">
+        @click="openCreateAppointmentModal"
+      >
         New Drop-in Appointment
       </b-btn>
       <b-btn
         id="btn-log-resolved-isse"
         variant="outline-primary"
         class="btn-primary-color-override btn-primary-color-outline-override ml-2 pl-3 pr-3"
-        @click="openLogResolvedIssueModal">
+        @click="openLogResolvedIssueModal"
+      >
         Log Resolved Issue
       </b-btn>
     </div>
@@ -22,7 +24,8 @@
         <DropInAdvisorList
           :dept-code="deptCode"
           :advisors="advisors"
-          :waitlist="waitlist" />
+          :waitlist="waitlist"
+        />
       </div>
       <div class="waitlist-container">
         <DropInWaitlist
@@ -30,7 +33,8 @@
           :advisors="advisors"
           :dept-code="deptCode"
           :on-appointment-status-change="onAppointmentStatusChange"
-          :waitlist="waitlist" />
+          :waitlist="waitlist"
+        />
       </div>
     </div>
   </div>

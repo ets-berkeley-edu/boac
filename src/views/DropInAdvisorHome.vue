@@ -13,7 +13,8 @@
               :dept-code="deptCode"
               :is-homepage="true"
               :on-appointment-status-change="onAppointmentStatusChange"
-              :waitlist="waitlist" />
+              :waitlist="waitlist"
+            />
           </div>
         </b-col>
         <b-col cols="5" sm>
@@ -36,7 +37,8 @@
                   :key="cohort.id"
                   :compact="true"
                   :group="cohort"
-                  :is-cohort="true" />
+                  :is-cohort="true"
+                />
               </div>
               <div v-if="!myCohorts.length">
                 <div>
@@ -61,7 +63,8 @@
                   :key="curatedGroup.id"
                   :group="curatedGroup"
                   :is-cohort="false"
-                  :compact="true" />
+                  :compact="true"
+                />
               </div>
             </div>
           </div>
