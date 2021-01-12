@@ -22,9 +22,7 @@
     <div v-if="showSaveButton && isPerforming !== 'search'">
       <b-btn
         id="save-button"
-        :class="{
-          'btn-primary-color-override': isPerforming !== 'acknowledgeSave'
-        }"
+        :class="{'btn-primary-color-override': isPerforming !== 'acknowledgeSave'}"
         :variant="saveButtonVariant"
         :disabled="!!editMode || showCreateModal || !!isPerforming"
         class="btn-filter-draft save-button-width mt-3"
@@ -83,8 +81,10 @@ export default {
     apply() {
       this.$eventHub.emit('cohort-apply-filters')
       this.isPerforming = 'search'
+      this.alertScreenReader('Searching for students')
       this.applyFilters(this.$_.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')).then(() => {
         this.putFocusNextTick('cohort-results-header')
+        this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')
         this.isPerforming = null
       })
@@ -96,6 +96,7 @@ export default {
     create(name) {
       this.showCreateModal = false
       this.isPerforming = 'save'
+      this.alertScreenReader('Creating cohort')
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort "${name}" created`)
         this.setPageTitle(this.cohortName)
