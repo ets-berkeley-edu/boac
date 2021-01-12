@@ -16,7 +16,7 @@
       class="filter-row-column-01 mt-1 pr-2"
     >
       <FilterSelect
-        :filter-row-index="filterRowIndex"
+        :filter-row-index="position"
         :labelledby="`new-filter-${position}-label`"
         :on-select-change="onSelectFilter"
         :options="prepareFilterOptionGroups()"
@@ -32,10 +32,10 @@
     </div>
     <div v-if="isModifyingFilter" class="filter-row-column-02 mt-1">
       <div v-if="isUX('dropdown')">
-        <span :id="`filter-secondary-${filterRowIndex}-label`" class="sr-only">{{ filter.label }} options</span>
+        <span :id="`filter-secondary-${position}-label`" class="sr-only">{{ filter.label }} options</span>
         <FilterSelect
-          :filter-row-index="filterRowIndex"
-          :labelledby="`filter-secondary-${filterRowIndex}-label`"
+          :filter-row-index="position"
+          :labelledby="`filter-secondary-${position}-label`"
           :on-select-change="onSelectFilterOption"
           :options="filter.options"
           :set-model-object="value => (selectedOption = value)"
@@ -43,36 +43,26 @@
           :v-model-object="selectedOption"
         />
       </div>
-      <div v-if="isUX('range')" class="filter-range-container">
-        <div class="filter-range-label-min">
-          {{ rangeMinLabel() }}
-        </div>
+      <div v-if="isUX('range')" class="d-flex pr-1">
+        <label :for="`filter-range-min-${position}`" :class="rangeMinLabel() ? 'filter-range-label-min' : ''">
+          {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
+        </label>
         <div>
-          <span
-            :id="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
-            class="sr-only"
-          >beginning of range</span>
           <input
-            :id="idRangeMin"
+            :id="`filter-range-min-${position}`"
             v-model="range.min"
-            :aria-labelledby="isExistingFilter ? `filter-range-min-${position}-label` : 'filter-range-min-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
             class="filter-range-input"
           />
         </div>
-        <div class="filter-range-label-max">
-          {{ rangeMaxLabel() }}
-        </div>
+        <label :for="`filter-range-max-${position}`" class="filter-range-label-max">
+          {{ rangeMaxLabel() }}<span class="sr-only"> (end of range)</span>
+        </label>
         <div>
-          <span
-            :id="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
-            class="sr-only"
-          >end of range</span>
           <input
-            :id="idRangeMax"
+            :id="`filter-range-max-${position}`"
             v-model="range.max"
-            :aria-labelledby="isExistingFilter ? `filter-range-max-${position}-label` : 'filter-range-max-label'"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
             class="filter-range-input"
@@ -88,7 +78,7 @@
         <b-popover
           v-if="$_.size(errorPerRangeInput)"
           :show="true"
-          :target="isExistingFilter ? `filter-range-max-${position}` : 'filter-range-max'"
+          :target="`filter-range-max-${position}`"
           placement="top"
         >
           <span class="has-error">{{ errorPerRangeInput }}</span>
@@ -179,9 +169,9 @@ export default {
   components: {FilterSelect},
   props: {
     position: {
-      default: undefined,
+      default: 'new',
       required: false,
-      type: Number
+      type: [Number, String]
     }
   },
   data: () => ({
@@ -201,21 +191,6 @@ export default {
     showRow: true,
     valueOriginal: undefined
   }),
-  computed: {
-    filterRowIndex() {
-      return this.isExistingFilter ? this.position : 'new'
-    },
-    idRangeMax() {
-      return this.isExistingFilter
-        ? `filter-range-max-${this.position}`
-        : 'filter-range-max'
-    },
-    idRangeMin() {
-      return this.isExistingFilter
-        ? `filter-range-min-${this.position}`
-        : 'filter-range-min'
-    }
-  },
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
@@ -350,8 +325,12 @@ export default {
     onClickEditButton() {
       this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
-        const optionGroup = this.$_.find(this.$_.flatten(this.filterOptionGroups), ['key', this.filter.key])
-        this.filter.options = optionGroup.options
+        // Populate select options, with selected option based on current filter.value.
+        const flatten = optGroup => this.$_.flatten(this.$_.values(optGroup))
+        const find = (options, value) => this.$_.find(options, ['value', value])
+        const options = this.$_.find(flatten(this.filterOptionGroups), ['key', this.filter.key]).options
+        this.filter.options = options
+        this.selectedOption = Array.isArray(options) ? find(options, this.filter.value) : find(flatten(options), this.filter.value)
       } else if (this.isUX('range')) {
         this.range.min = this.filter.value.min
         this.range.max = this.filter.value.max
@@ -391,7 +370,7 @@ export default {
           this.putFocusNextTick('unsaved-filter-add')
           break
         case 'range':
-          this.putFocusNextTick(this.idRangeMin)
+          this.putFocusNextTick(`filter-range-min-${this.position}`)
           break
         }
       }
@@ -413,7 +392,7 @@ export default {
       this.putFocusNextTick('filter-select-primary-new')
     },
     putFocusSecondaryDropdown() {
-      this.putFocusNextTick(`filter-select-secondary-${this.filterRowIndex}`)
+      this.putFocusNextTick(`filter-select-secondary-${this.position}`)
     },
     rangeInputSize() {
       let maxLength = undefined
@@ -463,15 +442,9 @@ export default {
       this.disableUpdateButton = false
       this.showAdd = false
       this.range = this.$_.mapValues(this.range, () => undefined)
-      if (this.$_.isNil(this.position)) {
-        this.filter = {}
-        this.isExistingFilter = false
-        this.isModifyingFilter = true
-      } else {
-        this.filter = this.$_.cloneDeep(this.filters[this.position])
-        this.isExistingFilter = true
-        this.isModifyingFilter = false
-      }
+      this.isExistingFilter = this.position !== 'new'
+      this.filter = this.isExistingFilter ? this.$_.cloneDeep(this.filters[this.position]) : {}
+      this.isModifyingFilter = !this.isExistingFilter
       this.putFocusNewFilterDropdown()
     }
   }
@@ -520,11 +493,6 @@ export default {
 .existing-filter-name {
   width: 260px;
 }
-.filter-range-container {
-  display: flex;
-  flex-direction: row;
-  padding-right: 15px;
-}
 .filter-range-label-min {
   padding: 10px 8px 0 0;
 }
@@ -537,6 +505,7 @@ export default {
   box-sizing: border-box;
   color: #333;
   font-size: 18px;
+  height: 40px;
   padding: 6px 15px 6px 17px;
   text-transform: uppercase;
 }
