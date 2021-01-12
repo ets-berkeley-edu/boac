@@ -41,7 +41,6 @@ export function $_applyFilters({ commit, state }, orderBy: string) {
 
 export function $_updateFilterOptions(commit, domain: string, owner: string, existingFilters: any[]) {
   return new Promise(resolve => {
-    commit('updateFilterOptions', undefined)
     getCohortFilterOptions(domain, owner, existingFilters).then(data => {
       commit('updateFilterOptions', data)
       resolve()
