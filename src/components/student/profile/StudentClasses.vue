@@ -8,10 +8,10 @@
         @click="setOrder"
       >
         Sort academic year
-        <span v-if="currentOrder === 'asc' ">
+        <span v-if="currentOrder === 'desc' ">
           <font-awesome icon="long-arrow-alt-down" />
         </span>
-        <span v-if="currentOrder === 'desc' ">
+        <span v-if="currentOrder === 'asc' ">
           <font-awesome icon="long-arrow-alt-up" />
         </span>
       </b-button>
