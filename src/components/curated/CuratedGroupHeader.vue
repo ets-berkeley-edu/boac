@@ -88,6 +88,7 @@
           <b-modal
             id="confirm-delete-modal"
             v-model="isDeleteModalOpen"
+            hide-header
             @shown="putFocusNextTick('modal-header')"
           >
             <ModalHeader text="Delete Curated Group" />
@@ -115,6 +116,7 @@
           <b-modal
             id="cohort-warning-modal"
             v-model="isCohortWarningModalOpen"
+            hide-header
             @shown="putFocusNextTick('modal-header')"
           >
             <ModalHeader text="This group is in use as a cohort filter" />
