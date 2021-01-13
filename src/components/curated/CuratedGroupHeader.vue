@@ -122,7 +122,7 @@
             <ModalHeader text="This group is in use as a cohort filter" />
             <div
               id="cohort-warning-body"
-              class="modal-body"
+              class="modal-body pt-0"
               aria-live="polite"
               role="alert"
             >

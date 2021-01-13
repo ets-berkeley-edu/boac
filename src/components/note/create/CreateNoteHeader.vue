@@ -1,13 +1,13 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1">
-      <ModalHeader :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
+      <ModalHeader container-class="border-bottom-0" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
     </div>
     <div class="mr-4">
       <b-dropdown
         v-if="mode !== 'editTemplate'"
         id="my-templates-button"
-        class="mb-2 ml-0"
+        class="mb-3 ml-0 pb-1"
         :disabled="isSaving || boaSessionExpired"
         right
         text="Templates"
