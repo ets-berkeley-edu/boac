@@ -1,8 +1,9 @@
 <template>
   <div>
+    <ModalHeader text="Name Your Curated Group" />
     <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-      <div class="text-left ml-3 mr-3">
-        <label id="label-of-create-input" for="create-input"><span class="sr-only">Curated group </span>Name:</label>
+      <div class="m-3">
+        <label id="label-of-create-input" for="create-input" tabindex="-1"><span class="sr-only">Curated group </span>Name:</label>
         <b-form-input
           id="create-input"
           v-model="name"
@@ -53,11 +54,13 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Validator from '@/mixins/Validator'
 
 export default {
   name: 'CreateCuratedGroupModal',
   mixins: [Context, Validator],
+  components: {ModalHeader},
   props: {
     cancel: {
       required: true,

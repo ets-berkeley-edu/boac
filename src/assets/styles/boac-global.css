@@ -69,10 +69,6 @@
   font-size: 14px;
   font-style: italic;
 }
-.cohort-manage-btn {
-  height: 38px;
-  margin: 0 0 0 5px;
-}
 .cohort-student-bio-container {
   flex: 0.8;
   margin-left: 20px;

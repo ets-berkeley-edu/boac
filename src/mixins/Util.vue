@@ -23,7 +23,6 @@ export default {
   name: 'Util',
   methods: {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-    focusModalById: id => document.getElementById(id) && document.getElementById(id).focus(),
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin: arr => {
@@ -43,7 +42,7 @@ export default {
           let el = document.getElementById(id)
           el = el && cssSelector ? el.querySelector(cssSelector) : el
           el && el.focus()
-          if (el || ++counter > 3) {
+          if (el || ++counter > 5) {
             // Abort after success or three attempts
             clearInterval(putFocus)
           }

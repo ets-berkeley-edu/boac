@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="edit-topic-modal"
     v-model="showEditTopicModal"
     body-class="pl-0 pr-0"
     hide-footer
@@ -9,11 +8,12 @@
     :ok-disabled="isSaving"
     @cancel.prevent="cancel"
     @hide.prevent="cancel"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="modal-header">
-        <h3 id="are-you-sure-header" class="new-note-header pl-2" :class="{'text-secondary': topic.id}">{{ topic.id ? topic.topic : 'Create Topic' }}</h3>
-      </div>
+      <ModalHeader>
+        <span :class="{'text-secondary': topic.id}">{{ topic.id ? topic.topic : 'Create Topic' }}</span>
+      </ModalHeader>
       <div class="modal-body pl-4 pr-5">
         <div v-if="!topic.id" class="topic-label-input-container">
           <label for="topic-label" class="font-size-18 font-weight-bolder mb-1">Label</label>
@@ -86,11 +86,13 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import {createTopic, updateTopic} from '@/api/topics'
 
 export default {
   name: 'EditTopicModal',
+  components: {ModalHeader},
   mixins: [Context, Util],
   props: {
     afterSave: {

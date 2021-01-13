@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div class="modal-header">
-      <h3 id="export-list-header">Export List</h3>
-    </div>
+    <ModalHeader text="Export List" />
     <div id="export-list-body" class="modal-body">
       <b-form-group>
         <b-form-checkbox-group
@@ -41,8 +39,11 @@
 </template>
 
 <script>
+import ModalHeader from '@/components/util/ModalHeader'
+
 export default {
   name: 'ExportListModal',
+  components: {ModalHeader},
   props: {
     cancelExportListModal: {
       required: true,

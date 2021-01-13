@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="advising-appointment-check-in"
     v-model="showCancellationModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -8,11 +7,10 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="modal-header">
-        <h3>Cancel Appointment</h3>
-      </div>
+      <ModalHeader text="Cancel Appointment" />
       <div class="modal-body w-100">
         <div class="mr-3 mt-2">
           <b-container fluid>
@@ -105,11 +103,13 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentCancellationModal',
   mixins: [Context, Util],
+  components: {ModalHeader},
   props: {
     appointment: {
       type: Object,

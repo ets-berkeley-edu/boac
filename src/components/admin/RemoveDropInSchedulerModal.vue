@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div class="modal-header">
-      <h3 id="confirm-remove-scheduler-header">Remove Drop-in Scheduler</h3>
-    </div>
+    <ModalHeader text="Remove Drop-in Scheduler" />
     <div id="confirm-remove-scheduler-body" class="modal-body">
       Are you sure you want to remove
       <strong :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ schedulerName }}</strong>
@@ -32,8 +30,11 @@
 </template>
 
 <script>
+import ModalHeader from '@/components/util/ModalHeader'
+
 export default {
   name: 'RemoveDropInSchedulerModal',
+  components: {ModalHeader},
   props: {
     cancelModal: Function,
     removeScheduler: Function,

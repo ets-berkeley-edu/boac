@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="are-you-sure-modal"
     v-model="showAreYouSureModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -8,13 +7,11 @@
     hide-header
     @cancel.prevent="functionCancel"
     @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('are-you-sure-confirm')"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="modal-header">
-        <h3 id="are-you-sure-header">{{ modalHeader }}</h3>
-      </div>
-      <div v-if="modalBody" id="are-you-sure-body" class="modal-body">
+      <ModalHeader :text="modalHeader" />
+      <div v-if="modalBody" class="modal-body">
         <span v-html="modalBody"></span>
       </div>
       <div class="modal-footer">
@@ -42,10 +39,12 @@
 </template>
 
 <script>
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AreYouSureModal',
+  components: {ModalHeader},
   mixins: [Util],
   props: {
     buttonLabelCancel: {

@@ -6,13 +6,11 @@
     </div>
     <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :is-saving="isSaving" />
     <b-modal
-      id="modal"
       v-model="showCreateModal"
       body-class="pl-0 pr-0"
       hide-footer
-      hide-header-close
-      title="Name Your Curated Group"
-      @shown="focusModalById('create-input')"
+      hide-header
+      @shown="putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal
         :sids="sids"
@@ -64,7 +62,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-
-</style>

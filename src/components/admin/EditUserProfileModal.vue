@@ -31,11 +31,9 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="focusModalById('edit-modal-header')"
+      @shown="putFocusNextTick('modal-header')"
     >
-      <div class="modal-header">
-        <h2 id="edit-modal-header" class="student-section-header">{{ isExistingUser ? profile.name : 'Create User' }}</h2>
-      </div>
+      <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
       <div class="modal-body m-0 p-0">
         <div class="pt-2">
           <div
@@ -181,12 +179,14 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import { createOrUpdateUser } from '@/api/user'
 
 export default {
   name: 'EditUserProfileModal',
   mixins: [Context, Util],
+  components: {ModalHeader},
   props: {
     afterUpdateUser: {
       required: true,
@@ -246,7 +246,7 @@ export default {
       this.showEditUserModal = false
     },
     openEditUserModal() {
-      this.putFocusNextTick(this.profile.id ? 'edit-modal-header' : 'uid-input')
+      this.putFocusNextTick(this.profile.id ? 'modal-header' : 'uid-input')
       this.userProfile = {
         id: this.profile.id,
         uid: this.profile.uid,
