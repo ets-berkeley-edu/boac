@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="advising-appointment-create"
     v-model="showCreateAppointmentModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -8,13 +7,12 @@
     hide-header
     @cancel.prevent="cancel"
     @hide.prevent="cancel"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="modal-header">
-        <h3 class="ml-2">
-          <span aria-live="polite" role="alert"><span class="sr-only">Create new </span>Advising Appointment</span>
-        </h3>
-      </div>
+      <ModalHeader>
+        <span aria-live="polite" role="alert"><span class="sr-only">Create new </span>Advising Appointment</span>
+      </ModalHeader>
       <form @submit.prevent="create">
         <div class="font-weight-500 ml-4 mr-3 mt-2">
           <div>
@@ -130,6 +128,7 @@ import AppointmentTopics from '@/components/appointment/AppointmentTopics'
 import Autocomplete from '@/components/util/Autocomplete'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
@@ -137,7 +136,7 @@ import { findStudentsByNameOrSid } from '@/api/student'
 
 export default {
   name: 'CreateAppointmentModal',
-  components: {AppointmentStudentPill, AppointmentTopics, Autocomplete, RichTextEditor},
+  components: {AppointmentStudentPill, AppointmentTopics, Autocomplete, ModalHeader, RichTextEditor},
   mixins: [Berkeley, Context, Util, Validator],
   props: {
     advisors: {

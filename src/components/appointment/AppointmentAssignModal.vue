@@ -1,7 +1,6 @@
 <template>
   <b-modal
     v-if="!$_.isNil(dropInAdvisors)"
-    id="advising-appointment-assign"
     v-model="showAppointmentAssignModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -9,11 +8,12 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="modal-header">
-        <h3 :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</h3>
-      </div>
+      <ModalHeader>
+        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ appointment.student.name }}</span>
+      </ModalHeader>
       <div class="modal-body w-100">
         <div v-if="dropInAdvisors.length" class="pb-3 pt-3">
           <label for="assign-modal-advisor-select" class="font-weight-bolder">
@@ -68,11 +68,13 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import { getDropInAdvisorsForDept } from '@/api/user'
 
 export default {
   name: 'AppointmentAssignModal',
+  components: {ModalHeader},
   mixins: [Berkeley, Context, Util],
   props: {
     appointment: {

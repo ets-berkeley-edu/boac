@@ -1,15 +1,14 @@
 <template>
   <b-modal
-    id="rename-note-template"
     v-model="showModalProxy"
     aria-label="Rename Your Template"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header-close
-    title="Rename Your Template"
-    @shown="focusModalById('rename-template-input')"
+    hide-header
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
+      <ModalHeader text="Rename Your Template" />
       <form @submit.prevent="renameTemplate">
         <div class="ml-3 mr-3">
           <div>
@@ -65,12 +64,14 @@
 </template>
 
 <script>
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 
 export default {
   name: 'RenameTemplateModal',
   mixins: [Util, Validator],
+  components: {ModalHeader},
   props: {
     cancel: {
       type: Function,

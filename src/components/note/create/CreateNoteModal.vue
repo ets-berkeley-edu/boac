@@ -185,7 +185,7 @@ export default {
     }
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
     this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
-    this.putFocusNextTick('create-note-modal-header')
+    this.putFocusNextTick('modal-header')
     this.$eventHub.on('user-session-expired', () => {
       this.onBoaSessionExpires()
     })

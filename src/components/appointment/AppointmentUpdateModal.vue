@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="appointment-update"
     v-model="showUpdateModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -8,11 +7,10 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="ml-3 modal-header">
-        <h3 id="appointment-update-modal-header">Drop-in Update</h3>
-      </div>
+      <ModalHeader text="Drop-in Update" />
       <div id="appointment-update-modal-body" class="modal-body">
         {{ appointmentUpdate.statusBy.name }} recently updated the status of this drop-in appointment to
         <strong>{{ appointmentUpdate.status.replace('_', ' ') }}</strong>.
@@ -33,11 +31,13 @@
 
 <script>
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentUpdateModal',
   mixins: [Context, Util],
+  components: {ModalHeader},
   props: {
     appointmentUpdate: {
       type: Object,

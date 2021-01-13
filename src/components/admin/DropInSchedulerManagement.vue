@@ -53,12 +53,11 @@
       </b-row>
     </b-container>
     <b-modal
-      id="confirm-remove-scheduler-modal"
       v-model="showRemoveSchedulerModal"
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="focusModalById('confirm-remove-scheduler-modal')"
+      @shown="putFocusNextTick('modal-header')"
     >
       <RemoveDropInSchedulerModal
         :cancel-modal="cancelRemoveSchedulerModal"

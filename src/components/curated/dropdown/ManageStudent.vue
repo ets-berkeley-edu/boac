@@ -64,9 +64,8 @@
       v-model="showModal"
       body-class="pl-0 pr-0"
       hide-footer
-      hide-header-close
-      title="Create Curated Group"
-      @shown="focusModalById('create-input')"
+      hide-header
+      @shown="putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal :cancel="onModalCancel" :create="onCreateCuratedGroup" />
     </b-modal>

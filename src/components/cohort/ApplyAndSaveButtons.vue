@@ -43,13 +43,11 @@
         Reset
       </b-btn>
       <b-modal
-        id="create-cohort"
         v-model="showCreateModal"
         body-class="pl-0 pr-0"
         hide-footer
-        hide-header-close
-        title="Name Your Cohort"
-        @shown="focusModalById('create-input')"
+        hide-header
+        @shown="putFocusNextTick('modal-header')"
       >
         <CreateCohortModal :cancel="cancelCreateModal" :create="create" />
       </b-modal>

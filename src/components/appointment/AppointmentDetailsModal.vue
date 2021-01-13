@@ -1,6 +1,5 @@
 <template>
   <b-modal
-    id="appointment-check-in"
     v-model="showDetailsModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -8,11 +7,12 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
-      <div class="ml-3 modal-header">
-        <h3 id="appointment-check-in-student" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h3>
-      </div>
+      <ModalHeader>
+        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
+      </ModalHeader>
       <div class="modal-body w-100">
         <b-container fluid>
           <div class="mt-2">
@@ -71,12 +71,13 @@
 <script>
 import AppointmentTopics from '@/components/appointment/AppointmentTopics'
 import Context from '@/mixins/Context'
+import ModalHeader from '@/components/util/ModalHeader'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AppointmentDetailsModal',
-  components: {AppointmentTopics, RichTextEditor},
+  components: {AppointmentTopics, ModalHeader, RichTextEditor},
   mixins: [Context, Util],
   props: {
     appointment: {
@@ -115,7 +116,7 @@ export default {
     this.details = this.appointment.details
     this.topics = this.$_.clone(this.appointment.topics)
     this.showDetailsModal = this.showModal
-    this.putFocusNextTick('create-modal-advisor-select')
+    this.putFocusNextTick('modal-header')
     this.alertScreenReader('Appointment details form is open')
   },
   methods: {

@@ -1,15 +1,14 @@
 <template>
   <b-modal
-    id="create-note-template"
     v-model="showModalProxy"
     aria-label="Name Your Template"
     body-class="pl-0 pr-0"
     hide-footer
-    hide-header-close
-    title="Name Your Template"
-    @shown="focusModalById('template-title-input')"
+    hide-header
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
+      <ModalHeader text="Name Your Template" />
       <form @submit.prevent="createTemplate">
         <div class="ml-3 mr-3">
           <div>
@@ -66,11 +65,13 @@
 
 <script>
 import Util from '@/mixins/Util'
+import ModalHeader from '@/components/util/ModalHeader'
 import Validator from '@/mixins/Validator'
 
 export default {
   name: 'TemplateModalCreate',
   mixins: [Util, Validator],
+  components: {ModalHeader},
   props: {
     cancel: {
       type: Function,

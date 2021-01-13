@@ -1,9 +1,7 @@
 <template>
   <div>
-    <div class="modal-header">
-      <h3 id="confirm-delete-header">Delete Saved Cohort</h3>
-    </div>
-    <div id="confirm-delete-body" class="modal-body cohort-label">
+    <ModalHeader text="Delete Saved Cohort" />
+    <div class="modal-body cohort-label">
       Are you sure you want to delete "<strong>{{ cohortName }}</strong>"?
     </div>
     <div class="modal-footer">
@@ -30,8 +28,11 @@
 </template>
 
 <script>
+import ModalHeader from '@/components/util/ModalHeader'
+
 export default {
   name: 'DeleteCohortModal',
+  components: {ModalHeader},
   props: {
     cancelDeleteModal: Function,
     cohortName: String,

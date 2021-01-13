@@ -62,7 +62,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('delete-confirm')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <DeleteCohortModal
               :cohort-name="cohortName"
@@ -99,7 +99,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('export-list-confirm')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ExportListModal
               :cancel-export-list-modal="cancelExportCohortModal"
@@ -164,11 +164,11 @@
           Cohort name cannot exceed 255 characters.
         </div>
       </div>
-      <div class="d-flex align-self-baseline">
+      <div class="d-flex align-self-baseline mr-2">
         <b-btn
           id="rename-confirm"
           :disabled="!name"
-          class="cohort-manage-btn btn-primary-color-override"
+          class="btn-primary-color-override rename-btn"
           variant="primary"
           size="sm"
           @click.prevent="submitRename"
@@ -177,7 +177,7 @@
         </b-btn>
         <b-btn
           id="rename-cancel"
-          class="cohort-manage-btn"
+          class="rename-btn"
           variant="link"
           size="sm"
           @click="cancelRename"
@@ -309,6 +309,9 @@ export default {
 </script>
 
 <style scoped>
+.rename-btn {
+  height: 38px;
+}
 .rename-input {
   box-sizing: border-box;
   border: 2px solid #ccc;

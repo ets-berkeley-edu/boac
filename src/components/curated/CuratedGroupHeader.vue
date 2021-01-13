@@ -35,22 +35,22 @@
           Name cannot exceed 255 characters.
         </div>
       </div>
-      <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-4">
+      <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2">
         <b-btn
           id="rename-confirm"
           :disabled="!$_.size(renameInput)"
-          class="btn-primary-color-override"
-          variant="primary"
+          class="btn-primary-color-override rename-btn"
           size="sm"
+          variant="primary"
           @click.stop="rename"
         >
           Rename
         </b-btn>
         <b-btn
           id="rename-cancel"
-          class="cohort-manage-btn"
-          variant="link"
+          class="rename-btn"
           size="sm"
+          variant="link"
           @click="exitRenameMode"
         >
           Cancel
@@ -88,11 +88,10 @@
           <b-modal
             id="confirm-delete-modal"
             v-model="isDeleteModalOpen"
+            @shown="putFocusNextTick('modal-header')"
           >
-            <div slot="modal-header">
-              <h3>Delete Curated Group</h3>
-            </div>
-            <div id="confirm-delete-body" class="modal-body">
+            <ModalHeader text="Delete Curated Group" />
+            <div class="modal-body">
               Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
             </div>
             <div slot="modal-footer">
@@ -116,10 +115,9 @@
           <b-modal
             id="cohort-warning-modal"
             v-model="isCohortWarningModalOpen"
+            @shown="putFocusNextTick('modal-header')"
           >
-            <div slot="modal-header" class="ml-3 mt-3">
-              <h3 class="font-size-24">This group is in use as a cohort filter</h3>
-            </div>
+            <ModalHeader text="This group is in use as a cohort filter" />
             <div
               id="cohort-warning-body"
               class="modal-body"
@@ -164,7 +162,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="focusModalById('export-list-confirm')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ExportListModal
               :cancel-export-list-modal="cancelExportGroupModal"
@@ -206,13 +204,14 @@ import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import ExportListModal from '@/components/util/ExportListModal'
+import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
 import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: { ExportListModal },
+  components: {ExportListModal, ModalHeader},
   mixins: [Berkeley, Context, CuratedEditSession, CurrentUserExtras, Util, Validator],
   data: () => ({
     exportEnabled: true,
@@ -303,5 +302,8 @@ export default {
 }
 .modal-header {
   border-bottom: none;
+}
+.rename-btn {
+  height: 38px;
 }
 </style>
