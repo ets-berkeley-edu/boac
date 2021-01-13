@@ -139,6 +139,26 @@ export default {
           course.waitlisted || section.enrollmentStatus === 'W'
       })
     },
+    sisIdForTermName(termName) {
+      let words = _.words(termName)
+      const season = words[0]
+      const year = words[1]
+      let termId = ''
+      switch (season) {
+      case 'Fall':
+        termId = year.slice(0, 2) + year.slice(3, 4) + '8'
+        break
+      case 'Spring':
+        termId = year.slice(0, 2) + year.slice(3, 4) + '2'
+        break
+      case 'Summer':
+        termId = year.slice(0, 2) + year.slice(3, 4) + '5'
+        break
+      default:
+        break
+      }
+      return termId
+    },
     termNameForSisId(termId) {
       let termName = ''
       if (termId) {

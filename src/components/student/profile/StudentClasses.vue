@@ -17,12 +17,13 @@
       </b-button>
     </div>
     <div
-      v-for="(terms, academicYear, yearIndex) in enrollmentTermsByYear"
-      :key="yearIndex"
+      v-for="(year, index) in enrollmentTermsByYear"
+      :id="`academic-year-${year.label}-container`"
+      :key="index"
     >
       <b-button
-        :id="`academic-year-${$_.kebabCase(academicYear)}-toggle`"
-        v-b-toggle="`academic-year-${$_.kebabCase(academicYear)}`"
+        :id="`academic-year-${year.label}-toggle`"
+        v-b-toggle="`academic-year-${year.label}`"
         block
         class="profile-academic-year-toggle background-light"
         :pressed="null"
@@ -34,23 +35,31 @@
               <font-awesome icon="caret-right" class="when-academic-year-open" />
               <font-awesome icon="caret-down" class="when-academic-year-closed" />
             </div>
-            <h3 class="page-section-header-sub m-0">{{ academicYear }}</h3>
+            <h3 class="page-section-header-sub m-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
           </div>
           <div class="align-items-center d-flex justify-content-end">
-            <span class="color-black">{{ totalUnits(terms) }} Units</span>
+            <span class="color-black">{{ totalUnits(year) }} Units</span>
           </div>
         </div>
       </b-button>
       <b-collapse
-        :id="`academic-year-${$_.kebabCase(academicYear)}`"
+        :id="`academic-year-${year.label}`"
         class="mr-3 mb-2"
+        :visible="includesCurrentTerm(year)"
       >
         <b-card-group deck class="pl-3 pr-1">
           <StudentEnrollmentTerm
-            v-for="(term, index) in terms"
-            :key="index"
+            :id="`term-fall-${year.label - 1}`"
             :student="student"
-            :term="term"
+            :term="getTerm(`Fall ${year.label - 1}`, year)"
+          /><StudentEnrollmentTerm
+            :id="`term-spring-${year.label}`"
+            :student="student"
+            :term="getTerm(`Spring ${year.label}`, year)"
+          /><StudentEnrollmentTerm
+            :id="`term-summer-${year.label}`"
+            :student="student"
+            :term="getTerm(`Summer ${year.label}`, year)"
           />
         </b-card-group>
       </b-collapse>
@@ -63,6 +72,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
@@ -75,25 +85,46 @@ export default {
     StudentEnrollmentTerm,
     StudentWithdrawalCancel
   },
-  mixins: [Context, StudentAnalytics, Util],
+  mixins: [Berkeley, Context, StudentAnalytics, Util],
   props: {
     student: Object
   },
   data: () => ({
-    currentOrder: undefined
+    currentOrder: undefined,
   }),
-  created () {
+  created() {
     this.currentOrder = 'desc'
   },
   computed: {
-    enrollmentTermsByYear: function() {
-      let orderedTerms = this.$_.orderBy(this.student.enrollmentTerms, 'academicYear', this.currentOrder)
-      return this.$_.groupBy(orderedTerms, 'academicYear')
-    },
+    enrollmentTermsByYear() {
+      const enrollmentTermsByYear = this.$_.map(
+        this.$_.groupBy(this.student.enrollmentTerms, 'academicYear'),
+        (terms, label) => {
+          return {
+            label: label,
+            terms: terms
+          }
+        }
+      )
+      return this.$_.orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
+    }
   },
   methods: {
-    totalUnits(terms) {
-      return this.$_.sumBy(terms, 'enrolledUnits')
+    includesCurrentTerm(year) {
+      return this.$_.includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
+    },
+    getTerm(termName, year) {
+      const term = this.$_.find(year.terms, { 'termName': termName })
+      if (!term) {
+        return {
+          termID: this.sisIdForTermName(termName),
+          termName: termName
+        }
+      }
+      return term
+    },
+    totalUnits(year) {
+      return this.$_.sumBy(year.terms, 'enrolledUnits')
     },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'

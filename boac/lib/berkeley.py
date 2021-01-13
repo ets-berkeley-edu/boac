@@ -405,12 +405,12 @@ BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
 
 def academic_year_for_term_name(term_name):
     if term_name:
-        match = re.match(r'\A(Spring|Summer|Fall|Winter) (\d{4})\Z', term_name)
+        match = re.match(r'\A(Spring|Summer|Fall) (\d{4})\Z', term_name)
         if not match or len(match.groups()) != 2:
-            return term_name
+            return None
         if match.group(1) == 'Fall':
-            return f'{term_name} - Summer {int(match.group(2)) + 1}'
-        return f'Fall {int(match.group(2)) - 1} - Summer {match.group(2)}'
+            return str(int(match.group(2)) + 1)
+        return match.group(2)
 
 
 def previous_term_id(term_id):
