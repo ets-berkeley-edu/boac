@@ -23,9 +23,9 @@
           <div role="columnheader" class="student-course-column-units">Units</div>
         </div>
       </div>
-      <div role="rowgroup">
+      <div role="rowgroup" class="pt-2">
         <div v-if="$_.isEmpty(term.enrollments)" role="row">
-          <div class="font-italic text-muted" role="cell">{{ `No ${term.termName} enrollments` }}</div>
+          <div class="student-term-empty" role="cell">{{ `No ${term.termName} enrollments` }}</div>
         </div>
         <div
           v-for="(course, courseIndex) in term.enrollments"
@@ -35,7 +35,7 @@
             :course="course"
             :index="courseIndex"
             :student="student"
-            :term="term"
+            :term-id="term.termId"
           />
         </div>
         <div>
@@ -99,7 +99,7 @@ export default {
   margin: 0;
 }
 .student-course-dropped {
-  color: #999;
+  color: #666;
   font-weight: 500;
   line-height: 1.1;
   padding: 8px 15px;
@@ -112,7 +112,7 @@ export default {
   padding: 8px 0;
 }
 .student-course-label {
-  color: #999;
+  color: #666;
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -126,6 +126,10 @@ export default {
 .student-term-current {
   border: 1px #999 solid!important;
   border-radius: 0;
+}
+.student-term-empty {
+  color: #666;
+  font-style: italic;
 }
 .student-term-header {
   align-items: baseline;

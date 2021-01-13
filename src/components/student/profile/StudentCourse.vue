@@ -3,12 +3,12 @@
     <div role="row" :class="{'student-course-expanded': detailsVisible}" class="student-course-row">
       <div role="cell" class="student-course-column-name">
         <b-btn
-          :id="`term-${term.termId}-course-${index}-toggle`"
-          v-b-toggle="`course-details-${term.termId}-${index}`"
+          :id="`term-${termId}-course-${index}-toggle`"
+          v-b-toggle="`course-details-${termId}-${index}`"
           class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
           variant="link"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
-          :aria-controls="`course-details-${term.termId}-${index}`"
+          :aria-controls="`course-details-${termId}-${index}`"
           @click="detailsVisible = !detailsVisible"
         >
           <span class="mx-2">{{ course.displayName }}</span>
@@ -19,7 +19,7 @@
         </b-btn>
         <div
           v-if="course.waitlisted"
-          :id="`waitlisted-for-${term.termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
+          :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
           class="red-flag-status text-uppercase font-size-14 mt-1"
         >
           Waitlisted
@@ -52,7 +52,7 @@
       </div>
     </div>
     <b-collapse
-      :id="`course-details-${term.termId}-${index}`"
+      :id="`course-details-${termId}-${index}`"
       role="row"
       class="student-course-details"
     >
@@ -65,9 +65,9 @@
           <span v-if="section.displayName">
             <span v-if="sectionIndex === 0"></span><!--
               --><router-link
-            v-if="section.isViewableOnCoursePage"
-            :id="`term-${term.termId}-section-${section.ccn}`"
-            :to="`/course/${term.termId}/${section.ccn}?u=${student.uid}`"
+              v-if="section.isViewableOnCoursePage"
+              :id="`term-${termId}-section-${section.ccn}`"
+              :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
             ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
               --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
               --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
@@ -184,7 +184,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-if="$config.currentEnrollmentTermId === parseInt(term.termId)">
+            <tr v-if="$config.currentEnrollmentTermId === parseInt(termId, 10)">
               <th class="student-bcourses-legend" scope="row">
                 Last bCourses Activity
               </th>
@@ -232,9 +232,9 @@ export default {
       required: true,
       type: Object
     },
-    term: {
+    termId: {
       required: true,
-      type: Object
+      type: String
     }
   },
   data: () => ({
@@ -264,7 +264,7 @@ export default {
   vertical-align: top;
 }
 .student-bcourses-legend {
-  color: #999;
+  color: #666;
   font-weight: normal;
   white-space: nowrap;
   width: 15em;
