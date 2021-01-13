@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-header" :class="containerClass">
+  <div class="modal-header">
     <h3 id="modal-header" class="font-size-24" tabindex="0">
       {{ text }}
       <slot></slot>
@@ -11,11 +11,6 @@
 export default {
   name: 'ModalHeader',
   props: {
-    containerClass: {
-      default: undefined,
-      required: false,
-      type: String
-    },
     text: {
       default: '',
       required: false,
