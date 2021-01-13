@@ -1,7 +1,7 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1">
-      <ModalHeader container-class="border-bottom-0" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
+      <ModalHeader class="border-bottom-0" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
     </div>
     <div class="mr-4">
       <b-dropdown
