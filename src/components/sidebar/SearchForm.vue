@@ -269,6 +269,7 @@
       </span>
       <div class="d-flex" :class="{'pb-3': showNoteFilters}">
         <div class="flex-grow-1">
+          <!--
           <Autocomplete
             id="search-students"
             ref="searchInput"
@@ -301,6 +302,19 @@
               </b-input-group-append>
             </template>
           </Autocomplete>
+          -->
+          <!--
+          ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+          -->
+          <InputAutocomplete
+            id="search-students-input"
+            aria-labelledby="search-input-label"
+            :get-suggestions="filterSuggestions"
+            :on-submit="search"
+          />
+          <!--
+          ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+          -->
           <b-popover
             v-if="showErrorPopover"
             :show.sync="showErrorPopover"
@@ -312,6 +326,18 @@
             <span id="popover-error-message" class="has-error"><font-awesome icon="exclamation-triangle" class="text-warning pr-1" /> Search input is required</span>
           </b-popover>
         </div>
+        <div>
+          <b-button
+            id="go-search"
+            class="btn-primary-color-override h-100 ml-1 mr-0"
+            :disabled="validDateRange === false || (!includeCourses && !includeNotes && !includeStudents)"
+            variant="primary"
+            @keypress="search"
+            @click.stop="search"
+          >
+            Go<span class="sr-only"> (submit search)</span>
+          </b-button>
+        </div>
       </div>
     </form>
     <hr v-if="showSearchOptions" class="ml-2 mr-2 section-divider" />
@@ -321,6 +347,7 @@
 <script>
 import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
+import InputAutocomplete from '@/components/search/InputAutocomplete'
 import Scrollable from '@/mixins/Scrollable'
 import Util from '@/mixins/Util'
 import { findStudentsByNameOrSid } from '@/api/student'
@@ -330,7 +357,8 @@ import { addToSearchHistory, findAdvisorsByName, getMySearchHistory } from '@/ap
 export default {
   name: 'SearchForm',
   components: {
-    Autocomplete
+    Autocomplete,
+    InputAutocomplete
   },
   mixins: [Context, Scrollable, Util],
   props: {
@@ -464,6 +492,10 @@ export default {
     hideError() {
       this.showErrorPopover = false
     },
+    filterSuggestions(input) {
+      const q = this.$_.trim(input && input.toLowerCase())
+      return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
+    },
     searchSuggestions(q) {
       return new Promise(resolve => {
         let suggestions
@@ -481,8 +513,8 @@ export default {
     resetNoteFilters() {
       this.noteFilters = this.$_.cloneDeep(this.defaultNoteFilters)
     },
-    search() {
-      const searchPhrase = this.$_.trim(this.$refs.searchInput.getQuery())
+    search(searchPhrase) {
+      // const searchPhrase = this.$_.trim(this.$refs.searchInput.getQuery())
       if (searchPhrase || !this.searchInputRequired) {
         const query = {
           notes: this.includeNotes,
