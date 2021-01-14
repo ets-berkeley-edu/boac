@@ -1,17 +1,22 @@
 <template>
   <div class="student-course">
-    <div role="row" :class="{'student-course-expanded': detailsVisible}" class="student-course-row">
+    <div
+      :id="`term-${termId}-course-${index}`"
+      role="row"
+      :class="{'student-course-expanded': detailsVisible}"
+      class="student-course-row"
+    >
       <div role="cell" class="student-course-column-name">
         <b-btn
           :id="`term-${termId}-course-${index}-toggle`"
-          v-b-toggle="`course-details-${termId}-${index}`"
+          v-b-toggle="`term-${termId}-course-${index}-details`"
           class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
           variant="link"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`course-details-${termId}-${index}`"
           @click="detailsVisible = !detailsVisible"
         >
-          <span class="mx-2">{{ course.displayName }}</span>
+          <span :id="`term-${termId}-course-${index}-name`" class="mx-2">{{ course.displayName }}</span>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
           <font-awesome icon="caret-down" class="caret when-course-open" />
@@ -28,35 +33,37 @@
       <div role="cell" class="student-course-column-mid-grade text-nowrap">
         <span
           v-if="course.midtermGrade"
+          :id="`term-${termId}-course-${index}-midterm-grade`"
           v-accessible-grade="course.midtermGrade"
         ></span>
         <span
           v-if="!course.midtermGrade"
+          :id="`term-${termId}-course-${index}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-final-grade text-nowrap">
         <span
           v-if="course.grade"
+          :id="`term-${termId}-course-${index}-final-grade`"
           v-accessible-grade="course.grade"
         ></span>
         <span
           v-if="!course.grade"
+          :id="`term-${termId}-course-${index}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
-        <span
-          v-if="!course.grade && !course.gradingBasis"
-        ><span class="sr-only">No data</span>&mdash;</span>
+        <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units text-nowrap">
-        {{ course.units }}
+        <span :id="`term-${termId}-course-${index}-units`">{{ course.units }}</span>
       </div>
     </div>
     <b-collapse
-      :id="`course-details-${termId}-${index}`"
+      :id="`term-${termId}-course-${index}-details`"
       role="row"
       class="student-course-details"
     >
-      <div class="student-course-name">{{ course.displayName }}</div>
+      <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-name">{{ course.displayName }}</div>
       <div class="student-course-sections">
         <span
           v-for="(section, sectionIndex) in course.sections"
@@ -75,14 +82,14 @@
           </span>
         </span>
       </div>
-      <div>{{ course.title }}</div>
+      <div :id="`term-${termId}-course-${index}-title`">{{ course.title }}</div>
       <div v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending">
         <div
-          v-for="(canvasSite, csIndex) in course.canvasSites"
-          :key="csIndex"
+          v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
+          :key="canvasSiteIdx"
           class="student-bcourses-wrapper"
         >
-          <h5 class="student-bcourses-site-code">
+          <h5 :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}`" class="student-bcourses-site-code">
             <span class="sr-only">Course Site</span>
             {{ canvasSite.courseCode }}
           </h5>
@@ -92,11 +99,12 @@
                 Assignments Submitted
               </th>
               <td class="student-bcourses-summary">
-                <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile">
+                <span v-if="canvasSite.analytics.assignmentsSubmitted.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`">
                   <strong>{{ canvasSite.analytics.assignmentsSubmitted.displayPercentile }}</strong> percentile
                 </span>
                 <span
                   v-if="!canvasSite.analytics.assignmentsSubmitted.displayPercentile"
+                  :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-submitted`"
                   class="font-italic text-muted"
                 >
                   No Assignments
@@ -117,7 +125,7 @@
                   <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
                   <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
                 </div>
-                <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable">
+                <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-assignments-score`">
                   <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     Score:
                     <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
@@ -139,11 +147,12 @@
                 Assignment Grades
               </th>
               <td class="student-bcourses-summary">
-                <span v-if="canvasSite.analytics.currentScore.displayPercentile">
+                <span v-if="canvasSite.analytics.currentScore.displayPercentile" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`">
                   <strong>{{ canvasSite.analytics.currentScore.displayPercentile }}</strong> percentile
                 </span>
                 <span
                   v-if="!canvasSite.analytics.currentScore.displayPercentile"
+                  :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades`"
                   class="font-italic text-muted"
                 >
                   No Grades
@@ -164,7 +173,7 @@
                   <div>30th Percentile: {{ canvasSite.analytics.currentScore.courseDeciles[3] }}</div>
                   <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
                 </div>
-                <div v-if="!canvasSite.analytics.currentScore.boxPlottable">
+                <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades-score`">
                   <span
                     v-if="canvasSite.analytics.currentScore.courseDeciles"
                     class="font-italic text-muted"
@@ -189,10 +198,10 @@
                 Last bCourses Activity
               </th>
               <td colspan="2">
-                <div v-if="!canvasSite.analytics.lastActivity.student.raw">
+                <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
                   <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
                 </div>
-                <div v-if="canvasSite.analytics.lastActivity.student.raw">
+                <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
                   <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
                   last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
                   {{ lastActivityInContext(canvasSite.analytics) }}
@@ -201,7 +210,7 @@
             </tr>
           </table>
         </div>
-        <div v-if="$_.isEmpty(course.canvasSites)" class="font-italic text-muted">
+        <div v-if="$_.isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">
           No additional information
         </div>
       </div>

@@ -46,7 +46,8 @@ Vue.use(VueHighcharts, { Highcharts })
 highchartsAccessibility(Highcharts)
 
 Vue.directive('accessibleGrade', {
-  bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;')
+  bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;'),
+  unbind: el => el.innerHTML = ''
 })
 
 // Emit and listen for events
