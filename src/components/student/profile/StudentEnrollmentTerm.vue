@@ -6,7 +6,7 @@
     :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
     <b-card-header header-bg-variant="transparent" header-class="student-term-header">
-      <h3 :id="`term-header-${term.termId}`" class="font-size-18 mr-3">{{ term.termName }}</h3>
+      <h3 :id="`term-${term.termId}-header`" class="font-size-18 mr-3">{{ term.termName }}</h3>
       <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
       <StudentWithdrawalCancel
         v-if="student.sisProfile.withdrawalCancel"
@@ -25,27 +25,24 @@
       </div>
       <div role="rowgroup" class="pt-2">
         <div v-if="$_.isEmpty(term.enrollments)" role="row">
-          <div class="student-term-empty" role="cell">{{ `No ${term.termName} enrollments` }}</div>
+          <div :id="`term-${term.termId}-no-enrollments`" class="student-term-empty" role="cell">{{ `No ${term.termName} enrollments` }}</div>
         </div>
-        <div
+        <StudentCourse
           v-for="(course, courseIndex) in term.enrollments"
           :key="courseIndex"
-        >
-          <StudentCourse
-            :course="course"
-            :index="courseIndex"
-            :student="student"
-            :term-id="term.termId"
-          />
-        </div>
+          :course="course"
+          :index="courseIndex"
+          :student="student"
+          :term-id="term.termId"
+        />
         <div>
           <div
-            v-for="(droppedSection, dsIndex) in term.droppedSections"
-            :key="dsIndex"
+            v-for="(droppedSection, droppedIndex) in term.droppedSections"
+            :key="droppedIndex"
             class="student-course-dropped"
             role="row"
           >
-            <div role="cell">
+            <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
               {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }} (Dropped)
             </div>
           </div>
