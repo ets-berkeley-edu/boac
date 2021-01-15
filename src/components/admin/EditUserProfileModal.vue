@@ -246,7 +246,6 @@ export default {
       this.showEditUserModal = false
     },
     openEditUserModal() {
-      this.putFocusNextTick(this.profile.id ? 'modal-header' : 'uid-input')
       this.userProfile = {
         id: this.profile.id,
         uid: this.profile.uid,
