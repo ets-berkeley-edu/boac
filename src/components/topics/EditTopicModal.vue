@@ -135,7 +135,6 @@ export default {
   },
   created() {
     this.showEditTopicModal = true
-    this.putFocusNextTick('topic-label')
   },
   methods: {
     cancel() {

@@ -191,7 +191,6 @@ export default {
     this.reset()
     this.updateAvailableAdvisors()
     this.showCreateAppointmentModal = this.showModal
-    this.putFocusNextTick('appointment-student-input')
     this.alertScreenReader('Create appointment form is open')
   },
   methods: {

@@ -11,7 +11,7 @@
   >
     <div>
       <ModalHeader text="Drop-in Update" />
-      <div id="appointment-update-modal-body" class="modal-body">
+      <div class="modal-body">
         {{ appointmentUpdate.statusBy.name }} recently updated the status of this drop-in appointment to
         <strong>{{ appointmentUpdate.status.replace('_', ' ') }}</strong>.
       </div>
@@ -63,7 +63,6 @@ export default {
   created() {
     this.showUpdateModal = this.showModal
     this.alertScreenReader('Drop-in Update')
-    this.putFocusNextTick('appointment-update-modal-body')
   }
 }
 </script>

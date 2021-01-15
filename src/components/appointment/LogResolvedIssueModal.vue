@@ -147,7 +147,6 @@ export default {
   created() {
     this.reset()
     this.showLogResolvedIssueModal = this.showModal
-    this.putFocusNextTick('log-resolved-issue-student-input')
     this.alertScreenReader('Log resolved issue form is open')
   },
   methods: {
