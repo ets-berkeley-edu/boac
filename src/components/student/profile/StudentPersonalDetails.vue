@@ -196,24 +196,4 @@ export default {
 .drawer {
   background-color: #f5fbff;
 }
-.drawer-enter-active {
-   -webkit-transition-duration: 0.3s;
-   transition-duration: 0.3s;
-   -webkit-transition-timing-function: ease-in;
-   transition-timing-function: ease-in;
-}
-.drawer-leave-active {
-   -webkit-transition-duration: 0.3s;
-   transition-duration: 0.5s;
-   -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-}
-.drawer-enter-to, .drawer-leave {
-  max-height: 280px;
-  overflow: hidden;
-}
-.drawer-enter, .drawer-leave-to {
-  overflow: hidden;
-  max-height: 0;
-}
 </style>

@@ -3,6 +3,8 @@
     :id="id"
     :aria-labelledby="ariaLabelledby"
     :aria-required="required"
+    :base-class="disabled ? 'disabled' : 'autocomplete'"
+    :disabled="disabled"
     :placeholder="placeholder"
     :search="search"
     :type="type"
@@ -21,6 +23,10 @@ export default {
     ariaLabelledby: {
       required: true,
       type: String
+    },
+    disabled: {
+      required: false,
+      type: Boolean
     },
     getSuggestions: {
       required: true,
@@ -72,16 +78,28 @@ export default {
   background-image: none;
   border: 2px solid #ccc;
   border-radius: 4px;
-	box-sizing: border-box;
+  box-sizing: border-box;
   color: #333;
   font-size: 16px;
   height: 45px;
   padding: 0 10px 0 10px;
-	width: 100%;
+  width: 100%;
 }
 .autocomplete-result {
-	padding: 12px;
-	background-image: none;
-	background-position: 12px;
+  padding: 12px;
+  background-image: none;
+  background-position: 12px;
+}
+.disabled-input {
+  background-color: #ddd;
+  background-image: none;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+  color: #333;
+  font-size: 16px;
+  height: 45px;
+  padding: 0 10px 0 10px;
+  width: 100%;
 }
 </style>

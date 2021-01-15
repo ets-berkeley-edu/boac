@@ -89,17 +89,20 @@
               <span class="sr-only">Search for</span>
               Notes &amp; Appointments
             </label>
-            <b-btn
-              id="search-options-note-filters-toggle"
-              aria-controls="search-options-note-filters-subpanel"
-              :aria-expanded="showNoteFilters"
-              :class="includeNotes ? 'visible' : 'invisible'"
-              class="pl-0 pt-0 search-options-panel-toggle text-nowrap"
-              variant="link"
-              @click="toggleNoteFilters"
-            >
-              ({{ showNoteFilters ? 'hide' : 'show' }} <span class="sr-only">note and appointment </span>search filters)
-            </b-btn>
+            <transition name="drawer">
+              <div v-if="includeNotes">
+                <b-btn
+                  id="search-options-note-filters-toggle"
+                  aria-controls="search-options-note-filters-subpanel"
+                  :aria-expanded="showNoteFilters"
+                  class="pl-0 pt-0 search-options-panel-toggle text-nowrap"
+                  variant="link"
+                  @click="toggleNoteFilters"
+                >
+                  ({{ showNoteFilters ? 'hide' : 'show' }} <span class="sr-only">note and appointment </span>search filters)
+                </b-btn>
+              </div>
+            </transition>
           </div>
           <b-collapse
             v-if="$currentUser.canAccessAdvisingData"
@@ -272,6 +275,7 @@
           <InputAutocomplete
             id="search-students-input"
             aria-labelledby="search-input-label"
+            :disabled="disabledSearch"
             :get-suggestions="filterSuggestions"
             :on-submit="search"
             :required="searchInputRequired"
@@ -292,7 +296,7 @@
           <b-button
             id="go-search"
             class="btn-primary-color-override h-100 ml-1 mr-0"
-            :disabled="validDateRange === false || (!includeCourses && !includeNotes && !includeStudents)"
+            :disabled="disabledSearch"
             variant="primary"
             @keypress="onSubmit"
             @click.stop="onSubmit"
@@ -358,6 +362,9 @@ export default {
   computed: {
     allOptionsUnchecked() {
       return this.showSearchOptions && !this.includeAdmits && !this.includeCourses && !this.includeNotes && !this.includeStudents
+    },
+    disabledSearch() {
+      return this.validDateRange === false || (!this.includeCourses && !this.includeNotes && !this.includeStudents)
     },
     noteAuthor: {
       get: function() {
