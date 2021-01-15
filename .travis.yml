@@ -12,23 +12,14 @@ install:
   - npm install
   - pip3 install tox
 
-jobs:
-  include:
-    - stage: test
-      script:
-        - psql -c 'create database boac_test;' -U postgres
-        - psql -c 'create database boac_loch_test;' -U postgres
-        - psql boac_test -c 'create extension pg_trgm;' -U postgres
-        - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
-        - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
-        - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
-        - pip install google-compute-engine
-        - pip3 install -r requirements.txt
-        - pip3 install pandas==0.23.3
-        - tox -e test || travis_terminate 1;
-    - # Python lint
-      script: tox -e lint-py
-    - # Vue.js lint
-      script: tox -e lint-vue
-    - # Vue.js build to verify TypeScript
-      script: tox -e build-vue
+script:
+  - psql -c 'create database boac_test;' -U postgres
+  - psql -c 'create database boac_loch_test;' -U postgres
+  - psql boac_test -c 'create extension pg_trgm;' -U postgres
+  - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
+  - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
+  - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
+  - pip install google-compute-engine
+  - pip3 install -r requirements.txt
+  - pip3 install pandas==0.23.3
+  - tox --parallel || travis_terminate 1
