@@ -1,10 +1,13 @@
 <template>
   <Autocomplete
+    :id="id"
     :aria-labelledby="ariaLabelledby"
+    :aria-required="required"
     :placeholder="placeholder"
     :search="search"
+    :type="type"
     @submit="handleSubmit"
-  ></Autocomplete>
+  />
 </template>
 
 <script>
@@ -23,11 +26,24 @@ export default {
       required: true,
       type: Function
     },
+    id: {
+      required: true,
+      type: String
+    },
     onSubmit: {
       required: true,
       type: Function
     },
     placeholder: {
+      required: false,
+      type: String
+    },
+    required: {
+      required: false,
+      type: Boolean
+    },
+    type: {
+      default: 'input',
       required: false,
       type: String
     }
@@ -56,9 +72,12 @@ export default {
   background-image: none;
   border: 2px solid #ccc;
   border-radius: 4px;
+	box-sizing: border-box;
   color: #333;
+  font-size: 16px;
   height: 45px;
   padding: 0 10px 0 10px;
+	width: 100%;
 }
 .autocomplete-result {
 	padding: 12px;

@@ -265,56 +265,18 @@
       <span id="search-input-label" class="sr-only">
         Search for students, courses, or notes.
         {{ searchInputRequired ? 'Input is required.' : '' }}
-        {{ searchSuggestions.length ? 'Expect auto-suggest of previous searches.' : '' }}
+        {{ searchHistory.length ? 'Expect auto-suggest of previous searches.' : '' }}
       </span>
       <div class="d-flex" :class="{'pb-3': showNoteFilters}">
         <div class="flex-grow-1">
-          <!--
-          <Autocomplete
-            id="search-students"
-            ref="searchInput"
-            v-model="searchInput"
-            :demo-mode-blur="false"
-            :disabled="allOptionsUnchecked"
-            form-input-type="search"
-            :input-class="allOptionsUnchecked ? 'input-disabled search-input' : 'search-input'"
-            input-labelled-by="search-input-label"
-            maxlength="255"
-            :on-esc-form-input="hideError"
-            :restrict="false"
-            :source="searchSuggestions"
-            :suggest-when="() => true"
-            suggestion-label-class="suggestion-label"
-            type="text"
-          >
-            <template #append>
-              <b-input-group-append>
-                <b-button
-                  id="go-search"
-                  class="btn-primary-color-override h-100 ml-1 mr-0"
-                  :disabled="validDateRange === false"
-                  variant="primary"
-                  @keypress="search"
-                  @click.stop="search"
-                >
-                  Go<span class="sr-only"> (submit search)</span>
-                </b-button>
-              </b-input-group-append>
-            </template>
-          </Autocomplete>
-          -->
-          <!--
-          ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-          -->
           <InputAutocomplete
             id="search-students-input"
             aria-labelledby="search-input-label"
             :get-suggestions="filterSuggestions"
             :on-submit="search"
+            :required="searchInputRequired"
+            type="search"
           />
-          <!--
-          ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-          -->
           <b-popover
             v-if="showErrorPopover"
             :show.sync="showErrorPopover"
@@ -332,8 +294,8 @@
             class="btn-primary-color-override h-100 ml-1 mr-0"
             :disabled="validDateRange === false || (!includeCourses && !includeNotes && !includeStudents)"
             variant="primary"
-            @keypress="search"
-            @click.stop="search"
+            @keypress="onSubmit"
+            @click.stop="onSubmit"
           >
             Go<span class="sr-only"> (submit search)</span>
           </b-button>
@@ -387,7 +349,6 @@ export default {
       minDate: new Date('01/01/1900'),
       noteFilters: null,
       searchHistory: [],
-      searchInput: null,
       showNoteFilters: false,
       showErrorPopover: false,
       showSearchOptions: false,
@@ -459,9 +420,6 @@ export default {
         this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`)
       }
     },
-    searchInput() {
-      this.search()
-    },
     showNoteFilters(value) {
       if (value) {
         this.alertScreenReader('Notes and Appointments search filters opened.')
@@ -489,33 +447,23 @@ export default {
     dateString(d, format) {
       return this.$options.filters.moment(d, format)
     },
-    hideError() {
-      this.showErrorPopover = false
-    },
     filterSuggestions(input) {
       const q = this.$_.trim(input && input.toLowerCase())
       return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     },
-    searchSuggestions(q) {
-      return new Promise(resolve => {
-        let suggestions
-        if (q) {
-          const normalized = q.toLowerCase()
-          suggestions = this.$_.filter(this.searchHistory, s => s.toLowerCase().startsWith(normalized))
-        } else {
-          suggestions = this.searchHistory
-        }
-        resolve(this.$_.map(suggestions, s => {
-          return { label: s }
-        }))
-      })
+    hideError() {
+      this.showErrorPopover = false
+    },
+    onSubmit() {
+      let el = document.getElementById('search-students-input')
+      this.search(el && el.value)
     },
     resetNoteFilters() {
       this.noteFilters = this.$_.cloneDeep(this.defaultNoteFilters)
     },
-    search(searchPhrase) {
-      // const searchPhrase = this.$_.trim(this.$refs.searchInput.getQuery())
-      if (searchPhrase || !this.searchInputRequired) {
+    search(input) {
+      const q = this.$_.trim(input)
+      if (q || !this.searchInputRequired) {
         const query = {
           notes: this.includeNotes,
           students: this.includeStudents
@@ -526,8 +474,8 @@ export default {
         if (this.includeCourses) {
           query.courses = this.includeCourses
         }
-        if (searchPhrase) {
-          query.q = searchPhrase
+        if (q) {
+          query.q = q
         }
         if (this.includeNotes) {
           if (this.noteFilters.postedBy === 'you') {
@@ -556,8 +504,8 @@ export default {
           },
           this.$_.noop
         )
-        if (this.$_.trim(searchPhrase)) {
-          addToSearchHistory(searchPhrase).then(history => {
+        if (q) {
+          addToSearchHistory(q).then(history => {
             this.searchHistory = history
           })
         }
@@ -598,27 +546,7 @@ export default {
 }
 </script>
 
-<style>
-.search-input {
-  box-sizing: border-box !important;
-  border: 2px solid #ccc !important;
-  border-radius: 4px !important;
-  color: #333;
-  height: 45px !important;
-  padding: 0 10px 0 10px !important;
-}
-.suggestion-label {
-  display: inline-block;
-  max-width: 100vw;
-  overflow-wrap: break-word;
-  white-space: normal;
-}
-</style>
-
 <style scoped>
-.input-disabled {
-  background: #ddd;
-}
 .search-options-panel-toggle {
   color: #8bbdda;
   font-size: 12px;
