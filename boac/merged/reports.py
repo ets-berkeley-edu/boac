@@ -28,6 +28,7 @@ import json
 from boac import db
 from boac.externals import data_loch
 from boac.merged.sis_terms import current_term_id
+from dateutil.tz import tzutc
 from flask import current_app as app
 
 
@@ -145,3 +146,45 @@ def get_note_with_topics_count(dept_code=None):
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
     results = db.session.execute(query)
     return [row['count'] for row in results][0]
+
+
+def get_summary_of_boa_notes():
+    query = """
+        SELECT author_uid, author_name, author_role, author_dept_codes, sid, subject, created_at, updated_at
+        FROM notes
+        WHERE deleted_at IS NULL
+        ORDER BY created_at
+    """
+    tz_utc = tzutc()
+
+    def _to_api_json(row):
+        return {
+            'author_uid': row['author_uid'],
+            'author_name': row['author_name'],
+            'author_role': row['author_role'],
+            'author_dept_codes': row['author_dept_codes'],
+            'sid': row['sid'],
+            'subject': row['subject'],
+            'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
+            'updated_at': row['updated_at'].astimezone(tz_utc).isoformat(),
+        }
+    return [_to_api_json(row) for row in db.session.execute(query)]
+
+
+def get_boa_note_count_by_month():
+    query = """
+        SELECT
+          DATE_TRUNC('month', created_at) AS created_at_month,
+          COUNT(id) AS count
+        FROM notes
+        GROUP BY DATE_TRUNC('month', created_at)
+    """
+
+    def _to_api_json(row):
+        month_date = row['created_at_month']
+        return {
+            'year': month_date.year,
+            'month': month_date.month,
+            'count': row['count'],
+        }
+    return [_to_api_json(row) for row in db.session.execute(query)]
