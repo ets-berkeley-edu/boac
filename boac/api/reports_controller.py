@@ -32,8 +32,8 @@ from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_ad
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import localized_timestamp_to_utc, utc_now
-from boac.merged.reports import get_note_author_count, get_note_count, get_note_count_per_user,\
-    get_note_with_attachments_count, get_note_with_topics_count, low_assignment_scores
+from boac.merged.reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, get_note_count_per_user,\
+    get_note_with_attachments_count, get_note_with_topics_count, get_summary_of_boa_notes, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -76,9 +76,38 @@ def alerts_log_export():
         raise BadRequestError('Invalid arguments')
 
 
+@app.route('/api/reports/boa_notes/monthly_count')
+@admin_required
+def get_boa_notes_monthly_count():
+    return response_with_csv_download(
+        rows=get_boa_note_count_by_month(),
+        filename_prefix='boa_advising_notes_monthly_count',
+        fieldnames=['year', 'month', 'count'],
+    )
+
+
+@app.route('/api/reports/boa_notes/metadata')
+@admin_required
+def get_boa_notes_metadata():
+    return response_with_csv_download(
+        rows=get_summary_of_boa_notes(),
+        filename_prefix='boa_advising_notes_metadata',
+        fieldnames=[
+            'author_uid',
+            'author_name',
+            'author_role',
+            'author_dept_codes',
+            'sid',
+            'subject',
+            'created_at',
+            'updated_at',
+        ],
+    )
+
+
 @app.route('/api/reports/notes/<dept_code>')
 @admin_or_director_required
-def get_notes_report(dept_code):
+def get_notes_report_by_dept(dept_code):
     dept_code = dept_code.upper()
     dept_name = BERKELEY_DEPT_CODE_TO_NAME.get(dept_code)
     if dept_name:

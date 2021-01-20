@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
 import json
 
 admin_uid = '2040'
@@ -77,7 +78,7 @@ class TestAlertsLogExport:
                 assert snippet in csv, f'Failed on snippet: {snippet}'
 
 
-class TestNotesReport:
+class TestNotesByDeptReport:
 
     @classmethod
     def _api_notes_report(cls, client, dept_code, expected_status_code=200):
@@ -118,6 +119,61 @@ class TestNotesReport:
         fake_auth.login(admin_uid)
         report = self._api_notes_report(client, 'qcadv')
         assert 'boa' in report
+
+
+class TestBoaNotesMonthlyCountReport:
+
+    @classmethod
+    def _api_notes_report(cls, client, expected_status_code=200):
+        response = client.get('/api/reports/boa_notes/monthly_count')
+        assert response.status_code == expected_status_code
+        return response
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._api_notes_report(client, expected_status_code=401)
+
+    def test_not_authorized_advisor(self, client, fake_auth):
+        """Returns 401 if neither admin nor director."""
+        fake_auth.login(l_s_advisor_uid)
+        self._api_notes_report(client, expected_status_code=401)
+
+    def test_admin(self, client, fake_auth, mock_advising_note):
+        """Admin can access BOA notes monthly count report."""
+        fake_auth.login(admin_uid)
+        response = self._api_notes_report(client)
+
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        now = datetime.now()
+        assert f'{now.year},{now.month},' in csv
+
+
+class TestBoaNotesMetadataReport:
+
+    @classmethod
+    def _api_notes_report(cls, client, expected_status_code=200):
+        response = client.get('/api/reports/boa_notes/metadata')
+        assert response.status_code == expected_status_code
+        return response
+
+    def test_not_authenticated(self, client):
+        """Returns 401 if not authenticated."""
+        self._api_notes_report(client, expected_status_code=401)
+
+    def test_not_authorized_advisor(self, client, fake_auth):
+        """Returns 401 if neither admin nor director."""
+        fake_auth.login(l_s_advisor_uid)
+        self._api_notes_report(client, expected_status_code=401)
+
+    def test_admin(self, client, fake_auth, mock_advising_note):
+        """Admin user can access BOA notes report."""
+        fake_auth.login(admin_uid)
+        response = self._api_notes_report(client)
+        assert 'csv' in response.content_type
+        csv = str(response.data)
+        assert 'Joni Mitchell' in csv
+        assert '11667051' in csv
 
 
 class TestUsersReport:
