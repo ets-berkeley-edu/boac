@@ -78,12 +78,8 @@ def alerts_log_export():
 
 @app.route('/api/reports/boa_notes/monthly_count')
 @admin_required
-def get_boa_notes_monthly_count():
-    return response_with_csv_download(
-        rows=get_boa_note_count_by_month(),
-        filename_prefix='boa_advising_notes_monthly_count',
-        fieldnames=['year', 'month', 'count'],
-    )
+def boa_note_count_by_month():
+    return tolerant_jsonify(get_boa_note_count_by_month())
 
 
 @app.route('/api/reports/boa_notes/metadata')

@@ -127,7 +127,7 @@ class TestBoaNotesMonthlyCountReport:
     def _api_notes_report(cls, client, expected_status_code=200):
         response = client.get('/api/reports/boa_notes/monthly_count')
         assert response.status_code == expected_status_code
-        return response
+        return response.json
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -141,12 +141,12 @@ class TestBoaNotesMonthlyCountReport:
     def test_admin(self, client, fake_auth, mock_advising_note):
         """Admin can access BOA notes monthly count report."""
         fake_auth.login(admin_uid)
-        response = self._api_notes_report(client)
-
-        assert 'csv' in response.content_type
-        csv = str(response.data)
+        report = self._api_notes_report(client)
         now = datetime.now()
-        assert f'{now.year},{now.month},' in csv
+        assert len(report) == 1
+        assert report[0]['year'] == now.year
+        assert len(report[0]['months']) == 1
+        assert report[0]['months'][0]['month'] == now.month
 
 
 class TestBoaNotesMetadataReport:
