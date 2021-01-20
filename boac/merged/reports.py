@@ -162,7 +162,7 @@ def get_summary_of_boa_notes():
             'author_uid': row['author_uid'],
             'author_name': row['author_name'],
             'author_role': row['author_role'],
-            'author_dept_codes': row['author_dept_codes'],
+            'author_dept_codes': f"{','.join(row['author_dept_codes'])}",
             'sid': row['sid'],
             'subject': row['subject'],
             'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
@@ -179,12 +179,15 @@ def get_boa_note_count_by_month():
         FROM notes
         GROUP BY DATE_TRUNC('month', created_at)
     """
-
-    def _to_api_json(row):
+    report = []
+    for row in db.session.execute(query):
         month_date = row['created_at_month']
-        return {
-            'year': month_date.year,
+        year = next((r for r in report if r['year'] == month_date.year), None)
+        if not year:
+            year = {'year': month_date.year, 'months': []}
+            report.append(year)
+        year['months'].append({
             'month': month_date.month,
             'count': row['count'],
-        }
-    return [_to_api_json(row) for row in db.session.execute(query)]
+        })
+    return report
