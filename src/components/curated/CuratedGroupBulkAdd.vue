@@ -1,14 +1,17 @@
 <template>
   <div>
     <div class="mt-3 w-75">
-      <div v-if="error || warning" :class="{'error': error, 'warning': warning}" class="alert-box p-3 mt-2 mb-3 w-100">
-        <span aria-live="polite" role="alert" v-html="error || warning"></span>
-      </div>
+      <div
+        v-if="error || warning"
+        :class="{'error': error, 'warning': warning}"
+        class="alert-box p-3 mt-2 mb-3 w-100"
+        v-html="error || warning"
+      />
       <div>
         <b-form-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
-          :disabled="isUpdating"
+          :disabled="isValidating || isSaving"
           aria-label="Type or paste student SID numbers here"
           rows="8"
           max-rows="30"
@@ -18,16 +21,13 @@
       <div class="d-flex justify-content-end mt-3">
         <b-btn
           id="btn-curated-group-bulk-add-sids"
-          :disabled="!$_.trim(textarea) || (curatedGroupId && isUpdating)"
           class="pl-2"
+          :disabled="!$_.trim(textarea) || isValidating || isSaving"
           variant="primary"
           @click="submitSids"
         >
-          <span v-if="curatedGroupId">
-            <span v-if="isUpdating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
-            <span v-if="!isUpdating">Add</span>
-          </span>
-          <span v-if="!curatedGroupId">Next</span>
+          <span v-if="isValidating || isSaving"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
+          <span v-if="!isValidating && !isSaving">{{ curatedGroupId ? 'Add' : 'Next' }}</span>
         </b-btn>
         <b-btn
           v-if="curatedGroupId"
@@ -43,12 +43,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import { validateSids } from '@/api/student'
 
 export default {
   name: 'CuratedGroupBulkAdd',
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     bulkAddSids: Function,
     curatedGroupId: Number,
@@ -63,11 +64,6 @@ export default {
     textarea: undefined,
     warning: undefined
   }),
-  computed: {
-    isUpdating() {
-      return this.isValidating || this.isSaving
-    }
-  },
   created() {
     this.putFocusNextTick('curated-group-bulk-add-sids')
   },
@@ -83,13 +79,6 @@ export default {
       this.error = null
       this.warning = null
     },
-    describeNotFound(sidList) {
-      if (sidList.length === 1) {
-        return `<strong>Uh oh!</strong> Student ${sidList[0]} not found. Please fix.`
-      } else {
-        return `<strong>Uh oh!</strong> ${sidList.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(sidList, '</li><li>')}</li></ul>`
-      }
-    },
     submitSids() {
       this.sids = []
       this.clearErrors()
@@ -98,7 +87,8 @@ export default {
         const split = this.$_.split(trimmed, /[,\r\n\t ]+/)
         const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.$_.trim(sid)))[1]
         if (notNumeric.length) {
-          this.error = '<strong>Error!</strong> SIDs must be separated by commas, line breaks, or tabs.'
+          this.error = 'SIDs must be separated by commas, line breaks, or tabs.'
+          this.alertScreenReader(this.error)
           this.putFocusNextTick('curated-group-bulk-add-sids')
         } else {
           this.isValidating = true
@@ -115,8 +105,12 @@ export default {
               }
             })
             this.isValidating = false
-            if (notFound.length) {
-              this.warning = this.describeNotFound(notFound)
+            if (notFound.length === 1) {
+              this.warning = `Student ${notFound[0]} not found.`
+              this.alertScreenReader(this.warning)
+            } else if (notFound.length > 1) {
+              this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
+              this.alertScreenReader(`Student IDs not found: ${this.oxfordJoin(notFound)}`)
             } else {
               this.clearErrors()
               this.bulkAddSids(this.sids)
@@ -125,6 +119,7 @@ export default {
         }
       } else {
         this.warning = 'Please provide one or more SIDs.'
+        this.alertScreenReader(this.warning)
         this.putFocusNextTick('curated-group-bulk-add-sids')
       }
     }
