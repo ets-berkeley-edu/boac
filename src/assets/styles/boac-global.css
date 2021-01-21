@@ -190,6 +190,28 @@
 .panel-group .panel + .panel {
   margin-top: 5px;
 }
+.pill {
+  background-color: #fff;
+  border: 1px solid #999;
+  border-radius: 5px;
+  color: #666;
+  font-size: 12px;
+  height: 24px;
+  margin-top: 2px;
+  padding-top: 2px;
+  width: auto;
+}
+.pill-attachment {
+  height: 26px;
+  padding: 6px;
+}
+.pill-list {
+  list-style-type: none;
+}
+.pill-list-header {
+  font-size: 16px;
+  font-weight: 800;
+}
 .pill-alerts {
   border-radius: 10px;
   color: #fff;
@@ -226,10 +248,41 @@
 .sidebar {
   background-color: #125074;
 }
+.student-column {
+  flex: 0 0 120px;
+  margin-left: 15px;
+}
+.student-name {
+  color: #49b;
+  font-size: 16px;
+  margin: 0;
+}
+.student-section-header {
+  font-size: 24px;
+  font-weight: bold;
+}
+.student-sid {
+  font-size: 11px;
+  font-weight: bold;
+  margin: 5px 0;
+}
+.student-teams-container {
+  margin-top: 5px;
+}
+.student-text {
+  color: #aaa;
+  font-size: 13px;
+}
 .table-full-width {
   margin: 10px 0;
   table-layout: fixed;
   width: 100%;
+}
+.truncate {
+  height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 html,
