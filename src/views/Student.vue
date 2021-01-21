@@ -156,34 +156,6 @@ export default {
 }
 </script>
 
-<style>
-.student-column {
-  flex: 0 0 120px;
-  margin-left: 15px;
-}
-.student-name {
-  color: #49b;
-  font-size: 16px;
-  margin: 0;
-}
-.student-section-header {
-  font-size: 24px;
-  font-weight: bold;
-}
-.student-sid {
-  font-size: 11px;
-  font-weight: bold;
-  margin: 5px 0;
-}
-.student-teams-container {
-  margin-top: 5px;
-}
-.student-text {
-  color: #aaa;
-  font-size: 13px;
-}
-</style>
-
 <style scoped>
 .light-blue-background {
   background: #e3f5ff;

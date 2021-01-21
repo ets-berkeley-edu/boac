@@ -1,67 +1,14 @@
 <template>
   <div v-if="!isTimelineLoading">
-    <div class="d-flex justify-content-between flex-wrap mb-2">
-      <div>
-        <h2 class="student-section-header">Academic Timeline</h2>
-        <div class="d-flex mt-1 mb-1">
-          <div class="align-self-center mr-2">Filter Type:</div>
-          <div>
-            <b-btn
-              id="timeline-tab-all"
-              :class="{'tab-active text-white': !filter, 'tab-inactive text-dark': filter}"
-              class="tab pl-2 pr-2"
-              aria-controls="timeline-messages"
-              :aria-selected="!filter"
-              variant="link"
-              @click="setFilter(null)"
-            >
-              All
-            </b-btn>
-          </div>
-          <div v-for="type in $_.keys(filterTypes)" :key="type" role="tablist">
-            <b-btn
-              :id="`timeline-tab-${type}`"
-              :class="{
-                'tab-active text-white': type === filter && countsPerType[type],
-                'tab-inactive text-dark': type !== filter && countsPerType[type],
-                'tab-disabled text-muted': !countsPerType[type]
-              }"
-              aria-controls="timeline-messages"
-              :aria-selected="type === filter"
-              :disabled="!countsPerType[type]"
-              class="tab ml-2 pl-2 pr-2 text-center"
-              variant="link"
-              @click="setFilter(type)"
-            >
-              {{ filterTypes[type].tab }}
-            </b-btn>
-          </div>
-        </div>
-      </div>
-      <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
-        <div>
-          <b-btn
-            id="new-note-button"
-            :disabled="!!mode"
-            class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-            variant="primary"
-            @click="isCreateNoteModalOpen = true"
-          >
-            <span class="m-1">
-              <font-awesome icon="file-alt" />
-              New Note
-            </span>
-          </b-btn>
-        </div>
-        <CreateNoteModal
-          v-if="isCreateNoteModalOpen"
-          :is-batch-feature="false"
-          :on-close="onCreateNoteModalClose"
-          :sid="student.sid"
-        />
-      </div>
+    <div class="mb-2">
+      <AcademicTimelineHeader
+        :counts-per-type="countsPerType"
+        :filter="filter"
+        :filter-types="filterTypes"
+        :set-filter="setFilter"
+        :student="student"
+      />
     </div>
-
     <div v-if="isExpandAllAvailable" class="mt-1 mb-1 timeline-submenu">
       <h3 class="sr-only">Quick Links</h3>
       <b-btn
@@ -373,12 +320,12 @@
 </template>
 
 <script>
+import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CreateNoteModal from '@/components/note/create/CreateNoteModal'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import Scrollable from '@/mixins/Scrollable'
@@ -392,10 +339,10 @@ import { search } from '@/api/search'
 export default {
   name: 'AcademicTimeline',
   components: {
+    AcademicTimelineHeader,
     AdvisingAppointment,
     AdvisingNote,
     AreYouSureModal,
-    CreateNoteModal,
     EditAdvisingNote,
     TimelineDate
   },
@@ -413,7 +360,7 @@ export default {
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
     filter: undefined,
-    isCreateNoteModalOpen: false,
+    filterTypes: undefined,
     isShowingAll: false,
     isTimelineLoading: true,
     lastTimelineQuery: undefined,
@@ -432,39 +379,10 @@ export default {
       return location.hash
     },
     countPerActiveTab() {
-      return this.filter
-        ? this.countsPerType[this.filter]
-        : this.$_.size(this.messages)
+      return this.filter ? this.countsPerType[this.filter] : this.$_.size(this.messages)
     },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
-    },
-    filterTypes() {
-      let filterTypes = {
-        alert: {
-          name: 'Alert',
-          tab: 'Alerts'
-        },
-        hold: {
-          name: 'Hold',
-          tab: 'Holds'
-        },
-        requirement: {
-          name: 'Requirement',
-          tab: 'Reqs'
-        }
-      }
-      if (this.$currentUser.canAccessAdvisingData) {
-        filterTypes.note = {
-          name: 'Advising Note',
-          tab: 'Notes'
-        }
-        filterTypes.appointment = {
-          name: 'Appointment',
-          tab: 'Appointments'
-        }
-      }
-      return filterTypes
     },
     isExpandAllAvailable() {
       return this.$_.includes(['appointment', 'note'], this.filter)
@@ -495,6 +413,15 @@ export default {
   },
   created() {
     this.messages = []
+    this.filterTypes = {
+      alert: {name: 'Alert', tab: 'Alerts'},
+      hold: {name: 'Hold', tab: 'Holds'},
+      requirement: {name: 'Requirement', tab: 'Reqs'}
+    }
+    if (this.$currentUser.canAccessAdvisingData) {
+      this.filterTypes.note = {name: 'Advising Note', tab: 'Notes'}
+      this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments'}
+    }
     this.countsPerType = {}
     this.$_.each(this.$_.keys(this.filterTypes), (type, typeIndex) => {
       let notifications = this.student.notifications[type]
@@ -668,10 +595,6 @@ export default {
         })
       })
     },
-    onCreateNoteModalClose(note) {
-      this.isCreateNoteModalOpen = false
-      this.putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
-    },
     open(message, notifyScreenReader) {
       if (message.type === 'note' && message.id === this.editModeNoteId) {
         return false
@@ -770,37 +693,6 @@ export default {
 }
 </script>
 
-<style>
-.pill {
-  background-color: #fff;
-  border: 1px solid #999;
-  border-radius: 5px;
-  color: #666;
-  font-size: 12px;
-  height: 24px;
-  margin-top: 2px;
-  padding-top: 2px;
-  width: auto;
-}
-.pill-attachment {
-  height: 26px;
-  padding: 6px;
-}
-.pill-list {
-  list-style-type: none;
-}
-.pill-list-header {
-  font-size: 16px;
-  font-weight: 800;
-}
-.truncate {
-  height: 24px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>
-
 <style scoped>
 .close-message {
   width: 100%;
@@ -846,15 +738,15 @@ export default {
   background-color: #eb9d3e;
   width: 60px;
 }
-.pill-hold {
-  background-color: #bc74fe;
-  width: 60px;
-}
 .pill-appointment {
   background-color: #eee;
   color: #666 !important;
   font-weight: bolder;
   width: 100px;
+}
+.pill-hold {
+  background-color: #bc74fe;
+  width: 60px;
 }
 .pill-note {
   background-color: #999;
@@ -866,31 +758,6 @@ export default {
 }
 .requirements-icon {
   width: 20px;
-}
-.tab {
-  border-radius: 5px;
-  font-size: 16px;
-  font-weight: 800;
-  height: 40px;
-}
-.tab-active {
-  background-color: #555;
-}
-.tab-active:active,
-.tab-active:focus,
-.tab-active:hover {
-  background-color: #444;
-}
-.tab-disabled {
-  background-color: #ccc;
-}
-.tab-inactive {
-  background-color: #eee;
-}
-.tab-inactive:hover,
-.tab-inactive:hover,
-.tab-inactive:hover {
-  background-color: #ddd;
 }
 .text-icon-clock {
   color: #8bbdda;
