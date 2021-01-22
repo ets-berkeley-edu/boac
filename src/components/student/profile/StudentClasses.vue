@@ -1,6 +1,6 @@
 <template>
-  <div id="student-terms-container" class="m-3">
-    <div class="d-flex align-items-baseline mb-2">
+  <div id="student-terms-container" class="m-3 p-0">
+    <div class="d-flex align-items-baseline mb-2 px-2">
       <h2 class="student-section-header mr-2">Classes</h2>
       <b-button
         id="sort-academic-year"
@@ -44,22 +44,25 @@
       </b-button>
       <b-collapse
         :id="`academic-year-${year.label}`"
-        class="mr-3 mb-2"
+        class="mr-3 mb-2 w-100"
         :visible="includesCurrentTerm(year)"
       >
-        <b-card-group deck class="pl-3 pr-1">
+        <b-card-group deck class="d-flex flex-column flex-xl-row m-0">
           <StudentEnrollmentTerm
             :id="`term-fall-${year.label - 1}`"
             :student="student"
             :term="getTerm(`Fall ${year.label - 1}`, year)"
+            class="flex-grow-1"
           /><StudentEnrollmentTerm
             :id="`term-spring-${year.label}`"
             :student="student"
             :term="getTerm(`Spring ${year.label}`, year)"
+            class="flex-grow-1"
           /><StudentEnrollmentTerm
             :id="`term-summer-${year.label}`"
             :student="student"
             :term="getTerm(`Summer ${year.label}`, year)"
+            class="flex-grow-1"
           />
         </b-card-group>
       </b-collapse>
@@ -117,7 +120,7 @@ export default {
       const term = this.$_.find(year.terms, { 'termName': termName })
       if (!term) {
         return {
-          termID: this.sisIdForTermName(termName),
+          termId: this.sisIdForTermName(termName),
           termName: termName
         }
       }

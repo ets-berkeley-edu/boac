@@ -5,7 +5,7 @@
     class="student-term"
     :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
-    <b-card-header header-bg-variant="transparent" header-class="student-term-header">
+    <b-card-header header-bg-variant="transparent" header-class="student-term-header flex-column flex-sm-row">
       <h3 :id="`term-${term.termId}-header`" class="font-size-18 mr-3">{{ term.termName }}</h3>
       <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
       <StudentWithdrawalCancel
@@ -16,7 +16,7 @@
     </b-card-header>
     <b-card-body body-class="student-courses" role="table">
       <div role="rowgroup">
-        <div role="row" class="student-course-label student-course-header">
+        <div role="row" class="student-course-label student-course-header text-nowrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
           <div role="columnheader" class="student-course-column-mid-grade">Mid</div>
           <div role="columnheader" class="student-course-column-final-grade">Final</div>
@@ -106,6 +106,7 @@ export default {
   display: flex;
   flex-direction: row;
   line-height: 1.1;
+  margin: 0 10px;
   padding: 8px 0;
 }
 .student-course-label {
@@ -115,18 +116,20 @@ export default {
   text-transform: uppercase;
 }
 .student-courses {
-  padding: 0 10px;
+  padding: 0;
 }
 .student-term {
-  margin: 0 10px 10px;
+  margin: 0;
+  min-width: 300px;
 }
 .student-term-current {
-  border: 1px #999 solid!important;
+  border: 1px #999 solid !important;
   border-radius: 0;
 }
 .student-term-empty {
   color: #666;
   font-style: italic;
+  margin: 0 10px;
 }
 .student-term-header {
   align-items: baseline;
@@ -136,7 +139,7 @@ export default {
   padding: 10px 10px 0;
 }
 .student-term-footer {
-  border-top: 1px #999 solid!important;
+  border-top: 1px #999 solid !important;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
@@ -147,7 +150,7 @@ export default {
 
 <style>
 .student-course-column-name {
-  width: 65%;
+  width: 60%;
 }
 .student-course-column-mid-grade {
   width: 15%;
@@ -157,6 +160,6 @@ export default {
 }
 .student-course-column-units {
   text-align: right;
-  width: 10%;
+  width: 15%;
 }
 </style>
