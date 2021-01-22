@@ -1,9 +1,8 @@
 <template>
-  <div class="student-course">
+  <div class="student-course" :class="{'student-course-expanded': detailsVisible}">
     <div
       :id="`term-${termId}-course-${index}`"
       role="row"
-      :class="{'student-course-expanded': detailsVisible}"
       class="student-course-row"
     >
       <div role="cell" class="student-course-column-name">
@@ -14,9 +13,8 @@
           variant="link"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`course-details-${termId}-${index}`"
-          @click="detailsVisible = !detailsVisible"
         >
-          <span :id="`term-${termId}-course-${index}-name`" class="mx-2">{{ course.displayName }}</span>
+          <span :id="`term-${termId}-course-${index}-name`" class="text-left mx-2">{{ course.displayName }}</span>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
           <font-awesome icon="caret-down" class="caret when-course-open" />
@@ -62,6 +60,9 @@
       :id="`term-${termId}-course-${index}-details`"
       role="row"
       class="student-course-details"
+      accordion="student-course-detail-accordion"
+      @show="detailsVisible = true"
+      @hidden="detailsVisible = false"
     >
       <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-name">{{ course.displayName }}</div>
       <div class="student-course-sections">
@@ -94,7 +95,7 @@
             {{ canvasSite.courseCode }}
           </h5>
           <table class="student-bcourses">
-            <tr>
+            <tr class="d-flex flex-column d-sm-table-row py-2">
               <th class="student-bcourses-legend" scope="row">
                 Assignments Submitted
               </th>
@@ -142,7 +143,7 @@
                 </div>
               </td>
             </tr>
-            <tr>
+            <tr class="d-flex flex-column d-sm-table-row py-2">
               <th class="student-bcourses-legend" scope="row">
                 Assignment Grades
               </th>
@@ -253,6 +254,17 @@ export default {
 </script>
 
 <style scoped>
+@media (min-width: 1200px) {
+  .student-course-details {
+    border: 1px #ccc solid;
+    margin: 0 -11px;
+    padding: 10px 30px !important;
+    width: 316% !important;
+  }
+  .student-course-expanded {
+    border-bottom: 0 !important;
+  }
+}
 .caret {
   width: 10px;
 }
@@ -262,8 +274,7 @@ export default {
 }
 .student-bcourses {
   line-height: 1.1;
-  margin-bottom: 20px;
-  width: 80%;
+  margin-bottom: 10px;
 }
 .student-bcourses td,
 .student-bcourses th {
@@ -290,6 +301,9 @@ export default {
   margin-top: 15px;
 }
 .student-course {
+  display: flex;
+  flex-direction: column;
+  padding: 0 10px !important;
   position: relative
 }
 .student-course-collapse-button {
@@ -300,20 +314,21 @@ export default {
   padding: 0;
 }
 .student-course-details {
+  align-self: center;
   background-color: #f3fbff;
-  border: 1px #ccc solid;
-  border-top: none;
-  margin: 0 -11px;
-  padding: 10px 30px;
+  padding: 10px 20px;
   position: relative;
   top: -1px;
+  width: 100%;
+  z-index: 1;
 }
 .student-course-expanded {
   background-color: #f3fbff;
   border: 1px #ccc solid;
-  margin: 0 -11px;
-  padding: 7px 10px!important;
-  z-index: 1;
+}
+.student-course-expanded .student-course-row {
+  background-color: #f3fbff;
+  z-index: 2;
 }
 .student-course-name {
   color: #666;
@@ -325,12 +340,19 @@ export default {
   display: flex;
   flex-direction: row;
   line-height: 1.1;
-  padding: 8px 0;
+  margin: 0 -10px;
+  padding: 8px 10px;
 }
 .student-course-sections {
   display: inline-block;
   font-size: 14px;
   font-weight: 400;
   white-space: nowrap;
+}
+.student-term:first-child .student-course-details {
+  align-self: flex-start;
+}
+.student-term:last-child .student-course-details {
+  align-self: flex-end;
 }
 </style>
