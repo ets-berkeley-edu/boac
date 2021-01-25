@@ -67,10 +67,11 @@
 <script>
 import Context from '@/mixins/Context'
 import CreateNoteModal from '@/components/note/create/CreateNoteModal'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'AcademicTimelineHeader',
-  mixins: [Context],
+  mixins: [Context, Util],
   components: {CreateNoteModal},
   props: {
     countsPerType: {
