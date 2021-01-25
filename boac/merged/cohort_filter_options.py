@@ -119,7 +119,7 @@ class CohortFilterOptions:
             ],
             'Departmental (COE)': [
                 _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles, available_to=['COENG']),
-                _filter('coeEpn', 'EPN Grading Option (COE)', options=get_coe_terms, available_to=['COENG']),
+                _filter('coeEpn', 'EPN/CPN Grading Option (COE)', options=get_coe_terms, available_to=['COENG']),
                 _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities, available_to=['COENG']),
                 _filter('coeGenders', 'Gender (COE)', options=coe_gender_options, available_to=['COENG']),
                 _filter('coePrepStatuses', 'PREP (COE)', options=coe_prep_status_options, available_to=['COENG']),

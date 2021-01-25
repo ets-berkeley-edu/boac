@@ -1096,7 +1096,8 @@ def get_students_query(     # noqa
         query_bindings.update({'coe_advisor_ldap_uids': coe_advisor_ldap_uids})
     if coe_epn:
         query_tables += ' JOIN student.student_enrollment_terms e ON e.sid=sas.sid '
-        query_filter += ' AND e.enrollment_term LIKE \'%gradingBasis": "EPN"%\' AND e.term_id = ANY(:coe_epn)'
+        query_filter += ' AND (e.enrollment_term LIKE \'%gradingBasis": "EPN"%\' '
+        query_filter += ' OR e.enrollment_term LIKE \'%gradingBasis": "CPN"%\') AND e.term_id = ANY(:coe_epn)'
         query_bindings.update({'coe_epn': coe_epn})
     if coe_ethnicities:
         query_filter += ' AND s.ethnicity = ANY(:coe_ethnicities)'
