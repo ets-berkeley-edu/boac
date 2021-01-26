@@ -130,7 +130,7 @@
                   <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     Score:
                     <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                    <span class="text-muted">
+                    <span class="text-muted text-nowrap">
                       (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                     </span>
                   </span>
@@ -175,26 +175,23 @@
                   <div>Minimum: {{ canvasSite.analytics.currentScore.courseDeciles[0] }}</div>
                 </div>
                 <div v-if="!canvasSite.analytics.currentScore.boxPlottable" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-grades-score`">
-                  <span
-                    v-if="canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-muted"
-                  >
+                  <span v-if="canvasSite.analytics.currentScore.courseDeciles">
                     Score:
                     <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                    <span class="text-muted">
+                    <span class="text-muted text-nowrap">
                       (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
                     </span>
                   </span>
                   <span
                     v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-muted"
+                    class="font-italic text-muted text-nowrap"
                   >
                     No Data
                   </span>
                 </div>
               </td>
             </tr>
-            <tr v-if="$config.currentEnrollmentTermId === parseInt(termId, 10)">
+            <tr v-if="$config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex flex-column d-sm-table-row py-2">
               <th class="student-bcourses-legend" scope="row">
                 Last bCourses Activity
               </th>
@@ -272,30 +269,37 @@ export default {
 .not-collapsed > .when-course-closed {
   display: none;
 }
+.profile-boxplot-container {
+  min-width: 13em;
+}
 .student-bcourses {
   line-height: 1.1;
   margin-bottom: 10px;
+  max-width: 35em;
+  width: 100%;
 }
 .student-bcourses td,
 .student-bcourses th {
   font-size: 14px;
-  padding: 0 25px 5px 0;
+  padding: 0 10px 7px 0;
   text-align: left;
   vertical-align: top;
 }
 .student-bcourses-legend {
   color: #666;
   font-weight: normal;
+  min-width: 11em;
   white-space: nowrap;
-  width: 15em;
+  width: 35%;
 }
 .student-bcourses-site-code {
   font-size: 16px;
-  margin: 15px 0 5px 0;
+  margin: 15px 0 7px 0;
   font-weight: 400;
 }
 .student-bcourses-summary {
-  width: 12em;
+  min-width: 8.5em;
+  width: 30%;
 }
 .student-bcourses-wrapper {
   margin-top: 15px;
@@ -316,7 +320,7 @@ export default {
 .student-course-details {
   align-self: center;
   background-color: #f3fbff;
-  padding: 10px 20px;
+  padding: 10px 0 10px 20px;
   position: relative;
   top: -1px;
   width: 100%;
