@@ -26,9 +26,11 @@
 <script>
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
+import Context from '@/mixins/Context'
 
 export default {
   name: 'AcademicTimeline',
+  mixins: [Context],
   components: {
     AcademicTimelineTable,
     AcademicTimelineHeader
