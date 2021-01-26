@@ -149,6 +149,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import CourseStudents from '@/components/course/CourseStudents'
 import Loading from '@/mixins/Loading'
 import Matrix from '@/components/matrix/Matrix'
@@ -172,6 +173,7 @@ export default {
     Spinner
   },
   mixins: [
+    Context,
     Loading,
     MatrixUtil,
     Scrollable,
