@@ -18,9 +18,9 @@
       </b-button>
     </div>
     <div
-      v-for="(year, index) in enrollmentTermsByYear"
+      v-for="year in enrollmentTermsByYear"
       :id="`academic-year-${year.label}-container`"
-      :key="index"
+      :key="year.label"
     >
       <b-button
         :id="`academic-year-${year.label}-toggle`"
