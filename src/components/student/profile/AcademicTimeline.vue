@@ -92,7 +92,6 @@ export default {
           this.alertScreenReader(`New advising note created for student ${this.student.name}.`)
         }
       }
-      this.creatingNoteEvent = null
     },
     sortDate(message) {
       if (message.type === 'appointment') {

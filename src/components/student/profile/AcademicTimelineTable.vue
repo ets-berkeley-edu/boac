@@ -425,11 +425,15 @@ export default {
           this.creatingNoteEvent = event
         }
       })
-      this.$eventHub.on('advising-note-created', this.onCreateNewNote)
+      const afterCreateNote = note => {
+        this.creatingNoteEvent = null
+        this.onCreateNewNote(note)
+      }
+      this.$eventHub.on('advising-note-created', afterCreateNote)
       this.$eventHub.on('batch-of-notes-created', noteIdsBySid => {
         const noteId = noteIdsBySid[this.student.sid]
         if (noteId) {
-          getNote(noteId).then(note => this.onCreateNewNote(note))
+          getNote(noteId).then(afterCreateNote)
         }
       })
     }
