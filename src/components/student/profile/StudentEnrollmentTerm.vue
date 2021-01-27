@@ -54,10 +54,14 @@
       footer-class="student-term-footer"
     >
       <div :id="`term-${term.termId}-gpa`">
-        <span class="student-course-label mr-1">Term GPA: </span>{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}
+        <span class="student-course-label mr-1">Term GPA: </span>
+        <span v-if="round($_.get(term, 'termGpa.gpa', 0), 3) > 0">{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}</span>
+        <span v-else>&mdash;</span>
       </div>
       <div :id="`term-${term.termId}-units`">
-        <span class="student-course-label align-right mr-1">Total Units: </span>{{ $_.get(term, 'enrolledUnits', 0) }}
+        <span class="student-course-label align-right mr-1">Total Units: </span>
+        <span v-if="$_.get(term, 'enrolledUnits', 0) !== 0">{{ $_.get(term, 'enrolledUnits', 0) }}</span>
+        <span v-else>&mdash;</span>
       </div>
     </b-card-footer>
   </b-card>
