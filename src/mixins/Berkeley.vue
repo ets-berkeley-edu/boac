@@ -163,7 +163,8 @@ export default {
       let termName = ''
       if (termId) {
         const strTermId = termId.toString()
-        termName = '20' + strTermId.slice(1, 3)
+        const century = _.startsWith(strTermId, '1') ? '19' : '20'
+        termName = century + strTermId.slice(1, 3)
         switch (strTermId.slice(3)) {
         case '2':
           termName = 'Spring ' + termName
