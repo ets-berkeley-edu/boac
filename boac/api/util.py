@@ -425,7 +425,9 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         ),
         'academic_standing': lambda profile: profile.get('academicStanding'),
         'transfer': lambda profile: 'Yes' if profile.get('sisProfile', {}).get('transfer') else '',
-        'intended_major': lambda profile: ', '.join([major.get('description') for major in profile.get('sisProfile', {}).get('intendedMajors')]),
+        'intended_major': lambda profile: ', '.join([
+                                                    major.get('description') for major
+                                                    in (profile.get('sisProfile', {}).get('intendedMajors') or [])]),
     }
     academic_standing = get_academic_standing_by_sid(sids, as_dicts=True)
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
