@@ -8,6 +8,7 @@
     :placeholder="placeholder"
     :search="search"
     :type="type"
+    @keypress.enter.prevent="$_.noop"
     @submit="handleSubmit"
   />
 </template>
