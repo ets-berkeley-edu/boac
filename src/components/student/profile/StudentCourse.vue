@@ -12,7 +12,7 @@
           class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
           variant="link"
           :aria-expanded="detailsVisible ? 'true' : 'false'"
-          :aria-controls="`course-details-${termId}-${index}`"
+          :aria-controls="`term-${termId}-course-${index}-details`"
         >
           <span :id="`term-${termId}-course-${index}-name`" class="text-left mx-2">{{ course.displayName }}</span>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
@@ -56,13 +56,19 @@
         <span :id="`term-${termId}-course-${index}-units`">{{ course.units }}</span>
       </div>
     </div>
+    <b-collapse :id="`term-${termId}-course-${index}-spacer`" :visible="showSpacer">
+      <div :style="{height: spacerHeight + 'px'}" />
+    </b-collapse>
     <b-collapse
       :id="`term-${termId}-course-${index}-details`"
+      ref="details"
       role="row"
       class="student-course-details"
       accordion="student-course-detail-accordion"
-      @show="detailsVisible = true"
-      @hidden="detailsVisible = false"
+      @show="onShow"
+      @shown="onShown"
+      @hide="onHide"
+      @hidden="onHidden"
     >
       <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-name">{{ course.displayName }}</div>
       <div class="student-course-sections">
@@ -245,11 +251,44 @@ export default {
     termId: {
       required: true,
       type: String
+    },
+    year: {
+      required: true,
+      type: String
     }
   },
   data: () => ({
-    detailsVisible: false
+    detailsVisible: false,
+    spacerHeight: 0
   }),
+  mounted() {
+    this.$root.$on(`year-${this.year}-course-${this.index}-show`, () => this.spacerHeight = 120)
+    this.$root.$on(`year-${this.year}-course-${this.index}-shown`, offsetHeight => this.spacerHeight = offsetHeight)
+    this.$root.$on(`year-${this.year}-course-${this.index}-hide`, () => this.spacerHeight = 0)
+  },
+  beforeDestroy() {
+    this.$root.$off(`year-${this.year}-course-${this.index}-show`)
+    this.$root.$off(`year-${this.year}-course-${this.index}-shown`)
+    this.$root.$off(`year-${this.year}-course-${this.index}-hide`)
+  },
+  computed: {
+    showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
+  },
+  methods: {
+    onHide() {
+      this.$root.$emit(`year-${this.year}-course-${this.index}-hide`)
+    },
+    onHidden() {
+      this.detailsVisible = false
+    },
+    onShow() {
+      this.$root.$emit(`year-${this.year}-course-${this.index}-show`)
+      this.detailsVisible = true
+    },
+    onShown() {
+      this.$root.$emit(`year-${this.year}-course-${this.index}-shown`, this.$refs.details.$el.offsetHeight)
+    }
+  }
 }
 </script>
 
