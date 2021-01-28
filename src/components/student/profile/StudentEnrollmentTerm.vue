@@ -34,6 +34,7 @@
           :index="courseIndex"
           :student="student"
           :term-id="term.termId"
+          :year="term.academicYear"
         />
         <div>
           <div
