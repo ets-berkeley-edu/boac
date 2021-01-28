@@ -160,6 +160,7 @@
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Attachments from '@/mixins/Attachments'
+import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import { addAttachments, removeAttachment } from '@/api/notes'
@@ -168,7 +169,7 @@ import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user'
 export default {
   name: 'AdvisingNote',
   components: { AreYouSureModal },
-  mixins: [Attachments, Context, Util],
+  mixins: [Attachments, Berkeley, Context, Util],
   props: {
     afterSaved: {
       required: true,
@@ -260,23 +261,22 @@ export default {
         const hasIdentifier = this.$_.get(this.note, 'author.uid') || this.$_.get(this.note, 'author.sid')
         if (hasIdentifier) {
           const author_uid = this.note.author.uid
+          const callback = data => {
+            this.author = data || this.$_.get(this.note, 'author')
+            if (!this.author.role) {
+              this.author.role = this.oxfordJoin(this.map(this.author.departments, d => this.getBoaUserRoles(this.author, d)))
+            }
+          }
           if (author_uid) {
             if (author_uid === this.$currentUser.uid) {
-              this.author = this.$currentUser
+              callback(this.$currentUser)
             } else {
-              getCalnetProfileByUid(author_uid).then(data => {
-                this.author = data
-              })
+              getCalnetProfileByUid(author_uid).then(callback)
             }
           } else if (this.note.author.sid) {
-            getCalnetProfileByCsid(this.note.author.sid).then(data => {
-              this.author = data
-            })
+            getCalnetProfileByCsid(this.note.author.sid).then(callback)
           }
         }
-      }
-      if (this.$_.isNil(this.author)) {
-        this.author = this.$_.get(this.note, 'author')
       }
     },
     removeAttachment(index) {
