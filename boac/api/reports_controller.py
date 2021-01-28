@@ -77,7 +77,7 @@ def alerts_log_export():
 
 
 @app.route('/api/reports/boa_notes/monthly_count')
-@admin_required
+@admin_or_director_required
 def boa_note_count_by_month():
     return tolerant_jsonify(get_boa_note_count_by_month())
 
