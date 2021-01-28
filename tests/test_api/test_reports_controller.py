@@ -138,6 +138,11 @@ class TestBoaNotesMonthlyCountReport:
         fake_auth.login(l_s_advisor_uid)
         self._api_notes_report(client, expected_status_code=401)
 
+    def test_director_can_access(self, client, fake_auth):
+        """Advising director can access BOA notes monthly count report."""
+        fake_auth.login(l_s_director_uid)
+        self._api_notes_report(client)
+
     def test_admin(self, client, fake_auth, mock_advising_note):
         """Admin can access BOA notes monthly count report."""
         fake_auth.login(admin_uid)
