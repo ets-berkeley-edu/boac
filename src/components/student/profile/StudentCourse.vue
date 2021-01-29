@@ -5,16 +5,17 @@
       role="row"
       class="student-course-row"
     >
-      <div role="cell" class="student-course-column-name">
+      <div role="cell" class="student-course-column-name overflow-hidden">
         <b-btn
           :id="`term-${termId}-course-${index}-toggle`"
           v-b-toggle="`term-${termId}-course-${index}-details`"
-          class="d-flex flex-row-reverse justify-content-between student-course-collapse-button"
+          class="d-flex flex-row-reverse student-course-collapse-button"
           variant="link"
+          block
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
         >
-          <span :id="`term-${termId}-course-${index}-name`" class="text-left mx-2">{{ course.displayName }}</span>
+          <div :id="`term-${termId}-course-${index}-name`" class="text-left truncate-with-ellipsis ml-2 student-course-name">{{ course.displayName }}</div>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
           <font-awesome icon="caret-down" class="caret when-course-open" />
@@ -70,7 +71,7 @@
       @hide="onHide"
       @hidden="onHidden"
     >
-      <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-name">{{ course.displayName }}</div>
+      <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-details-name">{{ course.displayName }}</div>
       <div class="student-course-sections">
         <span
           v-for="(section, sectionIndex) in course.sections"
@@ -305,6 +306,7 @@ export default {
   }
 }
 .caret {
+  height: 1.1em;
   width: 10px;
 }
 .collapsed > .when-course-open,
@@ -348,9 +350,8 @@ export default {
 .student-course-collapse-button {
   color: #337ab7;
   font-weight: bold;
-  height: 15px;
-  line-height: 1;
-  padding: 0;
+  justify-content: flex-end;
+  padding: 0 10px 0 0;
 }
 .student-course-details {
   align-self: center;
@@ -361,6 +362,12 @@ export default {
   width: 100%;
   z-index: 1;
 }
+.student-course-details-name {
+  color: #666;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 5px 0 0;
+}
 .student-course-expanded {
   background-color: #f3fbff;
   border: 1px #ccc solid;
@@ -370,10 +377,10 @@ export default {
   z-index: 2;
 }
 .student-course-name {
-  color: #666;
-  font-size: 16px;
-  font-weight: 700;
-  margin: 5px 0 0;
+  height: 1.1em;
+  line-height: 1.1;
+  max-width: 90%;
+  overflow: hidden;
 }
 .student-course-row {
   display: flex;
