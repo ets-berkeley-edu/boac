@@ -235,19 +235,20 @@ export default {
     },
     isOpen() {
       this.clearErrors()
-      this.setAuthor()
+      this.loadAuthorDetails()
     },
     note() {
       this.resetAttachments()
-      this.setAuthor()
+      this.loadAuthorDetails()
     }
   },
   created() {
-    this.setAuthor()
+    this.author = this.$_.get(this.note, 'author')
+    this.loadAuthorDetails()
     this.resetAttachments()
   },
   methods: {
-    setAuthor() {
+    loadAuthorDetails() {
       const requiresLazyLoad = (
         this.isOpen &&
         (
@@ -262,9 +263,10 @@ export default {
         if (hasIdentifier) {
           const author_uid = this.note.author.uid
           const callback = data => {
-            this.author = data || this.$_.get(this.note, 'author')
+            this.author = data
+            this.author.role = this.author.role || this.author.title
             if (!this.author.role) {
-              this.author.role = this.oxfordJoin(this.map(this.author.departments, d => this.getBoaUserRoles(this.author, d)))
+              this.author.role = this.oxfordJoin(this.$_.map(this.author.departments, d => this.getBoaUserRoles(this.author, d)))
             }
           }
           if (author_uid) {
