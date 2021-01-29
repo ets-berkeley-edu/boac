@@ -5,7 +5,7 @@
       role="row"
       class="student-course-row"
     >
-      <div role="cell" class="student-course-column-name overflow-hidden">
+      <div role="cell" class="student-course-column-name overflow-hidden pt-1 pl-1 pr-2">
         <b-btn
           :id="`term-${termId}-course-${index}-toggle`"
           v-b-toggle="`term-${termId}-course-${index}-details`"
@@ -24,12 +24,12 @@
         <div
           v-if="course.waitlisted"
           :id="`waitlisted-for-${termId}-${course.sections.length ? course.sections[0].ccn : course.displayName}`"
-          class="red-flag-status text-uppercase font-size-14 mt-1"
+          class="red-flag-status text-uppercase student-course-waitlisted"
         >
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="student-course-column-mid-grade text-nowrap">
+      <div role="cell" class="student-course-column-mid-grade text-nowrap pt-1 px-1">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -40,7 +40,7 @@
           :id="`term-${termId}-course-${index}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div role="cell" class="student-course-column-final-grade text-nowrap">
+      <div role="cell" class="student-course-column-final-grade text-nowrap pt-1 px-1">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -53,12 +53,12 @@
         >{{ course.gradingBasis }}</span>
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div role="cell" class="student-course-column-units text-nowrap">
+      <div role="cell" class="student-course-column-units text-nowrap pt-1 pl-1">
         <span :id="`term-${termId}-course-${index}-units`">{{ course.units }}</span>
       </div>
     </div>
     <b-collapse :id="`term-${termId}-course-${index}-spacer`" :visible="showSpacer">
-      <div :style="{height: spacerHeight + 'px'}" />
+      <div :style="{height: spacerHeight + 'px'}" class="d-none d-xl-block" />
     </b-collapse>
     <b-collapse
       :id="`term-${termId}-course-${index}-details`"
@@ -348,14 +348,15 @@ export default {
 .student-course {
   display: flex;
   flex-direction: column;
-  padding: 0 10px !important;
+  padding: 3px 10px 0 !important;
   position: relative
 }
 .student-course-collapse-button {
+  border: none;
   color: #337ab7;
   font-weight: bold;
   justify-content: flex-end;
-  padding: 0 10px 0 0;
+  padding: 0 10px 0 2px;
 }
 .student-course-details {
   align-self: center;
@@ -389,15 +390,20 @@ export default {
 .student-course-row {
   display: flex;
   flex-direction: row;
+  height: 2.2em;
   line-height: 1.1;
   margin: 0 -10px;
-  padding: 8px 10px;
+  padding: 0 10px 0 4px;
 }
 .student-course-sections {
   display: inline-block;
   font-size: 14px;
   font-weight: 400;
   white-space: nowrap;
+}
+.student-course-waitlisted {
+  font-size: 14px;
+  line-height: .8;
 }
 .student-term:first-child .student-course-details {
   align-self: flex-start;
