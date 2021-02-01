@@ -46,7 +46,8 @@ const actions = {
   dismissFooterAlert: ({ commit }) => commit('dismissFooterAlert'),
   dismissServiceAnnouncement: ({ commit }) => commit('dismissServiceAnnouncement'),
   loadServiceAnnouncement: ({ commit }) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
-  restoreServiceAnnouncement: ({ commit }) => commit('restoreServiceAnnouncement')
+  restoreServiceAnnouncement: ({ commit }) => commit('restoreServiceAnnouncement'),
+  loadingStart: ({ commit }) => commit('loadingStart')
 }
 
 export default {
