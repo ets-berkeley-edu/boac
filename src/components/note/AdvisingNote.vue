@@ -265,8 +265,8 @@ export default {
           const callback = data => {
             this.author = data
             this.author.role = this.author.role || this.author.title
-            if (!this.author.role) {
-              this.author.role = this.oxfordJoin(this.$_.map(this.author.departments, d => this.getBoaUserRoles(this.author, d)))
+            if (!this.author.role && this.author.departments.length) {
+              this.author.role = this.oxfordJoin(this.getBoaUserRoles(this.author, this.author.departments[0]))
             }
           }
           if (author_uid) {
