@@ -33,7 +33,7 @@ from boac.externals import data_loch, s3
 from boac.lib import analytics
 from boac.lib.berkeley import academic_year_for_term_name, dept_codes_where_advising, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
-from boac.merged.sis_terms import current_term_id, future_term_id
+from boac.merged.sis_terms import current_term_id, current_term_name, future_term_id
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from flask_login import current_user
@@ -776,11 +776,13 @@ def _merge_coe_student_profile_data(profile, coe_profile):
 
 def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None):
     profile['hasCurrentTermEnrollments'] = False
+    current_term_found = False
     filtered_enrollment_terms = []
     for row in enrollment_results:
         term = json.loads(row['enrollment_term'])
         term_id = term['termId']
         if term_id == current_term_id():
+            current_term_found = True
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
             # Omit dropped sections for non-current terms.
@@ -801,6 +803,15 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
         if not current_user.can_access_canvas_data:
             _suppress_canvas_sites(term)
         filtered_enrollment_terms.append(term)
+    if not current_term_found:
+        current_term = {
+            'academicYear': academic_year_for_term_name(current_term_name()),
+            'enrolledUnits': 0,
+            'enrollments': [],
+            'termId': current_term_id(),
+            'termName': current_term_name(),
+        }
+        filtered_enrollment_terms.append(current_term)
     profile['enrollmentTerms'] = filtered_enrollment_terms
 
 

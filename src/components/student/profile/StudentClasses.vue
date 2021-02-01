@@ -38,7 +38,7 @@
             <h3 class="page-section-header-sub m-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
           </div>
           <div class="align-items-center d-flex justify-content-end">
-            <span class="color-black">{{ totalUnits(year) }} Units</span>
+            <span class="color-black">{{ totalUnits(year) || 0 }} Units</span>
           </div>
         </div>
       </b-button>
@@ -52,24 +52,17 @@
             :id="`term-fall-${year.label - 1}`"
             :student="student"
             :term="getTerm(`Fall ${year.label - 1}`, year)"
-            class="flex-grow-1"
           /><StudentEnrollmentTerm
             :id="`term-spring-${year.label}`"
             :student="student"
             :term="getTerm(`Spring ${year.label}`, year)"
-            class="flex-grow-1"
           /><StudentEnrollmentTerm
             :id="`term-summer-${year.label}`"
             :student="student"
             :term="getTerm(`Summer ${year.label}`, year)"
-            class="flex-grow-1"
           />
         </b-card-group>
       </b-collapse>
-    </div>
-    <div v-if="$_.isEmpty(student.enrollmentTerms)">
-      No courses
-      <StudentWithdrawalCancel v-if="student.sisProfile.withdrawalCancel" :withdrawal="student.sisProfile.withdrawalCancel" />
     </div>
   </div>
 </template>
@@ -79,14 +72,12 @@ import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
-import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentClasses',
   components: {
-    StudentEnrollmentTerm,
-    StudentWithdrawalCancel
+    StudentEnrollmentTerm
   },
   mixins: [Berkeley, Context, StudentAnalytics, Util],
   props: {
