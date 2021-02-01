@@ -114,15 +114,15 @@ class TestStudent:
         self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
 
     def test_user_with_no_enrollments_in_current_term(self, asc_advisor_login, client):
-        """Identifies user with no enrollments in current term."""
+        """Flags student with no enrollments in current term and appends the current term."""
         sid = self.asc_student['sid']
         uid = self.asc_student['uid']
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             enrollment_terms = student['enrollmentTerms']
-            assert len(enrollment_terms) == 2
-            assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017']
+            assert len(enrollment_terms) == 3
+            assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017', 'Fall 2017']
             assert student['hasCurrentTermEnrollments'] is False
 
     def test_user_feed_authenticated(self, client, coe_advisor_login):
@@ -533,7 +533,7 @@ class TestStudent:
             assert len(student['sisProfile']['plans']) == 3
             assert student['sisProfile']['plans'][0]['description'] == 'Philosophy BA'
             assert student['sisProfile']['plans'][0]['status'] == 'Discontinued'
-            assert len(student['enrollmentTerms']) == 1
+            assert len(student['enrollmentTerms']) == 2
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2005'
             assert student['enrollmentTerms'][0]['enrolledUnits'] == 4
             assert len(student['enrollmentTerms'][0]['enrollments']) == 1
@@ -542,6 +542,9 @@ class TestStudent:
             assert student['enrollmentTerms'][0]['enrollments'][0]['grade'] == 'I'
             assert len(student['enrollmentTerms'][0]['enrollments'][0]['sections']) == 1
             assert student['enrollmentTerms'][0]['enrollments'][0]['sections'][0]['sectionNumber'] == 'X001'
+            assert student['enrollmentTerms'][1]['termName'] == 'Fall 2017'
+            assert student['enrollmentTerms'][1]['enrolledUnits'] == 0
+            assert len(student['enrollmentTerms'][1]['enrollments']) == 0
 
     def test_student_profile_completed_status(self, client, coe_advisor_login):
         inactive_student_by_sid = self._api_student_by_sid(client=client, sid='2718281828')
@@ -557,7 +560,7 @@ class TestStudent:
             assert student['sisProfile']['degree']['description'] == 'Doctor of Philosophy'
             assert student['sisProfile']['degree']['plans'][0]['group'] == 'Graduate Division'
             assert student['sisProfile']['degree']['plans'][0]['plan'] == 'English PhD'
-            assert len(student['enrollmentTerms']) == 2
+            assert len(student['enrollmentTerms']) == 3
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2010'
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2005'
             assert student['enrollmentTerms'][1]['enrollments'][0]['title'] == 'Chaucer'
