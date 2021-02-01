@@ -5,13 +5,19 @@
     class="student-term"
     :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
-    <b-card-header header-bg-variant="transparent" header-class="student-term-header flex-column flex-sm-row">
-      <h3 :id="`term-${term.termId}-header`" class="font-size-18 mr-3">{{ term.termName }}</h3>
-      <StudentAcademicStanding :standing="term.academicStanding" :term-id="term.termId" />
+    <b-card-header header-bg-variant="transparent" header-class="student-term-header">
+      <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
+      <StudentAcademicStanding
+        v-if="term.academicStanding"
+        :standing="term.academicStanding"
+        :term-id="term.termId"
+        class="font-size-14"
+      />
       <StudentWithdrawalCancel
         v-if="student.sisProfile.withdrawalCancel"
         :withdrawal="student.sisProfile.withdrawalCancel"
         :term-id="term.termId"
+        class="font-size-14"
       />
     </b-card-header>
     <b-card-body body-class="student-courses" role="table">
@@ -25,7 +31,7 @@
       </div>
       <div role="rowgroup" class="pt-2">
         <div v-if="$_.isEmpty(term.enrollments)" role="row">
-          <div :id="`term-${term.termId}-no-enrollments`" class="student-term-empty" role="cell">{{ `No ${term.termName} enrollments` }}</div>
+          <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
         </div>
         <StudentCourse
           v-for="(course, courseIndex) in term.enrollments"
@@ -134,13 +140,17 @@ export default {
 .student-term-empty {
   color: #666;
   font-style: italic;
-  margin: 0 10px;
+  height: 2.2em;
+  padding: 3px 10px 0;
 }
 .student-term-header {
   align-items: baseline;
   border: none;
   display: flex;
+  flex-wrap: wrap;
   font-weight: 700;
+  height: 2.8em;
+  line-height: 1.1;
   padding: 10px 10px 0;
 }
 .student-term-footer {

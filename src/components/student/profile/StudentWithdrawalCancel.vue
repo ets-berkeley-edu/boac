@@ -1,9 +1,9 @@
 <template>
   <div v-if="!termId || toInt(withdrawal.termId) === toInt(termId)">
-    <span :id="`withdrawal-term-${termId}`" class="red-flag-small">
+    <span :id="`withdrawal-term-${termId}`" class="red-flag-status">
       {{ withdrawal.description }}
       ({{ withdrawal.reason }})
-      {{ withdrawal.date | moment('MMM DD, YYYY') }}
+      <span class="text-nowrap">{{ withdrawal.date | moment('MMM DD, YYYY') }}</span>
     </span>
   </div>
 </template>
@@ -18,7 +18,7 @@ export default {
     termId: {
       required: false,
       default: undefined,
-      type: [String, Number]
+      type: String
     },
     withdrawal: {
       required: true,
