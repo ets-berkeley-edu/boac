@@ -62,6 +62,7 @@ module.exports = {
     }],
     'vue/multiline-html-element-content-newline': 2,
     'vue/no-boolean-default': 2,
+    'vue/no-mutating-props': 1,
     'vue/no-restricted-syntax': 2,
     'vue/no-use-v-if-with-v-for': 2,
     'vue/no-v-html': 0,
@@ -73,7 +74,12 @@ module.exports = {
     'vue/singleline-html-element-content-newline': 0,
     'vue/space-infix-ops': 2,
     'vue/space-unary-ops': 2,
-    'vue/valid-v-slot': 0,
+    'vue/valid-v-slot': [
+      'error',
+      {
+        allowModifiers: true
+      }
+    ],
     'vue/v-bind-style': 2,
     'vue/v-on-function-call': 2,
     'vue/v-on-style': 2,
