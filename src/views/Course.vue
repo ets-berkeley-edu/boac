@@ -160,7 +160,7 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
 import SelectAll from '@/components/curated/dropdown/SelectAll'
 import Util from '@/mixins/Util'
-import { getSection } from '@/api/course'
+import {getSection} from '@/api/course'
 
 export default {
   name: 'Course',
@@ -218,7 +218,7 @@ export default {
       // objects. A placeholder object keeps the front end from breaking.
       this.$_.each(students, student => {
         if (!student.enrollment) {
-          student.enrollment = { canvasSites: [] }
+          student.enrollment = {canvasSites: []}
         }
       })
       section.students = students
@@ -227,7 +227,7 @@ export default {
     goToPage(page) {
       this.pagination.currentPage = page
       this.$router.push({
-        query: { ...this.$route.query, p: this.pagination.currentPage }
+        query: {...this.$route.query, p: this.pagination.currentPage}
       })
     },
     initPagination() {
@@ -240,7 +240,7 @@ export default {
           this.pagination.itemsPerPage = itemsPerPage
         } else {
           this.$router.push({
-            query: { ...this.$route.query, s: this.pagination.itemsPerPage }
+            query: {...this.$route.query, s: this.pagination.itemsPerPage}
           })
         }
       }

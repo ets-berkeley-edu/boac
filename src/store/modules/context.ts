@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { getServiceAnnouncement } from '@/api/config'
+import {getServiceAnnouncement} from '@/api/config'
 
 const state = {
   announcement: undefined,
@@ -43,11 +43,11 @@ const mutations = {
 }
 
 const actions = {
-  dismissFooterAlert: ({ commit }) => commit('dismissFooterAlert'),
-  dismissServiceAnnouncement: ({ commit }) => commit('dismissServiceAnnouncement'),
-  loadServiceAnnouncement: ({ commit }) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
-  restoreServiceAnnouncement: ({ commit }) => commit('restoreServiceAnnouncement'),
-  loadingStart: ({ commit }) => commit('loadingStart')
+  dismissFooterAlert: ({commit}) => commit('dismissFooterAlert'),
+  dismissServiceAnnouncement: ({commit}) => commit('dismissServiceAnnouncement'),
+  loadServiceAnnouncement: ({commit}) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
+  restoreServiceAnnouncement: ({commit}) => commit('restoreServiceAnnouncement'),
+  loadingStart: ({commit}) => commit('loadingStart')
 }
 
 export default {

@@ -316,10 +316,10 @@ import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import Scrollable from '@/mixins/Scrollable'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
-import { deleteNote, getNote, markNoteRead } from '@/api/notes'
-import { dismissStudentAlert } from '@/api/student'
-import { getAppointment, markAppointmentRead } from '@/api/appointments'
-import { search } from '@/api/search'
+import {deleteNote, getNote, markNoteRead} from '@/api/notes'
+import {dismissStudentAlert} from '@/api/student'
+import {getAppointment, markAppointmentRead} from '@/api/appointments'
+import {search} from '@/api/search'
 
 export default {
   name: 'AcademicTimelineTable',

@@ -60,7 +60,7 @@
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { getCasLogoutUrl } from '@/api/auth'
+import {getCasLogoutUrl} from '@/api/auth'
 
 export default {
   name: 'HeaderMenu',

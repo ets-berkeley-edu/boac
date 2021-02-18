@@ -83,7 +83,7 @@ import SortableGroup from '@/components/search/SortableGroup'
 import Spinner from '@/components/util/Spinner'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import { getDropInAppointmentWaitlist } from '@/api/appointments'
+import {getDropInAppointmentWaitlist} from '@/api/appointments'
 
 export default {
   name: 'DropInAdvisorHome',

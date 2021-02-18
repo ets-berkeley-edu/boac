@@ -4,7 +4,7 @@ import Vue from 'vue'
 import VueAnalytics from 'vue-analytics'
 import router from '@/router'
 import store from '@/store'
-import { event } from 'vue-analytics'
+import {event} from 'vue-analytics'
 
 export default {
   async initializeCurrentUser() {

@@ -47,7 +47,7 @@ import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
 import Util from '@/mixins/Util'
-import { getStudentByUid } from '@/api/student'
+import {getStudentByUid} from '@/api/student'
 
 export default {
   name: 'Student',
@@ -89,7 +89,7 @@ export default {
         this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
         this.loaded(`${this.student.name} loaded`)
       } else {
-        this.$router.push({ path: '/404' })
+        this.$router.push({path: '/404'})
       }
     })
 

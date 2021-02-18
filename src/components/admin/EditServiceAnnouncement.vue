@@ -47,11 +47,11 @@
 import Context from '@/mixins/Context'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
-import { getServiceAnnouncement, publishAnnouncement, updateAnnouncement } from '@/api/config'
+import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
 
 export default {
   name: 'EditServiceAnnouncement',
-  components: { RichTextEditor },
+  components: {RichTextEditor},
   mixins: [Context, Util],
   data: () => ({
     error: undefined,

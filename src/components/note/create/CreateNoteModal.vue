@@ -136,8 +136,8 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
 import Vue from 'vue'
-import { createNoteTemplate, updateNoteTemplate } from '@/api/note-templates'
-import { getUserProfile } from '@/api/user'
+import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
+import {getUserProfile} from '@/api/user'
 
 export default {
   name: 'CreateNoteModal',

@@ -64,7 +64,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'ApplyAndSaveButtons',
-  components: { CreateCohortModal },
+  components: {CreateCohortModal},
   mixins: [CohortEditSession, Context, CurrentUserExtras, Util],
   data: () => ({
     isPerforming: undefined,

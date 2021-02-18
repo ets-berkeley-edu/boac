@@ -49,9 +49,9 @@ const router = new Router({
               // The multi-department scheduler is NOT a use case we support, yet. Therefore,
               // we grab first deptCode from his/her profile.
               const deptCode = deptCodes[0].toLowerCase()
-              next({ path: `/appt/desk/${deptCode}` })
+              next({path: `/appt/desk/${deptCode}`})
             } else {
-              next({ path: '/404' })
+              next({path: '/404'})
             }
           }
         } else {
@@ -237,12 +237,12 @@ const router = new Router({
             const deptCodes = auth.getSchedulerDeptCodes(currentUser)
             if (_.size(deptCodes) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
               const deptCode = deptCodes[0].toLowerCase()
-              next({ path: `/appt/desk/${deptCode}` })
+              next({path: `/appt/desk/${deptCode}`})
             } else {
               if (_.size(currentUser.dropInAdvisorStatus)) {
                 // We assume drop-in advisor status for one department only.
                 const deptCode = currentUser.dropInAdvisorStatus[0].deptCode.toLowerCase()
-                next({ path: `/home/${deptCode}` })
+                next({path: `/home/${deptCode}`})
               } else {
                 next()
               }
@@ -267,7 +267,7 @@ const router = new Router({
           beforeEnter: (to: any, from: any, next: any) => {
             const currentUser = Vue.prototype.$currentUser
             if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
-              next({ path: '/scheduler/404' })
+              next({path: '/scheduler/404'})
             } else {
               next()
             }

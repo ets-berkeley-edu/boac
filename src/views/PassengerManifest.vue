@@ -35,7 +35,7 @@ import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Users from '@/components/admin/Users'
 import Util from '@/mixins/Util'
-import { getDepartments } from '@/api/user'
+import {getDepartments} from '@/api/user'
 
 export default {
   name: 'PassengerManifest',

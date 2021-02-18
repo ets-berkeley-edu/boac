@@ -44,7 +44,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { devAuthLogIn } from '@/api/auth'
+import {devAuthLogIn} from '@/api/auth'
 
 export default {
   name: 'DevAuth',
@@ -70,7 +70,7 @@ export default {
         devAuthLogIn(uid, password).then(user => {
           if (user.isAuthenticated) {
             const redirect = this.$_.get(this.$router, 'currentRoute.query.redirect')
-            this.$router.push({ path: redirect || '/' }, this.$_.noop)
+            this.$router.push({path: redirect || '/'}, this.$_.noop)
           } else {
             this.reportError('Sorry, user is not authorized to use BOA.')
           }

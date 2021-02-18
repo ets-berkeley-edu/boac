@@ -89,7 +89,7 @@ import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Util from '@/mixins/Util'
-import { getCohortEvents } from '@/api/cohort'
+import {getCohortEvents} from '@/api/cohort'
 
 export default {
   name: 'CohortHistory',

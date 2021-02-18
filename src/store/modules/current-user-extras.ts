@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import { getMyCohorts } from '@/api/cohort'
-import { getMyCuratedGroups } from '@/api/curated'
+import {getMyCohorts} from '@/api/cohort'
+import {getMyCuratedGroups} from '@/api/curated'
 
 const state = {
   includeAdmits: false,
@@ -88,13 +88,13 @@ const mutations = {
 }
 
 const actions = {
-  async loadMyCohorts({ commit, state }) {
+  async loadMyCohorts({commit, state}) {
     getMyCohorts('default').then(cohorts => commit('loadMyCohorts', cohorts))
     if (state.includeAdmits) {
       getMyCohorts('admitted_students').then(cohorts => commit('loadMyAdmitCohorts', cohorts))
     }
   },
-  async loadMyCuratedGroups({ commit }) {
+  async loadMyCuratedGroups({commit}) {
     getMyCuratedGroups().then(curatedGroups => commit('loadMyCuratedGroups', curatedGroups))
   }
 }

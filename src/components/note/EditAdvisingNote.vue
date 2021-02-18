@@ -113,8 +113,8 @@ import NoteEditSession from '@/mixins/NoteEditSession'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
-import { getNote, updateNote } from '@/api/notes'
-import { getUserProfile } from '@/api/user'
+import {getNote, updateNote} from '@/api/notes'
+import {getUserProfile} from '@/api/user'
 
 export default {
   name: 'EditAdvisingNote',

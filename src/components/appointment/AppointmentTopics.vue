@@ -75,7 +75,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { getTopicsForAppointments } from '@/api/topics'
+import {getTopicsForAppointments} from '@/api/topics'
 
 export default {
   name: 'AppointmentTopics',

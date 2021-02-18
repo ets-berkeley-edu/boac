@@ -47,7 +47,7 @@ import DropInWaitlist from '@/components/appointment/DropInWaitlist'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import { getDropInAppointmentWaitlist } from '@/api/appointments'
+import {getDropInAppointmentWaitlist} from '@/api/appointments'
 
 export default {
   name: 'DropInDesk',

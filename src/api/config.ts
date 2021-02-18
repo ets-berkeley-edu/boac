@@ -22,7 +22,7 @@ export function getServiceAnnouncement() {
 
 export function publishAnnouncement(publish) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/service_announcement/publish`, { publish: publish })
+    .post(`${utils.apiBaseUrl()}/api/service_announcement/publish`, {publish: publish})
     .then(response => {
       const data = response.data
       store.commit('context/setAnnouncement', data)
@@ -33,7 +33,7 @@ export function publishAnnouncement(publish) {
 
 export function updateAnnouncement(text) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/service_announcement/update`, { text: text })
+    .post(`${utils.apiBaseUrl()}/api/service_announcement/update`, {text: text})
     .then(response => {
       const data = response.data
       store.commit('context/setAnnouncement', data)

@@ -136,8 +136,8 @@ export default {
     reason: undefined,
     reasonExplained: undefined,
     reasonOptions: [
-      { value: 'Cancelled by student', text: 'Cancelled by student' },
-      { value: 'Cancelled by department/advisor', text: 'Cancelled by department/advisor' },
+      {value: 'Cancelled by student', text: 'Cancelled by student'},
+      {value: 'Cancelled by department/advisor', text: 'Cancelled by department/advisor'},
     ],
     showCancellationModal: false
   }),

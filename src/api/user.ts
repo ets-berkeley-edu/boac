@@ -74,13 +74,13 @@ export function getUsers(
 
 export function userAutocomplete(snippet: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/autocomplete`, { snippet: snippet })
+    .post(`${utils.apiBaseUrl()}/api/users/autocomplete`, {snippet: snippet})
     .then(response => response.data, () => null)
 }
 
 export function becomeUser(uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, {uid: uid})
     .then(response => response.data, () => null)
 }
 
@@ -109,7 +109,7 @@ export function setDropInAvailability(deptCode: string, uid: string, available: 
 
 export function setDropInStatus(deptCode: string, status?: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/status`, { status: status || '' })
+    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/status`, {status: status || ''})
     .then(response => {
       store.commit('currentUserExtras/setDropInStatus', {
           available: _.get(response.data, 'available'),
@@ -127,19 +127,19 @@ export function getDropInSchedulers() {
 
 export function addDropInScheduler(deptCode: string, uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/add`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/add`, {uid: uid})
     .then(response => response.data, () => null)
 }
 
 export function removeDropInScheduler(deptCode: string, uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/remove`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/remove`, {uid: uid})
     .then(response => response.data, () => null)
 }
 
 export function setDemoMode(demoMode: boolean) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, { demoMode: demoMode })
+    .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {demoMode: demoMode})
     .then(() => Vue.prototype.$currentUser.inDemoMode = demoMode)
 }
 

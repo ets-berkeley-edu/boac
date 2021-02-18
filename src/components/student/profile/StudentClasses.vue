@@ -109,7 +109,7 @@ export default {
       return this.$_.includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
     },
     getTerm(termName, year) {
-      const term = this.$_.find(year.terms, { 'termName': termName })
+      const term = this.$_.find(year.terms, {'termName': termName})
       if (!term) {
         return {
           termId: this.sisIdForTermName(termName),

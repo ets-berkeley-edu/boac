@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import { getUsersWithCohorts } from '@/api/cohort'
+import {getUsersWithCohorts} from '@/api/cohort'
 import Spinner from '@/components/util/Spinner'
 import Loading from '@/mixins/Loading'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AllCohorts',
-  components: { Spinner },
+  components: {Spinner},
   mixins: [Loading, Util],
   data: () => ({
     rows: []

@@ -27,7 +27,7 @@ export function getCasLoginURL() {
 
 export function becomeUser(uid: string) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, { uid: uid })
+    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, {uid: uid})
     .then(response => response.data, () => null)
 }
 

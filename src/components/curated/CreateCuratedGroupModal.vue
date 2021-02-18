@@ -90,7 +90,7 @@ export default {
       this.reset()
     },
     createCuratedGroup: function() {
-      this.error = this.validateCohortName({ name: this.name })
+      this.error = this.validateCohortName({name: this.name})
       if (!this.error) {
         this.create(this.name)
         this.reset()

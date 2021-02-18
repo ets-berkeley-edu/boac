@@ -209,7 +209,7 @@ import ExportListModal from '@/components/util/ExportListModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
-import { deleteCuratedGroup, downloadCuratedGroupCsv } from '@/api/curated'
+import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 
 export default {
   name: 'CuratedGroupHeader',
@@ -266,7 +266,7 @@ export default {
       deleteCuratedGroup(this.curatedGroupId)
         .then(() => {
           this.isDeleteModalOpen = false
-          this.$router.push({ path: '/' }, this.$_.noop)
+          this.$router.push({path: '/'}, this.$_.noop)
         })
         .catch(error => {
           this.error = error

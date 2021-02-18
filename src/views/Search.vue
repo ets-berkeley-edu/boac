@@ -120,7 +120,7 @@ import SortableCourseList from '@/components/course/SortableCourseList'
 import SortableStudents from '@/components/search/SortableStudents'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import { search, searchAdmittedStudents } from '@/api/search'
+import {search, searchAdmittedStudents} from '@/api/search'
 
 export default {
   name: 'Search',
@@ -233,7 +233,7 @@ export default {
             `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`)
         })
     } else {
-      this.$router.push({ path: '/' }, this.$_.noop)
+      this.$router.push({path: '/'}, this.$_.noop)
     }
   },
   methods: {

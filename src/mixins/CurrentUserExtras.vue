@@ -1,10 +1,10 @@
 <script>
-import { mapGetters } from 'vuex'
+import {mapGetters} from 'vuex'
 import Berkeley from '@/mixins/Berkeley'
 
 export default {
   name: 'CurrentUserExtras',
-  mixins: [ Berkeley ],
+  mixins: [Berkeley],
   computed: {
     ...mapGetters('currentUserExtras', [
       'includeAdmits',

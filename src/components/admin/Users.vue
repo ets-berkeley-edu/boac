@@ -290,7 +290,7 @@ import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Util from '@/mixins/Util'
-import { becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete } from '@/api/user'
+import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 
 export default {
   name: 'Users',
@@ -354,7 +354,7 @@ export default {
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {
-      const statuses = user.deletedAt ? [ 'Deleted' ] : [ 'Active' ]
+      const statuses = user.deletedAt ? ['Deleted'] : ['Active']
       if (user.isBlocked) {
         statuses.push('Blocked')
       }
@@ -409,7 +409,7 @@ export default {
           promise = getUserByUid(this.userSelection.uid, false).then(data => {
             this.totalUserCount = 1
             this.userSelection = undefined
-            return [ data ]
+            return [data]
           })
         } else {
           promise = new Promise(resolve => resolve([]))

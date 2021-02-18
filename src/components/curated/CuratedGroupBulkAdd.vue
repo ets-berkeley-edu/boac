@@ -45,7 +45,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { validateSids } from '@/api/student'
+import {validateSids} from '@/api/student'
 
 export default {
   name: 'CuratedGroupBulkAdd',

@@ -83,8 +83,8 @@ import Loading from '@/mixins/Loading'
 import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import { getVersion } from '@/api/config'
-import { getDropInSchedulers } from '@/api/user'
+import {getVersion} from '@/api/config'
+import {getDropInSchedulers} from '@/api/user'
 
 export default {
   name: 'Admin',

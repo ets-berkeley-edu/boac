@@ -73,8 +73,8 @@ import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
 import RemoveDropInSchedulerModal from '@/components/admin/RemoveDropInSchedulerModal'
 import Util from '@/mixins/Util'
-import { findStudentsByNameOrSid } from '@/api/student'
-import { addDropInScheduler, removeDropInScheduler } from '@/api/user'
+import {findStudentsByNameOrSid} from '@/api/student'
+import {addDropInScheduler, removeDropInScheduler} from '@/api/user'
 
 export default {
   name: 'DropInSchedulerManagement',

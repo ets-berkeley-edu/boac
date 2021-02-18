@@ -70,7 +70,7 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Util from '@/mixins/Util'
-import { getUsersReport } from '@/api/reports'
+import {getUsersReport} from '@/api/reports'
 
 export default {
   name: 'UserReport',

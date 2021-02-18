@@ -181,7 +181,7 @@
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
-import { createOrUpdateUser } from '@/api/user'
+import {createOrUpdateUser} from '@/api/user'
 
 export default {
   name: 'EditUserProfileModal',

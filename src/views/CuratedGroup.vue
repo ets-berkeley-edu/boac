@@ -108,7 +108,7 @@ export default {
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'view')
         }
       } else {
-        this.$router.push({ path: '/404' })
+        this.$router.push({path: '/404'})
       }
     })
     this.$eventHub.on('sortBy-user-preference-change', sortBy => {

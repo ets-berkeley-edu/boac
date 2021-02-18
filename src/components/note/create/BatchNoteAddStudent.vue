@@ -47,7 +47,7 @@
 import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { findStudentsByNameOrSid } from '@/api/student'
+import {findStudentsByNameOrSid} from '@/api/student'
 
 export default {
   name: 'BatchNoteAddStudent',
