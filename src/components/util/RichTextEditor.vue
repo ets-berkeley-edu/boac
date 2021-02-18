@@ -33,7 +33,7 @@ require('@/assets/styles/ckeditor-custom.css')
 
 export default {
   name: 'RichTextEditor',
-  mixins: [ Util ],
+  mixins: [Util],
   props: {
     disabled: {
       required: false,

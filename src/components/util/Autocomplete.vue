@@ -282,7 +282,7 @@ export default {
       if (this.restrict) {
         this.onArrowDown()
       } else {
-        this.selectSuggestion({ label: this.query })
+        this.selectSuggestion({label: this.query})
       }
     },
     onEsc() {

@@ -27,7 +27,7 @@ export function getStudentBySid(sid: string) {
 
 export function validateSids(sids: string[]) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/students/validate_sids`, { sids: sids })
+    .post(`${utils.apiBaseUrl()}/api/students/validate_sids`, {sids: sids})
     .then(response => response.data, () => null)
 }
 

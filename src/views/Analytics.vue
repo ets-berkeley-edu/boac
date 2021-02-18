@@ -45,7 +45,7 @@ import NotesReport from '@/components/reports/NotesReport'
 import Spinner from '@/components/util/Spinner'
 import UserReport from '@/components/reports/UserReport'
 import Util from '@/mixins/Util'
-import { getAvailableDepartmentReports } from '@/api/reports'
+import {getAvailableDepartmentReports} from '@/api/reports'
 
 export default {
   name: 'Admin',
@@ -67,7 +67,7 @@ export default {
         this.render()
         this.loaded('Reports loaded')
       } else {
-        this.$router.push({ path: '/404' })
+        this.$router.push({path: '/404'})
       }
     })
   },

@@ -27,14 +27,14 @@
 </template>
 
 <script>
-import { getUsersWithGroups } from '@/api/curated'
+import {getUsersWithGroups} from '@/api/curated'
 import Spinner from '@/components/util/Spinner'
 import Loading from '@/mixins/Loading'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AllGroups',
-  components: { Spinner },
+  components: {Spinner},
   mixins: [Loading, Util],
   data: () => ({
     rows: []

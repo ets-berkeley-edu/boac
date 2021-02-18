@@ -2,7 +2,7 @@ import _ from 'lodash'
 import store from '@/store'
 import {addStudents, getCuratedGroup, removeFromCuratedGroup, renameCuratedGroup} from '@/api/curated'
 
-const $_goToPage = ({ commit, state }, pageNumber: number) => {
+const $_goToPage = ({commit, state}, pageNumber: number) => {
   return new Promise(resolve => {
     commit('setPageNumber', pageNumber)
     const preferences = store.getters['currentUserExtras/preferences']
@@ -82,7 +82,7 @@ const actions = {
     })
   },
   goToPage: ({commit, state}, pageNumber) => $_goToPage({commit, state}, pageNumber),
-  init: ({ commit }, curatedGroupId: number) => {
+  init: ({commit}, curatedGroupId: number) => {
     commit('setCuratedGroupId', curatedGroupId)
     return $_goToPage({commit, state}, 1)
   },
@@ -103,7 +103,7 @@ const actions = {
       })
     })
   },
-  setMode: ({ commit }, mode: string) => commit('setMode', mode)
+  setMode: ({commit}, mode: string) => commit('setMode', mode)
 }
 
 export default {

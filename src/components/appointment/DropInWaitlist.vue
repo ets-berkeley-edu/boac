@@ -193,8 +193,8 @@ import DropInAvailabilityToggle from '@/components/appointment/DropInAvailabilit
 import DropInWaitlistAppointment from '@/components/appointment/DropInWaitlistAppointment'
 import LogResolvedIssueModal from '@/components/appointment/LogResolvedIssueModal'
 import Util from '@/mixins/Util'
-import { create as apiCreate } from '@/api/appointments'
-import { setDropInStatus } from '@/api/user'
+import {create as apiCreate} from '@/api/appointments'
+import {setDropInStatus} from '@/api/user'
 
 export default {
   name: 'DropInWaitlist',

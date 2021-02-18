@@ -124,11 +124,11 @@
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { getCalnetProfileByUid } from '@/api/user'
+import {getCalnetProfileByUid} from '@/api/user'
 
 export default {
   name: 'AdvisingAppointment',
-  components: { DropInAppointmentDropdown },
+  components: {DropInAppointmentDropdown},
   mixins: [Context, Util],
   props: {
     isOpen: {

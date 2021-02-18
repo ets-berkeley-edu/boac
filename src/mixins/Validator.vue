@@ -5,7 +5,7 @@ import store from '@/store'
 
 export default {
   name: 'Validator',
-  mixins: [ Berkeley ],
+  mixins: [Berkeley],
   methods: {
     validateCohortName: function(cohort) {
       const name = _.trim(cohort.name)

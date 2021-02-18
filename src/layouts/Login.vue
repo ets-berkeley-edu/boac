@@ -54,7 +54,7 @@
 import Context from '@/mixins/Context'
 import DevAuth from '@/components/admin/DevAuth'
 import Util from '@/mixins/Util'
-import { getCasLoginURL } from '@/api/auth'
+import {getCasLoginURL} from '@/api/auth'
 
 export default {
   name: 'Login',

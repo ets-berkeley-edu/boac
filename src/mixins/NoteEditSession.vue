@@ -1,7 +1,7 @@
 <script>
 import _ from 'lodash'
 import store from '@/store'
-import { mapActions, mapGetters } from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 
 export default {
   name: 'NoteEditSession',

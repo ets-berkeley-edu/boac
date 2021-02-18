@@ -119,7 +119,7 @@ export default {
       this.reset()
     },
     createTemplate: function() {
-      this.error = this.validateTemplateTitle({ title: this.title })
+      this.error = this.validateTemplateTitle({title: this.title})
       if (!this.error) {
         this.create(this.title)
         this.reset()

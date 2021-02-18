@@ -127,7 +127,7 @@ import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmen
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
-import { reopen as apiReopen } from '@/api/appointments'
+import {reopen as apiReopen} from '@/api/appointments'
 
 export default {
   name: 'DropInWaitlist',

@@ -91,8 +91,8 @@
 import Context from '@/mixins/Context'
 import SortableStudents from '@/components/search/SortableStudents'
 import Util from '@/mixins/Util'
-import { getStudentsWithAlerts as getCohortStudentsWithAlerts } from '@/api/cohort'
-import { getStudentsWithAlerts as getCuratedStudentsWithAlerts } from '@/api/curated'
+import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
+import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curated'
 
 export default {
   name: 'SortableGroup',

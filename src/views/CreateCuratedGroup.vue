@@ -26,7 +26,7 @@ import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import Util from '@/mixins/Util'
-import { createCuratedGroup } from '@/api/curated'
+import {createCuratedGroup} from '@/api/curated'
 
 export default {
   name: 'CreateCuratedGroup',

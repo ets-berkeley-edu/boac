@@ -69,7 +69,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { getTopicsForNotes } from '@/api/topics'
+import {getTopicsForNotes} from '@/api/topics'
 
 export default {
   name: 'AdvisingNoteTopics',

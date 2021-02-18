@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import { createNotes } from '@/api/notes'
-import { getDistinctSids } from '@/api/student'
-import { getMyNoteTemplates } from '@/api/note-templates'
+import {createNotes} from '@/api/notes'
+import {getDistinctSids} from '@/api/student'
+import {getMyNoteTemplates} from '@/api/note-templates'
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate']
 
@@ -127,7 +127,7 @@ const mutations = {
 }
 
 const actions = {
-  addAttachment: ({ commit }, attachment: any) => commit('addAttachment', attachment),
+  addAttachment: ({commit}, attachment: any) => commit('addAttachment', attachment),
   addCohort: ({commit, state}, cohort: any) => {
     const cohorts = state.addedCohorts.concat(cohort)
     $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
@@ -149,8 +149,8 @@ const actions = {
       commit('setCompleteSidSet', sids)
     }).finally(() => commit('setIsRecalculating', false))
   },
-  addTopic: ({ commit }, topic: string) => commit('addTopic', topic),
-  onBoaSessionExpires: ({ commit }) => commit('onBoaSessionExpires'),
+  addTopic: ({commit}, topic: string) => commit('addTopic', topic),
+  onBoaSessionExpires: ({commit}) => commit('onBoaSessionExpires'),
   createAdvisingNotes: ({commit, state}) => {
     return new Promise(resolve => {
       commit('setBody', _.trim(state.model.body))
@@ -178,16 +178,16 @@ const actions = {
       })
     })
   },
-  exitSession: ({ commit }) => commit('exitSession'),
-  async loadNoteTemplates({ commit, state }) {
+  exitSession: ({commit}) => commit('exitSession'),
+  async loadNoteTemplates({commit, state}) {
     if (_.isUndefined(state.myNoteTemplates)) {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates))
     }
   },
-  onCreateTemplate: ({ commit }, template: any) => commit('onCreateTemplate', template),
-  onDeleteTemplate: ({ commit }, templateId: number) => commit('onDeleteTemplate', templateId),
-  onUpdateTemplate: ({ commit }, template: any) => commit('onUpdateTemplate', template),
-  removeAttachment: ({ commit }, index: number) => commit('removeAttachment', index),
+  onCreateTemplate: ({commit}, template: any) => commit('onCreateTemplate', template),
+  onDeleteTemplate: ({commit}, templateId: number) => commit('onDeleteTemplate', templateId),
+  onUpdateTemplate: ({commit}, template: any) => commit('onUpdateTemplate', template),
+  removeAttachment: ({commit}, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     const cohorts = _.reject(state.addedCohorts, ['id', cohort.id])
     $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
@@ -209,14 +209,14 @@ const actions = {
       commit('setCompleteSidSet', sids)
     }).finally(() => commit('setIsRecalculating', false))
   },
-  removeTopic: ({ commit }, topic: string) => commit('removeTopic', topic),
-  resetModel: ({ commit }) => commit('setModel', $_getDefaultModel()),
-  setBody: ({ commit }, body: string) => commit('setBody', body),
-  setFocusLockDisabled: ({ commit }, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
-  setIsSaving: ({ commit }, isSaving: boolean) => commit('setIsSaving', isSaving),
-  setMode: ({ commit }, mode: string) => commit('setMode', mode),
-  setModel: ({ commit }, model?: any) => commit('setModel', model),
-  setSubject: ({ commit }, subject: string) => commit('setSubject', subject)
+  removeTopic: ({commit}, topic: string) => commit('removeTopic', topic),
+  resetModel: ({commit}) => commit('setModel', $_getDefaultModel()),
+  setBody: ({commit}, body: string) => commit('setBody', body),
+  setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
+  setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
+  setMode: ({commit}, mode: string) => commit('setMode', mode),
+  setModel: ({commit}, model?: any) => commit('setModel', model),
+  setSubject: ({commit}, subject: string) => commit('setSubject', subject)
 }
 
 export default {

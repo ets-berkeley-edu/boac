@@ -37,7 +37,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { setDemoMode } from '@/api/user'
+import {setDemoMode} from '@/api/user'
 
 export default {
   name: 'DemoModeToggle',

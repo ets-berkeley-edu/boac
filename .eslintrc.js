@@ -15,6 +15,7 @@ module.exports = {
     'vue-a11y'
   ],
   rules: {
+    'array-bracket-spacing': 2,
     'eqeqeq': 2,
     'key-spacing': 2,
     'multiline-html-element-content-newline': 0,
@@ -23,20 +24,20 @@ module.exports = {
     'no-multi-spaces': 2,
     'no-trailing-spaces': 2,
     'no-unexpected-multiline': 2,
+    'object-curly-spacing': 2,
     'quotes': [2, 'single'],
     'semi': [2, 'never'],
     'vue-a11y/label-has-for': [
       2,
       {
-        'components': [ 'label' ],
+        'components': ['label'],
         'required': {
-            'every': [ 'id' ]
+            'every': ['id']
         },
         'allowChildren': false
       }
     ],
     'vue-a11y/no-onchange': 'off',
-    'vue/array-bracket-spacing': 2,
     'vue/arrow-spacing': 2,
     'vue/attributes-order': 2,
     'vue/block-spacing': 2,
@@ -66,7 +67,6 @@ module.exports = {
     'vue/no-restricted-syntax': 2,
     'vue/no-use-v-if-with-v-for': 2,
     'vue/no-v-html': 0,
-    'vue/object-curly-spacing': 2,
     'vue/require-default-prop': 0,
     'vue/require-direct-export': 2,
     'vue/require-prop-types': 2,

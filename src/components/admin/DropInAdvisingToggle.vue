@@ -41,7 +41,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { disableDropInAdvising, enableDropInAdvising } from '@/api/user'
+import {disableDropInAdvising, enableDropInAdvising} from '@/api/user'
 
 export default {
   name: 'DropInAdvisingToggle',

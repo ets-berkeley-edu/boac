@@ -54,7 +54,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { setDropInAvailability } from '@/api/user'
+import {setDropInAvailability} from '@/api/user'
 
 export default {
   name: 'DropInAvailabilityToggle',

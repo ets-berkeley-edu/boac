@@ -132,7 +132,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import { findStudentsByNameOrSid } from '@/api/student'
+import {findStudentsByNameOrSid} from '@/api/student'
 
 export default {
   name: 'CreateAppointmentModal',

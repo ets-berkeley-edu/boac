@@ -316,9 +316,9 @@ import Context from '@/mixins/Context'
 import InputAutocomplete from '@/components/search/InputAutocomplete'
 import Scrollable from '@/mixins/Scrollable'
 import Util from '@/mixins/Util'
-import { findStudentsByNameOrSid } from '@/api/student'
-import { getAllTopics } from '@/api/topics'
-import { addToSearchHistory, findAdvisorsByName, getMySearchHistory } from '@/api/search'
+import {findStudentsByNameOrSid} from '@/api/student'
+import {getAllTopics} from '@/api/topics'
+import {addToSearchHistory, findAdvisorsByName, getMySearchHistory} from '@/api/search'
 
 export default {
   name: 'SearchForm',

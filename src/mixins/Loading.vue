@@ -1,6 +1,6 @@
 <script>
 import store from '@/store'
-import { mapActions, mapGetters } from 'vuex'
+import {mapActions, mapGetters} from 'vuex'
 
 export default {
   name: 'Loading',

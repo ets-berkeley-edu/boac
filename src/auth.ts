@@ -17,14 +17,14 @@ const $_requiresScheduler = (to: any, next: any, authorizedDeptCodes: string[]) 
       if (_.includes(authorizedDeptCodes, to.params.deptCode.toUpperCase())) {
         next()
       } else {
-        next({ path: '/404' })
+        next({path: '/404'})
       }
     } else {
       // URL path has no dept code; Drop-in Advisor or Scheduler can proceed.
       next()
     }
   } else {
-     next({ path: '/404' })
+     next({path: '/404'})
   }
 }
 
@@ -47,7 +47,7 @@ export default {
       if (currentUser.isAdmin) {
         next()
       } else {
-        next({ path: '/404' })
+        next({path: '/404'})
       }
     } else {
       $_goToLogin(to, next)
@@ -59,7 +59,7 @@ export default {
       if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
         next()
       } else {
-        next({ path: '/404' })
+        next({path: '/404'})
       }
     } else {
       $_goToLogin(to, next)
@@ -78,7 +78,7 @@ export default {
       if (currentUser.isAdmin || isCE3(currentUser)) {
         next()
       } else {
-        next({ path: '/404' })
+        next({path: '/404'})
       }
     } else {
       $_goToLogin(to, next)
@@ -90,7 +90,7 @@ export default {
       if (isDirector(currentUser) || currentUser.isAdmin) {
         next()
       } else {
-        next({ path: '/404' })
+        next({path: '/404'})
       }
     } else {
       $_goToLogin(to, next)

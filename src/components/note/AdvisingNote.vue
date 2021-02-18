@@ -163,12 +163,12 @@ import Attachments from '@/mixins/Attachments'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import { addAttachments, removeAttachment } from '@/api/notes'
-import { getCalnetProfileByCsid, getCalnetProfileByUid } from '@/api/user'
+import {addAttachments, removeAttachment} from '@/api/notes'
+import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 
 export default {
   name: 'AdvisingNote',
-  components: { AreYouSureModal },
+  components: {AreYouSureModal},
   mixins: [Attachments, Berkeley, Context, Util],
   props: {
     afterSaved: {

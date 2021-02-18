@@ -108,8 +108,8 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import { getAllAdmits } from '@/api/admit'
-import { downloadCsv } from '@/api/cohort'
+import {getAllAdmits} from '@/api/admit'
+import {downloadCsv} from '@/api/cohort'
 
 export default {
   name: 'AdmitStudents',
@@ -176,7 +176,7 @@ export default {
         }
         this.pagination.currentPage = page
         this.$router.push({
-          query: { ...this.$route.query, p: this.pagination.currentPage }
+          query: {...this.$route.query, p: this.pagination.currentPage}
         })
       }
     },
@@ -198,7 +198,7 @@ export default {
           this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {
-          this.$router.push({ path: '/404' })
+          this.$router.push({path: '/404'})
         }
         this.sorting = false
       })

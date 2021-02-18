@@ -70,7 +70,7 @@ import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
-import { getDropInAdvisorsForDept } from '@/api/user'
+import {getDropInAdvisorsForDept} from '@/api/user'
 
 export default {
   name: 'AppointmentAssignModal',

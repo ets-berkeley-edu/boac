@@ -122,7 +122,7 @@ export default {
       this.cancel()
     },
     renameTemplate: function() {
-      this.error = this.validateTemplateTitle({ id: this.template.id, title: this.title })
+      this.error = this.validateTemplateTitle({id: this.template.id, title: this.title})
       if (!this.error) {
         this.rename(this.title)
       }

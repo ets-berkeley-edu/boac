@@ -20,12 +20,12 @@ import VueAnnouncer from '@vue-a11y/announcer'
 import VueHighcharts from 'vue-highcharts'
 import VueLodash from 'vue-lodash'
 import VueMoment from 'vue-moment'
-import { routerHistory, writeHistory } from 'vue-router-back-button'
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { far } from '@fortawesome/free-regular-svg-icons'
-import { fas } from '@fortawesome/free-solid-svg-icons'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons/faSpinner'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {routerHistory, writeHistory} from 'vue-router-back-button'
+import {library} from '@fortawesome/fontawesome-svg-core'
+import {far} from '@fortawesome/free-regular-svg-icons'
+import {fas} from '@fortawesome/free-solid-svg-icons'
+import {faSpinner} from '@fortawesome/free-solid-svg-icons/faSpinner'
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 
 library.add(far, fas, faSpinner)
 Vue.component('font-awesome', FontAwesomeIcon) // eslint-disable-line vue/component-definition-name-casing
@@ -38,11 +38,11 @@ Vue.use(BootstrapVue)
 Vue.use(CKEditor)
 Vue.use(VCalendar)
 Vue.use(VueAnnouncer)
-Vue.use(VueLodash, { lodash })
-Vue.use(VueMoment, { moment })
+Vue.use(VueLodash, {lodash})
+Vue.use(VueMoment, {moment})
 
 HighchartsMore(Highcharts)
-Vue.use(VueHighcharts, { Highcharts })
+Vue.use(VueHighcharts, {Highcharts})
 highchartsAccessibility(Highcharts)
 
 Vue.directive('accessibleGrade', {
@@ -65,7 +65,7 @@ axios.interceptors.response.use(response => response, function(error) {
   if (_.get(error, 'response.status') === 401) {
     axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
       Vue.prototype.$currentUser = response.data
-      Vue.prototype.$core.initializeCurrentUser().then(router.push({ path: '/login' }).catch(() => null))
+      Vue.prototype.$core.initializeCurrentUser().then(router.push({path: '/login'}).catch(() => null))
     })
   }
   return Promise.reject(error)

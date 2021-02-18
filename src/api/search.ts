@@ -24,7 +24,7 @@ export function getMySearchHistory() {
 
 export function addToSearchHistory(phrase) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/search/add_to_search_history`, { phrase })
+    .post(`${utils.apiBaseUrl()}/api/search/add_to_search_history`, {phrase})
     .then(response => response.data, () => null)
 }
 

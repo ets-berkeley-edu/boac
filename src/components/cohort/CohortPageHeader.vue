@@ -198,11 +198,11 @@ import ExportListModal from '@/components/util/ExportListModal'
 import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import { deleteCohort } from '@/api/cohort'
+import {deleteCohort} from '@/api/cohort'
 
 export default {
   name: 'CohortPageHeader',
-  components: { DeleteCohortModal, ExportListModal },
+  components: {DeleteCohortModal, ExportListModal},
   mixins: [Berkeley, CohortEditSession, Context, Util, Validator],
   props: {
     showHistory: {
@@ -261,7 +261,7 @@ export default {
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false
         this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete')
-        router.push({ path: '/' })
+        router.push({path: '/'})
       })
     },
     exportCohort(csvColumnsSelected) {

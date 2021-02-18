@@ -39,7 +39,7 @@ import Loading from '@/mixins/Loading'
 import MyProfile from '@/components/admin/MyProfile'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import { getDropInSchedulers } from '@/api/user'
+import {getDropInSchedulers} from '@/api/user'
 
 export default {
   name: 'Profile',
