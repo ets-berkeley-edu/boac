@@ -251,10 +251,12 @@ export default {
   created() {
     this.isAscInactive = this.displayAsAscInactive(this.student)
     this.isCoeInactive = this.displayAsCoeInactive(this.student)
+
+    const planTypes = ['MAJ', 'SS', 'SP', 'SH', 'CRT']
     const plans = this.$_.get(this.student, 'sisProfile.degree.plans')
     if (plans) {
-      this.degreePlans = plans.filter(plan => plan.type === 'MAJ')
-        .map(minor => minor.plan)
+      this.degreePlans = plans.filter(plan => planTypes.includes(plan.type))
+        .map(degree => degree.plan)
       this.minorPlans = plans.filter(plan => plan.type === 'MIN')
         .map(minor => minor.plan)
         .map(part => part.replace('Minor in ', ''))
