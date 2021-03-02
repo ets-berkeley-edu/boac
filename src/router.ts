@@ -10,6 +10,7 @@ import Cohort from '@/views/Cohort.vue'
 import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
+import DegreeChecks from '@/views/DegreeChecks.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
 import DropInDesk from '@/views/DropInDesk.vue'
 import FlightDeck from '@/views/FlightDeck.vue'
@@ -222,6 +223,20 @@ const router = new Router({
           component: AdmitStudents,
           meta: {
             title: 'Admitted Students'
+          }
+        }
+      ]
+    },
+    {
+      path: '/',
+      component: StandardLayout,
+      beforeEnter: auth.requiresCoe,
+      children: [
+        {
+          path: '/degrees',
+          component: DegreeChecks,
+          meta: {
+            title: 'Managing Degree Checks'
           }
         }
       ]

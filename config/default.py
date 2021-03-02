@@ -111,6 +111,7 @@ DEVELOPER_AUTH_ENABLED = False
 DEVELOPER_AUTH_PASSWORD = 'another secret'
 
 FEATURE_FLAG_ADMITTED_STUDENTS = False
+FEATURE_FLAG_DEGREE_CHECK = False
 
 # Notify BOA users when they are accessing boa-dev, boa-qa, and boa-demo. Unlike service announcements, this
 # warning can only be unpublished by setting config to None.
