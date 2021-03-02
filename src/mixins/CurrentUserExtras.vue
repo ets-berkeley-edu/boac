@@ -7,6 +7,7 @@ export default {
   mixins: [Berkeley],
   computed: {
     ...mapGetters('currentUserExtras', [
+      'degreeCheckEnabled',
       'includeAdmits',
       'myAdmitCohorts',
       'myCohorts',

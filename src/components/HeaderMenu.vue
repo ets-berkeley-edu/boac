@@ -45,6 +45,14 @@
         Profile
       </b-dropdown-item>
       <b-dropdown-item
+        v-if="degreeCheckEnabled"
+        id="header-menu-degree-check"
+        class="nav-link-color text-decoration-none"
+        to="/degrees"
+      >
+        Degree Checks
+      </b-dropdown-item>
+      <b-dropdown-item
         :href="`mailto:${$config.supportEmailAddress}`"
         target="_blank"
         aria-label="Send email to the BOA team"
@@ -59,12 +67,13 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Util from '@/mixins/Util'
 import {getCasLogoutUrl} from '@/api/auth'
 
 export default {
   name: 'HeaderMenu',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Berkeley, Context, CurrentUserExtras, Util],
   data: () => ({
     myDirectorDepartment: undefined
   }),

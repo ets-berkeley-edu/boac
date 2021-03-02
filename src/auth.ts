@@ -42,6 +42,7 @@ export default {
   getSchedulerDeptCodes,
   isAdvisor,
   isCE3,
+  isCoe,
   isDirector,
   requiresAdmin: (to: any, from: any, next: any) => {
     const currentUser = Vue.prototype.$currentUser
