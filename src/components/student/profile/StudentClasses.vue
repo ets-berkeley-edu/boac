@@ -3,7 +3,7 @@
     <div class="d-flex align-items-baseline mb-2 px-2">
       <h2 class="student-section-header mr-2">Classes</h2>
       <b-button
-        v-if="student.enrollmentTerms.length > 1"
+        v-if="enrollmentTermsByYear.length > 1"
         id="sort-academic-year"
         variant="link"
         @click="setOrder"
