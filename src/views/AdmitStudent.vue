@@ -24,9 +24,11 @@
           <b-col>
             <b-row>
               <b-col>
-                <caption class="sr-only">Academic details for {{ fullName }}</caption>
+                <caption class="sr-only">Academic Details</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">Academic Details</b-col>
+                  <b-col class="table-cell">
+                    <h2>Academic Details</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">ApplyUC CPID</b-col>
@@ -62,9 +64,11 @@
                 </b-row>
               </b-col>
               <b-col>
-                <caption class="sr-only">Eligibility details for {{ fullName }}</caption>
+                <caption class="sr-only">Eligibility Details</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">Eligibility Details</b-col>
+                  <b-col class="table-cell">
+                    <h2>Eligibility Details</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Application Fee Waiver Flag</b-col>
@@ -105,9 +109,11 @@
           <b-col>
             <b-row>
               <b-col>
-                <caption class="sr-only">Demographic information for {{ fullName }}</caption>
+                <caption class="sr-only">Demographic Information</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">Demographic Information</b-col>
+                  <b-col class="table-cell">
+                    <h2>Demographic Information</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Gender Identity</b-col>
@@ -155,9 +161,11 @@
                 </b-row>
               </b-col>
               <b-col>
-                <caption class="sr-only">Family and status information for {{ fullName }}</caption>
+                <caption class="sr-only">Family and Status Information</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">Family and Status Information</b-col>
+                  <b-col class="table-cell">
+                    <h2>Family and Status Information</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Foster Care Flag</b-col>
@@ -218,9 +226,11 @@
           <b-col>
             <b-row>
               <b-col>
-                <caption class="sr-only">Contact information for {{ fullName }}</caption>
+                <caption class="sr-only">Contact Information</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">Contact Information</b-col>
+                  <b-col class="table-cell font-weight-bold">
+                    <h2>Contact Information</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Email</b-col>
@@ -249,9 +259,11 @@
                 </b-row>
               </b-col>
               <b-col>
-                <caption class="sr-only">GPA for {{ fullName }}</caption>
+                <caption class="sr-only">GPA</caption>
                 <b-row>
-                  <b-col class="table-cell font-weight-bold">GPA</b-col>
+                  <b-col class="table-cell font-weight-bold">
+                    <h2>Contact Information</h2>
+                  </b-col>
                 </b-row>
                 <b-row>
                   <b-col id="admit-gpa-hs-unweighted-th" class="table-cell">HS Unweighted GPA</b-col>
