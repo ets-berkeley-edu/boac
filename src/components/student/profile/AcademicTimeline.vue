@@ -94,7 +94,7 @@ export default {
       }
     },
     sortDate(message) {
-      if (message.type === 'appointment') {
+      if (message.type === 'appointment' || message.type === 'note') {
         return message.createdAt
       } else {
         return message.updatedAt || message.createdAt
