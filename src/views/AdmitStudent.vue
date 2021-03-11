@@ -340,12 +340,16 @@ export default {
 <style scoped>
 .table-cell {
   font-weight: normal;
-  padding: 5px 50px 5px 3px;
+  padding: 4px 3px 4px 3px;
   vertical-align: top;
   width: 450px;
 }
 .table-separator {
   border-top: 1px solid rgb(108, 103, 103);
   margin: 20px 0 20px 0;
+}
+h2 {
+  font-size: 16px;
+  font-weight: bold;
 }
 </style>
