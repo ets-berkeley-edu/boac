@@ -18,9 +18,9 @@
         <FilterRow v-if="isOwnedByCurrentUser" />
         <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
       </b-collapse>
-      <hr class="filters-section-separator mr-2 mt-0" />
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
+        <hr v-if="showSortBy" class="filters-section-separator mr-2 mt-0" />
         <div class="cohort-column-results">
           <div
             :class="{
