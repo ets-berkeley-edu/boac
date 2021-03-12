@@ -9,6 +9,7 @@ import auth from './auth'
 import Cohort from '@/views/Cohort.vue'
 import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
+import CreateDegree from '@/views/CreateDegree.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
 import DegreeChecks from '@/views/DegreeChecks.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
@@ -238,6 +239,13 @@ const router = new Router({
           meta: {
             title: 'Managing Degree Checks'
           }
+        },
+        {
+          path: '/degree/new',
+          component: CreateDegree,
+          meta: {
+            title: 'Create New Degree',
+          },
         }
       ]
     },
