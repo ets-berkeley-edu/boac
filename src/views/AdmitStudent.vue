@@ -262,7 +262,7 @@
                 <caption class="sr-only">GPA</caption>
                 <b-row>
                   <b-col class="table-cell font-weight-bold">
-                    <h2>Contact Information</h2>
+                    <h2>GPA</h2>
                   </b-col>
                 </b-row>
                 <b-row>
