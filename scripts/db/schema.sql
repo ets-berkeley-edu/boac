@@ -344,34 +344,33 @@ CREATE INDEX cohort_filters_owner_id_idx ON cohort_filters USING btree (owner_id
 
 --
 
-CREATE TABLE degrees (
+CREATE TABLE degree_progress_templates (
   id integer NOT NULL,
-  name character varying(255) NOT NULL,
+  degree_name character varying(255) NOT NULL,
+  advisor_dept_codes character varying[] NOT NULL,
+  student_sid character varying(80),
   created_at timestamp with time zone NOT NULL,
   created_by integer NOT NULL,
   updated_at timestamp with time zone NOT NULL,
   updated_by integer NOT NULL,
-  deleted_at timestamp with time zone,
-  deleted_by integer
+  deleted_at timestamp with time zone
 );
-ALTER TABLE degrees OWNER TO boac;
-CREATE SEQUENCE degrees_id_seq
+ALTER TABLE degree_progress_templates OWNER TO boac;
+CREATE SEQUENCE degree_progress_templates_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE degrees_id_seq OWNER TO boac;
-ALTER SEQUENCE degrees_id_seq OWNED BY degrees.id;
-ALTER TABLE ONLY degrees ALTER COLUMN id SET DEFAULT nextval('degrees_id_seq'::regclass);
-ALTER TABLE ONLY degrees
-    ADD CONSTRAINT degrees_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY degrees
-    ADD CONSTRAINT degrees_created_by_fkey FOREIGN KEY (created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY degrees
-    ADD CONSTRAINT degrees_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
-ALTER TABLE ONLY degrees
-    ADD CONSTRAINT degrees_deleted_by_fkey FOREIGN KEY (deleted_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE degree_progress_templates_id_seq OWNER TO boac;
+ALTER SEQUENCE degree_progress_templates_id_seq OWNED BY degree_progress_templates.id;
+ALTER TABLE ONLY degree_progress_templates ALTER COLUMN id SET DEFAULT nextval('degree_progress_templates_id_seq'::regclass);
+ALTER TABLE ONLY degree_progress_templates
+    ADD CONSTRAINT degree_progress_templates_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY degree_progress_templates
+    ADD CONSTRAINT degree_progress_templates_created_by_fkey FOREIGN KEY (created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY degree_progress_templates
+    ADD CONSTRAINT degree_progress_templates_updated_by_fkey FOREIGN KEY (updated_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
