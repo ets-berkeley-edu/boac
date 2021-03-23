@@ -5,8 +5,8 @@ import Berkeley from '@/mixins/Berkeley'
 export default {
   name: 'StudentMetadata',
   mixins: [Berkeley],
-  // Grades deserving alerts: D(+/-), F, I, NP.
-  alertGrades: /^[DFIN]/,
+  // Grades deserving alerts: D(+/-), F, I, NP, RD.
+  alertGrades: /^[DFINR]/,
   methods: {
     displayAsAscInactive(student) {
       return (
