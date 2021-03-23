@@ -785,13 +785,13 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
             current_term_found = True
             profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
-            # Omit dropped sections for non-current terms.
-            term.pop('droppedSections', None)
             if term_id < current_term_id():
-                # Filter out the now-empty term if all classes were dropped.
-                if not term.get('enrollments'):
+                # Skip past terms with no enrollments or drops.
+                if not term.get('enrollments') and not term.get('droppedSections'):
                     continue
-                _omit_zombie_waitlisted_enrollments(term)
+                # Filter out old waitlisted enrollments from past terms.
+                if term.get('enrollments'):
+                    _omit_zombie_waitlisted_enrollments(term)
 
         term_name = term.get('termName')
         term['academicYear'] = academic_year_for_term_name(term_name)
