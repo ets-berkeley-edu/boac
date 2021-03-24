@@ -25,38 +25,45 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
-class Degree(Base):
-    __tablename__ = 'degrees'
+class DegreeProgressTemplate(Base):
+    __tablename__ = 'degree_progress_templates'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    advisor_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
+    degree_name = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
-    deleted_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=True)
-    name = db.Column(db.String(255), nullable=False)
+    student_sid = db.Column(db.String(80), nullable=True)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
 
-    def __init__(self, created_by, name, updated_by):
+    def __init__(self, advisor_dept_codes, created_by, degree_name, student_sid, updated_by):
+        self.advisor_dept_codes = advisor_dept_codes
         self.created_by = created_by
-        self.name = name
+        self.degree_name = degree_name
+        self.student_sid = student_sid
         self.updated_by = updated_by
 
     def __repr__(self):
-        return f"""<Degree id={self.id},
-                    name={self.name},
+        return f"""<DegreeProgressTemplate id={self.id},
+                    degree_name={self.degree_name},
+                    student_sid={self.student_sid},
+                    advisor_dept_codes={self.advisor_dept_codes},
                     deleted_at={self.deleted_at},
-                    deleted_by={self.deleted_by},
                     created_at={self.created_at},
                     created_by={self.created_by},
                     updated_at={self.updated_at}
                     updated_by={self.updated_by}>"""
 
     @classmethod
-    def create(cls, created_by, name):
+    def create(cls, advisor_dept_codes, created_by, degree_name, student_sid=None):
         degree = cls(
+            advisor_dept_codes=advisor_dept_codes,
             created_by=created_by,
-            name=name,
+            degree_name=degree_name,
+            student_sid=student_sid,
             updated_by=created_by,
         )
         db.session.add(degree)
