@@ -952,7 +952,7 @@ class TestUserUpdate:
         assert qcadvmaj['automateMembership'] is False
 
         # Clean up
-        AuthorizedUser.delete_and_block(uid)
+        AuthorizedUser.delete(uid)
 
     def test_update_advisor(self, client, fake_auth):
         """Add Advisor to another department, assign Scheduler role."""

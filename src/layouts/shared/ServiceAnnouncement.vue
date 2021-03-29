@@ -1,23 +1,31 @@
 <template>
   <div v-if="announcement && announcement.isPublished">
-    <div
-      v-if="!dismissedServiceAnnouncement"
-      class="d-inline-block pt-3 pb-0 px-3 service-announcement w-100"
-    >
-      <div class="sr-only" role="heading">BOA Service Alert</div>
-      <span
-        id="service-announcement-banner"
-        aria-live="polite"
-        role="alert"
-        v-html="announcement.text"
-      >
-      </span>
+    <div v-if="!dismissedServiceAnnouncement" class="align-top d-flex service-announcement">
+      <div class="d-inline-block pt-3 pb-0 pl-3 w-100">
+        <div v-if="!dismissedServiceAnnouncement">
+          <div class="sr-only" role="heading">BOA Service Alert</div>
+          <span
+            id="service-announcement-banner"
+            aria-live="polite"
+            role="alert"
+            v-html="announcement.text"
+          >
+          </span>
+        </div>
+      </div>
+      <div>
+        <b-btn
+          id="dismiss-service-announcement"
+          title="Dismiss"
+          variant="link"
+          @click="toggle"
+        >
+          <font-awesome icon="times" />
+          <span class="sr-only">Dismiss alert</span>
+        </b-btn>
+      </div>
     </div>
-    <div class="sr-only">
-      <b-button id="toggle-service-announcement" @click="toggle">
-        {{ dismissedServiceAnnouncement ? 'Restore' : 'Dismiss' }} BOA service alert
-      </b-button>
-    </div>
+    <b-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="sr-only">Restore alert</b-btn>
   </div>
 </template>
 
@@ -32,11 +40,11 @@ export default {
     toggle() {
       if (this.dismissedServiceAnnouncement) {
         this.restoreServiceAnnouncement()
-        this.alertScreenReader('Alert restored')
+        this.$announcer.polite('Alert restored')
         this.putFocusNextTick('service-announcement-banner')
       } else {
         this.dismissServiceAnnouncement()
-        this.alertScreenReader('Dismissed')
+        this.$announcer.polite('Dismissed')
         this.putFocusNextTick('toggle-service-announcement')
       }
     },

@@ -50,15 +50,6 @@ class TestAuthorizedUser:
 
         assert loaded_user.cohort_filters[0].owner == loaded_user
 
-    def test_delete_and_block(self):
-        user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid)
-        assert user.deleted_at is None
-        assert user.is_blocked is False
-
-        blocked_user = AuthorizedUser.delete_and_block(coe_advisor_uid)
-        assert blocked_user.deleted_at is not None
-        assert blocked_user.is_blocked
-
     def test_create_or_restore_deleted(self):
         """Restores a deleted user to a non-deleted state, updating with any passed-in attributes."""
         user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid)

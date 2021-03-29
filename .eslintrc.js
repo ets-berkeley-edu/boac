@@ -18,7 +18,6 @@ module.exports = {
     'array-bracket-spacing': 2,
     'eqeqeq': 2,
     'key-spacing': 2,
-    'multiline-html-element-content-newline': 0,
     'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-multi-spaces': 2,
@@ -74,6 +73,7 @@ module.exports = {
     'vue/singleline-html-element-content-newline': 0,
     'vue/space-infix-ops': 2,
     'vue/space-unary-ops': 2,
+    'vue/this-in-template': 2,
     'vue/valid-v-slot': [
       'error',
       {

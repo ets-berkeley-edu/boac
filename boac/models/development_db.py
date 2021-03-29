@@ -511,8 +511,8 @@ def _create_users():
                 user.deleted_at = utc_now()
             db.session.add(user)
 
-    AuthorizedUser.delete_and_block(delete_this_admin_uid)
-    AuthorizedUser.delete_and_block(delete_this_uid)
+    AuthorizedUser.delete(delete_this_admin_uid)
+    AuthorizedUser.delete(delete_this_uid)
 
     std_commit(allow_test_environment=True)
 
