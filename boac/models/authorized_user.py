@@ -122,15 +122,6 @@ class AuthorizedUser(Base):
         return user
 
     @classmethod
-    def delete_and_block(cls, uid):
-        now = utc_now()
-        user = cls.query.filter_by(uid=uid).first()
-        user.deleted_at = now
-        user.is_blocked = True
-        std_commit()
-        return user
-
-    @classmethod
     def un_delete(cls, uid):
         user = cls.query.filter_by(uid=uid).first()
         user.deleted_at = None

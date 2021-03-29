@@ -284,7 +284,7 @@ def create_or_update_user_profile():
     _create_department_memberships(authorized_user, memberships)
 
     if delete_action is True and not authorized_user.deleted_at:
-        AuthorizedUser.delete_and_block(authorized_user.uid)
+        AuthorizedUser.delete(authorized_user.uid)
     elif delete_action is False and authorized_user.deleted_at:
         AuthorizedUser.un_delete(authorized_user.uid)
 
