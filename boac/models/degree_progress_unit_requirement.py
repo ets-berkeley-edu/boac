@@ -25,56 +25,53 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
-from sqlalchemy.dialects.postgresql import ARRAY
+from boac.models.degree_progress_template import DegreeProgressTemplate
 
 
-class DegreeProgressTemplate(Base):
-    __tablename__ = 'degree_progress_templates'
+class DegreeProgressUnitRequirement(Base):
+    __tablename__ = 'degree_progress_unit_requirements'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    advisor_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     created_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    degree_name = db.Column(db.String(255), nullable=False)
-    deleted_at = db.Column(db.DateTime, nullable=True)
-    student_sid = db.Column(db.String(80), nullable=True)
+    min_units = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    unit_requirements = db.relationship(
-        'DegreeProgressUnitRequirement',
-        back_populates='template',
-    )
+    template = db.relationship('DegreeProgressTemplate', back_populates='unit_requirements')
 
-    def __init__(self, advisor_dept_codes, created_by, degree_name, student_sid, updated_by):
-        self.advisor_dept_codes = advisor_dept_codes
+    __table_args__ = (db.UniqueConstraint(
+        'name',
+        'template_id',
+        name='degree_progress_unit_requirements_name_template_id_unique_const',
+    ),)
+
+    def __init__(self, created_by, min_units, name, template_id, updated_by):
         self.created_by = created_by
-        self.degree_name = degree_name
-        self.student_sid = student_sid
+        self.min_units = min_units
+        self.name = name
+        self.template_id = template_id
         self.updated_by = updated_by
 
     def __repr__(self):
-        return f"""<DegreeProgressTemplate id={self.id},
-                    degree_name={self.degree_name},
-                    student_sid={self.student_sid},
-                    advisor_dept_codes={self.advisor_dept_codes},
-                    deleted_at={self.deleted_at},
+        return f"""<DegreeProgressUnitRequirement id={self.id},
+                    name={self.name},
+                    min_units={self.min_units},
+                    template_id={self.template_id},
                     created_at={self.created_at},
                     created_by={self.created_by},
-                    updated_at={self.updated_at}
+                    updated_at={self.updated_at},
                     updated_by={self.updated_by}>"""
 
     @classmethod
-    def create(cls, advisor_dept_codes, created_by, degree_name, student_sid=None):
-        degree = cls(
-            advisor_dept_codes=advisor_dept_codes,
+    def create(cls, created_by, min_units, name, template_id):
+        unit_requirement = cls(
             created_by=created_by,
-            degree_name=degree_name,
-            student_sid=student_sid,
+            min_units=min_units,
+            name=name,
+            template_id=template_id,
             updated_by=created_by,
         )
-        db.session.add(degree)
+        template = DegreeProgressTemplate.find_by_id(template_id)
+        template.unit_requirements.append(unit_requirement)
         std_commit()
-        return degree
-
-    @classmethod
-    def find_by_id(cls, db_id):
-        query = cls.query.filter_by(id=db_id, deleted_at=None)
-        return query.first()
+        return unit_requirement
