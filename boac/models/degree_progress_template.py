@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
@@ -78,3 +79,11 @@ class DegreeProgressTemplate(Base):
     def find_by_id(cls, db_id):
         query = cls.query.filter_by(id=db_id, deleted_at=None)
         return query.first()
+
+    @classmethod
+    def get_master_templates(cls):
+        criterion = and_(
+            cls.student_sid == None,  # noqa: E711
+            cls.deleted_at == None,  # noqa: E711
+        )
+        return cls.query.filter(criterion).order_by(cls.created_at).all()

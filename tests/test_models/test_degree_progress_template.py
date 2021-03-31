@@ -23,35 +23,59 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
 import pytest
 
 
-coe_advisor_uid = '1133399'
+@pytest.fixture()
+def coe_advisor_id():
+    return AuthorizedUser.get_id_per_uid('1133399')
 
 
 @pytest.mark.usefixtures('db_session')
 class TestCreateDegreeProgressTemplate:
     """Degree Progress Template Creation."""
 
-    def test_create_template(self):
+    def test_create_template(self, coe_advisor_id):
         """Initializes a master template."""
         advisor_dept_codes = ['COENG']
-        coe_advisor_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         degree_name = 'Celtic Studies BA 2021'
-        degree = DegreeProgressTemplate.create(
+        template = DegreeProgressTemplate.create(
             advisor_dept_codes=advisor_dept_codes,
             created_by=coe_advisor_id,
             degree_name=degree_name,
         )
-        assert degree
-        assert degree.__repr__() == f"""<DegreeProgressTemplate id={degree.id},
+        assert template
+        assert template.__repr__() == f"""<DegreeProgressTemplate id={template.id},
                     degree_name={degree_name},
                     student_sid=None,
                     advisor_dept_codes={advisor_dept_codes},
                     deleted_at=None,
-                    created_at={degree.created_at},
+                    created_at={template.created_at},
                     created_by={coe_advisor_id},
-                    updated_at={degree.updated_at}
+                    updated_at={template.updated_at}
                     updated_by={coe_advisor_id}>"""
+
+
+@pytest.mark.usefixtures('db_session')
+class TestListDegreeProgressTemplates:
+    """Degree Progress Templates List."""
+
+    def test_no_master_templates(self):
+        """Returns empty list if no master templates are found."""
+        templates = DegreeProgressTemplate.get_master_templates()
+        assert templates == []
+
+    def test_get_master_templates(self, coe_advisor_id):
+        """Returns a list of nondeleted master templates."""
+        DegreeProgressTemplate.create(['COENG'], coe_advisor_id, 'Classical Civilizations')
+        DegreeProgressTemplate.create(['COENG'], coe_advisor_id, 'Dutch Studies')
+        deleted_template = DegreeProgressTemplate.create(['COENG'], coe_advisor_id, 'Peace & Conflict Studies')
+        deleted_template.deleted_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+        templates = DegreeProgressTemplate.get_master_templates()
+        assert templates
+        assert len(templates) == 2
