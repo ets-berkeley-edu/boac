@@ -169,6 +169,11 @@
 .min-width-100 {
   min-width: 100%;
 }
+.no-data-text {
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+}
 .no-wrap {
   white-space: nowrap;
 }

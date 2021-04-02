@@ -2,6 +2,7 @@ import cohortEditSession from '@/store/modules/cohort-edit-session'
 import context from '@/store/modules/context'
 import curatedEditSession from '@/store/modules/curated-edit-session'
 import currentUserExtras from '@/store/modules/current-user-extras'
+import degreeProgressEditSession from '@/store/modules/degree-progress-edit-session'
 import noteEditSession from '@/store/modules/note-edit-session'
 import Vue from 'vue'
 import Vuex from 'vuex'
@@ -14,6 +15,7 @@ export default new Vuex.Store({
     context,
     curatedEditSession,
     currentUserExtras,
+    degreeProgressEditSession,
     noteEditSession
   },
   strict: process.env.NODE_ENV !== 'production'

@@ -58,7 +58,6 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CreateDegree',
   mixins: [Context, Loading, Util],
-
   data: () => ({
     name: '',
     error: undefined,

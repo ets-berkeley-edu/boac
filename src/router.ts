@@ -12,6 +12,7 @@ import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CreateDegree from '@/views/CreateDegree.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
 import DegreeChecks from '@/views/DegreeChecks.vue'
+import DegreeProgressTemplate from '@/views/DegreeProgressTemplate.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
 import DropInDesk from '@/views/DropInDesk.vue'
 import FlightDeck from '@/views/FlightDeck.vue'
@@ -245,6 +246,13 @@ const router = new Router({
           component: CreateDegree,
           meta: {
             title: 'Create New Degree',
+          },
+        },
+        {
+          path: '/degree/:id',
+          component: DegreeProgressTemplate,
+          meta: {
+            title: 'Degree',
           },
         }
       ]
