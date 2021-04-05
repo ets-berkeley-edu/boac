@@ -291,6 +291,19 @@ class TestCohortById:
         assert term['enrollments'][0]['displayName'] == 'BURMESE 1A'
         assert len(term['enrollments'][0]['canvasSites']) == 1
 
+    def test_includes_cohort_member_non_current_enrollments(self, asc_advisor_login, asc_owned_cohort, client):
+        """Includes active enrollments for a non-current term if requested."""
+        cohort_id = asc_owned_cohort['id']
+        response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName&termId=2172')
+        assert response.status_code == 200
+        athlete = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
+        term = athlete['term']
+        assert term['termName'] == 'Spring 2017'
+        assert term['enrolledUnits'] == 10.0
+        assert len(term['enrollments']) == 3
+        assert term['enrollments'][0]['displayName'] == 'CLASSIC 130 LEC 001'
+        assert term['enrollments'][0]['grade'] == 'P'
+
     def test_includes_canvas_data(self, asc_advisor_login, new_undeclared_cohort):
         student_feed = new_undeclared_cohort['students'][0]
         assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]

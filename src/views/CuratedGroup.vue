@@ -6,7 +6,7 @@
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div class="cohort-column-results">
-          <div v-if="totalStudentCount > 1" class="align-items-start d-flex justify-content-between mt-3">
+          <div class="align-items-start d-flex justify-content-end mt-3">
             <div v-if="totalStudentCount > itemsPerPage">
               <Pagination
                 :click-handler="onClickPagination"
@@ -16,7 +16,10 @@
                 :total-rows="totalStudentCount"
               />
             </div>
-            <div>
+            <div class="mr-3">
+              <TermSelector />
+            </div>
+            <div v-if="totalStudentCount > 1">
               <SortBy />
             </div>
           </div>
@@ -31,6 +34,7 @@
                 :student="student"
                 :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                 :sorted-by="preferences.sortBy"
+                :term-id="preferences.termId"
                 :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                 class="list-group-item student-list-item"
               />
@@ -69,6 +73,7 @@ import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
+import TermSelector from '@/components/student/TermSelector'
 import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import Util from '@/mixins/Util'
@@ -81,7 +86,8 @@ export default {
     Pagination,
     SortBy,
     Spinner,
-    StudentRow
+    StudentRow,
+    TermSelector
   },
   mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Scrollable, Util],
   props: {
@@ -118,6 +124,15 @@ export default {
         this.goToPage(1).then(() => {
           this.loaded(this.getLoadedAlert())
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `sort by ${sortBy}`)
+        })
+      }
+    })
+    this.$eventHub.on('termId-user-preference-change', termId => {
+      if (!this.loading) {
+        this.loadingStart()
+        this.goToPage(1).then(() => {
+          this.loaded(this.getLoadedAlert())
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Term id changed to ${termId}`)
         })
       }
     })

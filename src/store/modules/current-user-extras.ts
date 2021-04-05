@@ -10,7 +10,8 @@ const state = {
   myCuratedGroups: undefined,
   preferences: {
     admitSortBy: 'last_name',
-    sortBy: 'last_name'
+    sortBy: 'last_name',
+    termId: undefined
   }
 }
 

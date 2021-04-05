@@ -80,7 +80,10 @@ export default {
       this.$eventHub.emit('cohort-apply-filters')
       this.isPerforming = 'search'
       this.alertScreenReader('Searching for students')
-      this.applyFilters(this.$_.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')).then(() => {
+      this.applyFilters(
+        this.$_.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        this.$_.get(this.preferences, 'termId')
+      ).then(() => {
         this.putFocusNextTick('cohort-results-header')
         this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')

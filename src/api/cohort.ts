@@ -63,9 +63,10 @@ export function getCohort(
   includeStudents = true,
   limit: number = 50,
   offset: number = 0,
-  orderBy = 'lastName'
+  orderBy = 'lastName',
+  termId: string
 ) {
-  const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}`
+  const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
   return axios
     .get(url)
     .then(response => response.data, () => null)
@@ -99,6 +100,7 @@ export function getStudentsPerFilters(
   domain: string,
   filters: any[],
   orderBy: string,
+  termId: string,
   offset: number,
   limit: number
 ) {
@@ -107,6 +109,7 @@ export function getStudentsPerFilters(
       domain,
       filters,
       orderBy,
+      termId,
       offset,
       limit
     })

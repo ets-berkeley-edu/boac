@@ -59,11 +59,13 @@ export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSele
 export function getCuratedGroup(
   id: number,
   orderBy: string,
+  termId: string,
   offset: number,
   limit: number
 ) {
+  const url = `${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit${limit}`
   return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&offset=${offset}&limit${limit}`)
+    .get(url)
     .then(response => response.data, () => null)
 }
 

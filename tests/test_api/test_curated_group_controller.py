@@ -92,14 +92,15 @@ class TestGetCuratedGroup:
 
     @staticmethod
     def _api_get_curated_group(
-            client,
-            curated_group_id,
-            order_by='last_name',
-            offset=0,
-            limit=50,
-            expected_status_code=200,
+        client,
+        curated_group_id,
+        order_by='last_name',
+        term_id='2178',
+        offset=0,
+        limit=50,
+        expected_status_code=200,
     ):
-        response = client.get(f'/api/curated_group/{curated_group_id}?offset={offset}&limit={limit}&orderBy={order_by}')
+        response = client.get(f'/api/curated_group/{curated_group_id}?offset={offset}&limit={limit}&orderBy={order_by}&termId={term_id}')
         assert response.status_code == expected_status_code
         return response.json
 
@@ -305,6 +306,24 @@ class TestGetCuratedGroup:
         group = api_curated_group_create(client, name='The Awkward Age', sids=['5678901234'])
         student_feed = self._api_get_curated_group(client, group['id'])['students'][0]
         assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]
+
+    def test_curated_group_detail_includes_current_enrollments(self, asc_advisor, asc_curated_groups, client):
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='first_name')
+        student_term = api_json['students'][0]['term']
+        assert student_term['termName'] == 'Fall 2017'
+        assert student_term['enrolledUnits'] == 12.5
+        assert len(student_term['enrollments']) == 5
+        assert student_term['enrollments'][0]['displayName'] == 'BURMESE 1A'
+        assert len(student_term['enrollments'][0]['canvasSites']) == 1
+
+    def test_curated_group_detail_includes_past_enrollments(self, asc_advisor, asc_curated_groups, client):
+        api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='first_name', term_id='2172')
+        student_term = api_json['students'][0]['term']
+        assert student_term['termName'] == 'Spring 2017'
+        assert student_term['enrolledUnits'] == 10.0
+        assert len(student_term['enrollments']) == 3
+        assert student_term['enrollments'][0]['displayName'] == 'CLASSIC 130 LEC 001'
+        assert student_term['enrollments'][0]['grade'] == 'P'
 
     def test_curated_group_detail_suppresses_canvas_data_when_unauthorized(self, client, no_canvas_data_access_advisor):
         group = api_curated_group_create(client, name='The Awkward Age', sids=['5678901234'])

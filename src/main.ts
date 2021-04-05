@@ -78,6 +78,10 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     Vue.prototype.$config = response.data
     Vue.prototype.$config.apiBaseUrl = apiBaseUrl
     Vue.prototype.$config.isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
+    store.commit('currentUserExtras/setUserPreference', {
+      key: 'termId',
+      value: `${Vue.prototype.$config.currentEnrollmentTermId}`
+    })
 
     // Mount BOA
     new Vue({

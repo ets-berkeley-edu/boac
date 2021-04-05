@@ -198,7 +198,7 @@
     </div>
     <div class="student-column">
       <div :id="`row-${rowIndex}-student-enrolled-units`" class="student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
-      <div class="student-text">Units in Progress</div>
+      <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
       <!--
       TODO: Until SISRP-48560 is resolved we will suppress unitsMin and unitsMax data in BOA.
       <div v-if="get(student, 'currentTerm.unitsMin')">
@@ -211,20 +211,20 @@
       </div>
       -->
       <div
-        v-if="student.cumulativeUnits"
+        v-if="student.cumulativeUnits && isCurrentTerm"
         :id="`row-${rowIndex}-student-cumulative-units`"
         class="student-gpa"
       >
         {{ student.cumulativeUnits }}
       </div>
       <div
-        v-if="!student.cumulativeUnits"
+        v-if="!student.cumulativeUnits && isCurrentTerm"
         :id="`row-${rowIndex}-student-cumulative-units`"
         class="student-gpa"
       >
         --<span class="sr-only">No data</span>
       </div>
-      <div class="student-text">Units Completed</div>
+      <div v-if="isCurrentTerm" class="student-text">Units Completed</div>
     </div>
     <div class="cohort-course-activity-wrapper">
       <table class="cohort-course-activity-table">
@@ -295,7 +295,7 @@
         </tr>
         <tr v-if="!termEnrollments.length">
           <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
-            No {{ termNameForSisId($config.currentEnrollmentTermId) }} enrollments
+            No {{ termNameForSisId(termId) }} enrollments
           </td>
           <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
             <span class="sr-only">No data</span>&mdash;
@@ -361,6 +361,10 @@ export default {
     student: {
       required: true,
       type: Object
+    },
+    termId: {
+      required: true,
+      type: String
     }
   },
   data: () => ({
@@ -381,6 +385,9 @@ export default {
       } else {
         return []
       }
+    },
+    isCurrentTerm() {
+      return this.termId === `${this.$config.currentEnrollmentTermId}`
     }
   },
   created() {

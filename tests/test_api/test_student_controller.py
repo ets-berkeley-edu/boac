@@ -123,7 +123,6 @@ class TestStudent:
             enrollment_terms = student['enrollmentTerms']
             assert len(enrollment_terms) == 3
             assert [t['termName'] for t in enrollment_terms] == ['Summer 2017', 'Spring 2017', 'Fall 2017']
-            assert student['hasCurrentTermEnrollments'] is False
 
     def test_user_feed_authenticated(self, client, coe_advisor_login):
         """Returns a well-formed response if authenticated."""
@@ -135,7 +134,6 @@ class TestStudent:
             assert student['sid'] == sid
             assert student['uid'] == uid
             assert student['canvasUserId'] == '9000100'
-            assert student['hasCurrentTermEnrollments'] is True
 
             assert len(student['enrollmentTerms']) > 0
             for term in student['enrollmentTerms']:
