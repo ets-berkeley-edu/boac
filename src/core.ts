@@ -10,13 +10,9 @@ export default {
   async initializeCurrentUser() {
     if (Vue.prototype.$currentUser.isAuthenticated) {
       if (auth.isAdvisor(Vue.prototype.$currentUser) || auth.isDirector(Vue.prototype.$currentUser) || Vue.prototype.$currentUser.isAdmin) {
-        const degreeCheckEnabled = Vue.prototype.$config.featureFlagDegreeCheck && (
-          Vue.prototype.$currentUser.isAdmin || auth.isCoe(Vue.prototype.$currentUser)
-        )
         const includeAdmits = Vue.prototype.$config.featureFlagAdmittedStudents && (
           Vue.prototype.$currentUser.isAdmin || auth.isCE3(Vue.prototype.$currentUser)
         )
-        store.commit('currentUserExtras/setDegreeCheckEnabled', degreeCheckEnabled)
         store.commit('currentUserExtras/setIncludeAdmits', includeAdmits)
         store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop)
         store.dispatch('currentUserExtras/loadMyCuratedGroups').then(_.noop)

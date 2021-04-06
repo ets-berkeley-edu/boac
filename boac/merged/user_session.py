@@ -172,19 +172,22 @@ class UserSession(UserMixin):
             same_day_advisor_status = [
                 d.to_api_json() for d in user.same_day_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']
             ]
+
+        degree_progress_permission = user and user.degree_progress_permission if app.config['FEATURE_FLAG_DEGREE_CHECK'] else None
+        is_admin = user and user.is_admin
         return {
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
                 'canAccessAdvisingData': user and user.can_access_advising_data,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
-                'canEditDegreeProgress': user and user.degree_progress_permission == 'read_write',
-                'canReadDegreeProgress': user and user.degree_progress_permission in ['read', 'read_write'],
+                'canEditDegreeProgress': degree_progress_permission == 'read_write' or is_admin,
+                'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'] or is_admin,
                 'departments': departments,
                 'dropInAdvisorStatus': drop_in_advisor_status,
                 'inDemoMode': user and user.in_demo_mode,
                 'isActive': is_active,
-                'isAdmin': user and user.is_admin,
+                'isAdmin': is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
                 'sameDayAdvisorStatus': same_day_advisor_status,
