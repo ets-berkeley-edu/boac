@@ -9,7 +9,7 @@ import auth from './auth'
 import Cohort from '@/views/Cohort.vue'
 import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
-import CreateDegree from '@/views/CreateDegree.vue'
+import CreateDegreeTemplate from '@/views/CreateDegreeTemplate.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
 import DegreeChecks from '@/views/DegreeChecks.vue'
 import DegreeProgressTemplate from '@/views/DegreeProgressTemplate.vue'
@@ -243,7 +243,7 @@ const router = new Router({
         },
         {
           path: '/degree/new',
-          component: CreateDegree,
+          component: CreateDegreeTemplate,
           meta: {
             title: 'Create New Degree',
           },
