@@ -233,12 +233,16 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             continue
         if not profile.get('name'):
             profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()
+
+        degree_progress_permission = user.degree_progress_permission if app.config['FEATURE_FLAG_DEGREE_CHECK'] else None
         profile.update({
             'id': user.id,
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
             'canAccessAdvisingData': user.can_access_advising_data,
             'canAccessCanvasData': user.can_access_canvas_data,
+            'canEditDegreeProgress': degree_progress_permission == 'read_write' or user.is_admin,
+            'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'] or user.is_admin,
             'deletedAt': _isoformat(user.deleted_at),
             'departments': [],
         })

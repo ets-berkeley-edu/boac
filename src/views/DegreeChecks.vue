@@ -6,6 +6,7 @@
         Managing Degree Checks
       </h1>
       <router-link
+        v-if="$currentUser.canEditDegreeProgress"
         id="degree-check-create-link"
         class="d-flex flex-row-reverse justify-content-end pb-3"
         to="degree/new"
@@ -52,6 +53,7 @@
             </b-btn>
             <span class="separator">|</span>
             <b-btn
+              v-if="$currentUser.canEditDegreeProgress"
               :id="`degree-check-${row.index}-rename-btn`"
               class="p-1"
               variant="link"
@@ -61,6 +63,7 @@
             </b-btn>
             <span class="separator">|</span>
             <b-btn
+              v-if="$currentUser.canEditDegreeProgress"
               :id="`degree-check-${row.index}-copy-btn`"
               class="p-1"
               variant="link"
@@ -70,6 +73,7 @@
             </b-btn>
             <span class="separator">|</span>
             <b-btn
+              v-if="$currentUser.canEditDegreeProgress"
               :id="`degree-check-${row.index}-delete-btn`"
               class="p-1"
               variant="link"
@@ -102,12 +106,7 @@ export default {
     ]
   }),
   mounted() {
-    if (this.$config.featureFlagDegreeCheck) {
-      // TODO: make an API call (BOAC-3935)
-      this.loaded('Degree Checks loaded')
-    } else {
-      this.$router.push({path: '/404'})
-    }
+    this.loaded('Degree Checks loaded')
   },
 }
 </script>

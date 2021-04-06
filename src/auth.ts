@@ -87,14 +87,12 @@ export default {
       $_goToLogin(to, next)
     }
   },
-  requiresCoe: (to: any, from: any, next: any) => {
+  requiresDegreeProgressPerm: (to: any, from: any, next: any) => {
     const currentUser = Vue.prototype.$currentUser
-    if (currentUser.isAuthenticated) {
-      if (currentUser.isAdmin || isCoe(currentUser)) {
-        next()
-      } else {
-        next({path: '/404'})
-      }
+    if (currentUser.canReadDegreeProgress) {
+      next()
+    } else if (currentUser.isAuthenticated) {
+      next({path: '/404'})
     } else {
       $_goToLogin(to, next)
     }

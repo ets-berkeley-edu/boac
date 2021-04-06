@@ -1,13 +1,13 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <h1>Degree Builder</h1>
-    <span class="sr-only">Degree Builder</span>
     <div id="create-degree-description">
-      <span>To begin the degree check creation process, input a name below and click enter. After clicking the create button, you will be prompted to enter the requirements.</span>
+      To begin the degree check creation process, input a name below and click enter.
+      After clicking the create button, you will be prompted to enter the requirements.
     </div>
 
     <form class="mt-3" @submit.prevent="createDegreeTemplate">
-      <label class="label-of-create-degree-input" for="create-degree-input">Degree Name</label>
+      <label id="label-of-create-degree-input" class="font-weight-bold font-size-16" for="create-degree-input">Degree Name</label>
       <span class="sr-only">Degree Name</span>
       <b-form-input
         id="create-degree-input"
@@ -62,12 +62,15 @@ export default {
   },
   data: () => ({
     error: undefined,
-    degreeTemplateName: '',
+    degreeTemplateName: undefined
   }),
   watch: {
     degreeTemplateName() {
       this.error = undefined
     }
+  },
+  mounted() {
+    this.loaded('Create degree page loaded')
   },
   methods: {
     reset() {
@@ -84,10 +87,3 @@ export default {
   },
 }
 </script>
-
-<style>
-.label-of-create-degree-input {
-  font-weight: bold;
-  font-size: 16px;
-}
-</style>

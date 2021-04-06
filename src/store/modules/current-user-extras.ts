@@ -4,7 +4,6 @@ import {getMyCohorts} from '@/api/cohort'
 import {getMyCuratedGroups} from '@/api/curated'
 
 const state = {
-  degreeCheckEnabled: false,
   includeAdmits: false,
   myAdmitCohorts: undefined,
   myCohorts: undefined,
@@ -16,7 +15,6 @@ const state = {
 }
 
 const getters = {
-  degreeCheckEnabled: (state: any): any => state.degreeCheckEnabled,
   includeAdmits: (state: any): any => state.includeAdmits,
   myAdmitCohorts: (state: any): any => state.myAdmitCohorts,
   myCohorts: (state: any): any => state.myCohorts,
@@ -69,7 +67,6 @@ const mutations = {
   loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
   loadMyAdmitCohorts: (state: any, cohorts: any[]) => state.myAdmitCohorts = cohorts,
   loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
-  setDegreeCheckEnabled: (state: any, degreeCheckEnabled: Boolean) => state.degreeCheckEnabled = degreeCheckEnabled,
   setDropInStatus: (state: any, {deptCode, available, status}) => {
     const currentUser = Vue.prototype.$currentUser
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()})

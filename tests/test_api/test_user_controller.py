@@ -65,15 +65,16 @@ class TestUserProfile:
 
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
-        fake_auth.login(l_s_college_drop_in_advisor_uid)
-        api_json = self._api_my_profile(client)
-        assert api_json['isAuthenticated'] is True
-        assert api_json['uid'] == l_s_college_drop_in_advisor_uid
-        assert 'csid' in api_json
-        assert 'firstName' in api_json
-        assert 'lastName' in api_json
-        assert api_json['canEditDegreeProgress'] is True
-        assert api_json['canReadDegreeProgress'] is True
+        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', True):
+            fake_auth.login(l_s_college_drop_in_advisor_uid)
+            api_json = self._api_my_profile(client)
+            assert api_json['isAuthenticated'] is True
+            assert api_json['uid'] == l_s_college_drop_in_advisor_uid
+            assert 'csid' in api_json
+            assert 'firstName' in api_json
+            assert 'lastName' in api_json
+            assert api_json['canEditDegreeProgress'] is True
+            assert api_json['canReadDegreeProgress'] is True
 
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
@@ -84,19 +85,20 @@ class TestUserProfile:
 
     def test_user_with_scheduler_role(self, client, fake_auth):
         """Returns COE scheduler profile."""
-        fake_auth.login(coe_scheduler_uid)
-        api_json = self._api_my_profile(client)
-        assert api_json['isAdmin'] is False
-        assert api_json['canAccessAdvisingData'] is True
-        assert api_json['canAccessCanvasData'] is False
-        assert api_json['canEditDegreeProgress'] is False
-        assert api_json['canReadDegreeProgress'] is True
-        assert not api_json['dropInAdvisorStatus']
-        departments = api_json['departments']
-        assert len(departments) == 1
-        assert departments[0]['code'] == 'COENG'
-        assert departments[0]['name'] == 'College of Engineering'
-        assert departments[0]['role'] == 'scheduler'
+        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', True):
+            fake_auth.login(coe_scheduler_uid)
+            api_json = self._api_my_profile(client)
+            assert api_json['isAdmin'] is False
+            assert api_json['canAccessAdvisingData'] is True
+            assert api_json['canAccessCanvasData'] is False
+            assert api_json['canEditDegreeProgress'] is False
+            assert api_json['canReadDegreeProgress'] is True
+            assert not api_json['dropInAdvisorStatus']
+            departments = api_json['departments']
+            assert len(departments) == 1
+            assert departments[0]['code'] == 'COENG'
+            assert departments[0]['name'] == 'College of Engineering'
+            assert departments[0]['role'] == 'scheduler'
 
     def test_non_drop_in_dept_user(self, client, fake_auth):
         """Excludes drop-in status when dept is not configured for drop-in advising."""

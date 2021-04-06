@@ -232,7 +232,7 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresCoe,
+      beforeEnter: auth.requiresDegreeProgressPerm,
       children: [
         {
           path: '/degrees',

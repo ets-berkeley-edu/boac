@@ -45,7 +45,7 @@
         Profile
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="degreeCheckEnabled"
+        v-if="$currentUser.canEditDegreeProgress || $currentUser.canReadDegreeProgress"
         id="header-menu-degree-check"
         class="nav-link-color text-decoration-none"
         to="/degrees"
