@@ -28,8 +28,15 @@ from boac.lib.util import utc_now, vacuum_whitespace
 from boac.models.base import Base
 from flask import current_app as app
 from sqlalchemy import and_, text
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.orm import deferred
+
+generic_permission_type_enum = ENUM(
+    'read',
+    'read_write',
+    name='generic_permission_types',
+    create_type=False,
+)
 
 
 class AuthorizedUser(Base):
@@ -44,6 +51,7 @@ class AuthorizedUser(Base):
     can_access_advising_data = db.Column(db.Boolean, nullable=False)
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     created_by = db.Column(db.String(255), nullable=False)
+    degree_progress_permission = db.Column(generic_permission_type_enum)
     deleted_at = db.Column(db.DateTime, nullable=True)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
@@ -88,6 +96,7 @@ class AuthorizedUser(Base):
             in_demo_mode=False,
             can_access_advising_data=True,
             can_access_canvas_data=True,
+            degree_progress_permission=None,
             search_history=(),
     ):
         self.uid = uid
@@ -97,6 +106,7 @@ class AuthorizedUser(Base):
         self.in_demo_mode = in_demo_mode
         self.can_access_advising_data = can_access_advising_data
         self.can_access_canvas_data = can_access_canvas_data
+        self.degree_progress_permission = degree_progress_permission
         self.search_history = search_history
 
     def __repr__(self):
@@ -105,6 +115,7 @@ class AuthorizedUser(Base):
                     in_demo_mode={self.in_demo_mode},
                     can_access_advising_data={self.can_access_advising_data},
                     can_access_canvas_data={self.can_access_canvas_data},
+                    degree_progress_permission={self.degree_progress_permission},
                     search_history={self.search_history},
                     created={self.created_at},
                     created_by={self.created_by},
@@ -137,6 +148,7 @@ class AuthorizedUser(Base):
             is_blocked=False,
             can_access_advising_data=True,
             can_access_canvas_data=True,
+            degree_progress_permission=None,
     ):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
@@ -149,6 +161,7 @@ class AuthorizedUser(Base):
                 existing_user.can_access_advising_data = can_access_advising_data
                 existing_user.can_access_canvas_data = can_access_canvas_data
                 existing_user.created_by = created_by
+                existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.deleted_at = None
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
@@ -157,6 +170,8 @@ class AuthorizedUser(Base):
                     existing_user.can_access_advising_data = True
                 if can_access_canvas_data and not existing_user.can_access_canvas_data:
                     existing_user.can_access_canvas_data = True
+                if degree_progress_permission is not None:
+                    existing_user.degree_progress_permission = degree_progress_permission
                 if is_admin and not existing_user.is_admin:
                     existing_user.is_admin = True
                 if is_blocked and not existing_user.is_blocked:
@@ -172,6 +187,7 @@ class AuthorizedUser(Base):
                 in_demo_mode=False,
                 can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
+                degree_progress_permission=degree_progress_permission,
             )
             db.session.add(user)
         std_commit()
@@ -300,6 +316,7 @@ class AuthorizedUser(Base):
         user_id,
         can_access_advising_data=False,
         can_access_canvas_data=False,
+        degree_progress_permission=None,
         is_admin=False,
         is_blocked=False,
         include_deleted=False,
@@ -307,6 +324,7 @@ class AuthorizedUser(Base):
         user = AuthorizedUser.find_by_id(user_id, include_deleted)
         user.can_access_advising_data = can_access_advising_data
         user.can_access_canvas_data = can_access_canvas_data
+        user.degree_progress_permission = degree_progress_permission
         user.is_admin = is_admin
         user.is_blocked = is_blocked
         std_commit()

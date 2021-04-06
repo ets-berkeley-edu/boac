@@ -60,16 +60,20 @@ class TestUserProfile:
         api_json = self._api_my_profile(client)
         assert api_json['isAuthenticated'] is False
         assert not api_json['uid']
+        assert api_json['canEditDegreeProgress'] is None
+        assert api_json['canReadDegreeProgress'] is None
 
-    def test_includes_canvas_profile_if_available(self, client, fake_auth):
+    def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
-        fake_auth.login(admin_uid)
+        fake_auth.login(l_s_college_drop_in_advisor_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isAuthenticated'] is True
-        assert api_json['uid'] == admin_uid
+        assert api_json['uid'] == l_s_college_drop_in_advisor_uid
         assert 'csid' in api_json
         assert 'firstName' in api_json
         assert 'lastName' in api_json
+        assert api_json['canEditDegreeProgress'] is True
+        assert api_json['canReadDegreeProgress'] is True
 
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
@@ -85,6 +89,8 @@ class TestUserProfile:
         assert api_json['isAdmin'] is False
         assert api_json['canAccessAdvisingData'] is True
         assert api_json['canAccessCanvasData'] is False
+        assert api_json['canEditDegreeProgress'] is False
+        assert api_json['canReadDegreeProgress'] is True
         assert not api_json['dropInAdvisorStatus']
         departments = api_json['departments']
         assert len(departments) == 1
@@ -115,9 +121,12 @@ class TestUserProfile:
     def test_other_user_profile(self, client, fake_auth):
         fake_auth.login(admin_uid)
         response = client.get('/api/profile/6446')
-        assert response.json['uid'] == '6446'
-        assert 'firstName' in response.json
-        assert 'lastName' in response.json
+        api_json = response.json
+        assert api_json['uid'] == '6446'
+        assert 'firstName' in api_json
+        assert 'lastName' in api_json
+        assert 'canEditDegreeProgress' not in api_json
+        assert 'canReadDegreeProgress' not in api_json
 
     def test_other_user_profile_not_found(self, client, fake_auth):
         fake_auth.login(admin_uid)

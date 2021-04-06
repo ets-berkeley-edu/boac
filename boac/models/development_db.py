@@ -112,6 +112,7 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'degreeProgressPermission': 'read_write',
         'firstName': 'Milicent',
         'lastName': 'Balthazar',
     },
@@ -198,6 +199,7 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': False,
+        'degreeProgressPermission': 'read',
     },
     {
         'uid': '1015674',
@@ -505,6 +507,7 @@ def _create_users():
                 in_demo_mode=test_user['inDemoMode'],
                 can_access_advising_data=test_user['canAccessAdvisingData'],
                 can_access_canvas_data=test_user['canAccessCanvasData'],
+                degree_progress_permission=test_user.get('degreeProgressPermission'),
                 search_history=test_user.get('searchHistory', []),
             )
             if test_user.get('deleted'):

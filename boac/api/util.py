@@ -127,6 +127,32 @@ def ce3_required(func):
     return _ce3_required
 
 
+def can_edit_degree_progress(func):
+    @wraps(func)
+    def _qualifies(*args, **kw):
+        is_authorized = app.config['FEATURE_FLAG_DEGREE_CHECK'] and current_user.is_authenticated \
+            and current_user.can_edit_degree_progress
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _qualifies
+
+
+def can_read_degree_progress(func):
+    @wraps(func)
+    def _qualifies(*args, **kw):
+        is_authorized = app.config['FEATURE_FLAG_DEGREE_CHECK'] and current_user.is_authenticated \
+            and current_user.can_read_degree_progress
+        if is_authorized or _api_key_ok():
+            return func(*args, **kw)
+        else:
+            app.logger.warning(f'Unauthorized request to {request.path}')
+            return app.login_manager.unauthorized()
+    return _qualifies
+
+
 def director_advising_data_access_required(func):
     @wraps(func)
     def _director_advising_data_access_required(*args, **kw):

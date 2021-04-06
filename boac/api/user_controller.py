@@ -489,6 +489,7 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
     user_id = profile.get('id')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
+    degree_progress_permission = profile.get('degreeProgressPermission')
     is_admin = to_bool_or_none(profile.get('isAdmin'))
     is_blocked = to_bool_or_none(profile.get('isBlocked'))
     if user_id:
@@ -496,6 +497,7 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
             user_id=user_id,
             can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
+            degree_progress_permission=degree_progress_permission,
             is_admin=is_admin,
             is_blocked=is_blocked,
             include_deleted=include_deleted,
@@ -514,6 +516,7 @@ def _update_or_create_authorized_user(profile, include_deleted=False):
                 is_blocked=is_blocked,
                 can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
+                degree_progress_permission=degree_progress_permission,
             )
         else:
             raise errors.BadRequestError('Invalid UID')

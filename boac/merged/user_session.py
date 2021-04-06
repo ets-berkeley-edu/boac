@@ -46,12 +46,39 @@ class UserSession(UserMixin):
         else:
             self.api_json = self._get_api_json()
 
-    def flush_cached(self):
-        clear(f'boa_user_session_{self.user_id}')
+    @property
+    def can_access_advising_data(self):
+        return self.api_json['canAccessAdvisingData']
+
+    @property
+    def can_access_canvas_data(self):
+        return self.api_json['canAccessCanvasData']
+
+    @property
+    def can_edit_degree_progress(self):
+        return self.api_json['canEditDegreeProgress']
+
+    @property
+    def can_read_degree_progress(self):
+        return self.api_json['canReadDegreeProgress']
+
+    @property
+    def departments(self):
+        return self.api_json['departments']
+
+    @property
+    def drop_in_advisor_departments(self):
+        return self.api_json['dropInAdvisorStatus']
 
     @classmethod
     def flush_cache_for_id(cls, user_id):
         clear(f'boa_user_session_{user_id}')
+
+    def flush_cached(self):
+        clear(f'boa_user_session_{self.user_id}')
+
+    def get_csid(self):
+        return self.api_json.get('csid')
 
     def get_id(self):
         return self.user_id
@@ -59,20 +86,25 @@ class UserSession(UserMixin):
     def get_uid(self):
         return self.api_json['uid']
 
-    def get_csid(self):
-        return self.api_json.get('csid')
+    @property
+    def in_demo_mode(self):
+        return self.api_json['inDemoMode']
 
     @property
     def is_active(self):
         return self.api_json['isActive']
 
     @property
-    def is_authenticated(self):
-        return self.api_json['isAuthenticated']
+    def is_admin(self):
+        return self.api_json['isAdmin']
 
     @property
     def is_anonymous(self):
         return not self.api_json['isAnonymous']
+
+    @property
+    def is_authenticated(self):
+        return self.api_json['isAuthenticated']
 
     @property
     def is_drop_in_advisor(self):
@@ -88,41 +120,17 @@ class UserSession(UserMixin):
         else:
             return False
 
-    @property
-    def departments(self):
-        return self.api_json['departments']
-
-    @property
-    def drop_in_advisor_departments(self):
-        return self.api_json['dropInAdvisorStatus']
+    @classmethod
+    @stow('boa_user_session_{user_id}')
+    def load_user(cls, user_id):
+        return cls._get_api_json(user=AuthorizedUser.find_by_id(user_id))
 
     @property
     def same_day_advisor_departments(self):
         return self.api_json['sameDayAdvisorStatus']
 
-    @property
-    def is_admin(self):
-        return self.api_json['isAdmin']
-
-    @property
-    def in_demo_mode(self):
-        return self.api_json['inDemoMode']
-
-    @property
-    def can_access_advising_data(self):
-        return self.api_json['canAccessAdvisingData']
-
-    @property
-    def can_access_canvas_data(self):
-        return self.api_json['canAccessCanvasData']
-
     def to_api_json(self):
         return self.api_json
-
-    @classmethod
-    @stow('boa_user_session_{user_id}')
-    def load_user(cls, user_id):
-        return cls._get_api_json(user=AuthorizedUser.find_by_id(user_id))
 
     @classmethod
     def _get_api_json(cls, user=None):
@@ -168,16 +176,18 @@ class UserSession(UserMixin):
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
+                'canAccessAdvisingData': user and user.can_access_advising_data,
+                'canAccessCanvasData': user and user.can_access_canvas_data,
+                'canEditDegreeProgress': user and user.degree_progress_permission == 'read_write',
+                'canReadDegreeProgress': user and user.degree_progress_permission in ['read', 'read_write'],
                 'departments': departments,
                 'dropInAdvisorStatus': drop_in_advisor_status,
-                'sameDayAdvisorStatus': same_day_advisor_status,
+                'inDemoMode': user and user.in_demo_mode,
                 'isActive': is_active,
                 'isAdmin': user and user.is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
-                'inDemoMode': user and user.in_demo_mode,
-                'canAccessAdvisingData': user and user.can_access_advising_data,
-                'canAccessCanvasData': user and user.can_access_canvas_data,
+                'sameDayAdvisorStatus': same_day_advisor_status,
                 'uid': user and user.uid,
             },
         }

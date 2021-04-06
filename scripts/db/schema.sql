@@ -250,19 +250,24 @@ CREATE INDEX appointments_read_viewer_id_idx ON appointments_read USING btree (v
 
 --
 
+CREATE TYPE generic_permission_types AS ENUM ('read', 'read_write');
+
+--
+
 CREATE TABLE authorized_users (
-    id integer NOT NULL,
-    uid character varying(255) NOT NULL,
-    is_admin boolean,
-    in_demo_mode boolean DEFAULT false NOT NULL,
     can_access_advising_data boolean DEFAULT true NOT NULL,
     can_access_canvas_data boolean DEFAULT true NOT NULL,
-    search_history CHARACTER VARYING[],
     created_at timestamp with time zone NOT NULL,
     created_by character varying(255) NOT NULL,
-    updated_at timestamp with time zone NOT NULL,
+    degree_progress_permission generic_permission_types,
     deleted_at timestamp with time zone,
-    is_blocked boolean DEFAULT false NOT NULL
+    id integer NOT NULL,
+    in_demo_mode boolean DEFAULT false NOT NULL,
+    is_admin boolean,
+    is_blocked boolean DEFAULT false NOT NULL,
+    search_history CHARACTER VARYING[],
+    uid character varying(255) NOT NULL,
+    updated_at timestamp with time zone NOT NULL
 );
 ALTER TABLE authorized_users OWNER TO boac;
 CREATE SEQUENCE authorized_users_id_seq
