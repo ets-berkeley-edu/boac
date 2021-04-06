@@ -33,11 +33,11 @@ class TestUniversityDept:
         """Aggregates role and privilege data from the loch for each of its members."""
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         advisors = dept_coe.memberships_from_loch()
-        assert len(advisors) == 5
+        assert len(advisors)
         uids = [a['uid'] for a in advisors]
         advisors_by_uid = {uid: [a for a in advisors if a['uid'] == uid] for uid in uids}
-        assert advisors_by_uid['13'] == [{'uid': '13', 'can_access_advising_data': True, 'can_access_canvas_data': False}]
-        assert advisors_by_uid['90412'] == [{'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
-        assert advisors_by_uid['1022796'] == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': False}]
-        assert advisors_by_uid['1133399'] == [{'uid': '1133399', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
-        assert advisors_by_uid['211159'] == [{'uid': '211159', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
+        assert advisors_by_uid.get('13') == [{'uid': '13', 'can_access_advising_data': True, 'can_access_canvas_data': False}]
+        assert advisors_by_uid.get('90412') == [{'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
+        assert advisors_by_uid.get('1022796') == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': False}]
+        assert advisors_by_uid.get('1133399') == [{'uid': '1133399', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
+        assert advisors_by_uid.get('211159') == [{'uid': '211159', 'can_access_advising_data': True, 'can_access_canvas_data': True}]

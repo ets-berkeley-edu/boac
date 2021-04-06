@@ -37,7 +37,7 @@ class TestDataLoch:
     def test_get_advisor_uids_for_affiliations(self, app):
         """Returns one or more rows for each advisor in the program."""
         advisors = data_loch.get_advisor_uids_for_affiliations('UCOE', None)
-        assert len(advisors) == 6
+        assert len(advisors) == 7
 
         uids = [a['uid'] for a in advisors]
         advisors_by_uid = {uid: [a for a in advisors if a['uid'] == uid] for uid in uids}

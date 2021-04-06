@@ -161,7 +161,8 @@ class AuthorizedUser(Base):
                 existing_user.can_access_advising_data = can_access_advising_data
                 existing_user.can_access_canvas_data = can_access_canvas_data
                 existing_user.created_by = created_by
-                existing_user.degree_progress_permission = degree_progress_permission
+                if not existing_user.degree_progress_permission:
+                    existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.deleted_at = None
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
@@ -170,7 +171,7 @@ class AuthorizedUser(Base):
                     existing_user.can_access_advising_data = True
                 if can_access_canvas_data and not existing_user.can_access_canvas_data:
                     existing_user.can_access_canvas_data = True
-                if degree_progress_permission is not None:
+                if not existing_user.degree_progress_permission:
                     existing_user.degree_progress_permission = degree_progress_permission
                 if is_admin and not existing_user.is_admin:
                     existing_user.is_admin = True

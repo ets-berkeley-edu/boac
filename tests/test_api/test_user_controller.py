@@ -66,10 +66,10 @@ class TestUserProfile:
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
         with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', True):
-            fake_auth.login(l_s_college_drop_in_advisor_uid)
+            fake_auth.login(coe_advisor_uid)
             api_json = self._api_my_profile(client)
             assert api_json['isAuthenticated'] is True
-            assert api_json['uid'] == l_s_college_drop_in_advisor_uid
+            assert api_json['uid'] == coe_advisor_uid
             assert 'csid' in api_json
             assert 'firstName' in api_json
             assert 'lastName' in api_json

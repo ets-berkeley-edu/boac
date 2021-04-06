@@ -112,7 +112,6 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
-        'degreeProgressPermission': 'read_write',
         'firstName': 'Milicent',
         'lastName': 'Balthazar',
     },
@@ -163,6 +162,7 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'degreeProgressPermission': 'read_write',
         'firstName': 'Joni',
         'lastName': 'Mitchell',
     },
@@ -191,6 +191,7 @@ _test_users = [
         'inDemoMode': False,
         'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
+        'degreeProgressPermission': 'read_write',
     },
     {
         'uid': '6972201',
@@ -317,7 +318,7 @@ _university_depts = {
                 'automate_membership': True,
             },
             {
-                'uid': '13',
+                'uid': no_calnet_record_for_uid,
                 'role': 'advisor',
                 'isDropInAdvisor': False,
                 'automate_membership': True,

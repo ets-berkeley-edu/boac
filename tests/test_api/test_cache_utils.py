@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-import datetime
-
 from boac import std_commit
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -87,6 +85,7 @@ class TestCacheUtils:
 
 
 class TestRefreshCalnetAttributes:
+
     def test_removes_and_restores(self, app):
         from boac.api.cache_utils import refresh_calnet_attributes
         from boac.models import json_cache
@@ -101,6 +100,7 @@ class TestRefreshCalnetAttributes:
         AuthorizedUser.query.filter_by(uid=removed_advisor).delete()
         JsonCache.query.filter_by(key=f'calnet_user_for_uid_{removed_ldap_record}').delete()
         std_commit(allow_test_environment=True)
+
         refresh_calnet_attributes()
         assert json_cache.fetch(f'calnet_user_for_uid_{removed_ldap_record}') is not None
         assert json_cache.fetch(f'calnet_user_for_uid_{removed_advisor}') is None
@@ -133,38 +133,41 @@ class TestRefreshDepartmentMemberships:
 
     def test_adds_coe_advisors(self, app):
         """Adds COE advisors newly found in the loch."""
-        AuthorizedUser.query.filter_by(uid=coe_advisor_uid).delete()
+        # Note: You will not find this UID in development_db (test data setup). It is seeded in loch.sql test data.
+        coe_uid = '1234567'
+        if AuthorizedUser.find_by_uid(coe_uid):
+            AuthorizedUser.query.filter_by(uid=coe_uid).delete()
         std_commit(allow_test_environment=True)
 
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 5
-        assert next((u for u in coe_users if u.uid == coe_advisor_uid), None) is None
+        assert len(coe_users)
+        assert next((u for u in coe_users if u.uid == coe_uid), None) is None
 
         from boac.api.cache_utils import refresh_department_memberships
         refresh_department_memberships()
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 6
-        assert next(u for u in coe_users if u.uid == coe_advisor_uid)
-        user = AuthorizedUser.query.filter_by(uid=coe_advisor_uid).first()
+        assert next((u for u in coe_users if u.uid == coe_uid), None)
+        user = AuthorizedUser.query.filter_by(uid=coe_uid).first()
         assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
+        assert user.degree_progress_permission == 'read'
         assert user.deleted_at is None
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
 
     def test_restores_coe_advisors(self, app):
         """Restores previously deleted COE advisors found in the loch."""
-        deleted_user = AuthorizedUser.query.filter_by(uid=coe_advisor_uid).first()
-        deleted_user.deleted_at = datetime.datetime.now()
+        deleted_user = AuthorizedUser.delete(uid=coe_advisor_uid)
         UniversityDeptMember.query.filter_by(authorized_user_id=deleted_user.id).delete()
         std_commit(allow_test_environment=True)
 
-        dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
+        dept_coe = UniversityDept.find_by_dept_code(dept_code='COENG')
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 5
+        coe_user_count = len(coe_users)
+        assert coe_user_count
         assert next((u for u in coe_users if u.uid == coe_advisor_uid), None) is None
 
         from boac.api.cache_utils import refresh_department_memberships
@@ -172,11 +175,14 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 6
+        assert len(coe_users) == coe_user_count + 1
         assert next(u for u in coe_users if u.uid == coe_advisor_uid)
-        user = AuthorizedUser.query.filter_by(uid=coe_advisor_uid).first()
+
+        user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid, ignore_deleted=False)
         assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
+        # And degree_progress_permission persists
+        assert user.degree_progress_permission == 'read'
         assert user.deleted_at is None
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
@@ -193,7 +199,8 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 7
+        coe_user_count = len(coe_users)
+        assert coe_user_count
         assert next(u for u in coe_users if u.uid == '666')
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at is None
 
@@ -202,13 +209,17 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 6
+        assert len(coe_users) == coe_user_count - 1
         assert next((u for u in coe_users if u.uid == '666'), None) is None
         assert AuthorizedUser.query.filter_by(uid='666').first().deleted_at
 
     def test_respects_automate_memberships_flag(self, app, db):
         dept_coe = UniversityDept.query.filter_by(dept_code='COENG').first()
-        manually_added_user = AuthorizedUser.create_or_restore(uid='1024', created_by='2040')
+        manually_added_user = AuthorizedUser.create_or_restore(
+            uid='1024',
+            created_by='2040',
+            degree_progress_permission='read_write',
+        )
         manual_membership = UniversityDeptMember.create_or_update_membership(
             dept_coe.id,
             manually_added_user.id,
@@ -221,9 +232,12 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 7
+        coe_user_count = len(coe_users)
+        assert coe_user_count
         assert next(u for u in coe_users if u.uid == '1024')
-        assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at is None
+        user = AuthorizedUser.find_by_uid(uid='1024')
+        assert user
+        assert user.degree_progress_permission == 'read_write'
 
         manual_membership.automate_membership = True
         db.session.add(manual_membership)
@@ -233,9 +247,9 @@ class TestRefreshDepartmentMemberships:
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == 6
+        assert len(coe_users) == coe_user_count - 1
         assert next((u for u in coe_users if u.uid == '1024'), None) is None
-        assert AuthorizedUser.query.filter_by(uid='1024').first().deleted_at
+        assert not AuthorizedUser.find_by_uid(uid='1024')
 
     def test_replaces_non_automated_user_with_automated_user(self, app, db):
         authorized_user_id = AuthorizedUser.query.filter_by(uid='1133397').first().id
