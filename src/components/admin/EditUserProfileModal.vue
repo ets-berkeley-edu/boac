@@ -76,6 +76,22 @@
               <b-col><label for="is-deleted">Deleted</label></b-col>
               <b-col><b-form-checkbox id="is-deleted" v-model="isDeleted"></b-form-checkbox></b-col>
             </b-row>
+            <b-row v-if="isCoe({departments: memberships}) || userProfile.degreeProgressPermission">
+              <b-col class="mr-3">
+                <label for="degree-progress-permission">Degree Progress Permission</label>
+                <div class="mb-3 mt-1">
+                  <b-select
+                    id="degree-progress-permission-select"
+                    v-model="userProfile.degreeProgressPermission"
+                    :options="[
+                      {value: null, text: 'Select...'},
+                      {value: 'read', text: 'Read-only'},
+                      {value: 'read_write', text: 'Read and write'}
+                    ]"
+                  />
+                </div>
+              </b-col>
+            </b-row>
           </b-container>
         </div>
         <hr class="mb-1 ml-0 mr-0 mt-1" />
@@ -158,14 +174,17 @@
         <b-btn
           id="save-changes-to-user-profile"
           class="btn-primary-color-override"
+          :disabled="isSaving"
           variant="primary"
           @click="save"
         >
-          Save
+          <span v-if="isSaving"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="!isSaving">Save</span>
         </b-btn>
         <b-btn
           id="delete-cancel"
           class="pl-2"
+          :disabled="isSaving"
           variant="link"
           @click="cancel"
           @keyup.enter="cancel"
@@ -178,6 +197,7 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
@@ -185,7 +205,7 @@ import {createOrUpdateUser} from '@/api/user'
 
 export default {
   name: 'EditUserProfileModal',
-  mixins: [Context, Util],
+  mixins: [Berkeley, Context, Util],
   components: {ModalHeader},
   props: {
     afterUpdateUser: {
@@ -212,6 +232,7 @@ export default {
     deptCode: undefined,
     error: undefined,
     isDeleted: undefined,
+    isSaving: false,
     memberships: undefined,
     showEditUserModal: false,
     userProfile: undefined
@@ -252,6 +273,7 @@ export default {
         name: this.profile.name,
         canAccessAdvisingData: this.profile.canAccessAdvisingData,
         canAccessCanvasData: this.profile.canAccessCanvasData,
+        degreeProgressPermission: this.profile.degreeProgressPermission || null,
         departments: [],
         isAdmin: this.profile.isAdmin,
         isBlocked: this.profile.isBlocked
@@ -290,6 +312,7 @@ export default {
         const deptNames = this.$_.map(undefinedRoles, 'name')
         this.error = `Please specify role for ${this.oxfordJoin(deptNames)}`
       } else {
+        this.isSaving = true
         // If no change in deleted status then do not update 'deleted_at' in the database.
         const deleteAction = this.isDeleted === !!this.profile.deletedAt ? null : this.isDeleted
         createOrUpdateUser(this.userProfile, this.memberships, deleteAction).then(() => {
@@ -297,6 +320,8 @@ export default {
           this.closeModal()
         }).catch(error => {
           this.error = this.$_.get(error, 'response.data.message') || error
+        }).finally(() => {
+          this.isSaving = false
         })
       }
     }

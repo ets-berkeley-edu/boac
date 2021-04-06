@@ -471,7 +471,8 @@ def get_dept_codes(user):
 
 def dept_codes_where_advising(user):
     if user:
-        dept_where_advising = list(filter(lambda d: d.get('role') in ('advisor', 'director'), user.departments))
+        departments = user.departments if hasattr(user, 'departments') else user['departments']
+        dept_where_advising = list(filter(lambda d: d.get('role') in ('advisor', 'director'), departments))
         return list(map(lambda d: d['code'], dept_where_advising))
     else:
         return None

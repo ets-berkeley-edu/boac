@@ -881,7 +881,7 @@ class TestUserUpdate:
             delete_action=None,
     ):
         response = client.post(
-            '/api/users/create_or_update',
+            '/api/user/create_or_update',
             data=json.dumps({
                 'profile': profile,
                 'memberships': memberships,

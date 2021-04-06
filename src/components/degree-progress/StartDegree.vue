@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-3 mr-3 mt-3">
+  <div v-if="!loading" class="mr-3 mt-3">
     <h1>Degree Builder</h1>
     <div id="create-degree-description">
       To begin the degree check creation process, input a name below and click enter.
@@ -8,12 +8,11 @@
 
     <form class="mt-3" @submit.prevent="createDegreeTemplate">
       <label id="label-of-create-degree-input" class="font-weight-bold font-size-16" for="create-degree-input">Degree Name</label>
-      <span class="sr-only">Degree Name</span>
       <b-form-input
         id="create-degree-input"
         v-model="degreeTemplateName"
         aria-labelledby="label-of-create-degree-input"
-        class="create-degree-input-name w-25"
+        class="create-degree-input-name w-50"
         maxlength="255"
         size="lg"
       />
@@ -36,8 +35,9 @@
 
       <div class="mt-0">
         <b-btn
-          id="start-degree"
+          id="start-degree-btn"
           class="btn-primary-color-override h-100 mr-0 mt-3"
+          :disabled="!$_.trim(degreeTemplateName)"
           variant="primary"
           @click.prevent="createDegreeTemplate"
         >
@@ -51,18 +51,19 @@
 
 <script>
 import Context from '@/mixins/Context'
+import Loading from '@/mixins/Loading'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 
 export default {
   name: 'StartDegree',
-  mixins: [Context, Util, Validator],
+  mixins: [Context, Loading, Util, Validator],
   props: {
     create: Function,
   },
   data: () => ({
     error: undefined,
-    degreeTemplateName: undefined
+    degreeTemplateName: ''
   }),
   watch: {
     degreeTemplateName() {
@@ -84,6 +85,6 @@ export default {
         this.reset()
       }
     }
-  },
+  }
 }
 </script>

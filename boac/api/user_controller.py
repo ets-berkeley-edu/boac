@@ -36,6 +36,7 @@ from boac.api.util import (
     scheduler_required,
 )
 from boac.lib import util
+from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
@@ -268,7 +269,7 @@ def drop_in_advisors_for_dept(dept_code):
     return tolerant_jsonify(drop_in_advisors_for_dept_code(dept_code))
 
 
-@app.route('/api/users/create_or_update', methods=['POST'])
+@app.route('/api/user/create_or_update', methods=['POST'])
 @admin_required
 def create_or_update_user_profile():
     params = request.get_json()
@@ -279,7 +280,7 @@ def create_or_update_user_profile():
     if not profile or not profile.get('uid') or memberships is None:
         raise errors.BadRequestError('Required parameters are missing')
 
-    authorized_user = _update_or_create_authorized_user(profile, include_deleted=True)
+    authorized_user = _update_or_create_authorized_user(memberships, profile, include_deleted=True)
     _delete_existing_memberships(authorized_user)
     _create_department_memberships(authorized_user, memberships)
 
@@ -485,11 +486,15 @@ def _update_drop_in_availability(uid, dept_code, new_availability):
         raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={uid}, dept_code={dept_code})')
 
 
-def _update_or_create_authorized_user(profile, include_deleted=False):
+def _update_or_create_authorized_user(memberships, profile, include_deleted=False):
     user_id = profile.get('id')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     degree_progress_permission = profile.get('degreeProgressPermission')
+
+    if degree_progress_permission and 'COENG' not in dept_codes_where_advising({'departments': memberships}):
+        raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
+
     is_admin = to_bool_or_none(profile.get('isAdmin'))
     is_blocked = to_bool_or_none(profile.get('isBlocked'))
     if user_id:

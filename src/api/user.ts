@@ -145,7 +145,7 @@ export function setDemoMode(demoMode: boolean) {
 
 export function createOrUpdateUser(profile: any, memberships: any[], deleteAction: boolean) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/users/create_or_update`, {
+    .post(`${utils.apiBaseUrl()}/api/user/create_or_update`, {
       deleteAction,
       profile,
       memberships
