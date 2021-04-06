@@ -421,9 +421,11 @@ export default {
       return snippet
     },
     rangeMinEqualsMax(filter) {
-      const min = this.$_.get(filter, 'value.min')
-      const max = this.$_.get(filter, 'value.max')
-      return !this.$_.isNil(min) && min.toUpperCase() === this.$_.toString(max).toUpperCase()
+      const normalize = key => {
+        let value = this.$_.get(filter, key)
+        return this.$_.isString(value) ? value.toUpperCase() : value
+      }
+      return normalize('value.min') === normalize('value.max')
     },
     rangeMinLabel() {
       let snippet = undefined
