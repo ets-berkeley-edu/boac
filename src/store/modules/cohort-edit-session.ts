@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import {
-  createCohort, downloadCohortCsv,
+  createCohort,
+  downloadCohortCsv,
   downloadCsv,
   getCohort,
   getCohortFilterOptions,
@@ -13,7 +14,7 @@ import store from '@/store'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
-export function $_applyFilters({commit, state}, orderBy: string) {
+export function $_applyFilters({commit, state}, orderBy: string, termId: string) {
   return new Promise(resolve => {
     if (!_.get(state.filters, 'length')) {
       return resolve()
@@ -32,9 +33,9 @@ export function $_applyFilters({commit, state}, orderBy: string) {
     }
     const isReadOnly = state.cohortId && !state.isOwnedByCurrentUser
     if (isReadOnly) {
-      getCohort(state.cohortId, true, limit, offset, orderBy).then(done)
+      getCohort(state.cohortId, true, limit, offset, orderBy, termId).then(done)
     } else {
-      getStudentsPerFilters(state.domain, state.filters, orderBy, offset, limit).then(done)
+      getStudentsPerFilters(state.domain, state.filters, orderBy, termId, offset, limit).then(done)
     }
   })
 }
@@ -66,6 +67,7 @@ const state = {
     itemsPerPage: 50
   },
   students: undefined,
+  termId: undefined,
   totalStudentCount: undefined
 }
 
@@ -146,7 +148,7 @@ const mutations = {
 }
 
 const actions = {
-  init({commit, state}, {id, orderBy, domain}) {
+  init({commit, state}, {id, orderBy, termId, domain}) {
     return new Promise(resolve => {
       commit('resetSession', {})
       commit('isCompactView', !!id)
@@ -155,10 +157,15 @@ const actions = {
         key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
         value: orderBy
       })
+      store.commit('currentUserExtras/setUserPreference', {
+        key: 'termId',
+        value: termId
+      })
       if (id) {
         store.dispatch('cohortEditSession/loadCohort', {
           id: id,
-          orderBy: orderBy
+          orderBy: orderBy,
+          termId: termId
         }).then(resolve)
       } else {
         if (domain) {
@@ -183,11 +190,15 @@ const actions = {
   },
   onPageNumberChange: ({commit, state}) => {
     const preferences = store.getters['currentUserExtras/preferences']
-    return $_applyFilters({commit, state}, _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'))
+    return $_applyFilters(
+      {commit, state},
+      _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+      _.get(preferences, 'termId')
+    )
   },
-  applyFilters: ({commit, state}, orderBy: string) => {
+  applyFilters: ({commit, state}, {orderBy, termId}) => {
     commit('setModifiedSinceLastSearch', false)
-    return $_applyFilters({commit, state}, orderBy)
+    return $_applyFilters({commit, state}, orderBy, termId)
   },
   createCohort: ({commit, state}, name: string) => {
     return new Promise(resolve => {
@@ -216,9 +227,9 @@ const actions = {
       }
     })
   },
-  loadCohort: ({commit, state}, {id, orderBy} ) => {
+  loadCohort: ({commit, state}, {id, orderBy, termId} ) => {
     return new Promise(resolve => {
-      getCohort(id, true, state.pagination.itemsPerPage, 0, orderBy).then(cohort => {
+      getCohort(id, true, state.pagination.itemsPerPage, 0, orderBy, termId).then(cohort => {
         if (cohort) {
           commit('setDomain', cohort.domain)
           const owner = cohort.isOwnedByCurrentUser ? 'me' : _.get(cohort, 'owner.uid')
@@ -270,7 +281,8 @@ const actions = {
     return new Promise(resolve => {
       store.dispatch('cohortEditSession/loadCohort', {
         id: cohortId,
-        orderBy: state.orderBy
+        orderBy: state.orderBy,
+        termId: state.termId
       }).then(() => {
         commit('setEditMode', null)
         resolve()

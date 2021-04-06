@@ -167,7 +167,6 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
             student['majors'] = _get_active_plan_descriptions(sis_profile)
             student['transfer'] = sis_profile.get('transfer')
         term = enrollments_by_sid.get(student['sid'])
-        student['hasCurrentTermEnrollments'] = False
         if term:
             # Strip the enrollments list down to the section of interest.
             enrollments = term.pop('enrollments', [])
@@ -259,7 +258,7 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
         benchmark('begin historical profile supplement')
         historical_profiles = get_historical_student_profiles(remaining_sids)
         profiles += historical_profiles
-        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(term_id, remaining_sids)
+        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(str(term_id), remaining_sids)
         for row in historical_enrollments_for_term:
             enrollments_by_sid[row['sid']] = json.loads(row['enrollment_term'])
         benchmark('end historical profile supplement')
@@ -291,7 +290,6 @@ def summarize_profile(profile, enrollments=None, academic_standing=None, term_gp
             profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
             if not sis_profile['withdrawalCancel'].get('termId'):
                 sis_profile['withdrawalCancel']['termId'] = current_term_id()
-    profile['hasCurrentTermEnrollments'] = False
     if enrollments:
         # Add the singleton term.
         term = enrollments.get(profile['sid'])
@@ -299,8 +297,6 @@ def summarize_profile(profile, enrollments=None, academic_standing=None, term_gp
             if not current_user.can_access_canvas_data:
                 _suppress_canvas_sites(term)
             profile['term'] = term
-            if term['termId'] == current_term_id() and len(term['enrollments']) > 0:
-                profile['hasCurrentTermEnrollments'] = True
     if academic_standing:
         profile['academicStanding'] = academic_standing.get(profile['sid'])
     if term_gpas:
@@ -405,6 +401,7 @@ def query_students(
     sids=(),
     sids_only=False,
     student_holds=None,
+    term_id=None,
     transfer=None,
     underrepresented=None,
     unit_ranges=None,
@@ -514,7 +511,7 @@ def query_students(
             sql += ' LIMIT :limit'
         students_result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
-            summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result])
+            summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result], term_id=term_id)
         else:
             summary['students'] = get_distilled_student_profiles([row['sid'] for row in students_result])
     return summary
@@ -775,7 +772,6 @@ def _merge_coe_student_profile_data(profile, coe_profile):
 
 
 def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None):
-    profile['hasCurrentTermEnrollments'] = False
     current_term_found = False
     filtered_enrollment_terms = []
     for row in enrollment_results:
@@ -783,7 +779,6 @@ def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None)
         term_id = term['termId']
         if term_id == current_term_id():
             current_term_found = True
-            profile['hasCurrentTermEnrollments'] = len(term['enrollments']) > 0
         else:
             if term_id < current_term_id():
                 # Skip past terms with no enrollments or drops.

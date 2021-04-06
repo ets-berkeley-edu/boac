@@ -286,6 +286,7 @@ class CohortFilter(Base):
         order_by=None,
         offset=0,
         limit=50,
+        term_id=None,
         alert_offset=None,
         alert_limit=None,
         include_sids=False,
@@ -325,6 +326,7 @@ class CohortFilter(Base):
                 offset=offset,
                 order_by=order_by,
                 owner=self.owner,
+                term_id=term_id,
                 sids_only=sids_only,
             )
 
@@ -375,6 +377,7 @@ def _query_students(
         order_by,
         owner,
         sids_only,
+        term_id,
 ):
     benchmark('begin students query')
     # Translate the "My Students" filter, if present, into queryable criteria.
@@ -423,6 +426,7 @@ def _query_students(
         offset=offset,
         order_by=order_by,
         sids_only=sids_only,
+        term_id=term_id,
         transfer=criteria.get('transfer'),
         underrepresented=criteria.get('underrepresented'),
         unit_ranges=criteria.get('unitRanges'),

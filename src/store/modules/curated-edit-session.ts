@@ -7,7 +7,7 @@ const $_goToPage = ({commit, state}, pageNumber: number) => {
     commit('setPageNumber', pageNumber)
     const preferences = store.getters['currentUserExtras/preferences']
     const offset = _.multiply(pageNumber - 1, state.itemsPerPage)
-    getCuratedGroup(state.curatedGroupId, preferences.sortBy, offset, state.itemsPerPage).then(group => {
+    getCuratedGroup(state.curatedGroupId, preferences.sortBy, preferences.termId, offset, state.itemsPerPage).then(group => {
       if (group) {
         commit('setCuratedGroupName', group.name)
         commit('setOwnerId', group.ownerId)

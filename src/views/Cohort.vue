@@ -20,7 +20,7 @@
       </b-collapse>
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <hr v-if="showSortBy" class="filters-section-separator mr-2 mt-0" />
+        <hr class="filters-section-separator mr-2 mt-0" />
         <div class="cohort-column-results">
           <div
             :class="{
@@ -36,6 +36,9 @@
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students"
             />
+            <div class="pt-1">
+              <TermSelector />
+            </div>
             <div class="pt-1">
               <SortBy v-if="showSortBy" :domain="domain" />
             </div>
@@ -62,6 +65,7 @@
                   :row-index="index"
                   :student="student"
                   :sorted-by="preferences.sortBy"
+                  :term-id="preferences.termId"
                   :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                   list-type="cohort"
                   class="border-right-0 list-group-item border-left-0 pl-0"
@@ -131,6 +135,7 @@ import SelectAll from '@/components/curated/dropdown/SelectAll'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
+import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
 
 export default {
@@ -147,7 +152,8 @@ export default {
     SelectAll,
     SortBy,
     Spinner,
-    StudentRow
+    StudentRow,
+    TermSelector
   },
   mixins: [
     CohortEditSession,
@@ -185,9 +191,11 @@ export default {
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+      const termId = this.$_.get(this.preferences, 'termId')
       this.init({
         id,
         orderBy: this.$_.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        termId: termId,
         domain
       }).then(() => {
         this.showFilters = !this.isCompactView
@@ -209,6 +217,12 @@ export default {
       if (!this.loading) {
         this.goToPage(1)
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`)
+      }
+    })
+    this.$eventHub.on('termId-user-preference-change', termId => {
+      if (!this.loading) {
+        this.goToPage(1)
+        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Term id changed to ${termId}`)
       }
     })
   },

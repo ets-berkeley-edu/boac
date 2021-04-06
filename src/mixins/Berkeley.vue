@@ -116,6 +116,25 @@ export default {
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
     isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
     myDeptCodes,
+    nextSisTermId(termId) {
+      let nextTermId = ''
+      let strTermId = termId.toString()
+      switch (strTermId.slice(3)) {
+      case '2':
+        nextTermId = strTermId.slice(0, 3) + '5'
+        break
+      case '5':
+        nextTermId = strTermId.slice(0, 3) + '8'
+        break
+      case '8':
+        nextTermId =
+          (parseInt(strTermId.slice(0, 3), 10) + 1).toString() + '2'
+        break
+      default:
+        break
+      }
+      return nextTermId
+    },
     previousSisTermId(termId) {
       let previousTermId = ''
       let strTermId = termId.toString()

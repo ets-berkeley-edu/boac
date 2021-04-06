@@ -122,12 +122,14 @@ def get_cohort(cohort_id):
     include_students = True if include_students is None else include_students
     offset = get_param(request.args, 'offset', 0)
     limit = get_param(request.args, 'limit', 50)
+    term_id = get_param(request.args, 'termId', None)
     benchmark('begin cohort filter query')
     cohort = CohortFilter.find_by_id(
         int(cohort_id),
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
+        term_id=term_id,
         include_alerts_for_user_id=current_user.get_id(),
         include_profiles=True,
         include_students=include_students,
@@ -191,6 +193,7 @@ def get_cohort_per_filters():
     order_by = get_param(params, 'orderBy', None)
     offset = get_param(params, 'offset', 0)
     limit = get_param(params, 'limit', 50)
+    term_id = get_param(params, 'termId', None)
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys, order_by):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
@@ -201,6 +204,7 @@ def get_cohort_per_filters():
         order_by=order_by,
         offset=int(offset),
         limit=int(limit),
+        term_id=term_id,
         include_alerts_for_user_id=current_user.get_id(),
         include_profiles=True,
         include_students=include_students,
