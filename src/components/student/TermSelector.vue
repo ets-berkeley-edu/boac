@@ -76,11 +76,11 @@ export default {
     getSelectTermOptions() {
       const currentTermId = `${this.$config.currentEnrollmentTermId}`
       const termIds = [
-        this.previousSisTermId(this.previousSisTermId(currentTermId)),
-        this.previousSisTermId(currentTermId),
-        currentTermId,
+        this.nextSisTermId(this.nextSisTermId(currentTermId)),
         this.nextSisTermId(currentTermId),
-        this.nextSisTermId(this.nextSisTermId(currentTermId))
+        currentTermId,
+        this.previousSisTermId(currentTermId),
+        this.previousSisTermId(this.previousSisTermId(currentTermId))
       ]
       return this.$_.map(termIds, this.termOptionForId)
     },
