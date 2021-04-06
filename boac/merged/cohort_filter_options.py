@@ -103,7 +103,7 @@ class CohortFilterOptions:
                     'Last Name',
                     labels_range=['Initials', 'through'],
                     label_min_equals_max='Starts with',
-                    validation='char',
+                    validation='char[2]',
                 ),
                 _boolean_filter('underrepresented', 'Underrepresented Minority'),
                 _filter('visaTypes', 'Visa Type', options=visa_types),

@@ -44,7 +44,11 @@
         />
       </div>
       <div v-if="isUX('range')" class="d-flex pr-1">
-        <label :for="`filter-range-min-${position}`" :class="rangeMinLabel() ? 'filter-range-label-min' : ''">
+        <label
+          :for="`filter-range-min-${position}`"
+          class="pb-2"
+          :class="rangeMinLabel() ? 'filter-range-label-min' : ''"
+        >
           {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
         </label>
         <div>
@@ -56,7 +60,10 @@
             class="filter-range-input"
           />
         </div>
-        <label :for="`filter-range-max-${position}`" class="filter-range-label-max">
+        <label
+          :for="`filter-range-max-${position}`"
+          class="filter-range-label-max pb-2"
+        >
           {{ rangeMaxLabel() }}<span class="sr-only"> (end of range)</span>
         </label>
         <div>
@@ -246,11 +253,11 @@ export default {
             this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
-        } else if (this.filter.validation === 'char') {
-          const isLetter = char => /^[a-zA-Z]$/.test(char)
-          const badData = () => (min && !isLetter(min)) || (max && !isLetter(max))
-          const descending = () => min && max && this.$_.upperCase(min) > this.$_.upperCase(max)
-          if (badData() || descending()) {
+        } else if (this.filter.validation === 'char[2]') {
+          const isValid = s => /^[a-zA-Z][a-zA-Z]?$/.test(s)
+          const isBadData = (min && !isValid(min)) || (max && !isValid(max))
+          if (isBadData || (min && max && min.toUpperCase() > max.toUpperCase())) {
+            // Invalid data or values are descending.
             this.errorPerRangeInput = 'Requires letters in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
@@ -306,8 +313,8 @@ export default {
       case 'range':
         announce(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
         this.filter.value = {
-          min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min.toUpperCase(),
-          max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max.toUpperCase()
+          min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min,
+          max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max
         }
         this.range.min = this.range.max = undefined
         break
@@ -396,8 +403,8 @@ export default {
     },
     rangeInputSize() {
       let maxLength = undefined
-      if (this.filter.validation === 'char') {
-        maxLength = 1
+      if (this.filter.validation === 'char[2]') {
+        maxLength = 2
       } else if (this.filter.validation === 'gpa' || this.filter.validation === 'dependents') {
         maxLength = 5
       }
@@ -408,13 +415,15 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[1]
       } else {
-        const min = this.$_.get(this.filter, 'value.min')
-        const max = this.$_.get(this.filter, 'value.max')
-        const minEqualsMax = !this.$_.isNil(min) && min === max
         const labels = this.$_.get(this.filter.label, 'range')
-        snippet = minEqualsMax ? '' : `${labels[1]} ${max}`
+        snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${this.$_.get(this.filter, 'value.max')}`
       }
       return snippet
+    },
+    rangeMinEqualsMax(filter) {
+      const min = this.$_.get(filter, 'value.min')
+      const max = this.$_.get(filter, 'value.max')
+      return !this.$_.isNil(min) && min.toUpperCase() === this.$_.toString(max).toUpperCase()
     },
     rangeMinLabel() {
       let snippet = undefined
@@ -422,10 +431,8 @@ export default {
         snippet = this.filter.label.range[0]
       } else {
         const min = this.$_.get(this.filter, 'value.min')
-        const max = this.$_.get(this.filter, 'value.max')
-        const minEqualsMax = !this.$_.isNil(min) && min === max
         const labels = this.$_.get(this.filter.label, 'range')
-        snippet = minEqualsMax ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
+        snippet = this.rangeMinEqualsMax(this.filter) ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
       return snippet
     },
@@ -506,7 +513,6 @@ export default {
   color: #333;
   font-size: 18px;
   height: 40px;
-  padding: 6px 15px 6px 17px;
-  text-transform: uppercase;
+  padding: 6px 12px 6px 12px;
 }
 </style>
