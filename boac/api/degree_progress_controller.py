@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 from boac.api.errors import BadRequestError, ForbiddenRequestError
-from boac.api.util import advisor_required
+from boac.api.util import can_edit_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
@@ -33,7 +33,7 @@ from flask_login import current_user
 
 
 @app.route('/api/degree/new', methods=['POST'])
-@advisor_required
+@can_edit_degree_progress
 def create_degree():
     params = request.get_json()
     name = get_param(params, 'degreeTemplateName', None)

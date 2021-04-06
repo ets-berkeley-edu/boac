@@ -657,7 +657,8 @@ VALUES
 ('100100600', '242881', 'MAJ', 'Major Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('600500400', '1133397', 'MIN', 'Minor Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('111111111', '1', NULL, NULL, NULL, NULL, NULL, NULL, 'UC_CS_AA_CURRICULAR_ADVISOR'),
-('222222222', '2', NULL, NULL, NULL, NULL, 'UBUS', 'Undergrad Business', 'UC_CS_AA_CO_CURRICULAR_ADVISOR');
+('222222222', '2', NULL, NULL, NULL, NULL, 'UBUS', 'Undergrad Business', 'UC_CS_AA_CO_CURRICULAR_ADVISOR'),
+('333333333', '1234567', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_ADVISOR_VIEW');
 
 INSERT INTO boac_advisor.advisor_students
 (advisor_sid, student_sid, student_uid, advisor_type_code, advisor_type, academic_program_code, academic_program, academic_plan_code, academic_plan)
