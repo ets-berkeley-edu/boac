@@ -15,7 +15,10 @@
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
         >
-          <div :id="`term-${termId}-course-${index}-name`" class="text-left truncate-with-ellipsis ml-2 student-course-name">{{ course.displayName }}</div>
+          <div :id="`term-${termId}-course-${index}-name`" class="text-left truncate-with-ellipsis ml-2 student-course-name">
+            {{ course.displayName }}
+            <font-awesome v-if="isAlertGrade(course.midtermGrade) || isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
+          </div>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
           <font-awesome icon="caret-down" class="caret when-course-open" />
@@ -225,6 +228,7 @@
 <script>
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
+import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
@@ -232,7 +236,7 @@ export default {
   components: {
     StudentBoxplot
   },
-  mixins: [StudentAnalytics, Util],
+  mixins: [StudentAnalytics, StudentMetadata, Util],
   props: {
     course: {
       required: true,
