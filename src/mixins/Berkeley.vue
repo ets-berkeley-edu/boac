@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash'
+import auth from '@/auth'
 import Vue from 'vue'
 
 const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
@@ -111,6 +112,7 @@ export default {
         {text: 'Intended Major', value: 'intended_major'}
       ]
     },
+    isCoe: auth.isCoe,
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
     isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
     myDeptCodes,

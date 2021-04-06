@@ -183,6 +183,7 @@ class UserSession(UserMixin):
                 'canAccessCanvasData': user and user.can_access_canvas_data,
                 'canEditDegreeProgress': degree_progress_permission == 'read_write' or is_admin,
                 'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'] or is_admin,
+                'degreeProgressPermission': degree_progress_permission,
                 'departments': departments,
                 'dropInAdvisorStatus': drop_in_advisor_status,
                 'inDemoMode': user and user.in_demo_mode,
