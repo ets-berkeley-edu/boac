@@ -996,51 +996,24 @@ class TestCohortPerFilters:
 
     def test_students_per_ranges(self, client, coe_advisor_login):
         """API translates 'coeProbation' filter to proper filter_criteria query."""
-        gpa_range_1 = {'min': 0.000, 'max': 0.500}
-        gpa_range_2 = {'min': 3, 'max': 4}
-        last_name_range_1 = {'min': 'K', 'max': 'K'}
-        last_name_range_2 = {'min': 'A', 'max': 'F'}
-        last_name_range_3 = {'min': 'S', 'max': 'Z'}
         api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters': [
-                    {'key': 'gpaRanges', 'value': gpa_range_1},
-                    {'key': 'gpaRanges', 'value': gpa_range_2},
-                    {'key': 'lastNameRanges', 'value': last_name_range_1},
-                    {'key': 'lastNameRanges', 'value': last_name_range_2},
-                    {'key': 'lastNameRanges', 'value': last_name_range_3},
+                    {'key': 'gpaRanges', 'value': {'min': 0.000, 'max': 0.500}},
+                    {'key': 'gpaRanges', 'value': {'min': 3, 'max': 4}},
+                    {'key': 'lastNameRanges', 'value': {'min': 'Do', 'max': 'KE'}},
                 ],
                 'orderBy': 'last_name',
             },
         )
         students = api_json['students']
-        assert len(students) == 6
-        assert api_json.get('totalStudentCount') == 6
-        assert ['Barney', 'Davies', 'Doolittle', 'Farestveit', 'Kerschen', 'Schlemiel'] == [s['lastName'] for s in students]
-        assert [3.85, 3.8, 3.495, 3.9, 3.005, 0.4] == [s['cumulativeGPA'] for s in students]
+        assert len(students) == api_json.get('totalStudentCount')
+        assert ['Doolittle', 'Farestveit', 'Jayaprakash', 'Kerschen'] == [s['lastName'] for s in students]
+        assert [3.495, 3.9, 3.501, 3.005] == [s['cumulativeGPA'] for s in students]
         criteria = api_json['criteria']
         assert len(criteria['gpaRanges']) == 2
-        assert len(criteria['lastNameRanges']) == 3
-        for key in [
-            'coeAdvisorLdapUids',
-            'coeEthnicities',
-            'colleges',
-            'ethnicities',
-            'expectedGradTerms',
-            'genders',
-            'groupCodes',
-            'inIntensiveCohort',
-            'isInactiveAsc',
-            'intendedMajors',
-            'levels',
-            'majors',
-            'transfer',
-            'underrepresented',
-            'unitRanges',
-            'visaTypes',
-        ]:
-            assert criteria.get(key) is None
+        assert len(criteria['lastNameRanges']) == 1
 
     def test_my_students_filter_all_plans(self, client, coe_advisor_login):
         """Returns students mapped to advisor, across all academic plans."""

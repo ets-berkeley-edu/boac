@@ -1321,15 +1321,15 @@ def _last_name_ranges_to_sql(last_name_ranges):
     if count:
         query_filter += ' AND ('
         for idx, last_name_range in enumerate(last_name_ranges):
-            range_min = last_name_range['min']
-            range_max = last_name_range['max']
+            range_min = last_name_range['min'].upper()
+            range_max = last_name_range['max'].upper()
             if range_max == range_min:
                 query_filter += f'(sas.last_name ILIKE \'{range_min}%\')'
             else:
-                query_filter += f'(UPPER(sas.last_name) >= \'{range_min}\''
-                if range_max < 'Z':
-                    # If 'stop' were 'Z' then upper bound would not be necessary
-                    query_filter += f' AND UPPER(sas.last_name) < \'{chr(ord(range_max) + 1)}\''
+                query_filter += f'(UPPER(SUBSTRING(sas.last_name, 0, {len(range_min) + 1})) >= \'{range_min}\''
+                if range_max < 'ZZ':
+                    # If 'stop' were 'ZZ' then upper bound would not be necessary
+                    query_filter += f' AND UPPER(SUBSTRING(sas.last_name, 0, {len(range_max) + 1})) <= \'{range_max}\''
                 query_filter += ')'
             if idx < count - 1:
                 query_filter += ' OR '
