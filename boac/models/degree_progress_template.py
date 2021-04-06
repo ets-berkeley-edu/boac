@@ -87,3 +87,12 @@ class DegreeProgressTemplate(Base):
             cls.deleted_at == None,  # noqa: E711
         )
         return cls.query.filter(criterion).order_by(cls.created_at).all()
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'degree_name': self.degree_name,
+            'advisor_dept_codes': self.advisor_dept_codes,
+            'created_by': self.created_by,
+            'updated_by': self.updated_by,
+        }

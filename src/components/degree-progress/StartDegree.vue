@@ -6,12 +6,12 @@
       <span>To begin the degree check creation process, input a name below and click enter. After clicking the create button, you will be prompted to enter the requirements.</span>
     </div>
 
-    <form class="mt-3" @submit.prevent="createDegree">
-      <label id="label-of-create-degree-input" for="create-degree-input">Degree Name</label>
+    <form class="mt-3" @submit.prevent="createDegreeTemplate">
+      <label class="label-of-create-degree-input" for="create-degree-input">Degree Name</label>
       <span class="sr-only">Degree Name</span>
       <b-form-input
         id="create-degree-input"
-        v-model="name"
+        v-model="degreeTemplateName"
         aria-labelledby="label-of-create-degree-input"
         class="create-degree-input-name w-25"
         maxlength="255"
@@ -27,7 +27,7 @@
         {{ error }}
       </div>
       <div
-        v-if="name.length === 255"
+        v-if="degreeTemplateName.length === 255"
         class="sr-only"
         aria-live="polite"
       >
@@ -37,10 +37,9 @@
       <div class="mt-0">
         <b-btn
           id="start-degree"
-          :disabled="!name.length"
           class="btn-primary-color-override h-100 mr-0 mt-3"
           variant="primary"
-          @click.prevent="createDegree"
+          @click.prevent="createDegreeTemplate"
         >
           Start Degree
           <span class="sr-only">Submit Start Degree</span>
@@ -52,42 +51,42 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import Util from '@/mixins/Util'
+import Validator from '@/mixins/Validator'
 
 export default {
-  name: 'CreateDegree',
-  mixins: [Context, Loading, Util],
+  name: 'StartDegree',
+  mixins: [Context, Util, Validator],
+  props: {
+    create: Function,
+  },
   data: () => ({
-    name: '',
     error: undefined,
+    degreeTemplateName: '',
   }),
   watch: {
-    name() {
+    degreeTemplateName() {
       this.error = undefined
     }
   },
   methods: {
-    createDegree: function() {
-      // validate the name if needed then update name, error
+    reset() {
+      this.error = undefined
+      this.degreeTemplateName = ''
+    },
+    createDegreeTemplate: function(){
+      this.error = this.validateDegreeTemplateName({degreeTemplateName: this.degreeTemplateName})
       if (!this.error) {
-        // make call to create degree
-
+        this.create(this.degreeTemplateName)
+        this.reset()
       }
     }
   },
-  mounted() {
-    if (this.$config.featureFlagDegreeCheck) {
-      this.loaded('Create degree page loaded')
-    } else {
-      this.$router.push({path: '/404'})
-    }
-  }
 }
 </script>
 
 <style>
-#label-of-create-degree-input {
+.label-of-create-degree-input {
   font-weight: bold;
   font-size: 16px;
 }
