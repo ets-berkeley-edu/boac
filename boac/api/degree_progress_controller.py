@@ -82,3 +82,16 @@ def add_unit_requirement(template_id):
         template_id=template_id,
     )
     return tolerant_jsonify(unit_requirement.to_api_json())
+
+
+@app.route('/api/degree/<template_id>/update', methods=['POST'])
+@can_edit_degree_progress
+def update_degree_template(template_id):
+    name = request.get_json().get('name')
+    if not name:
+        raise BadRequestError('\'name\' is required.')
+    template = DegreeProgressTemplate.find_by_id(template_id)
+    if not template:
+        raise ResourceNotFoundError(f'No template found with id={template_id}.')
+    template = DegreeProgressTemplate.update(name=name, template_id=template_id)
+    return tolerant_jsonify(template.to_api_json())
