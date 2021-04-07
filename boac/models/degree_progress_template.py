@@ -24,7 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.lib.util import utc_now
 from boac.models.base import Base
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
+from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY
 
@@ -39,10 +42,8 @@ class DegreeProgressTemplate(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     student_sid = db.Column(db.String(80), nullable=True)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    unit_requirements = db.relationship(
-        'DegreeProgressUnitRequirement',
-        back_populates='template',
-    )
+
+    unit_requirements = db.relationship(DegreeProgressUnitRequirement.__name__, back_populates='template')
 
     def __init__(self, advisor_dept_codes, created_by, degree_name, student_sid, updated_by):
         self.advisor_dept_codes = advisor_dept_codes
@@ -76,12 +77,17 @@ class DegreeProgressTemplate(Base):
         return degree
 
     @classmethod
-    def find_by_id(cls, db_id):
-        query = cls.query.filter_by(id=db_id, deleted_at=None)
-        return query.first()
+    def delete(cls, template_id):
+        template = cls.query.filter_by(id=template_id).first()
+        template.deleted_at = utc_now()
+        std_commit()
 
     @classmethod
-    def get_master_templates(cls):
+    def find_by_id(cls, db_id):
+        return cls.query.filter_by(id=db_id, deleted_at=None).first()
+
+    @classmethod
+    def get_all_templates(cls):
         criterion = and_(
             cls.student_sid == None,  # noqa: E711
             cls.deleted_at == None,  # noqa: E711
@@ -91,8 +97,14 @@ class DegreeProgressTemplate(Base):
     def to_api_json(self):
         return {
             'id': self.id,
-            'degree_name': self.degree_name,
-            'advisor_dept_codes': self.advisor_dept_codes,
-            'created_by': self.created_by,
-            'updated_by': self.updated_by,
+            'advisorDeptCodes': self.advisor_dept_codes,
+            'createdAt': _isoformat(self.created_at),
+            'createdBy': self.created_by,
+            'name': self.degree_name,
+            'updatedAt': _isoformat(self.updated_at),
+            'updatedBy': self.updated_by,
         }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()
