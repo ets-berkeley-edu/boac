@@ -6,8 +6,8 @@
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div class="cohort-column-results">
-          <div class="align-items-start d-flex justify-content-end mt-3">
-            <div v-if="totalStudentCount > itemsPerPage">
+          <div class="align-items-start d-flex justify-content-between mt-3">
+            <div v-if="totalStudentCount > itemsPerPage" class="flex-grow-1">
               <Pagination
                 :click-handler="onClickPagination"
                 :init-page-number="pageNumber"
@@ -16,7 +16,7 @@
                 :total-rows="totalStudentCount"
               />
             </div>
-            <div class="mr-3">
+            <div class="mr-4">
               <TermSelector />
             </div>
             <div v-if="totalStudentCount > 1">
