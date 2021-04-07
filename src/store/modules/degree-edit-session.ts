@@ -55,7 +55,7 @@ const actions = {
   init: ({commit}, templateId: number) => {
     return new Promise<void>(resolve => {
       if (templateId) {
-        store.dispatch('degreeProgressEditSession/loadTemplate', {id: templateId}).then(resolve)
+        store.dispatch('degreeEditSession/loadTemplate', {id: templateId}).then(resolve)
       } else {
         //TODO: initialize a new template
         commit('resetSession')

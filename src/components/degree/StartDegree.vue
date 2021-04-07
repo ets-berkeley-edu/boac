@@ -5,7 +5,6 @@
       To begin the degree check creation process, input a name below and click enter.
       After clicking the create button, you will be prompted to enter the requirements.
     </div>
-
     <form class="mt-3" @submit.prevent="createDegreeTemplate">
       <label id="label-of-create-degree-input" class="font-weight-bold font-size-16" for="create-degree-input">Degree Name</label>
       <b-form-input
@@ -78,7 +77,7 @@ export default {
       this.error = undefined
       this.degreeTemplateName = ''
     },
-    createDegreeTemplate: function(){
+    createDegreeTemplate(){
       this.error = this.validateDegreeTemplateName({degreeTemplateName: this.degreeTemplateName})
       if (!this.error) {
         this.create(this.degreeTemplateName)
