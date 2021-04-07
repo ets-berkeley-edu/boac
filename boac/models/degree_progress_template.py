@@ -94,6 +94,13 @@ class DegreeProgressTemplate(Base):
         )
         return cls.query.filter(criterion).order_by(cls.created_at).all()
 
+    @classmethod
+    def update(cls, template_id, name):
+        template = cls.query.filter_by(id=template_id).first()
+        template.degree_name = name
+        std_commit()
+        return template
+
     def to_api_json(self):
         return {
             'id': self.id,
