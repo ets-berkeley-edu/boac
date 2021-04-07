@@ -48,6 +48,42 @@ def mock_template():
     )
 
 
+class TestCloneDegreeTemplate:
+    """Clone degree template API."""
+
+    @classmethod
+    def _api_clone_template(cls, client, name, template_id, expected_status_code=200):
+        response = client.post(
+            f'/api/degree/{template_id}/clone',
+            data=json.dumps({'name': name}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_clone_template(client, name='Soulsonic Force', template_id=1, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_clone_template(client, name='Space is the place', template_id=1, expected_status_code=401)
+
+    def test_update_template(self, client, fake_auth):
+        """Authorized user can edit a template."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        name = 'Boogie Down Productions'
+        api_json = _api_create_template(client, name=name)
+        template_id = api_json['id']
+        assert api_json['name'] == name
+
+        name = 'KRS One'
+        api_json = self._api_clone_template(client=client, name=name, template_id=template_id)
+        assert api_json['id'] != template_id
+        assert api_json['name'] == name
+
+
 class TestCreateDegreeTemplate:
     """Degree Progress Template Creation."""
 

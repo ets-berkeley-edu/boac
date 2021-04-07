@@ -64,7 +64,14 @@ class DegreeProgressTemplate(Base):
                     updated_by={self.updated_by}>"""
 
     @classmethod
-    def create(cls, advisor_dept_codes, created_by, degree_name, student_sid=None):
+    def create(
+            cls,
+            advisor_dept_codes,
+            created_by,
+            degree_name,
+            student_sid=None,
+            unit_requirements=None,
+    ):
         degree = cls(
             advisor_dept_codes=advisor_dept_codes,
             created_by=created_by,
