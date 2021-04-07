@@ -74,3 +74,13 @@ class DegreeProgressUnitRequirement(Base):
         db.session.add(unit_requirement)
         std_commit()
         return unit_requirement
+
+    def to_api_json(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'minUnits': self.min_units,
+            'createdBy': self.created_by,
+            'updatedBy': self.updated_by,
+            'templateId': self.template_id,
+        }

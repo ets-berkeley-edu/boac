@@ -23,12 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask import current_app as app, request
 from flask_cors import cross_origin
 from flask_login import current_user
@@ -61,3 +62,23 @@ def delete(template_id):
 @can_read_degree_progress
 def get_degree_templates():
     return tolerant_jsonify([template.to_api_json() for template in DegreeProgressTemplate.get_all_templates()])
+
+
+@app.route('/api/degree/<template_id>/unit_requirement', methods=['POST'])
+@can_edit_degree_progress
+def add_unit_requirement(template_id):
+    params = request.form
+    name = params.get('name', None)
+    min_units = params.get('minUnits', None)
+    if not name or not min_units:
+        raise BadRequestError('Unit requirement \'name\' and \'min units\' must be provided.')
+    template = DegreeProgressTemplate.find_by_id(template_id)
+    if not template:
+        raise ResourceNotFoundError(f'Degree progress template with id={template_id} not found.')
+    unit_requirement = DegreeProgressUnitRequirement.create(
+        created_by=current_user.get_id(),
+        min_units=min_units,
+        name=name,
+        template_id=template_id,
+    )
+    return tolerant_jsonify(unit_requirement.to_api_json())
