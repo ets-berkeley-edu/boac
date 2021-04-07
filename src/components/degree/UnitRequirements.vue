@@ -72,12 +72,12 @@
 
 <script>
 import Context from '@/mixins/Context'
-import DegreeProgressEditSession from '@/mixins/DegreeProgressEditSession'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'UnitRequirements',
-  mixins: [Context, DegreeProgressEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     fields: [
       {

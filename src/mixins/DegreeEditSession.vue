@@ -2,16 +2,16 @@
 import {mapActions, mapGetters} from 'vuex'
 
 export default {
-  name: 'DegreeProgressEditSession',
+  name: 'DegreeEditSession',
   computed: {
-    ...mapGetters('degreeProgressEditSession', [
+    ...mapGetters('degreeEditSession', [
       'degreeName',
       'templateId',
       'unitRequirements'
     ])
   },
   methods: {
-    ...mapActions('degreeProgressEditSession', [
+    ...mapActions('degreeEditSession', [
       'addUnitRequirement',
       'init',
       'loadTemplate',

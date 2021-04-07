@@ -12,10 +12,10 @@
 
 <script>
 import Context from '@/mixins/Context'
-import DegreeProgressEditSession from '@/mixins/DegreeProgressEditSession'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
-import UnitRequirements from '@/components/degree-progress/UnitRequirements'
+import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 
 export default {
@@ -24,7 +24,7 @@ export default {
     Spinner,
     UnitRequirements
   },
-  mixins: [Context, DegreeProgressEditSession, Loading, Util],
+  mixins: [Context, DegreeEditSession, Loading, Util],
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
     this.init(id).then(() => {
