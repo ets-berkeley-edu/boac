@@ -24,12 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError
-from boac.api.util import can_edit_degree_progress
+from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
+from flask_cors import cross_origin
 from flask_login import current_user
 
 
@@ -46,3 +47,17 @@ def create_degree():
         advisor_dept_codes=dept_codes_where_advising(current_user),
     )
     return tolerant_jsonify(degree.to_api_json())
+
+
+@app.route('/api/degree/<template_id>/delete', methods=['DELETE'])
+@can_edit_degree_progress
+@cross_origin(allow_headers=['Content-Type'])
+def delete(template_id):
+    DegreeProgressTemplate.delete(template_id)
+    return tolerant_jsonify({'message': f'Template {template_id} deleted'}), 200
+
+
+@app.route('/api/degree/templates')
+@can_read_degree_progress
+def get_degree_templates():
+    return tolerant_jsonify([template.to_api_json() for template in DegreeProgressTemplate.get_all_templates()])

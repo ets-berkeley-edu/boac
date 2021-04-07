@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
-from boac.models.degree_progress_template import DegreeProgressTemplate
 
 
 class DegreeProgressUnitRequirement(Base):
@@ -37,7 +36,8 @@ class DegreeProgressUnitRequirement(Base):
     name = db.Column(db.String(255), nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    template = db.relationship(DegreeProgressTemplate.__name__, back_populates='unit_requirements')
+
+    template = db.relationship('DegreeProgressTemplate', back_populates='unit_requirements')
 
     __table_args__ = (db.UniqueConstraint(
         'name',
@@ -71,7 +71,6 @@ class DegreeProgressUnitRequirement(Base):
             template_id=template_id,
             updated_by=created_by,
         )
-        template = DegreeProgressTemplate.find_by_id(template_id)
-        template.unit_requirements.append(unit_requirement)
+        db.session.add(unit_requirement)
         std_commit()
         return unit_requirement

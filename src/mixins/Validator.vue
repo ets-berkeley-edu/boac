@@ -59,17 +59,6 @@ export default {
         })
       }
       return msg
-    },
-    validateDegreeTemplateName: degreeTemplate => {
-      const name = _.trim(degreeTemplate.degreeTemplateName)
-      let msg = null
-      if (_.isEmpty(name)) {
-        msg = 'Required'
-      } else if (_.size(name) > 255) {
-        msg = 'Name must be 255 characters or fewer'
-      }
-      // TO DO: Check against existing template names for duplicates
-      return msg
     }
   }
 }
