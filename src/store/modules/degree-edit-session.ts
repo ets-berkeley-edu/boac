@@ -1,42 +1,23 @@
+import _ from 'lodash'
+import {
+  addUnitRequirement,
+  getDegreeTemplate
+} from '@/api/degree'
 import router from '@/router'
 import store from '@/store'
 
-function getTemplate(id: number) {
-  //TODO: replace with API call
-  return new Promise(resolve => {
-    const template = {
-      name: 'Bioengineering 2019',
-      createdAt: '2019-07-18',
-      id: id,
-      requirementCategories: [],
-      unitRequirements: [
-        {
-          id: 1,
-          templateId: id,
-          name: 'Engineering Requirements',
-          minUnits: 45
-        }
-      ]
-    }
-    resolve(template)
-  })
-}
-
-function saveUnitRequirements(templateId: number, unitRequirements: any) {
-  //TODO: replace with API call
-  return new Promise(resolve => {
-    resolve(unitRequirements)
-  })
-}
+const EDIT_MODE_TYPES = ['createUnitRequirement', 'updateUnitRequirement']
 
 const state = {
   degreeName: undefined,
+  editMode: undefined,
   templateId: undefined,
   unitRequirements: undefined
 }
 
 const getters = {
   degreeName: (state: any): string => state.degreeName,
+  editMode: (state: any) => state.editMode,
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): number => state.unitRequirements,
 }
@@ -44,18 +25,39 @@ const getters = {
 const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   resetSession: (state: any, template: any) => {
+    state.editMode = null
     state.templateId = template && template.id
     state.degreeName = template && template.name
     state.unitRequirements = template && template.unitRequirements
+  },
+  setEditMode(state: any, editMode: string) {
+    if (_.isNil(editMode)) {
+      state.editMode = null
+    } else if (_.find(EDIT_MODE_TYPES, type => editMode.match(type))) {
+      // Valid mode
+      state.editMode = editMode
+    } else {
+      throw new TypeError('Invalid page mode: ' + editMode)
+    }
   }
 }
 
 const actions = {
-  addUnitRequirement: (commit, unitRequirement: any) => commit('addUnitRequirement', unitRequirement),
+  createUnitRequirement: ({commit, state}, {name, minUnits}) => {
+    return new Promise<void>(resolve => {
+      addUnitRequirement(state.templateId, name, minUnits).then(
+        unitRequirement => {
+          commit('addUnitRequirement', unitRequirement)
+          commit('setEditMode', null)
+          resolve()
+        }
+      )
+    })
+  },
   init: ({commit}, templateId: number) => {
     return new Promise<void>(resolve => {
       if (templateId) {
-        store.dispatch('degreeEditSession/loadTemplate', {id: templateId}).then(resolve)
+        store.dispatch('degreeEditSession/loadTemplate', templateId).then(resolve)
       } else {
         //TODO: initialize a new template
         commit('resetSession')
@@ -65,7 +67,7 @@ const actions = {
   },
   loadTemplate: ({commit}, id: number) => {
     return new Promise<void>(resolve => {
-      getTemplate(id).then((template: any) => {
+      getDegreeTemplate(id).then((template: any) => {
         if (template) {
           commit('resetSession', template)
           resolve()
@@ -75,11 +77,7 @@ const actions = {
       })
     })
   },
-  saveUnitRequirements: (state) => {
-    return new Promise(resolve => {
-      saveUnitRequirements(state.templateId, state.unitRequirements).then(resolve)
-    })
-  }
+  setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode)
 }
 
 export default {
