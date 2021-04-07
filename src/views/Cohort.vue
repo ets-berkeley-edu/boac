@@ -221,7 +221,7 @@ export default {
     })
     this.$eventHub.on('termId-user-preference-change', termId => {
       if (!this.loading) {
-        this.goToPage(1)
+        this.goToPage(this.pageNumber)
         this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Term id changed to ${termId}`)
       }
     })

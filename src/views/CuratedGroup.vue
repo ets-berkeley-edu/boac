@@ -130,7 +130,7 @@ export default {
     this.$eventHub.on('termId-user-preference-change', termId => {
       if (!this.loading) {
         this.loadingStart()
-        this.goToPage(1).then(() => {
+        this.goToPage(this.pageNumber).then(() => {
           this.loaded(this.getLoadedAlert())
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Term id changed to ${termId}`)
         })
