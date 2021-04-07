@@ -3,7 +3,7 @@
     <div class="d-flex flex-row justify-content-between w-50">
       <h2 class="page-section-header-sub">Unit Requirements</h2>
       <b-btn
-        :id="`unit-requirement-col-${columnNumber}-create-link`"
+        :id="`unit-requirement-create-link`"
         class="d-flex flex-row-reverse justify-content-end text-nowrap py-0"
         variant="link"
       >

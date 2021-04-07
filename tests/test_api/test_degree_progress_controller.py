@@ -27,9 +27,25 @@ import json
 
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from flask import current_app as app
+import pytest
+from tests.util import override_config
 
-coe_advisor_uid = '1133399'
+
+admin_uid = '2040'
+coe_advisor_no_access_uid = '90412'
+coe_advisor_read_only_uid = '6972201'
+coe_advisor_read_write_uid = '1133399'
 qcadv_advisor_uid = '53791'
+
+
+@pytest.fixture()
+def mock_template():
+    return DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=AuthorizedUser.get_id_per_uid('1133399'),
+        degree_name='Zoology BS 2021',
+    )
 
 
 class TestCreateDegreeProgressTemplate:
@@ -46,7 +62,7 @@ class TestCreateDegreeProgressTemplate:
 
     def test_create_template(self, client, fake_auth):
         """Authorized user can create an template."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_advisor_read_write_uid)
         name = 'She Divines Water'
         api_json = _api_create_template(client=client, name=name)
         assert 'id' in api_json
@@ -67,8 +83,8 @@ class TestDeleteTemplate:
 
     def test_delete(self, client, fake_auth):
         """COE advisor can delete template."""
-        fake_auth.login(coe_advisor_uid)
-        user = AuthorizedUser.find_by_uid(coe_advisor_uid)
+        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         assert user.degree_progress_permission == 'read_write'
         template = DegreeProgressTemplate.create(['COENG'], user.id, f'Classical Civilizations, by {user.id}')
         assert client.delete(f'/api/degree/{template.id}/delete').status_code == 200
@@ -95,13 +111,13 @@ class TestGetDegreeTemplates:
 
     def test_authorized(self, client, fake_auth):
         """Authorized user can get all templates."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(coe_advisor_read_write_uid)
         assert self._api_get_templates(client) == []
 
     def test_get_master_templates(self, client, fake_auth):
         """Returns a list of nondeleted master templates."""
-        # user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-        fake_auth.login(coe_advisor_uid)
+        # user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
+        fake_auth.login(coe_advisor_read_write_uid)
         _api_create_template(client=client, name='Classical Civilizations')
         _api_create_template(client=client, name='Dutch Studies')
         api_json = _api_create_template(client=client, name='Peace & Conflict Studies')
@@ -125,3 +141,107 @@ def _api_create_template(client, name, expected_status_code=200):
     )
     assert response.status_code == expected_status_code
     return json.loads(response.data)
+
+
+class TestCreateUnitRequirement:
+    """Degree Progress Unit Requirement Creation."""
+
+    @classmethod
+    def _api_add_unit_requirement(cls, client, template_id, name, min_units, expected_status_code=200):
+        data = {
+            'name': name,
+            'minUnits': min_units,
+        }
+        response = client.post(
+            f'/api/degree/{template_id}/unit_requirement',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client, mock_template):
+        """Returns 401 if not authenticated."""
+        self._api_add_unit_requirement(
+            client,
+            template_id=mock_template.id,
+            name='Biology Units',
+            min_units=38,
+            expected_status_code=401,
+        )
+
+    def test_advisor_no_permission(self, client, mock_template, fake_auth, app):
+        """Returns 401 if user has no degree progress permission."""
+        fake_auth.login(coe_advisor_no_access_uid)
+        self._api_add_unit_requirement(
+            client,
+            template_id=mock_template.id,
+            name='Ecology Units',
+            min_units=24,
+            expected_status_code=401,
+        )
+
+    def test_advisor_read_only_permission(self, client, mock_template, fake_auth, app):
+        """Returns 401 if user has read-only degree progress permission."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_add_unit_requirement(
+            client,
+            template_id=mock_template.id,
+            name='Wildlife Management Units',
+            min_units=22,
+            expected_status_code=401,
+        )
+
+    def test_advisor_read_write_permission(self, client, mock_template, fake_auth, app):
+        """Returns newly created unit requirement if user has read-write degree progress permission."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        unit_requirement = self._api_add_unit_requirement(
+            client,
+            template_id=mock_template.id,
+            name='Anatomy Units',
+            min_units=12,
+            expected_status_code=200,
+        )
+        assert unit_requirement
+        assert unit_requirement.get('name') == 'Anatomy Units'
+        assert unit_requirement.get('minUnits') == '12'
+        assert unit_requirement.get('templateId') == str(mock_template.id)
+
+    def test_admin(self, client, mock_template, fake_auth, app):
+        """Returns newly created unit requirement if user is admin."""
+        fake_auth.login(admin_uid)
+        unit_requirement = self._api_add_unit_requirement(
+            client,
+            template_id=mock_template.id,
+            name='Chemistry Units',
+            min_units=10,
+            expected_status_code=200,
+        )
+        assert unit_requirement
+        assert unit_requirement.get('name') == 'Chemistry Units'
+        assert unit_requirement.get('minUnits') == '10'
+        assert unit_requirement.get('templateId') == str(mock_template.id)
+
+    def test_add_to_nonexistent_template(self, client, fake_auth, app):
+        """Returns 404 if template_id doesn't exist."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        self._api_add_unit_requirement(
+            client,
+            template_id=666,
+            name='Botany Units',
+            min_units=17,
+            expected_status_code=404,
+        )
+
+    def test_feature_flag(self, client, mock_template, fake_auth):
+        """Returns 401 if feature flag is False."""
+        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', False):
+            fake_auth.login(coe_advisor_read_write_uid)
+            self._api_add_unit_requirement(
+                client,
+                template_id=mock_template.id,
+                name='Physics Units',
+                min_units=10,
+                expected_status_code=401,
+            )
