@@ -74,12 +74,12 @@ class TestDeleteTemplate:
 
     def test_not_authenticated(self, client):
         """Denies anonymous user."""
-        assert client.delete('/api/degree/1/delete').status_code == 401
+        assert client.delete('/api/degree/1').status_code == 401
 
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(qcadv_advisor_uid)
-        assert client.delete('/api/degree/1/delete').status_code == 401
+        assert client.delete('/api/degree/1').status_code == 401
 
     def test_delete(self, client, fake_auth):
         """COE advisor can delete template."""
@@ -87,7 +87,7 @@ class TestDeleteTemplate:
         user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         assert user.degree_progress_permission == 'read_write'
         template = DegreeProgressTemplate.create(['COENG'], user.id, f'Classical Civilizations, by {user.id}')
-        assert client.delete(f'/api/degree/{template.id}/delete').status_code == 200
+        assert client.delete(f'/api/degree/{template.id}').status_code == 200
         assert client.get(f'/api/degree/{template.id}').status_code == 404
 
 
@@ -121,7 +121,7 @@ class TestGetDegreeTemplates:
         _api_create_template(client=client, name='Classical Civilizations')
         _api_create_template(client=client, name='Dutch Studies')
         api_json = _api_create_template(client=client, name='Peace & Conflict Studies')
-        assert client.delete(f"/api/degree/{api_json['id']}/delete").status_code == 200
+        assert client.delete(f"/api/degree/{api_json['id']}").status_code == 200
 
         api_json = self._api_get_templates(client)
 

@@ -50,10 +50,10 @@ def create_degree():
     return tolerant_jsonify(degree.to_api_json())
 
 
-@app.route('/api/degree/<template_id>/delete', methods=['DELETE'])
+@app.route('/api/degree/<template_id>', methods=['DELETE'])
 @can_edit_degree_progress
 @cross_origin(allow_headers=['Content-Type'])
-def delete(template_id):
+def delete_template(template_id):
     DegreeProgressTemplate.delete(template_id)
     return tolerant_jsonify({'message': f'Template {template_id} deleted'}), 200
 
