@@ -6,7 +6,7 @@ export function createDegreeTemplate(name: string) {
 }
 
 export function deleteDegreeTemplate(templateId) {
-  return axios.delete(`${utils.apiBaseUrl()}/api/degree/${templateId}/delete`)
+  return axios.delete(`${utils.apiBaseUrl()}/api/degree/${templateId}`)
 }
 
 export function getDegreeTemplates() {

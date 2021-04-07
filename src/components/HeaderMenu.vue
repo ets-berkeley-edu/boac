@@ -13,6 +13,14 @@
         </div>
       </template>
       <b-dropdown-item
+        v-if="$currentUser.canEditDegreeProgress || $currentUser.canReadDegreeProgress"
+        id="header-menu-degree-check"
+        class="nav-link-color text-decoration-none"
+        to="/degrees"
+      >
+        Degree Checks
+      </b-dropdown-item>
+      <b-dropdown-item
         v-if="$currentUser.isAdmin || myDirectorDepartment"
         id="header-menu-analytics"
         :to="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
@@ -43,14 +51,6 @@
         :to="isSimplyScheduler($currentUser) ? '/scheduler/profile' : '/profile'"
       >
         Profile
-      </b-dropdown-item>
-      <b-dropdown-item
-        v-if="$currentUser.canEditDegreeProgress || $currentUser.canReadDegreeProgress"
-        id="header-menu-degree-check"
-        class="nav-link-color text-decoration-none"
-        to="/degrees"
-      >
-        Degree Checks
       </b-dropdown-item>
       <b-dropdown-item
         :href="`mailto:${$config.supportEmailAddress}`"
