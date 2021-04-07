@@ -2,6 +2,19 @@
   <div id="student-terms-container" class="m-3 p-0">
     <div class="d-flex align-items-baseline mb-2 px-2">
       <h2 class="student-section-header mr-2">Classes</h2>
+
+      <b-button
+        v-if="enrollmentTermsByYear.length > 1"
+        id="toggle-collapse-all-years"
+        v-b-toggle="expanded ? collapsed : uncollapsed"
+        variant="link"
+        @click="updateCollapseStates"
+      >
+        <font-awesome v-if="expanded" icon="caret-down" />
+        <font-awesome v-if="!expanded" icon="caret-right" />
+        {{ expanded ? 'Collapse' : 'Expand' }} all years
+      </b-button>
+      |
       <b-button
         v-if="enrollmentTermsByYear.length > 1"
         id="sort-academic-year"
@@ -45,6 +58,7 @@
       </b-button>
       <b-collapse
         :id="`academic-year-${year.label}`"
+        :ref="`academic-year-${year.label}`"
         class="mr-3 mb-2 w-100"
         :visible="includesCurrentTerm(year)"
       >
@@ -86,9 +100,13 @@ export default {
   },
   data: () => ({
     currentOrder: undefined,
+    expanded: undefined,
+    collapsed: [],
+    uncollapsed: []
   }),
   created() {
     this.currentOrder = 'desc'
+    this.expanded = false
   },
   computed: {
     enrollmentTermsByYear() {
@@ -102,7 +120,7 @@ export default {
         }
       )
       return this.$_.orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
-    }
+    },
   },
   methods: {
     includesCurrentTerm(year) {
@@ -124,7 +142,20 @@ export default {
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
       this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
-    }
+    },
+    updateCollapseStates() {
+      const alertMsg = this.expanded ? 'collapsed' : 'expanded'
+
+      this.collapsed = this.$_.filter(this.$refs, year => !year[0].$data.show)
+        .map(year => year[0].id)
+
+      this.uncollapsed = this.$_.filter(this.$refs, year => year[0].$data.show)
+        .map(year => year[0].id)
+
+      this.expanded = !this.expanded
+      this.alertScreenReader(`All of the academic years have been ${alertMsg}`)
+
+    },
   }
 }
 </script>
