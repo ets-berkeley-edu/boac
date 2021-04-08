@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import json
 
+from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app
@@ -83,6 +84,22 @@ class TestCloneDegreeTemplate:
         assert api_json['id'] != template_id
         assert api_json['name'] == name
 
+    def test_error_if_duplicate_name(self, client, fake_auth):
+        """Template names must be unique."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        name = 'Good artists copy, great artists clone.'
+        api_json = _api_create_template(client, name=name)
+        std_commit(allow_test_environment=True)
+        template_id = api_json['id']
+        # Try to clone using the same name, case-insensitive
+        api_json = self._api_clone_template(
+            client=client,
+            expected_status_code=400,
+            name=name.lower(),
+            template_id=template_id,
+        )
+        assert 'already exists' in api_json['message']
+
 
 class TestCreateDegreeTemplate:
     """Degree Progress Template Creation."""
@@ -103,6 +120,16 @@ class TestCreateDegreeTemplate:
         api_json = _api_create_template(client=client, name=name)
         assert 'id' in api_json
         assert api_json['name'] == name
+
+    def test_error_if_duplicate_name(self, client, fake_auth):
+        """Template names must be unique."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        name = 'Oops, I did it again!'
+        api_json = _api_create_template(client=client, name=name)
+        assert api_json['name'] == name
+        # Try again with same name and expect error.
+        api_json = _api_create_template(client=client, name=name, expected_status_code=400)
+        assert 'already exists' in api_json['message']
 
 
 class TestDeleteTemplate:
@@ -148,7 +175,8 @@ class TestGetDegreeTemplates:
     def test_authorized(self, client, fake_auth):
         """Authorized user can get all templates."""
         fake_auth.login(coe_advisor_read_write_uid)
-        assert self._api_get_templates(client) == []
+        # Assert response.status_code is 200
+        self._api_get_templates(client)
 
     def test_get_master_templates(self, client, fake_auth):
         """Returns a list of nondeleted master templates."""
@@ -307,6 +335,24 @@ class TestUpdateDegreeTemplate:
         api_json = self._api_update_template(client=client, name=name, template_id=template_id)
         assert api_json['id'] == template_id
         assert api_json['name'] == name
+
+    def test_error_if_duplicate_name(self, client, fake_auth):
+        """Template names must be unique."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        name = 'I like pie.'
+        _api_create_template(client=client, name=name)
+
+        api_json = _api_create_template(client=client, name='I like cake.')
+        template_id = api_json['id']
+
+        # Reuse the name and expect an error
+        api_json = self._api_update_template(
+            client=client,
+            expected_status_code=400,
+            name=name.lower(),
+            template_id=template_id,
+        )
+        assert 'already exists' in api_json['message']
 
 
 def _api_create_template(client, name, expected_status_code=200):

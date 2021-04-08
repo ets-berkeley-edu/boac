@@ -39,11 +39,12 @@ from flask_login import current_user
 @can_edit_degree_progress
 def clone_degree_template(template_id):
     name = request.get_json().get('name')
-    if not name:
-        raise BadRequestError('\'name\' is required.')
+    _validate_template_upsert(name=name)
+
     template = DegreeProgressTemplate.find_by_id(template_id)
-    if not template:
+    if template_id and not template:
         raise ResourceNotFoundError(f'No template found with id={template_id}.')
+
     clone = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=current_user.get_id(),
@@ -58,8 +59,7 @@ def clone_degree_template(template_id):
 def create_degree():
     params = request.get_json()
     name = get_param(params, 'name', None)
-    if not name:
-        raise BadRequestError('Degree template creation requires a degree \'name\'')
+    _validate_template_upsert(name=name)
     degree = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=current_user.get_id(),
@@ -106,10 +106,19 @@ def add_unit_requirement(template_id):
 @can_edit_degree_progress
 def update_degree_template(template_id):
     name = request.get_json().get('name')
-    if not name:
-        raise BadRequestError('\'name\' is required.')
-    template = DegreeProgressTemplate.find_by_id(template_id)
-    if not template:
-        raise ResourceNotFoundError(f'No template found with id={template_id}.')
+    _validate_template_upsert(name=name, template_id=template_id)
     template = DegreeProgressTemplate.update(name=name, template_id=template_id)
     return tolerant_jsonify(template.to_api_json())
+
+
+def _validate_template_upsert(name, template_id=None):
+    if not name:
+        raise BadRequestError('\'name\' is required.')
+    template = DegreeProgressTemplate.find_by_id(template_id) if template_id else None
+    if template_id and not template:
+        raise ResourceNotFoundError(f'No template found with id={template_id}.')
+    # Name must be unique across non-deleted templates
+    template = DegreeProgressTemplate.find_by_name(name=name, case_insensitive=True)
+    if template and (template_id is None or template_id != template.id):
+        raise BadRequestError(f'A degree named <strong>{name}</strong> already exists. Please choose a different name.')
+    return template
