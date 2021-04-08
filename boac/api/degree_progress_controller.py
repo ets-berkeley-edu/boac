@@ -35,6 +35,24 @@ from flask_cors import cross_origin
 from flask_login import current_user
 
 
+@app.route('/api/degree/<template_id>/clone', methods=['POST'])
+@can_edit_degree_progress
+def clone_degree_template(template_id):
+    name = request.get_json().get('name')
+    if not name:
+        raise BadRequestError('\'name\' is required.')
+    template = DegreeProgressTemplate.find_by_id(template_id)
+    if not template:
+        raise ResourceNotFoundError(f'No template found with id={template_id}.')
+    clone = DegreeProgressTemplate.create(
+        advisor_dept_codes=dept_codes_where_advising(current_user),
+        created_by=current_user.get_id(),
+        degree_name=name,
+        unit_requirements=template.unit_requirements,
+    )
+    return tolerant_jsonify(clone.to_api_json())
+
+
 @app.route('/api/degree/create', methods=['POST'])
 @can_edit_degree_progress
 def create_degree():
@@ -43,9 +61,9 @@ def create_degree():
     if not name:
         raise BadRequestError('Degree template creation requires a degree \'name\'')
     degree = DegreeProgressTemplate.create(
+        advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=current_user.get_id(),
         degree_name=name,
-        advisor_dept_codes=dept_codes_where_advising(current_user),
     )
     return tolerant_jsonify(degree.to_api_json())
 

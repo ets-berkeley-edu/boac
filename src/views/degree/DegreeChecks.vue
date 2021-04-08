@@ -110,7 +110,7 @@
                   class="p-1"
                   :disabled="isBusy"
                   variant="link"
-                  @click.stop="print(row.item.id)"
+                  @click="print(row.item.id)"
                 >
                   Print
                 </b-btn>
@@ -123,7 +123,7 @@
                   class="p-1"
                   :disabled="isBusy"
                   variant="link"
-                  @click.stop="edit(row.item)"
+                  @click="edit(row.item)"
                 >
                   Rename
                 </b-btn>
@@ -135,7 +135,7 @@
                   class="p-1"
                   :disabled="isBusy"
                   variant="link"
-                  @click.stop="copy(row.item.id)"
+                  @click="openCreateCloneModal(row.item)"
                 >
                   Copy
                 </b-btn>
@@ -168,11 +168,18 @@
       button-label-confirm="Delete"
       modal-header="Delete Degree"
     />
+    <CloneDegreeTemplateModal
+      v-if="templateToClone"
+      :after-create="afterClone"
+      :cancel="cloneCanceled"
+      :template-to-clone="templateToClone"
+    />
   </div>
 </template>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CloneDegreeTemplateModal from '@/components/degree/CloneDegreeTemplateModal'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
@@ -181,14 +188,15 @@ import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/
 
 export default {
   name: 'DegreeChecks',
-  components: {AreYouSureModal, Spinner},
+  components: {AreYouSureModal, CloneDegreeTemplateModal, Spinner},
   mixins: [Context, Loading, Util],
   data: () => ({
     degreeChecks: undefined,
     deleteModalBody: undefined,
     isBusy: false,
     templateForDelete: undefined,
-    templateForEdit: undefined
+    templateForEdit: undefined,
+    templateToClone: undefined
   }),
   mounted() {
     getDegreeTemplates().then(data => {
@@ -197,15 +205,28 @@ export default {
     })
   },
   methods: {
-    deleteCanceled() {
-      this.isBusy = false
-      this.deleteModalBody = this.templateForDelete = null
-      this.$announcer.set('Canceled. Nothing deleted.', 'polite')
+    afterClone() {
+      this.templateToClone = null
+      getDegreeTemplates().then(data => {
+        this.degreeChecks = data
+        this.isBusy = false
+        this.$announcer.set('Degree copy is complete.', 'polite')
+      })
     },
     cancelEdit() {
       this.isBusy = false
       this.templateForEdit = null
       this.$announcer.set('Canceled', 'polite')
+    },
+    cloneCanceled() {
+      this.$announcer.set('Copy canceled.', 'polite')
+      this.templateToClone = null
+      this.isBusy = false
+    },
+    deleteCanceled() {
+      this.isBusy = false
+      this.deleteModalBody = this.templateForDelete = null
+      this.$announcer.set('Canceled. Nothing deleted.', 'polite')
     },
     deleteConfirmed() {
       deleteDegreeTemplate(this.templateForDelete.id).then(() => {
@@ -222,6 +243,11 @@ export default {
       this.templateForEdit = this.$_.clone(template)
       this.isBusy = true
       this.putFocusNextTick('rename-template-input')
+    },
+    openCreateCloneModal(template) {
+      this.$announcer.set('Create a copy.', 'polite')
+      this.templateToClone = template
+      this.isBusy = true
     },
     save() {
       updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name).then(() => {
