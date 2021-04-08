@@ -90,8 +90,15 @@ class DegreeProgressTemplate(Base):
         std_commit()
 
     @classmethod
-    def find_by_id(cls, db_id):
-        return cls.query.filter_by(id=db_id, deleted_at=None).first()
+    def find_by_id(cls, template_id):
+        return cls.query.filter_by(id=template_id, deleted_at=None).first()
+
+    @classmethod
+    def find_by_name(cls, name, case_insensitive=False):
+        if case_insensitive:
+            return cls.query.filter(and_(cls.degree_name.ilike(name), cls.deleted_at == None)).first()  # noqa: E711
+        else:
+            return cls.query.filter_by(degree_name=name, deleted_at=None).first()
 
     @classmethod
     def get_all_templates(cls):
