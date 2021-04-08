@@ -60,8 +60,8 @@ class TestUserProfile:
         api_json = self._api_my_profile(client)
         assert api_json['isAuthenticated'] is False
         assert not api_json['uid']
-        assert api_json['canEditDegreeProgress'] is None
-        assert api_json['canReadDegreeProgress'] is None
+        assert api_json['canEditDegreeProgress'] is False
+        assert api_json['canReadDegreeProgress'] is False
 
     def test_current_user_profile(self, client, fake_auth):
         """Includes user profile info from Canvas."""
@@ -74,6 +74,22 @@ class TestUserProfile:
         assert 'lastName' in api_json
         assert api_json['canEditDegreeProgress'] is True
         assert api_json['canReadDegreeProgress'] is True
+
+    def test_feature_flag_degree_check(self, client, fake_auth):
+        """Degree check permissions are off when feature-flag is false."""
+        def _assert(uid, has_permission):
+            fake_auth.login(uid)
+            api_json = self._api_my_profile(client)
+            assert api_json['canEditDegreeProgress'] is has_permission
+            assert api_json['canReadDegreeProgress'] is has_permission
+
+        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', True):
+            _assert(admin_uid, True)
+            _assert(coe_advisor_uid, True)
+
+        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', False):
+            _assert(admin_uid, False)
+            _assert(coe_advisor_uid, False)
 
     def test_user_with_no_dept_membership(self, client, fake_auth):
         """Returns zero or more departments."""
