@@ -15,6 +15,7 @@ import DegreeChecks from '@/views/degree/DegreeChecks.vue'
 import DegreeProgressTemplate from '@/views/degree/DegreeProgressTemplate.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
 import DropInDesk from '@/views/DropInDesk.vue'
+import Error from '@/views/Error.vue'
 import FlightDeck from '@/views/FlightDeck.vue'
 import Home from '@/views/Home.vue'
 import Login from '@/layouts/Login.vue'
@@ -292,6 +293,13 @@ const router = new Router({
           component: Profile,
           meta: {
             title: 'Profile'
+          }
+        },
+        {
+          path: '/error',
+          component: Error,
+          meta: {
+            title: 'Error'
           }
         },
         {
