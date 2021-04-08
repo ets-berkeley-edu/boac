@@ -12,26 +12,28 @@
         v-model="templateName"
         aria-labelledby="create-degree-label"
         class="w-50"
+        :disabled="isBusy"
         maxlength="255"
       />
-      <div
-        v-if="templateName.length === 255"
-        class="sr-only"
-        aria-live="polite"
-      >
-        Degree name cannot exceed 255 characters.
+      <div class="pl-2">
+        <span class="faint-text font-size-12">255 character limit <span v-if="templateName.length">({{ 255 - templateName.length }} left)</span></span>
+        <span v-if="templateName.length === 255" class="sr-only" aria-live="polite">
+          Degree name cannot exceed 255 characters.
+        </span>
       </div>
-
+      <div v-if="error" class="error-message-container mt-2 p-3">
+        <span v-html="error"></span>
+      </div>
       <div class="mt-0">
         <b-btn
           id="start-degree-btn"
           class="btn-primary-color-override h-100 mr-0 mt-3"
-          :disabled="!$_.trim(templateName)"
+          :disabled="isBusy || !!error || !$_.trim(templateName)"
           variant="primary"
           @click.prevent="create"
         >
-          Start Degree
-          <span class="sr-only">Submit Start Degree</span>
+          <span v-if="isBusy"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="!isBusy">Start Degree</span>
         </b-btn>
       </div>
     </form>
@@ -40,22 +42,40 @@
 
 <script>
 import Loading from '@/mixins/Loading'
-import {createDegreeTemplate} from '@/api/degree'
+import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'CreateDegreeTemplate',
   mixins: [Loading],
   data: () => ({
+    error: undefined,
+    isBusy: false,
     templateName: ''
   }),
+  watch: {
+    templateName() {
+      this.error = null
+    }
+  },
   mounted() {
     this.loaded('Create degree template')
   },
   methods: {
     create() {
-      this.$announcer.set('Creating template', 'polite')
-      createDegreeTemplate(this.templateName).then(data => {
-        this.$router.push(`/degree/${data.id}`)
+      this.isBusy = true
+      getDegreeTemplates().then(data => {
+        const lower = this.templateName.trim().toLowerCase()
+        if (this.$_.map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+          this.$announcer.polite('Creating template')
+          createDegreeTemplate(this.templateName).then(data => {
+            this.$router.push(`/degree/${data.id}`)
+            this.isBusy = false
+          })
+        } else {
+          this.error = `A degree named <span class="font-weight-500">${this.templateName}</span> already exists. Please choose a different name.`
+          this.$announcer.polite(this.error)
+          this.isBusy = false
+        }
       })
     }
   }
