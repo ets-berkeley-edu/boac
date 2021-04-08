@@ -6,16 +6,17 @@ export default {
   computed: {
     ...mapGetters('degreeEditSession', [
       'degreeName',
+      'editMode',
       'templateId',
       'unitRequirements'
     ])
   },
   methods: {
     ...mapActions('degreeEditSession', [
-      'addUnitRequirement',
+      'createUnitRequirement',
       'init',
       'loadTemplate',
-      'saveUnitRequirements'
+      'setEditMode'
     ])
   }
 }

@@ -154,6 +154,33 @@ class TestDeleteTemplate:
         assert client.get(f'/api/degree/{template.id}').status_code == 404
 
 
+class TestGetDegreeTemplate:
+    """Get Degree Template."""
+
+    @classmethod
+    def _api_get_template(cls, client, template_id, expected_status_code=200):
+        response = client.get(f'/api/degree/{template_id}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_anonymous(self, client, mock_template):
+        """Denies anonymous user."""
+        self._api_get_template(client, mock_template.id, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth, mock_template):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_get_template(client, mock_template.id, expected_status_code=401)
+
+    def test_authorized(self, client, fake_auth, mock_template, app):
+        """Authorized user can get a template."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        template = self._api_get_template(client, mock_template.id)
+        assert template
+        assert template['id'] == mock_template.id
+        assert template['unitRequirements'] == []
+
+
 class TestGetDegreeTemplates:
     """Get Degree Templates."""
 
@@ -209,8 +236,8 @@ class TestCreateUnitRequirement:
         response = client.post(
             f'/api/degree/{template_id}/unit_requirement',
             buffered=True,
-            content_type='multipart/form-data',
-            data=data,
+            content_type='application/json',
+            data=json.dumps(data),
         )
         assert response.status_code == expected_status_code
         return response.json
@@ -259,7 +286,7 @@ class TestCreateUnitRequirement:
         )
         assert unit_requirement
         assert unit_requirement.get('name') == 'Anatomy Units'
-        assert unit_requirement.get('minUnits') == '12'
+        assert unit_requirement.get('minUnits') == 12
         assert unit_requirement.get('templateId') == str(mock_template.id)
 
     def test_admin(self, client, mock_template, fake_auth, app):
@@ -274,7 +301,7 @@ class TestCreateUnitRequirement:
         )
         assert unit_requirement
         assert unit_requirement.get('name') == 'Chemistry Units'
-        assert unit_requirement.get('minUnits') == '10'
+        assert unit_requirement.get('minUnits') == 10
         assert unit_requirement.get('templateId') == str(mock_template.id)
 
     def test_add_to_nonexistent_template(self, client, fake_auth, app):

@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from dateutil.tz import tzutc
 
 
 class DegreeProgressUnitRequirement(Base):
@@ -80,7 +81,13 @@ class DegreeProgressUnitRequirement(Base):
             'id': self.id,
             'name': self.name,
             'minUnits': self.min_units,
+            'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
+            'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
             'templateId': self.template_id,
         }
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()
