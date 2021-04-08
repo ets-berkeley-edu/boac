@@ -35,11 +35,14 @@
             Degree name cannot exceed 255 characters.
           </span>
         </div>
+        <div v-if="error" class="error-message-container mt-2 p-3">
+          <span v-html="error"></span>
+        </div>
       </div>
       <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
         <b-btn
           id="clone-confirm"
-          :disabled="!name.length || isSaving"
+          :disabled="!name.length || isSaving || !!error"
           class="btn-primary-color-override"
           variant="primary"
           @click.prevent="createClone"
@@ -63,7 +66,7 @@
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
-import {cloneDegreeTemplate} from '@/api/degree'
+import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'CloneDegreeTemplateModal',
@@ -96,18 +99,34 @@ export default {
     }
   },
   data: () => ({
+    error: undefined,
     isSaving: false,
     name: ''
   }),
+  watch: {
+    name() {
+      this.error = null
+    }
+  },
   created() {
     this.name = this.templateToClone.name
   },
   methods: {
     createClone() {
       this.isSaving = true
-      cloneDegreeTemplate(this.templateToClone.id, this.name).then(data => {
-        this.afterCreate(data)
-        this.isSaving = false
+      getDegreeTemplates().then(data => {
+        const lower = this.name.trim().toLowerCase()
+        if (this.$_.map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+          this.$announcer.polite('Cloning template')
+          cloneDegreeTemplate(this.templateToClone.id, this.name).then(data => {
+            this.afterCreate(data)
+            this.isSaving = false
+          })
+        } else {
+          this.error = `A degree named <span class="font-weight-500">${this.name}</span> already exists. Please choose a different name.`
+          this.$announcer.polite(this.error)
+          this.isSaving = false
+        }
       })
     }
   }

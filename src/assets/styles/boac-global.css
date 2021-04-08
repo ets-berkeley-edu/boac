@@ -108,6 +108,11 @@
   overflow: hidden;
   max-height: 0;
 }
+.error-message-container {
+  background-color: #efd6d6;
+  border-radius: 4px;
+  color: #9b393a;
+}
 .faint-text {
   color: grey;
 }

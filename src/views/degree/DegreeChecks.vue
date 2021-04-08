@@ -23,7 +23,7 @@
           {key: 'createdAt', label: 'Created', tdClass: 'align-middle'},
           {key: 'actions', label: '', thClass: 'w-40'}
         ]"
-        :items="degreeChecks"
+        :items="degreeTemplates"
         borderless
         fixed
         hover
@@ -68,7 +68,7 @@
             <div class="align-items-center d-flex pb-3 mb-2 mr-2">
               <b-btn
                 id="confirm-rename-btn"
-                :disabled="!templateForEdit.name"
+                :disabled="!templateForEdit.name || !!errorDuringEdit"
                 class="btn-primary-color-override rename-btn"
                 variant="primary"
                 size="sm"
@@ -85,6 +85,9 @@
               >
                 Cancel
               </b-btn>
+            </div>
+            <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 p-2 text-center w-75">
+              <span v-html="errorDuringEdit"></span>
             </div>
           </div>
           <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
@@ -191,16 +194,25 @@ export default {
   components: {AreYouSureModal, CloneDegreeTemplateModal, Spinner},
   mixins: [Context, Loading, Util],
   data: () => ({
-    degreeChecks: undefined,
     deleteModalBody: undefined,
+    degreeTemplates: undefined,
     isBusy: false,
     templateForDelete: undefined,
     templateForEdit: undefined,
     templateToClone: undefined
   }),
+  computed: {
+    errorDuringEdit() {
+      if (this.templateForEdit && !this.isNameAvailable(this.templateForEdit.name, this.templateForEdit.id)) {
+        return `A degree named <span class="font-weight-500">${this.templateForEdit.name}</span> already exists. Please choose a different name.`
+      } else {
+        return null
+      }
+    }
+  },
   mounted() {
     getDegreeTemplates().then(data => {
-      this.degreeChecks = data
+      this.degreeTemplates = data
       this.loaded('Degree Checks loaded')
     })
   },
@@ -208,44 +220,49 @@ export default {
     afterClone() {
       this.templateToClone = null
       getDegreeTemplates().then(data => {
-        this.degreeChecks = data
+        this.degreeTemplates = data
         this.isBusy = false
-        this.$announcer.set('Degree copy is complete.', 'polite')
+        this.$announcer.polite('Degree copy is complete.')
       })
     },
     cancelEdit() {
       this.isBusy = false
       this.templateForEdit = null
-      this.$announcer.set('Canceled', 'polite')
+      this.$announcer.polite('Canceled')
     },
     cloneCanceled() {
-      this.$announcer.set('Copy canceled.', 'polite')
+      this.$announcer.polite('Copy canceled.')
       this.templateToClone = null
       this.isBusy = false
     },
     deleteCanceled() {
       this.isBusy = false
       this.deleteModalBody = this.templateForDelete = null
-      this.$announcer.set('Canceled. Nothing deleted.', 'polite')
+      this.$announcer.polite('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
       deleteDegreeTemplate(this.templateForDelete.id).then(() => {
         getDegreeTemplates().then(data => {
-          this.degreeChecks = data
-          this.$announcer.set(`${this.templateForDelete.name} deleted.`, 'polite')
+          this.degreeTemplates = data
+          this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
           this.deleteModalBody = this.templateForDelete = null
           this.isBusy = false
         })
       })
     },
     edit(template) {
-      this.$announcer.set(`Rename ${template.name}`, 'polite')
+      this.$announcer.polite(`Rename ${template.name}`)
       this.templateForEdit = this.$_.clone(template)
       this.isBusy = true
       this.putFocusNextTick('rename-template-input')
     },
+    isNameAvailable(name, ignoreTemplateId=null) {
+      const lower = name.trim().toLowerCase()
+      const templates = ignoreTemplateId ? this.$_.filter(this.degreeTemplates, t => t.id !== ignoreTemplateId) : this.degreeTemplates
+      return this.$_.map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
+    },
     openCreateCloneModal(template) {
-      this.$announcer.set('Create a copy.', 'polite')
+      this.$announcer.polite('Create a copy.')
       this.templateToClone = template
       this.isBusy = true
     },
@@ -253,15 +270,15 @@ export default {
       updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name).then(() => {
         this.templateForEdit = null
         getDegreeTemplates().then(data => {
-          this.degreeChecks = data
-          this.$announcer.set('Template updated', 'polite')
+          this.degreeTemplates = data
+          this.$announcer.polite('Template updated')
           this.isBusy = false
         })
       })
     },
     showDeleteModal(template) {
       this.deleteModalBody = `Are you sure you want to delete <b>"${template.name}"</b>?`
-      this.$announcer.set('Please confirm delete.', 'polite')
+      this.$announcer.polite('Please confirm delete.')
       this.templateForDelete = template
       this.isBusy = true
     }
