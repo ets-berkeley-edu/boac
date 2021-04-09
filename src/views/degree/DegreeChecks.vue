@@ -1,7 +1,7 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
-    <h1 class="page-section-header pl-1">
+    <h1 id="page-header" class="page-section-header pl-1">
       Managing Degree Checks
     </h1>
     <div class="pb-3">
@@ -16,151 +16,153 @@
       </router-link>
     </div>
     <div v-if="!loading">
-      <b-table-lite
-        id="degree-checks-table"
-        :fields="[
-          {key: 'name', label: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
-          {key: 'createdAt', label: 'Created', tdClass: 'align-middle'},
-          {key: 'actions', label: '', thClass: 'w-40'}
-        ]"
-        :items="degreeTemplates"
-        borderless
-        fixed
-        hover
-        small
-        stacked="md"
-        striped
-        thead-class="sortable-table-header text-nowrap"
-      >
-        <template #cell(name)="row">
-          <div
-            v-if="row.item.id === $_.get(templateForEdit, 'id')"
-            class="align-items-center d-flex flex-wrap justify-content-between mt-2 rename-template"
-          >
-            <div class="flex-grow-1 mr-2">
-              <div>
-                <input
-                  id="rename-template-input"
-                  v-model="templateForEdit.name"
-                  :aria-invalid="!templateForEdit.name"
-                  class="rename-input text-dark p-2 w-100"
-                  aria-label="Input template name, 255 characters or fewer"
-                  aria-required="true"
-                  maxlength="255"
-                  required
-                  type="text"
-                  @keypress.enter="() => templateForEdit.name.length && save()"
-                  @keyup.esc="cancelEdit"
-                />
+      <div v-if="degreeTemplates.length">
+        <b-table-lite
+          id="degree-checks-table"
+          :fields="[
+            {key: 'name', label: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
+            {key: 'createdAt', label: 'Created', tdClass: 'align-middle'},
+            {key: 'actions', label: '', thClass: 'w-40'}
+          ]"
+          :items="degreeTemplates"
+          borderless
+          fixed
+          hover
+          small
+          stacked="md"
+          striped
+          thead-class="sortable-table-header text-nowrap"
+        >
+          <template #cell(name)="row">
+            <div
+              v-if="row.item.id === $_.get(templateForEdit, 'id')"
+              class="align-items-center d-flex flex-wrap justify-content-between mt-2 rename-template"
+            >
+              <div class="flex-grow-1 mr-2">
+                <div>
+                  <input
+                    id="rename-template-input"
+                    v-model="templateForEdit.name"
+                    :aria-invalid="!templateForEdit.name"
+                    class="rename-input text-dark p-2 w-100"
+                    aria-label="Input template name, 255 characters or fewer"
+                    aria-required="true"
+                    maxlength="255"
+                    required
+                    type="text"
+                    @keypress.enter="() => templateForEdit.name.length && save()"
+                    @keyup.esc="cancelEdit"
+                  />
+                </div>
+                <div class="pl-2">
+                  <span class="faint-text font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
+                  <span
+                    v-if="templateForEdit.name.length === 255"
+                    aria-live="polite"
+                    class="sr-only"
+                    role="alert"
+                  >
+                    Template name cannot exceed 255 characters.
+                  </span>
+                </div>
               </div>
-              <div class="pl-2">
-                <span class="faint-text font-size-12">255 character limit <span v-if="templateForEdit.name.length">({{ 255 - templateForEdit.name.length }} left)</span></span>
-                <span
-                  v-if="templateForEdit.name.length === 255"
-                  aria-live="polite"
-                  class="sr-only"
-                  role="alert"
-                >
-                  Template name cannot exceed 255 characters.
-                </span>
-              </div>
-            </div>
-            <div class="align-items-center d-flex pb-3 mb-2 mr-2">
-              <b-btn
-                id="confirm-rename-btn"
-                :disabled="!templateForEdit.name || !!errorDuringEdit"
-                class="btn-primary-color-override rename-btn"
-                variant="primary"
-                size="sm"
-                @click.prevent="save"
-              >
-                Rename
-              </b-btn>
-              <b-btn
-                id="rename-cancel-btn"
-                class="rename-btn"
-                variant="link"
-                size="sm"
-                @click="cancelEdit"
-              >
-                Cancel
-              </b-btn>
-            </div>
-            <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 p-2 text-center w-75">
-              <span v-html="errorDuringEdit"></span>
-            </div>
-          </div>
-          <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
-            <router-link
-              :id="`degree-check-${row.index}-link`"
-              :disabled="isBusy"
-              :to="`degree/${row.item.id}`"
-              v-html="`${row.item.name}`"
-            />
-          </div>
-        </template>
-        <template #cell(createdAt)="row">
-          <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
-            {{ row.item.createdAt | moment('MMM D, YYYY') }}
-          </div>
-        </template>
-        <template #cell(actions)="row">
-          <div class="align-right w-100">
-            <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="d-flex">
-              <div>
+              <div class="align-items-center d-flex pb-3 mb-2 mr-2">
                 <b-btn
-                  :id="`degree-check-${row.index}-print-btn`"
-                  class="p-1"
-                  :disabled="isBusy"
-                  variant="link"
-                  @click="print(row.item.id)"
-                >
-                  Print
-                </b-btn>
-              </div>
-              <div v-if="$currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
-                <b-btn
-                  v-if="$currentUser.canEditDegreeProgress"
-                  :id="`degree-check-${row.index}-rename-btn`"
-                  class="p-1"
-                  :disabled="isBusy"
-                  variant="link"
-                  @click="edit(row.item)"
+                  id="confirm-rename-btn"
+                  :disabled="!templateForEdit.name || !!errorDuringEdit"
+                  class="btn-primary-color-override rename-btn"
+                  variant="primary"
+                  size="sm"
+                  @click.prevent="save"
                 >
                   Rename
                 </b-btn>
-              </div>
-              <div v-if="$currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
                 <b-btn
-                  :id="`degree-check-${row.index}-copy-btn`"
-                  class="p-1"
-                  :disabled="isBusy"
+                  id="rename-cancel-btn"
+                  class="rename-btn"
                   variant="link"
-                  @click="openCreateCloneModal(row.item)"
+                  size="sm"
+                  @click="cancelEdit"
                 >
-                  Copy
+                  Cancel
                 </b-btn>
               </div>
-              <div v-if="$currentUser.canEditDegreeProgress">
-                <span class="separator">|</span>
-                <b-btn
-                  v-if="$currentUser.canEditDegreeProgress"
-                  :id="`degree-check-${row.index}-delete-btn`"
-                  class="p-1"
-                  :disabled="isBusy"
-                  variant="link"
-                  @click="showDeleteModal(row.item)"
-                  @keypress.enter="showDeleteModal(row.item)"
-                >
-                  Delete
-                </b-btn>
+              <div v-if="errorDuringEdit" class="error-message-container mb-3 ml-2 mt-2 p-2">
+                <span v-html="errorDuringEdit"></span>
               </div>
             </div>
-          </div>
-        </template>
-      </b-table-lite>
+            <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
+              <router-link
+                :id="`degree-check-${row.item.id}-link`"
+                :disabled="isBusy"
+                :to="`degree/${row.item.id}`"
+                v-html="`${row.item.name}`"
+              />
+            </div>
+          </template>
+          <template #cell(createdAt)="row">
+            <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
+              {{ row.item.createdAt | moment('MMM D, YYYY') }}
+            </div>
+          </template>
+          <template #cell(actions)="row">
+            <div class="align-right w-100">
+              <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="d-flex">
+                <div>
+                  <b-btn
+                    :id="`degree-check-${row.index}-print-btn`"
+                    class="p-1"
+                    :disabled="isBusy"
+                    variant="link"
+                    @click="print(row.item.id)"
+                  >
+                    Print
+                  </b-btn>
+                </div>
+                <div v-if="$currentUser.canEditDegreeProgress">
+                  <span class="separator">|</span>
+                  <b-btn
+                    v-if="$currentUser.canEditDegreeProgress"
+                    :id="`degree-check-${row.index}-rename-btn`"
+                    class="p-1"
+                    :disabled="isBusy"
+                    variant="link"
+                    @click="edit(row.item)"
+                  >
+                    Rename
+                  </b-btn>
+                </div>
+                <div v-if="$currentUser.canEditDegreeProgress">
+                  <span class="separator">|</span>
+                  <b-btn
+                    :id="`degree-check-${row.index}-copy-btn`"
+                    class="p-1"
+                    :disabled="isBusy"
+                    variant="link"
+                    @click="openCreateCloneModal(row.item)"
+                  >
+                    Copy
+                  </b-btn>
+                </div>
+                <div v-if="$currentUser.canEditDegreeProgress">
+                  <span class="separator">|</span>
+                  <b-btn
+                    v-if="$currentUser.canEditDegreeProgress"
+                    :id="`degree-check-${row.index}-delete-btn`"
+                    class="p-1"
+                    :disabled="isBusy"
+                    variant="link"
+                    @click="showDeleteModal(row.item)"
+                    @keypress.enter="showDeleteModal(row.item)"
+                  >
+                    Delete
+                  </b-btn>
+                </div>
+              </div>
+            </div>
+          </template>
+        </b-table-lite>
+      </div>
     </div>
     <AreYouSureModal
       v-if="templateForDelete"
@@ -217,27 +219,31 @@ export default {
     })
   },
   methods: {
-    afterClone() {
+    afterClone(clone) {
       this.templateToClone = null
       getDegreeTemplates().then(data => {
         this.degreeTemplates = data
         this.isBusy = false
         this.$announcer.polite('Degree copy is complete.')
+        this.putFocusNextTick(`degree-check-${clone.id}-link`)
       })
     },
     cancelEdit() {
-      this.isBusy = false
+      this.putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
       this.templateForEdit = null
+      this.isBusy = false
       this.$announcer.polite('Canceled')
     },
     cloneCanceled() {
-      this.$announcer.polite('Copy canceled.')
+      this.putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
       this.templateToClone = null
       this.isBusy = false
+      this.$announcer.polite('Copy canceled.')
     },
     deleteCanceled() {
-      this.isBusy = false
+      this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
       this.deleteModalBody = this.templateForDelete = null
+      this.isBusy = false
       this.$announcer.polite('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
@@ -245,6 +251,7 @@ export default {
         getDegreeTemplates().then(data => {
           this.degreeTemplates = data
           this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
+          this.putFocusNextTick('page-header')
           this.deleteModalBody = this.templateForDelete = null
           this.isBusy = false
         })
@@ -268,11 +275,13 @@ export default {
     },
     save() {
       updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name).then(() => {
+        const templateId = this.templateForEdit.id
         this.templateForEdit = null
         getDegreeTemplates().then(data => {
           this.degreeTemplates = data
           this.$announcer.polite('Template updated')
           this.isBusy = false
+          this.putFocusNextTick(`degree-check-${templateId}-link`)
         })
       })
     },

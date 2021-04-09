@@ -122,7 +122,6 @@ def update_degree_template(template_id):
 def _validate_template_upsert(name, template_id=None):
     if not name:
         raise BadRequestError('\'name\' is required.')
-    template = _get_degree_template(template_id) if template_id else None
     # Name must be unique across non-deleted templates
     template = DegreeProgressTemplate.find_by_name(name=name, case_insensitive=True)
     if template and (template_id is None or template_id != template.id):

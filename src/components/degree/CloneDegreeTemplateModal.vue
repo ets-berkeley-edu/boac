@@ -21,7 +21,7 @@
           :disabled="isSaving"
           maxlength="255"
           size="lg"
-          @keypress.enter="() => name.length && createClone()"
+          @keypress.enter.prevent="() => name.length && createClone()"
           @keyup.esc="cancel"
         />
         <div class="pl-2 pt-1">
@@ -42,7 +42,7 @@
       <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
         <b-btn
           id="clone-confirm"
-          :disabled="!name.length || isSaving || !!error"
+          :disabled="!name.length || isSaving || !!error || (templateToClone.name === name)"
           class="btn-primary-color-override"
           variant="primary"
           @click.prevent="createClone"
