@@ -7,7 +7,17 @@
       <hr />
       <UnitRequirements v-if="templateId" template-id="templateId" />
       <hr />
-      <RequirementCategories />
+      <b-container class="px-0 mx-0">
+        <b-row>
+          <b-col
+            v-for="position in [1, 2, 3]"
+            :key="position"
+            class="degree-progress-column"
+          >
+            <TemplateCategoryColumn :position="position" />
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </div>
 </template>
@@ -16,16 +26,16 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
-import RequirementCategories from '@/components/degree/RequirementCategories'
 import Spinner from '@/components/util/Spinner'
+import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'DegreeProgressTemplate',
+  name: 'DegreeTemplate',
   components: {
+    TemplateCategoryColumn,
     Spinner,
-    RequirementCategories,
     UnitRequirements
   },
   mixins: [Context, DegreeEditSession, Loading, Util],

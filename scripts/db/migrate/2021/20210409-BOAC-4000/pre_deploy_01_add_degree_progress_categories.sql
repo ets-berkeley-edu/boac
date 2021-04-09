@@ -14,14 +14,14 @@ CREATE TABLE degree_progress_categories (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL
 );
-ALTER TABLE degree_progress_categories OWNER TO boac;
+ALTER TABLE degree_progress_categories OWNER TO app_boa;
 CREATE SEQUENCE degree_progress_categories_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
     NO MAXVALUE
     CACHE 1;
-ALTER TABLE degree_progress_categories_id_seq OWNER TO boac;
+ALTER TABLE degree_progress_categories_id_seq OWNER TO app_boa;
 ALTER SEQUENCE degree_progress_categories_id_seq OWNED BY degree_progress_categories.id;
 ALTER TABLE ONLY degree_progress_categories ALTER COLUMN id SET DEFAULT nextval('degree_progress_categories_id_seq'::regclass);
 ALTER TABLE ONLY degree_progress_categories

@@ -87,7 +87,7 @@ const actions = {
     return $_goToPage({commit, state}, 1)
   },
   removeStudent: ({commit, state}, sid: string) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       commit('removeStudent', sid)
       removeFromCuratedGroup(state.curatedGroupId, sid).then(group => {
         commit('setTotalStudentCount', group.totalStudentCount)
@@ -96,7 +96,7 @@ const actions = {
     })
   },
   renameCuratedGroup: ({commit, state}, name: string) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       renameCuratedGroup(state.curatedGroupId, name).then(group => {
         commit('setCuratedGroupName', group.name)
         return resolve()

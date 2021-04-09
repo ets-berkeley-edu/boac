@@ -15,7 +15,7 @@ import store from '@/store'
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
 export function $_applyFilters({commit, state}, orderBy: string, termId: string) {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     if (!_.get(state.filters, 'length')) {
       return resolve()
     }
@@ -41,7 +41,7 @@ export function $_applyFilters({commit, state}, orderBy: string, termId: string)
 }
 
 export function $_updateFilterOptions(commit, domain: string, owner: string, existingFilters: any[]) {
-  return new Promise(resolve => {
+  return new Promise<void>(resolve => {
     getCohortFilterOptions(domain, owner, existingFilters).then(data => {
       commit('updateFilterOptions', data)
       resolve()
@@ -149,7 +149,7 @@ const mutations = {
 
 const actions = {
   init({commit, state}, {id, orderBy, termId, domain}) {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       commit('resetSession', {})
       commit('isCompactView', !!id)
       commit('setModifiedSinceLastSearch', undefined)
@@ -201,7 +201,7 @@ const actions = {
     return $_applyFilters({commit, state}, orderBy, termId)
   },
   createCohort: ({commit, state}, name: string) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       createCohort(state.domain, name, state.filters).then(
         cohort => {
           commit('resetSession', {
@@ -278,7 +278,7 @@ const actions = {
     commit('setCurrentPage', 0)
     commit('setModifiedSinceLastSearch', null)
     commit('setEditMode', 'apply')
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       store.dispatch('cohortEditSession/loadCohort', {
         id: cohortId,
         orderBy: state.orderBy,
@@ -290,7 +290,7 @@ const actions = {
     })
   },
   saveExistingCohort: ({commit, state}) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       saveCohort(
         state.cohortId,
         state.cohortName,
