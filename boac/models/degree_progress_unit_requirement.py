@@ -76,6 +76,16 @@ class DegreeProgressUnitRequirement(Base):
         std_commit()
         return unit_requirement
 
+    @classmethod
+    def update(cls, id_, min_units, name, updated_by):
+        unit_requirement = cls.query.filter_by(id=id_).first()
+        unit_requirement.min_units = min_units
+        unit_requirement.name = name
+        unit_requirement.updated_by = updated_by
+        std_commit()
+        db.session.refresh(unit_requirement)
+        return unit_requirement
+
     def to_api_json(self):
         return {
             'id': self.id,

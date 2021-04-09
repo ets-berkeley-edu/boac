@@ -35,6 +35,24 @@ from flask_cors import cross_origin
 from flask_login import current_user
 
 
+@app.route('/api/degree/<template_id>/unit_requirement', methods=['POST'])
+@can_edit_degree_progress
+def add_unit_requirement(template_id):
+    params = request.get_json()
+    name = params.get('name')
+    min_units = params.get('minUnits')
+    if not name or not min_units:
+        raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
+    _get_degree_template(template_id)
+    unit_requirement = DegreeProgressUnitRequirement.create(
+        created_by=current_user.get_id(),
+        min_units=min_units,
+        name=name,
+        template_id=template_id,
+    )
+    return tolerant_jsonify(unit_requirement.to_api_json())
+
+
 @app.route('/api/degree/<template_id>/clone', methods=['POST'])
 @can_edit_degree_progress
 def clone_degree_template(template_id):
@@ -92,24 +110,6 @@ def get_degree_templates():
     return tolerant_jsonify([template.to_api_json() for template in DegreeProgressTemplate.get_all_templates()])
 
 
-@app.route('/api/degree/<template_id>/unit_requirement', methods=['POST'])
-@can_edit_degree_progress
-def add_unit_requirement(template_id):
-    params = request.get_json()
-    name = params.get('name')
-    min_units = params.get('minUnits')
-    if not name or not min_units:
-        raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
-    _get_degree_template(template_id)
-    unit_requirement = DegreeProgressUnitRequirement.create(
-        created_by=current_user.get_id(),
-        min_units=min_units,
-        name=name,
-        template_id=template_id,
-    )
-    return tolerant_jsonify(unit_requirement.to_api_json())
-
-
 @app.route('/api/degree/<template_id>/update', methods=['POST'])
 @can_edit_degree_progress
 def update_degree_template(template_id):
@@ -117,6 +117,23 @@ def update_degree_template(template_id):
     _validate_template_upsert(name=name, template_id=template_id)
     template = DegreeProgressTemplate.update(name=name, template_id=template_id)
     return tolerant_jsonify(template.to_api_json())
+
+
+@app.route('/api/degree/unit_requirement/<unit_requirement_id>/update', methods=['POST'])
+@can_edit_degree_progress
+def update_unit_requirement(unit_requirement_id):
+    params = request.get_json()
+    name = params.get('name')
+    min_units = params.get('minUnits')
+    if not name or not min_units:
+        raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
+    unit_requirement = DegreeProgressUnitRequirement.update(
+        id_=unit_requirement_id,
+        min_units=min_units,
+        name=name,
+        updated_by=current_user.get_id(),
+    )
+    return tolerant_jsonify(unit_requirement.to_api_json())
 
 
 def _validate_template_upsert(name, template_id=None):
