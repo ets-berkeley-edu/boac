@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
+from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
 from sqlalchemy import and_
@@ -119,6 +120,7 @@ class DegreeProgressTemplate(Base):
         return {
             'id': self.id,
             'advisorDeptCodes': self.advisor_dept_codes,
+            'categories': DegreeProgressCategory.get_categories(template_id=self.id),
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'name': self.degree_name,
