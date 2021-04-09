@@ -14,6 +14,7 @@ export default {
   methods: {
     ...mapActions('degreeEditSession', [
       'createUnitRequirement',
+      'updateUnitRequirement',
       'init',
       'loadTemplate',
       'setEditMode'

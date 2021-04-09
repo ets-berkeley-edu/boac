@@ -52,7 +52,7 @@
       :disabled="!name || !minUnits"
       class="btn-primary-color-override"
       variant="primary"
-      @click.prevent="save"
+      @click.prevent="update"
     >
       Save Unit Requirement
     </b-btn>
@@ -74,14 +74,32 @@ import Util from '@/mixins/Util'
 export default {
   name: 'EditUnitRequirement',
   mixins: [Context, DegreeEditSession, Util],
+  props: {
+    index: {
+      required: false,
+      type: [Number, String]
+    },
+    unitRequirement: {
+      required: false,
+      type: Object
+    }
+  },
   data: () => ({
     name: undefined,
     minUnits: undefined
   }),
   created() {
+    if (this.unitRequirement) {
+      this.name = this.unitRequirement.name
+      this.minUnits = this.unitRequirement.minUnits
+    }
     this.alertScreenReader('Unit requirement form is open')
   },
   methods: {
+    afterSave() {
+      this.$announcer.polite(`Saved ${this.name}.`)
+      this.reset()
+    },
     cancel() {
       this.setEditMode()
       this.reset()
@@ -91,22 +109,21 @@ export default {
       this.createUnitRequirement({
         name: this.name,
         minUnits: this.minUnits
-      })
-      this.saving = false
-      this.reset()
+      }).then(this.afterSave)
     },
     reset() {
       this.name = undefined
       this.minUnits = undefined
-    },
-    save() {
-      this.saving = true
-      this.updateUnitRequirement(
-        this.name,
-        this.minUnits
-      )
       this.saving = false
-      this.reset()
+    },
+    update() {
+      this.saving = true
+      this.$announcer.polite('Saving')
+      this.updateUnitRequirement({
+        index: this.index,
+        name: this.name,
+        minUnits: this.minUnits
+      }).then(this.afterSave)
     },
   }
 }
