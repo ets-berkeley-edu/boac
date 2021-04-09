@@ -3,12 +3,12 @@ import {
   addUnitRequirement,
   getDegreeTemplate
 } from '@/api/degree'
-import router from '@/router'
 import store from '@/store'
 
 const EDIT_MODE_TYPES = ['createUnitRequirement', 'updateUnitRequirement']
 
 const state = {
+  categories: undefined,
   degreeName: undefined,
   editMode: undefined,
   templateId: undefined,
@@ -16,6 +16,7 @@ const state = {
 }
 
 const getters = {
+  categories: (state: any): any[] => state.categories,
   degreeName: (state: any): string => state.degreeName,
   editMode: (state: any) => state.editMode,
   templateId: (state: any): number => state.templateId,
@@ -26,8 +27,9 @@ const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   resetSession: (state: any, template: any) => {
     state.editMode = null
-    state.templateId = template && template.id
+    state.categories = template && template.categories
     state.degreeName = template && template.name
+    state.templateId = template && template.id
     state.unitRequirements = template && template.unitRequirements
   },
   setEditMode(state: any, editMode: string) {
@@ -37,7 +39,7 @@ const mutations = {
       // Valid mode
       state.editMode = editMode
     } else {
-      throw new TypeError('Invalid page mode: ' + editMode)
+      throw new TypeError(`Invalid page mode: ${editMode}`)
     }
   }
 }
@@ -65,15 +67,11 @@ const actions = {
       }
     })
   },
-  loadTemplate: ({commit}, id: number) => {
-    return new Promise<void>(resolve => {
-      getDegreeTemplate(id).then((template: any) => {
-        if (template) {
-          commit('resetSession', template)
-          resolve()
-        } else {
-          router.push({path: '/404'})
-        }
+  loadTemplate: ({commit}, templateId: number) => {
+    return new Promise(resolve => {
+      getDegreeTemplate(templateId).then((template: any) => {
+        commit('resetSession', template)
+        resolve(template)
       })
     })
   },
