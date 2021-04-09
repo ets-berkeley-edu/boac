@@ -28,3 +28,7 @@ export function getDegreeTemplates() {
 export function updateDegreeTemplate(templateId: number, name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/update`, {name}).then(response => response.data, () => null)
 }
+
+export function updateUnitRequirement(unitRequirementId: number, name: string, minUnits: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/unit_requirement/${unitRequirementId}/update`, {name, minUnits}).then(response => response.data, () => null)
+}

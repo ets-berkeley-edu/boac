@@ -32,7 +32,7 @@
             :id="`unit-requirement-${row.item.id}-edit-btn`"
             class="py-0"
             variant="link"
-            @click.prevent="onClickEdit"
+            @click.prevent="onClickEdit(row.index)"
           >
             <font-awesome icon="edit" />
             <span class="sr-only">Edit {{ row.item.name }}</span>
@@ -48,7 +48,11 @@
         </template>
       </b-table>
     </div>
-    <EditUnitRequirement v-if="editMode" />
+    <EditUnitRequirement
+      v-if="editMode"
+      :index="indexOfSelected"
+      :unit-requirement="unitRequirements[indexOfSelected]"
+    />
   </div>
 </template>
 
@@ -79,13 +83,15 @@ export default {
         label: '',
         class: 'd-flex flex-row justify-content-end pr-0'
       }
-    ]
+    ],
+    indexOfSelected: undefined
   }),
   methods: {
     onClickAdd() {
       this.setEditMode('createUnitRequirement')
     },
-    onClickEdit() {
+    onClickEdit(index) {
+      this.indexOfSelected = index
       this.setEditMode('updateUnitRequirement')
     },
   }

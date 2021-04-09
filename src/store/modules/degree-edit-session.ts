@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import {
   addUnitRequirement,
-  getDegreeTemplate
+  getDegreeTemplate,
+  updateUnitRequirement
 } from '@/api/degree'
 import store from '@/store'
 
@@ -18,9 +19,9 @@ const state = {
 const getters = {
   categories: (state: any): any[] => state.categories,
   degreeName: (state: any): string => state.degreeName,
-  editMode: (state: any) => state.editMode,
+  editMode: (state: any): string => state.editMode,
   templateId: (state: any): number => state.templateId,
-  unitRequirements: (state: any): number => state.unitRequirements,
+  unitRequirements: (state: any): any[] => state.unitRequirements,
 }
 
 const mutations = {
@@ -41,6 +42,9 @@ const mutations = {
     } else {
       throw new TypeError(`Invalid page mode: ${editMode}`)
     }
+  },
+  updateUnitRequirement: (state: any, {index, unitRequirement}) => {
+    state.unitRequirements[index] = unitRequirement
   }
 }
 
@@ -75,7 +79,19 @@ const actions = {
       })
     })
   },
-  setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode)
+  setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode),
+  updateUnitRequirement: ({commit, state}, {index, name, minUnits}) => {
+    return new Promise<void>(resolve => {
+      const id = _.get(state.unitRequirements[index], 'id')
+      updateUnitRequirement(id, name, minUnits).then(
+        unitRequirement => {
+          commit('updateUnitRequirement', {index, unitRequirement})
+          commit('setEditMode', null)
+          resolve()
+        }
+      )
+    })
+  }
 }
 
 export default {
