@@ -28,6 +28,7 @@ import json
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask import current_app as app
 import pytest
 from tests.util import override_config
@@ -44,8 +45,23 @@ qcadv_advisor_uid = '53791'
 def mock_template():
     return DegreeProgressTemplate.create(
         advisor_dept_codes=['COENG'],
-        created_by=AuthorizedUser.get_id_per_uid('1133399'),
+        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
         degree_name='Zoology BS 2021',
+    )
+
+
+@pytest.fixture()
+def mock_unit_requirement():
+    template = DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
+        degree_name='Ursinology 2025',
+    )
+    return DegreeProgressUnitRequirement.create(
+        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
+        min_units=16,
+        name='Aureum Ursi',
+        template_id=template.id,
     )
 
 
@@ -380,6 +396,54 @@ class TestUpdateDegreeTemplate:
             template_id=template_id,
         )
         assert 'already exists' in api_json['message']
+
+
+class TestUpdateUnitRequirement:
+    """Update unit requirement API."""
+
+    @classmethod
+    def _api_update_unit_requirement(cls, client, mock, name=None, min_units=None, expected_status_code=200):
+        response = client.post(
+            f'/api/degree/unit_requirement/{mock.id}/update',
+            data=json.dumps({
+                'name': name or mock.name,
+                'minUnits': min_units or mock.min_units,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client, mock_unit_requirement):
+        """Denies anonymous user."""
+        self._api_update_unit_requirement(client, mock_unit_requirement, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth, mock_unit_requirement):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_update_unit_requirement(client, mock_unit_requirement, expected_status_code=401)
+
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_update_unit_requirement(client, mock_unit_requirement, expected_status_code=401)
+
+    def test_advisor_read_write_permission(self, client, fake_auth, mock_unit_requirement):
+        """Authorized user can edit a unit requirement."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        min_units = 10
+        name = 'χρυσή αρκούδα'
+        api_json = self._api_update_unit_requirement(client, mock_unit_requirement, min_units=min_units, name=name)
+        assert api_json['id'] == mock_unit_requirement.id
+        assert api_json['name'] == name
+        assert api_json['minUnits'] == min_units
+
+    def test_admin(self, client, fake_auth, mock_unit_requirement):
+        """Admin can edit a unit requirement."""
+        fake_auth.login(admin_uid)
+        min_units = 15
+        api_json = self._api_update_unit_requirement(client, mock_unit_requirement, min_units=min_units)
+        assert api_json['id'] == mock_unit_requirement.id
+        assert api_json['name'] == mock_unit_requirement.name
+        assert api_json['minUnits'] == min_units
 
 
 def _api_create_template(client, name, expected_status_code=200):
