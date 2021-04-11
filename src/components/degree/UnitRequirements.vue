@@ -3,10 +3,11 @@
     <div class="d-flex flex-row justify-content-between w-50">
       <h2 class="page-section-header-sub pb-2">Unit Requirements</h2>
       <b-btn
+        v-if="$currentUser.canEditDegreeProgress"
         id="unit-requirement-create-link"
         class="degree-progress-btn-link text-nowrap py-0"
         variant="link"
-        :disabled="!!editMode"
+        :disabled="!!editMode || disableButtons"
         @click.prevent="onClickAdd"
       >
         Add unit requirement
@@ -27,10 +28,11 @@
         responsive
         small
       >
-        <template #cell(actions)="row">
+        <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
           <b-btn
             :id="`unit-requirement-${row.item.id}-edit-btn`"
             class="py-0"
+            :disabled="disableButtons"
             variant="link"
             @click.prevent="onClickEdit(row.index)"
           >
@@ -40,6 +42,7 @@
           <b-btn
             :id="`unit-requirement-${row.item.id}-delete-btn`"
             class="py-0"
+            :disabled="disableButtons"
             variant="link"
           >
             <font-awesome icon="trash-alt" />

@@ -57,7 +57,7 @@ class TestCreateDegreeCategory:
             category_type='Category',
             name='Anonymous hack!',
             parent_category_id=1,
-            position=0,
+            position=1,
             template_id=1,
             expected_status_code=401,
         )
@@ -70,7 +70,7 @@ class TestCreateDegreeCategory:
             category_type='Category',
             name='Unauthorized hack!',
             parent_category_id=1,
-            position=0,
+            position=2,
             template_id=1,
             expected_status_code=401,
         )
@@ -82,6 +82,7 @@ class TestCreateDegreeCategory:
             client,
             category_type='Category',
             name='I am the sun',
+            position=1,
             template_id=mock_template.id,
         )
         api_json = _api_create_category(
@@ -89,13 +90,14 @@ class TestCreateDegreeCategory:
             category_type='Subcategory',
             name='I am the rain',
             parent_category_id=parent['id'],
+            position=1,
             template_id=mock_template.id,
         )
         assert api_json['id']
         assert api_json['categoryType'] == 'Subcategory'
         assert api_json['name'] == 'I am the rain'
         assert api_json['parentCategoryId'] == parent['id']
-        assert api_json['position'] == 0
+        assert api_json['position'] == 1
         assert api_json['templateId'] == mock_template.id
 
 
@@ -112,25 +114,28 @@ class TestGetTemplateWithCategory:
         """Authorized user can get a template and its categories."""
         fake_auth.login(coe_advisor_read_write_uid)
         category = _api_create_category(
-            client=client,
             category_type='Category',
-            name='Hot metal in the sun',
-            template_id=mock_template.id,
+            client=client,
             description='Seeking subcategories for casual companionship.',
+            name='Hot metal in the sun',
+            position=3,
+            template_id=mock_template.id,
         )
         subcategory = _api_create_category(
-            client=client,
             category_type='Subcategory',
+            client=client,
             name='Pony in the air',
             parent_category_id=category['id'],
+            position=3,
             template_id=mock_template.id,
         )
         _api_create_category(
-            client=client,
             category_type='Course',
+            client=client,
             course_units=3,
             name='Sooey and saints at the fair',
             parent_category_id=subcategory['id'],
+            position=3,
             template_id=mock_template.id,
         )
         std_commit(allow_test_environment=True)
@@ -149,12 +154,12 @@ def _api_create_category(
         client,
         category_type,
         name,
+        position,
         template_id,
         course_units=None,
         description=None,
         expected_status_code=200,
         parent_category_id=None,
-        position=0,
 ):
     response = client.post(
         '/api/degree/category/create',

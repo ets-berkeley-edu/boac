@@ -6,7 +6,9 @@ export default {
   computed: {
     ...mapGetters('degreeEditSession', [
       'categories',
+      'degreeEditSessionToString',
       'degreeName',
+      'disableButtons',
       'editMode',
       'templateId',
       'unitRequirements'
@@ -14,11 +16,14 @@ export default {
   },
   methods: {
     ...mapActions('degreeEditSession', [
+      'createCategory',
       'createUnitRequirement',
-      'updateUnitRequirement',
+      'deleteCategory',
       'init',
       'loadTemplate',
-      'setEditMode'
+      'setDisableButtons',
+      'setEditMode',
+      'updateUnitRequirement'
     ])
   }
 }

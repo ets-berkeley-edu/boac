@@ -1,35 +1,16 @@
 <template>
   <b-container class="mr-5" fluid>
-    <b-row align-v="start" class="border-bottom p-2">
+    <b-row
+      v-for="(value, key) in profile"
+      :key="key"
+      align-v="start"
+      class="border-bottom p-2"
+    >
       <b-col class="font-weight-500" cols="5">
-        Name
+        {{ key }}
       </b-col>
       <b-col>
-        {{ $currentUser.name }}
-      </b-col>
-    </b-row>
-    <b-row align-v="start" class="border-bottom p-2">
-      <b-col class="font-weight-500" cols="5">
-        UID
-      </b-col>
-      <b-col>
-        {{ $currentUser.uid }}
-      </b-col>
-    </b-row>
-    <b-row align-v="start" class="border-bottom p-2">
-      <b-col class="font-weight-500" cols="5">
-        Campus Solutions ID
-      </b-col>
-      <b-col>
-        {{ $currentUser.csid }}
-      </b-col>
-    </b-row>
-    <b-row align-v="start" class="border-bottom p-2">
-      <b-col class="font-weight-500" cols="5">
-        Email
-      </b-col>
-      <b-col>
-        {{ $currentUser.email }}
+        {{ value }}
       </b-col>
     </b-row>
     <b-row align-v="start" class="p-2">
@@ -71,6 +52,21 @@ export default {
     DropInAdvisingToggle,
   },
   mixins: [Berkeley, Context, Util],
+  data: () => ({
+    profile: undefined
+  }),
+  created() {
+    this.profile = {
+      Name: this.$currentUser.name,
+      UID: this.$currentUser.uid,
+      'Campus Solutions ID': this.$currentUser.csid,
+      Email: this.$currentUser.email
+    }
+    if (this.$currentUser.degreeProgressPermission) {
+      const permission = this.$_.capitalize(this.$currentUser.degreeProgressPermission.replace('_', '/'))
+      this.profile['Degree Progress'] = `${permission} permission`
+    }
+  },
   methods: {
     canToggleDropInAdvising: dept => dept.isDropInEnabled && (dept.role === 'advisor' || dept.role === 'director')
   }

@@ -115,7 +115,21 @@
       </div>
       <div>
         <b-btn
-          id="quick-link-advisors"
+          id="quick-link-coe-advisors"
+          :disabled="isBusy"
+          class="pl-2 pr-2"
+          variant="link"
+          @click="quickLink('advisor', 'COENG')"
+        >
+          College of Engineering
+        </b-btn>
+      </div>
+      <div>
+        |
+      </div>
+      <div>
+        <b-btn
+          id="quick-link-qcadv-advisors"
           :disabled="isBusy"
           class="pl-2 pr-2"
           variant="link"
@@ -244,7 +258,7 @@
             icon="exclamation-triangle"
           />
           <span :id="`dept-${department.code}-${row.item.uid}`">
-            <span class="dept-name">{{ department.name }}</span> ({{ oxfordJoin(getBoaUserRoles(row.item, department)) }})
+            <span class="dept-name">{{ department.name }}</span> &mdash; {{ oxfordJoin(getBoaUserRoles(row.item, department)) }}
           </span>
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
