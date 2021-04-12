@@ -94,6 +94,14 @@ def delete_template(template_id):
     return tolerant_jsonify({'message': f'Template {template_id} deleted'}), 200
 
 
+@app.route('/api/degree/unit_requirement/<unit_requirement_id>', methods=['DELETE'])
+@can_edit_degree_progress
+@cross_origin(allow_headers=['Content-Type'])
+def delete_unit_requirement(unit_requirement_id):
+    DegreeProgressUnitRequirement.delete(unit_requirement_id)
+    return tolerant_jsonify({'message': f'Unit requirement {unit_requirement_id} deleted'}), 200
+
+
 @app.route('/api/degree/<template_id>')
 @can_read_degree_progress
 def get_degree_template(template_id):

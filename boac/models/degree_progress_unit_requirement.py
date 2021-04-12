@@ -77,6 +77,12 @@ class DegreeProgressUnitRequirement(Base):
         return unit_requirement
 
     @classmethod
+    def delete(cls, id_):
+        unit_requirement = cls.query.filter_by(id=id_).first()
+        db.session.delete(unit_requirement)
+        std_commit()
+
+    @classmethod
     def update(cls, id_, min_units, name, updated_by):
         unit_requirement = cls.query.filter_by(id=id_).first()
         unit_requirement.min_units = min_units
