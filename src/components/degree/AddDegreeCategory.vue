@@ -38,48 +38,72 @@
       </div>
       <div v-if="selectedCategoryType === 'Course'">
         <div class="font-weight-500 my-2">
-          Requirement Fulfillment
+          Units
         </div>
         <div>
-          <b-select
-            :id="`column-${position}-requirement-fulfillment-select`"
+          <b-form-input
+            :id="`column-${position}-course-units-input`"
+            v-model="courseUnits"
+            class="course-units-input"
             :disabled="isSaving"
-            @change="onChangeRequirementFulfillment"
+            maxlength="2"
+            trim
+          />
+          <span v-if="!isValidCourseUnits" class="has-error faint-text font-size-12">
+            Number required
+          </span>
+        </div>
+      </div>
+      <div v-if="selectedCategoryType === 'Course' && unitRequirements.length">
+        <div class="font-weight-500 my-2">
+          Requirement Fulfillment
+        </div>
+        <div class="mb-3">
+          <b-select
+            :id="`column-${position}-unit-requirement-select`"
+            v-model="unitRequirementModel"
+            :disabled="isSaving || (unitRequirements.length === selectedUnitRequirements.length)"
+            @change="onChangeUnitRequirement"
           >
-            <b-select-option :id="`column-${position}-requirement-fulfillment-option-null`" :value="null">Choose...</b-select-option>
+            <b-select-option :id="`column-${position}-unit-requirement-option-null`" :value="null">Choose...</b-select-option>
             <b-select-option
-              v-for="option in requirementFulfillmentOptions"
-              :id="`column-${position}-requirement-fulfillment-option-${option}`"
-              :key="option"
+              v-for="(option, index) in unitRequirements"
+              :id="`column-${position}-unit-requirement-option-${index}`"
+              :key="index"
+              :disabled="$_.includes(selectedUnitRequirements, option)"
               :value="option"
             >
-              {{ option }}
+              {{ option.name }}
             </b-select-option>
           </b-select>
-          <div v-if="selectedRequirementFulfillments.length">
-            <label :for="`column-${position}-requirement-fulfillment-list`" class="sr-only">Selected Requirement Fulfillment(s)</label>
+          <div v-if="selectedUnitRequirements.length">
+            <label :for="`column-${position}-unit-requirement-list`" class="sr-only">Selected Requirement Fulfillment(s)</label>
             <ul
-              :id="`column-${position}-requirement-fulfillment-list`"
+              :id="`column-${position}-unit-requirement-list`"
               class="pill-list pl-0"
             >
               <li
-                v-for="(fulfillment, index) in selectedRequirementFulfillments"
-                :id="`column-${position}-requirement-fulfillment-${index}`"
+                v-for="(unitRequirement, index) in selectedUnitRequirements"
+                :id="`column-${position}-unit-requirement-${index}`"
                 :key="index"
               >
-                <span class="pill pill-attachment text-uppercase text-nowrap">
-                  {{ fulfillment }}
-                  <b-btn
-                    :id="`column-${position}-requirement-fulfillment-remove-${index}`"
-                    :disabled="isSaving"
-                    class="px-0 pt-1"
-                    variant="link"
-                    @click.prevent="removeRequirementFulfillment(fulfillment)"
-                  >
-                    <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-                    <span class="sr-only">Remove</span>
-                  </b-btn>
-                </span>
+                <div class="align-items-center d-flex justify-content-between mr-5 pill-unit-requirement">
+                  <div>
+                    {{ unitRequirement.name }}
+                  </div>
+                  <div>
+                    <b-btn
+                      :id="`column-${position}-unit-requirement-remove-${index}`"
+                      :disabled="isSaving"
+                      class="px-0 pt-2"
+                      variant="link"
+                      @click="removeUnitRequirement(unitRequirement)"
+                    >
+                      <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                      <span class="sr-only">Remove</span>
+                    </b-btn>
+                  </div>
+                </div>
               </li>
             </ul>
           </div>
@@ -98,7 +122,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Subcategory'">
+      <div v-if="selectedCategoryType !== 'Category'">
         <div class="font-weight-500">
           Requirement Location (required)
         </div>
@@ -128,7 +152,7 @@
         <b-btn
           :id="`column-${position}-create-requirement-btn`"
           class="b-dd-override"
-          :disabled="isSaving || !nameInput || !selectedCategoryType || (selectedCategoryType === 'Subcategory' && !selectedParentCategory)"
+          :disabled="isSaving || !nameInput || !selectedCategoryType || (selectedCategoryType !== 'Category' && !selectedParentCategory) || !isValidCourseUnits"
           variant="primary"
           @click="create"
         >
@@ -174,6 +198,9 @@ export default {
     }
   },
   computed: {
+    isValidCourseUnits() {
+      return this.$_.isEmpty(this.courseUnits) || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
+    },
     withTypeCategory() {
       return this.findCategoriesByType('Category', this.position)
     }
@@ -183,14 +210,10 @@ export default {
     descriptionText: undefined,
     isSaving: false,
     nameInput: undefined,
-    requirementFulfillmentOptions: [
-      'Larry',
-      'Curly',
-      'Moe'
-    ],
     selectedCategoryType: null,
     selectedParentCategory: null,
-    selectedRequirementFulfillments: []
+    selectedUnitRequirements: [],
+    unitRequirementModel: null
   }),
   created() {
     this.putFocusNextTick(`column-${this.position}-add-category-select`)
@@ -210,7 +233,8 @@ export default {
         description: this.descriptionText,
         name: this.nameInput,
         position: this.position,
-        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id
+        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
+        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
       }).then(category => {
         this.$announcer.polite(`${category.categoryType} created`)
         this.afterCreate()
@@ -229,16 +253,33 @@ export default {
         this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       }
     },
-    onChangeRequirementFulfillment(option) {
-      this.$announcer.polite(option ? `${option} selected` : 'Unselected')
+    onChangeUnitRequirement(option) {
+      this.$announcer.polite(option ? `${option.name} selected` : 'Unselected')
       if (option) {
-        this.selectedRequirementFulfillments.push(option)
+        this.selectedUnitRequirements.push(option)
+        this.unitRequirementModel = null
       }
     },
-    removeRequirementFulfillment(item) {
-      this.$announcer.polite(`${item} removed`)
-      this.selectedRequirementFulfillments = this.$_.remove(this.selectedRequirementFulfillments, f => f !== item)
+    removeUnitRequirement(item) {
+      this.$announcer.polite(`${item.name} removed`)
+      this.selectedUnitRequirements = this.$_.remove(this.selectedUnitRequirements, selected => selected.id !== item.id)
     }
   }
 }
 </script>
+
+<style scoped>
+.course-units-input {
+  max-width: 50px;
+}
+.pill-unit-requirement {
+  background-color: #fff;
+  border: 1px solid #999;
+  border-radius: 5px;
+  color: #666;
+  height: 24px;
+  margin-top: 8px;
+  padding: 16px 8px 16px 8px;
+  width: auto;
+}
+</style>

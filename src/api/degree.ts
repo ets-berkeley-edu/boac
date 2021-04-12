@@ -16,7 +16,8 @@ export function createDegreeCategory(
   name: string,
   parentCategoryId: number,
   position: number,
-  templateId: number
+  templateId: number,
+  unitRequirementIds: number[]
 ) {
   const data = {
     categoryType,
@@ -25,7 +26,8 @@ export function createDegreeCategory(
     name,
     parentCategoryId,
     position,
-    templateId
+    templateId,
+    unitRequirementIds
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/create`, data).then(response => response.data, () => null)
 }

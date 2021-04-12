@@ -70,7 +70,8 @@ const actions = {
     description,
     name,
     parentCategoryId,
-    position
+    position,
+    unitRequirementIds
   }) => {
     return new Promise(resolve => {
       createDegreeCategory(
@@ -80,7 +81,8 @@ const actions = {
         name,
         parentCategoryId,
         position,
-        state.templateId
+        state.templateId,
+        unitRequirementIds
       ).then(category => {
         commit('addDegreeCategory', category)
         commit('setEditMode', null)
