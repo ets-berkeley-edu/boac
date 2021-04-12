@@ -9,7 +9,7 @@
           </div>
           <div class="pr-2">
             <h1 id="dept-users-section" class="page-section-header">
-              Passengers
+              Passenger Manifest
             </h1>
           </div>
           <div class="pt-0">

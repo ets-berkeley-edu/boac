@@ -32,6 +32,7 @@ from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.sis_terms import current_term_id, current_term_name
+from boac.models.degree_progress_category import degree_progress_category_type
 from boac.models.tool_setting import ToolSetting
 from flask import current_app as app, request
 from flask_login import current_user
@@ -45,6 +46,7 @@ def app_config():
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name(),
         'currentEnrollmentTermId': int(current_term_id()),
+        'degreeCategoryTypeOptions': degree_progress_category_type.enums,
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,

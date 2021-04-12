@@ -22,6 +22,9 @@ export default {
       if (dropInAdvisorStatus) {
         roles.push('Drop-in Advisor')
       }
+      if (user.degreeProgressPermission) {
+        roles.push(`Degree Progress (${user.degreeProgressPermission.replace('_', '/')})`)
+      }
       return roles
     },
     getAdmitCsvExportColumns() {
