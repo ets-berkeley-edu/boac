@@ -24,7 +24,10 @@ export default {
       'setDisableButtons',
       'setEditMode',
       'updateUnitRequirement'
-    ])
+    ]),
+    findCategoriesByType(type, position) {
+      return this.$_.filter(this.categories, c => c.position === position && c.categoryType === type)
+    }
   }
 }
 </script>

@@ -10,10 +10,13 @@
         :disabled="isSaving"
         @change="onChangeCategorySelect"
       >
-        <b-select-option :value="null">Choose...</b-select-option>
+        <b-select-option :id="`column-${position}-select-option-null`" :value="null">Choose...</b-select-option>
         <b-select-option
-          v-for="option in withTypeCategory.length ? $config.degreeCategoryTypeOptions : this.$_.filter($config.degreeCategoryTypeOptions, o => o !== 'Subcategory')"
+          v-for="option in $config.degreeCategoryTypeOptions"
+          :id="`column-${position}-select-option-${option}`"
           :key="option"
+          :disabled="(!withTypeCategory.length && option !== 'Category')"
+          required
           :value="option"
         >
           {{ option }}
@@ -33,16 +36,67 @@
           @keypress.enter="() => nameInput && create()"
         />
       </div>
-      <div class="font-weight-500 my-2">
-        {{ selectedCategoryType }} Description
+      <div v-if="selectedCategoryType === 'Course'">
+        <div class="font-weight-500 my-2">
+          Requirement Fulfillment
+        </div>
+        <div>
+          <b-select
+            :id="`column-${position}-requirement-fulfillment-select`"
+            :disabled="isSaving"
+            @change="onChangeRequirementFulfillment"
+          >
+            <b-select-option :id="`column-${position}-requirement-fulfillment-option-null`" :value="null">Choose...</b-select-option>
+            <b-select-option
+              v-for="option in requirementFulfillmentOptions"
+              :id="`column-${position}-requirement-fulfillment-option-${option}`"
+              :key="option"
+              :value="option"
+            >
+              {{ option }}
+            </b-select-option>
+          </b-select>
+          <div v-if="selectedRequirementFulfillments.length">
+            <label :for="`column-${position}-requirement-fulfillment-list`" class="sr-only">Selected Requirement Fulfillment(s)</label>
+            <ul
+              :id="`column-${position}-requirement-fulfillment-list`"
+              class="pill-list pl-0"
+            >
+              <li
+                v-for="(fulfillment, index) in selectedRequirementFulfillments"
+                :id="`column-${position}-requirement-fulfillment-${index}`"
+                :key="index"
+              >
+                <span class="pill pill-attachment text-uppercase text-nowrap">
+                  {{ fulfillment }}
+                  <b-btn
+                    :id="`column-${position}-requirement-fulfillment-remove-${index}`"
+                    :disabled="isSaving"
+                    class="px-0 pt-1"
+                    variant="link"
+                    @click.prevent="removeRequirementFulfillment(fulfillment)"
+                  >
+                    <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                    <span class="sr-only">Remove</span>
+                  </b-btn>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
-      <div>
-        <b-form-textarea
-          :id="`column-${position}-description-input`"
-          v-model="descriptionText"
-          :disabled="isSaving"
-          rows="4"
-        />
+      <div v-if="selectedCategoryType !== 'Course'">
+        <div class="font-weight-500 my-2">
+          {{ selectedCategoryType }} Description
+        </div>
+        <div>
+          <b-form-textarea
+            :id="`column-${position}-description-input`"
+            v-model="descriptionText"
+            :disabled="isSaving"
+            rows="4"
+          />
+        </div>
       </div>
       <div v-if="selectedCategoryType === 'Subcategory'">
         <div class="font-weight-500">
@@ -56,9 +110,10 @@
             required
             @change="onChangeParentCategory"
           >
-            <b-select-option :value="null">Choose...</b-select-option>
+            <b-select-option :id="`column-${position}-parent-select-option-null`" :value="null">Choose...</b-select-option>
             <b-select-option
               v-for="category in withTypeCategory"
+              :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :value="category"
             >
@@ -118,19 +173,26 @@ export default {
       type: Number
     }
   },
+  computed: {
+    withTypeCategory() {
+      return this.findCategoriesByType('Category', this.position)
+    }
+  },
   data: () => ({
     courseUnits: undefined,
     descriptionText: undefined,
     isSaving: false,
     nameInput: undefined,
+    requirementFulfillmentOptions: [
+      'Larry',
+      'Curly',
+      'Moe'
+    ],
     selectedCategoryType: null,
     selectedParentCategory: null,
-    withTypeCategory: undefined
+    selectedRequirementFulfillments: []
   }),
   created() {
-    this.withTypeCategory = this.$_.filter(this.categories, c => {
-      return c.position === this.position && c.categoryType === 'Category'
-    })
     this.putFocusNextTick(`column-${this.position}-add-category-select`)
   },
   methods: {
@@ -155,13 +217,27 @@ export default {
         this.setDisableButtons(false)
       })
     },
-    onChangeCategorySelect() {
-      this.$announcer.polite(`${this.selectedCategoryType} selected`)
-      this.putFocusNextTick(`column-${this.position}-name-input`)
+    onChangeCategorySelect(option) {
+      this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
+      if (option) {
+        this.putFocusNextTick(`column-${this.position}-name-input`)
+      }
     },
-    onChangeParentCategory() {
-      this.$announcer.polite(`${this.selectedParentCategory} selected`)
-      this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
+    onChangeParentCategory(option) {
+      this.$announcer.polite(option ? `${this.selectedParentCategory} selected` : 'Unselected')
+      if (option) {
+        this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
+      }
+    },
+    onChangeRequirementFulfillment(option) {
+      this.$announcer.polite(option ? `${option} selected` : 'Unselected')
+      if (option) {
+        this.selectedRequirementFulfillments.push(option)
+      }
+    },
+    removeRequirementFulfillment(item) {
+      this.$announcer.polite(`${item} removed`)
+      this.selectedRequirementFulfillments = this.$_.remove(this.selectedRequirementFulfillments, f => f !== item)
     }
   }
 }
