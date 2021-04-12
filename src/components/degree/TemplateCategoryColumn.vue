@@ -21,10 +21,10 @@
       :position="position"
     />
     <div
-      v-for="parent in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
-      :key="parent.id"
+      v-for="category in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
+      :key="category.id"
     >
-      <DegreeTemplateCategory :category="parent" :position="position" />
+      <DegreeTemplateCategory :category="category" :position="position" />
     </div>
     <div
       v-if="!isAddingCategory && !$_.filter(categories, c => c.position === position).length"
@@ -56,6 +56,7 @@ export default {
   }),
   methods: {
     add() {
+      this.$announcer.polite('Add category')
       this.isAddingCategory = true
       this.setDisableButtons(true)
     },

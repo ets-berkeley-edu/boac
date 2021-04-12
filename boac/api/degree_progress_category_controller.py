@@ -29,6 +29,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
 from flask import current_app as app, request
+from flask_cors import cross_origin
 
 
 @app.route('/api/degree/category/create', methods=['POST'])
@@ -43,6 +44,16 @@ def create_category():
     template_id = get_param(params, 'templateId')
     if not category_type or not name or not _is_valid_position(position) or not template_id:
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
+    if category_type == 'Subcategory' and not parent_category_id:
+        raise BadRequestError("The parentCategoryId param is required when categoryType equals 'Subcategory'.")
+    if parent_category_id:
+        parent = _get_degree_category(parent_category_id)
+        parent_type = parent.category_type
+        if parent_type == 'Course' or (parent_type == 'Subcategory' and category_type == 'Category'):
+            raise BadRequestError(f'Type {category_type} not allowed, based on parent type: {parent_type}.')
+        if parent.position != position:
+            raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
+
     category = DegreeProgressCategory.create(
         category_type=category_type,
         course_units=course_units,
@@ -59,6 +70,14 @@ def create_category():
 @can_read_degree_progress
 def get_degree_category(category_id):
     return tolerant_jsonify(_get_degree_category(category_id))
+
+
+@app.route('/api/degree/category/<category_id>', methods=['DELETE'])
+@can_edit_degree_progress
+@cross_origin(allow_headers=['Content-Type'])
+def delete_degree_category(category_id):
+    DegreeProgressCategory.delete(category_id)
+    return tolerant_jsonify({'message': f'Template {category_id} deleted'}), 200
 
 
 def _get_degree_category(category_id):
