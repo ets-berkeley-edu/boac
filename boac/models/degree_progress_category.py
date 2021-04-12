@@ -90,6 +90,7 @@ class DegreeProgressCategory(Base):
             course_units=None,
             description=None,
             parent_category_id=None,
+            unit_requirement_ids=None,
     ):
         category = cls(
             category_type=category_type,
@@ -100,6 +101,7 @@ class DegreeProgressCategory(Base):
             position=position,
             template_id=template_id,
         )
+        # TODO: Use 'unit_requirement_ids' in mapping this instance to 'unit_requirements' table
         db.session.add(category)
         std_commit()
         return category
