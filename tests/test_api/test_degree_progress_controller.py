@@ -344,6 +344,44 @@ class TestCreateUnitRequirement:
             )
 
 
+class TestDeleteUnitRequirement:
+    """Degree Progress Unit Requirement Deletion."""
+
+    @classmethod
+    def _api_delete_unit_requirement(cls, client, unit_requirement_id, expected_status_code=200):
+        response = client.delete(f'/api/degree/unit_requirement/{unit_requirement_id}')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client, mock_unit_requirement):
+        """Returns 401 if not authenticated."""
+        self._api_delete_unit_requirement(client, mock_unit_requirement.id, expected_status_code=401)
+
+    def test_advisor_no_permission(self, client, mock_unit_requirement, fake_auth):
+        """Returns 401 if user has no degree progress permission."""
+        fake_auth.login(coe_advisor_no_access_uid)
+        self._api_delete_unit_requirement(client, mock_unit_requirement.id, expected_status_code=401)
+
+    def test_advisor_read_only_permission(self, client, mock_unit_requirement, fake_auth):
+        """Returns 401 if user has read-only degree progress permission."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_delete_unit_requirement(client, mock_unit_requirement.id, expected_status_code=401)
+
+    def test_advisor_read_write_permission(self, client, mock_unit_requirement, fake_auth):
+        """Deletes unit requirement if user has read-write degree progress permission."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        response = self._api_delete_unit_requirement(client, mock_unit_requirement.id)
+        assert response
+        assert response.get('message') == f'Unit requirement {mock_unit_requirement.id} deleted'
+
+    def test_admin(self, client, mock_unit_requirement, fake_auth):
+        """Deletes unit requirement if user is admin."""
+        fake_auth.login(admin_uid)
+        response = self._api_delete_unit_requirement(client, mock_unit_requirement.id)
+        assert response
+        assert response.get('message') == f'Unit requirement {mock_unit_requirement.id} deleted'
+
+
 class TestUpdateDegreeTemplate:
     """Update degree template API."""
 
