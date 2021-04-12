@@ -8,7 +8,7 @@
         :id="`column-${position}-add-category-select`"
         v-model="selectedCategoryType"
         :disabled="isSaving"
-        @change="putFocusNextTick(`column-${position}-name-input`)"
+        @change="onChangeCategorySelect"
       >
         <b-select-option :value="null">Choose...</b-select-option>
         <b-select-option
@@ -54,12 +54,13 @@
             v-model="selectedParentCategory"
             :disabled="isSaving"
             required
+            @change="onChangeParentCategory"
           >
             <b-select-option :value="null">Choose...</b-select-option>
             <b-select-option
               v-for="category in withTypeCategory"
               :key="category.id"
-              :value="category.id"
+              :value="category"
             >
               {{ category.name }}
             </b-select-option>
@@ -72,11 +73,13 @@
         <b-btn
           :id="`column-${position}-create-requirement-btn`"
           class="b-dd-override"
-          :disabled="isSaving || !nameInput || !selectedCategoryType"
+          :disabled="isSaving || !nameInput || !selectedCategoryType || (selectedCategoryType === 'Subcategory' && !selectedParentCategory)"
           variant="primary"
           @click="create"
         >
-          <span v-if="isSaving">Create Requirement</span>
+          <span v-if="isSaving">
+            <font-awesome class="mr-1" icon="spinner" spin /> Saving
+          </span>
           <span v-if="!isSaving">Create Requirement</span>
         </b-btn>
       </div>
@@ -139,20 +142,26 @@ export default {
     },
     create() {
       this.isSaving = true
-      // TODO: parentCategoryId
-      const parentCategoryId = undefined
       this.createCategory({
         categoryType: this.selectedCategoryType,
         courseUnits: this.courseUnits,
         description: this.descriptionText,
         name: this.nameInput,
         position: this.position,
-        parentCategoryId
+        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id
       }).then(category => {
         this.$announcer.polite(`${category.categoryType} created`)
         this.afterCreate()
         this.setDisableButtons(false)
       })
+    },
+    onChangeCategorySelect() {
+      this.$announcer.polite(`${this.selectedCategoryType} selected`)
+      this.putFocusNextTick(`column-${this.position}-name-input`)
+    },
+    onChangeParentCategory() {
+      this.$announcer.polite(`${this.selectedParentCategory} selected`)
+      this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
     }
   }
 }

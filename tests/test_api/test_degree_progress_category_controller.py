@@ -101,6 +101,50 @@ class TestCreateDegreeCategory:
         assert api_json['templateId'] == mock_template.id
 
 
+class TestDeleteCategory:
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous user."""
+        assert client.delete('/api/degree/category/1').status_code == 401
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        assert client.delete('/api/degree/category/1').status_code == 401
+
+    def test_delete(self, client, fake_auth, mock_template):
+        """COE advisor can delete degree category."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        category = _api_create_category(
+            category_type='Category',
+            client=client,
+            name='Blister in the sun',
+            position=3,
+            template_id=mock_template.id,
+        )
+        subcategory = _api_create_category(
+            category_type='Category',
+            client=client,
+            name='Gone Daddy Gone',
+            parent_category_id=category['id'],
+            position=3,
+            template_id=mock_template.id,
+        )
+        course = _api_create_category(
+            category_type='Category',
+            client=client,
+            name='Blister in the sun',
+            parent_category_id=subcategory['id'],
+            position=3,
+            template_id=mock_template.id,
+        )
+        category_id = category['id']
+        assert client.delete(f'/api/degree/category/{category_id}').status_code == 200
+        # Verify that all were deleted.
+        for object_id in (category_id, subcategory['id'], course['id']):
+            assert client.get(f'/api/degree/category/{object_id}').status_code == 404
+
+
 class TestGetTemplateWithCategory:
     """Get Degree Template API."""
 
