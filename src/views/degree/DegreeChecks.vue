@@ -173,7 +173,7 @@
       button-label-confirm="Delete"
       modal-header="Delete Degree"
     />
-    <CloneDegreeTemplateModal
+    <CloneTemplateModal
       v-if="templateToClone"
       :after-create="afterClone"
       :cancel="cloneCanceled"
@@ -184,7 +184,7 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import CloneDegreeTemplateModal from '@/components/degree/CloneDegreeTemplateModal'
+import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
@@ -193,7 +193,7 @@ import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/
 
 export default {
   name: 'DegreeChecks',
-  components: {AreYouSureModal, CloneDegreeTemplateModal, Spinner},
+  components: {AreYouSureModal, CloneTemplateModal, Spinner},
   mixins: [Context, Loading, Util],
   data: () => ({
     deleteModalBody: undefined,

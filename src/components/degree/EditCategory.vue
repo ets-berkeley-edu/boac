@@ -185,7 +185,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'EditDegreeCategory',
+  name: 'EditCategory',
   mixins: [DegreeEditSession, Util],
   props: {
     afterCancel: {

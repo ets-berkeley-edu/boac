@@ -69,7 +69,7 @@ import Util from '@/mixins/Util'
 import {cloneDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
-  name: 'CloneDegreeTemplateModal',
+  name: 'CloneTemplateModal',
   components: {ModalHeader},
   mixins: [Util],
   props: {
