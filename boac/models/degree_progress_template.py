@@ -47,7 +47,7 @@ class DegreeProgressTemplate(Base):
     unit_requirements = db.relationship(
         DegreeProgressUnitRequirement.__name__,
         back_populates='template',
-        order_by='asc(DegreeProgressUnitRequirement.id)',
+        order_by='DegreeProgressUnitRequirement.created_at',
     )
 
     def __init__(self, advisor_dept_codes, created_by, degree_name, student_sid, updated_by):
