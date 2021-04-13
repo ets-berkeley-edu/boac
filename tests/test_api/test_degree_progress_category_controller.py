@@ -184,12 +184,7 @@ class TestGetTemplateWithCategory:
             position=3,
             template_id=mock_template.id,
         )
-        unit_requirement = DegreeProgressUnitRequirement.create(
-            created_by=user.id,
-            min_units=3,
-            name='I am unit_requirement.',
-            template_id=mock_template.id,
-        )
+        unit_requirement = _create_unit_requirement(name='I am requirement.', template_id=mock_template.id, user=user)
         _api_create_category(
             category_type='Course',
             client=client,
@@ -222,7 +217,108 @@ class TestGetTemplateWithCategory:
         unit_requirements = lower_course['unitRequirements']
         assert len(unit_requirements) == 1
         assert unit_requirements[0]['id']
-        assert unit_requirements[0]['name'] == 'I am unit_requirement.'
+        assert unit_requirements[0]['name'] == 'I am requirement.'
+
+
+class TestUpdateDegreeCategory:
+    """Update Degree Category API."""
+
+    @classmethod
+    def _api_update_category(
+            cls,
+            category_id,
+            client,
+            course_units,
+            description,
+            name,
+            unit_requirement_ids,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/degree/category/{category_id}/update',
+            data=json.dumps({
+                'name': name,
+                'categoryId': category_id,
+                'courseUnits': course_units,
+                'description': description,
+                'unitRequirementIds': unit_requirement_ids,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_update_category(
+            category_id=1,
+            client=client,
+            course_units=3,
+            description='Vampire Can Mating Oven',
+            expected_status_code=401,
+            name='Never Go Back',
+            unit_requirement_ids=[],
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_update_category(
+            category_id=1,
+            client=client,
+            course_units=3,
+            description='Vampire Can Mating Oven',
+            expected_status_code=401,
+            name='Seven Languages',
+            unit_requirement_ids=[],
+        )
+
+    def test_update_category(self, client, fake_auth, mock_template):
+        """Authorized user can edit a category."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        preserve_me = _create_unit_requirement(
+            name='initial_unit_requirement #2',
+            template_id=mock_template.id,
+            user=user,
+        )
+        initial_unit_requirements = [
+            _create_unit_requirement(name='initial_unit_requirement #1', template_id=mock_template.id, user=user),
+            preserve_me,
+            _create_unit_requirement(name='initial_unit_requirement #3', template_id=mock_template.id, user=user),
+        ]
+        category = _api_create_category(
+            category_type='Category',
+            client=client,
+            name='Processional',
+            position=3,
+            template_id=mock_template.id,
+            unit_requirement_ids=[u.id for u in initial_unit_requirements],
+        )
+        name = 'Ice Cream Everyday'
+        description = 'Vampire Can Mating Oven'
+        new_unit_requirement = _create_unit_requirement(name='new_requirement #1', template_id=mock_template.id, user=user)
+        new_unit_requirement_ids = [new_unit_requirement.id, preserve_me.id]
+        self._api_update_category(
+            category_id=category['id'],
+            client=client,
+            course_units=3,
+            description=description,
+            name=name,
+            unit_requirement_ids=[new_unit_requirement.id, preserve_me.id],
+        )
+        std_commit(allow_test_environment=True)
+        # Verify the update
+        api_json = _api_get_template(client=client, template_id=mock_template.id)
+        assert len(api_json['categories']) == 1
+
+        category = api_json['categories'][0]
+        assert category['id'] == category['id']
+        assert category['description'] == description
+        assert category['name'] == name
+        # Verify add/remove of unit requirements
+        unit_requirement_id_set = set([u['id'] for u in category['unitRequirements']])
+        assert unit_requirement_id_set == set(new_unit_requirement_ids)
 
 
 def _api_create_category(
@@ -259,3 +355,12 @@ def _api_get_template(client, template_id, expected_status_code=200):
     response = client.get(f'/api/degree/{template_id}')
     assert response.status_code == expected_status_code
     return response.json
+
+
+def _create_unit_requirement(name, template_id, user, min_units=3):
+    return DegreeProgressUnitRequirement.create(
+        created_by=user.id,
+        min_units=min_units,
+        name=name,
+        template_id=template_id,
+    )

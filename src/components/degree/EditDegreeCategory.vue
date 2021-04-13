@@ -1,27 +1,29 @@
 <template>
   <div>
-    <div class="font-weight-500">
-      Requirement Type (required)
-    </div>
-    <div class="my-2">
-      <b-select
-        :id="`column-${position}-add-category-select`"
-        v-model="selectedCategoryType"
-        :disabled="isSaving"
-        @change="onChangeCategorySelect"
-      >
-        <b-select-option :id="`column-${position}-select-option-null`" :value="null">Choose...</b-select-option>
-        <b-select-option
-          v-for="option in $config.degreeCategoryTypeOptions"
-          :id="`column-${position}-select-option-${option}`"
-          :key="option"
-          :disabled="(!withTypeCategory.length && option !== 'Category')"
-          required
-          :value="option"
+    <div v-if="!existingCategory">
+      <div class="font-weight-500">
+        Requirement Type (required)
+      </div>
+      <div class="my-2">
+        <b-select
+          :id="`column-${position}-add-category-select`"
+          v-model="selectedCategoryType"
+          :disabled="isSaving"
+          @change="onChangeCategorySelect"
         >
-          {{ option }}
-        </b-select-option>
-      </b-select>
+          <b-select-option :id="`column-${position}-select-option-null`" :value="null">Choose...</b-select-option>
+          <b-select-option
+            v-for="option in $config.degreeCategoryTypeOptions"
+            :id="`column-${position}-select-option-${option}`"
+            :key="option"
+            :disabled="(!withTypeCategory.length && option !== 'Category')"
+            required
+            :value="option"
+          >
+            {{ option }}
+          </b-select-option>
+        </b-select>
+      </div>
     </div>
     <div v-if="selectedCategoryType">
       <div class="font-weight-500 my-2">
@@ -46,7 +48,7 @@
             v-model="courseUnits"
             class="course-units-input"
             :disabled="isSaving"
-            maxlength="2"
+            maxlength="1"
             trim
           />
           <span v-if="!isValidCourseUnits" class="has-error faint-text font-size-12">
@@ -155,12 +157,13 @@
           class="b-dd-override"
           :disabled="isSaving || !nameInput || !selectedCategoryType || (selectedCategoryType !== 'Category' && !selectedParentCategory) || !isValidCourseUnits"
           variant="primary"
-          @click="create"
+          @click="onClickSave"
         >
           <span v-if="isSaving">
             <font-awesome class="mr-1" icon="spinner" spin /> Saving
           </span>
-          <span v-if="!isSaving">Create Requirement</span>
+          <span v-if="existingCategory && !isSaving">Update</span>
+          <span v-if="!existingCategory && !isSaving">Create Requirement</span>
         </b-btn>
       </div>
       <div>
@@ -168,7 +171,7 @@
           :id="`column-${position}-cancel-create-requirement-btn`"
           :disabled="isSaving"
           variant="link"
-          @click="cancelCreateRequirement"
+          @click="cancel"
         >
           Cancel
         </b-btn>
@@ -182,16 +185,21 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'AddDegreeCategory',
+  name: 'EditDegreeCategory',
   mixins: [DegreeEditSession, Util],
   props: {
     afterCancel: {
       required: true,
       type: Function
     },
-    afterCreate: {
+    afterSave: {
       required: true,
       type: Function
+    },
+    existingCategory: {
+      default: undefined,
+      required: false,
+      type: Object
     },
     position: {
       required: true,
@@ -220,10 +228,18 @@ export default {
     unitRequirementModel: null
   }),
   created() {
+    if (this.existingCategory) {
+      this.courseUnits = this.existingCategory.courseUnits
+      this.descriptionText = this.existingCategory.description
+      this.nameInput = this.existingCategory.name
+      this.selectedCategoryType = this.existingCategory.categoryType
+      this.selectedParentCategory = this.existingCategory.foo
+      this.selectedUnitRequirements = this.existingCategory.foo
+    }
     this.putFocusNextTick(`column-${this.position}-add-category-select`)
   },
   methods: {
-    cancelCreateRequirement() {
+    cancel() {
       this.descriptionText = null
       this.nameInput = null
       this.selectedCategoryType = null
@@ -241,8 +257,7 @@ export default {
         unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
       }).then(() => {
         this.$announcer.polite(`${this.selectedCategoryType} created`)
-        this.afterCreate()
-        this.setDisableButtons(false)
+        this.afterSave()
       })
     },
     onChangeCategorySelect(option) {
@@ -264,9 +279,28 @@ export default {
         this.unitRequirementModel = null
       }
     },
+    onClickSave() {
+      this.existingCategory ? this.update() : this.create()
+    },
     removeUnitRequirement(item) {
       this.$announcer.polite(`${item.name} removed`)
       this.selectedUnitRequirements = this.$_.remove(this.selectedUnitRequirements, selected => selected.id !== item.id)
+    },
+    update() {
+      this.isSaving = true
+      this.updateCategory({
+        categoryType: this.selectedCategoryType,
+        courseUnits: this.courseUnits,
+        description: this.descriptionText,
+        id: this.existingCategory.id,
+        name: this.nameInput,
+        position: this.position,
+        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
+        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
+      }).then(() => {
+        this.$announcer.polite(`${this.selectedCategoryType} created`)
+        this.afterSave()
+      })
     }
   }
 }
@@ -274,7 +308,7 @@ export default {
 
 <style scoped>
 .course-units-input {
-  max-width: 50px;
+  max-width: 36px;
 }
 .pill-unit-requirement {
   background-color: #fff;

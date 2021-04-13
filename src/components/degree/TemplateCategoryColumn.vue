@@ -14,18 +14,29 @@
         <font-awesome icon="plus" class="m-1" />
       </b-btn>
     </div>
-    <AddDegreeCategory
+    <EditDegreeCategory
       v-if="isAddingCategory"
-      :after-cancel="afterCancelAddCategory"
-      :after-create="afterCategoryCreate"
+      :after-cancel="onExitEditCategory"
+      :after-save="onExitEditCategory"
       :position="position"
     />
     <div
       v-for="category in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
       :key="category.id"
     >
-      <DegreeTemplateCategory :category="category" :position="position" />
-
+      <DegreeTemplateCategory
+        v-if="category.id !== $_.get(categoryForEdit, 'id')"
+        :category="category"
+        :on-click-edit="edit"
+        :position="position"
+      />
+      <EditDegreeCategory
+        v-if="category.id === $_.get(categoryForEdit, 'id')"
+        :after-cancel="onExitEditCategory"
+        :after-save="onExitEditCategory"
+        :existing-category="category"
+        :position="position"
+      />
       <div v-if="category.courses.length" class="pl-2 py-2">
         <DegreeTemplateCoursesTable
           :courses="category.courses"
@@ -34,7 +45,19 @@
       </div>
       <div v-if="category.subcategories.length">
         <div v-for="subcategory in category.subcategories" :key="subcategory.id">
-          <DegreeTemplateCategory :category="subcategory" :position="position" />
+          <DegreeTemplateCategory
+            v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
+            :category="subcategory"
+            :position="position"
+            :on-click-edit="edit"
+          />
+          <EditDegreeCategory
+            v-if="subcategory.id === $_.get(categoryForEdit, 'id')"
+            :after-cancel="onExitEditCategory"
+            :after-save="onExitEditCategory"
+            :existing-category="subcategory"
+            :position="position"
+          />
           <div v-if="subcategory.courses.length" class="pl-2 py-2">
             <DegreeTemplateCoursesTable
               :courses="subcategory.courses"
@@ -54,16 +77,16 @@
 </template>
 
 <script>
-import AddDegreeCategory from '@/components/degree/AddDegreeCategory'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplateCategory from '@/components/degree/DegreeTemplateCategory'
 import DegreeTemplateCoursesTable from '@/components/degree/DegreeTemplateCoursesTable'
+import EditDegreeCategory from '@/components/degree/EditDegreeCategory'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'TemplateCategoryColumn',
   mixins: [DegreeEditSession, Util],
-  components: {AddDegreeCategory, DegreeTemplateCategory, DegreeTemplateCoursesTable},
+  components: {DegreeTemplateCategory, EditDegreeCategory, DegreeTemplateCoursesTable},
   props: {
     position: {
       required: true,
@@ -71,6 +94,7 @@ export default {
     }
   },
   data: () => ({
+    categoryForEdit: undefined,
     isAddingCategory: false
   }),
   methods: {
@@ -79,12 +103,15 @@ export default {
       this.isAddingCategory = true
       this.setDisableButtons(true)
     },
-    afterCancelAddCategory() {
+    edit(category) {
+      this.categoryForEdit = category
+      this.setDisableButtons(true)
+      this.$announcer.polite(`Edit ${category.categoryType} "${category.name}"`)
+    },
+    onExitEditCategory() {
+      this.categoryForEdit = null
       this.isAddingCategory = false
       this.setDisableButtons(false)
-    },
-    afterCategoryCreate() {
-      this.isAddingCategory = false
     }
   }
 }

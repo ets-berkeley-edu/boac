@@ -86,6 +86,27 @@ def delete_degree_category(category_id):
     return tolerant_jsonify({'message': f'Template {category_id} deleted'}), 200
 
 
+@app.route('/api/degree/category/<category_id>/update', methods=['POST'])
+@can_edit_degree_progress
+def update_category(category_id):
+    params = request.get_json()
+    course_units = get_param(params, 'courseUnits')
+    description = get_param(params, 'description')
+    name = get_param(params, 'name')
+    # Courses can be mapped to degree_progress_unit_requirements
+    value = get_param(request.get_json(), 'unitRequirementIds')
+    unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
+
+    category = DegreeProgressCategory.update(
+        category_id=category_id,
+        course_units=course_units,
+        description=description,
+        name=name,
+        unit_requirement_ids=unit_requirement_ids,
+    )
+    return tolerant_jsonify(category.to_api_json())
+
+
 def _get_degree_category(category_id):
     category = DegreeProgressCategory.find_by_id(category_id)
     if not category:

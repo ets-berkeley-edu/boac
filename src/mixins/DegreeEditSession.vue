@@ -24,6 +24,7 @@ export default {
       'loadTemplate',
       'setDisableButtons',
       'setEditMode',
+      'updateCategory',
       'updateUnitRequirement'
     ]),
     findCategoriesByTypes(types, position) {
