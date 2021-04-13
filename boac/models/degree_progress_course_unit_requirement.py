@@ -46,3 +46,7 @@ class DegreeProgressCourseUnitRequirement(db.Model):
     def create(cls, category_id, unit_requirement_id):
         db.session.add(cls(category_id=category_id, unit_requirement_id=unit_requirement_id))
         std_commit()
+
+    @classmethod
+    def find_by_category_id(cls, category_id):
+        return cls.query.filter_by(category_id=category_id).all()
