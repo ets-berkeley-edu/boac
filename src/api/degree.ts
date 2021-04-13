@@ -52,6 +52,23 @@ export function getDegreeTemplates() {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/templates`).then(response => response.data, () => null)
 }
 
+export function updateDegreeCategory(
+  courseUnits: number,
+  description: string,
+  id: number,
+  name: string,
+  unitRequirementIds: number[]
+) {
+  const data = {
+    courseUnits,
+    description,
+    id,
+    name,
+    unitRequirementIds
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${id}/update`, data).then(response => response.data, () => null)
+}
+
 export function updateDegreeTemplate(templateId: number, name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/update`, {name}).then(response => response.data, () => null)
 }

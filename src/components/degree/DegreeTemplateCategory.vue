@@ -17,7 +17,7 @@
         class="py-0 pr-0"
         :disabled="disableButtons"
         variant="link"
-        @click.prevent="editCategory"
+        @click.prevent="edit"
       >
         <font-awesome icon="edit" />
         <span class="sr-only">Edit {{ category.name }}</span>
@@ -62,6 +62,10 @@ export default {
     position: {
       required: true,
       type: Number
+    },
+    onClickEdit: {
+      required: true,
+      type: Function
     }
   },
   data: () => ({
@@ -94,8 +98,9 @@ export default {
       this.isDeleting = true
       this.$announcer.polite(`Delete ${this.category.name}`)
     },
-    editCategory() {
+    edit() {
       this.$announcer.polite(`Edit ${this.category.name}`)
+      this.onClickEdit(this.category)
     }
   }
 }

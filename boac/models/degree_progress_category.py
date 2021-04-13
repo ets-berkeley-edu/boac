@@ -156,6 +156,36 @@ class DegreeProgressCategory(Base):
 
         return hierarchy
 
+    @classmethod
+    def update(
+            cls,
+            category_id,
+            course_units,
+            description,
+            name,
+            unit_requirement_ids,
+    ):
+        category = cls.query.filter_by(id=category_id).first()
+        category.course_units = course_units
+        category.description = description
+        category.name = name
+
+        unit_requirement_id_set = set(unit_requirement_ids or [])
+        existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_category_id(category_id)
+        existing_unit_requirement_id_set = set([u.unit_requirement_id for u in existing_unit_requirements])
+
+        for unit_requirement_id in (unit_requirement_id_set - existing_unit_requirement_id_set):
+            DegreeProgressCourseUnitRequirement.create(
+                category_id=category.id,
+                unit_requirement_id=unit_requirement_id,
+            )
+        for unit_requirement_id in (existing_unit_requirement_id_set - unit_requirement_id_set):
+            delete_me = next(e for e in existing_unit_requirements if e.unit_requirement_id == unit_requirement_id)
+            db.session.delete(delete_me)
+
+        std_commit()
+        return cls.find_by_id(category_id=category_id)
+
     def to_api_json(self):
         unit_requirements_json = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {

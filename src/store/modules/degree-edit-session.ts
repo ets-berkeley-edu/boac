@@ -4,6 +4,7 @@ import {
   createDegreeCategory,
   deleteDegreeCategory,
   getDegreeTemplate,
+  updateDegreeCategory,
   updateUnitRequirement
 } from '@/api/degree'
 import store from '@/store'
@@ -140,6 +141,29 @@ const actions = {
           commit('setEditMode', null)
           resolve()
         }
+      )
+    })
+  },
+  updateCategory: ({commit, state}, {
+    courseUnits,
+    description,
+    id,
+    name,
+    unitRequirementIds
+  }) => {
+    return new Promise<void>(resolve => {
+      updateDegreeCategory(
+        courseUnits,
+        description,
+        id,
+        name,
+        unitRequirementIds
+      ).then(() => {
+        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
+          commit('setEditMode', null)
+          resolve()
+        })
+      }
       )
     })
   }
