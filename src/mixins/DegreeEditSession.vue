@@ -32,6 +32,7 @@ export default {
       'createCategory',
       'createUnitRequirement',
       'deleteCategory',
+      'deleteUnitRequirement',
       'init',
       'loadTemplate',
       'setDisableButtons',

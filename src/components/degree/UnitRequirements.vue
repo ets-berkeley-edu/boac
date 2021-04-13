@@ -15,10 +15,10 @@
       </b-btn>
     </div>
     <div v-if="!editMode">
-      <div v-if="$_.isEmpty(unitRequirements)" class="no-data-text">
+      <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
         No unit requirements created
       </div>
-      <b-table
+      <b-table-lite
         id="unit-requirements-table"
         :items="unitRequirements"
         :fields="fields"
@@ -44,22 +44,33 @@
             class="py-0"
             :disabled="disableButtons"
             variant="link"
+            @click.prevent="onClickDelete(row.index)"
           >
             <font-awesome icon="trash-alt" />
             <span class="sr-only">Delete {{ row.item.name }}</span>
           </b-btn>
         </template>
-      </b-table>
+      </b-table-lite>
     </div>
     <EditUnitRequirement
       v-if="editMode"
       :index="indexOfSelected"
       :unit-requirement="unitRequirements[indexOfSelected]"
     />
+    <AreYouSureModal
+      v-if="isDeleting"
+      :function-cancel="deleteCanceled"
+      :function-confirm="deleteConfirmed"
+      :modal-body="`Are you sure you want to delete <strong>${$_.get(selected, 'name')}</strong>?`"
+      :show-modal="isDeleting"
+      button-label-confirm="Delete"
+      modal-header="Delete Unit Requirement"
+    />
   </div>
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
@@ -67,7 +78,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'UnitRequirements',
-  components: {EditUnitRequirement},
+  components: {AreYouSureModal, EditUnitRequirement},
   mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     fields: [
@@ -87,11 +98,38 @@ export default {
         class: 'd-flex flex-row justify-content-end pr-0'
       }
     ],
-    indexOfSelected: undefined
+    indexOfSelected: undefined,
+    isDeleting: false
   }),
+  computed: {
+    selected() {
+      return this.unitRequirements[this.indexOfSelected]
+    }
+  },
   methods: {
+    deleteCanceled() {
+      this.isDeleting = false
+      this.putFocusNextTick(`unit-requirement-${this.$_.get(this.selected, 'id')}-delete-btn`)
+      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.setDisableButtons(false)
+    },
+    deleteConfirmed() {
+      const name = this.$_.get(this.selected, 'name')
+      this.deleteUnitRequirement(this.indexOfSelected).then(() => {
+        this.$announcer.polite(`${name} deleted.`)
+        this.isDeleting = false
+        this.setDisableButtons(false)
+        this.putFocusNextTick('unit-requirements-table')
+      })
+    },
     onClickAdd() {
+      this.indexOfSelected = null
       this.setEditMode('createUnitRequirement')
+    },
+    onClickDelete(index) {
+      this.setDisableButtons(true)
+      this.indexOfSelected = index
+      this.isDeleting = true
     },
     onClickEdit(index) {
       this.indexOfSelected = index

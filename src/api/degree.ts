@@ -44,6 +44,10 @@ export function deleteDegreeTemplate(templateId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/${templateId}`)
 }
 
+export function deleteUnitRequirement(unitRequirementId: number) {
+  return axios.delete(`${utils.apiBaseUrl()}/api/degree/unit_requirement/${unitRequirementId}`)
+}
+
 export function getDegreeTemplate(templateId: number) {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/${templateId}`).then(response => response.data, () => null)
 }
