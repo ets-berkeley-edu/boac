@@ -37,9 +37,7 @@ const getters = {
 }
 
 const mutations = {
-  addDegreeCategory: (state: any, category: any) => state.categories.push(category),
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
-  removeCategory: (state: any, categoryId: number) => state.categories = _.filter(state.categories, c => c.id !== categoryId),
   resetSession: (state: any, template: any) => {
     state.editMode = null
     state.categories = template && template.categories
@@ -73,7 +71,7 @@ const actions = {
     position,
     unitRequirementIds
   }) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       createDegreeCategory(
         categoryType,
         courseUnits,
@@ -83,10 +81,11 @@ const actions = {
         position,
         state.templateId,
         unitRequirementIds
-      ).then(category => {
-        commit('addDegreeCategory', category)
-        commit('setEditMode', null)
-        resolve(category)
+      ).then(() => {
+        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
+          commit('setEditMode', null)
+          resolve()
+        })
       }
       )
     })
@@ -102,11 +101,12 @@ const actions = {
       )
     })
   },
-  deleteCategory: ({commit}, categoryId) => {
+  deleteCategory: ({state}, categoryId) => {
     return new Promise<void>(resolve => {
       deleteDegreeCategory(categoryId).then(() => {
-        commit('removeCategory', categoryId)
-        resolve()
+        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
+          resolve()
+        })
       })
     })
   },

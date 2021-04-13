@@ -18,47 +18,16 @@
           </b-col>
         </b-row>
       </b-container>
-    </div>
-    <div v-if="$config.isVueAppDebugMode" class="pt-5">
-      <div class="align-items-center d-flex">
-        <div class="pb-1 pl-2">
-          <b-button
-            class="m-0 p-0"
-            :class="{'collapsed': showDebug}"
-            aria-controls="collapse-degree-edit-debug"
-            variant="link"
-            @click="showDebug = !showDebug"
-          >
-            <div class="pb-1">
-              <font-awesome :icon="showDebug ? 'caret-down' : 'caret-right'" :class="showDebug ? 'mr-1' : 'ml-1 mr-1'" />
-              {{ showDebug ? 'Hide' : 'Show' }} degree-edit debug
-            </div>
-          </b-button>
-        </div>
+      <div v-if="$config.isVueAppDebugMode" class="pt-5">
+        <DebugDegreeTemplate />
       </div>
-      <b-collapse id="collapse-degree-edit-debug" v-model="showDebug">
-        <div class="align-items-center d-flex py-2">
-          <div class="font-weight-500 pb-1 pr-2">Degree_Edit_Session</div>
-          <div v-if="disableButtons">
-            <b-btn
-              class="mb-1 px-0"
-              variant="link"
-              @click="setDisableButtons(false)"
-            >
-              Force enable buttons
-            </b-btn>
-          </div>
-        </div>
-        <div>
-          <pre>{{ degreeEditSessionToString }}</pre>
-        </div>
-      </b-collapse>
     </div>
   </div>
 </template>
 
 <script>
 import Context from '@/mixins/Context'
+import DebugDegreeTemplate from '@/components/degree/DebugDegreeTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
@@ -69,14 +38,12 @@ import Util from '@/mixins/Util'
 export default {
   name: 'DegreeTemplate',
   components: {
-    TemplateCategoryColumn,
+    DebugDegreeTemplate,
     Spinner,
+    TemplateCategoryColumn,
     UnitRequirements
   },
   mixins: [Context, DegreeEditSession, Loading, Util],
-  data: () => ({
-    showDebug: false
-  }),
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
     this.init(id).then(() => {

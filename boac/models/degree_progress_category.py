@@ -25,9 +25,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 from sqlalchemy.dialects.postgresql import ENUM
-
+from sqlalchemy.sql import asc
 
 degree_progress_category_type = ENUM(
     'Category',
@@ -49,6 +50,11 @@ class DegreeProgressCategory(Base):
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     position = db.Column(db.Integer, nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
+    unit_requirements = db.relationship(
+        DegreeProgressCourseUnitRequirement.__name__,
+        back_populates='category',
+        lazy='joined',
+    )
 
     def __init__(
             self,
@@ -104,6 +110,11 @@ class DegreeProgressCategory(Base):
         # TODO: Use 'unit_requirement_ids' in mapping this instance to 'unit_requirements' table
         db.session.add(category)
         std_commit()
+        for unit_requirement_id in unit_requirement_ids or []:
+            DegreeProgressCourseUnitRequirement.create(
+                category_id=category.id,
+                unit_requirement_id=int(unit_requirement_id),
+            )
         return category
 
     @classmethod
@@ -120,7 +131,7 @@ class DegreeProgressCategory(Base):
     def get_categories(cls, template_id):
         hierarchy = []
         categories = []
-        for category in cls.query.filter_by(template_id=template_id).all():
+        for category in cls.query.filter_by(template_id=template_id).order_by(asc(cls.created_at)).all():
             categories.append({
                 **category.to_api_json(),
                 'children': [],
@@ -137,6 +148,7 @@ class DegreeProgressCategory(Base):
         return hierarchy
 
     def to_api_json(self):
+        unit_requirements_json = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'id': self.id,
             'categoryType': self.category_type,
@@ -147,6 +159,7 @@ class DegreeProgressCategory(Base):
             'parentCategoryId': self.parent_category_id,
             'position': self.position,
             'templateId': self.template_id,
+            'unitRequirements': unit_requirements_json,
             'updatedAt': _isoformat(self.updated_at),
         }
 

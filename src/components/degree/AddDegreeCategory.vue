@@ -122,7 +122,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Category'">
+      <div v-if="selectedCategoryType !== 'Category'" class="my-2">
         <div class="font-weight-500">
           Requirement Location (required)
         </div>
@@ -136,9 +136,10 @@
           >
             <b-select-option :id="`column-${position}-parent-select-option-null`" :value="null">Choose...</b-select-option>
             <b-select-option
-              v-for="category in withTypeCategory"
+              v-for="category in withTypeCategoryOrSubcategory"
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
+              :aria-label="`${category.categoryType} ${category.name}`"
               :value="category"
             >
               {{ category.name }}
@@ -202,7 +203,10 @@ export default {
       return this.$_.isEmpty(this.courseUnits) || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
     },
     withTypeCategory() {
-      return this.findCategoriesByType('Category', this.position)
+      return this.findCategoriesByTypes(['Category'], this.position)
+    },
+    withTypeCategoryOrSubcategory() {
+      return this.findCategoriesByTypes(['Category', 'Subcategory'], this.position)
     }
   },
   data: () => ({
@@ -235,8 +239,8 @@ export default {
         position: this.position,
         parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
         unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
-      }).then(category => {
-        this.$announcer.polite(`${category.categoryType} created`)
+      }).then(() => {
+        this.$announcer.polite(`${this.selectedCategoryType} created`)
         this.afterCreate()
         this.setDisableButtons(false)
       })
@@ -277,9 +281,9 @@ export default {
   border: 1px solid #999;
   border-radius: 5px;
   color: #666;
-  height: 24px;
+  min-height: 24px;
   margin-top: 8px;
-  padding: 16px 8px 16px 8px;
+  padding: 8px;
   width: auto;
 }
 </style>

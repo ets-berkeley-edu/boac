@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advising_data_access_required, get_list_from_http_post, get_note_attachments_from_http_post
+from boac.api.util import advising_data_access_required, get_note_attachments_from_http_post, get_note_topics_from_http_post
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor
@@ -40,7 +40,7 @@ def create_note_template():
     title = params.get('title', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = get_list_from_http_post('topics')
+    topics = get_note_topics_from_http_post()
     if not title or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'title\'')
     user_dept_codes = dept_codes_where_advising(current_user)
@@ -104,7 +104,7 @@ def update_note_template():
     if not subject:
         raise BadRequestError('Requires \'subject\'')
     body = params.get('body', None)
-    topics = get_list_from_http_post('topics')
+    topics = get_note_topics_from_http_post()
     delete_ids_ = params.get('deleteAttachmentIds') or []
     delete_ids_ = delete_ids_ if isinstance(delete_ids_, list) else str(delete_ids_).split(',')
     delete_attachment_ids = [int(id_) for id_ in delete_ids_]

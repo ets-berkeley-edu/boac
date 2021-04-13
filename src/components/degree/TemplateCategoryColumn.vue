@@ -25,6 +25,20 @@
       :key="category.id"
     >
       <DegreeTemplateCategory :category="category" :position="position" />
+
+      <div v-if="category.children.length">
+        <div v-for="child in category.children" :key="child.id">
+          <div v-if="child.categoryType === 'Subcategory'">
+            <DegreeTemplateCategory :category="child" :position="position" />
+          </div>
+          <div v-if="child.children.length" class="pl-2 py-2">
+            <DegreeTemplateCoursesTable
+              :courses="child.children"
+              :position="position"
+            />
+          </div>
+        </div>
+      </div>
     </div>
     <div
       v-if="!isAddingCategory && !$_.filter(categories, c => c.position === position).length"
@@ -39,12 +53,13 @@
 import AddDegreeCategory from '@/components/degree/AddDegreeCategory'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplateCategory from '@/components/degree/DegreeTemplateCategory'
+import DegreeTemplateCoursesTable from '@/components/degree/DegreeTemplateCoursesTable'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'TemplateCategoryColumn',
   mixins: [DegreeEditSession, Util],
-  components: {AddDegreeCategory, DegreeTemplateCategory},
+  components: {AddDegreeCategory, DegreeTemplateCategory, DegreeTemplateCoursesTable},
   props: {
     position: {
       required: true,
