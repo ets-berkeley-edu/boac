@@ -3,49 +3,67 @@
     <div v-if="$_.isEmpty(courses)" class="no-data-text">
       No courses
     </div>
-    <b-table
+    <b-table-simple
       id="unit-requirements-table"
       borderless
-      class="mb-2 mt-0"
-      :fields="fields"
-      :items="courses"
+      :responsive="true"
       small
       stacked="sm"
-      thead-class="sortable-table-header text-nowrap border-bottom"
     >
-      <template #cell(courseUnits)="row">
-        <span class="font-size-14">{{ $_.isNil(row.item.courseUnits) ? '&mdash;' : row.item.courseUnits }}</span>
-      </template>
-      <template #cell(unitRequirements)="row">
-        <span v-if="row.item.unitRequirements.length" class="font-size-14">
-          {{ oxfordJoin($_.map(row.item.unitRequirements, 'name')) }}
-        </span>
-      </template>
-      <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
-        <div class="d-flex justify-content-end">
-          <b-btn
-            :id="`column-${position}-edit-category-${row.item.id}-btn`"
-            class="font-size-14 pl-1 pr-0 py-0"
-            :disabled="disableButtons"
-            variant="link"
-            @click="edit(row.item)"
-          >
-            <font-awesome icon="edit" />
-            <span class="sr-only">Edit {{ row.item.name }}</span>
-          </b-btn>
-          <b-btn
-            :id="`column-${position}-delete-course-${row.item.id}-btn`"
-            class="font-size-14 pl-1 pr-0 py-0"
-            :disabled="disableButtons"
-            variant="link"
-            @click="deleteCourse(row.item)"
-          >
-            <font-awesome icon="trash-alt" />
-            <span class="sr-only">Delete {{ row.item.name }}</span>
-          </b-btn>
-        </div>
-      </template>
-    </b-table>
+      <b-thead>
+        <b-tr>
+          <b-th>Course</b-th>
+          <b-th>Units</b-th>
+          <b-th>Fulfillment</b-th>
+          <b-th></b-th>
+        </b-tr>
+      </b-thead>
+      <b-tbody>
+        <b-tr v-for="course in courses" :key="course.id">
+          <b-td v-if="!isEditing(course)">{{ course.name }}</b-td>
+          <b-td v-if="!isEditing(course)">
+            <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
+          </b-td>
+          <b-td v-if="!isEditing(course)">
+            <span v-if="course.unitRequirements.length" class="font-size-14">
+              {{ oxfordJoin($_.map(course.unitRequirements, 'name')) }}
+            </span>
+          </b-td>
+          <b-td v-if="!isEditing(course)">
+            <div class="d-flex justify-content-end">
+              <b-btn
+                :id="`column-${position}-edit-category-${course.id}-btn`"
+                class="font-size-14 pl-1 pr-0 py-0"
+                :disabled="disableButtons"
+                variant="link"
+                @click="edit(course)"
+              >
+                <font-awesome icon="edit" />
+                <span class="sr-only">Edit {{ course.name }}</span>
+              </b-btn>
+              <b-btn
+                :id="`column-${position}-delete-course-${course.id}-btn`"
+                class="font-size-14 pl-1 pr-0 py-0"
+                :disabled="disableButtons"
+                variant="link"
+                @click="deleteCourse(course)"
+              >
+                <font-awesome icon="trash-alt" />
+                <span class="sr-only">Delete {{ course.name }}</span>
+              </b-btn>
+            </div>
+          </b-td>
+          <b-td v-if="isEditing(course)" colspan="4">
+            <EditCategory
+              :after-cancel="afterCancel"
+              :after-save="afterSave"
+              :existing-category="course"
+              :position="position"
+            />
+          </b-td>
+        </b-tr>
+      </b-tbody>
+    </b-table-simple>
     <AreYouSureModal
       v-if="courseForDelete"
       :function-cancel="deleteCanceled"
@@ -61,12 +79,13 @@
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import EditCategory from '@/components/degree/EditCategory'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
-  components: {AreYouSureModal},
+  components: {EditCategory, AreYouSureModal},
   props: {
     courses: {
       required: true,
@@ -79,31 +98,21 @@ export default {
   },
   data: () => ({
     courseForDelete: undefined,
-    courseForEdit: undefined,
-    fields: [
-      {
-        key: 'name',
-        label: 'Course',
-        class: 'font-size-12 pl-0'
-      },
-      {
-        key: 'courseUnits',
-        label: 'Units',
-        class: 'font-size-12 pr-2 text-right'
-      },
-      {
-        key: 'unitRequirements',
-        label: 'Fulfillment',
-        class: 'font-size-12'
-      },
-      {
-        key: 'actions',
-        label: '',
-        class: 'd-flex flex-row font-size-12 justify-content-end pr-0'
-      }
-    ]
+    courseForEdit: undefined
   }),
   methods: {
+    afterCancel() {
+      this.$announcer.polite('Cancelled')
+      this.putFocusNextTick(`column-${this.position}-edit-category-${this.courseForEdit.id}-btn`)
+      this.courseForEdit = null
+      this.setDisableButtons(false)
+    },
+    afterSave() {
+      this.$announcer.polite(`Updated course ${this.courseForEdit.name}`)
+      this.putFocusNextTick(`column-${this.position}-edit-category-${this.courseForEdit.id}-btn`)
+      this.courseForEdit = null
+      this.setDisableButtons(false)
+    },
     deleteCanceled() {
       this.putFocusNextTick(`column-${this.position}-delete-course-${this.courseForDelete.id}-btn`)
       this.courseForDelete = null
@@ -124,8 +133,13 @@ export default {
       this.$announcer.polite(`Delete ${course.name}`)
     },
     edit(course) {
+      this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${course.name}`)
-      // TODO: putFocusNextTick on input
+      this.courseForEdit = course
+      this.putFocusNextTick(`column-${this.position}-name-input`)
+    },
+    isEditing(course) {
+      return course.id === this.$_.get(this.courseForEdit, 'id')
     }
   }
 }

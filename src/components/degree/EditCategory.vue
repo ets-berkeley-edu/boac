@@ -233,8 +233,8 @@ export default {
       this.descriptionText = this.existingCategory.description
       this.nameInput = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
-      this.selectedParentCategory = this.existingCategory.foo
-      this.selectedUnitRequirements = this.existingCategory.foo
+      this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
+      this.selectedUnitRequirements = this.$_.clone(this.existingCategory.unitRequirements)
     }
     this.putFocusNextTick(`column-${this.position}-add-category-select`)
   },
