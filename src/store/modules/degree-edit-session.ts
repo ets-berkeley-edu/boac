@@ -3,6 +3,7 @@ import {
   addUnitRequirement,
   createDegreeCategory,
   deleteDegreeCategory,
+  deleteUnitRequirement,
   getDegreeTemplate,
   updateDegreeCategory,
   updateUnitRequirement
@@ -39,6 +40,7 @@ const getters = {
 
 const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
+  removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
     state.editMode = null
     state.categories = template && template.categories
@@ -57,9 +59,7 @@ const mutations = {
       throw new TypeError(`Invalid page mode: ${editMode}`)
     }
   },
-  updateUnitRequirement: (state: any, {index, unitRequirement}) => {
-    state.unitRequirements[index] = unitRequirement
-  }
+  updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
 
 const actions = {
@@ -108,6 +108,15 @@ const actions = {
         store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
           resolve()
         })
+      })
+    })
+  },
+  deleteUnitRequirement: ({commit, state}, index: number) => {
+    return new Promise<void>(resolve => {
+      const id = _.get(state.unitRequirements[index], 'id')
+      deleteUnitRequirement(id).then(() => {
+        commit('removeUnitRequirement', index)
+        resolve()
       })
     })
   },

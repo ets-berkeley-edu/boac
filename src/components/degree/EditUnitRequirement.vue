@@ -33,7 +33,6 @@
         aria-required="true"
         maxlength="2"
         required
-        type="number"
       />
     </div>
     <b-btn
