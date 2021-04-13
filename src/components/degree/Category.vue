@@ -51,7 +51,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'DegreeTemplateCategory',
+  name: 'Category',
   mixins: [DegreeEditSession, Util],
   components: {AreYouSureModal},
   props: {

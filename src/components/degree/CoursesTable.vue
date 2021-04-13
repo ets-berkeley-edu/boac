@@ -64,7 +64,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'DegreeTemplateCoursesTable',
+  name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
   components: {AreYouSureModal},
   props: {

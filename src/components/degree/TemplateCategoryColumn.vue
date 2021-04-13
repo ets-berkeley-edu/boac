@@ -14,7 +14,7 @@
         <font-awesome icon="plus" class="m-1" />
       </b-btn>
     </div>
-    <EditDegreeCategory
+    <EditCategory
       v-if="isAddingCategory"
       :after-cancel="onExitEditCategory"
       :after-save="onExitEditCategory"
@@ -24,13 +24,13 @@
       v-for="category in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
       :key="category.id"
     >
-      <DegreeTemplateCategory
+      <Category
         v-if="category.id !== $_.get(categoryForEdit, 'id')"
         :category="category"
         :on-click-edit="edit"
         :position="position"
       />
-      <EditDegreeCategory
+      <EditCategory
         v-if="category.id === $_.get(categoryForEdit, 'id')"
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"
@@ -38,20 +38,20 @@
         :position="position"
       />
       <div v-if="category.courses.length" class="pl-2 py-2">
-        <DegreeTemplateCoursesTable
+        <CoursesTable
           :courses="category.courses"
           :position="position"
         />
       </div>
       <div v-if="category.subcategories.length">
         <div v-for="subcategory in category.subcategories" :key="subcategory.id">
-          <DegreeTemplateCategory
+          <Category
             v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
             :category="subcategory"
             :position="position"
             :on-click-edit="edit"
           />
-          <EditDegreeCategory
+          <EditCategory
             v-if="subcategory.id === $_.get(categoryForEdit, 'id')"
             :after-cancel="onExitEditCategory"
             :after-save="onExitEditCategory"
@@ -59,7 +59,7 @@
             :position="position"
           />
           <div v-if="subcategory.courses.length" class="pl-2 py-2">
-            <DegreeTemplateCoursesTable
+            <CoursesTable
               :courses="subcategory.courses"
               :position="position"
             />
@@ -77,16 +77,16 @@
 </template>
 
 <script>
+import Category from '@/components/degree/Category'
+import CoursesTable from '@/components/degree/CoursesTable'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import DegreeTemplateCategory from '@/components/degree/DegreeTemplateCategory'
-import DegreeTemplateCoursesTable from '@/components/degree/DegreeTemplateCoursesTable'
-import EditDegreeCategory from '@/components/degree/EditDegreeCategory'
+import EditCategory from '@/components/degree/EditCategory'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'TemplateCategoryColumn',
   mixins: [DegreeEditSession, Util],
-  components: {DegreeTemplateCategory, EditDegreeCategory, DegreeTemplateCoursesTable},
+  components: {Category, CoursesTable, EditCategory},
   props: {
     position: {
       required: true,

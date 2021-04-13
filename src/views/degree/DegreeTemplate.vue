@@ -19,7 +19,7 @@
         </b-row>
       </b-container>
       <div v-if="$config.isVueAppDebugMode" class="pt-5">
-        <DebugDegreeTemplate />
+        <DebugTemplate />
       </div>
     </div>
   </div>
@@ -27,7 +27,7 @@
 
 <script>
 import Context from '@/mixins/Context'
-import DebugDegreeTemplate from '@/components/degree/DebugDegreeTemplate'
+import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
@@ -38,7 +38,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'DegreeTemplate',
   components: {
-    DebugDegreeTemplate,
+    DebugTemplate,
     Spinner,
     TemplateCategoryColumn,
     UnitRequirements

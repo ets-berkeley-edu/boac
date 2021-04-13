@@ -40,7 +40,7 @@
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 
 export default {
-  name: 'DebugDegreeTemplate',
+  name: 'DebugTemplate',
   mixins: [DegreeEditSession],
   data: () => ({
     showDebug: false
