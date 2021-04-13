@@ -10,8 +10,8 @@
       small
       stacked="sm"
     >
-      <b-thead>
-        <b-tr>
+      <b-thead class="border-bottom">
+        <b-tr class="sortable-table-header text-nowrap">
           <b-th>Course</b-th>
           <b-th>Units</b-th>
           <b-th>Fulfillment</b-th>
@@ -20,16 +20,14 @@
       </b-thead>
       <b-tbody>
         <b-tr v-for="course in courses" :key="course.id">
-          <b-td v-if="!isEditing(course)">{{ course.name }}</b-td>
-          <b-td v-if="!isEditing(course)">
+          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="course.name">{{ course.name }}</td>
+          <td v-if="!isEditing(course)">
             <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
-          </b-td>
-          <b-td v-if="!isEditing(course)">
-            <span v-if="course.unitRequirements.length" class="font-size-14">
-              {{ oxfordJoin($_.map(course.unitRequirements, 'name')) }}
-            </span>
-          </b-td>
-          <b-td v-if="!isEditing(course)">
+          </td>
+          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
+            {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
+          </td>
+          <td v-if="!isEditing(course)">
             <div class="d-flex justify-content-end">
               <b-btn
                 :id="`column-${position}-edit-category-${course.id}-btn`"
@@ -52,7 +50,7 @@
                 <span class="sr-only">Delete {{ course.name }}</span>
               </b-btn>
             </div>
-          </b-td>
+          </td>
           <b-td v-if="isEditing(course)" colspan="4">
             <EditCategory
               :after-cancel="afterCancel"
@@ -144,3 +142,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.td-truncate-with-ellipsis {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+</style>
