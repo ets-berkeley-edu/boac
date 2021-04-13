@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-row pb-3">
+    <div class="d-flex flex-row mt-2 pb-3">
       <div class="pill degree-progress-pill px-2 no-wrap">Column {{ position }}</div>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
@@ -26,14 +26,18 @@
     >
       <DegreeTemplateCategory :category="category" :position="position" />
 
-      <div v-if="category.children.length">
-        <div v-for="child in category.children" :key="child.id">
-          <div v-if="child.categoryType === 'Subcategory'">
-            <DegreeTemplateCategory :category="child" :position="position" />
-          </div>
-          <div v-if="child.children.length" class="pl-2 py-2">
+      <div v-if="category.courses.length" class="pl-2 py-2">
+        <DegreeTemplateCoursesTable
+          :courses="category.courses"
+          :position="position"
+        />
+      </div>
+      <div v-if="category.subcategories.length">
+        <div v-for="subcategory in category.subcategories" :key="subcategory.id">
+          <DegreeTemplateCategory :category="subcategory" :position="position" />
+          <div v-if="subcategory.courses.length" class="pl-2 py-2">
             <DegreeTemplateCoursesTable
-              :courses="child.children"
+              :courses="subcategory.courses"
               :position="position"
             />
           </div>

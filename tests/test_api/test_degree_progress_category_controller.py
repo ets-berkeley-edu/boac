@@ -167,6 +167,15 @@ class TestGetTemplateWithCategory:
             position=3,
             template_id=mock_template.id,
         )
+        _api_create_category(
+            category_type='Course',
+            client=client,
+            course_units=2,
+            name='It\'s a lot of face, a lot of crank air',
+            parent_category_id=category['id'],
+            position=3,
+            template_id=mock_template.id,
+        )
         subcategory = _api_create_category(
             category_type='Subcategory',
             client=client,
@@ -193,16 +202,24 @@ class TestGetTemplateWithCategory:
         )
         std_commit(allow_test_environment=True)
 
-        api_json = client.get(f'/api/degree/{mock_template.id}').json
+        api_json = self._api_get_template(client=client, template_id=mock_template.id)
         categories = api_json['categories']
         assert len(categories) == 1
-        children = categories[0]['children']
-        assert len(children) == 1
-        grand_children = children[0]['children']
-        assert len(grand_children) == 1
-        assert grand_children[0]['courseUnits'] == 3
+        subcategories = categories[0]['subcategories']
+        assert len(subcategories) == 1
+        assert subcategories[0]['name'] == 'Pony in the air'
 
-        unit_requirements = grand_children[0]['unitRequirements']
+        courses = categories[0]['courses']
+        assert len(courses) == 1
+        assert courses[0]['name'] == 'It\'s a lot of face, a lot of crank air'
+        assert courses[0]['courseUnits'] == 2
+
+        lower_courses = subcategories[0]['courses']
+        assert len(lower_courses) == 1
+        lower_course = lower_courses[0]
+        assert lower_course['name'] == 'Sooey and saints at the fair'
+        assert lower_course['courseUnits'] == 3
+        unit_requirements = lower_course['unitRequirements']
         assert len(unit_requirements) == 1
         assert unit_requirements[0]['id']
         assert unit_requirements[0]['name'] == 'I am unit_requirement.'
@@ -236,3 +253,9 @@ def _api_create_category(
     )
     assert response.status_code == expected_status_code
     return json.loads(response.data)
+
+
+def _api_get_template(client, template_id, expected_status_code=200):
+    response = client.get(f'/api/degree/{template_id}')
+    assert response.status_code == expected_status_code
+    return response.json

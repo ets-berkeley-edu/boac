@@ -38,6 +38,7 @@ def create_category():
     params = request.get_json()
     category_type = get_param(params, 'categoryType')
     course_units = get_param(params, 'courseUnits')
+    description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
     position = get_param(params, 'position')
@@ -61,7 +62,7 @@ def create_category():
     category = DegreeProgressCategory.create(
         category_type=category_type,
         course_units=course_units,
-        description=None,
+        description=description,
         name=name,
         parent_category_id=parent_category_id,
         position=position,

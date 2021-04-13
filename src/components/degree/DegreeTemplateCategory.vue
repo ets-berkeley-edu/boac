@@ -1,15 +1,15 @@
 <template>
   <div class="align-items-center d-flex justify-content-between pl-2">
-    <div
-      :class="{
-        'font-weight-500 pt-1': category.categoryType === 'Category',
-        'font-size-14 pt-0': category.categoryType === 'Subcategory'
-      }"
-    >
-      {{ category.name }}
-    </div>
-    <div v-if="category.description">
-      {{ category.description }}
+    <div>
+      <span
+        :class="{
+          'font-weight-500 pt-1': category.categoryType === 'Category',
+          'font-size-14 pt-0': category.categoryType === 'Subcategory'
+        }"
+      >{{ category.name }}</span>
+      <div v-if="category.description">
+        {{ category.description }}
+      </div>
     </div>
     <div class="float-right">
       <b-btn

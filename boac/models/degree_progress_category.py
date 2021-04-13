@@ -119,6 +119,8 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def delete(cls, category_id):
+        for unit_requirement_mapping in DegreeProgressCourseUnitRequirement.find_by_category_id(category_id):
+            db.session.delete(unit_requirement_mapping)
         category = cls.query.filter_by(id=category_id).first()
         db.session.delete(category)
         std_commit()
@@ -132,16 +134,23 @@ class DegreeProgressCategory(Base):
         hierarchy = []
         categories = []
         for category in cls.query.filter_by(template_id=template_id).order_by(asc(cls.created_at)).all():
-            categories.append({
-                **category.to_api_json(),
-                'children': [],
-            })
+            category_type = category.category_type
+            api_json = category.to_api_json()
+            if category_type == 'Category':
+                # A 'Category' can have both courses and subcategories. A 'Subcategory' can have courses.
+                api_json['courses'] = []
+                api_json['subcategories'] = []
+            elif category_type == 'Subcategory':
+                api_json['courses'] = []
+            categories.append(api_json)
+
         categories_by_id = dict((category['id'], category) for category in categories)
         for category in categories:
             parent_category_id = category['parentCategoryId']
             if parent_category_id:
                 parent = categories_by_id[parent_category_id]
-                parent['children'].append(category)
+                key = 'subcategories' if category['categoryType'] == 'Subcategory' else 'courses'
+                parent[key].append(category)
             else:
                 hierarchy.append(category)
 
