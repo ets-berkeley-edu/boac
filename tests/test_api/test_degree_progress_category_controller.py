@@ -29,6 +29,7 @@ import json
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 import pytest
 
 coe_advisor_read_only_uid = '6972201'
@@ -156,7 +157,8 @@ class TestGetTemplateWithCategory:
 
     def test_get_template_categories(self, client, fake_auth, mock_template):
         """Authorized user can get a template and its categories."""
-        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
         category = _api_create_category(
             category_type='Category',
             client=client,
@@ -173,6 +175,12 @@ class TestGetTemplateWithCategory:
             position=3,
             template_id=mock_template.id,
         )
+        unit_requirement = DegreeProgressUnitRequirement.create(
+            created_by=user.id,
+            min_units=3,
+            name='I am unit_requirement.',
+            template_id=mock_template.id,
+        )
         _api_create_category(
             category_type='Course',
             client=client,
@@ -181,6 +189,7 @@ class TestGetTemplateWithCategory:
             parent_category_id=subcategory['id'],
             position=3,
             template_id=mock_template.id,
+            unit_requirement_ids=[unit_requirement.id],
         )
         std_commit(allow_test_environment=True)
 
@@ -193,6 +202,11 @@ class TestGetTemplateWithCategory:
         assert len(grand_children) == 1
         assert grand_children[0]['courseUnits'] == 3
 
+        unit_requirements = grand_children[0]['unitRequirements']
+        assert len(unit_requirements) == 1
+        assert unit_requirements[0]['id']
+        assert unit_requirements[0]['name'] == 'I am unit_requirement.'
+
 
 def _api_create_category(
         client,
@@ -204,17 +218,19 @@ def _api_create_category(
         description=None,
         expected_status_code=200,
         parent_category_id=None,
+        unit_requirement_ids=(),
 ):
     response = client.post(
         '/api/degree/category/create',
         data=json.dumps({
             'categoryType': category_type,
             'courseUnits': course_units,
+            'description': description,
             'name': name,
             'parentCategoryId': parent_category_id,
             'position': position,
             'templateId': template_id,
-            'description': description,
+            'unitRequirementIds': ','.join(str(id_) for id_ in unit_requirement_ids),
         }),
         content_type='application/json',
     )

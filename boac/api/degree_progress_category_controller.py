@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_list_from_http_post
+from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
@@ -42,7 +42,9 @@ def create_category():
     parent_category_id = get_param(params, 'parentCategoryId')
     position = get_param(params, 'position')
     template_id = get_param(params, 'templateId')
-    unit_requirement_ids = get_list_from_http_post('unitRequirementIds')
+    # Categories/courses can be mapped to degree_progress_unit_requirements
+    value = get_param(request.get_json(), 'unitRequirementIds')
+    unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
 
     if not category_type or not name or not _is_valid_position(position) or not template_id:
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")

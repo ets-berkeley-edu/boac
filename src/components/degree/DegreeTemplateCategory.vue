@@ -1,7 +1,15 @@
 <template>
-  <div class="align-items-center d-flex justify-content-between pl-2 pt-3">
-    <div class="font-weight-500 pt-1">
+  <div class="align-items-center d-flex justify-content-between pl-2">
+    <div
+      :class="{
+        'font-weight-500 pt-1': category.categoryType === 'Category',
+        'font-size-14 pt-0': category.categoryType === 'Subcategory'
+      }"
+    >
       {{ category.name }}
+    </div>
+    <div v-if="category.description">
+      {{ category.description }}
     </div>
     <div class="float-right">
       <b-btn
@@ -29,7 +37,7 @@
       v-if="isDeleting"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="`Are you sure you want to delete <strong>${category.name}</strong>`"
+      :modal-body="`Are you sure you want to delete <strong>&quot;${category.name}&quot;</strong>`"
       :show-modal="isDeleting"
       button-label-confirm="Delete"
       modal-header="Delete Degree"

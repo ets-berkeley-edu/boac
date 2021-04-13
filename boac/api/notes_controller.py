@@ -29,8 +29,8 @@ from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotF
 from boac.api.util import (
     advising_data_access_required,
     director_advising_data_access_required,
-    get_list_from_http_post,
     get_note_attachments_from_http_post,
+    get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
 )
 from boac.lib.berkeley import dept_codes_where_advising
@@ -77,7 +77,7 @@ def create_notes():
     sids = _get_sids_for_note_creation()
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = get_list_from_http_post('topics')
+    topics = get_note_topics_from_http_post()
     if not sids or not subject:
         raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
     dept_codes = dept_codes_where_advising(current_user)
@@ -121,7 +121,7 @@ def update_note():
     note_id = params.get('id', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
-    topics = get_list_from_http_post('topics')
+    topics = get_note_topics_from_http_post()
     if not note_id or not subject:
         raise BadRequestError('Note requires \'id\' and \'subject\'')
     if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
