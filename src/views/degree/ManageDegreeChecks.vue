@@ -192,7 +192,7 @@ import Util from '@/mixins/Util'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
 
 export default {
-  name: 'DegreeChecks',
+  name: 'ManageDegreeChecks',
   components: {AreYouSureModal, CloneTemplateModal, Spinner},
   mixins: [Context, Loading, Util],
   data: () => ({

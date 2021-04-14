@@ -11,7 +11,7 @@ import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CreateDegreeTemplate from '@/views/degree/CreateDegreeTemplate.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
-import DegreeChecks from '@/views/degree/DegreeChecks.vue'
+import ManageDegreeChecks from '@/views/degree/ManageDegreeChecks.vue'
 import DegreeTemplate from '@/views/degree/DegreeTemplate.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
 import DropInDesk from '@/views/DropInDesk.vue'
@@ -239,7 +239,7 @@ const router = new Router({
       children: [
         {
           path: '/degrees',
-          component: DegreeChecks,
+          component: ManageDegreeChecks,
           meta: {
             title: 'Managing Degree Checks'
           }
