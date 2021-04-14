@@ -7,7 +7,7 @@
       <hr />
       <UnitRequirements v-if="templateId" template-id="templateId" />
       <hr />
-      <b-container class="px-0 mx-0">
+      <b-container class="px-0 mx-0" :fluid="true">
         <b-row>
           <b-col
             v-for="position in [1, 2, 3]"
