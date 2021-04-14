@@ -122,6 +122,7 @@ def get_degree_templates():
 @can_edit_degree_progress
 def update_degree_template(template_id):
     name = request.get_json().get('name')
+    template_id = int(template_id)
     _validate_template_upsert(name=name, template_id=template_id)
     template = DegreeProgressTemplate.update(name=name, template_id=template_id)
     return tolerant_jsonify(template.to_api_json())
