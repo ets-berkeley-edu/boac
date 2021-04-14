@@ -8,7 +8,9 @@ const $_flatten = categories => {
     flattened.push(category)
     _.each(_.concat(category.courses, category.subcategories), child => {
       flattened.push(child)
-      flattened = _.concat(flattened, child.courses)
+      if (child.courses) {
+        flattened = _.concat(flattened, child.courses)
+      }
     })
   })
   return flattened

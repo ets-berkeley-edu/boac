@@ -95,15 +95,15 @@
                 :id="`column-${position}-unit-requirement-${index}`"
                 :key="index"
               >
-                <div class="align-items-center d-flex justify-content-between mr-5 pill-unit-requirement">
-                  <div>
+                <div class="align-items-center d-flex justify-content-between mr-3 pill-unit-requirement">
+                  <div class="pb-1">
                     {{ unitRequirement.name }}
                   </div>
                   <div>
                     <b-btn
                       :id="`column-${position}-unit-requirement-remove-${index}`"
                       :disabled="isSaving"
-                      class="px-0 pt-2"
+                      class="pb-0 px-0 pt-1"
                       variant="link"
                       @click="removeUnitRequirement(unitRequirement)"
                     >
@@ -330,9 +330,8 @@ export default {
   border: 1px solid #999;
   border-radius: 5px;
   color: #666;
-  min-height: 24px;
   margin-top: 8px;
-  padding: 8px;
+  padding: 4px 12px 4px 12px;
   width: auto;
 }
 </style>
