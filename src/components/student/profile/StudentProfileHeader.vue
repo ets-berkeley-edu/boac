@@ -40,22 +40,24 @@
                 </span>
               </div>
               <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" />
-              <div v-if="student.sisProfile.emailAddress" class="mt-2">
-                <a
-                  id="student-mailto"
-                  :href="`mailto:${student.sisProfile.emailAddress}`"
-                  :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                  target="_blank"
-                >
-                  <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
-                </a>
+              <div v-if="!compact">
+                <div v-if="student.sisProfile.emailAddress" class="mt-2">
+                  <a
+                    id="student-mailto"
+                    :href="`mailto:${student.sisProfile.emailAddress}`"
+                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                    target="_blank"
+                  >
+                    <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
+                  </a>
+                </div>
               </div>
-            </div>
-            <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bolder has-error">
-              ASC INACTIVE
-            </div>
-            <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bolder has-error">
-              CoE INACTIVE
+              <div v-if="isAscInactive" id="student-bio-inactive-asc" class="font-weight-bolder has-error">
+                ASC INACTIVE
+              </div>
+              <div v-if="isCoeInactive" id="student-bio-inactive-coe" class="font-weight-bolder has-error">
+                CoE INACTIVE
+              </div>
             </div>
             <div id="student-bio-level" class="mt-2">
               <h3 class="sr-only">Level</h3>
@@ -80,7 +82,7 @@
           </div>
           <div class="col-sm bb-2 mr-2 text-center">
             <StudentAvatar :student="student" class="mb-2" size="large" />
-            <ManageStudent :student="student" />
+            <ManageStudent v-if="!compact" :student="student" />
           </div>
         </div>
       </div>
@@ -169,27 +171,29 @@
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-center pb-2">
-      <div>
-        <b-btn
-          id="show-hide-personal-details"
-          :aria-expanded="isShowingPersonalDetails"
-          class="no-wrap"
-          variant="link"
-          @click="toggleShowDetails"
-        >
-          <font-awesome :icon="isShowingPersonalDetails ? 'caret-down' : 'caret-right'" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
-          {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
-        </b-btn>
+    <div v-if="!compact">
+      <div class="d-flex justify-content-center pb-2">
+        <div>
+          <b-btn
+            id="show-hide-personal-details"
+            :aria-expanded="isShowingPersonalDetails"
+            class="no-wrap"
+            variant="link"
+            @click="toggleShowDetails"
+          >
+            <font-awesome :icon="isShowingPersonalDetails ? 'caret-down' : 'caret-right'" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
+            {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
+          </b-btn>
+        </div>
       </div>
-    </div>
-    <div>
-      <StudentPersonalDetails
-        :inactive-majors="belowTheFoldMajors"
-        :inactive-minors="belowTheFoldMinors"
-        :is-open="isShowingPersonalDetails"
-        :student="student"
-      />
+      <div>
+        <StudentPersonalDetails
+          :inactive-majors="belowTheFoldMajors"
+          :inactive-minors="belowTheFoldMinors"
+          :is-open="isShowingPersonalDetails"
+          :student="student"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -215,6 +219,10 @@ export default {
   },
   mixins: [Context, StudentMetadata, Util],
   props: {
+    compact: {
+      required: false,
+      type: Boolean
+    },
     student: {
       required: true,
       type: Object
@@ -246,7 +254,6 @@ export default {
     plansMinorPartitionedByStatus() {
       return this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     }
-
   },
   created() {
     this.isAscInactive = this.displayAsAscInactive(this.student)

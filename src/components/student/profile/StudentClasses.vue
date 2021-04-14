@@ -1,34 +1,48 @@
 <template>
   <div id="student-terms-container" class="m-3 p-0">
-    <div class="d-flex align-items-baseline mb-2 px-2">
-      <h2 class="student-section-header mr-2">Classes</h2>
-
-      <b-button
-        v-if="enrollmentTermsByYear.length > 1"
-        id="toggle-collapse-all-years"
-        v-b-toggle="expanded ? collapsed : uncollapsed"
-        variant="link"
-        @click="updateCollapseStates"
-      >
-        <font-awesome v-if="expanded" icon="caret-down" />
-        <font-awesome v-if="!expanded" icon="caret-right" />
-        {{ expanded ? 'Collapse' : 'Expand' }} all years
-      </b-button>
-      |
-      <b-button
-        v-if="enrollmentTermsByYear.length > 1"
-        id="sort-academic-year"
-        variant="link"
-        @click="setOrder"
-      >
-        Sort academic year
-        <span v-if="currentOrder === 'desc' ">
-          <font-awesome icon="long-arrow-alt-down" />
-        </span>
-        <span v-if="currentOrder === 'asc' ">
-          <font-awesome icon="long-arrow-alt-up" />
-        </span>
-      </b-button>
+    <div class="align-items-center d-flex mb-2 px-2">
+      <div class="pt-1">
+        <h2 class="student-section-header mr-2">Classes</h2>
+      </div>
+      <div>
+        <b-button
+          v-if="enrollmentTermsByYear.length > 1"
+          id="toggle-collapse-all-years"
+          v-b-toggle="expanded ? collapsed : uncollapsed"
+          variant="link"
+          @click="updateCollapseStates"
+        >
+          <font-awesome v-if="expanded" icon="caret-down" />
+          <font-awesome v-if="!expanded" icon="caret-right" />
+          {{ expanded ? 'Collapse' : 'Expand' }} all years
+        </b-button>
+      </div>
+      <div>|</div>
+      <div class="flex-grow-1">
+        <b-button
+          v-if="enrollmentTermsByYear.length > 1"
+          id="sort-academic-year"
+          variant="link"
+          @click="setOrder"
+        >
+          Sort academic year
+          <span v-if="currentOrder === 'desc' ">
+            <font-awesome icon="long-arrow-alt-down" />
+          </span>
+          <span v-if="currentOrder === 'asc' ">
+            <font-awesome icon="long-arrow-alt-up" />
+          </span>
+        </b-button>
+      </div>
+      <div v-if="$config.featureFlagDegreeCheck && student.coeProfile" class="flex-shrink-1">
+        <b-btn
+          id="view-degree-check-btn"
+          variant="link"
+          @click="viewDegreeChecks"
+        >
+          Degree Checks
+        </b-btn>
+      </div>
     </div>
     <div
       v-for="year in enrollmentTermsByYear"
@@ -141,21 +155,22 @@ export default {
     },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
-      this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
+      this.$announcer.polite(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
     updateCollapseStates() {
-      const alertMsg = this.expanded ? 'collapsed' : 'expanded'
-
-      this.collapsed = this.$_.filter(this.$refs, year => !year[0].$data.show)
-        .map(year => year[0].id)
-
-      this.uncollapsed = this.$_.filter(this.$refs, year => year[0].$data.show)
-        .map(year => year[0].id)
-
+      this.collapsed = this.$_.filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
+      this.uncollapsed = this.$_.filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
       this.expanded = !this.expanded
-      this.alertScreenReader(`All of the academic years have been ${alertMsg}`)
-
+      this.$announcer.polite(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
     },
+    viewDegreeChecks() {
+      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, ['isCurrent'])
+      if (currentDegreeCheck) {
+        this.$router.push({path: `/student/${this.student.uid}/degree/${currentDegreeCheck.id}`})
+      } else {
+        this.$router.push({path: `/student/${this.student.uid}/degree/create`})
+      }
+    }
   }
 }
 </script>

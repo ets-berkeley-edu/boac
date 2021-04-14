@@ -562,6 +562,7 @@ class TestStudent:
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2010'
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2005'
             assert student['enrollmentTerms'][1]['enrollments'][0]['title'] == 'Chaucer'
+            assert 'degreeChecks' not in student
 
     def test_athletics_profile_non_asc(self, client, coe_advisor_login):
         """Does not include select athletics profile data for non-ASC users."""
@@ -607,6 +608,7 @@ class TestStudent:
 
             assert 'inIntensiveCohort' not in student['athleticsProfile']
             assert 'coeProfile' in student
+            assert 'degreeChecks' in student
 
             expected_coe_profile = {
                 'didPrep': False,

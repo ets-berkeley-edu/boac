@@ -171,6 +171,9 @@
   color: #d0021b;
   font-size: 16px;
 }
+.light-blue-background {
+  background: #e3f5ff;
+}
 .min-width-100 {
   min-width: 100%;
 }

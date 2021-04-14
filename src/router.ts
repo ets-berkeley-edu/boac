@@ -26,6 +26,8 @@ import Router from 'vue-router'
 import Search from '@/views/Search.vue'
 import StandardLayout from '@/layouts/StandardLayout.vue'
 import Student from '@/views/Student.vue'
+import StudentDegreeCheck from '@/views/degree/StudentDegreeCheck.vue'
+import StudentDegreeCreate from '@/views/degree/StudentDegreeCreate.vue'
 import Vue from 'vue'
 
 Vue.use(Router)
@@ -254,6 +256,20 @@ const router = new Router({
           component: DegreeTemplate,
           meta: {
             title: 'Degree',
+          },
+        },
+        {
+          path: '/student/:uid/degree/create',
+          component: StudentDegreeCreate,
+          meta: {
+            title: 'Create Degree',
+          },
+        },
+        {
+          path: '/student/:uid/degree/:id',
+          component: StudentDegreeCheck,
+          meta: {
+            title: 'Student Degree',
           },
         }
       ]
