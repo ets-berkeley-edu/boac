@@ -101,7 +101,7 @@ export default {
     },
     cancel() {
       this.$announcer.polite('Canceled.')
-      this.setEditMode()
+      this.setEditMode(null)
       this.reset()
     },
     create() {
@@ -116,6 +116,7 @@ export default {
       this.name = undefined
       this.minUnits = undefined
       this.saving = false
+      this.setDisableButtons(false)
     },
     update() {
       this.saving = true
