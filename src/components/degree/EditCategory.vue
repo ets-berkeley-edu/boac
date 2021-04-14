@@ -35,7 +35,7 @@
           v-model="nameInput"
           :disabled="isSaving"
           maxlength="255"
-          @keypress.enter="() => nameInput && create()"
+          @keypress.enter="create"
         />
       </div>
       <div v-if="selectedCategoryType === 'Course'">
@@ -50,6 +50,7 @@
             :disabled="isSaving"
             maxlength="1"
             trim
+            @keypress.enter="create"
           />
           <span v-if="!isValidCourseUnits" class="has-error faint-text font-size-12">
             Number required
@@ -160,7 +161,7 @@
         <b-btn
           :id="`column-${position}-create-requirement-btn`"
           class="b-dd-override"
-          :disabled="isSaving || !nameInput || !selectedCategoryType || (selectedCategoryType !== 'Category' && !selectedParentCategory) || !isValidCourseUnits"
+          :disabled="disableSaveButton"
           variant="primary"
           @click="onClickSave"
         >
@@ -212,6 +213,13 @@ export default {
     }
   },
   computed: {
+    disableSaveButton() {
+      return this.isSaving
+        || !this.nameInput
+        || !this.selectedCategoryType
+        || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
+        || !this.isValidCourseUnits
+    },
     isValidCourseUnits() {
       return this.$_.isEmpty(this.courseUnits) || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
     },
@@ -251,19 +259,21 @@ export default {
       this.afterCancel()
     },
     create() {
-      this.isSaving = true
-      this.createCategory({
-        categoryType: this.selectedCategoryType,
-        courseUnits: this.courseUnits,
-        description: this.descriptionText,
-        name: this.nameInput,
-        position: this.position,
-        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
-        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
-      }).then(() => {
-        this.$announcer.polite(`${this.selectedCategoryType} created`)
-        this.afterSave()
-      })
+      if (!this.disableSaveButton) {
+        this.isSaving = true
+        this.createCategory({
+          categoryType: this.selectedCategoryType,
+          courseUnits: this.courseUnits,
+          description: this.descriptionText,
+          name: this.nameInput,
+          position: this.position,
+          parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
+          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
+        }).then(() => {
+          this.$announcer.polite(`${this.selectedCategoryType} created`)
+          this.afterSave()
+        })
+      }
     },
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
