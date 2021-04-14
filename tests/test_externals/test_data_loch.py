@@ -93,8 +93,13 @@ class TestDataLoch:
         assert notes[0]['sid'] == '11667051'
         assert notes[0]['author_uid'] == '1133399'
         assert notes[0]['author_name'] == 'Lemmy Kilmister'
+        assert notes[0]['subject'] is None
+        assert notes[0]['body'] is None
         assert notes[0]['created_at']
         assert notes[0]['updated_at']
+        assert notes[1]['author_name'] == 'Ginger Baker'
+        assert notes[1]['subject'] == 'Ginger Baker\'s Air Force'
+        assert notes[1]['body'] == 'Bands led by drummers tend to leave a lot of space for drum solos'
 
     def test_get_data_science_advising_notes(self):
         notes = data_loch.get_data_science_advising_notes('11667051')
