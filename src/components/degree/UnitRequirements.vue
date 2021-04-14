@@ -123,6 +123,7 @@ export default {
       })
     },
     onClickAdd() {
+      this.setDisableButtons(true)
       this.indexOfSelected = null
       this.setEditMode('createUnitRequirement')
     },
@@ -132,6 +133,7 @@ export default {
       this.isDeleting = true
     },
     onClickEdit(index) {
+      this.setDisableButtons(true)
       this.indexOfSelected = index
       this.setEditMode('updateUnitRequirement')
     },
