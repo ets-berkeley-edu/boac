@@ -74,9 +74,10 @@ class TestMergedAdvisingNote:
         assert notes[1]['topics'] == ['Earg Scéaw', 'Ofscéaw']
         assert notes[1]['legacySource'] == 'SIS'
 
-        # Legacy ASC notes
+        # Legacy ASC note without subject/body
         assert notes[4]['id'] == '11667051-139362'
         assert notes[4]['sid'] == '11667051'
+        assert notes[4]['subject'] is None
         assert notes[4]['body'] is None
         assert notes[4]['author']['uid'] == '1133399'
         assert notes[4]['author']['name'] == 'Lemmy Kilmister'
@@ -85,9 +86,12 @@ class TestMergedAdvisingNote:
         assert notes[4]['updatedAt'] is None
         assert notes[4]['read'] is False
         assert notes[4]['legacySource'] == 'ASC'
+
+        # Legacy ASC note with subject/body
         assert notes[5]['id'] == '11667051-139379'
         assert notes[5]['sid'] == '11667051'
-        assert notes[5]['body'] is None
+        assert notes[5]['subject'] == 'Ginger Baker\'s Air Force'
+        assert notes[5]['body'] == 'Bands led by drummers tend to leave a lot of space for drum solos'
         assert notes[5]['author']['uid'] == '90412'
         assert notes[5]['author']['name'] == 'Ginger Baker'
         assert notes[5]['topics'] is None
