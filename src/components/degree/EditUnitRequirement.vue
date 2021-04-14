@@ -56,7 +56,7 @@
       Save Unit Requirement
     </b-btn>
     <b-btn
-      id="create-appointment-cancel"
+      id="cancel-create-unit-requirement-btn"
       variant="link"
       @click.prevent="cancel"
     >
@@ -100,10 +100,12 @@ export default {
       this.reset()
     },
     cancel() {
+      this.$announcer.polite('Canceled.')
       this.setEditMode()
       this.reset()
     },
     create() {
+      this.$announcer.polite('Saving')
       this.saving = true
       this.createUnitRequirement({
         name: this.name,
