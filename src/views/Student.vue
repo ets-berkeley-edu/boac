@@ -83,16 +83,11 @@ export default {
       uid = window.atob(uid)
     }
     getStudentByUid(uid).then(student => {
-      if (student) {
-        this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
-        this.$_.assign(this.student, student)
-        this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-        this.loaded(`${this.student.name} loaded`)
-      } else {
-        this.$router.push({path: '/404'})
-      }
+      this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
+      this.$_.assign(this.student, student)
+      this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
+      this.loaded(`${this.student.name} loaded`)
     })
-
   },
   mounted() {
     if (!this.anchor) {
@@ -155,9 +150,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.light-blue-background {
-  background: #e3f5ff;
-}
-</style>

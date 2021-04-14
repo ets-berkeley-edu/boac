@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, put_notifications
+from boac.api.util import advisor_required, put_degree_checks, put_notifications
 from boac.externals.data_loch import match_students_by_name_or_sid, query_historical_sids
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
@@ -39,6 +39,7 @@ def get_student_by_sid(sid):
     student = get_student_and_terms_by_sid(sid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
+    put_degree_checks(student)
     put_notifications(student)
     return tolerant_jsonify(student)
 
@@ -49,6 +50,7 @@ def get_student_by_uid(uid):
     student = get_student_and_terms_by_uid(uid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
+    put_degree_checks(student)
     put_notifications(student)
     return tolerant_jsonify(student)
 

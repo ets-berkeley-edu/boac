@@ -276,6 +276,12 @@ def drop_in_advisors_for_dept_code(dept_code):
     return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 
+def put_degree_checks(student):
+    if 'coeProfile' in student and current_user.can_read_degree_progress:
+        # TODO: Fetch degrees
+        student['degreeChecks'] = []
+
+
 def put_notifications(student):
     sid = student['sid']
     student['notifications'] = {
