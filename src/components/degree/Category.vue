@@ -1,37 +1,39 @@
 <template>
-  <div class="align-items-center d-flex justify-content-between pl-2">
-    <div>
-      <span
-        :class="{
-          'font-weight-500 pt-1': category.categoryType === 'Category',
-          'font-size-14 pt-0': category.categoryType === 'Subcategory'
-        }"
-      >{{ category.name }}</span>
-      <div v-if="category.description">
-        {{ category.description }}
+  <div class="pl-2">
+    <div class="align-items-center d-flex justify-content-between">
+      <div>
+        <span
+          :class="{
+            'font-weight-500 pt-1': category.categoryType === 'Category',
+            'font-size-14 pt-0': category.categoryType === 'Subcategory'
+          }"
+        >{{ category.name }}</span>
+      </div>
+      <div v-if="$currentUser.canEditDegreeProgress" class="float-right">
+        <b-btn
+          :id="`column-${position}-edit-category-${category.id}-btn`"
+          class="py-0 pr-0"
+          :disabled="disableButtons"
+          variant="link"
+          @click.prevent="edit"
+        >
+          <font-awesome icon="edit" />
+          <span class="sr-only">Edit {{ category.name }}</span>
+        </b-btn>
+        <b-btn
+          :id="`column-${position}-delete-category-${category.id}-btn`"
+          class="py-0"
+          :disabled="disableButtons"
+          variant="link"
+          @click="deleteDegreeCategory"
+        >
+          <font-awesome icon="trash-alt" />
+          <span class="sr-only">Delete {{ category.name }}</span>
+        </b-btn>
       </div>
     </div>
-    <div class="float-right">
-      <b-btn
-        :id="`column-${position}-edit-category-${category.id}-btn`"
-        class="py-0 pr-0"
-        :disabled="disableButtons"
-        variant="link"
-        @click.prevent="edit"
-      >
-        <font-awesome icon="edit" />
-        <span class="sr-only">Edit {{ category.name }}</span>
-      </b-btn>
-      <b-btn
-        :id="`column-${position}-delete-category-${category.id}-btn`"
-        class="py-0"
-        :disabled="disableButtons"
-        variant="link"
-        @click="deleteDegreeCategory"
-      >
-        <font-awesome icon="trash-alt" />
-        <span class="sr-only">Delete {{ category.name }}</span>
-      </b-btn>
+    <div v-if="category.description">
+      {{ category.description }}
     </div>
     <AreYouSureModal
       v-if="isDeleting"

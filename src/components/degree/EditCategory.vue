@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <div v-if="!existingCategory">
+  <div class="border border-1 mb-4 pb-3 pt-2 px-2 rounded">
+    <div v-if="!existingCategory" class="ml-1">
       <div class="font-weight-500">
         Requirement Type (required)
       </div>
@@ -25,7 +25,7 @@
         </b-select>
       </div>
     </div>
-    <div v-if="selectedCategoryType">
+    <div v-if="selectedCategoryType" class="ml-1">
       <div class="font-weight-500 my-2">
         {{ selectedCategoryType }} Name (required)
       </div>
@@ -79,7 +79,12 @@
             </b-select-option>
           </b-select>
           <div v-if="selectedUnitRequirements.length">
-            <label :for="`column-${position}-unit-requirement-list`" class="sr-only">Selected Requirement Fulfillment(s)</label>
+            <label
+              :for="`column-${position}-unit-requirement-list`"
+              class="sr-only"
+            >
+              Selected Requirement Fulfillment(s)
+            </label>
             <ul
               :id="`column-${position}-unit-requirement-list`"
               class="pill-list pl-0"

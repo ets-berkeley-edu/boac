@@ -14,12 +14,13 @@
         <font-awesome icon="plus" class="m-1" />
       </b-btn>
     </div>
-    <EditCategory
-      v-if="isAddingCategory"
-      :after-cancel="onExitEditCategory"
-      :after-save="onExitEditCategory"
-      :position="position"
-    />
+    <div v-if="isAddingCategory">
+      <EditCategory
+        :after-cancel="onExitEditCategory"
+        :after-save="onExitEditCategory"
+        :position="position"
+      />
+    </div>
     <div
       v-for="category in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
       :key="category.id"
@@ -30,6 +31,12 @@
         :on-click-edit="edit"
         :position="position"
       />
+      <div v-if="category.categoryType !== 'Category'" class="pl-2 pt-2">
+        <span class="font-weight-500 has-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
+        is a <span class="font-weight-500">{{ category.categoryType }}</span>, which is not allowed as a top-level
+        category. Email <a :href="`mailto:${$config.supportEmailAddress}`" target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
+        to report the problem.
+      </div>
       <EditCategory
         v-if="category.id === $_.get(categoryForEdit, 'id')"
         :after-cancel="onExitEditCategory"
@@ -37,13 +44,13 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="category.courses.length" class="pl-2 py-2">
+      <div v-if="$_.size(category.courses)" class="pl-2 py-2">
         <CoursesTable
           :courses="category.courses"
           :position="position"
         />
       </div>
-      <div v-if="category.subcategories.length">
+      <div v-if="$_.size(category.subcategories)">
         <div v-for="subcategory in category.subcategories" :key="subcategory.id">
           <Category
             v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
@@ -58,7 +65,7 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div v-if="subcategory.courses.length" class="pl-2 py-2">
+          <div v-if="$_.size(subcategory.courses)" class="pl-2 py-2">
             <CoursesTable
               :courses="subcategory.courses"
               :position="position"
