@@ -22,7 +22,7 @@
       />
     </div>
     <div
-      v-for="category in $_.filter(categories, c => c.position === position && this.$_.isNil(c.parentCategoryId))"
+      v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
       :key="category.id"
     >
       <Category
