@@ -26,6 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import json
 
 from boac import std_commit
+from boac.lib.berkeley import get_dept_codes
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
@@ -89,16 +90,27 @@ class TestCloneDegreeTemplate:
 
     def test_update_template(self, client, fake_auth):
         """Authorized user can edit a template."""
-        fake_auth.login(coe_advisor_read_write_uid)
-        name = 'Boogie Down Productions'
-        api_json = _api_create_template(client, name=name)
-        template_id = api_json['id']
-        assert api_json['name'] == name
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
 
-        name = 'KRS One'
-        api_json = self._api_clone_template(client=client, name=name, template_id=template_id)
-        assert api_json['id'] != template_id
-        assert api_json['name'] == name
+        template = DegreeProgressTemplate.create(
+            advisor_dept_codes=get_dept_codes(user),
+            created_by=user.id,
+            degree_name='Boogie Down Productions',
+        )
+        for index in (1, 2, 3):
+            DegreeProgressUnitRequirement.create(
+                created_by=user.id,
+                min_units=index,
+                name=f'Unit Requirement #{index}',
+                template_id=template.id,
+            )
+
+        updated_name = 'KRS One'
+        api_json = self._api_clone_template(client=client, name=updated_name, template_id=template.id)
+        assert api_json['id'] != template.id
+        assert api_json['name'] == updated_name
+        assert len(api_json['unitRequirements']) == 3
 
     def test_error_if_duplicate_name(self, client, fake_auth):
         """Template names must be unique."""

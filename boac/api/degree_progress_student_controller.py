@@ -30,6 +30,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
+from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -46,12 +47,20 @@ def create_degree_check(sid):
     if template_id and not template:
         raise ResourceNotFoundError(f'No template found with id={template_id}.')
 
+    created_by = current_user.get_id()
     degree = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
-        created_by=current_user.get_id(),
+        created_by=created_by,
         degree_name=template.degree_name,
         student_sid=sid,
     )
+    for unit_requirement in template.unit_requirements:
+        DegreeProgressUnitRequirement.create(
+            created_by=created_by,
+            min_units=unit_requirement.min_units,
+            name=unit_requirement.name,
+            template_id=degree.id,
+        )
 
     def _create_category(c):
         DegreeProgressCategory.create(

@@ -75,9 +75,7 @@ class DegreeProgressTemplate(Base):
             created_by,
             degree_name,
             student_sid=None,
-            unit_requirements=None,
     ):
-        # TODO: Do we need new mapping table to 'degree_progress_unit_requirements', remove template_id from that table?
         degree = cls(
             advisor_dept_codes=advisor_dept_codes,
             created_by=created_by,
@@ -135,6 +133,7 @@ class DegreeProgressTemplate(Base):
             'createdBy': self.created_by,
             'name': self.degree_name,
             'sid': self.student_sid,
+            'unitRequirements': [u.to_api_json() for u in self.unit_requirements],
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
