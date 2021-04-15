@@ -9,7 +9,7 @@
           }"
         >{{ category.name }}</span>
       </div>
-      <div v-if="$currentUser.canEditDegreeProgress" class="float-right">
+      <div v-if="!student && $currentUser.canEditDegreeProgress" class="float-right">
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
           class="py-0 pr-0"
@@ -68,6 +68,11 @@ export default {
     onClickEdit: {
       required: true,
       type: Function
+    },
+    student: {
+      default: undefined,
+      required: false,
+      type: Object
     }
   },
   data: () => ({

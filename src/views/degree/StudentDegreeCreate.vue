@@ -3,7 +3,7 @@
     <Spinner />
     <div v-if="!loading">
       <div class="border-bottom light-blue-background pb-2">
-        <StudentProfileHeader :compact="true" :student="student" />
+        <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
       </div>
       <div class="m-3 pt-2">
         <h2 class="page-section-header">Create {{ student.firstName }}'s Degree Check</h2>
@@ -15,12 +15,13 @@
           <h3 class="font-size-18 font-weight-bold">Add Degree Check</h3>
         </div>
         <div v-if="templates.length">
-          <div class="my-2 w-50">
+          <div class="my-2 w-30">
             <b-select
               id="degree-template-select"
-              v-model="selected"
+              v-model="selectedOption"
               :disabled="isSaving"
               size="md"
+              @change="onChangeSelect"
             >
               <b-select-option id="degree-check-select-option-null" :value="null">Choose...</b-select-option>
               <b-select-option
@@ -39,7 +40,7 @@
               <b-btn
                 id="save-degree-check-btn"
                 class="b-dd-override"
-                :disabled="!selected"
+                :disabled="!selectedOption"
                 variant="primary"
                 @click="onClickSave"
               >
@@ -78,7 +79,7 @@ import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
 import {getStudentByUid} from '@/api/student'
-import {getDegreeTemplates} from '@/api/degree'
+import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'StudentDegreeCreate',
@@ -89,7 +90,7 @@ export default {
   },
   data: () => ({
     isSaving: false,
-    selected: null,
+    selectedOption: null,
     student: undefined,
     templates: undefined
   }),
@@ -100,19 +101,28 @@ export default {
       this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : this.student.name)
       getDegreeTemplates().then(data => {
         this.templates = data
-        this.loaded(`Create ${this.student.name}'s Degree Check`)
+        this.loaded(`Add Degree Check for ${this.student.name}`)
       })
     })
   },
   methods: {
     cancel() {
       this.$announcer.polite('Canceled')
+      this.$router.push(`/student/${this.student.uid}`)
+    },
+    onChangeSelect(option) {
+      if (option) {
+        this.$announcer.polite(`${this.selectedOption.name} selected`)
+        this.putFocusNextTick('save-degree-check-btn')
+      }
     },
     onClickSave() {
       this.isSaving = true
       this.$announcer.polite('Saving')
-      console.log('TODO: save')
-      this.isSaving = false
+      createDegreeCheck(this.student.sid, this.selectedOption.id).then(data => {
+        this.isSaving = false
+        this.$router.push(`/student/${this.student.uid}/degree/${data.id}`)
+      })
     }
   }
 }

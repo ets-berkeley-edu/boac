@@ -27,7 +27,7 @@
           <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
             {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
           </td>
-          <td v-if="!isEditing(course)">
+          <td v-if="!student && !isEditing(course)">
             <div class="d-flex justify-content-end">
               <b-btn
                 :id="`column-${position}-edit-category-${course.id}-btn`"
@@ -92,6 +92,11 @@ export default {
     position: {
       required: true,
       type: Number
+    },
+    student: {
+      default: undefined,
+      required: false,
+      type: Object
     }
   },
   data: () => ({

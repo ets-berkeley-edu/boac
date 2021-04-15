@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex flex-row mt-2 pb-3">
+    <div v-if="!student" class="d-flex flex-row mt-2 pb-3">
       <div class="pill degree-progress-pill px-2 no-wrap">Column {{ position }}</div>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
@@ -30,6 +30,7 @@
         :category="category"
         :on-click-edit="edit"
         :position="position"
+        :student="student"
       />
       <div v-if="category.categoryType !== 'Category'" class="pl-2 pt-2">
         <span class="font-weight-500 has-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
@@ -48,6 +49,7 @@
         <CoursesTable
           :courses="category.courses"
           :position="position"
+          :student="student"
         />
       </div>
       <div v-if="$_.size(category.subcategories)">
@@ -55,8 +57,9 @@
           <Category
             v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
             :category="subcategory"
-            :position="position"
             :on-click-edit="edit"
+            :position="position"
+            :student="student"
           />
           <EditCategory
             v-if="subcategory.id === $_.get(categoryForEdit, 'id')"
@@ -69,6 +72,7 @@
             <CoursesTable
               :courses="subcategory.courses"
               :position="position"
+              :student="student"
             />
           </div>
         </div>
@@ -98,6 +102,11 @@ export default {
     position: {
       required: true,
       type: Number
+    },
+    student: {
+      default: undefined,
+      required: false,
+      type: Object
     }
   },
   data: () => ({

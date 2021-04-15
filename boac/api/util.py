@@ -38,10 +38,12 @@ from boac.merged.student import get_academic_standing_by_sid, get_historical_stu
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
+from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
+from sqlalchemy.sql import desc
 
 """Utility module containing standard API-feed translations of data objects."""
 
@@ -276,10 +278,16 @@ def drop_in_advisors_for_dept_code(dept_code):
     return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 
-def put_degree_checks(student):
-    if 'coeProfile' in student and current_user.can_read_degree_progress:
-        # TODO: Fetch degrees
-        student['degreeChecks'] = []
+def get_degree_checks_json(sid):
+    api_json = []
+    # The last updated record is considered 'current'.
+    order_by = desc(DegreeProgressTemplate.updated_at)
+    for index, degree_check in enumerate(DegreeProgressTemplate.find_by_sid(student_sid=sid, order_by=order_by)):
+        api_json.append({
+            **degree_check.to_api_json(),
+            'isCurrent': index == 0,
+        })
+    return api_json
 
 
 def put_notifications(student):

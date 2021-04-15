@@ -77,6 +77,7 @@ class DegreeProgressTemplate(Base):
             student_sid=None,
             unit_requirements=None,
     ):
+        # TODO: Do we need new mapping table to 'degree_progress_unit_requirements', remove template_id from that table?
         degree = cls(
             advisor_dept_codes=advisor_dept_codes,
             created_by=created_by,
@@ -106,6 +107,11 @@ class DegreeProgressTemplate(Base):
             return cls.query.filter_by(degree_name=name, deleted_at=None).first()
 
     @classmethod
+    def find_by_sid(cls, student_sid, order_by=None):
+        order_by = cls.created_at if order_by is None else order_by
+        return cls.query.filter_by(student_sid=student_sid, deleted_at=None).order_by(order_by).all()
+
+    @classmethod
     def get_all_templates(cls):
         criterion = and_(
             cls.student_sid == None,  # noqa: E711
@@ -128,6 +134,7 @@ class DegreeProgressTemplate(Base):
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'name': self.degree_name,
+            'sid': self.student_sid,
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
