@@ -8,7 +8,7 @@
       <router-link
         v-if="$currentUser.canEditDegreeProgress"
         id="degree-check-create-link"
-        class="d-flex flex-row-reverse justify-content-end w-25"
+        class="degree-progress-btn-add w-25"
         to="/degree/new"
       >
         Create new degree check
