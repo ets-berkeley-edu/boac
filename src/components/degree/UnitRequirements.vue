@@ -1,63 +1,65 @@
 <template>
-  <div>
-    <div class="d-flex flex-row justify-content-between w-50">
-      <h2 class="page-section-header-sub pb-2">Unit Requirements</h2>
-      <b-btn
-        v-if="$currentUser.canEditDegreeProgress"
-        id="unit-requirement-create-link"
-        class="degree-progress-btn-add text-nowrap py-0"
-        variant="link"
-        :disabled="!!editMode || disableButtons"
-        @click.prevent="onClickAdd"
-      >
-        Add unit requirement
-        <font-awesome icon="plus" class="m-1" />
-      </b-btn>
-    </div>
-    <div v-if="!editMode">
-      <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
-        No unit requirements created
-      </div>
-      <b-table-lite
-        v-if="!$_.isEmpty(unitRequirements)"
-        id="unit-requirements-table"
-        :items="unitRequirements"
-        :fields="fields"
-        class="w-50"
-        thead-class="sortable-table-header text-nowrap border-bottom"
-        borderless
-        responsive
-        small
-      >
-        <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
+  <b-container fluid class="m-0">
+    <b-row cols="1" cols-xl="2">
+      <b-col class="p-0">
+        <div class="d-flex flex-row justify-content-between">
+          <h2 class="page-section-header-sub text-nowrap pb-2">Unit Requirements</h2>
           <b-btn
-            :id="`unit-requirement-${row.item.id}-edit-btn`"
-            class="degree-progress-btn-edit-delete"
-            :disabled="disableButtons"
+            v-if="$currentUser.canEditDegreeProgress"
+            id="unit-requirement-create-link"
+            class="degree-progress-btn-add text-nowrap py-0"
             variant="link"
-            @click.prevent="onClickEdit(row.index)"
+            :disabled="!!editMode || disableButtons"
+            @click.prevent="onClickAdd"
           >
-            <font-awesome icon="edit" />
-            <span class="sr-only">Edit {{ row.item.name }}</span>
+            Add unit requirement
+            <font-awesome icon="plus" class="m-1" />
           </b-btn>
-          <b-btn
-            :id="`unit-requirement-${row.item.id}-delete-btn`"
-            class="degree-progress-btn-edit-delete"
-            :disabled="disableButtons"
-            variant="link"
-            @click.prevent="onClickDelete(row.index)"
+        </div>
+        <div v-if="!editMode">
+          <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
+            No unit requirements created
+          </div>
+          <b-table-lite
+            v-if="!$_.isEmpty(unitRequirements)"
+            id="unit-requirements-table"
+            :items="unitRequirements"
+            :fields="fields"
+            thead-class="sortable-table-header text-nowrap border-bottom"
+            borderless
+            small
           >
-            <font-awesome icon="trash-alt" />
-            <span class="sr-only">Delete {{ row.item.name }}</span>
-          </b-btn>
-        </template>
-      </b-table-lite>
-    </div>
-    <EditUnitRequirement
-      v-if="editMode"
-      :index="indexOfSelected"
-      :unit-requirement="unitRequirements[indexOfSelected]"
-    />
+            <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
+              <b-btn
+                :id="`unit-requirement-${row.item.id}-edit-btn`"
+                class="degree-progress-btn-edit-delete"
+                :disabled="disableButtons"
+                variant="link"
+                @click.prevent="onClickEdit(row.index)"
+              >
+                <font-awesome icon="edit" />
+                <span class="sr-only">Edit {{ row.item.name }}</span>
+              </b-btn>
+              <b-btn
+                :id="`unit-requirement-${row.item.id}-delete-btn`"
+                class="degree-progress-btn-edit-delete"
+                :disabled="disableButtons"
+                variant="link"
+                @click.prevent="onClickDelete(row.index)"
+              >
+                <font-awesome icon="trash-alt" />
+                <span class="sr-only">Delete {{ row.item.name }}</span>
+              </b-btn>
+            </template>
+          </b-table-lite>
+        </div>
+        <EditUnitRequirement
+          v-if="editMode"
+          :index="indexOfSelected"
+          :unit-requirement="unitRequirements[indexOfSelected]"
+        />
+      </b-col>
+    </b-row>
     <AreYouSureModal
       v-if="isDeleting"
       :function-cancel="deleteCanceled"
@@ -67,7 +69,7 @@
       button-label-confirm="Delete"
       modal-header="Delete Unit Requirement"
     />
-  </div>
+  </b-container>
 </template>
 
 <script>
@@ -96,7 +98,7 @@ export default {
       {
         key: 'actions',
         label: '',
-        class: 'd-flex flex-row justify-content-end pr-0'
+        class: 'degree-progress-btn-group pr-0'
       }
     ],
     indexOfSelected: undefined,

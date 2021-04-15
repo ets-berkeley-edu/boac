@@ -9,7 +9,7 @@
           }"
         >{{ category.name }}</span>
       </div>
-      <div v-if="!student && $currentUser.canEditDegreeProgress" class="float-right">
+      <div v-if="!student && $currentUser.canEditDegreeProgress" class="degree-progress-btn-group">
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
           class="degree-progress-btn-edit-delete"
