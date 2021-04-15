@@ -5,7 +5,7 @@
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
-        class="d-flex flex-row-reverse justify-content-end text-nowrap py-0"
+        class="degree-progress-btn-link py-0"
         :disabled="disableButtons"
         variant="link"
         @click="add"
