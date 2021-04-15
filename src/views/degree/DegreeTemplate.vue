@@ -65,6 +65,12 @@ export default {
 </script>
 
 <style>
+.degree-progress-btn-link {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
 .degree-progress-column {
   min-width: 300px;
   padding-bottom: 10px;

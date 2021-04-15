@@ -19,6 +19,7 @@
         No unit requirements created
       </div>
       <b-table-lite
+        v-if="!$_.isEmpty(unitRequirements)"
         id="unit-requirements-table"
         :items="unitRequirements"
         :fields="fields"
