@@ -5,7 +5,7 @@
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
-        class="degree-progress-btn-link py-0"
+        class="degree-progress-btn-add py-0"
         :disabled="disableButtons"
         variant="link"
         @click="add"
@@ -32,7 +32,7 @@
         :position="position"
         :student="student"
       />
-      <div v-if="category.categoryType !== 'Category'" class="pl-2 pt-2">
+      <div v-if="category.categoryType !== 'Category'" class="pl-1 pt-2">
         <span class="font-weight-500 has-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
         is a <span class="font-weight-500">{{ category.categoryType }}</span>, which is not allowed as a top-level
         category. Email <a :href="`mailto:${$config.supportEmailAddress}`" target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
@@ -45,7 +45,7 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="$_.size(category.courses)" class="pl-2 py-2">
+      <div v-if="$_.size(category.courses)" class="pl-1 py-2">
         <CoursesTable
           :courses="category.courses"
           :position="position"
@@ -68,7 +68,7 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div v-if="$_.size(subcategory.courses)" class="pl-2 py-2">
+          <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
             <CoursesTable
               :courses="subcategory.courses"
               :position="position"

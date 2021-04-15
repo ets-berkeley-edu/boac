@@ -1,5 +1,5 @@
 <template>
-  <div class="pl-2">
+  <div class="pl-1">
     <div class="align-items-center d-flex justify-content-between">
       <div>
         <span
@@ -12,7 +12,7 @@
       <div v-if="!student && $currentUser.canEditDegreeProgress" class="float-right">
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
-          class="py-0 pr-0"
+          class="degree-progress-btn-edit-delete"
           :disabled="disableButtons"
           variant="link"
           @click.prevent="edit"
@@ -22,7 +22,7 @@
         </b-btn>
         <b-btn
           :id="`column-${position}-delete-category-${category.id}-btn`"
-          class="py-0"
+          class="degree-progress-btn-edit-delete"
           :disabled="disableButtons"
           variant="link"
           @click="deleteDegreeCategory"

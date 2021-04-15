@@ -5,7 +5,7 @@
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         id="unit-requirement-create-link"
-        class="degree-progress-btn-link text-nowrap py-0"
+        class="degree-progress-btn-add text-nowrap py-0"
         variant="link"
         :disabled="!!editMode || disableButtons"
         @click.prevent="onClickAdd"
@@ -32,7 +32,7 @@
         <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
           <b-btn
             :id="`unit-requirement-${row.item.id}-edit-btn`"
-            class="py-0"
+            class="degree-progress-btn-edit-delete"
             :disabled="disableButtons"
             variant="link"
             @click.prevent="onClickEdit(row.index)"
@@ -42,7 +42,7 @@
           </b-btn>
           <b-btn
             :id="`unit-requirement-${row.item.id}-delete-btn`"
-            class="py-0"
+            class="degree-progress-btn-edit-delete"
             :disabled="disableButtons"
             variant="link"
             @click.prevent="onClickDelete(row.index)"

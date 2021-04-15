@@ -8,7 +8,7 @@
       >Fulfillment Requirement Name (required)</label>
       <input
         id="unit-requirement-name-input"
-        v-model="name"
+        v-model.trim="name"
         class="form-control unit-requirement-name"
         aria-labelledby="label-of-name-input"
         :aria-invalid="!name"
@@ -26,19 +26,23 @@
       >Minimum Units (required)</label>
       <input
         id="unit-requirement-min-units-input"
-        v-model.number="minUnits"
+        v-model="minUnits"
         class="form-control unit-requirement-min-units"
         aria-labelledby="label-of-min-units-input"
-        :aria-invalid="!minUnits"
+        :aria-invalid="!isValidUnits"
         aria-required="true"
         maxlength="2"
         required
+        type="text"
       />
+      <span v-if="minUnits && !isValidUnits" class="has-error faint-text font-size-12 mt-1">
+        Number required
+      </span>
     </div>
     <b-btn
       v-if="editMode === 'createUnitRequirement'"
       id="create-unit-requirement-btn"
-      :disabled="!name || !minUnits"
+      :disabled="!name || !isValidUnits || isSaving"
       class="btn-primary-color-override"
       variant="primary"
       @click.prevent="create"
@@ -48,7 +52,7 @@
     <b-btn
       v-if="editMode === 'updateUnitRequirement'"
       id="update-unit-requirement-btn"
-      :disabled="!name || !minUnits"
+      :disabled="!name || !isValidUnits || isSaving"
       class="btn-primary-color-override"
       variant="primary"
       @click.prevent="update"
@@ -84,9 +88,20 @@ export default {
     }
   },
   data: () => ({
+    isSaving: false,
     name: undefined,
     minUnits: undefined
   }),
+  computed: {
+    disableSaveButton() {
+      return this.isSaving
+        || !this.name
+        || !this.isValidUnits
+    },
+    isValidUnits() {
+      return /^\d+$/.test(this.minUnits) && this.toInt(this.minUnits) > 0
+    },
+  },
   created() {
     if (this.unitRequirement) {
       this.name = this.unitRequirement.name
@@ -105,28 +120,32 @@ export default {
       this.reset()
     },
     create() {
-      this.$announcer.polite('Saving')
-      this.saving = true
-      this.createUnitRequirement({
-        name: this.name,
-        minUnits: this.minUnits
-      }).then(this.afterSave)
+      if (!this.disableSaveButton) {
+        this.$announcer.polite('Saving')
+        this.isSaving = true
+        this.createUnitRequirement({
+          name: this.name,
+          minUnits: this.minUnits
+        }).then(this.afterSave)
+      }
     },
     reset() {
       this.name = undefined
       this.minUnits = undefined
-      this.saving = false
+      this.isSaving = false
       this.setDisableButtons(false)
     },
     update() {
-      this.saving = true
-      this.$announcer.polite('Saving')
-      this.updateUnitRequirement({
-        index: this.index,
-        name: this.name,
-        minUnits: this.minUnits
-      }).then(this.afterSave)
-    },
+      if (!this.disableSaveButton) {
+        this.$announcer.polite('Saving')
+        this.isSaving = true
+        this.updateUnitRequirement({
+          index: this.index,
+          name: this.name,
+          minUnits: this.minUnits
+        }).then(this.afterSave)
+      }
+    }
   }
 }
 </script>

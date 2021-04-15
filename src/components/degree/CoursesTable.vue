@@ -12,7 +12,7 @@
     >
       <b-thead class="border-bottom">
         <b-tr class="sortable-table-header text-nowrap">
-          <b-th>Course</b-th>
+          <b-th class="pl-0">Course</b-th>
           <b-th>Units</b-th>
           <b-th>Fulfillment</b-th>
           <b-th></b-th>
@@ -20,18 +20,18 @@
       </b-thead>
       <b-tbody>
         <b-tr v-for="course in courses" :key="course.id">
-          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="course.name">{{ course.name }}</td>
+          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
           <td v-if="!isEditing(course)">
             <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
           </td>
           <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
             {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
           </td>
-          <td v-if="!student && !isEditing(course)">
+          <td v-if="!student && !isEditing(course)" class="pr-0">
             <div class="d-flex justify-content-end">
               <b-btn
                 :id="`column-${position}-edit-category-${course.id}-btn`"
-                class="font-size-14 pl-1 pr-0 py-0"
+                class="degree-progress-btn-edit-delete"
                 :disabled="disableButtons"
                 variant="link"
                 @click="edit(course)"
@@ -41,7 +41,7 @@
               </b-btn>
               <b-btn
                 :id="`column-${position}-delete-course-${course.id}-btn`"
-                class="font-size-14 pl-1 pr-0 py-0"
+                class="degree-progress-btn-edit-delete"
                 :disabled="disableButtons"
                 variant="link"
                 @click="deleteCourse(course)"
