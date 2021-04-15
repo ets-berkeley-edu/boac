@@ -10,50 +10,13 @@
         />
       </div>
       <div class="m-3 pt-2">
+        <StudentDegreeCheckHeader
+          :student="student"
+          :degree-id="templateId"
+          :degree-name="degreeName"
+          :updated-at="updatedAt"
+        />
         <b-container class="px-0 mx-0" :fluid="true">
-          <b-row>
-            <b-col>
-              <h2 class="mb-1 page-section-header">Create {{ student.firstName }}'s Degree Check</h2>
-              <div class="faint-text font-weight-500 font-size-18">
-                Last updated {{ updatedAt | moment('MMM D, YYYY') }}
-              </div>
-            </b-col>
-            <b-col>
-              <div class="d-flex justify-content-end">
-                <div class="pr-2">
-                  <router-link
-                    id="print-degree-plan"
-                    :to="`/student/${student.uid}/degree/${templateId}/print`"
-                  >
-                    <font-awesome class="mr-1" icon="print" />
-                    Print Plan
-                  </router-link>
-                </div>
-                <div class="pr-2">
-                  |
-                </div>
-                <div class="pr-2">
-                  <router-link
-                    id="view-degree-history"
-                    :to="`/student/${student.uid}/degree/history`"
-                  >
-                    View Degree History
-                  </router-link>
-                </div>
-                <div class="pr-2">
-                  |
-                </div>
-                <div class="pr-2">
-                  <router-link
-                    id="create-new-degree"
-                    :to="`/student/${student.uid}/degree/create`"
-                  >
-                    Create New Degree
-                  </router-link>
-                </div>
-              </div>
-            </b-col>
-          </b-row>
           <b-row>
             <b-col
               v-for="position in [1, 2, 3]"
@@ -78,6 +41,7 @@ import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import Util from '@/mixins/Util'
@@ -89,6 +53,7 @@ export default {
   components: {
     DebugTemplate,
     Spinner,
+    StudentDegreeCheckHeader,
     StudentProfileHeader,
     TemplateCategoryColumn
   },
