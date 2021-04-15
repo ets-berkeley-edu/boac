@@ -26,7 +26,8 @@ export default {
       'disableButtons',
       'editMode',
       'templateId',
-      'unitRequirements'
+      'unitRequirements',
+      'updatedAt'
     ])
   },
   methods: {

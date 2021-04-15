@@ -18,7 +18,8 @@ const state = {
   disableButtons: false,
   editMode: undefined,
   templateId: undefined,
-  unitRequirements: undefined
+  unitRequirements: undefined,
+  updatedAt: undefined
 }
 
 const getters = {
@@ -36,6 +37,7 @@ const getters = {
   editMode: (state: any): string => state.editMode,
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): any[] => state.unitRequirements,
+  updatedAt: (state: any): any[] => state.updatedAt,
 }
 
 const mutations = {
@@ -47,6 +49,7 @@ const mutations = {
     state.degreeName = template && template.name
     state.templateId = template && template.id
     state.unitRequirements = template && template.unitRequirements
+    state.updatedAt = template && template.updatedAt
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setEditMode(state: any, editMode: string) {
