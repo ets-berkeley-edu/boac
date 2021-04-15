@@ -327,6 +327,9 @@ select.form-control {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.w-30 {
+  width: 30% !important;
+}
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

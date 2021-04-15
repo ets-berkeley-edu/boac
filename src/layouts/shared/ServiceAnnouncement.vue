@@ -1,7 +1,7 @@
 <template>
   <div v-if="announcement && announcement.isPublished">
     <div v-if="!dismissedServiceAnnouncement" class="align-top d-flex service-announcement">
-      <div class="d-inline-block pt-3 pb-0 pl-3 w-100">
+      <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
         <div v-if="!dismissedServiceAnnouncement">
           <div class="sr-only" role="heading">BOA Service Alert</div>
           <span
@@ -13,7 +13,7 @@
           </span>
         </div>
       </div>
-      <div>
+      <div class="pr-1 pt-1">
         <b-btn
           id="dismiss-service-announcement"
           title="Dismiss"

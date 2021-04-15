@@ -32,6 +32,10 @@ export function createDegreeCategory(
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/create`, data).then(response => response.data, () => null)
 }
 
+export function createDegreeCheck(sid: number, templateId: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/check/${sid}/create`, {templateId}).then(response => response.data, () => null)
+}
+
 export function createDegreeTemplate(name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/create`, {name}).then(response => response.data, () => null)
 }
@@ -46,6 +50,10 @@ export function deleteDegreeTemplate(templateId: number) {
 
 export function deleteUnitRequirement(unitRequirementId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/unit_requirement/${unitRequirementId}`)
+}
+
+export function getDegreeChecks(sid: number) {
+  return axios.get(`${utils.apiBaseUrl()}/api/degrees/student/${sid}`).then(response => response.data, () => null)
 }
 
 export function getDegreeTemplate(templateId: number) {

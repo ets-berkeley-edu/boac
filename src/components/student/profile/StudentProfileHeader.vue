@@ -5,7 +5,17 @@
         <div class="row student-name-photo-outer-row">
           <div class="col-sm mr-2 pr-2">
             <div>
+              <div v-if="linkToStudentProfile">
+                <router-link :to="`/student/${student.uid}`">
+                  <h1
+                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                    class="student-section-header"
+                    v-html="student.name"
+                  ></h1>
+                </router-link>
+              </div>
               <h1
+                v-if="!linkToStudentProfile"
                 id="student-name-header"
                 :class="{'demo-mode-blur': $currentUser.inDemoMode}"
                 class="student-section-header"
@@ -220,6 +230,10 @@ export default {
   mixins: [Context, StudentMetadata, Util],
   props: {
     compact: {
+      required: false,
+      type: Boolean
+    },
+    linkToStudentProfile: {
       required: false,
       type: Boolean
     },

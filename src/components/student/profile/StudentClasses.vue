@@ -164,7 +164,7 @@ export default {
       this.$announcer.polite(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
     },
     viewDegreeChecks() {
-      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, ['isCurrent'])
+      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, 'isCurrent')
       if (currentDegreeCheck) {
         this.$router.push({path: `/student/${this.student.uid}/degree/${currentDegreeCheck.id}`})
       } else {

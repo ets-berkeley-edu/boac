@@ -24,13 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, put_degree_checks, put_notifications
+from boac.api.util import advisor_required, get_degree_checks_json, put_notifications
 from boac.externals.data_loch import match_students_by_name_or_sid, query_historical_sids
 from boac.lib.http import tolerant_jsonify
 from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
     query_students
 from flask import current_app as app, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 
 
 @app.route('/api/student/by_sid/<sid>')
@@ -39,8 +39,8 @@ def get_student_by_sid(sid):
     student = get_student_and_terms_by_sid(sid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
-    put_degree_checks(student)
     put_notifications(student)
+    _put_degree_checks_json(student)
     return tolerant_jsonify(student)
 
 
@@ -50,8 +50,8 @@ def get_student_by_uid(uid):
     student = get_student_and_terms_by_uid(uid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
-    put_degree_checks(student)
     put_notifications(student)
+    _put_degree_checks_json(student)
     return tolerant_jsonify(student)
 
 
@@ -116,3 +116,8 @@ def _get_name_range_boundaries(values):
         return [values[0].upper(), values[-1].upper()]
     else:
         return None
+
+
+def _put_degree_checks_json(student):
+    if 'coeProfile' in student and current_user.can_read_degree_progress:
+        student['degreeChecks'] = get_degree_checks_json(student['sid'])
