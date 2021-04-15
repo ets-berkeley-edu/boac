@@ -63,12 +63,19 @@ def clone_degree_template(template_id):
     if template_id and not template:
         raise ResourceNotFoundError(f'No template found with id={template_id}.')
 
+    created_by = current_user.get_id()
     clone = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
-        created_by=current_user.get_id(),
+        created_by=created_by,
         degree_name=name,
-        unit_requirements=template.unit_requirements,
     )
+    for unit_requirement in template.unit_requirements:
+        DegreeProgressUnitRequirement.create(
+            created_by=created_by,
+            min_units=unit_requirement.min_units,
+            name=unit_requirement.name,
+            template_id=clone.id,
+        )
     return tolerant_jsonify(clone.to_api_json())
 
 
