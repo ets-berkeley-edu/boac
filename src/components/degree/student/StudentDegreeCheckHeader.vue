@@ -43,6 +43,32 @@
         </div>
       </b-col>
     </b-row>
+    <b-row class="pt-3">
+      <b-col>
+        <h3 class="font-size-20 font-weight-bold">Degree Notes</h3>
+        <div>
+          There are currently no degree notes for this student.
+          <b-btn id="create-degree-note-btn" class="pl-0" variant="link">
+            Create new degree note
+          </b-btn>
+        </div>
+      </b-col>
+      <b-col>
+        <div class="align-items-top d-flex justify-content-end">
+          <div class="pr-3">
+            Show notes when printed
+          </div>
+          <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
+            <div class="d-flex">
+              <div class="toggle-label">
+                {{ includeNotesWhenPrint ? 'Yes' : 'No' }}
+              </div>
+              <b-form-checkbox v-model="includeNotesWhenPrint" switch />
+            </div>
+          </div>
+        </div>
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -66,6 +92,18 @@ export default {
       required: true,
       type: String
     }
-  }
+  },
+  data: () => ({
+    includeNotesWhenPrint: false
+  })
 }
 </script>
+
+<style scoped>
+.toggle-label {
+  font-size: 14px;
+  font-weight: bolder;
+  padding: 2px 8px 0 0;
+  width: 30px;
+}
+</style>

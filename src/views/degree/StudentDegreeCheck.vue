@@ -10,12 +10,22 @@
         />
       </div>
       <div class="m-3 pt-2">
-        <StudentDegreeCheckHeader
-          :student="student"
-          :degree-id="templateId"
-          :degree-name="degreeName"
-          :updated-at="updatedAt"
-        />
+        <div class="section-separator w-100">
+          <StudentDegreeCheckHeader
+            :student="student"
+            :degree-id="templateId"
+            :degree-name="degreeName"
+            :updated-at="updatedAt"
+          />
+        </div>
+        <div class="d-flex section-separator w-100">
+          <div class="w-50">
+            <UnitRequirements template-id="templateId" />
+          </div>
+          <div>
+            Unassigned Courses
+          </div>
+        </div>
         <b-container class="px-0 mx-0" :fluid="true">
           <b-row>
             <b-col
@@ -44,6 +54,7 @@ import Spinner from '@/components/util/Spinner'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
+import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentByUid} from '@/api/student'
 
@@ -55,7 +66,8 @@ export default {
     Spinner,
     StudentDegreeCheckHeader,
     StudentProfileHeader,
-    TemplateCategoryColumn
+    TemplateCategoryColumn,
+    UnitRequirements
   },
   data: () => ({
     student: undefined
@@ -80,6 +92,11 @@ export default {
 <style>
 .degree-check-column {
   min-width: 300px;
+  padding-bottom: 10px;
+}
+.section-separator {
+  border-bottom: 3px #999 solid;
+  margin-bottom: 20px;
   padding-bottom: 10px;
 }
 </style>
