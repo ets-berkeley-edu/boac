@@ -109,15 +109,14 @@
             <div class="align-right w-100">
               <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="d-flex">
                 <div>
-                  <b-btn
-                    :id="`degree-check-${row.index}-print-btn`"
+                  <router-link
+                    :id="`degree-check-${row.item.id}-print-link`"
                     class="p-1"
                     :disabled="isBusy"
-                    variant="link"
-                    @click="print(row.item.id)"
+                    :to="`degree/print/${row.item.id}`"
                   >
                     Print
-                  </b-btn>
+                  </router-link>
                 </div>
                 <div v-if="$currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
