@@ -22,17 +22,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
-from boac.api.errors import BadRequestError, ResourceNotFoundError
+from boac.api.degree_progress_api_utils import clone_degree_template
+from boac.api.errors import BadRequestError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
-from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
-from boac.models.degree_progress_category import DegreeProgressCategory
-from boac.models.degree_progress_template import DegreeProgressTemplate
-from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask import current_app as app, request
-from flask_login import current_user
 
 
 @app.route('/api/degree/check/<sid>/create', methods=['POST'])
@@ -40,51 +35,11 @@ from flask_login import current_user
 def create_degree_check(sid):
     params = request.get_json()
     template_id = get_param(params, 'templateId')
-
     if not template_id or not is_int(sid):
         raise BadRequestError("Missing parameters: sid and templateId are required.'")
-    template = DegreeProgressTemplate.find_by_id(template_id)
-    if template_id and not template:
-        raise ResourceNotFoundError(f'No template found with id={template_id}.')
 
-    created_by = current_user.get_id()
-    degree = DegreeProgressTemplate.create(
-        advisor_dept_codes=dept_codes_where_advising(current_user),
-        created_by=created_by,
-        degree_name=template.degree_name,
-        student_sid=sid,
-    )
-    for unit_requirement in template.unit_requirements:
-        DegreeProgressUnitRequirement.create(
-            created_by=created_by,
-            min_units=unit_requirement.min_units,
-            name=unit_requirement.name,
-            template_id=degree.id,
-        )
-
-    def _create_category(c):
-        DegreeProgressCategory.create(
-            category_type=c['categoryType'],
-            name=c['name'],
-            position=c['position'],
-            template_id=template_id,
-            course_units=c['courseUnits'],
-            description=c['description'],
-            parent_category_id=c['parentCategoryId'],
-            unit_requirement_ids=c.get('unitRequirementIds'),
-        )
-    for category in DegreeProgressCategory.get_categories(template_id=template_id):
-        _create_category(c=category)
-        for course in category['courses']:
-            _create_category(c=course)
-        for subcategory in category['subcategories']:
-            _create_category(c=subcategory)
-            for course in subcategory['courses']:
-                _create_category(c=course)
-
-    # TODO: Unit requirements?
-
-    return tolerant_jsonify(DegreeProgressTemplate.find_by_id(degree.id).to_api_json())
+    degree_check = clone_degree_template(template_id=template_id)
+    return tolerant_jsonify(degree_check.to_api_json())
 
 
 @app.route('/api/degrees/student/<sid>')
