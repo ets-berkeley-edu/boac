@@ -107,7 +107,7 @@
           </template>
           <template #cell(actions)="row">
             <div class="align-right w-100">
-              <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="d-flex">
+              <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="align-items-center d-flex flex-wrap">
                 <div>
                   <router-link
                     :id="`degree-check-${row.item.id}-print-link`"
