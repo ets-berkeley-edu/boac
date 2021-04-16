@@ -21,6 +21,7 @@ import Home from '@/views/Home.vue'
 import Login from '@/layouts/Login.vue'
 import NotFound from '@/views/NotFound.vue'
 import PassengerManifest from '@/views/PassengerManifest.vue'
+import PrintableDegreeTemplate from '@/views/degree/PrintableDegreeTemplate.vue'
 import Profile from '@/views/Profile.vue'
 import Router from 'vue-router'
 import Search from '@/views/Search.vue'
@@ -279,6 +280,13 @@ const router = new Router({
           meta: {
             title: 'Student Degree',
           },
+        },
+        {
+          path: '/degree/print/:id',
+          component: PrintableDegreeTemplate,
+          meta: {
+            title: 'Print Degree Template',
+          }
         }
       ]
     },
