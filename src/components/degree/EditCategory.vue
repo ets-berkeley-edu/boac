@@ -37,6 +37,12 @@
           maxlength="255"
           @keypress.enter="create"
         />
+        <div class="pl-2">
+          <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
+          <span v-if="nameInput.length === 255" class="sr-only" aria-live="polite">
+            Fulfillment requirement name cannot exceed 255 characters.
+          </span>
+        </div>
       </div>
       <div v-if="selectedCategoryType === 'Course'">
         <div class="font-weight-500 my-2">
@@ -234,7 +240,7 @@ export default {
     courseUnits: undefined,
     descriptionText: undefined,
     isSaving: false,
-    nameInput: undefined,
+    nameInput: '',
     selectedCategoryType: null,
     selectedParentCategory: null,
     selectedUnitRequirements: [],
@@ -254,7 +260,7 @@ export default {
   methods: {
     cancel() {
       this.descriptionText = null
-      this.nameInput = null
+      this.nameInput = ''
       this.selectedCategoryType = null
       this.afterCancel()
     },

@@ -75,6 +75,12 @@ export default {
   font-size: 16px;
   padding: 0 0 0 .5rem;
 }
+.degree-progress-btn-group {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
 .degree-progress-column {
   min-width: 300px;
   padding-bottom: 10px;
