@@ -4,8 +4,11 @@
       <div v-if="linkToStudentProfile">
         <router-link :to="`/student/${student.uid}`">
           <h1
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-            class="student-section-header"
+            :class="{
+              'demo-mode-blur': $currentUser.inDemoMode,
+              'font-size-20 font-weight-bolder mb-1': compact,
+              'student-section-header': !compact
+            }"
             v-html="student.name"
           ></h1>
         </router-link>
@@ -65,7 +68,7 @@
         CoE INACTIVE
       </div>
     </div>
-    <div id="student-bio-level" class="mt-2">
+    <div id="student-bio-level" :class="{'mt-2': !compact}">
       <h3 class="sr-only">Level</h3>
       <div class="font-weight-bolder">{{ $_.get(student, 'sisProfile.level.description') }}</div>
     </div>

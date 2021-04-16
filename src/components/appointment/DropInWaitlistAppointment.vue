@@ -10,7 +10,7 @@
     <b-col sm="6">
       <div class="d-flex">
         <div v-if="isHomepage" class="mr-2">
-          <StudentAvatar :student="appointment.student" size="small" />
+          <StudentAvatar size="small" :student="appointment.student" />
         </div>
         <div>
           <div class="d-flex flex-wrap font-size-16">
