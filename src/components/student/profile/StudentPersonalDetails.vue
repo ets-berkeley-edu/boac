@@ -3,7 +3,7 @@
     <div v-show="isOpen" :aria-expanded="isOpen" class="drawer">
       <div class="ml-4 mr-4 pb-4 pt-4 row">
         <div class="col-sm mr-2 pr-2">
-          <h3 class="student-profile-section-header">
+          <h3 class="student-profile-h3">
             Advisor(s)
           </h3>
           <div v-if="$_.size(student.advisors)" id="student-profile-advisors">
@@ -33,7 +33,7 @@
         </div>
         <div class="col-sm mr-2 pr-2">
           <div id="contact-information-outer" class="mb-4">
-            <h3 class="student-profile-section-header">
+            <h3 class="student-profile-h3">
               Contact Information
             </h3>
             <div v-if="student.sisProfile.emailAddressAlternate" id="student-profile-other-email-outer" class="mb-2">
@@ -56,7 +56,7 @@
             </div>
           </div>
           <div id="additional-information-outer">
-            <h3 class="student-profile-section-header">
+            <h3 class="student-profile-h3">
               Additional Information
             </h3>
             <div class="text-muted">
@@ -85,7 +85,7 @@
         </div>
         <div class="col-sm pr-2 mr-2">
           <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-4">
-            <h3 class="student-profile-section-header">
+            <h3 class="student-profile-h3">
               Intended Major
             </h3>
             <div id="student-details-intended-majors">
@@ -104,7 +104,7 @@
             </div>
           </div>
           <div v-if="inactiveMajors.length" id="student-details-discontinued-majors-outer" class="mb-3">
-            <h3 class="student-profile-section-header">
+            <h3 class="student-profile-h3">
               Discontinued Major(s)
             </h3>
             <div id="student-details-discontinued-majors">
@@ -117,7 +117,7 @@
             </div>
           </div>
           <div v-if="inactiveMinors.length" id="student-details-discontinued-minors-outer" class="mb-3">
-            <h3 class="student-profile-section-header">
+            <h3 class="student-profile-h3">
               Discontinued Minor(s)
             </h3>
             <div id="student-details-discontinued-minors">

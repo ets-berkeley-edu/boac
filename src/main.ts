@@ -1,5 +1,3 @@
-import 'bootstrap-vue/dist/bootstrap-vue.min.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import _ from 'lodash'
 import App from './App.vue'
 import axios from 'axios'
@@ -26,6 +24,10 @@ import {far} from '@fortawesome/free-regular-svg-icons'
 import {fas} from '@fortawesome/free-solid-svg-icons'
 import {faSpinner} from '@fortawesome/free-solid-svg-icons/faSpinner'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+
+// Import Bootstrap an BootstrapVue CSS files (order is important)
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 library.add(far, fas, faSpinner)
 Vue.component('font-awesome', FontAwesomeIcon) // eslint-disable-line vue/component-definition-name-casing

@@ -79,24 +79,13 @@ export default {
     }
   },
   data: () => ({
-    degreePlans: [],
-    degreePlanOwners: [],
     isShowingPersonalDetails: false,
-    minorPlans: [],
     plansMinorPartitionedByStatus: undefined,
     plansPartitionedByStatus: undefined
   }),
   created() {
     this.plansMinorPartitionedByStatus = this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     this.plansPartitionedByStatus = this.$_.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
-
-    const planTypes = ['MAJ', 'SS', 'SP', 'SH', 'CRT']
-    const plans = this.$_.get(this.student, 'sisProfile.degree.plans')
-    if (plans) {
-      this.degreePlans = plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan)
-      this.minorPlans = plans.filter(plan => plan.type === 'MIN').map(minor => minor.plan).map(part => part.replace('Minor in ', ''))
-      this.degreePlanOwners = this.$_.uniq(this.$_.map(plans, 'group'))
-    }
   },
   mounted() {
     this.putFocusNextTick('student-name-header')
@@ -115,14 +104,5 @@ export default {
   margin: 0 32px 0 20px;
   text-align: center;
   vertical-align: center;
-}
-.student-profile-section-header {
-  border-bottom: 1px #999 solid;
-  color: #999;
-  font-size: 12px;
-  font-weight: bold;
-  margin: 0 0 5px 0;
-  padding: 0 0 5px 0;
-  text-transform: uppercase;
 }
 </style>
