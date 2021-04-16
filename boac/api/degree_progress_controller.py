@@ -22,8 +22,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
-from boac.api.errors import BadRequestError, ResourceNotFoundError
+from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_upsert
+from boac.api.errors import BadRequestError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
@@ -43,7 +43,7 @@ def add_unit_requirement(template_id):
     min_units = params.get('minUnits')
     if not name or not min_units:
         raise BadRequestError('Unit requirement \'name\' and \'minUnits\' must be provided.')
-    _get_degree_template(template_id)
+    fetch_degree_template(template_id)
     unit_requirement = DegreeProgressUnitRequirement.create(
         created_by=current_user.get_id(),
         min_units=min_units,
@@ -55,27 +55,9 @@ def add_unit_requirement(template_id):
 
 @app.route('/api/degree/<template_id>/clone', methods=['POST'])
 @can_edit_degree_progress
-def clone_degree_template(template_id):
+def clone_template(template_id):
     name = request.get_json().get('name')
-    _validate_template_upsert(name=name)
-
-    template = DegreeProgressTemplate.find_by_id(template_id)
-    if template_id and not template:
-        raise ResourceNotFoundError(f'No template found with id={template_id}.')
-
-    created_by = current_user.get_id()
-    clone = DegreeProgressTemplate.create(
-        advisor_dept_codes=dept_codes_where_advising(current_user),
-        created_by=created_by,
-        degree_name=name,
-    )
-    for unit_requirement in template.unit_requirements:
-        DegreeProgressUnitRequirement.create(
-            created_by=created_by,
-            min_units=unit_requirement.min_units,
-            name=unit_requirement.name,
-            template_id=clone.id,
-        )
+    clone = clone_degree_template(template_id=template_id, name=name)
     return tolerant_jsonify(clone.to_api_json())
 
 
@@ -84,7 +66,7 @@ def clone_degree_template(template_id):
 def create_degree():
     params = request.get_json()
     name = get_param(params, 'name', None)
-    _validate_template_upsert(name=name)
+    validate_template_upsert(name=name)
     degree = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=current_user.get_id(),
@@ -112,7 +94,7 @@ def delete_unit_requirement(unit_requirement_id):
 @app.route('/api/degree/<template_id>')
 @can_read_degree_progress
 def get_degree_template(template_id):
-    template = _get_degree_template(template_id)
+    template = fetch_degree_template(template_id)
     return tolerant_jsonify({
         **template.to_api_json(),
         'unitRequirements': [r.to_api_json() for r in template.unit_requirements],
@@ -130,7 +112,7 @@ def get_degree_templates():
 def update_degree_template(template_id):
     name = request.get_json().get('name')
     template_id = int(template_id)
-    _validate_template_upsert(name=name, template_id=template_id)
+    validate_template_upsert(name=name, template_id=template_id)
     template = DegreeProgressTemplate.update(name=name, template_id=template_id)
     return tolerant_jsonify(template.to_api_json())
 
@@ -150,20 +132,3 @@ def update_unit_requirement(unit_requirement_id):
         updated_by=current_user.get_id(),
     )
     return tolerant_jsonify(unit_requirement.to_api_json())
-
-
-def _validate_template_upsert(name, template_id=None):
-    if not name:
-        raise BadRequestError('\'name\' is required.')
-    # Name must be unique across non-deleted templates
-    template = DegreeProgressTemplate.find_by_name(name=name, case_insensitive=True)
-    if template and (template_id is None or template_id != template.id):
-        raise BadRequestError(f'A degree named <strong>{name}</strong> already exists. Please choose a different name.')
-    return template
-
-
-def _get_degree_template(template_id):
-    template = DegreeProgressTemplate.find_by_id(template_id)
-    if not template:
-        raise ResourceNotFoundError(f'No template found with id={template_id}.')
-    return template
