@@ -17,7 +17,7 @@
     </template>
     <template v-slot:cell(avatar)="row">
       <div>
-        <StudentAvatar :key="row.item.sid" :student="row.item" size="medium" />
+        <StudentAvatar :key="row.item.sid" size="medium" :student="row.item" />
       </div>
       <div class="manage-curated-student mb-1 text-center">
         <ManageStudent :is-button-variant-link="true" :sr-only="hoverSid !== row.item.sid" :student="row.item" />

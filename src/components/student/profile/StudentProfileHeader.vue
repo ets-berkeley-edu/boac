@@ -1,16 +1,16 @@
 <template>
   <div>
-    <div class="d-flex justify-content-between mr-4 pb-2 pt-4">
-      <div class="d-flex flex-row-reverse mx-3">
-        <div class="mr-2 pr-2">
+    <div class="d-flex justify-content-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
+      <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-5': !compact}">
+        <div :class="{'mr-2 pr-2': compact, 'mr-4 pr-4': !compact}">
           <StudentProfileHeaderBio
             :compact="compact"
             :link-to-student-profile="linkToStudentProfile"
             :student="student"
           />
         </div>
-        <div class="column-with-avatar">
-          <StudentAvatar :student="student" class="mb-2" size="large" />
+        <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
+          <StudentAvatar class="mb-2" :size="compact ? 'medium' : 'large'" :student="student" />
           <ManageStudent v-if="!compact" :student="student" />
         </div>
       </div>
@@ -101,8 +101,11 @@ export default {
 
 <style>
 .column-with-avatar {
-  margin: 0 32px 0 20px;
-  text-align: center;
+  margin: 0 64px 0 20px;
+  vertical-align: center;
+}
+.column-with-avatar-compact {
+  margin: 16px 32px 0 20px;
   vertical-align: center;
 }
 </style>

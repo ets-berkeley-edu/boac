@@ -30,9 +30,20 @@ export default {
   name: 'StudentAvatar',
   mixins: [Context],
   props: {
-    size: String,
-    student: Object,
-    alertCount: Number
+    size: {
+      required: true,
+      type: String,
+      validator: v => ['small', 'medium', 'large'].indexOf(v) > -1
+    },
+    student: {
+      required: true,
+      type: Object
+    },
+    alertCount: {
+      default: undefined,
+      required: false,
+      type: Number
+    }
   },
   data: () => ({
     ariaLabel: undefined,

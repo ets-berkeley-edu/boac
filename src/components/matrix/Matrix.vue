@@ -85,7 +85,7 @@
               class="cohort-missing-student-data-row"
             >
               <td class="student-avatar-container">
-                <StudentAvatar :student="student" />
+                <StudentAvatar :size="medium" :student="student" />
               </td>
               <td class="cohort-student-bio-container">
                 <div class="student-name">

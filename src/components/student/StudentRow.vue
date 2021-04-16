@@ -26,9 +26,9 @@
     <div>
       <div>
         <StudentAvatar
-          :student="student"
           :alert-count="student.alertCount"
           size="medium"
+          :student="student"
         />
       </div>
       <div v-if="listType === 'cohort'" class="manage-curated-student mb-1 text-center">

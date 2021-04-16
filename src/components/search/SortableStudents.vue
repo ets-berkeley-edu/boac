@@ -17,7 +17,7 @@
       </template>
 
       <template v-slot:cell(avatar)="row">
-        <StudentAvatar :key="row.item.sid" :student="row.item" size="small" />
+        <StudentAvatar :key="row.item.sid" size="small" :student="row.item" />
         <div v-if="options.includeCuratedCheckbox" class="sr-only">
           <ManageStudent :is-button-variant-link="true" :student="row.item" />
         </div>
