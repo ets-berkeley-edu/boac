@@ -4,13 +4,13 @@
       <div>
         <h2
           v-if="category.categoryType === 'Category'"
-          class="font-size-18 font-weight-bold pt-1"
+          :class="`degree-progress-${category.categoryType.toLowerCase()}`"
         >
           {{ category.name }}
         </h2>
         <h3
           v-if="category.categoryType === 'Subcategory'"
-          class="font-size-16 font-weight-bold pt-0"
+          :class="`degree-progress-${category.categoryType.toLowerCase()}`"
         >
           {{ category.name }}
         </h3>
@@ -41,7 +41,7 @@
         </b-btn>
       </div>
     </div>
-    <div v-if="category.description">
+    <div v-if="category.description" id="degree-progress-category-description">
       {{ category.description }}
     </div>
     <AreYouSureModal
@@ -75,7 +75,7 @@ export default {
       type: Number
     },
     onClickEdit: {
-      required: true,
+      required: false,
       type: Function
     },
     student: {
@@ -121,3 +121,14 @@ export default {
   }
 }
 </script>
+
+<style>
+.degree-progress-category {
+  padding-top: 1px;
+  font-weight: 500;
+}
+.degree-progress-subcategory {
+  font-size: 14px;
+  padding-top: 0px;
+}
+</style>

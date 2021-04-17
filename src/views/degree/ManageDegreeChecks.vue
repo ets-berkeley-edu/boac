@@ -119,7 +119,7 @@
                     :id="`degree-check-${row.item.id}-print-link`"
                     class="p-1"
                     :disabled="isBusy"
-                    :to="`/degree/print/${row.item.id}`"
+                    :to="`/degree/${row.item.id}/print`"
                   >
                     Print
                   </router-link>
