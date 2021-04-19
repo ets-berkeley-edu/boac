@@ -8,11 +8,17 @@
       <router-link
         v-if="$currentUser.canEditDegreeProgress"
         id="degree-check-create-link"
-        class="degree-progress-btn-add w-25"
+        class="w-25"
         to="/degree/new"
       >
-        Create new degree check
-        <font-awesome icon="plus" class="m-1" />
+        <div class="align-items-center d-flex justify-content-between">
+          <div class="pr-2 text-nowrap">
+            Create new degree check
+          </div>
+          <div>
+            <font-awesome icon="plus" />
+          </div>
+        </div>
       </router-link>
     </div>
     <div v-if="!loading">

@@ -9,10 +9,13 @@
           }"
         >{{ category.name }}</span>
       </div>
-      <div v-if="!student && $currentUser.canEditDegreeProgress" class="degree-progress-btn-group">
+      <div
+        v-if="!student && $currentUser.canEditDegreeProgress"
+        class="d-flex justify-content-end text-nowrap"
+      >
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
-          class="degree-progress-btn-edit-delete"
+          class="degree-progress-edit-delete-btn"
           :disabled="disableButtons"
           variant="link"
           @click.prevent="edit"
@@ -22,7 +25,7 @@
         </b-btn>
         <b-btn
           :id="`column-${position}-delete-category-${category.id}-btn`"
-          class="degree-progress-btn-edit-delete"
+          class="degree-progress-edit-delete-btn"
           :disabled="disableButtons"
           variant="link"
           @click="deleteDegreeCategory"

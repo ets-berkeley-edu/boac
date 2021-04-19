@@ -148,12 +148,18 @@
             required
             @change="onChangeParentCategory"
           >
-            <b-select-option :id="`column-${position}-parent-select-option-null`" :value="null">Choose...</b-select-option>
+            <b-select-option
+              :id="`column-${position}-parent-select-option-null`"
+              :value="null"
+            >
+              Choose...
+            </b-select-option>
             <b-select-option
               v-for="category in withTypeCategoryOrSubcategory"
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
+              :disabled="selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory'"
               :value="category"
             >
               {{ category.name }}

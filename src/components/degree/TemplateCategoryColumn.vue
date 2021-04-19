@@ -5,13 +5,19 @@
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
-        class="degree-progress-btn-add py-0"
+        class="py-0"
         :disabled="disableButtons"
         variant="link"
         @click="add"
       >
-        Add column {{ position }} requirement
-        <font-awesome icon="plus" class="m-1" />
+        <div class="align-items-center d-flex justify-content-between">
+          <div class="pr-2 text-nowrap">
+            Add column {{ position }} requirement
+          </div>
+          <div>
+            <font-awesome icon="plus" />
+          </div>
+        </div>
       </b-btn>
     </div>
     <div v-if="isAddingCategory">
