@@ -38,7 +38,7 @@ def create_degree_check(sid):
     if not template_id or not is_int(sid):
         raise BadRequestError("Missing parameters: sid and templateId are required.'")
 
-    degree_check = clone_degree_template(template_id=template_id)
+    degree_check = clone_degree_template(template_id=template_id, sid=sid)
     return tolerant_jsonify(degree_check.to_api_json())
 
 

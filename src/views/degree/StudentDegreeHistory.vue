@@ -100,14 +100,18 @@ export default {
       this.advisorNamesByUid = {}
       return new Promise(resolve => {
         const uniqueUids = this.$_.uniq(this.$_.map(this.student.degreeChecks, 'updatedBy'))
-        this.$_.each(uniqueUids, uid => {
-          getCalnetProfileByUid(uid).then(data => {
-            this.advisorNamesByUid[uid] = data.name || `${data.uid} (UID)`
-            if (uid === this.$_.last(uniqueUids)) {
-              resolve()
-            }
+        if (uniqueUids.length) {
+          this.$_.each(uniqueUids, uid => {
+            getCalnetProfileByUid(uid).then(data => {
+              this.advisorNamesByUid[uid] = data.name || `${data.uid} (UID)`
+              if (uid === this.$_.last(uniqueUids)) {
+                resolve()
+              }
+            })
           })
-        })
+        } else {
+          resolve()
+        }
       })
     }
   }
