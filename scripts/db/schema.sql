@@ -396,7 +396,7 @@ CREATE TABLE degree_progress_categories (
     id integer NOT NULL,
     parent_category_id integer,
     category_type degree_progress_category_types NOT NULL,
-    course_units integer,
+    course_units int4range,
     description text,
     name character varying(255) NOT NULL,
     position integer NOT NULL,

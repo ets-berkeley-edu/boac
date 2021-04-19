@@ -170,7 +170,7 @@ class TestGetTemplateWithCategory:
         _api_create_category(
             category_type='Course',
             client=client,
-            course_units=2,
+            course_units='2-3',
             name='It\'s a lot of face, a lot of crank air',
             parent_category_id=category['id'],
             position=3,
@@ -188,7 +188,7 @@ class TestGetTemplateWithCategory:
         _api_create_category(
             category_type='Course',
             client=client,
-            course_units=3,
+            course_units='3',
             name='Sooey and saints at the fair',
             parent_category_id=subcategory['id'],
             position=3,
@@ -207,13 +207,13 @@ class TestGetTemplateWithCategory:
         courses = categories[0]['courses']
         assert len(courses) == 1
         assert courses[0]['name'] == 'It\'s a lot of face, a lot of crank air'
-        assert courses[0]['courseUnits'] == 2
+        assert courses[0]['courseUnits'] == '2-3'
 
         lower_courses = subcategories[0]['courses']
         assert len(lower_courses) == 1
         lower_course = lower_courses[0]
         assert lower_course['name'] == 'Sooey and saints at the fair'
-        assert lower_course['courseUnits'] == 3
+        assert lower_course['courseUnits'] == '3'
         unit_requirements = lower_course['unitRequirements']
         assert len(unit_requirements) == 1
         assert unit_requirements[0]['id']
@@ -253,7 +253,7 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=1,
             client=client,
-            course_units=3,
+            course_units='3',
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Never Go Back',
@@ -266,7 +266,7 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=1,
             client=client,
-            course_units=3,
+            course_units='3',
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Seven Languages',
@@ -302,7 +302,7 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=category['id'],
             client=client,
-            course_units=3,
+            course_units='3',
             description=description,
             name=name,
             unit_requirement_ids=[new_unit_requirement.id, preserve_me.id],

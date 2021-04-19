@@ -54,12 +54,12 @@
             v-model="courseUnits"
             class="course-units-input"
             :disabled="isSaving"
-            maxlength="1"
+            maxlength="3"
             trim
             @keypress.enter="create"
           />
           <span v-if="!isValidCourseUnits" class="has-error faint-text font-size-12">
-            Number required
+            Number or numerical range required
           </span>
         </div>
       </div>
@@ -233,7 +233,9 @@ export default {
         || !this.isValidCourseUnits
     },
     isValidCourseUnits() {
-      return this.$_.isEmpty(this.courseUnits) || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
+      return this.$_.isEmpty(this.courseUnits)
+        || /^\d-\d$/.test(this.courseUnits)
+        || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
     },
     withTypeCategory() {
       return this.findCategoriesByTypes(['Category'], this.position)
@@ -335,7 +337,7 @@ export default {
 
 <style scoped>
 .course-units-input {
-  max-width: 36px;
+  max-width: 3.25rem;
 }
 .pill-unit-requirement {
   background-color: #fff;
