@@ -3,65 +3,67 @@
     <div v-if="$_.isEmpty(courses)" class="no-data-text">
       No courses
     </div>
-    <b-table-simple
-      id="unit-requirements-table"
-      borderless
-      :responsive="true"
-      small
-      stacked="sm"
-    >
-      <b-thead class="border-bottom">
-        <b-tr class="sortable-table-header text-nowrap">
-          <b-th class="pl-0">Course</b-th>
-          <b-th>Units</b-th>
-          <b-th>Fulfillment</b-th>
-          <b-th></b-th>
-        </b-tr>
-      </b-thead>
-      <b-tbody>
-        <b-tr v-for="course in courses" :key="course.id">
-          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
-          <td v-if="!isEditing(course)">
-            <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
-          </td>
-          <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
-            {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
-          </td>
-          <td v-if="!student && !isEditing(course)" class="pr-0">
-            <div class="degree-progress-btn-group">
-              <b-btn
-                :id="`column-${position}-edit-category-${course.id}-btn`"
-                class="degree-progress-btn-edit-delete"
-                :disabled="disableButtons"
-                variant="link"
-                @click="edit(course)"
-              >
-                <font-awesome icon="edit" />
-                <span class="sr-only">Edit {{ course.name }}</span>
-              </b-btn>
-              <b-btn
-                :id="`column-${position}-delete-course-${course.id}-btn`"
-                class="degree-progress-btn-edit-delete"
-                :disabled="disableButtons"
-                variant="link"
-                @click="deleteCourse(course)"
-              >
-                <font-awesome icon="trash-alt" />
-                <span class="sr-only">Delete {{ course.name }}</span>
-              </b-btn>
-            </div>
-          </td>
-          <b-td v-if="isEditing(course)" colspan="4">
-            <EditCategory
-              :after-cancel="afterCancel"
-              :after-save="afterSave"
-              :existing-category="course"
-              :position="position"
-            />
-          </b-td>
-        </b-tr>
-      </b-tbody>
-    </b-table-simple>
+    <div v-if="!$_.isEmpty(courses)">
+      <b-table-simple
+        :id="`column-${position}-courses-of-category-${courses[0].parentCategoryId}`"
+        borderless
+        :responsive="true"
+        small
+        stacked="sm"
+      >
+        <b-thead class="border-bottom">
+          <b-tr class="sortable-table-header text-nowrap">
+            <b-th class="pl-0">Course</b-th>
+            <b-th>Units</b-th>
+            <b-th>Fulfillment</b-th>
+            <b-th></b-th>
+          </b-tr>
+        </b-thead>
+        <b-tbody>
+          <b-tr v-for="course in courses" :key="course.id">
+            <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
+            <td v-if="!isEditing(course)">
+              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
+            </td>
+            <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
+              {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
+            </td>
+            <td v-if="!student && !isEditing(course)" class="pr-0">
+              <div class="degree-progress-btn-group">
+                <b-btn
+                  :id="`column-${position}-edit-category-${course.id}-btn`"
+                  class="degree-progress-btn-edit-delete"
+                  :disabled="disableButtons"
+                  variant="link"
+                  @click="edit(course)"
+                >
+                  <font-awesome icon="edit" />
+                  <span class="sr-only">Edit {{ course.name }}</span>
+                </b-btn>
+                <b-btn
+                  :id="`column-${position}-delete-course-${course.id}-btn`"
+                  class="degree-progress-btn-edit-delete"
+                  :disabled="disableButtons"
+                  variant="link"
+                  @click="deleteCourse(course)"
+                >
+                  <font-awesome icon="trash-alt" />
+                  <span class="sr-only">Delete {{ course.name }}</span>
+                </b-btn>
+              </div>
+            </td>
+            <b-td v-if="isEditing(course)" colspan="4">
+              <EditCategory
+                :after-cancel="afterCancel"
+                :after-save="afterSave"
+                :existing-category="course"
+                :position="position"
+              />
+            </b-td>
+          </b-tr>
+        </b-tbody>
+      </b-table-simple>
+    </div>
     <AreYouSureModal
       v-if="courseForDelete"
       :function-cancel="deleteCanceled"

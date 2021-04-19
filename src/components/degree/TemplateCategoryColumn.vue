@@ -23,6 +23,7 @@
     </div>
     <div
       v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+      :id="`column-${position}-category-${category.id}`"
       :key="category.id"
     >
       <Category
@@ -47,13 +48,18 @@
       />
       <div v-if="$_.size(category.courses)" class="pl-1 py-2">
         <CoursesTable
+          :id="`column-${position}-category-${category.id}-courses`"
           :courses="category.courses"
           :position="position"
           :student="student"
         />
       </div>
       <div v-if="$_.size(category.subcategories)">
-        <div v-for="subcategory in category.subcategories" :key="subcategory.id">
+        <div
+          v-for="subcategory in category.subcategories"
+          :id="`column-${position}-category-${category.id}-subcategories`"
+          :key="subcategory.id"
+        >
           <Category
             v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
             :category="subcategory"
@@ -70,6 +76,7 @@
           />
           <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
             <CoursesTable
+              :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :courses="subcategory.courses"
               :position="position"
               :student="student"

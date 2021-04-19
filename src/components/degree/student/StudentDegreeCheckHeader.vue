@@ -1,5 +1,5 @@
 <template>
-  <b-container class="px-0 mx-0" :fluid="true">
+  <b-container id="student-degree-check-header" class="px-0 mx-0" :fluid="true">
     <b-row>
       <b-col>
         <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>

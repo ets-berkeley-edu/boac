@@ -1,5 +1,5 @@
 <template>
-  <div class="border border-1 mb-4 pb-3 pt-2 px-2 rounded">
+  <div :id="`column-${position}-edit-category`" class="border border-1 mb-4 pb-3 pt-2 px-2 rounded">
     <div v-if="!existingCategory" class="ml-1">
       <div class="font-weight-500">
         Requirement Type (required)
