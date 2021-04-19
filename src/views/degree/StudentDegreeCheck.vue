@@ -30,6 +30,7 @@
           <b-row>
             <b-col
               v-for="position in [1, 2, 3]"
+              :id="`student-degree-check-column-${position}`"
               :key="position"
               class="degree-check-column"
             >
@@ -83,8 +84,6 @@ export default {
         this.loaded(`${this.degreeName} for ${this.student.name}`)
       })
     })
-  },
-  methods: {
   }
 }
 </script>

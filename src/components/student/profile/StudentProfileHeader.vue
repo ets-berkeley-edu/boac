@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="student-profile-header">
     <div class="d-flex justify-content-between mr-4" :class="{'pb-0 pt-2': compact, 'pb-2 pt-4': !compact}">
       <div class="d-flex flex-row-reverse" :class="{'ml-3': compact, 'ml-5': !compact}">
         <div :class="{'mr-2 pr-2': compact, 'mr-4 pr-4': !compact}">

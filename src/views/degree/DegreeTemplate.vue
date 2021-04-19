@@ -11,6 +11,7 @@
         <b-row>
           <b-col
             v-for="position in [1, 2, 3]"
+            :id="`degree-template-column-${position}`"
             :key="position"
             class="degree-progress-column"
           >
