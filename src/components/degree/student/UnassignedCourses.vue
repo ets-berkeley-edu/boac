@@ -24,18 +24,20 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="course in courses" :key="course.id">
-            <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
             <td v-if="!isEditing(course)">
-              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
+              {{ course.displayName }}
             </td>
             <td v-if="!isEditing(course)">
-              TODO
+              <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
             </td>
             <td v-if="!isEditing(course)">
-              TODO
+              {{ course.grade || '&mdash;' }}
             </td>
             <td v-if="!isEditing(course)">
-              TODO
+              {{ course.termName }}
+            </td>
+            <td v-if="!isEditing(course)">
+              {{ course.note }}
             </td>
             <td v-if="!isEditing(course)" class="pr-0">
               <b-btn
@@ -109,7 +111,7 @@ export default {
       this.putFocusNextTick('name-input')
     },
     isEditing(course) {
-      return course.id === this.$_.get(this.courseForEdit, 'id')
+      return false && course.id === this.$_.get(this.courseForEdit, 'id')
     }
   }
 }
