@@ -114,11 +114,12 @@ def lazy_load_unassigned_courses(degree_check):
                     'createdAt': _isoformat(now),
                     'courseUnits': section['units'],
                     'displayName': f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
-                    'grade': None,
+                    'grade': section['grade'],
                     'sectionId': section['ccn'],
                     'sid': sid,
                     'termId': term['termId'],
-                    'units': None,
+                    'termName': term['termName'],
+                    'units': section['units'],
                     'updatedAt': _isoformat(now),
                 })
     return unassigned_courses
