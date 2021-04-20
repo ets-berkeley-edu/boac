@@ -45,33 +45,40 @@ def clone_degree_template(template_id, name=None, sid=None):
         degree_name=name or template.degree_name,
         student_sid=sid,
     )
+    unit_requirements_by_source_id = {}
     for unit_requirement in template.unit_requirements:
-        DegreeProgressUnitRequirement.create(
+        source_id = unit_requirement.id
+        unit_requirements_by_source_id[source_id] = DegreeProgressUnitRequirement.create(
             created_by=created_by,
             min_units=unit_requirement.min_units,
             name=unit_requirement.name,
             template_id=clone.id,
         )
 
-    def _create_category(c):
-        DegreeProgressCategory.create(
-            category_type=c['categoryType'],
-            name=c['name'],
-            position=c['position'],
-            template_id=template_id,
-            course_units=c['courseUnits'],
-            description=c['description'],
-            parent_category_id=c['parentCategoryId'],
-            unit_requirement_ids=c.get('unitRequirementIds'),
+    def _create_category(category_, parent_id):
+        unit_requirement_ids = []
+        for u in category_['unitRequirements']:
+            source_id_ = u['id']
+            cross_reference = unit_requirements_by_source_id[source_id_]
+            unit_requirement_ids.append(cross_reference.id)
+        return DegreeProgressCategory.create(
+            category_type=category_['categoryType'],
+            name=category_['name'],
+            position=category_['position'],
+            template_id=clone.id,
+            course_units=category_['courseUnits'],
+            description=category_['description'],
+            parent_category_id=parent_id,
+            unit_requirement_ids=unit_requirement_ids,
         )
     for category in DegreeProgressCategory.get_categories(template_id=template_id):
-        _create_category(c=category)
+        c = _create_category(category_=category, parent_id=None)
         for course in category['courses']:
-            _create_category(c=course)
+            _create_category(category_=course, parent_id=c.id)
         for subcategory in category['subcategories']:
-            _create_category(c=subcategory)
+            s = _create_category(category_=subcategory, parent_id=c.id)
             for course in subcategory['courses']:
-                _create_category(c=course)
+                _create_category(category_=course, parent_id=s.id)
 
     # TODO: Unit requirements?
     return DegreeProgressTemplate.find_by_id(clone.id)
