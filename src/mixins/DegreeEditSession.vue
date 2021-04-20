@@ -21,13 +21,16 @@ export default {
   computed: {
     ...mapGetters('degreeEditSession', [
       'categories',
+      'createdAt',
+      'createdBy',
       'degreeEditSessionToString',
       'degreeName',
       'disableButtons',
       'editMode',
       'templateId',
       'unitRequirements',
-      'updatedAt'
+      'updatedAt',
+      'updatedBy'
     ])
   },
   methods: {

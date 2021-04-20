@@ -130,3 +130,33 @@ class TestGetStudentDegreeChecks:
         assert degree_checks[0]['isCurrent'] is True
         assert degree_checks[1]['isCurrent'] is False
         assert degree_checks[2]['isCurrent'] is False
+
+
+class TestGetUnassignedCourses:
+
+    @classmethod
+    def _api_get_unassigned_courses(cls, client, degree_check_id, expected_status_code=200):
+        response = client.get(f'/api/degree/{degree_check_id}/courses/unassigned')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_get_unassigned_courses(client, degree_check_id=1, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_get_unassigned_courses(client, degree_check_id=1, expected_status_code=401)
+
+    def test_authorized(self, client, fake_auth, mock_degree_checks, app):
+        """Authorized user can get student degree checks."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_only_uid)
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=user.id,
+            degree_name=f'Degree check for {coe_student_sid}',
+            student_sid=coe_student_sid,
+        )
+        fake_auth.login(user.uid)
+        self._api_get_unassigned_courses(client, degree_check_id=degree_check.id)

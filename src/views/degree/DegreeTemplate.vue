@@ -2,8 +2,7 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div v-if="!loading">
-      <h1 v-if="!templateId">Degree Builder</h1>
-      <h1 v-if="templateId">{{ degreeName }}</h1>
+      <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
       <hr />
       <UnitRequirements v-if="templateId" template-id="templateId" />
       <hr />
@@ -49,18 +48,9 @@ export default {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
     this.init(id).then(() => {
       this.setPageTitle(this.degreeName)
-      this.loaded(this.getLoadedAlert())
+      this.loaded(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
       this.putFocusNextTick('add-unit-requirement')
     })
-  },
-  methods: {
-    getLoadedAlert() {
-      if (!this.templateId) {
-        return 'Create degree page has loaded'
-      } else {
-        return `Degree ${this.degreeName || ''} has loaded`
-      }
-    }
   }
 }
 </script>
