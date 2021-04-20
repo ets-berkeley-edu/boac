@@ -2,18 +2,24 @@
   <b-container fluid class="m-0">
     <b-row cols="1" cols-xl="2">
       <b-col class="p-0">
-        <div class="d-flex flex-row justify-content-between">
+        <div class="align-items-start d-flex flex-row justify-content-between">
           <h2 class="page-section-header-sub text-nowrap pb-2">Unit Requirements</h2>
           <b-btn
             v-if="$currentUser.canEditDegreeProgress"
             id="unit-requirement-create-link"
-            class="degree-progress-btn-add text-nowrap py-0"
-            variant="link"
+            class="py-0"
             :disabled="!!editMode || disableButtons"
+            variant="link"
             @click.prevent="onClickAdd"
           >
-            Add unit requirement
-            <font-awesome icon="plus" class="m-1" />
+            <div class="align-items-center d-flex justify-content-between">
+              <div class="pr-2 text-nowrap">
+                Add unit requirement
+              </div>
+              <div>
+                <font-awesome icon="plus" />
+              </div>
+            </div>
           </b-btn>
         </div>
         <div v-if="!editMode">
@@ -32,7 +38,7 @@
             <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
               <b-btn
                 :id="`unit-requirement-${row.item.id}-edit-btn`"
-                class="degree-progress-btn-edit-delete"
+                class="degree-progress-edit-delete-btn"
                 :disabled="disableButtons"
                 variant="link"
                 @click.prevent="onClickEdit(row.index)"
@@ -42,7 +48,7 @@
               </b-btn>
               <b-btn
                 :id="`unit-requirement-${row.item.id}-delete-btn`"
-                class="degree-progress-btn-edit-delete"
+                class="degree-progress-edit-delete-btn"
                 :disabled="disableButtons"
                 variant="link"
                 @click.prevent="onClickDelete(row.index)"
@@ -98,7 +104,7 @@ export default {
       {
         key: 'actions',
         label: '',
-        class: 'degree-progress-btn-group pr-0'
+        class: 'd-flex justify-content-end pr-0 text-nowrap'
       }
     ],
     indexOfSelected: undefined,

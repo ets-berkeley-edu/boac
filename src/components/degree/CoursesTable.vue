@@ -29,10 +29,10 @@
               {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
             </td>
             <td v-if="!student && !isEditing(course)" class="pr-0">
-              <div class="degree-progress-btn-group">
+              <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${course.id}-btn`"
-                  class="degree-progress-btn-edit-delete"
+                  class="degree-progress-edit-delete-btn"
                   :disabled="disableButtons"
                   variant="link"
                   @click="edit(course)"
@@ -42,7 +42,7 @@
                 </b-btn>
                 <b-btn
                   :id="`column-${position}-delete-course-${course.id}-btn`"
-                  class="degree-progress-btn-edit-delete"
+                  class="degree-progress-edit-delete-btn"
                   :disabled="disableButtons"
                   variant="link"
                   @click="deleteCourse(course)"

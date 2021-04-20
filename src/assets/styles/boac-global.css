@@ -80,6 +80,10 @@
 .cursor-pointer {
   cursor: pointer;
 }
+.degree-progress-edit-delete-btn {
+  font-size: 16px;
+  padding: 0 0 0 .5rem;
+}
 .demo-mode-blur {
   color: transparent !important;
   text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;

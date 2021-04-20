@@ -65,23 +65,7 @@ export default {
 }
 </script>
 
-<style>
-.degree-progress-btn-add {
-  display: flex;
-  flex-direction: row-reverse;
-  justify-content: flex-end;
-  white-space: nowrap;
-}
-.degree-progress-btn-edit-delete {
-  font-size: 16px;
-  padding: 0 0 0 .5rem;
-}
-.degree-progress-btn-group {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  white-space: nowrap;
-}
+<style scoped>
 .degree-progress-column {
   min-width: 300px;
   padding-bottom: 10px;
