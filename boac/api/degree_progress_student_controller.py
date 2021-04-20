@@ -54,4 +54,5 @@ def get_degree_checks(sid):
 @can_read_degree_progress
 def get_unassigned_courses(degree_check_id):
     degree_check = DegreeProgressTemplate.find_by_id(degree_check_id)
-    return tolerant_jsonify(lazy_load_unassigned_courses(degree_check))
+    courses = lazy_load_unassigned_courses(degree_check)
+    return tolerant_jsonify([c.to_api_json() for c in courses])

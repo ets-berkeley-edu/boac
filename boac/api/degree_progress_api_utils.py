@@ -23,17 +23,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import merge_enrollment_terms
 from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from dateutil.tz import tzutc
 from flask_login import current_user
 
 
@@ -98,9 +96,14 @@ def fetch_degree_template(template_id):
 
 
 def lazy_load_unassigned_courses(degree_check):
-    now = datetime.now()
-    unassigned_courses = []
+    unassigned_courses = {}
     sid = degree_check.student_sid
+
+    def _key(section_id_, term_id_):
+        return f'{section_id_}_{term_id_}'
+    for course in DegreeProgressCourse.get_unassigned_by_sid(sid=sid):
+        unassigned_courses[_key(course.section_id, course.term_id)] = course
+
     enrollments = data_loch.get_enrollments_for_sid(
         sid=sid,
         latest_term_id=current_term_id(),
@@ -108,21 +111,22 @@ def lazy_load_unassigned_courses(degree_check):
     for index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
             for section in enrollment['sections']:
-                # TODO: Make it real. Create degree-progress course entries as needed.
-                unassigned_courses.append({
-                    'categoryId': None,  # This will be nil for unassigned courses
-                    'createdAt': _isoformat(now),
-                    'courseUnits': section['units'],
-                    'displayName': f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
-                    'grade': section['grade'],
-                    'sectionId': section['ccn'],
-                    'sid': sid,
-                    'termId': term['termId'],
-                    'termName': term['termName'],
-                    'units': section['units'],
-                    'updatedAt': _isoformat(now),
-                })
-    return unassigned_courses
+                grade = section['grade']
+                section_id = section['ccn']
+                term_id = term['termId']
+                units = section['units']
+                key = _key(section_id, term_id)
+                if section.get('primary') and grade and units and key not in unassigned_courses:
+                    course = DegreeProgressCourse.create(
+                        display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
+                        grade=grade,
+                        section_id=section_id,
+                        sid=sid,
+                        term_id=term_id,
+                        units=units,
+                    )
+                    unassigned_courses[key] = course
+    return list(unassigned_courses.values())
 
 
 def validate_template_upsert(name, template_id=None):
@@ -133,7 +137,3 @@ def validate_template_upsert(name, template_id=None):
     if template and (template_id is None or template_id != template.id):
         raise BadRequestError(f'A degree named <strong>{name}</strong> already exists. Please choose a different name.')
     return template
-
-
-def _isoformat(value):
-    return value and value.astimezone(tzutc()).isoformat()

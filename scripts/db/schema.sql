@@ -424,6 +424,23 @@ CREATE INDEX degree_progress_categories_id_idx ON degree_progress_categories USI
 
 --
 
+CREATE TABLE degree_progress_courses (
+  section_id INTEGER NOT NULL,
+  sid VARCHAR(80) NOT NULL,
+  term_id INTEGER NOT NULL,
+  category_id INTEGER,
+  grade VARCHAR(50) NOT NULL,
+  display_name character varying(255) NOT NULL,
+  note text,
+  units INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE degree_progress_courses OWNER TO boac;
+ALTER TABLE ONLY degree_progress_courses
+    ADD CONSTRAINT degree_progress_courses_pkey PRIMARY KEY (section_id, sid, term_id);
+
+--
 
 CREATE TABLE degree_progress_unit_requirements (
   id integer NOT NULL,
@@ -925,6 +942,12 @@ ALTER TABLE ONLY degree_progress_course_unit_requirements
 ALTER TABLE ONLY degree_progress_course_unit_requirements
     ADD CONSTRAINT degree_progress_course_unit_reqts_unit_requirement_id_fkey
     FOREIGN KEY (unit_requirement_id) REFERENCES degree_progress_unit_requirements(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY degree_progress_courses
+    ADD CONSTRAINT degree_progress_courses_category_id_fkey
+    FOREIGN KEY (category_id) REFERENCES degree_progress_categories(id) ON DELETE CASCADE;
 
 --
 
