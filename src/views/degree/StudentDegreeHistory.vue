@@ -16,7 +16,7 @@
               <h1 id="page-header" class="page-section-header">Degree Check History</h1>
             </b-col>
             <b-col>
-              <div class="d-flex justify-content-end">
+              <div v-if="$currentUser.canEditDegreeProgress" class="d-flex justify-content-end">
                 <div class="pr-2">
                   <router-link
                     id="create-new-degree"
@@ -30,7 +30,7 @@
           </b-row>
         </b-container>
       </div>
-      <div v-if="student.degreeChecks.length">
+      <div v-if="student.degreeChecks.length" class="mx-3">
         <b-table-lite
           id="degree-checks-table"
           :fields="[
@@ -62,7 +62,7 @@
           </template>
         </b-table-lite>
       </div>
-      <div v-if="!student.degreeChecks.length" class="p-5">
+      <div v-if="!student.degreeChecks.length" class="pl-3">
         Student has no degree checks.
       </div>
     </div>

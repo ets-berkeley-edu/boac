@@ -22,8 +22,9 @@
           <div class="w-50">
             <UnitRequirements template-id="templateId" />
           </div>
-          <div>
-            Unassigned Courses
+          <div class="w-50">
+            <h2 class="page-section-header-sub text-nowrap pb-2">Unassigned Courses</h2>
+            <UnassignedCourses :student="student" />
           </div>
         </div>
         <b-container class="px-0 mx-0" :fluid="true">
@@ -55,6 +56,7 @@ import Spinner from '@/components/util/Spinner'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
+import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentByUid} from '@/api/student'
@@ -68,6 +70,7 @@ export default {
     StudentDegreeCheckHeader,
     StudentProfileHeader,
     TemplateCategoryColumn,
+    UnassignedCourses,
     UnitRequirements
   },
   data: () => ({
