@@ -27,7 +27,8 @@ from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
-from sqlalchemy.dialects.postgresql import ENUM
+from psycopg2.extras import NumericRange
+from sqlalchemy.dialects.postgresql import ENUM, INT4RANGE
 from sqlalchemy.sql import asc
 
 degree_progress_category_type = ENUM(
@@ -44,7 +45,7 @@ class DegreeProgressCategory(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     category_type = db.Column(degree_progress_category_type, nullable=False)
-    course_units = db.Column(db.Integer)
+    course_units = db.Column(INT4RANGE)
     description = db.Column(db.Text)
     name = db.Column(db.String(255), nullable=False)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
@@ -100,7 +101,7 @@ class DegreeProgressCategory(Base):
     ):
         category = cls(
             category_type=category_type,
-            course_units=course_units,
+            course_units=_string_to_range(course_units),
             description=description,
             name=name,
             parent_category_id=parent_category_id,
@@ -166,7 +167,7 @@ class DegreeProgressCategory(Base):
             unit_requirement_ids,
     ):
         category = cls.query.filter_by(id=category_id).first()
-        category.course_units = course_units
+        category.course_units = _string_to_range(course_units)
         category.description = description
         category.name = name
 
@@ -191,7 +192,7 @@ class DegreeProgressCategory(Base):
         return {
             'id': self.id,
             'categoryType': self.category_type,
-            'courseUnits': self.course_units,
+            'courseUnits': _range_to_string(self.course_units),
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
             'name': self.name,
@@ -201,6 +202,21 @@ class DegreeProgressCategory(Base):
             'unitRequirements': unit_requirements_json,
             'updatedAt': _isoformat(self.updated_at),
         }
+
+
+def _range_to_string(r):
+    if r:
+        lower_bound = r.lower if r.lower_inc else r.lower + 1
+        upper_bound = r.upper if r.upper_inc else r.upper - 1
+        if upper_bound - lower_bound > 0:
+            return f'{lower_bound}-{upper_bound}'
+        return f'{lower_bound}'
+
+
+def _string_to_range(s):
+    if s:
+        bounds = s.split('-')
+        return NumericRange(int(min(bounds)), int(max(bounds)), '[]')
 
 
 def _isoformat(value):
