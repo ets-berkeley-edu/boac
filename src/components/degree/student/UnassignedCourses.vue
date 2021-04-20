@@ -67,6 +67,7 @@
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnassignedCourse from '@/components/degree/student/EditUnassignedCourse'
 import Util from '@/mixins/Util'
+import {getUnassignedCourses} from '@/api/degree'
 
 export default {
   name: 'UnassignedCourses',
@@ -84,11 +85,9 @@ export default {
     courseForEdit: undefined
   }),
   created() {
-    this.courses = [
-      {id: 1, name: 'Foo', courseUnits: 5},
-      {id: 2, name: 'Bar', courseUnits: 4},
-      {id: 3, name: 'Baz', courseUnits: 3}
-    ]
+    getUnassignedCourses(this.templateId).then(data => {
+      this.courses = data
+    })
   },
   methods: {
     afterCancel() {

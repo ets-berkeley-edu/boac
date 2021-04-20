@@ -20,7 +20,7 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="course in courses" :key="course.id">
+          <b-tr v-for="course in courses" :id="`course-${course.id}-table-row`" :key="course.id">
             <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
             <td v-if="!isEditing(course)">
               <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>

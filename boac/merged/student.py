@@ -608,6 +608,45 @@ def get_student_query_scope(user=None):
         return [m.university_dept.dept_code for m in user.department_memberships]
 
 
+def merge_enrollment_terms(enrollment_results, academic_standing=None):
+    current_term_found = False
+    filtered_enrollment_terms = []
+    for row in enrollment_results:
+        term = json.loads(row['enrollment_term'])
+        term_id = term['termId']
+        if term_id == current_term_id():
+            current_term_found = True
+        else:
+            if term_id < current_term_id():
+                # Skip past terms with no enrollments or drops.
+                if not term.get('enrollments') and not term.get('droppedSections'):
+                    continue
+                # Filter out old waitlisted enrollments from past terms.
+                if term.get('enrollments'):
+                    _omit_zombie_waitlisted_enrollments(term)
+
+        term_name = term.get('termName')
+        term['academicYear'] = academic_year_for_term_name(term_name)
+        if academic_standing:
+            term['academicStanding'] = {
+                'status': academic_standing.get(term_id),
+                'termId': term_id,
+            }
+        if not current_user.can_access_canvas_data:
+            _suppress_canvas_sites(term)
+        filtered_enrollment_terms.append(term)
+    if not current_term_found:
+        current_term = {
+            'academicYear': academic_year_for_term_name(current_term_name()),
+            'enrolledUnits': 0,
+            'enrollments': [],
+            'termId': current_term_id(),
+            'termName': current_term_name(),
+        }
+        filtered_enrollment_terms.append(current_term)
+    return filtered_enrollment_terms
+
+
 def scope_for_criteria(**kwargs):
     # Searching by department-specific criteria will constrain scope to the department in question.
     criteria_for_code = {
@@ -709,7 +748,7 @@ def _construct_student_profile(student):
         academic_standing = {term['termId']: term['status'] for term in profile['academicStanding']}
 
     enrollment_results = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
-    _merge_enrollment_terms(profile, enrollment_results, academic_standing=academic_standing)
+    profile['enrollmentTerms'] = merge_enrollment_terms(enrollment_results, academic_standing=academic_standing)
 
     if sis_profile and sis_profile.get('withdrawalCancel'):
         profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
@@ -732,7 +771,7 @@ def _construct_historical_student_profile(profile_rows):
     # As above, no photo information is expected but we still need a placeholder element in the feed.
     _merge_photo_urls([profile])
     enrollment_results = data_loch.get_historical_enrollments_for_sid(profile['sid'], latest_term_id=future_term_id())
-    _merge_enrollment_terms(profile, enrollment_results)
+    profile['enrollmentTerms'] = merge_enrollment_terms(enrollment_results)
     profile['fullProfilePending'] = True
     return profile
 
@@ -769,45 +808,6 @@ def _merge_coe_student_profile_data(profile, coe_profile):
             profile['coeProfile']['isActiveCoe'] = False
         else:
             profile['coeProfile']['isActiveCoe'] = True
-
-
-def _merge_enrollment_terms(profile, enrollment_results, academic_standing=None):
-    current_term_found = False
-    filtered_enrollment_terms = []
-    for row in enrollment_results:
-        term = json.loads(row['enrollment_term'])
-        term_id = term['termId']
-        if term_id == current_term_id():
-            current_term_found = True
-        else:
-            if term_id < current_term_id():
-                # Skip past terms with no enrollments or drops.
-                if not term.get('enrollments') and not term.get('droppedSections'):
-                    continue
-                # Filter out old waitlisted enrollments from past terms.
-                if term.get('enrollments'):
-                    _omit_zombie_waitlisted_enrollments(term)
-
-        term_name = term.get('termName')
-        term['academicYear'] = academic_year_for_term_name(term_name)
-        if academic_standing:
-            term['academicStanding'] = {
-                'status': academic_standing.get(term_id),
-                'termId': term_id,
-            }
-        if not current_user.can_access_canvas_data:
-            _suppress_canvas_sites(term)
-        filtered_enrollment_terms.append(term)
-    if not current_term_found:
-        current_term = {
-            'academicYear': academic_year_for_term_name(current_term_name()),
-            'enrolledUnits': 0,
-            'enrollments': [],
-            'termId': current_term_id(),
-            'termName': current_term_name(),
-        }
-        filtered_enrollment_terms.append(current_term)
-    profile['enrollmentTerms'] = filtered_enrollment_terms
 
 
 def _omit_zombie_waitlisted_enrollments(past_term):

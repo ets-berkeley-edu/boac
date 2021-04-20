@@ -3,8 +3,8 @@
     <b-row>
       <b-col>
         <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
-        <div class="faint-text font-weight-500 font-size-18">
-          Last updated {{ updatedAt | moment('MMM D, YYYY') }}
+        <div class="faint-text font-size-16 font-weight-500 pb-2">
+          {{ updatedAtDescription }}
         </div>
       </b-col>
       <b-col>
@@ -12,7 +12,7 @@
           <div class="pr-2">
             <router-link
               id="print-degree-plan"
-              :to="`/student/${student.uid}/degree/${degreeId}/print`"
+              :to="`/student/${student.uid}/degree/${templateId}/print`"
             >
               <font-awesome class="mr-1" icon="print" />
               Print Plan
@@ -73,29 +73,31 @@
 </template>
 
 <script>
+import DegreeEditSession from '@/mixins/DegreeEditSession'
+import {getCalnetProfileByUid} from '@/api/user'
+
 export default {
   name: 'StudentDegreeCheckHeader',
+  mixins: [DegreeEditSession],
   props: {
-    degreeId: {
-      required: true,
-      type: Number
-    },
-    degreeName: {
-      required: true,
-      type: String
-    },
     student: {
       required: true,
       type: Object
-    },
-    updatedAt: {
-      required: true,
-      type: String
     }
   },
   data: () => ({
+    updatedAtDescription: undefined,
     includeNotesWhenPrint: false
-  })
+  }),
+  created() {
+    const updatedAtDate = new Date(this.updatedAt)
+    const isFresh = new Date(this.createdAt) === updatedAtDate
+    const uid = isFresh ? this.createdBy : this.updatedBy
+    getCalnetProfileByUid(uid).then(data => {
+      const name = data.name || `${data.uid} (UID)`
+      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.$moment(updatedAtDate).format('MMM D, YYYY')}`
+    })
+  }
 }
 </script>
 

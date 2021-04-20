@@ -102,10 +102,6 @@ export default {
 </script>
 
 <style scoped>
-.student-academic-standing {
-  line-height: 1.1;
-  margin: 0;
-}
 .student-course-dropped {
   color: #666;
   font-weight: 500;

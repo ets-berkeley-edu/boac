@@ -11,12 +11,7 @@
       </div>
       <div class="m-3 pt-2">
         <div class="section-separator w-100">
-          <StudentDegreeCheckHeader
-            :student="student"
-            :degree-id="templateId"
-            :degree-name="degreeName"
-            :updated-at="updatedAt"
-          />
+          <StudentDegreeCheckHeader :student="student" />
         </div>
         <div class="d-flex section-separator w-100">
           <div class="w-50">

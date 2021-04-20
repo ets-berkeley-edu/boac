@@ -64,6 +64,10 @@ export function getDegreeTemplates() {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/templates`).then(response => response.data, () => null)
 }
 
+export function getUnassignedCourses(templateId) {
+  return axios.get(`${utils.apiBaseUrl()}/api/degree/${templateId}/courses/unassigned`).then(response => response.data, () => null)
+}
+
 export function updateDegreeCategory(
   courseUnits: number,
   description: string,

@@ -22,11 +22,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-from boac.api.degree_progress_api_utils import clone_degree_template
+
+from boac.api.degree_progress_api_utils import clone_degree_template, lazy_load_unassigned_courses
 from boac.api.errors import BadRequestError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
+from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
 
 
@@ -46,3 +48,10 @@ def create_degree_check(sid):
 @can_read_degree_progress
 def get_degree_checks(sid):
     return tolerant_jsonify(get_degree_checks_json(sid))
+
+
+@app.route('/api/degree/<degree_check_id>/courses/unassigned')
+@can_read_degree_progress
+def get_unassigned_courses(degree_check_id):
+    degree_check = DegreeProgressTemplate.find_by_id(degree_check_id)
+    return tolerant_jsonify(lazy_load_unassigned_courses(degree_check))

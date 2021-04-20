@@ -23,11 +23,17 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.errors import BadRequestError, ResourceNotFoundError
+from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
+from boac.merged.sis_terms import current_term_id
+from boac.merged.student import merge_enrollment_terms
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
+from dateutil.tz import tzutc
 from flask_login import current_user
 
 
@@ -91,6 +97,33 @@ def fetch_degree_template(template_id):
     return template
 
 
+def lazy_load_unassigned_courses(degree_check):
+    now = datetime.now()
+    unassigned_courses = []
+    sid = degree_check.student_sid
+    enrollments = data_loch.get_enrollments_for_sid(
+        sid=sid,
+        latest_term_id=current_term_id(),
+    )
+    for index, term in enumerate(merge_enrollment_terms(enrollments)):
+        for enrollment in term.get('enrollments', []):
+            for section in enrollment['sections']:
+                # TODO: Make it real. Create degree-progress course entries as needed.
+                unassigned_courses.append({
+                    'categoryId': None,  # This will be nil for unassigned courses
+                    'createdAt': _isoformat(now),
+                    'courseUnits': section['units'],
+                    'displayName': f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
+                    'grade': None,
+                    'sectionId': section['ccn'],
+                    'sid': sid,
+                    'termId': term['termId'],
+                    'units': None,
+                    'updatedAt': _isoformat(now),
+                })
+    return unassigned_courses
+
+
 def validate_template_upsert(name, template_id=None):
     if not name:
         raise BadRequestError('\'name\' is required.')
@@ -99,3 +132,7 @@ def validate_template_upsert(name, template_id=None):
     if template and (template_id is None or template_id != template.id):
         raise BadRequestError(f'A degree named <strong>{name}</strong> already exists. Please choose a different name.')
     return template
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

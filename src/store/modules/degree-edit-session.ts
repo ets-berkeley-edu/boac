@@ -14,16 +14,21 @@ const EDIT_MODE_TYPES = ['createUnitRequirement', 'updateUnitRequirement']
 
 const state = {
   categories: undefined,
+  createdAt: undefined,
+  createdBy: undefined,
   degreeName: undefined,
   disableButtons: false,
   editMode: undefined,
   templateId: undefined,
   unitRequirements: undefined,
-  updatedAt: undefined
+  updatedAt: undefined,
+  updatedBy: undefined
 }
 
 const getters = {
   categories: (state: any): any[] => state.categories,
+  createdAt: (state: any): any[] => state.createdAt,
+  createdBy: (state: any): any[] => state.createdBy,
   degreeEditSessionToString: (state: any): any => ({
     categories: state.categories,
     degreeName: state.degreeName,
@@ -38,6 +43,7 @@ const getters = {
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): any[] => state.unitRequirements,
   updatedAt: (state: any): any[] => state.updatedAt,
+  updatedBy: (state: any): any[] => state.updatedBy
 }
 
 const mutations = {
@@ -46,10 +52,13 @@ const mutations = {
   resetSession: (state: any, template: any) => {
     state.editMode = null
     state.categories = template && template.categories
+    state.createdAt = template && template.createdAt
+    state.createdBy = template && template.createdBy
     state.degreeName = template && template.name
     state.templateId = template && template.id
     state.unitRequirements = template && template.unitRequirements
     state.updatedAt = template && template.updatedAt
+    state.updatedBy = template && template.updatedBy
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setEditMode(state: any, editMode: string) {
