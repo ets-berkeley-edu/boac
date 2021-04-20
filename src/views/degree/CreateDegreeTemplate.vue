@@ -1,6 +1,6 @@
 <template>
   <div v-if="!loading" class="ml-3 mr-3 mt-3">
-    <h1>Degree Builder</h1>
+    <h1 class="page-section-header">Degree Builder</h1>
     <div id="create-degree-description">
       To begin the degree check creation process, input a name below and click enter.
       After clicking the create button, you will be prompted to enter the requirements.

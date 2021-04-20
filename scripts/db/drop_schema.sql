@@ -55,6 +55,7 @@ ALTER TABLE IF EXISTS ONLY public.degree_progress_categories DROP CONSTRAINT IF 
 ALTER TABLE IF EXISTS ONLY public.degree_progress_categories DROP CONSTRAINT IF EXISTS degree_progress_categories_parent_category_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_reqts_unit_requirement_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_reqts_category_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_courses DROP CONSTRAINT IF EXISTS degree_progress_courses_category_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_created_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_template_id_fkey;
@@ -142,6 +143,7 @@ ALTER TABLE IF EXISTS ONLY public.cohort_filter_owners DROP CONSTRAINT IF EXISTS
 ALTER TABLE IF EXISTS ONLY public.cohort_filters DROP CONSTRAINT IF EXISTS cohort_filters_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_categories DROP CONSTRAINT IF EXISTS degree_progress_categories_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_requirements_pkey;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_courses DROP CONSTRAINT IF EXISTS degree_progress_courses_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_pkey;
 ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors;
@@ -215,6 +217,7 @@ DROP SEQUENCE IF EXISTS public.alerts_id_seq;
 DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;
 DROP TABLE IF EXISTS public.alembic_version;
+DROP TABLE IF EXISTS public.degree_progress_courses;
 DROP TABLE IF EXISTS public.degree_progress_categories;
 DROP SEQUENCE IF EXISTS public.degree_progress_categories_id_seq;
 DROP TABLE IF EXISTS public.degree_progress_course_unit_requirements;
