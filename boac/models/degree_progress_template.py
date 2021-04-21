@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.lib.util import utc_now
 from boac.models.base import Base
 from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
 from sqlalchemy import and_
@@ -44,6 +45,10 @@ class DegreeProgressTemplate(Base):
     student_sid = db.Column(db.String(80), nullable=True)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
 
+    note = db.relationship(
+        DegreeProgressNote.__name__,
+        back_populates='template',
+    )
     unit_requirements = db.relationship(
         DegreeProgressUnitRequirement.__name__,
         back_populates='template',

@@ -29,8 +29,10 @@ from boac.api.util import can_edit_degree_progress, can_read_degree_progress, ge
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
 from boac.models.degree_progress_course import DegreeProgressCourse
+from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
+from flask_login import current_user
 
 
 @app.route('/api/degree/check/<sid>/create', methods=['POST'])
@@ -79,3 +81,16 @@ def update_course():
         units=units,
     )
     return tolerant_jsonify(degree_check.to_api_json())
+
+
+@app.route('/api/degree/<degree_check_id>/note', methods=['POST'])
+@can_edit_degree_progress
+def update_degree_note(degree_check_id):
+    params = request.get_json()
+    body = get_param(params, 'body')
+    note = DegreeProgressNote.upsert(
+        body=body,
+        template_id=degree_check_id,
+        updated_by=current_user.get_id(),
+    )
+    return tolerant_jsonify(note.to_api_json())
