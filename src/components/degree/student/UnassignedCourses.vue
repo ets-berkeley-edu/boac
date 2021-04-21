@@ -14,6 +14,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
+            <b-th></b-th>
             <b-th class="pl-0">Course</b-th>
             <b-th>Units</b-th>
             <b-th>Grade</b-th>
@@ -24,6 +25,9 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :key="index">
+            <td v-if="!isEditing(course)">
+              <CourseAssignmentMenu :course="course" :student="student" />
+            </td>
             <td v-if="!isEditing(course)">
               {{ course.displayName }}
             </td>
@@ -69,6 +73,7 @@
 </template>
 
 <script>
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnassignedCourse from '@/components/degree/student/EditUnassignedCourse'
 import Util from '@/mixins/Util'
@@ -77,7 +82,7 @@ import {getUnassignedCourses} from '@/api/degree'
 export default {
   name: 'UnassignedCourses',
   mixins: [DegreeEditSession, Util],
-  components: {EditUnassignedCourse},
+  components: {CourseAssignmentMenu, EditUnassignedCourse},
   props: {
     student: {
       default: undefined,
