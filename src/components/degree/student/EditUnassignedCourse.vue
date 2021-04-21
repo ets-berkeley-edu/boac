@@ -1,12 +1,26 @@
 <template>
-  <div>
-    <div id="edit-unassigned-course">
+  <div id="edit-unassigned-course">
+    <div>
+      <div class="font-weight-500 my-2">
+        Units
+      </div>
+      <div>
+        <b-form-input
+          :id="`course-units-input`"
+          v-model="units"
+          class="course-units-input"
+          :disabled="isSaving"
+          maxlength="3"
+          trim
+          @keypress.enter="update"
+        />
+      </div>
       <div class="font-weight-500 my-2">
         Note
       </div>
       <div>
         <b-form-textarea
-          id="note-of-unassigned-course-textarea"
+          id="course-note-textarea"
           v-model="note"
           :disabled="isSaving"
           rows="4"
@@ -18,7 +32,7 @@
         <b-btn
           id="update-note-btn"
           class="b-dd-override"
-          :disabled="!$_.trim(note)"
+          :disabled="disableSaveButton"
           variant="primary"
           @click="update"
         >
@@ -45,6 +59,7 @@
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {updateCourse} from '@/api/degree'
 
 export default {
   name: 'EditUnassignedCourse',
@@ -59,17 +74,23 @@ export default {
       type: Function
     },
     course: {
-      default: undefined,
-      required: false,
+      required: true,
       type: Object
     }
   },
   data: () => ({
     isSaving: false,
-    note: ''
+    note: '',
+    units: undefined
   }),
+  computed: {
+    disableSaveButton() {
+      return this.isSaving || !this.$_.trim(this.note) || !this.$_.trim(this.units)
+    }
+  },
   created() {
-    this.name = this.course.note
+    this.note = this.course.note
+    this.units = this.course.units
     this.putFocusNextTick('note-of-unassigned-course-textarea')
   },
   methods: {
@@ -78,14 +99,19 @@ export default {
       this.afterCancel()
     },
     update() {
-      this.isSaving = true
-      this.updateCourseNote({
-        courseId: this.course.id,
-        note: this.note
-      }).then(() => {
-        this.$announcer.polite('Note updated')
-        this.afterSave()
-      })
+      if (!this.disableSaveButton) {
+        this.isSaving = true
+        updateCourse(
+          this.course.sectionId,
+          this.course.sid,
+          this.course.termId,
+          this.note,
+          this.units
+        ).then(data => {
+          this.$announcer.polite('Course updated')
+          this.afterSave(data)
+        })
+      }
     }
   }
 }

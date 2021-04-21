@@ -29,10 +29,10 @@
               View Degree History
             </router-link>
           </div>
-          <div class="pr-2">
+          <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
             |
           </div>
-          <div class="pr-2">
+          <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
             <router-link
               id="create-new-degree"
               :to="`/student/${student.uid}/degree/create`"

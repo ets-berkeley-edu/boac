@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db
+from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.base import Base
 from dateutil.tz import tzutc
@@ -100,6 +100,21 @@ class DegreeProgressCourse(Base):
     @classmethod
     def get_unassigned_by_sid(cls, sid):
         return cls.query.filter_by(sid=sid).all()
+
+    @classmethod
+    def update(
+            cls,
+            note,
+            section_id,
+            sid,
+            term_id,
+            units,
+    ):
+        course = cls.query.filter_by(section_id=section_id, sid=sid, term_id=term_id).first()
+        course.units = units
+        course.note = note
+        std_commit()
+        return course
 
     def to_api_json(self):
         return {

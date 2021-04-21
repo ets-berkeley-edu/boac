@@ -12,7 +12,7 @@ CREATE TABLE degree_progress_courses (
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
-ALTER TABLE degree_progress_courses OWNER TO boac;
+ALTER TABLE degree_progress_courses OWNER TO app_boa;
 ALTER TABLE ONLY degree_progress_courses
     ADD CONSTRAINT degree_progress_courses_pkey PRIMARY KEY (section_id, sid, term_id);
 
