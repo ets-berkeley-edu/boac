@@ -57,7 +57,7 @@
           </template>
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">
-              {{ advisorNamesByUid[row.item.updatedBy] }}
+              {{ advisorNamesById[row.item.updatedBy] }}
             </div>
           </template>
         </b-table-lite>
@@ -75,7 +75,7 @@ import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
-import {getCalnetProfileByUid} from '@/api/user'
+import {getCalnetProfileByUserId} from '@/api/user'
 import {getStudentByUid} from '@/api/student'
 
 export default {
@@ -83,7 +83,7 @@ export default {
   components: {Spinner, StudentProfileHeader},
   mixins: [Context, Loading, Util],
   data: () => ({
-    advisorNamesByUid: undefined
+    advisorNamesById: undefined
   }),
   created() {
     const uid = this.$_.get(this.$route, 'params.uid')
@@ -97,14 +97,14 @@ export default {
   },
   methods: {
     fetchAdvisors() {
-      this.advisorNamesByUid = {}
+      this.advisorNamesById = {}
       return new Promise(resolve => {
-        const uniqueUids = this.$_.uniq(this.$_.map(this.student.degreeChecks, 'updatedBy'))
-        if (uniqueUids.length) {
-          this.$_.each(uniqueUids, uid => {
-            getCalnetProfileByUid(uid).then(data => {
-              this.advisorNamesByUid[uid] = data.name || `${data.uid} (UID)`
-              if (uid === this.$_.last(uniqueUids)) {
+        const uniqueUserIds = this.$_.uniq(this.$_.map(this.student.degreeChecks, 'updatedBy'))
+        if (uniqueUserIds.length) {
+          this.$_.each(uniqueUserIds, userId => {
+            getCalnetProfileByUserId(userId).then(data => {
+              this.advisorNamesById[userId] = data.name || `${data.uid} (UID)`
+              if (userId === this.$_.last(uniqueUserIds)) {
                 resolve()
               }
             })

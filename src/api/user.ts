@@ -33,15 +33,15 @@ export function getUserProfile() {
 }
 
 export function getCalnetProfileByCsid(csid) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`)
-    .then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`).then(response => response.data, () => null)
+}
+
+export function getCalnetProfileByUserId(userId) {
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`).then(response => response.data, () => null)
 }
 
 export function getCalnetProfileByUid(uid) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`)
-    .then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`).then(response => response.data, () => null)
 }
 
 export function getUserByUid(uid, ignoreDeleted?: boolean) {
