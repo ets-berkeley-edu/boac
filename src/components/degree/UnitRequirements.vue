@@ -1,13 +1,13 @@
 <template>
-  <b-container fluid class="m-0">
-    <b-row cols="1" cols-xl="2">
-      <b-col class="p-0">
+  <b-container class="px-0" fluid>
+    <b-row>
+      <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
-          <h2 class="page-section-header-sub text-nowrap pb-2">Unit Requirements</h2>
+          <h2 class="font-size-20 font-weight-bold text-nowrap pb-2">Unit Requirements</h2>
           <b-btn
             v-if="$currentUser.canEditDegreeProgress"
             id="unit-requirement-create-link"
-            class="py-0"
+            class="pr-0 py-0"
             :disabled="!!editMode || disableButtons"
             variant="link"
             @click.prevent="onClickAdd"
@@ -17,7 +17,7 @@
                 Add unit requirement
               </div>
               <div>
-                <font-awesome icon="plus" />
+                <font-awesome class="font-size-16" icon="plus" />
               </div>
             </div>
           </b-btn>
@@ -38,7 +38,7 @@
             <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
               <b-btn
                 :id="`unit-requirement-${row.item.id}-edit-btn`"
-                class="degree-progress-edit-delete-btn"
+                class="pr-2 pt-0"
                 :disabled="disableButtons"
                 variant="link"
                 @click.prevent="onClickEdit(row.index)"
@@ -48,7 +48,7 @@
               </b-btn>
               <b-btn
                 :id="`unit-requirement-${row.item.id}-delete-btn`"
-                class="degree-progress-edit-delete-btn"
+                class="px-0 pt-0"
                 :disabled="disableButtons"
                 variant="link"
                 @click.prevent="onClickDelete(row.index)"
@@ -94,17 +94,20 @@ export default {
       {
         key: 'name',
         label: 'Fulfillment Requirements',
-        class: 'pl-0'
+        tdClass: 'font-size-16 pl-0 pt-2',
+        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
       },
       {
         key: 'minUnits',
         label: 'Min Units',
-        class: 'text-right'
+        tdClass: 'font-size-16 pl-0 pt-2 text-right',
+        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
       },
       {
         key: 'actions',
         label: '',
-        class: 'd-flex justify-content-end pr-0 text-nowrap'
+        tdClass: 'd-flex justify-content-end',
+        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
       }
     ],
     indexOfSelected: undefined,

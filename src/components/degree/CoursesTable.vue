@@ -32,7 +32,7 @@
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${course.id}-btn`"
-                  class="degree-progress-edit-delete-btn"
+                  class="pr-2 pt-0"
                   :disabled="disableButtons"
                   variant="link"
                   @click="edit(course)"
@@ -42,7 +42,7 @@
                 </b-btn>
                 <b-btn
                   :id="`column-${position}-delete-course-${course.id}-btn`"
-                  class="degree-progress-edit-delete-btn"
+                  class="px-0 pt-0"
                   :disabled="disableButtons"
                   variant="link"
                   @click="deleteCourse(course)"

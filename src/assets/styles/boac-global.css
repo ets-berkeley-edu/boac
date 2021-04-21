@@ -10,6 +10,9 @@
   object-fit: cover;
   width: 60px;
 }
+.bg-grey {
+  background-color: #999 !important;
+}
 .boac-exclamation {
   color: #f0ad4e;
 }
@@ -79,10 +82,6 @@
 }
 .cursor-pointer {
   cursor: pointer;
-}
-.degree-progress-edit-delete-btn {
-  font-size: 16px;
-  padding: 0 0 0 .5rem;
 }
 .demo-mode-blur {
   color: transparent !important;
