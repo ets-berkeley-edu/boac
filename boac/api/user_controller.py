@@ -75,6 +75,16 @@ def calnet_profile_by_uid(uid):
     return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, uid))
 
 
+@app.route('/api/user/calnet_profile/by_user_id/<user_id>')
+@advisor_required
+def calnet_profile_by_user_id(user_id):
+    user = AuthorizedUser.find_by_id(user_id)
+    if user:
+        return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, user.uid))
+    else:
+        raise errors.ResourceNotFoundError('User not found')
+
+
 @app.route('/api/user/by_uid/<uid>')
 @advisor_required
 def user_by_uid(uid):

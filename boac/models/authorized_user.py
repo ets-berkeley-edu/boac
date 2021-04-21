@@ -210,8 +210,8 @@ class AuthorizedUser(Base):
         return result and result['uid']
 
     @classmethod
-    def find_by_id(cls, db_id, include_deleted=False):
-        query = cls.query.filter_by(id=db_id) if include_deleted else cls.query.filter_by(id=db_id, deleted_at=None)
+    def find_by_id(cls, user_id, include_deleted=False):
+        query = cls.query.filter_by(id=user_id) if include_deleted else cls.query.filter_by(id=user_id, deleted_at=None)
         return query.first()
 
     @classmethod
