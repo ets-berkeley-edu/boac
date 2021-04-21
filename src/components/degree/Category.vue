@@ -51,7 +51,7 @@
       :modal-body="`Are you sure you want to delete <strong>&quot;${category.name}&quot;</strong>`"
       :show-modal="isDeleting"
       button-label-confirm="Delete"
-      modal-header="Delete Degree"
+      :modal-header="`Delete ${category.categoryType}`"
     />
   </div>
 </template>
