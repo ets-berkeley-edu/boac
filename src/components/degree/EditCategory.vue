@@ -318,12 +318,10 @@ export default {
     update() {
       this.isSaving = true
       this.updateCategory({
-        categoryType: this.selectedCategoryType,
+        categoryId: this.existingCategory.id,
         courseUnits: this.courseUnits,
         description: this.descriptionText,
-        id: this.existingCategory.id,
         name: this.nameInput,
-        position: this.position,
         parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
         unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
       }).then(() => {
