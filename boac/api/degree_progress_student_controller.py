@@ -28,6 +28,7 @@ from boac.api.errors import BadRequestError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
 
@@ -56,3 +57,25 @@ def get_unassigned_courses(degree_check_id):
     degree_check = DegreeProgressTemplate.find_by_id(degree_check_id)
     courses = lazy_load_unassigned_courses(degree_check)
     return tolerant_jsonify([c.to_api_json() for c in courses])
+
+
+@app.route('/api/degree/course/update', methods=['POST'])
+@can_edit_degree_progress
+def update_course():
+    params = request.get_json()
+    note = get_param(params, 'note')
+    section_id = get_param(params, 'sectionId')
+    sid = get_param(params, 'sid')
+    term_id = get_param(params, 'termId')
+    units = get_param(params, 'units')
+    if not section_id or not sid or not term_id or not units:
+        raise BadRequestError("One or more required parameters not found.'")
+
+    degree_check = DegreeProgressCourse.update(
+        note=note,
+        section_id=section_id,
+        sid=sid,
+        term_id=term_id,
+        units=units,
+    )
+    return tolerant_jsonify(degree_check.to_api_json())
