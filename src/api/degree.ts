@@ -86,20 +86,21 @@ export function updateCourse(
 }
 
 export function updateDegreeCategory(
+  categoryId: number,
   courseUnits: number,
   description: string,
-  id: number,
   name: string,
+  parentCategoryId: number,
   unitRequirementIds: number[]
 ) {
   const data = {
     courseUnits,
     description,
-    id,
     name,
+    parentCategoryId,
     unitRequirementIds
   }
-  return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${id}/update`, data).then(response => response.data, () => null)
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/update`, data).then(response => response.data, () => null)
 }
 
 export function updateDegreeTemplate(templateId: number, name: string) {

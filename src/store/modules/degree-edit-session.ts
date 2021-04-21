@@ -166,18 +166,20 @@ const actions = {
     })
   },
   updateCategory: ({commit, state}, {
+    categoryId,
     courseUnits,
     description,
-    id,
     name,
+    parentCategoryId,
     unitRequirementIds
   }) => {
     return new Promise<void>(resolve => {
       updateDegreeCategory(
+        categoryId,
         courseUnits,
         description,
-        id,
         name,
+        parentCategoryId,
         unitRequirementIds
       ).then(() => {
         store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {

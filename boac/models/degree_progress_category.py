@@ -164,12 +164,14 @@ class DegreeProgressCategory(Base):
             course_units,
             description,
             name,
+            parent_category_id,
             unit_requirement_ids,
     ):
         category = cls.query.filter_by(id=category_id).first()
         category.course_units = _string_to_range(course_units)
         category.description = description
         category.name = name
+        category.parent_category_id = parent_category_id
 
         unit_requirement_id_set = set(unit_requirement_ids or [])
         existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_category_id(category_id)

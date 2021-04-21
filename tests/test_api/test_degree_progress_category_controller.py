@@ -124,7 +124,7 @@ class TestDeleteCategory:
             template_id=mock_template.id,
         )
         subcategory = _api_create_category(
-            category_type='Category',
+            category_type='Subcategory',
             client=client,
             name='Gone Daddy Gone',
             parent_category_id=category['id'],
@@ -132,7 +132,7 @@ class TestDeleteCategory:
             template_id=mock_template.id,
         )
         course = _api_create_category(
-            category_type='Category',
+            category_type='Course',
             client=client,
             name='Blister in the sun',
             parent_category_id=subcategory['id'],
@@ -231,7 +231,8 @@ class TestUpdateDegreeCategory:
             course_units,
             description,
             name,
-            unit_requirement_ids,
+            parent_category_id,
+            unit_requirement_ids=[],
             expected_status_code=200,
     ):
         response = client.post(
@@ -241,6 +242,7 @@ class TestUpdateDegreeCategory:
                 'categoryId': category_id,
                 'courseUnits': course_units,
                 'description': description,
+                'parentCategoryId': parent_category_id,
                 'unitRequirementIds': unit_requirement_ids,
             }),
             content_type='application/json',
@@ -257,7 +259,7 @@ class TestUpdateDegreeCategory:
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Never Go Back',
-            unit_requirement_ids=[],
+            parent_category_id=None,
         )
 
     def test_unauthorized(self, client, fake_auth):
@@ -270,7 +272,7 @@ class TestUpdateDegreeCategory:
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Seven Languages',
-            unit_requirement_ids=[],
+            parent_category_id=None,
         )
 
     def test_update_category(self, client, fake_auth, mock_template):
@@ -287,37 +289,65 @@ class TestUpdateDegreeCategory:
             preserve_me,
             _create_unit_requirement(name='initial_unit_requirement #3', template_id=mock_template.id, user=user),
         ]
-        category = _api_create_category(
-            category_type='Category',
-            client=client,
-            name='Processional',
-            position=3,
-            template_id=mock_template.id,
-            unit_requirement_ids=[u.id for u in initial_unit_requirements],
-        )
-        name = 'Ice Cream Everyday'
-        description = 'Vampire Can Mating Oven'
+        position = 3
+        categories = []
+        for index, name in enumerate(['Never Go Back', 'Seven Languages']):
+            categories.append(
+                _api_create_category(
+                    category_type='Category',
+                    client=client,
+                    name=name,
+                    position=position,
+                    template_id=mock_template.id,
+                    unit_requirement_ids=[u.id for u in initial_unit_requirements],
+                ),
+            )
+        subcategories = []
+        parent_category_id = categories[0]['id']
+        for index, name in enumerate(['Processional', 'Ice Cream Everyday']):
+            subcategories.append(
+                _api_create_category(
+                    category_type='Subcategory',
+                    client=client,
+                    name=name,
+                    position=position,
+                    template_id=mock_template.id,
+                    parent_category_id=parent_category_id,
+                ),
+            )
+        std_commit(allow_test_environment=True)
+
+        # We will give subcategory #2 a new parent.
+        name = 'Vampire Can Mating Oven'
+        new_parent_category_id = categories[1]['id']
         new_unit_requirement = _create_unit_requirement(name='new_requirement #1', template_id=mock_template.id, user=user)
         new_unit_requirement_ids = [new_unit_requirement.id, preserve_me.id]
+        target_subcategory_id = subcategories[1]['id']
         self._api_update_category(
-            category_id=category['id'],
+            category_id=target_subcategory_id,
             client=client,
             course_units='3',
-            description=description,
+            description=None,
             name=name,
+            parent_category_id=new_parent_category_id,
             unit_requirement_ids=[new_unit_requirement.id, preserve_me.id],
         )
         std_commit(allow_test_environment=True)
+
         # Verify the update
         api_json = _api_get_template(client=client, template_id=mock_template.id)
-        assert len(api_json['categories']) == 1
-
-        category = api_json['categories'][0]
-        assert category['id'] == category['id']
-        assert category['description'] == description
-        assert category['name'] == name
+        categories = api_json['categories']
+        assert len(categories) == 2
+        assert len(categories[0]['subcategories']) == 1
+        assert len(categories[1]['subcategories']) == 1
+        # Verify change of parent
+        updated_subcategory = categories[1]['subcategories'][0]
+        assert updated_subcategory['id'] == target_subcategory_id
+        assert updated_subcategory['description'] is None
+        assert updated_subcategory['name'] == name
+        assert updated_subcategory['parentCategoryId'] == new_parent_category_id
         # Verify add/remove of unit requirements
-        unit_requirement_id_set = set([u['id'] for u in category['unitRequirements']])
+        unit_requirement_id_set = set([u['id'] for u in updated_subcategory['unitRequirements']])
         assert unit_requirement_id_set == set(new_unit_requirement_ids)
 
 

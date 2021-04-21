@@ -49,6 +49,8 @@ def create_category():
 
     if not category_type or not name or not _is_valid_position(position) or not template_id:
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
+    if category_type == 'Category' and parent_category_id:
+        raise BadRequestError('Categories cannot have parents.')
     if category_type in ('Course', 'Subcategory') and not parent_category_id:
         raise BadRequestError("The parentCategoryId param is required when categoryType equals 'Subcategory'.")
     if parent_category_id:
@@ -93,6 +95,7 @@ def update_category(category_id):
     course_units = get_param(params, 'courseUnits')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
+    parent_category_id = get_param(params, 'parentCategoryId')
     # Courses can be mapped to degree_progress_unit_requirements
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
@@ -101,6 +104,7 @@ def update_category(category_id):
         category_id=category_id,
         course_units=course_units,
         description=description,
+        parent_category_id=parent_category_id,
         name=name,
         unit_requirement_ids=unit_requirement_ids,
     )

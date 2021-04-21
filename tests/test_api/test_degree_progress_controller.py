@@ -143,11 +143,14 @@ class TestCreateDegreeTemplate:
 
     def test_create_template(self, client, fake_auth):
         """Authorized user can create a template."""
-        fake_auth.login(coe_advisor_read_write_uid)
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
         name = 'She Divines Water'
         api_json = _api_create_template(client=client, name=name)
         assert 'id' in api_json
         assert api_json['name'] == name
+        assert api_json['createdBy'] == user.id
+        assert api_json['updatedBy'] == user.id
 
     def test_error_if_duplicate_name(self, client, fake_auth):
         """Template names must be unique."""
