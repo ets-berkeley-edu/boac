@@ -27,6 +27,7 @@ from datetime import datetime
 import json
 
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 import pytest
 
@@ -61,6 +62,21 @@ def mock_template():
         advisor_dept_codes=['COENG'],
         created_by=user.id,
         degree_name=f'I am a mock template, made for a mock category ({marker})',
+    )
+
+
+@pytest.fixture()
+def mock_note():
+    user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+    template = DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=user.id,
+        degree_name='I am a mock template, made for a mock note',
+    )
+    return DegreeProgressNote.upsert(
+        body='A mock note.',
+        template_id=template.id,
+        updated_by=user.id,
     )
 
 
@@ -160,3 +176,47 @@ class TestGetUnassignedCourses:
         )
         fake_auth.login(user.uid)
         self._api_get_unassigned_courses(client, degree_check_id=degree_check.id)
+
+
+class TestUpdateDegreeNote:
+
+    @classmethod
+    def _api_update_degree_note(
+            cls,
+            client,
+            body,
+            template_id,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/degree/{template_id}/note',
+            data=json.dumps({'body': body}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client, mock_template):
+        """Denies anonymous user."""
+        self._api_update_degree_note(client, body='', template_id=mock_template.id, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth, mock_template):
+        """Denies unauthorized user."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_update_degree_note(client, body='', template_id=mock_template.id, expected_status_code=401)
+
+    def test_create_degree_note(self, client, fake_auth, mock_template):
+        """Authorized user can create a degree note."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        body = """Pranzo d'acqua \n\nfa volti sghembi."""
+        api_json = self._api_update_degree_note(client, body=body, template_id=mock_template.id)
+        assert api_json['templateId']
+        assert api_json['body'] == body
+
+    def test_edit_degree_note(self, client, fake_auth, mock_note):
+        """Authorized user can edit a degree note."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        body = 'Stróż pchnął kość w quiz gędźb vel fax myjń.'
+        api_json = self._api_update_degree_note(client, body=body, template_id=mock_note.template_id)
+        assert api_json['templateId']
+        assert api_json['body'] == body

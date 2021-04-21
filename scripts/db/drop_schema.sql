@@ -62,6 +62,8 @@ ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRA
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_created_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_name_template_id_unique_const;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_notes DROP CONSTRAINT IF EXISTS degree_progress_notes_template_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_notes DROP CONSTRAINT IF EXISTS degree_progress_notes_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors_authorized_user_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors_dept_code_fkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_note_id_fkey;
@@ -145,6 +147,7 @@ ALTER TABLE IF EXISTS ONLY public.degree_progress_categories DROP CONSTRAINT IF 
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_requirements_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_courses DROP CONSTRAINT IF EXISTS degree_progress_courses_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_pkey;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_notes DROP CONSTRAINT IF EXISTS degree_progress_notes_pkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_pkey;
 ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
@@ -196,6 +199,7 @@ DROP TABLE IF EXISTS public.degree_progress_templates;
 DROP SEQUENCE IF EXISTS public.degree_progress_templates_id_seq;
 DROP TABLE IF EXISTS public.degree_progress_unit_requirements;
 DROP SEQUENCE IF EXISTS public.degree_progress_unit_requirements_id_seq;
+DROP TABLE IF EXISTS public.degree_progress_notes;
 DROP TABLE IF EXISTS public.cohort_filters;
 DROP SEQUENCE IF EXISTS public.cohort_filters_id_seq;
 DROP TABLE IF EXISTS public.cohort_filter_events;
