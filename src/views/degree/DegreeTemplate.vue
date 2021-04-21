@@ -2,11 +2,13 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div v-if="!loading">
-      <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
-      <hr />
-      <UnitRequirements v-if="templateId" template-id="templateId" />
-      <hr />
-      <b-container class="px-0 mx-0" :fluid="true">
+      <div class="border-bottom">
+        <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
+      </div>
+      <div class="border-bottom mt-3 w-50">
+        <UnitRequirements v-if="templateId" template-id="templateId" />
+      </div>
+      <b-container class="px-0 mt-3 mx-0" :fluid="true">
         <b-row>
           <b-col
             v-for="position in [1, 2, 3]"

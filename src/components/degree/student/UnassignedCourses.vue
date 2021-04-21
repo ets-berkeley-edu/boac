@@ -42,7 +42,7 @@
             <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="pr-0">
               <b-btn
                 :id="`edit-course-${course.termId}-${course.sectionId}-btn`"
-                class="degree-progress-edit-delete-btn"
+                class="px-0 pt-0"
                 :disabled="disableButtons"
                 variant="link"
                 @click="edit(course)"

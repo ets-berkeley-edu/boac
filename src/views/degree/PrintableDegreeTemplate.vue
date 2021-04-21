@@ -10,7 +10,7 @@
             </b-row>
           </b-col>
           <b-col>
-            <div class="unofficial-label-pill degree-progress-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
+            <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
             <h1 class="print-degree-name pt-2">{{ template.name }}</h1>
 
             <h4 class="print-page-section-header-sub mb-0">Unit Requirements</h4>

@@ -2,20 +2,26 @@
   <div class="pl-1">
     <div class="align-items-center d-flex justify-content-between">
       <div>
-        <span
-          :class="{
-            'font-weight-500 pt-1': category.categoryType === 'Category',
-            'font-size-14 pt-0': category.categoryType === 'Subcategory'
-          }"
-        >{{ category.name }}</span>
+        <h2
+          v-if="category.categoryType === 'Category'"
+          class="font-size-18 font-weight-bold pt-1"
+        >
+          {{ category.name }}
+        </h2>
+        <h3
+          v-if="category.categoryType === 'Subcategory'"
+          class="font-size-16 font-weight-bold pt-0"
+        >
+          {{ category.name }}
+        </h3>
       </div>
       <div
         v-if="!student && $currentUser.canEditDegreeProgress"
-        class="d-flex justify-content-end text-nowrap"
+        class="align-items-start d-flex justify-content-end text-nowrap"
       >
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
-          class="degree-progress-edit-delete-btn"
+          class="pr-2 pt-0"
           :disabled="disableButtons"
           variant="link"
           @click.prevent="edit"
@@ -25,7 +31,7 @@
         </b-btn>
         <b-btn
           :id="`column-${position}-delete-category-${category.id}-btn`"
-          class="degree-progress-edit-delete-btn"
+          class="px-0 pt-0"
           :disabled="disableButtons"
           variant="link"
           @click="deleteDegreeCategory"

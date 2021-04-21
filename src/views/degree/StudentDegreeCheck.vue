@@ -14,10 +14,10 @@
           <StudentDegreeCheckHeader :student="student" />
         </div>
         <div class="d-flex section-separator w-100">
-          <div class="w-50">
+          <div class="pr-2 w-50">
             <UnitRequirements template-id="templateId" />
           </div>
-          <div class="w-50">
+          <div class="pl-2 w-50">
             <h2 class="page-section-header-sub text-nowrap pb-2">Unassigned Courses</h2>
             <UnassignedCourses :student="student" />
           </div>
@@ -92,7 +92,7 @@ export default {
   padding-bottom: 10px;
 }
 .section-separator {
-  border-bottom: 3px #999 solid;
+  border-bottom: 1px #999 solid;
   margin-bottom: 20px;
   padding-bottom: 10px;
 }

@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <div v-if="!student" class="d-flex flex-row mt-2 pb-3">
-      <div class="pill degree-progress-pill px-2 no-wrap">Column {{ position }}</div>
+  <div :id="`category-column-${position}`">
+    <div v-if="!student" class="d-flex justify-content-between pb-3">
+      <div class="pill bg-grey no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
-        class="py-0"
+        class="p-0"
         :disabled="disableButtons"
         variant="link"
         @click="add"
