@@ -144,6 +144,9 @@
 .font-size-16 {
   font-size: 16px;
 }
+.font-size-15 {
+  font-size: 15px;
+}
 .font-size-18 {
   font-size: 18px;
 }
@@ -155,6 +158,9 @@
 }
 .font-weight-500 {
   font-weight: 500;
+}
+.font-weight-700 {
+  font-weight: 700;
 }
 .form-control {
   height: 38px;

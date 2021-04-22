@@ -22,13 +22,16 @@
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
             <td
               v-if="!isEditing(course)"
-              class="font-size-14 pl-0 table-cell-course"
-              :title="course.name"
+              class="font-size-14 pl-0 pr-3 table-cell-course"
+              :title="getName(course)"
             >
-              {{ course.name }}
+              {{ getName(course) }}
             </td>
-            <td v-if="!isEditing(course)" class="float-right font-size-14 pr-2 table-cell-units">
-              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
+            <td
+              v-if="!isEditing(course)"
+              class="float-right font-size-14 pr-2 table-cell-units"
+            >
+              <span class="font-size-14">{{ getUnits(course) || '&mdash;' }}</span>
             </td>
             <td
               v-if="!isEditing(course)"
@@ -70,6 +73,25 @@
                 :existing-category="course"
                 :position="position"
               />
+            </b-td>
+          </b-tr>
+          <b-tr v-if="student">
+            <b-td class="pl-0" colspan="4">
+              <b-btn
+                v-if="$currentUser.canEditDegreeProgress"
+                :id="`column-${position}-add-course-to-category-${courses[0].parentCategoryId}`"
+                class="align-items-center d-flex flex-row-reverse p-0"
+                :disabled="disableButtons"
+                variant="link"
+                @click.prevent="onClickAddCourse"
+              >
+                <div class="font-size-14 text-nowrap">
+                  Add Course
+                </div>
+                <div class="font-size-14 pr-1">
+                  <font-awesome icon="plus" />
+                </div>
+              </b-btn>
             </b-td>
           </b-tr>
         </b-tbody>
@@ -154,8 +176,13 @@ export default {
       this.courseForEdit = course
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
+    getName: course => course.courses.length ? course.courses[0].displayName : course.name,
+    getUnits: course => course.courses.length ? course.courses[0].units : course.courseUnits,
     isEditing(course) {
       return course.id === this.$_.get(this.courseForEdit, 'id')
+    },
+    onClickAddCourse() {
+      this.$announcer.polite('onClickAddCourse')
     }
   }
 }

@@ -48,10 +48,14 @@ export default {
   mixins: [Context, DegreeEditSession, Loading, Util],
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-    this.init(id).then(() => {
-      this.setPageTitle(this.degreeName)
-      this.loaded(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
-      this.putFocusNextTick('add-unit-requirement')
+    this.init(id).then(data => {
+      if (data.sid) {
+        this.$router.push(`/student/degree/${id}`)
+      } else {
+        this.setPageTitle(this.degreeName)
+        this.loaded(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
+        this.putFocusNextTick('add-unit-requirement')
+      }
     })
   }
 }
