@@ -54,7 +54,7 @@ import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
-import {getStudentByUid} from '@/api/student'
+import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeCheck',
@@ -72,11 +72,10 @@ export default {
     student: undefined
   }),
   created() {
-    const uid = this.$_.get(this.$route, 'params.uid')
-    getStudentByUid(uid).then(data => {
-      this.student = data
-      const id = this.$_.get(this.$route, 'params.id')
-      this.init(id).then(() => {
+    const degreeId = this.$_.get(this.$route, 'params.id')
+    this.init(degreeId).then(degree => {
+      getStudentBySid(degree.sid).then(data => {
+        this.student = data
         const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
         this.loaded(`${this.degreeName} for ${this.student.name}`)

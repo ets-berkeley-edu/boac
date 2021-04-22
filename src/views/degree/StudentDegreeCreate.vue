@@ -121,7 +121,7 @@ export default {
       this.$announcer.polite('Saving')
       createDegreeCheck(this.student.sid, this.selectedOption.id).then(data => {
         this.isSaving = false
-        this.$router.push(`/student/${this.student.uid}/degree/${data.id}`)
+        this.$router.push(`/student/degree/${data.id}`)
       })
     }
   }

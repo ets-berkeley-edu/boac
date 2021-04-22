@@ -275,14 +275,14 @@ const router = new Router({
           },
         },
         {
-          path: '/student/:uid/degree/:id',
+          path: '/student/degree/:id',
           component: StudentDegreeCheck,
           meta: {
             title: 'Student Degree',
           },
         },
         {
-          path: '/degree/print/:id',
+          path: '/degree/:id/print',
           component: PrintableDegreeTemplate,
           meta: {
             title: 'Print Degree Template',

@@ -47,7 +47,7 @@
           <template #cell(name)="row">
             <router-link
               :id="`degree-check-${row.item.id}-link`"
-              :to="`/student/${student.uid}/degree/${row.item.id}`"
+              :to="`/student/degree/${row.item.id}`"
               v-html="`${row.item.name}`"
             />
             <span v-if="row.item.isCurrent" class="ml-2">(current)</span>
