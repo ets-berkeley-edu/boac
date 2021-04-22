@@ -12,7 +12,7 @@
           <div class="pr-2">
             <router-link
               id="print-degree-plan"
-              :to="`/student/${student.uid}/degree/${templateId}/print`"
+              :to="`/degree/${templateId}/print`"
             >
               <font-awesome class="mr-1" icon="print" />
               Print Plan

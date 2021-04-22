@@ -61,7 +61,7 @@ export default {
   }),
   created() {
     this.optionGroups = []
-    this.$_.each(this.categories, category => {
+    this.$_.each(this.$_.cloneDeep(this.categories), category => {
       const optionGroup = {
         id: category.id,
         name: category.name,

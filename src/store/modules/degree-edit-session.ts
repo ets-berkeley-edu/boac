@@ -19,6 +19,7 @@ const state = {
   degreeName: undefined,
   disableButtons: false,
   editMode: undefined,
+  sid: undefined,
   templateId: undefined,
   unitRequirements: undefined,
   updatedAt: undefined,
@@ -40,6 +41,7 @@ const getters = {
   degreeName: (state: any): string => state.degreeName,
   disableButtons: (state: any): boolean => state.disableButtons,
   editMode: (state: any): string => state.editMode,
+  sid: (state: any): number => state.sid,
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): any[] => state.unitRequirements,
   updatedAt: (state: any): any[] => state.updatedAt,
@@ -56,6 +58,7 @@ const mutations = {
     state.createdBy = template && template.createdBy
     state.degreeName = template && template.name
     state.templateId = template && template.id
+    state.sid = template && template.sid
     state.unitRequirements = template && template.unitRequirements
     state.updatedAt = template && template.updatedAt
     state.updatedBy = template && template.updatedBy

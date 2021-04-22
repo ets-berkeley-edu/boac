@@ -166,7 +166,7 @@ export default {
     viewDegreeChecks() {
       const currentDegreeCheck = this.$_.find(this.student.degreeChecks, 'isCurrent')
       if (currentDegreeCheck) {
-        this.$router.push({path: `/student/${this.student.uid}/degree/${currentDegreeCheck.id}`})
+        this.$router.push({path: `/student/degree/${currentDegreeCheck.id}`})
       } else if (this.$currentUser.canEditDegreeProgress) {
         this.$router.push({path: `/student/${this.student.uid}/degree/create`})
       } else {

@@ -12,27 +12,27 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th class="pl-0 w-75">Course</b-th>
-            <b-th class="units-table-cell">Units</b-th>
+            <b-th class="pl-0 table-cell-course">Course</b-th>
+            <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
             <b-th class="sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="course in courses" :id="`course-${course.id}-table-row`" :key="course.id">
+          <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
             <td
               v-if="!isEditing(course)"
-              class="font-size-14 pl-0 td-truncate-with-ellipsis w-75"
+              class="font-size-14 pl-0 table-cell-course"
               :title="course.name"
             >
               {{ course.name }}
             </td>
-            <td v-if="!isEditing(course)" class="float-right font-size-14 pr-2 units-table-cell">
-              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? 5 : course.courseUnits }}</span>
+            <td v-if="!isEditing(course)" class="float-right font-size-14 pr-2 table-cell-units">
+              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
             </td>
             <td
               v-if="!isEditing(course)"
-              class="font-size-14 td-truncate-with-ellipsis w-30"
+              class="font-size-14 td-truncate-with-ellipsis"
               :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')"
             >
               {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
@@ -168,7 +168,12 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.units-table-cell {
+.table-cell-course {
+    min-width: 150px !important;
+    width: 1px;
+    white-space: nowrap;
+}
+.table-cell-units {
   direction: rtl;
   max-width: 10px !important;
   min-width: 10px !important;

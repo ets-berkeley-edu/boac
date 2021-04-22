@@ -101,7 +101,7 @@
               <router-link
                 :id="`degree-check-${row.item.id}-link`"
                 :disabled="isBusy"
-                :to="`degree/${row.item.id}`"
+                :to="`/degree/${row.item.id}`"
                 v-html="`${row.item.name}`"
               />
             </div>
@@ -119,7 +119,7 @@
                     :id="`degree-check-${row.item.id}-print-link`"
                     class="p-1"
                     :disabled="isBusy"
-                    :to="`degree/print/${row.item.id}`"
+                    :to="`/degree/print/${row.item.id}`"
                   >
                     Print
                   </router-link>
