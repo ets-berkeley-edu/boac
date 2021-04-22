@@ -47,6 +47,26 @@ def create_degree_check(sid):
     return tolerant_jsonify(degree_check.to_api_json())
 
 
+@app.route('/api/degree/course/assign', methods=['POST'])
+@can_edit_degree_progress
+def assign_course():
+    params = request.get_json()
+    category_id = get_param(params, 'categoryId')
+    section_id = get_param(params, 'sectionId')
+    sid = get_param(params, 'sid')
+    term_id = get_param(params, 'termId')
+    if not category_id or not section_id or not sid or not term_id:
+        raise BadRequestError("Required parameters not found.'")
+
+    course = DegreeProgressCourse.assign_category(
+        category_id=category_id,
+        section_id=section_id,
+        sid=sid,
+        term_id=term_id,
+    )
+    return tolerant_jsonify(course.to_api_json())
+
+
 @app.route('/api/degrees/student/<sid>')
 @can_read_degree_progress
 def get_degree_checks(sid):
