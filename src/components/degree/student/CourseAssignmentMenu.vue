@@ -12,23 +12,21 @@
     <template #button-content>
       <font-awesome icon="grip-vertical" />
     </template>
-    <b-dropdown-group
-      v-for="optionGroup in optionGroups"
-      :id="`assign-course-${course.termId}-${course.sectionId}-option-group-${optionGroup.id}`"
-      :key="optionGroup.id"
-      :header="optionGroup.name"
+    <b-dropdown-item
+      v-for="option in options"
+      :id="`assign-course-to-option-${option.id}`"
+      :key="option.id"
+      :link-class="{
+        'text-body text-decoration-none': true,
+        'font-size-15 font-weight-bolder pl-3': option.categoryType === 'Category',
+        'font-size-14 font-weight-500 pl-3': option.categoryType === 'Subcategory',
+        'font-size-14 pl-4': option.categoryType === 'Course'
+      }"
+      :value="option"
+      @click="onSelect(option)"
     >
-      <b-dropdown-item
-        v-for="option in optionGroup.options"
-        :id="`assign-course-${course.termId}-${course.sectionId}-option-${option.id}`"
-        :key="option.id"
-        link-class="font-size-16 text-decoration-none"
-        :value="option"
-        @click="onSelect(option)"
-      >
-        {{ option.name }}
-      </b-dropdown-item>
-    </b-dropdown-group>
+      {{ option.name }}
+    </b-dropdown-item>
   </b-dropdown>
 </template>
 
@@ -56,25 +54,18 @@ export default {
   },
   data: () => ({
     isSaving: false,
-    optionGroups: undefined,
+    options: undefined,
     selectedOption: null
   }),
   created() {
-    this.optionGroups = []
+    this.options = []
     this.$_.each(this.$_.cloneDeep(this.categories), category => {
-      const optionGroup = {
-        id: category.id,
-        name: category.name,
-        options: category.courses
-      }
-      this.$_.each(category.subcategories, subcategory => {
-        if (subcategory.courses.length) {
-          optionGroup.options.push(...subcategory.courses)
-        }
+      this.options.push(category)
+      this.$_.each([category.courses, category.subcategories], group => {
+        this.$_.each(group, item => {
+          this.options.push(item)
+        })
       })
-      if (optionGroup.options.length) {
-        this.optionGroups.push(optionGroup)
-      }
     })
   },
   methods: {
