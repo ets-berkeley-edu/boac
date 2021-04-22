@@ -34,12 +34,17 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Util from '@/mixins/Util'
+import {assignCourse} from '@/api/degree'
 
 export default {
   name: 'CourseAssignmentMenu',
-  mixins: [DegreeEditSession, Util],
+  mixins: [DegreeEditSession],
   props: {
+    afterSelect: {
+      default: () => {},
+      required: false,
+      type: Function
+    },
     course: {
       required: true,
       type: Object
@@ -75,8 +80,14 @@ export default {
   methods: {
     onSelect(option) {
       this.$announcer.polite(`${option.name} selected for ${this.course.displayName}`)
-      // TODO: Assign the course
-      this.putFocusNextTick('XXX')
+      assignCourse(
+        option.id,
+        this.course.sectionId,
+        this.course.sid,
+        this.course.termId
+      ).then(data => {
+        this.afterSelect(data)
+      })
     }
   }
 }

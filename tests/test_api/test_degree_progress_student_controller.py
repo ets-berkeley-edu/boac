@@ -27,6 +27,8 @@ from datetime import datetime
 import json
 
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 import pytest
@@ -35,6 +37,19 @@ coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
 coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
+
+
+@pytest.fixture()
+def mock_degree_course():
+    marker = datetime.now().timestamp()
+    return DegreeProgressCourse.create(
+        display_name=f'The Decline of Western Civilization ({marker})',
+        grade='B+',
+        section_id=1905013,
+        sid=coe_student_sid,
+        term_id=2218,
+        units=4,
+    )
 
 
 @pytest.fixture()
@@ -78,6 +93,49 @@ def mock_note():
         template_id=template.id,
         updated_by=user.id,
     )
+
+
+class TestAssignCourse:
+
+    @classmethod
+    def _api_assign_course(cls, client, category_id, course, expected_status_code=200):
+        data = {
+            'categoryId': category_id,
+            'sectionId': course.section_id,
+            'sid': course.sid,
+            'termId': course.term_id,
+        }
+        response = client.post(
+            '/api/degree/course/assign',
+            data=json.dumps(data),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client, mock_degree_course):
+        """Denies anonymous user."""
+        self._api_assign_course(client, category_id=1, course=mock_degree_course, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth, mock_degree_course):
+        """Denies unauthorized user."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_assign_course(client, category_id=1, course=mock_degree_course, expected_status_code=401)
+
+    def test_create_category(self, client, fake_auth, mock_degree_course, mock_template):
+        """Authorized user can create a degree check."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        category = DegreeProgressCategory.create(
+            category_type='Course',
+            course_units='3',
+            name='History of Western Philosophy',
+            position=1,
+            template_id=mock_template.id,
+        )
+        api_json = self._api_assign_course(client, category_id=category.id, course=mock_degree_course)
+        assert api_json['displayName'] == mock_degree_course.display_name
+        assert api_json['categoryId'] == category.id
 
 
 class TestCreateStudentDegreeCheck:

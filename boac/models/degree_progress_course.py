@@ -73,6 +73,13 @@ class DegreeProgressCourse(Base):
             units={self.units},>"""
 
     @classmethod
+    def assign_category(cls, category_id, section_id, sid, term_id):
+        course = cls.query.filter_by(section_id=section_id, sid=sid, term_id=term_id).first()
+        course.category_id = category_id
+        std_commit()
+        return course
+
+    @classmethod
     def create(
             cls,
             display_name,
