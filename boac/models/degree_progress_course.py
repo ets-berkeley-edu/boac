@@ -105,6 +105,10 @@ class DegreeProgressCourse(Base):
         return course
 
     @classmethod
+    def get_fulfillments(cls, category_id):
+        return cls.query.filter_by(category_id=category_id).all()
+
+    @classmethod
     def get_unassigned_by_sid(cls, sid):
         return cls.query.filter_by(sid=sid).all()
 
@@ -124,11 +128,13 @@ class DegreeProgressCourse(Base):
         return course
 
     def to_api_json(self):
+        # Note: The 'id' property allows reuse of front-end components.
         return {
             'categoryId': self.category_id,
             'createdAt': _isoformat(self.created_at),
-            'displayName': self.display_name,
             'grade': self.grade,
+            'id': f'{self.term_id}-{self.section_id}-{self.sid}',
+            'name': self.display_name,
             'note': self.note,
             'sectionId': self.section_id,
             'sid': self.sid,

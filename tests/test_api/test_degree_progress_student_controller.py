@@ -134,7 +134,7 @@ class TestAssignCourse:
             template_id=mock_template.id,
         )
         api_json = self._api_assign_course(client, category_id=category.id, course=mock_degree_course)
-        assert api_json['displayName'] == mock_degree_course.display_name
+        assert api_json['name'] == mock_degree_course.display_name
         assert api_json['categoryId'] == category.id
 
 
