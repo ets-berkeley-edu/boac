@@ -9,31 +9,41 @@
         borderless
         :responsive="true"
         small
-        stacked="sm"
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th class="pl-0">Course</b-th>
-            <b-th>Units</b-th>
+            <b-th class="pl-0 w-75">Course</b-th>
+            <b-th class="units-table-cell">Units</b-th>
             <b-th>Fulfillment</b-th>
-            <b-th></b-th>
+            <b-th class="sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
           <b-tr v-for="course in courses" :id="`course-${course.id}-table-row`" :key="course.id">
-            <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis pl-0" :title="course.name">{{ course.name }}</td>
-            <td v-if="!isEditing(course)">
-              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? '&mdash;' : course.courseUnits }}</span>
+            <td
+              v-if="!isEditing(course)"
+              class="font-size-14 pl-0 td-truncate-with-ellipsis w-75"
+              :title="course.name"
+            >
+              {{ course.name }}
             </td>
-            <td v-if="!isEditing(course)" class="td-truncate-with-ellipsis" :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')">
+            <td v-if="!isEditing(course)" class="float-right font-size-14 pr-2 units-table-cell">
+              <span class="font-size-14">{{ $_.isNil(course.courseUnits) ? 5 : course.courseUnits }}</span>
+            </td>
+            <td
+              v-if="!isEditing(course)"
+              class="font-size-14 td-truncate-with-ellipsis w-30"
+              :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')"
+            >
               {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
             </td>
-            <td v-if="!student && !isEditing(course)" class="pr-0">
+            <td v-if="!student && !isEditing(course)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${course.id}-btn`"
-                  class="pr-2 pt-0"
+                  class="pl-0 pr-2 pt-0"
                   :disabled="disableButtons"
+                  size="sm"
                   variant="link"
                   @click="edit(course)"
                 >
@@ -44,6 +54,7 @@
                   :id="`column-${position}-delete-course-${course.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
+                  size="sm"
                   variant="link"
                   @click="deleteCourse(course)"
                 >
@@ -156,5 +167,10 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.units-table-cell {
+  direction: rtl;
+  max-width: 10px !important;
+  min-width: 10px !important;
 }
 </style>
