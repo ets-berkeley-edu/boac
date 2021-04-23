@@ -2,7 +2,6 @@
   <b-dropdown
     :id="`assign-course-${course.id}-select`"
     v-model="selectedOption"
-    :boundary="dropdownBoundary"
     :disabled="disableButtons || isSaving"
     :lazy="true"
     no-caret
@@ -43,10 +42,6 @@ export default {
     course: {
       required: true,
       type: Object
-    },
-    dropdownBoundary: {
-      required: true,
-      type: String
     },
     student: {
       required: true,
