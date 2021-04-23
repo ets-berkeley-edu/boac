@@ -19,9 +19,9 @@ const state = {
   createdAt: undefined,
   createdBy: undefined,
   degreeName: undefined,
+  degreeNote: undefined,
   disableButtons: false,
   editMode: undefined,
-  note: undefined,
   sid: undefined,
   templateId: undefined,
   unassignedCourses: undefined,
@@ -37,16 +37,16 @@ const getters = {
   degreeEditSessionToString: (state: any): any => ({
     categories: state.categories,
     degreeName: state.degreeName,
+    degreeNote: state.degreeNote,
     disableButtons: state.disableButtons,
     editMode: state.editMode,
-    note: state.note,
     templateId: state.templateId,
     unitRequirements: state.unitRequirements
   }),
   degreeName: (state: any): string => state.degreeName,
+  degreeNote: (state: any): string => state.degreeNote,
   disableButtons: (state: any): boolean => state.disableButtons,
   editMode: (state: any): string => state.editMode,
-  note: (state: any): string => state.note,
   sid: (state: any): number => state.sid,
   templateId: (state: any): number => state.templateId,
   unassignedCourses: (state: any): any[] => state.unassignedCourses,
@@ -64,7 +64,7 @@ const mutations = {
     state.createdAt = template && template.createdAt
     state.createdBy = template && template.createdBy
     state.degreeName = template && template.name
-    state.note = template && template.note
+    state.degreeNote = template && template.note
     state.templateId = template && template.id
     state.sid = template && template.sid
     state.unitRequirements = template && template.unitRequirements
@@ -82,8 +82,8 @@ const mutations = {
       throw new TypeError(`Invalid page mode: ${editMode}`)
     }
   },
-  updateNote: (state: any, note: any) => state.note = note,
   setUnassignedCourses: (state: any, unassignedCourses: any[]) => state.unassignedCourses = unassignedCourses,
+  updateNote: (state: any, note: any) => state.degreeNote = note,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
 
