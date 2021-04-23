@@ -8,7 +8,6 @@
         id="unassigned-courses-table"
         borderless
         class="w-100"
-        :responsive="true"
         small
         stacked="sm"
       >
@@ -25,14 +24,13 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in unassignedCourses" :key="index">
-            <td v-if="!isEditing(course)">
+            <td v-if="!isEditing(course)" class="td-course-assignment-menu">
               <CourseAssignmentMenu
                 :course="course"
-                dropdown-boundary="#unassigned-courses-container"
                 :student="student"
               />
             </td>
-            <td v-if="!isEditing(course)">
+            <td v-if="!isEditing(course)" class="pl-0">
               {{ course.name }}
             </td>
             <td v-if="!isEditing(course)">
@@ -124,3 +122,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.td-course-assignment-menu {
+  padding-top: 2px;
+}
+</style>

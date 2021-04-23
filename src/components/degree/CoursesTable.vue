@@ -3,11 +3,13 @@
     <div v-if="$_.isEmpty(courses)" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(courses)" :id="`column-${position}-course-table-${courses[0].parentCategoryId}`">
+    <div
+      v-if="!$_.isEmpty(courses)"
+      :id="`column-${position}-course-table-${courses[0].parentCategoryId}`"
+    >
       <b-table-simple
         :id="`column-${position}-courses-of-category-${courses[0].parentCategoryId}`"
         borderless
-        :responsive="true"
         small
       >
         <b-thead class="border-bottom">
@@ -21,11 +23,10 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
-            <td v-if="student && hasFulfillments && !isEditing(course)">
+            <td v-if="student && hasFulfillments && !isEditing(course)" class="pt-0">
               <CourseAssignmentMenu
                 v-if="inspect(course, 'categoryId')"
                 :course="course"
-                :dropdown-boundary="`#column-${position}-course-table-${courses[0].parentCategoryId}`"
                 :student="student"
               />
             </td>
@@ -219,9 +220,8 @@ export default {
   white-space: nowrap;
 }
 .table-cell-course {
-    min-width: 150px !important;
-    width: 1px;
-    white-space: nowrap;
+  min-width: 150px !important;
+  width: 1px;
 }
 .table-cell-units {
   direction: rtl;
@@ -237,6 +237,7 @@ export default {
   color: white;
   height: 20px;
   text-align: center;
-  width: 24px;
+  max-width: 20px;
+  min-width: 20px;
 }
 </style>
