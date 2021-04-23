@@ -3,7 +3,7 @@
     <div v-if="$_.isEmpty(courses)" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(courses)">
+    <div v-if="!$_.isEmpty(courses)" :id="`column-${position}-course-table-${courses[0].parentCategoryId}`">
       <b-table-simple
         :id="`column-${position}-courses-of-category-${courses[0].parentCategoryId}`"
         borderless
@@ -12,6 +12,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
+            <b-th v-if="hasFulfillments"></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
@@ -20,17 +21,25 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
+            <td v-if="student && hasFulfillments && !isEditing(course)">
+              <CourseAssignmentMenu
+                v-if="inspect(course, 'categoryId')"
+                :course="course"
+                :dropdown-boundary="`#column-${position}-course-table-${courses[0].parentCategoryId}`"
+                :student="student"
+              />
+            </td>
             <td
               v-if="!isEditing(course)"
               class="font-size-14 pl-0 pr-3 table-cell-course"
             >
-              {{ getCourseProperty(course, 'name') }}
+              {{ inspect(course, 'name') }}
             </td>
             <td
               v-if="!isEditing(course)"
               class="float-right font-size-14 pr-2 table-cell-units"
             >
-              <span class="font-size-14">{{ getCourseProperty(course, 'units') || '&mdash;' }}</span>
+              <span class="font-size-14">{{ inspect(course, 'units') || '&mdash;' }}</span>
             </td>
             <td
               v-if="!isEditing(course)"
@@ -110,6 +119,7 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import Util from '@/mixins/Util'
@@ -117,7 +127,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
-  components: {EditCategory, AreYouSureModal},
+  components: {CourseAssignmentMenu, EditCategory, AreYouSureModal},
   props: {
     courses: {
       required: true,
@@ -135,8 +145,14 @@ export default {
   },
   data: () => ({
     courseForDelete: undefined,
-    courseForEdit: undefined
+    courseForEdit: undefined,
+    hasFulfillments: undefined
   }),
+  created() {
+    this.hasFulfillments = !!this.$_.find(this.courses, course => {
+      return this.inspect(course, 'categoryId')
+    })
+  },
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
@@ -175,8 +191,8 @@ export default {
       this.courseForEdit = course
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
-    // TODO: What if multiple category has multiple fulfillments?
-    getCourseProperty(course, key) {
+    inspect(course, key) {
+      // TODO: What if multiple category has multiple fulfillments?
       return this.$_.size(course.fulfilledBy) ? course.fulfilledBy[0][key] : course[key]
     },
     isEditing(course) {

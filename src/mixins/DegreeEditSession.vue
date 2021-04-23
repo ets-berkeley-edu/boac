@@ -28,6 +28,7 @@ export default {
       'disableButtons',
       'editMode',
       'templateId',
+      'unassignedCourses',
       'unitRequirements',
       'updatedAt',
       'updatedBy'
@@ -35,12 +36,14 @@ export default {
   },
   methods: {
     ...mapActions('degreeEditSession', [
+      'assignCourseToCategory',
       'createCategory',
       'createUnitRequirement',
       'deleteCategory',
       'deleteUnitRequirement',
       'init',
       'loadTemplate',
+      'refreshUnassignedCourses',
       'setDisableButtons',
       'setEditMode',
       'updateCategory',

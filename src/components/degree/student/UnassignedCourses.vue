@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="$_.isEmpty(courses)" class="no-data-text">
+    <div v-if="$_.isEmpty(unassignedCourses)" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(courses)">
+    <div v-if="!$_.isEmpty(unassignedCourses)" id="unassigned-courses-container">
       <b-table-simple
         id="unassigned-courses-table"
         borderless
@@ -24,9 +24,13 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="(course, index) in courses" :key="index">
+          <b-tr v-for="(course, index) in unassignedCourses" :key="index">
             <td v-if="!isEditing(course)">
-              <CourseAssignmentMenu :course="course" :student="student" />
+              <CourseAssignmentMenu
+                :course="course"
+                dropdown-boundary="#unassigned-courses-container"
+                :student="student"
+              />
             </td>
             <td v-if="!isEditing(course)">
               {{ course.name }}
@@ -45,7 +49,7 @@
             </td>
             <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="pr-0">
               <b-btn
-                :id="`edit-course-${course.termId}-${course.sectionId}-btn`"
+                :id="`edit-course-${course.id}-btn`"
                 class="px-0 pt-0"
                 :disabled="disableButtons"
                 variant="link"
@@ -77,7 +81,6 @@ import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMe
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnassignedCourse from '@/components/degree/student/EditUnassignedCourse'
 import Util from '@/mixins/Util'
-import {getUnassignedCourses} from '@/api/degree'
 
 export default {
   name: 'UnassignedCourses',
@@ -91,12 +94,8 @@ export default {
     }
   },
   data: () => ({
-    courses: undefined,
     courseForEdit: undefined
   }),
-  created() {
-    this.refresh()
-  },
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
@@ -107,7 +106,7 @@ export default {
     afterSave(course) {
       Object.assign(this.courseForEdit, course)
       this.courseForEdit = null
-      this.refresh().then(() => {
+      this.refreshUnassignedCourses().then(() => {
         this.$announcer.polite(`Updated course ${course.name}`)
         this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
         this.setDisableButtons(false)
@@ -121,11 +120,6 @@ export default {
     },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
-    },
-    refresh() {
-      return getUnassignedCourses(this.templateId).then(data => {
-        this.courses = data
-      })
     }
   }
 }
