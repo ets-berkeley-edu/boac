@@ -43,10 +43,17 @@
             </td>
             <td
               v-if="!isEditing(course)"
-              class="font-size-14 td-truncate-with-ellipsis"
+              class="font-size-14 td-max-width-0"
               :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')"
             >
-              {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
+              <div class="align-items-start d-flex justify-content-between">
+                <div class="ellipsis-if-overflow">
+                  {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
+                </div>
+                <div v-if="$_.size(course.unitRequirements) > 1" class="unit-requirement-count">
+                  <span class="sr-only">(Has </span>{{ course.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
+                </div>
+              </div>
             </td>
             <td v-if="!student && !isEditing(course)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
@@ -206,8 +213,7 @@ export default {
 </script>
 
 <style scoped>
-.td-truncate-with-ellipsis {
-  max-width: 0;
+.ellipsis-if-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -221,5 +227,16 @@ export default {
   direction: rtl;
   max-width: 10px !important;
   min-width: 10px !important;
+}
+.td-max-width-0 {
+  max-width: 0;
+}
+.unit-requirement-count {
+  background-color: #3b7ea5;
+  border-radius: 12px;
+  color: white;
+  height: 20px;
+  text-align: center;
+  width: 24px;
 }
 </style>
