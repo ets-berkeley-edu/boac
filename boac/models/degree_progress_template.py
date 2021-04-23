@@ -48,6 +48,7 @@ class DegreeProgressTemplate(Base):
     note = db.relationship(
         DegreeProgressNote.__name__,
         back_populates='template',
+        uselist=False,
     )
     unit_requirements = db.relationship(
         DegreeProgressUnitRequirement.__name__,

@@ -43,7 +43,7 @@ class DegreeProgressNote(Base):
         self.updated_by = updated_by
 
     def __repr__(self):
-        return f"""<DegreeProgressTemplate template_id={self.template_id},
+        return f"""<DegreeProgressNote template_id={self.template_id},
                     body={self.body},
                     created_at={self.created_at},
                     updated_at={self.updated_at},

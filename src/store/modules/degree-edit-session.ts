@@ -7,6 +7,7 @@ import {
   deleteUnitRequirement,
   getDegreeTemplate, getUnassignedCourses,
   updateDegreeCategory,
+  updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
 import store from '@/store'
@@ -20,6 +21,7 @@ const state = {
   degreeName: undefined,
   disableButtons: false,
   editMode: undefined,
+  note: undefined,
   sid: undefined,
   templateId: undefined,
   unassignedCourses: undefined,
@@ -37,12 +39,14 @@ const getters = {
     degreeName: state.degreeName,
     disableButtons: state.disableButtons,
     editMode: state.editMode,
+    note: state.note,
     templateId: state.templateId,
     unitRequirements: state.unitRequirements
   }),
   degreeName: (state: any): string => state.degreeName,
   disableButtons: (state: any): boolean => state.disableButtons,
   editMode: (state: any): string => state.editMode,
+  note: (state: any): string => state.note,
   sid: (state: any): number => state.sid,
   templateId: (state: any): number => state.templateId,
   unassignedCourses: (state: any): any[] => state.unassignedCourses,
@@ -60,6 +64,7 @@ const mutations = {
     state.createdAt = template && template.createdAt
     state.createdBy = template && template.createdBy
     state.degreeName = template && template.name
+    state.note = template && template.note
     state.templateId = template && template.id
     state.sid = template && template.sid
     state.unitRequirements = template && template.unitRequirements
@@ -77,6 +82,7 @@ const mutations = {
       throw new TypeError(`Invalid page mode: ${editMode}`)
     }
   },
+  updateNote: (state: any, note: any) => state.note = note,
   setUnassignedCourses: (state: any, unassignedCourses: any[]) => state.unassignedCourses = unassignedCourses,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -156,7 +162,6 @@ const actions = {
       if (templateId) {
         store.dispatch('degreeEditSession/loadTemplate', templateId).then(resolve)
       } else {
-        //TODO: initialize a new template
         commit('resetSession')
         resolve()
       }
@@ -174,7 +179,7 @@ const actions = {
     })
   },
   refreshUnassignedCourses: ({commit, state}) => {
-    return new Promise(resolve => {
+    return new Promise<void>(resolve => {
       getUnassignedCourses(state.templateId).then(data => {
         commit('setUnassignedCourses', data)
         resolve()
@@ -183,6 +188,14 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode),
+  updateNote: ({commit, state}, noteBody: string) => {
+    return new Promise<void>(resolve => {
+      updateDegreeNote(state.templateId, noteBody).then((note: any) => {
+        commit('updateNote', note)
+        resolve()
+      })
+    })
+  },
   updateUnitRequirement: ({commit, state}, {index, name, minUnits}) => {
     return new Promise<void>(resolve => {
       const id = _.get(state.unitRequirements[index], 'id')

@@ -113,6 +113,10 @@ export function updateDegreeCategory(
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/update`, data).then(response => response.data, () => null)
 }
 
+export function updateDegreeNote(templateId: number, body: string) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/note`, {body}).then(response => response.data, () => null)
+}
+
 export function updateDegreeTemplate(templateId: number, name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/update`, {name}).then(response => response.data, () => null)
 }

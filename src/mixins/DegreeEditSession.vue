@@ -27,6 +27,7 @@ export default {
       'degreeName',
       'disableButtons',
       'editMode',
+      'note',
       'templateId',
       'unassignedCourses',
       'unitRequirements',
@@ -47,6 +48,7 @@ export default {
       'setDisableButtons',
       'setEditMode',
       'updateCategory',
+      'updateNote',
       'updateUnitRequirement'
     ]),
     findCategoriesByTypes(types, position) {
