@@ -123,7 +123,7 @@
           </div>
           <div>
             <b-btn
-              id="save-degree-note-btn"
+              id="cancel-degree-note-btn"
               :disabled="isSaving"
               variant="link"
               @click="cancel"
@@ -161,8 +161,7 @@ export default {
   }),
   computed: {
     noteUpdatedAt() {
-      const updatedAtDate = new Date(this.note.updatedAt)
-      return this.$moment(updatedAtDate).format('MMM D, YYYY')
+      return this.note && this.$moment(new Date(this.note.updatedAt)).format('MMM D, YYYY')
     }
   },
   created() {
@@ -173,10 +172,12 @@ export default {
       const name = data.name || `${data.uid} (UID)`
       this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.$moment(updatedAtDate).format('MMM D, YYYY')}`
     })
-    getCalnetProfileByUserId(this.note.updatedBy).then(data => {
-      this.noteUpdatedBy = data.name || `${data.uid} (UID)`
-    })
-    this.noteBody = this.$_.get(this.note, 'body')
+    if (this.note) {
+      getCalnetProfileByUserId(this.note.updatedBy).then(data => {
+        this.noteUpdatedBy = data.name || `${data.uid} (UID)`
+      })
+      this.noteBody = this.$_.get(this.note, 'body')
+    }
   },
   methods: {
     cancel() {
