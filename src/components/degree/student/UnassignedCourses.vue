@@ -29,7 +29,7 @@
               <CourseAssignmentMenu :course="course" :student="student" />
             </td>
             <td v-if="!isEditing(course)">
-              {{ course.displayName }}
+              {{ course.name }}
             </td>
             <td v-if="!isEditing(course)">
               <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
@@ -57,7 +57,7 @@
             </td>
             <b-td v-if="isEditing(course)" colspan="6">
               <div class="border border-1 my-4 py-2 px-3 rounded">
-                <div class="font-weight-500">{{ course.displayName }}</div>
+                <div class="font-weight-500">{{ course.name }}</div>
                 <EditUnassignedCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
@@ -108,7 +108,7 @@ export default {
       Object.assign(this.courseForEdit, course)
       this.courseForEdit = null
       this.refresh().then(() => {
-        this.$announcer.polite(`Updated course ${course.displayName}`)
+        this.$announcer.polite(`Updated course ${course.name}`)
         this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
         this.setDisableButtons(false)
       })
@@ -130,12 +130,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.td-truncate-with-ellipsis {
-  max-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-</style>

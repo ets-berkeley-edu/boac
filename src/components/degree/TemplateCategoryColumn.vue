@@ -52,6 +52,14 @@
         :existing-category="category"
         :position="position"
       />
+      <div v-if="$_.size(category.fulfilledBy)" class="pl-1 py-2">
+        <CoursesTable
+          :id="`column-${position}-category-${category.id}-fulfilled-by`"
+          :courses="category.fulfilledBy"
+          :position="position"
+          :student="student"
+        />
+      </div>
       <div v-if="$_.size(category.courses)" class="pl-1 py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
@@ -80,6 +88,14 @@
             :existing-category="subcategory"
             :position="position"
           />
+          <div v-if="$_.size(subcategory.fulfilledBy)" class="pl-1 py-2">
+            <CoursesTable
+              :id="`column-${position}-subcategory-${subcategory.id}-fulfilled-by`"
+              :courses="subcategory.fulfilledBy"
+              :position="position"
+              :student="student"
+            />
+          </div>
           <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"

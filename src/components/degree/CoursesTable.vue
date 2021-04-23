@@ -23,15 +23,14 @@
             <td
               v-if="!isEditing(course)"
               class="font-size-14 pl-0 pr-3 table-cell-course"
-              :title="getName(course)"
             >
-              {{ getName(course) }}
+              {{ getCourseProperty(course, 'name') }}
             </td>
             <td
               v-if="!isEditing(course)"
               class="float-right font-size-14 pr-2 table-cell-units"
             >
-              <span class="font-size-14">{{ getUnits(course) || '&mdash;' }}</span>
+              <span class="font-size-14">{{ getCourseProperty(course, 'units') || '&mdash;' }}</span>
             </td>
             <td
               v-if="!isEditing(course)"
@@ -176,8 +175,10 @@ export default {
       this.courseForEdit = course
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
-    getName: course => course.courses.length ? course.courses[0].displayName : course.name,
-    getUnits: course => course.courses.length ? course.courses[0].units : course.courseUnits,
+    // TODO: What if multiple category has multiple fulfillments?
+    getCourseProperty(course, key) {
+      return this.$_.size(course.fulfilledBy) ? course.fulfilledBy[0][key] : course[key]
+    },
     isEditing(course) {
       return course.id === this.$_.get(this.courseForEdit, 'id')
     },

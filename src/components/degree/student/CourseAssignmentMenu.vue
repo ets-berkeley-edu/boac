@@ -70,7 +70,7 @@ export default {
   },
   methods: {
     onSelect(option) {
-      this.$announcer.polite(`${option.name} selected for ${this.course.displayName}`)
+      this.$announcer.polite(`${option.name} selected for ${this.course.name}`)
       assignCourse(
         option.id,
         this.course.sectionId,

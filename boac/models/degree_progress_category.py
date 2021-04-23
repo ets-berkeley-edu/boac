@@ -24,12 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.lib.berkeley import term_name_for_sis_id
 from boac.models.base import Base
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
-from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM, INT4RANGE
 from sqlalchemy.sql import asc
 
@@ -193,12 +192,13 @@ class DegreeProgressCategory(Base):
 
     def to_api_json(self):
         unit_requirements_json = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
-        api_json = {
+        return {
             'id': self.id,
             'categoryType': self.category_type,
             'courseUnits': _range_to_string(self.course_units),
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
+            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfillments(self.id)],
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,
@@ -206,23 +206,6 @@ class DegreeProgressCategory(Base):
             'unitRequirements': unit_requirements_json,
             'updatedAt': _isoformat(self.updated_at),
         }
-        if self.category_type == 'Course':
-            def _to_json(row_):
-                return {
-                    'displayName': row_['display_name'],
-                    'grade': row_['grade'],
-                    'note': row_['note'],
-                    'sectionId': row_['section_id'],
-                    'sid': row_['sid'],
-                    'termId': row_['term_id'],
-                    'termName': term_name_for_sis_id(row_['term_id']),
-                    'units': row_['units'],
-                }
-            query = text('SELECT * FROM degree_progress_courses WHERE category_id = :id')
-            results = db.session.execute(query, {'id': self.id})
-            api_json['courses'] = [_to_json(row) for row in results]
-
-        return api_json
 
 
 def _range_to_string(r):
