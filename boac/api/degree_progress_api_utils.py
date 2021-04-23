@@ -96,13 +96,14 @@ def fetch_degree_template(template_id):
 
 
 def lazy_load_unassigned_courses(degree_check):
-    unassigned_courses = {}
+    degree_progress_courses = {}
+    unassigned_courses = []
     sid = degree_check.student_sid
 
     def _key(section_id_, term_id_):
         return f'{section_id_}_{term_id_}'
-    for course in DegreeProgressCourse.get_unassigned_by_sid(sid=sid):
-        unassigned_courses[_key(course.section_id, course.term_id)] = course
+    for course in DegreeProgressCourse.find_by_sid(sid=sid):
+        degree_progress_courses[_key(course.section_id, course.term_id)] = course
 
     enrollments = data_loch.get_enrollments_for_sid(
         sid=sid,
@@ -111,22 +112,27 @@ def lazy_load_unassigned_courses(degree_check):
     for index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
             for section in enrollment['sections']:
-                grade = section['grade']
                 section_id = section['ccn']
                 term_id = term['termId']
-                units = section['units']
                 key = _key(section_id, term_id)
-                if section.get('primary') and grade and units and key not in unassigned_courses:
-                    course = DegreeProgressCourse.create(
-                        display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
-                        grade=grade,
-                        section_id=section_id,
-                        sid=sid,
-                        term_id=term_id,
-                        units=units,
-                    )
-                    unassigned_courses[key] = course
-    return list(unassigned_courses.values())
+                existing = degree_progress_courses.get(key)
+                if not existing:
+                    grade = section['grade']
+                    units = section['units']
+                    if section.get('primary') and grade and units:
+                        course = DegreeProgressCourse.create(
+                            display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
+                            grade=grade,
+                            section_id=section_id,
+                            sid=sid,
+                            term_id=term_id,
+                            units=units,
+                        )
+                        degree_progress_courses[key] = course
+                        unassigned_courses.append(course)
+                elif not existing.category_id:
+                    unassigned_courses.append(existing)
+    return unassigned_courses
 
 
 def validate_template_upsert(name, template_id=None):

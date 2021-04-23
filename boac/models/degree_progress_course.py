@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
+from boac.lib.util import is_int
 from boac.models.base import Base
 from dateutil.tz import tzutc
 
@@ -99,18 +100,18 @@ class DegreeProgressCourse(Base):
             section_id=section_id,
             sid=sid,
             term_id=term_id,
-            units=units,
+            units=units if is_int(units) else 0,  # TODO: Is units='E' valid? Can units value be non-numeric?
         )
         db.session.add(course)
         return course
 
     @classmethod
-    def get_fulfillments(cls, category_id):
-        return cls.query.filter_by(category_id=category_id).all()
+    def find_by_sid(cls, sid):
+        return cls.query.filter_by(sid=sid).all()
 
     @classmethod
-    def get_unassigned_by_sid(cls, sid):
-        return cls.query.filter_by(sid=sid).all()
+    def get_fulfillments(cls, category_id):
+        return cls.query.filter_by(category_id=category_id).all()
 
     @classmethod
     def update(

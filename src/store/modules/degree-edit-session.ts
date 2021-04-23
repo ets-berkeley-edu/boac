@@ -1,10 +1,11 @@
 import _ from 'lodash'
 import {
   addUnitRequirement,
+  assignCourse,
   createDegreeCategory,
   deleteDegreeCategory,
   deleteUnitRequirement,
-  getDegreeTemplate,
+  getDegreeTemplate, getUnassignedCourses,
   updateDegreeCategory,
   updateUnitRequirement
 } from '@/api/degree'
@@ -21,6 +22,7 @@ const state = {
   editMode: undefined,
   sid: undefined,
   templateId: undefined,
+  unassignedCourses: undefined,
   unitRequirements: undefined,
   updatedAt: undefined,
   updatedBy: undefined
@@ -43,6 +45,7 @@ const getters = {
   editMode: (state: any): string => state.editMode,
   sid: (state: any): number => state.sid,
   templateId: (state: any): number => state.templateId,
+  unassignedCourses: (state: any): any[] => state.unassignedCourses,
   unitRequirements: (state: any): any[] => state.unitRequirements,
   updatedAt: (state: any): any[] => state.updatedAt,
   updatedBy: (state: any): any[] => state.updatedBy
@@ -74,10 +77,23 @@ const mutations = {
       throw new TypeError(`Invalid page mode: ${editMode}`)
     }
   },
+  setUnassignedCourses: (state: any, unassignedCourses: any[]) => state.unassignedCourses = unassignedCourses,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
 
 const actions = {
+  assignCourseToCategory: ({commit, state}, {course, category}) => {
+    return new Promise<void>(resolve => {
+      assignCourse(category.id, course.sectionId, course.sid, course.termId).then(() => {
+          store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
+          getUnassignedCourses(state.templateId).then(data => {
+            commit('setUnassignedCourses', data)
+            resolve()
+          })
+        }
+      )
+    })
+  },
   createCategory: ({commit, state}, {
     categoryType,
     courseUnits,
@@ -148,9 +164,20 @@ const actions = {
   },
   loadTemplate: ({commit}, templateId: number) => {
     return new Promise(resolve => {
-      getDegreeTemplate(templateId).then((template: any) => {
-        commit('resetSession', template)
-        resolve(template)
+      getUnassignedCourses(templateId).then(data => {
+        commit('setUnassignedCourses', data)
+        getDegreeTemplate(templateId).then((template: any) => {
+          commit('resetSession', template)
+          resolve(template)
+        })
+      })
+    })
+  },
+  refreshUnassignedCourses: ({commit, state}) => {
+    return new Promise(resolve => {
+      getUnassignedCourses(state.templateId).then(data => {
+        commit('setUnassignedCourses', data)
+        resolve()
       })
     })
   },

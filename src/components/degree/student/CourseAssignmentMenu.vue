@@ -1,7 +1,8 @@
 <template>
   <b-dropdown
-    :id="`assign-course-${course.termId}-${course.sectionId}-select`"
+    :id="`assign-course-${course.id}-select`"
     v-model="selectedOption"
+    :boundary="dropdownBoundary"
     :disabled="disableButtons || isSaving"
     :lazy="true"
     no-caret
@@ -32,20 +33,18 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import {assignCourse} from '@/api/degree'
 
 export default {
   name: 'CourseAssignmentMenu',
   mixins: [DegreeEditSession],
   props: {
-    afterSelect: {
-      default: () => {},
-      required: false,
-      type: Function
-    },
     course: {
       required: true,
       type: Object
+    },
+    dropdownBoundary: {
+      required: true,
+      type: String
     },
     student: {
       required: true,
@@ -58,26 +57,27 @@ export default {
     selectedOption: null
   }),
   created() {
-    this.options = []
-    this.$_.each(this.$_.cloneDeep(this.categories), category => {
-      this.options.push(category)
-      this.$_.each([category.courses, category.subcategories], group => {
-        this.$_.each(group, item => {
-          this.options.push(item)
-        })
-      })
-    })
+    this.refresh()
   },
   methods: {
-    onSelect(option) {
-      this.$announcer.polite(`${option.name} selected for ${this.course.name}`)
-      assignCourse(
-        option.id,
-        this.course.sectionId,
-        this.course.sid,
-        this.course.termId
-      ).then(data => {
-        this.afterSelect(data)
+    onSelect(category) {
+      this.$announcer.polite(`${category.name} selected for ${this.course.name}`)
+      this.assignCourseToCategory({course: this.course, category}).then(() => {
+        this.refresh()
+      })
+    },
+    refresh() {
+      this.options = []
+      const push = option => {
+        this.options.push(option)
+      }
+      this.$_.each(this.$_.cloneDeep(this.categories), category => {
+        push(category)
+        this.$_.each(category.courses, course => push(course))
+        this.$_.each(category.subcategories, subcategory => {
+          push(subcategory)
+          this.$_.each(subcategory.courses, course => push(course))
+        })
       })
     }
   }
