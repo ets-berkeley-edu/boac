@@ -110,15 +110,15 @@
             <b-btn
               id="save-degree-note-btn"
               class="b-dd-override"
-              :disabled="noteBody === $_.get(note, 'body') || isSaving"
+              :disabled="noteBody === $_.get(degreeNote, 'body') || isSaving"
               variant="primary"
               @click="saveNote"
             >
               <span v-if="isSaving">
                 <font-awesome class="mr-1" icon="spinner" spin /> Saving
               </span>
-              <span v-if="!$_.get(note, 'body') && !isSaving">Save</span>
-              <span v-if="$_.get(note, 'body') && !isSaving">Edit</span>
+              <span v-if="!$_.get(degreeNote, 'body') && !isSaving">Save</span>
+              <span v-if="$_.get(degreeNote, 'body') && !isSaving">Edit</span>
             </b-btn>
           </div>
           <div>
@@ -161,7 +161,7 @@ export default {
   }),
   computed: {
     noteUpdatedAt() {
-      return this.note && this.$moment(new Date(this.note.updatedAt)).format('MMM D, YYYY')
+      return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt)).format('MMM D, YYYY')
     }
   },
   created() {
@@ -172,17 +172,17 @@ export default {
       const name = data.name || `${data.uid} (UID)`
       this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.$moment(updatedAtDate).format('MMM D, YYYY')}`
     })
-    if (this.note) {
-      getCalnetProfileByUserId(this.note.updatedBy).then(data => {
+    if (this.degreeNote) {
+      getCalnetProfileByUserId(this.degreeNote.updatedBy).then(data => {
         this.noteUpdatedBy = data.name || `${data.uid} (UID)`
       })
-      this.noteBody = this.$_.get(this.note, 'body')
+      this.noteBody = this.$_.get(this.degreeNote, 'body')
     }
   },
   methods: {
     cancel() {
       this.isEditingNote = false
-      this.noteBody = this.$_.get(this.note, 'body')
+      this.noteBody = this.$_.get(this.degreeNote, 'body')
     },
     saveNote() {
       this.isSaving = true
