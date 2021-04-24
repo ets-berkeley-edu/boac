@@ -55,8 +55,8 @@ def assign_course():
     section_id = get_param(params, 'sectionId')
     sid = get_param(params, 'sid')
     term_id = get_param(params, 'termId')
-    if not category_id or not section_id or not sid or not term_id:
-        raise BadRequestError("Required parameters not found.'")
+    if not section_id or not sid or not term_id:
+        raise BadRequestError('Required parameters not found.')
 
     course = DegreeProgressCourse.assign_category(
         category_id=category_id,

@@ -90,7 +90,8 @@ const mutations = {
 const actions = {
   assignCourseToCategory: ({commit, state}, {course, category}) => {
     return new Promise<void>(resolve => {
-      assignCourse(category.id, course.sectionId, course.sid, course.termId).then(() => {
+      const categoryId = category && category.id
+      assignCourse(categoryId, course.sectionId, course.sid, course.termId).then(() => {
           store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
           getUnassignedCourses(state.templateId).then(data => {
             commit('setUnassignedCourses', data)

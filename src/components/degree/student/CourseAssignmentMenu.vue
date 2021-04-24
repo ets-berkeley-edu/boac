@@ -13,6 +13,15 @@
       <font-awesome icon="grip-vertical" />
     </template>
     <b-dropdown-item
+      v-if="course.categoryId"
+      id="`assign-course-to-option-null`"
+      link-class="font-size-15 font-weight-bolder pl-3 text-body text-decoration-none"
+      :value="null"
+      @click="onSelect(null)"
+    >
+      -- Unassign --
+    </b-dropdown-item>
+    <b-dropdown-item
       v-for="option in options"
       :id="`assign-course-to-option-${option.id}`"
       :key="option.id"
@@ -50,32 +59,26 @@ export default {
   },
   data: () => ({
     isSaving: false,
-    options: undefined,
     selectedOption: null
   }),
-  created() {
-    this.refresh()
+  computed: {
+    options() {
+      const options = []
+      this.$_.each(this.$_.cloneDeep(this.categories), category => {
+        options.push(category)
+        this.$_.each(category.courses, course => options.push(course))
+        this.$_.each(category.subcategories, subcategory => {
+          options.push(subcategory)
+          this.$_.each(subcategory.courses, course => options.push(course))
+        })
+      })
+      return options
+    }
   },
   methods: {
     onSelect(category) {
-      this.$announcer.polite(`${category.name} selected for ${this.course.name}`)
-      this.assignCourseToCategory({course: this.course, category}).then(() => {
-        this.refresh()
-      })
-    },
-    refresh() {
-      this.options = []
-      const push = option => {
-        this.options.push(option)
-      }
-      this.$_.each(this.$_.cloneDeep(this.categories), category => {
-        push(category)
-        this.$_.each(category.courses, course => push(course))
-        this.$_.each(category.subcategories, subcategory => {
-          push(subcategory)
-          this.$_.each(subcategory.courses, course => push(course))
-        })
-      })
+      this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
+      this.assignCourseToCategory({course: this.course, category}).then(() => {})
     }
   }
 }
