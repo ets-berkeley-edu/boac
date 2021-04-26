@@ -150,9 +150,14 @@ def get_note_with_topics_count(dept_code=None):
 
 def get_summary_of_boa_notes():
     query = """
-        SELECT author_uid, author_name, author_role, author_dept_codes, sid, subject, created_at, updated_at
-        FROM notes
-        WHERE deleted_at IS NULL
+        SELECT
+          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.sid, n.subject, n.created_at, n.updated_at,
+          string_agg(t.topic, ', ') AS topics
+        FROM notes n
+        LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
+        WHERE n.deleted_at IS NULL
+        GROUP BY
+           n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.sid, n.subject, n.created_at, n.updated_at
         ORDER BY created_at
     """
     tz_utc = tzutc()
@@ -165,6 +170,7 @@ def get_summary_of_boa_notes():
             'author_dept_codes': f"{','.join(row['author_dept_codes'])}",
             'sid': row['sid'],
             'subject': row['subject'],
+            'topics': row['topics'],
             'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
             'updated_at': row['updated_at'].astimezone(tz_utc).isoformat(),
         }
