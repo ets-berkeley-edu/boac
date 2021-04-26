@@ -6,10 +6,10 @@ const $_flatten = categories => {
   let flattened = []
   _.each(categories, category => {
     flattened.push(category)
-    _.each(_.concat(category.courses, category.subcategories), child => {
+    _.each(_.concat(category.courseRequirements, category.subcategories), child => {
       flattened.push(child)
-      if (child.courses) {
-        flattened = _.concat(flattened, child.courses)
+      if (child.courseRequirements) {
+        flattened = _.concat(flattened, child.courseRequirements)
       }
     })
   })

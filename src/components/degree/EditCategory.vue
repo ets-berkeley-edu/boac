@@ -44,7 +44,7 @@
           </span>
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Course'">
+      <div v-if="selectedCategoryType === 'Course Requirement'">
         <div class="font-weight-500 my-2">
           Units
         </div>
@@ -63,7 +63,7 @@
           </span>
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Course' && unitRequirements.length">
+      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length">
         <div class="font-weight-500 my-2">
           Requirement Fulfillment
         </div>
@@ -123,7 +123,7 @@
           </div>
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course'">
+      <div v-if="selectedCategoryType !== 'Course Requirement'">
         <div class="font-weight-500 my-2">
           {{ selectedCategoryType }} Description
         </div>
