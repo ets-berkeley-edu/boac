@@ -18,7 +18,7 @@
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
-            <b-th class="sr-only">Actions</b-th>
+            <b-th v-if="$currentUser.canEditDegreeProgress" class="sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -56,7 +56,7 @@
                 </div>
               </div>
             </td>
-            <td v-if="!student && !isEditing(course)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !student && !isEditing(course)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${course.id}-btn`"

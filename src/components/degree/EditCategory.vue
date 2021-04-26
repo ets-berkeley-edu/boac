@@ -79,7 +79,7 @@
               v-for="(option, index) in unitRequirements"
               :id="`column-${position}-unit-requirement-option-${index}`"
               :key="index"
-              :disabled="$_.includes(selectedUnitRequirements, option)"
+              :disabled="$_.includes($_.map(selectedUnitRequirements, 'id'), option.id)"
               :value="option"
             >
               {{ option.name }}
