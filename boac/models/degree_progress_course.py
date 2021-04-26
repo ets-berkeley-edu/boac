@@ -110,7 +110,7 @@ class DegreeProgressCourse(Base):
         return cls.query.filter_by(sid=sid).all()
 
     @classmethod
-    def get_fulfillments(cls, category_id):
+    def get_fulfilled_by(cls, category_id):
         return cls.query.filter_by(category_id=category_id).all()
 
     @classmethod

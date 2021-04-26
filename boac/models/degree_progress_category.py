@@ -192,16 +192,13 @@ class DegreeProgressCategory(Base):
 
     def to_api_json(self):
         unit_requirements_json = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
-        fulfilled_by = []
-        for c in DegreeProgressCourse.get_fulfillments(self.id):
-            fulfilled_by.append(c.to_api_json())
         return {
             'id': self.id,
             'categoryType': self.category_type,
             'courseUnits': _range_to_string(self.course_units),
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
-            'fulfilledBy': fulfilled_by,
+            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(self.id)],
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,

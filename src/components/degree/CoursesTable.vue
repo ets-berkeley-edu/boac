@@ -26,7 +26,7 @@
             <td v-if="student && hasFulfillments && !isEditing(course)" class="pt-0">
               <CourseAssignmentMenu
                 v-if="inspect(course, 'categoryId')"
-                :course="course"
+                :course="course.fulfilledBy[0]"
                 :student="student"
               />
             </td>
