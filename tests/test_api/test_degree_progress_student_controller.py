@@ -136,7 +136,9 @@ class TestAssignCourse:
 
         course = fulfilled_by[0]
         assert course['name'] == mock_degree_course.display_name
-        assert course['categoryId'] == category.id
+        category_ids = course['categoryIds']
+        assert len(category_ids) == 1
+        assert category_ids[0] == category.id
 
 
 class TestCreateStudentDegreeCheck:
@@ -318,4 +320,3 @@ def _api_assign_course(client, category_id, course, expected_status_code=200):
         content_type='application/json',
     )
     assert response.status_code == expected_status_code
-    return json.loads(response.data)

@@ -58,13 +58,32 @@ def assign_course():
     if not section_id or not sid or not term_id:
         raise BadRequestError('Required parameters not found.')
 
-    course = DegreeProgressCourse.assign_category(
+    DegreeProgressCourse.assign_category(
         category_id=category_id,
         section_id=section_id,
         sid=sid,
         term_id=term_id,
     )
-    return tolerant_jsonify(course.to_api_json())
+    return tolerant_jsonify({'message': f'Category {category_id} added to course {section_id} (term: {term_id})'})
+
+
+@app.route('/api/degree/course/unassign', methods=['POST'])
+@can_edit_degree_progress
+def unassign_course():
+    params = request.get_json()
+    section_id = get_param(params, 'sectionId')
+    sid = get_param(params, 'sid')
+    term_id = get_param(params, 'termId')
+    if not section_id or not sid or not term_id:
+        raise BadRequestError('Required parameters not found.')
+
+    # TODO: When we introduce cloned-courses then we'll need selective un-assignment. I.e., categoryId required.
+    DegreeProgressCourse.unassign_all(
+        section_id=section_id,
+        sid=sid,
+        term_id=term_id,
+    )
+    return tolerant_jsonify({'message': f'Course {section_id} (term: {term_id}) removed from all categories.'})
 
 
 @app.route('/api/degrees/student/<sid>')

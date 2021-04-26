@@ -78,6 +78,15 @@ export function getUnassignedCourses(templateId) {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/${templateId}/courses/unassigned`).then(response => response.data, () => null)
 }
 
+export function unassignCourse(sectionId: number, sid: number, termId: number) {
+  const data = {
+    sectionId,
+    sid,
+    termId
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/unassign`, data).then(response => response.data, () => null)
+}
+
 export function updateCourse(
   sectionId: number,
   sid: string,

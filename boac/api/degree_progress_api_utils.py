@@ -130,7 +130,7 @@ def lazy_load_unassigned_courses(degree_check):
                         )
                         degree_progress_courses[key] = course
                         unassigned_courses.append(course)
-                elif not existing.category_id:
+                elif not existing.categories:
                     unassigned_courses.append(existing)
     return unassigned_courses
 

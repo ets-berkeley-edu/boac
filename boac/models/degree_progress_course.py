@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import is_int
 from boac.models.base import Base
+from boac.models.db_relationships import DegreeProgressCategoryCourse
 from dateutil.tz import tzutc
 
 
@@ -36,11 +37,15 @@ class DegreeProgressCourse(Base):
     section_id = db.Column(db.Integer, nullable=False, primary_key=True)
     sid = db.Column(db.String(80), nullable=False, primary_key=True)
     term_id = db.Column(db.Integer, nullable=False, primary_key=True)
-    category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'), nullable=True)
     display_name = db.Column(db.String(255), nullable=False)
     grade = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
     units = db.Column(db.Integer, nullable=False)
+    categories = db.relationship(
+        'DegreeProgressCategoryCourse',
+        back_populates='course',
+        lazy=True,
+    )
 
     def __init__(
             self,
@@ -50,10 +55,8 @@ class DegreeProgressCourse(Base):
             sid,
             term_id,
             units,
-            category_id=None,
             note=None,
     ):
-        self.category_id = category_id
         self.display_name = display_name
         self.grade = grade
         self.note = note
@@ -64,7 +67,6 @@ class DegreeProgressCourse(Base):
 
     def __repr__(self):
         return f"""<DegreeProgressCourse
-            category_id={self.category_id},
             display_name={self.display_name},
             grade={self.grade},
             note={self.note},
@@ -75,10 +77,7 @@ class DegreeProgressCourse(Base):
 
     @classmethod
     def assign_category(cls, category_id, section_id, sid, term_id):
-        course = cls.query.filter_by(section_id=section_id, sid=sid, term_id=term_id).first()
-        course.category_id = category_id
-        std_commit()
-        return course
+        DegreeProgressCategoryCourse.create(category_id=category_id, section_id=section_id, sid=sid, term_id=term_id)
 
     @classmethod
     def create(
@@ -89,11 +88,9 @@ class DegreeProgressCourse(Base):
             sid,
             term_id,
             units,
-            category_id=None,
             note=None,
     ):
         course = cls(
-            category_id=category_id,
             display_name=display_name,
             grade=grade,
             note=note,
@@ -110,8 +107,8 @@ class DegreeProgressCourse(Base):
         return cls.query.filter_by(sid=sid).all()
 
     @classmethod
-    def get_fulfilled_by(cls, category_id):
-        return cls.query.filter_by(category_id=category_id).all()
+    def unassign_all(cls, section_id, sid, term_id):
+        DegreeProgressCategoryCourse.delete_all(section_id=section_id, sid=sid, term_id=term_id)
 
     @classmethod
     def update(
@@ -129,12 +126,11 @@ class DegreeProgressCourse(Base):
         return course
 
     def to_api_json(self):
-        # Note: The 'id' property allows reuse of front-end components.
         return {
-            'categoryId': self.category_id,
+            'categoryIds': [c.category.id for c in self.categories],
             'createdAt': _isoformat(self.created_at),
             'grade': self.grade,
-            'id': f'{self.term_id}-{self.section_id}-{self.sid}',
+            'id': f'{self.term_id}-{self.section_id}-{self.sid}',  # 'id' property allows reuse of front-end components.
             'name': self.display_name,
             'note': self.note,
             'sectionId': self.section_id,

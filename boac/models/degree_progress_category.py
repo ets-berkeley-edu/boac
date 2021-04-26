@@ -25,7 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
-from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
@@ -52,6 +51,11 @@ class DegreeProgressCategory(Base):
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     position = db.Column(db.Integer, nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
+    courses = db.relationship(
+        'DegreeProgressCategoryCourse',
+        back_populates='category',
+        lazy=True,
+    )
     unit_requirements = db.relationship(
         DegreeProgressCourseUnitRequirement.__name__,
         back_populates='category',
@@ -198,7 +202,7 @@ class DegreeProgressCategory(Base):
             'courseUnits': _range_to_string(self.course_units),
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
-            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(self.id)],
+            'fulfilledBy': [c.course.to_api_json() for c in self.courses],
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,

@@ -25,7 +25,7 @@
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
             <td v-if="student && hasFulfillments && !isEditing(course)" class="pt-0">
               <CourseAssignmentMenu
-                v-if="inspect(course, 'categoryId')"
+                v-if="inspect(course, 'categoryIds')"
                 :course="course.fulfilledBy[0]"
                 :student="student"
               />
@@ -158,7 +158,7 @@ export default {
   }),
   created() {
     this.hasFulfillments = !!this.$_.find(this.courses, course => {
-      return this.inspect(course, 'categoryId')
+      return this.inspect(course, 'categoryIds')
     })
   },
   methods: {

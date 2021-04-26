@@ -13,7 +13,7 @@
       <font-awesome icon="grip-vertical" />
     </template>
     <b-dropdown-item
-      v-if="course.categoryId"
+      v-if="$_.size(course.categoryIds)"
       id="`assign-course-to-option-null`"
       link-class="font-size-15 font-weight-bolder pl-3 text-body text-decoration-none"
       :value="null"
@@ -77,8 +77,15 @@ export default {
   },
   methods: {
     onSelect(category) {
-      this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
-      this.assignCourseToCategory({course: this.course, category}).then(() => {})
+      if (category) {
+        this.assignCourse({course: this.course, categoryId: category.id}).then(() => {
+          this.$announcer.polite(`${category.name} selected for ${this.course.name}`)
+        })
+      } else {
+        this.unassignCourse(this.course).then(() => {
+          this.$announcer.polite('Course unassigned')
+        })
+      }
     }
   }
 }

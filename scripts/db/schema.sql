@@ -349,6 +349,19 @@ CREATE INDEX cohort_filters_owner_id_idx ON cohort_filters USING btree (owner_id
 
 --
 
+CREATE TABLE degree_progress_category_courses (
+  category_id INTEGER NOT NULL,
+  section_id INTEGER NOT NULL,
+  sid VARCHAR(80) NOT NULL,
+  term_id INTEGER NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+ALTER TABLE degree_progress_category_courses OWNER TO boac;
+ALTER TABLE ONLY degree_progress_category_courses
+    ADD CONSTRAINT degree_progress_category_courses_pkey PRIMARY KEY (category_id, section_id, sid, term_id);
+
+--
+
 CREATE TABLE degree_progress_course_unit_requirements (
   category_id INTEGER,
   unit_requirement_id INTEGER
@@ -428,7 +441,6 @@ CREATE TABLE degree_progress_courses (
   section_id INTEGER NOT NULL,
   sid VARCHAR(80) NOT NULL,
   term_id INTEGER NOT NULL,
-  category_id INTEGER,
   grade VARCHAR(50) NOT NULL,
   display_name character varying(255) NOT NULL,
   note text,
@@ -955,18 +967,21 @@ ALTER TABLE ONLY cohort_filters
 
 --
 
+ALTER TABLE ONLY degree_progress_category_courses
+  ADD CONSTRAINT degree_progress_category_courses_category_id_fkey
+  FOREIGN KEY (category_id) REFERENCES degree_progress_categories(id) ON DELETE CASCADE;
+ALTER TABLE ONLY degree_progress_category_courses
+  ADD CONSTRAINT degree_progress_category_courses_course_id_fkey
+  FOREIGN KEY (section_id, sid, term_id) REFERENCES degree_progress_courses(section_id, sid, term_id) ON DELETE CASCADE;
+
+--
+
 ALTER TABLE ONLY degree_progress_course_unit_requirements
     ADD CONSTRAINT degree_progress_course_unit_reqts_category_id_fkey
     FOREIGN KEY (category_id) REFERENCES degree_progress_categories(id) ON DELETE CASCADE;
 ALTER TABLE ONLY degree_progress_course_unit_requirements
     ADD CONSTRAINT degree_progress_course_unit_reqts_unit_requirement_id_fkey
     FOREIGN KEY (unit_requirement_id) REFERENCES degree_progress_unit_requirements(id) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY degree_progress_courses
-    ADD CONSTRAINT degree_progress_courses_category_id_fkey
-    FOREIGN KEY (category_id) REFERENCES degree_progress_categories(id) ON DELETE CASCADE;
 
 --
 

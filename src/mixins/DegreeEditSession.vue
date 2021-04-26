@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     ...mapActions('degreeEditSession', [
-      'assignCourseToCategory',
+      'assignCourse',
       'createCategory',
       'createUnitRequirement',
       'deleteCategory',
@@ -47,6 +47,7 @@ export default {
       'refreshUnassignedCourses',
       'setDisableButtons',
       'setEditMode',
+      'unassignCourse',
       'updateCategory',
       'updateNote',
       'updateUnitRequirement'

@@ -5,7 +5,9 @@ import {
   createDegreeCategory,
   deleteDegreeCategory,
   deleteUnitRequirement,
-  getDegreeTemplate, getUnassignedCourses,
+  getDegreeTemplate,
+  getUnassignedCourses,
+  unassignCourse,
   updateDegreeCategory,
   updateDegreeNote,
   updateUnitRequirement
@@ -88,9 +90,8 @@ const mutations = {
 }
 
 const actions = {
-  assignCourseToCategory: ({commit, state}, {course, category}) => {
+  assignCourse: ({commit, state}, {course, categoryId}) => {
     return new Promise<void>(resolve => {
-      const categoryId = category && category.id
       assignCourse(categoryId, course.sectionId, course.sid, course.termId).then(() => {
           store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
           getUnassignedCourses(state.templateId).then(data => {
@@ -189,6 +190,18 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode),
+  unassignCourse: ({commit, state}, course) => {
+    return new Promise<void>(resolve => {
+      unassignCourse(course.sectionId, course.sid, course.termId).then(() => {
+          store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
+          getUnassignedCourses(state.templateId).then(data => {
+            commit('setUnassignedCourses', data)
+            resolve()
+          })
+        }
+      )
+    })
+  },
   updateNote: ({commit, state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {
