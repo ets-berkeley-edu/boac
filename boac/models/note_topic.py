@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac import db
+from boac import db, std_commit
 from sqlalchemy import and_
 
 
@@ -44,11 +44,14 @@ class NoteTopic(db.Model):
 
     @classmethod
     def create(cls, note, topic, author_uid):
-        return NoteTopic(
+        note_topic = cls(
             note_id=note.id,
             topic=topic,
             author_uid=author_uid,
         )
+        db.session.add(note_topic)
+        std_commit()
+        return note_topic
 
     @classmethod
     def find_by_note_id(cls, note_id):

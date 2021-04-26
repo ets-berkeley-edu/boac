@@ -95,6 +95,7 @@ def get_boa_notes_metadata():
             'author_dept_codes',
             'sid',
             'subject',
+            'topics',
             'created_at',
             'updated_at',
         ],

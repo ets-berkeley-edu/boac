@@ -26,6 +26,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 import json
 
+from boac import db, std_commit
+from boac.models.note import Note
+from boac.models.note_topic import NoteTopic
+
 admin_uid = '2040'
 asc_director_uid = '90412'
 l_s_advisor_uid = '188242'
@@ -171,14 +175,39 @@ class TestBoaNotesMetadataReport:
         fake_auth.login(l_s_advisor_uid)
         self._api_notes_report(client, expected_status_code=401)
 
-    def test_admin(self, client, fake_auth, mock_advising_note):
+    def test_admin(self, client, fake_auth):
         """Admin user can access BOA notes report."""
+        notes = []
+        topics = []
+        for index in (1, 2):
+            # Verify that both the note with topics and the one without are found in the report.
+            note = Note.create(
+                author_uid=l_s_advisor_uid,
+                author_name=f'author_name {index}',
+                author_role=f'author_role {index}',
+                author_dept_codes=['QCADV'],
+                sid='11667051',
+                subject=f'subject {index}',
+                body=f'body {index}',
+            )
+            if index == 1:
+                for topic in ('Rising', 'and', 'Three Feet High'):
+                    topics.append(NoteTopic.create(note=note, topic=topic, author_uid=admin_uid))
+            notes.append(note)
+        std_commit(allow_test_environment=True)
+
         fake_auth.login(admin_uid)
         response = self._api_notes_report(client)
         assert 'csv' in response.content_type
         csv = str(response.data)
-        assert 'Joni Mitchell' in csv
+        assert 'author_name 1' in csv
+        assert 'author_name 2' in csv
         assert '11667051' in csv
+        assert 'Three Feet High, and, Rising' in csv
+        # Clean up
+        for item in notes + topics:
+            db.session.delete(item)
+        std_commit(allow_test_environment=True)
 
 
 class TestUsersReport:
