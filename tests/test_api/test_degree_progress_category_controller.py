@@ -170,7 +170,7 @@ class TestGetTemplateWithCategory:
         _api_create_category(
             category_type='Course',
             client=client,
-            course_units='2-3',
+            units='2-3',
             name='It\'s a lot of face, a lot of crank air',
             parent_category_id=category['id'],
             position=3,
@@ -188,7 +188,7 @@ class TestGetTemplateWithCategory:
         _api_create_category(
             category_type='Course',
             client=client,
-            course_units='3',
+            units='3',
             name='Sooey and saints at the fair',
             parent_category_id=subcategory['id'],
             position=3,
@@ -207,13 +207,13 @@ class TestGetTemplateWithCategory:
         courses = categories[0]['courses']
         assert len(courses) == 1
         assert courses[0]['name'] == 'It\'s a lot of face, a lot of crank air'
-        assert courses[0]['courseUnits'] == '2-3'
+        assert courses[0]['units'] == '2-3'
 
         lower_courses = subcategories[0]['courses']
         assert len(lower_courses) == 1
         lower_course = lower_courses[0]
         assert lower_course['name'] == 'Sooey and saints at the fair'
-        assert lower_course['courseUnits'] == '3'
+        assert lower_course['units'] == '3'
         unit_requirements = lower_course['unitRequirements']
         assert len(unit_requirements) == 1
         assert unit_requirements[0]['id']
@@ -228,11 +228,11 @@ class TestUpdateDegreeCategory:
             cls,
             category_id,
             client,
-            course_units,
             description,
             name,
             parent_category_id,
-            unit_requirement_ids=[],
+            units,
+            unit_requirement_ids=(),
             expected_status_code=200,
     ):
         response = client.post(
@@ -240,10 +240,10 @@ class TestUpdateDegreeCategory:
             data=json.dumps({
                 'name': name,
                 'categoryId': category_id,
-                'courseUnits': course_units,
                 'description': description,
                 'parentCategoryId': parent_category_id,
                 'unitRequirementIds': unit_requirement_ids,
+                'units': units,
             }),
             content_type='application/json',
         )
@@ -255,11 +255,11 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=1,
             client=client,
-            course_units='3',
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Never Go Back',
             parent_category_id=None,
+            units='3',
         )
 
     def test_unauthorized(self, client, fake_auth):
@@ -268,11 +268,11 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=1,
             client=client,
-            course_units='3',
             description='Vampire Can Mating Oven',
             expected_status_code=401,
             name='Seven Languages',
             parent_category_id=None,
+            units='3',
         )
 
     def test_update_category(self, client, fake_auth, mock_template):
@@ -326,11 +326,11 @@ class TestUpdateDegreeCategory:
         self._api_update_category(
             category_id=target_subcategory_id,
             client=client,
-            course_units='3',
             description=None,
             name=name,
             parent_category_id=new_parent_category_id,
             unit_requirement_ids=[new_unit_requirement.id, preserve_me.id],
+            units='3',
         )
         std_commit(allow_test_environment=True)
 
@@ -357,23 +357,23 @@ def _api_create_category(
         name,
         position,
         template_id,
-        course_units=None,
         description=None,
         expected_status_code=200,
         parent_category_id=None,
         unit_requirement_ids=(),
+        units=None,
 ):
     response = client.post(
         '/api/degree/category/create',
         data=json.dumps({
             'categoryType': category_type,
-            'courseUnits': course_units,
             'description': description,
             'name': name,
             'parentCategoryId': parent_category_id,
             'position': position,
             'templateId': template_id,
             'unitRequirementIds': ','.join(str(id_) for id_ in unit_requirement_ids),
+            'units': units,
         }),
         content_type='application/json',
     )

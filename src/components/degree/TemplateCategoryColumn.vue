@@ -71,7 +71,7 @@
       <div v-if="$_.size(category.subcategories)">
         <div
           v-for="subcategory in category.subcategories"
-          :id="`column-${position}-category-${category.id}-subcategories`"
+          :id="`column-${position}-subcategory-${subcategory.id}`"
           :key="subcategory.id"
         >
           <Category

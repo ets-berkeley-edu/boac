@@ -103,23 +103,23 @@ const actions = {
   },
   createCategory: ({commit, state}, {
     categoryType,
-    courseUnits,
     description,
     name,
     parentCategoryId,
     position,
-    unitRequirementIds
+    unitRequirementIds,
+    units
   }) => {
     return new Promise<void>(resolve => {
       createDegreeCategory(
         categoryType,
-        courseUnits,
         description,
         name,
         parentCategoryId,
         position,
         state.templateId,
-        unitRequirementIds
+        unitRequirementIds,
+        units
       ).then(() => {
         store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
           commit('setEditMode', null)
@@ -211,20 +211,20 @@ const actions = {
   },
   updateCategory: ({commit, state}, {
     categoryId,
-    courseUnits,
     description,
     name,
     parentCategoryId,
-    unitRequirementIds
+    unitRequirementIds,
+    units
   }) => {
     return new Promise<void>(resolve => {
       updateDegreeCategory(
         categoryId,
-        courseUnits,
         description,
         name,
         parentCategoryId,
-        unitRequirementIds
+        unitRequirementIds,
+        units
       ).then(() => {
         store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
           commit('setEditMode', null)

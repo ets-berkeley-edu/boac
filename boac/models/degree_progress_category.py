@@ -195,7 +195,6 @@ class DegreeProgressCategory(Base):
         return {
             'id': self.id,
             'categoryType': self.category_type,
-            'courseUnits': _range_to_string(self.course_units),
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
             'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(self.id)],
@@ -203,6 +202,7 @@ class DegreeProgressCategory(Base):
             'parentCategoryId': self.parent_category_id,
             'position': self.position,
             'templateId': self.template_id,
+            'units': _range_to_string(self.course_units),
             'unitRequirements': unit_requirements_json,
             'updatedAt': _isoformat(self.updated_at),
         }

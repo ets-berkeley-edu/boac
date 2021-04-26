@@ -21,23 +21,23 @@ export function cloneDegreeTemplate(templateId: number, name: string) {
 
 export function createDegreeCategory(
   categoryType: string,
-  courseUnits: number,
   description: string,
   name: string,
   parentCategoryId: number,
   position: number,
   templateId: number,
-  unitRequirementIds: number[]
+  unitRequirementIds: number[],
+  units: number
 ) {
   const data = {
     categoryType,
-    courseUnits,
     description,
     name,
     parentCategoryId,
     position,
     templateId,
-    unitRequirementIds
+    unitRequirementIds,
+    units
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/create`, data).then(response => response.data, () => null)
 }
@@ -97,18 +97,18 @@ export function updateCourse(
 
 export function updateDegreeCategory(
   categoryId: number,
-  courseUnits: number,
   description: string,
   name: string,
   parentCategoryId: number,
-  unitRequirementIds: number[]
+  unitRequirementIds: number[],
+  units: number
 ) {
   const data = {
-    courseUnits,
     description,
     name,
     parentCategoryId,
-    unitRequirementIds
+    unitRequirementIds,
+    units
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/update`, data).then(response => response.data, () => null)
 }

@@ -50,15 +50,15 @@
         </div>
         <div>
           <b-form-input
-            :id="`column-${position}-course-units-input`"
-            v-model="courseUnits"
-            class="course-units-input"
+            :id="`column-${position}-units-input`"
+            v-model="units"
+            class="units-input"
             :disabled="isSaving"
             maxlength="3"
             trim
             @keypress.enter="create"
           />
-          <span v-if="!isValidCourseUnits" class="has-error faint-text font-size-12">
+          <span v-if="!isValidUnits" class="has-error faint-text font-size-12">
             Number or numerical range required
           </span>
         </div>
@@ -230,12 +230,12 @@ export default {
         || !this.nameInput
         || !this.selectedCategoryType
         || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
-        || !this.isValidCourseUnits
+        || !this.isValidUnits
     },
-    isValidCourseUnits() {
-      return this.$_.isEmpty(this.courseUnits)
-        || /^\d-\d$/.test(this.courseUnits)
-        || (/^\d+$/.test(this.courseUnits) && this.toInt(this.courseUnits) > 0)
+    isValidUnits() {
+      return this.$_.isEmpty(this.units)
+        || /^\d-\d$/.test(this.units)
+        || (/^\d+$/.test(this.units) && this.toInt(this.units) > 0)
     },
     withTypeCategory() {
       return this.findCategoriesByTypes(['Category'], this.position)
@@ -245,7 +245,7 @@ export default {
     }
   },
   data: () => ({
-    courseUnits: undefined,
+    units: undefined,
     descriptionText: undefined,
     isSaving: false,
     nameInput: '',
@@ -256,7 +256,7 @@ export default {
   }),
   created() {
     if (this.existingCategory) {
-      this.courseUnits = this.existingCategory.courseUnits
+      this.units = this.existingCategory.units
       this.descriptionText = this.existingCategory.description
       this.nameInput = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
@@ -277,12 +277,12 @@ export default {
         this.isSaving = true
         this.createCategory({
           categoryType: this.selectedCategoryType,
-          courseUnits: this.courseUnits,
           description: this.descriptionText,
           name: this.nameInput,
           position: this.position,
           parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
+          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+          units: this.units
         }).then(() => {
           this.$announcer.polite(`${this.selectedCategoryType} created`)
           this.afterSave()
@@ -319,11 +319,11 @@ export default {
       this.isSaving = true
       this.updateCategory({
         categoryId: this.existingCategory.id,
-        courseUnits: this.courseUnits,
         description: this.descriptionText,
         name: this.nameInput,
         parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
-        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id')
+        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+        units: this.units
       }).then(() => {
         this.$announcer.polite(`${this.selectedCategoryType} created`)
         this.afterSave()
@@ -334,7 +334,7 @@ export default {
 </script>
 
 <style scoped>
-.course-units-input {
+.units-input {
   max-width: 3.25rem;
 }
 .pill-unit-requirement {

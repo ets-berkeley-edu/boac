@@ -37,7 +37,7 @@ from flask_cors import cross_origin
 def create_category():
     params = request.get_json()
     category_type = get_param(params, 'categoryType')
-    course_units = get_param(params, 'courseUnits')
+    course_units = get_param(params, 'units')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
@@ -92,7 +92,7 @@ def delete_degree_category(category_id):
 @can_edit_degree_progress
 def update_category(category_id):
     params = request.get_json()
-    course_units = get_param(params, 'courseUnits')
+    course_units = get_param(params, 'units')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')

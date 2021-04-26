@@ -38,7 +38,7 @@
             </td>
             <td
               v-if="!isEditing(course)"
-              class="float-right font-size-14 pr-2 table-cell-units"
+              class="float-right font-size-14 pr-2 table-cell-units text-nowrap"
             >
               <span class="font-size-14">{{ inspect(course, 'units') || '&mdash;' }}</span>
             </td>

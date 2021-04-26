@@ -70,7 +70,7 @@ def clone_degree_template(template_id, name=None, sid=None):
             name=category_['name'],
             position=category_['position'],
             template_id=clone.id,
-            course_units=category_['courseUnits'],
+            course_units=category_['units'],
             description=category_['description'],
             parent_category_id=parent_id,
             unit_requirement_ids=unit_requirement_ids,
