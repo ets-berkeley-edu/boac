@@ -1,21 +1,21 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
-    <h1 id="page-header" class="page-section-header pl-1">
+    <h1 id="page-header" class="page-section-header">
       Managing Degree Checks
     </h1>
-    <div class="pb-3">
+    <div class="pb-3 w-10">
       <router-link
         v-if="$currentUser.canEditDegreeProgress"
         id="degree-check-create-link"
         class="w-25"
         to="/degree/new"
       >
-        <div class="align-items-center d-flex justify-content-between">
-          <div class="pr-2 text-nowrap">
+        <div class="align-items-center d-inline-flex flex-nowrap">
+          <div class="order-2 text-nowrap">
             Create new degree check
           </div>
-          <div>
+          <div class="order-1 pr-2">
             <font-awesome icon="plus" />
           </div>
         </div>

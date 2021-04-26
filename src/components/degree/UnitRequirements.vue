@@ -59,11 +59,12 @@
             </template>
           </b-table-lite>
         </div>
-        <EditUnitRequirement
-          v-if="editMode"
-          :index="indexOfSelected"
-          :unit-requirement="unitRequirements[indexOfSelected]"
-        />
+        <div v-if="editMode" class="mb-3">
+          <EditUnitRequirement
+            :index="indexOfSelected"
+            :unit-requirement="unitRequirements[indexOfSelected]"
+          />
+        </div>
       </b-col>
     </b-row>
     <AreYouSureModal
