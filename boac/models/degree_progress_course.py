@@ -33,14 +33,23 @@ from dateutil.tz import tzutc
 class DegreeProgressCourse(Base):
     __tablename__ = 'degree_progress_courses'
 
-    section_id = db.Column(db.Integer, nullable=False, primary_key=True)
-    sid = db.Column(db.String(80), nullable=False, primary_key=True)
-    term_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'), nullable=True)
     display_name = db.Column(db.String(255), nullable=False)
     grade = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
+    section_id = db.Column(db.Integer, nullable=False)
+    sid = db.Column(db.String(80), nullable=False)
+    term_id = db.Column(db.Integer, nullable=False)
     units = db.Column(db.Integer, nullable=False)
+
+    __table_args__ = (db.UniqueConstraint(
+        'category_id',
+        'section_id',
+        'sid',
+        'term_id',
+        name='degree_progress_courses_category_id_course_unique_constraint',
+    ),)
 
     def __init__(
             self,
@@ -63,7 +72,7 @@ class DegreeProgressCourse(Base):
         self.units = units
 
     def __repr__(self):
-        return f"""<DegreeProgressCourse
+        return f"""<DegreeProgressCourse id={self.id},
             category_id={self.category_id},
             display_name={self.display_name},
             grade={self.grade},
@@ -74,8 +83,8 @@ class DegreeProgressCourse(Base):
             units={self.units},>"""
 
     @classmethod
-    def assign_category(cls, category_id, section_id, sid, term_id):
-        course = cls.query.filter_by(section_id=section_id, sid=sid, term_id=term_id).first()
+    def assign_category(cls, category_id, course_id):
+        course = cls.query.filter_by(id=course_id).first()
         course.category_id = category_id
         std_commit()
         return course
@@ -114,15 +123,8 @@ class DegreeProgressCourse(Base):
         return cls.query.filter_by(category_id=category_id).all()
 
     @classmethod
-    def update(
-            cls,
-            note,
-            section_id,
-            sid,
-            term_id,
-            units,
-    ):
-        course = cls.query.filter_by(section_id=section_id, sid=sid, term_id=term_id).first()
+    def update(cls, course_id, note, units):
+        course = cls.query.filter_by(id=course_id).first()
         course.units = units
         course.note = note
         std_commit()
@@ -134,7 +136,7 @@ class DegreeProgressCourse(Base):
             'categoryId': self.category_id,
             'createdAt': _isoformat(self.created_at),
             'grade': self.grade,
-            'id': f'{self.term_id}-{self.section_id}-{self.sid}',
+            'id': self.id,
             'name': self.display_name,
             'note': self.note,
             'sectionId': self.section_id,

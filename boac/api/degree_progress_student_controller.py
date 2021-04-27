@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.degree_progress_api_utils import clone_degree_template, lazy_load_unassigned_courses
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
@@ -42,28 +42,15 @@ def create_degree_check(sid):
     template_id = get_param(params, 'templateId')
     if not template_id or not is_int(sid):
         raise BadRequestError("Missing parameters: sid and templateId are required.'")
-
-    degree_check = clone_degree_template(template_id=template_id, sid=sid)
-    return tolerant_jsonify(degree_check.to_api_json())
+    return tolerant_jsonify(clone_degree_template(template_id=template_id, sid=sid).to_api_json())
 
 
-@app.route('/api/degree/course/assign', methods=['POST'])
+@app.route('/api/degree/course/<course_id>/assign', methods=['POST'])
 @can_edit_degree_progress
-def assign_course():
+def assign_course(course_id):
     params = request.get_json()
     category_id = get_param(params, 'categoryId')
-    section_id = get_param(params, 'sectionId')
-    sid = get_param(params, 'sid')
-    term_id = get_param(params, 'termId')
-    if not section_id or not sid or not term_id:
-        raise BadRequestError('Required parameters not found.')
-
-    course = DegreeProgressCourse.assign_category(
-        category_id=category_id,
-        section_id=section_id,
-        sid=sid,
-        term_id=term_id,
-    )
+    course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course_id)
     return tolerant_jsonify(course.to_api_json())
 
 
@@ -77,30 +64,22 @@ def get_degree_checks(sid):
 @can_read_degree_progress
 def get_unassigned_courses(degree_check_id):
     degree_check = DegreeProgressTemplate.find_by_id(degree_check_id)
-    courses = lazy_load_unassigned_courses(degree_check)
-    return tolerant_jsonify([c.to_api_json() for c in courses])
+    if degree_check:
+        courses = lazy_load_unassigned_courses(degree_check)
+        return tolerant_jsonify([c.to_api_json() for c in courses])
+    else:
+        raise ResourceNotFoundError(f'No degree check found with id={degree_check_id}.')
 
 
-@app.route('/api/degree/course/update', methods=['POST'])
+@app.route('/api/degree/course/<course_id>/update', methods=['POST'])
 @can_edit_degree_progress
-def update_course():
+def update_course(course_id):
     params = request.get_json()
     note = get_param(params, 'note')
-    section_id = get_param(params, 'sectionId')
-    sid = get_param(params, 'sid')
-    term_id = get_param(params, 'termId')
     units = get_param(params, 'units')
-    if not section_id or not sid or not term_id or not units:
-        raise BadRequestError("One or more required parameters not found.'")
-
-    degree_check = DegreeProgressCourse.update(
-        note=note,
-        section_id=section_id,
-        sid=sid,
-        term_id=term_id,
-        units=units,
-    )
-    return tolerant_jsonify(degree_check.to_api_json())
+    if not units:
+        raise BadRequestError("The required 'units' parameter is missing.'")
+    return tolerant_jsonify(DegreeProgressCourse.update(course_id=course_id, note=note, units=units).to_api_json())
 
 
 @app.route('/api/degree/<degree_check_id>/note', methods=['POST'])

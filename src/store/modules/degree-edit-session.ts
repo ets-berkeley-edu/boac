@@ -91,7 +91,7 @@ const actions = {
   assignCourseToCategory: ({commit, state}, {course, category}) => {
     return new Promise<void>(resolve => {
       const categoryId = category && category.id
-      assignCourse(categoryId, course.sectionId, course.sid, course.termId).then(() => {
+      assignCourse(categoryId, course.id).then(() => {
           store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
           getUnassignedCourses(state.templateId).then(data => {
             commit('setUnassignedCourses', data)
