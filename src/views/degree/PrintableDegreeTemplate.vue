@@ -2,17 +2,46 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div v-if="!loading">
-      <b-container fluid>
-        <b-row>
-          <b-col class="pl-0">
-            <b-row>
-              Student Information
-            </b-row>
+      <!-- TO DO: Create IDs for necessary elements -->
+      <b-container class="pr-3" fluid>
+        <b-row no-gutters>
+          <b-col v-if="student" id="student-degree-info" class="font-size-12">
+            <h1 class="font-size-14 font-weight-bold"> {{ student.name }} </h1>
+
+            <div class="font-weight-bold">SID {{ student.sid }}</div>
+            <div class="font-weight-bold">{{ student.sisProfile.level.description }}</div>
+            <div class="text-secondary">{{ student.sisProfile.termsInAttendance }} Terms in Attendance</div>
+            <div class="text-secondary">Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
+
+            <div class="pt-2">
+              <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
+              <hr class="subsection-divider my-1" />
+
+              <!-- TO DO: Add support for undeclared students (intendedMajor) -->
+              <div
+                v-for="plan in student.sisProfile.plans"
+                :key="plan.description"
+              >
+                <div class="font-weight-bold">{{ plan.description }}</div>
+                <div class="text-secondary">{{ plan.program }}</div>
+              </div>
+            </div>
+            <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
+              <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
+              <hr class="subsection-divider my-1" />
+              <div
+                v-for="minorPlan of student.sisProfile.plansMinor"
+                :key="minorPlan.description"
+              >
+                <div class="font-weight-bold">{{ minorPlan.description }}</div>
+                <div class="text-secondary">{{ minorPlan.program }}</div>
+              </div>
+            </div>
           </b-col>
           <b-col />
-          <b-col>
+          <b-col id="degree-unit-requirements-info">
             <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
-            <h1 class="print-degree-name pt-2">{{ template.name }}</h1>
+            <h1 class="font-size-12 pt-2">{{ template.name }}</h1>
 
             <h4 class="print-page-section-header-sub mb-0">Unit Requirements</h4>
             <div v-if="$_.isEmpty(template.unitRequirements)" class="no-data-text">
@@ -28,12 +57,21 @@
               small
             >
             </b-table>
-            <hr class="subsection-divider" />
+            <hr class="subsection-divider mb-0" />
+            <div class="font-weight-bold pt-1">
+              <!-- TO DO: Figure out how to position this correctly -->
+              <span class="float-left">
+                Total Units:
+              </span>
+              <span class="pl-4">
+                {{ totalUnits }}
+              </span>
+            </div>
           </b-col>
         </b-row>
       </b-container>
-      <hr class="divider" />
-      <b-container class="px-0 mx-0" :fluid="true">
+      <hr class="divider ml-3 mr-3" />
+      <b-container fluid>
         <b-row>
           <b-col
             v-for="position in [1, 2, 3]"
@@ -50,11 +88,10 @@
                     v-if="category.id"
                     :category="category"
                     :position="position"
-                    class="print-degree-category"
                   />
-                  <div v-if="$_.size(category.courses)" class="pl-1 py-2">
+                  <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
                     <CoursesTable
-                      :courses="category.courses"
+                      :courses="category.courseRequirements"
                       :position="position"
                       class="print-degree-courses"
                     />
@@ -67,9 +104,9 @@
                         :position="position"
                         class="print-degree-subcategory"
                       />
-                      <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
+                      <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
                         <CoursesTable
-                          :courses="subcategory.courses"
+                          :courses="subcategory.courseRequirements"
                           :position="position"
                           class="print-degree-courses"
                         />
@@ -88,13 +125,14 @@
 
 
 <script>
+import Category from '@/components/degree/Category.vue'
 import Context from '@/mixins/Context'
+import CoursesTable from '@/components/degree/CoursesTable.vue'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getDegreeTemplate} from '@/api/degree'
-import Category from '@/components/degree/Category.vue'
-import CoursesTable from '@/components/degree/CoursesTable.vue'
+import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'PrintableDegreeTemplate',
@@ -109,7 +147,14 @@ export default {
 
     getDegreeTemplate(id).then(data => {
       this.template = data
-      this.loaded(`Printable ${this.template.name} has loaded`)
+      if (data.sid) {
+        getStudentBySid(data.sid).then(studentData => {
+          this.student = studentData
+          this.loaded(`Print ${this.template.name} degree check for ${this.student.name} has loaded`)
+        })
+      } else {
+        this.loaded(`Print ${this.template.name} degree check has loaded`)
+      }
     })
   },
   data: () => ({
@@ -126,11 +171,19 @@ export default {
       },
       {
         key: 'completedUnits',
-        label: 'Completed',
+        label: 'Completed'
       }
     ],
     template: undefined,
+    student: undefined
   }),
+  computed: {
+    totalUnits() {
+      // TO DO: gather completed units and subtract to get actual total units
+      return this.$_.map(this.template.unitRequirements, 'minUnits')
+        .reduce((accumulator, val) => accumulator + val)
+    }
+  }
 }
 </script>
 
@@ -140,9 +193,6 @@ export default {
   border: none;
   color: #999;
   height: 3px;
-}
-.print-degree-name {
-  font-size: 12px;
 }
 .print-page-section-header-sub {
   font-size: 8px;
@@ -155,8 +205,7 @@ export default {
   font-size: 8px;
 }
 .subsection-divider {
-  background-color: #999;
-  border: none;
+  background-color: #999999;
   color: #999;
   height: 1px;
 }
