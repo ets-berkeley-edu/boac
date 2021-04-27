@@ -122,13 +122,3 @@ export default {
 }
 </script>
 
-<style>
-.degree-progress-category {
-  padding-top: 1px;
-  font-weight: 500;
-}
-.degree-progress-subcategory {
-  font-size: 14px;
-  padding-top: 0px;
-}
-</style>
