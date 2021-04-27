@@ -222,6 +222,7 @@ DROP TABLE IF EXISTS public.alerts;
 DROP TABLE IF EXISTS public.alert_views;
 DROP TABLE IF EXISTS public.alembic_version;
 DROP TABLE IF EXISTS public.degree_progress_courses;
+DROP SEQUENCE IF EXISTS public.degree_progress_courses_id_seq;
 DROP TABLE IF EXISTS public.degree_progress_categories;
 DROP SEQUENCE IF EXISTS public.degree_progress_categories_id_seq;
 DROP TABLE IF EXISTS public.degree_progress_course_unit_requirements;

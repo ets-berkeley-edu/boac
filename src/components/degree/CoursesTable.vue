@@ -3,10 +3,7 @@
     <div v-if="$_.isEmpty(courses)" class="no-data-text">
       No courses
     </div>
-    <div
-      v-if="!$_.isEmpty(courses)"
-      :id="`column-${position}-course-table-${courses[0].parentCategoryId}`"
-    >
+    <div v-if="!$_.isEmpty(courses)">
       <b-table-simple
         :id="`column-${position}-courses-of-category-${courses[0].parentCategoryId}`"
         borderless
@@ -23,10 +20,10 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
-            <td v-if="student && hasFulfillments && !isEditing(course)" class="pt-0">
+            <td v-if="student && hasFulfillments && !isEditing(course) && (!course.fulfilledBy || course.fulfilledBy.length)" class="pt-0">
               <CourseAssignmentMenu
                 v-if="inspect(course, 'categoryId')"
-                :course="course.fulfilledBy[0]"
+                :course="course.fulfilledBy ? course.fulfilledBy[0] : course"
                 :student="student"
               />
             </td>
@@ -153,13 +150,14 @@ export default {
   },
   data: () => ({
     courseForDelete: undefined,
-    courseForEdit: undefined,
-    hasFulfillments: undefined
+    courseForEdit: undefined
   }),
-  created() {
-    this.hasFulfillments = !!this.$_.find(this.courses, course => {
-      return this.inspect(course, 'categoryId')
-    })
+  computed: {
+    hasFulfillments() {
+      return !!this.$_.find(this.courses, course => {
+        return this.inspect(course, 'categoryId')
+      })
+    }
   },
   methods: {
     afterCancel() {

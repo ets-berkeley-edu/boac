@@ -5,14 +5,8 @@ export function addUnitRequirement(templateId: number, name: string, minUnits: n
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/unit_requirement`, {name, minUnits}).then(response => response.data, () => null)
 }
 
-export function assignCourse(categoryId: number, sectionId: number, sid: number, termId: number) {
-  const data = {
-    categoryId,
-    sectionId,
-    sid,
-    termId
-  }
-  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/assign`, data).then(response => response.data, () => null)
+export function assignCourse(categoryId: number, courseId: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/assign`, {categoryId}).then(response => response.data, () => null)
 }
 
 export function cloneDegreeTemplate(templateId: number, name: string) {
@@ -78,21 +72,8 @@ export function getUnassignedCourses(templateId) {
   return axios.get(`${utils.apiBaseUrl()}/api/degree/${templateId}/courses/unassigned`).then(response => response.data, () => null)
 }
 
-export function updateCourse(
-  sectionId: number,
-  sid: string,
-  termId: number,
-  note: string,
-  units: number
-) {
-  const data = {
-    sectionId,
-    sid,
-    termId,
-    note,
-    units
-  }
-  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/update`, data).then(response => response.data, () => null)
+export function updateCourse(courseId: number, note: string, units: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/update`, {note, units}).then(response => response.data, () => null)
 }
 
 export function updateDegreeCategory(

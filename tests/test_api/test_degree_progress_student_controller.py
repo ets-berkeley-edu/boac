@@ -306,15 +306,9 @@ class TestUpdateDegreeNote:
 
 
 def _api_assign_course(client, category_id, course, expected_status_code=200):
-    data = {
-        'categoryId': category_id,
-        'sectionId': course.section_id,
-        'sid': course.sid,
-        'termId': course.term_id,
-    }
     response = client.post(
-        '/api/degree/course/assign',
-        data=json.dumps(data),
+        f'/api/degree/course/{course.id}/assign',
+        data=json.dumps({'categoryId': category_id}),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code

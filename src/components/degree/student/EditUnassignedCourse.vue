@@ -102,9 +102,7 @@ export default {
       if (!this.disableSaveButton) {
         this.isSaving = true
         updateCourse(
-          this.course.sectionId,
-          this.course.sid,
-          this.course.termId,
+          this.course.id,
           this.note,
           this.units
         ).then(data => {

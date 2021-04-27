@@ -425,20 +425,32 @@ CREATE INDEX degree_progress_categories_id_idx ON degree_progress_categories USI
 --
 
 CREATE TABLE degree_progress_courses (
-  section_id INTEGER NOT NULL,
-  sid VARCHAR(80) NOT NULL,
-  term_id INTEGER NOT NULL,
+  id integer NOT NULL,
   category_id INTEGER,
   grade VARCHAR(50) NOT NULL,
   display_name character varying(255) NOT NULL,
   note text,
+  section_id INTEGER NOT NULL,
+  sid VARCHAR(80) NOT NULL,
+  term_id INTEGER NOT NULL,
   units INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 ALTER TABLE degree_progress_courses OWNER TO boac;
+CREATE SEQUENCE degree_progress_courses_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE degree_progress_courses_id_seq OWNER TO boac;
+ALTER SEQUENCE degree_progress_courses_id_seq OWNED BY degree_progress_courses.id;
+ALTER TABLE ONLY degree_progress_courses ALTER COLUMN id SET DEFAULT nextval('degree_progress_courses_id_seq'::regclass);
 ALTER TABLE ONLY degree_progress_courses
-    ADD CONSTRAINT degree_progress_courses_pkey PRIMARY KEY (section_id, sid, term_id);
+    ADD CONSTRAINT degree_progress_courses_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY degree_progress_courses
+    ADD CONSTRAINT degree_progress_courses_category_id_course_unique_constraint UNIQUE (category_id, section_id, sid, term_id);
 
 --
 
