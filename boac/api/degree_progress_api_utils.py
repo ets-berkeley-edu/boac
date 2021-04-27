@@ -77,11 +77,11 @@ def clone_degree_template(template_id, name=None, sid=None):
         )
     for category in DegreeProgressCategory.get_categories(template_id=template_id):
         c = _create_category(category_=category, parent_id=None)
-        for course in category['courses']:
+        for course in category['courseRequirements']:
             _create_category(category_=course, parent_id=c.id)
         for subcategory in category['subcategories']:
             s = _create_category(category_=subcategory, parent_id=c.id)
-            for course in subcategory['courses']:
+            for course in subcategory['courseRequirements']:
                 _create_category(category_=course, parent_id=s.id)
 
     # TODO: Unit requirements?
