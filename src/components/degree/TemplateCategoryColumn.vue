@@ -60,10 +60,10 @@
           :student="student"
         />
       </div>
-      <div v-if="$_.size(category.courses)" class="pl-1 py-2">
+      <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
-          :courses="category.courses"
+          :courses="category.courseRequirements"
           :position="position"
           :student="student"
         />
@@ -96,10 +96,10 @@
               :student="student"
             />
           </div>
-          <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
+          <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
-              :courses="subcategory.courses"
+              :courses="subcategory.courseRequirements"
               :position="position"
               :student="student"
             />

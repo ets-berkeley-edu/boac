@@ -132,7 +132,7 @@ class TestDeleteCategory:
             template_id=mock_template.id,
         )
         course = _api_create_category(
-            category_type='Course',
+            category_type='Course Requirement',
             client=client,
             name='Blister in the sun',
             parent_category_id=subcategory['id'],
@@ -168,7 +168,7 @@ class TestGetTemplateWithCategory:
             template_id=mock_template.id,
         )
         _api_create_category(
-            category_type='Course',
+            category_type='Course Requirement',
             client=client,
             units='2-3',
             name='It\'s a lot of face, a lot of crank air',
@@ -186,7 +186,7 @@ class TestGetTemplateWithCategory:
         )
         unit_requirement = _create_unit_requirement(name='I am requirement.', template_id=mock_template.id, user=user)
         _api_create_category(
-            category_type='Course',
+            category_type='Course Requirement',
             client=client,
             units='3',
             name='Sooey and saints at the fair',
@@ -204,12 +204,12 @@ class TestGetTemplateWithCategory:
         assert len(subcategories) == 1
         assert subcategories[0]['name'] == 'Pony in the air'
 
-        courses = categories[0]['courses']
+        courses = categories[0]['courseRequirements']
         assert len(courses) == 1
         assert courses[0]['name'] == 'It\'s a lot of face, a lot of crank air'
         assert courses[0]['units'] == '2-3'
 
-        lower_courses = subcategories[0]['courses']
+        lower_courses = subcategories[0]['courseRequirements']
         assert len(lower_courses) == 1
         lower_course = lower_courses[0]
         assert lower_course['name'] == 'Sooey and saints at the fair'

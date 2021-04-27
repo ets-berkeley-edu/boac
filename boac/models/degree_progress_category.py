@@ -35,7 +35,7 @@ from sqlalchemy.sql import asc
 degree_progress_category_type = ENUM(
     'Category',
     'Subcategory',
-    'Course',
+    'Course Requirement',
     name='degree_progress_category_types',
     create_type=False,
 )
@@ -140,10 +140,10 @@ class DegreeProgressCategory(Base):
             api_json = category.to_api_json()
             if category_type == 'Category':
                 # A 'Category' can have both courses and subcategories. A 'Subcategory' can have courses.
-                api_json['courses'] = []
+                api_json['courseRequirements'] = []
                 api_json['subcategories'] = []
             elif category_type == 'Subcategory':
-                api_json['courses'] = []
+                api_json['courseRequirements'] = []
             categories.append(api_json)
 
         categories_by_id = dict((category['id'], category) for category in categories)
@@ -151,7 +151,7 @@ class DegreeProgressCategory(Base):
             parent_category_id = category['parentCategoryId']
             if parent_category_id:
                 parent = categories_by_id[parent_category_id]
-                key = 'subcategories' if category['categoryType'] == 'Subcategory' else 'courses'
+                key = 'subcategories' if category['categoryType'] == 'Subcategory' else 'courseRequirements'
                 parent[key].append(category)
             else:
                 hierarchy.append(category)
