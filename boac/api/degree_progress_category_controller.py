@@ -51,12 +51,12 @@ def create_category():
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
     if category_type == 'Category' and parent_category_id:
         raise BadRequestError('Categories cannot have parents.')
-    if category_type in ('Course Requirement', 'Subcategory') and not parent_category_id:
+    if category_type in ('Course', 'Subcategory') and not parent_category_id:
         raise BadRequestError("The parentCategoryId param is required when categoryType equals 'Subcategory'.")
     if parent_category_id:
         parent = _get_degree_category(parent_category_id)
         parent_type = parent.category_type
-        if parent_type == 'Course Requirement' or (parent_type == 'Subcategory' and category_type == 'Category'):
+        if parent_type == 'Course' or (parent_type == 'Subcategory' and category_type == 'Category'):
             raise BadRequestError(f'Type {category_type} not allowed, based on parent type: {parent_type}.')
         if parent.position != position:
             raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
