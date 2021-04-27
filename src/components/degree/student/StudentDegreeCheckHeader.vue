@@ -88,13 +88,13 @@
         class="d-flex justify-content-end"
       >
         <dl class="d-flex flex-row flex-md-column flex-lg-row">
-          <div class="px-4 pb-3 text-nowrap">
+          <div v-if="noteUpdatedBy" class="px-4 pb-3 text-nowrap">
             <dt class="faint-text font-weight-normal">Advisor:</dt>
             <dd id="degree-note-updated-by">{{ noteUpdatedBy }}</dd>
           </div>
-          <div class="px-4 pb-3 text-nowrap">
+          <div v-if="noteUpdatedAt" class="px-4 pb-3 text-nowrap">
             <dt class="faint-text font-weight-normal">Last edited:</dt>
-            <dd id="degree-note-updated-at">{{ noteUpdatedAt }}</dd>
+            <dd id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}</dd>
           </div>
         </dl>
       </b-col>
@@ -161,7 +161,7 @@ export default {
   }),
   computed: {
     noteUpdatedAt() {
-      return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt)).format('MMM D, YYYY')
+      return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt))
     }
   },
   created() {
@@ -172,23 +172,27 @@ export default {
       const name = data.name || `${data.uid} (UID)`
       this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.$moment(updatedAtDate).format('MMM D, YYYY')}`
     })
-    if (this.degreeNote) {
-      getCalnetProfileByUserId(this.degreeNote.updatedBy).then(data => {
-        this.noteUpdatedBy = data.name || `${data.uid} (UID)`
-      })
-      this.noteBody = this.$_.get(this.degreeNote, 'body')
-    }
+    this.initNote()
   },
   methods: {
     cancel() {
       this.isEditingNote = false
       this.noteBody = this.$_.get(this.degreeNote, 'body')
     },
+    initNote() {
+      if (this.degreeNote) {
+        getCalnetProfileByUserId(this.degreeNote.updatedBy).then(data => {
+          this.noteUpdatedBy = data.name || `${data.uid} (UID)`
+        })
+        this.noteBody = this.$_.get(this.degreeNote, 'body')
+      }
+      this.isSaving = false
+    },
     saveNote() {
       this.isSaving = true
       this.updateNote(this.noteBody).then(() => {
         this.isEditingNote = false
-        this.isSaving = false
+        this.initNote()
       })
     }
   }
