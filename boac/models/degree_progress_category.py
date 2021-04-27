@@ -191,7 +191,7 @@ class DegreeProgressCategory(Base):
         return cls.find_by_id(category_id=category_id)
 
     def to_api_json(self):
-        unit_requirements_json = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
+        unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'id': self.id,
             'categoryType': self.category_type,
@@ -203,7 +203,7 @@ class DegreeProgressCategory(Base):
             'position': self.position,
             'templateId': self.template_id,
             'units': _range_to_string(self.course_units),
-            'unitRequirements': unit_requirements_json,
+            'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'updatedAt': _isoformat(self.updated_at),
         }
 

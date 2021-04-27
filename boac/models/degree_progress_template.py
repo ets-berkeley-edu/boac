@@ -131,6 +131,7 @@ class DegreeProgressTemplate(Base):
         return template
 
     def to_api_json(self):
+        unit_requirements = [u.to_api_json() for u in self.unit_requirements]
         return {
             'id': self.id,
             'advisorDeptCodes': self.advisor_dept_codes,
@@ -139,7 +140,7 @@ class DegreeProgressTemplate(Base):
             'createdBy': self.created_by,
             'name': self.degree_name,
             'sid': self.student_sid,
-            'unitRequirements': [u.to_api_json() for u in self.unit_requirements],
+            'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
