@@ -135,14 +135,6 @@ export default {
 </script>
 
 <style scoped>
-.degree-progress-category {
-  font-size: 12px;
-  font-weight: bold;
-}
-.degree-progress-subcategory {
-  font-size: 10px;
-  font-weight: bold;
-}
 .divider {
   background-color: #999;
   border: none;
