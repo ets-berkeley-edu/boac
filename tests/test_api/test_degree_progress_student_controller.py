@@ -118,7 +118,7 @@ class TestAssignCourse:
         user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         fake_auth.login(user.uid)
         category = DegreeProgressCategory.create(
-            category_type='Course',
+            category_type='Course Requirement',
             course_units='3',
             name='History of Western Philosophy',
             position=1,

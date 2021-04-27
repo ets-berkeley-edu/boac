@@ -31,7 +31,7 @@
         'text-body text-decoration-none': true,
         'font-size-15 font-weight-bolder pl-3': option.categoryType === 'Category',
         'font-size-14 font-weight-500 pl-3': option.categoryType === 'Subcategory',
-        'font-size-14 pl-4': option.categoryType === 'Course'
+        'font-size-14 pl-4': option.categoryType === 'Course Requirement'
       }"
       :value="option"
       @click="onSelect(option)"
@@ -66,10 +66,10 @@ export default {
       const options = []
       this.$_.each(this.$_.cloneDeep(this.categories), category => {
         options.push(category)
-        this.$_.each(category.courses, course => options.push(course))
+        this.$_.each(category.courseRequirements, r => options.push(r))
         this.$_.each(category.subcategories, subcategory => {
           options.push(subcategory)
-          this.$_.each(subcategory.courses, course => options.push(course))
+          this.$_.each(subcategory.courseRequirements, course => options.push(course))
         })
       })
       return options
