@@ -25,9 +25,9 @@
       v-for="option in options"
       :id="`assign-course-to-option-${option.id}`"
       :key="option.id"
-      :disabled="!!option.fulfilledBy.length"
+      :disabled="!isAvailable(option)"
       :link-class="{
-        'font-weight-lighter': option.fulfilledBy.length,
+        'font-weight-lighter': !isAvailable(option),
         'text-body text-decoration-none': true,
         'font-size-15 font-weight-bolder pl-3': option.categoryType === 'Category',
         'font-size-14 font-weight-500 pl-3': option.categoryType === 'Subcategory',
@@ -76,6 +76,9 @@ export default {
     }
   },
   methods: {
+    isAvailable(option) {
+      return option.categoryType !== 'Course Requirement' || !option.fulfilledBy.length
+    },
     onSelect(category) {
       this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
       this.assignCourseToCategory({course: this.course, category}).then(() => {})

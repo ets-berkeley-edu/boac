@@ -197,7 +197,7 @@ class DegreeProgressCategory(Base):
             'categoryType': self.category_type,
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
-            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(self.id)],
+            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(category_id=self.id)],
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,

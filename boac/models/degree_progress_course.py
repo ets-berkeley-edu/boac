@@ -35,6 +35,7 @@ class DegreeProgressCourse(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'), nullable=True)
+    degree_check_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     display_name = db.Column(db.String(255), nullable=False)
     grade = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
@@ -45,6 +46,7 @@ class DegreeProgressCourse(Base):
 
     __table_args__ = (db.UniqueConstraint(
         'category_id',
+        'degree_check_id',
         'section_id',
         'sid',
         'term_id',
@@ -53,6 +55,7 @@ class DegreeProgressCourse(Base):
 
     def __init__(
             self,
+            degree_check_id,
             display_name,
             grade,
             section_id,
@@ -63,6 +66,7 @@ class DegreeProgressCourse(Base):
             note=None,
     ):
         self.category_id = category_id
+        self.degree_check_id = degree_check_id
         self.display_name = display_name
         self.grade = grade
         self.note = note
@@ -74,6 +78,7 @@ class DegreeProgressCourse(Base):
     def __repr__(self):
         return f"""<DegreeProgressCourse id={self.id},
             category_id={self.category_id},
+            degree_check_id={self.degree_check_id},
             display_name={self.display_name},
             grade={self.grade},
             note={self.note},
@@ -92,6 +97,7 @@ class DegreeProgressCourse(Base):
     @classmethod
     def create(
             cls,
+            degree_check_id,
             display_name,
             grade,
             section_id,
@@ -103,6 +109,7 @@ class DegreeProgressCourse(Base):
     ):
         course = cls(
             category_id=category_id,
+            degree_check_id=degree_check_id,
             display_name=display_name,
             grade=grade,
             note=note,
@@ -115,8 +122,8 @@ class DegreeProgressCourse(Base):
         return course
 
     @classmethod
-    def find_by_sid(cls, sid):
-        return cls.query.filter_by(sid=sid).all()
+    def find_by_sid(cls, degree_check_id, sid):
+        return cls.query.filter_by(degree_check_id=degree_check_id, sid=sid).all()
 
     @classmethod
     def get_fulfilled_by(cls, category_id):
@@ -135,6 +142,7 @@ class DegreeProgressCourse(Base):
         return {
             'categoryId': self.category_id,
             'createdAt': _isoformat(self.created_at),
+            'degreeCheckId': self.degree_check_id,
             'grade': self.grade,
             'id': self.id,
             'name': self.display_name,

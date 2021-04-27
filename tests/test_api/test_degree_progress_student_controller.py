@@ -43,7 +43,14 @@ qcadv_advisor_uid = '53791'
 @pytest.fixture()
 def mock_degree_course():
     marker = datetime.now().timestamp()
+    degree_check = DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
+        degree_name=f'Degree check of {coe_student_sid}',
+        student_sid=coe_student_sid,
+    )
     return DegreeProgressCourse.create(
+        degree_check_id=degree_check.id,
         display_name=f'The Decline of Western Civilization ({marker})',
         grade='B+',
         section_id=1905013,
@@ -67,6 +74,7 @@ def mock_degree_checks():
                 student_sid=coe_student_sid,
             ),
         )
+    std_commit(allow_test_environment=True)
     return degree_checks
 
 
@@ -113,8 +121,9 @@ class TestAssignCourse:
         fake_auth.login(coe_advisor_read_only_uid)
         _api_assign_course(client, category_id=1, course=mock_degree_course, expected_status_code=401)
 
-    def test_create_category(self, client, fake_auth, mock_degree_course, mock_template):
+    def test_create_category(self, client, fake_auth, mock_degree_course):
         """Authorized user can create a degree check."""
+        degree_check_id = mock_degree_course.degree_check_id
         user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         fake_auth.login(user.uid)
         category = DegreeProgressCategory.create(
@@ -122,11 +131,11 @@ class TestAssignCourse:
             course_units='3',
             name='History of Western Philosophy',
             position=1,
-            template_id=mock_template.id,
+            template_id=degree_check_id,
         )
         _api_assign_course(client, category_id=category.id, course=mock_degree_course)
         # Verify
-        api_json = self._api_get_template(client, template_id=mock_template.id)
+        api_json = self._api_get_template(client, template_id=degree_check_id)
         categories_json = api_json['categories']
         assert len(categories_json) == 1
 
