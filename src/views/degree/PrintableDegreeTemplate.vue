@@ -2,13 +2,14 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div v-if="!loading">
-      <b-container>
+      <b-container fluid>
         <b-row>
           <b-col class="pl-0">
             <b-row>
               Student Information
             </b-row>
           </b-col>
+          <b-col />
           <b-col>
             <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
             <h1 class="print-degree-name pt-2">{{ template.name }}</h1>
@@ -32,7 +33,55 @@
         </b-row>
       </b-container>
       <hr class="divider" />
-      <hr />
+      <b-container class="px-0 mx-0" :fluid="true">
+        <b-row>
+          <b-col
+            v-for="position in [1, 2, 3]"
+            :key="position"
+            class="print-degree-progress-column"
+          >
+            <template>
+              <div>
+                <div
+                  v-for="category in $_.filter(template.categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+                  :key="category.id"
+                >
+                  <Category
+                    v-if="category.id"
+                    :category="category"
+                    :position="position"
+                    class="print-degree-category"
+                  />
+                  <div v-if="$_.size(category.courses)" class="pl-1 py-2">
+                    <CoursesTable
+                      :courses="category.courses"
+                      :position="position"
+                      class="print-degree-courses"
+                    />
+                  </div>
+                  <div v-if="$_.size(category.subcategories)">
+                    <div v-for="subcategory in category.subcategories" :key="subcategory.id">
+                      <Category
+                        v-if="subcategory.id"
+                        :category="subcategory"
+                        :position="position"
+                        class="print-degree-subcategory"
+                      />
+                      <div v-if="$_.size(subcategory.courses)" class="pl-1 py-2">
+                        <CoursesTable
+                          :courses="subcategory.courses"
+                          :position="position"
+                          class="print-degree-courses"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </b-col>
+        </b-row>
+      </b-container>
     </div>
   </div>
 </template>
@@ -44,11 +93,15 @@ import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getDegreeTemplate} from '@/api/degree'
+import Category from '@/components/degree/Category.vue'
+import CoursesTable from '@/components/degree/CoursesTable.vue'
 
 export default {
   name: 'PrintableDegreeTemplate',
   components: {
     Spinner,
+    CoursesTable,
+    Category
   },
   mixins: [Context, Loading, Util],
   mounted() {
@@ -81,7 +134,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.degree-progress-category {
+  font-size: 12px;
+  font-weight: bold;
+}
+.degree-progress-subcategory {
+  font-size: 10px;
+  font-weight: bold;
+}
 .divider {
   background-color: #999;
   border: none;
@@ -93,6 +154,19 @@ export default {
 }
 .print-page-section-header-sub {
   font-size: 8px;
+}
+.print-degree-courses > div > table > tbody > tr > td {
+  font-size: 10px;
+  padding: 1px;
+}
+.print-degree-courses > div > table > thead > tr > th {
+  font-size: 8px;
+}
+.subsection-divider {
+  background-color: #999;
+  border: none;
+  color: #999;
+  height: 1px;
 }
 .unofficial-label-pill {
   background-color: #000000;
@@ -108,11 +182,8 @@ export default {
   text-align: center;
   width: auto;
 }
-.subsection-divider {
-  background-color: #999;
-  border: none;
-  color: #999;
-  height: 1px;
+#degree-progress-category-description {
+  font-size: 10px;
 }
 #print-unit-requirements-table > tbody > tr > td {
   padding: .1rem;
@@ -122,5 +193,11 @@ export default {
 }
 #print-unit-requirements-table {
   font-size: 8px;
+}
+button[id*='-delete-'] {
+  display: none;
+}
+button[id*='-edit-'] {
+  display: none;
 }
 </style>
