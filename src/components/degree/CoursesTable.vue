@@ -11,7 +11,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="hasFulfillments"></b-th>
+            <b-th v-if="hasFulfillments"><span class="sr-only">Menu</span></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
@@ -20,12 +20,14 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
-            <td v-if="student && hasFulfillments && !isEditing(course) && (!course.fulfilledBy || course.fulfilledBy.length)" class="pt-0">
-              <CourseAssignmentMenu
-                v-if="inspect(course, 'categoryId')"
-                :course="course.fulfilledBy ? course.fulfilledBy[0] : course"
-                :student="student"
-              />
+            <td v-if="hasFulfillments" class="pt-0">
+              <div v-if="!isEditing(course) && (!isCourseRequirement(course) || course.fulfilledBy.length)">
+                <CourseAssignmentMenu
+                  v-if="inspect(course, 'categoryId')"
+                  :course="isCourseRequirement(course) ? course.fulfilledBy[0] : course"
+                  :student="student"
+                />
+              </div>
             </td>
             <td
               v-if="!isEditing(course)"
@@ -154,7 +156,7 @@ export default {
   }),
   computed: {
     hasFulfillments() {
-      return !!this.$_.find(this.courses, course => {
+      return !!this.student && !!this.$_.find(this.courses, course => {
         return this.inspect(course, 'categoryId')
       })
     }
@@ -201,6 +203,7 @@ export default {
       // TODO: What if multiple category has multiple fulfillments?
       return this.$_.size(course.fulfilledBy) ? course.fulfilledBy[0][key] : course[key]
     },
+    isCourseRequirement: object => object.categoryType === 'Course Requirement',
     isEditing(course) {
       return course.id === this.$_.get(this.courseForEdit, 'id')
     },

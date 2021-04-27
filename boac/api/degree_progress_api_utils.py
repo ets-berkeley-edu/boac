@@ -102,7 +102,7 @@ def lazy_load_unassigned_courses(degree_check):
 
     def _key(section_id_, term_id_):
         return f'{section_id_}_{term_id_}'
-    for course in DegreeProgressCourse.find_by_sid(sid=sid):
+    for course in DegreeProgressCourse.find_by_sid(degree_check_id=degree_check.id, sid=sid):
         degree_progress_courses[_key(course.section_id, course.term_id)] = course
 
     enrollments = data_loch.get_enrollments_for_sid(
@@ -121,6 +121,7 @@ def lazy_load_unassigned_courses(degree_check):
                     units = section['units']
                     if section.get('primary') and grade and units:
                         course = DegreeProgressCourse.create(
+                            degree_check_id=degree_check.id,
                             display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
                             grade=grade,
                             section_id=section_id,

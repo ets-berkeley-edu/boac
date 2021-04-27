@@ -56,6 +56,7 @@ ALTER TABLE IF EXISTS ONLY public.degree_progress_categories DROP CONSTRAINT IF 
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_reqts_unit_requirement_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_course_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_course_unit_reqts_category_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_courses DROP CONSTRAINT IF EXISTS degree_progress_courses_category_id_fkey;
+ALTER TABLE IF EXISTS ONLY public.degree_progress_courses DROP CONSTRAINT IF EXISTS degree_progress_courses_degree_check_id_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_updated_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_templates DROP CONSTRAINT IF EXISTS degree_progress_templates_created_by_fkey;
 ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRAINT IF EXISTS degree_progress_unit_requirements_template_id_fkey;

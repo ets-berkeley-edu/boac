@@ -23,7 +23,11 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="(course, index) in unassignedCourses" :key="index">
+          <b-tr
+            v-for="(course, index) in unassignedCourses"
+            :id="`unassigned-course-${course.termId}-${course.sectionId}`"
+            :key="index"
+          >
             <td v-if="!isEditing(course)" class="td-course-assignment-menu">
               <CourseAssignmentMenu
                 :course="course"
