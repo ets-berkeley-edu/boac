@@ -98,7 +98,7 @@ def get_degree_template(template_id):
     return tolerant_jsonify({
         **template.to_api_json(),
         'note': template.note.to_api_json() if template.note else None,
-        'unitRequirements': [r.to_api_json() for r in template.unit_requirements],
+        'unitRequirements': sorted([r.to_api_json() for r in template.unit_requirements], key=lambda r: r['name']),
     })
 
 
