@@ -6,28 +6,48 @@
       </div>
       <div class="my-2">
         <b-select
-          :id="`column-${position}-category-${category.id}-add-course-select`"
+          id="add-course-select"
           v-model="selected"
           :disabled="isSaving"
-          @change="onChangeSelect"
+          :lazy="true"
+          no-caret
+          :toggle-text="`Assign a course to category ${parentCategory.name}`"
         >
-          <b-select-option id="degree-check-select-option-null" :value="null">Choose...</b-select-option>
           <b-select-option
-            v-for="course in courses"
-            :id="`degree-check-select-option-${course.id}`"
-            :key="course.id"
-            required
-            :value="course"
+            id="add-course-select-option-null"
+            :value="null"
+            @click="onSelect(null)"
           >
-            {{ course.name }}
+            Choose...
           </b-select-option>
+          <b-form-select-option-group
+            v-for="(options, label) in optionGroups"
+            :key="label"
+            :label="label"
+          >
+            <template v-if="options.length">
+              <b-form-select-option
+                v-for="option in options"
+                :id="`add-course-select-option-${option.id}`"
+                :key="option.id"
+                :value="option"
+                @click="onSelect(option)"
+              >
+                {{ option.name }}
+              </b-form-select-option>
+            </template>
+            <template v-if="!options.length">
+              <b-form-select-option :disabled="true" :value="undefined">
+                -- None --
+              </b-form-select-option>
+            </template>
+          </b-form-select-option-group>
         </b-select>
       </div>
-
       <div class="d-flex mt-3">
         <div>
           <b-btn
-            id="save-degree-check-btn"
+            id="add-course-save-btn"
             class="b-dd-override"
             :disabled="!selected"
             variant="primary"
@@ -41,7 +61,7 @@
         </div>
         <div>
           <b-btn
-            id="cancel-create-degree-check-btn"
+            id="add-course-cancel-btn"
             :disabled="isSaving"
             variant="link"
             @click="cancel"
@@ -54,7 +74,7 @@
     <div v-if="!isMenuOpen">
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
-        :id="`column-${position}-add-course-to-category-${category.id}`"
+        :id="`column-${position}-add-course-to-category-${parentCategory.id}`"
         class="align-items-center d-flex flex-row-reverse p-0"
         :disabled="disableButtons"
         variant="link"
@@ -79,7 +99,7 @@ export default {
   name: 'AddCourseToCategory',
   mixins: [DegreeEditSession, Util],
   props: {
-    category: {
+    parentCategory: {
       required: true,
       type: Object
     },
@@ -94,49 +114,55 @@ export default {
     }
   },
   data: () => ({
-    courses: [
-      {
-        id: 1,
-        name: 'Fee'
-      },
-      {
-        id: 2,
-        name: 'Fi'
-      },
-      {
-        id: 3,
-        name: 'Fo'
-      },
-      {
-        id: 4,
-        name: 'Fum'
-      }
-    ],
     isMenuOpen: false,
     isSaving: false,
+    optionGroups: undefined,
     selected: null
   }),
+  watch: {
+    isMenuOpen(value) {
+      if (value) {
+        this.optionGroups = {
+          'Unassigned': this.$_.cloneDeep(this.unassignedCourses),
+          'Assigned': [{id: 1, name: 'Fee'}, {id: 2, name: 'Fi'}, {id: 3, name: 'Fo'}, {id: 4, name: 'Fum'}]
+        }
+      }
+    }
+  },
   methods: {
     cancel() {
       this.isMenuOpen = this.isSaving =false
-      this.selected = null
       this.setDisableButtons(false)
       this.$announcer.polite('Cancelled')
     },
-    onChangeSelect(option) {
-      console.log(`onChangeSelect: ${option}`)
-    },
     onClickSave() {
-      this.isMenuOpen = this.isSaving = false
-      this.selected = null
-      this.setDisableButtons(false)
-      this.$announcer.polite('TODO: describe what happened')
+      this.isSaving = true
+      this.createCategory({
+        categoryType: 'Course Requirement',
+        description: null,
+        name: this.selected.name,
+        parentCategoryId: this.parentCategory.id,
+        position: this.position,
+        skipRefresh: true,
+        unitRequirementIds: [],
+        units: this.selected.units
+      }).then(category => {
+        this.assignCourseToCategory({course: this.selected, category}).then(() => {
+          this.isMenuOpen = this.isSaving = false
+          this.selected = null
+          this.setDisableButtons(false)
+          this.$announcer.polite(`Course added to ${this.parentCategory.name}`)
+        })
+      })
+    },
+    onSelect(option) {
+      this.$announcer.polite(option ? `${option.name} selected` : 'Selection set to null.')
     },
     openMenu() {
       this.setDisableButtons(true)
       this.isMenuOpen = true
       this.$announcer.polite('The \'Add Course\' menu is open.')
-      this.putFocusNextTick(`column-${this.position}-category-${this.category.id}-add-course-select`)
+      this.putFocusNextTick(`column-${this.position}-category-${this.parentCategory.id}-add-course-select`)
     }
   }
 }

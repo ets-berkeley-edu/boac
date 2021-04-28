@@ -55,11 +55,12 @@
                 </div>
               </div>
             </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !student && !isEditing(course)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${course.id}-btn`"
-                  class="pl-0 pr-2 pt-0"
+                  class="pl-0 pt-0"
+                  :class="{'pr-2': student}"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
@@ -69,6 +70,7 @@
                   <span class="sr-only">Edit {{ course.name }}</span>
                 </b-btn>
                 <b-btn
+                  v-if="!student"
                   :id="`column-${position}-delete-course-${course.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
@@ -93,7 +95,7 @@
           <b-tr v-if="student">
             <b-td class="pl-0" colspan="4">
               <AddCourseToCategory
-                :category="category"
+                :parent-category="category"
                 :position="position"
                 :student="student"
               />

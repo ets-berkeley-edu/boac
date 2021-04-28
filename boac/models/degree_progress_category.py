@@ -102,7 +102,7 @@ class DegreeProgressCategory(Base):
     ):
         category = cls(
             category_type=category_type,
-            course_units=_string_to_range(course_units),
+            course_units=_to_range(course_units),
             description=description,
             name=name,
             parent_category_id=parent_category_id,
@@ -169,7 +169,7 @@ class DegreeProgressCategory(Base):
             unit_requirement_ids,
     ):
         category = cls.query.filter_by(id=category_id).first()
-        category.course_units = _string_to_range(course_units)
+        category.course_units = _to_range(course_units)
         category.description = description
         category.name = name
         category.parent_category_id = parent_category_id
@@ -217,9 +217,9 @@ def _range_to_string(r):
         return f'{lower_bound}'
 
 
-def _string_to_range(s):
-    if s:
-        bounds = s.split('-')
+def _to_range(value):
+    if value:
+        bounds = str(value).split('-')
         return NumericRange(int(min(bounds)), int(max(bounds)), '[]')
 
 

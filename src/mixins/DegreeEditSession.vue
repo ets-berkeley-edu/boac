@@ -20,6 +20,7 @@ export default {
   name: 'DegreeEditSession',
   computed: {
     ...mapGetters('degreeEditSession', [
+      'addCourseMenuOptions',
       'categories',
       'createdAt',
       'createdBy',
