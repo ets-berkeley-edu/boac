@@ -15,6 +15,7 @@ import store from '@/store'
 const EDIT_MODE_TYPES = ['createUnitRequirement', 'updateUnitRequirement']
 
 const state = {
+  addCourseMenuOptions: undefined,
   categories: undefined,
   createdAt: undefined,
   createdBy: undefined,
@@ -31,6 +32,7 @@ const state = {
 }
 
 const getters = {
+  addCourseMenuOptions: (state: any): any[] => state.addCourseMenuOptions,
   categories: (state: any): any[] => state.categories,
   createdAt: (state: any): any[] => state.createdAt,
   createdBy: (state: any): any[] => state.createdBy,
@@ -60,16 +62,21 @@ const mutations = {
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
     state.editMode = null
-    state.categories = template && template.categories
-    state.createdAt = template && template.createdAt
-    state.createdBy = template && template.createdBy
-    state.degreeName = template && template.name
-    state.degreeNote = template && template.note
-    state.templateId = template && template.id
-    state.sid = template && template.sid
-    state.unitRequirements = template && template.unitRequirements
-    state.updatedAt = template && template.updatedAt
-    state.updatedBy = template && template.updatedBy
+    if (template) {
+      state.categories = template.categories
+      state.createdAt = template.createdAt
+      state.createdBy = template.createdBy
+      state.degreeName = template.name
+      state.degreeNote = template.note
+      state.templateId = template.id
+      state.sid = template.sid
+      state.unitRequirements = template.unitRequirements
+      state.updatedAt = template.updatedAt
+      state.updatedBy = template.updatedBy
+    } else {
+      state.categories = state.createdAt = state.createdBy = state.degreeName = state.degreeNote = undefined
+      state.templateId = state.sid = state.unitRequirements = state.updatedAt = state.updatedBy = undefined
+    }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setEditMode(state: any, editMode: string) {
@@ -107,10 +114,11 @@ const actions = {
     name,
     parentCategoryId,
     position,
+    skipRefresh,
     unitRequirementIds,
     units
   }) => {
-    return new Promise<void>(resolve => {
+    return new Promise(resolve => {
       createDegreeCategory(
         categoryType,
         description,
@@ -120,11 +128,15 @@ const actions = {
         state.templateId,
         unitRequirementIds,
         units
-      ).then(() => {
-        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
-          commit('setEditMode', null)
-          resolve()
-        })
+      ).then(category => {
+        if (skipRefresh) {
+          resolve(category)
+        } else {
+          store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
+            commit('setEditMode', null)
+            resolve(category)
+          })
+        }
       }
       )
     })
