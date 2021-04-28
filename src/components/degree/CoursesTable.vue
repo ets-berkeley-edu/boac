@@ -5,13 +5,13 @@
     </div>
     <div v-if="!$_.isEmpty(courses)">
       <b-table-simple
-        :id="`column-${position}-courses-of-category-${courses[0].parentCategoryId}`"
+        :id="`column-${position}-courses-of-category-${category.id}`"
         borderless
         small
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="hasFulfillments"><span class="sr-only">Menu</span></b-th>
+            <b-th v-if="hasFulfillments && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
@@ -20,7 +20,7 @@
         </b-thead>
         <b-tbody>
           <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
-            <td v-if="hasFulfillments" class="pt-0">
+            <td v-if="hasFulfillments && $currentUser.canEditDegreeProgress" class="pt-0">
               <div v-if="!isEditing(course) && (!isCourseRequirement(course) || course.fulfilledBy.length)">
                 <CourseAssignmentMenu
                   v-if="inspect(course, 'categoryId')"
@@ -92,21 +92,11 @@
           </b-tr>
           <b-tr v-if="student">
             <b-td class="pl-0" colspan="4">
-              <b-btn
-                v-if="$currentUser.canEditDegreeProgress"
-                :id="`column-${position}-add-course-to-category-${courses[0].parentCategoryId}`"
-                class="align-items-center d-flex flex-row-reverse p-0"
-                :disabled="disableButtons"
-                variant="link"
-                @click.prevent="onClickAddCourse"
-              >
-                <div class="font-size-14 text-nowrap">
-                  Add Course
-                </div>
-                <div class="font-size-14 pr-1">
-                  <font-awesome icon="plus" />
-                </div>
-              </b-btn>
+              <AddCourseToCategory
+                :category="category"
+                :position="position"
+                :student="student"
+              />
             </b-td>
           </b-tr>
         </b-tbody>
@@ -125,6 +115,7 @@
 </template>
 
 <script>
+import AddCourseToCategory from '@/components/degree/student/AddCourseToCategory'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
@@ -134,8 +125,12 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
-  components: {CourseAssignmentMenu, EditCategory, AreYouSureModal},
+  components: {AddCourseToCategory, CourseAssignmentMenu, EditCategory, AreYouSureModal},
   props: {
+    category: {
+      required: true,
+      type: Object
+    },
     courses: {
       required: true,
       type: Array
@@ -152,7 +147,8 @@ export default {
   },
   data: () => ({
     courseForDelete: undefined,
-    courseForEdit: undefined
+    courseForEdit: undefined,
+    isAddingCourse: false
   }),
   computed: {
     hasFulfillments() {
@@ -206,9 +202,6 @@ export default {
     isCourseRequirement: object => object.categoryType === 'Course Requirement',
     isEditing(course) {
       return course.id === this.$_.get(this.courseForEdit, 'id')
-    },
-    onClickAddCourse() {
-      this.$announcer.polite('onClickAddCourse')
     }
   }
 }

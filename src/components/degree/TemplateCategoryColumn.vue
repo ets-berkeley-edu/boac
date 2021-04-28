@@ -55,6 +55,7 @@
       <div v-if="$_.size(category.fulfilledBy)" class="pl-1 py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-fulfilled-by`"
+          :category="category"
           :courses="category.fulfilledBy"
           :position="position"
           :student="student"
@@ -63,6 +64,7 @@
       <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
+          :category="category"
           :courses="category.courseRequirements"
           :position="position"
           :student="student"
@@ -91,6 +93,7 @@
           <div v-if="$_.size(subcategory.fulfilledBy)" class="pl-1 py-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-fulfilled-by`"
+              :category="subcategory"
               :courses="subcategory.fulfilledBy"
               :position="position"
               :student="student"
@@ -99,6 +102,7 @@
           <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
+              :category="subcategory"
               :courses="subcategory.courseRequirements"
               :position="position"
               :student="student"
