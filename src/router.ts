@@ -6,6 +6,7 @@ import AllGroups from '@/views/AllGroups.vue'
 import Analytics from '@/views/Analytics.vue'
 import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue'
 import auth from './auth'
+import BatchDegreeCheck from '@/views/degree/BatchDegreeCheck.vue'
 import Cohort from '@/views/Cohort.vue'
 import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
@@ -245,6 +246,13 @@ const router = new Router({
           meta: {
             title: 'Managing Degree Checks'
           }
+        },
+        {
+          path: '/degree/batch',
+          component: BatchDegreeCheck,
+          meta: {
+            title: 'Batch Degree Checks',
+          },
         },
         {
           path: '/degree/new',

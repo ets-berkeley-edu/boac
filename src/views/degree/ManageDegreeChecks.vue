@@ -4,9 +4,8 @@
     <h1 id="page-header" class="page-section-header">
       Managing Degree Checks
     </h1>
-    <div class="pb-3 w-10">
+    <div v-if="$currentUser.canEditDegreeProgress" class="pb-3 w-10">
       <router-link
-        v-if="$currentUser.canEditDegreeProgress"
         id="degree-check-create-link"
         class="w-25"
         to="/degree/new"
@@ -17,6 +16,18 @@
           </div>
           <div class="order-1 pr-2">
             <font-awesome icon="plus" />
+          </div>
+        </div>
+      </router-link>
+      <span class="p-2">|</span>
+      <router-link
+        id="degree-check-batch-link"
+        class="w-25"
+        to="/degree/batch"
+      >
+        <div class="align-items-center d-inline-flex flex-nowrap">
+          <div class="text-nowrap">
+            Batch degree checks
           </div>
         </div>
       </router-link>
@@ -127,7 +138,6 @@
                 <div v-if="$currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
                   <b-btn
-                    v-if="$currentUser.canEditDegreeProgress"
                     :id="`degree-check-${row.index}-rename-btn`"
                     class="p-1"
                     :disabled="isBusy"
@@ -152,7 +162,6 @@
                 <div v-if="$currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
                   <b-btn
-                    v-if="$currentUser.canEditDegreeProgress"
                     :id="`degree-check-${row.index}-delete-btn`"
                     class="p-1"
                     :disabled="isBusy"
