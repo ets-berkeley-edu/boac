@@ -289,9 +289,15 @@ const router = new Router({
             title: 'Student Degree',
           },
         },
+      ]
+    },
+    {
+      path: '/',
+      beforeEnter: auth.requiresDegreeProgressPerm,
+      component: PrintableDegreeTemplate,
+      children: [
         {
           path: '/degree/:id/print',
-          component: PrintableDegreeTemplate,
           meta: {
             title: 'Print Degree Template',
           }

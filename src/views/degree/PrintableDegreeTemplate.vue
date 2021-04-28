@@ -1,10 +1,10 @@
 <template>
-  <div class="ml-3 mr-3 mt-3">
+  <div class="m-4">
     <Spinner />
     <div v-if="!loading">
       <!-- TO DO: Create IDs for necessary elements -->
       <b-container class="pr-3" fluid>
-        <b-row no-gutters>
+        <b-row>
           <b-col v-if="student" id="student-degree-info" class="font-size-12">
             <h1 class="font-size-14 font-weight-bold"> {{ student.name }} </h1>
 
@@ -15,8 +15,7 @@
 
             <div class="pt-2">
               <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
-              <hr class="subsection-divider my-1" />
-
+              <hr class="subsection-divider my-1 mr-5" />
               <!-- TO DO: Add support for undeclared students (intendedMajor) -->
               <div
                 v-for="plan in student.sisProfile.plans"
@@ -28,7 +27,7 @@
             </div>
             <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
               <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
-              <hr class="subsection-divider my-1" />
+              <hr class="subsection-divider my-1 mr-5" />
               <div
                 v-for="minorPlan of student.sisProfile.plansMinor"
                 :key="minorPlan.description"
@@ -38,12 +37,11 @@
               </div>
             </div>
           </b-col>
-          <b-col />
           <b-col id="degree-unit-requirements-info">
             <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
-            <h1 class="font-size-12 pt-2">{{ template.name }}</h1>
+            <h1 class="font-size-14 pt-2">{{ template.name }}</h1>
 
-            <h4 class="print-page-section-header-sub mb-0">Unit Requirements</h4>
+            <h4 class="font-size-12 mb-0">Unit Requirements</h4>
             <div v-if="$_.isEmpty(template.unitRequirements)" class="no-data-text">
               No unit requirements created
             </div>
@@ -83,6 +81,7 @@
                 <div
                   v-for="category in $_.filter(template.categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
                   :key="category.id"
+                  class="print-degree-course-requirements"
                 >
                   <Category
                     v-if="category.id"
@@ -91,9 +90,9 @@
                   />
                   <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
                     <CoursesTable
+                      :category="category"
                       :courses="category.courseRequirements"
                       :position="position"
-                      class="print-degree-courses"
                     />
                   </div>
                   <div v-if="$_.size(category.subcategories)">
@@ -102,13 +101,12 @@
                         v-if="subcategory.id"
                         :category="subcategory"
                         :position="position"
-                        class="print-degree-subcategory"
                       />
                       <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
                         <CoursesTable
+                          :category="subcategory"
                           :courses="subcategory.courseRequirements"
                           :position="position"
-                          class="print-degree-courses"
                         />
                       </div>
                     </div>
@@ -194,9 +192,6 @@ export default {
   color: #999;
   height: 3px;
 }
-.print-page-section-header-sub {
-  font-size: 8px;
-}
 .print-degree-courses > div > table > tbody > tr > td {
   font-size: 10px;
   padding: 1px;
@@ -204,9 +199,11 @@ export default {
 .print-degree-courses > div > table > thead > tr > th {
   font-size: 8px;
 }
+.print-degree-course-requirements >>> button {
+  display: none;
+}
 .subsection-divider {
   background-color: #999999;
-  color: #999;
   height: 1px;
 }
 .unofficial-label-pill {
@@ -234,11 +231,5 @@ export default {
 }
 #print-unit-requirements-table {
   font-size: 8px;
-}
-button[id*='-delete-'] {
-  display: none;
-}
-button[id*='-edit-'] {
-  display: none;
 }
 </style>
