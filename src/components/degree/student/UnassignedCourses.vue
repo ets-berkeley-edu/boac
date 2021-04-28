@@ -28,7 +28,7 @@
             :id="`unassigned-course-${course.termId}-${course.sectionId}`"
             :key="index"
           >
-            <td v-if="!isEditing(course)" class="td-course-assignment-menu">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="td-course-assignment-menu">
               <CourseAssignmentMenu
                 :course="course"
                 :student="student"
