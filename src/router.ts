@@ -295,7 +295,7 @@ const router = new Router({
           meta: {
             title: 'Print Degree Template',
           }
-        }
+        },
       ]
     },
     {
