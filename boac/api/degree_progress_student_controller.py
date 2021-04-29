@@ -28,6 +28,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
+from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from flask import current_app as app, request
@@ -50,9 +51,16 @@ def assign_course(course_id):
     params = request.get_json()
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
-        category_id = get_param(params, 'categoryId')
-        course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course.id)
-        return tolerant_jsonify(course.to_api_json())
+        existing_category = DegreeProgressCategory.find_by_id(course.category_id) if course.category_id else None
+        if existing_category and existing_category.position == -1:
+            # Transient categories are identified by position=-1 and are deleted when the course is unassigned.
+            # In this case, "On Cascade Delete" will cause deletion of the course, which is what we want. The course
+            # will be regenerated in "Unassigned Courses" list or this course is a "secondary" instance.
+            DegreeProgressCategory.delete(course.category_id)
+        else:
+            category_id = get_param(params, 'categoryId')
+            DegreeProgressCourse.assign_category(category_id=category_id, course_id=course.id)
+        return tolerant_jsonify({'message': f'Course ${course.display_name} has been re-assigned'})
     else:
         raise ResourceNotFoundError(f'No course found with id={course_id}.')
 

@@ -27,7 +27,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
-from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_category import DegreeProgressCategory, TRANSIENT_CATEGORY_POSITION
 from flask import current_app as app, request
 from flask_cors import cross_origin
 
@@ -58,7 +58,7 @@ def create_category():
         parent_type = parent.category_type
         if parent_type == 'Course Requirement' or (parent_type == 'Subcategory' and category_type == 'Category'):
             raise BadRequestError(f'Type {category_type} not allowed, based on parent type: {parent_type}.')
-        if parent.position != position:
+        if position not in [TRANSIENT_CATEGORY_POSITION, parent.position]:
             raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
 
     category = DegreeProgressCategory.create(
@@ -119,4 +119,5 @@ def _get_degree_category(category_id):
 
 
 def _is_valid_position(position):
-    return position and (0 < position < 4)
+    # Transient categories are identified by position=-1 and are deleted when the course is unassigned.
+    return position and (position == TRANSIENT_CATEGORY_POSITION or 0 < position < 4)

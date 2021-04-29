@@ -1,17 +1,15 @@
 <template>
   <div>
-    <div v-if="$_.isEmpty(items)" class="no-data-text">
-      No courses
-    </div>
-    <div v-if="!$_.isEmpty(items)">
+    <div v-if="items.length">
       <b-table-simple
-        :id="`column-${position}-courses-of-category-${category.id}`"
+        :id="`column-${position}-courses-of-category-${parentCategory.id}`"
         borderless
+        class="mb-0"
         small
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="hasFulfillments && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
+            <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
             <b-th>Fulfillment</b-th>
@@ -19,97 +17,96 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="(item, index) in items" :id="`course-${item.id}-table-row`" :key="index">
-            <td v-if="hasFulfillments && $currentUser.canEditDegreeProgress" class="pt-0">
-              <div v-if="!isEditing(item) && (!isCourseRequirement(item) || item.fulfilledBy.length)">
+          <b-tr v-for="(bundle, index) in categoryCourseBundles" :id="`course-${bundle.category.id}-table-row`" :key="index">
+            <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
+              <div v-if="!isEditing(bundle) && bundle.course && !isTransientCategory(bundle.category)">
                 <CourseAssignmentMenu
-                  v-if="inspect(item, 'categoryId')"
-                  :course="isCourseRequirement(item) ? item.fulfilledBy[0] : item"
+                  v-if="bundle.course.categoryId"
+                  :course="bundle.course"
                   :student="student"
                 />
               </div>
             </td>
             <td
-              v-if="!isEditing(item)"
+              v-if="!isEditing(bundle)"
               class="font-size-14 pl-0 pr-3 table-cell-course"
             >
-              {{ inspect(item, 'name') }}
+              {{ bundle.name }}
             </td>
             <td
-              v-if="!isEditing(item)"
+              v-if="!isEditing(bundle)"
               class="float-right font-size-14 pr-2 table-cell-units text-nowrap"
             >
-              <span class="font-size-14">{{ inspect(item, 'units') || '&mdash;' }}</span>
+              <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
             </td>
             <td
-              v-if="!isEditing(item)"
+              v-if="!isEditing(bundle)"
               class="font-size-14 td-max-width-0"
-              :title="oxfordJoin($_.map(item.unitRequirements, 'name'), 'None')"
+              :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
             >
               <div class="align-items-start d-flex justify-content-between">
                 <div class="ellipsis-if-overflow">
-                  {{ oxfordJoin($_.map(item.unitRequirements, 'name'), '&mdash;') }}
+                  {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
                 </div>
-                <div v-if="$_.size(item.unitRequirements) > 1" class="unit-requirement-count">
-                  <span class="sr-only">(Has </span>{{ item.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
+                <div v-if="$_.size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                  <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
                 </div>
               </div>
             </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(item)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
-                  :id="`column-${position}-edit-category-${item.id}-btn`"
+                  :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                   class="pl-0 pt-0"
                   :class="{'pr-2': student}"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click="edit(item)"
+                  @click="edit(bundle)"
                 >
                   <font-awesome icon="edit" />
-                  <span class="sr-only">Edit {{ item.name }}</span>
+                  <span class="sr-only">Edit {{ bundle.name }}</span>
                 </b-btn>
                 <b-btn
-                  v-if="!student"
-                  :id="`column-${position}-delete-course-${item.id}-btn`"
+                  v-if="!student || isTransientCategory(bundle.category)"
+                  :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click="deleteCourse(item)"
+                  @click="deleteCourse(bundle)"
                 >
                   <font-awesome icon="trash-alt" />
-                  <span class="sr-only">Delete {{ item.name }}</span>
+                  <span class="sr-only">Delete {{ bundle.name }}</span>
                 </b-btn>
               </div>
             </td>
-            <b-td v-if="isEditing(item)" colspan="4">
+            <b-td v-if="isEditing(bundle)" colspan="4">
               <EditCategory
                 :after-cancel="afterCancel"
                 :after-save="afterSave"
-                :existing-category="item"
+                :existing-category="bundle.category"
                 :position="position"
-              />
-            </b-td>
-          </b-tr>
-          <b-tr v-if="student">
-            <b-td class="pl-0" colspan="4">
-              <AddCourseToCategory
-                :parent-category="category"
-                :position="position"
-                :student="student"
               />
             </b-td>
           </b-tr>
         </b-tbody>
       </b-table-simple>
     </div>
+    <div class="mb-3 ml-1" :class="{'mt-2': !items.length}">
+      <AddCourseToCategory
+        :courses-already-added="allAddedCourses"
+        :parent-category="parentCategory"
+        :position="position"
+        :student="student"
+      />
+    </div>
     <AreYouSureModal
-      v-if="courseForDelete"
+      v-if="bundleForDelete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="`Are you sure you want to delete <strong>&quot;${courseForDelete.name}&quot;</strong>`"
-      :show-modal="!!courseForDelete"
+      :modal-body="`Are you sure you want to delete <strong>&quot;${bundleForDelete.name}&quot;</strong>`"
+      :show-modal="!!bundleForDelete"
       button-label-confirm="Delete"
       modal-header="Delete Course"
     />
@@ -129,13 +126,13 @@ export default {
   mixins: [DegreeEditSession, Util],
   components: {AddCourseToCategory, CourseAssignmentMenu, EditCategory, AreYouSureModal},
   props: {
-    category: {
-      required: true,
-      type: Object
-    },
     items: {
       required: true,
       type: Array
+    },
+    parentCategory: {
+      required: true,
+      type: Object
     },
     position: {
       required: true,
@@ -148,62 +145,83 @@ export default {
     }
   },
   data: () => ({
-    courseForDelete: undefined,
-    courseForEdit: undefined,
+    bundleForDelete: undefined,
+    bundleForEdit: undefined,
     isAddingCourse: false
   }),
   computed: {
-    hasFulfillments() {
-      return !!this.student && !!this.$_.find(this.items, item => {
-        return this.inspect(item, 'categoryId')
+    allAddedCourses() {
+      const allCourses = []
+      this.$_.each(this.categoryCourseBundles, bundle => {
+        if (bundle.course) {
+          allCourses.push(bundle.course)
+        }
       })
+      return allCourses
+    },
+    categoryCourseBundles() {
+      const transformed = []
+      this.$_.each(this.items, item => {
+        let category
+        let course
+        if (item.categoryType) {
+          category = item
+          course = category.courseIds.length ? this.getCourse(category.courseIds[0]) : null
+        } else {
+          course = item
+          category = this.findCategoryById(course.categoryId)
+        }
+        transformed.push({
+          category,
+          course,
+          name: (course || category).name,
+          units: (course || category).units,
+          unitRequirements: (course || category).unitRequirements
+        })
+      })
+      return transformed
     }
   },
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
-      this.putFocusNextTick(`column-${this.position}-edit-category-${this.courseForEdit.id}-btn`)
-      this.courseForEdit = null
+      this.putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.$announcer.polite(`Updated course ${this.courseForEdit.name}`)
-      this.putFocusNextTick(`column-${this.position}-edit-category-${this.courseForEdit.id}-btn`)
-      this.courseForEdit = null
+      this.$announcer.polite(`Updated course ${this.bundleForEdit.name}`)
+      this.putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     deleteCanceled() {
-      this.putFocusNextTick(`column-${this.position}-delete-course-${this.courseForDelete.id}-btn`)
-      this.courseForDelete = null
+      this.putFocusNextTick(`column-${this.position}-delete-course-${this.bundleForDelete.category.id}-btn`)
+      this.bundleForDelete = null
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
-      this.deleteCategory(this.courseForDelete.id).then(() => {
-        this.$announcer.polite(`${this.courseForDelete.name} deleted.`)
-        this.courseForDelete = null
+      this.deleteCategory(this.bundleForDelete.category.id).then(() => {
+        this.$announcer.polite(`${this.bundleForDelete.name} deleted.`)
+        this.bundleForDelete = null
         this.setDisableButtons(false)
         this.putFocusNextTick('page-header')
       })
     },
-    deleteCourse(item) {
+    deleteCourse(bundle) {
       this.setDisableButtons(true)
-      this.courseForDelete = item
-      this.$announcer.polite(`Delete ${item.name}`)
+      this.bundleForDelete = bundle
+      this.$announcer.polite(`Delete ${bundle.name}`)
     },
-    edit(item) {
+    edit(bundle) {
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${item.name}`)
-      this.courseForEdit = item
+      this.$announcer.polite(`Edit ${bundle.name}`)
+      this.bundleForEdit = bundle
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
-    inspect(item, key) {
-      // TODO: What if multiple category has multiple fulfillments?
-      return this.$_.size(item.fulfilledBy) ? item.fulfilledBy[0][key] : item[key]
-    },
-    isCourseRequirement: object => object.categoryType === 'Course Requirement',
-    isEditing(item) {
-      return item.id === this.$_.get(this.courseForEdit, 'id')
+    isEditing(bundle) {
+      return this.$_.get(bundle, 'category.id') === this.$_.get(this.bundleForEdit, 'category.id')
     }
   }
 }

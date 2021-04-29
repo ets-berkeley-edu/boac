@@ -76,9 +76,7 @@ export default {
     }
   },
   methods: {
-    isAvailable(option) {
-      return option.categoryType !== 'Course Requirement' || !option.fulfilledBy.length
-    },
+    isAvailable: option => option.categoryType !== 'Course Requirement' || !option.courseIds.length,
     onSelect(category) {
       this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
       this.assignCourseToCategory({course: this.course, category}).then(() => {})

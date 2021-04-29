@@ -40,6 +40,8 @@ degree_progress_category_type = ENUM(
     create_type=False,
 )
 
+TRANSIENT_CATEGORY_POSITION = -1
+
 
 class DegreeProgressCategory(Base):
     __tablename__ = 'degree_progress_categories'
@@ -193,13 +195,15 @@ class DegreeProgressCategory(Base):
         return cls.find_by_id(category_id=category_id)
 
     def to_api_json(self):
+        # Order courses by created_at date (ascending) so primary assignment is first and all others are secondary.
+        courses = sorted(DegreeProgressCourse.find_by_category_id(category_id=self.id), key=lambda c: c.created_at)
         unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'id': self.id,
             'categoryType': self.category_type,
+            'courseIds': [c.id for c in courses],
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
-            'fulfilledBy': [c.to_api_json() for c in DegreeProgressCourse.get_fulfilled_by(category_id=self.id)],
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,

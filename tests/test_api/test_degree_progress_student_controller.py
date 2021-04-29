@@ -139,13 +139,14 @@ class TestAssignCourse:
         categories_json = api_json['categories']
         assert len(categories_json) == 1
 
-        assert categories_json[0]['id'] == category.id
-        fulfilled_by = categories_json[0]['fulfilledBy']
-        assert len(fulfilled_by) == 1
+        category_json = categories_json[0]
+        assert category_json['id'] == category.id
+        course_ids = category_json['courseIds']
+        assert len(course_ids) == 1
 
-        course = fulfilled_by[0]
-        assert course['name'] == mock_degree_course.display_name
-        assert course['categoryId'] == category.id
+        course = DegreeProgressCourse.find_by_id(course_ids[0])
+        assert course.display_name == mock_degree_course.display_name
+        assert course.category_id == category.id
 
 
 class TestCreateStudentDegreeCheck:
