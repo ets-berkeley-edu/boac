@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="$_.isEmpty(unassignedCourses)" class="no-data-text">
+    <div v-if="$_.isEmpty(courses.unassigned)" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(unassignedCourses)" id="unassigned-courses-container">
+    <div v-if="!$_.isEmpty(courses.unassigned)" id="unassigned-courses-container">
       <b-table-simple
         id="unassigned-courses-table"
         borderless
@@ -24,7 +24,7 @@
         </b-thead>
         <b-tbody>
           <b-tr
-            v-for="(course, index) in unassignedCourses"
+            v-for="(course, index) in courses.unassigned"
             :id="`unassigned-course-${course.termId}-${course.sectionId}`"
             :key="index"
           >
@@ -108,7 +108,7 @@ export default {
     afterSave(course) {
       Object.assign(this.courseForEdit, course)
       this.courseForEdit = null
-      this.refreshUnassignedCourses().then(() => {
+      this.refreshTemplate().then(() => {
         this.$announcer.polite(`Updated course ${course.name}`)
         this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
         this.setDisableButtons(false)

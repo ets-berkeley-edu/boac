@@ -91,7 +91,7 @@
                   <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
                     <CoursesTable
                       :category="category"
-                      :courses="category.courseRequirements"
+                      :items="category.courseRequirements"
                       :position="position"
                     />
                   </div>
@@ -105,7 +105,7 @@
                       <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
                         <CoursesTable
                           :category="subcategory"
-                          :courses="subcategory.courseRequirements"
+                          :items="subcategory.courseRequirements"
                           :position="position"
                         />
                       </div>

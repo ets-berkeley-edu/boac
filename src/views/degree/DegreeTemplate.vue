@@ -48,8 +48,8 @@ export default {
   mixins: [Context, DegreeEditSession, Loading, Util],
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-    this.init(id).then(data => {
-      if (data.sid) {
+    this.init(id).then(() => {
+      if (this.sid) {
         this.$router.push(`/student/degree/${id}`)
       } else {
         this.setPageTitle(this.degreeName)

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="$_.isEmpty(courses)" class="no-data-text">
+    <div v-if="$_.isEmpty(items)" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(courses)">
+    <div v-if="!$_.isEmpty(items)">
       <b-table-simple
         :id="`column-${position}-courses-of-category-${category.id}`"
         borderless
@@ -19,75 +19,75 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="(course, index) in courses" :id="`course-${course.id}-table-row`" :key="index">
+          <b-tr v-for="(item, index) in items" :id="`course-${item.id}-table-row`" :key="index">
             <td v-if="hasFulfillments && $currentUser.canEditDegreeProgress" class="pt-0">
-              <div v-if="!isEditing(course) && (!isCourseRequirement(course) || course.fulfilledBy.length)">
+              <div v-if="!isEditing(item) && (!isCourseRequirement(item) || item.fulfilledBy.length)">
                 <CourseAssignmentMenu
-                  v-if="inspect(course, 'categoryId')"
-                  :course="isCourseRequirement(course) ? course.fulfilledBy[0] : course"
+                  v-if="inspect(item, 'categoryId')"
+                  :course="isCourseRequirement(item) ? item.fulfilledBy[0] : item"
                   :student="student"
                 />
               </div>
             </td>
             <td
-              v-if="!isEditing(course)"
+              v-if="!isEditing(item)"
               class="font-size-14 pl-0 pr-3 table-cell-course"
             >
-              {{ inspect(course, 'name') }}
+              {{ inspect(item, 'name') }}
             </td>
             <td
-              v-if="!isEditing(course)"
+              v-if="!isEditing(item)"
               class="float-right font-size-14 pr-2 table-cell-units text-nowrap"
             >
-              <span class="font-size-14">{{ inspect(course, 'units') || '&mdash;' }}</span>
+              <span class="font-size-14">{{ inspect(item, 'units') || '&mdash;' }}</span>
             </td>
             <td
-              v-if="!isEditing(course)"
+              v-if="!isEditing(item)"
               class="font-size-14 td-max-width-0"
-              :title="oxfordJoin($_.map(course.unitRequirements, 'name'), 'None')"
+              :title="oxfordJoin($_.map(item.unitRequirements, 'name'), 'None')"
             >
               <div class="align-items-start d-flex justify-content-between">
                 <div class="ellipsis-if-overflow">
-                  {{ oxfordJoin($_.map(course.unitRequirements, 'name'), '&mdash;') }}
+                  {{ oxfordJoin($_.map(item.unitRequirements, 'name'), '&mdash;') }}
                 </div>
-                <div v-if="$_.size(course.unitRequirements) > 1" class="unit-requirement-count">
-                  <span class="sr-only">(Has </span>{{ course.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
+                <div v-if="$_.size(item.unitRequirements) > 1" class="unit-requirement-count">
+                  <span class="sr-only">(Has </span>{{ item.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
                 </div>
               </div>
             </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(item)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
-                  :id="`column-${position}-edit-category-${course.id}-btn`"
+                  :id="`column-${position}-edit-category-${item.id}-btn`"
                   class="pl-0 pt-0"
                   :class="{'pr-2': student}"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click="edit(course)"
+                  @click="edit(item)"
                 >
                   <font-awesome icon="edit" />
-                  <span class="sr-only">Edit {{ course.name }}</span>
+                  <span class="sr-only">Edit {{ item.name }}</span>
                 </b-btn>
                 <b-btn
                   v-if="!student"
-                  :id="`column-${position}-delete-course-${course.id}-btn`"
+                  :id="`column-${position}-delete-course-${item.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click="deleteCourse(course)"
+                  @click="deleteCourse(item)"
                 >
                   <font-awesome icon="trash-alt" />
-                  <span class="sr-only">Delete {{ course.name }}</span>
+                  <span class="sr-only">Delete {{ item.name }}</span>
                 </b-btn>
               </div>
             </td>
-            <b-td v-if="isEditing(course)" colspan="4">
+            <b-td v-if="isEditing(item)" colspan="4">
               <EditCategory
                 :after-cancel="afterCancel"
                 :after-save="afterSave"
-                :existing-category="course"
+                :existing-category="item"
                 :position="position"
               />
             </b-td>
@@ -133,7 +133,7 @@ export default {
       required: true,
       type: Object
     },
-    courses: {
+    items: {
       required: true,
       type: Array
     },
@@ -154,8 +154,8 @@ export default {
   }),
   computed: {
     hasFulfillments() {
-      return !!this.student && !!this.$_.find(this.courses, course => {
-        return this.inspect(course, 'categoryId')
+      return !!this.student && !!this.$_.find(this.items, item => {
+        return this.inspect(item, 'categoryId')
       })
     }
   },
@@ -186,24 +186,24 @@ export default {
         this.putFocusNextTick('page-header')
       })
     },
-    deleteCourse(course) {
+    deleteCourse(item) {
       this.setDisableButtons(true)
-      this.courseForDelete = course
-      this.$announcer.polite(`Delete ${course.name}`)
+      this.courseForDelete = item
+      this.$announcer.polite(`Delete ${item.name}`)
     },
-    edit(course) {
+    edit(item) {
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${course.name}`)
-      this.courseForEdit = course
+      this.$announcer.polite(`Edit ${item.name}`)
+      this.courseForEdit = item
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
-    inspect(course, key) {
+    inspect(item, key) {
       // TODO: What if multiple category has multiple fulfillments?
-      return this.$_.size(course.fulfilledBy) ? course.fulfilledBy[0][key] : course[key]
+      return this.$_.size(item.fulfilledBy) ? item.fulfilledBy[0][key] : item[key]
     },
     isCourseRequirement: object => object.categoryType === 'Course Requirement',
-    isEditing(course) {
-      return course.id === this.$_.get(this.courseForEdit, 'id')
+    isEditing(item) {
+      return item.id === this.$_.get(this.courseForEdit, 'id')
     }
   }
 }

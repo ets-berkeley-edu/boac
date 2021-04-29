@@ -139,6 +139,7 @@ class DegreeProgressTemplate(Base):
             'createdAt': _isoformat(self.created_at),
             'createdBy': self.created_by,
             'name': self.degree_name,
+            'note': self.note.to_api_json() if self.note else None,
             'sid': self.student_sid,
             'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'updatedAt': _isoformat(self.updated_at),

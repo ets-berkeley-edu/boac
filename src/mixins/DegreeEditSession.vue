@@ -22,15 +22,15 @@ export default {
     ...mapGetters('degreeEditSession', [
       'addCourseMenuOptions',
       'categories',
+      'courses',
       'createdAt',
       'createdBy',
       'degreeEditSessionToString',
       'degreeName',
       'degreeNote',
       'disableButtons',
-      'editMode',
+      'sid',
       'templateId',
-      'unassignedCourses',
       'unitRequirements',
       'updatedAt',
       'updatedBy'
@@ -44,10 +44,7 @@ export default {
       'deleteCategory',
       'deleteUnitRequirement',
       'init',
-      'loadTemplate',
-      'refreshUnassignedCourses',
       'setDisableButtons',
-      'setEditMode',
       'updateCategory',
       'updateNote',
       'updateUnitRequirement'

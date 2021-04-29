@@ -2,18 +2,18 @@
   <div>
     <Spinner />
     <div v-if="!loading">
-      <div class="border-bottom light-blue-background pb-2">
+      <div class="border-bottom light-blue-background py-2">
         <StudentProfileHeader
           :compact="true"
           :link-to-student-profile="true"
           :student="student"
         />
       </div>
-      <div class="m-3 pt-2">
+      <div class="m-3">
         <div class="section-separator w-100">
           <StudentDegreeCheckHeader :student="student" />
         </div>
-        <div class="d-flex section-separator w-100">
+        <div class="d-flex py-3 section-separator w-100">
           <div class="pr-2 w-50">
             <UnitRequirements template-id="templateId" />
           </div>
@@ -22,7 +22,7 @@
             <UnassignedCourses :student="student" />
           </div>
         </div>
-        <b-container class="px-0 mx-0" :fluid="true">
+        <b-container class="mx-0 pt-3 px-0" :fluid="true">
           <b-row>
             <b-col
               v-for="position in [1, 2, 3]"
@@ -73,8 +73,8 @@ export default {
   }),
   created() {
     const degreeId = this.$_.get(this.$route, 'params.id')
-    this.init(degreeId).then(degree => {
-      getStudentBySid(degree.sid).then(data => {
+    this.init(degreeId).then(() => {
+      getStudentBySid(this.sid).then(data => {
         this.student = data
         const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
@@ -92,7 +92,5 @@ export default {
 }
 .section-separator {
   border-bottom: 1px #999 solid;
-  margin-bottom: 20px;
-  padding-bottom: 10px;
 }
 </style>

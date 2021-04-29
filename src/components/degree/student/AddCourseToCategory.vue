@@ -16,12 +16,12 @@
           <b-select-option
             id="add-course-select-option-null"
             :value="null"
-            @click="onSelect(null)"
+            @click="onSelect"
           >
             Choose...
           </b-select-option>
           <b-form-select-option-group
-            v-for="(options, label) in optionGroups"
+            v-for="(options, label) in {Unassigned: courses.unassigned, Assigned: courses.assigned}"
             :key="label"
             :label="label"
           >
@@ -31,7 +31,7 @@
                 :id="`add-course-select-option-${option.id}`"
                 :key="option.id"
                 :value="option"
-                @click="onSelect(option)"
+                @click="onSelect"
               >
                 {{ option.name }}
               </b-form-select-option>
@@ -116,19 +116,8 @@ export default {
   data: () => ({
     isMenuOpen: false,
     isSaving: false,
-    optionGroups: undefined,
     selected: null
   }),
-  watch: {
-    isMenuOpen(value) {
-      if (value) {
-        this.optionGroups = {
-          'Unassigned': this.$_.cloneDeep(this.unassignedCourses),
-          'Assigned': [{id: 1, name: 'Fee'}, {id: 2, name: 'Fi'}, {id: 3, name: 'Fo'}, {id: 4, name: 'Fum'}]
-        }
-      }
-    }
-  },
   methods: {
     cancel() {
       this.isMenuOpen = this.isSaving =false
@@ -155,8 +144,8 @@ export default {
         })
       })
     },
-    onSelect(option) {
-      this.$announcer.polite(option ? `${option.name} selected` : 'Selection set to null.')
+    onSelect() {
+      this.$announcer.polite(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
     },
     openMenu() {
       this.setDisableButtons(true)

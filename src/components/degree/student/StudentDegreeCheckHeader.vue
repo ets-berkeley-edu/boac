@@ -63,7 +63,7 @@
         </div>
       </b-col>
     </b-row>
-    <b-row class="pt-2">
+    <b-row class="pb-2 pt-1">
       <b-col v-if="!isEditingNote" cols="12" md="8">
         <div v-if="!noteBody" id="degree-note-no-data">
           There currently are no degree notes for this student.

@@ -219,19 +219,10 @@ class TestGetStudentDegreeChecks:
 class TestGetUnassignedCourses:
 
     @classmethod
-    def _api_get_unassigned_courses(cls, client, degree_check_id, expected_status_code=200):
-        response = client.get(f'/api/degree/{degree_check_id}/courses/unassigned')
+    def _api_get_degree(cls, client, degree_check_id, expected_status_code=200):
+        response = client.get(f'/api/degree/{degree_check_id}')
         assert response.status_code == expected_status_code
         return response.json
-
-    def test_anonymous(self, client):
-        """Denies anonymous user."""
-        self._api_get_unassigned_courses(client, degree_check_id=1, expected_status_code=401)
-
-    def test_unauthorized(self, client, fake_auth):
-        """Denies unauthorized user."""
-        fake_auth.login(qcadv_advisor_uid)
-        self._api_get_unassigned_courses(client, degree_check_id=1, expected_status_code=401)
 
     def test_authorized(self, client, fake_auth, mock_degree_checks):
         """Authorized user can get student degree checks."""
@@ -254,18 +245,30 @@ class TestGetUnassignedCourses:
         )
         std_commit(allow_test_environment=True)
 
-        unassigned_courses = self._api_get_unassigned_courses(client, degree_check_id=degree_check.id)
+        api_json = self._api_get_degree(client, degree_check_id=degree_check.id)
+        # Fetch assigned and unassigned courses
+        assigned_courses = api_json['courses']['assigned']
+        assigned_course_count = len(assigned_courses)
+        unassigned_courses = api_json['courses']['unassigned']
         unassigned_course_count = len(unassigned_courses)
         assert len(unassigned_courses)
+
+        # Get one of the unassigned courses...
         unassigned_course = DegreeProgressCourse.query.filter_by(
             section_id=unassigned_courses[-1]['sectionId'],
             sid=unassigned_courses[-1]['sid'],
             term_id=unassigned_courses[-1]['termId'],
         ).first()
-
-        # Assign the course
+        # ...and then assign it to a category.
         _api_assign_course(client, category_id=category.id, course=unassigned_course)
-        unassigned_courses = self._api_get_unassigned_courses(client, degree_check_id=degree_check.id)
+        api_json = self._api_get_degree(client, degree_check_id=degree_check.id)
+
+        # Verify
+        assigned_courses = api_json['courses']['assigned']
+        assert len(assigned_courses) == assigned_course_count + 1
+        assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course.section_id), None)
+
+        unassigned_courses = api_json['courses']['unassigned']
         assert len(unassigned_courses) == unassigned_course_count - 1
         assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course.section_id), None) is None
 
