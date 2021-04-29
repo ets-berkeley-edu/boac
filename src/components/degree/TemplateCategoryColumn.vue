@@ -56,7 +56,7 @@
         <CoursesTable
           :id="`column-${position}-category-${category.id}-fulfilled-by`"
           :category="category"
-          :courses="category.fulfilledBy"
+          :items="category.fulfilledBy"
           :position="position"
           :student="student"
         />
@@ -65,7 +65,7 @@
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :category="category"
-          :courses="category.courseRequirements"
+          :items="category.courseRequirements"
           :position="position"
           :student="student"
         />
@@ -94,7 +94,7 @@
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-fulfilled-by`"
               :category="subcategory"
-              :courses="subcategory.fulfilledBy"
+              :items="subcategory.fulfilledBy"
               :position="position"
               :student="student"
             />
@@ -103,7 +103,7 @@
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :category="subcategory"
-              :courses="subcategory.courseRequirements"
+              :items="subcategory.courseRequirements"
               :position="position"
               :student="student"
             />

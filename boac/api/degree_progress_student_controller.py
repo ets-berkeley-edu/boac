@@ -23,14 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.degree_progress_api_utils import clone_degree_template, lazy_load_unassigned_courses
+from boac.api.degree_progress_api_utils import clone_degree_template
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
-from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -49,26 +48,19 @@ def create_degree_check(sid):
 @can_edit_degree_progress
 def assign_course(course_id):
     params = request.get_json()
-    category_id = get_param(params, 'categoryId')
-    course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course_id)
-    return tolerant_jsonify(course.to_api_json())
+    course = DegreeProgressCourse.find_by_id(course_id)
+    if course:
+        category_id = get_param(params, 'categoryId')
+        course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course.id)
+        return tolerant_jsonify(course.to_api_json())
+    else:
+        raise ResourceNotFoundError(f'No course found with id={course_id}.')
 
 
 @app.route('/api/degrees/student/<sid>')
 @can_read_degree_progress
 def get_degree_checks(sid):
     return tolerant_jsonify(get_degree_checks_json(sid))
-
-
-@app.route('/api/degree/<degree_check_id>/courses/unassigned')
-@can_read_degree_progress
-def get_unassigned_courses(degree_check_id):
-    degree_check = DegreeProgressTemplate.find_by_id(degree_check_id)
-    if degree_check:
-        courses = lazy_load_unassigned_courses(degree_check)
-        return tolerant_jsonify([c.to_api_json() for c in courses])
-    else:
-        raise ResourceNotFoundError(f'No degree check found with id={degree_check_id}.')
 
 
 @app.route('/api/degree/course/<course_id>/update', methods=['POST'])

@@ -119,7 +119,16 @@ class DegreeProgressCourse(Base):
             units=units if is_int(units) else 0,  # TODO: Is units='E' valid? Can units value be non-numeric?
         )
         db.session.add(course)
+        std_commit()
         return course
+
+    @classmethod
+    def find_by_id(cls, course_id):
+        return cls.query.filter_by(id=course_id).first()
+
+    @classmethod
+    def find_by_category_id(cls, category_id):
+        return cls.query.filter_by(category_id=category_id).all()
 
     @classmethod
     def find_by_sid(cls, degree_check_id, sid):
@@ -138,7 +147,6 @@ class DegreeProgressCourse(Base):
         return course
 
     def to_api_json(self):
-        # Note: The 'id' property allows reuse of front-end components.
         return {
             'categoryId': self.category_id,
             'createdAt': _isoformat(self.created_at),

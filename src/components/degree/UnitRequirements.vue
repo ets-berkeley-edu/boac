@@ -8,7 +8,7 @@
             v-if="$currentUser.canEditDegreeProgress"
             id="unit-requirement-create-link"
             class="pr-0 py-0"
-            :disabled="!!editMode || disableButtons"
+            :disabled="disableButtons"
             variant="link"
             @click.prevent="onClickAdd"
           >
@@ -22,7 +22,7 @@
             </div>
           </b-btn>
         </div>
-        <div v-if="!editMode">
+        <div v-if="!isEditing">
           <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
             No unit requirements created
           </div>
@@ -59,7 +59,7 @@
             </template>
           </b-table-lite>
         </div>
-        <div v-if="editMode" class="mb-3">
+        <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement
             :index="indexOfSelected"
             :unit-requirement="unitRequirements[indexOfSelected]"
@@ -112,6 +112,7 @@ export default {
       }
     ],
     indexOfSelected: undefined,
+    isEditing: false,
     isDeleting: false
   }),
   computed: {
@@ -138,7 +139,7 @@ export default {
     onClickAdd() {
       this.setDisableButtons(true)
       this.indexOfSelected = null
-      this.setEditMode('createUnitRequirement')
+      this.isEditing = true
     },
     onClickDelete(index) {
       this.setDisableButtons(true)
@@ -148,7 +149,7 @@ export default {
     onClickEdit(index) {
       this.setDisableButtons(true)
       this.indexOfSelected = index
-      this.setEditMode('updateUnitRequirement')
+      this.isEditing = true
     },
   }
 }

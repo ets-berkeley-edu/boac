@@ -46,7 +46,7 @@
       </span>
     </div>
     <b-btn
-      v-if="editMode === 'createUnitRequirement'"
+      v-if="$_.isNil(indexOfSelected)"
       id="create-unit-requirement-btn"
       :disabled="!name || !isValidUnits || isSaving"
       class="btn-primary-color-override"
@@ -56,7 +56,7 @@
       Create Unit Requirement
     </b-btn>
     <b-btn
-      v-if="editMode === 'updateUnitRequirement'"
+      v-if="!$_.isNil(indexOfSelected)"
       id="update-unit-requirement-btn"
       :disabled="!name || !isValidUnits || isSaving"
       class="btn-primary-color-override"
@@ -122,7 +122,7 @@ export default {
     },
     cancel() {
       this.$announcer.polite('Canceled.')
-      this.setEditMode(null)
+      this.setDisableButtons(false)
       this.reset()
     },
     create() {

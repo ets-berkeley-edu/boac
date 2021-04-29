@@ -5,27 +5,32 @@ import {
   createDegreeCategory,
   deleteDegreeCategory,
   deleteUnitRequirement,
-  getDegreeTemplate, getUnassignedCourses,
+  getDegreeTemplate,
   updateDegreeCategory,
   updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
-import store from '@/store'
 
-const EDIT_MODE_TYPES = ['createUnitRequirement', 'updateUnitRequirement']
+const $_refresh = (commit, templateId) => {
+  return new Promise<void>(resolve => {
+    getDegreeTemplate(templateId).then((template: any) => {
+      commit('resetSession', template)
+      return resolve()
+    })
+  })
+}
 
 const state = {
   addCourseMenuOptions: undefined,
   categories: undefined,
+  courses: undefined,
   createdAt: undefined,
   createdBy: undefined,
   degreeName: undefined,
   degreeNote: undefined,
   disableButtons: false,
-  editMode: undefined,
   sid: undefined,
   templateId: undefined,
-  unassignedCourses: undefined,
   unitRequirements: undefined,
   updatedAt: undefined,
   updatedBy: undefined
@@ -34,24 +39,23 @@ const state = {
 const getters = {
   addCourseMenuOptions: (state: any): any[] => state.addCourseMenuOptions,
   categories: (state: any): any[] => state.categories,
+  courses: (state: any): any[] => state.courses,
   createdAt: (state: any): any[] => state.createdAt,
   createdBy: (state: any): any[] => state.createdBy,
   degreeEditSessionToString: (state: any): any => ({
     categories: state.categories,
+    courses: state.courses,
     degreeName: state.degreeName,
     degreeNote: state.degreeNote,
     disableButtons: state.disableButtons,
-    editMode: state.editMode,
     templateId: state.templateId,
     unitRequirements: state.unitRequirements
   }),
   degreeName: (state: any): string => state.degreeName,
   degreeNote: (state: any): string => state.degreeNote,
   disableButtons: (state: any): boolean => state.disableButtons,
-  editMode: (state: any): string => state.editMode,
-  sid: (state: any): number => state.sid,
+  sid: (state: any): string => state.sid,
   templateId: (state: any): number => state.templateId,
-  unassignedCourses: (state: any): any[] => state.unassignedCourses,
   unitRequirements: (state: any): any[] => state.unitRequirements,
   updatedAt: (state: any): any[] => state.updatedAt,
   updatedBy: (state: any): any[] => state.updatedBy
@@ -62,9 +66,9 @@ const mutations = {
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
     state.disableButtons = false
-    state.editMode = null
     if (template) {
       state.categories = template.categories
+      state.courses = template.courses
       state.createdAt = template.createdAt
       state.createdBy = template.createdBy
       state.degreeName = template.name
@@ -80,17 +84,6 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
-  setEditMode(state: any, editMode: string) {
-    if (_.isNil(editMode)) {
-      state.editMode = null
-    } else if (_.find(EDIT_MODE_TYPES, type => editMode.match(type))) {
-      // Valid mode
-      state.editMode = editMode
-    } else {
-      throw new TypeError(`Invalid page mode: ${editMode}`)
-    }
-  },
-  setUnassignedCourses: (state: any, unassignedCourses: any[]) => state.unassignedCourses = unassignedCourses,
   updateNote: (state: any, note: any) => state.degreeNote = note,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -99,14 +92,7 @@ const actions = {
   assignCourseToCategory: ({commit, state}, {course, category}) => {
     return new Promise<void>(resolve => {
       const categoryId = category && category.id
-      assignCourse(categoryId, course.id).then(() => {
-          store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(resolve)
-          getUnassignedCourses(state.templateId).then(data => {
-            commit('setUnassignedCourses', data)
-            resolve()
-          })
-        }
-      )
+      assignCourse(categoryId, course.id).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   createCategory: ({commit, state}, {
@@ -115,7 +101,6 @@ const actions = {
     name,
     parentCategoryId,
     position,
-    skipRefresh,
     unitRequirementIds,
     units
   }) => {
@@ -130,36 +115,22 @@ const actions = {
         unitRequirementIds,
         units
       ).then(category => {
-        if (skipRefresh) {
-          resolve(category)
-        } else {
-          store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
-            commit('setEditMode', null)
-            resolve(category)
-          })
-        }
+        $_refresh(commit, state.templateId).then(() => resolve(category))
       }
       )
     })
   },
   createUnitRequirement: ({commit, state}, {name, minUnits}) => {
     return new Promise<void>(resolve => {
-      addUnitRequirement(state.templateId, name, minUnits).then(
-        unitRequirement => {
-          commit('addUnitRequirement', unitRequirement)
-          commit('setEditMode', null)
-          resolve()
-        }
-      )
+      addUnitRequirement(state.templateId, name, minUnits).then(unitRequirement => {
+        commit('addUnitRequirement', unitRequirement)
+        resolve()
+      })
     })
   },
-  deleteCategory: ({state}, categoryId) => {
-    return new Promise<void>(resolve => {
-      deleteDegreeCategory(categoryId).then(() => {
-        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
-          resolve()
-        })
-      })
+  deleteCategory: ({commit, state}, categoryId: number) => {
+    return new Promise(resolve => {
+      deleteDegreeCategory(categoryId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   deleteUnitRequirement: ({commit, state}, index: number) => {
@@ -171,37 +142,9 @@ const actions = {
       })
     })
   },
-  init: ({commit}, templateId: number) => {
-    return new Promise<void>(resolve => {
-      if (templateId) {
-        store.dispatch('degreeEditSession/loadTemplate', templateId).then(resolve)
-      } else {
-        commit('resetSession')
-        resolve()
-      }
-    })
-  },
-  loadTemplate: ({commit}, templateId: number) => {
-    return new Promise(resolve => {
-      getUnassignedCourses(templateId).then(data => {
-        commit('setUnassignedCourses', data)
-        getDegreeTemplate(templateId).then((template: any) => {
-          commit('resetSession', template)
-          resolve(template)
-        })
-      })
-    })
-  },
-  refreshUnassignedCourses: ({commit, state}) => {
-    return new Promise<void>(resolve => {
-      getUnassignedCourses(state.templateId).then(data => {
-        commit('setUnassignedCourses', data)
-        resolve()
-      })
-    })
-  },
+  init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
+  refreshTemplate: ({commit}, templateId: number) => new Promise(resolve => $_refresh(commit, templateId).then(resolve)),
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
-  setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode),
   updateNote: ({commit, state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {
@@ -216,7 +159,6 @@ const actions = {
       updateUnitRequirement(id, name, minUnits).then(
         unitRequirement => {
           commit('updateUnitRequirement', {index, unitRequirement})
-          commit('setEditMode', null)
           resolve()
         }
       )
@@ -230,7 +172,7 @@ const actions = {
     unitRequirementIds,
     units
   }) => {
-    return new Promise<void>(resolve => {
+    return new Promise(resolve => {
       updateDegreeCategory(
         categoryId,
         description,
@@ -238,13 +180,7 @@ const actions = {
         parentCategoryId,
         unitRequirementIds,
         units
-      ).then(() => {
-        store.dispatch('degreeEditSession/loadTemplate', state.templateId).then(() => {
-          commit('setEditMode', null)
-          resolve()
-        })
-      }
-      )
+      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   }
 }

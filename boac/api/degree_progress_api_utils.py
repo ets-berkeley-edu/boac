@@ -95,9 +95,10 @@ def fetch_degree_template(template_id):
     return template
 
 
-def lazy_load_unassigned_courses(degree_check):
-    degree_progress_courses = {}
+def partition_courses(degree_check):
+    assigned_courses = []
     unassigned_courses = []
+    degree_progress_courses = {}
     sid = degree_check.student_sid
 
     def _key(section_id_, term_id_):
@@ -116,7 +117,12 @@ def lazy_load_unassigned_courses(degree_check):
                 term_id = term['termId']
                 key = _key(section_id, term_id)
                 existing = degree_progress_courses.get(key)
-                if not existing:
+                if existing:
+                    if existing.category_id:
+                        assigned_courses.append(existing)
+                    else:
+                        unassigned_courses.append(existing)
+                else:
                     grade = section['grade']
                     units = section['units']
                     if section.get('primary') and grade and units:
@@ -131,9 +137,7 @@ def lazy_load_unassigned_courses(degree_check):
                         )
                         degree_progress_courses[key] = course
                         unassigned_courses.append(course)
-                elif not existing.category_id:
-                    unassigned_courses.append(existing)
-    return unassigned_courses
+    return assigned_courses, unassigned_courses
 
 
 def validate_template_upsert(name, template_id=None):
