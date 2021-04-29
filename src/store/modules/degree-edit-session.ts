@@ -61,6 +61,7 @@ const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
+    state.disableButtons = false
     state.editMode = null
     if (template) {
       state.categories = template.categories
