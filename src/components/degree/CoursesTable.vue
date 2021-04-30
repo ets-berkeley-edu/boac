@@ -69,7 +69,9 @@
               >
                 <div class="align-items-start d-flex justify-content-between">
                   <div class="ellipsis-if-overflow">
-                    {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                    <span>
+                      {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                    </span>
                   </div>
                   <div v-if="$_.size(bundle.unitRequirements) > 1" class="unit-requirement-count">
                     <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>

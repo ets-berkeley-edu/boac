@@ -2,10 +2,9 @@
   <div class="m-4">
     <Spinner />
     <div v-if="!loading">
-      <!-- TO DO: Create IDs for necessary elements -->
-      <b-container class="pr-3" fluid>
+      <b-container fluid>
         <b-row>
-          <b-col v-if="student" id="student-degree-info" class="font-size-12">
+          <b-col v-if="student" id="student-degree-info" class="font-size-10">
             <h1 class="font-size-14 font-weight-bold"> {{ student.name }} </h1>
 
             <div class="font-weight-bold">SID {{ student.sid }}</div>
@@ -16,7 +15,6 @@
             <div class="pt-2">
               <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
               <hr class="subsection-divider my-1 mr-5" />
-              <!-- TO DO: Add support for undeclared students (intendedMajor) -->
               <div
                 v-for="plan in student.sisProfile.plans"
                 :key="plan.description"
@@ -39,9 +37,9 @@
           </b-col>
           <b-col id="degree-unit-requirements-info">
             <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
-            <h1 class="font-size-14 pt-2">{{ template.name }}</h1>
+            <h1 class="font-size-12 pt-2">{{ template.name }}</h1>
 
-            <h4 class="font-size-12 mb-0">Unit Requirements</h4>
+            <h4 class="font-size-10 font-weight-bold mb-0">Unit Requirements</h4>
             <div v-if="$_.isEmpty(template.unitRequirements)" class="no-data-text">
               No unit requirements created
             </div>
@@ -56,8 +54,8 @@
                 small
               >
               </b-table>
-              <hr class="subsection-divider mb-0" />
-              <div class="font-weight-bold pt-1">
+              <div class="font-size-8 font-weight-bold pt-0">
+                <hr class="subsection-divider mb-2" />
                 <!-- TO DO: Figure out how to position this correctly -->
                 <span class="float-left">
                   Total Units:
@@ -74,7 +72,7 @@
       <b-container fluid>
         <b-row>
           <b-col
-            v-for="position in [1, 2, 3]"
+            v-for="position in allPositions"
             :key="position"
             class="print-degree-progress-column"
           >
@@ -119,6 +117,14 @@
           </b-col>
         </b-row>
       </b-container>
+
+      <div v-if="template.note && includeNotes" class="ml-3">
+        <hr class="divider" />
+        <h1 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h1>
+        <div class="font-size-8">
+          {{ template.note.body }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -144,6 +150,7 @@ export default {
   mixins: [Context, Loading, Util],
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+    this.includeNotes = this.toBoolean(this.$route.query.includeNotes)
 
     getDegreeTemplate(id).then(data => {
       this.template = data
@@ -175,13 +182,19 @@ export default {
       }
     ],
     template: undefined,
-    student: undefined
+    student: undefined,
+    includeNotes: undefined
   }),
   computed: {
     totalUnits() {
       // TO DO: gather completed units and subtract to get actual total units
-      return this.$_.map(this.template.unitRequirements, 'minUnits')
-        .reduce((accumulator, val) => accumulator + val)
+      return this.template.unitRequirements.length ? this.$_.map(this.template.unitRequirements, 'minUnits')
+        .reduce((accumulator, val) => accumulator + val) : 0
+    },
+    allPositions() {
+      return this.$_.uniq(
+        this.$_.map(this.template.categories, 'position')
+      )
     }
   }
 }
@@ -194,15 +207,29 @@ export default {
   color: #999;
   height: 3px;
 }
-.print-degree-courses > div > table > tbody > tr > td {
+.font-size-10 {
   font-size: 10px;
-  padding: 1px;
 }
-.print-degree-courses > div > table > thead > tr > th {
+.font-size-8 {
   font-size: 8px;
+}
+.print-degree-course-requirements >>> h3 {
+  font-size: 10px;
+}
+.print-degree-course-requirements >>> h2 {
+  font-size: 12px;
 }
 .print-degree-course-requirements >>> button {
   display: none;
+}
+.print-degree-course-requirements >>> td,
+.print-degree-course-requirements >>> span {
+  padding-bottom: 1px;
+  font-size: 10px;
+}
+.print-degree-course-requirements >>> #degree-progress-category-description,
+.print-degree-course-requirements >>> thead th {
+  font-size: 8px;
 }
 .subsection-divider {
   background-color: #999999;
@@ -222,16 +249,11 @@ export default {
   text-align: center;
   width: auto;
 }
-#degree-progress-category-description {
-  font-size: 10px;
+#degree-unit-requirements-info >>> table thead {
+  font-size: 8px;
 }
-#print-unit-requirements-table > tbody > tr > td {
+#degree-unit-requirements-info >>> tbody td {
+  font-size: 8px;
   padding: .1rem;
-}
-#print-unit-requirements-table > thead {
-  font-size: 8px;
-}
-#print-unit-requirements-table {
-  font-size: 8px;
 }
 </style>
