@@ -62,6 +62,7 @@
         <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement
             :index="indexOfSelected"
+            :on-exit="reset"
             :unit-requirement="unitRequirements[indexOfSelected]"
           />
         </div>
@@ -117,7 +118,7 @@ export default {
   }),
   computed: {
     selected() {
-      return this.unitRequirements[this.indexOfSelected]
+      return this.indexOfSelected && this.unitRequirements[this.indexOfSelected]
     }
   },
   methods: {
@@ -151,6 +152,13 @@ export default {
       this.indexOfSelected = index
       this.isEditing = true
     },
+    reset() {
+      const focusId = this.$_.isNil(this.indexOfSelected) ? 'unit-requirement-create-link' : `unit-requirement-${this.unitRequirements[this.indexOfSelected].id}-edit-btn`
+      this.setDisableButtons(false)
+      this.indexOfSelected = null
+      this.isEditing = false
+      this.putFocusNextTick(focusId)
+    }
   }
 }
 </script>

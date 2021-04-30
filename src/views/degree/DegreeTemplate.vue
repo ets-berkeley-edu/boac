@@ -2,13 +2,13 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div v-if="!loading">
-      <div class="border-bottom">
+      <div class="border-bottom pb-3">
         <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
       </div>
-      <div class="border-bottom mt-3 w-50">
+      <div class="border-bottom py-3 w-50">
         <UnitRequirements v-if="templateId" template-id="templateId" />
       </div>
-      <b-container class="px-0 mt-3 mx-0" :fluid="true">
+      <b-container class="mt-4 mx-0 px-0" :fluid="true">
         <b-row>
           <b-col
             v-for="position in [1, 2, 3]"
@@ -20,7 +20,7 @@
           </b-col>
         </b-row>
       </b-container>
-      <div v-if="$config.isVueAppDebugMode" class="pt-5">
+      <div v-if="$config.isVueAppDebugMode" class="h-100 pt-5">
         <DebugTemplate />
       </div>
     </div>
