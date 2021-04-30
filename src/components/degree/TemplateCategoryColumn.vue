@@ -52,20 +52,20 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="$_.size(category.fulfilledBy)" class="pl-1 py-2">
+      <div v-if="$_.size(category.courseIds)" class="pl-1 py-2">
         <CoursesTable
-          :id="`column-${position}-category-${category.id}-fulfilled-by`"
-          :category="category"
-          :items="category.fulfilledBy"
+          :id="`column-${position}-category-${category.id}-courses`"
+          :items="getCourses(category)"
+          :parent-category="category"
           :position="position"
           :student="student"
         />
       </div>
-      <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
+      <div :class="{'pl-1 py-2': $_.size(category.courseRequirements)}">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
-          :category="category"
           :items="category.courseRequirements"
+          :parent-category="category"
           :position="position"
           :student="student"
         />
@@ -90,20 +90,20 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div v-if="$_.size(subcategory.fulfilledBy)" class="pl-1 py-2">
+          <div v-if="$_.size(subcategory.courseIds)" class="pl-1 py-2">
             <CoursesTable
-              :id="`column-${position}-subcategory-${subcategory.id}-fulfilled-by`"
-              :category="subcategory"
-              :items="subcategory.fulfilledBy"
+              :id="`column-${position}-subcategory-${subcategory.id}-courses`"
+              :items="$_.map(subcategory.courseIds, courseId => getCourse(courseId))"
+              :parent-category="subcategory"
               :position="position"
               :student="student"
             />
           </div>
-          <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
+          <div :class="{'pl-1 py-2': $_.size(subcategory.courseRequirements)}">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
-              :category="subcategory"
               :items="subcategory.courseRequirements"
+              :parent-category="subcategory"
               :position="position"
               :student="student"
             />

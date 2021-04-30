@@ -54,6 +54,15 @@ export default {
     },
     findCategoryById(categoryId) {
       return categoryId ? _.find($_flatten(this.categories), ['id', categoryId]) : null
+    },
+    getCourse(courseId) {
+      return _.find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
+    },
+    getCourses(category) {
+      return _.filter(this.courses.assigned.concat(this.courses.unassigned), c => _.includes(category.courseIds, c.id))
+    },
+    isTransientCategory(category) {
+      return category.position === -1
     }
   }
 }

@@ -135,10 +135,6 @@ class DegreeProgressCourse(Base):
         return cls.query.filter_by(degree_check_id=degree_check_id, sid=sid).all()
 
     @classmethod
-    def get_fulfilled_by(cls, category_id):
-        return cls.query.filter_by(category_id=category_id).all()
-
-    @classmethod
     def update(cls, course_id, note, units):
         course = cls.query.filter_by(id=course_id).first()
         course.units = units

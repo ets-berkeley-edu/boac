@@ -21,7 +21,7 @@
             Choose...
           </b-select-option>
           <b-form-select-option-group
-            v-for="(options, label) in {Unassigned: courses.unassigned, Assigned: courses.assigned}"
+            v-for="(options, label) in optionGroups"
             :key="label"
             :label="label"
           >
@@ -99,6 +99,10 @@ export default {
   name: 'AddCourseToCategory',
   mixins: [DegreeEditSession, Util],
   props: {
+    coursesAlreadyAdded: {
+      required: true,
+      type: Array
+    },
     parentCategory: {
       required: true,
       type: Object
@@ -118,6 +122,15 @@ export default {
     isSaving: false,
     selected: null
   }),
+  computed: {
+    optionGroups() {
+      const courseIdsAlreadyAdded = this.$_.map(this.coursesAlreadyAdded, course => course.id)
+      const filter= courses => {
+        return this.$_.filter(courses, course => courseIdsAlreadyAdded.indexOf(course.id) === -1)
+      }
+      return {Unassigned: filter(this.courses.unassigned), Assigned: filter(this.courses.assigned)}
+    }
+  },
   methods: {
     cancel() {
       this.isMenuOpen = this.isSaving =false
@@ -126,13 +139,14 @@ export default {
     },
     onClickSave() {
       this.isSaving = true
+      // Transient 'Course Requirement' category is identified by position=-1.
+      // This 'Course Requirement' category will be deleted if/when the course is unassigned.
       this.createCategory({
         categoryType: 'Course Requirement',
         description: null,
         name: this.selected.name,
         parentCategoryId: this.parentCategory.id,
-        position: this.position,
-        skipRefresh: true,
+        position: -1,
         unitRequirementIds: [],
         units: this.selected.units
       }).then(category => {
