@@ -53,7 +53,7 @@
                 </div>
               </div>
             </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle) && (bundle.course || !student)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
