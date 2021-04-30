@@ -45,25 +45,27 @@
             <div v-if="$_.isEmpty(template.unitRequirements)" class="no-data-text">
               No unit requirements created
             </div>
-            <b-table
-              id="print-unit-requirements-table"
-              :items="template.unitRequirements"
-              :fields="fields"
-              thead-class="sortable-table-header text-nowrap border-bottom"
-              borderless
-              responsive
-              small
-            >
-            </b-table>
-            <hr class="subsection-divider mb-0" />
-            <div class="font-weight-bold pt-1">
-              <!-- TO DO: Figure out how to position this correctly -->
-              <span class="float-left">
-                Total Units:
-              </span>
-              <span class="pl-4">
-                {{ totalUnits }}
-              </span>
+            <div v-if="template.unitRequirements.length">
+              <b-table
+                id="print-unit-requirements-table"
+                :items="template.unitRequirements"
+                :fields="fields"
+                thead-class="sortable-table-header text-nowrap border-bottom"
+                borderless
+                responsive
+                small
+              >
+              </b-table>
+              <hr class="subsection-divider mb-0" />
+              <div class="font-weight-bold pt-1">
+                <!-- TO DO: Figure out how to position this correctly -->
+                <span class="float-left">
+                  Total Units:
+                </span>
+                <span class="pl-4">
+                  {{ totalUnits }}
+                </span>
+              </div>
             </div>
           </b-col>
         </b-row>
