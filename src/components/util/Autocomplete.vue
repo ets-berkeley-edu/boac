@@ -25,9 +25,9 @@
         <b-button
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
-          :disabled="!selectedSuggestion || addButtonLoading"
-          @click="addSuggestion"
-          @keyup.enter="addSuggestion"
+          :disabled="addButtonLoading || addButtonDisabled(query, selectedSuggestion)"
+          @click="onAddButton"
+          @keyup.enter="onAddButton"
         >
           <div v-if="!addButtonLoading">
             <font-awesome icon="plus" /> Add
@@ -89,6 +89,16 @@ export default {
   name: 'Autocomplete',
   mixins: [Context, Util],
   props: {
+    addButtonDisabled: {
+      default: (_query, selectedSuggestion) => !selectedSuggestion,
+      required: false,
+      type: Function
+    },
+    addSelection: {
+      default: () => {},
+      required: false,
+      type: Function
+    },
     demoModeBlur: {
       required: false,
       type: Boolean
@@ -119,11 +129,6 @@ export default {
     inputLabelledBy: {
       required: true,
       type: String
-    },
-    onAddButton: {
-      default: () => {},
-      required: false,
-      type: Function
     },
     onEscFormInput: {
       default: () => {},
@@ -195,13 +200,6 @@ export default {
     document.removeEventListener('click', this.onClickOutside)
   },
   methods: {
-    addSuggestion() {
-      this.addButtonLoading = true
-      this.onAddButton(this.selectedSuggestion).then(() => {
-        this.addButtonLoading = false
-        this.closeSuggestions()
-      })
-    },
     closeSuggestions() {
       if (this.isOpen) {
         this.alertScreenReader('Closing auto-suggest dropdown')
@@ -244,6 +242,13 @@ export default {
       } else {
         this.isOpen = false
       }
+    },
+    onAddButton() {
+      this.addButtonLoading = true
+      this.addSelection(this.selectedSuggestion || this.query).then(() => {
+        this.addButtonLoading = false
+        this.closeSuggestions()
+      })
     },
     onArrowDown() {
       if (this.suggestionElements.length) {

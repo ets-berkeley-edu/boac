@@ -358,6 +358,11 @@ select.form-control {
 .w-30 {
   width: 30% !important;
 }
+.warning-message-container {
+  background-color: #fbf7dc;
+  border-radius: 4px;
+  color: #795f31;
+}
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }

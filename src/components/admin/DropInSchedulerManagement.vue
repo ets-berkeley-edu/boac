@@ -6,9 +6,9 @@
       <Autocomplete
         id="add-scheduler-input"
         class="w-50"
+        :add-selection="addScheduler"
         :demo-mode-blur="true"
         input-labelled-by="add-scheduler-input-label"
-        :on-add-button="addScheduler"
         placeholder="Add scheduler by name or SID"
         :show-add-button="true"
         :source="schedulersByNameOrSid"
