@@ -3,24 +3,25 @@
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
-          <h2 class="font-size-20 font-weight-bold text-nowrap pb-2">Unit Requirements</h2>
-          <b-btn
-            v-if="$currentUser.canEditDegreeProgress"
-            id="unit-requirement-create-link"
-            class="pr-0 py-0"
-            :disabled="disableButtons"
-            variant="link"
-            @click.prevent="onClickAdd"
-          >
-            <div class="align-items-center d-flex justify-content-between">
-              <div class="pr-2 text-nowrap">
-                Add unit requirement
+          <h2 class="font-size-20 font-weight-bold text-nowrap pb-2 pr-2">Unit Requirements</h2>
+          <div v-if="!student && $currentUser.canEditDegreeProgress">
+            <b-btn
+              id="unit-requirement-create-link"
+              class="pr-0 py-0"
+              :disabled="disableButtons"
+              variant="link"
+              @click.prevent="onClickAdd"
+            >
+              <div class="align-items-center d-flex justify-content-between">
+                <div class="pr-2 text-nowrap">
+                  Add unit requirement
+                </div>
+                <div>
+                  <font-awesome class="font-size-16" icon="plus" />
+                </div>
               </div>
-              <div>
-                <font-awesome class="font-size-16" icon="plus" />
-              </div>
-            </div>
-          </b-btn>
+            </b-btn>
+          </div>
         </div>
         <div v-if="!isEditing">
           <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
@@ -91,6 +92,13 @@ export default {
   name: 'UnitRequirements',
   components: {AreYouSureModal, EditUnitRequirement},
   mixins: [Context, DegreeEditSession, Util],
+  props: {
+    student: {
+      default: undefined,
+      required: false,
+      type: Object
+    }
+  },
   data: () => ({
     fields: [
       {
