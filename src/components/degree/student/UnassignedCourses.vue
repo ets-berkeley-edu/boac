@@ -106,13 +106,10 @@ export default {
       this.setDisableButtons(false)
     },
     afterSave(course) {
-      Object.assign(this.courseForEdit, course)
       this.courseForEdit = null
-      this.refreshTemplate().then(() => {
-        this.$announcer.polite(`Updated course ${course.name}`)
-        this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
-        this.setDisableButtons(false)
-      })
+      this.$announcer.polite(`Updated course ${course.name}`)
+      this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
+      this.setDisableButtons(false)
     },
     edit(course) {
       this.setDisableButtons(true)

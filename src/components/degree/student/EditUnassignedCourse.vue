@@ -59,7 +59,6 @@
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
-import {updateCourse} from '@/api/degree'
 
 export default {
   name: 'EditUnassignedCourse',
@@ -101,11 +100,11 @@ export default {
     update() {
       if (!this.disableSaveButton) {
         this.isSaving = true
-        updateCourse(
-          this.course.id,
-          this.note,
-          this.units
-        ).then(data => {
+        this.updateCourse({
+          courseId: this.course.id,
+          note: this.note,
+          units: this.units
+        }).then(data => {
           this.$announcer.polite('Course updated')
           this.afterSave(data)
         })
