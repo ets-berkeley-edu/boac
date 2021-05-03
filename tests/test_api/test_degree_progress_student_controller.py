@@ -387,9 +387,10 @@ class TestCopyCourse:
         course = api_json['courses']['unassigned'][-1]
         course_id = course['id']
         section_id = course['sectionId']
+        copied_course_ids = []
 
         def _copy_course(category_id, expected_status_code=200):
-            return self._api_copy_course(
+            course_copy = self._api_copy_course(
                 category_id=category_id,
                 client=client,
                 expected_status_code=expected_status_code,
@@ -397,6 +398,10 @@ class TestCopyCourse:
                 sid=sid,
                 term_id=course['termId'],
             )
+            if expected_status_code == 200:
+                copied_course_ids.append(course_copy['id'])
+            return course_copy
+
         # Verify: user cannot copy an unassigned course.
         _copy_course(category_id=category_1.id, expected_status_code=400)
         # Verify: user cannot copy course to a category which already has the course.
@@ -421,6 +426,17 @@ class TestCopyCourse:
         copy_of_course = _copy_course(category_id=category_2.id)
         assert copy_of_course['id'] != course_id
         assert copy_of_course['sectionId'] == section_id
+        # Verify 'isCopy' property per course
+        degree_json = _api_get_degree(client=client, degree_check_id=degree_check_id)
+        assigned_courses = degree_json['courses']['assigned']
+        unassigned_courses = degree_json['courses']['unassigned']
+        assert len(assigned_courses)
+        assert len(unassigned_courses)
+        # Expect no "copies" in the Unassigned set of courses.
+        assert True not in [c['isCopy'] for c in unassigned_courses]
+        for assigned_course in assigned_courses:
+            course_id = assigned_course['id']
+            assert assigned_course['isCopy'] == (course_id in copied_course_ids)
 
 
 class TestUpdateDegreeNote:

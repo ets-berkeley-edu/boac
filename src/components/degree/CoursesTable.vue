@@ -19,7 +19,7 @@
         <b-tbody>
           <b-tr v-for="(bundle, index) in categoryCourseBundles" :id="`course-${bundle.category.id}-table-row`" :key="index">
             <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
-              <div v-if="!isEditing(bundle) && bundle.course && !isCopyOfCourse(bundle)">
+              <div v-if="!isEditing(bundle) && bundle.course && !bundle.course.isCopy">
                 <CourseAssignmentMenu
                   v-if="bundle.course.categoryId"
                   :course="bundle.course"
@@ -53,7 +53,7 @@
                 </div>
               </div>
             </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle) && (bundle.course || !student)" class="pr-0 w-10">
+            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle) && isEditable(bundle)" class="pr-0 w-10">
               <div class="d-flex justify-content-end text-nowrap">
                 <b-btn
                   :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
@@ -68,7 +68,7 @@
                   <span class="sr-only">Edit {{ bundle.name }}</span>
                 </b-btn>
                 <b-btn
-                  v-if="!student || isCopyOfCourse(bundle.category)"
+                  v-if="!student || (bundle.course && bundle.course.isCopy)"
                   :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
@@ -220,8 +220,9 @@ export default {
       this.bundleForEdit = bundle
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
-    isCopyOfCourse(bundle) {
-      return bundle.course && bundle.course.id !== bundle.category.courseIds[0]
+    isEditable(bundle) {
+      // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
+      return bundle.course || !this.student
     },
     isEditing(bundle) {
       return this.$_.get(bundle, 'category.id') === this.$_.get(this.bundleForEdit, 'category.id')

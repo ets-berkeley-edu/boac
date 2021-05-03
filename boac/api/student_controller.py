@@ -120,4 +120,4 @@ def _get_name_range_boundaries(values):
 
 def _put_degree_checks_json(student):
     if 'coeProfile' in student and current_user.can_read_degree_progress:
-        student['degreeChecks'] = get_degree_checks_json(student['sid'])
+        student['degreeChecks'] = get_degree_checks_json(sid=student['sid'])

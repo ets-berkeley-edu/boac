@@ -24,9 +24,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.externals import data_loch
 from boac.lib.util import utc_now
+from boac.merged.sis_terms import current_term_id
+from boac.merged.student import merge_enrollment_terms
 from boac.models.base import Base
 from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
@@ -130,9 +134,9 @@ class DegreeProgressTemplate(Base):
         std_commit()
         return template
 
-    def to_api_json(self):
+    def to_api_json(self, include_courses=False):
         unit_requirements = [u.to_api_json() for u in self.unit_requirements]
-        return {
+        api_json = {
             'id': self.id,
             'advisorDeptCodes': self.advisor_dept_codes,
             'categories': DegreeProgressCategory.get_categories(template_id=self.id),
@@ -145,6 +149,69 @@ class DegreeProgressTemplate(Base):
             'updatedAt': _isoformat(self.updated_at),
             'updatedBy': self.updated_by,
         }
+        if self.student_sid and include_courses:
+            assigned_courses, unassigned_courses = self._get_partitioned_courses_json()
+            api_json['courses'] = {
+                'assigned': assigned_courses,
+                'unassigned': unassigned_courses,
+            }
+        return api_json
+
+    def _get_partitioned_courses_json(self):
+        assigned_courses = []
+        unassigned_courses = []
+        degree_progress_courses = {}
+        sid = self.student_sid
+        # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
+        courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
+        courses = sorted(courses, key=lambda c: c.created_at)
+
+        def _key(section_id_, term_id_):
+            return f'{section_id_}_{term_id_}'
+        for course in courses:
+            key = _key(course.section_id, course.term_id)
+            if key not in degree_progress_courses:
+                degree_progress_courses[key] = []
+            degree_progress_courses[key].append(course)
+
+        enrollments = data_loch.get_enrollments_for_sid(
+            sid=sid,
+            latest_term_id=current_term_id(),
+        )
+        for index, term in enumerate(merge_enrollment_terms(enrollments)):
+            for enrollment in term.get('enrollments', []):
+                for section in enrollment['sections']:
+                    section_id = section['ccn']
+                    term_id = term['termId']
+                    key = _key(section_id, term_id)
+                    if key in degree_progress_courses:
+                        for idx, course in enumerate(degree_progress_courses[key]):
+                            course_json = {
+                                **course.to_api_json(),
+                                'isCopy': idx > 0,
+                            }
+                            if course_json['categoryId']:
+                                assigned_courses.append(course_json)
+                            else:
+                                unassigned_courses.append(course_json)
+                    else:
+                        grade = section['grade']
+                        units = section['units']
+                        if section.get('primary') and grade and units:
+                            course = DegreeProgressCourse.create(
+                                degree_check_id=self.id,
+                                display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
+                                grade=grade,
+                                section_id=section_id,
+                                sid=sid,
+                                term_id=term_id,
+                                units=units,
+                            )
+                            unassigned_courses.append({
+                                **course.to_api_json(),
+                                'isCopy': False,
+                            })
+        return assigned_courses, unassigned_courses
 
 
 def _isoformat(value):

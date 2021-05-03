@@ -278,13 +278,13 @@ def drop_in_advisors_for_dept_code(dept_code):
     return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 
-def get_degree_checks_json(sid):
+def get_degree_checks_json(sid, include_courses=False):
     api_json = []
     # The last updated record is considered 'current'.
     order_by = desc(DegreeProgressTemplate.updated_at)
     for index, degree_check in enumerate(DegreeProgressTemplate.find_by_sid(student_sid=sid, order_by=order_by)):
         api_json.append({
-            **degree_check.to_api_json(),
+            **degree_check.to_api_json(include_courses=include_courses),
             'isCurrent': index == 0,
         })
     return api_json
