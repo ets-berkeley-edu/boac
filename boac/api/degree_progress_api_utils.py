@@ -24,12 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
-from boac.merged.sis_terms import current_term_id
-from boac.merged.student import merge_enrollment_terms
 from boac.models.degree_progress_category import DegreeProgressCategory
-from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask_login import current_user
@@ -93,51 +89,6 @@ def fetch_degree_template(template_id):
     if not template:
         raise ResourceNotFoundError(f'No template found with id={template_id}.')
     return template
-
-
-def partition_courses(degree_check):
-    assigned_courses = []
-    unassigned_courses = []
-    degree_progress_courses = {}
-    sid = degree_check.student_sid
-
-    def _key(section_id_, term_id_):
-        return f'{section_id_}_{term_id_}'
-    for course in DegreeProgressCourse.find_by_sid(degree_check_id=degree_check.id, sid=sid):
-        degree_progress_courses[_key(course.section_id, course.term_id)] = course
-
-    enrollments = data_loch.get_enrollments_for_sid(
-        sid=sid,
-        latest_term_id=current_term_id(),
-    )
-    for index, term in enumerate(merge_enrollment_terms(enrollments)):
-        for enrollment in term.get('enrollments', []):
-            for section in enrollment['sections']:
-                section_id = section['ccn']
-                term_id = term['termId']
-                key = _key(section_id, term_id)
-                existing = degree_progress_courses.get(key)
-                if existing:
-                    if existing.category_id:
-                        assigned_courses.append(existing)
-                    else:
-                        unassigned_courses.append(existing)
-                else:
-                    grade = section['grade']
-                    units = section['units']
-                    if section.get('primary') and grade and units:
-                        course = DegreeProgressCourse.create(
-                            degree_check_id=degree_check.id,
-                            display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
-                            grade=grade,
-                            section_id=section_id,
-                            sid=sid,
-                            term_id=term_id,
-                            units=units,
-                        )
-                        degree_progress_courses[key] = course
-                        unassigned_courses.append(course)
-    return assigned_courses, unassigned_courses
 
 
 def validate_template_upsert(name, template_id=None):

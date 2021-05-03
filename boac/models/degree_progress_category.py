@@ -197,13 +197,11 @@ class DegreeProgressCategory(Base):
         return cls.find_by_id(category_id=category_id)
 
     def to_api_json(self):
-        # Order courses by created_at date (ascending) so primary assignment is first and all others are secondary.
-        courses = sorted(DegreeProgressCourse.find_by_category_id(category_id=self.id), key=lambda c: c.created_at)
         unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'id': self.id,
             'categoryType': self.category_type,
-            'courseIds': [c.id for c in courses],
+            'courseIds': [c.id for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
             'name': self.name,

@@ -23,8 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, partition_courses, \
-    validate_template_upsert
+from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_upsert
 from boac.api.errors import BadRequestError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
@@ -96,15 +95,7 @@ def delete_unit_requirement(unit_requirement_id):
 @app.route('/api/degree/<template_id>')
 @can_read_degree_progress
 def get_degree_template(template_id):
-    degree = fetch_degree_template(template_id)
-    api_json = degree.to_api_json()
-    if degree.student_sid:
-        assigned_courses, unassigned_courses = partition_courses(degree)
-        api_json['courses'] = {
-            'assigned': [c.to_api_json() for c in assigned_courses],
-            'unassigned': [c.to_api_json() for c in unassigned_courses],
-        }
-    return tolerant_jsonify(api_json)
+    return tolerant_jsonify(fetch_degree_template(template_id).to_api_json(include_courses=True))
 
 
 @app.route('/api/degree/templates')

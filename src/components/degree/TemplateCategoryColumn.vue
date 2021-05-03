@@ -60,7 +60,6 @@
           :position="position"
           :student="student"
         />
-        xxx
       </div>
       <div :class="{'pl-1 py-2': $_.size(category.courseRequirements)}">
         <CoursesTable
