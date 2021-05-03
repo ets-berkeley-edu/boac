@@ -7,6 +7,7 @@ import {
   deleteDegreeCategory,
   deleteUnitRequirement,
   getDegreeTemplate,
+  updateCourse,
   updateDegreeCategory,
   updateDegreeNote,
   updateUnitRequirement
@@ -149,8 +150,14 @@ const actions = {
     })
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
-  refreshTemplate: ({commit}, templateId: number) => new Promise(resolve => $_refresh(commit, templateId).then(resolve)),
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
+  updateCourse: ({commit, state}, {courseId, note, units}) => {
+    return new Promise(resolve => {
+      updateCourse(courseId, note, units).then(data => {
+        $_refresh(commit, state.templateId).then(() => resolve(data))
+      })
+    })
+  },
   updateNote: ({commit, state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {

@@ -47,6 +47,7 @@ export default {
       'init',
       'setDisableButtons',
       'updateCategory',
+      'updateCourse',
       'updateNote',
       'updateUnitRequirement'
     ]),
