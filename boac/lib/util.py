@@ -152,6 +152,13 @@ def to_bool_or_none(arg):
     return None if s is None else bool(s)
 
 
+def to_int_or_none(s):
+    try:
+        return int(s)
+    except ValueError:
+        return None
+
+
 def unix_timestamp_to_localtime(epoch):
     utc_from_timestamp = datetime.utcfromtimestamp(epoch).replace(tzinfo=pytz.utc)
     return localize_datetime(utc_from_timestamp)

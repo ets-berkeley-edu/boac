@@ -39,6 +39,7 @@ export default {
   methods: {
     ...mapActions('degreeEditSession', [
       'assignCourseToCategory',
+      'copyCourseAndAssign',
       'createCategory',
       'createUnitRequirement',
       'deleteCategory',
@@ -60,9 +61,6 @@ export default {
     },
     getCourses(category) {
       return _.filter(this.courses.assigned.concat(this.courses.unassigned), c => _.includes(category.courseIds, c.id))
-    },
-    isTransientCategory(category) {
-      return category.position === -1
     }
   }
 }

@@ -2,6 +2,7 @@ import _ from 'lodash'
 import {
   addUnitRequirement,
   assignCourse,
+  copyCourseAndAssign,
   createDegreeCategory,
   deleteDegreeCategory,
   deleteUnitRequirement,
@@ -93,6 +94,11 @@ const actions = {
     return new Promise<void>(resolve => {
       const categoryId = category && category.id
       assignCourse(categoryId, course.id).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    })
+  },
+  copyCourseAndAssign: ({commit, state}, {categoryId, sectionId, sid, termId}) => {
+    return new Promise<void>(resolve => {
+      copyCourseAndAssign(categoryId, sectionId, sid, termId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   createCategory: ({commit, state}, {

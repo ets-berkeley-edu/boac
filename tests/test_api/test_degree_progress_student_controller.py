@@ -53,7 +53,7 @@ def mock_degree_course():
         degree_check_id=degree_check.id,
         display_name=f'The Decline of Western Civilization ({marker})',
         grade='B+',
-        section_id=1905013,
+        section_id=datetime.utcfromtimestamp(0).microsecond,
         sid=coe_student_sid,
         term_id=2218,
         units=4,
@@ -107,46 +107,93 @@ def mock_note():
 class TestAssignCourse:
 
     @classmethod
-    def _api_get_template(cls, client, template_id, expected_status_code=200):
-        response = client.get(f'/api/degree/{template_id}')
+    def _api_create_category(cls, client, template_id, expected_status_code=200):
+        response = client.post(
+            '/api/degree/category/create',
+            data=json.dumps({
+                'categoryType': 'Category',
+                'name': f'Category of the now: {datetime.now()}',
+                'parentCategoryId': None,
+                'position': 2,
+                'templateId': template_id,
+            }),
+            content_type='application/json',
+        )
         assert response.status_code == expected_status_code
-        return response.json
+        return json.loads(response.data)
 
     def test_anonymous(self, client, mock_degree_course):
         """Denies anonymous user."""
-        _api_assign_course(client, category_id=1, course=mock_degree_course, expected_status_code=401)
+        _api_assign_course(category_id=1, client=client, course_id=mock_degree_course.id, expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth, mock_degree_course):
         """Denies unauthorized user."""
         fake_auth.login(coe_advisor_read_only_uid)
-        _api_assign_course(client, category_id=1, course=mock_degree_course, expected_status_code=401)
+        _api_assign_course(category_id=1, client=client, course_id=mock_degree_course.id, expected_status_code=401)
 
-    def test_create_category(self, client, fake_auth, mock_degree_course):
-        """Authorized user can create a degree check."""
-        degree_check_id = mock_degree_course.degree_check_id
-        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
-        fake_auth.login(user.uid)
-        category = DegreeProgressCategory.create(
-            category_type='Course Requirement',
-            course_units='3',
-            name='History of Western Philosophy',
-            position=1,
-            template_id=degree_check_id,
+    def test_illegal_assign(self, client, fake_auth):
+        """A course cannot be assigned to a category with a subcategory."""
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(advisor.uid)
+        sid = '11667051'
+        # Set up
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=advisor.id,
+            degree_name=f'Degree for {sid}',
+            student_sid=sid,
         )
-        _api_assign_course(client, category_id=category.id, course=mock_degree_course)
-        # Verify
-        api_json = self._api_get_template(client, template_id=degree_check_id)
-        categories_json = api_json['categories']
-        assert len(categories_json) == 1
+        category = DegreeProgressCategory.create(category_type='Category', name=f'Category for {sid}', position=1, template_id=degree_check.id)
+        # Subcategory
+        subcategory = DegreeProgressCategory.create(
+            category_type='Subcategory',
+            name=f'Subcategory for {sid}',
+            parent_category_id=category.id,
+            position=category.position,
+            template_id=degree_check.id,
+        )
+        std_commit(allow_test_environment=True)
 
-        category_json = categories_json[0]
-        assert category_json['id'] == category.id
-        course_ids = category_json['courseIds']
-        assert len(course_ids) == 1
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        course_id = api_json['courses']['unassigned'][-1]['id']
+        # Expect failure
+        _api_assign_course(category_id=category.id, client=client, course_id=course_id, expected_status_code=400)
+        # Expect success
+        _api_assign_course(category_id=subcategory.id, client=client, course_id=course_id)
 
-        course = DegreeProgressCourse.find_by_id(course_ids[0])
-        assert course.display_name == mock_degree_course.display_name
-        assert course.category_id == category.id
+    def test_assign_and_unassign_course(self, client, fake_auth):
+        """User can assign and unassign a course."""
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(advisor.uid)
+        sid = '11667051'
+        # Set up
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=advisor.id,
+            degree_name=f'Degree check for {sid}',
+            student_sid=sid,
+        )
+        category = DegreeProgressCategory.create(
+            category_type='Category',
+            name=f'Category for {sid}',
+            position=1,
+            template_id=degree_check.id,
+        )
+        std_commit(allow_test_environment=True)
+        # Assign
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        course_id = api_json['courses']['unassigned'][-1]['id']
+        course = _api_assign_course(category_id=category.id, client=client, course_id=course_id)
+        # Verify assignment
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        assert course['categoryId'] == category.id
+        assert course_id in [c['id'] for c in api_json['courses']['assigned']]
+        assert course_id not in [c['id'] for c in api_json['courses']['unassigned']]
+        # Unassign
+        _api_assign_course(category_id=None, client=client, course_id=course_id)
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        assert course_id not in [c['id'] for c in api_json['courses']['assigned']]
+        assert course_id in [c['id'] for c in api_json['courses']['unassigned']]
 
 
 class TestCreateStudentDegreeCheck:
@@ -217,61 +264,163 @@ class TestGetStudentDegreeChecks:
         assert degree_checks[2]['isCurrent'] is False
 
 
-class TestGetUnassignedCourses:
+class TestUnassignedCourses:
 
-    @classmethod
-    def _api_get_degree(cls, client, degree_check_id, expected_status_code=200):
-        response = client.get(f'/api/degree/{degree_check_id}')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_authorized(self, client, fake_auth, mock_degree_checks):
-        """Authorized user can get student degree checks."""
+    def test_unassigned_courses(self, client, fake_auth):
+        """Authorized user can un-assign a course."""
         advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         fake_auth.login(advisor.uid)
-
-        sid_with_enrollments = '11667051'
-
+        # Set up
+        sid = '11667051'
         degree_check = DegreeProgressTemplate.create(
             advisor_dept_codes=['COENG'],
             created_by=advisor.id,
-            degree_name=f'Degree check for {sid_with_enrollments}',
-            student_sid=sid_with_enrollments,
+            degree_name=f'Degree check for {sid}',
+            student_sid=sid,
         )
         category = DegreeProgressCategory.create(
             category_type='Category',
-            name=f'Category for {sid_with_enrollments}',
+            name=f'Category for {sid}',
             position=1,
             template_id=degree_check.id,
         )
         std_commit(allow_test_environment=True)
-
-        api_json = self._api_get_degree(client, degree_check_id=degree_check.id)
-        # Fetch assigned and unassigned courses
+        # Fetch
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         assigned_courses = api_json['courses']['assigned']
-        assigned_course_count = len(assigned_courses)
         unassigned_courses = api_json['courses']['unassigned']
-        unassigned_course_count = len(unassigned_courses)
         assert len(unassigned_courses)
-
-        # Get one of the unassigned courses...
-        unassigned_course = DegreeProgressCourse.query.filter_by(
-            section_id=unassigned_courses[-1]['sectionId'],
-            sid=unassigned_courses[-1]['sid'],
-            term_id=unassigned_courses[-1]['termId'],
-        ).first()
-        # ...and then assign it to a category.
-        _api_assign_course(client, category_id=category.id, course=unassigned_course)
-        api_json = self._api_get_degree(client, degree_check_id=degree_check.id)
-
+        assigned_course_count = len(assigned_courses)
+        unassigned_course_count = len(unassigned_courses)
+        # Assign
+        unassigned_course = unassigned_courses[-1]
+        _api_assign_course(client=client, category_id=category.id, course_id=unassigned_course['id'])
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         # Verify
         assigned_courses = api_json['courses']['assigned']
         assert len(assigned_courses) == assigned_course_count + 1
-        assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course.section_id), None)
+        assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course['sectionId']), None)
 
         unassigned_courses = api_json['courses']['unassigned']
         assert len(unassigned_courses) == unassigned_course_count - 1
-        assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course.section_id), None) is None
+        assert next((c for c in unassigned_courses if c['sectionId'] == unassigned_course['sectionId']), None) is None
+
+
+class TestCopyCourse:
+
+    @classmethod
+    def _api_copy_course(
+            cls,
+            category_id,
+            client,
+            section_id,
+            sid,
+            term_id,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            '/api/degree/course/copy',
+            data=json.dumps({
+                'categoryId': category_id,
+                'sectionId': section_id,
+                'sid': sid,
+                'termId': term_id,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_copy_course(
+            category_id=1,
+            client=client,
+            expected_status_code=401,
+            section_id=12345,
+            sid=coe_student_sid,
+            term_id=2218,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_copy_course(
+            category_id=1,
+            client=client,
+            expected_status_code=401,
+            section_id=12345,
+            sid=coe_student_sid,
+            term_id=2218,
+        )
+
+    def test_copy_course(self, client, fake_auth):
+        """User can copy course and add it to a category."""
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(advisor.uid)
+        sid = '11667051'
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=advisor.id,
+            degree_name=f'Degree for {sid}',
+            student_sid=sid,
+        )
+        std_commit(allow_test_environment=True)
+        degree_check_id = degree_check.id
+
+        # Set up
+        def _create_category(category_type='Category', parent_category_id=None):
+            category = DegreeProgressCategory.create(
+                category_type=category_type,
+                name=f'{category_type} for {sid} ({datetime.now().timestamp()})',
+                parent_category_id=parent_category_id,
+                position=1,
+                template_id=degree_check_id,
+            )
+            return category
+        category_1 = _create_category()
+        category_2 = _create_category()
+        std_commit(allow_test_environment=True)
+
+        # Get sample course from list of unassigned courses
+        api_json = _api_get_degree(client=client, degree_check_id=degree_check_id)
+        course = api_json['courses']['unassigned'][-1]
+        course_id = course['id']
+        section_id = course['sectionId']
+
+        def _copy_course(category_id, expected_status_code=200):
+            return self._api_copy_course(
+                category_id=category_id,
+                client=client,
+                expected_status_code=expected_status_code,
+                section_id=section_id,
+                sid=sid,
+                term_id=course['termId'],
+            )
+        # Verify: user cannot copy an unassigned course.
+        _copy_course(category_id=category_1.id, expected_status_code=400)
+        # Verify: user cannot copy course to a category which already has the course.
+        _api_assign_course(category_id=category_1.id, client=client, course_id=course_id)
+        by_id = DegreeProgressCourse.find_by_id(course_id)
+        assert by_id.category_id == category_1.id
+        _copy_course(category_id=category_1.id, expected_status_code=400)
+
+        subcategory = _create_category(category_type='Subcategory', parent_category_id=category_1.id)
+        # Verify: user cannot copy course to a category which has subcategories.
+        _copy_course(category_id=category_1.id, expected_status_code=400)
+
+        # Verify we can create a copy of course in subcategory, thereby provisioning a new 'Course Requirement'
+        child_count = len(DegreeProgressCategory.find_by_parent_category_id(subcategory.id))
+        copy_of_course = _copy_course(category_id=subcategory.id)
+        children = DegreeProgressCategory.find_by_parent_category_id(subcategory.id)
+        assert len(children) == child_count + 1
+        assert children[0].category_type == 'Course Requirement'
+        assert copy_of_course['categoryId'] == children[0].id
+
+        # Finally, we create a copy for a separate category and expect success.
+        copy_of_course = _copy_course(category_id=category_2.id)
+        assert copy_of_course['id'] != course_id
+        assert copy_of_course['sectionId'] == section_id
 
 
 class TestUpdateDegreeNote:
@@ -318,11 +467,17 @@ class TestUpdateDegreeNote:
         assert api_json['body'] == body
 
 
-def _api_assign_course(client, category_id, course, expected_status_code=200):
+def _api_assign_course(category_id, client, course_id, expected_status_code=200):
     response = client.post(
-        f'/api/degree/course/{course.id}/assign',
+        f'/api/degree/course/{course_id}/assign',
         data=json.dumps({'categoryId': category_id}),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code
     return json.loads(response.data)
+
+
+def _api_get_degree(client, degree_check_id, expected_status_code=200):
+    response = client.get(f'/api/degree/{degree_check_id}')
+    assert response.status_code == expected_status_code
+    return response.json

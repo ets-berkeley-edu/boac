@@ -40,8 +40,6 @@ degree_progress_category_type = ENUM(
     create_type=False,
 )
 
-TRANSIENT_CATEGORY_POSITION = -1
-
 
 class DegreeProgressCategory(Base):
     __tablename__ = 'degree_progress_categories'
@@ -134,6 +132,10 @@ class DegreeProgressCategory(Base):
     @classmethod
     def find_by_id(cls, category_id):
         return cls.query.filter_by(id=category_id).first()
+
+    @classmethod
+    def find_by_parent_category_id(cls, parent_category_id):
+        return cls.query.filter_by(parent_category_id=parent_category_id).all()
 
     @classmethod
     def get_categories(cls, template_id):

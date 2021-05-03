@@ -139,23 +139,17 @@ export default {
     },
     onClickSave() {
       this.isSaving = true
-      // Transient 'Course Requirement' category is identified by position=-1.
       // This 'Course Requirement' category will be deleted if/when the course is unassigned.
-      this.createCategory({
-        categoryType: 'Course Requirement',
-        description: null,
-        name: this.selected.name,
-        parentCategoryId: this.parentCategory.id,
-        position: -1,
-        unitRequirementIds: [],
-        units: this.selected.units
-      }).then(category => {
-        this.assignCourseToCategory({course: this.selected, category}).then(() => {
-          this.isMenuOpen = this.isSaving = false
-          this.selected = null
-          this.setDisableButtons(false)
-          this.$announcer.polite(`Course added to ${this.parentCategory.name}`)
-        })
+      this.copyCourseAndAssign({
+        categoryId: this.parentCategory.id,
+        sectionId: this.selected.sectionId,
+        sid: this.selected.sid,
+        termId: this.selected.termId
+      }).then(() => {
+        this.isMenuOpen = this.isSaving = false
+        this.selected = null
+        this.setDisableButtons(false)
+        this.$announcer.polite(`Course added to ${this.parentCategory.name}`)
       })
     },
     onSelect() {
