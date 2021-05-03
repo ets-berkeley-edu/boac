@@ -52,7 +52,7 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="$_.size(category.courseIds)" class="pl-1 py-2">
+      <div v-if="$_.size(category.courseIds) && !category.subcategories.length" class="pl-1 py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="getCourses(category)"
@@ -60,6 +60,7 @@
           :position="position"
           :student="student"
         />
+        xxx
       </div>
       <div :class="{'pl-1 py-2': $_.size(category.courseRequirements)}">
         <CoursesTable
@@ -70,7 +71,7 @@
           :student="student"
         />
       </div>
-      <div v-if="$_.size(category.subcategories)">
+      <div v-if="category.subcategories.length">
         <div
           v-for="subcategory in category.subcategories"
           :id="`column-${position}-subcategory-${subcategory.id}`"

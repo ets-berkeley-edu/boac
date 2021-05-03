@@ -19,7 +19,7 @@
         <b-tbody>
           <b-tr v-for="(bundle, index) in categoryCourseBundles" :id="`course-${bundle.category.id}-table-row`" :key="index">
             <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
-              <div v-if="!isEditing(bundle) && bundle.course && !isTransientCategory(bundle.category)">
+              <div v-if="!isEditing(bundle) && bundle.course && !isCopyOfCourse(bundle)">
                 <CourseAssignmentMenu
                   v-if="bundle.course.categoryId"
                   :course="bundle.course"
@@ -68,7 +68,7 @@
                   <span class="sr-only">Edit {{ bundle.name }}</span>
                 </b-btn>
                 <b-btn
-                  v-if="!student || isTransientCategory(bundle.category)"
+                  v-if="!student || isCopyOfCourse(bundle.category)"
                   :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                   class="px-0 pt-0"
                   :disabled="disableButtons"
@@ -219,6 +219,9 @@ export default {
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
       this.putFocusNextTick(`column-${this.position}-name-input`)
+    },
+    isCopyOfCourse(bundle) {
+      return bundle.course && bundle.course.id !== bundle.category.courseIds[0]
     },
     isEditing(bundle) {
       return this.$_.get(bundle, 'category.id') === this.$_.get(this.bundleForEdit, 'category.id')

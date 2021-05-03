@@ -123,6 +123,11 @@ class DegreeProgressCourse(Base):
         return course
 
     @classmethod
+    def delete(cls, course):
+        db.session.delete(course)
+        std_commit()
+
+    @classmethod
     def find_by_id(cls, course_id):
         return cls.query.filter_by(id=course_id).first()
 
@@ -133,6 +138,15 @@ class DegreeProgressCourse(Base):
     @classmethod
     def find_by_sid(cls, degree_check_id, sid):
         return cls.query.filter_by(degree_check_id=degree_check_id, sid=sid).all()
+
+    @classmethod
+    def get_courses(cls, degree_check_id, section_id, sid, term_id):
+        return cls.query.filter_by(
+            degree_check_id=degree_check_id,
+            section_id=section_id,
+            sid=sid,
+            term_id=term_id,
+        ).all()
 
     @classmethod
     def update(cls, course_id, note, units):
