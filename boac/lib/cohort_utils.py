@@ -128,8 +128,8 @@ def genders():
 def grad_terms():
     current_term_id_ = current_term_id()
     option_groups = {
-        'Past': [],
         'Future': [],
+        'Past': [],
     }
     for term_id in [r['expected_grad_term'] for r in data_loch.get_expected_graduation_terms()]:
         key = 'Past' if term_id < current_term_id_ else 'Future'
