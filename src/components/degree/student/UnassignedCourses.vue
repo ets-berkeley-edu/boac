@@ -23,55 +23,49 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr
-            v-for="(course, index) in courses.unassigned"
-            :id="`unassigned-course-${course.termId}-${course.sectionId}`"
-            :key="index"
-          >
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="td-course-assignment-menu">
-              <CourseAssignmentMenu
-                :course="course"
-                :student="student"
-              />
-            </td>
-            <td v-if="!isEditing(course)" class="pl-0">
-              {{ course.name }}
-            </td>
-            <td v-if="!isEditing(course)">
-              <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
-            </td>
-            <td v-if="!isEditing(course)">
-              {{ course.grade || '&mdash;' }}
-            </td>
-            <td v-if="!isEditing(course)">
-              {{ course.termName }}
-            </td>
-            <td v-if="!isEditing(course)">
-              {{ course.note }}
-            </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(course)" class="pr-0">
-              <b-btn
-                :id="`edit-course-${course.id}-btn`"
-                class="px-0 pt-0"
-                :disabled="disableButtons"
-                variant="link"
-                @click="edit(course)"
-              >
-                <font-awesome icon="edit" />
-                <span class="sr-only">Edit {{ course.name }}</span>
-              </b-btn>
-            </td>
-            <b-td v-if="isEditing(course)" colspan="6">
-              <div class="border border-1 my-4 py-2 px-3 rounded">
-                <div class="font-weight-500">{{ course.name }}</div>
-                <EditUnassignedCourse
+          <template v-for="(course, index) in courses.unassigned">
+            <b-tr :id="`unassigned-course-${course.termId}-${course.sectionId}`" :key="`tr-${index}`">
+              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+                <CourseAssignmentMenu :course="course" :student="student" />
+              </td>
+              <td class="pl-0">
+                <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
+              </td>
+              <td>
+                <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
+              </td>
+              <td>
+                {{ course.grade || '&mdash;' }}
+              </td>
+              <td>
+                {{ course.termName }}
+              </td>
+              <td>
+                {{ course.note }}
+              </td>
+              <td v-if="$currentUser.canEditDegreeProgress" class="pr-0">
+                <b-btn
+                  :id="`edit-course-${course.id}-btn`"
+                  class="px-0 pt-0"
+                  :disabled="disableButtons"
+                  variant="link"
+                  @click="edit(course)"
+                >
+                  <font-awesome icon="edit" />
+                  <span class="sr-only">Edit {{ course.name }}</span>
+                </b-btn>
+              </td>
+            </b-tr>
+            <b-tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
+              <b-td colspan="7">
+                <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="course"
                 />
-              </div>
-            </b-td>
-          </b-tr>
+              </b-td>
+            </b-tr>
+          </template>
         </b-tbody>
       </b-table-simple>
     </div>
@@ -81,13 +75,13 @@
 <script>
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import EditUnassignedCourse from '@/components/degree/student/EditUnassignedCourse'
+import EditCourse from '@/components/degree/student/EditCourse'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'UnassignedCourses',
   mixins: [DegreeEditSession, Util],
-  components: {CourseAssignmentMenu, EditUnassignedCourse},
+  components: {CourseAssignmentMenu, EditCourse},
   props: {
     student: {
       default: undefined,

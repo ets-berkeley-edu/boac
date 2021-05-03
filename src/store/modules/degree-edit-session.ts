@@ -86,7 +86,6 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
-  updateNote: (state: any, note: any) => state.degreeNote = note,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
 
@@ -161,8 +160,7 @@ const actions = {
   updateNote: ({commit, state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {
-        commit('updateNote', note)
-        resolve()
+        $_refresh(commit, state.templateId).then(() => resolve(note))
       })
     })
   },

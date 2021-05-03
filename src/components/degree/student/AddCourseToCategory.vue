@@ -56,7 +56,7 @@
             <span v-if="isSaving">
               <font-awesome class="mr-1" icon="spinner" spin /> Saving
             </span>
-            <span v-if="!isSaving">Save Degree Check</span>
+            <span v-if="!isSaving">Save</span>
           </b-btn>
         </div>
         <div>
@@ -126,7 +126,7 @@ export default {
     optionGroups() {
       const courseIdsAlreadyAdded = this.$_.map(this.coursesAlreadyAdded, course => course.id)
       const filter= courses => {
-        return this.$_.filter(courses, course => courseIdsAlreadyAdded.indexOf(course.id) === -1)
+        return this.$_.filter(courses, course => !course.isCopy && courseIdsAlreadyAdded.indexOf(course.id) === -1)
       }
       return {Unassigned: filter(this.courses.unassigned), Assigned: filter(this.courses.assigned)}
     }
