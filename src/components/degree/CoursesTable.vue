@@ -11,8 +11,8 @@
           <b-tr class="sortable-table-header text-nowrap">
             <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
-            <b-th class="table-cell-units">Units</b-th>
-            <b-th v-if="student">Grade</b-th>
+            <b-th class="th-units">Units</b-th>
+            <b-th v-if="student" class="th-grade">Grade</b-th>
             <b-th v-if="student">Note</b-th>
             <b-th v-if="!student">Fulfillment</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress" class="sr-only">Actions</b-th>
@@ -30,13 +30,21 @@
                   />
                 </div>
               </td>
-              <td class="font-size-14 pl-0 pr-3 table-cell-course">
+              <td class="align-top font-size-14 pl-0 pr-3 table-cell-course">
                 <span :class="{'font-weight-500': isEditing(bundle)}">{{ bundle.name }}</span>
               </td>
-              <td class="float-right font-size-14 pr-2 table-cell-units text-nowrap">
+              <td class="align-top pr-2 td-units text-right text-nowrap">
+                <font-awesome
+                  v-if="isUnitDiff(bundle)"
+                  class="changed-units-icon mr-1"
+                  icon="info-circle"
+                  size="sm"
+                  :title="`Updated from ${bundle.category.units} units`"
+                />
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
+                <span v-if="isUnitDiff(bundle)" class="sr-only">Updated from {{ bundle.category.units }} units</span>
               </td>
-              <td v-if="student" class="align-center font-size-14 text-center text-nowrap">
+              <td v-if="student" class="font-size-14 text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
               </td>
               <td v-if="student" class="font-size-14 text-nowrap">
@@ -56,7 +64,7 @@
                   </div>
                 </div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="pr-0">
+              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
                   <b-btn
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
@@ -106,7 +114,7 @@
         </b-tbody>
       </b-table-simple>
     </div>
-    <div class="mb-3 ml-1" :class="{'mt-2': !items.length}">
+    <div v-if="student" class="mb-3 ml-1" :class="{'mt-2': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allAddedCourses"
         :parent-category="parentCategory"
@@ -240,12 +248,18 @@ export default {
     },
     isEditing(bundle) {
       return this.$_.get(bundle, 'category.id') === this.$_.get(this.bundleForEdit, 'category.id')
+    },
+    isUnitDiff(bundle) {
+      return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.units
     }
   }
 }
 </script>
 
 <style scoped>
+.changed-units-icon {
+  color: #00c13a;
+}
 .ellipsis-if-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -255,13 +269,23 @@ export default {
   min-width: 150px !important;
   width: 1px;
 }
-.table-cell-units {
+.td-max-width-0 {
+  max-width: 0;
+}
+.td-actions {
+  padding: 2px 2px 0 0;
+}
+.td-units {
+  padding-top: 1px;
+}
+.th-units {
   direction: rtl;
   max-width: 10px !important;
   min-width: 10px !important;
 }
-.td-max-width-0 {
-  max-width: 0;
+.th-grade {
+  max-width: 20px !important;
+  min-width: 20px !important;
 }
 .unit-requirement-count {
   background-color: #3b7ea5;
