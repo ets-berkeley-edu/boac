@@ -12,84 +12,97 @@
             <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
             <b-th class="pl-0 table-cell-course">Course</b-th>
             <b-th class="table-cell-units">Units</b-th>
-            <b-th>Fulfillment</b-th>
+            <b-th v-if="student">Grade</b-th>
+            <b-th v-if="student">Note</b-th>
+            <b-th v-if="!student">Fulfillment</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress" class="sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
-          <b-tr v-for="(bundle, index) in categoryCourseBundles" :id="`course-${bundle.category.id}-table-row`" :key="index">
-            <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
-              <div v-if="!isEditing(bundle) && bundle.course && !bundle.course.isCopy">
-                <CourseAssignmentMenu
-                  v-if="bundle.course.categoryId"
+          <template v-for="(bundle, index) in categoryCourseBundles">
+            <b-tr :id="`course-${bundle.category.id}-table-row`" :key="`tr-${index}`">
+              <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
+                <div v-if="bundle.course && !bundle.course.isCopy">
+                  <CourseAssignmentMenu
+                    v-if="bundle.course.categoryId"
+                    :course="bundle.course"
+                    :student="student"
+                  />
+                </div>
+              </td>
+              <td class="font-size-14 pl-0 pr-3 table-cell-course">
+                <span :class="{'font-weight-500': isEditing(bundle)}">{{ bundle.name }}</span>
+              </td>
+              <td class="float-right font-size-14 pr-2 table-cell-units text-nowrap">
+                <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
+              </td>
+              <td v-if="student" class="align-center font-size-14 text-center text-nowrap">
+                {{ $_.get(bundle.course, 'grade') }}
+              </td>
+              <td v-if="student" class="font-size-14 text-nowrap">
+                {{ $_.get(bundle.course, 'note') }}
+              </td>
+              <td
+                v-if="!student"
+                class="font-size-14 td-max-width-0"
+                :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
+              >
+                <div class="align-items-start d-flex justify-content-between">
+                  <div class="ellipsis-if-overflow">
+                    {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                  </div>
+                  <div v-if="$_.size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                    <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
+                  </div>
+                </div>
+              </td>
+              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="pr-0">
+                <div class="d-flex justify-content-end text-nowrap">
+                  <b-btn
+                    :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
+                    class="pl-0 pt-0"
+                    :class="{'pr-2': student}"
+                    :disabled="disableButtons"
+                    size="sm"
+                    variant="link"
+                    @click="edit(bundle)"
+                  >
+                    <font-awesome icon="edit" />
+                    <span class="sr-only">Edit {{ bundle.name }}</span>
+                  </b-btn>
+                  <b-btn
+                    v-if="!student || (bundle.course && bundle.course.isCopy)"
+                    :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
+                    class="px-0 pt-0"
+                    :disabled="disableButtons"
+                    size="sm"
+                    variant="link"
+                    @click="deleteCourse(bundle)"
+                  >
+                    <font-awesome icon="trash-alt" />
+                    <span class="sr-only">Delete {{ bundle.name }}</span>
+                  </b-btn>
+                </div>
+              </td>
+            </b-tr>
+            <b-tr :key="`tr-${index}-edit`">
+              <b-td v-if="isEditing(bundle)" colspan="6">
+                <EditCourse
+                  v-if="bundle.course"
+                  :after-cancel="afterCancel"
+                  :after-save="afterSave"
                   :course="bundle.course"
-                  :student="student"
                 />
-              </div>
-            </td>
-            <td
-              v-if="!isEditing(bundle)"
-              class="font-size-14 pl-0 pr-3 table-cell-course"
-            >
-              {{ bundle.name }}
-            </td>
-            <td
-              v-if="!isEditing(bundle)"
-              class="float-right font-size-14 pr-2 table-cell-units text-nowrap"
-            >
-              <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
-            </td>
-            <td
-              v-if="!isEditing(bundle)"
-              class="font-size-14 td-max-width-0"
-              :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
-            >
-              <div class="align-items-start d-flex justify-content-between">
-                <div class="ellipsis-if-overflow">
-                  {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
-                </div>
-                <div v-if="$_.size(bundle.unitRequirements) > 1" class="unit-requirement-count">
-                  <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
-                </div>
-              </div>
-            </td>
-            <td v-if="$currentUser.canEditDegreeProgress && !isEditing(bundle) && isEditable(bundle)" class="pr-0 w-10">
-              <div class="d-flex justify-content-end text-nowrap">
-                <b-btn
-                  :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
-                  class="pl-0 pt-0"
-                  :class="{'pr-2': student}"
-                  :disabled="disableButtons"
-                  size="sm"
-                  variant="link"
-                  @click="edit(bundle)"
-                >
-                  <font-awesome icon="edit" />
-                  <span class="sr-only">Edit {{ bundle.name }}</span>
-                </b-btn>
-                <b-btn
-                  v-if="!student || (bundle.course && bundle.course.isCopy)"
-                  :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
-                  class="px-0 pt-0"
-                  :disabled="disableButtons"
-                  size="sm"
-                  variant="link"
-                  @click="deleteCourse(bundle)"
-                >
-                  <font-awesome icon="trash-alt" />
-                  <span class="sr-only">Delete {{ bundle.name }}</span>
-                </b-btn>
-              </div>
-            </td>
-            <b-td v-if="isEditing(bundle)" colspan="4">
-              <EditCategory
-                :after-cancel="afterCancel"
-                :after-save="afterSave"
-                :existing-category="bundle.category"
-                :position="position"
-              />
-            </b-td>
-          </b-tr>
+                <EditCategory
+                  v-if="!bundle.course"
+                  :after-cancel="afterCancel"
+                  :after-save="afterSave"
+                  :existing-category="bundle.category"
+                  :position="position"
+                />
+              </b-td>
+            </b-tr>
+          </template>
         </b-tbody>
       </b-table-simple>
     </div>
@@ -119,12 +132,13 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
+import EditCourse from '@/components/degree/student/EditCourse'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
-  components: {AddCourseToCategory, CourseAssignmentMenu, EditCategory, AreYouSureModal},
+  components: {AddCourseToCategory, AreYouSureModal, CourseAssignmentMenu, EditCategory, EditCourse},
   props: {
     items: {
       required: true,

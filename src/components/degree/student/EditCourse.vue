@@ -1,5 +1,5 @@
 <template>
-  <div id="edit-unassigned-course">
+  <div id="edit-unassigned-course" class="border border-1 mb-1 pb-3 px-2 rounded">
     <div>
       <div class="font-weight-500 my-2">
         Units
@@ -61,7 +61,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'EditUnassignedCourse',
+  name: 'EditCourse',
   mixins: [DegreeEditSession, Util],
   props: {
     afterCancel: {
