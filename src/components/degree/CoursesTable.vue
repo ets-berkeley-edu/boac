@@ -10,7 +10,7 @@
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
             <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1"><span class="sr-only">Menu</span></b-th>
-            <b-th class="px-0" :class="{'table-cell-category': !assignedCourseCount, 'table-cell-course': assignedCourseCount}">Course</b-th>
+            <b-th class="px-0" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th v-if="student" class="px-0">Grade</b-th>
             <b-th v-if="student" class="px-0">Note</b-th>
@@ -21,7 +21,7 @@
         <b-tbody>
           <template v-for="(bundle, index) in categoryCourseBundles">
             <b-tr
-              :id="`course-${bundle.category.id}-table-row`"
+              :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               class="font-size-16"
             >
@@ -38,8 +38,8 @@
                 class="align-top ellipsis-if-overflow font-size-14 px-0"
                 :class="{
                   'faint-text font-italic': !bundle.course,
-                  'table-cell-category': !assignedCourseCount,
-                  'table-cell-course': assignedCourseCount
+                  'td-category': !assignedCourseCount,
+                  'td-course': assignedCourseCount
                 }"
               >
                 <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
@@ -58,7 +58,7 @@
               <td v-if="student" class="font-size-14 px-0 text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
               </td>
-              <td v-if="student" class="font-size-14 pl-0 text-nowrap">
+              <td v-if="student" class="ellipsis-if-overflow font-size-14 pl-0 td-note" :title="$_.get(bundle.course, 'note')">
                 {{ $_.get(bundle.course, 'note') }}
               </td>
               <td
@@ -265,7 +265,8 @@ export default {
       return bundle.course || !this.student
     },
     isEditing(bundle) {
-      return this.$_.get(bundle, 'category.id') === this.$_.get(this.bundleForEdit, 'category.id')
+      const courseId = this.$_.get(bundle, 'course.id')
+      return courseId && (courseId === this.$_.get(this.bundleForEdit, 'course.id'))
     },
     isUnitDiff(bundle) {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.units
@@ -283,19 +284,23 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.table-cell-category {
+.td-actions {
+  padding: 2px 2px 0 0;
+}
+.td-category {
   max-width: 150px !important;
   width: 1px;
 }
-.table-cell-course {
+.td-course {
   max-width: 100px !important;
+  width: 1px;
+}
+.td-note {
+  max-width: 50px !important;
   width: 1px;
 }
 .td-max-width-0 {
   max-width: 0;
-}
-.td-actions {
-  padding: 2px 2px 0 0;
 }
 .td-units {
   padding-top: 1px;

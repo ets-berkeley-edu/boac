@@ -52,7 +52,7 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="$_.size(category.courseIds) && !category.subcategories.length" class="py-2">
+      <div v-if="!category.subcategories.length" class="py-1">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="getCourses(category)"
@@ -61,16 +61,7 @@
           :student="student"
         />
       </div>
-      <div v-if="category.courseRequirements.length" class="pb-1 pt-2">
-        <CoursesTable
-          :id="`column-${position}-category-${category.id}-courses`"
-          :items="category.courseRequirements"
-          :parent-category="category"
-          :position="position"
-          :student="student"
-        />
-      </div>
-      <div v-if="category.subcategories.length" class="pt-2">
+      <div v-if="category.subcategories.length" class="pt-1">
         <div
           v-for="subcategory in category.subcategories"
           :id="`column-${position}-subcategory-${subcategory.id}`"
@@ -90,19 +81,10 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div v-if="$_.size(subcategory.courseIds)" class="py-2">
+          <div class="py-1">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
-              :items="$_.map(subcategory.courseIds, courseId => getCourse(courseId))"
-              :parent-category="subcategory"
-              :position="position"
-              :student="student"
-            />
-          </div>
-          <div :class="{'py-2': $_.size(subcategory.courseRequirements)}">
-            <CoursesTable
-              :id="`column-${position}-subcategory-${subcategory.id}-courses`"
-              :items="subcategory.courseRequirements"
+              :items="getCourses(subcategory)"
               :parent-category="subcategory"
               :position="position"
               :student="student"

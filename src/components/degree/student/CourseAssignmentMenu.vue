@@ -78,8 +78,11 @@ export default {
   methods: {
     isAvailable: option => option.categoryType !== 'Course Requirement' || !option.courseIds.length,
     onSelect(category) {
-      this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
-      this.assignCourseToCategory({course: this.course, category}).then(() => {})
+      this.setDisableButtons(true)
+      this.assignCourseToCategory({course: this.course, category}).then(() => {
+        this.setDisableButtons(false)
+        this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
+      })
     }
   }
 }

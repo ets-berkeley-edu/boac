@@ -6,7 +6,7 @@
       </div>
       <div class="units-input">
         <b-form-input
-          :id="`course-units-input`"
+          id="course-units-input"
           v-model="units"
           :disabled="isSaving"
           maxlength="3"

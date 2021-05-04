@@ -8,8 +8,7 @@
       <div class="m-3 pt-2">
         <h2 class="page-section-header">Create {{ student.firstName }}'s Degree Check</h2>
         <div>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore
-          magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco nisi aliquip ex ea commodo consequat.
+          Choose a new degree check for {{ student.name }} from the list of options in the menu below.
         </div>
         <div class="mt-3">
           <h3 class="font-size-18 font-weight-bold">Add Degree Check</h3>
