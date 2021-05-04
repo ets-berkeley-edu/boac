@@ -39,7 +39,7 @@
             <div>
               <b-btn
                 id="save-degree-check-btn"
-                class="b-dd-override"
+                class="btn-primary-color-override"
                 :disabled="!selectedOption"
                 variant="primary"
                 @click="onClickSave"

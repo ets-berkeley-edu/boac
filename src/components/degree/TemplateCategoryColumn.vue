@@ -52,7 +52,7 @@
         :existing-category="category"
         :position="position"
       />
-      <div v-if="$_.size(category.courseIds) && !category.subcategories.length" class="pl-1 py-2">
+      <div v-if="$_.size(category.courseIds) && !category.subcategories.length" class="py-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="getCourses(category)"
@@ -61,7 +61,7 @@
           :student="student"
         />
       </div>
-      <div :class="{'pl-1 py-2': $_.size(category.courseRequirements)}">
+      <div :class="{'py-2': $_.size(category.courseRequirements)}">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="category.courseRequirements"
@@ -90,7 +90,7 @@
             :existing-category="subcategory"
             :position="position"
           />
-          <div v-if="$_.size(subcategory.courseIds)" class="pl-1 py-2">
+          <div v-if="$_.size(subcategory.courseIds)" class="py-2">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :items="$_.map(subcategory.courseIds, courseId => getCourse(courseId))"
@@ -99,7 +99,7 @@
               :student="student"
             />
           </div>
-          <div :class="{'pl-1 py-2': $_.size(subcategory.courseRequirements)}">
+          <div :class="{'py-2': $_.size(subcategory.courseRequirements)}">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
               :items="subcategory.courseRequirements"
@@ -113,7 +113,7 @@
     </div>
     <div
       v-if="!isAddingCategory && !$_.filter(categories, c => c.position === position).length"
-      class="no-data-text pb-3 pl-1"
+      class="no-data-text pb-3"
     >
       None
     </div>

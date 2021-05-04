@@ -1,17 +1,11 @@
 <template>
-  <div class="pl-1">
+  <div>
     <div class="align-items-center d-flex justify-content-between">
       <div>
-        <h2
-          v-if="category.categoryType === 'Category'"
-          :class="`degree-progress-${category.categoryType.toLowerCase()}`"
-        >
+        <h2 v-if="category.categoryType === 'Category'" class="degree-progress-category pl-0">
           {{ category.name }}
         </h2>
-        <h3
-          v-if="category.categoryType === 'Subcategory'"
-          :class="`degree-progress-${category.categoryType.toLowerCase()}`"
-        >
+        <h3 v-if="category.categoryType === 'Subcategory'" class="degree-progress-subcategory pl-0">
           {{ category.name }}
         </h3>
       </div>

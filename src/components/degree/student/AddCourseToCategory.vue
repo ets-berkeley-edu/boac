@@ -48,7 +48,7 @@
         <div>
           <b-btn
             id="add-course-save-btn"
-            class="b-dd-override"
+            class="btn-primary-color-override"
             :disabled="!selected"
             variant="primary"
             @click="onClickSave"
@@ -80,7 +80,7 @@
         variant="link"
         @click.prevent="openMenu"
       >
-        <div class="font-size-14 text-nowrap">
+        <div class="font-size-16 text-nowrap">
           Add Course
         </div>
         <div class="font-size-14 pr-1">

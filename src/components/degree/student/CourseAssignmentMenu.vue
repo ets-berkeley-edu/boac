@@ -10,7 +10,7 @@
     variant="link"
   >
     <template #button-content>
-      <font-awesome icon="grip-vertical" />
+      <font-awesome class="faint-text font-size-16" icon="grip-vertical" />
     </template>
     <b-dropdown-item
       v-if="course.categoryId"
