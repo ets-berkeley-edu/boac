@@ -109,7 +109,7 @@
           <div>
             <b-btn
               id="save-degree-note-btn"
-              class="b-dd-override"
+              class="btn-primary-color-override"
               :disabled="noteBody === $_.get(degreeNote, 'body') || isSaving"
               variant="primary"
               @click="saveNote"

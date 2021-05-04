@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="items.length">
+    <div>
       <b-table-simple
         :id="`column-${position}-courses-of-category-${parentCategory.id}`"
         borderless
@@ -9,19 +9,23 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress"><span class="sr-only">Menu</span></b-th>
-            <b-th class="pl-0 table-cell-course">Course</b-th>
-            <b-th class="th-units">Units</b-th>
-            <b-th v-if="student" class="th-grade">Grade</b-th>
-            <b-th v-if="student">Note</b-th>
-            <b-th v-if="!student">Fulfillment</b-th>
-            <b-th v-if="$currentUser.canEditDegreeProgress" class="sr-only">Actions</b-th>
+            <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pl-0 pr-1"><span class="sr-only">Menu</span></b-th>
+            <b-th class="px-0" :class="{'table-cell-category': !allAddedCourses.length, 'table-cell-course': allAddedCourses.length}">Course</b-th>
+            <b-th class="pl-0 text-right">Units</b-th>
+            <b-th v-if="student" class="px-0">Grade</b-th>
+            <b-th v-if="student" class="px-0">Note</b-th>
+            <b-th v-if="!student" class="px-0">Fulfillment</b-th>
+            <b-th v-if="$currentUser.canEditDegreeProgress" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
           <template v-for="(bundle, index) in categoryCourseBundles">
-            <b-tr :id="`course-${bundle.category.id}-table-row`" :key="`tr-${index}`">
-              <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pt-0">
+            <b-tr
+              :id="`course-${bundle.category.id}-table-row`"
+              :key="`tr-${index}`"
+              class="font-size-16"
+            >
+              <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
                 <div v-if="bundle.course && !bundle.course.isCopy">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
@@ -30,10 +34,17 @@
                   />
                 </div>
               </td>
-              <td class="align-top font-size-14 pl-0 pr-3 table-cell-course">
-                <span :class="{'font-weight-500': isEditing(bundle)}">{{ bundle.name }}</span>
+              <td
+                class="align-top ellipsis-if-overflow font-size-14 px-0"
+                :class="{
+                  'faint-text font-italic': !bundle.course,
+                  'table-cell-category': !allAddedCourses.length,
+                  'table-cell-course': allAddedCourses.length
+                }"
+              >
+                <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
               </td>
-              <td class="align-top pr-2 td-units text-right text-nowrap">
+              <td class="align-top pr-2 td-units text-right text-nowrap" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
                   v-if="isUnitDiff(bundle)"
                   class="changed-units-icon mr-1"
@@ -42,17 +53,18 @@
                   :title="`Updated from ${bundle.category.units} units`"
                 />
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
-                <span v-if="isUnitDiff(bundle)" class="sr-only">Updated from {{ bundle.category.units }} units</span>
+                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ bundle.category.units }} units)</span>
               </td>
-              <td v-if="student" class="font-size-14 text-nowrap">
+              <td v-if="student" class="font-size-14 px-0 text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
               </td>
-              <td v-if="student" class="font-size-14 text-nowrap">
+              <td v-if="student" class="font-size-14 pl-0 text-nowrap">
                 {{ $_.get(bundle.course, 'note') }}
               </td>
               <td
                 v-if="!student"
                 class="font-size-14 td-max-width-0"
+                :class="{'faint-text font-italic': !bundle.course}"
                 :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
               >
                 <div class="align-items-start d-flex justify-content-between">
@@ -69,13 +81,13 @@
                   <b-btn
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                     class="pl-0 pt-0"
-                    :class="{'pr-2': student}"
+                    :class="{'pr-0': student && !$_.get(bundle.course, 'isCopy'), 'pr-1': !student || (bundle.course && bundle.course.isCopy)}"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
                     @click="edit(bundle)"
                   >
-                    <font-awesome icon="edit" />
+                    <font-awesome class="font-size-16" icon="edit" />
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
@@ -87,7 +99,7 @@
                     variant="link"
                     @click="deleteCourse(bundle)"
                   >
-                    <font-awesome icon="trash-alt" />
+                    <font-awesome class="font-size-16" icon="trash-alt" />
                     <span class="sr-only">Delete {{ bundle.name }}</span>
                   </b-btn>
                 </div>
@@ -111,10 +123,15 @@
               </b-td>
             </b-tr>
           </template>
+          <b-tr v-if="!items.length">
+            <b-td class="pl-0" :class="{'pb-3': !student}" colspan="6">
+              <span class="faint-text font-italic font-size-16">No completed requirements</span>
+            </b-td>
+          </b-tr>
         </b-tbody>
       </b-table-simple>
     </div>
-    <div v-if="student" class="mb-3 ml-1" :class="{'mt-2': !items.length}">
+    <div v-if="student" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allAddedCourses"
         :parent-category="parentCategory"
@@ -175,7 +192,7 @@ export default {
     allAddedCourses() {
       const allCourses = []
       this.$_.each(this.categoryCourseBundles, bundle => {
-        if (bundle.course) {
+        if (bundle.course && !bundle.course.isCopy) {
           allCourses.push(bundle.course)
         }
       })
@@ -265,8 +282,12 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.table-cell-category {
+  max-width: 150px !important;
+  width: 1px;
+}
 .table-cell-course {
-  min-width: 150px !important;
+  max-width: 100px !important;
   width: 1px;
 }
 .td-max-width-0 {
@@ -277,15 +298,6 @@ export default {
 }
 .td-units {
   padding-top: 1px;
-}
-.th-units {
-  direction: rtl;
-  max-width: 10px !important;
-  min-width: 10px !important;
-}
-.th-grade {
-  max-width: 20px !important;
-  min-width: 20px !important;
 }
 .unit-requirement-count {
   background-color: #3b7ea5;

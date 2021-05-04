@@ -31,7 +31,7 @@
       <div>
         <b-btn
           id="update-note-btn"
-          class="b-dd-override"
+          class="btn-primary-color-override"
           :disabled="disableSaveButton"
           variant="primary"
           @click="update"

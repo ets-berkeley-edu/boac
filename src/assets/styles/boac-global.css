@@ -84,14 +84,14 @@
   cursor: pointer;
 }
 .degree-progress-category {
-  font-size: 18px;
+  font-size: 20px;
   padding-top: 1px;
   font-weight: bold;
 }
 .degree-progress-subcategory {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
-  padding-top: 0px;
+  padding-top: 0;
 }
 .demo-mode-blur {
   color: transparent !important;
