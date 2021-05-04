@@ -84,7 +84,7 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !this.$_.trim(this.note) || !this.$_.trim(this.units)
+      return this.isSaving || !this.$_.trim(this.units)
     }
   },
   created() {
