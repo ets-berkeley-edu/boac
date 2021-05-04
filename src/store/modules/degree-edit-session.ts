@@ -150,9 +150,9 @@ const actions = {
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
-  updateCourse: ({commit, state}, {courseId, note, units}) => {
+  updateCourse: ({commit, state}, {courseId, note, unitRequirements, units}) => {
     return new Promise(resolve => {
-      updateCourse(courseId, note, units).then(data => {
+      updateCourse(courseId, note, unitRequirements, units).then(data => {
         $_refresh(commit, state.templateId).then(() => resolve(data))
       })
     })

@@ -149,10 +149,13 @@ def get_degree_checks(sid):
 def update_course(course_id):
     params = request.get_json()
     note = get_param(params, 'note')
+    # TODO: Add one-to-many unit_requirement mapping to db?
+    # unit_requirements = get_param(params, 'unitRequirements')
     units = get_param(params, 'units')
     if units is None:
         raise BadRequestError('units parameter is required.')
-    return tolerant_jsonify(DegreeProgressCourse.update(course_id=course_id, note=note, units=units).to_api_json())
+    course = DegreeProgressCourse.update(course_id=course_id, note=note, units=units)
+    return tolerant_jsonify(course.to_api_json())
 
 
 @app.route('/api/degree/<degree_check_id>/note', methods=['POST'])

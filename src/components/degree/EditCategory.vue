@@ -1,10 +1,10 @@
 <template>
-  <div :id="`column-${position}-edit-category`" class="border border-1 mb-4 pb-3 pt-2 px-2 rounded">
-    <div v-if="!existingCategory" class="ml-1">
+  <div :id="`column-${position}-edit-category`" class="pb-3">
+    <div v-if="!existingCategory">
       <div class="font-weight-500">
         Requirement Type (required)
       </div>
-      <div class="my-2">
+      <div class="mb-1 mt-2">
         <b-select
           :id="`column-${position}-add-category-select`"
           v-model="selectedCategoryType"
@@ -25,8 +25,8 @@
         </b-select>
       </div>
     </div>
-    <div v-if="selectedCategoryType" class="ml-1">
-      <div class="font-weight-500 my-2">
+    <div v-if="selectedCategoryType" class="mb-1 mt-2">
+      <div class="font-weight-500">
         {{ selectedCategoryType }} Name (required)
       </div>
       <div>
@@ -37,15 +37,15 @@
           maxlength="255"
           @keypress.enter="create"
         />
-        <div class="pl-2">
+        <div class="pl-1">
           <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
           <span v-if="nameInput.length === 255" class="sr-only" aria-live="polite">
             Fulfillment requirement name cannot exceed 255 characters.
           </span>
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'">
-        <div class="font-weight-500 my-2">
+      <div v-if="selectedCategoryType === 'Course Requirement'" class="mb-1 mt-2">
+        <div class="font-weight-500">
           Units
         </div>
         <div>
@@ -63,68 +63,21 @@
           </span>
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length">
-        <div class="font-weight-500 my-2">
+      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length" class="mb-1 mt-2">
+        <div class="font-weight-500">
           Requirement Fulfillment
         </div>
         <div class="mb-3">
-          <b-select
-            :id="`column-${position}-unit-requirement-select`"
-            v-model="unitRequirementModel"
-            :disabled="isSaving || (unitRequirements.length === selectedUnitRequirements.length)"
-            @change="onChangeUnitRequirement"
-          >
-            <b-select-option :id="`column-${position}-unit-requirement-option-null`" :value="null">Choose...</b-select-option>
-            <b-select-option
-              v-for="(option, index) in unitRequirements"
-              :id="`column-${position}-unit-requirement-option-${index}`"
-              :key="index"
-              :disabled="$_.includes($_.map(selectedUnitRequirements, 'id'), option.id)"
-              :value="option"
-            >
-              {{ option.name }}
-            </b-select-option>
-          </b-select>
-          <div v-if="selectedUnitRequirements.length">
-            <label
-              :for="`column-${position}-unit-requirement-list`"
-              class="sr-only"
-            >
-              Selected Requirement Fulfillment(s)
-            </label>
-            <ul
-              :id="`column-${position}-unit-requirement-list`"
-              class="pill-list pl-0"
-            >
-              <li
-                v-for="(unitRequirement, index) in selectedUnitRequirements"
-                :id="`column-${position}-unit-requirement-${index}`"
-                :key="index"
-              >
-                <div class="align-items-center d-flex justify-content-between mr-3 pill-unit-requirement">
-                  <div class="pb-1">
-                    {{ unitRequirement.name }}
-                  </div>
-                  <div>
-                    <b-btn
-                      :id="`column-${position}-unit-requirement-remove-${index}`"
-                      :disabled="isSaving"
-                      class="pb-0 px-0 pt-1"
-                      variant="link"
-                      @click="removeUnitRequirement(unitRequirement)"
-                    >
-                      <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-                      <span class="sr-only">Remove</span>
-                    </b-btn>
-                  </div>
-                </div>
-              </li>
-            </ul>
-          </div>
+          <SelectUnitFulfillment
+            :disable="isSaving"
+            :initial-unit-requirements="selectedUnitRequirements"
+            :on-unit-requirements-change="onUnitRequirementsChange"
+            :position="position"
+          />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course Requirement'">
-        <div class="font-weight-500 my-2">
+      <div v-if="selectedCategoryType !== 'Course Requirement'" class="mb-1 mt-2">
+        <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
         <div>
@@ -136,7 +89,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Category'" class="my-2">
+      <div v-if="selectedCategoryType !== 'Category'" class="mb-1 mt-2">
         <div class="font-weight-500">
           Requirement Location (required)
         </div>
@@ -168,27 +121,30 @@
         </div>
       </div>
     </div>
-    <div class="d-flex mt-3">
-      <div>
+    <div class="d-flex mt-2">
+      <div class="pr-2">
         <b-btn
           :id="`column-${position}-create-requirement-btn`"
           class="btn-primary-color-override"
           :disabled="disableSaveButton"
+          size="sm"
           variant="primary"
           @click="onClickSave"
         >
           <span v-if="isSaving">
             <font-awesome class="mr-1" icon="spinner" spin /> Saving
           </span>
-          <span v-if="existingCategory && !isSaving">Update</span>
+          <span v-if="existingCategory && !isSaving">Save</span>
           <span v-if="!existingCategory && !isSaving">Create Requirement</span>
         </b-btn>
       </div>
       <div>
         <b-btn
           :id="`column-${position}-cancel-create-requirement-btn`"
+          class="btn-primary-color-override btn-primary-color-outline-override"
           :disabled="isSaving"
-          variant="link"
+          size="sm"
+          variant="outline-primary"
           @click="cancel"
         >
           Cancel
@@ -200,11 +156,13 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCategory',
   mixins: [DegreeEditSession, Util],
+  components: {SelectUnitFulfillment},
   props: {
     afterCancel: {
       required: true,
@@ -251,8 +209,7 @@ export default {
     nameInput: '',
     selectedCategoryType: null,
     selectedParentCategory: null,
-    selectedUnitRequirements: [],
-    unitRequirementModel: null
+    selectedUnitRequirements: []
   }),
   created() {
     if (this.existingCategory) {
@@ -301,19 +258,11 @@ export default {
         this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       }
     },
-    onChangeUnitRequirement(option) {
-      this.$announcer.polite(option ? `${option.name} selected` : 'Unselected')
-      if (option) {
-        this.selectedUnitRequirements.push(option)
-        this.unitRequirementModel = null
-      }
-    },
     onClickSave() {
       this.existingCategory ? this.update() : this.create()
     },
-    removeUnitRequirement(item) {
-      this.$announcer.polite(`${item.name} removed`)
-      this.selectedUnitRequirements = this.$_.remove(this.selectedUnitRequirements, selected => selected.id !== item.id)
+    onUnitRequirementsChange(unitRequirements) {
+      this.selectedUnitRequirements = unitRequirements
     },
     update() {
       this.isSaving = true
@@ -336,14 +285,5 @@ export default {
 <style scoped>
 .units-input {
   max-width: 3.25rem;
-}
-.pill-unit-requirement {
-  background-color: #fff;
-  border: 1px solid #999;
-  border-radius: 5px;
-  color: #666;
-  margin-top: 8px;
-  padding: 4px 12px 4px 12px;
-  width: auto;
 }
 </style>
