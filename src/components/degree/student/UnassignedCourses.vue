@@ -62,6 +62,7 @@
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="course"
+                  :position="0"
                 />
               </b-td>
             </b-tr>

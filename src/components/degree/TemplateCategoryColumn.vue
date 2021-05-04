@@ -61,7 +61,7 @@
           :student="student"
         />
       </div>
-      <div :class="{'py-2': $_.size(category.courseRequirements)}">
+      <div v-if="category.courseRequirements.length" class="pb-1 pt-2">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
           :items="category.courseRequirements"
@@ -70,7 +70,7 @@
           :student="student"
         />
       </div>
-      <div v-if="category.subcategories.length">
+      <div v-if="category.subcategories.length" class="pt-2">
         <div
           v-for="subcategory in category.subcategories"
           :id="`column-${position}-subcategory-${subcategory.id}`"

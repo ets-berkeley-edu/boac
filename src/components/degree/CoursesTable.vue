@@ -106,12 +106,13 @@
               </td>
             </b-tr>
             <b-tr :key="`tr-${index}-edit`">
-              <b-td v-if="isEditing(bundle)" colspan="6">
+              <b-td v-if="isEditing(bundle)" class="pt-0" colspan="6">
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="bundle.course"
+                  :position="position"
                 />
                 <EditCategory
                   v-if="!bundle.course"

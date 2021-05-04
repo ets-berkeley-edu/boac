@@ -1,21 +1,33 @@
 <template>
-  <div id="edit-unassigned-course" class="border border-1 mb-1 pb-3 px-2 rounded">
+  <div id="edit-unassigned-course" class="pb-3">
     <div>
-      <div class="font-weight-500 my-2">
+      <div class="font-weight-500 mb-1 mt-2">
         Units
       </div>
-      <div>
+      <div class="units-input">
         <b-form-input
           :id="`course-units-input`"
           v-model="units"
-          class="course-units-input"
           :disabled="isSaving"
           maxlength="3"
           trim
           @keypress.enter="update"
         />
       </div>
-      <div class="font-weight-500 my-2">
+      <div v-if="unitRequirements.length" class="mb-1 mt-2">
+        <div class="font-weight-500">
+          Counts Towards Unit Fulfillment
+        </div>
+        <div class="mb-3">
+          <SelectUnitFulfillment
+            :disable="isSaving"
+            :initial-unit-requirements="selectedUnitRequirements"
+            :on-unit-requirements-change="onUnitRequirementsChange"
+            :position="position"
+          />
+        </div>
+      </div>
+      <div class="font-weight-500 mb-1 mt-2">
         Note
       </div>
       <div>
@@ -27,26 +39,29 @@
         />
       </div>
     </div>
-    <div class="d-flex mt-3">
-      <div>
+    <div class="d-flex mt-2">
+      <div class="pr-2">
         <b-btn
           id="update-note-btn"
-          class="btn-primary-color-override"
+          class="btn-primary-color-override px-3"
           :disabled="disableSaveButton"
+          size="sm"
           variant="primary"
           @click="update"
         >
           <span v-if="isSaving">
             <font-awesome class="mr-1" icon="spinner" spin /> Saving
           </span>
-          <span v-if="!isSaving">Update</span>
+          <span v-if="!isSaving">Save</span>
         </b-btn>
       </div>
       <div>
         <b-btn
           id="cancel-update-note-btn"
+          class="btn-primary-color-override btn-primary-color-outline-override"
           :disabled="isSaving"
-          variant="link"
+          size="sm"
+          variant="outline-primary"
           @click="cancel"
         >
           Cancel
@@ -58,11 +73,13 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCourse',
   mixins: [DegreeEditSession, Util],
+  components: {SelectUnitFulfillment},
   props: {
     afterCancel: {
       required: true,
@@ -75,11 +92,16 @@ export default {
     course: {
       required: true,
       type: Object
+    },
+    position: {
+      required: true,
+      type: Number
     }
   },
   data: () => ({
     isSaving: false,
     note: '',
+    selectedUnitRequirements: [],
     units: undefined
   }),
   computed: {
@@ -97,12 +119,16 @@ export default {
       this.$announcer.polite('Canceled')
       this.afterCancel()
     },
+    onUnitRequirementsChange(unitRequirements) {
+      this.selectedUnitRequirements = unitRequirements
+    },
     update() {
       if (!this.disableSaveButton) {
         this.isSaving = true
         this.updateCourse({
           courseId: this.course.id,
           note: this.note,
+          unitRequirements: this.selectedUnitRequirements,
           units: this.units
         }).then(data => {
           this.$announcer.polite('Course updated')
@@ -113,3 +139,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.units-input {
+  max-width: 3.25rem;
+}
+</style>
