@@ -8,7 +8,7 @@
         <b-select
           id="add-course-select"
           v-model="selected"
-          :disabled="isSaving"
+          :disabled="isSaving || !options.length"
           :lazy="true"
           no-caret
           :toggle-text="`Assign a course to category ${parentCategory.name}`"
@@ -20,28 +20,15 @@
           >
             Choose...
           </b-select-option>
-          <b-form-select-option-group
-            v-for="(options, label) in optionGroups"
-            :key="label"
-            :label="label"
+          <b-form-select-option
+            v-for="option in options"
+            :id="`add-course-select-option-${option.id}`"
+            :key="option.id"
+            :value="option"
+            @click="onSelect"
           >
-            <template v-if="options.length">
-              <b-form-select-option
-                v-for="option in options"
-                :id="`add-course-select-option-${option.id}`"
-                :key="option.id"
-                :value="option"
-                @click="onSelect"
-              >
-                {{ option.name }}
-              </b-form-select-option>
-            </template>
-            <template v-if="!options.length">
-              <b-form-select-option :disabled="true" :value="undefined">
-                -- None --
-              </b-form-select-option>
-            </template>
-          </b-form-select-option-group>
+            {{ option.name }}
+          </b-form-select-option>
         </b-select>
       </div>
       <div class="d-flex mt-3">
@@ -72,11 +59,12 @@
       </div>
     </div>
     <div v-if="!isMenuOpen">
+      <span v-if="!options.length" aria-live="polite" class="sr-only">No courses available to copy.</span>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
         :id="`column-${position}-add-course-to-category-${parentCategory.id}`"
         class="align-items-center d-flex flex-row-reverse p-0"
-        :disabled="disableButtons"
+        :disabled="disableButtons || !options.length"
         variant="link"
         @click.prevent="openMenu"
       >
@@ -123,12 +111,10 @@ export default {
     selected: null
   }),
   computed: {
-    optionGroups() {
-      const courseIdsAlreadyAdded = this.$_.map(this.coursesAlreadyAdded, course => course.id)
-      const filter= courses => {
-        return this.$_.filter(courses, course => !course.isCopy && courseIdsAlreadyAdded.indexOf(course.id) === -1)
-      }
-      return {Unassigned: filter(this.courses.unassigned), Assigned: filter(this.courses.assigned)}
+    options() {
+      const getKey = course => `${course.termId}-${course.sectionId}`
+      const keysAdded = this.$_.map(this.coursesAlreadyAdded, course => getKey(course))
+      return this.$_.filter(this.courses.assigned, c => !c.isCopy && !keysAdded.includes(getKey(c)))
     }
   },
   methods: {
