@@ -1,10 +1,10 @@
 <template>
-  <b-container class="px-0" fluid>
+  <b-container v-if="fields" class="px-0" fluid>
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
           <h2 class="font-size-20 font-weight-bold text-nowrap pb-2 pr-2">Unit Requirements</h2>
-          <div v-if="!student && $currentUser.canEditDegreeProgress">
+          <div v-if="$currentUser.canEditDegreeProgress && !student">
             <b-btn
               id="unit-requirement-create-link"
               class="pr-0 py-0"
@@ -36,7 +36,7 @@
             borderless
             small
           >
-            <template v-if="$currentUser.canEditDegreeProgress" #cell(actions)="row">
+            <template v-if="$currentUser.canEditDegreeProgress && !student" #cell(actions)="row">
               <b-btn
                 :id="`unit-requirement-${row.item.id}-edit-btn`"
                 class="pr-2 pt-0"
@@ -100,7 +100,18 @@ export default {
     }
   },
   data: () => ({
-    fields: [
+    fields: undefined,
+    indexOfSelected: undefined,
+    isDeleting: false,
+    isEditing: false
+  }),
+  computed: {
+    selected() {
+      return this.indexOfSelected && this.unitRequirements[this.indexOfSelected]
+    }
+  },
+  created() {
+    this.fields = [
       {
         key: 'name',
         label: 'Fulfillment Requirements',
@@ -109,24 +120,25 @@ export default {
       },
       {
         key: 'minUnits',
-        label: 'Min Units',
+        label: this.student ? 'Min' : 'Min Units',
         tdClass: 'font-size-16 pl-0 pt-2 text-right',
-        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
-      },
-      {
+        thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
+      }
+    ]
+    if (this.student) {
+      this.fields.push({
+        key: 'completed',
+        label: 'Completed',
+        tdClass: 'd-flex justify-content-end',
+        thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
+      })
+    } else if (this.$currentUser.canEditDegreeProgress) {
+      this.fields.push({
         key: 'actions',
         label: '',
         tdClass: 'd-flex justify-content-end',
         thClass: 'faint-text font-size-12 pl-0 text-uppercase'
-      }
-    ],
-    indexOfSelected: undefined,
-    isEditing: false,
-    isDeleting: false
-  }),
-  computed: {
-    selected() {
-      return this.indexOfSelected && this.unitRequirements[this.indexOfSelected]
+      })
     }
   },
   methods: {
