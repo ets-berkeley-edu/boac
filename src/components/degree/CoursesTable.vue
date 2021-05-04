@@ -9,8 +9,8 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pl-0 pr-1"><span class="sr-only">Menu</span></b-th>
-            <b-th class="px-0" :class="{'table-cell-category': !allAddedCourses.length, 'table-cell-course': allAddedCourses.length}">Course</b-th>
+            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1"><span class="sr-only">Menu</span></b-th>
+            <b-th class="px-0" :class="{'table-cell-category': !assignedCourseCount, 'table-cell-course': assignedCourseCount}">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th v-if="student" class="px-0">Grade</b-th>
             <b-th v-if="student" class="px-0">Note</b-th>
@@ -25,7 +25,7 @@
               :key="`tr-${index}`"
               class="font-size-16"
             >
-              <td v-if="allAddedCourses.length && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
+              <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
                 <div v-if="bundle.course && !bundle.course.isCopy">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
@@ -38,8 +38,8 @@
                 class="align-top ellipsis-if-overflow font-size-14 px-0"
                 :class="{
                   'faint-text font-italic': !bundle.course,
-                  'table-cell-category': !allAddedCourses.length,
-                  'table-cell-course': allAddedCourses.length
+                  'table-cell-category': !assignedCourseCount,
+                  'table-cell-course': assignedCourseCount
                 }"
               >
                 <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
@@ -134,7 +134,7 @@
     </div>
     <div v-if="student" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
-        :courses-already-added="allAddedCourses"
+        :courses-already-added="allCourses"
         :parent-category="parentCategory"
         :position="position"
         :student="student"
@@ -190,14 +190,14 @@ export default {
     isAddingCourse: false
   }),
   computed: {
-    allAddedCourses() {
-      const allCourses = []
-      this.$_.each(this.categoryCourseBundles, bundle => {
-        if (bundle.course && !bundle.course.isCopy) {
-          allCourses.push(bundle.course)
-        }
-      })
-      return allCourses
+    allCourses() {
+      const bundles = this.$_.filter(this.categoryCourseBundles, b => !!b.course)
+      return this.$_.map(bundles, b => b.course)
+    },
+    assignedCourseCount() {
+      let count = 0
+      this.$_.each(this.categoryCourseBundles, bundle => bundle.course && !bundle.course.isCopy && count++)
+      return count
     },
     categoryCourseBundles() {
       const transformed = []
