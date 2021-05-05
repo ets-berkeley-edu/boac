@@ -42,7 +42,7 @@ class DegreeProgressCourse(Base):
     section_id = db.Column(db.Integer, nullable=False)
     sid = db.Column(db.String(80), nullable=False)
     term_id = db.Column(db.Integer, nullable=False)
-    units = db.Column(db.Integer, nullable=False)
+    units = db.Column(db.Numeric, nullable=False)
 
     __table_args__ = (db.UniqueConstraint(
         'category_id',

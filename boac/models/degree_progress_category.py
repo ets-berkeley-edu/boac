@@ -29,7 +29,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
-from sqlalchemy.dialects.postgresql import ENUM, INT4RANGE
+from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
 from sqlalchemy.sql import asc
 
 degree_progress_category_type = ENUM(
@@ -46,7 +46,7 @@ class DegreeProgressCategory(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     category_type = db.Column(degree_progress_category_type, nullable=False)
-    course_units = db.Column(INT4RANGE)
+    course_units = db.Column(NUMRANGE)
     description = db.Column(db.Text)
     name = db.Column(db.String(255), nullable=False)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))

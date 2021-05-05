@@ -3,7 +3,7 @@
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
-          <h2 class="font-size-20 font-weight-bold text-nowrap pb-2 pr-2">Unit Requirements</h2>
+          <h2 class="font-size-20 font-weight-bold pb-0 pr-2 text-nowrap">Unit Requirements</h2>
           <div v-if="$currentUser.canEditDegreeProgress && !student">
             <b-btn
               id="unit-requirement-create-link"

@@ -15,7 +15,7 @@
           <b-tr class="sortable-table-header text-nowrap">
             <b-th></b-th>
             <b-th class="pl-0">Course</b-th>
-            <b-th>Units</b-th>
+            <b-th class="text-right">Units</b-th>
             <b-th>Grade</b-th>
             <b-th>Term</b-th>
             <b-th>Note</b-th>
@@ -25,29 +25,30 @@
         <b-tbody>
           <template v-for="(course, index) in courses.unassigned">
             <b-tr :id="`unassigned-course-${course.termId}-${course.sectionId}`" :key="`tr-${index}`">
-              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+              <td v-if="$currentUser.canEditDegreeProgress" class="font-size-14 td-course-assignment-menu">
                 <CourseAssignmentMenu :course="course" :student="student" />
               </td>
-              <td class="pl-0">
+              <td class="font-size-14 pl-0">
                 <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
               </td>
-              <td>
-                <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
+              <td class="font-size-14 text-right">
+                {{ $_.isNil(course.units) ? '&mdash;' : course.units }}
               </td>
-              <td>
+              <td class="font-size-14">
                 {{ course.grade || '&mdash;' }}
               </td>
-              <td>
+              <td class="font-size-14">
                 {{ course.termName }}
               </td>
-              <td>
-                {{ course.note }}
+              <td class="font-size-14">
+                {{ course.note || '&mdash;' }}
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="pr-0">
                 <b-btn
                   :id="`edit-course-${course.id}-btn`"
-                  class="px-0 pt-0"
+                  class="font-size-14 px-0 pt-0"
                   :disabled="disableButtons"
+                  size="sm"
                   variant="link"
                   @click="edit(course)"
                 >

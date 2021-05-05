@@ -267,8 +267,11 @@ export default {
       return bundle.course || !this.student
     },
     isEditing(bundle) {
-      const courseId = this.$_.get(bundle, 'course.id')
-      return courseId && (courseId === this.$_.get(this.bundleForEdit, 'course.id'))
+      const isMatch = key => {
+        const id = this.$_.get(bundle, `${key}.id`)
+        return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
+      }
+      return isMatch('category') || isMatch('course')
     },
     isUnitDiff(bundle) {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.units

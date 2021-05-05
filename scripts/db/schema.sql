@@ -396,7 +396,7 @@ CREATE TABLE degree_progress_categories (
     id integer NOT NULL,
     parent_category_id integer,
     category_type degree_progress_category_types NOT NULL,
-    course_units int4range,
+    course_units numrange,
     description text,
     name character varying(255) NOT NULL,
     position integer NOT NULL,
@@ -434,7 +434,7 @@ CREATE TABLE degree_progress_courses (
   section_id INTEGER NOT NULL,
   sid VARCHAR(80) NOT NULL,
   term_id INTEGER NOT NULL,
-  units INTEGER NOT NULL,
+  units NUMERIC NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -479,7 +479,7 @@ CREATE TABLE degree_progress_unit_requirements (
   id integer NOT NULL,
   template_id integer NOT NULL,
   name character varying(255) NOT NULL,
-  min_units integer NOT NULL,
+  min_units NUMERIC NOT NULL,
   created_at timestamp with time zone NOT NULL,
   created_by integer NOT NULL,
   updated_at timestamp with time zone NOT NULL,
