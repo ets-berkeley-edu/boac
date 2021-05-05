@@ -15,7 +15,7 @@
     <b-dropdown-item
       v-if="course.categoryId"
       id="`assign-course-to-option-null`"
-      link-class="font-size-15 font-weight-bolder pl-3 text-body text-decoration-none"
+      link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
       :value="null"
       @click="onSelect(null)"
     >
@@ -25,13 +25,15 @@
       v-for="option in options"
       :id="`assign-course-to-option-${option.id}`"
       :key="option.id"
-      :disabled="!isAvailable(option)"
+      :disabled="option.disabled"
       :link-class="{
-        'font-weight-lighter': !isAvailable(option),
-        'text-body text-decoration-none': true,
-        'font-size-15 font-weight-bolder pl-3': option.categoryType === 'Category',
-        'font-size-14 font-weight-500 pl-3': option.categoryType === 'Subcategory',
-        'font-size-14 pl-4': option.categoryType === 'Course Requirement'
+        'font-weight-bolder': !option.disabled && option.categoryType === 'Category',
+        'font-weight-500': !option.disabled && option.categoryType === 'Subcategory',
+        'font-weight-lighter': option.disabled,
+        'font-size-15 pl-3': option.categoryType === 'Category',
+        'font-size-14 pl-3': option.categoryType === 'Subcategory',
+        'font-size-14 pl-4': option.categoryType === 'Course Requirement',
+        'text-body text-decoration-none': true
       }"
       :value="option"
       @click="onSelect(option)"
@@ -63,20 +65,25 @@ export default {
   }),
   computed: {
     options() {
+      const put = option => {
+        option.disabled = (option.categoryType === 'Course Requirement' && !!option.courseIds.length)
+          || (option.categoryType === 'Category' && !!option.subcategories.length)
+          || option.courseIds.includes(this.course.id)
+        options.push(option)
+      }
       const options = []
       this.$_.each(this.$_.cloneDeep(this.categories), category => {
-        options.push(category)
-        this.$_.each(category.courseRequirements, r => options.push(r))
+        put(category)
+        this.$_.each(category.courseRequirements, courseRequirement => put(courseRequirement))
         this.$_.each(category.subcategories, subcategory => {
-          options.push(subcategory)
-          this.$_.each(subcategory.courseRequirements, course => options.push(course))
+          put(subcategory)
+          this.$_.each(subcategory.courseRequirements, course => put(course))
         })
       })
       return options
     }
   },
   methods: {
-    isAvailable: option => option.categoryType !== 'Course Requirement' || !option.courseIds.length,
     onSelect(category) {
       this.setDisableButtons(true)
       this.assignCourseToCategory({course: this.course, category}).then(() => {

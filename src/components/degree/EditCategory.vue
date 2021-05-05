@@ -112,7 +112,7 @@
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
-              :disabled="selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory'"
+              :disabled="shouldDisableLocationOption(category)"
               :value="category"
             >
               {{ category.name }}
@@ -263,6 +263,10 @@ export default {
     },
     onUnitRequirementsChange(unitRequirements) {
       this.selectedUnitRequirements = unitRequirements
+    },
+    shouldDisableLocationOption(category) {
+      return (this.selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory')
+        || (this.selectedCategoryType === 'Course Requirement' && category.categoryType === 'Category' && !!category.subcategories.length)
     },
     update() {
       this.isSaving = true
