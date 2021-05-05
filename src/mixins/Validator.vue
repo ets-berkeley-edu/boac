@@ -8,12 +8,12 @@ export default {
   mixins: [Berkeley],
   data: () => ({
     error: undefined,
-    warnings: []
+    warning: undefined
   }),
   methods: {
     clearErrors() {
       this.error = null
-      this.warnings = []
+      this.warning = null
     },
     validateCohortName: function(cohort) {
       const name = _.trim(cohort.name)
@@ -52,18 +52,19 @@ export default {
       const trimmed = _.trim(sids, ' ,\n\t')
       if (trimmed) {
         const split = _.split(trimmed, /[,\r\n\t ]+/)
-        const notNumeric = _.partition(split, sid => /^\d+$/.test(_.trim(sid)))[1]
-        if (notNumeric.length) {
+        if (split.length && split[0].length > 10) {
           this.error = 'SIDs must be separated by commas, line breaks, or tabs.'
           return false
         }
-        const unique = _.uniq(split)
-        if (unique.length < split.length) {
-          this.warnings.push(`${split.length - unique.length} duplicate SIDs skipped.`)
+        const notNumeric = _.partition(split, sid => /^\d+$/.test(_.trim(sid)))[1]
+        if (notNumeric.length) {
+          this.error = 'Each SID must be numeric.'
+        } else {
+          return split
         }
-        return unique
+      } else {
+        this.warning = 'Please provide one or more SIDs.'
       }
-      this.warnings.push('Please provide one or more SIDs.')
       return false
     },
     validateTemplateTitle: template => {

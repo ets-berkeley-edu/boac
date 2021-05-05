@@ -25,7 +25,7 @@
         <b-button
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
-          :disabled="addButtonLoading || addButtonDisabled(query, selectedSuggestion)"
+          :disabled="addButtonLoading || isLoading || addButtonDisabled(query, selectedSuggestion)"
           @click="onAddButton"
           @keyup.enter="onAddButton"
         >
@@ -237,7 +237,9 @@ export default {
         this.suggestions = []
         const q = this.query && this.escapeForRegExp(this.query).replace(/[^\w ]+/g, '')
         this.source(q, this.limit).then(results => {
-          this.populateSuggestions(results)
+          if (this.suggestWhen(this.query)) {
+            this.populateSuggestions(results)
+          }
         })
       } else {
         this.isOpen = false
@@ -246,8 +248,11 @@ export default {
     onAddButton() {
       this.addButtonLoading = true
       this.addSelection(this.selectedSuggestion || this.query).then(() => {
-        this.addButtonLoading = false
         this.closeSuggestions()
+      }).catch(() => {
+        this.$nextTick(() => this.isOpen = false)
+      }).finally(() => {
+        this.addButtonLoading = false
       })
     },
     onArrowDown() {
