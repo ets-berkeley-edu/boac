@@ -17,7 +17,7 @@
           {{ expanded ? 'Collapse' : 'Expand' }} all years
         </b-button>
       </div>
-      <div>|</div>
+      <div v-if="enrollmentTermsByYear.length > 1">|</div>
       <div class="flex-grow-1">
         <b-button
           v-if="enrollmentTermsByYear.length > 1"
@@ -37,6 +37,7 @@
       <div v-if="$config.featureFlagDegreeCheck && student.coeProfile" class="flex-shrink-1">
         <b-btn
           id="view-degree-check-btn"
+          class="pr-0"
           variant="link"
           @click="viewDegreeChecks"
         >
