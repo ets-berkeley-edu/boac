@@ -871,6 +871,53 @@ class TestDistinctSids:
         assert sids.union({some_other_sid}) == set(data['sids'])
 
 
+class TestFindBySids:
+    """Find students by SIDs."""
+
+    @staticmethod
+    def _api_find_by_sids(client, sids=(), expected_status_code=200):
+        response = client.post(
+            '/api/students/by_sids',
+            content_type='application/json',
+            data=json.dumps({
+                'sids': sids,
+            }),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, client):
+        """Requires authentication."""
+        self._api_find_by_sids(client, expected_status_code=401)
+
+    def test_missing_param(self, client, coe_advisor_login):
+        """Requires list of SIDs."""
+        self._api_find_by_sids(client, expected_status_code=400)
+
+    def test_invalid_param(self, client, coe_advisor_login):
+        """Requires SIDs to be numeric."""
+        self._api_find_by_sids(
+            client,
+            sids=[123, '456', 'abc'],
+            expected_status_code=400,
+        )
+
+    def test_(self, client, coe_advisor_login):
+        """Returns basic attributes for SIDs found."""
+        api_json = self._api_find_by_sids(
+            client,
+            sids=['9000000000', '9999999999', '9100000000'],
+            expected_status_code=200,
+        )
+        assert len(api_json) == 2
+        assert api_json[0]['label'] == 'Wolfgang Pauli-O\'Rourke (9000000000)'
+        assert api_json[0]['sid'] == '9000000000'
+        assert api_json[0]['uid'] == '300847'
+        assert api_json[1]['label'] == 'Nora Stanton Barney (9100000000)'
+        assert api_json[1]['sid'] == '9100000000'
+        assert api_json[1]['uid'] == '300848'
+
+
 class TestValidateSids:
     """Student API."""
 

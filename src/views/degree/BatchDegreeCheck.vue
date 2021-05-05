@@ -76,12 +76,17 @@
         </span>
       </div>
     </div>
+    <div v-if="error" class="error-message-container  alert-box p-3 mt-2 mb-3 w-100">
+      {{ error }}
+    </div>
     <div
-      v-if="error || warning"
-      :class="{'error-message-container': error, 'warning-message-container': warning}"
-      class="alert-box p-3 mt-2 mb-3 w-100"
-      v-html="error || warning"
-    />
+      v-if="warnings && warnings.length"
+      class="warning-message-container alert-box p-3 mt-2 mb-3 w-100"
+    >
+      <ul class="mb-0">
+        <li v-for="(warning, index) in warnings" :key="index">{{ warning }}</li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -91,7 +96,7 @@ import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import {findStudentsByNameOrSid} from '@/api/student'
+import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchDegreeCheck',
@@ -107,11 +112,25 @@ export default {
     error: undefined,
     isRecalculating: false,
     resetAutoCompleteKey: undefined,
-    warning: undefined
+    warnings: []
   }),
   computed: {
     sids() {
       return this.$_.map(this.addedStudents, 'sid')
+    }
+  },
+  watch: {
+    error(value) {
+      if (value) {
+        this.$nextTick(() => {
+          this.alertScreenReader(value)
+        })
+      }
+    },
+    warnings(value) {
+      if (value && value.length) {
+        this.alertScreenReader(value.join('. '))
+      }
     }
   },
   mounted() {
@@ -120,18 +139,17 @@ export default {
   methods: {
     addSids(query) {
       return new Promise(resolve => {
-        //TODO: check for sids that have already been added
-        this.validateSids(query).then(sids => {
-          if (sids && sids.length) {
-            //TODO: look up list of students
-            findStudentsByNameOrSid(sids[0], 1).then(students => {
-              this.$_.each(students, this.addStudent)
+        const sids = this.validateSids(query)
+        if (sids) {
+          const novelSids = this.$_.difference(sids, this.sids)
+          if (novelSids.length) {
+            getStudentsBySids(novelSids).then(students => {
+              this.addStudents(students)
               resolve()
             })
-          } else {
-            resolve()
           }
-        })
+        }
+        resolve()
       })
     },
     addStudent(student) {
@@ -139,6 +157,16 @@ export default {
         this.addedStudents.push(student)
         this.resetAutoCompleteKey = new Date().getTime()
         this.alertScreenReader(`${student.label} added to degree check`)
+        this.clearErrors()
+      }
+      this.putFocusNextTick('degree-check-add-student-input')
+    },
+    addStudents(students) {
+      if (students && students.length) {
+        this.addedStudents.push(...students)
+        this.resetAutoCompleteKey = new Date().getTime()
+        this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
+        this.clearErrors()
       }
       this.putFocusNextTick('degree-check-add-student-input')
     },
