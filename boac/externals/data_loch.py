@@ -415,6 +415,20 @@ def get_enrollments_for_term(term_id, sids=None):
     return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
+def get_students_by_sids(sids):
+    inner_sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
+        FROM {student_schema()}.student_academic_status sas
+        WHERE sas.sid = ANY(:sids)
+        UNION
+        SELECT s.first_name, s.last_name, s.sid, s.uid
+        FROM {student_schema()}.student_names_hist_enr s
+        WHERE s.sid = ANY(:sids)"""
+    sql = f"""SELECT DISTINCT q.*
+        FROM ({inner_sql}) q
+        ORDER BY q.sid"""
+    return safe_execute_rds(sql, sids=sids)
+
+
 def match_appointment_advisors_by_name(prefixes, limit=None):
     prefix_conditions = []
     prefix_kwargs = {}
