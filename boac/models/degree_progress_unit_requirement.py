@@ -41,6 +41,10 @@ class DegreeProgressUnitRequirement(Base):
         'DegreeProgressCategoryUnitRequirement',
         back_populates='unit_requirement',
     )
+    courses = db.relationship(
+        'DegreeProgressCourseUnitRequirement',
+        back_populates='unit_requirement',
+    )
     template = db.relationship('DegreeProgressTemplate', back_populates='unit_requirements')
 
     __table_args__ = (db.UniqueConstraint(

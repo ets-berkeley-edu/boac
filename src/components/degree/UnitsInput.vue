@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <label id="units-input-label" :for="inputIdLower" class="font-weight-500 pr-2">
+      <label id="units-input-label" :for="inputIdLower" class="font-weight-500 mb-1 pr-2">
         {{ label }}
       </label>
       <div v-if="range" class="font-size-12">
