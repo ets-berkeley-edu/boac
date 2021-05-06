@@ -15,8 +15,9 @@
       >
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
-          class="pr-2 pt-0"
+          class="pr-1 pt-0"
           :disabled="disableButtons"
+          size="sm"
           variant="link"
           @click.prevent="edit"
         >
@@ -27,6 +28,7 @@
           :id="`column-${position}-delete-category-${category.id}-btn`"
           class="px-0 pt-0"
           :disabled="disableButtons"
+          size="sm"
           variant="link"
           @click="deleteDegreeCategory"
         >

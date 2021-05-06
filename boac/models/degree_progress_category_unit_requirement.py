@@ -26,8 +26,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 
 
-class DegreeProgressCourseUnitRequirement(db.Model):
-    __tablename__ = 'degree_progress_course_unit_requirements'
+class DegreeProgressCategoryUnitRequirement(db.Model):
+    __tablename__ = 'degree_progress_category_unit_requirements'
 
     category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'), primary_key=True)
     unit_requirement_id = db.Column(db.Integer, db.ForeignKey('degree_progress_unit_requirements.id'), primary_key=True)

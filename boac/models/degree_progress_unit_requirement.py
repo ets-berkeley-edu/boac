@@ -38,7 +38,7 @@ class DegreeProgressUnitRequirement(Base):
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     updated_by = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     categories = db.relationship(
-        'DegreeProgressCourseUnitRequirement',
+        'DegreeProgressCategoryUnitRequirement',
         back_populates='unit_requirement',
     )
     template = db.relationship('DegreeProgressTemplate', back_populates='unit_requirements')

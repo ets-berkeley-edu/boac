@@ -349,13 +349,24 @@ CREATE INDEX cohort_filters_owner_id_idx ON cohort_filters USING btree (owner_id
 
 --
 
-CREATE TABLE degree_progress_course_unit_requirements (
+CREATE TABLE degree_progress_category_unit_requirements (
   category_id INTEGER,
+  unit_requirement_id INTEGER
+);
+ALTER TABLE degree_progress_category_unit_requirements OWNER TO boac;
+ALTER TABLE ONLY degree_progress_category_unit_requirements
+    ADD CONSTRAINT degree_progress_category_unit_requirements_pkey PRIMARY KEY (category_id, unit_requirement_id);
+
+--
+
+
+CREATE TABLE degree_progress_course_unit_requirements (
+  course_id INTEGER,
   unit_requirement_id INTEGER
 );
 ALTER TABLE degree_progress_course_unit_requirements OWNER TO boac;
 ALTER TABLE ONLY degree_progress_course_unit_requirements
-    ADD CONSTRAINT degree_progress_course_unit_requirements_pkey PRIMARY KEY (category_id, unit_requirement_id);
+    ADD CONSTRAINT degree_progress_course_unit_requirements_pkey PRIMARY KEY (course_id, unit_requirement_id);
 
 --
 
@@ -969,9 +980,18 @@ ALTER TABLE ONLY cohort_filters
 
 --
 
-ALTER TABLE ONLY degree_progress_course_unit_requirements
-    ADD CONSTRAINT degree_progress_course_unit_reqts_category_id_fkey
+ALTER TABLE ONLY degree_progress_category_unit_requirements
+    ADD CONSTRAINT degree_progress_category_unit_reqts_category_id_fkey
     FOREIGN KEY (category_id) REFERENCES degree_progress_categories(id) ON DELETE CASCADE;
+ALTER TABLE ONLY degree_progress_category_unit_requirements
+    ADD CONSTRAINT degree_progress_category_unit_reqts_unit_requirement_id_fkey
+    FOREIGN KEY (unit_requirement_id) REFERENCES degree_progress_unit_requirements(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY degree_progress_course_unit_requirements
+    ADD CONSTRAINT degree_progress_course_unit_reqts_course_id_fkey
+    FOREIGN KEY (course_id) REFERENCES degree_progress_courses(id) ON DELETE CASCADE;
 ALTER TABLE ONLY degree_progress_course_unit_requirements
     ADD CONSTRAINT degree_progress_course_unit_reqts_unit_requirement_id_fkey
     FOREIGN KEY (unit_requirement_id) REFERENCES degree_progress_unit_requirements(id) ON DELETE CASCADE;

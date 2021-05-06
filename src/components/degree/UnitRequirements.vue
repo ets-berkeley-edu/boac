@@ -37,26 +37,32 @@
             small
           >
             <template v-if="$currentUser.canEditDegreeProgress && !student" #cell(actions)="row">
-              <b-btn
-                :id="`unit-requirement-${row.item.id}-edit-btn`"
-                class="pr-2 pt-0"
-                :disabled="disableButtons"
-                variant="link"
-                @click.prevent="onClickEdit(row.index)"
-              >
-                <font-awesome icon="edit" />
-                <span class="sr-only">Edit {{ row.item.name }}</span>
-              </b-btn>
-              <b-btn
-                :id="`unit-requirement-${row.item.id}-delete-btn`"
-                class="px-0 pt-0"
-                :disabled="disableButtons"
-                variant="link"
-                @click.prevent="onClickDelete(row.index)"
-              >
-                <font-awesome icon="trash-alt" />
-                <span class="sr-only">Delete {{ row.item.name }}</span>
-              </b-btn>
+              <div class="align-items-center d-flex">
+                <b-btn
+                  :id="`unit-requirement-${row.item.id}-edit-btn`"
+                  class="pr-2 pt-0"
+                  :disabled="disableButtons"
+                  size="sm"
+                  variant="link"
+                  @click.prevent="onClickEdit(row.index)"
+                >
+                  <font-awesome icon="edit" />
+                  <span class="sr-only">Edit {{ row.item.name }}</span>
+                </b-btn>
+              </div>
+              <div>
+                <b-btn
+                  :id="`unit-requirement-${row.item.id}-delete-btn`"
+                  class="px-0 pt-0"
+                  :disabled="disableButtons"
+                  size="sm"
+                  variant="link"
+                  @click.prevent="onClickDelete(row.index)"
+                >
+                  <font-awesome icon="trash-alt" />
+                  <span class="sr-only">Delete {{ row.item.name }}</span>
+                </b-btn>
+              </div>
             </template>
           </b-table-lite>
         </div>
@@ -115,13 +121,13 @@ export default {
       {
         key: 'name',
         label: 'Fulfillment Requirements',
-        tdClass: 'font-size-16 pl-0 pt-2',
+        tdClass: 'font-size-16 pl-0 pt-1',
         thClass: 'faint-text font-size-12 pl-0 text-uppercase'
       },
       {
         key: 'minUnits',
         label: this.student ? 'Min' : 'Min Units',
-        tdClass: 'font-size-16 pl-0 pt-2 text-right',
+        tdClass: 'font-size-16 pl-0 pt-1 text-right',
         thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
       }
     ]

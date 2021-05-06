@@ -50,10 +50,10 @@
                   class="changed-units-icon mr-1"
                   icon="info-circle"
                   size="sm"
-                  :title="`Updated from ${bundle.category.unitsLower} units`"
+                  :title="`Updated from ${pluralize('unit', bundle.category.unitsLower)}`"
                 />
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
-                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ bundle.category.unitsLower }} units)</span>
+                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
               </td>
               <td v-if="student" class="font-size-14 px-0 text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
@@ -89,7 +89,7 @@
                     variant="link"
                     @click="edit(bundle)"
                   >
-                    <font-awesome class="font-size-16" icon="edit" />
+                    <font-awesome icon="edit" />
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
@@ -101,7 +101,7 @@
                     variant="link"
                     @click="deleteCourse(bundle)"
                   >
-                    <font-awesome class="font-size-16" icon="trash-alt" />
+                    <font-awesome icon="trash-alt" />
                     <span class="sr-only">Delete {{ bundle.name }}</span>
                   </b-btn>
                 </div>

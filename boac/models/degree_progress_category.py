@@ -25,8 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course import DegreeProgressCourse
-from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 from psycopg2.extras import NumericRange
 from sqlalchemy.dialects.postgresql import ENUM, NUMRANGE
@@ -53,7 +53,7 @@ class DegreeProgressCategory(Base):
     position = db.Column(db.Integer, nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     unit_requirements = db.relationship(
-        DegreeProgressCourseUnitRequirement.__name__,
+        DegreeProgressCategoryUnitRequirement.__name__,
         back_populates='category',
         lazy='joined',
     )
@@ -119,7 +119,7 @@ class DegreeProgressCategory(Base):
         db.session.add(category)
         std_commit()
         for unit_requirement_id in unit_requirement_ids or []:
-            DegreeProgressCourseUnitRequirement.create(
+            DegreeProgressCategoryUnitRequirement.create(
                 category_id=category.id,
                 unit_requirement_id=int(unit_requirement_id),
             )
@@ -127,7 +127,7 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def delete(cls, category_id):
-        for unit_requirement in DegreeProgressCourseUnitRequirement.find_by_category_id(category_id):
+        for unit_requirement in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
             db.session.delete(unit_requirement)
         for course in DegreeProgressCourse.find_by_category_id(category_id):
             db.session.delete(course)
@@ -192,11 +192,11 @@ class DegreeProgressCategory(Base):
         category.parent_category_id = parent_category_id
 
         unit_requirement_id_set = set(unit_requirement_ids or [])
-        existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_category_id(category_id)
+        existing_unit_requirements = DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id)
         existing_unit_requirement_id_set = set([u.unit_requirement_id for u in existing_unit_requirements])
 
         for unit_requirement_id in (unit_requirement_id_set - existing_unit_requirement_id_set):
-            DegreeProgressCourseUnitRequirement.create(
+            DegreeProgressCategoryUnitRequirement.create(
                 category_id=category.id,
                 unit_requirement_id=unit_requirement_id,
             )
