@@ -1,7 +1,7 @@
 BEGIN;
 
-ALTER TABLE degree_progress_courses ALTER COLUMN units TYPE DECIMAL (4,1);
-ALTER TABLE degree_progress_unit_requirements ALTER COLUMN min_units TYPE DECIMAL (4,1);
+ALTER TABLE degree_progress_courses ALTER COLUMN units TYPE DECIMAL;
+ALTER TABLE degree_progress_unit_requirements ALTER COLUMN min_units TYPE DECIMAL;
 
 -- Converting from column type 'int4range' to type 'numrange'
 ALTER TABLE degree_progress_categories ADD COLUMN course_units_numrange numrange;

@@ -45,23 +45,13 @@
         </div>
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement'" class="mb-1 mt-2">
-        <div class="font-weight-500">
-          Units
-        </div>
-        <div>
-          <b-form-input
-            :id="`column-${position}-units-input`"
-            v-model="units"
-            class="units-input"
-            :disabled="isSaving"
-            maxlength="3"
-            trim
-            @keypress.enter="create"
-          />
-          <span v-if="!isValidUnits" class="has-error faint-text font-size-12">
-            Number or numerical range required
-          </span>
-        </div>
+        <UnitsInput
+          :disable="isSaving"
+          :on-input="setUnitsRange"
+          :on-keypress-enter="onClickSave"
+          :range="true"
+          :units="[unitsLower, unitsUpper]"
+        />
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length" class="mb-1 mt-2">
         <div class="font-weight-500">
@@ -157,12 +147,13 @@
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
+import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCategory',
   mixins: [DegreeEditSession, Util],
-  components: {SelectUnitFulfillment},
+  components: {UnitsInput, SelectUnitFulfillment},
   props: {
     afterCancel: {
       required: true,
@@ -188,12 +179,7 @@ export default {
         || !this.nameInput
         || !this.selectedCategoryType
         || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
-        || !this.isValidUnits
-    },
-    isValidUnits() {
-      return this.$_.isEmpty(this.units)
-        || /^\d-\d$/.test(this.units)
-        || (/^\d+$/.test(this.units) && this.toInt(this.units) > 0)
+        || !this.isValidUnitRange
     },
     withTypeCategory() {
       return this.findCategoriesByTypes(['Category'], this.position)
@@ -203,22 +189,25 @@ export default {
     }
   },
   data: () => ({
-    units: undefined,
     descriptionText: undefined,
     isSaving: false,
+    isValidUnitRange: true,
     nameInput: '',
     selectedCategoryType: null,
     selectedParentCategory: null,
-    selectedUnitRequirements: []
+    selectedUnitRequirements: [],
+    unitsLower: undefined,
+    unitsUpper: undefined
   }),
   created() {
     if (this.existingCategory) {
-      this.units = this.existingCategory.units
       this.descriptionText = this.existingCategory.description
       this.nameInput = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
       this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
       this.selectedUnitRequirements = this.$_.clone(this.existingCategory.unitRequirements)
+      this.unitsLower = this.existingCategory.unitsLower
+      this.unitsUpper = this.existingCategory.unitsUpper
     }
     this.putFocusNextTick(`column-${this.position}-add-category-select`)
   },
@@ -239,7 +228,8 @@ export default {
           position: this.position,
           parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
           unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-          units: this.units
+          unitsLower: this.unitsLower,
+          unitsUpper: this.unitsUpper
         }).then(() => {
           this.$announcer.polite(`${this.selectedCategoryType} created`)
           this.afterSave()
@@ -259,10 +249,17 @@ export default {
       }
     },
     onClickSave() {
-      this.existingCategory ? this.update() : this.create()
+      if (!this.disableSaveButton) {
+        this.existingCategory ? this.update() : this.create()
+      }
     },
     onUnitRequirementsChange(unitRequirements) {
       this.selectedUnitRequirements = unitRequirements
+    },
+    setUnitsRange(isValid, unitsLower, unitsUpper) {
+      this.isValidUnitRange = isValid
+      this.unitsLower = unitsLower
+      this.unitsUpper = unitsUpper
     },
     shouldDisableLocationOption(category) {
       return (this.selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory')
@@ -276,7 +273,8 @@ export default {
         name: this.nameInput,
         parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
         unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-        units: this.units
+        unitsLower: this.unitsLower,
+        unitsUpper: this.unitsUpper
       }).then(() => {
         this.$announcer.polite(`${this.selectedCategoryType} created`)
         this.afterSave()
@@ -285,9 +283,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.units-input {
-  max-width: 3.25rem;
-}
-</style>

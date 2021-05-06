@@ -31,7 +31,8 @@ export function createDegreeCategory(
   position: number,
   templateId: number,
   unitRequirementIds: number[],
-  units: number
+  unitsLower: number,
+  unitsUpper: number
 ) {
   const data = {
     categoryType,
@@ -41,7 +42,8 @@ export function createDegreeCategory(
     position,
     templateId,
     unitRequirementIds,
-    units
+    unitsLower,
+    unitsUpper
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/create`, data).then(response => response.data, () => null)
 }
@@ -82,20 +84,22 @@ export function updateCourse(courseId: number, note: string, unitRequirements: a
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/update`, {note, unitRequirements, units}).then(response => response.data, () => null)
 }
 
-export function updateDegreeCategory(
+export function updateCategory(
   categoryId: number,
   description: string,
   name: string,
   parentCategoryId: number,
   unitRequirementIds: number[],
-  units: number
+  unitsLower: number,
+  unitsUpper: number
 ) {
   const data = {
     description,
     name,
     parentCategoryId,
     unitRequirementIds,
-    units
+    unitsLower,
+    unitsUpper
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/update`, data).then(response => response.data, () => null)
 }

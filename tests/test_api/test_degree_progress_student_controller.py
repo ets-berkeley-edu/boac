@@ -143,7 +143,12 @@ class TestAssignCourse:
             degree_name=f'Degree for {sid}',
             student_sid=sid,
         )
-        category = DegreeProgressCategory.create(category_type='Category', name=f'Category for {sid}', position=1, template_id=degree_check.id)
+        category = DegreeProgressCategory.create(
+            category_type='Category',
+            name=f'Category for {sid}',
+            position=1,
+            template_id=degree_check.id,
+        )
         # Subcategory
         subcategory = DegreeProgressCategory.create(
             category_type='Subcategory',

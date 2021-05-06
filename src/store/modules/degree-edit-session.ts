@@ -7,8 +7,8 @@ import {
   deleteDegreeCategory,
   deleteUnitRequirement,
   getDegreeTemplate,
+  updateCategory,
   updateCourse,
-  updateDegreeCategory,
   updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
@@ -108,7 +108,8 @@ const actions = {
     parentCategoryId,
     position,
     unitRequirementIds,
-    units
+    unitsLower,
+    unitsUpper
   }) => {
     return new Promise(resolve => {
       createDegreeCategory(
@@ -119,7 +120,8 @@ const actions = {
         position,
         state.templateId,
         unitRequirementIds,
-        units
+        unitsLower,
+        unitsUpper
       ).then(category => {
         $_refresh(commit, state.templateId).then(() => resolve(category))
       }
@@ -181,16 +183,18 @@ const actions = {
     name,
     parentCategoryId,
     unitRequirementIds,
-    units
+    unitsLower,
+    unitsUpper
   }) => {
     return new Promise(resolve => {
-      updateDegreeCategory(
+      updateCategory(
         categoryId,
         description,
         name,
         parentCategoryId,
         unitRequirementIds,
-        units
+        unitsLower,
+        unitsUpper
       ).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   }
