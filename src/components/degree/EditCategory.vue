@@ -4,7 +4,7 @@
       <div class="font-weight-500">
         Requirement Type (required)
       </div>
-      <div class="mb-1 mt-2">
+      <div class="pb-1">
         <b-select
           :id="`column-${position}-add-category-select`"
           v-model="selectedCategoryType"
@@ -25,11 +25,11 @@
         </b-select>
       </div>
     </div>
-    <div v-if="selectedCategoryType" class="mb-1 mt-2">
+    <div v-if="selectedCategoryType" class="pb-1">
       <div class="font-weight-500">
         {{ selectedCategoryType }} Name (required)
       </div>
-      <div>
+      <div class="pb-1">
         <b-form-input
           :id="`column-${position}-name-input`"
           v-model="nameInput"
@@ -44,7 +44,7 @@
           </span>
         </div>
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement'" class="mb-1 mt-2">
+      <div v-if="selectedCategoryType === 'Course Requirement'" class="pb-1">
         <UnitsInput
           :disable="isSaving"
           :on-input="setUnitsRange"
@@ -53,8 +53,8 @@
           :units="[unitsLower, unitsUpper]"
         />
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length" class="mb-1 mt-2">
-        <div class="font-weight-500">
+      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length">
+        <div class="font-weight-500 pb-1">
           Requirement Fulfillment
         </div>
         <div class="mb-3">
@@ -66,7 +66,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course Requirement'" class="mb-1 mt-2">
+      <div v-if="selectedCategoryType !== 'Course Requirement'" class="pb-1">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
@@ -79,11 +79,11 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Category'" class="mb-1 mt-2">
-        <div class="font-weight-500">
+      <div v-if="selectedCategoryType !== 'Category'" class="pb-1">
+        <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
-        <div class="my-2">
+        <div class="pb-1">
           <b-select
             :id="`column-${position}-parent-category-select`"
             v-model="selectedParentCategory"

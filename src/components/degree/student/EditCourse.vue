@@ -9,7 +9,7 @@
         :units="units"
       />
     </div>
-    <div v-if="unitRequirements.length">
+    <div v-if="course.categoryId && unitRequirements.length">
       <div class="font-weight-500">
         Counts Towards Unit Fulfillment
       </div>
@@ -108,7 +108,9 @@ export default {
   created() {
     this.note = this.course.note
     this.units = this.course.units
-    this.putFocusNextTick('note-of-unassigned-course-textarea')
+    this.units = this.course.units
+    this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
+    this.putFocusNextTick('course-units-input')
   },
   methods: {
     cancel() {
@@ -128,7 +130,7 @@ export default {
         this.updateCourse({
           courseId: this.course.id,
           note: this.note,
-          unitRequirements: this.selectedUnitRequirements,
+          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(data => {
           this.$announcer.polite('Course updated')

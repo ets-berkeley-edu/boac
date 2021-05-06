@@ -90,6 +90,7 @@ def copy_course():
             section_id=course.section_id,
             sid=course.sid,
             term_id=course.term_id,
+            unit_requirement_ids=[u.id for u in course.unit_requirements],
             units=course.units,
         )
         course_requirement = DegreeProgressCategory.create(
@@ -151,12 +152,18 @@ def get_degree_checks(sid):
 def update_course(course_id):
     params = request.get_json()
     note = get_param(params, 'note')
-    # TODO: Add one-to-many unit_requirement mapping to db?
-    # unit_requirements = get_param(params, 'unitRequirements')
+    # Courses are mapped to degree_progress_unit_requirements
+    value = get_param(request.get_json(), 'unitRequirementIds')
+    unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
     units = get_param(params, 'units')
     if units is None:
         raise BadRequestError('units parameter is required.')
-    course = DegreeProgressCourse.update(course_id=course_id, note=note, units=units)
+    course = DegreeProgressCourse.update(
+        course_id=course_id,
+        note=note,
+        unit_requirement_ids=unit_requirement_ids,
+        units=units,
+    )
     return tolerant_jsonify(course.to_api_json())
 
 

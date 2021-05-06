@@ -44,7 +44,7 @@ def create_category():
     parent_category_id = get_param(params, 'parentCategoryId')
     position = get_param(params, 'position')
     template_id = get_param(params, 'templateId')
-    # Categories/courses can be mapped to degree_progress_unit_requirements
+    # Categories are mapped to degree_progress_unit_requirements
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
 

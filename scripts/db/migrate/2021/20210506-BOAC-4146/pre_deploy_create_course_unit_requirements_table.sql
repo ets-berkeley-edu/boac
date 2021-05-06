@@ -11,7 +11,7 @@ CREATE TABLE degree_progress_course_unit_requirements (
   course_id INTEGER,
   unit_requirement_id INTEGER
 );
-ALTER TABLE degree_progress_course_unit_requirements OWNER TO app_boac;
+ALTER TABLE degree_progress_course_unit_requirements OWNER TO app_boa;
 ALTER TABLE ONLY degree_progress_course_unit_requirements
     ADD CONSTRAINT degree_progress_course_unit_requirements_pkey PRIMARY KEY (course_id, unit_requirement_id);
 

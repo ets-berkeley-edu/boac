@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import is_int
 from boac.models.base import Base
+from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 
 
@@ -43,6 +44,11 @@ class DegreeProgressCourse(Base):
     sid = db.Column(db.String(80), nullable=False)
     term_id = db.Column(db.Integer, nullable=False)
     units = db.Column(db.Numeric, nullable=False)
+    unit_requirements = db.relationship(
+        DegreeProgressCourseUnitRequirement.__name__,
+        back_populates='course',
+        lazy='joined',
+    )
 
     __table_args__ = (db.UniqueConstraint(
         'category_id',
@@ -106,6 +112,7 @@ class DegreeProgressCourse(Base):
             units,
             category_id=None,
             note=None,
+            unit_requirement_ids=[],
     ):
         course = cls(
             category_id=category_id,
@@ -116,9 +123,15 @@ class DegreeProgressCourse(Base):
             section_id=section_id,
             sid=sid,
             term_id=term_id,
-            units=units if is_int(units) else 0,  # TODO: Is units='E' valid? Can units value be non-numeric?
+            units=units if is_int(units) else 0,
         )
         db.session.add(course)
+
+        for unit_requirement_id in unit_requirement_ids:
+            DegreeProgressCourseUnitRequirement.create(
+                course_id=course.id,
+                unit_requirement_id=unit_requirement_id,
+            )
         std_commit()
         return course
 
@@ -149,14 +162,28 @@ class DegreeProgressCourse(Base):
         ).all()
 
     @classmethod
-    def update(cls, course_id, note, units):
+    def update(cls, course_id, note, units, unit_requirement_ids):
         course = cls.query.filter_by(id=course_id).first()
         course.units = units
         course.note = note
+
+        existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_course_id(course_id)
+        existing_unit_requirement_id_set = set([u.unit_requirement_id for u in existing_unit_requirements])
+        unit_requirement_id_set = set(unit_requirement_ids or [])
+        for unit_requirement_id in (unit_requirement_id_set - existing_unit_requirement_id_set):
+            DegreeProgressCourseUnitRequirement.create(
+                course_id=course.id,
+                unit_requirement_id=unit_requirement_id,
+            )
+        for unit_requirement_id in (existing_unit_requirement_id_set - unit_requirement_id_set):
+            delete_me = next(e for e in existing_unit_requirements if e.unit_requirement_id == unit_requirement_id)
+            db.session.delete(delete_me)
+
         std_commit()
         return course
 
     def to_api_json(self):
+        unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'categoryId': self.category_id,
             'createdAt': _isoformat(self.created_at),
@@ -169,6 +196,7 @@ class DegreeProgressCourse(Base):
             'sid': self.sid,
             'termId': self.term_id,
             'termName': term_name_for_sis_id(self.term_id),
+            'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'units': self.units,
             'updatedAt': _isoformat(self.updated_at),
         }
