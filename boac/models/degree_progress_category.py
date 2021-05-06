@@ -95,14 +95,20 @@ class DegreeProgressCategory(Base):
             name,
             position,
             template_id,
-            course_units=None,
+            course_units_lower=None,
+            course_units_upper=None,
             description=None,
             parent_category_id=None,
             unit_requirement_ids=None,
     ):
+        course_units = None if course_units_lower is None else NumericRange(
+            float(course_units_lower),
+            float(course_units_upper or course_units_lower),
+            '[]',
+        )
         category = cls(
             category_type=category_type,
-            course_units=_to_range(course_units),
+            course_units=course_units,
             description=description,
             name=name,
             parent_category_id=parent_category_id,
@@ -168,14 +174,19 @@ class DegreeProgressCategory(Base):
     def update(
             cls,
             category_id,
-            course_units,
+            course_units_lower,
+            course_units_upper,
             description,
             name,
             parent_category_id,
             unit_requirement_ids,
     ):
         category = cls.query.filter_by(id=category_id).first()
-        category.course_units = _to_range(course_units)
+        category.course_units = None if course_units_lower is None else NumericRange(
+            float(course_units_lower),
+            float(course_units_upper or course_units_lower),
+            '[]',
+        )
         category.description = description
         category.name = name
         category.parent_category_id = parent_category_id
@@ -208,25 +219,11 @@ class DegreeProgressCategory(Base):
             'parentCategoryId': self.parent_category_id,
             'position': self.position,
             'templateId': self.template_id,
-            'units': _range_to_string(self.course_units),
+            'unitsLower': self.course_units and self.course_units.lower,
+            'unitsUpper': self.course_units and self.course_units.upper,
             'unitRequirements': sorted(unit_requirements, key=lambda r: r['name']),
             'updatedAt': _isoformat(self.updated_at),
         }
-
-
-def _range_to_string(r):
-    if r:
-        lower_bound = r.lower if r.lower_inc else r.lower + 1
-        upper_bound = r.upper if r.upper_inc else r.upper - 1
-        if upper_bound - lower_bound > 0:
-            return f'{lower_bound}-{upper_bound}'
-        return f'{lower_bound}'
-
-
-def _to_range(value):
-    if value:
-        bounds = str(value).split('-')
-        return NumericRange(int(min(bounds)), int(max(bounds)), '[]')
 
 
 def _isoformat(value):

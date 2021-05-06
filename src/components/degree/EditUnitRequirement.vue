@@ -26,26 +26,15 @@
       </div>
     </div>
     <div class="d-flex flex-column pb-3">
-      <label
-        id="label-of-min-units-input"
-        for="unit-requirement-min-units-input"
-        class="font-weight-bolder"
-      >Minimum Units (required)</label>
-      <input
+      <UnitsInput
         id="unit-requirement-min-units-input"
-        v-model="minUnits"
-        class="form-control unit-requirement-min-units"
-        aria-labelledby="label-of-min-units-input"
-        :aria-invalid="!isValidUnits"
-        aria-required="true"
-        maxlength="2"
-        required
-        type="text"
-        @keypress.enter="() => $_.isNil(index) ? create() : update()"
+        :disable="isSaving"
+        label="Minimum Units (required)"
+        :max="100"
+        :on-input="setMinUnits"
+        :on-keypress-enter="() => $_.isNil(index) ? create() : update()"
+        :units="minUnits"
       />
-      <span v-if="minUnits && !isValidUnits" class="has-error faint-text font-size-12 mt-1">
-        Number required
-      </span>
     </div>
     <b-btn
       v-if="$_.isNil(index)"
@@ -80,11 +69,13 @@
 <script>
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditUnitRequirement',
   mixins: [Context, DegreeEditSession, Util],
+  components: {UnitsInput},
   props: {
     index: {
       default: undefined,
@@ -101,6 +92,7 @@ export default {
     }
   },
   data: () => ({
+    isValidUnits: true,
     isSaving: false,
     name: '',
     minUnits: undefined
@@ -108,10 +100,7 @@ export default {
   computed: {
     disableSaveButton() {
       return this.isSaving || !this.name || !this.isValidUnits
-    },
-    isValidUnits() {
-      return /^\d+$/.test(this.minUnits) && this.toInt(this.minUnits) > 0
-    },
+    }
   },
   created() {
     if (this.unitRequirement) {
@@ -148,6 +137,10 @@ export default {
       this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
       this.$announcer.polite(`${this.name ? 'Units value' : 'Name'} required.`)
     },
+    setMinUnits(isValid, units) {
+      this.isValidUnits = isValid
+      this.minUnits = units
+    },
     update() {
       if (this.disableSaveButton) {
         this.putFocusRequiredField()
@@ -172,8 +165,5 @@ export default {
 <style scoped>
 .unit-requirement-name {
   width: 22rem;
-}
-.unit-requirement-min-units {
-  width: 4rem;
 }
 </style>

@@ -37,7 +37,8 @@ from flask_cors import cross_origin
 def create_category():
     params = request.get_json()
     category_type = get_param(params, 'categoryType')
-    course_units = get_param(params, 'units')
+    course_units_lower = get_param(params, 'unitsLower')
+    course_units_upper = get_param(params, 'unitsUpper')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
@@ -63,7 +64,8 @@ def create_category():
 
     category = DegreeProgressCategory.create(
         category_type=category_type,
-        course_units=course_units,
+        course_units_lower=course_units_lower,
+        course_units_upper=course_units_upper,
         description=description,
         name=name,
         parent_category_id=parent_category_id,
@@ -92,7 +94,8 @@ def delete_degree_category(category_id):
 @can_edit_degree_progress
 def update_category(category_id):
     params = request.get_json()
-    course_units = get_param(params, 'units')
+    course_units_lower = get_param(params, 'unitsLower')
+    course_units_upper = get_param(params, 'unitsUpper')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
@@ -102,7 +105,8 @@ def update_category(category_id):
 
     category = DegreeProgressCategory.update(
         category_id=category_id,
-        course_units=course_units,
+        course_units_lower=course_units_lower,
+        course_units_upper=course_units_upper,
         description=description,
         parent_category_id=parent_category_id,
         name=name,

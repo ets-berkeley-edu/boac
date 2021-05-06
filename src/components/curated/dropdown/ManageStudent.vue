@@ -8,7 +8,7 @@
       :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
       no-caret
       size="sm"
-      :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow'"
+      :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow btn-primary-color-override'"
       :variant="dropdownVariant"
     >
       <template slot="button-content">

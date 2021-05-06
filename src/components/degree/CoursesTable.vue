@@ -50,10 +50,10 @@
                   class="changed-units-icon mr-1"
                   icon="info-circle"
                   size="sm"
-                  :title="`Updated from ${bundle.category.units} units`"
+                  :title="`Updated from ${bundle.category.unitsLower} units`"
                 />
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
-                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ bundle.category.units }} units)</span>
+                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ bundle.category.unitsLower }} units)</span>
               </td>
               <td v-if="student" class="font-size-14 px-0 text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
@@ -217,7 +217,7 @@ export default {
           category,
           course,
           name: (course || category).name,
-          units: (course || category).units,
+          units: course ? course.units : this.describeCategoryUnits(category),
           unitRequirements: (course || category).unitRequirements
         })
       })
@@ -256,6 +256,14 @@ export default {
       this.bundleForDelete = bundle
       this.$announcer.polite(`Delete ${bundle.name}`)
     },
+    describeCategoryUnits(category) {
+      if (category) {
+        const showRange = category.unitsUpper && category.unitsLower !== category.unitsUpper
+        return showRange ? `${category.unitsLower}-${category.unitsUpper}` : category.unitsLower
+      } else {
+        return null
+      }
+    },
     edit(bundle) {
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
@@ -274,7 +282,7 @@ export default {
       return isMatch('category') || isMatch('course')
     },
     isUnitDiff(bundle) {
-      return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.units
+      return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
     }
   }
 }

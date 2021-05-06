@@ -82,21 +82,23 @@ def copy_course():
                 raise BadRequestError(f'Course already belongs to category {category.name}.')
 
         # Create a new course instance and a new 'Course Requirement'.
+        course = courses[0]
         course = DegreeProgressCourse.create(
             degree_check_id=category.template_id,
-            display_name=courses[0].display_name,
-            grade=courses[0].grade,
-            section_id=courses[0].section_id,
-            sid=courses[0].sid,
-            term_id=courses[0].term_id,
-            units=courses[0].units,
+            display_name=course.display_name,
+            grade=course.grade,
+            section_id=course.section_id,
+            sid=course.sid,
+            term_id=course.term_id,
+            units=course.units,
         )
         course_requirement = DegreeProgressCategory.create(
             category_type='Course Requirement',
-            name=courses[0].display_name,
+            name=course.display_name,
             position=category.position,
             template_id=category.template_id,
-            course_units=courses[0].units,
+            course_units_lower=course.units,
+            course_units_upper=course.units,
             parent_category_id=category.id,
 
         )

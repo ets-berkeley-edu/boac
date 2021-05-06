@@ -1,45 +1,39 @@
 <template>
   <div id="edit-unassigned-course" class="pb-3">
-    <div>
-      <div class="font-weight-500 mb-1 mt-2">
-        Units
+    <div class="pb-2">
+      <UnitsInput
+        id="course-units-input"
+        :disable="isSaving"
+        :on-input="setUnits"
+        :on-keypress-enter="update"
+        :units="units"
+      />
+    </div>
+    <div v-if="unitRequirements.length">
+      <div class="font-weight-500">
+        Counts Towards Unit Fulfillment
       </div>
-      <div class="units-input">
-        <b-form-input
-          id="course-units-input"
-          v-model="units"
-          :disabled="isSaving"
-          maxlength="3"
-          trim
-          @keypress.enter="update"
-        />
-      </div>
-      <div v-if="unitRequirements.length" class="mb-1 mt-2">
-        <div class="font-weight-500">
-          Counts Towards Unit Fulfillment
-        </div>
-        <div class="mb-3">
-          <SelectUnitFulfillment
-            :disable="isSaving"
-            :initial-unit-requirements="selectedUnitRequirements"
-            :on-unit-requirements-change="onUnitRequirementsChange"
-            :position="position"
-          />
-        </div>
-      </div>
-      <div class="font-weight-500 mb-1 mt-2">
-        Note
-      </div>
-      <div>
-        <b-form-textarea
-          id="course-note-textarea"
-          v-model="note"
-          :disabled="isSaving"
-          rows="4"
+      <div class="pb-2">
+        <SelectUnitFulfillment
+          :disable="isSaving"
+          :initial-unit-requirements="selectedUnitRequirements"
+          :on-unit-requirements-change="onUnitRequirementsChange"
+          :position="position"
         />
       </div>
     </div>
-    <div class="d-flex mt-2">
+    <div class="font-weight-500 pb-1">
+      Note
+    </div>
+    <div class="pb-2">
+      <b-form-textarea
+        id="course-note-textarea"
+        v-model="note"
+        :disabled="isSaving"
+        rows="4"
+      />
+    </div>
+    <div class="d-flex">
       <div class="pr-2">
         <b-btn
           id="update-note-btn"
@@ -74,12 +68,13 @@
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
+import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCourse',
   mixins: [DegreeEditSession, Util],
-  components: {SelectUnitFulfillment},
+  components: {SelectUnitFulfillment, UnitsInput},
   props: {
     afterCancel: {
       required: true,
@@ -100,13 +95,14 @@ export default {
   },
   data: () => ({
     isSaving: false,
+    isValidUnits: true,
     note: '',
     selectedUnitRequirements: [],
     units: undefined
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !this.$_.trim(this.units)
+      return this.isSaving || !this.isValidUnits
     }
   },
   created() {
@@ -121,6 +117,10 @@ export default {
     },
     onUnitRequirementsChange(unitRequirements) {
       this.selectedUnitRequirements = unitRequirements
+    },
+    setUnits(isValid, units) {
+      this.isValidUnits = isValid
+      this.units = units
     },
     update() {
       if (!this.disableSaveButton) {
@@ -139,9 +139,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.units-input {
-  max-width: 3.25rem;
-}
-</style>
