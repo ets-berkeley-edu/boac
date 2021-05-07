@@ -25,12 +25,13 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.degree_progress_api_utils import clone_degree_template
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import can_edit_degree_progress, can_read_degree_progress, get_degree_checks_json
+from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
+from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
 from flask_login import current_user
 
@@ -144,7 +145,7 @@ def assign_course(course_id):
 @app.route('/api/degrees/student/<sid>')
 @can_read_degree_progress
 def get_degree_checks(sid):
-    return tolerant_jsonify(get_degree_checks_json(sid))
+    return tolerant_jsonify(DegreeProgressTemplate.find_by_sid(student_sid=sid))
 
 
 @app.route('/api/degree/course/<course_id>/update', methods=['POST'])
