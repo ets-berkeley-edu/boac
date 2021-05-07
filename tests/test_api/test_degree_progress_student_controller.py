@@ -179,6 +179,7 @@ class TestAssignCourse:
             degree_name=f'Degree check for {sid}',
             student_sid=sid,
         )
+        original_updated_at = degree_check.updated_at
         category = DegreeProgressCategory.create(
             category_type='Category',
             name=f'Category for {sid}',
@@ -200,6 +201,8 @@ class TestAssignCourse:
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         assert course_id not in [c['id'] for c in api_json['courses']['assigned']]
         assert course_id in [c['id'] for c in api_json['courses']['unassigned']]
+        # Verify update of updated_at
+        assert DegreeProgressTemplate.find_by_id(degree_check.id).updated_at != original_updated_at
 
 
 class TestCreateStudentDegreeCheck:
@@ -482,11 +485,16 @@ class TestUpdateDegreeNote:
 
     def test_edit_degree_note(self, client, fake_auth, mock_note):
         """Authorized user can edit a degree note."""
+        template_id = mock_note.template_id
+        original_updated_at = DegreeProgressTemplate.find_by_id(template_id).updated_at
+
         fake_auth.login(coe_advisor_read_write_uid)
         body = 'Stróż pchnął kość w quiz gędźb vel fax myjń.'
-        api_json = self._api_update_degree_note(client, body=body, template_id=mock_note.template_id)
+        api_json = self._api_update_degree_note(client, body=body, template_id=template_id)
         assert api_json['templateId']
         assert api_json['body'] == body
+        # Verify update of updated_at
+        assert DegreeProgressTemplate.find_by_id(template_id).updated_at != original_updated_at
 
 
 def _api_assign_course(category_id, client, course_id, expected_status_code=200):

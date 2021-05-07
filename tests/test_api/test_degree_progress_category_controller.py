@@ -116,6 +116,7 @@ class TestDeleteCategory:
     def test_delete(self, client, fake_auth, mock_template):
         """COE advisor can delete degree category."""
         fake_auth.login(coe_advisor_read_write_uid)
+        original_updated_at = mock_template.updated_at
         category = _api_create_category(
             category_type='Category',
             client=client,
@@ -144,6 +145,9 @@ class TestDeleteCategory:
         # Verify that all were deleted.
         for object_id in (category_id, subcategory['id'], course['id']):
             assert client.get(f'/api/degree/category/{object_id}').status_code == 404
+        # Verify update of updated_at
+        std_commit(allow_test_environment=True)
+        assert DegreeProgressTemplate.find_by_id(mock_template.id).updated_at != original_updated_at
 
 
 class TestGetTemplateWithCategory:
