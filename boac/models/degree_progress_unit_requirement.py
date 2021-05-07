@@ -90,6 +90,10 @@ class DegreeProgressUnitRequirement(Base):
         std_commit()
 
     @classmethod
+    def find_by_id(cls, unit_requirement_id):
+        return cls.query.filter_by(id=unit_requirement_id).first()
+
+    @classmethod
     def update(cls, id_, min_units, name, updated_by):
         unit_requirement = cls.query.filter_by(id=id_).first()
         unit_requirement.min_units = min_units

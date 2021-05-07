@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.degree_progress_api_utils import clone_degree_template, fetch_degree_template, validate_template_upsert
-from boac.api.errors import BadRequestError
+from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
@@ -51,6 +51,8 @@ def add_unit_requirement(template_id):
         name=name,
         template_id=template_id,
     )
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(template_id)
     return tolerant_jsonify(unit_requirement.to_api_json())
 
 
@@ -88,8 +90,15 @@ def delete_template(template_id):
 @can_edit_degree_progress
 @cross_origin(allow_headers=['Content-Type'])
 def delete_unit_requirement(unit_requirement_id):
-    DegreeProgressUnitRequirement.delete(unit_requirement_id)
-    return tolerant_jsonify({'message': f'Unit requirement {unit_requirement_id} deleted'}), 200
+    unit_requirement = DegreeProgressUnitRequirement.find_by_id(unit_requirement_id)
+    if unit_requirement:
+        DegreeProgressUnitRequirement.delete(unit_requirement_id)
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id)
+
+        return tolerant_jsonify({'message': f'Unit requirement {unit_requirement_id} deleted'}), 200
+    else:
+        raise ResourceNotFoundError(f'No unit_requirement found with id={unit_requirement_id}.')
 
 
 @app.route('/api/degree/<template_id>')
@@ -128,4 +137,6 @@ def update_unit_requirement(unit_requirement_id):
         name=name,
         updated_by=current_user.get_id(),
     )
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id)
     return tolerant_jsonify(unit_requirement.to_api_json())

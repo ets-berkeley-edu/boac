@@ -138,6 +138,8 @@ def assign_course(course_id):
                     DegreeProgressCategory.delete(copy_of_course.category_id)
 
         course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course.id)
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
         return tolerant_jsonify(course.to_api_json())
     else:
         raise ResourceNotFoundError('Course not found.')
@@ -170,6 +172,8 @@ def update_course(course_id):
         unit_requirement_ids=unit_requirement_ids,
         units=units,
     )
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
     return tolerant_jsonify(course.to_api_json())
 
 
@@ -183,6 +187,8 @@ def update_degree_note(degree_check_id):
         template_id=degree_check_id,
         updated_by=current_user.get_id(),
     )
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(degree_check_id)
     return tolerant_jsonify(note.to_api_json())
 
 
