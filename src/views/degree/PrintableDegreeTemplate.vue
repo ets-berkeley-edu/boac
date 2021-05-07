@@ -155,7 +155,7 @@ export default {
     getDegreeTemplate(id).then(data => {
       this.template = data
       if (data.sid) {
-        getStudentBySid(data.sid).then(studentData => {
+        getStudentBySid(data.sid, true).then(studentData => {
           this.student = studentData
           this.loaded(`Print ${this.template.name} degree check for ${this.student.name} has loaded`)
         })

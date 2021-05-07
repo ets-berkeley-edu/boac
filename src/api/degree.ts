@@ -68,8 +68,8 @@ export function deleteUnitRequirement(unitRequirementId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/unit_requirement/${unitRequirementId}`)
 }
 
-export function getDegreeChecks(sid: number) {
-  return axios.get(`${utils.apiBaseUrl()}/api/degrees/student/${sid}`).then(response => response.data, () => null)
+export function getDegreeChecks(uid: number) {
+  return axios.get(`${utils.apiBaseUrl()}/api/degrees/student/${uid}`).then(response => response.data, () => null)
 }
 
 export function getDegreeTemplate(templateId: number) {

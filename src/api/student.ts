@@ -13,16 +13,16 @@ export function getDistinctSids(sids: string[], cohortIds: number[], curatedGrou
     .then(response => response.data, () => null)
 }
 
-export function getStudentByUid(uid: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/student/by_uid/${uid}`)
-    .then(response => response.data, () => null)
+export function getStudentByUid(uid: string, profileOnly?:boolean) {
+  let url = `${utils.apiBaseUrl()}/api/student/by_uid/${uid}`
+  url = profileOnly ? `${url}?profileOnly=true` : url
+  return axios.get(url).then(response => response.data, () => null)
 }
 
-export function getStudentBySid(sid: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/student/by_sid/${sid}`)
-    .then(response => response.data, () => null)
+export function getStudentBySid(sid: string, profileOnly?:boolean) {
+  let url = `${utils.apiBaseUrl()}/api/student/by_sid/${sid}`
+  url = profileOnly ? `${url}?profileOnly=true` : url
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getStudentsBySids(sids: string[]) {

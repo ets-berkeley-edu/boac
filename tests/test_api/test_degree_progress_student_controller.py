@@ -37,6 +37,7 @@ import pytest
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
 coe_student_sid = '9000000000'
+coe_student_uid = '300847'
 qcadv_advisor_uid = '53791'
 
 
@@ -238,22 +239,22 @@ class TestCreateStudentDegreeCheck:
 class TestGetStudentDegreeChecks:
 
     @classmethod
-    def _api_get_degree_checks(cls, client, sid, expected_status_code=200):
-        response = client.get(f'/api/degrees/student/{sid}')
+    def _api_get_degree_checks(cls, client, uid, expected_status_code=200):
+        response = client.get(f'/api/degrees/student/{uid}')
         assert response.status_code == expected_status_code
         return response.json
 
     def test_anonymous(self, client):
         """Denies anonymous user."""
-        self._api_get_degree_checks(client, sid=coe_student_sid, expected_status_code=401)
+        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
 
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(qcadv_advisor_uid)
-        self._api_get_degree_checks(client, sid=coe_student_sid, expected_status_code=401)
+        self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
 
     def test_authorized(self, client, fake_auth, mock_degree_checks, app):
-        """Authorized user can get student degree checks."""
+        """Advisor can view student degree checks."""
         fake_auth.login(coe_advisor_read_only_uid)
 
         def _sort_by(item):
@@ -261,7 +262,7 @@ class TestGetStudentDegreeChecks:
         mock_degree_checks.sort(key=_sort_by, reverse=True)
         expected_current_id = mock_degree_checks[0].id
 
-        degree_checks = self._api_get_degree_checks(client, sid=coe_student_sid)
+        degree_checks = self._api_get_degree_checks(client, uid=coe_student_uid)
         assert len(degree_checks) == 3
         assert degree_checks[0]['id'] == expected_current_id
         assert degree_checks[0]['isCurrent'] is True
