@@ -95,7 +95,7 @@ export default {
   }),
   created() {
     const uid = this.$_.get(this.$route, 'params.uid')
-    getStudentByUid(uid).then(data => {
+    getStudentByUid(uid, true).then(data => {
       this.student = data
       this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : this.student.name)
       getDegreeTemplates().then(data => {

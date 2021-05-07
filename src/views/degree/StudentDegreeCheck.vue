@@ -74,7 +74,7 @@ export default {
   created() {
     const degreeId = this.$_.get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
-      getStudentBySid(this.sid).then(data => {
+      getStudentBySid(this.sid, true).then(data => {
         this.student = data
         const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)

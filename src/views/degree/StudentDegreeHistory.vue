@@ -1,14 +1,14 @@
 <template>
   <div>
+    <div v-if="student" class="border-bottom light-blue-background pb-2">
+      <StudentProfileHeader
+        :compact="true"
+        :link-to-student-profile="true"
+        :student="student"
+      />
+    </div>
     <Spinner />
     <div v-if="!loading">
-      <div class="border-bottom light-blue-background pb-2">
-        <StudentProfileHeader
-          :compact="true"
-          :link-to-student-profile="true"
-          :student="student"
-        />
-      </div>
       <div class="m-3 pt-2">
         <b-container class="px-0 mx-0" :fluid="true">
           <b-row>
@@ -30,7 +30,7 @@
           </b-row>
         </b-container>
       </div>
-      <div v-if="student.degreeChecks.length" class="mx-3">
+      <div v-if="degreeChecks.length" class="mx-3">
         <b-table-lite
           id="degree-checks-table"
           :fields="[
@@ -38,7 +38,7 @@
             {key: 'updatedAt', label: 'Last Updated', tdClass: 'align-top'},
             {key: 'updatedBy', label: 'Advisor'}
           ]"
-          :items="student.degreeChecks"
+          :items="degreeChecks"
           borderless
           fixed
           stacked="md"
@@ -62,7 +62,7 @@
           </template>
         </b-table-lite>
       </div>
-      <div v-if="!student.degreeChecks.length" class="pl-3">
+      <div v-if="!degreeChecks.length" class="pl-3">
         Student has no degree checks.
       </div>
     </div>
@@ -76,6 +76,7 @@ import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByUserId} from '@/api/user'
+import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 
 export default {
@@ -83,37 +84,36 @@ export default {
   components: {Spinner, StudentProfileHeader},
   mixins: [Context, Loading, Util],
   data: () => ({
-    advisorNamesById: undefined
+    advisorNamesById: undefined,
+    degreeChecks: undefined,
+    student: undefined
   }),
   created() {
     const uid = this.$_.get(this.$route, 'params.uid')
-    getStudentByUid(uid).then(data => {
+    getStudentByUid(uid, true).then(data => {
       this.student = data
-      this.fetchAdvisors().then(() => {
+      const done = () => {
         const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
         this.loaded(`${studentName} Degree History`)
-      })
-    })
-  },
-  methods: {
-    fetchAdvisors() {
+      }
       this.advisorNamesById = {}
-      return new Promise(resolve => {
-        const uniqueUserIds = this.$_.uniq(this.$_.map(this.student.degreeChecks, 'updatedBy'))
+      getDegreeChecks(uid).then(data => {
+        this.degreeChecks = data
+        const uniqueUserIds = this.$_.uniq(this.$_.map(data, 'updatedBy'))
         if (uniqueUserIds.length) {
           this.$_.each(uniqueUserIds, userId => {
             getCalnetProfileByUserId(userId).then(data => {
               this.advisorNamesById[userId] = data.name || `${data.uid} (UID)`
               if (userId === this.$_.last(uniqueUserIds)) {
-                resolve()
+                done()
               }
             })
           })
         } else {
-          resolve()
+          done()
         }
       })
-    }
+    })
   }
 }
 </script>

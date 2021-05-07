@@ -308,6 +308,14 @@ def get_student_by_uid(uid):
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
+def get_sid_by_uid(uid):
+    sql = f"""SELECT sas.sid
+        FROM {student_schema()}.student_academic_status sas
+        WHERE sas.uid = :uid"""
+    rows = safe_execute_rds(sql, uid=uid)
+    return None if not rows or (len(rows) == 0) else rows[0]['sid']
+
+
 def get_basic_student_data(sids):
     sql = f"""SELECT sid, uid, first_name, last_name
         FROM {student_schema()}.student_academic_status

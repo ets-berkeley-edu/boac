@@ -27,6 +27,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, put_notifications
 from boac.externals.data_loch import get_students_by_sids, match_students_by_name_or_sid, query_historical_sids
 from boac.lib.http import tolerant_jsonify
+from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
     query_students
 from boac.models.degree_progress_template import DegreeProgressTemplate
@@ -37,22 +38,26 @@ from flask_login import current_user, login_required
 @app.route('/api/student/by_sid/<sid>')
 @advisor_required
 def get_student_by_sid(sid):
+    profile_only = to_bool_or_none(request.args.get('profileOnly'))
     student = get_student_and_terms_by_sid(sid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
-    put_notifications(student)
-    _put_degree_checks_json(student)
+    if not profile_only:
+        put_notifications(student)
+        _put_degree_checks_json(student)
     return tolerant_jsonify(student)
 
 
 @app.route('/api/student/by_uid/<uid>')
 @advisor_required
 def get_student_by_uid(uid):
+    profile_only = to_bool_or_none(request.args.get('profileOnly'))
     student = get_student_and_terms_by_uid(uid)
     if not student:
         raise ResourceNotFoundError('Unknown student')
-    put_notifications(student)
-    _put_degree_checks_json(student)
+    if not profile_only:
+        put_notifications(student)
+        _put_degree_checks_json(student)
     return tolerant_jsonify(student)
 
 
