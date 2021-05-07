@@ -34,7 +34,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
@@ -115,17 +115,31 @@ class DegreeProgressTemplate(Base):
             return cls.query.filter_by(degree_name=name, deleted_at=None).first()
 
     @classmethod
-    def find_by_sid(cls, student_sid, order_by=None):
-        order_by = cls.created_at if order_by is None else order_by
-        return cls.query.filter_by(student_sid=student_sid, deleted_at=None).order_by(order_by).all()
+    def find_by_sid(cls, student_sid):
+        sql = text(f"""
+            SELECT id, created_at, degree_name, created_by, student_sid, updated_at, updated_by
+            FROM degree_progress_templates
+            WHERE student_sid = '{student_sid}' AND deleted_at IS NULL
+            ORDER BY updated_at DESC
+        """)
+        # Most recently updated record is considered 'current'.
+        api_json = []
+        for index, row in enumerate(db.session.execute(sql)):
+            api_json.append({
+                **_row_to_simple_json(row),
+                'isCurrent': index == 0,
+            })
+        return api_json
 
     @classmethod
     def get_all_templates(cls):
-        criterion = and_(
-            cls.student_sid == None,  # noqa: E711
-            cls.deleted_at == None,  # noqa: E711
-        )
-        return cls.query.filter(criterion).order_by(cls.created_at).all()
+        sql = text("""
+            SELECT id, created_at, degree_name, created_by, student_sid, updated_at, updated_by
+            FROM degree_progress_templates
+            WHERE student_sid IS NULL AND deleted_at IS NULL
+            ORDER BY created_at
+        """)
+        return [_row_to_simple_json(row) for row in db.session.execute(sql)]
 
     @classmethod
     def update(cls, template_id, name):
@@ -216,3 +230,15 @@ class DegreeProgressTemplate(Base):
 
 def _isoformat(value):
     return value and value.astimezone(tzutc()).isoformat()
+
+
+def _row_to_simple_json(row):
+    return {
+        'id': row['id'],
+        'createdAt': _isoformat(row['created_at']),
+        'createdBy': row['created_by'],
+        'name': row['degree_name'],
+        'sid': row['student_sid'],
+        'updatedAt': _isoformat(row['updated_at']),
+        'updatedBy': row['updated_by'],
+    }

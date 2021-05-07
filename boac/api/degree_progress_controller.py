@@ -101,7 +101,7 @@ def get_degree_template(template_id):
 @app.route('/api/degree/templates')
 @can_read_degree_progress
 def get_degree_templates():
-    return tolerant_jsonify([template.to_api_json() for template in DegreeProgressTemplate.get_all_templates()])
+    return tolerant_jsonify(DegreeProgressTemplate.get_all_templates())
 
 
 @app.route('/api/degree/<template_id>/update', methods=['POST'])

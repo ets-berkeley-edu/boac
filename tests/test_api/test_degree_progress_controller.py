@@ -238,18 +238,17 @@ class TestGetDegreeTemplates:
 
     def test_get_master_templates(self, client, fake_auth):
         """Returns a list of nondeleted master templates."""
-        # user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
         fake_auth.login(coe_advisor_read_write_uid)
         _api_create_template(client=client, name='Classical Civilizations')
         _api_create_template(client=client, name='Dutch Studies')
         api_json = _api_create_template(client=client, name='Peace & Conflict Studies')
         assert client.delete(f"/api/degree/{api_json['id']}").status_code == 200
 
-        api_json = self._api_get_templates(client)
-
         def _is_present(name):
             template = next((row for row in api_json if row['name'] == name), None)
             return template is not None
+
+        api_json = self._api_get_templates(client)
         assert _is_present('Classical Civilizations')
         assert _is_present('Dutch Studies')
         assert not _is_present('Peace & Conflict Studies')
