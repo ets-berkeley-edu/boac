@@ -9,7 +9,9 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1"><span class="sr-only">Menu</span></b-th>
+            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1">
+              <span class="sr-only">Options to re-assign course</span>
+            </b-th>
             <b-th class="px-0" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th v-if="student" class="px-0">Grade</b-th>
@@ -45,6 +47,13 @@
                 <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
               </td>
               <td class="align-top pr-2 td-units text-right text-nowrap" :class="{'faint-text font-italic': !bundle.course}">
+                <font-awesome
+                  v-if="getCourseFulfillments(bundle).length"
+                  class="fulfillments-icon mr-1"
+                  icon="check-circle"
+                  size="sm"
+                  :title="`Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.`"
+                />
                 <font-awesome
                   v-if="isUnitDiff(bundle)"
                   class="changed-units-icon mr-1"
@@ -270,6 +279,16 @@ export default {
       this.bundleForEdit = bundle
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
+    getCourseFulfillments(bundle) {
+      if (bundle.category && bundle.course) {
+        const categoryIds = this.$_.map(bundle.category.unitRequirements, 'id')
+        const courseIds = this.$_.map(bundle.course.unitRequirements, 'id')
+        const intersection = categoryIds.filter(id => courseIds.includes(id))
+        return this.$_.map(this.$_.filter(bundle.category.unitRequirements, u => intersection.includes(u.id)), 'name')
+      } else {
+        return []
+      }
+    },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
       return bundle.course || !this.student
@@ -296,6 +315,9 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.fulfillments-icon {
+  color: #00c13a;
 }
 .td-actions {
   padding: 2px 2px 0 0;
