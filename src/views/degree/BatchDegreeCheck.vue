@@ -4,16 +4,16 @@
     <div role="alert">
       <span v-if="isRecalculating" />
       <span
-        v-if="!isRecalculating && sids.length"
+        v-if="!isRecalculating && distinctSids.length"
         id="target-student-count-alert"
-        :class="{'has-error': sids.length >= 250, 'font-weight-bolder': sids.length >= 500}"
+        :class="{'has-error': distinctSids.length >= 250, 'font-weight-bolder': distinctSids.length >= 500}"
         class="font-italic font-size-14"
       >
-        Degree check will be added to {{ pluralize('student record', sids.length) }}.
-        <span v-if="sids.length >= 500">Are you sure?</span>
+        Degree check will be added to {{ pluralize('student record', distinctSids.length) }}.
+        <span v-if="distinctSids.length >= 500">Are you sure?</span>
       </span>
       <span
-        v-if="!sids.length && (addedCohorts.length || addedCuratedGroups.length)"
+        v-if="!isRecalculating && !distinctSids.length && (addedCohorts.length || addedCuratedGroups.length)"
         class="font-italic font-size-14"
       >
         <span
@@ -49,14 +49,14 @@
         ref="autocomplete"
         class="w-75"
         :add-selection="addSids"
-        :add-button-disabled="(selectedSuggestion, query) => !selectedSuggestion && !/^\d+[,\r\n\t ]+/.test(query)"
+        :add-button-disabled="addButtonDisabled"
         :demo-mode-blur="true"
-        :disabled="disabled"
+        :disabled="isSaving"
         input-labelled-by="degree-check-add-student-label"
         :maxlength="'255'"
         :show-add-button="true"
         :source="studentsByNameOrSid"
-        :suggest-when="query => query && query.length > 1 && !/[,\r\n\t ]+/.test(query)"
+        :suggest-when="suggestWhen"
         @input="addStudent"
       />
     </div>
@@ -76,24 +76,42 @@
         </span>
       </div>
     </div>
-    <div v-if="error" class="error-message-container  alert-box p-3 mt-2 mb-3 w-100">
-      {{ error }}
-    </div>
     <div
-      v-if="warnings && warnings.length"
-      class="warning-message-container alert-box p-3 mt-2 mb-3 w-100"
-    >
-      <ul class="mb-0">
-        <li v-for="(warning, index) in warnings" :key="index">{{ warning }}</li>
-      </ul>
+      v-if="error || warning"
+      :class="{'error-message-container': error, 'warning-message-container': warning}"
+      class="alert-box p-3 mt-2 mb-3 w-100"
+      v-html="error || warning"
+    />
+    <div>
+      <BatchAddStudentSet
+        v-if="myCohorts && myCohorts.length"
+        :add-object="addCohort"
+        :disabled="isSaving"
+        :is-curated-groups-mode="false"
+        :remove-object="removeCohort"
+        :target="'degree check'"
+      />
+    </div>
+    <div>
+      <BatchAddStudentSet
+        v-if="myCuratedGroups && myCuratedGroups.length"
+        :add-object="addCuratedGroup"
+        :disabled="isSaving"
+        :is-curated-groups-mode="true"
+        :remove-object="removeCuratedGroup"
+        :target="'degree check'"
+      />
     </div>
   </div>
 </template>
 
 <script>
 import Autocomplete from '@/components/util/Autocomplete'
+import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
+import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Loading from '@/mixins/Loading'
+import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
@@ -101,63 +119,84 @@ import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 export default {
   name: 'BatchDegreeCheck',
   components: {
-    Autocomplete
+    Autocomplete,
+    BatchAddStudentSet
   },
-  mixins: [Context, Loading, Util, Validator],
+  mixins: [Context, CurrentUserExtras, Loading, StudentAggregator, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
     addedStudents: [],
-    disabled: false,
     error: undefined,
-    isRecalculating: false,
+    isSaving: false,
+    isValidating: false,
     resetAutoCompleteKey: undefined,
-    warnings: []
+    warning: undefined
   }),
   computed: {
-    sids() {
+    addedSids() {
       return this.$_.map(this.addedStudents, 'sid')
-    }
-  },
-  watch: {
-    error(value) {
-      if (value) {
-        this.$nextTick(() => {
-          this.alertScreenReader(value)
-        })
-      }
-    },
-    warnings(value) {
-      if (value && value.length) {
-        this.alertScreenReader(value.join('. '))
-      }
     }
   },
   mounted() {
     this.loaded('Batch degree checks')
   },
   methods: {
+    addButtonDisabled(selectedSuggestion, query) {
+      !selectedSuggestion && !/^\d+[,\r\n\t ]+/.test(query)
+    },
+    addCohort(cohort) {
+      this.addedCohorts.push(cohort)
+      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+    },
+    addCuratedGroup(curatedGroup) {
+      this.addedCuratedGroups.push(curatedGroup)
+      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+    },
     addSids(query) {
-      return new Promise(resolve => {
+      return new Promise((resolve, reject) => {
+        this.isValidating = true
         const sids = this.validateSids(query)
         if (sids) {
-          const novelSids = this.$_.difference(sids, this.sids)
+          const novelSids = this.$_.difference(sids, this.distinctSids)
           if (novelSids.length) {
             getStudentsBySids(novelSids).then(students => {
               this.addStudents(students)
+              const notFound = this.$_.difference(novelSids, this.$_.map(students, 'sid'))
+              if (notFound.length === 1) {
+                this.warning = `Student ${notFound[0]} not found.`
+                this.alertScreenReader(this.warning)
+              } else if (notFound.length > 1) {
+                this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
+                this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
+              }
+              this.isValidating = false
               resolve()
             })
           }
+          else {
+            this.isValidating = false
+            resolve()
+          }
+        } else {
+          if (this.error) {
+            this.alertScreenReader(`Error: ${this.error}`)
+          } else if (this.warning) {
+            this.alertScreenReader(`Warning: ${this.warning}`)
+          }
+          this.$nextTick(() => this.isValidating = false)
+          reject()
         }
-        resolve()
       })
     },
     addStudent(student) {
       if (student) {
         this.addedStudents.push(student)
         this.resetAutoCompleteKey = new Date().getTime()
-        this.alertScreenReader(`${student.label} added to degree check`)
         this.clearErrors()
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(
+          () => this.alertScreenReader(`${student.label} added to degree check`)
+        )
       }
       this.putFocusNextTick('degree-check-add-student-input')
     },
@@ -165,24 +204,35 @@ export default {
       if (students && students.length) {
         this.addedStudents.push(...students)
         this.resetAutoCompleteKey = new Date().getTime()
-        this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
-        this.clearErrors()
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(
+          () => this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
+        )
       }
       this.putFocusNextTick('degree-check-add-student-input')
+    },
+    removeCohort(cohort) {
+      this.$_.remove(this.addedCohorts, c => c.id === cohort.id),
+      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+    },
+    removeCuratedGroup(curatedGroup) {
+      this.$_.remove(this.addedCuratedGroups, c => c.id === curatedGroup.id),
+      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
     },
     removeStudent(student) {
       if (student) {
         this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
-        this.alertScreenReader(`${student.label} removed from degree check`)
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.alertScreenReader(`${student.label} removed`))
       }
     },
     studentsByNameOrSid(query, limit) {
-      const sids = this.$_.map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.$_.filter(students, s => !this.$_.includes(sids, s.sid)))
+          resolve(this.$_.filter(students, s => !this.$_.includes(this.addedSids, s.sid)))
         })
       })
+    },
+    suggestWhen(query) {
+      return !this.isValidating && query && query.length > 1 && !/[,\r\n\t ]+/.test(query)
     }
   }
 }
