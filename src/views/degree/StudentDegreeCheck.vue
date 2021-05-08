@@ -13,7 +13,7 @@
         <div class="section-separator w-100">
           <StudentDegreeCheckHeader :student="student" />
         </div>
-        <div class="d-flex pb-1 pt-3 section-separator w-100">
+        <div class="d-flex py-2 section-separator w-100">
           <div class="pr-2 w-50">
             <UnitRequirements :student="student" template-id="templateId" />
           </div>

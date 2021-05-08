@@ -12,7 +12,7 @@
           <div class="pr-2">
             <router-link
               id="print-degree-plan"
-              :to="{ path: `/degree/${templateId}/print`, query: { includeNotes: includeNotesWhenPrint }}"
+              :to="{ path: `/degree/${templateId}/print`}"
             >
               <font-awesome class="mr-1" icon="print" />
               Print Plan
@@ -43,9 +43,23 @@
         </div>
       </b-col>
     </b-row>
-    <b-row class="pt-3">
+    <b-row v-if="isEditingNote || noteBody" class="pl-2 pt-2">
       <b-col cols="12" sm="4">
-        <h3 class="font-size-20 font-weight-bold text-nowrap">Degree Notes</h3>
+        <h3 class="font-size-20 font-weight-bold mb-1 text-nowrap">Degree Notes</h3>
+        <div v-if="!isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
+          <div v-if="noteUpdatedBy" class="pr-2 text-nowrap">
+            <span v-if="noteUpdatedBy" class="faint-text font-weight-normal">
+              <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
+            </span>
+            <span v-if="noteUpdatedAt" class="faint-text">
+              {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
+              <span v-if="isToday(noteUpdatedAt)"> today.</span>
+              <span v-if="!isToday(noteUpdatedAt)">
+                on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('calendar') }}.</span>
+              </span>
+            </span>
+          </div>
+        </div>
       </b-col>
       <b-col>
         <div class="align-items-baseline d-flex justify-content-end">
@@ -57,55 +71,44 @@
               <div class="toggle-label">
                 {{ includeNotesWhenPrint ? 'Yes' : 'No' }}
               </div>
-              <b-form-checkbox id="degree-note-print-toggle" v-model="includeNotesWhenPrint" switch />
+              <b-form-checkbox
+                id="degree-note-print-toggle"
+                switch
+                :checked="includeNotesWhenPrint"
+                @keypress.native.enter="onToggleNotesWhenPrint(!includeNotesWhenPrint)"
+                @change="onToggleNotesWhenPrint"
+              />
             </div>
           </div>
         </div>
       </b-col>
     </b-row>
-    <b-row class="pb-2 pt-1">
+    <b-row class="pb-2" :class="{'pt-1': noteBody}">
       <b-col v-if="!isEditingNote" cols="12" md="8">
-        <div v-if="!noteBody" id="degree-note-no-data">
-          There currently are no degree notes for this student.
+        <div :class="{'px-2': noteBody}">
+          <div v-if="noteBody" id="degree-note-body" class="degree-note-body">{{ noteBody }}</div>
+          <b-btn
+            id="create-degree-note-btn"
+            class="pl-0"
+            :disabled="disableButtons"
+            variant="link"
+            @click="editNote"
+          >
+            <span v-if="!noteBody">Create degree note</span>
+            <span v-if="noteBody">Edit degree note</span>
+          </b-btn>
         </div>
-        <p v-if="noteBody" id="degree-note-body" class="pr-2 degree-note-body">{{ noteBody }}</p>
-        <b-btn
-          id="create-degree-note-btn"
-          class="pl-0"
-          :disabled="disableButtons"
-          variant="link"
-          @click="isEditingNote = true"
-        >
-          <span v-if="!noteBody">Create new degree notes</span>
-          <span v-if="noteBody">Edit degree notes</span>
-        </b-btn>
-      </b-col>
-      <b-col
-        v-if="!isEditingNote"
-        cols="12"
-        md="3"
-        offset-md="1"
-        class="d-flex justify-content-end"
-      >
-        <dl class="d-flex flex-row flex-md-column flex-lg-row">
-          <div v-if="noteUpdatedBy" class="px-4 pb-3 text-nowrap">
-            <dt class="faint-text font-weight-normal">Advisor:</dt>
-            <dd id="degree-note-updated-by">{{ noteUpdatedBy }}</dd>
-          </div>
-          <div v-if="noteUpdatedAt" class="px-4 pb-3 text-nowrap">
-            <dt class="faint-text font-weight-normal">Last edited:</dt>
-            <dd id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}</dd>
-          </div>
-        </dl>
       </b-col>
       <b-col v-if="isEditingNote">
-        <b-form-textarea
-          id="degree-note-input"
-          v-model.trim="noteBody"
-          :disabled="isSaving"
-          rows="4"
-        />
-        <div class="d-flex mt-3">
+        <div class="px-2">
+          <b-form-textarea
+            id="degree-note-input"
+            v-model.trim="noteBody"
+            :disabled="isSaving"
+            rows="4"
+          />
+        </div>
+        <div class="d-flex ml-2 my-2">
           <div>
             <b-btn
               id="save-degree-note-btn"
@@ -117,8 +120,7 @@
               <span v-if="isSaving">
                 <font-awesome class="mr-1" icon="spinner" spin /> Saving
               </span>
-              <span v-if="!$_.get(degreeNote, 'body') && !isSaving">Save</span>
-              <span v-if="$_.get(degreeNote, 'body') && !isSaving">Edit</span>
+              <span v-if="!isSaving">Save Note</span>
             </b-btn>
           </div>
           <div>
@@ -152,7 +154,6 @@ export default {
     }
   },
   data: () => ({
-    includeNotesWhenPrint: false,
     isEditingNote: false,
     isSaving: false,
     noteBody: undefined,
@@ -178,6 +179,15 @@ export default {
     cancel() {
       this.isEditingNote = false
       this.noteBody = this.$_.get(this.degreeNote, 'body')
+      this.$announcer.polite('Canceled')
+      this.setDisableButtons(false)
+      this.putFocusNextTick('create-degree-note-btn')
+    },
+    editNote() {
+      this.setDisableButtons(true)
+      this.isEditingNote = true
+      this.putFocusNextTick('degree-note-input')
+      this.$announcer.polite('Enter note in textarea')
     },
     initNote() {
       if (this.degreeNote) {
@@ -188,11 +198,17 @@ export default {
       }
       this.isSaving = false
     },
+    onToggleNotesWhenPrint(flag) {
+      this.setIncludeNotesWhenPrint(flag)
+      this.$announcer.polite(`Note will ${flag ? '' : 'not'} be included in printable page.`)
+    },
     saveNote() {
       this.isSaving = true
       this.updateNote(this.noteBody).then(() => {
         this.isEditingNote = false
         this.initNote()
+        this.setDisableButtons(false)
+        this.$announcer.polite('Note saved')
       })
     }
   }

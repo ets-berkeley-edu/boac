@@ -136,6 +136,7 @@ import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {getDegreeTemplate} from '@/api/degree'
 import {getStudentBySid} from '@/api/student'
@@ -150,7 +151,7 @@ export default {
   mixins: [Context, Loading, Util],
   mounted() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-    this.includeNotes = this.toBoolean(this.$route.query.includeNotes)
+    this.includeNotes = store.getters['degreeEditSession/includeNotesWhenPrint']
 
     getDegreeTemplate(id).then(data => {
       this.template = data

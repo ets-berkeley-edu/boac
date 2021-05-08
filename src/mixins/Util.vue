@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash'
+import moment from 'moment-timezone'
 import numeral from 'numeral'
 
 const decodeHtml = (snippet) => {
@@ -23,6 +24,9 @@ export default {
   name: 'Util',
   methods: {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    isToday: date => {
+      return moment().diff(date, 'days') === 0
+    },
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin: (arr, zeroString) => {

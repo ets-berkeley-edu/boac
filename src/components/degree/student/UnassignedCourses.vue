@@ -7,7 +7,7 @@
       <b-table-simple
         id="unassigned-courses-table"
         borderless
-        class="w-100"
+        class="mb-1 w-100"
         small
         stacked="sm"
       >
