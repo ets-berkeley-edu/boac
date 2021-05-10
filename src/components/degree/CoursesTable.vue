@@ -30,7 +30,7 @@
               @dragenter="onDragEnterTableRow"
               @dragover="onDragOverTableRow"
               @dragstart="onDragAssignedCourseStart(bundle)"
-              @drop="onDropToCourseRequirement"
+              @drop="onDropToCourseRequirement(bundle)"
             >
               <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
                 <div v-if="bundle.course && !bundle.course.isCopy">
@@ -140,7 +140,12 @@
               </b-td>
             </b-tr>
           </template>
-          <b-tr v-if="!items.length">
+          <b-tr
+            v-if="!items.length"
+            @drop="onDropEmptyTable"
+            @dragenter.prevent
+            @dragover.prevent
+          >
             <b-td class="pl-0" :class="{'pb-3': !student}" colspan="6">
               <span class="faint-text font-italic font-size-16">No completed requirements</span>
             </b-td>
@@ -319,8 +324,8 @@ export default {
     onDragAssignedCourseStart(bundle) {
       this.onDragStart({
         category: bundle.category,
-        context: 'assignedCourse',
         course: bundle.course,
+        dragContext: 'assigned',
         student: this.student,
       })
     },
@@ -334,8 +339,21 @@ export default {
       // TODO: Highlight table row if it is an assignable course requirement.
     },
     onDropToCourseRequirement(bundle) {
-      // TODO: Assign course if the table row is an assignable course requirement.
-      console.log(`Dropped on ${bundle.category && bundle.category.id}`)
+      const isAcceptingDrops =
+        this.$currentUser.canEditDegreeProgress
+        && !bundle.course
+      if (isAcceptingDrops) {
+        // TODO: Assign course if the table row is an assignable course requirement.
+        console.log(`Dropped on ${bundle.category && bundle.category.id}`)
+      }
+    },
+    onDropEmptyTable() {
+      this.onDrop({
+        category: this.parentCategory,
+        course: null,
+        dropContext: 'assigned',
+        student: this.student
+      })
     }
   }
 }
