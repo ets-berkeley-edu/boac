@@ -79,12 +79,13 @@
     <div
       v-if="error || warning"
       :class="{'error-message-container': error, 'warning-message-container': warning}"
-      class="alert-box p-3 mt-2 mb-3 w-100"
+      class="alert-box p-3 mt-2 mb-3 w-75"
       v-html="error || warning"
     />
-    <div>
+    <div class="mb-2">
       <BatchAddStudentSet
         v-if="myCohorts && myCohorts.length"
+        class="w-75"
         :add-object="addCohort"
         :disabled="isSaving"
         :is-curated-groups-mode="false"
@@ -92,14 +93,22 @@
         :target="'degree check'"
       />
     </div>
-    <div>
+    <div class="mb-2">
       <BatchAddStudentSet
         v-if="myCuratedGroups && myCuratedGroups.length"
+        class="w-75"
         :add-object="addCuratedGroup"
         :disabled="isSaving"
         :is-curated-groups-mode="true"
         :remove-object="removeCuratedGroup"
         :target="'degree check'"
+      />
+    </div>
+    <div class="mb-2">
+      <DegreeTemplatesMenu
+        class="w-75"
+        :disabled="isSaving"
+        :on-select="addTemplate"
       />
     </div>
   </div>
@@ -110,6 +119,7 @@ import Autocomplete from '@/components/util/Autocomplete'
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Loading from '@/mixins/Loading'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
@@ -120,7 +130,8 @@ export default {
   name: 'BatchDegreeCheck',
   components: {
     Autocomplete,
-    BatchAddStudentSet
+    BatchAddStudentSet,
+    DegreeTemplatesMenu
   },
   mixins: [Context, CurrentUserExtras, Loading, StudentAggregator, Util, Validator],
   data: () => ({
@@ -131,6 +142,7 @@ export default {
     isSaving: false,
     isValidating: false,
     resetAutoCompleteKey: undefined,
+    templateId: undefined,
     warning: undefined
   }),
   computed: {
@@ -143,13 +155,15 @@ export default {
   },
   methods: {
     addButtonDisabled(selectedSuggestion, query) {
-      !selectedSuggestion && !/^\d+[,\r\n\t ]+/.test(query)
+      !selectedSuggestion && !/^\d+[,\r\n\t ]?/.test(query)
     },
     addCohort(cohort) {
+      this.clearErrors()
       this.addedCohorts.push(cohort)
       this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
     },
     addCuratedGroup(curatedGroup) {
+      this.clearErrors()
       this.addedCuratedGroups.push(curatedGroup)
       this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
     },
@@ -209,6 +223,9 @@ export default {
         )
       }
       this.putFocusNextTick('degree-check-add-student-input')
+    },
+    addTemplate(templateId) {
+      this.templateId = templateId
     },
     removeCohort(cohort) {
       this.$_.remove(this.addedCohorts, c => c.id === cohort.id),
