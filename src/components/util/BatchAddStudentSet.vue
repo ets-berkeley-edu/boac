@@ -8,21 +8,26 @@
     </div>
     <b-dropdown
       :id="`batch-${target}-${objectType}`"
+      class="mb-2 ml-0 transparent"
+      block
       :disabled="disabled"
+      :lazy="true"
+      menu-class="w-100"
+      toggle-class="d-flex justify-content-between align-items-center"
       :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
       :aria-label="`${target} will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
-      class="mb-2 ml-0 transparent"
     >
       <b-dropdown-item
         v-for="object in objects"
         :id="`batch-${target}-${objectType}-option-${object.id}`"
         :key="object.id"
+        class="truncate-with-ellipsis"
         :aria-label="`Add ${objectType} ${object.name}`"
         :disabled="$_.includes(addedIds, object.id)"
         @click="add(object)"
       >
-        {{ $_.truncate(object.name) }}
+        {{ object.name }}
       </b-dropdown-item>
     </b-dropdown>
     <div>
