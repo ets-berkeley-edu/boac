@@ -55,7 +55,7 @@
               {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
               <span v-if="isToday(noteUpdatedAt)"> today.</span>
               <span v-if="!isToday(noteUpdatedAt)">
-                on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('calendar') }}.</span>
+                on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}.</span>
               </span>
             </span>
           </div>

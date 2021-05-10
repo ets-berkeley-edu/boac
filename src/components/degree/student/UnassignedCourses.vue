@@ -125,8 +125,8 @@ export default {
     onStartDraggingCourse(course) {
       this.onDragStart({
         category: null,
-        context: 'unassignedCourses',
         course: course,
+        dragContext: 'unassigned',
         student: this.student,
       })
     }

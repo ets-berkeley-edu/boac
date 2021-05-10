@@ -13,26 +13,44 @@ import {
   updateUnitRequirement
 } from '@/api/degree'
 
-const $_debugDragAndDrop = (action, state, {category, context, course, student}) => {
+const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'unassigned']
+
+const $_debugDragAndDrop = (action, state, {category, course, dropContext, student}) => {
   console.log(`
     ---
     ACTION: ${action}
     FROM: {
       category: ${state.draggingContext.category && state.draggingContext.category.id},
-      context: ${state.draggingContext.context},
+      dragContext: ${state.draggingContext.dragContext},
       course: ${state.draggingContext.course && state.draggingContext.course.id},
       student: ${state.draggingContext.student && state.draggingContext.student.sid}
     }
     TO: {
       category: ${category && category.id},
-      context: ${context},
+      dropContext: ${dropContext},
       course: ${course && course.id},
       student: ${student && student.sid}
     }
     ---
   `)
 }
-const $_resetDraggingContext = state => state.draggingContext = {category: undefined, context: undefined, course: undefined, student: undefined}
+
+const $_dropToAssign = (categoryId, commit, courseId, state) => {
+  commit('setDisableButtons', true)
+  return assignCourse(courseId, categoryId).then(() => {
+    $_refresh(commit, state.templateId).then(() => {
+      commit('draggingContextReset')
+      commit('setDisableButtons', false)
+    })
+  })
+}
+
+const $_resetDraggingContext = state => state.draggingContext = {
+  category: undefined,
+  dragContext: undefined,
+  course: undefined,
+  student: undefined
+}
 
 const $_refresh = (commit, templateId) => {
   return new Promise<void>(resolve => {
@@ -52,7 +70,12 @@ const state = {
   degreeName: undefined,
   degreeNote: undefined,
   disableButtons: false,
-  draggingContext: {category: undefined, context: undefined, course: undefined, student: undefined},
+  draggingContext: {
+    category: undefined,
+    dragContext: undefined,
+    course: undefined,
+    student: undefined
+  },
   includeNotesWhenPrint: true,
   sid: undefined,
   templateId: undefined,
@@ -111,7 +134,7 @@ const mutations = {
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
-  dragStart: (state: any, {category, context, course, student}) => state.draggingContext = {category, context, course, student},
+  dragStart: (state: any, {category, course, dragContext, student}) => state.draggingContext = {category, course, dragContext, student},
   setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -177,23 +200,27 @@ const actions = {
     })
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
-  onDragStart: ({commit}, {category, context, course, student}) => commit('dragStart', {category, context, course, student}),
-  onDrop: ({commit}, {category, context, course, student}) => {
-    $_debugDragAndDrop('onDrop', state, {category, context, course, student})
+  onDragStart: ({commit}, {category, course, dragContext, student}) => commit('dragStart', {category, course, dragContext, student}),
+  onDrop: ({commit}, {category, course, dropContext, student}) => {
+    $_debugDragAndDrop('onDrop', state, {category, course, dropContext, student})
     return new Promise(resolve => {
-      const isDraggingAssignedCourse = state.draggingContext.context === 'assignedCourse'
-      const isDroppingToUnassign = context === 'unassignedCourses'
-      const courseId = _.get(state.draggingContext.course, 'id')
-      if (isDraggingAssignedCourse && isDroppingToUnassign && courseId) {
-        commit('setDisableButtons', true)
-        assignCourse(courseId).then(() => $_refresh(commit, state.templateId)).then(() => {
-          commit('draggingContextReset')
-          commit('setDisableButtons', false)
-          resolve()
-        })
+      const dragContext = state.draggingContext.dragContext
+      const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, dropContext)
+      if (valid) {
+        const courseId = _.get(state.draggingContext.course, 'id')
+        if (dragContext === 'assigned' && dropContext === 'unassigned') {
+          $_dropToAssign(null, commit, courseId, state).then(resolve)
+        } else if (dragContext === 'unassigned' && dropContext === 'assigned') {
+          $_dropToAssign(_.get(category, 'id'), commit, courseId, state).then(resolve)
+        } else {
+          commit('draggingContextReset').then(() => {
+            throw new ReferenceError(`Unrecognized transaction type where dragContext = '${dragContext}' and dropContext = '${dropContext}'`)
+          })
+        }
       } else {
-        commit('draggingContextReset')
-        resolve()
+        commit('draggingContextReset').then(() => {
+          throw new TypeError(`Invalid context(s): dragContext = '${dragContext}' and dropContext = '${dropContext}'`)
+        })
       }
     })
   },

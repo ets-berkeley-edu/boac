@@ -91,8 +91,8 @@ export default {
     onDropToUnassignedCourses() {
       this.onDrop({
         category: null,
-        context: 'unassignedCourses',
         course: null,
+        dropContext: 'unassigned',
         student: this.student
       })
     }
