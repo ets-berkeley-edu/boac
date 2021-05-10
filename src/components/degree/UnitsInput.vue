@@ -12,7 +12,7 @@
           variant="link"
           @click="toggle"
         >
-          {{ showUnitsUpperInput ? 'single input' : 'range' }}
+          {{ showUnitsUpperInput ? 'hide range' : 'show range' }}
         </b-btn>]
       </div>
     </div>
@@ -164,7 +164,7 @@ export default {
 
 <style scoped>
 .toggle-btn {
-  padding: 0 2px 0 2px;
+  padding: 0 1px 0 1px;
 }
 .units-input {
   text-align: center;

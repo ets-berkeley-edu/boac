@@ -24,7 +24,13 @@
         </b-thead>
         <b-tbody>
           <template v-for="(course, index) in courses.unassigned">
-            <b-tr :id="`unassigned-course-${course.termId}-${course.sectionId}`" :key="`tr-${index}`">
+            <b-tr
+              :id="`unassigned-course-${course.termId}-${course.sectionId}`"
+              :key="`tr-${index}`"
+              class="bg-white"
+              :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
+              @dragstart="onStartDraggingCourse(course)"
+            >
               <td v-if="$currentUser.canEditDegreeProgress" class="font-size-14 td-course-assignment-menu">
                 <CourseAssignmentMenu :course="course" :student="student" />
               </td>
@@ -115,6 +121,14 @@ export default {
     },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
+    },
+    onStartDraggingCourse(course) {
+      this.onDragStart({
+        category: null,
+        context: 'unassignedCourses',
+        course: course,
+        student: this.student,
+      })
     }
   }
 }

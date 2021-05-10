@@ -17,7 +17,12 @@
           <div class="pr-2 w-50">
             <UnitRequirements :student="student" template-id="templateId" />
           </div>
-          <div class="pl-2 w-50">
+          <div
+            class="pl-2 w-50"
+            @drop="onDropToUnassignedCourses"
+            @dragover.prevent
+            @dragenter.prevent
+          >
             <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
             <UnassignedCourses :student="student" />
           </div>
@@ -81,6 +86,16 @@ export default {
         this.loaded(`${this.degreeName} for ${this.student.name}`)
       })
     })
+  },
+  methods: {
+    onDropToUnassignedCourses() {
+      this.onDrop({
+        category: null,
+        context: 'unassignedCourses',
+        course: null,
+        student: this.student
+      })
+    }
   }
 }
 </script>

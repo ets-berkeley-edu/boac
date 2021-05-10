@@ -13,6 +13,27 @@ import {
   updateUnitRequirement
 } from '@/api/degree'
 
+const $_debugDragAndDrop = (action, state, {category, context, course, student}) => {
+  console.log(`
+    ---
+    ACTION: ${action}
+    FROM: {
+      category: ${state.draggingContext.category && state.draggingContext.category.id},
+      context: ${state.draggingContext.context},
+      course: ${state.draggingContext.course && state.draggingContext.course.id},
+      student: ${state.draggingContext.student && state.draggingContext.student.sid}
+    }
+    TO: {
+      category: ${category && category.id},
+      context: ${context},
+      course: ${course && course.id},
+      student: ${student && student.sid}
+    }
+    ---
+  `)
+}
+const $_resetDraggingContext = state => state.draggingContext = {category: undefined, context: undefined, course: undefined, student: undefined}
+
 const $_refresh = (commit, templateId) => {
   return new Promise<void>(resolve => {
     getDegreeTemplate(templateId).then((template: any) => {
@@ -31,6 +52,7 @@ const state = {
   degreeName: undefined,
   degreeNote: undefined,
   disableButtons: false,
+  draggingContext: {category: undefined, context: undefined, course: undefined, student: undefined},
   includeNotesWhenPrint: true,
   sid: undefined,
   templateId: undefined,
@@ -88,6 +110,8 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
+  draggingContextReset: (state: any) => $_resetDraggingContext(state),
+  dragStart: (state: any, {category, context, course, student}) => state.draggingContext = {category, context, course, student},
   setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -96,7 +120,7 @@ const actions = {
   assignCourseToCategory: ({commit, state}, {course, category}) => {
     return new Promise<void>(resolve => {
       const categoryId = category && category.id
-      assignCourse(categoryId, course.id).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      assignCourse(course.id, categoryId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   copyCourseAndAssign: ({commit, state}, {categoryId, sectionId, sid, termId}) => {
@@ -127,8 +151,7 @@ const actions = {
         unitsUpper
       ).then(category => {
         $_refresh(commit, state.templateId).then(() => resolve(category))
-      }
-      )
+      })
     })
   },
   createUnitRequirement: ({commit, state}, {name, minUnits}) => {
@@ -154,6 +177,26 @@ const actions = {
     })
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
+  onDragStart: ({commit}, {category, context, course, student}) => commit('dragStart', {category, context, course, student}),
+  onDrop: ({commit}, {category, context, course, student}) => {
+    $_debugDragAndDrop('onDrop', state, {category, context, course, student})
+    return new Promise(resolve => {
+      const isDraggingAssignedCourse = state.draggingContext.context === 'assignedCourse'
+      const isDroppingToUnassign = context === 'unassignedCourses'
+      const courseId = _.get(state.draggingContext.course, 'id')
+      if (isDraggingAssignedCourse && isDroppingToUnassign && courseId) {
+        commit('setDisableButtons', true)
+        assignCourse(courseId).then(() => $_refresh(commit, state.templateId)).then(() => {
+          commit('draggingContextReset')
+          commit('setDisableButtons', false)
+          resolve()
+        })
+      } else {
+        commit('draggingContextReset')
+        resolve()
+      }
+    })
+  },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
   updateCourse: ({commit, state}, {courseId, note, unitRequirementIds, units}) => {

@@ -25,7 +25,12 @@
             <b-tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
-              class="font-size-16"
+              class="bg-white font-size-16"
+              :draggable="isDraggable(bundle)"
+              @dragenter="onDragEnterTableRow"
+              @dragover="onDragOverTableRow"
+              @dragstart="onDragAssignedCourseStart(bundle)"
+              @drop="onDropToCourseRequirement"
             >
               <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
                 <div v-if="bundle.course && !bundle.course.isCopy">
@@ -197,8 +202,7 @@ export default {
   },
   data: () => ({
     bundleForDelete: undefined,
-    bundleForEdit: undefined,
-    isAddingCourse: false
+    bundleForEdit: undefined
   }),
   computed: {
     allCourses() {
@@ -289,6 +293,15 @@ export default {
         return []
       }
     },
+    isDraggable(bundle) {
+      const draggable =
+        !this.disableButtons
+        && this.assignedCourseCount
+        && this.$currentUser.canEditDegreeProgress
+        && bundle.course
+        && !bundle.course.isCopy
+      return !!draggable
+    },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
       return bundle.course || !this.student
@@ -302,6 +315,27 @@ export default {
     },
     isUnitDiff(bundle) {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
+    },
+    onDragAssignedCourseStart(bundle) {
+      this.onDragStart({
+        category: bundle.category,
+        context: 'assignedCourse',
+        course: bundle.course,
+        student: this.student,
+      })
+    },
+    onDragEnterTableRow(e) {
+      // Prevent-default is necessary. See https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
+      e.preventDefault()
+      // TODO: Highlight table row if it is an assignable course requirement.
+    },
+    onDragOverTableRow(e) {
+      e.preventDefault()
+      // TODO: Highlight table row if it is an assignable course requirement.
+    },
+    onDropToCourseRequirement(bundle) {
+      // TODO: Assign course if the table row is an assignable course requirement.
+      console.log(`Dropped on ${bundle.category && bundle.category.id}`)
     }
   }
 }

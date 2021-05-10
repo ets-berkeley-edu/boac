@@ -15,7 +15,7 @@ export function copyCourseAndAssign(categoryId, sectionId, sid, termId) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, data).then(response => response.data, () => null)
 }
 
-export function assignCourse(categoryId: number, courseId: number) {
+export function assignCourse(courseId: number, categoryId?: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/assign`, {categoryId}).then(response => response.data, () => null)
 }
 
