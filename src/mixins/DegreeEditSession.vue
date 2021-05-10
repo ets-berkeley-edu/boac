@@ -46,6 +46,8 @@ export default {
       'deleteCategory',
       'deleteUnitRequirement',
       'init',
+      'onDrop',
+      'onDragStart',
       'setDisableButtons',
       'setIncludeNotesWhenPrint',
       'updateCategory',
