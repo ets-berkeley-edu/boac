@@ -31,6 +31,7 @@ const state = {
   degreeName: undefined,
   degreeNote: undefined,
   disableButtons: false,
+  includeNotesWhenPrint: true,
   sid: undefined,
   templateId: undefined,
   unitRequirements: undefined,
@@ -56,6 +57,7 @@ const getters = {
   degreeName: (state: any): string => state.degreeName,
   degreeNote: (state: any): string => state.degreeNote,
   disableButtons: (state: any): boolean => state.disableButtons,
+  includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
   sid: (state: any): string => state.sid,
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): any[] => state.unitRequirements,
@@ -86,6 +88,7 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
+  setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
 
@@ -152,6 +155,7 @@ const actions = {
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
+  setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
   updateCourse: ({commit, state}, {courseId, note, unitRequirementIds, units}) => {
     return new Promise(resolve => {
       updateCourse(courseId, note, unitRequirementIds, units).then(data => {
