@@ -9,15 +9,14 @@
         borderless
         class="mb-1 w-100"
         small
-        stacked="sm"
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th></b-th>
-            <b-th class="pl-0">Course</b-th>
+            <b-th class="td-course-assignment-menu"></b-th>
+            <b-th class="pl-0 td-course-name">Course</b-th>
             <b-th class="text-right">Units</b-th>
-            <b-th>Grade</b-th>
-            <b-th>Term</b-th>
+            <b-th class="td-grade">Grade</b-th>
+            <b-th class="td-term">Term</b-th>
             <b-th>Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
@@ -27,33 +26,37 @@
             <b-tr
               :id="`unassigned-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
-              :class="isUserDragging(course.id) ? 'course-dragging' : 'bg-white'"
+              :class="{'drag-and-drop-tr': isUserDragging(course.id)}"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
               @dragend="onDragEnd"
               @dragstart="onStartDraggingCourse(course)"
             >
-              <td v-if="$currentUser.canEditDegreeProgress" class="font-size-14 td-course-assignment-menu">
+              <td
+                v-if="$currentUser.canEditDegreeProgress"
+                class="align-middle font-size-14 td-course-assignment-menu"
+              >
                 <CourseAssignmentMenu :course="course" :student="student" />
               </td>
-              <td class="font-size-14 pl-0">
+              <td class="align-middle ellipsis-if-overflow font-size-14 td-course-name text-nowrap">
                 <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
               </td>
-              <td class="font-size-14 text-right">
+              <td class="align-middle font-size-14 text-right">
                 {{ $_.isNil(course.units) ? '&mdash;' : course.units }}
               </td>
-              <td class="font-size-14">
+              <td class="align-middle font-size-14 td-grade">
                 {{ course.grade || '&mdash;' }}
               </td>
-              <td class="font-size-14">
+              <td class="align-middle font-size-14 td-term text-nowrap">
                 {{ course.termName }}
               </td>
-              <td class="font-size-14">
+              <td class="align-middle ellipsis-if-overflow font-size-14 td-note text-nowrap">
                 {{ course.note || '&mdash;' }}
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress && !isUserDragging(course.id)" class="pr-0">
+              <td v-if="$currentUser.canEditDegreeProgress" class="align-middle pr-0 td-course-edit-button">
                 <b-btn
+                  v-if="!isUserDragging(course.id)"
                   :id="`edit-course-${course.id}-btn`"
-                  class="font-size-14 px-0 pt-0"
+                  class="font-size-14 p-0"
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
@@ -136,12 +139,40 @@ export default {
 </script>
 
 <style scoped>
-.course-dragging {
-  background-color: #125074;
-  border-radius: 5px;
-  color: white;
+td:first-child,
+th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+td:last-child,
+th:last-child {
+  border-radius: 0 10px 10px 0;
+}
+
+.ellipsis-if-overflow {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .td-course-assignment-menu {
-  padding-top: 2px;
+  padding: 2px 0 2px 8px;
+  width: 6px;
+}
+.td-course-edit-button {
+  height: 36px;
+  width: 32px;
+}
+.td-course-name {
+  padding: 2px 0 0 6px;
+  width: 1px;
+}
+.td-grade {
+  width: 32px;
+}
+.td-note {
+  max-width: 240px;
+  width: 1px;
+}
+.td-term {
+  width: 42px;
 }
 </style>
