@@ -9,13 +9,13 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1">
+            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1 td-course-assignment-menu">
               <span class="sr-only">Options to re-assign course</span>
             </b-th>
-            <b-th class="px-0" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
+            <b-th class="px-0 td-name" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
-            <b-th v-if="student" class="px-0">Grade</b-th>
-            <b-th v-if="student" class="px-0">Note</b-th>
+            <b-th v-if="student" class="px-0 td-grade">Grade</b-th>
+            <b-th v-if="student" class="px-0 td-note">Note</b-th>
             <b-th v-if="!student" class="px-0">Fulfillment</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress" class="px-0 sr-only">Actions</b-th>
           </b-tr>
@@ -25,14 +25,19 @@
             <b-tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
-              class="bg-white font-size-16"
+              class="font-size-16"
+              :class="{'drag-and-drop-tr': bundle.course && isUserDragging(bundle.course.id)}"
               :draggable="isDraggable(bundle)"
+              @dragend="onDragEnd"
               @dragenter="onDragEnterTableRow"
               @dragover="onDragOverTableRow"
               @dragstart="onDragAssignedCourseStart(bundle)"
               @drop="onDropToCourseRequirement(bundle.category)"
             >
-              <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
+              <td
+                v-if="assignedCourseCount && $currentUser.canEditDegreeProgress"
+                class="align-middle font-size-14 td-course-assignment-menu"
+              >
                 <div v-if="bundle.course && !bundle.course.isCopy">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
@@ -42,7 +47,7 @@
                 </div>
               </td>
               <td
-                class="align-top ellipsis-if-overflow font-size-14 px-0"
+                class="align-middle ellipsis-if-overflow font-size-14 td-name"
                 :class="{
                   'faint-text font-italic': !bundle.course,
                   'td-category': !assignedCourseCount,
@@ -51,7 +56,7 @@
               >
                 <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
               </td>
-              <td class="align-top pr-2 td-units text-right text-nowrap" :class="{'faint-text font-italic': !bundle.course}">
+              <td class="align-middle pr-2 td-units text-right text-nowrap" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
                   v-if="getCourseFulfillments(bundle).length"
                   class="fulfillments-icon mr-1"
@@ -69,15 +74,19 @@
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
                 <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
               </td>
-              <td v-if="student" class="font-size-14 px-0 text-nowrap">
+              <td v-if="student" class="align-middle font-size-14 px-0 td-grade text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
               </td>
-              <td v-if="student" class="ellipsis-if-overflow font-size-14 pl-0 td-note" :title="$_.get(bundle.course, 'note')">
+              <td
+                v-if="student"
+                class="align-middle ellipsis-if-overflow font-size-14 pl-0 td-note"
+                :title="$_.get(bundle.course, 'note')"
+              >
                 {{ $_.get(bundle.course, 'note') }}
               </td>
               <td
                 v-if="!student"
-                class="font-size-14 td-max-width-0"
+                class="align-middle font-size-14 td-max-width-0"
                 :class="{'faint-text font-italic': !bundle.course}"
                 :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
               >
@@ -92,9 +101,10 @@
                   </div>
                 </div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="td-actions">
+              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="align-middle td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
                   <b-btn
+                    v-if="!student || !isUserDragging(bundle.course.id)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                     class="pl-0 pt-0"
                     :class="{'pr-0': student && !$_.get(bundle.course, 'isCopy'), 'pr-1': !student || (bundle.course && bundle.course.isCopy)}"
@@ -359,6 +369,14 @@ export default {
 </script>
 
 <style scoped>
+td:first-child,
+th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+td:last-child,
+th:last-child {
+  border-radius: 0 10px 10px 0;
+}
 .changed-units-icon {
   color: #00c13a;
 }
@@ -371,19 +389,33 @@ export default {
   color: #00c13a;
 }
 .td-actions {
-  padding: 2px 2px 0 0;
+  height: 36px;
+  width: 32px;
+  padding: 2px 4px 0 0;
 }
 .td-category {
-  max-width: 150px !important;
+  max-width: 150px;
   width: 1px;
 }
 .td-course {
-  max-width: 100px !important;
+  width: 1px;
+}
+.td-course-assignment-menu {
+  padding: 2px 0 2px 8px;
+  width: 6px;
+}
+.td-name {
+  max-width: 240px;
+  padding: 2px 0 0 6px;
   width: 1px;
 }
 .td-note {
-  max-width: 50px !important;
+  max-width: 120px;
+  min-width: 36px;
   width: 1px;
+}
+.td-grade {
+  width: 50px;
 }
 .td-max-width-0 {
   max-width: 0;

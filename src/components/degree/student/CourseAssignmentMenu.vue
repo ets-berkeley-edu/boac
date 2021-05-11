@@ -10,7 +10,11 @@
     variant="link"
   >
     <template #button-content>
-      <font-awesome class="faint-text font-size-16" icon="grip-vertical" />
+      <font-awesome
+        class="faint-text font-size-16"
+        :class="{'text-white': isUserDragging(course.id)}"
+        icon="grip-vertical"
+      />
     </template>
     <b-dropdown-item
       v-if="course.categoryId"

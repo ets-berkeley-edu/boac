@@ -24,11 +24,11 @@
           </div>
         </div>
         <div v-if="!isEditing">
-          <div v-if="$_.isEmpty(unitRequirements)" id="unit-requirements-no-data" class="no-data-text">
+          <div v-if="!unitRequirements.length" id="unit-requirements-no-data" class="no-data-text">
             No unit requirements created
           </div>
           <b-table-lite
-            v-if="!$_.isEmpty(unitRequirements)"
+            v-if="unitRequirements.length"
             id="unit-requirements-table"
             :items="unitRequirements"
             :fields="fields"
