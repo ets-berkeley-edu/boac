@@ -30,7 +30,7 @@
               @dragenter="onDragEnterTableRow"
               @dragover="onDragOverTableRow"
               @dragstart="onDragAssignedCourseStart(bundle)"
-              @drop="onDropToCourseRequirement(bundle)"
+              @drop="onDropToCourseRequirement(bundle.category)"
             >
               <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pt-0 pr-1">
                 <div v-if="bundle.course && !bundle.course.isCopy">
@@ -338,16 +338,13 @@ export default {
       e.preventDefault()
       // TODO: Highlight table row if it is an assignable course requirement.
     },
-    onDropToCourseRequirement(bundle) {
-      const canAssign = this.$currentUser.canEditDegreeProgress && this.canAssignCourseToCategory(bundle.category, bundle.course)
-      if (canAssign) {
-        this.onDrop({
-          category: bundle.category,
-          course: bundle.course,
-          dropContext: 'assigned',
-          student: this.student
-        })
-      }
+    onDropToCourseRequirement(category) {
+      this.onDrop({
+        category: category,
+        course: null,
+        dropContext: 'requirement',
+        student: this.student
+      })
     },
     onDropEmptyTable() {
       this.onDrop({

@@ -27,8 +27,9 @@
             <b-tr
               :id="`unassigned-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
-              class="bg-white"
+              :class="isUserDragging(course.id) ? 'course-dragging' : 'bg-white'"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
+              @dragend="onDragEnd"
               @dragstart="onStartDraggingCourse(course)"
             >
               <td v-if="$currentUser.canEditDegreeProgress" class="font-size-14 td-course-assignment-menu">
@@ -49,7 +50,7 @@
               <td class="font-size-14">
                 {{ course.note || '&mdash;' }}
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress" class="pr-0">
+              <td v-if="$currentUser.canEditDegreeProgress && !isUserDragging(course.id)" class="pr-0">
                 <b-btn
                   :id="`edit-course-${course.id}-btn`"
                   class="font-size-14 px-0 pt-0"
@@ -135,6 +136,11 @@ export default {
 </script>
 
 <style scoped>
+.course-dragging {
+  background-color: #125074;
+  border-radius: 5px;
+  color: white;
+}
 .td-course-assignment-menu {
   padding-top: 2px;
 }
