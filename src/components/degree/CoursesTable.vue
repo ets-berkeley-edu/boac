@@ -26,7 +26,7 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               class="font-size-16"
-              :class="{'drag-and-drop-tr': bundle.course && isUserDragging(bundle.course.id)}"
+              :class="{'draggable-tr': bundle.course && isUserDragging(bundle.course.id)}"
               :draggable="isDraggable(bundle)"
               @dragend="onDragEnd"
               @dragenter="onDragEnterTableRow"
@@ -405,7 +405,7 @@ th:last-child {
   width: 6px;
 }
 .td-name {
-  max-width: 240px;
+  max-width: 120px;
   padding: 2px 0 0 6px;
   width: 1px;
 }

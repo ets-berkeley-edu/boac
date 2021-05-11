@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
 from boac import db, std_commit
 from boac.externals import data_loch
 from boac.lib.util import utc_now
@@ -145,8 +143,8 @@ class DegreeProgressTemplate(Base):
 
     @classmethod
     def refresh_updated_at(cls, template_id):
-        sql_text = text('UPDATE degree_progress_templates SET updated_at = :now WHERE id = :id')
-        db.session.execute(sql_text, {'id': template_id, 'now': datetime.now()})
+        sql_text = text('UPDATE degree_progress_templates SET updated_at = now() WHERE id = :id')
+        db.session.execute(sql_text, {'id': template_id})
 
     @classmethod
     def update(cls, template_id, name):

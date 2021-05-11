@@ -101,7 +101,7 @@
   color: transparent !important;
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
-.drag-and-drop-tr {
+.draggable-tr {
   background-color: #125074;
   border-radius: 5px;
   color: white;
