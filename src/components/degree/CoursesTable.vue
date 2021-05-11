@@ -26,11 +26,16 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               class="font-size-16"
-              :class="{'draggable-tr': bundle.course && isUserDragging(bundle.course.id)}"
+              :class="{
+                'draggable-tr': bundle.course && isUserDragging(bundle.course.id),
+                'dragging-over-tr': draggingOverCategoryId && $_.get(bundle.category, 'id') === draggingOverCategoryId
+              }"
               :draggable="isDraggable(bundle)"
               @dragend="onDragEnd"
-              @dragenter="onDragEnterTableRow"
-              @dragover="onDragOverTableRow"
+              @dragenter="e => e.preventDefault() & onDragEnterTableRow(bundle)"
+              @dragexit="onDragLeaveTableRow"
+              @dragleave.prevent
+              @dragover.prevent
               @dragstart="onDragAssignedCourseStart(bundle)"
               @drop="onDropToCourseRequirement(bundle.category)"
             >
@@ -339,14 +344,14 @@ export default {
         student: this.student,
       })
     },
-    onDragEnterTableRow(e) {
-      // Prevent-default is necessary. See https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API
-      e.preventDefault()
-      // TODO: Highlight table row if it is an assignable course requirement.
+    onDragEnterTableRow(bundle) {
+      this.onDragEnter(bundle.category)
+      return true
     },
-    onDragOverTableRow(e) {
+    onDragLeaveTableRow(e) {
       e.preventDefault()
-      // TODO: Highlight table row if it is an assignable course requirement.
+      this.setDraggingOverCategoryId(null)
+      return true
     },
     onDropToCourseRequirement(category) {
       this.onDrop({
@@ -380,6 +385,11 @@ th:last-child {
 .changed-units-icon {
   color: #00c13a;
 }
+.dragging-over-tr {
+  background-color: #ecf5fb;
+  border-color: #8bbdda;
+  border-style: dashed solid;
+}
 .ellipsis-if-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
@@ -410,8 +420,7 @@ th:last-child {
   width: 1px;
 }
 .td-note {
-  max-width: 120px;
-  min-width: 36px;
+  max-width: 60px;
   width: 1px;
 }
 .td-grade {
