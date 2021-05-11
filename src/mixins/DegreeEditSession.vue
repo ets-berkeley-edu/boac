@@ -30,6 +30,7 @@ export default {
       'degreeNote',
       'disableButtons',
       'includeNotesWhenPrint',
+      'isUserDragging',
       'sid',
       'templateId',
       'unitRequirements',
@@ -47,6 +48,7 @@ export default {
       'deleteUnitRequirement',
       'init',
       'onDrop',
+      'onDragEnd',
       'onDragStart',
       'setDisableButtons',
       'setIncludeNotesWhenPrint',
@@ -71,14 +73,6 @@ export default {
       } else {
         return category.courseRequirements
       }
-    },
-    canAssignCourseToCategory(category, course) {
-      if (!category || !course) {
-        return false
-      }
-      return (category.categoryType === 'Course Requirement' && !!category.courseIds.length)
-        || (category.categoryType === 'Category' && !!category.subcategories.length)
-        || category.courseIds.includes(course.id)
     }
   }
 }
