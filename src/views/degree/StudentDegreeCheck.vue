@@ -14,10 +14,11 @@
           <StudentDegreeCheckHeader :student="student" />
         </div>
         <div class="d-flex flex-wrap justify-content-between py-2 section-separator">
-          <div class="pb-2 pr-2">
+          <div class="pb-2 pr-2 w-50">
             <UnitRequirements :student="student" template-id="templateId" />
           </div>
           <div
+            class="w-50"
             @drop="onDropToUnassignedCourses"
             @dragover.prevent
             @dragenter.prevent
