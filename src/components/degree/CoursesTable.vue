@@ -339,12 +339,14 @@ export default {
       // TODO: Highlight table row if it is an assignable course requirement.
     },
     onDropToCourseRequirement(bundle) {
-      const isAcceptingDrops =
-        this.$currentUser.canEditDegreeProgress
-        && !bundle.course
-      if (isAcceptingDrops) {
-        // TODO: Assign course if the table row is an assignable course requirement.
-        console.log(`Dropped on ${bundle.category && bundle.category.id}`)
+      const canAssign = this.$currentUser.canEditDegreeProgress && this.canAssignCourseToCategory(bundle.category, bundle.course)
+      if (canAssign) {
+        this.onDrop({
+          category: bundle.category,
+          course: bundle.course,
+          dropContext: 'assigned',
+          student: this.student
+        })
       }
     },
     onDropEmptyTable() {
