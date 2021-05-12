@@ -123,9 +123,6 @@ FIXTURES_PATH = None
 # Enable with a valid Google id. For example, 'UA-999999999-1'
 GOOGLE_ANALYTICS_ID = 'UA-XXX-X'
 
-# The following JSON is generated at https://console.developers.google.com/apis/credentials
-GOOGLE_CLIENT_SECRETS_JSON = 'config/google-client-secrets.json'
-
 # Minutes of inactivity before session cookie is destroyed
 INACTIVE_SESSION_LIFETIME = 20
 
