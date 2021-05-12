@@ -48,6 +48,10 @@ export function createDegreeCategory(
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/create`, data).then(response => response.data, () => null)
 }
 
+export function createBatchDegreeCheck(sids: number[], templateId: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/check/batch`, {sids, templateId}).then(response => response.data, () => null)
+}
+
 export function createDegreeCheck(sid: number, templateId: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/check/${sid}/create`, {templateId}).then(response => response.data, () => null)
 }

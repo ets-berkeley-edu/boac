@@ -41,7 +41,7 @@
         <span>Type a name, individual Student Identification (SID), or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
       </label>
     </div>
-    <div class="mb-2">
+    <div class="mb-3">
       <span id="degree-check-add-student-label" class="sr-only">Select student for degree check. Expect auto-suggest as you type name or SID.</span>
       <Autocomplete
         id="degree-check-add-student"
@@ -82,7 +82,7 @@
       class="alert-box p-3 mt-2 mb-3 w-75"
       v-html="error || warning"
     />
-    <div class="mb-2">
+    <div class="mb-3">
       <BatchAddStudentSet
         v-if="myCohorts && myCohorts.length"
         class="w-75"
@@ -93,7 +93,7 @@
         :target="'degree check'"
       />
     </div>
-    <div class="mb-2">
+    <div class="mb-3">
       <BatchAddStudentSet
         v-if="myCuratedGroups && myCuratedGroups.length"
         class="w-75"
@@ -104,12 +104,31 @@
         :target="'degree check'"
       />
     </div>
-    <div class="mb-2">
+    <div class="mb-3">
       <DegreeTemplatesMenu
         class="w-75"
         :disabled="isSaving"
         :on-select="addTemplate"
       />
+    </div>
+    <div class="d-flex justify-content-end pt-2 w-75">
+      <b-btn
+        id="batch-degree-check-save"
+        class="btn-primary-color-override"
+        :disabled="isSaving || isValidating || !distinctSids.length || !templateId"
+        variant="primary"
+        @click="save"
+      >
+        Save Degree Check
+      </b-btn>
+      <b-btn
+        id="batch-degree-check-cancel"
+        :disabled="isSaving"
+        variant="link"
+        @click.prevent="cancel"
+      >
+        Cancel
+      </b-btn>
     </div>
   </div>
 </template>
@@ -124,6 +143,7 @@ import Loading from '@/mixins/Loading'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
+import {createBatchDegreeCheck} from '@/api/degree'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
 export default {
@@ -240,6 +260,12 @@ export default {
         this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.alertScreenReader(`${student.label} removed`))
       }
+    },
+    save() {
+      this.isSaving = true
+      createBatchDegreeCheck(this.distinctSids, this.templateId).then(() => {
+        this.isSaving = false
+      })
     },
     studentsByNameOrSid(query, limit) {
       return new Promise(resolve => {

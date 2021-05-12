@@ -205,6 +205,48 @@ class TestAssignCourse:
         assert DegreeProgressTemplate.find_by_id(degree_check.id).updated_at != original_updated_at
 
 
+class TestBatchStudentDegreeChecks:
+
+    @classmethod
+    def _api_batch_degree_checks(
+            cls,
+            client,
+            sids,
+            template_id,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            '/api/degree/check/batch',
+            data=json.dumps({
+                'sids': sids,
+                'templateId': template_id,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_batch_degree_checks(client, sids=[coe_student_sid], template_id=1, expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_batch_degree_checks(client, sids=[coe_student_sid], template_id=1, expected_status_code=401)
+
+    def test_create_batch(self, client, fake_auth, mock_template):
+        """Authorized user can create a batch of degree checks."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        student_sids = [coe_student_sid, '11667051', '7890123456', '9100000000']
+        api_json = self._api_batch_degree_checks(client, sids=student_sids, template_id=mock_template.id)
+        for sid in student_sids:
+            assert api_json[sid]
+            degree_check = DegreeProgressTemplate.find_by_id(api_json[sid])
+            assert degree_check
+            assert degree_check.student_sid == sid
+
+
 class TestCreateStudentDegreeCheck:
 
     @classmethod
