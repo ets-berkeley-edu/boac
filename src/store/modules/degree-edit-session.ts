@@ -16,6 +16,15 @@ import {
 
 const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'requirement', 'unassigned']
 
+const $_allowCourseDrop = (category, courseId) => {
+  if (!category || !courseId) {
+    return false
+  }
+  return (category.categoryType !== 'Course Requirement' || !category.courseIds.length)
+    && (category.categoryType !== 'Category' || !category.subcategories.length)
+    && !category.courseIds.includes(courseId)
+}
+
 const $_debugDragAndDrop = (action, state, {category, course, dropContext, student}) => {
   if (Vue.prototype.$config.isVueAppDebugMode) {
     console.log(`
@@ -48,11 +57,14 @@ const $_dropToAssign = (categoryId, commit, courseId, state) => {
   })
 }
 
-const $_resetDraggingContext = state => state.draggingContext = {
-  category: undefined,
-  dragContext: undefined,
-  course: undefined,
-  student: undefined
+const $_resetDraggingContext = state => {
+  state.draggingContext = {
+    category: undefined,
+    dragContext: undefined,
+    course: undefined,
+    student: undefined
+  }
+  state.draggingOverCategoryId = null
 }
 
 const $_refresh = (commit, templateId) => {
@@ -79,6 +91,7 @@ const state = {
     course: undefined,
     student: undefined
   },
+  draggingOverCategoryId: undefined,
   includeNotesWhenPrint: true,
   sid: undefined,
   templateId: undefined,
@@ -106,6 +119,7 @@ const getters = {
   degreeNote: (state: any): string => state.degreeNote,
   disableButtons: (state: any): boolean => state.disableButtons,
   draggingContext: (state: any): any => state.draggingContext,
+  draggingOverCategoryId: (state: any): any => state.draggingOverCategoryId,
   includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
   isUserDragging: (state: any) => (courseId: number) => !!courseId && _.get(state.draggingContext.course, 'id') === courseId,
   sid: (state: any): string => state.sid,
@@ -118,6 +132,9 @@ const getters = {
 const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
+  dragEnter: (state: any, categoryId) => {
+    state.draggingOverCategoryId = categoryId
+  },
   dragStart: (state: any, {category, course, dragContext, student}) => state.draggingContext = {category, course, dragContext, student},
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
@@ -140,6 +157,7 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
+  setDraggingOverCategoryId: (state: any, categoryId: number) => state.categoryId = categoryId,
   setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -206,9 +224,16 @@ const actions = {
   },
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => commit('draggingContextReset'),
+  onDragEnter: ({commit}, category: any) => {
+    const courseId = _.get(state.draggingContext.course, 'id')
+    if ($_allowCourseDrop(category, courseId)) {
+      commit('dragEnter', category.id)
+    }
+  },
   onDragStart: ({commit}, {category, course, dragContext, student}) => commit('dragStart', {category, course, dragContext, student}),
   onDrop: ({commit}, {category, course, dropContext, student}) => {
     $_debugDragAndDrop('onDrop', state, {category, course, dropContext, student})
+    commit('setDraggingOverCategoryId', null)
     return new Promise(resolve => {
       const dragContext = state.draggingContext.dragContext
       const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, dropContext)
@@ -225,11 +250,7 @@ const actions = {
             break
           case 'assigned to requirement':
           case 'unassigned to requirement':
-            // eslint-disable-next-line no-var
-            var allow = (category.categoryType !== 'Course Requirement' || !category.courseIds.length)
-              && (category.categoryType !== 'Category' || !category.subcategories.length)
-              && !category.courseIds.includes(courseId)
-            if (allow) {
+            if ($_allowCourseDrop(category, courseId)) {
               $_dropToAssign(_.get(category, 'id'), commit, courseId, state).then(resolve)
             }
             break
@@ -248,6 +269,7 @@ const actions = {
     })
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
+  setDraggingOverCategoryId: ({commit}, categoryId: number) => commit('setDraggingOverCategoryId', categoryId),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
   updateCourse: ({commit, state}, {courseId, note, unitRequirementIds, units}) => {
     return new Promise(resolve => {
