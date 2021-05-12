@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
+from boac.lib.util import to_float_or_none
 from boac.models.base import Base
 from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course import DegreeProgressCourse
@@ -182,9 +183,10 @@ class DegreeProgressCategory(Base):
             unit_requirement_ids,
     ):
         category = cls.query.filter_by(id=category_id).first()
-        category.course_units = None if course_units_lower is None else NumericRange(
-            float(course_units_lower),
-            float(course_units_upper or course_units_lower),
+        units_lower = to_float_or_none(course_units_lower)
+        category.course_units = None if units_lower is None else NumericRange(
+            units_lower,
+            to_float_or_none(course_units_upper) or units_lower,
             '[]',
         )
         category.description = description
