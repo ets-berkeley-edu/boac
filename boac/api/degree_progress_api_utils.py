@@ -39,6 +39,20 @@ def clone_degree_template(template_id, name=None, sid=None):
         validate_template_upsert(name=name, template_id=template_id)
 
     created_by = current_user.get_id()
+    return clone(template, created_by, name=name, sid=sid)
+
+
+def create_batch_degree_checks(template_id, sids):
+    template = fetch_degree_template(template_id)
+    created_by = current_user.get_id()
+    results_by_sid = {}
+    for sid in sids:
+        degree_check = clone(template, created_by, sid=sid)
+        results_by_sid[sid] = degree_check.id
+    return results_by_sid
+
+
+def clone(template, created_by, name=None, sid=None):
     clone = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=created_by,
@@ -72,7 +86,7 @@ def clone_degree_template(template_id, name=None, sid=None):
             parent_category_id=parent_id,
             unit_requirement_ids=unit_requirement_ids,
         )
-    for category in DegreeProgressCategory.get_categories(template_id=template_id):
+    for category in DegreeProgressCategory.get_categories(template_id=template.id):
         c = _create_category(category_=category, parent_id=None)
         for course in category['courseRequirements']:
             _create_category(category_=course, parent_id=c.id)

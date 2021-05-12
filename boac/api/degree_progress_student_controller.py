@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.degree_progress_api_utils import clone_degree_template
+from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.externals.data_loch import get_sid_by_uid
@@ -35,6 +35,17 @@ from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
 from flask_login import current_user
+
+
+@app.route('/api/degree/check/batch', methods=['POST'])
+@can_edit_degree_progress
+def batch_degree_checks():
+    params = request.get_json()
+    sids = get_param(params, 'sids')
+    template_id = get_param(params, 'templateId')
+    if not template_id or not sids:
+        raise BadRequestError('sids and templateId are required.')
+    return tolerant_jsonify(create_batch_degree_checks(template_id=template_id, sids=sids))
 
 
 @app.route('/api/degree/check/<sid>/create', methods=['POST'])
