@@ -7,13 +7,9 @@ module.exports = {
   extends: [
     '@vue/typescript',
     'plugin:vue/strongly-recommended',
-    'eslint:recommended',
-    'plugin:vue-a11y/recommended'
+    'eslint:recommended'
   ],
-  plugins: [
-    'vue',
-    'vue-a11y'
-  ],
+  plugins: ['vue'],
   rules: {
     'array-bracket-spacing': 2,
     'eqeqeq': 2,
@@ -26,17 +22,6 @@ module.exports = {
     'object-curly-spacing': 2,
     'quotes': [2, 'single'],
     'semi': [2, 'never'],
-    'vue-a11y/label-has-for': [
-      2,
-      {
-        'components': ['label'],
-        'required': {
-            'every': ['id']
-        },
-        'allowChildren': false
-      }
-    ],
-    'vue-a11y/no-onchange': 'off',
     'vue/arrow-spacing': 2,
     'vue/attributes-order': 2,
     'vue/block-spacing': 2,
