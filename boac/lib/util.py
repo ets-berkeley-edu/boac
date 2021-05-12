@@ -152,6 +152,13 @@ def to_bool_or_none(arg):
     return None if s is None else bool(s)
 
 
+def to_float_or_none(s):
+    try:
+        return None if s is None else float(s)
+    except ValueError:
+        return None
+
+
 def to_int_or_none(s):
     try:
         return int(s)
