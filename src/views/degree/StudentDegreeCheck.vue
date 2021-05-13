@@ -18,10 +18,18 @@
             <UnitRequirements :student="student" template-id="templateId" />
           </div>
           <div
-            class="w-50"
-            @drop="onDropToUnassignedCourses"
-            @dragover.prevent
-            @dragenter.prevent
+            id="drop-zone-unassigned-courses"
+            class="p-1 w-50"
+            :class="{
+              'drop-zone-on': isDraggingOverUnassigned,
+              'drop-zone-off': !isDraggingOverUnassigned
+            }"
+            @dragend="onDrag($event, 'end')"
+            @dragenter="onDrag($event,'enter')"
+            @dragleave="onDrag($event, 'leave')"
+            @dragexit="onDrag($event,'exit')"
+            @dragover="onDrag($event,'over')"
+            @drop="dropToUnassign"
           >
             <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
             <UnassignedCourses :student="student" />
@@ -74,6 +82,7 @@ export default {
     UnitRequirements
   },
   data: () => ({
+    isDraggingOverUnassigned: false,
     student: undefined
   }),
   created() {
@@ -88,13 +97,32 @@ export default {
     })
   },
   methods: {
-    onDropToUnassignedCourses() {
-      this.onDrop({
-        category: null,
-        course: null,
-        dropContext: 'unassigned',
-        student: this.student
-      })
+    dropToUnassign() {
+      this.onDrop({category: null, context: 'unassigned'})
+      this.isDraggingOverUnassigned = false
+      return false
+    },
+    onDrag(event, stage) {
+      switch (stage) {
+      case 'end':
+        this.isDraggingOverUnassigned = false
+        this.onDragEnd()
+        break
+      case 'enter':
+      case 'over':
+        if (this.draggingContext.dragContext !== 'unassigned') {
+          this.isDraggingOverUnassigned = true
+        }
+        break
+      case 'leave':
+        if (this.$_.get(event.target, 'id') === 'drop-zone-unassigned-courses') {
+          this.isDraggingOverUnassigned = false
+        }
+        break
+      case 'exit':
+      default:
+        break
+      }
     }
   }
 }
@@ -104,6 +132,16 @@ export default {
 .degree-check-column {
   min-width: 300px;
   padding-bottom: 10px;
+}
+.drop-zone-on {
+  background-color: #ecf5fb;
+  border-color: #8bbdda;
+  border-style: dashed solid;
+}
+.drop-zone-off {
+  background-color: white;
+  border-color: transparent;
+  border-style: dashed solid;
 }
 .section-separator {
   border-bottom: 1px #999 solid;

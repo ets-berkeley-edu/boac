@@ -28,15 +28,14 @@
               class="font-size-16"
               :class="{
                 'draggable-tr': bundle.course && isUserDragging(bundle.course.id),
-                'dragging-over-tr': draggingOverCategoryId && $_.get(bundle.category, 'id') === draggingOverCategoryId
+                'drop-zone': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id
               }"
               :draggable="isDraggable(bundle)"
-              @dragend="onDragEnd"
-              @dragenter="e => e.preventDefault() & onDragEnterTableRow(bundle)"
-              @dragexit="onDragLeaveTableRow"
-              @dragleave.prevent
-              @dragover.prevent
-              @dragstart="onDragAssignedCourseStart(bundle)"
+              @dragend="onDrag($event, 'end', bundle)"
+              @dragenter="onDrag($event, 'enter', bundle)"
+              @dragleave="onDrag($event, 'leave', bundle)"
+              @dragover="onDrag($event, 'over', bundle)"
+              @dragstart="onDrag($event, 'start', bundle)"
               @drop="onDropToCourseRequirement(bundle.category)"
             >
               <td
@@ -106,8 +105,8 @@
                   </div>
                 </div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress && isEditable(bundle)" class="align-middle td-actions">
-                <div class="d-flex justify-content-end text-nowrap">
+              <td v-if="$currentUser.canEditDegreeProgress" class="align-middle td-actions">
+                <div v-if="isEditable(bundle)" class="d-flex justify-content-end text-nowrap">
                   <b-btn
                     v-if="!student || !isUserDragging(bundle.course.id)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
@@ -136,8 +135,8 @@
                 </div>
               </td>
             </b-tr>
-            <b-tr :key="`tr-${index}-edit`">
-              <b-td v-if="isEditing(bundle)" class="pt-0" colspan="6">
+            <b-tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
+              <b-td class="pt-0" colspan="6">
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"
@@ -222,7 +221,8 @@ export default {
   },
   data: () => ({
     bundleForDelete: undefined,
-    bundleForEdit: undefined
+    bundleForEdit: undefined,
+    draggingOverCategoryId: null
   }),
   computed: {
     allCourses() {
@@ -297,6 +297,27 @@ export default {
         return null
       }
     },
+    onDrag(event, stage, bundle) {
+      switch (stage) {
+      case 'end':
+        this.onDragEnd()
+        break
+      case 'enter':
+      case 'over':
+        this.draggingOverCategoryId = this.$_.get(bundle.category, 'id')
+        event.preventDefault()
+        break
+      case 'leave':
+        this.draggingOverCategoryId = null
+        break
+      case 'start':
+        this.onDragStart({courseId: bundle.course.id, dragContext: 'assigned'})
+        break
+      case 'exit':
+      default:
+        break
+      }
+    },
     edit(bundle) {
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
@@ -322,6 +343,12 @@ export default {
         && !bundle.course.isCopy
       return !!draggable
     },
+    isDroppable(category) {
+      return category
+        && this.draggingOverCategoryId
+        && !this.$_.includes(category.courseIds, this.draggingContext.courseId)
+        && category.id === this.draggingOverCategoryId
+    },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
       return bundle.course || !this.student
@@ -336,38 +363,12 @@ export default {
     isUnitDiff(bundle) {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
     },
-    onDragAssignedCourseStart(bundle) {
-      this.onDragStart({
-        category: bundle.category,
-        course: bundle.course,
-        dragContext: 'assigned',
-        student: this.student,
-      })
-    },
-    onDragEnterTableRow(bundle) {
-      this.onDragEnter(bundle.category)
-      return true
-    },
-    onDragLeaveTableRow(e) {
-      e.preventDefault()
-      this.setDraggingOverCategoryId(null)
-      return true
-    },
     onDropToCourseRequirement(category) {
-      this.onDrop({
-        category: category,
-        course: null,
-        dropContext: 'requirement',
-        student: this.student
-      })
+      this.onDrop({category: category, context: 'requirement'}).then(() => event.preventDefault())
+      return false
     },
     onDropEmptyTable() {
-      this.onDrop({
-        category: this.parentCategory,
-        course: null,
-        dropContext: 'assigned',
-        student: this.student
-      })
+      this.onDrop({category: this.parentCategory, context: 'assigned'})
     }
   }
 }
@@ -384,11 +385,6 @@ th:last-child {
 }
 .changed-units-icon {
   color: #00c13a;
-}
-.dragging-over-tr {
-  background-color: #ecf5fb;
-  border-color: #8bbdda;
-  border-style: dashed solid;
 }
 .ellipsis-if-overflow {
   overflow: hidden;

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <div v-if="$_.isEmpty(courses.unassigned)" class="no-data-text">
+    <div v-if="!courses.unassigned.length" class="no-data-text">
       No courses
     </div>
-    <div v-if="!$_.isEmpty(courses.unassigned)" id="unassigned-courses-container">
+    <div v-if="courses.unassigned.length" id="unassigned-courses-container">
       <b-table-simple
         id="unassigned-courses-table"
         borderless
@@ -29,7 +29,7 @@
               :class="{'draggable-tr': isUserDragging(course.id)}"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
               @dragend="onDragEnd"
-              @dragstart="onStartDraggingCourse(course)"
+              @dragstart="onStartDraggingCourse(course.id)"
             >
               <td
                 v-if="$currentUser.canEditDegreeProgress"
@@ -126,13 +126,8 @@ export default {
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
     },
-    onStartDraggingCourse(course) {
-      this.onDragStart({
-        category: null,
-        course: course,
-        dragContext: 'unassigned',
-        student: this.student,
-      })
+    onStartDraggingCourse(courseId) {
+      this.onDragStart({courseId: courseId, dragContext: 'unassigned'})
     }
   }
 }
@@ -169,7 +164,7 @@ th:last-child {
   width: 32px;
 }
 .td-note {
-  max-width: 240px;
+  max-width: 100px;
   width: 1px;
 }
 .td-term {
