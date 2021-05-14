@@ -25,7 +25,7 @@
             <b-tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
-              class="font-size-16 p-1"
+              class="font-size-16"
               :class="{
                 'draggable-tr': bundle.course && isUserDragging(bundle.course.id),
                 'drop-zone-on': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id,
@@ -157,11 +157,16 @@
           </template>
           <b-tr
             v-if="!items.length"
+            :class="{
+              'drop-zone-on': draggingOverCategoryId === -1,
+              'drop-zone-off-large': draggingOverCategoryId !== -1
+            }"
+            @dragenter="onDrag($event, 'enter')"
+            @dragleave="onDrag($event, 'leave')"
+            @dragover="onDrag($event, 'over')"
             @drop="onDropEmptyTable"
-            @dragenter.prevent
-            @dragover.prevent
           >
-            <b-td class="pl-0" :class="{'pb-3': !student}" colspan="6">
+            <b-td class="p-2" :class="{'pb-3': !student}" colspan="6">
               <span class="faint-text font-italic font-size-16">No completed requirements</span>
             </b-td>
           </b-tr>
@@ -311,7 +316,7 @@ export default {
         break
       case 'enter':
       case 'over':
-        this.draggingOverCategoryId = this.$_.get(bundle.category, 'id')
+        this.draggingOverCategoryId = bundle ? this.$_.get(bundle.category, 'id') : -1
         event.preventDefault()
         break
       case 'leave':
@@ -353,7 +358,7 @@ export default {
     isDroppable(category) {
       return category
         && this.draggingOverCategoryId
-        && !this.$_.includes(category.courseIds, this.draggingContext.courseId)
+        && !category.courseIds.length
         && category.id === this.draggingOverCategoryId
     },
     isEditable(bundle) {
@@ -375,7 +380,8 @@ export default {
       this.draggingOverCategoryId = null
       return false
     },
-    onDropEmptyTable() {
+    onDropEmptyTable(event) {
+      event.preventDefault()
       this.onDrop({category: this.parentCategory, context: 'assigned'})
     }
   }
@@ -397,11 +403,13 @@ th:last-child {
 .drop-zone-on {
   background-color: #ecf5fb;
   border-color: #8bbdda;
-  border-style: dashed solid;
+  border-style: dashed;
 }
 .drop-zone-off {
-  border-color: transparent;
-  border-style: dashed solid;
+  border: 1px solid transparent;
+}
+.drop-zone-off-large {
+  border: 3px solid transparent;
 }
 .ellipsis-if-overflow {
   overflow: hidden;

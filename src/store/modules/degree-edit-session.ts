@@ -202,11 +202,14 @@ const actions = {
       const done = (srAlert: string, noActionTaken?: boolean) => {
         Vue.prototype.$announcer.polite(srAlert)
         if (!noActionTaken) {
-          $_debug(`From ${actionByUser}: dragged courseId: ${courseId} (${dragContext}) to category ${_.get(category, 'id')} (${context})`)
+          if (context === 'unassigned') {
+            $_debug(`Course ${courseId} (${dragContext}) dragged to unassigned section.`)
+          } else {
+            $_debug(`From ${actionByUser}: course ${courseId} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
+          }
         }
         resolve()
       }
-
       const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, context)
       if (valid) {
         switch (actionByUser) {
