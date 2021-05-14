@@ -31,7 +31,7 @@
             @dragover="onDrag($event,'over')"
             @drop="dropToUnassign"
           >
-            <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
+            <h2 class="font-size-20 font-weight-bold pb-0 pl-2 text-nowrap">Unassigned Courses</h2>
             <UnassignedCourses :student="student" />
           </div>
         </div>
@@ -140,11 +140,10 @@ export default {
 .drop-zone-on {
   background-color: #ecf5fb;
   border-color: #8bbdda;
-  border-style: dashed solid;
+  border-style: dashed;
 }
 .drop-zone-off {
-  border-color: transparent;
-  border-style: dashed solid;
+  border: 3px solid transparent;
 }
 .section-separator {
   border-bottom: 1px #999 solid;
