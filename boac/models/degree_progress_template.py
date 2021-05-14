@@ -34,7 +34,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
-from sqlalchemy import and_, text
+from sqlalchemy import and_, func, text
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
@@ -108,11 +108,20 @@ class DegreeProgressTemplate(Base):
         return cls.query.filter_by(id=template_id, deleted_at=None).first()
 
     @classmethod
-    def find_by_name(cls, name, case_insensitive=False):
+    def find_by_name(cls, name, student_sids=None, case_insensitive=False):
+        if student_sids:
+            return db.session.query(
+                cls.student_sid,
+                func.max(cls.updated_at),
+            ).filter(
+                cls.degree_name == name,
+                cls.deleted_at == None,  # noqa: E711
+                cls.student_sid.in_(student_sids),
+            ).group_by(cls.student_sid).all()
         if case_insensitive:
-            return cls.query.filter(and_(cls.degree_name.ilike(name), cls.deleted_at == None)).first()  # noqa: E711
+            return cls.query.filter(and_(cls.degree_name.ilike(name), cls.deleted_at == None, cls.student_sid == None)).first()  # noqa: E711
         else:
-            return cls.query.filter_by(degree_name=name, deleted_at=None).first()
+            return cls.query.filter_by(degree_name=name, deleted_at=None, student_sid=None).first()
 
     @classmethod
     def find_by_sid(cls, student_sid):

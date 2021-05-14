@@ -281,6 +281,49 @@ class TestCreateStudentDegreeCheck:
         assert api_json['id']
 
 
+class TestGetDegreeCheckStudents:
+
+    @classmethod
+    def _api_get_students(cls, client, template_id, sids, expected_status_code=200):
+        response = client.post(
+            f'/api/degree/{template_id}/students',
+            data=json.dumps({'sids': sids}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_anonymous(self, client, mock_template):
+        """Denies anonymous user."""
+        self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid], expected_status_code=401)
+
+    def test_unauthorized(self, client, fake_auth, mock_template):
+        """Denies unauthorized user."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid], expected_status_code=401)
+
+    def test_authorized_no_students(self, client, fake_auth, mock_template):
+        """Authorized user gets an empty list if no students have the degree check."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        api_json = self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid])
+        assert api_json == []
+
+    def test_authorized(self, client, fake_auth, mock_template):
+        """Authorized user gets a list of students with the degree check."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        client.post(
+            f'/api/degree/check/{coe_student_sid}/create',
+            data=json.dumps({'templateId': mock_template.id}),
+            content_type='application/json',
+        )
+        api_json = self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid])
+        assert len(api_json) == 1
+        assert api_json[0]['sid'] == coe_student_sid
+        assert api_json[0]['uid'] == coe_student_uid
+        assert api_json[0]['firstName'] == 'Wolfgang'
+        assert api_json[0]['lastName'] == "Pauli-O'Rourke"
+
+
 class TestGetStudentDegreeChecks:
 
     @classmethod
@@ -298,7 +341,7 @@ class TestGetStudentDegreeChecks:
         fake_auth.login(qcadv_advisor_uid)
         self._api_get_degree_checks(client, uid=coe_student_uid, expected_status_code=401)
 
-    def test_authorized(self, client, fake_auth, mock_degree_checks, app):
+    def test_authorized(self, client, fake_auth, mock_degree_checks):
         """Advisor can view student degree checks."""
         fake_auth.login(coe_advisor_read_only_uid)
 
