@@ -86,6 +86,9 @@ export default {
     student: undefined
   }),
   created() {
+    this.$eventHub.on('degree-progress-drag-end', () => {
+      this.isDraggingOverUnassigned = false
+    })
     const degreeId = this.$_.get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
@@ -97,12 +100,13 @@ export default {
     })
   },
   methods: {
-    dropToUnassign() {
+    dropToUnassign(event) {
+      event.preventDefault()
       this.onDrop({category: null, context: 'unassigned'})
       this.isDraggingOverUnassigned = false
-      return false
     },
     onDrag(event, stage) {
+      event.preventDefault()
       switch (stage) {
       case 'end':
         this.isDraggingOverUnassigned = false
@@ -139,7 +143,6 @@ export default {
   border-style: dashed solid;
 }
 .drop-zone-off {
-  background-color: white;
   border-color: transparent;
   border-style: dashed solid;
 }

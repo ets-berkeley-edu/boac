@@ -22,6 +22,11 @@ const $_allowCourseDrop = (category, courseId) => {
     && !category.courseIds.includes(courseId)
 }
 
+const $_broadcastDragEnd = () => Vue.prototype.$eventHub.emit('degree-progress-drag-end')
+
+// TODO: Remove when Degree Progress dev is done.
+const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
+
 const $_dropToAssign = (categoryId, commit, courseId, state) => {
   commit('setDisableButtons', true)
   return assignCourse(courseId, categoryId).then(() => {
@@ -185,48 +190,51 @@ const actions = {
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => {
     commit('draggingContextReset')
+    $_broadcastDragEnd()
   },
-  onDragStart: ({commit}, {courseId, dragContext}) => {
-    commit('dragStart', {courseId, dragContext})
-  },
+  onDragStart: ({commit}, {courseId, dragContext}) => commit('dragStart', {courseId, dragContext}),
   onDrop: ({commit}, {category, context}) => {
     return new Promise<void>(resolve => {
       const courseId = state.draggingContext.courseId
       const dragContext = state.draggingContext.dragContext
-      const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, context)
+      const actionByUser = `${dragContext} to ${context}`
 
-      if (valid) {
-        const dragAndDrop = `${dragContext} to ${context}`
-        if (Vue.prototype.$config.isVueAppDebugMode) {
-          console.log(`--- Drag from ${dragAndDrop}
-            From: courseId: ${courseId}, dragContext: ${dragContext}}
-            To:   categoryId: ${category && category.id}, dropContext: ${context}`)
+      const done = (srAlert: string, noActionTaken?: boolean) => {
+        Vue.prototype.$announcer.polite(srAlert)
+        if (!noActionTaken) {
+          $_debug(`From ${actionByUser}: dragged courseId: ${courseId} (${dragContext}) to category ${_.get(category, 'id')} (${context})`)
         }
-        switch (dragAndDrop) {
+        resolve()
+      }
+
+      const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, context)
+      if (valid) {
+        switch (actionByUser) {
           case 'assigned to unassigned':
-            $_dropToAssign(null, commit, courseId, state).then(resolve)
+            $_dropToAssign(null, commit, courseId, state).then(() => done('Course unassigned'))
             break
           case 'unassigned to assigned':
-            $_dropToAssign(_.get(category, 'id'), commit, courseId, state).then(resolve)
+            $_dropToAssign(category.id, commit, courseId, state).then(() => done(`Course assigned to ${category.name}`))
             break
           case 'assigned to requirement':
           case 'unassigned to requirement':
             if ($_allowCourseDrop(category, courseId)) {
-              $_dropToAssign(_.get(category, 'id'), commit, courseId, state).then(resolve)
+              $_dropToAssign(category.id, commit, courseId, state).then(() => done(`Course assigned to ${category.name}`))
             } else {
-              resolve()
+              done('Drop canceled. No assignment made.', true)
             }
             break
           case 'unassigned to unassigned':
-            // Do nothing.
-            resolve()
+            done('Course not assigned.', true)
             break
           default:
+            done('Error: Unrecognized operation', true)
             commit('draggingContextReset')
             throw new TypeError(`Unrecognized transaction type where dragContext = '${dragContext}' and dropContext = '${context}'`)
         }
 
       } else {
+        done('Error: Unrecognized operation', true)
         commit('draggingContextReset')
         throw new TypeError(`Invalid context(s): dragContext = '${dragContext}' and dropContext = '${context}'`)
       }

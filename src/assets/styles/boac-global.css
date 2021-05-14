@@ -106,11 +106,6 @@
   border-radius: 5px;
   color: white;
 }
-.drop-zone {
-  background-color: #ecf5fb;
-  border-color: #8bbdda;
-  border-style: dashed solid;
-}
 .drawer-enter-active {
    -webkit-transition-duration: 0.3s;
    transition-duration: 0.3s;

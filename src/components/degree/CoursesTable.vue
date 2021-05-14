@@ -25,10 +25,11 @@
             <b-tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
-              class="font-size-16"
+              class="font-size-16 p-1"
               :class="{
                 'draggable-tr': bundle.course && isUserDragging(bundle.course.id),
-                'drop-zone': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id
+                'drop-zone-on': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id,
+                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingOverCategoryId !== bundle.category.id
               }"
               :draggable="isDraggable(bundle)"
               @dragend="onDrag($event, 'end', bundle)"
@@ -257,6 +258,11 @@ export default {
       return transformed
     }
   },
+  created() {
+    this.$eventHub.on('degree-progress-drag-end', () => {
+      this.draggingOverCategoryId = null
+    })
+  },
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
@@ -300,6 +306,7 @@ export default {
     onDrag(event, stage, bundle) {
       switch (stage) {
       case 'end':
+        this.draggingOverCategoryId = null
         this.onDragEnd()
         break
       case 'enter':
@@ -364,7 +371,8 @@ export default {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
     },
     onDropToCourseRequirement(category) {
-      this.onDrop({category: category, context: 'requirement'}).then(() => event.preventDefault())
+      this.onDrop({category: category, context: 'requirement'})
+      this.draggingOverCategoryId = null
       return false
     },
     onDropEmptyTable() {
@@ -385,6 +393,15 @@ th:last-child {
 }
 .changed-units-icon {
   color: #00c13a;
+}
+.drop-zone-on {
+  background-color: #ecf5fb;
+  border-color: #8bbdda;
+  border-style: dashed solid;
+}
+.drop-zone-off {
+  border-color: transparent;
+  border-style: dashed solid;
 }
 .ellipsis-if-overflow {
   overflow: hidden;
