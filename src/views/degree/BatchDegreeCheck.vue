@@ -1,134 +1,150 @@
 <template>
-  <div v-if="!loading" class="ml-3 mr-3 mt-3">
-    <h1 class="page-section-header">Batch Degree Checks</h1>
-    <div role="alert">
-      <span v-if="isRecalculating" />
-      <span
-        v-if="!isRecalculating && distinctSids.length"
-        id="target-student-count-alert"
-        :class="{'has-error': distinctSids.length >= 250, 'font-weight-bolder': distinctSids.length >= 500}"
-        class="font-italic font-size-14"
-      >
-        Degree check will be added to {{ pluralize('student record', distinctSids.length) }}.
-        <span v-if="distinctSids.length >= 500">Are you sure?</span>
-      </span>
-      <span
-        v-if="!isRecalculating && !distinctSids.length && (addedCohorts.length || addedCuratedGroups.length)"
-        class="font-italic font-size-14"
-      >
+  <div class="ml-3 mr-3 mt-3">
+    <Spinner />
+    <div class="d-flex flex-wrap align-items-baseline justify-content-between">
+      <h1 id="page-header" class="page-section-header text-nowrap mr-2">Batch Degree Checks</h1>
+      <router-link id="manage-degrees-link" to="/degrees">
+        <div class="text-nowrap">
+          Manage degree checks
+        </div>
+      </router-link>
+    </div>
+    <div v-if="!loading">
+      <div role="alert" class="student-count-alerts font-italic font-size-14">
+        <span v-if="isRecalculating || isValidating || $_.isEmpty(sidsToInclude)" />
         <span
-          v-if="addedCohorts.length && !addedCuratedGroups.length"
-          id="no-students-per-cohorts-alert"
-        >There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.</span>
-        <span
-          v-if="addedCuratedGroups.length && !addedCohorts.length"
-          id="no-students-per-curated-groups-alert"
-        >There are no students in the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }}.</span>
-        <span
-          v-if="addedCohorts.length && addedCuratedGroups.length"
-          id="no-students-alert"
+          v-if="!isRecalculating && !isValidating && !$_.isEmpty(sidsToInclude)"
+          id="target-student-count-alert"
+          :class="{'has-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
         >
-          Neither the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }} nor the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }} have students.
+          Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
+          <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
         </span>
-      </span>
-    </div>
-    <div>
-      <label
-        for="degree-check-add-student-input"
-        class="font-size-14 input-label text mt-2"
-      >
-        <div class="font-weight-bolder">Student</div>
-        <span>Type a name, individual Student Identification (SID), or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
-      </label>
-    </div>
-    <div class="mb-3">
-      <span id="degree-check-add-student-label" class="sr-only">Select student for degree check. Expect auto-suggest as you type name or SID.</span>
-      <Autocomplete
-        id="degree-check-add-student"
-        :key="resetAutoCompleteKey"
-        ref="autocomplete"
-        class="w-75"
-        :add-selection="addSids"
-        :add-button-disabled="addButtonDisabled"
-        :demo-mode-blur="true"
-        :disabled="isSaving"
-        input-labelled-by="degree-check-add-student-label"
-        :maxlength="'255'"
-        :show-add-button="true"
-        :source="studentsByNameOrSid"
-        :suggest-when="suggestWhen"
-        @input="addStudent"
-      />
-    </div>
-    <div>
-      <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
-          <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
-          <b-btn
-            :id="`remove-student-from-batch-${index}`"
-            variant="link"
-            class="p-0"
-            @click.prevent="removeStudent(addedStudent)"
+        <span v-if="!isRecalculating && !isValidating && (addedCohortsEmpty || addedGroupsEmpty)">
+          <span
+            v-if="addedCohortsEmpty && !addedGroupsEmpty"
+            id="no-students-per-cohorts-alert"
+          >There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.</span>
+          <span
+            v-if="!addedCohortsEmpty && addedGroupsEmpty"
+            id="no-students-per-curated-groups-alert"
+          >There are no students in the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }}.</span>
+          <span
+            v-if="addedCohortsEmpty && addedGroupsEmpty"
+            id="no-students-alert"
           >
-            <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
-            <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
-          </b-btn>
+            Neither the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }} nor the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }} have students.
+          </span>
         </span>
       </div>
-    </div>
-    <div
-      v-if="error || warning"
-      :class="{'error-message-container': error, 'warning-message-container': warning}"
-      class="alert-box p-3 mt-2 mb-3 w-75"
-      v-html="error || warning"
-    />
-    <div class="mb-3">
-      <BatchAddStudentSet
-        v-if="myCohorts && myCohorts.length"
-        class="w-75"
-        :add-object="addCohort"
-        :disabled="isSaving"
-        :is-curated-groups-mode="false"
-        :remove-object="removeCohort"
-        :target="'degree check'"
+      <div>
+        <label
+          for="degree-check-add-student-input"
+          class="font-size-14 input-label text mt-2"
+        >
+          <div class="font-weight-bolder">Student</div>
+          <span>Type a name, individual Student Identification (SID), or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
+        </label>
+      </div>
+      <div class="mb-3">
+        <span id="degree-check-add-student-label" class="sr-only">Select student for degree check. Expect auto-suggest as you type name or SID.</span>
+        <Autocomplete
+          id="degree-check-add-student"
+          :key="resetAutoCompleteKey"
+          ref="autocomplete"
+          class="w-75"
+          :add-selection="addSids"
+          :add-button-disabled="addButtonDisabled"
+          :demo-mode-blur="true"
+          :disabled="isSaving"
+          input-labelled-by="degree-check-add-student-label"
+          :maxlength="'255'"
+          :show-add-button="true"
+          :source="studentsByNameOrSid"
+          :suggest-when="suggestWhen"
+          @input="addStudent"
+        />
+      </div>
+      <div>
+        <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
+          <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
+            <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
+            <b-btn
+              :id="`remove-student-from-batch-${index}`"
+              variant="link"
+              class="p-0"
+              :disabled="isSaving"
+              @click.prevent="removeStudent(addedStudent)"
+            >
+              <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+              <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
+            </b-btn>
+          </span>
+        </div>
+      </div>
+      <div
+        v-if="error || warning"
+        :class="{'error-message-container': error, 'warning-message-container': warning}"
+        class="alert-box p-3 mt-2 mb-3 w-75"
+        v-html="error || warning"
       />
-    </div>
-    <div class="mb-3">
-      <BatchAddStudentSet
-        v-if="myCuratedGroups && myCuratedGroups.length"
-        class="w-75"
-        :add-object="addCuratedGroup"
-        :disabled="isSaving"
-        :is-curated-groups-mode="true"
-        :remove-object="removeCuratedGroup"
-        :target="'degree check'"
-      />
-    </div>
-    <div class="mb-3">
-      <DegreeTemplatesMenu
-        class="w-75"
-        :disabled="isSaving"
-        :on-select="addTemplate"
-      />
-    </div>
-    <div class="d-flex justify-content-end pt-2 w-75">
-      <b-btn
-        id="batch-degree-check-save"
-        class="btn-primary-color-override"
-        :disabled="isSaving || isValidating || !distinctSids.length || !templateId"
-        variant="primary"
-        @click="save"
-      >
-        Save Degree Check
-      </b-btn>
-      <b-btn
-        id="batch-degree-check-cancel"
-        :disabled="isSaving"
-        variant="link"
-        @click.prevent="cancel"
-      >
-        Cancel
-      </b-btn>
+      <div class="mb-3">
+        <BatchAddStudentSet
+          v-if="myCohorts && myCohorts.length"
+          class="w-75"
+          :add-object="addCohort"
+          :disabled="isSaving"
+          :is-curated-groups-mode="false"
+          :remove-object="removeCohort"
+          :target="'degree check'"
+        />
+      </div>
+      <div class="mb-3">
+        <BatchAddStudentSet
+          v-if="myCuratedGroups && myCuratedGroups.length"
+          class="w-75"
+          :add-object="addCuratedGroup"
+          :disabled="isSaving"
+          :is-curated-groups-mode="true"
+          :remove-object="removeCuratedGroup"
+          :target="'degree check'"
+        />
+      </div>
+      <div class="mb-3">
+        <DegreeTemplatesMenu
+          class="w-75"
+          :disabled="isSaving"
+          :on-select="addTemplate"
+        />
+      </div>
+      <div v-if="!isRecalculating && !isValidating && !$_.isEmpty(excludedStudents)" class="alert-box warning-message-container p-3 mt-2 mb-3 w-75">
+        <div>{{ excludedStudents.length }} students currently use the {{ degreeName }} degree check. The degree check will not be added to their student record.</div>
+        <ul class="mt-1 mb-0">
+          <li v-for="(student, index) in excludedStudents" :key="index">
+            {{ student.firstName }} {{ student.lastName }} ({{ student.sid }})
+          </li>
+        </ul>
+      </div>
+      <div class="d-flex justify-content-end pt-2 w-75">
+        <b-btn
+          id="batch-degree-check-save"
+          class="btn-primary-color-override"
+          :disabled="isBusy || !templateId || $_.isEmpty(sidsToInclude)"
+          variant="primary"
+          @click="save"
+        >
+          <span v-if="isSaving"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="!isSaving">Save Degree Check</span>
+        </b-btn>
+        <b-btn
+          id="batch-degree-check-cancel"
+          :disabled="isBusy"
+          variant="link"
+          @click.prevent="cancel"
+        >
+          Cancel
+        </b-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -140,10 +156,11 @@ import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Loading from '@/mixins/Loading'
+import Spinner from '@/components/util/Spinner'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import {createBatchDegreeCheck} from '@/api/degree'
+import {createBatchDegreeCheck, getStudents} from '@/api/degree'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
 export default {
@@ -151,14 +168,17 @@ export default {
   components: {
     Autocomplete,
     BatchAddStudentSet,
-    DegreeTemplatesMenu
+    DegreeTemplatesMenu,
+    Spinner
   },
   mixins: [Context, CurrentUserExtras, Loading, StudentAggregator, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
     addedStudents: [],
+    degreeName: undefined,
     error: undefined,
+    excludedStudents: [],
     isSaving: false,
     isValidating: false,
     resetAutoCompleteKey: undefined,
@@ -166,16 +186,37 @@ export default {
     warning: undefined
   }),
   computed: {
+    addedCohortsEmpty() {
+      return this.addedCohorts.length && this.$_.every(this.addedCohorts, {'totalStudentCount': 0})
+    },
+    addedGroupsEmpty() {
+      return this.addedCuratedGroups.length && this.$_.every(this.addedCuratedGroups, {'totalStudentCount': 0})
+    },
     addedSids() {
       return this.$_.map(this.addedStudents, 'sid')
+    },
+    isBusy() {
+      return this.isSaving || this.isValidating || this.isRecalculating
+    },
+    sidsToInclude() {
+      const sidsToExclude = this.$_.map(this.excludedStudents, 'sid')
+      return this.$_.difference(this.distinctSids, sidsToExclude)
+    }
+  },
+  watch: {
+    templateId(newValue) {
+      this.findStudentsWithDegreeCheck(newValue, this.distinctSids)
+    },
+    distinctSids(newValue) {
+      this.findStudentsWithDegreeCheck(this.templateId, newValue)
     }
   },
   mounted() {
-    this.loaded('Batch degree checks')
+    this.loaded('Batch degree checks loaded')
   },
   methods: {
     addButtonDisabled(selectedSuggestion, query) {
-      !selectedSuggestion && !/^\d+[,\r\n\t ]?/.test(query)
+      return this.isBusy || !selectedSuggestion && !/^\d+[,\r\n\t ]?/.test(query)
     },
     addCohort(cohort) {
       this.clearErrors()
@@ -244,26 +285,54 @@ export default {
       }
       this.putFocusNextTick('degree-check-add-student-input')
     },
-    addTemplate(templateId) {
+    addTemplate(degreeName, templateId) {
+      this.degreeName = degreeName
       this.templateId = templateId
+      this.findStudentsWithDegreeCheck()
+    },
+    cancel() {
+      this.alertScreenReader('Canceled. Nothing saved.')
+      this.$router.push('/degrees')
+    },
+    findStudentsWithDegreeCheck(templateId, sids) {
+      if (templateId && !this.$_.isEmpty(sids)) {
+        this.isValidating = true
+        getStudents(templateId, sids).then(students => {
+          this.excludedStudents = students
+          this.isValidating = false
+        })
+      } else {
+        this.excludedStudents = []
+      }
     },
     removeCohort(cohort) {
-      this.$_.remove(this.addedCohorts, c => c.id === cohort.id),
-      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+      const index = this.$_.indexOf(this.addedCohorts, cohort)
+      if (index !== -1) {
+        this.addedCohorts.splice(index, 1)
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+      }
     },
     removeCuratedGroup(curatedGroup) {
-      this.$_.remove(this.addedCuratedGroups, c => c.id === curatedGroup.id),
-      this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+      const index = this.$_.indexOf(this.addedCuratedGroups, curatedGroup)
+      if (index !== -1) {
+        this.addedCuratedGroups.splice(index, 1)
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
+      }
     },
     removeStudent(student) {
-      if (student) {
-        this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
+      const index = this.$_.indexOf(this.addedStudents, student)
+      if (index !== -1) {
+        this.addedStudents.splice(index, 1)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.alertScreenReader(`${student.label} removed`))
       }
     },
     save() {
       this.isSaving = true
-      createBatchDegreeCheck(this.distinctSids, this.templateId).then(() => {
+      this.alertScreenReader('Saving.')
+      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then(() => {
+        this.alertScreenReader('Batch degree check saved.')
+        this.$nextTick(() => this.$router.push('/degrees'))
+      }).finally(() => {
         this.isSaving = false
       })
     },
@@ -280,3 +349,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.student-count-alerts {
+  line-height: 1.2rem;
+  min-height: 1.2rem;
+}
+</style>

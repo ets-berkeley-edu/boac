@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
-from boac.externals.data_loch import get_sid_by_uid
+from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
@@ -164,6 +164,32 @@ def get_degree_checks(uid):
         return tolerant_jsonify(DegreeProgressTemplate.find_by_sid(student_sid=sid))
     else:
         raise ResourceNotFoundError('Student not found')
+
+
+@app.route('/api/degree/<template_id>/students', methods=['POST'])
+@can_edit_degree_progress
+def get_students(template_id):
+    params = request.get_json()
+    sids = get_param(params, 'sids')
+    if not sids:
+        raise BadRequestError('sids is required.')
+    template = DegreeProgressTemplate.find_by_id(template_id)
+    if not template:
+        raise ResourceNotFoundError('Degree template not found')
+    # TODO: Add a foreign key linking the student degree check and master template records. Find
+    # student degree checks by master template id instead of by name. See BOAC-4138
+    degree_checks = DegreeProgressTemplate.find_by_name(template.degree_name, student_sids=sids)
+    sids = [d.student_sid for d in degree_checks]
+    students = get_basic_student_data(sids)
+
+    def _to_api_json(student):
+        return {
+            'sid': student['sid'],
+            'uid': student['uid'],
+            'firstName': student['first_name'],
+            'lastName': student['last_name'],
+        }
+    return tolerant_jsonify([_to_api_json(student) for student in students])
 
 
 @app.route('/api/degree/course/<course_id>/update', methods=['POST'])

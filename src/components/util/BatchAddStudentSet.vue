@@ -38,6 +38,7 @@
             :id="`remove-${objectType}-from-batch-${index}`"
             variant="link"
             class="p-0"
+            :disabled="disabled"
             @click.prevent="remove(addedObject)"
           >
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
