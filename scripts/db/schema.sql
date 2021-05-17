@@ -375,6 +375,7 @@ CREATE TABLE degree_progress_templates (
   id integer NOT NULL,
   degree_name character varying(255) NOT NULL,
   advisor_dept_codes character varying[] NOT NULL,
+  parent_template_id integer,
   student_sid character varying(80),
   created_at timestamp with time zone NOT NULL,
   created_by integer NOT NULL,
@@ -394,6 +395,8 @@ ALTER SEQUENCE degree_progress_templates_id_seq OWNED BY degree_progress_templat
 ALTER TABLE ONLY degree_progress_templates ALTER COLUMN id SET DEFAULT nextval('degree_progress_templates_id_seq'::regclass);
 ALTER TABLE ONLY degree_progress_templates
     ADD CONSTRAINT degree_progress_templates_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY degree_progress_templates
+  ADD CONSTRAINT degree_progress_templates_parent_template_id_fkey FOREIGN KEY (parent_template_id) REFERENCES degree_progress_templates(id) ON DELETE CASCADE;
 ALTER TABLE ONLY degree_progress_templates
     ADD CONSTRAINT degree_progress_templates_created_by_fkey FOREIGN KEY (created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
 ALTER TABLE ONLY degree_progress_templates

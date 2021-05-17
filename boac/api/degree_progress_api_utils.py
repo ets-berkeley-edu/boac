@@ -57,6 +57,7 @@ def clone(template, created_by, name=None, sid=None):
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=created_by,
         degree_name=name or template.degree_name,
+        parent_template_id=template.id if sid else None,
         student_sid=sid,
     )
     unit_requirements_by_source_id = {}

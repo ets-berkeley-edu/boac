@@ -279,6 +279,7 @@ class TestCreateStudentDegreeCheck:
         fake_auth.login(coe_advisor_read_write_uid)
         api_json = self._api_create_degree_check(client, sid=coe_student_sid, template_id=mock_template.id)
         assert api_json['id']
+        assert api_json['parentTemplateId'] == mock_template.id
 
 
 class TestGetDegreeCheckStudents:
