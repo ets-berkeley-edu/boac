@@ -6,7 +6,7 @@
         <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
       </div>
       <div class="border-bottom py-3 w-50">
-        <UnitRequirements v-if="templateId" template-id="templateId" />
+        <UnitRequirements />
       </div>
       <b-container class="mt-4 mx-0 px-0" :fluid="true">
         <b-row>

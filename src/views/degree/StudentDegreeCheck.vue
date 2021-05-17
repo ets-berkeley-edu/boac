@@ -15,7 +15,7 @@
         </div>
         <div class="d-flex flex-wrap justify-content-between py-2 section-separator">
           <div class="pb-2 pr-2 w-50">
-            <UnitRequirements :student="student" template-id="templateId" />
+            <UnitRequirements />
           </div>
           <div
             id="drop-zone-unassigned-courses"
@@ -32,7 +32,7 @@
             @drop="dropToUnassign"
           >
             <h2 class="font-size-20 font-weight-bold pb-0 pl-2 text-nowrap">Unassigned Courses</h2>
-            <UnassignedCourses :student="student" />
+            <UnassignedCourses />
           </div>
         </div>
         <b-container class="mx-0 pt-3 px-0" :fluid="true">
@@ -43,7 +43,7 @@
               :key="position"
               class="degree-check-column"
             >
-              <TemplateCategoryColumn :position="position" :student="student" />
+              <TemplateCategoryColumn :position="position" />
             </b-col>
           </b-row>
         </b-container>

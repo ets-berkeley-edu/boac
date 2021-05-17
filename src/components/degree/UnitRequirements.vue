@@ -4,7 +4,7 @@
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
           <h2 class="font-size-20 font-weight-bold pb-0 pr-2 text-nowrap">Unit Requirements</h2>
-          <div v-if="$currentUser.canEditDegreeProgress && !student">
+          <div v-if="$currentUser.canEditDegreeProgress && !sid">
             <b-btn
               id="unit-requirement-create-link"
               class="pr-0 py-0"
@@ -36,7 +36,7 @@
             borderless
             small
           >
-            <template v-if="$currentUser.canEditDegreeProgress && !student" #cell(actions)="row">
+            <template v-if="$currentUser.canEditDegreeProgress && !sid" #cell(actions)="row">
               <div class="align-items-center d-flex">
                 <b-btn
                   :id="`unit-requirement-${row.item.id}-edit-btn`"
@@ -98,13 +98,6 @@ export default {
   name: 'UnitRequirements',
   components: {AreYouSureModal, EditUnitRequirement},
   mixins: [Context, DegreeEditSession, Util],
-  props: {
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
-    }
-  },
   data: () => ({
     fields: undefined,
     indexOfSelected: undefined,
@@ -126,12 +119,12 @@ export default {
       },
       {
         key: 'minUnits',
-        label: this.student ? 'Min' : 'Min Units',
+        label: this.sid ? 'Min' : 'Min Units',
         tdClass: 'font-size-16 pl-0 pt-1 text-right',
         thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
       }
     ]
-    if (this.student) {
+    if (this.sid) {
       this.fields.push({
         key: 'completed',
         label: 'Completed',

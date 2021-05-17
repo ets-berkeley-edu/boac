@@ -57,10 +57,6 @@ export default {
     course: {
       required: true,
       type: Object
-    },
-    student: {
-      required: true,
-      type: Object
     }
   },
   data: () => ({
