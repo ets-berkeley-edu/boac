@@ -10,7 +10,7 @@
         </h3>
       </div>
       <div
-        v-if="!student && $currentUser.canEditDegreeProgress"
+        v-if="!sid && $currentUser.canEditDegreeProgress"
         class="align-items-start d-flex justify-content-end text-nowrap"
       >
         <b-btn
@@ -73,11 +73,6 @@ export default {
     onClickEdit: {
       required: false,
       type: Function
-    },
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
     }
   },
   data: () => ({

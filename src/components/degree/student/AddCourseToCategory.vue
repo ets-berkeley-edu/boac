@@ -98,11 +98,6 @@ export default {
     position: {
       required: true,
       type: Number
-    },
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
     }
   },
   data: () => ({

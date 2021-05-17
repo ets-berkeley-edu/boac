@@ -14,9 +14,9 @@
             </b-th>
             <b-th class="px-0 td-name" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
-            <b-th v-if="student" class="px-0 td-grade">Grade</b-th>
-            <b-th v-if="student" class="px-0 td-note">Note</b-th>
-            <b-th v-if="!student" class="px-0">Fulfillment</b-th>
+            <b-th v-if="sid" class="px-0 td-grade">Grade</b-th>
+            <b-th v-if="sid" class="px-0 td-note">Note</b-th>
+            <b-th v-if="!sid" class="px-0">Fulfillment</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
@@ -47,7 +47,6 @@
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
                     :course="bundle.course"
-                    :student="student"
                   />
                 </div>
               </td>
@@ -79,18 +78,18 @@
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
                 <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
               </td>
-              <td v-if="student" class="align-middle font-size-14 px-0 td-grade text-nowrap">
+              <td v-if="sid" class="align-middle font-size-14 px-0 td-grade text-nowrap">
                 {{ $_.get(bundle.course, 'grade') }}
               </td>
               <td
-                v-if="student"
+                v-if="sid"
                 class="align-middle ellipsis-if-overflow font-size-14 pl-0 td-note"
                 :title="$_.get(bundle.course, 'note')"
               >
                 {{ $_.get(bundle.course, 'note') }}
               </td>
               <td
-                v-if="!student"
+                v-if="!sid"
                 class="align-middle font-size-14 td-max-width-0"
                 :class="{'faint-text font-italic': !bundle.course}"
                 :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
@@ -109,10 +108,10 @@
               <td v-if="$currentUser.canEditDegreeProgress" class="align-middle td-actions">
                 <div v-if="isEditable(bundle)" class="d-flex justify-content-end text-nowrap">
                   <b-btn
-                    v-if="!student || !isUserDragging(bundle.course.id)"
+                    v-if="!sid || !isUserDragging(bundle.course.id)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                     class="pl-0 pt-0"
-                    :class="{'pr-0': student && !$_.get(bundle.course, 'isCopy'), 'pr-1': !student || (bundle.course && bundle.course.isCopy)}"
+                    :class="{'pr-0': sid && !$_.get(bundle.course, 'isCopy'), 'pr-1': !sid || (bundle.course && bundle.course.isCopy)}"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
@@ -122,7 +121,7 @@
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
-                    v-if="!student || (bundle.course && bundle.course.isCopy)"
+                    v-if="!sid || (bundle.course && bundle.course.isCopy)"
                     :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                     class="px-0 pt-0"
                     :disabled="disableButtons"
@@ -166,19 +165,18 @@
             @dragover="onDrag($event, 'over')"
             @drop="onDropEmptyTable"
           >
-            <b-td class="p-2" :class="{'pb-3': !student}" colspan="6">
+            <b-td class="p-2" :class="{'pb-3': !sid}" colspan="6">
               <span class="faint-text font-italic font-size-16">No completed requirements</span>
             </b-td>
           </b-tr>
         </b-tbody>
       </b-table-simple>
     </div>
-    <div v-if="student" class="mb-3" :class="{'mt-1': !items.length}">
+    <div v-if="sid" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allCourses"
         :parent-category="parentCategory"
         :position="position"
-        :student="student"
       />
     </div>
     <AreYouSureModal
@@ -218,11 +216,6 @@ export default {
     position: {
       required: true,
       type: Number
-    },
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
     }
   },
   data: () => ({
@@ -363,7 +356,7 @@ export default {
     },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
-      return bundle.course || !this.student
+      return bundle.course || !this.sid
     },
     isEditing(bundle) {
       const isMatch = key => {
@@ -404,6 +397,7 @@ th:last-child {
   background-color: #ecf5fb;
   border-color: #8bbdda;
   border-style: dashed;
+  cursor: move;
 }
 .drop-zone-off {
   border: 1px solid transparent;

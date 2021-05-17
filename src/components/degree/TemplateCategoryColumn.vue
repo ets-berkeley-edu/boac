@@ -1,6 +1,6 @@
 <template>
   <div :id="`category-column-${position}`">
-    <div v-if="!student" class="d-flex justify-content-between pb-3">
+    <div v-if="!sid" class="d-flex justify-content-between pb-3">
       <div class="pill bg-grey no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
@@ -37,7 +37,6 @@
         :category="category"
         :on-click-edit="edit"
         :position="position"
-        :student="student"
       />
       <div v-if="category.categoryType !== 'Category'" class="pl-1 pt-2">
         <span class="font-weight-500 has-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
@@ -58,7 +57,6 @@
           :items="getCourses(category)"
           :parent-category="category"
           :position="position"
-          :student="student"
         />
       </div>
       <div v-if="category.subcategories.length" class="pt-1">
@@ -72,7 +70,6 @@
             :category="subcategory"
             :on-click-edit="edit"
             :position="position"
-            :student="student"
           />
           <EditCategory
             v-if="subcategory.id === $_.get(categoryForEdit, 'id')"
@@ -87,7 +84,6 @@
               :items="getCourses(subcategory)"
               :parent-category="subcategory"
               :position="position"
-              :student="student"
             />
           </div>
         </div>
@@ -117,11 +113,6 @@ export default {
     position: {
       required: true,
       type: Number
-    },
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
     }
   },
   data: () => ({

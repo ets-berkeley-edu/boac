@@ -35,7 +35,7 @@
                 v-if="$currentUser.canEditDegreeProgress"
                 class="align-middle font-size-14 td-course-assignment-menu"
               >
-                <CourseAssignmentMenu :course="course" :student="student" />
+                <CourseAssignmentMenu :course="course" />
               </td>
               <td class="align-middle ellipsis-if-overflow font-size-14 td-course-name text-nowrap">
                 <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
@@ -94,13 +94,6 @@ export default {
   name: 'UnassignedCourses',
   mixins: [DegreeEditSession, Util],
   components: {CourseAssignmentMenu, EditCourse},
-  props: {
-    student: {
-      default: undefined,
-      required: false,
-      type: Object
-    }
-  },
   data: () => ({
     courseForEdit: undefined
   }),
