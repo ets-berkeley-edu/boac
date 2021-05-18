@@ -50,7 +50,7 @@ import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'SortBy',
+  name: 'TermSelector',
   mixins: [Berkeley, Context, CurrentUserExtras, Util],
   props: {
     domain: {
