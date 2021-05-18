@@ -37,7 +37,7 @@
               :students="students"
             />
             <div class="pt-1">
-              <TermSelector />
+              <TermSelector v-if="domain === 'default'" />
             </div>
             <div class="pt-1">
               <SortBy v-if="showSortBy" :domain="domain" />
