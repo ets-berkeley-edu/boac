@@ -62,6 +62,7 @@ const state = {
     dragContext: undefined
   },
   includeNotesWhenPrint: true,
+  parentTemplateUpdatedAt: undefined,
   sid: undefined,
   templateId: undefined,
   unitRequirements: undefined,
@@ -90,6 +91,7 @@ const getters = {
   draggingContext: (state: any): any => state.draggingContext,
   includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
   isUserDragging: (state: any) => (courseId: number) => !!courseId && state.draggingContext.courseId === courseId,
+  parentTemplateUpdatedAt: (state: any): string => state.parentTemplateUpdatedAt,
   sid: (state: any): string => state.sid,
   templateId: (state: any): number => state.templateId,
   unitRequirements: (state: any): any[] => state.unitRequirements,
@@ -112,8 +114,9 @@ const mutations = {
       state.createdBy = template.createdBy
       state.degreeName = template.name
       state.degreeNote = template.note
-      state.templateId = template.id
+      state.parentTemplateUpdatedAt = template.parentTemplateUpdatedAt
       state.sid = template.sid
+      state.templateId = template.id
       state.unitRequirements = template.unitRequirements
       state.updatedAt = template.updatedAt
       state.updatedBy = template.updatedBy

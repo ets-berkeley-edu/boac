@@ -31,6 +31,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
+from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_cors import cross_origin
 from flask_login import current_user
@@ -104,7 +105,11 @@ def delete_unit_requirement(unit_requirement_id):
 @app.route('/api/degree/<template_id>')
 @can_read_degree_progress
 def get_degree_template(template_id):
-    return tolerant_jsonify(fetch_degree_template(template_id).to_api_json(include_courses=True))
+    template = fetch_degree_template(template_id).to_api_json(include_courses=True)
+    if template['parentTemplateId']:
+        parent_template = fetch_degree_template(template['parentTemplateId'])
+        template['parentTemplateUpdatedAt'] = _isoformat(parent_template.updated_at)
+    return tolerant_jsonify(template)
 
 
 @app.route('/api/degree/templates')
@@ -140,3 +145,7 @@ def update_unit_requirement(unit_requirement_id):
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id)
     return tolerant_jsonify(unit_requirement.to_api_json())
+
+
+def _isoformat(value):
+    return value and value.astimezone(tzutc()).isoformat()

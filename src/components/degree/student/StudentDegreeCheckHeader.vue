@@ -1,5 +1,12 @@
 <template>
   <b-container id="student-degree-check-header" class="px-0 mx-0" :fluid="true">
+    <b-row v-if="showRevisionIndicator">
+      <b-col>
+        <div class="alert-box warning-message-container p-3 mt-2 mb-3">
+          <span class="font-weight-bolder">Note:</span> Revisions to the original degree template have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
+        </div>
+      </b-col>
+    </b-row>
     <b-row>
       <b-col cols="12" lg="6">
         <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
@@ -163,6 +170,9 @@ export default {
   computed: {
     noteUpdatedAt() {
       return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt))
+    },
+    showRevisionIndicator() {
+      return this.$moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
     }
   },
   created() {
