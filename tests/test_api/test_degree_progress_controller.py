@@ -39,7 +39,30 @@ admin_uid = '2040'
 coe_advisor_no_access_uid = '90412'
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
+coe_student_sid = '9000000000'
 qcadv_advisor_uid = '53791'
+
+
+@pytest.fixture()
+def mock_degree_check():
+    user_id = AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid)
+    parent_template = DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=user_id,
+        degree_name='Zoology BS 2021',
+    )
+    degree_check = DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=user_id,
+        degree_name='Zoology BS 2021',
+        parent_template_id=parent_template.id,
+        student_sid=coe_student_sid,
+    )
+    std_commit(allow_test_environment=True)
+    yield degree_check
+    # Avoid polluting other tests
+    DegreeProgressTemplate.delete(degree_check.id)
+    std_commit(allow_test_environment=True)
 
 
 @pytest.fixture()
@@ -203,13 +226,23 @@ class TestGetDegreeTemplate:
         fake_auth.login(qcadv_advisor_uid)
         self._api_get_template(client, mock_template.id, expected_status_code=401)
 
-    def test_authorized(self, client, fake_auth, mock_template, app):
+    def test_authorized(self, client, fake_auth, mock_template):
         """Authorized user can get a template."""
         fake_auth.login(coe_advisor_read_only_uid)
         template = self._api_get_template(client, mock_template.id)
         assert template
         assert template['id'] == mock_template.id
+        assert template['parentTemplateId'] is None
         assert template['unitRequirements'] == []
+
+    def test_student_degree_check(self, client, fake_auth, mock_degree_check):
+        """Student degree check includes parent template's id and last updated."""
+        fake_auth.login(coe_advisor_read_only_uid)
+        template = self._api_get_template(client, mock_degree_check.id)
+        assert template
+        assert template['id'] == mock_degree_check.id
+        assert template['parentTemplateId']
+        assert template['parentTemplateUpdatedAt']
 
 
 class TestGetDegreeTemplates:
