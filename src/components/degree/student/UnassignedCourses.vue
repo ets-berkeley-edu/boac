@@ -12,11 +12,13 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th class="td-course-assignment-menu"></b-th>
-            <b-th class="pl-0 td-course-name">Course</b-th>
-            <b-th class="text-right">Units</b-th>
-            <b-th class="td-grade">Grade</b-th>
-            <b-th class="td-term">Term</b-th>
+            <b-th class="th-course-assignment-menu">
+              <span class="sr-only">Options to assign course</span>
+            </b-th>
+            <b-th class="pl-0">Course</b-th>
+            <b-th class="pl-0 text-right">Units</b-th>
+            <b-th>Grade</b-th>
+            <b-th>Term</b-th>
             <b-th>Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
@@ -26,45 +28,46 @@
             <b-tr
               :id="`unassigned-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
+              class="tr-course"
               :class="{'tr-while-dragging': isUserDragging(course.id)}"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
               @dragend="onDragEnd"
               @dragstart="onStartDraggingCourse(course.id)"
             >
-              <td
-                v-if="$currentUser.canEditDegreeProgress"
-                class="align-middle font-size-14 td-course-assignment-menu"
-              >
-                <CourseAssignmentMenu :course="course" />
+              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+                <div v-if="!isUserDragging(course.id)">
+                  <CourseAssignmentMenu :course="course" />
+                </div>
               </td>
-              <td class="align-middle ellipsis-if-overflow font-size-14 td-course-name text-nowrap">
+              <td class="td-name">
                 <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
               </td>
-              <td class="align-middle font-size-14 text-right">
-                {{ $_.isNil(course.units) ? '&mdash;' : course.units }}
+              <td class="td-units">
+                <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
               </td>
-              <td class="align-middle font-size-14 td-grade">
-                {{ course.grade || '&mdash;' }}
+              <td class="td-grade">
+                <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
               </td>
-              <td class="align-middle font-size-14 td-term text-nowrap">
-                {{ course.termName }}
+              <td class="td-term">
+                <span class="font-size-14">{{ course.termName }}</span>
               </td>
-              <td class="align-middle ellipsis-if-overflow font-size-14 td-note text-nowrap">
+              <td class="ellipsis-if-overflow td-note">
                 {{ course.note || '&mdash;' }}
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress" class="align-middle pr-0 td-course-edit-button">
-                <b-btn
-                  v-if="!isUserDragging(course.id)"
-                  :id="`edit-course-${course.id}-btn`"
-                  class="font-size-14 p-0"
-                  :disabled="disableButtons"
-                  size="sm"
-                  variant="link"
-                  @click="edit(course)"
-                >
-                  <font-awesome icon="edit" />
-                  <span class="sr-only">Edit {{ course.name }}</span>
-                </b-btn>
+              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
+                <div v-if="!isUserDragging(course.id)">
+                  <b-btn
+                    :id="`edit-course-${course.id}-btn`"
+                    class="font-size-14 p-0"
+                    :disabled="disableButtons"
+                    size="sm"
+                    variant="link"
+                    @click="edit(course)"
+                  >
+                    <font-awesome icon="edit" />
+                    <span class="sr-only">Edit {{ course.name }}</span>
+                  </b-btn>
+                </div>
               </td>
             </b-tr>
             <b-tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
@@ -127,40 +130,65 @@ export default {
 </script>
 
 <style scoped>
-td:first-child,
-th:first-child {
+table {
+  border-collapse: separate;
+  border-spacing: 0 0.05em;
+}
+.tr-while-dragging td:first-child, th:first-child {
   border-radius: 10px 0 0 10px;
 }
-td:last-child,
-th:last-child {
+.tr-while-dragging td:last-child, th:last-child {
   border-radius: 0 10px 10px 0;
 }
-
 .ellipsis-if-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .td-course-assignment-menu {
-  padding: 2px 0 2px 8px;
-  width: 6px;
+  font-size: 14px;
+  padding: 0 0.3em 0 0;
+  vertical-align: middle;
+  width: 14px;
 }
 .td-course-edit-button {
-  height: 36px;
+  padding-right: 0;
+  vertical-align: middle;
   width: 32px;
-}
-.td-course-name {
-  padding: 2px 0 0 6px;
-  width: 1px;
 }
 .td-grade {
-  width: 32px;
+  padding: 0 0.5em 0 0.4em;
+  vertical-align: middle;
+  width: 50px;
+}
+.td-name {
+  font-size: 14px;
+  padding: 0.2em 0 0 0.25em;
+  vertical-align: middle;
 }
 .td-note {
-  max-width: 100px;
+  max-width: 60px;
+  padding: 0 0.5em 0 0;
+  vertical-align: middle;
   width: 1px;
 }
 .td-term {
+  vertical-align: middle;
+  white-space: nowrap;
   width: 42px;
+}
+.td-units {
+  text-align: right;
+  padding: 0 0.5em 0 0;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 50px;
+}
+.th-course-assignment-menu {
+  padding: 0 0.3em 0 0;
+  width: 14px;
+}
+.tr-course {
+  height: 36px;
 }
 </style>
