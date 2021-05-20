@@ -13,28 +13,30 @@
         <div class="section-separator w-100">
           <StudentDegreeCheckHeader :student="student" />
         </div>
-        <div class="d-flex flex-wrap justify-content-between py-2 section-separator">
-          <div class="pb-2 pr-2 w-50">
-            <UnitRequirements />
-          </div>
-          <div
-            id="drop-zone-unassigned-courses"
-            class="p-1 w-50"
-            :class="{
-              'drop-zone-on': isDraggingOverUnassigned,
-              'drop-zone-off': !isDraggingOverUnassigned
-            }"
-            @dragend="onDrag($event, 'end')"
-            @dragenter="onDrag($event,'enter')"
-            @dragleave="onDrag($event, 'leave')"
-            @dragexit="onDrag($event,'exit')"
-            @dragover="onDrag($event,'over')"
-            @drop="dropToUnassign"
-          >
-            <h2 class="font-size-20 font-weight-bold pb-0 pl-2 text-nowrap">Unassigned Courses</h2>
-            <UnassignedCourses />
-          </div>
-        </div>
+        <b-container class="px-0 py-2 section-separator" fluid>
+          <b-row no-gutters>
+            <b-col class="pb-2 pr-2 pt-1">
+              <UnitRequirements />
+            </b-col>
+            <b-col
+              id="drop-zone-unassigned-courses"
+              class="pb-1 pl-0"
+              :class="{
+                'drop-zone-on': isDraggingOverUnassigned,
+                'drop-zone-off': !isDraggingOverUnassigned
+              }"
+              @dragend="onDrag($event, 'end')"
+              @dragenter="onDrag($event,'enter')"
+              @dragleave="onDrag($event, 'leave')"
+              @dragexit="onDrag($event,'exit')"
+              @dragover="onDrag($event,'over')"
+              @drop="dropToUnassign"
+            >
+              <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
+              <UnassignedCourses />
+            </b-col>
+          </b-row>
+        </b-container>
         <b-container class="mx-0 pt-3 px-0" :fluid="true">
           <b-row>
             <b-col
