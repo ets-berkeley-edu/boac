@@ -95,7 +95,7 @@
                 </div>
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-actions">
-                <div v-if="isEditable(bundle) && !isUserDragging(bundle.course.id)" class="d-flex justify-content-end text-nowrap">
+                <div v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))" class="d-flex justify-content-end text-nowrap">
                   <b-btn
                     v-if="!sid"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
