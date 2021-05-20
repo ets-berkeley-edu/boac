@@ -97,7 +97,7 @@
               <td v-if="$currentUser.canEditDegreeProgress" class="td-actions">
                 <div v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))" class="d-flex justify-content-end text-nowrap">
                   <b-btn
-                    v-if="!sid"
+                    v-if="isEditable(bundle)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                     class="p-0"
                     :class="{'pr-0': sid && !$_.get(bundle.course, 'isCopy'), 'pr-1': !sid || (bundle.course && bundle.course.isCopy)}"
@@ -372,12 +372,10 @@ table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
 }
-.tr-while-dragging td:first-child,
-th:first-child {
+.tr-while-dragging td:first-child, th:first-child {
   border-radius: 10px 0 0 10px;
 }
-.tr-while-dragging td:last-child,
-th:last-child {
+.tr-while-dragging td:last-child, th:last-child {
   border-radius: 0 10px 10px 0;
 }
 .changed-units-icon {
@@ -401,9 +399,6 @@ th:last-child {
   vertical-align: middle;
   width: 32px;
 }
-.th-course-assignment-menu {
-  width: 14px;
-}
 .td-course-assignment-menu {
   font-size: 14px;
   padding: 0;
@@ -422,9 +417,9 @@ th:last-child {
 }
 .td-note {
   max-width: 60px;
-  width: 1px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
+  width: 1px;
 }
 .td-max-width-0 {
   max-width: 0;
@@ -435,6 +430,9 @@ th:last-child {
   vertical-align: middle;
   white-space: nowrap;
   width: 50px;
+}
+.th-course-assignment-menu {
+  width: 14px;
 }
 .unit-requirement-count {
   background-color: #3b7ea5;

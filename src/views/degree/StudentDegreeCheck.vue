@@ -18,22 +18,24 @@
             <b-col class="pb-2 pr-2 pt-1">
               <UnitRequirements />
             </b-col>
-            <b-col
-              id="drop-zone-unassigned-courses"
-              class="pb-1 pl-0"
-              :class="{
-                'drop-zone-on': isDraggingOverUnassigned,
-                'drop-zone-off': !isDraggingOverUnassigned
-              }"
-              @dragend="onDrag($event, 'end')"
-              @dragenter="onDrag($event,'enter')"
-              @dragleave="onDrag($event, 'leave')"
-              @dragexit="onDrag($event,'exit')"
-              @dragover="onDrag($event,'over')"
-              @drop="dropToUnassign"
-            >
-              <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
-              <UnassignedCourses />
+            <b-col>
+              <div
+                id="drop-zone-unassigned-courses"
+                class="drop-zone"
+                :class="{
+                  'drop-zone-on': isDraggingOverUnassigned,
+                  'drop-zone-off': !isDraggingOverUnassigned
+                }"
+                @dragend="onDrag($event, 'end')"
+                @dragenter="onDrag($event,'enter')"
+                @dragleave="onDrag($event, 'leave')"
+                @dragexit="onDrag($event,'exit')"
+                @dragover="onDrag($event,'over')"
+                @drop="dropToUnassign"
+              >
+                <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
+                <UnassignedCourses />
+              </div>
             </b-col>
           </b-row>
         </b-container>
@@ -139,13 +141,16 @@ export default {
   min-width: 300px;
   padding-bottom: 10px;
 }
+.drop-zone {
+  margin-bottom: 0.5em;
+  padding: 0.5em;
+}
 .drop-zone-on {
   background-color: #ecf5fb;
-  border-color: #8bbdda;
-  border-style: dashed;
+  border: #8bbdda dashed 0.15em;
 }
 .drop-zone-off {
-  border: 3px solid transparent;
+  border: transparent dashed 0.15em;
 }
 .section-separator {
   border-bottom: 1px #999 solid;
