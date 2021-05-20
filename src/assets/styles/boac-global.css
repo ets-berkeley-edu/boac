@@ -101,11 +101,6 @@
   color: transparent !important;
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
-.draggable-tr {
-  background-color: #125074;
-  border-radius: 5px;
-  color: white;
-}
 .drawer-enter-active {
    -webkit-transition-duration: 0.3s;
    transition-duration: 0.3s;
@@ -323,6 +318,11 @@
   margin: 10px 0;
   table-layout: fixed;
   width: 100%;
+}
+.tr-while-dragging {
+  background-color: #125074;
+  border-radius: 5px;
+  color: white;
 }
 .truncate {
   height: 24px;

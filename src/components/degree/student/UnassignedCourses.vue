@@ -26,7 +26,7 @@
             <b-tr
               :id="`unassigned-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
-              :class="{'draggable-tr': isUserDragging(course.id)}"
+              :class="{'tr-while-dragging': isUserDragging(course.id)}"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
               @dragend="onDragEnd"
               @dragstart="onStartDraggingCourse(course.id)"

@@ -9,13 +9,13 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="pl-0 pr-1 td-course-assignment-menu">
+            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to re-assign course</span>
             </b-th>
-            <b-th class="px-0 td-name" :class="{'td-category': !assignedCourseCount, 'td-course': assignedCourseCount}">Course</b-th>
+            <b-th class="pl-0">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
-            <b-th v-if="sid" class="px-0 td-grade">Grade</b-th>
-            <b-th v-if="sid" class="px-0 td-note">Note</b-th>
+            <b-th v-if="sid">Grade</b-th>
+            <b-th v-if="sid">Note</b-th>
             <b-th v-if="!sid" class="px-0">Fulfillment</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress" class="px-0 sr-only">Actions</b-th>
           </b-tr>
@@ -25,9 +25,8 @@
             <b-tr
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
-              class="font-size-16"
               :class="{
-                'draggable-tr': bundle.course && isUserDragging(bundle.course.id),
+                'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id),
                 'drop-zone-on': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id,
                 'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingOverCategoryId !== bundle.category.id
               }"
@@ -39,28 +38,18 @@
               @dragstart="onDrag($event, 'start', bundle)"
               @drop="onDropToCourseRequirement(bundle.category)"
             >
-              <td
-                v-if="assignedCourseCount && $currentUser.canEditDegreeProgress"
-                class="align-middle font-size-14 td-course-assignment-menu"
-              >
-                <div v-if="bundle.course && !bundle.course.isCopy">
+              <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+                <div v-if="bundle.course && !bundle.course.isCopy && !isUserDragging(bundle.course.id)">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
                     :course="bundle.course"
                   />
                 </div>
               </td>
-              <td
-                class="align-middle ellipsis-if-overflow font-size-14 td-name"
-                :class="{
-                  'faint-text font-italic': !bundle.course,
-                  'td-category': !assignedCourseCount,
-                  'td-course': assignedCourseCount
-                }"
-              >
-                <span :class="{'font-weight-500': isEditing(bundle)}" :title="bundle.name">{{ bundle.name }}</span>
+              <td class="td-name" :class="{'faint-text font-italic': !bundle.course}">
+                <span :class="{'font-weight-500': isEditing(bundle)}">{{ bundle.name }}</span>
               </td>
-              <td class="align-middle pr-2 td-units text-right text-nowrap" :class="{'faint-text font-italic': !bundle.course}">
+              <td class="td-units" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
                   v-if="getCourseFulfillments(bundle).length"
                   class="fulfillments-icon mr-1"
@@ -78,15 +67,15 @@
                 <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
                 <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
               </td>
-              <td v-if="sid" class="align-middle font-size-14 px-0 td-grade text-nowrap">
-                {{ $_.get(bundle.course, 'grade') }}
+              <td v-if="sid" class="td-grade">
+                <span class="font-size-14 text-nowrap">
+                  {{ $_.get(bundle.course, 'grade') }}
+                </span>
               </td>
-              <td
-                v-if="sid"
-                class="align-middle ellipsis-if-overflow font-size-14 pl-0 td-note"
-                :title="$_.get(bundle.course, 'note')"
-              >
-                {{ $_.get(bundle.course, 'note') }}
+              <td v-if="sid" class="ellipsis-if-overflow td-note" :title="$_.get(bundle.course, 'note')">
+                <span class="font-size-14">
+                  {{ $_.get(bundle.course, 'note') }}
+                </span>
               </td>
               <td
                 v-if="!sid"
@@ -105,12 +94,12 @@
                   </div>
                 </div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress" class="align-middle td-actions">
-                <div v-if="isEditable(bundle)" class="d-flex justify-content-end text-nowrap">
+              <td v-if="$currentUser.canEditDegreeProgress" class="td-actions">
+                <div v-if="isEditable(bundle) && !isUserDragging(bundle.course.id)" class="d-flex justify-content-end text-nowrap">
                   <b-btn
-                    v-if="!sid || !isUserDragging(bundle.course.id)"
+                    v-if="!sid"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
-                    class="pl-0 pt-0"
+                    class="p-0"
                     :class="{'pr-0': sid && !$_.get(bundle.course, 'isCopy'), 'pr-1': !sid || (bundle.course && bundle.course.isCopy)}"
                     :disabled="disableButtons"
                     size="sm"
@@ -123,7 +112,7 @@
                   <b-btn
                     v-if="!sid || (bundle.course && bundle.course.isCopy)"
                     :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
-                    class="px-0 pt-0"
+                    class="p-0"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
@@ -136,7 +125,7 @@
               </td>
             </b-tr>
             <b-tr v-if="isEditing(bundle)" :key="`tr-${index}-edit`">
-              <b-td class="pt-0" colspan="6">
+              <b-td class="p-0" colspan="6">
                 <EditCourse
                   v-if="bundle.course"
                   :after-cancel="afterCancel"
@@ -156,16 +145,13 @@
           </template>
           <b-tr
             v-if="!items.length"
-            :class="{
-              'drop-zone-on': draggingOverCategoryId === -1,
-              'drop-zone-off-large': draggingOverCategoryId !== -1
-            }"
+            :class="{'drop-zone-on': draggingOverCategoryId === -1}"
             @dragenter="onDrag($event, 'enter')"
             @dragleave="onDrag($event, 'leave')"
             @dragover="onDrag($event, 'over')"
             @drop="onDropEmptyTable"
           >
-            <b-td class="p-2" :class="{'pb-3': !sid}" colspan="6">
+            <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
               <span class="faint-text font-italic font-size-16">No completed requirements</span>
             </b-td>
           </b-tr>
@@ -382,11 +368,15 @@ export default {
 </script>
 
 <style scoped>
-td:first-child,
+table {
+  border-collapse: separate;
+  border-spacing: 0 0.05em;
+}
+.tr-while-dragging td:first-child,
 th:first-child {
   border-radius: 10px 0 0 10px;
 }
-td:last-child,
+.tr-while-dragging td:last-child,
 th:last-child {
   border-radius: 0 10px 10px 0;
 }
@@ -395,15 +385,8 @@ th:last-child {
 }
 .drop-zone-on {
   background-color: #ecf5fb;
-  border-color: #8bbdda;
-  border-style: dashed;
   cursor: move;
-}
-.drop-zone-off {
-  border: 1px solid transparent;
-}
-.drop-zone-off-large {
-  border: 3px solid transparent;
+  outline: #8bbdda dashed 0.15em;
 }
 .ellipsis-if-overflow {
   overflow: hidden;
@@ -414,38 +397,44 @@ th:last-child {
   color: #00c13a;
 }
 .td-actions {
-  height: 36px;
+  padding: 0 4px 0 0;
+  vertical-align: middle;
   width: 32px;
-  padding: 2px 4px 0 0;
 }
-.td-category {
-  max-width: 150px;
-  width: 1px;
-}
-.td-course {
-  width: 1px;
+.th-course-assignment-menu {
+  width: 14px;
 }
 .td-course-assignment-menu {
-  padding: 2px 0 2px 8px;
-  width: 6px;
+  font-size: 14px;
+  padding: 0;
+  vertical-align: middle;
+  width: 14px;
+}
+.td-grade {
+  padding: 0 0.5em 0 0.4em;
+  vertical-align: middle;
+  width: 50px;
 }
 .td-name {
-  max-width: 120px;
-  padding: 2px 0 0 6px;
-  width: 1px;
+  font-size: 14px;
+  padding: 0.25em 0 0.25em 0.25em;
+  vertical-align: middle;
 }
 .td-note {
   max-width: 60px;
   width: 1px;
-}
-.td-grade {
-  width: 50px;
+  padding: 0 0.5em 0 0;
+  vertical-align: middle;
 }
 .td-max-width-0 {
   max-width: 0;
 }
 .td-units {
-  padding-top: 1px;
+  text-align: right;
+  padding: 0 0.5em 0 0;
+  vertical-align: middle;
+  white-space: nowrap;
+  width: 50px;
 }
 .unit-requirement-count {
   background-color: #3b7ea5;

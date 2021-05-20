@@ -1,5 +1,5 @@
 <template>
-  <b-container v-if="fields" class="px-0" fluid>
+  <b-container v-if="fields" class="pl-0" fluid>
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
@@ -24,7 +24,7 @@
           </div>
         </div>
         <div v-if="!isEditing">
-          <div v-if="!unitRequirements.length" id="unit-requirements-no-data" class="no-data-text">
+          <div v-if="!unitRequirements.length" id="unit-requirements-no-data" class="no-data-text pl-1">
             No unit requirements created
           </div>
           <b-table-lite
