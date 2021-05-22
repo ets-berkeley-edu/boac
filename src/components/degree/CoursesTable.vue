@@ -36,7 +36,7 @@
               @dragleave="onDrag($event, 'leave', bundle)"
               @dragover="onDrag($event, 'over', bundle)"
               @dragstart="onDrag($event, 'start', bundle)"
-              @drop="onDropToCourseRequirement(bundle.category)"
+              @drop="onDropToCourseRequirement($event, bundle.category)"
             >
               <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
                 <div v-if="bundle.course && !bundle.course.isCopy && !isUserDragging(bundle.course.id)">
@@ -295,8 +295,9 @@ export default {
         break
       case 'enter':
       case 'over':
-        this.draggingOverCategoryId = bundle ? this.$_.get(bundle.category, 'id') : -1
+        event.stopPropagation()
         event.preventDefault()
+        this.draggingOverCategoryId = bundle ? this.$_.get(bundle.category, 'id') : -1
         break
       case 'leave':
         this.draggingOverCategoryId = null
@@ -354,12 +355,15 @@ export default {
     isUnitDiff(bundle) {
       return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
     },
-    onDropToCourseRequirement(category) {
+    onDropToCourseRequirement(event, category) {
+      event.stopPropagation()
+      event.preventDefault()
       this.onDrop({category: category, context: 'requirement'})
       this.draggingOverCategoryId = null
       return false
     },
     onDropEmptyTable(event) {
+      event.stopPropagation()
       event.preventDefault()
       this.onDrop({category: this.parentCategory, context: 'assigned'})
     }

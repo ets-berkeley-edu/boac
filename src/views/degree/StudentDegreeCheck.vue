@@ -105,12 +105,12 @@ export default {
   },
   methods: {
     dropToUnassign(event) {
+      event.stopPropagation()
       event.preventDefault()
       this.onDrop({category: null, context: 'unassigned'})
       this.isDraggingOverUnassigned = false
     },
     onDrag(event, stage) {
-      event.preventDefault()
       switch (stage) {
       case 'end':
         this.isDraggingOverUnassigned = false
@@ -118,6 +118,8 @@ export default {
         break
       case 'enter':
       case 'over':
+        event.stopPropagation()
+        event.preventDefault()
         if (this.draggingContext.dragContext !== 'unassigned') {
           this.isDraggingOverUnassigned = true
         }
