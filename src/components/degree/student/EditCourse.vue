@@ -2,11 +2,12 @@
   <div id="edit-unassigned-course" class="pb-3">
     <div class="pb-2">
       <UnitsInput
-        id="course-units-input"
         :disable="isSaving"
-        :on-input="setUnits"
-        :on-keypress-enter="update"
-        :units="units"
+        :error-message="unitsErrorMessage"
+        input-id="course-units-input"
+        :on-submit="update"
+        :set-units-lower="setUnits"
+        :units-lower="units"
       />
     </div>
     <div>
@@ -95,19 +96,21 @@ export default {
   },
   data: () => ({
     isSaving: false,
-    isValidUnits: true,
     note: '',
     selectedUnitRequirements: [],
     units: undefined
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !this.isValidUnits
+      return this.isSaving || !!this.unitsErrorMessage
+    },
+    unitsErrorMessage() {
+      const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
+      return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
     }
   },
   created() {
     this.note = this.course.note
-    this.units = this.course.units
     this.units = this.course.units
     this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
     this.putFocusNextTick('course-units-input')
@@ -120,8 +123,7 @@ export default {
     onUnitRequirementsChange(unitRequirements) {
       this.selectedUnitRequirements = unitRequirements
     },
-    setUnits(isValid, units) {
-      this.isValidUnits = isValid
+    setUnits(units) {
       this.units = units
     },
     update() {

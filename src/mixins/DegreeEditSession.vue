@@ -16,6 +16,8 @@ const $_flatten = categories => {
   return flattened
 }
 
+const $_isValidUnits = (value, maxAllowed) => !isNaN(value) && value >= 0 && value <= maxAllowed
+
 export default {
   name: 'DegreeEditSession',
   computed: {
@@ -60,7 +62,7 @@ export default {
       'updateUnitRequirement'
     ]),
     findCategoriesByTypes(types, position) {
-      return this.$_.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
+      return _.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
     },
     findCategoryById(categoryId) {
       return categoryId ? _.find($_flatten(this.categories), ['id', categoryId]) : null
@@ -74,6 +76,24 @@ export default {
         return courses.concat(category.courseRequirements)
       } else {
         return category.courseRequirements
+      }
+    },
+    isValidUnits: $_isValidUnits,
+    validateUnitRange(unitsLower, unitsUpper, maxAllowed) {
+      const invalid = message => ({valid: false, message})
+      if ($_isValidUnits(unitsLower, maxAllowed)) {
+        if (_.isNil(unitsUpper)) {
+          return {valid: true}
+        } else {
+          if ($_isValidUnits(unitsUpper, maxAllowed)) {
+            const empty = _.isEmpty(unitsLower) && _.isEmpty(unitsUpper)
+            return empty || parseFloat(unitsLower) <= parseFloat(unitsUpper) ? {valid: true} : invalid('Invalid range')
+          } else {
+            return invalid('Invalid upper range value')
+          }
+        }
+      } else {
+        return invalid(this.showUnitsUpperInput ? 'Invalid lower range value.' : 'Invalid')
       }
     }
   }

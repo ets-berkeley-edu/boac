@@ -47,10 +47,13 @@
       <div v-if="selectedCategoryType === 'Course Requirement'" class="pb-1">
         <UnitsInput
           :disable="isSaving"
-          :on-input="setUnitsRange"
-          :on-keypress-enter="onClickSave"
+          :error-message="unitsErrorMessage"
+          :on-submit="onSubmit"
           :range="true"
-          :units="[unitsLower, unitsUpper]"
+          :set-units-lower="setUnitsLower"
+          :set-units-upper="setUnitsUpper"
+          :units-lower="unitsLower"
+          :units-upper="unitsUpper"
         />
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length">
@@ -119,7 +122,7 @@
           :disabled="disableSaveButton"
           size="sm"
           variant="primary"
-          @click="onClickSave"
+          @click="onSubmit"
         >
           <span v-if="isSaving">
             <font-awesome class="mr-1" icon="spinner" spin /> Saving
@@ -179,7 +182,10 @@ export default {
         || !this.nameInput
         || !this.selectedCategoryType
         || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
-        || !this.isValidUnitRange
+        || !!this.unitsErrorMessage
+    },
+    unitsErrorMessage() {
+      return this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message
     },
     withTypeCategory() {
       return this.findCategoriesByTypes(['Category'], this.position)
@@ -191,7 +197,6 @@ export default {
   data: () => ({
     descriptionText: undefined,
     isSaving: false,
-    isValidUnitRange: true,
     nameInput: '',
     selectedCategoryType: null,
     selectedParentCategory: null,
@@ -248,7 +253,7 @@ export default {
         this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       }
     },
-    onClickSave() {
+    onSubmit() {
       if (!this.disableSaveButton) {
         this.existingCategory ? this.update() : this.create()
       }
@@ -256,10 +261,11 @@ export default {
     onUnitRequirementsChange(unitRequirements) {
       this.selectedUnitRequirements = unitRequirements
     },
-    setUnitsRange(isValid, unitsLower, unitsUpper) {
-      this.isValidUnitRange = isValid
-      this.unitsLower = unitsLower
-      this.unitsUpper = unitsUpper
+    setUnitsLower(units) {
+      this.unitsLower = units
+    },
+    setUnitsUpper(units) {
+      this.unitsUpper = units
     },
     shouldDisableLocationOption(category) {
       return (this.selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory')

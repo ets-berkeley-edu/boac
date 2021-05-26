@@ -27,13 +27,14 @@
     </div>
     <div class="d-flex flex-column pb-3">
       <UnitsInput
-        id="unit-requirement-min-units-input"
         :disable="isSaving"
+        :error-message="unitsErrorMessage"
+        input-id="unit-requirement-min-units-input"
         label="Minimum Units (required)"
         :max="100"
-        :on-input="setMinUnits"
-        :on-keypress-enter="() => $_.isNil(index) ? create() : update()"
-        :units="minUnits"
+        :on-submit="() => $_.isNil(index) ? create() : update()"
+        :set-units-lower="setMinUnits"
+        :units-lower="minUnits"
       />
     </div>
     <b-btn
@@ -92,14 +93,17 @@ export default {
     }
   },
   data: () => ({
-    isValidUnits: true,
     isSaving: false,
     name: '',
     minUnits: undefined
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !this.name || !this.isValidUnits
+      return this.isSaving || !this.name || !!this.unitsErrorMessage
+    },
+    unitsErrorMessage() {
+      const isEmpty = this.$_.isEmpty(this.$_.trim(this.minUnits))
+      return isEmpty ? 'Required' : this.validateUnitRange(this.minUnits, undefined, 100).message
     }
   },
   created() {
@@ -137,8 +141,7 @@ export default {
       this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
       this.$announcer.polite(`${this.name ? 'Units value' : 'Name'} required.`)
     },
-    setMinUnits(isValid, units) {
-      this.isValidUnits = isValid
+    setMinUnits(units) {
       this.minUnits = units
     },
     update() {
