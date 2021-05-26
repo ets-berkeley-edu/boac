@@ -150,6 +150,6 @@ export default {
   padding: 0 1px 0 1px;
 }
 .units-input {
-  width: 2.5rem;
+  width: 3rem;
 }
 </style>
