@@ -63,21 +63,28 @@ router.afterEach(writeHistory)
 
 const apiBaseUrl = process.env.VUE_APP_API_BASE_URL
 
+const isHandledInComponent = error => {
+  const errorUrl = _.get(error, 'response.config.url')
+  return errorUrl && errorUrl.includes('/api/user/create_or_update')
+}
+
 // Axios
 const axiosErrorHandler = error => {
   const errorStatus = _.get(error, 'response.status')
   if (_.get(Vue.prototype.$currentUser, 'isAuthenticated')) {
     if (errorStatus === 404) {
       router.push({path: '/404'})
-    } else if (errorStatus >= 400) {
+    } else if (!errorStatus || errorStatus >= 400) {
       const message = _.get(error, 'response.data.message') || error.message
       console.error(message)
-      router.push({
-        path: '/error',
-        query: {
-          m: message
-        }
-      })
+      if (!isHandledInComponent(error)) {
+        router.push({
+          path: '/error',
+          query: {
+            m: message
+          }
+        })
+      }
     }
   } else {
     router.push({
