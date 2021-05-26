@@ -126,13 +126,14 @@ class DegreeProgressCourse(Base):
             units=units if is_int(units) else 0,
         )
         db.session.add(course)
+        std_commit()
 
         for unit_requirement_id in unit_requirement_ids:
             DegreeProgressCourseUnitRequirement.create(
                 course_id=course.id,
                 unit_requirement_id=unit_requirement_id,
             )
-        std_commit()
+            std_commit()
         return course
 
     @classmethod

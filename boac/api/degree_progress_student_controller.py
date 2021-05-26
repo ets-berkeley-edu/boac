@@ -103,7 +103,7 @@ def copy_course():
             section_id=course.section_id,
             sid=course.sid,
             term_id=course.term_id,
-            unit_requirement_ids=[u.id for u in course.unit_requirements],
+            unit_requirement_ids=[u.unit_requirement_id for u in course.unit_requirements],
             units=course.units,
         )
         course_requirement = DegreeProgressCategory.create(
