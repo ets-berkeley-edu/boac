@@ -185,7 +185,7 @@ export default {
         || !!this.unitsErrorMessage
     },
     unitsErrorMessage() {
-      return this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message
+      return this.selectedCategoryType === 'Course Requirement' ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
     },
     withTypeCategory() {
       return this.findCategoriesByTypes(['Category'], this.position)
