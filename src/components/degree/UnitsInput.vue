@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <label id="units-input-label" :for="inputIdLower" class="font-weight-500 mb-1 pr-2">
+      <label id="units-input-label" :for="inputId" class="font-weight-500 mb-1 pr-2">
         {{ label }}
       </label>
       <div v-if="range" class="font-size-12">
@@ -19,17 +19,17 @@
     <div class="d-flex">
       <div class="pr-2">
         <b-form-input
-          :id="inputIdLower"
-          v-model="unitsLower"
+          :id="inputId"
+          :aria-invalid="!isValidUnits(unitsLower, max)"
           aria-labelledby="units-input-label"
-          :aria-invalid="!isValid(unitsLower)"
           class="units-input"
           :disabled="disable"
-          maxlength="3"
+          :maxlength="max > 10 ? 4 : 3"
           size="sm"
           trim
-          @input="onUnitsInput"
-          @keypress.enter="onKeypressEnter"
+          :value="unitsLower"
+          @input="setUnitsLower"
+          @keypress.enter="onSubmit"
         />
       </div>
       <div v-if="showUnitsUpperInput" class="pr-2 pt-1">
@@ -37,38 +37,46 @@
       </div>
       <div v-if="showUnitsUpperInput">
         <b-form-input
-          :id="inputIdUpper"
-          v-model="unitsUpper"
-          :aria-invalid="!isValid(unitsUpper)"
+          :id="`upper-${inputId}`"
+          :aria-invalid="!isValidUnits(unitsUpper)"
           aria-labelledby="units-input-label"
           class="units-input"
           :disabled="disable"
-          maxlength="3"
+          :maxlength="max > 10 ? 4 : 3"
           size="sm"
           trim
-          @input="onUnitsInput"
-          @keypress.enter="onKeypressEnter"
+          :value="unitsUpper"
+          @input="setUnitsUpper"
+          @keypress.enter="onSubmit"
         />
       </div>
     </div>
-    <span v-if="errorMessage" class="has-error faint-text font-size-12">
-      {{ errorMessage }}
-    </span>
+    <b-collapse :visible="!!errorMessage">
+      <span class="has-error faint-text font-size-12">
+        {{ errorMessage }}
+      </span>
+    </b-collapse>
   </div>
 </template>
 
 <script>
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'UnitsInput',
-  mixins: [Util],
+  mixins: [DegreeEditSession, Util],
   props: {
     disable: {
       required: false,
       type: Boolean
     },
-    id: {
+    errorMessage: {
+      default: undefined,
+      required: false,
+      type: String
+    },
+    inputId: {
       default: 'units-input',
       required: false,
       type: String
@@ -83,14 +91,8 @@ export default {
       required: false,
       type: Number
     },
-    onKeypressEnter: {
-      default: () => {},
-      required: false,
-      type: Function
-    },
-    onInput: {
-      default: () => {},
-      required: false,
+    onSubmit: {
+      required: true,
       type: Function
     },
     range: {
@@ -101,61 +103,42 @@ export default {
       required: false,
       type: Boolean
     },
-    units: {
+    setUnitsLower: {
+      required: true,
+      type: Function
+    },
+    setUnitsUpper: {
+      default: () => {},
       required: false,
-      type: [Number, String, Array]
+      type: Function
+    },
+    unitsLower: {
+      default: undefined,
+      required: false,
+      type: [Number, String, undefined]
+    },
+    unitsUpper: {
+      default: undefined,
+      required: false,
+      type: [Number, String, undefined]
     }
   },
   data: () => ({
-    inputIdLower: undefined,
-    inputIdUpper: undefined,
-    showUnitsUpperInput: false,
-    unitsLower: '',
-    unitsUpper: ''
+    showUnitsUpperInput: false
   }),
-  computed: {
-    errorMessage() {
-      if (this.isValid(this.unitsLower)) {
-        if (this.showUnitsUpperInput) {
-          if (this.isValid(this.unitsUpper)) {
-            const empty = this.$_.isEmpty(this.unitsLower) && this.$_.isEmpty(this.unitsUpper)
-            return empty || parseFloat(this.unitsLower) <= parseFloat(this.unitsUpper) ? null : 'Invalid range'
-          } else {
-            return 'Invalid upper range value'
-          }
-        } else {
-          return null
-        }
-      } else {
-        return this.showUnitsUpperInput ? 'Invalid lower range value.' : 'Invalid'
-      }
-    }
-  },
   created() {
-    this.inputIdLower = this.range ? `lower-${this.id}` : this.id
-    this.inputIdUpper = `upper-${this.id}`
-    if (Array.isArray(this.units)) {
-      this.unitsLower = this.units.length > 0 ? this.units[0] : undefined
-      this.unitsUpper = this.units.length > 1 ? this.units[1] : undefined
-      this.showUnitsUpperInput = this.unitsLower !== this.unitsUpper
-    } else {
-      this.unitsLower = this.units
+    this.showUnitsUpperInput = !!this.unitsUpper && this.unitsLower !== this.unitsUpper
+    if (!this.showUnitsUpperInput) {
+      this.setUnitsUpper(undefined)
     }
-    this.onInput(!this.errorMessage, this.unitsLower, this.unitsUpper)
   },
   methods: {
-    isValid(units) {
-      if (this.$_.isEmpty(units)) {
-        return !this.required
-      }
-      return !isNaN(units) && units >= 0 && units <= this.max
-    },
-    onUnitsInput() {
-      this.onInput(!this.errorMessage, this.unitsLower, this.unitsUpper)
-    },
     toggle() {
       this.showUnitsUpperInput = !this.showUnitsUpperInput
-      this.putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? this.inputIdUpper : this.inputIdLower)
+      if (!this.showUnitsUpperInput) {
+        this.setUnitsUpper(undefined)
+      }
+      this.putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? `upper-${this.inputId}` : this.inputId)
       this.$announcer.polite(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
     }
   }
@@ -167,7 +150,6 @@ export default {
   padding: 0 1px 0 1px;
 }
 .units-input {
-  text-align: center;
-  max-width: 2.5rem;
+  width: 2.5rem;
 }
 </style>

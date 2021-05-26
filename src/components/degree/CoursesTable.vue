@@ -64,7 +64,7 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.category.unitsLower)}`"
                 />
-                <span class="font-size-14">{{ bundle.units || '&mdash;' }}</span>
+                <span class="font-size-14">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
               </td>
               <td v-if="sid" class="td-grade">
