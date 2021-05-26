@@ -204,7 +204,9 @@ const actions = {
 
       const done = (srAlert: string, noActionTaken?: boolean) => {
         Vue.prototype.$announcer.polite(srAlert)
-        if (!noActionTaken) {
+        if (noActionTaken) {
+          $_debug(srAlert)
+        } else {
           if (context === 'unassigned') {
             $_debug(`Course ${courseId} (${dragContext}) dragged to unassigned section.`)
           } else {
@@ -219,6 +221,7 @@ const actions = {
           case 'assigned to unassigned':
             $_dropToAssign(null, commit, courseId, state).then(() => done('Course unassigned'))
             break
+          case 'assigned to assigned':
           case 'unassigned to assigned':
             $_dropToAssign(category.id, commit, courseId, state).then(() => done(`Course assigned to ${category.name}`))
             break
@@ -234,7 +237,7 @@ const actions = {
             done('Course not assigned.', true)
             break
           default:
-            done('Error: Unrecognized operation', true)
+            done(`Unrecognized operation: ${actionByUser}`, true)
             commit('draggingContextReset')
             throw new TypeError(`Unrecognized transaction type where dragContext = '${dragContext}' and dropContext = '${context}'`)
         }
