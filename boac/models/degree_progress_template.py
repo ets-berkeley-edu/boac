@@ -186,8 +186,8 @@ class DegreeProgressTemplate(Base):
         if self.student_sid and include_courses:
             assigned_courses, unassigned_courses = self._get_partitioned_courses_json()
             api_json['courses'] = {
-                'assigned': assigned_courses,
-                'unassigned': unassigned_courses,
+                'assigned': sorted(assigned_courses, key=lambda c: c['name']),
+                'unassigned': sorted(unassigned_courses, key=lambda c: c['name']),
             }
         return api_json
 
