@@ -912,7 +912,6 @@ def get_students_query(     # noqa
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
-    coe_epn=None,
     coe_ethnicities=None,
     coe_genders=None,
     coe_prep_statuses=None,
@@ -923,6 +922,7 @@ def get_students_query(     # noqa
     current_term_id=None,
     ethnicities=None,
     entering_terms=None,
+    epn_cpn_grading_terms=None,
     expected_grad_terms=None,
     genders=None,
     gpa_ranges=None,
@@ -1030,6 +1030,11 @@ def get_students_query(     # noqa
     if entering_terms:
         query_filter += ' AND sas.entering_term = ANY(:entering_terms)'
         query_bindings.update({'entering_terms': entering_terms})
+    if epn_cpn_grading_terms:
+        query_tables += ' JOIN student.student_enrollment_terms e ON e.sid=sas.sid '
+        query_filter += ' AND (e.enrollment_term LIKE \'%gradingBasis": "EPN"%\' '
+        query_filter += ' OR e.enrollment_term LIKE \'%gradingBasis": "CPN"%\') AND e.term_id = ANY(:epn_cpn_grading_terms)'
+        query_bindings.update({'epn_cpn_grading_terms': epn_cpn_grading_terms})
     if ethnicities:
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
@@ -1117,11 +1122,6 @@ def get_students_query(     # noqa
     if coe_advisor_ldap_uids:
         query_filter += ' AND s.advisor_ldap_uid = ANY(:coe_advisor_ldap_uids)'
         query_bindings.update({'coe_advisor_ldap_uids': coe_advisor_ldap_uids})
-    if coe_epn:
-        query_tables += ' JOIN student.student_enrollment_terms e ON e.sid=sas.sid '
-        query_filter += ' AND (e.enrollment_term LIKE \'%gradingBasis": "EPN"%\' '
-        query_filter += ' OR e.enrollment_term LIKE \'%gradingBasis": "CPN"%\') AND e.term_id = ANY(:coe_epn)'
-        query_bindings.update({'coe_epn': coe_epn})
     if coe_ethnicities:
         query_filter += ' AND s.ethnicity = ANY(:coe_ethnicities)'
         query_bindings.update({'coe_ethnicities': coe_ethnicities})

@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db
 from boac.externals import data_loch
-from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, COE_ETHNICITIES_PER_CODE, term_name_for_sis_id
+from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, COE_ETHNICITIES_PER_CODE, term_ids_range, term_name_for_sis_id
 from boac.merged import athletics
 from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.calnet import get_csid_for_uid
@@ -34,19 +34,6 @@ from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
-
-
-def get_coe_terms():
-    current_term = current_term_id()
-    future_term = future_term_id()
-
-    current_term_name = term_name_for_sis_id(current_term) + ' (active)'
-    future_term_name = term_name_for_sis_id(future_term) + ' (future)'
-
-    return [
-        {'name': current_term_name, 'value': current_term},
-        {'name': future_term_name, 'value': future_term},
-    ]
 
 
 def get_coe_profiles():
@@ -138,6 +125,17 @@ def grad_terms():
             'value': term_id,
         })
     return option_groups
+
+
+def grading_terms():
+    current_term = current_term_id()
+    all_terms = term_ids_range(current_term, future_term_id())
+
+    def _term_option(term_id):
+        term_name = term_name_for_sis_id(term_id) + (' (active)' if term_id == current_term else ' (future)')
+        return {'name': term_name, 'value': term_id}
+
+    return [_term_option(term_id) for term_id in all_terms]
 
 
 def intended_majors():
