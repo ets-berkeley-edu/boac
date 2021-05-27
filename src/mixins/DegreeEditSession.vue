@@ -16,7 +16,7 @@ const $_flatten = categories => {
   return flattened
 }
 
-const $_isValidUnits = (value, maxAllowed) => !isNaN(value) && value >= 0 && value <= maxAllowed
+const $_isValidUnits = (value, maxAllowed) => !isNaN(value) && value > 0 && value <= maxAllowed
 
 export default {
   name: 'DegreeEditSession',
@@ -57,6 +57,7 @@ export default {
       'onDragEnd',
       'onDragStart',
       'setDisableButtons',
+      'setDraggingTarget',
       'setIncludeNotesWhenPrint',
       'updateCategory',
       'updateCourse',
