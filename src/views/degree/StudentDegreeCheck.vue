@@ -23,8 +23,8 @@
                 id="drop-zone-unassigned-courses"
                 class="drop-zone"
                 :class="{
-                  'drop-zone-on': isDraggingOverUnassigned,
-                  'drop-zone-off': !isDraggingOverUnassigned
+                  'drop-zone-on': draggingContext.target === 'unassigned',
+                  'drop-zone-off': draggingContext.target !== 'unassigned'
                 }"
                 @dragend="onDrag($event, 'end')"
                 @dragenter="onDrag($event,'enter')"
@@ -86,13 +86,10 @@ export default {
     UnitRequirements
   },
   data: () => ({
-    isDraggingOverUnassigned: false,
     student: undefined
   }),
   created() {
-    this.$eventHub.on('degree-progress-drag-end', () => {
-      this.isDraggingOverUnassigned = false
-    })
+    window.addEventListener('drag', this.scrollPerDrag)
     const degreeId = this.$_.get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
@@ -103,17 +100,29 @@ export default {
       })
     })
   },
+  destroyed() {
+    window.removeEventListener('drag', this.scrollPerDrag)
+  },
   methods: {
+    scrollPerDrag(event) {
+      if (event && this.draggingContext.dragContext && !this.draggingContext.target) {
+        window.scroll({
+          top: event.offsetY,
+          left: event.offsetX,
+          behavior: 'smooth'
+        })
+      }
+    },
     dropToUnassign(event) {
       event.stopPropagation()
       event.preventDefault()
       this.onDrop({category: null, context: 'unassigned'})
-      this.isDraggingOverUnassigned = false
+      this.setDraggingTarget(null)
     },
     onDrag(event, stage) {
       switch (stage) {
       case 'end':
-        this.isDraggingOverUnassigned = false
+        this.setDraggingTarget(null)
         this.onDragEnd()
         break
       case 'enter':
@@ -121,12 +130,12 @@ export default {
         event.stopPropagation()
         event.preventDefault()
         if (this.draggingContext.dragContext !== 'unassigned') {
-          this.isDraggingOverUnassigned = true
+          this.setDraggingTarget('unassigned')
         }
         break
       case 'leave':
         if (this.$_.get(event.target, 'id') === 'drop-zone-unassigned-courses') {
-          this.isDraggingOverUnassigned = false
+          this.setDraggingTarget(null)
         }
         break
       case 'exit':

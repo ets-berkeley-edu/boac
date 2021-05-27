@@ -27,8 +27,8 @@
               :key="`tr-${index}`"
               :class="{
                 'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id),
-                'drop-zone-on': isDroppable(bundle.category) && draggingOverCategoryId === bundle.category.id,
-                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingOverCategoryId !== bundle.category.id
+                'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
+                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id
               }"
               :draggable="isDraggable(bundle)"
               @dragend="onDrag($event, 'end', bundle)"
@@ -161,7 +161,7 @@
           </template>
           <b-tr
             v-if="!items.length"
-            :class="{'drop-zone-on': draggingOverCategoryId === -1}"
+            :class="{'drop-zone-on': draggingContext.target === -1}"
             @dragenter="onDrag($event, 'enter')"
             @dragleave="onDrag($event, 'leave')"
             @dragover="onDrag($event, 'over')"
@@ -222,8 +222,7 @@ export default {
   },
   data: () => ({
     bundleForDelete: undefined,
-    bundleForEdit: undefined,
-    draggingOverCategoryId: null
+    bundleForEdit: undefined
   }),
   computed: {
     allCourses() {
@@ -257,11 +256,6 @@ export default {
       })
       return transformed
     }
-  },
-  created() {
-    this.$eventHub.on('degree-progress-drag-end', () => {
-      this.draggingOverCategoryId = null
-    })
   },
   methods: {
     afterCancel() {
@@ -306,17 +300,16 @@ export default {
     onDrag(event, stage, bundle) {
       switch (stage) {
       case 'end':
-        this.draggingOverCategoryId = null
         this.onDragEnd()
         break
       case 'enter':
       case 'over':
         event.stopPropagation()
         event.preventDefault()
-        this.draggingOverCategoryId = bundle ? this.$_.get(bundle.category, 'id') : -1
+        this.setDraggingTarget(bundle ? this.$_.get(bundle.category, 'id') : -1)
         break
       case 'leave':
-        this.draggingOverCategoryId = null
+        this.setDraggingTarget(null)
         break
       case 'start':
         this.onDragStart({courseId: bundle.course.id, dragContext: 'assigned'})
@@ -352,10 +345,7 @@ export default {
       return !!draggable
     },
     isDroppable(category) {
-      return category
-        && this.draggingOverCategoryId
-        && !category.courseIds.length
-        && category.id === this.draggingOverCategoryId
+      return category && !category.courseIds.length && category.id === this.draggingContext.target
     },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
@@ -375,7 +365,7 @@ export default {
       event.stopPropagation()
       event.preventDefault()
       this.onDrop({category, context})
-      this.draggingOverCategoryId = null
+      this.setDraggingTarget(null)
       return false
     }
   }

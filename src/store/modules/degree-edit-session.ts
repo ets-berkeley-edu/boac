@@ -22,9 +22,6 @@ const $_allowCourseDrop = (category, courseId) => {
     && !category.courseIds.includes(courseId)
 }
 
-const $_broadcastDragEnd = () => Vue.prototype.$eventHub.emit('degree-progress-drag-end')
-
-// TODO: Remove when Degree Progress dev is done.
 const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
 
 const $_dropToAssign = (categoryId, commit, courseId, state) => {
@@ -37,7 +34,11 @@ const $_dropToAssign = (categoryId, commit, courseId, state) => {
   })
 }
 
-const $_resetDraggingContext = state => state.draggingContext = {courseId: undefined, dragContext: undefined}
+const $_resetDraggingContext = state => state.draggingContext = {
+  courseId: undefined,
+  dragContext: undefined,
+  target: undefined
+}
 
 const $_refresh = (commit, templateId) => {
   return new Promise<void>(resolve => {
@@ -60,7 +61,8 @@ const state = {
   dismissedAlerts: [],
   draggingContext: {
     courseId: undefined,
-    dragContext: undefined
+    dragContext: undefined,
+    target: undefined
   },
   includeNotesWhenPrint: true,
   parentTemplateUpdatedAt: undefined,
@@ -104,7 +106,7 @@ const getters = {
 const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
-  dragStart: (state: any, {courseId, dragContext}) => state.draggingContext = {courseId, dragContext},
+  dragStart: (state: any, {courseId, dragContext}) => state.draggingContext = {courseId, dragContext, target: undefined},
   dismissAlert: (state: any, templateId: number) => state.dismissedAlerts.push(templateId),
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
@@ -129,6 +131,7 @@ const mutations = {
     }
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
+  setDraggingTarget: (state: any, target: any) => state.draggingContext.target = target,
   setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
   updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
 }
@@ -194,11 +197,9 @@ const actions = {
     })
   },
   dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
+  setDraggingTarget: ({commit}, target: any) => commit('setDraggingTarget', target),
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
-  onDragEnd: ({commit}) => {
-    commit('draggingContextReset')
-    $_broadcastDragEnd()
-  },
+  onDragEnd: ({commit}) => commit('draggingContextReset'),
   onDragStart: ({commit}, {courseId, dragContext}) => commit('dragStart', {courseId, dragContext}),
   onDrop: ({commit}, {category, context}) => {
     return new Promise<void>(resolve => {
