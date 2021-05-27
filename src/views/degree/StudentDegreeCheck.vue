@@ -105,7 +105,7 @@ export default {
   },
   methods: {
     scrollPerDrag(event) {
-      if (event && this.draggingContext.dragContext && !this.draggingContext.target) {
+      if (event && this.draggingContext.dragContext === 'unassigned' && !this.draggingContext.target) {
         window.scroll({
           top: event.offsetY,
           left: event.offsetX,
