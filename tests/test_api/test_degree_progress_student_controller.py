@@ -42,20 +42,31 @@ qcadv_advisor_uid = '53791'
 
 
 @pytest.fixture()
+def mock_degree_check():
+    return DegreeProgressTemplate.create(
+        advisor_dept_codes=['COENG'],
+        created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
+        degree_name=f'Degree check of {coe_student_sid}',
+        student_sid='11667051',
+    )
+
+
+@pytest.fixture()
 def mock_degree_course():
     marker = datetime.now().timestamp()
+    sid = '11667051'
     degree_check = DegreeProgressTemplate.create(
         advisor_dept_codes=['COENG'],
         created_by=AuthorizedUser.get_id_per_uid(coe_advisor_read_write_uid),
         degree_name=f'Degree check of {coe_student_sid}',
-        student_sid=coe_student_sid,
+        student_sid=sid,
     )
     return DegreeProgressCourse.create(
         degree_check_id=degree_check.id,
         display_name=f'The Decline of Western Civilization ({marker})',
         grade='B+',
         section_id=datetime.utcfromtimestamp(0).microsecond,
-        sid=coe_student_sid,
+        sid=sid,
         term_id=2218,
         units=4,
     )
@@ -280,6 +291,51 @@ class TestCreateStudentDegreeCheck:
         api_json = self._api_create_degree_check(client, sid=coe_student_sid, template_id=mock_template.id)
         assert api_json['id']
         assert api_json['parentTemplateId'] == mock_template.id
+
+
+class TestUpdateCourse:
+    """Update course in degree check."""
+
+    @classmethod
+    def _api_update_course(cls, client, course_id, units, expected_status_code=200):
+        response = client.post(
+            f'/api/degree/course/{course_id}/update',
+            data=json.dumps({'units': units}),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_update_course(client, course_id=1, expected_status_code=401, units=3)
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_update_course(client, course_id=1, expected_status_code=401, units=3)
+
+    def test_update_template(self, client, fake_auth, mock_degree_check):
+        """Authorized user can edit a template."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
+        course = api_json['courses']['unassigned'][0]
+        units = course['units']
+
+        units_original = units
+        units_updated = units + 2
+        api_json = self._api_update_course(
+            client=client,
+            course_id=course['id'],
+            units=str(units_updated),
+        )
+        assert api_json['id'] == course['id']
+        # Verify
+        api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
+        unassigned_courses = api_json['courses']['unassigned']
+        course = next((c for c in unassigned_courses if c['id'] == course['id']), None)
+        assert course['units'] == units_updated
+        assert course['sis']['units'] == units_original
 
 
 class TestGetDegreeCheckStudents:

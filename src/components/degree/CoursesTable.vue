@@ -74,14 +74,15 @@
                   :title="`Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.`"
                 />
                 <font-awesome
-                  v-if="isUnitDiff(bundle)"
-                  class="changed-units-icon mr-1"
+                  v-if="unitsWereEdited(bundle.course)"
+                  :id="`units-were-edited-${bundle.course.id}`"
+                  class="changed-units-icon"
                   icon="info-circle"
                   size="sm"
-                  :title="`Updated from ${pluralize('unit', bundle.category.unitsLower)}`"
+                  :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
                 <span class="font-size-14">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
-                <span v-if="isUnitDiff(bundle)" class="sr-only"> (updated from {{ pluralize('unit', bundle.category.unitsLower) }})</span>
+                <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="sid" class="td-grade">
                 <span class="font-size-14 text-nowrap">
@@ -358,9 +359,6 @@ export default {
       }
       return isMatch('category') || isMatch('course')
     },
-    isUnitDiff(bundle) {
-      return this.$_.get(bundle.course, 'isCopy') && bundle.course.units !== bundle.category.unitsLower
-    },
     onDropCourse(event, category, context) {
       event.stopPropagation()
       event.preventDefault()
@@ -385,6 +383,7 @@ table {
 }
 .changed-units-icon {
   color: #00c13a;
+  margin-right: 0.3em;
 }
 .drop-zone-on {
   background-color: #ecf5fb;
