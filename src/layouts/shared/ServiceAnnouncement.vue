@@ -2,16 +2,14 @@
   <div v-if="announcement && announcement.isPublished">
     <div v-if="!dismissedServiceAnnouncement" class="align-top d-flex service-announcement">
       <div class="d-inline-block pb-0 pl-3 pr-1 pt-3 w-100">
-        <div v-if="!dismissedServiceAnnouncement">
-          <div class="sr-only" role="heading">BOA Service Alert</div>
-          <span
-            id="service-announcement-banner"
-            aria-live="polite"
-            role="alert"
-            v-html="announcement.text"
-          >
-          </span>
-        </div>
+        <div class="sr-only" role="heading">BOA Service Alert</div>
+        <span
+          id="service-announcement-banner"
+          aria-live="polite"
+          role="alert"
+          v-html="announcement.text"
+        >
+        </span>
       </div>
       <div class="pr-1 pt-1">
         <b-btn

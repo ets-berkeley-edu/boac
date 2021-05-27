@@ -57,6 +57,7 @@ const state = {
   degreeName: undefined,
   degreeNote: undefined,
   disableButtons: false,
+  dismissedAlerts: [],
   draggingContext: {
     courseId: undefined,
     dragContext: undefined
@@ -88,6 +89,7 @@ const getters = {
   degreeName: (state: any): string => state.degreeName,
   degreeNote: (state: any): string => state.degreeNote,
   disableButtons: (state: any): boolean => state.disableButtons,
+  dismissedAlerts: (state: any): number[] => state.dismissedAlerts,
   draggingContext: (state: any): any => state.draggingContext,
   includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
   isUserDragging: (state: any) => (courseId: number) => !!courseId && state.draggingContext.courseId === courseId,
@@ -103,6 +105,7 @@ const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
   dragStart: (state: any, {courseId, dragContext}) => state.draggingContext = {courseId, dragContext},
+  dismissAlert: (state: any, templateId: number) => state.dismissedAlerts.push(templateId),
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
     state.disableButtons = false
@@ -190,6 +193,7 @@ const actions = {
       })
     })
   },
+  dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => {
     commit('draggingContextReset')

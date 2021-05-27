@@ -1,9 +1,25 @@
 <template>
   <b-container id="student-degree-check-header" class="px-0 mx-0" :fluid="true">
-    <b-row v-if="showRevisionIndicator">
+    <b-row v-if="!$_.includes(dismissedAlerts, templateId) && showRevisionIndicator">
       <b-col>
-        <div class="alert-box warning-message-container p-3 mt-2 mb-3">
-          <span class="font-weight-bolder">Note:</span> Revisions to the original degree template have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
+        <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
+          <div class="d-inline-block pr-2 w-100">
+            <span class="font-weight-bolder">Note:</span> Revisions to the original degree template have been made since
+            the creation of {{ student.name }}'s degree check. Please update below if necessary.
+          </div>
+          <div class="align-self-center pr-1">
+            <b-btn
+              id="dismiss-alert"
+              class="p-0"
+              size="sm"
+              title="Dismiss"
+              variant="link"
+              @click="dismissAlert(templateId)"
+            >
+              <font-awesome icon="times" />
+              <span class="sr-only">Dismiss alert</span>
+            </b-btn>
+          </div>
         </div>
       </b-col>
     </b-row>
@@ -165,17 +181,16 @@ export default {
     isSaving: false,
     noteBody: undefined,
     noteUpdatedBy: undefined,
+    showRevisionIndicator: undefined,
     updatedAtDescription: undefined
   }),
   computed: {
     noteUpdatedAt() {
       return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt))
-    },
-    showRevisionIndicator() {
-      return this.$moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
     }
   },
   created() {
+    this.showRevisionIndicator = this.$moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
     const updatedAtDate = new Date(this.updatedAt)
     const isFresh = new Date(this.createdAt) === updatedAtDate
     const userId = isFresh ? this.createdBy : this.updatedBy
