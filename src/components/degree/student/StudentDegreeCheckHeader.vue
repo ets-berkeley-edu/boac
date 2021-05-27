@@ -108,9 +108,10 @@
     </b-row>
     <b-row class="pb-2" :class="{'pt-1': noteBody}">
       <b-col v-if="!isEditingNote" cols="12" md="8">
-        <div :class="{'px-2': noteBody}">
+        <div :class="{'px-2': noteBody, 'pb-2': !$currentUser.canEditDegreeProgress}">
           <div v-if="noteBody" id="degree-note-body" class="degree-note-body">{{ noteBody }}</div>
           <b-btn
+            v-if="$currentUser.canEditDegreeProgress"
             id="create-degree-note-btn"
             class="pl-0"
             :disabled="disableButtons"
