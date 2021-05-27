@@ -47,7 +47,23 @@
                 </div>
               </td>
               <td class="td-name" :class="{'faint-text font-italic': !bundle.course}">
-                <span :class="{'font-weight-500': isEditing(bundle)}">{{ bundle.name }}</span>
+                <div class="d-flex">
+                  <div
+                    :class="{
+                      'font-weight-500': isEditing(bundle),
+                      'pr-1': $_.get(bundle.course, 'isCopy')
+                    }"
+                  >
+                    {{ bundle.name }}
+                  </div>
+                  <div v-if="$_.get(bundle.course, 'isCopy')">
+                    <font-awesome
+                      icon="copy"
+                      size="sm"
+                      title="Course satisfies multiple requirements."
+                    />
+                  </div>
+                </div>
               </td>
               <td class="td-units" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
