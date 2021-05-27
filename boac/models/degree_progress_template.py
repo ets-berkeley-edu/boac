@@ -217,11 +217,15 @@ class DegreeProgressTemplate(Base):
                 for section in enrollment['sections']:
                     section_id = section['ccn']
                     term_id = term['termId']
+                    units = section['units']
+                    # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
+                    sis = {'units': units}
                     key = _key(section_id, term_id)
                     if key in degree_progress_courses:
                         for idx, course in enumerate(degree_progress_courses[key]):
                             course_json = {
                                 **course.to_api_json(),
+                                **{'sis': sis},
                                 'isCopy': idx > 0,
                             }
                             if course_json['categoryId']:
@@ -230,7 +234,6 @@ class DegreeProgressTemplate(Base):
                                 unassigned_courses.append(course_json)
                     else:
                         grade = section['grade']
-                        units = section['units']
                         if section.get('primary') and grade and units:
                             course = DegreeProgressCourse.create(
                                 degree_check_id=self.id,
@@ -243,6 +246,7 @@ class DegreeProgressTemplate(Base):
                             )
                             unassigned_courses.append({
                                 **course.to_api_json(),
+                                **{'sis': sis},
                                 'isCopy': False,
                             })
         return assigned_courses, unassigned_courses

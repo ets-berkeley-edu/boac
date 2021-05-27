@@ -82,6 +82,9 @@ export default {
       }
     },
     isValidUnits: $_isValidUnits,
+    unitsWereEdited: course => {
+      return !!_.get(course, 'units') && (course.units !== course.sis.units)
+    },
     validateUnitRange(unitsLower, unitsUpper, maxAllowed) {
       const invalid = message => ({valid: false, message})
       if ($_isValidUnits(unitsLower, maxAllowed)) {

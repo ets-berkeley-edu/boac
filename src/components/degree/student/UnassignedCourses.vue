@@ -43,7 +43,16 @@
                 <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
               </td>
               <td class="td-units">
+                <font-awesome
+                  v-if="unitsWereEdited(course)"
+                  :id="`units-were-edited-${course.termId}-${course.sectionId}`"
+                  class="changed-units-icon"
+                  icon="info-circle"
+                  size="sm"
+                  :title="`Updated from ${pluralize('unit', course.sis.units)}`"
+                />
                 <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
+                <span v-if="unitsWereEdited(course)" class="sr-only"> (updated from {{ pluralize('unit', course.sis.units) }})</span>
               </td>
               <td class="td-grade">
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
@@ -133,6 +142,10 @@ export default {
 table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
+}
+.changed-units-icon {
+  color: #00c13a;
+  margin-right: 0.3em;
 }
 .tr-while-dragging td:first-child, th:first-child {
   border-radius: 10px 0 0 10px;
