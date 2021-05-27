@@ -5,10 +5,21 @@
       <b-container fluid>
         <b-row>
           <b-col v-if="student" id="student-degree-info" class="font-size-10">
-            <h1 class="font-size-14 font-weight-bold"> {{ student.name }} </h1>
-
-            <div class="font-weight-bold">SID {{ student.sid }}</div>
-            <div class="font-weight-bold">{{ student.sisProfile.level.description }}</div>
+            <h1
+              class="font-size-14 font-weight-bold"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            >
+              {{ student.name }}
+            </h1>
+            <div class="font-weight-bold">
+              SID
+              <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+                {{ student.sid }}
+              </span>
+            </div>
+            <div class="font-weight-bold">
+              {{ student.sisProfile.level.description }}
+            </div>
             <div class="text-secondary">{{ student.sisProfile.termsInAttendance }} Terms in Attendance</div>
             <div class="text-secondary">Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
 
