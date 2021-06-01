@@ -35,10 +35,12 @@
           <div class="pr-2">
             <router-link
               id="print-degree-plan"
-              :to="{ path: `/degree/${templateId}/print`}"
+              target="_blank"
+              :to="`/degree/${templateId}/print`"
             >
               <font-awesome class="mr-1" icon="print" />
               Print Plan
+              <span class="sr-only"> (will open new browser tab)</span>
             </router-link>
           </div>
           <div class="pr-2">
