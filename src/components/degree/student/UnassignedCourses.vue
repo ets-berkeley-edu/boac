@@ -7,19 +7,19 @@
       <b-table-simple
         id="unassigned-courses-table"
         borderless
-        class="mb-1 w-100"
+        class="mb-1 w-100 table-layout"
         small
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th class="th-course-assignment-menu">
+            <b-th v-if="$currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to assign course</span>
             </b-th>
-            <b-th class="pl-0">Course</b-th>
+            <b-th class="pl-0 th-name">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
-            <b-th>Grade</b-th>
-            <b-th>Term</b-th>
-            <b-th>Note</b-th>
+            <b-th class="th-grade">Grade</b-th>
+            <b-th class="pl-0">Term</b-th>
+            <b-th class="pl-0">Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
         </b-thead>
@@ -60,7 +60,7 @@
               <td class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
-              <td class="ellipsis-if-overflow td-note">
+              <td :class="{'ellipsis-if-overflow td-note': course.note}" :title="course.note || null">
                 {{ course.note || '&mdash;' }}
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
@@ -147,16 +147,13 @@ table {
   color: #00c13a;
   margin-right: 0.3em;
 }
-.tr-while-dragging td:first-child, th:first-child {
-  border-radius: 10px 0 0 10px;
-}
-.tr-while-dragging td:last-child, th:last-child {
-  border-radius: 0 10px 10px 0;
-}
 .ellipsis-if-overflow {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.table-layout {
+  table-layout: fixed;
 }
 .td-course-assignment-menu {
   font-size: 14px;
@@ -172,10 +169,11 @@ table {
 .td-grade {
   padding: 0 0.5em 0 0.4em;
   vertical-align: middle;
-  width: 50px;
+  width: 30px;
 }
 .td-name {
   font-size: 14px;
+  min-width: 300px;
   padding: 0.2em 0 0 0.25em;
   vertical-align: middle;
 }
@@ -201,7 +199,20 @@ table {
   padding: 0 0.3em 0 0;
   width: 14px;
 }
+.th-grade {
+  width: 60px;
+}
+.th-name {
+  max-width: 40%;
+  width: 30%;
+}
 .tr-course {
   height: 36px;
+}
+.tr-while-dragging td:first-child, th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.tr-while-dragging td:last-child, th:last-child {
+  border-radius: 0 10px 10px 0;
 }
 </style>
