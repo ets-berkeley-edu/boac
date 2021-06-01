@@ -10,7 +10,7 @@
         :units-lower="units"
       />
     </div>
-    <div>
+    <div v-if="course.categoryId">
       <div class="font-weight-500">
         Counts Towards Unit Fulfillment
       </div>
