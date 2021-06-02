@@ -184,15 +184,17 @@ class DegreeProgressTemplate(Base):
             'updatedBy': self.updated_by,
         }
         if self.student_sid and include_courses:
-            assigned_courses, unassigned_courses = self._get_partitioned_courses_json()
+            assigned_courses, ignored_courses, unassigned_courses = self._get_partitioned_courses_json()
             api_json['courses'] = {
                 'assigned': sorted(assigned_courses, key=lambda c: c['name']),
+                'ignored': sorted(ignored_courses, key=lambda c: c['name']),
                 'unassigned': sorted(unassigned_courses, key=lambda c: c['name']),
             }
         return api_json
 
     def _get_partitioned_courses_json(self):
         assigned_courses = []
+        ignored_courses = []
         unassigned_courses = []
         degree_progress_courses = {}
         sid = self.student_sid
@@ -230,6 +232,8 @@ class DegreeProgressTemplate(Base):
                             }
                             if course_json['categoryId']:
                                 assigned_courses.append(course_json)
+                            elif course_json['ignore']:
+                                ignored_courses.append(course_json)
                             else:
                                 unassigned_courses.append(course_json)
                     else:
@@ -249,7 +253,7 @@ class DegreeProgressTemplate(Base):
                                 **{'sis': sis},
                                 'isCopy': False,
                             })
-        return assigned_courses, unassigned_courses
+        return assigned_courses, ignored_courses, unassigned_courses
 
 
 def _isoformat(value):

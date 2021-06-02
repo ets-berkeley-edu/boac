@@ -444,6 +444,7 @@ CREATE TABLE degree_progress_courses (
   degree_check_id INTEGER,
   grade VARCHAR(50) NOT NULL,
   display_name character varying(255) NOT NULL,
+  ignore BOOLEAN NOT NULL,
   note text,
   section_id INTEGER NOT NULL,
   sid VARCHAR(80) NOT NULL,

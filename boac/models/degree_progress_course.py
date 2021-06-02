@@ -39,6 +39,7 @@ class DegreeProgressCourse(Base):
     degree_check_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     display_name = db.Column(db.String(255), nullable=False)
     grade = db.Column(db.String(255), nullable=False)
+    ignore = db.Column(db.Boolean, nullable=False)
     note = db.Column(db.Text)
     section_id = db.Column(db.Integer, nullable=False)
     sid = db.Column(db.String(80), nullable=False)
@@ -69,12 +70,14 @@ class DegreeProgressCourse(Base):
             term_id,
             units,
             category_id=None,
+            ignore=False,
             note=None,
     ):
         self.category_id = category_id
         self.degree_check_id = degree_check_id
         self.display_name = display_name
         self.grade = grade
+        self.ignore = ignore
         self.note = note
         self.section_id = section_id
         self.sid = sid
@@ -87,6 +90,7 @@ class DegreeProgressCourse(Base):
             degree_check_id={self.degree_check_id},
             display_name={self.display_name},
             grade={self.grade},
+            ignore={self.ignore},
             note={self.note},
             section_id={self.section_id},
             sid={self.sid},
@@ -94,9 +98,10 @@ class DegreeProgressCourse(Base):
             units={self.units},>"""
 
     @classmethod
-    def assign_category(cls, category_id, course_id):
+    def assign_category(cls, category_id, course_id, ignore=False):
         course = cls.query.filter_by(id=course_id).first()
         course.category_id = category_id
+        course.ignore = ignore
         std_commit()
         return course
 
@@ -191,6 +196,7 @@ class DegreeProgressCourse(Base):
             'degreeCheckId': self.degree_check_id,
             'grade': self.grade,
             'id': self.id,
+            'ignore': self.ignore,
             'name': self.display_name,
             'note': self.note,
             'sectionId': self.section_id,
