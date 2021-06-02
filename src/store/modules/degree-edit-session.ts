@@ -14,7 +14,7 @@ import {
   updateUnitRequirement
 } from '@/api/degree'
 
-const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'requirement', 'unassigned']
+const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
 
 const $_allowCourseDrop = (category, courseId) => {
   return (category.categoryType !== 'Course Requirement' || !category.courseIds.length)
@@ -24,9 +24,9 @@ const $_allowCourseDrop = (category, courseId) => {
 
 const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
 
-const $_dropToAssign = (categoryId, commit, courseId, state) => {
+const $_dropToAssign = (categoryId, commit, courseId, ignore, state) => {
   commit('setDisableButtons', true)
-  return assignCourse(courseId, categoryId).then(() => {
+  return assignCourse(courseId, categoryId, ignore).then(() => {
     $_refresh(commit, state.templateId).then(() => {
       commit('draggingContextReset')
       commit('setDisableButtons', false)
@@ -212,8 +212,8 @@ const actions = {
         if (noActionTaken) {
           $_debug(srAlert)
         } else {
-          if (context === 'unassigned') {
-            $_debug(`Course ${courseId} (${dragContext}) dragged to unassigned section.`)
+          if (_.includes(['ignored', 'unassigned'], context)) {
+            $_debug(`Course ${courseId} (${dragContext}) dragged to ${context} section.`)
           } else {
             $_debug(`From ${actionByUser}: course ${courseId} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
           }
@@ -223,21 +223,27 @@ const actions = {
       const valid = _.includes(VALID_DRAG_DROP_CONTEXTS, dragContext) && _.includes(VALID_DRAG_DROP_CONTEXTS, context)
       if (valid) {
         switch (actionByUser) {
+          case 'assigned to ignored':
           case 'assigned to unassigned':
-            $_dropToAssign(null, commit, courseId, state).then(() => done('Course unassigned'))
+          case 'ignored to unassigned':
+          case 'unassigned to ignored':
+            $_dropToAssign(null, commit, courseId, context === 'ignored', state).then(() => done(`Course ${context}`))
             break
           case 'assigned to assigned':
+          case 'ignored to assigned':
           case 'unassigned to assigned':
-            $_dropToAssign(category.id, commit, courseId, state).then(() => done(`Course assigned to ${category.name}`))
+            $_dropToAssign(category.id, commit, courseId, false, state).then(() => done(`Course assigned to ${category.name}`))
             break
           case 'assigned to requirement':
+          case 'ignored to requirement':
           case 'unassigned to requirement':
             if ($_allowCourseDrop(category, courseId)) {
-              $_dropToAssign(category.id, commit, courseId, state).then(() => done(`Course assigned to ${category.name}`))
+              $_dropToAssign(category.id, commit, courseId, false, state).then(() => done(`Course assigned to ${category.name}`))
             } else {
               done('Drop canceled. No assignment made.', true)
             }
             break
+          case 'ignored to ignored':
           case 'unassigned to unassigned':
             done('Course not assigned.', true)
             break

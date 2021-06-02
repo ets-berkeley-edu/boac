@@ -20,18 +20,37 @@
             </b-col>
             <b-col>
               <div
+                id="drop-zone-ignored-courses"
+                class="drop-zone"
+                :class="{
+                  'drop-zone-on': draggingContext.target === 'ignored',
+                  'drop-zone-off': draggingContext.target !== 'ignored'
+                }"
+                @dragend="onDrag($event, 'end', 'ignored')"
+                @dragenter="onDrag($event,'enter', 'ignored')"
+                @dragleave="onDrag($event, 'leave', 'ignored')"
+                @dragexit="onDrag($event,'exit', 'ignored')"
+                @dragover="onDrag($event,'over', 'ignored')"
+                @drop="dropToUnassign($event, 'ignored')"
+              >
+                <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Junk Drawer</h2>
+                <UnassignedCourses :ignored="true" />
+              </div>
+            </b-col>
+            <b-col>
+              <div
                 id="drop-zone-unassigned-courses"
                 class="drop-zone"
                 :class="{
                   'drop-zone-on': draggingContext.target === 'unassigned',
                   'drop-zone-off': draggingContext.target !== 'unassigned'
                 }"
-                @dragend="onDrag($event, 'end')"
-                @dragenter="onDrag($event,'enter')"
-                @dragleave="onDrag($event, 'leave')"
-                @dragexit="onDrag($event,'exit')"
-                @dragover="onDrag($event,'over')"
-                @drop="dropToUnassign"
+                @dragend="onDrag($event, 'end', 'unassigned')"
+                @dragenter="onDrag($event,'enter', 'unassigned')"
+                @dragleave="onDrag($event, 'leave', 'unassigned')"
+                @dragexit="onDrag($event,'exit', 'unassigned')"
+                @dragover="onDrag($event,'over', 'unassigned')"
+                @drop="dropToUnassign($event, 'unassigned')"
               >
                 <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
                 <UnassignedCourses />
@@ -113,13 +132,13 @@ export default {
         })
       }
     },
-    dropToUnassign(event) {
+    dropToUnassign(event, context) {
       event.stopPropagation()
       event.preventDefault()
-      this.onDrop({category: null, context: 'unassigned'})
+      this.onDrop({category: null, context})
       this.setDraggingTarget(null)
     },
-    onDrag(event, stage) {
+    onDrag(event, stage, context) {
       switch (stage) {
       case 'end':
         this.setDraggingTarget(null)
@@ -129,12 +148,12 @@ export default {
       case 'over':
         event.stopPropagation()
         event.preventDefault()
-        if (this.draggingContext.dragContext !== 'unassigned') {
-          this.setDraggingTarget('unassigned')
+        if (this.draggingContext.dragContext !== context) {
+          this.setDraggingTarget(context)
         }
         break
       case 'leave':
-        if (this.$_.get(event.target, 'id') === 'drop-zone-unassigned-courses') {
+        if (this.$_.get(event.target, 'id') === `drop-zone-${context}-courses`) {
           this.setDraggingTarget(null)
         }
         break

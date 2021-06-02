@@ -417,6 +417,41 @@ class TestGetStudentDegreeChecks:
 
 class TestUnassignedCourses:
 
+    def test_ignored_courses(self, client, fake_auth):
+        """Authorized user can ignore a course."""
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(advisor.uid)
+        # Set up
+        sid = '11667051'
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=advisor.id,
+            degree_name=f'Degree check for {sid}',
+            student_sid=sid,
+        )
+        std_commit(allow_test_environment=True)
+        # Fetch
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        unassigned_courses = api_json['courses']['unassigned']
+        ignored_courses = api_json['courses']['ignored']
+        ignored_courses_count = len(ignored_courses)
+        # Ignore
+        ignore_this_course = unassigned_courses[-1]
+        _api_assign_course(
+            client=client,
+            category_id=None,
+            course_id=ignore_this_course['id'],
+            ignore=True,
+        )
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        # Verify
+        unassigned_courses = api_json['courses']['unassigned']
+        assert next((c for c in unassigned_courses if c['sectionId'] == ignore_this_course['sectionId']), None) is None
+
+        ignored_courses = api_json['courses']['ignored']
+        assert len(ignored_courses) == ignored_courses_count + 1
+        assert next((c for c in ignored_courses if c['sectionId'] == ignore_this_course['sectionId']), None)
+
     def test_unassigned_courses(self, client, fake_auth):
         """Authorized user can un-assign a course."""
         advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
@@ -639,10 +674,10 @@ class TestUpdateDegreeNote:
         assert DegreeProgressTemplate.find_by_id(template_id).updated_at != original_updated_at
 
 
-def _api_assign_course(category_id, client, course_id, expected_status_code=200):
+def _api_assign_course(category_id, client, course_id, expected_status_code=200, ignore=False):
     response = client.post(
         f'/api/degree/course/{course_id}/assign',
-        data=json.dumps({'categoryId': category_id}),
+        data=json.dumps({'categoryId': category_id, 'ignore': ignore}),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code
