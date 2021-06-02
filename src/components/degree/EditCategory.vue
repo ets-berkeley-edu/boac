@@ -215,7 +215,7 @@ export default {
       this.unitsLower = this.existingCategory.unitsLower
       this.unitsUpper = this.existingCategory.unitsUpper
     }
-    this.putFocusNextTick(`column-${this.position}-add-category-select`)
+    this.$putFocusNextTick(`column-${this.position}-add-category-select`)
   },
   methods: {
     cancel() {
@@ -245,13 +245,13 @@ export default {
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
-        this.putFocusNextTick(`column-${this.position}-name-input`)
+        this.$putFocusNextTick(`column-${this.position}-name-input`)
       }
     },
     onChangeParentCategory(option) {
       this.$announcer.polite(option ? `${this.selectedParentCategory} selected` : 'Unselected')
       if (option) {
-        this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
+        this.$putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       }
     },
     onSubmit() {

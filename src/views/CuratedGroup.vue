@@ -109,7 +109,7 @@ export default {
       if (group) {
         this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
-        this.putFocusNextTick('curated-group-name')
+        this.$putFocusNextTick('curated-group-name')
         if (this.pageNumber > 1) {
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'view')
         }
@@ -160,13 +160,13 @@ export default {
         this.loadingStart()
         this.addStudents(sids).then(() => {
           this.loaded(this.getLoadedAlert())
-          this.putFocusNextTick('curated-group-name')
+          this.$putFocusNextTick('curated-group-name')
           this.alertScreenReader(`${sids.length} students added to group '${this.name}'`)
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
         })
       } else {
         this.alertScreenReader('Cancelled bulk add of students')
-        this.putFocusNextTick('curated-group-name')
+        this.$putFocusNextTick('curated-group-name')
       }
     },
     getLoadedAlert() {

@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
-    @shown="putFocusNextTick('modal-header')"
+    @shown="$putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader text="Cancel Appointment" />
@@ -158,7 +158,7 @@ export default {
     },
     reasonSelected() {
       this.alertScreenReader(`Reason '${this.reason}' selected`)
-      this.putFocusNextTick('cancellation-reason-explained')
+      this.$putFocusNextTick('cancellation-reason-explained')
     }
   }
 }

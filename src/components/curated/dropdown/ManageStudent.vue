@@ -65,7 +65,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="putFocusNextTick('modal-header')"
+      @shown="$putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal :cancel="onModalCancel" :create="onCreateCuratedGroup" />
     </b-modal>
@@ -133,7 +133,7 @@ export default {
         const done = () => {
           this.checkedGroups = this.$_.without(this.checkedGroups, group.id)
           this.isRemoving = false
-          this.putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+          this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
           this.alertScreenReader(`${this.student.name} removed from "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Removed SID ${this.student.sid}`)
         }
@@ -145,7 +145,7 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+          this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
           this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
@@ -156,7 +156,7 @@ export default {
       this.isAdding = true
       this.showModal = false
       const done = () => {
-        this.putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+        this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
         this.isAdding = false
       }
       createCuratedGroup(name, [this.student.sid]).then(group => {
@@ -177,7 +177,7 @@ export default {
     onModalCancel() {
       this.showModal = false
       this.alertScreenReader('Cancelled')
-      this.putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+      this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
     },
     refresh() {
       return getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {

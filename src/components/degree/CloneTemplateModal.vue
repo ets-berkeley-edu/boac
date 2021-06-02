@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="cancel"
     @hide.prevent="cancel"
-    @shown="putFocusNextTick('modal-header')"
+    @shown="$putFocusNextTick('modal-header')"
   >
     <ModalHeader text="Name Your Degree Copy" />
     <form @submit.prevent="createClone" @keydown.esc="cancel">

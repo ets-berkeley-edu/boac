@@ -94,7 +94,7 @@ export default {
     addStudentBySid(sid) {
       this.setIsRecalculating(true)
       this.addSid(sid)
-      this.putFocusNextTick('create-note-add-student-input')
+      this.$putFocusNextTick('create-note-add-student-input')
     },
     removeCohortFromBatch(cohort) {
       this.setIsRecalculating(true)
@@ -110,7 +110,7 @@ export default {
       if (this.$_.includes(this.sids, sid)) {
         this.setIsRecalculating(true)
         this.removeStudent(sid)
-        this.putFocusNextTick('create-note-add-student-input')
+        this.$putFocusNextTick('create-note-add-student-input')
       }
     }
   }

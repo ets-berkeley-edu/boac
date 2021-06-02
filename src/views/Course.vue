@@ -289,7 +289,7 @@ export default {
           message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
         }
         this.loaded(message)
-        this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
+        this.$putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView
       loadView().then(done)

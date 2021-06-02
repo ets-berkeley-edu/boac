@@ -93,6 +93,7 @@ export default {
   methods: {
     onCreateNoteModalClose() {
       this.isCreateNoteModalOpen = false
+      this.$putFocusNextTick('batch-note-button')
     }
   }
 }

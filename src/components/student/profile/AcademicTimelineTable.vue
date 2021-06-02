@@ -414,7 +414,7 @@ export default {
         this.alertScreenReader(`Searching ${this.filter}s for '${this.timelineQuery}'`)
       } else {
         this.alertScreenReader('Search results loaded.')
-        this.putFocusNextTick(this.searchResults ? 'search-results-header' : 'zero-messages')
+        this.$putFocusNextTick(this.searchResults ? 'search-results-header' : 'zero-messages')
       }
     }
   },
@@ -477,7 +477,7 @@ export default {
     },
     cancelTheDelete() {
       this.alertScreenReader('Cancelled')
-      this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
+      this.$putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
     close(message, notifyScreenReader) {
@@ -526,7 +526,7 @@ export default {
     },
     editNote(note) {
       this.editModeNoteId = note.id
-      this.putFocusNextTick('edit-note-subject')
+      this.$putFocusNextTick('edit-note-subject')
     },
     filterSearchResults() {
       return this.$_.filter(this.messages, message => this.searchResults.includes(message.id))
@@ -581,7 +581,7 @@ export default {
     },
     scrollToPermalink(messageType, messageId) {
       this.scrollTo(`#permalink-${messageType}-${messageId}`)
-      this.putFocusNextTick(`message-row-${messageId}`)
+      this.$putFocusNextTick(`message-row-${messageId}`)
     },
     searchTimeline() {
       if (this.timelineQuery && this.timelineQuery.length) {

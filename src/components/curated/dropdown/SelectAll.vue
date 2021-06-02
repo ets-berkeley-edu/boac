@@ -74,7 +74,7 @@
         body-class="pl-0 pr-0"
         hide-footer
         hide-header
-        @shown="putFocusNextTick('modal-header')"
+        @shown="$putFocusNextTick('modal-header')"
       >
         <CreateCuratedGroupModal :cancel="modalCancel" :create="modalCreateCuratedGroup" />
       </b-modal>
@@ -146,14 +146,14 @@ export default {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.putFocusNextTick('add-all-to-curated-group')
+      this.$putFocusNextTick('add-all-to-curated-group')
       this.onCreateCuratedGroup()
     },
     afterCreateGroupModalCancel() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.putFocusNextTick('add-all-to-curated-group')
+      this.$putFocusNextTick('add-all-to-curated-group')
     },
     curatedGroupCheckboxClick(group) {
       this.isSaving = true
@@ -206,7 +206,7 @@ export default {
       if (checked) {
         this.sids = this.$_.map(this.students, 'sid')
         this.$eventHub.emit('curated-group-select-all')
-        this.putFocusNextTick('curated-group-dropdown-select', 'button')
+        this.$putFocusNextTick('curated-group-dropdown-select', 'button')
         this.alertScreenReader('All students on this page selected.')
       } else {
         this.sids = []

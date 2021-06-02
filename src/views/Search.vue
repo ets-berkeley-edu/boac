@@ -227,7 +227,7 @@ export default {
             this.toInt(this.results.totalCourseCount, 0) +
             this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
-          this.putFocusNextTick(focusId)
+          this.$putFocusNextTick(focusId)
           this.$ga.searchEvent(
             `Search phrase: '${this.phrase || ''}'`,
             `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`)

@@ -88,7 +88,7 @@ export default {
     this.plansPartitionedByStatus = this.$_.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
   },
   mounted() {
-    this.putFocusNextTick('student-name-header')
+    this.$putFocusNextTick('student-name-header')
   },
   methods: {
     toggleShowDetails() {

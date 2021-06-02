@@ -75,7 +75,7 @@ export default {
         this.isEnabled = !!this.dropInStatus()
         this.isToggling = false
         this.alertScreenReader(`Switching drop-in advising ${this.isEnabled ? 'off' : 'on' }`)
-        this.putFocusNextTick(this.buttonElementId)
+        this.$putFocusNextTick(this.buttonElementId)
       })
     }
   }

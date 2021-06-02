@@ -211,7 +211,7 @@ export default {
       if (match) {
         Object.assign(match, topic)
         this.alertScreenReader(`Topic '${topic.topic}' updated.`)
-        this.putFocusNextTick(focusTarget)
+        this.$putFocusNextTick(focusTarget)
       } else {
         this.refresh(focusTarget)
         this.alertScreenReader(`Topic '${topic.topic}' created.`)
@@ -227,14 +227,14 @@ export default {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
       this.alertScreenReader('Cancelled')
-      this.putFocusNextTick('filter-topics')
+      this.$putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
         this.topicDelete.deletedAt = this.$moment()
         this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
-        this.putFocusNextTick(`topic-${this.topicDelete.id}`)
+        this.$putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined
       })
     },
@@ -246,7 +246,7 @@ export default {
     onCancelEdit() {
       this.isEditTopicModalOpen = false
       this.alertScreenReader('Cancelled')
-      this.putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics')
+      this.$putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics')
       this.topicEdit = null
     },
     openCreateTopicModal() {
@@ -272,7 +272,7 @@ export default {
             topic.countNotes = statistics.notes[topic.id] || 0
           })
           this.hasLoadedTopics = true
-          this.putFocusNextTick(focusTarget)
+          this.$putFocusNextTick(focusTarget)
         })
       })
     },
@@ -280,7 +280,7 @@ export default {
       undeleteTopic(topic.id).then(() => {
         topic.deletedAt = null
         this.alertScreenReader(`Topic ${topic.topic} un-deleted.`)
-        this.putFocusNextTick(`topic-${topic.id}`)
+        this.$putFocusNextTick(`topic-${topic.id}`)
       })
     }
   }

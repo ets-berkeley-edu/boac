@@ -47,7 +47,7 @@
         body-class="pl-0 pr-0"
         hide-footer
         hide-header
-        @shown="putFocusNextTick('modal-header')"
+        @shown="$putFocusNextTick('modal-header')"
       >
         <CreateCohortModal :cancel="cancelCreateModal" :create="create" />
       </b-modal>
@@ -84,7 +84,7 @@ export default {
         this.$_.get(this.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         this.$_.get(this.preferences, 'termId')
       ).then(() => {
-        this.putFocusNextTick('cohort-results-header')
+        this.$putFocusNextTick('cohort-results-header')
         this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')
         this.isPerforming = null

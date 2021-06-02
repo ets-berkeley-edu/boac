@@ -54,7 +54,7 @@ export default {
       } else {
         this.setPageTitle(this.degreeName)
         this.loaded(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
-        this.putFocusNextTick('add-unit-requirement')
+        this.$putFocusNextTick('add-unit-requirement')
       }
     })
   }
