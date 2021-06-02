@@ -273,7 +273,7 @@ export default {
           () => this.alertScreenReader(`${student.label} added to degree check`)
         )
       }
-      this.putFocusNextTick('degree-check-add-student-input')
+      this.$putFocusNextTick('degree-check-add-student-input')
     },
     addStudents(students) {
       if (students && students.length) {
@@ -283,7 +283,7 @@ export default {
           () => this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
         )
       }
-      this.putFocusNextTick('degree-check-add-student-input')
+      this.$putFocusNextTick('degree-check-add-student-input')
     },
     addTemplate(degreeName, templateId) {
       this.degreeName = degreeName

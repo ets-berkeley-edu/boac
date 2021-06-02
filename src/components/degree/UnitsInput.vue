@@ -138,7 +138,7 @@ export default {
       if (!this.showUnitsUpperInput) {
         this.setUnitsUpper(undefined)
       }
-      this.putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? `upper-${this.inputId}` : this.inputId)
+      this.$putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? `upper-${this.inputId}` : this.inputId)
       this.$announcer.polite(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
     }
   }

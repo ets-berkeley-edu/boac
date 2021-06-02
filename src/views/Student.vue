@@ -86,7 +86,7 @@ export default {
       this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
       this.$_.assign(this.student, student)
       this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-      this.loaded(`${this.student.name} loaded`)
+      this.loaded(`${this.student.name} loaded`, this.anchor)
     })
   },
   mounted() {

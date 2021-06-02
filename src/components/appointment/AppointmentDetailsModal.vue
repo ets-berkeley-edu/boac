@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
-    @shown="putFocusNextTick('modal-header')"
+    @shown="$putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader>
@@ -116,7 +116,7 @@ export default {
     this.details = this.appointment.details
     this.topics = this.$_.clone(this.appointment.topics)
     this.showDetailsModal = this.showModal
-    this.putFocusNextTick('modal-header')
+    this.$putFocusNextTick('modal-header')
     this.alertScreenReader('Appointment details form is open')
   },
   methods: {

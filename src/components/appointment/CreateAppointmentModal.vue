@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="cancel"
     @hide.prevent="cancel"
-    @shown="putFocusNextTick('modal-header')"
+    @shown="$putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader>
@@ -198,7 +198,7 @@ export default {
       if (student) {
         this.student = student
         this.alertScreenReader(`Student ${this.student.label} selected`)
-        this.putFocusNextTick('add-topic-select-list')
+        this.$putFocusNextTick('add-topic-select-list')
       }
     },
     addTopic(topic) {

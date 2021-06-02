@@ -143,7 +143,7 @@ export default {
   methods: {
     deleteCanceled() {
       this.isDeleting = false
-      this.putFocusNextTick(`unit-requirement-${this.$_.get(this.selected, 'id')}-delete-btn`)
+      this.$putFocusNextTick(`unit-requirement-${this.$_.get(this.selected, 'id')}-delete-btn`)
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
@@ -153,7 +153,7 @@ export default {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
-        this.putFocusNextTick('unit-requirements-table')
+        this.$putFocusNextTick('unit-requirements-table')
       })
     },
     onClickAdd() {
@@ -176,7 +176,7 @@ export default {
       this.setDisableButtons(false)
       this.indexOfSelected = null
       this.isEditing = false
-      this.putFocusNextTick(focusId)
+      this.$putFocusNextTick(focusId)
     }
   }
 }

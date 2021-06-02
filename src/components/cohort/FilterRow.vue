@@ -374,10 +374,10 @@ export default {
           this.putFocusSecondaryDropdown()
           break
         case 'boolean':
-          this.putFocusNextTick('unsaved-filter-add')
+          this.$putFocusNextTick('unsaved-filter-add')
           break
         case 'range':
-          this.putFocusNextTick(`filter-range-min-${this.position}`)
+          this.$putFocusNextTick(`filter-range-min-${this.position}`)
           break
         }
       }
@@ -386,7 +386,7 @@ export default {
       this.filter.value = this.$_.get(this.selectedOption, 'value')
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
-        this.putFocusNextTick('unsaved-filter-add')
+        this.$putFocusNextTick('unsaved-filter-add')
         this.alertScreenReader(`${this.selectedOption.name} selected`)
       }
     },
@@ -396,10 +396,10 @@ export default {
       return flatten ? this.$_.values(this.filterOptionGroups)[0] : this.filterOptionGroups
     },
     putFocusNewFilterDropdown() {
-      this.putFocusNextTick('filter-select-primary-new')
+      this.$putFocusNextTick('filter-select-primary-new')
     },
     putFocusSecondaryDropdown() {
-      this.putFocusNextTick(`filter-select-secondary-${this.position}`)
+      this.$putFocusNextTick(`filter-select-secondary-${this.position}`)
     },
     rangeInputSize() {
       let maxLength = undefined

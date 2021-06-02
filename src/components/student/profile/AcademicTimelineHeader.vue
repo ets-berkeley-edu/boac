@@ -101,7 +101,7 @@ export default {
   methods: {
     onCreateNoteModalClose(note) {
       this.isCreateNoteModalOpen = false
-      this.putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
+      this.$putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
     }
   }
 }

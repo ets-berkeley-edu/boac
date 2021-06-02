@@ -60,7 +60,7 @@ export default {
     password: null
   }),
   created() {
-    this.putFocusNextTick('dev-auth-uid')
+    this.$putFocusNextTick('dev-auth-uid')
   },
   methods: {
     logIn() {
@@ -77,10 +77,10 @@ export default {
         })
       } else if (uid) {
         this.reportError('Password required')
-        this.putFocusNextTick('dev-auth-password')
+        this.$putFocusNextTick('dev-auth-password')
       } else {
         this.reportError('Both UID and password are required')
-        this.putFocusNextTick('dev-auth-uid')
+        this.$putFocusNextTick('dev-auth-uid')
       }
     }
   }

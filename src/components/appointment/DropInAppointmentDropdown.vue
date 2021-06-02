@@ -188,17 +188,17 @@ export default {
     },
     closeAppointmentAssignModal() {
       this.showAppointmentAssignModal = false
-      this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
+      this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
       this.alertScreenReader('Dialog closed')
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false
-      this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
+      this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
       this.alertScreenReader('Dialog closed')
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false
-      this.putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
+      this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
       this.alertScreenReader('Dialog closed')
     },
     closeCheckInModal() {

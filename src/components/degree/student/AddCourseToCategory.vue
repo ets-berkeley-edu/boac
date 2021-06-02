@@ -140,7 +140,7 @@ export default {
       this.setDisableButtons(true)
       this.isMenuOpen = true
       this.$announcer.polite('The \'Add Course\' menu is open.')
-      this.putFocusNextTick(`column-${this.position}-category-${this.parentCategory.id}-add-course-select`)
+      this.$putFocusNextTick(`column-${this.position}-category-${this.parentCategory.id}-add-course-select`)
     }
   }
 }

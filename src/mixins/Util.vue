@@ -40,20 +40,6 @@ export default {
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {
       return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
     },
-    putFocusNextTick(id, cssSelector = null) {
-      this.$nextTick(() => {
-        let counter = 0
-        const putFocus = setInterval(() => {
-          let el = document.getElementById(id)
-          el = el && cssSelector ? el.querySelector(cssSelector) : el
-          el && el.focus()
-          if (el || ++counter > 5) {
-            // Abort after success or three attempts
-            clearInterval(putFocus)
-          }
-        }, 500)
-      })
-    },
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     sortComparator: (a, b, nullFirst=true) => {

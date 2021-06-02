@@ -430,12 +430,12 @@ export default {
     showNoteFilters(value) {
       if (value) {
         this.alertScreenReader('Notes and Appointments search filters opened.')
-        this.putFocusNextTick('search-option-note-filters-topic')
+        this.$putFocusNextTick('search-option-note-filters-topic')
       }
       else {
         this.resetNoteFilters()
         this.alertScreenReader('Notes and Appointments search filters closed.')
-        this.putFocusNextTick('search-options-note-filters-toggle')
+        this.$putFocusNextTick('search-options-note-filters-toggle')
       }
     }
   },
@@ -519,7 +519,7 @@ export default {
       } else {
         this.showErrorPopover = true
         this.alertScreenReader('Search input is required')
-        this.putFocusNextTick('search-students-input')
+        this.$putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
     },
@@ -542,11 +542,11 @@ export default {
       this.showSearchOptions = !this.showSearchOptions
       if (this.showSearchOptions) {
         this.alertScreenReader('Search options opened')
-        this.putFocusNextTick('search-options-header')
+        this.$putFocusNextTick('search-options-header')
       } else {
         this.resetNoteFilters()
         this.alertScreenReader('Search options closed')
-        this.putFocusNextTick('search-students-input')
+        this.$putFocusNextTick('search-students-input')
       }
     }
   }

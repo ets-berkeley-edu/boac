@@ -112,21 +112,21 @@ export default {
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
-      this.putFocusNextTick(`edit-course-${this.courseForEdit.id}-btn`)
+      this.$putFocusNextTick(`edit-course-${this.courseForEdit.id}-btn`)
       this.courseForEdit = null
       this.setDisableButtons(false)
     },
     afterSave(course) {
       this.courseForEdit = null
       this.$announcer.polite(`Updated course ${course.name}`)
-      this.putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
+      this.$putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
       this.setDisableButtons(false)
     },
     edit(course) {
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${course.name}`)
       this.courseForEdit = course
-      this.putFocusNextTick('name-input')
+      this.$putFocusNextTick('name-input')
     },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')

@@ -1,7 +1,7 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1">
-      <ModalHeader class="border-bottom-0" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
+      <ModalHeader class="border-bottom-0" header-id="modal-header-note" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
     </div>
     <div class="mr-4">
       <b-dropdown
@@ -126,28 +126,32 @@ export default {
       this.showDeleteTemplateModal = false
       this.showRenameTemplateModal = false
       this.targetTemplate = null
-      this.putFocusNextTick('create-note-subject')
-      this.setFocusLockDisabled(false)
       this.alertScreenReader('Cancelled')
+      this.$putFocusNextTick('create-note-subject')
+      this.$nextTick(() => {
+        this.setFocusLockDisabled(false)
+      })
     },
     deleteTemplateConfirmed() {
       deleteNoteTemplate(this.targetTemplate.id).then(() => {
         this.showDeleteTemplateModal = false
-        this.setFocusLockDisabled(false)
         this.targetTemplate = null
-        this.putFocusNextTick('create-note-subject')
         this.alertScreenReader('Template deleted.')
+        this.$putFocusNextTick('create-note-subject')
+        this.$nextTick(() => {
+          this.setFocusLockDisabled(false)
+        })
       })
     },
     editTemplate(template) {
       this.setModel(this.$_.cloneDeep(template))
       this.setMode('editTemplate')
-      this.putFocusNextTick('create-note-subject')
+      this.$putFocusNextTick('create-note-subject')
       this.alertScreenReader(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
       this.setModel(this.$_.cloneDeep(template))
-      this.putFocusNextTick('create-note-subject')
+      this.$putFocusNextTick('create-note-subject')
       this.alertScreenReader(`Template ${template.title} loaded.`)
     },
     onShowTemplatesMenu() {
@@ -171,8 +175,10 @@ export default {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
-        this.setFocusLockDisabled(false)
         this.alertScreenReader(`Template renamed '${title}'.`)
+        this.$nextTick(() => {
+          this.setFocusLockDisabled(false)
+        })
       })
     },
     toggleShowRenameTemplateModal(show) {

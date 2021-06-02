@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="close"
     @hide.prevent="close"
-    @shown="putFocusNextTick('modal-header')"
+    @shown="$putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader text="Drop-in Update" />

@@ -295,7 +295,7 @@ export default {
         this.onAppointmentStatusChange().then(() => {
           this.creating = false
           this.alertScreenReader(`${student.label} appointment created`)
-          this.putFocusNextTick(`waitlist-student-${student.sid}`)
+          this.$putFocusNextTick(`waitlist-student-${student.sid}`)
         })
       })
     },

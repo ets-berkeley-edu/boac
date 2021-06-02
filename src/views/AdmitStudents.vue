@@ -196,7 +196,7 @@ export default {
           this.admits = this.$_.get(response, 'students')
           this.totalAdmitCount = this.$_.get(response, 'totalStudentCount')
           this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
-          this.putFocusNextTick('cohort-name')
+          this.$putFocusNextTick('cohort-name')
         } else {
           this.$router.push({path: '/404'})
         }

@@ -213,6 +213,7 @@ const actions = {
   resetModel: ({commit}) => commit('setModel', $_getDefaultModel()),
   setBody: ({commit}, body: string) => commit('setBody', body),
   setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
+  setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({commit}, mode: string) => commit('setMode', mode),
   setModel: ({commit}, model?: any) => commit('setModel', model),

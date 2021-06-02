@@ -261,18 +261,18 @@ export default {
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
-      this.putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
       this.$announcer.polite(`Updated course ${this.bundleForEdit.name}`)
-      this.putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     deleteCanceled() {
-      this.putFocusNextTick(`column-${this.position}-delete-course-${this.bundleForDelete.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-delete-course-${this.bundleForDelete.category.id}-btn`)
       this.bundleForDelete = null
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
@@ -282,7 +282,7 @@ export default {
         this.$announcer.polite(`${this.bundleForDelete.name} deleted.`)
         this.bundleForDelete = null
         this.setDisableButtons(false)
-        this.putFocusNextTick('page-header')
+        this.$putFocusNextTick('page-header')
       })
     },
     deleteCourse(bundle) {
@@ -324,7 +324,7 @@ export default {
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
-      this.putFocusNextTick(`column-${this.position}-name-input`)
+      this.$putFocusNextTick(`column-${this.position}-name-input`)
     },
     getCourseFulfillments(bundle) {
       if (bundle.category && bundle.course) {

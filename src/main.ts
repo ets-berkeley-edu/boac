@@ -97,21 +97,22 @@ const axiosErrorHandler = error => {
 }
 
 axios.interceptors.response.use(
-    response => response,
-    error => {
-      const errorStatus = _.get(error, 'response.status')
-      if (_.includes([401, 403], errorStatus)) {
-        // Refresh user in case his/her session expired.
-        return axios.get(`${apiBaseUrl}/api/user/my_profile`).then(data => {
-          Vue.prototype.$currentUser = data
-          axiosErrorHandler(error)
-          return Promise.reject(error)
-        })
-      } else {
+  response => response,
+  error => {
+    const errorStatus = _.get(error, 'response.status')
+    if (_.includes([401, 403], errorStatus)) {
+      // Refresh user in case his/her session expired.
+      return axios.get(`${apiBaseUrl}/api/user/my_profile`).then(data => {
+        Vue.prototype.$currentUser = data
         axiosErrorHandler(error)
         return Promise.reject(error)
-      }
-    })
+      })
+    } else {
+      axiosErrorHandler(error)
+      return Promise.reject(error)
+    }
+  }
+)
 
 axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
   Vue.prototype.$currentUser = response.data
@@ -151,3 +152,18 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     store.dispatch('context/loadServiceAnnouncement').then(_.noop)
   })
 })
+
+Vue.prototype.$putFocusNextTick = (id: string, cssSelector?: string) => {
+  Vue.prototype.$nextTick(() => {
+    let counter = 0
+    const putFocus = setInterval(() => {
+      let el = document.getElementById(id)
+      el = el && cssSelector ? el.querySelector(cssSelector) : el
+      el && el.focus()
+      if (el || ++counter > 5) {
+        // Abort after success or three attempts
+        clearInterval(putFocus)
+      }
+    }, 500)
+  })
+}

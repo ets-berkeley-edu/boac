@@ -185,7 +185,7 @@ export default {
     }
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
     this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
-    this.putFocusNextTick('modal-header')
+    this.$putFocusNextTick('modal-header-note')
     this.$eventHub.on('user-session-expired', () => {
       this.onBoaSessionExpires()
     })
@@ -222,18 +222,22 @@ export default {
     },
     cancelCreateTemplate() {
       this.showCreateTemplateModal = false
-      this.setFocusLockDisabled(false)
+      this.$nextTick(() => {
+        this.setFocusLockDisabled(false)
+      })
     },
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
       this.alertScreenReader('Continue editing note.')
-      this.putFocusNextTick('create-note-subject')
+      this.$putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false
-      this.setFocusLockDisabled(false)
-      this.putFocusNextTick('create-note-subject')
+      this.$putFocusNextTick('create-note-subject')
+      this.$nextTick(() => {
+        this.setFocusLockDisabled(false)
+      })
     },
     createNote() {
       const ifAuthenticated = () => {
@@ -276,7 +280,7 @@ export default {
             deleteAttachmentIds: []
           })
           this.setMode(this.isBatchFeature ? 'batch' : 'create')
-          this.putFocusNextTick('create-note-subject')
+          this.$putFocusNextTick('create-note-subject')
         })
       }
       this.invokeIfAuthenticated(ifAuthenticated, () => {
@@ -293,11 +297,13 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
-      this.setFocusLockDisabled(false)
       this.resetModel()
       this.setMode(this.isBatchFeature ? 'batch' : 'create')
       this.alertScreenReader('Cancelled create template.')
-      this.putFocusNextTick('create-note-subject')
+      this.$putFocusNextTick('create-note-subject')
+      this.$nextTick(() => {
+        this.setFocusLockDisabled(false)
+      })
     },
     dismissAlert(seconds) {
       this.dismissAlertSeconds = seconds
@@ -325,7 +331,6 @@ export default {
       const ifAuthenticated = () => {
         this.showCreateTemplateModal = true
         this.setFocusLockDisabled(true)
-        this.putFocusNextTick('template-title-input')
       }
       this.invokeIfAuthenticated(ifAuthenticated)
     },
