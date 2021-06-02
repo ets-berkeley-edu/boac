@@ -1,11 +1,11 @@
 <template>
-  <div>
-    <div v-if="!courses.unassigned.length" class="no-data-text">
+  <div v-if="key">
+    <div v-if="!courses[key].length" class="no-data-text">
       No courses
     </div>
-    <div v-if="courses.unassigned.length" id="unassigned-courses-container">
+    <div v-if="courses[key].length" :id="`${key}-courses-container`">
       <b-table-simple
-        id="unassigned-courses-table"
+        :id="`${key}-courses-table`"
         borderless
         class="mb-1 w-100 table-layout"
         small
@@ -24,9 +24,9 @@
           </b-tr>
         </b-thead>
         <b-tbody>
-          <template v-for="(course, index) in courses.unassigned">
+          <template v-for="(course, index) in courses[key]">
             <b-tr
-              :id="`unassigned-course-${course.termId}-${course.sectionId}`"
+              :id="`${key}-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
               class="tr-course"
               :class="{'tr-while-dragging': isUserDragging(course.id)}"
@@ -45,7 +45,7 @@
               <td class="td-units">
                 <font-awesome
                   v-if="unitsWereEdited(course)"
-                  :id="`units-were-edited-${course.termId}-${course.sectionId}`"
+                  :id="`${key}-course-units-were-edited-${course.termId}-${course.sectionId}`"
                   class="changed-units-icon"
                   icon="info-circle"
                   size="sm"
@@ -66,7 +66,7 @@
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
                 <div v-if="!isUserDragging(course.id)">
                   <b-btn
-                    :id="`edit-course-${course.id}-btn`"
+                    :id="`edit-${key}-course-${course.id}-btn`"
                     class="font-size-14 p-0"
                     :disabled="disableButtons"
                     size="sm"
@@ -106,25 +106,35 @@ export default {
   name: 'UnassignedCourses',
   mixins: [DegreeEditSession, Util],
   components: {CourseAssignmentMenu, EditCourse},
+  props: {
+    ignored: {
+      required: false,
+      type: Boolean
+    }
+  },
   data: () => ({
-    courseForEdit: undefined
+    courseForEdit: undefined,
+    key: undefined
   }),
+  created() {
+    this.key = this.ignored ? 'ignored' : 'unassigned'
+  },
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
-      this.$putFocusNextTick(`edit-course-${this.courseForEdit.id}-btn`)
+      this.$putFocusNextTick(`edit-${this.key}-course-${this.courseForEdit.id}-btn`)
       this.courseForEdit = null
       this.setDisableButtons(false)
     },
     afterSave(course) {
       this.courseForEdit = null
-      this.$announcer.polite(`Updated course ${course.name}`)
-      this.$putFocusNextTick(`edit-course-${course.termId}-${course.sectionId}-btn`)
+      this.$announcer.polite(`Updated ${this.key} course ${course.name}`)
+      this.$putFocusNextTick(`edit-${this.key}-course-${course.termId}-${course.sectionId}-btn`)
       this.setDisableButtons(false)
     },
     edit(course) {
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${course.name}`)
+      this.$announcer.polite(`Edit ${this.key} ${course.name}`)
       this.courseForEdit = course
       this.$putFocusNextTick('name-input')
     },

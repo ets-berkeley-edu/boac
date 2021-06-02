@@ -28,7 +28,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import get as get_param, is_int, to_int_or_none
+from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
@@ -148,7 +148,12 @@ def assign_course(course_id):
                     # corresponding course, which is what we want. We are deleting copies of the course.
                     DegreeProgressCategory.delete(copy_of_course.category_id)
 
-        course = DegreeProgressCourse.assign_category(category_id=category_id, course_id=course.id)
+        ignore = not category_id and to_bool_or_none(get_param(params, 'ignore'))
+        course = DegreeProgressCourse.assign_category(
+            category_id=category_id,
+            course_id=course.id,
+            ignore=ignore,
+        )
         # Update updated_at date of top-level record
         DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
         return tolerant_jsonify(course.to_api_json())

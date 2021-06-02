@@ -15,8 +15,9 @@ export function copyCourseAndAssign(categoryId, sectionId, sid, termId) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, data).then(response => response.data, () => null)
 }
 
-export function assignCourse(courseId: number, categoryId?: number) {
-  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/assign`, {categoryId}).then(response => response.data, () => null)
+export function assignCourse(courseId: number, categoryId?: number, ignore?: boolean) {
+  const data = {categoryId, ignore}
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/assign`, data).then(response => response.data, () => null)
 }
 
 export function cloneDegreeTemplate(templateId: number, name: string) {
