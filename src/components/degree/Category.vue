@@ -1,6 +1,19 @@
 <template>
   <div>
-    <div class="align-items-center d-flex justify-content-between">
+    <div
+      id="drop-zone-category"
+      class="align-items-center d-flex drop-zone justify-content-between w-100"
+      :class="{
+        'drop-zone-on': isDroppable(category) && draggingContext.target === category.id,
+        'drop-zone-off': !isDroppable(category) || draggingContext.target !== category.id
+      }"
+      @dragend="onDrag($event, 'end')"
+      @dragenter="onDrag($event, 'enter')"
+      @dragleave="onDrag($event, 'leave')"
+      @dragover="onDrag($event, 'over')"
+      @dragstart="onDrag($event, 'start')"
+      @drop="onDropCourse($event)"
+    >
       <div>
         <h2 v-if="category.categoryType === 'Category'" class="degree-progress-category pl-0">
           {{ category.name }}
@@ -108,8 +121,50 @@ export default {
     edit() {
       this.$announcer.polite(`Edit ${this.category.name}`)
       this.onClickEdit(this.category)
+    },
+    isDroppable() {
+      return this.category.id === this.draggingContext.target && !this.$_.size(this.category.subcategories)
+    },
+    onDrag(event, stage) {
+      switch (stage) {
+      case 'end':
+        this.setDraggingTarget(null)
+        this.onDragEnd()
+        break
+      case 'enter':
+      case 'over':
+        event.stopPropagation()
+        event.preventDefault()
+        this.setDraggingTarget(this.category.id)
+        break
+      case 'leave':
+        if (this.$_.get(event.target, 'id') === 'drop-zone-category') {
+          this.setDraggingTarget(null)
+        }
+        break
+      case 'exit':
+      default:
+        break
+      }
+    },
+    onDropCourse(event) {
+      event.stopPropagation()
+      event.preventDefault()
+      this.onDrop({category: this.category, context: 'requirement'})
+      this.setDraggingTarget(null)
+      return false
     }
   }
 }
 </script>
 
+<style scoped>
+.drop-zone {
+  padding: 0.15em
+}
+.drop-zone-on {
+  background-color: #ecf5fb;
+  cursor: move;
+  outline: #8bbdda dashed 0.05em;
+}
+</style>
