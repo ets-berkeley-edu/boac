@@ -126,8 +126,7 @@ export default {
     scrollPerDrag(event) {
       if (event && this.draggingContext.dragContext === 'unassigned' && !this.draggingContext.target) {
         window.scroll({
-          top: event.y,
-          left: event.x,
+          top: event.clientY,
           behavior: 'smooth'
         })
       }
@@ -148,9 +147,7 @@ export default {
       case 'over':
         event.stopPropagation()
         event.preventDefault()
-        if (this.draggingContext.dragContext !== context) {
-          this.setDraggingTarget(context)
-        }
+        this.setDraggingTarget(context)
         break
       case 'leave':
         if (this.$_.get(event.target, 'id') === `drop-zone-${context}-courses`) {
@@ -166,7 +163,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .degree-check-column {
   min-width: 300px;
   padding-bottom: 10px;
