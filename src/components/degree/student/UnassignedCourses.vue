@@ -18,7 +18,7 @@
             <b-th class="pl-0 th-name">Course</b-th>
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th class="th-grade">Grade</b-th>
-            <b-th class="pl-0">Term</b-th>
+            <b-th v-if="!ignored" class="pl-0">Term</b-th>
             <b-th class="pl-0">Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
@@ -57,7 +57,7 @@
               <td class="td-grade">
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
               </td>
-              <td class="td-term">
+              <td v-if="!ignored" class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
               <td :class="{'ellipsis-if-overflow td-note': course.note}" :title="course.note || null">

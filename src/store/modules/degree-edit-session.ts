@@ -137,10 +137,10 @@ const mutations = {
 }
 
 const actions = {
-  assignCourseToCategory: ({commit, state}, {course, category}) => {
+  assignCourseToCategory: ({commit, state}, {course, category, ignore}) => {
     return new Promise<void>(resolve => {
       const categoryId = category && category.id
-      assignCourse(course.id, categoryId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      assignCourse(course.id, categoryId, ignore).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   copyCourseAndAssign: ({commit, state}, {categoryId, sectionId, sid, termId}) => {

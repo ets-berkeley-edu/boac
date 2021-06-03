@@ -17,13 +17,22 @@
       />
     </template>
     <b-dropdown-item
-      v-if="course.categoryId"
-      id="`assign-course-to-option-null`"
+      v-if="course.categoryId || course.ignore"
+      id="assign-course-to-option-null"
       link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
       :value="null"
-      @click="onSelect(null)"
+      @click="onSelect(null, false)"
     >
       -- Unassign --
+    </b-dropdown-item>
+    <b-dropdown-item
+      v-if="!course.ignore"
+      id="course-to-option-ignore"
+      link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
+      :value="null"
+      @click="onSelect(null, true)"
+    >
+      -- Junk Drawer --
     </b-dropdown-item>
     <b-dropdown-item
       v-for="option in options"
@@ -40,7 +49,7 @@
         'text-body text-decoration-none': true
       }"
       :value="option"
-      @click="onSelect(option)"
+      @click="onSelect(option, false)"
     >
       {{ option.name }}
     </b-dropdown-item>
@@ -84,9 +93,9 @@ export default {
     }
   },
   methods: {
-    onSelect(category) {
+    onSelect(category, ignore) {
       this.setDisableButtons(true)
-      this.assignCourseToCategory({course: this.course, category}).then(() => {
+      this.assignCourseToCategory({course: this.course, category, ignore}).then(() => {
         this.setDisableButtons(false)
         this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
       })
