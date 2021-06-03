@@ -35,6 +35,7 @@ export default {
       'draggingContext',
       'includeNotesWhenPrint',
       'isUserDragging',
+      'parentTemplateId',
       'parentTemplateUpdatedAt',
       'sid',
       'templateId',

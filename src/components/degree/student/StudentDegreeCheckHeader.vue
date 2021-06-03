@@ -4,8 +4,16 @@
       <b-col>
         <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
           <div class="d-inline-block pr-2 w-100">
-            <span class="font-weight-bolder">Note:</span> Revisions to the original degree template have been made since
-            the creation of {{ student.name }}'s degree check. Please update below if necessary.
+            <span class="font-weight-bolder">Note:</span> Revisions to the
+            <router-link
+              id="original degree template"
+              target="_blank"
+              :to="`/degree/${parentTemplateId}`"
+            >
+              original degree template <font-awesome icon="external-link-alt" class="pr-1" />
+              <span class="sr-only"> (will open new browser tab)</span>
+            </router-link>
+            have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
           </div>
           <div class="align-self-center pr-1">
             <b-btn
