@@ -1,5 +1,5 @@
 <template>
-  <b-container v-if="fields" class="pl-0" fluid>
+  <b-container v-if="render" class="pl-0" fluid>
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
@@ -24,17 +24,18 @@
           </div>
         </div>
         <div v-if="!isEditing">
-          <div v-if="!unitRequirements.length" id="unit-requirements-no-data" class="no-data-text pl-1">
+          <div v-if="!items.length" id="unit-requirements-no-data" class="no-data-text pl-1">
             No unit requirements created
           </div>
           <b-table-lite
-            v-if="unitRequirements.length"
+            v-if="items.length"
             id="unit-requirements-table"
-            :items="unitRequirements"
-            :fields="fields"
-            thead-class="sortable-table-header text-nowrap border-bottom"
             borderless
+            :fields="fields"
+            foot-clone
+            :items="items"
             small
+            thead-class="sortable-table-header text-nowrap border-bottom"
           >
             <template v-if="$currentUser.canEditDegreeProgress && !sid" #cell(actions)="row">
               <div class="align-items-center d-flex">
@@ -64,13 +65,23 @@
                 </b-btn>
               </div>
             </template>
+            <template v-if="sid" #foot()="data">
+              <div class="footer-cell">
+                <div v-if="data.field.key.toLowerCase() === 'name'" class="font-weight-bold">
+                  Total Units
+                </div>
+                <div v-if="data.field.key.toLowerCase() === 'completed'" id="count-required-units-completed" class="pr-1">
+                  {{ totalCompleted }}
+                </div>
+              </div>
+            </template>
           </b-table-lite>
         </div>
         <div v-if="isEditing" class="mb-3">
           <EditUnitRequirement
             :index="indexOfSelected"
             :on-exit="reset"
-            :unit-requirement="unitRequirements[indexOfSelected]"
+            :unit-requirement="items[indexOfSelected]"
           />
         </div>
       </b-col>
@@ -100,13 +111,22 @@ export default {
   mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     fields: undefined,
+    flattenedCategories: undefined,
     indexOfSelected: undefined,
     isDeleting: false,
-    isEditing: false
+    isEditing: false,
+    items: undefined,
+    render: false,
+    totalCompleted: undefined
   }),
   computed: {
     selected() {
-      return this.indexOfSelected && this.unitRequirements[this.indexOfSelected]
+      return this.indexOfSelected && this.items[this.indexOfSelected]
+    }
+  },
+  watch: {
+    lastPageRefreshAt() {
+      this.refresh()
     }
   },
   created() {
@@ -115,13 +135,13 @@ export default {
         key: 'name',
         label: 'Fulfillment Requirements',
         tdClass: 'font-size-16 pl-0 pt-1',
-        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
+        thClass: 'faint-text font-size-12 px-0 text-uppercase'
       },
       {
         key: 'minUnits',
         label: this.sid ? 'Min' : 'Min Units',
         tdClass: 'font-size-16 pl-0 pt-1 text-right',
-        thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
+        thClass: 'faint-text font-size-12 px-0 text-right text-uppercase'
       }
     ]
     if (this.sid) {
@@ -129,16 +149,18 @@ export default {
         key: 'completed',
         label: 'Completed',
         tdClass: 'd-flex justify-content-end',
-        thClass: 'faint-text font-size-12 pl-0 text-right text-uppercase'
+        thClass: 'faint-text font-size-12 px-0 text-right text-uppercase'
       })
     } else if (this.$currentUser.canEditDegreeProgress) {
       this.fields.push({
         key: 'actions',
         label: '',
         tdClass: 'd-flex justify-content-end',
-        thClass: 'faint-text font-size-12 pl-0 text-uppercase'
+        thClass: 'faint-text font-size-12 px-0 text-uppercase'
       })
     }
+    this.refresh()
+    this.render = true
   },
   methods: {
     deleteCanceled() {
@@ -156,6 +178,39 @@ export default {
         this.$putFocusNextTick('unit-requirements-table')
       })
     },
+    getUnitsCompleted(unitRequirement) {
+      let count = 0
+      this.$_.each(this.courses, courses => {
+        this.$_.each(courses, course => {
+          if (course.categoryId) {
+            const category = this.$_.find(this.flattenedCategories, ['id', course.categoryId])
+            if (category.unitRequirements.length) {
+              this.$_.each(category.unitRequirements, u => {
+                if (u.id === unitRequirement.id) {
+                  count += course.units
+                }
+              })
+            }
+          }
+        })
+      })
+      return count
+    },
+    refresh() {
+      this.flattenedCategories = this.getFlattenedCategories()
+      const items = []
+      this.totalCompleted = 0
+      this.$_.each(this.unitRequirements, u => {
+        const unitsCompleted = this.getUnitsCompleted(u)
+        this.totalCompleted += unitsCompleted
+        items.push({
+          name: u.name,
+          minUnits: u.minUnits,
+          completed: unitsCompleted
+        })
+      })
+      this.items = items
+    },
     onClickAdd() {
       this.setDisableButtons(true)
       this.indexOfSelected = null
@@ -172,7 +227,7 @@ export default {
       this.isEditing = true
     },
     reset() {
-      const focusId = this.$_.isNil(this.indexOfSelected) ? 'unit-requirement-create-link' : `unit-requirement-${this.unitRequirements[this.indexOfSelected].id}-edit-btn`
+      const focusId = this.$_.isNil(this.indexOfSelected) ? 'unit-requirement-create-link' : `unit-requirement-${this.items[this.indexOfSelected].id}-edit-btn`
       this.setDisableButtons(false)
       this.indexOfSelected = null
       this.isEditing = false
@@ -181,3 +236,15 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.footer-cell {
+  border-top: 1px solid #999;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 4px 0 4px 0;
+  text-transform: none !important;
+  width: 100%;
+}
+</style>

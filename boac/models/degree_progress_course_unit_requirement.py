@@ -48,5 +48,11 @@ class DegreeProgressCourseUnitRequirement(db.Model):
         std_commit()
 
     @classmethod
+    def delete(cls, course_id):
+        for row in cls.find_by_course_id(course_id):
+            db.session.delete(row)
+        std_commit()
+
+    @classmethod
     def find_by_course_id(cls, course_id):
         return cls.query.filter_by(course_id=course_id).all()

@@ -65,6 +65,7 @@ const state = {
     target: undefined
   },
   includeNotesWhenPrint: true,
+  lastPageRefreshAt: undefined,
   parentTemplateId: undefined,
   parentTemplateUpdatedAt: undefined,
   sid: undefined,
@@ -96,6 +97,7 @@ const getters = {
   draggingContext: (state: any): any => state.draggingContext,
   includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
   isUserDragging: (state: any) => (courseId: number) => !!courseId && state.draggingContext.courseId === courseId,
+  lastPageRefreshAt: (state: any): any[] => state.lastPageRefreshAt,
   parentTemplateId: (state: any): string => state.parentTemplateId,
   parentTemplateUpdatedAt: (state: any): string => state.parentTemplateUpdatedAt,
   sid: (state: any): string => state.sid,
@@ -133,6 +135,7 @@ const mutations = {
       state.parentTemplateId = state.parentTemplateUpdatedAt = undefined
       state.templateId = state.sid = state.unitRequirements = state.updatedAt = state.updatedBy = undefined
     }
+    state.lastPageRefreshAt = new Date()
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setDraggingTarget: (state: any, target: any) => state.draggingContext.target = target,

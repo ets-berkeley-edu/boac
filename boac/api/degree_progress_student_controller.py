@@ -31,6 +31,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
+from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
@@ -144,6 +145,7 @@ def assign_course(course_id):
                     term_id=course.term_id,
             ):
                 if copy_of_course.id != course.id:
+                    DegreeProgressCourseUnitRequirement.delete(copy_of_course.id)
                     # Due to on-cascade-delete in the db, this category deletion will cause deletion of the
                     # corresponding course, which is what we want. We are deleting copies of the course.
                     DegreeProgressCategory.delete(copy_of_course.category_id)
