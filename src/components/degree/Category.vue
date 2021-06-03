@@ -2,10 +2,10 @@
   <div>
     <div
       id="drop-zone-category"
-      class="align-items-center d-flex drop-zone justify-content-between w-100"
+      class="align-items-center d-flex justify-content-between w-100"
       :class="{
-        'drop-zone-on': isDroppable(category) && draggingContext.target === category.id,
-        'drop-zone-off': !isDroppable(category) || draggingContext.target !== category.id
+        'drop-zone-container': !$_.size(category.subcategories),
+        'drop-zone-container-on': isDroppable(category) && draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
       @dragenter="onDrag($event, 'enter')"
@@ -14,14 +14,12 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <div>
-        <h2 v-if="category.categoryType === 'Category'" class="degree-progress-category pl-0">
-          {{ category.name }}
-        </h2>
-        <h3 v-if="category.categoryType === 'Subcategory'" class="degree-progress-subcategory pl-0">
-          {{ category.name }}
-        </h3>
-      </div>
+      <h2 v-if="category.categoryType === 'Category'" class="category-header">
+        {{ category.name }}
+      </h2>
+      <h3 v-if="category.categoryType === 'Subcategory'" class="subcategory-header">
+        {{ category.name }}
+      </h3>
       <div
         v-if="!sid && $currentUser.canEditDegreeProgress"
         class="align-items-start d-flex justify-content-end text-nowrap"
@@ -50,7 +48,7 @@
         </b-btn>
       </div>
     </div>
-    <div v-if="category.description" id="degree-progress-category-description">
+    <div v-if="category.description" id="category-header-description">
       {{ category.description }}
     </div>
     <AreYouSureModal
@@ -159,12 +157,27 @@ export default {
 </script>
 
 <style scoped>
-.drop-zone {
-  padding: 0.15em
+.category-header {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 0;
+  padding: 0;
 }
-.drop-zone-on {
+.drop-zone-container {
+  border-left: 2px solid #337ab7;
+  padding: 0 0.3em 0 0.3em;
+  margin: 0.2em 0 0.2em 0;
+}
+.drop-zone-container-on {
   background-color: #ecf5fb;
+  border-left: 2px solid transparent;
   cursor: move;
-  outline: #8bbdda dashed 0.05em;
+  outline: #8bbdda dashed 0.15em;
+}
+.subcategory-header {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 0;
+  padding: 0;
 }
 </style>

@@ -83,16 +83,6 @@
 .cursor-pointer {
   cursor: pointer;
 }
-.degree-progress-category {
-  font-size: 20px;
-  padding-top: 1px;
-  font-weight: bold;
-}
-.degree-progress-subcategory {
-  font-size: 18px;
-  font-weight: bold;
-  padding-top: 0;
-}
 .demo-mode-blur {
   color: transparent !important;
   text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
