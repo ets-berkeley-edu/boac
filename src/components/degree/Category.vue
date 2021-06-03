@@ -165,7 +165,7 @@ export default {
 }
 .drop-zone-container {
   border-left: 2px solid #337ab7;
-  padding: 0 0.3em 0 0.3em;
+  padding: 0 0.3em 0 0.5em;
   margin: 0.2em 0 0.2em 0;
 }
 .drop-zone-container-on {

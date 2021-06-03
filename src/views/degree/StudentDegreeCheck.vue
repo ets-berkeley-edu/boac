@@ -124,7 +124,7 @@ export default {
   },
   methods: {
     scrollPerDrag(event) {
-      if (event && this.draggingContext.dragContext === 'unassigned' && !this.draggingContext.target) {
+      if (event && !this.draggingContext.target) {
         window.scroll({
           top: event.clientY,
           behavior: 'smooth'
