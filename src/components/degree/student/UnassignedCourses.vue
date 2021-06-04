@@ -8,6 +8,7 @@
         :id="`${key}-courses-table`"
         borderless
         class="mb-1 w-100 table-layout"
+        responsive
         small
       >
         <b-thead class="border-bottom">
@@ -183,7 +184,6 @@ table {
 }
 .td-name {
   font-size: 14px;
-  min-width: 300px;
   padding: 0.2em 0 0 0.25em;
   vertical-align: middle;
 }
