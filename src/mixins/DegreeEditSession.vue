@@ -35,6 +35,7 @@ export default {
       'draggingContext',
       'includeNotesWhenPrint',
       'isUserDragging',
+      'lastPageRefreshAt',
       'parentTemplateId',
       'parentTemplateUpdatedAt',
       'sid',
@@ -81,6 +82,9 @@ export default {
       } else {
         return category.courseRequirements
       }
+    },
+    getFlattenedCategories() {
+      return $_flatten(this.categories)
     },
     isValidUnits: $_isValidUnits,
     unitsWereEdited: course => {
