@@ -261,9 +261,10 @@ const actions = {
         }
 
       } else {
-        done('Error: Unrecognized operation', true)
+        const message = `Invalid context(s): dragContext = '${dragContext}' and dropContext = '${context}'`
+        done(message, true)
         commit('draggingContextReset')
-        throw new TypeError(`Invalid context(s): dragContext = '${dragContext}' and dropContext = '${context}'`)
+        throw new TypeError(message)
       }
     })
   },

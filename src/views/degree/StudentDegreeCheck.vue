@@ -31,6 +31,7 @@
                 @dragleave="onDrag($event, 'leave', 'ignored')"
                 @dragexit="onDrag($event,'exit', 'ignored')"
                 @dragover="onDrag($event,'over', 'ignored')"
+                @dragstart="onDrag($event,'start', 'ignored')"
                 @drop="dropToUnassign($event, 'ignored')"
               >
                 <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Junk Drawer</h2>
@@ -50,6 +51,7 @@
                 @dragleave="onDrag($event, 'leave', 'unassigned')"
                 @dragexit="onDrag($event,'exit', 'unassigned')"
                 @dragover="onDrag($event,'over', 'unassigned')"
+                @dragstart="onDrag($event,'start', 'unassigned')"
                 @drop="dropToUnassign($event, 'unassigned')"
               >
                 <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
@@ -125,9 +127,12 @@ export default {
   methods: {
     scrollPerDrag(event) {
       if (event && !this.draggingContext.target) {
-        window.scroll({
-          top: event.clientY,
-          behavior: 'smooth'
+        const height = document.documentElement.scrollHeight
+        const yPercentage = event.clientY / screen.height
+        window.scrollTo({
+          behavior: 'smooth',
+          left: 0,
+          top: yPercentage * height
         })
       }
     },
@@ -155,6 +160,7 @@ export default {
         }
         break
       case 'exit':
+      case 'start':
       default:
         break
       }
