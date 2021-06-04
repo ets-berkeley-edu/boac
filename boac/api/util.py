@@ -28,12 +28,13 @@ import json
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.externals.data_loch import get_admitted_students_by_sids, get_sis_holds, get_student_profiles
-from boac.lib.berkeley import dept_codes_where_advising
+from boac.lib.berkeley import dept_codes_where_advising, previous_term_id
 from boac.lib.http import response_with_csv_download
 from boac.lib.util import join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_academic_standing_by_sid, get_historical_student_profiles, get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
@@ -421,6 +422,8 @@ def is_unauthorized_search(filter_keys, order_by=None):
 
 
 def response_with_students_csv_download(sids, fieldnames, benchmark):
+    term_id_last = previous_term_id(current_term_id())
+    term_id_previous = previous_term_id(term_id_last)
     rows = []
     getters = {
         'first_name': lambda profile: profile.get('firstName'),
@@ -442,7 +445,8 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         'terms_in_attendance': lambda profile: profile.get('sisProfile', {}).get('termsInAttendance'),
         'expected_graduation_term': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
         'units_completed': lambda profile: profile.get('sisProfile', {}).get('cumulativeUnits'),
-        'term_gpa': lambda profile: profile.get('termGpa'),
+        f'term_gpa_{term_id_previous}': lambda profile: profile.get('termGpa', {}).get(term_id_previous),
+        f'term_gpa_{term_id_last}': lambda profile: profile.get('termGpa', {}).get(term_id_last),
         'cumulative_gpa': lambda profile: profile.get('sisProfile', {}).get('cumulativeGPA'),
         'program_status': lambda profile: ';'.join(
             list(
@@ -467,7 +471,7 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
 
     def _add_row(student_profile):
         student_profile['academicStanding'] = _get_last_element(academic_standing.get(student_profile['sid']))
-        student_profile['termGpa'] = _get_last_element(term_gpas.get(student_profile['sid']))
+        student_profile['termGpa'] = term_gpas.get(student_profile['sid'], {})
         row = {}
         for fieldname in fieldnames:
             row[fieldname] = getters[fieldname](student_profile)
