@@ -15,7 +15,7 @@
         </div>
         <b-container class="px-0 py-2 section-separator" fluid>
           <b-row no-gutters>
-            <b-col class="pb-2 pr-2 pt-1">
+            <b-col>
               <UnitRequirements />
             </b-col>
             <b-col>
