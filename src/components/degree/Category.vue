@@ -48,7 +48,7 @@
         </b-btn>
       </div>
     </div>
-    <div v-if="category.description" id="category-header-description">
+    <div v-if="category.description" id="category-header-description" class="pl-1 py-1">
       {{ category.description }}
     </div>
     <AreYouSureModal
