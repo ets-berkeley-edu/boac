@@ -140,5 +140,4 @@ def _student_search_result(s):
 
 
 def _put_degree_checks_json(student):
-    if 'coeProfile' in student and current_user.can_read_degree_progress:
-        student['degreeChecks'] = DegreeProgressTemplate.find_by_sid(student_sid=student['sid'])
+    student['degreeChecks'] = DegreeProgressTemplate.find_by_sid(student_sid=student['sid']) if current_user.can_read_degree_progress else []

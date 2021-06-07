@@ -34,7 +34,7 @@
           </span>
         </b-button>
       </div>
-      <div v-if="$config.featureFlagDegreeCheck && student.coeProfile" class="flex-shrink-1">
+      <div v-if="$config.featureFlagDegreeCheck && (student.coeProfile || student.degreeChecks.length)" class="flex-shrink-1">
         <b-btn
           id="view-degree-check-btn"
           class="pr-0"
