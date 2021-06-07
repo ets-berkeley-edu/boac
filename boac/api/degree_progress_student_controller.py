@@ -117,7 +117,7 @@ def copy_course():
             parent_category_id=category.id,
 
         )
-        DegreeProgressCourse.assign_category(category_id=course_requirement.id, course_id=course.id)
+        DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
         return tolerant_jsonify(DegreeProgressCourse.find_by_id(course.id).to_api_json())
 
 
@@ -135,8 +135,9 @@ def assign_course(course_id):
             children = DegreeProgressCategory.find_by_parent_category_id(parent_category_id=category_id)
             if next((c for c in children if c.category_type == 'Subcategory'), None):
                 raise BadRequestError('A course cannot be assigned to a category with a subcategory.')
+            course = DegreeProgressCourse.assign(category_id=category_id, course_id=course.id)
 
-        elif not category_id:
+        else:
             # When user un-assigns a course we delete all copies of that course,.
             for copy_of_course in DegreeProgressCourse.get_courses(
                     degree_check_id=course.degree_check_id,
@@ -149,13 +150,9 @@ def assign_course(course_id):
                     # Due to on-cascade-delete in the db, this category deletion will cause deletion of the
                     # corresponding course, which is what we want. We are deleting copies of the course.
                     DegreeProgressCategory.delete(copy_of_course.category_id)
+            ignore = to_bool_or_none(get_param(params, 'ignore'))
+            course = DegreeProgressCourse.unassign(course_id=course.id, ignore=ignore)
 
-        ignore = not category_id and to_bool_or_none(get_param(params, 'ignore'))
-        course = DegreeProgressCourse.assign_category(
-            category_id=category_id,
-            course_id=course.id,
-            ignore=ignore,
-        )
         # Update updated_at date of top-level record
         DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
         return tolerant_jsonify(course.to_api_json())

@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import is_int
 from boac.models.base import Base
+from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from dateutil.tz import tzutc
 
@@ -98,11 +99,14 @@ class DegreeProgressCourse(Base):
             units={self.units},>"""
 
     @classmethod
-    def assign_category(cls, category_id, course_id, ignore=False):
+    def assign(cls, category_id, course_id):
         course = cls.query.filter_by(id=course_id).first()
         course.category_id = category_id
-        course.ignore = ignore
+        course.ignore = False
         std_commit()
+        DegreeProgressCourseUnitRequirement.delete(course_id)
+        for unit_requirement in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
+            DegreeProgressCourseUnitRequirement.create(course.id, unit_requirement.id)
         return course
 
     @classmethod
@@ -117,7 +121,7 @@ class DegreeProgressCourse(Base):
             units,
             category_id=None,
             note=None,
-            unit_requirement_ids=[],
+            unit_requirement_ids=(),
     ):
         course = cls(
             category_id=category_id,
@@ -166,6 +170,15 @@ class DegreeProgressCourse(Base):
             sid=sid,
             term_id=term_id,
         ).all()
+
+    @classmethod
+    def unassign(cls, course_id, ignore=False):
+        course = cls.query.filter_by(id=course_id).first()
+        course.category_id = None
+        course.ignore = ignore
+        std_commit()
+        DegreeProgressCourseUnitRequirement.delete(course_id)
+        return course
 
     @classmethod
     def update(cls, course_id, note, units, unit_requirement_ids):
