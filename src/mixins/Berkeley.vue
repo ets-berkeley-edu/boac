@@ -95,6 +95,8 @@ export default {
       ]
     },
     getDefaultCsvExportColumns() {
+      const lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)
+      const previousTermId = this.previousSisTermId(lastTermId)
       return [
         {text: 'First name', value: 'first_name'},
         {text: 'Last name', value: 'last_name'},
@@ -108,7 +110,8 @@ export default {
         {text: 'Terms in attendance', value: 'terms_in_attendance'},
         {text: 'Expected Graduation Term', value: 'expected_graduation_term'},
         {text: 'Units completed', value: 'units_completed'},
-        {text: 'Term GPA', value: 'term_gpa'},
+        {text: `Term GPA (${this.termNameForSisId(previousTermId)})`, value: `term_gpa_${previousTermId}`},
+        {text: `Term GPA (${this.termNameForSisId(lastTermId)})`, value: `term_gpa_${lastTermId}`},
         {text: 'Cumulative GPA', value: 'cumulative_gpa'},
         {text: 'Program status', value: 'program_status'},
         {text: 'Transfer status', value: 'transfer'},
