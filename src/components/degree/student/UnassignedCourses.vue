@@ -143,7 +143,7 @@ export default {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
     },
     onStartDraggingCourse(courseId) {
-      this.onDragStart({courseId: courseId, dragContext: 'unassigned'})
+      this.onDragStart({courseId: courseId, dragContext: this.key})
     }
   }
 }
