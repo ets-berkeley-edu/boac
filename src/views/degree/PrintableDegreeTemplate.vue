@@ -4,18 +4,10 @@
     <div v-if="!loading">
       <b-container fluid>
         <b-row>
-          <b-col v-if="student" id="student-degree-info" class="font-size-10">
-            <h1
-              class="font-size-14 font-weight-bold"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-            >
-              {{ student.name }}
-            </h1>
+          <b-col v-if="student">
+            <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
             <div class="font-weight-bold">
-              SID
-              <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-                {{ student.sid }}
-              </span>
+              SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
             </div>
             <div class="font-weight-bold">
               {{ student.sisProfile.level.description }}
@@ -37,10 +29,7 @@
             <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
               <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
               <hr class="subsection-divider my-1 mr-5" />
-              <div
-                v-for="minorPlan of student.sisProfile.plansMinor"
-                :key="minorPlan.description"
-              >
+              <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
                 <div class="font-weight-bold">{{ minorPlan.description }}</div>
                 <div class="text-secondary">{{ minorPlan.program }}</div>
               </div>
@@ -48,34 +37,9 @@
           </b-col>
           <b-col id="degree-unit-requirements-info">
             <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
-            <h1 class="font-size-12 pt-2">{{ template.name }}</h1>
-
+            <h1 class="font-size-12 pt-2">{{ degreeName }}</h1>
             <h4 class="font-size-10 font-weight-bold mb-0">Unit Requirements</h4>
-            <div v-if="$_.isEmpty(template.unitRequirements)" class="no-data-text">
-              No unit requirements created
-            </div>
-            <div v-if="template.unitRequirements.length">
-              <b-table
-                id="print-unit-requirements-table"
-                :items="template.unitRequirements"
-                :fields="fields"
-                thead-class="sortable-table-header text-nowrap border-bottom"
-                borderless
-                responsive
-                small
-              >
-              </b-table>
-              <div class="font-size-8 font-weight-bold pt-0">
-                <hr class="subsection-divider mb-2" />
-                <!-- TO DO: Figure out how to position this correctly -->
-                <span class="float-left">
-                  Total Units:
-                </span>
-                <span class="pl-4">
-                  {{ totalUnits }}
-                </span>
-              </div>
-            </div>
+            <UnitRequirements />
           </b-col>
         </b-row>
       </b-container>
@@ -83,14 +47,14 @@
       <b-container fluid>
         <b-row>
           <b-col
-            v-for="position in allPositions"
+            v-for="position in [1, 2, 3]"
             :key="position"
             class="print-degree-progress-column"
           >
             <template>
               <div>
                 <div
-                  v-for="category in $_.filter(template.categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+                  v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
                   :key="category.id"
                   class="print-degree-course-requirements"
                 >
@@ -98,12 +62,14 @@
                     v-if="category.id"
                     :category="category"
                     :position="position"
+                    :printable="true"
                   />
                   <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
                     <CoursesTable
                       :items="category.courseRequirements"
                       :parent-category="category"
                       :position="position"
+                      :printable="true"
                     />
                   </div>
                   <div v-if="$_.size(category.subcategories)">
@@ -112,12 +78,14 @@
                         v-if="subcategory.id"
                         :category="subcategory"
                         :position="position"
+                        :printable="true"
                       />
                       <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
                         <CoursesTable
                           :items="subcategory.courseRequirements"
                           :parent-category="subcategory"
                           :position="position"
+                          :printable="true"
                         />
                       </div>
                     </div>
@@ -129,11 +97,11 @@
         </b-row>
       </b-container>
 
-      <div v-if="template.note && includeNotes" class="ml-3">
+      <div v-if="degreeNote && includeNotesWhenPrint" class="ml-3">
         <hr class="divider" />
         <h1 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h1>
         <div class="font-size-8">
-          {{ template.note.body }}
+          {{ degreeNote.body }}
         </div>
       </div>
     </div>
@@ -145,69 +113,35 @@
 import Category from '@/components/degree/Category.vue'
 import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
+import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
-import {getDegreeTemplate} from '@/api/degree'
 import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'PrintableDegreeTemplate',
   components: {
-    Spinner,
+    Category,
     CoursesTable,
-    Category
+    Spinner,
+    UnitRequirements
   },
-  mixins: [Context, Loading, Util],
-  mounted() {
-    const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-    this.includeNotes = store.getters['degreeEditSession/includeNotesWhenPrint']
-
-    getDegreeTemplate(id).then(data => {
-      this.template = data
-      if (data.sid) {
-        getStudentBySid(data.sid, true).then(studentData => {
-          this.student = studentData
-          this.loaded(`Print ${this.template.name} degree check for ${this.student.name} has loaded`)
-        })
-      } else {
-        this.loaded(`Print ${this.template.name} degree check has loaded`)
-      }
-    })
-  },
+  mixins: [Context, DegreeEditSession, Loading, Util],
   data: () => ({
-    fields: [
-      {
-        key: 'name',
-        label: 'Type',
-        class: 'pl-0'
-      },
-      {
-        key: 'minUnits',
-        label: 'Min.',
-        class: 'text-right'
-      },
-      {
-        key: 'completedUnits',
-        label: 'Completed'
-      }
-    ],
-    template: undefined,
-    student: undefined,
-    includeNotes: undefined
+    student: undefined
   }),
-  computed: {
-    totalUnits() {
-      // TO DO: gather completed units and subtract to get actual total units
-      return this.template.unitRequirements.length ? this.$_.map(this.template.unitRequirements, 'minUnits')
-        .reduce((accumulator, val) => accumulator + val) : 0
-    },
-    allPositions() {
-      return this.$_.uniq(
-        this.$_.map(this.template.categories, 'position')
-      )
-    }
+  created() {
+    const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+    this.init(id).then(() => {
+      getStudentBySid(this.sid).then(data => {
+        this.student = data
+        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+        this.setPageTitle(`${studentName} - ${this.degreeName}`)
+        this.loaded(`${this.degreeName} for ${this.student.name}`)
+      })
+    })
   }
 }
 </script>
@@ -225,24 +159,6 @@ export default {
 .font-size-8 {
   font-size: 8px;
 }
-.print-degree-course-requirements >>> h3 {
-  font-size: 10px;
-}
-.print-degree-course-requirements >>> h2 {
-  font-size: 12px;
-}
-.print-degree-course-requirements >>> button {
-  display: none;
-}
-.print-degree-course-requirements >>> td,
-.print-degree-course-requirements >>> span {
-  padding-bottom: 1px;
-  font-size: 10px;
-}
-.print-degree-course-requirements >>> #degree-progress-category-description,
-.print-degree-course-requirements >>> thead th {
-  font-size: 8px;
-}
 .subsection-divider {
   background-color: #999999;
   height: 1px;
@@ -252,7 +168,6 @@ export default {
   border: 1px solid #000000;
   border-radius: 5px;
   color: #fff;
-  font-family: Helvetica;
   font-size: 8px;
   font-weight: bold;
   height: 24px;
@@ -260,12 +175,5 @@ export default {
   padding-top: 6px;
   text-align: center;
   width: auto;
-}
-#degree-unit-requirements-info >>> table thead {
-  font-size: 8px;
-}
-#degree-unit-requirements-info >>> tbody td {
-  font-size: 8px;
-  padding: .1rem;
 }
 </style>

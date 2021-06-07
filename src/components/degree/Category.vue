@@ -20,10 +20,7 @@
       <h3 v-if="category.categoryType === 'Subcategory'" class="subcategory-header">
         {{ category.name }}
       </h3>
-      <div
-        v-if="!sid && $currentUser.canEditDegreeProgress"
-        class="align-items-start d-flex justify-content-end text-nowrap"
-      >
+      <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
         <b-btn
           :id="`column-${position}-edit-category-${category.id}-btn`"
           class="pr-1 pt-0"
@@ -84,9 +81,14 @@ export default {
     onClickEdit: {
       required: false,
       type: Function
+    },
+    printable: {
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({
+    canEdit: undefined,
     isDeleting: false
   }),
   computed: {
@@ -95,6 +97,9 @@ export default {
         return c.position === this.position && this.$_.isNil(c.parentCategoryId)
       })
     }
+  },
+  created() {
+    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
   },
   methods: {
     deleteCanceled() {
