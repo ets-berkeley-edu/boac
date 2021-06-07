@@ -13,7 +13,7 @@
         </div>
       </template>
       <b-dropdown-item
-        v-if="$currentUser.canEditDegreeProgress || $currentUser.canReadDegreeProgress"
+        v-if="$currentUser.canReadDegreeProgress"
         id="header-menu-degree-check"
         class="nav-link-color text-decoration-none"
         to="/degrees"
