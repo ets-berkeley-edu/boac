@@ -41,13 +41,34 @@ class TestDataLoch:
 
         uids = [a['uid'] for a in advisors]
         advisors_by_uid = {uid: [a for a in advisors if a['uid'] == uid] for uid in uids}
-        assert advisors_by_uid['13'] == [{'uid': '13', 'can_access_advising_data': True, 'can_access_canvas_data': False}]
-        assert advisors_by_uid['90412'] == [
-            {'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': False},
-            {'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True},
+        assert advisors_by_uid['13'] == [
+            {
+                'uid': '13',
+                'can_access_advising_data': True,
+                'can_access_canvas_data': False,
+                'degree_progress_permission': 'read_write',
+            },
         ]
-        assert advisors_by_uid['211159'] == [{'uid': '211159', 'can_access_advising_data': True, 'can_access_canvas_data': True}]
-        assert advisors_by_uid['1022796'] == [{'uid': '1022796', 'can_access_advising_data': False, 'can_access_canvas_data': False}]
+        assert advisors_by_uid['90412'] == [
+            {'uid': '90412', 'can_access_advising_data': False, 'can_access_canvas_data': False, 'degree_progress_permission': 'read'},
+            {'uid': '90412', 'can_access_advising_data': True, 'can_access_canvas_data': True, 'degree_progress_permission': 'read'},
+        ]
+        assert advisors_by_uid['211159'] == [
+            {
+                'uid': '211159',
+                'can_access_advising_data': True,
+                'can_access_canvas_data': True,
+                'degree_progress_permission': 'read_write',
+            },
+        ]
+        assert advisors_by_uid['1022796'] == [
+            {
+                'uid': '1022796',
+                'can_access_advising_data': False,
+                'can_access_canvas_data': False,
+                'degree_progress_permission': 'read_write',
+            },
+        ]
 
     def test_get_current_term_index(self):
         index = data_loch.get_current_term_index()

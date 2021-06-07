@@ -816,17 +816,23 @@ def get_academic_plans_for_advisor(advisor_sid):
 
 
 def get_advisor_uids_for_affiliations(program, affiliations):
-    sql = f"""SELECT DISTINCT uid,
-        CASE WHEN cs_permissions = 'UC_CS_AA_ADVISOR_VIEW' THEN false ELSE true END AS can_access_advising_data,
+    sql = f"""SELECT DISTINCT r.uid,
+        CASE WHEN r.cs_permissions = 'UC_CS_AA_ADVISOR_VIEW' THEN false ELSE true END AS can_access_advising_data,
         CASE
-            WHEN advisor_type_code IS NULL OR cs_permissions = 'UC_CS_AA_ADVISOR_VIEW' THEN false
+            WHEN r.advisor_type_code IS NULL OR r.cs_permissions = 'UC_CS_AA_ADVISOR_VIEW' THEN false
             ELSE true END
-        AS can_access_canvas_data
-        FROM {advisor_schema()}.advisor_roles"""
+        AS can_access_canvas_data,
+        CASE
+            WHEN r.academic_program_code = 'UCOE' AND (a.dept_code IN ('EDESS', 'EDDNO') OR r.advisor_type_code = 'DNDS') THEN 'read_write'
+            WHEN r.academic_program_code = 'UCOE' THEN 'read'
+            ELSE NULL END
+        AS degree_progress_permission
+        FROM {advisor_schema()}.advisor_roles r
+        LEFT JOIN {advisor_schema()}.advisor_attributes a ON r.sid = a.sid"""
     if program:
-        sql += ' WHERE academic_program_code = :program'
+        sql += ' WHERE r.academic_program_code = :program'
     else:
-        sql += " WHERE academic_program_code = '' OR academic_program_code IS NULL"
+        sql += " WHERE r.academic_program_code = '' OR r.academic_program_code IS NULL"
     if affiliations:
         sql += ' AND advisor_type_code = ANY(:affiliations)'
     return safe_execute_rds(sql, program=program, affiliations=affiliations)

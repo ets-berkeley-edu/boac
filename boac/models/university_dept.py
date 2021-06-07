@@ -99,10 +99,12 @@ class UniversityDept(Base):
                 return rows[0]
             can_access_advising_data = reduce((lambda r, s: r['can_access_advising_data'] or s['can_access_advising_data']), rows)
             can_access_canvas_data = reduce((lambda r, s: r['can_access_canvas_data'] or s['can_access_canvas_data']), rows)
+            degree_progress_permission = reduce((lambda r, s: r['degree_progress_permission'] or s['degree_progress_permission']), rows)
             return {
                 'uid': uid,
                 'can_access_advising_data': can_access_advising_data,
                 'can_access_canvas_data': can_access_canvas_data,
+                'degree_progress_permission': degree_progress_permission,
             }
         advisors.sort(key=itemgetter('uid'))
         return [_resolve(uid, rows) for (uid, rows) in groupby(advisors, itemgetter('uid'))]

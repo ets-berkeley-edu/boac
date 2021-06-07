@@ -178,7 +178,7 @@ def refresh_department_memberships():
                 created_by='0',
                 can_access_advising_data=membership['can_access_advising_data'],
                 can_access_canvas_data=membership['can_access_canvas_data'],
-                degree_progress_permission='read' if dept.dept_code == 'COENG' else None,
+                degree_progress_permission=membership['degree_progress_permission'],
             )
             if user:
                 UniversityDeptMember.create_or_update_membership(
