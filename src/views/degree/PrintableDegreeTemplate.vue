@@ -5,7 +5,7 @@
       <b-container fluid>
         <b-row>
           <b-col v-if="student">
-            <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
+            <h1 class="font-size-16 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
             <div class="font-weight-bold">
               SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
             </div>
@@ -16,8 +16,9 @@
             <div class="text-secondary">Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
 
             <div class="pt-2">
-              <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
-              <hr class="subsection-divider my-1 mr-5" />
+              <div class="section-separator">
+                <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
+              </div>
               <div
                 v-for="plan in student.sisProfile.plans"
                 :key="plan.description"
@@ -27,8 +28,9 @@
               </div>
             </div>
             <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
-              <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
-              <hr class="subsection-divider my-1 mr-5" />
+              <div class="section-separator">
+                <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
+              </div>
               <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
                 <div class="font-weight-bold">{{ minorPlan.description }}</div>
                 <div class="text-secondary">{{ minorPlan.program }}</div>
@@ -36,9 +38,11 @@
             </div>
           </b-col>
           <b-col id="degree-unit-requirements-info">
-            <div class="unofficial-label-pill">UNOFFICIAL DEGREE PROGRESS REPORT </div>
-            <h1 class="font-size-12 pt-2">{{ degreeName }}</h1>
-            <h4 class="font-size-10 font-weight-bold mb-0">Unit Requirements</h4>
+            <div class="unofficial-label-pill">
+              <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
+              <div>Printed by {{ $currentUser.name }} on {{ new Date() | moment('MMMM D, YYYY') }}</div>
+            </div>
+            <h2 class="font-size-16">{{ degreeName }}</h2>
             <UnitRequirements />
           </b-col>
         </b-row>
@@ -97,9 +101,9 @@
         </b-row>
       </b-container>
 
-      <div v-if="degreeNote && includeNotesWhenPrint" class="ml-3">
+      <div v-if="degreeNote && includeNote" class="ml-3">
         <hr class="divider" />
-        <h1 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h1>
+        <h3 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h3>
         <div class="font-size-8">
           {{ degreeNote.body }}
         </div>
@@ -130,10 +134,12 @@ export default {
   },
   mixins: [Context, DegreeEditSession, Loading, Util],
   data: () => ({
+    includeNote: undefined,
     student: undefined
   }),
   created() {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+    this.includeNote = this.toBoolean(this.$route.query.includeNote)
     this.init(id).then(() => {
       getStudentBySid(this.sid).then(data => {
         this.student = data
@@ -159,20 +165,17 @@ export default {
 .font-size-8 {
   font-size: 8px;
 }
-.subsection-divider {
-  background-color: #999999;
-  height: 1px;
+.section-separator {
+  border-bottom: 1px #999 solid;
 }
 .unofficial-label-pill {
   background-color: #000000;
-  border: 1px solid #000000;
   border-radius: 5px;
   color: #fff;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: bold;
-  height: 24px;
-  margin-top: 2px;
-  padding-top: 6px;
+  margin-bottom: 12px;
+  padding: 6px 0 6px 0;
   text-align: center;
   width: auto;
 }
