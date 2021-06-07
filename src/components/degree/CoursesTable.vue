@@ -9,7 +9,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
+            <b-th v-if="assignedCourseCount && canEdit" class="th-course-assignment-menu">
               <span class="sr-only">Options to re-assign course</span>
             </b-th>
             <b-th class="pl-0">Course</b-th>
@@ -17,7 +17,7 @@
             <b-th v-if="sid">Grade</b-th>
             <b-th v-if="sid">Note</b-th>
             <b-th v-if="!sid" class="px-0">Fulfillment</b-th>
-            <b-th v-if="$currentUser.canEditDegreeProgress" class="px-0 sr-only">Actions</b-th>
+            <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -38,7 +38,7 @@
               @dragstart="onDrag($event, 'start', bundle)"
               @drop="onDropCourse($event, bundle.category, 'requirement')"
             >
-              <td v-if="assignedCourseCount && $currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+              <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu">
                 <div v-if="bundle.course && !bundle.course.isCopy && !isUserDragging(bundle.course.id)">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
@@ -111,7 +111,8 @@
                   </div>
                 </div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress" class="td-actions">
+              <td v-if="canEdit" class="td-actions">
+                xxx
                 <div v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))" class="d-flex justify-content-end text-nowrap">
                   <b-btn
                     v-if="isEditable(bundle)"
@@ -175,7 +176,7 @@
         </b-tbody>
       </b-table-simple>
     </div>
-    <div v-if="sid" class="mb-3" :class="{'mt-1': !items.length}">
+    <div v-if="sid && canEdit" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allCourses"
         :parent-category="parentCategory"
@@ -219,11 +220,16 @@ export default {
     position: {
       required: true,
       type: Number
+    },
+    printable: {
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({
     bundleForDelete: undefined,
-    bundleForEdit: undefined
+    bundleForEdit: undefined,
+    canEdit: undefined
   }),
   computed: {
     allCourses() {
@@ -257,6 +263,9 @@ export default {
       })
       return transformed
     }
+  },
+  created() {
+    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
   },
   methods: {
     afterCancel() {
@@ -340,7 +349,7 @@ export default {
       const draggable =
         !this.disableButtons
         && this.assignedCourseCount
-        && this.$currentUser.canEditDegreeProgress
+        && this.canEdit
         && bundle.course
         && !bundle.course.isCopy
       return !!draggable
