@@ -168,11 +168,14 @@ _test_users = [
     },
     {
         'uid': '211159',
-        'csid': None,
+        'csid': '211159',
         'isAdmin': False,
         'inDemoMode': False,
         'canAccessAdvisingData': True,
         'canAccessCanvasData': True,
+        'degreeProgressPermission': 'read_write',
+        'firstName': 'Roland',
+        'lastName': 'Bestwestern',
     },
     {
         'uid': '242881',

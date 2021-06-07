@@ -182,7 +182,7 @@ class TestRefreshDepartmentMemberships:
         assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
         # And degree_progress_permission persists
-        assert user.degree_progress_permission == 'read'
+        assert user.degree_progress_permission == 'read_write'
         assert user.deleted_at is None
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
@@ -295,6 +295,7 @@ class TestRefreshDepartmentMemberships:
         other_users = [au.authorized_user for au in dept_other.authorized_users]
         assert len(other_users) == 1
         assert other_users[0].can_access_canvas_data is False
+        assert other_users[0].degree_progress_permission is None
 
     def test_allows_advisor_to_change_departments(self):
         """Updates membership for a former CoE advisor who switches to L&S."""

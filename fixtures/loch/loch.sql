@@ -232,6 +232,17 @@ CREATE TABLE boac_advising_oua.student_admits
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TABLE boac_advisor.advisor_attributes (
+    sid VARCHAR,
+    uid VARCHAR,
+    first_name VARCHAR,
+    last_name VARCHAR,
+    title VARCHAR,
+    dept_code VARCHAR,
+    email VARCHAR,
+    campus_email VARCHAR
+);
+
 CREATE TABLE boac_advisor.advisor_roles
 (
    sid VARCHAR NOT NULL,
@@ -646,6 +657,20 @@ VALUES
 ('98002344', '00029117', 'INT', 'Freshman', 'Spring', 'No', 'No', 'College of Engineering', 'Daniel', 'J', 'Mcknight', '1993-07-06', '859-319-8215x8689', '231.865.8093', 'umiles@gmail.com', null, '87758 Brown Throughway', 'Suite 657', 'West Andrea', 'M', '25101', 'United States', '', 'Other', 'White', 'T', NULL, 'Yes', '', '5 - College Attended', NULL, '2.51', '2.7', '3.23', 25.08, 19.28, 1.83, 14.98, 9.02, 1445, 639, 724, 7, 5, 5, NULL, NULL, NULL, 'Y', '0', '02', '23915', '426', 'Y', '', NULL, 'Committed', NULL, '1', 'Destination College', 'Citizen', NULL, 'United States', NULL, NULL, NULL, NULL, '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00'),
 ('44631475', '11667051', 'RES', '', 'Fall', 'Yes', 'Yes', '', 'Deborah', 'Jessica Lynn', 'Davies', '1985-06-02', '+1-589-507-0244x25165', '+891.337.1621', 'zmitchell@morgan.net', 'food@berkeley.edu', '33770 Miller Fort', 'Apt. 408', 'New Alan', 'GA', '27353', 'Greece', 'M', 'Male', 'NotSpecified', NULL, 'Yes', 'No', 'DoctoralDegree', '3 - High School Graduate', '5 - College Attended', '3.31', '1.06', '1.51', 5.31, 9.42, 16.85, 33.1, 9.66, 1148, 476, 511, 4, 5, 8, 'FeeWaiver', NULL, 'Y', NULL, '05', '01', '12509', '242', NULL, 'Reserve', 'No', NULL, NULL, NULL, '', 'NonCitizen', 'NonImmigrant', 'Greece', NULL, NULL, 'F1', '61889', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00');
 
+INSERT INTO boac_advisor.advisor_attributes
+(sid, uid, first_name, last_name, title, dept_code, email, campus_email)
+VALUES
+('100000000', '13', 'Hurdley', 'Bardolf', 'Student Academic Advisor', 'EDESS', NULL, 'hbarde@berkeley.edu'),
+('100100100', '90412', 'Ginger', 'Baker', NULL, 'EGCEE', NULL, 'gbaker@berkeley.edu'),
+('100100300', '1022796', 'Bebe', 'De La Rosa', 'Undergraduate Affairs Officer', 'EDDNO', NULL, 'bebe@berkeley.edu'),
+('800700600', '1133399', 'Roberta', 'Anderson', 'Department Manager', 'EIIEO', 'joni@gmail.edu', 'joni@berkeley.edu'),
+('211159', '211159', 'Roland', 'Bestwestern', 'Academic Advisor', 'EDESS', NULL, 'rbestwestern@berkeley.edu'),
+('100100600', '242881', 'Geert', 'Biederschmitz', 'Harmless Drudge', 'HENGL', NULL, 'geert@berkeley.edu'),
+('600500400', '1133397', 'Robert', 'Johnson', 'Undergraduate Academic Advisor', 'HOGSP', NULL, 'robertjohnson@berkeley.edu'),
+('111111111', '1', 'Jazz', 'Gunn', 'Graduate Affairs Advisor', 'EDESS', NULL, 'jazzgunn@berkeley.edu'),
+('222222222', '2', 'Jimmy', 'Integer', NULL, NULL, NULL, 'jimint@berkeley.edu'),
+('333333333', '1234567', 'John', 'Deleted-in-BOA', NULL, NULL, NULL, 'no-boa@berkeley.edu');
+
 INSERT INTO boac_advisor.advisor_roles
 (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
 VALUES
@@ -654,7 +679,7 @@ VALUES
 ('100100100', '90412', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('100100300', '1022796', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_ADVISOR_VIEW'),
 ('100100300', '1022796', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_ADVISOR_VIEW'),
-('800700600', '1133399', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
+('800700600', '1133399', 'DNDS', 'College Dean Designate', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('211159', '211159', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('100100600', '242881', 'MAJ', 'Major Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR'),
 ('600500400', '1133397', 'MIN', 'Minor Advisor', 'ADV', 'Advisor Only', 'UCLS', 'Undergrad Letters & Science', 'UC_CS_AA_CURRICULAR_ADVISOR'),
