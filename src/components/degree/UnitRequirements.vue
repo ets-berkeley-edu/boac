@@ -152,14 +152,14 @@ export default {
       {
         key: 'name',
         label: 'Fulfillment Requirements',
-        tdClass: `${tdFontSize} pl-0 pt-1`,
-        thClass: `${thFontSize} faint-text px-0 text-uppercase`
+        tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
+        thClass: `${thFontSize} faint-text pl-0 pr-1 text-uppercase`
       },
       {
         key: 'minUnits',
         label: this.sid ? 'Min' : 'Min Units',
-        tdClass: `${tdFontSize} pl-0 pt-1 text-right`,
-        thClass: `${thFontSize} faint-text px-0 text-right text-uppercase`
+        tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
+        thClass: `${thFontSize} faint-text pl-0 pr-1 text-right text-uppercase`
       }
     ]
     if (this.sid) {
