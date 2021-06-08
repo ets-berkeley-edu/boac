@@ -3,7 +3,7 @@
     <div>
       <b-table-simple
         :id="`column-${position}-courses-of-category-${parentCategory.id}`"
-        borderless
+        :borderless="!printable"
         class="mb-0"
         small
       >
@@ -12,11 +12,11 @@
             <b-th v-if="assignedCourseCount && canEdit" class="th-course-assignment-menu">
               <span class="sr-only">Options to re-assign course</span>
             </b-th>
-            <b-th class="pl-0">Course</b-th>
-            <b-th class="pl-0 text-right">Units</b-th>
-            <b-th v-if="sid">Grade</b-th>
-            <b-th v-if="sid">Note</b-th>
-            <b-th v-if="!sid" class="px-0">Fulfillment</b-th>
+            <b-th class="pl-0" :class="{'font-size-10': printable}">Course</b-th>
+            <b-th class="pl-0 text-right" :class="{'font-size-10': printable}">Units</b-th>
+            <b-th v-if="sid" :class="{'font-size-10': printable}">Grade</b-th>
+            <b-th v-if="sid" :class="{'font-size-10': printable}">Note</b-th>
+            <b-th v-if="!sid" class="px-0" :class="{'font-size-10': printable}">Fulfillment</b-th>
             <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
@@ -26,9 +26,9 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               :class="{
-                'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id),
                 'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
-                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id
+                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id,
+                'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
               }"
               :draggable="isDraggable(bundle)"
               @dragend="onDrag($event, 'end', bundle)"
@@ -46,7 +46,14 @@
                   />
                 </div>
               </td>
-              <td class="td-name" :class="{'faint-text font-italic': !bundle.course}">
+              <td
+                class="td-name"
+                :class="{
+                  'faint-text font-italic': !bundle.course,
+                  'font-size-10': printable,
+                  'font-size-14': !printable
+                }"
+              >
                 <div class="d-flex">
                   <div
                     :class="{
@@ -81,23 +88,27 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
-                <span class="font-size-14">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
+                <span :class="{'font-size-10': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="sid" class="td-grade">
-                <span class="font-size-14 text-nowrap">
+                <span :class="{'font-size-10': printable, 'font-size-14 text-nowrap': !printable}">
                   {{ $_.get(bundle.course, 'grade') }}
                 </span>
               </td>
               <td v-if="sid" class="ellipsis-if-overflow td-note" :title="$_.get(bundle.course, 'note')">
-                <span class="font-size-14">
+                <span :class="{'font-size-10': printable, 'font-size-14': !printable}">
                   {{ $_.get(bundle.course, 'note') }}
                 </span>
               </td>
               <td
                 v-if="!sid"
-                class="align-middle font-size-14 td-max-width-0"
-                :class="{'faint-text font-italic': !bundle.course}"
+                class="align-middle td-max-width-0"
+                :class="{
+                  'faint-text font-italic': !bundle.course,
+                  'font-size-10': printable,
+                  'font-size-14': !printable
+                }"
                 :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
               >
                 <div class="align-items-start d-flex justify-content-between">
@@ -112,7 +123,10 @@
                 </div>
               </td>
               <td v-if="canEdit" class="td-actions">
-                <div v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))" class="d-flex justify-content-end text-nowrap">
+                <div
+                  v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))"
+                  class="d-flex justify-content-end text-nowrap"
+                >
                   <b-btn
                     v-if="isEditable(bundle)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
@@ -169,7 +183,12 @@
             @drop="onDropCourse($event, parentCategory, 'assigned')"
           >
             <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
-              <span class="faint-text font-italic font-size-16">No completed requirements</span>
+              <span
+                class="faint-text font-italic"
+                :class="{'font-size-12': printable, 'font-size-16': !printable}"
+              >
+                No completed requirements
+              </span>
             </b-td>
           </b-tr>
         </b-tbody>
@@ -423,7 +442,6 @@ table {
   width: 50px;
 }
 .td-name {
-  font-size: 14px;
   padding: 0.25em 0 0.25em 0.25em;
   vertical-align: middle;
 }

@@ -4,7 +4,7 @@
       id="drop-zone-category"
       class="align-items-center d-flex justify-content-between w-100"
       :class="{
-        'drop-zone-container': !$_.size(category.subcategories),
+        'drop-zone-container': !$_.size(category.subcategories) && !printable,
         'drop-zone-container-on': isDroppable(category) && draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
@@ -14,10 +14,18 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <h2 v-if="category.categoryType === 'Category'" class="category-header">
+      <h2
+        v-if="category.categoryType === 'Category'"
+        class="category-header"
+        :class="{'font-size-12': printable, 'font-size-18': !printable}"
+      >
         {{ category.name }}
       </h2>
-      <h3 v-if="category.categoryType === 'Subcategory'" class="subcategory-header">
+      <h3
+        v-if="category.categoryType === 'Subcategory'"
+        class="subcategory-header"
+        :class="{'font-size-10': printable, 'font-size-16': !printable}"
+      >
         {{ category.name }}
       </h3>
       <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
@@ -45,7 +53,12 @@
         </b-btn>
       </div>
     </div>
-    <div v-if="category.description" id="category-header-description" class="pl-1 py-1">
+    <div
+      v-if="category.description"
+      id="category-header-description"
+      class="pl-1 py-1"
+      :class="{'font-size-10': printable}"
+    >
       {{ category.description }}
     </div>
     <AreYouSureModal
@@ -163,7 +176,6 @@ export default {
 
 <style scoped>
 .category-header {
-  font-size: 18px;
   font-weight: bold;
   margin-bottom: 0;
   padding: 0;
@@ -180,7 +192,6 @@ export default {
   outline: #8bbdda dashed 0.15em;
 }
 .subcategory-header {
-  font-size: 16px;
   font-weight: bold;
   margin-bottom: 0;
   padding: 0;
