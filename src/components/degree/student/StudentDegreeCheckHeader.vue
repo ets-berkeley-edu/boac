@@ -44,7 +44,7 @@
             <router-link
               id="print-degree-plan"
               target="_blank"
-              :to="`/degree/${templateId}/print`"
+              :to="`/degree/${templateId}/print?includeNote=${includeNotesWhenPrint}`"
             >
               <font-awesome class="mr-1" icon="print" />
               Print Plan
