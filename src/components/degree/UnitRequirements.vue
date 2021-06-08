@@ -127,7 +127,6 @@ export default {
   },
   data: () => ({
     fields: undefined,
-    flattenedCategories: undefined,
     indexOfSelected: undefined,
     isDeleting: false,
     isEditing: false,
@@ -201,21 +200,17 @@ export default {
       this.$_.each(this.courses, courses => {
         this.$_.each(courses, course => {
           if (course.categoryId) {
-            const category = this.$_.find(this.flattenedCategories, ['id', course.categoryId])
-            if (category.unitRequirements.length) {
-              this.$_.each(category.unitRequirements, u => {
-                if (u.id === unitRequirement.id) {
-                  count += course.units
-                }
-              })
-            }
+            this.$_.each(course.unitRequirements, u => {
+              if (u.id === unitRequirement.id) {
+                count += course.units
+              }
+            })
           }
         })
       })
       return count
     },
     refresh() {
-      this.flattenedCategories = this.getFlattenedCategories()
       const items = []
       this.totalCompleted = 0
       this.$_.each(this.unitRequirements, u => {
