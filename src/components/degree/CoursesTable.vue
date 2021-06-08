@@ -56,7 +56,7 @@
                   >
                     {{ bundle.name }}
                   </div>
-                  <div v-if="$_.get(bundle.course, 'isCopy')">
+                  <div v-if="$_.get(bundle.course, 'isCopy') && !printable">
                     <font-awesome
                       icon="copy"
                       size="sm"
@@ -67,14 +67,14 @@
               </td>
               <td class="td-units" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
-                  v-if="getCourseFulfillments(bundle).length"
+                  v-if="getCourseFulfillments(bundle).length && !printable"
                   class="fulfillments-icon mr-1"
                   icon="check-circle"
                   size="sm"
                   :title="`Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.`"
                 />
                 <font-awesome
-                  v-if="unitsWereEdited(bundle.course)"
+                  v-if="unitsWereEdited(bundle.course) && !printable"
                   :id="`units-were-edited-${bundle.course.id}`"
                   class="changed-units-icon"
                   icon="info-circle"
@@ -112,7 +112,6 @@
                 </div>
               </td>
               <td v-if="canEdit" class="td-actions">
-                xxx
                 <div v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))" class="d-flex justify-content-end text-nowrap">
                   <b-btn
                     v-if="isEditable(bundle)"

@@ -3,8 +3,13 @@
     <b-row>
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
-          <h2 class="font-size-20 font-weight-bold pb-0 pr-2 text-nowrap">Unit Requirements</h2>
-          <div v-if="$currentUser.canEditDegreeProgress && !sid">
+          <h2
+            class="font-weight-bold pb-0 pr-2 text-nowrap"
+            :class="{'font-size-12': printable, 'font-size-20': !printable}"
+          >
+            Unit Requirements
+          </h2>
+          <div v-if="$currentUser.canEditDegreeProgress && !sid && !printable">
             <b-btn
               id="unit-requirement-create-link"
               class="pr-0 py-0"
@@ -24,7 +29,12 @@
           </div>
         </div>
         <div v-if="!isEditing">
-          <div v-if="!items.length" id="unit-requirements-no-data" class="no-data-text pl-1">
+          <div
+            v-if="!items.length"
+            id="unit-requirements-no-data"
+            class="no-data-text pl-1"
+            :class="{'font-size-10': printable}"
+          >
             No unit requirements created
           </div>
           <b-table-lite
@@ -37,7 +47,7 @@
             small
             thead-class="sortable-table-header text-nowrap border-bottom"
           >
-            <template v-if="$currentUser.canEditDegreeProgress && !sid" #cell(actions)="row">
+            <template v-if="$currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
               <div class="align-items-center d-flex">
                 <b-btn
                   :id="`unit-requirement-${row.item.id}-edit-btn`"
@@ -66,7 +76,7 @@
               </div>
             </template>
             <template v-if="sid" #foot()="data">
-              <div class="footer-cell">
+              <div class="footer-cell" :class="{'font-size-10': printable, 'font-size-16': !printable}">
                 <div v-if="data.field.key.toLowerCase() === 'name'" class="font-weight-bold">
                   Total Units
                 </div>
@@ -109,6 +119,12 @@ export default {
   name: 'UnitRequirements',
   components: {AreYouSureModal, EditUnitRequirement},
   mixins: [Context, DegreeEditSession, Util],
+  props: {
+    printable: {
+      required: false,
+      type: Boolean
+    }
+  },
   data: () => ({
     fields: undefined,
     flattenedCategories: undefined,
@@ -130,18 +146,20 @@ export default {
     }
   },
   created() {
+    const tdFontSize = this.printable ? 'font-size-12' : 'font-size-16'
+    const thFontSize = this.printable ? 'font-size-10' : 'font-size-12'
     this.fields = [
       {
         key: 'name',
         label: 'Fulfillment Requirements',
-        tdClass: 'font-size-16 pl-0 pt-1',
-        thClass: 'faint-text font-size-12 px-0 text-uppercase'
+        tdClass: `${tdFontSize} pl-0 pt-1`,
+        thClass: `${thFontSize} faint-text px-0 text-uppercase`
       },
       {
         key: 'minUnits',
         label: this.sid ? 'Min' : 'Min Units',
-        tdClass: 'font-size-16 pl-0 pt-1 text-right',
-        thClass: 'faint-text font-size-12 px-0 text-right text-uppercase'
+        tdClass: `${tdFontSize} pl-0 pt-1 text-right`,
+        thClass: `${thFontSize} faint-text px-0 text-right text-uppercase`
       }
     ]
     if (this.sid) {
@@ -149,14 +167,14 @@ export default {
         key: 'completed',
         label: 'Completed',
         tdClass: 'd-flex justify-content-end',
-        thClass: 'faint-text font-size-12 px-0 text-right text-uppercase'
+        thClass: `${thFontSize} faint-text px-0 text-right text-uppercase`
       })
     } else if (this.$currentUser.canEditDegreeProgress) {
       this.fields.push({
         key: 'actions',
         label: '',
         tdClass: 'd-flex justify-content-end',
-        thClass: 'faint-text font-size-12 px-0 text-uppercase'
+        thClass: `${thFontSize} faint-text px-0 text-uppercase`
       })
     }
     this.refresh()
@@ -241,7 +259,6 @@ export default {
 .footer-cell {
   border-top: 1px solid #999;
   color: #333;
-  font-size: 16px;
   font-weight: bold;
   padding: 4px 0 4px 0;
   text-transform: none !important;
