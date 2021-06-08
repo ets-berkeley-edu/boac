@@ -166,7 +166,7 @@ export default {
       this.fields.push({
         key: 'completed',
         label: 'Completed',
-        tdClass: 'd-flex justify-content-end',
+        tdClass: `${tdFontSize} d-flex justify-content-end`,
         thClass: `${thFontSize} faint-text px-0 text-right text-uppercase`
       })
     } else if (this.$currentUser.canEditDegreeProgress) {

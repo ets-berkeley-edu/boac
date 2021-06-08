@@ -3,7 +3,7 @@
     <Spinner />
     <b-container v-if="!loading" fluid>
       <b-row>
-        <b-col v-if="student" class="pr-4">
+        <b-col v-if="student" class="pr-5">
           <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
           <div class="font-size-12">
             <div class="font-weight-bold">
@@ -17,7 +17,7 @@
               </div>
             </div>
             <div class="pt-2">
-              <div class="py-2 section-border">
+              <div class="py-2 section-border-minor">
                 <span class="font-weight-bold p-0 text-secondary text-uppercase">Major</span>
               </div>
               <div
@@ -30,7 +30,7 @@
               </div>
             </div>
             <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
-              <div class="section-border">
+              <div class="section-border-minor">
                 <span class="font-weight-bold mt-2 p-0 text-secondary text-uppercase">Minor</span>
               </div>
               <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
@@ -51,7 +51,7 @@
       </b-row>
       <b-row>
         <b-col class="pr-0">
-          <div class="mb-4 mt-2 section-border" />
+          <div class="mb-3 section-border-major" />
         </b-col>
       </b-row>
       <b-row>
@@ -106,10 +106,12 @@
       </b-row>
       <b-row v-if="degreeNote && includeNote">
         <b-col>
-          <div class="pb-3 footer-border">
-            <h3 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h3>
-            <div class="font-size-8">
-              {{ degreeNote.body }}
+          <div class="mb-3 mt-2">
+            <div class="footer-border pt-3">
+              <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
+              <div class="font-size-10">
+                {{ degreeNote.body }}
+              </div>
             </div>
           </div>
         </b-col>
@@ -158,23 +160,13 @@ export default {
 </script>
 
 <style scoped>
-.divider {
-  background-color: #999;
-  border: none;
-  color: #999;
-  height: 3px;
-}
-.font-size-10 {
-  font-size: 10px;
-}
-.font-size-8 {
-  font-size: 8px;
-}
 .footer-border {
-  border-bottom: 1px #999 solid;
   border-top: 1px #999 solid;
 }
-.section-border {
+.section-border-major {
+  border-bottom: 3px #999 solid;
+}
+.section-border-minor {
   border-bottom: 1px #999 solid;
 }
 .unofficial-label-pill {
