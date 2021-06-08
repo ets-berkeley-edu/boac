@@ -105,8 +105,8 @@ class DegreeProgressCourse(Base):
         course.ignore = False
         std_commit()
         DegreeProgressCourseUnitRequirement.delete(course_id)
-        for unit_requirement in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
-            DegreeProgressCourseUnitRequirement.create(course.id, unit_requirement.id)
+        for u in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
+            DegreeProgressCourseUnitRequirement.create(course.id, u.unit_requirement_id)
         return course
 
     @classmethod
