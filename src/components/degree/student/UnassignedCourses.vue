@@ -8,7 +8,7 @@
         :id="`${key}-courses-table`"
         borderless
         class="mb-1 w-100 table-layout"
-        responsive
+        responsive="md"
         small
       >
         <b-thead class="border-bottom">
@@ -61,7 +61,7 @@
               <td v-if="!ignored" class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
-              <td :class="{'ellipsis-if-overflow td-note': course.note}" :title="course.note || null">
+              <td class="td-note" :class="{'ellipsis-if-overflow': course.note}" :title="course.note || null">
                 {{ course.note || '&mdash;' }}
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">

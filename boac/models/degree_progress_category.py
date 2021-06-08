@@ -128,8 +128,8 @@ class DegreeProgressCategory(Base):
 
     @classmethod
     def delete(cls, category_id):
-        for unit_requirement in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
-            db.session.delete(unit_requirement)
+        for u in DegreeProgressCategoryUnitRequirement.find_by_category_id(category_id):
+            db.session.delete(u.unit_requirement_id)
         for course in DegreeProgressCourse.find_by_category_id(category_id):
             db.session.delete(course)
         category = cls.query.filter_by(id=category_id).first()
