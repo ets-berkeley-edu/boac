@@ -1,117 +1,122 @@
 <template>
   <div class="m-4">
     <Spinner />
-    <div v-if="!loading">
-      <b-container fluid>
-        <b-row>
-          <b-col v-if="student">
-            <h1 class="font-size-16 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
+    <b-container v-if="!loading" fluid>
+      <b-row>
+        <b-col v-if="student" class="pr-4">
+          <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
+          <div class="font-size-12">
             <div class="font-weight-bold">
               SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
+              <div>
+                {{ student.sisProfile.level.description }}
+              </div>
+              <div class="text-secondary">
+                {{ student.sisProfile.termsInAttendance }} Terms in Attendance
+                <div>Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
+              </div>
             </div>
-            <div class="font-weight-bold">
-              {{ student.sisProfile.level.description }}
-            </div>
-            <div class="text-secondary">{{ student.sisProfile.termsInAttendance }} Terms in Attendance</div>
-            <div class="text-secondary">Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
-
             <div class="pt-2">
-              <div class="section-separator">
-                <span class="font-weight-bold p-0 text-secondary">MAJOR</span>
+              <div class="py-2 section-border">
+                <span class="font-weight-bold p-0 text-secondary text-uppercase">Major</span>
               </div>
               <div
-                v-for="plan in student.sisProfile.plans"
+                v-for="(plan, index) in student.sisProfile.plans"
                 :key="plan.description"
+                :class="{'pt-2': index === 0}"
               >
                 <div class="font-weight-bold">{{ plan.description }}</div>
                 <div class="text-secondary">{{ plan.program }}</div>
               </div>
             </div>
             <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
-              <div class="section-separator">
-                <span class="font-weight-bold mt-2 p-0 text-secondary">MINOR</span>
+              <div class="section-border">
+                <span class="font-weight-bold mt-2 p-0 text-secondary text-uppercase">Minor</span>
               </div>
               <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
                 <div class="font-weight-bold">{{ minorPlan.description }}</div>
                 <div class="text-secondary">{{ minorPlan.program }}</div>
               </div>
             </div>
-          </b-col>
-          <b-col id="degree-unit-requirements-info">
-            <div class="unofficial-label-pill">
-              <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
-              <div>Printed by {{ $currentUser.name }} on {{ new Date() | moment('MMMM D, YYYY') }}</div>
-            </div>
-            <h2 class="font-size-16">{{ degreeName }}</h2>
-            <UnitRequirements />
-          </b-col>
-        </b-row>
-      </b-container>
-      <hr class="divider ml-3 mr-3" />
-      <b-container fluid>
-        <b-row>
-          <b-col
-            v-for="position in [1, 2, 3]"
-            :key="position"
-            class="print-degree-progress-column"
-          >
-            <template>
-              <div>
-                <div
-                  v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
-                  :key="category.id"
-                  class="print-degree-course-requirements"
-                >
-                  <Category
-                    v-if="category.id"
-                    :category="category"
+          </div>
+        </b-col>
+        <b-col class="pr-0">
+          <div class="unofficial-label-pill">
+            <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
+            <div>Printed by {{ $currentUser.name }} on {{ new Date() | moment('MMMM D, YYYY') }}</div>
+          </div>
+          <h2 class="font-size-14">{{ degreeName }}</h2>
+          <UnitRequirements :printable="true" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col class="pr-0">
+          <div class="mb-4 mt-2 section-border" />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col
+          v-for="position in [1, 2, 3]"
+          :key="position"
+          class="print-degree-progress-column"
+        >
+          <template>
+            <div>
+              <div
+                v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+                :key="category.id"
+                class="print-degree-course-requirements"
+              >
+                <Category
+                  v-if="category.id"
+                  :category="category"
+                  :position="position"
+                  :printable="true"
+                />
+                <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
+                  <CoursesTable
+                    :items="category.courseRequirements"
+                    :parent-category="category"
                     :position="position"
                     :printable="true"
                   />
-                  <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
-                    <CoursesTable
-                      :items="category.courseRequirements"
-                      :parent-category="category"
+                </div>
+                <div v-if="$_.size(category.subcategories)">
+                  <div v-for="subcategory in category.subcategories" :key="subcategory.id">
+                    <Category
+                      v-if="subcategory.id"
+                      :category="subcategory"
                       :position="position"
                       :printable="true"
                     />
-                  </div>
-                  <div v-if="$_.size(category.subcategories)">
-                    <div v-for="subcategory in category.subcategories" :key="subcategory.id">
-                      <Category
-                        v-if="subcategory.id"
-                        :category="subcategory"
+                    <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
+                      <CoursesTable
+                        :items="subcategory.courseRequirements"
+                        :parent-category="subcategory"
                         :position="position"
                         :printable="true"
                       />
-                      <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
-                        <CoursesTable
-                          :items="subcategory.courseRequirements"
-                          :parent-category="subcategory"
-                          :position="position"
-                          :printable="true"
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </template>
-          </b-col>
-        </b-row>
-      </b-container>
-
-      <div v-if="degreeNote && includeNote" class="ml-3">
-        <hr class="divider" />
-        <h3 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h3>
-        <div class="font-size-8">
-          {{ degreeNote.body }}
-        </div>
-      </div>
-    </div>
+            </div>
+          </template>
+        </b-col>
+      </b-row>
+      <b-row v-if="degreeNote && includeNote">
+        <b-col>
+          <div class="pb-3 footer-border">
+            <h3 id="degree-note" class="font-size-10 font-weight-bold">Degree Notes</h3>
+            <div class="font-size-8">
+              {{ degreeNote.body }}
+            </div>
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
   </div>
 </template>
-
 
 <script>
 import Category from '@/components/degree/Category.vue'
@@ -165,7 +170,11 @@ export default {
 .font-size-8 {
   font-size: 8px;
 }
-.section-separator {
+.footer-border {
+  border-bottom: 1px #999 solid;
+  border-top: 1px #999 solid;
+}
+.section-border {
   border-bottom: 1px #999 solid;
 }
 .unofficial-label-pill {
