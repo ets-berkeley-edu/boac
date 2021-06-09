@@ -404,7 +404,12 @@ ALTER TABLE ONLY degree_progress_templates
 
 --
 
-CREATE TYPE degree_progress_category_types AS ENUM ('Category', 'Subcategory', 'Course Requirement');
+CREATE TYPE degree_progress_category_types AS ENUM (
+    'Category',
+    'Subcategory',
+    'Course Requirement',
+    'Placeholder: Course Copy'
+);
 
 CREATE TABLE degree_progress_categories (
     id integer NOT NULL,

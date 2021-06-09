@@ -605,8 +605,14 @@ class TestCopyCourse:
         copy_of_course = _copy_course(category_id=subcategory.id)
         children = DegreeProgressCategory.find_by_parent_category_id(subcategory.id)
         assert len(children) == child_count + 1
-        assert children[0].category_type == 'Course Requirement'
+        assert children[0].category_type == 'Placeholder: Course Copy'
         assert copy_of_course['categoryId'] == children[0].id
+
+        # Assign the copied course to an actual Course Requirement and verify that "placeholder" category is deleted.
+        course_requirement = _create_category(category_type='Course Requirement', parent_category_id=subcategory.id)
+        placeholder_category_id = copy_of_course['categoryId']
+        _api_assign_course(category_id=course_requirement.id, client=client, course_id=copy_of_course['id'])
+        assert DegreeProgressCategory.find_by_id(placeholder_category_id) is None
 
         # Finally, we create a copy for a separate category and expect success.
         copy_of_course = _copy_course(category_id=category_2.id)

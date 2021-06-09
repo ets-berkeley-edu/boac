@@ -39,7 +39,7 @@
               @drop="onDropCourse($event, bundle.category, 'requirement')"
             >
               <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu">
-                <div v-if="bundle.course && !bundle.course.isCopy && !isUserDragging(bundle.course.id)">
+                <div v-if="bundle.course && !isUserDragging(bundle.course.id)">
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
                     :course="bundle.course"
@@ -131,7 +131,7 @@
                     v-if="isEditable(bundle)"
                     :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
                     class="p-0"
-                    :class="{'pr-0': sid && !$_.get(bundle.course, 'isCopy'), 'pr-1': !sid || (bundle.course && bundle.course.isCopy)}"
+                    :class="{'pr-0': sid, 'pr-1': !sid}"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
@@ -141,7 +141,7 @@
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
-                    v-if="!sid || (bundle.course && bundle.course.isCopy)"
+                    v-if="!sid"
                     :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                     class="p-0"
                     :disabled="disableButtons"
@@ -256,7 +256,7 @@ export default {
     },
     assignedCourseCount() {
       let count = 0
-      this.$_.each(this.categoryCourseBundles, bundle => bundle.course && !bundle.course.isCopy && count++)
+      this.$_.each(this.categoryCourseBundles, bundle => bundle.course && count++)
       return count
     },
     categoryCourseBundles() {
@@ -369,7 +369,6 @@ export default {
         && this.assignedCourseCount
         && this.canEdit
         && bundle.course
-        && !bundle.course.isCopy
       return !!draggable
     },
     isDroppable(category) {
