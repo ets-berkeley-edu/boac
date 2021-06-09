@@ -242,6 +242,7 @@ export default {
     reset() {
       const focusId = this.$_.isNil(this.indexOfSelected) ? 'unit-requirement-create-link' : `unit-requirement-${this.items[this.indexOfSelected].id}-edit-btn`
       this.setDisableButtons(false)
+      this.refresh()
       this.indexOfSelected = null
       this.isEditing = false
       this.$putFocusNextTick(focusId)
