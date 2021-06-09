@@ -24,8 +24,8 @@
       <div role="rowgroup">
         <div role="row" class="student-course-label student-course-header text-nowrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
-          <div role="columnheader" class="student-course-column-mid-grade">Mid</div>
-          <div role="columnheader" class="student-course-column-final-grade">Final</div>
+          <div role="columnheader" class="student-course-column-grade">Mid</div>
+          <div role="columnheader" class="student-course-column-grade">Final</div>
           <div role="columnheader" class="student-course-column-units">Units</div>
         </div>
       </div>
@@ -160,14 +160,13 @@ export default {
 </style>
 
 <style>
+.student-course-column-grade {
+  display: flex;
+  justify-content: space-between;
+  width: 15%;
+}
 .student-course-column-name {
   width: 60%;
-}
-.student-course-column-mid-grade {
-  width: 15%;
-}
-.student-course-column-final-grade {
-  width: 15%;
 }
 .student-course-column-units {
   text-align: right;
