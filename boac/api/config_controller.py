@@ -46,7 +46,7 @@ def app_config():
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name(),
         'currentEnrollmentTermId': int(current_term_id()),
-        'degreeCategoryTypeOptions': degree_progress_category_type.enums,
+        'degreeCategoryTypeOptions': list(filter(lambda t: 'Placeholder' not in t, degree_progress_category_type.enums)),
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,

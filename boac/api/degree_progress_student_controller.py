@@ -108,14 +108,13 @@ def copy_course():
             units=course.units,
         )
         course_requirement = DegreeProgressCategory.create(
-            category_type='Course Requirement',
+            category_type='Placeholder: Course Copy',
             name=course.display_name,
             position=category.position,
             template_id=category.template_id,
             course_units_lower=course.units,
             course_units_upper=course.units,
             parent_category_id=category.id,
-
         )
         DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
         return tolerant_jsonify(DegreeProgressCourse.find_by_id(course.id).to_api_json())
@@ -127,6 +126,8 @@ def assign_course(course_id):
     params = request.get_json()
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
+        # Get existing category assignment. If it's a placeholder then delete it at end of transaction.
+        previous_category = DegreeProgressCategory.find_by_id(course.category_id) if course.category_id else None
         category_id = get_param(params, 'categoryId')
         category = DegreeProgressCategory.find_by_id(category_id) if category_id else None
         if category:
@@ -152,6 +153,10 @@ def assign_course(course_id):
                     DegreeProgressCategory.delete(copy_of_course.category_id)
             ignore = to_bool_or_none(get_param(params, 'ignore'))
             course = DegreeProgressCourse.unassign(course_id=course.id, ignore=ignore)
+
+        # If previous assignment was a "placeholder" category then delete it.
+        if previous_category and 'Placeholder' in previous_category.category_type:
+            DegreeProgressCategory.delete(previous_category.id)
 
         # Update updated_at date of top-level record
         DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)

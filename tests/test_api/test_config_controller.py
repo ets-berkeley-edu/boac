@@ -65,6 +65,9 @@ class TestConfigController:
         assert data['maxAttachmentsPerNote'] > 0
         assert data['pingFrequency'] == 900000
         assert data['timezone'] == 'America/Los_Angeles'
+        category_type_options = data['degreeCategoryTypeOptions']
+        assert len(category_type_options) == 3
+        assert 'Placeholder' not in ''.join(category_type_options)
 
     def test_anonymous_version_request(self, client):
         """Returns a well-formed response."""
