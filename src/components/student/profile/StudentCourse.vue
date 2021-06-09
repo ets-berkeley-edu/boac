@@ -17,7 +17,6 @@
         >
           <div :id="`term-${termId}-course-${index}-name`" class="text-left truncate-with-ellipsis ml-2 student-course-name">
             {{ course.displayName }}
-            <font-awesome v-if="isAlertGrade(course.midtermGrade) || isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
           </div>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
@@ -32,7 +31,7 @@
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="student-course-column-mid-grade text-nowrap pt-1 px-1">
+      <div role="cell" class="student-course-column-grade text-nowrap pt-1 px-1">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -42,8 +41,9 @@
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
+        <font-awesome v-if="isAlertGrade(course.midtermGrade) && !course.grade" icon="exclamation-triangle" class="boac-exclamation" />
       </div>
-      <div role="cell" class="student-course-column-final-grade text-nowrap pt-1 px-1">
+      <div role="cell" class="student-course-column-grade text-nowrap pt-1 px-1">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -54,6 +54,7 @@
           :id="`term-${termId}-course-${index}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
+        <font-awesome v-if="isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units text-nowrap pt-1 pl-1">
