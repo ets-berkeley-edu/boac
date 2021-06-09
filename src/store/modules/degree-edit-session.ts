@@ -110,11 +110,9 @@ const getters = {
 }
 
 const mutations = {
-  addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
   dragStart: (state: any, {course, dragContext}) => state.draggingContext = {course, dragContext, target: undefined},
   dismissAlert: (state: any, templateId: number) => state.dismissedAlerts.push(templateId),
-  removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
     state.disableButtons = false
     $_resetDraggingContext(state)
@@ -141,8 +139,7 @@ const mutations = {
   },
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setDraggingTarget: (state: any, target: any) => state.draggingContext.target = target,
-  setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include,
-  updateUnitRequirement: (state: any, {index, unitRequirement}) => state.unitRequirements[index] = unitRequirement
+  setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include
 }
 
 const actions = {
@@ -185,10 +182,7 @@ const actions = {
   },
   createUnitRequirement: ({commit, state}, {name, minUnits}) => {
     return new Promise<void>(resolve => {
-      addUnitRequirement(state.templateId, name, minUnits).then(unitRequirement => {
-        commit('addUnitRequirement', unitRequirement)
-        resolve()
-      })
+      addUnitRequirement(state.templateId, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   deleteCategory: ({commit, state}, categoryId: number) => {
@@ -204,10 +198,7 @@ const actions = {
   deleteUnitRequirement: ({commit, state}, index: number) => {
     return new Promise<void>(resolve => {
       const id = _.get(state.unitRequirements[index], 'id')
-      deleteUnitRequirement(id).then(() => {
-        commit('removeUnitRequirement', index)
-        resolve()
-      })
+      deleteUnitRequirement(id).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
@@ -294,12 +285,7 @@ const actions = {
   updateUnitRequirement: ({commit, state}, {index, name, minUnits}) => {
     return new Promise<void>(resolve => {
       const id = _.get(state.unitRequirements[index], 'id')
-      updateUnitRequirement(id, name, minUnits).then(
-        unitRequirement => {
-          commit('updateUnitRequirement', {index, unitRequirement})
-          resolve()
-        }
-      )
+      updateUnitRequirement(id, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   updateCategory: ({commit, state}, {
