@@ -42,7 +42,7 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            foot-clone
+            :foot-clone="!$_.isNil(sid)"
             :items="items"
             small
             thead-class="sortable-table-header text-nowrap border-bottom"
