@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from dateutil.tz import tzutc
 
 
@@ -84,8 +85,9 @@ class DegreeProgressUnitRequirement(Base):
         return unit_requirement
 
     @classmethod
-    def delete(cls, id_):
-        unit_requirement = cls.query.filter_by(id=id_).first()
+    def delete(cls, unit_requirement_id):
+        unit_requirement = cls.query.filter_by(id=unit_requirement_id).first()
+        DegreeProgressCategoryUnitRequirement.delete_mappings(unit_requirement_id=unit_requirement.id)
         db.session.delete(unit_requirement)
         std_commit()
 
