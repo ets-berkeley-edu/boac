@@ -52,6 +52,7 @@ export default {
       'createCategory',
       'createUnitRequirement',
       'deleteCategory',
+      'deleteCourse',
       'deleteUnitRequirement',
       'dismissAlert',
       'init',
@@ -66,6 +67,9 @@ export default {
       'updateNote',
       'updateUnitRequirement'
     ]),
+    categoryHasCourse(category, course) {
+      return _.map(category.courses, this.getCourseKey).includes(this.getCourseKey(course))
+    },
     findCategoriesByTypes(types, position) {
       return _.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
     },
@@ -75,16 +79,16 @@ export default {
     getCourse(courseId) {
       return _.find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
     },
+    getCourseKey: course => course && `${course.termId}-${course.sectionId}`,
     getCourses(category) {
       if (this.courses) {
-        const courses = _.filter(this.courses.assigned.concat(this.courses.unassigned), c => _.includes(category.courseIds, c.id))
+        const categoryCourseIds = _.map(category.courses, 'id')
+        const predicate = c => _.includes(categoryCourseIds, c.id)
+        const courses = _.filter(this.courses.assigned.concat(this.courses.unassigned), predicate)
         return courses.concat(category.courseRequirements)
       } else {
         return category.courseRequirements
       }
-    },
-    getFlattenedCategories() {
-      return $_flatten(this.categories)
     },
     isValidUnits: $_isValidUnits,
     unitsWereEdited: course => {

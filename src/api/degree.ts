@@ -65,6 +65,10 @@ export function deleteDegreeCategory(categoryId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}`)
 }
 
+export function deleteDegreeCourse(courseId: number) {
+  return axios.delete(`${utils.apiBaseUrl()}/api/degree/course/${courseId}`)
+}
+
 export function deleteDegreeTemplate(templateId: number) {
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/${templateId}`)
 }

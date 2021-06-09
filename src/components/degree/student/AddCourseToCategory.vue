@@ -107,9 +107,8 @@ export default {
   }),
   computed: {
     options() {
-      const getKey = course => `${course.termId}-${course.sectionId}`
-      const keysAdded = this.$_.map(this.coursesAlreadyAdded, course => getKey(course))
-      return this.$_.filter(this.courses.assigned, c => !c.isCopy && !keysAdded.includes(getKey(c)))
+      const keysAdded = this.$_.map(this.coursesAlreadyAdded, course => this.getCourseKey(course))
+      return this.$_.filter(this.courses.assigned, c => !c.isCopy && !keysAdded.includes(this.getCourseKey(c)))
     }
   },
   methods: {

@@ -6,6 +6,7 @@ import {
   copyCourseAndAssign,
   createDegreeCategory,
   deleteDegreeCategory,
+  deleteDegreeCourse,
   deleteUnitRequirement,
   getDegreeTemplate,
   updateCategory,
@@ -16,17 +17,18 @@ import {
 
 const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
 
-const $_allowCourseDrop = (category, courseId) => {
-  return (category.categoryType !== 'Course Requirement' || !category.courseIds.length)
+const $_allowCourseDrop = (category, course) => {
+  const getCourseKey = c => c && `${c.termId}-${c.sectionId}`
+  return (category.categoryType !== 'Course Requirement' || !category.courses.length)
     && (category.categoryType !== 'Category' || !category.subcategories.length)
-    && !category.courseIds.includes(courseId)
+    && !_.map(category.courses, getCourseKey).includes(getCourseKey(course))
 }
 
 const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
 
-const $_dropToAssign = (categoryId, commit, courseId, ignore, state) => {
+const $_dropToAssign = (categoryId, commit, course, ignore, state) => {
   commit('setDisableButtons', true)
-  return assignCourse(courseId, categoryId, ignore).then(() => {
+  return assignCourse(course.id, categoryId, ignore).then(() => {
     $_refresh(commit, state.templateId).then(() => {
       commit('draggingContextReset')
       commit('setDisableButtons', false)
@@ -35,7 +37,7 @@ const $_dropToAssign = (categoryId, commit, courseId, ignore, state) => {
 }
 
 const $_resetDraggingContext = state => state.draggingContext = {
-  courseId: undefined,
+  course: undefined,
   dragContext: undefined,
   target: undefined
 }
@@ -60,7 +62,7 @@ const state = {
   disableButtons: false,
   dismissedAlerts: [],
   draggingContext: {
-    courseId: undefined,
+    course: undefined,
     dragContext: undefined,
     target: undefined
   },
@@ -96,7 +98,7 @@ const getters = {
   dismissedAlerts: (state: any): number[] => state.dismissedAlerts,
   draggingContext: (state: any): any => state.draggingContext,
   includeNotesWhenPrint: (state: any): boolean => state.includeNotesWhenPrint,
-  isUserDragging: (state: any) => (courseId: number) => !!courseId && state.draggingContext.courseId === courseId,
+  isUserDragging: (state: any) => (courseId: number) => !!courseId && _.get(state.draggingContext.course, 'id') === courseId,
   lastPageRefreshAt: (state: any): any[] => state.lastPageRefreshAt,
   parentTemplateId: (state: any): string => state.parentTemplateId,
   parentTemplateUpdatedAt: (state: any): string => state.parentTemplateUpdatedAt,
@@ -110,7 +112,7 @@ const getters = {
 const mutations = {
   addUnitRequirement: (state: any, unitRequirement: any) => state.unitRequirements.push(unitRequirement),
   draggingContextReset: (state: any) => $_resetDraggingContext(state),
-  dragStart: (state: any, {courseId, dragContext}) => state.draggingContext = {courseId, dragContext, target: undefined},
+  dragStart: (state: any, {course, dragContext}) => state.draggingContext = {course, dragContext, target: undefined},
   dismissAlert: (state: any, templateId: number) => state.dismissedAlerts.push(templateId),
   removeUnitRequirement: (state: any, index: number) => state.unitRequirements.splice(index, 1),
   resetSession: (state: any, template: any) => {
@@ -194,6 +196,11 @@ const actions = {
       deleteDegreeCategory(categoryId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
+  deleteCourse: ({commit, state}, courseId: number) => {
+    return new Promise(resolve => {
+      deleteDegreeCourse(courseId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    })
+  },
   deleteUnitRequirement: ({commit, state}, index: number) => {
     return new Promise<void>(resolve => {
       const id = _.get(state.unitRequirements[index], 'id')
@@ -207,10 +214,10 @@ const actions = {
   setDraggingTarget: ({commit}, target: any) => commit('setDraggingTarget', target),
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => commit('draggingContextReset'),
-  onDragStart: ({commit}, {courseId, dragContext}) => commit('dragStart', {courseId, dragContext}),
+  onDragStart: ({commit}, {course, dragContext}) => commit('dragStart', {course, dragContext}),
   onDrop: ({commit}, {category, context}) => {
     return new Promise<void>(resolve => {
-      const courseId = state.draggingContext.courseId
+      const course = state.draggingContext.course
       const dragContext = state.draggingContext.dragContext
       const actionByUser = `${dragContext} to ${context}`
 
@@ -220,9 +227,9 @@ const actions = {
           $_debug(srAlert)
         } else {
           if (_.includes(['ignored', 'unassigned'], context)) {
-            $_debug(`Course ${courseId} (${dragContext}) dragged to ${context} section.`)
+            $_debug(`Course ${_.get(course, 'id')} (${dragContext}) dragged to ${context} section.`)
           } else {
-            $_debug(`From ${actionByUser}: course ${courseId} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
+            $_debug(`From ${actionByUser}: course ${_.get(course, 'id')} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
           }
         }
         resolve()
@@ -234,18 +241,18 @@ const actions = {
           case 'assigned to unassigned':
           case 'ignored to unassigned':
           case 'unassigned to ignored':
-            $_dropToAssign(null, commit, courseId, context === 'ignored', state).then(() => done(`Course ${context}`))
+            $_dropToAssign(null, commit, course, context === 'ignored', state).then(() => done(`Course ${context}`))
             break
           case 'assigned to assigned':
           case 'ignored to assigned':
           case 'unassigned to assigned':
-            $_dropToAssign(category.id, commit, courseId, false, state).then(() => done(`Course assigned to ${category.name}`))
+            $_dropToAssign(category.id, commit, course, false, state).then(() => done(`Course assigned to ${category.name}`))
             break
           case 'assigned to requirement':
           case 'ignored to requirement':
           case 'unassigned to requirement':
-            if ($_allowCourseDrop(category, courseId)) {
-              $_dropToAssign(category.id, commit, courseId, false, state).then(() => done(`Course assigned to ${category.name}`))
+            if ($_allowCourseDrop(category, course)) {
+              $_dropToAssign(category.id, commit, course, false, state).then(() => done(`Course assigned to ${category.name}`))
             } else {
               done('Drop canceled. No assignment made.', true)
             }
