@@ -33,7 +33,7 @@
               :class="{'tr-while-dragging': isUserDragging(course.id)}"
               :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
               @dragend="onDragEnd"
-              @dragstart="onStartDraggingCourse(course.id)"
+              @dragstart="onStartDraggingCourse(course)"
             >
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
@@ -142,8 +142,8 @@ export default {
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
     },
-    onStartDraggingCourse(courseId) {
-      this.onDragStart({courseId: courseId, dragContext: this.key})
+    onStartDraggingCourse(course) {
+      this.onDragStart({course, dragContext: this.key})
     }
   }
 }

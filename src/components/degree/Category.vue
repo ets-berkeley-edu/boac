@@ -139,7 +139,9 @@ export default {
       this.onClickEdit(this.category)
     },
     isDroppable() {
-      return this.category.id === this.draggingContext.target && !this.$_.size(this.category.subcategories)
+      return this.category.id === this.draggingContext.target
+        && !this.$_.size(this.category.subcategories)
+        && !this.categoryHasCourse(this.category, this.draggingContext.course)
     },
     onDrag(event, stage) {
       switch (stage) {

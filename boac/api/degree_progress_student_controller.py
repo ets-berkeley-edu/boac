@@ -35,6 +35,7 @@ from boac.models.degree_progress_course_unit_requirement import DegreeProgressCo
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
+from flask_cors import cross_origin
 from flask_login import current_user
 
 
@@ -118,6 +119,36 @@ def copy_course():
         )
         DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
         return tolerant_jsonify(DegreeProgressCourse.find_by_id(course.id).to_api_json())
+
+
+@app.route('/api/degree/course/<course_id>', methods=['DELETE'])
+@can_edit_degree_progress
+@cross_origin(allow_headers=['Content-Type'])
+def delete_course(course_id):
+    course = DegreeProgressCourse.find_by_id(course_id)
+    if course:
+        # Verify that course is a copy
+        matches = DegreeProgressCourse.get_courses(
+            degree_check_id=course.degree_check_id,
+            section_id=course.section_id,
+            sid=course.sid,
+            term_id=course.term_id,
+        )
+        matches = sorted(matches, key=lambda c: c.created_at)
+        if matches[0].id == course.id:
+            raise BadRequestError('Only copied courses can be deleted.')
+
+        category = DegreeProgressCategory.find_by_id(course.category_id)
+        DegreeProgressCourseUnitRequirement.delete(course.id)
+        DegreeProgressCourse.delete(course)
+        if 'Placeholder' in category.category_type:
+            DegreeProgressCategory.delete(category_id=category.id)
+
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(category.template_id)
+        return tolerant_jsonify({'message': f'Course {course_id} deleted'}), 200
+    else:
+        raise ResourceNotFoundError('Course not found.')
 
 
 @app.route('/api/degree/course/<course_id>/assign', methods=['POST'])

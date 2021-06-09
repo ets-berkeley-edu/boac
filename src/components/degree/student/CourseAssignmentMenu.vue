@@ -75,9 +75,9 @@ export default {
   computed: {
     options() {
       const put = option => {
-        option.disabled = (option.categoryType === 'Course Requirement' && !!option.courseIds.length)
+        option.disabled = (option.categoryType === 'Course Requirement' && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
-          || option.courseIds.includes(this.course.id)
+          || this.categoryHasCourse(option, this.course)
         options.push(option)
       }
       const options = []

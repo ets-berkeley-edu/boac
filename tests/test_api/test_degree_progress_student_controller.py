@@ -494,32 +494,9 @@ class TestUnassignedCourses:
 
 class TestCopyCourse:
 
-    @classmethod
-    def _api_copy_course(
-            cls,
-            category_id,
-            client,
-            section_id,
-            sid,
-            term_id,
-            expected_status_code=200,
-    ):
-        response = client.post(
-            '/api/degree/course/copy',
-            data=json.dumps({
-                'categoryId': category_id,
-                'sectionId': section_id,
-                'sid': sid,
-                'termId': term_id,
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == expected_status_code
-        return json.loads(response.data)
-
     def test_anonymous(self, client):
         """Denies anonymous user."""
-        self._api_copy_course(
+        _api_copy_course(
             category_id=1,
             client=client,
             expected_status_code=401,
@@ -531,7 +508,7 @@ class TestCopyCourse:
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(coe_advisor_read_only_uid)
-        self._api_copy_course(
+        _api_copy_course(
             category_id=1,
             client=client,
             expected_status_code=401,
@@ -576,7 +553,7 @@ class TestCopyCourse:
         copied_course_ids = []
 
         def _copy_course(category_id, expected_status_code=200):
-            course_copy = self._api_copy_course(
+            course_copy = _api_copy_course(
                 category_id=category_id,
                 client=client,
                 expected_status_code=expected_status_code,
@@ -680,10 +657,151 @@ class TestUpdateDegreeNote:
         assert DegreeProgressTemplate.find_by_id(template_id).updated_at != original_updated_at
 
 
+class TestDeleteCategory:
+
+    @classmethod
+    def _api_create_category(
+            cls,
+            client,
+            category_type,
+            name,
+            position,
+            template_id,
+            description=None,
+            expected_status_code=200,
+            parent_category_id=None,
+            unit_requirement_ids=(),
+            units_lower=None,
+            units_upper=None,
+    ):
+        response = client.post(
+            '/api/degree/category/create',
+            data=json.dumps({
+                'categoryType': category_type,
+                'description': description,
+                'name': name,
+                'parentCategoryId': parent_category_id,
+                'position': position,
+                'templateId': template_id,
+                'unitRequirementIds': ','.join(str(id_) for id_ in unit_requirement_ids),
+                'unitsLower': units_lower,
+                'unitsUpper': units_upper,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_not_authenticated(self, client):
+        """Denies anonymous user."""
+        assert client.delete('/api/degree/course/1').status_code == 401
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        assert client.delete('/api/degree/course/1').status_code == 401
+
+    def test_delete(self, client, fake_auth):
+        """Advisor can delete course."""
+        advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(advisor.uid)
+        sid = '11667051'
+
+        degree_check = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=advisor.id,
+            degree_name=f'Degree for {sid}',
+            student_sid=sid,
+        )
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        course_id = api_json['courses']['unassigned'][-1]['id']
+        categories = []
+        for index in (1, 2, 3):
+            categories.append(
+                self._api_create_category(
+                    category_type='Category',
+                    client=client,
+                    name=f'Category {index}',
+                    position=index,
+                    template_id=degree_check.id,
+                ),
+            )
+        # Category #2 gets a child 'Course Requirement'
+        course_requirement = self._api_create_category(
+            category_type='Course Requirement',
+            client=client,
+            name='Course Requirement',
+            parent_category_id=categories[1]['id'],
+            position=categories[1]['position'],
+            template_id=degree_check.id,
+        )
+        # Assign course to Category #1
+        course = _api_assign_course(
+            category_id=categories[0]['id'],
+            client=client,
+            course_id=course_id,
+        )
+        # Copy course to Category #2 and then assign it to the 'Course Requirement'
+        section_id = course['sectionId']
+        term_id = course['termId']
+        course_copy_1 = _api_copy_course(
+            category_id=categories[1]['id'],
+            client=client,
+            section_id=section_id,
+            sid=sid,
+            term_id=term_id,
+        )
+        placeholder_category_id = course_copy_1['categoryId']
+        course_copy_1 = _api_assign_course(
+            category_id=course_requirement['id'],
+            client=client,
+            course_id=course_copy_1['id'],
+        )
+        # Placeholder category is auto-deleted during re-assignment
+        assert not DegreeProgressCategory.find_by_id(placeholder_category_id)
+        # Delete the course_copy_1 and expect the underlying 'Course Requirement' to survive
+        assert client.delete(f"/api/degree/course/{course_copy_1['id']}").status_code == 200
+
+        # Copy course to Category #3 and then delete. Expect removal of course and its 'Placeholder' category.
+        course_copy_2 = _api_copy_course(
+            category_id=categories[2]['id'],
+            client=client,
+            section_id=section_id,
+            sid=sid,
+            term_id=term_id,
+        )
+        placeholder_category_id = course_copy_2['categoryId']
+        assert 'Placeholder' in DegreeProgressCategory.find_by_id(placeholder_category_id).category_type
+        assert client.delete(f"/api/degree/course/{course_copy_2['id']}").status_code == 200
+        assert not DegreeProgressCategory.find_by_id(placeholder_category_id)
+
+
 def _api_assign_course(category_id, client, course_id, expected_status_code=200, ignore=False):
     response = client.post(
         f'/api/degree/course/{course_id}/assign',
         data=json.dumps({'categoryId': category_id, 'ignore': ignore}),
+        content_type='application/json',
+    )
+    assert response.status_code == expected_status_code
+    return json.loads(response.data)
+
+
+def _api_copy_course(
+        category_id,
+        client,
+        section_id,
+        sid,
+        term_id,
+        expected_status_code=200,
+):
+    response = client.post(
+        '/api/degree/course/copy',
+        data=json.dumps({
+            'categoryId': category_id,
+            'sectionId': section_id,
+            'sid': sid,
+            'termId': term_id,
+        }),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code

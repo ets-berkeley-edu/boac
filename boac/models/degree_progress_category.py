@@ -215,7 +215,7 @@ class DegreeProgressCategory(Base):
         return {
             'id': self.id,
             'categoryType': self.category_type,
-            'courseIds': [c.id for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
+            'courses': [c.to_api_json() for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
             'name': self.name,

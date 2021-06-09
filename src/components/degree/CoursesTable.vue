@@ -27,7 +27,7 @@
               :key="`tr-${index}`"
               :class="{
                 'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
-                'drop-zone-off': !bundle.category || bundle.category.courseIds.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id,
+                'drop-zone-off': !bundle.category || bundle.category.courses.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id,
                 'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
               }"
               :draggable="isDraggable(bundle)"
@@ -141,13 +141,13 @@
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
-                    v-if="!sid"
+                    v-if="!sid || (bundle.course && bundle.course.isCopy)"
                     :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
                     class="p-0"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
-                    @click="deleteCourse(bundle)"
+                    @click="onDelete(bundle)"
                   >
                     <font-awesome icon="trash-alt" />
                     <span class="sr-only">Delete {{ bundle.name }}</span>
@@ -266,7 +266,7 @@ export default {
         let course
         if (item.categoryType) {
           category = item
-          course = category.courseIds.length ? this.getCourse(category.courseIds[0]) : null
+          course = category.courses.length ? this.getCourse(category.courses[0].id) : null
         } else {
           course = item
           category = this.findCategoryById(course.categoryId)
@@ -305,17 +305,18 @@ export default {
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
-      this.deleteCategory(this.bundleForDelete.category.id).then(() => {
-        this.$announcer.polite(`${this.bundleForDelete.name} deleted.`)
+      const name = this.bundleForDelete.name
+      const done = () => {
+        this.$announcer.polite(`${name} deleted.`)
         this.bundleForDelete = null
         this.setDisableButtons(false)
         this.$putFocusNextTick('page-header')
-      })
-    },
-    deleteCourse(bundle) {
-      this.setDisableButtons(true)
-      this.bundleForDelete = bundle
-      this.$announcer.polite(`Delete ${bundle.name}`)
+      }
+      if (this.sid) {
+        this.deleteCourse(this.bundleForDelete.course.id).then(done)
+      } else {
+        this.deleteCategory(this.bundleForDelete.category.id).then(done)
+      }
     },
     describeCategoryUnits(category) {
       if (category) {
@@ -324,6 +325,49 @@ export default {
       } else {
         return null
       }
+    },
+    edit(bundle) {
+      this.setDisableButtons(true)
+      this.$announcer.polite(`Edit ${bundle.name}`)
+      this.bundleForEdit = bundle
+      this.$putFocusNextTick(`column-${this.position}-name-input`)
+    },
+    getCourseFulfillments(bundle) {
+      if (bundle.category && bundle.course) {
+        const idSet1 = this.$_.map(bundle.category.unitRequirements, 'id')
+        const idSet2 = this.$_.map(bundle.course.unitRequirements, 'id')
+        const intersection = idSet1.filter(id => idSet2.includes(id))
+        return this.$_.map(this.$_.filter(bundle.category.unitRequirements, u => intersection.includes(u.id)), 'name')
+      } else {
+        return []
+      }
+    },
+    isDraggable(bundle) {
+      const draggable =
+        !this.disableButtons
+        && this.assignedCourseCount
+        && this.canEdit
+        && bundle.course
+      return !!draggable
+    },
+    isDroppable(category) {
+      return category && !category.courses.length && category.id === this.draggingContext.target
+    },
+    isEditable(bundle) {
+      // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
+      return bundle.course || !this.sid
+    },
+    isEditing(bundle) {
+      const isMatch = key => {
+        const id = this.$_.get(bundle, `${key}.id`)
+        return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
+      }
+      return isMatch('category') || isMatch('course')
+    },
+    onDelete(bundle) {
+      this.setDisableButtons(true)
+      this.bundleForDelete = bundle
+      this.$announcer.polite(`Delete ${bundle.name}`)
     },
     onDrag(event, stage, bundle) {
       switch (stage) {
@@ -340,50 +384,12 @@ export default {
         this.setDraggingTarget(null)
         break
       case 'start':
-        this.onDragStart({courseId: bundle.course.id, dragContext: 'assigned'})
+        this.onDragStart({course: bundle.course, dragContext: 'assigned'})
         break
       case 'exit':
       default:
         break
       }
-    },
-    edit(bundle) {
-      this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${bundle.name}`)
-      this.bundleForEdit = bundle
-      this.$putFocusNextTick(`column-${this.position}-name-input`)
-    },
-    getCourseFulfillments(bundle) {
-      if (bundle.category && bundle.course) {
-        const categoryIds = this.$_.map(bundle.category.unitRequirements, 'id')
-        const courseIds = this.$_.map(bundle.course.unitRequirements, 'id')
-        const intersection = categoryIds.filter(id => courseIds.includes(id))
-        return this.$_.map(this.$_.filter(bundle.category.unitRequirements, u => intersection.includes(u.id)), 'name')
-      } else {
-        return []
-      }
-    },
-    isDraggable(bundle) {
-      const draggable =
-        !this.disableButtons
-        && this.assignedCourseCount
-        && this.canEdit
-        && bundle.course
-      return !!draggable
-    },
-    isDroppable(category) {
-      return category && !category.courseIds.length && category.id === this.draggingContext.target
-    },
-    isEditable(bundle) {
-      // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
-      return bundle.course || !this.sid
-    },
-    isEditing(bundle) {
-      const isMatch = key => {
-        const id = this.$_.get(bundle, `${key}.id`)
-        return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
-      }
-      return isMatch('category') || isMatch('course')
     },
     onDropCourse(event, category, context) {
       event.stopPropagation()
