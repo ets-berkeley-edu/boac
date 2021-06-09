@@ -56,12 +56,13 @@
           :units-upper="unitsUpper"
         />
       </div>
-      <div v-if="selectedCategoryType === 'Course Requirement' && unitRequirements.length">
+      <div v-if="unitRequirements.length">
         <div class="font-weight-500 pb-1">
           Requirement Fulfillment
         </div>
         <div class="mb-3">
           <SelectUnitFulfillment
+            :ref="`column-${position}-unit-requirement-select`"
             :disable="isSaving"
             :initial-unit-requirements="selectedUnitRequirements"
             :on-unit-requirements-change="onUnitRequirementsChange"
@@ -249,9 +250,18 @@ export default {
       }
     },
     onChangeParentCategory(option) {
-      this.$announcer.polite(option ? `${this.selectedParentCategory} selected` : 'Unselected')
+      this.$announcer.polite(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
+      const existingUnitRequirements = this.selectedUnitRequirements
+      const parentUnitRequirements = this.$_.get(this.selectedParentCategory, 'unitRequirements')
+
       if (option) {
+        const inheritedUnitRequirements = this.$_.differenceBy(parentUnitRequirements, existingUnitRequirements, 'id')
+        this.$_.each(inheritedUnitRequirements, unitRequirement => {
+          this.$refs[`column-${option.position}-unit-requirement-select`].onChangeUnitRequirement(unitRequirement)
+        })
         this.$putFocusNextTick(`column-${this.position}-create-requirement-btn`)
+      } else {
+        this.$_.each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
       }
     },
     onSubmit() {
