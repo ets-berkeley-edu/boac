@@ -22,10 +22,7 @@
               <div
                 id="drop-zone-ignored-courses"
                 class="drop-zone"
-                :class="{
-                  'drop-zone-on': draggingContext.target === 'ignored',
-                  'drop-zone-off': draggingContext.target !== 'ignored'
-                }"
+                :class="isDroppable('ignored') ? 'drop-zone-on' : 'drop-zone-off'"
                 @dragend="onDrag($event, 'end', 'ignored')"
                 @dragenter="onDrag($event,'enter', 'ignored')"
                 @dragleave="onDrag($event, 'leave', 'ignored')"
@@ -42,10 +39,7 @@
               <div
                 id="drop-zone-unassigned-courses"
                 class="drop-zone"
-                :class="{
-                  'drop-zone-on': draggingContext.target === 'unassigned',
-                  'drop-zone-off': draggingContext.target !== 'unassigned'
-                }"
+                :class="isDroppable('unassigned') ? 'drop-zone-on' : 'drop-zone-off'"
                 @dragend="onDrag($event, 'end', 'unassigned')"
                 @dragenter="onDrag($event,'enter', 'unassigned')"
                 @dragleave="onDrag($event, 'leave', 'unassigned')"
@@ -123,22 +117,22 @@ export default {
     window.removeEventListener('drag', this.scrollPerDrag)
   },
   methods: {
-    scrollPerDrag(event) {
-      if (event && !this.draggingContext.target) {
-        const height = document.documentElement.scrollHeight
-        const yPercentage = event.clientY / screen.height
-        window.scrollTo({
-          behavior: 'smooth',
-          left: 0,
-          top: yPercentage * height
-        })
-      }
-    },
     dropToUnassign(event, context) {
       event.stopPropagation()
       event.preventDefault()
       this.onDrop({category: null, context})
       this.setDraggingTarget(null)
+    },
+    isDroppable(target) {
+      let droppable = this.draggingContext.target === target && this.draggingContext.course
+      if (droppable) {
+        if (target === 'ignored') {
+          droppable = !this.draggingContext.course.ignore
+        } else {
+          droppable = this.draggingContext.course.ignore || this.draggingContext.course.categoryId
+        }
+      }
+      return droppable
     },
     onDrag(event, stage, context) {
       switch (stage) {
@@ -161,6 +155,17 @@ export default {
       case 'start':
       default:
         break
+      }
+    },
+    scrollPerDrag(event) {
+      if (event && !this.draggingContext.target) {
+        const height = document.documentElement.scrollHeight
+        const yPercentage = event.clientY / screen.height
+        window.scrollTo({
+          behavior: 'smooth',
+          left: 0,
+          top: yPercentage * height
+        })
       }
     }
   }

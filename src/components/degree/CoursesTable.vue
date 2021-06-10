@@ -54,7 +54,7 @@
                   'font-size-14': !printable
                 }"
               >
-                <div class="d-flex">
+                <div class="align-items-center d-flex">
                   <div
                     :class="{
                       'font-weight-500': isEditing(bundle),
@@ -370,7 +370,7 @@ export default {
         const id = this.$_.get(bundle, `${key}.id`)
         return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
       }
-      return isMatch('category') || isMatch('course')
+      return this.sid ? isMatch('course') : isMatch('category')
     },
     onDelete(bundle) {
       this.setDisableButtons(true)
