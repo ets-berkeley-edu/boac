@@ -176,7 +176,7 @@
           </template>
           <b-tr
             v-if="!items.length"
-            :class="{'drop-zone-on': draggingContext.target === -1}"
+            :class="{'drop-zone-on': draggingContext.target === emptyCategoryId}"
             @dragenter="onDrag($event, 'enter')"
             @dragleave="onDrag($event, 'leave')"
             @dragover="onDrag($event, 'over')"
@@ -184,6 +184,7 @@
           >
             <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
               <span
+                :id="emptyCategoryId"
                 class="faint-text font-italic"
                 :class="{'font-size-12': printable, 'font-size-16': !printable}"
               >
@@ -247,7 +248,8 @@ export default {
   data: () => ({
     bundleForDelete: undefined,
     bundleForEdit: undefined,
-    canEdit: undefined
+    canEdit: undefined,
+    emptyCategoryId: undefined
   }),
   computed: {
     allCourses() {
@@ -284,6 +286,7 @@ export default {
   },
   created() {
     this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
+    this.emptyCategoryId = `empty-category-${this.parentCategory.id}`
   },
   methods: {
     afterCancel() {
@@ -351,7 +354,12 @@ export default {
       return !!draggable
     },
     isDroppable(category) {
-      return category && !category.courses.length && category.id === this.draggingContext.target
+      let droppable = category && !category.courses.length && category.id === this.draggingContext.target
+      if (droppable) {
+        const courseKeys = this.$_.map(this.parentCategory.courses, this.getCourseKey)
+        droppable = !this.$_.includes(courseKeys, this.getCourseKey(this.draggingContext.course))
+      }
+      return droppable
     },
     isEditable(bundle) {
       // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
@@ -378,7 +386,7 @@ export default {
       case 'over':
         event.stopPropagation()
         event.preventDefault()
-        this.setDraggingTarget(bundle ? this.$_.get(bundle.category, 'id') : -1)
+        this.setDraggingTarget(bundle ? this.$_.get(bundle.category, 'id') : this.emptyCategoryId)
         break
       case 'leave':
         this.setDraggingTarget(null)
