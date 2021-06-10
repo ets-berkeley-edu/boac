@@ -116,6 +116,7 @@ def copy_course():
             course_units_lower=course.units,
             course_units_upper=course.units,
             parent_category_id=category.id,
+            unit_requirement_ids=[u.unit_requirement_id for u in category.unit_requirements],
         )
         DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
         return tolerant_jsonify(DegreeProgressCourse.find_by_id(course.id).to_api_json())

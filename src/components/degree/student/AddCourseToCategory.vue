@@ -36,7 +36,7 @@
           <b-btn
             id="add-course-save-btn"
             class="btn-primary-color-override"
-            :disabled="!selected"
+            :disabled="isSaving || !selected"
             variant="primary"
             @click="onClickSave"
           >
@@ -113,12 +113,13 @@ export default {
   },
   methods: {
     cancel() {
-      this.isMenuOpen = this.isSaving =false
+      this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
       this.$announcer.polite('Cancelled')
     },
     onClickSave() {
       this.isSaving = true
+      this.$announcer.polite('Saving')
       // This 'Course Requirement' category will be deleted if/when the course is unassigned.
       this.copyCourseAndAssign({
         categoryId: this.parentCategory.id,
