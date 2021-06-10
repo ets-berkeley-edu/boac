@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div :class="{'cursor-grabbing': draggingContext.course}">
     <Spinner />
     <div v-if="!loading">
       <div class="border-bottom light-blue-background py-2">
@@ -173,6 +173,9 @@ export default {
 </script>
 
 <style scoped>
+.cursor-grabbing {
+  cursor: grabbing !important;
+}
 .degree-check-column {
   min-width: 300px;
   padding-bottom: 10px;

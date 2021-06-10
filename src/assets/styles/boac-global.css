@@ -80,6 +80,9 @@
 .curated-checkbox-label {
   padding: 10px;
 }
+.cursor-grab {
+  cursor: grab;
+}
 .cursor-pointer {
   cursor: pointer;
 }
