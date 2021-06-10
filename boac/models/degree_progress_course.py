@@ -142,7 +142,6 @@ class DegreeProgressCourse(Base):
                 course_id=course.id,
                 unit_requirement_id=unit_requirement_id,
             )
-            std_commit()
         return course
 
     @classmethod
