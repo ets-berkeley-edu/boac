@@ -48,5 +48,11 @@ class DegreeProgressCategoryUnitRequirement(db.Model):
         std_commit()
 
     @classmethod
+    def delete_mappings(cls, unit_requirement_id):
+        for mapping in cls.query.filter_by(unit_requirement_id=unit_requirement_id).all():
+            db.session.delete(mapping)
+        std_commit()
+
+    @classmethod
     def find_by_category_id(cls, category_id):
         return cls.query.filter_by(category_id=category_id).all()
