@@ -30,10 +30,16 @@
               :id="`${key}-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
               class="tr-course"
-              :class="{'tr-while-dragging': isUserDragging(course.id)}"
-              :draggable="!disableButtons && $currentUser.canEditDegreeProgress"
+              :class="{
+                'cursor-grab': canDrag() && !draggingContext.course,
+                'mouseover-grabbable': hoverCourseId === course.id && !draggingContext.course,
+                'tr-while-dragging': isUserDragging(course.id)
+              }"
+              :draggable="canDrag()"
               @dragend="onDragEnd"
               @dragstart="onStartDraggingCourse(course)"
+              @mouseenter="onMouse('enter', course)"
+              @mouseleave="onMouse('leave', course)"
             >
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
@@ -115,6 +121,7 @@ export default {
   },
   data: () => ({
     courseForEdit: undefined,
+    hoverCourseId: undefined,
     key: undefined
   }),
   created() {
@@ -139,8 +146,25 @@ export default {
       this.courseForEdit = course
       this.$putFocusNextTick('name-input')
     },
+    canDrag() {
+      return !this.disableButtons && this.$currentUser.canEditDegreeProgress
+    },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
+    },
+    onMouse(stage, course) {
+      switch(stage) {
+      case 'enter':
+        if (this.canDrag() && !this.draggingContext.course) {
+          this.hoverCourseId = course.id
+        }
+        break
+      case 'leave':
+        this.hoverCourseId = null
+        break
+      default:
+        break
+      }
     },
     onStartDraggingCourse(course) {
       this.onDragStart({course, dragContext: this.key})
@@ -162,6 +186,9 @@ table {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.mouseover-grabbable {
+  background-color: #b9dcf0;
 }
 .table-layout {
   table-layout: fixed;

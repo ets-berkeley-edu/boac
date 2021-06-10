@@ -26,8 +26,10 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               :class="{
+                'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
                 'drop-zone-off': !bundle.category || bundle.category.courses.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id,
+                'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
                 'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
               }"
               :draggable="isDraggable(bundle)"
@@ -37,6 +39,8 @@
               @dragover="onDrag($event, 'over', bundle)"
               @dragstart="onDrag($event, 'start', bundle)"
               @drop="onDropCourse($event, bundle.category, 'requirement')"
+              @mouseenter="onMouse('enter', bundle)"
+              @mouseleave="onMouse('leave', bundle)"
             >
               <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu">
                 <div v-if="bundle.course && !isUserDragging(bundle.course.id)">
@@ -249,7 +253,8 @@ export default {
     bundleForDelete: undefined,
     bundleForEdit: undefined,
     canEdit: undefined,
-    emptyCategoryId: undefined
+    emptyCategoryId: undefined,
+    hoverCourseId: undefined
   }),
   computed: {
     allCourses() {
@@ -351,6 +356,7 @@ export default {
         && this.assignedCourseCount
         && this.canEdit
         && bundle.course
+        && !this.draggingContext.course
       return !!draggable
     },
     isDroppable(category) {
@@ -405,6 +411,22 @@ export default {
       this.onDrop({category, context})
       this.setDraggingTarget(null)
       return false
+    },
+    onMouse(stage, bundle) {
+      if (this.isDraggable(bundle)) {
+        switch(stage) {
+        case 'enter':
+          if (this.isDraggable(bundle)) {
+            this.hoverCourseId = this.$_.get(bundle.course, 'id')
+          }
+          break
+        case 'leave':
+          this.hoverCourseId = null
+          break
+        default:
+          break
+        }
+      }
     }
   }
 }
@@ -437,6 +459,9 @@ table {
 }
 .fulfillments-icon {
   color: #00c13a;
+}
+.mouseover-grabbable {
+  background-color: #b9dcf0;
 }
 .td-actions {
   padding: 0 4px 0 0;

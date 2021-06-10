@@ -190,7 +190,6 @@ export default {
 .drop-zone-container-on {
   background-color: #ecf5fb;
   border-left: 2px solid transparent;
-  cursor: move;
   outline: #8bbdda dashed 0.15em;
 }
 .subcategory-header {
