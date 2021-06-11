@@ -25,7 +25,7 @@
         <b-button
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
-          :disabled="addButtonLoading || isLoading || addButtonDisabled(query, selectedSuggestion)"
+          :disabled="addButtonLoading || isLoading || !selectedSuggestion"
           @click="onAddButton"
           @keyup.enter="onAddButton"
         >
@@ -89,11 +89,6 @@ export default {
   name: 'Autocomplete',
   mixins: [Context, Util],
   props: {
-    addButtonDisabled: {
-      default: (_query, selectedSuggestion) => !selectedSuggestion,
-      required: false,
-      type: Function
-    },
     addSelection: {
       default: () => {},
       required: false,
