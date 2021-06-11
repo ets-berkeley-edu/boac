@@ -45,7 +45,7 @@
         'font-weight-lighter': option.disabled,
         'font-size-15 pl-3': option.categoryType === 'Category',
         'font-size-14 pl-3': option.categoryType === 'Subcategory',
-        'font-size-14 pl-4': option.categoryType === 'Course Requirement',
+        'font-size-14 pl-4': isCourseRequirement(option),
         'text-body text-decoration-none': true
       }"
       :value="option"
@@ -75,7 +75,7 @@ export default {
   computed: {
     options() {
       const put = option => {
-        option.disabled = (option.categoryType === 'Course Requirement' && !!option.courses.length)
+        option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
           || this.categoryHasCourse(option, this.course)
         options.push(option)
@@ -93,6 +93,9 @@ export default {
     }
   },
   methods: {
+    isCourseRequirement(option) {
+      return this.$_.includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
+    },
     onSelect(category, ignore) {
       this.setDisableButtons(true)
       this.assignCourseToCategory({course: this.course, category, ignore}).then(() => {
