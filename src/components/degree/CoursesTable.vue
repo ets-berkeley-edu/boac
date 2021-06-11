@@ -133,7 +133,7 @@
                 >
                   <b-btn
                     v-if="isEditable(bundle)"
-                    :id="`column-${position}-edit-category-${bundle.category.id}-btn`"
+                    :id="`column-${position}-edit-course-${bundle.course.id}-btn`"
                     class="p-0"
                     :class="{'pr-0': sid, 'pr-1': !sid}"
                     :disabled="disableButtons"
@@ -146,7 +146,7 @@
                   </b-btn>
                   <b-btn
                     v-if="!sid || (bundle.course && bundle.course.isCopy)"
-                    :id="`column-${position}-delete-course-${bundle.category.id}-btn`"
+                    :id="`column-${position}-delete-course-${bundle.course.id}-btn`"
                     class="p-0"
                     :disabled="disableButtons"
                     size="sm"
@@ -296,18 +296,18 @@ export default {
   methods: {
     afterCancel() {
       this.$announcer.polite('Cancelled')
-      this.$putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-edit-course-${this.bundleForEdit.course.id}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
       this.$announcer.polite(`Updated course ${this.bundleForEdit.name}`)
-      this.$putFocusNextTick(`column-${this.position}-edit-category-${this.bundleForEdit.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-edit-course-${this.bundleForEdit.course.id}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     deleteCanceled() {
-      this.$putFocusNextTick(`column-${this.position}-delete-course-${this.bundleForDelete.category.id}-btn`)
+      this.$putFocusNextTick(`column-${this.position}-delete-course-${this.bundleForDelete.course.id}-btn`)
       this.bundleForDelete = null
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
