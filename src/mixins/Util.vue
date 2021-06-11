@@ -34,7 +34,7 @@ export default {
       case 0: return _.isNil(zeroString) ? '' : zeroString
       case 1: return _.head(arr)
       case 2: return `${_.head(arr)} and ${_.last(arr)}`
-      default: return _.join(_.concat(_.initial(arr), ` and ${_.last(arr)}`), ', ')
+      default: return _.join(_.concat(_.initial(arr), `and ${_.last(arr)}`), ', ')
       }
     },
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {

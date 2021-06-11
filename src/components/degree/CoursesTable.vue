@@ -78,7 +78,7 @@
               </td>
               <td class="td-units" :class="{'faint-text font-italic': !bundle.course}">
                 <font-awesome
-                  v-if="getCourseFulfillments(bundle).length && !printable"
+                  v-if="isCourseFulfillmentsEdited(bundle) && !printable"
                   class="fulfillments-icon mr-1"
                   icon="check-circle"
                   size="sm"
@@ -341,13 +341,18 @@ export default {
       this.$putFocusNextTick(`column-${this.position}-name-input`)
     },
     getCourseFulfillments(bundle) {
-      if (bundle.category && bundle.course) {
-        const idSet1 = this.$_.map(bundle.category.unitRequirements, 'id')
-        const idSet2 = this.$_.map(bundle.course.unitRequirements, 'id')
-        const intersection = idSet1.filter(id => idSet2.includes(id))
-        return this.$_.map(this.$_.filter(bundle.category.unitRequirements, u => intersection.includes(u.id)), 'name')
+      if (bundle.course) {
+        return this.$_.map(bundle.course.unitRequirements, 'name')
       } else {
         return []
+      }
+    },
+    isCourseFulfillmentsEdited(bundle) {
+      if (bundle.category && this.$_.get(bundle, 'course.unitRequirements', []).length) {
+        const edited = this.$_.xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
+        return edited && edited.length
+      } else {
+        return false
       }
     },
     isDraggable(bundle) {
