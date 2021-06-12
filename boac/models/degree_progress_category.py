@@ -133,6 +133,7 @@ class DegreeProgressCategory(Base):
             db.session.delete(unit_requirement)
         for course in DegreeProgressCourse.find_by_category_id(category_id):
             db.session.delete(course)
+        std_commit()
         category = cls.query.filter_by(id=category_id).first()
         db.session.delete(category)
         std_commit()
