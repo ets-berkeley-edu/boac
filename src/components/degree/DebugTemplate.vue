@@ -1,21 +1,19 @@
 <template>
   <div class="border-top pt-2">
-    <transition name="drawer">
-      <div v-if="disableButtons" class="align-items-center d-flex pb-2">
-        <div class="pr-1">
-          <font-awesome icon="play-circle" />
-        </div>
-        <div>
-          <b-btn
-            class="px-0"
-            variant="link"
-            @click="setDisableButtons(false)"
-          >
-            Force buttons to enable
-          </b-btn>
-        </div>
-      </div>
-    </transition>
+    <div class="pb-1">
+      <b-btn
+        class="px-0"
+        :disabled="!disableButtons"
+        variant="link"
+        @click="setDisableButtons(false)"
+      >
+        <font-awesome
+          :class="disableButtons ? 'text-primary' : 'text-black-50'"
+          icon="play-circle"
+        />
+        Force buttons to enable
+      </b-btn>
+    </div>
     <div class="align-items-center d-flex">
       <div class="pr-1">
         <font-awesome icon="bug" />
