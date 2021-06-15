@@ -99,10 +99,15 @@ export default {
     UnitRequirements
   },
   data: () => ({
+    scrollHeight: undefined,
     student: undefined
   }),
   created() {
-    window.addEventListener('drag', this.scrollPerDrag)
+    this.scrollHeight = window.scrollY
+    window.addEventListener('drag', this.scrollTo)
+    window.addEventListener('resize', this.onScroll)
+    window.addEventListener('scroll', this.onScroll)
+
     const degreeId = this.$_.get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
@@ -114,7 +119,9 @@ export default {
     })
   },
   destroyed() {
-    window.removeEventListener('drag', this.scrollPerDrag)
+    window.removeEventListener('drag', this.scrollTo)
+    window.removeEventListener('resize', this.onScroll)
+    window.removeEventListener('scroll', this.onScroll)
   },
   methods: {
     dropToUnassign(event, context) {
@@ -157,16 +164,17 @@ export default {
         break
       }
     },
-    scrollPerDrag(event) {
-      if (event && !this.draggingContext.target) {
-        const height = document.documentElement.scrollHeight
-        const yPercentage = event.clientY / screen.height
-        window.scrollTo({
-          behavior: 'smooth',
-          left: 0,
-          top: yPercentage * height
-        })
+    scrollTo(event) {
+      // Distance to bottom of viewport
+      const distanceToBottom = window.innerHeight - event.clientY
+      if (distanceToBottom < 100) {
+        // The closer to bottom, the faster the scroll.
+        const adjustedTop = this.scrollHeight - distanceToBottom + 100
+        window.scrollTo({behavior: 'smooth', top: adjustedTop})
       }
+    },
+    onScroll() {
+      this.scrollHeight = window.scrollY
     }
   }
 }
