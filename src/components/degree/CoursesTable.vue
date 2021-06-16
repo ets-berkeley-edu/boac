@@ -28,7 +28,6 @@
               :class="{
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
-                'drop-zone-off': !bundle.category || bundle.category.courses.length || !isDroppable(bundle.category) || draggingContext.target !== bundle.category.id,
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
                 'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
               }"
@@ -147,7 +146,7 @@
                   <b-btn
                     v-if="!sid || (bundle.course && bundle.course.isCopy)"
                     :id="`column-${position}-delete-${bundle.key}-btn`"
-                    class="p-0"
+                    class="pl-0 pr-1 py-0"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
@@ -336,6 +335,7 @@ export default {
       }
     },
     edit(bundle) {
+      this.hoverCourseId = null
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
@@ -385,6 +385,7 @@ export default {
       return this.sid ? isMatch('course') : isMatch('category')
     },
     onDelete(bundle) {
+      this.hoverCourseId = null
       this.setDisableButtons(true)
       this.bundleForDelete = bundle
       this.$announcer.polite(`Delete ${bundle.name}`)
@@ -392,6 +393,7 @@ export default {
     onDrag(event, stage, bundle) {
       switch (stage) {
       case 'end':
+        this.hoverCourseId = null
         this.onDragEnd()
         break
       case 'enter':
@@ -414,6 +416,7 @@ export default {
     onDropCourse(event, category, context) {
       event.stopPropagation()
       event.preventDefault()
+      this.hoverCourseId = null
       this.onDrop({category, context})
       this.setDraggingTarget(null)
       return false
@@ -476,7 +479,7 @@ table {
 }
 .td-course-assignment-menu {
   font-size: 14px;
-  padding: 0;
+  padding: 0 2px 0 5px;
   vertical-align: middle;
   width: 14px;
 }
