@@ -369,7 +369,8 @@ export default {
       let droppable = category && !category.courses.length && category.id === this.draggingContext.target
       if (droppable) {
         const courseKeys = this.$_.map(this.parentCategory.courses, this.getCourseKey)
-        droppable = !this.$_.includes(courseKeys, this.getCourseKey(this.draggingContext.course))
+        const course = this.draggingContext.course
+        droppable = course.categoryId === category.parentCategoryId || !this.$_.includes(courseKeys, this.getCourseKey(course))
       }
       return droppable
     },

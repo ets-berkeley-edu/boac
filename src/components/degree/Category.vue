@@ -2,7 +2,7 @@
   <div>
     <div
       id="drop-zone-category"
-      class="align-items-center d-flex justify-content-between w-100"
+      class="w-100"
       :class="{
         'drop-zone-container': !$_.size(category.subcategories) && !printable,
         'drop-zone-container-on': isDroppable(category) && draggingContext.target === category.id
@@ -14,52 +14,54 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <h2
-        v-if="category.categoryType === 'Category'"
-        class="category-header"
-        :class="{'font-size-12': printable, 'font-size-18': !printable}"
-      >
-        {{ category.name }}
-      </h2>
-      <h3
-        v-if="category.categoryType === 'Subcategory'"
-        class="subcategory-header"
-        :class="{'font-size-10': printable, 'font-size-16': !printable}"
-      >
-        {{ category.name }}
-      </h3>
-      <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
-        <b-btn
-          :id="`column-${position}-edit-category-${category.id}-btn`"
-          class="pr-1 pt-0"
-          :disabled="disableButtons"
-          size="sm"
-          variant="link"
-          @click.prevent="edit"
+      <div class="align-items-center d-flex justify-content-between w-100">
+        <h2
+          v-if="category.categoryType === 'Category'"
+          class="category-header"
+          :class="{'font-size-12': printable, 'font-size-18': !printable}"
         >
-          <font-awesome icon="edit" />
-          <span class="sr-only">Edit {{ category.name }}</span>
-        </b-btn>
-        <b-btn
-          :id="`column-${position}-delete-category-${category.id}-btn`"
-          class="px-0 pt-0"
-          :disabled="disableButtons"
-          size="sm"
-          variant="link"
-          @click="deleteDegreeCategory"
+          {{ category.name }}
+        </h2>
+        <h3
+          v-if="category.categoryType === 'Subcategory'"
+          class="subcategory-header"
+          :class="{'font-size-10': printable, 'font-size-16': !printable}"
         >
-          <font-awesome icon="trash-alt" />
-          <span class="sr-only">Delete {{ category.name }}</span>
-        </b-btn>
+          {{ category.name }}
+        </h3>
+        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
+          <b-btn
+            :id="`column-${position}-edit-category-${category.id}-btn`"
+            class="pr-1 pt-0"
+            :disabled="disableButtons"
+            size="sm"
+            variant="link"
+            @click.prevent="edit"
+          >
+            <font-awesome icon="edit" />
+            <span class="sr-only">Edit {{ category.name }}</span>
+          </b-btn>
+          <b-btn
+            :id="`column-${position}-delete-category-${category.id}-btn`"
+            class="px-0 pt-0"
+            :disabled="disableButtons"
+            size="sm"
+            variant="link"
+            @click="deleteDegreeCategory"
+          >
+            <font-awesome icon="trash-alt" />
+            <span class="sr-only">Delete {{ category.name }}</span>
+          </b-btn>
+        </div>
       </div>
-    </div>
-    <div
-      v-if="category.description"
-      id="category-header-description"
-      class="pl-1 py-1"
-      :class="{'font-size-10': printable}"
-    >
-      {{ category.description }}
+      <div
+        v-if="category.description"
+        id="category-header-description"
+        class="pl-1 py-1"
+        :class="{'font-size-10': printable}"
+      >
+        {{ category.description }}
+      </div>
     </div>
     <AreYouSureModal
       v-if="isDeleting"
