@@ -37,36 +37,37 @@
           </span>
         </span>
       </div>
-      <div>
+      <div class="w-75">
         <label
           for="degree-check-add-student-input"
           class="font-size-14 input-label text mt-2"
         >
           <div class="font-weight-bolder">Student</div>
-          <span>Type a name, individual Student Identification (SID), or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
+          <span>Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
         </label>
-      </div>
-      <div class="mb-3">
-        <span id="degree-check-add-student-label" class="sr-only">Select student for degree check. Expect auto-suggest as you type name or SID.</span>
-        <Autocomplete
-          id="degree-check-add-student"
-          :key="resetAutoCompleteKey"
-          ref="autocomplete"
-          class="w-75"
-          :add-selection="addSids"
-          :add-button-disabled="addButtonDisabled"
-          :demo-mode-blur="true"
-          :disabled="isSaving"
-          input-labelled-by="degree-check-add-student-label"
-          :maxlength="'255'"
-          :show-add-button="true"
-          :source="studentsByNameOrSid"
-          :suggest-when="suggestWhen"
-          @input="addStudent"
-        />
-      </div>
-      <div>
-        <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
+        <div class="mb-3">
+          <b-form-textarea
+            id="degree-check-add-student"
+            v-model="textarea"
+            :disabled="isBusy"
+            aria-label="Type or paste student SID numbers here"
+            rows="8"
+            max-rows="30"
+            @keydown.esc="cancel"
+          ></b-form-textarea>
+        </div>
+        <div class="d-flex justify-content-end">
+          <b-btn
+            id="degree-check-add-sids-btn"
+            :disabled="!$_.trim(textarea) || isBusy"
+            variant="primary"
+            @click="addSids"
+          >
+            <span v-if="isValidating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
+            <span v-if="!isValidating">Add</span>
+          </b-btn>
+        </div>
+        <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
           <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
             <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
             <b-btn
@@ -150,7 +151,6 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete'
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
@@ -161,12 +161,11 @@ import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
-import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
+import {getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchDegreeCheck',
   components: {
-    Autocomplete,
     BatchAddStudentSet,
     DegreeTemplatesMenu,
     Spinner
@@ -181,8 +180,8 @@ export default {
     excludedStudents: [],
     isSaving: false,
     isValidating: false,
-    resetAutoCompleteKey: undefined,
     templateId: undefined,
+    textarea: undefined,
     warning: undefined
   }),
   computed: {
@@ -215,9 +214,6 @@ export default {
     this.loaded('Batch degree checks loaded')
   },
   methods: {
-    addButtonDisabled(selectedSuggestion, query) {
-      return this.isBusy || !selectedSuggestion && !/^\d+[,\r\n\t ]?/.test(query)
-    },
     addCohort(cohort) {
       this.clearErrors()
       this.addedCohorts.push(cohort)
@@ -228,12 +224,12 @@ export default {
       this.addedCuratedGroups.push(curatedGroup)
       this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
     },
-    addSids(query) {
+    addSids() {
       return new Promise((resolve, reject) => {
         this.isValidating = true
-        const sids = this.validateSids(query)
+        const sids = this.validateSids(this.textarea)
         if (sids) {
-          const novelSids = this.$_.difference(sids, this.distinctSids)
+          const novelSids = this.$_.difference(this.$_.uniq(sids), this.distinctSids)
           if (novelSids.length) {
             getStudentsBySids(novelSids).then(students => {
               this.addStudents(students)
@@ -246,11 +242,13 @@ export default {
                 this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
               }
               this.isValidating = false
+              this.textarea = undefined
               resolve()
             })
           }
           else {
             this.isValidating = false
+            this.textarea = undefined
             resolve()
           }
         } else {
@@ -264,21 +262,9 @@ export default {
         }
       })
     },
-    addStudent(student) {
-      if (student) {
-        this.addedStudents.push(student)
-        this.resetAutoCompleteKey = new Date().getTime()
-        this.clearErrors()
-        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(
-          () => this.alertScreenReader(`${student.label} added to degree check`)
-        )
-      }
-      this.$putFocusNextTick('degree-check-add-student-input')
-    },
     addStudents(students) {
       if (students && students.length) {
         this.addedStudents.push(...students)
-        this.resetAutoCompleteKey = new Date().getTime()
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(
           () => this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
         )
@@ -335,16 +321,6 @@ export default {
       }).finally(() => {
         this.isSaving = false
       })
-    },
-    studentsByNameOrSid(query, limit) {
-      return new Promise(resolve => {
-        findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.$_.filter(students, s => !this.$_.includes(this.addedSids, s.sid)))
-        })
-      })
-    },
-    suggestWhen(query) {
-      return !this.isValidating && query && query.length > 1 && !/[,\r\n\t ]+/.test(query)
     }
   }
 }
