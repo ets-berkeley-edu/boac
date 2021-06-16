@@ -131,12 +131,13 @@ export default {
       this.setDraggingTarget(null)
     },
     isDroppable(target) {
-      let droppable = this.draggingContext.target === target && this.draggingContext.course
+      const course = this.draggingContext.course
+      let droppable = this.draggingContext.target === target && course && !course.isCopy
       if (droppable) {
         if (target === 'ignored') {
-          droppable = !this.draggingContext.course.ignore
+          droppable = !course.ignore
         } else {
-          droppable = this.draggingContext.course.ignore || this.draggingContext.course.categoryId
+          droppable = course.ignore || course.categoryId
         }
       }
       return droppable

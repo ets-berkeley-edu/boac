@@ -74,7 +74,7 @@
                 <div v-if="!isUserDragging(course.id)">
                   <b-btn
                     :id="`edit-${key}-course-${course.id}-btn`"
-                    class="font-size-14 p-0"
+                    class="font-size-14 pl-0 pr-1 py-0"
                     :disabled="disableButtons"
                     size="sm"
                     variant="link"
@@ -195,7 +195,7 @@ table {
 }
 .td-course-assignment-menu {
   font-size: 14px;
-  padding: 0 0.3em 0 0;
+  padding: 0 2px 0 5px;
   vertical-align: middle;
   width: 14px;
 }
