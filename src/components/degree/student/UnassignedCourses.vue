@@ -37,7 +37,7 @@
               }"
               :draggable="canDrag()"
               @dragend="onDragEnd"
-              @dragstart="onStartDraggingCourse(course)"
+              @dragstart="onStartDraggingCourse($event, course)"
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
@@ -166,7 +166,9 @@ export default {
         break
       }
     },
-    onStartDraggingCourse(course) {
+    onStartDraggingCourse(event, course) {
+      event.effectAllowed = 'all'
+      event.dataTransfer.effectAllowed = 'all'
       this.onDragStart({course, dragContext: this.key})
     }
   }
@@ -189,6 +191,12 @@ table {
 }
 .mouseover-grabbable {
   background-color: #b9dcf0;
+}
+.mouseover-grabbable td:first-child, th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.mouseover-grabbable td:last-child, th:last-child {
+  border-radius: 0 10px 10px 0;
 }
 .table-layout {
   table-layout: fixed;
@@ -245,6 +253,11 @@ table {
 }
 .tr-course {
   height: 36px;
+}
+.tr-while-dragging {
+  background-color: #125074;
+  border-radius: 5px;
+  color: white;
 }
 .tr-while-dragging td:first-child, th:first-child {
   border-radius: 10px 0 0 10px;

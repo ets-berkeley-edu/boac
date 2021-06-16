@@ -315,11 +315,6 @@
   table-layout: fixed;
   width: 100%;
 }
-.tr-while-dragging {
-  background-color: #125074;
-  border-radius: 5px;
-  color: white;
-}
 .truncate {
   height: 24px;
   overflow: hidden;

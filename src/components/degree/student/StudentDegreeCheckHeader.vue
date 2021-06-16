@@ -6,7 +6,7 @@
           <div class="d-inline-block pr-2 w-100">
             <span class="font-weight-bolder">Note:</span> Revisions to the
             <router-link
-              id="original degree template"
+              id="original-degree-template"
               target="_blank"
               :to="`/degree/${parentTemplateId}`"
             >
