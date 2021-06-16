@@ -81,7 +81,7 @@
                   class="fulfillments-icon mr-1"
                   icon="check-circle"
                   size="sm"
-                  :title="`Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.`"
+                  :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
                 />
                 <font-awesome
                   v-if="unitsWereEdited(bundle.course) && !printable"
@@ -342,14 +342,10 @@ export default {
       this.$putFocusNextTick(`column-${this.position}-name-input`)
     },
     getCourseFulfillments(bundle) {
-      if (bundle.course) {
-        return this.$_.map(bundle.course.unitRequirements, 'name')
-      } else {
-        return []
-      }
+      return bundle.course ? this.$_.map(bundle.course.unitRequirements, 'name') : []
     },
     isCourseFulfillmentsEdited(bundle) {
-      if (bundle.category && this.$_.get(bundle, 'course.unitRequirements', []).length) {
+      if (bundle.category && bundle.course) {
         const edited = this.$_.xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
         return edited && edited.length
       } else {
@@ -447,12 +443,6 @@ table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
 }
-.tr-while-dragging td:first-child, th:first-child {
-  border-radius: 10px 0 0 10px;
-}
-.tr-while-dragging td:last-child, th:last-child {
-  border-radius: 0 10px 10px 0;
-}
 .changed-units-icon {
   color: #00c13a;
   margin-right: 0.3em;
@@ -472,6 +462,12 @@ table {
 }
 .mouseover-grabbable {
   background-color: #b9dcf0;
+}
+.mouseover-grabbable td:first-child, th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.mouseover-grabbable td:last-child, th:last-child {
+  border-radius: 0 10px 10px 0;
 }
 .td-actions {
   padding: 0 4px 0 0;
@@ -511,6 +507,17 @@ table {
 }
 .th-course-assignment-menu {
   width: 14px;
+}
+.tr-while-dragging {
+  background-color: #125074;
+  border-radius: 5px;
+  color: white;
+}
+.tr-while-dragging td:first-child, th:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.tr-while-dragging td:last-child, th:last-child {
+  border-radius: 0 10px 10px 0;
 }
 .unit-requirement-count {
   background-color: #3b7ea5;
