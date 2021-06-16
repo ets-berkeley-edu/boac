@@ -33,7 +33,6 @@ from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
 from flask import current_app as app, request
-from flask_cors import cross_origin
 from flask_login import current_user
 
 
@@ -81,7 +80,6 @@ def create_degree():
 
 @app.route('/api/degree/<template_id>', methods=['DELETE'])
 @can_edit_degree_progress
-@cross_origin(allow_headers=['Content-Type'])
 def delete_template(template_id):
     DegreeProgressTemplate.delete(template_id)
     return tolerant_jsonify({'message': f'Template {template_id} deleted'}), 200
@@ -89,7 +87,6 @@ def delete_template(template_id):
 
 @app.route('/api/degree/unit_requirement/<unit_requirement_id>', methods=['DELETE'])
 @can_edit_degree_progress
-@cross_origin(allow_headers=['Content-Type'])
 def delete_unit_requirement(unit_requirement_id):
     unit_requirement = DegreeProgressUnitRequirement.find_by_id(unit_requirement_id)
     if unit_requirement:

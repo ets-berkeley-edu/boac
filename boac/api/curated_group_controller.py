@@ -34,7 +34,6 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
-from flask_cors import cross_origin
 from flask_login import current_user
 
 
@@ -80,7 +79,6 @@ def create_curated_group():
 
 @app.route('/api/curated_group/delete/<curated_group_id>', methods=['DELETE'])
 @advisor_required
-@cross_origin(allow_headers=['Content-Type'])
 def delete_curated_group(curated_group_id):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:
@@ -160,7 +158,6 @@ def curated_group_ids_per_sid(sid):
 
 @app.route('/api/curated_group/<curated_group_id>/remove_student/<sid>', methods=['DELETE'])
 @advisor_required
-@cross_origin(allow_headers=['Content-Type'])
 def remove_student_from_curated_group(curated_group_id, sid):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     if not curated_group:

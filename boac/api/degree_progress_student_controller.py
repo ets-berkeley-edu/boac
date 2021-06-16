@@ -35,7 +35,6 @@ from boac.models.degree_progress_course_unit_requirement import DegreeProgressCo
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
-from flask_cors import cross_origin
 from flask_login import current_user
 
 
@@ -124,7 +123,6 @@ def copy_course():
 
 @app.route('/api/degree/course/<course_id>', methods=['DELETE'])
 @can_edit_degree_progress
-@cross_origin(allow_headers=['Content-Type'])
 def delete_course(course_id):
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
@@ -180,9 +178,9 @@ def assign_course(course_id):
             ):
                 if copy_of_course.id != course.id:
                     DegreeProgressCourseUnitRequirement.delete(copy_of_course.id)
-                    # Due to on-cascade-delete in the db, this category deletion will cause deletion of the
-                    # corresponding course, which is what we want. We are deleting copies of the course.
-                    DegreeProgressCategory.delete(copy_of_course.category_id)
+                    category = DegreeProgressCategory.find_by_id(copy_of_course.category_id)
+                    if 'Placeholder' in category.category_type:
+                        DegreeProgressCategory.delete(category.id)
             ignore = to_bool_or_none(get_param(params, 'ignore'))
             course = DegreeProgressCourse.unassign(course_id=course.id, ignore=ignore)
 

@@ -30,7 +30,6 @@ from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
-from flask_cors import cross_origin
 
 
 @app.route('/api/degree/category/create', methods=['POST'])
@@ -88,7 +87,6 @@ def get_degree_category(category_id):
 
 @app.route('/api/degree/category/<category_id>', methods=['DELETE'])
 @can_edit_degree_progress
-@cross_origin(allow_headers=['Content-Type'])
 def delete_degree_category(category_id):
     category = _get_degree_category(category_id)
     DegreeProgressCategory.delete(category.id)
