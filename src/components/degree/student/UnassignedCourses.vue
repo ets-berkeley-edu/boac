@@ -36,8 +36,11 @@
                 'tr-while-dragging': isUserDragging(course.id)
               }"
               :draggable="canDrag()"
-              @dragend="onDragEnd"
-              @dragstart="onStartDraggingCourse($event, course)"
+              @dragend="onDrag($event, 'end', course)"
+              @dragenter="onDrag($event, 'enter', course)"
+              @dragleave="onDrag($event, 'leave', course)"
+              @dragover="onDrag($event, 'over', course)"
+              @dragstart="onDrag($event, 'start', course)"
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
@@ -152,6 +155,29 @@ export default {
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
     },
+    onDrag(event, stage, course) {
+      switch (stage) {
+      case 'end':
+        this.hoverCourseId = null
+        this.onDragEnd()
+        break
+      case 'enter':
+      case 'over':
+        event.stopPropagation()
+        event.preventDefault()
+        break
+      case 'leave':
+        this.hoverCourseId = null
+        this.setDraggingTarget(null)
+        break
+      case 'start':
+        this.onDragStart({course, dragContext: this.key})
+        break
+      case 'exit':
+      default:
+        break
+      }
+    },
     onMouse(stage, course) {
       switch(stage) {
       case 'enter':
@@ -165,11 +191,6 @@ export default {
       default:
         break
       }
-    },
-    onStartDraggingCourse(event, course) {
-      event.effectAllowed = 'all'
-      event.dataTransfer.effectAllowed = 'all'
-      this.onDragStart({course, dragContext: this.key})
     }
   }
 }
@@ -254,9 +275,8 @@ table {
 .tr-course {
   height: 36px;
 }
-.tr-while-dragging {
+.tr-while-dragging td {
   background-color: #125074;
-  border-radius: 5px;
   color: white;
 }
 .tr-while-dragging td:first-child {

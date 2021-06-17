@@ -460,7 +460,7 @@ table {
 .fulfillments-icon {
   color: #00c13a;
 }
-.mouseover-grabbable {
+.mouseover-grabbable td {
   background-color: #b9dcf0;
 }
 .mouseover-grabbable td:first-child {
@@ -508,9 +508,8 @@ table {
 .th-course-assignment-menu {
   width: 14px;
 }
-.tr-while-dragging {
+.tr-while-dragging td {
   background-color: #125074;
-  border-radius: 5px;
   color: white;
 }
 .tr-while-dragging td:first-child {
