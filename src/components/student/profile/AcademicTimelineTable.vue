@@ -140,11 +140,11 @@
               :id="`timeline-tab-${activeTab}-message-${index}`"
               :aria-pressed="$_.includes(openMessages, message.transientId)"
               :class="{
-                'align-top message-open': $_.includes(openMessages, message.transientId),
+                'align-top message-open': $_.includes(openMessages, message.transientId) && message.type !== 'requirement' ,
                 'truncate': !$_.includes(openMessages, message.transientId),
                 'img-blur': $currentUser.inDemoMode && ['appointment', 'note'].includes(message.type)
               }"
-              role="button"
+              :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)"
@@ -565,7 +565,7 @@ export default {
       })
     },
     open(message, notifyScreenReader) {
-      if (message.type === 'note' && message.id === this.editModeNoteId) {
+      if (message.type === 'note' && message.id === this.editModeNoteId || message.type === 'requirement') {
         return false
       }
       if (!this.$_.includes(this.openMessages, message.transientId)) {
