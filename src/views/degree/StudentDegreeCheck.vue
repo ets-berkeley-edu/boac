@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'cursor-grabbing': draggingContext.course}">
+  <div :class="{'cursor-grabbing': draggingContext.course}" @drag="scrollTo">
     <Spinner />
     <div v-if="!loading">
       <div class="border-bottom light-blue-background py-2">
@@ -99,14 +99,14 @@ export default {
     UnitRequirements
   },
   data: () => ({
+    previousClientY: 0,
     scrollHeight: undefined,
     student: undefined
   }),
   created() {
-    this.scrollHeight = window.scrollY
-    window.addEventListener('drag', this.scrollTo)
-    window.addEventListener('resize', this.onScroll)
-    window.addEventListener('scroll', this.onScroll)
+    this.onResize()
+    window.addEventListener('resize', this.onResize)
+    window.addEventListener('scroll', this.onResize)
 
     const degreeId = this.$_.get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
@@ -119,9 +119,8 @@ export default {
     })
   },
   destroyed() {
-    window.removeEventListener('drag', this.scrollTo)
-    window.removeEventListener('resize', this.onScroll)
-    window.removeEventListener('scroll', this.onScroll)
+    window.removeEventListener('resize', this.onResize)
+    window.removeEventListener('scroll', this.onResize)
   },
   methods: {
     dropToUnassign(event, context) {
@@ -166,15 +165,23 @@ export default {
       }
     },
     scrollTo(event) {
-      // Distance to bottom of viewport
-      const distanceToBottom = window.innerHeight - event.clientY
-      if (distanceToBottom < 100) {
-        // The closer to bottom, the faster the scroll.
-        const adjustedTop = this.scrollHeight - distanceToBottom + 100
-        window.scrollTo({behavior: 'smooth', top: adjustedTop})
+      // Firefox does not need the intervention below.
+      const isFirefox = navigator.userAgent.indexOf('Firefox') === -1
+      if (this.draggingContext.course && isFirefox) {
+        const eventY = event.clientY
+        // Distance to bottom of viewport
+        const distanceToBottom = window.innerHeight - eventY
+        const magicNumber = 100
+        // The closer to viewport top, or bottom, the faster the scroll.
+        if (eventY >= this.previousClientY && distanceToBottom < magicNumber) {
+          window.scrollTo({behavior: 'smooth', top: this.scrollHeight + magicNumber - distanceToBottom})
+        } else if (eventY <= this.previousClientY && eventY < magicNumber) {
+          window.scrollTo({behavior: 'smooth', top: window.scrollY + eventY - magicNumber})
+        }
+        this.previousClientY = eventY
       }
     },
-    onScroll() {
+    onResize() {
       this.scrollHeight = window.scrollY
     }
   }
