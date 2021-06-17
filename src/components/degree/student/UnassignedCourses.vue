@@ -158,22 +158,19 @@ export default {
     onDrag(event, stage, course) {
       switch (stage) {
       case 'end':
-        this.hoverCourseId = null
         this.onDragEnd()
         break
-      case 'enter':
-      case 'over':
-        event.stopPropagation()
-        event.preventDefault()
-        break
-      case 'leave':
-        this.hoverCourseId = null
-        this.setDraggingTarget(null)
-        break
       case 'start':
+        if (event.target) {
+          // Required for Safari
+          event.target.style.opacity = 0.9
+        }
         this.onDragStart({course, dragContext: this.key})
         break
+      case 'enter':
       case 'exit':
+      case 'leave':
+      case 'over':
       default:
         break
       }

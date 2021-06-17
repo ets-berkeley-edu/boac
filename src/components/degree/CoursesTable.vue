@@ -403,6 +403,10 @@ export default {
         this.setDraggingTarget(null)
         break
       case 'start':
+        if (event.target) {
+          // Required for Safari
+          event.target.style.opacity = 0.9
+        }
         this.onDragStart({course: bundle.course, dragContext: 'assigned'})
         break
       case 'exit':
