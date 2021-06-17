@@ -463,10 +463,10 @@ table {
 .mouseover-grabbable {
   background-color: #b9dcf0;
 }
-.mouseover-grabbable td:first-child, th:first-child {
+.mouseover-grabbable td:first-child {
   border-radius: 10px 0 0 10px;
 }
-.mouseover-grabbable td:last-child, th:last-child {
+.mouseover-grabbable td:last-child {
   border-radius: 0 10px 10px 0;
 }
 .td-actions {
@@ -513,10 +513,10 @@ table {
   border-radius: 5px;
   color: white;
 }
-.tr-while-dragging td:first-child, th:first-child {
+.tr-while-dragging td:first-child {
   border-radius: 10px 0 0 10px;
 }
-.tr-while-dragging td:last-child, th:last-child {
+.tr-while-dragging td:last-child {
   border-radius: 0 10px 10px 0;
 }
 .unit-requirement-count {

@@ -1,36 +1,39 @@
 <template>
-  <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert" id="fixed_bottom">
-    <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
-      <div class="flex-grow-1">
-        <b>BOA {{ getBoaEnvLabel() }} Environment</b>
-      </div>
-      <div v-if="$config.isVueAppDebugMode">
-        {{ $_.get($announcer, 'data.content') }}
-      </div>
-      <div v-if="!$config.isVueAppDebugMode">
-        <span aria-live="polite" role="alert">{{ $config.fixedWarningOnAllPages }}</span>
-      </div>
-      <div class="btn-wrapper ml-0 align-top">
-        <b-btn
-          id="speedbird"
-          class="btn-dismiss pl-2 pt-0 text-white"
-          variant="link"
-          @click="dismissTheWarning"
-        >
-          <font-awesome icon="plane-departure" />
-          <span class="sr-only">Dismiss warning about BOA environment type</span>
-        </b-btn>
+  <transition name="drawer">
+    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext" id="fixed_bottom">
+      <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
+        <div class="flex-grow-1">
+          <b>BOA {{ getBoaEnvLabel() }} Environment</b>
+        </div>
+        <div v-if="$config.isVueAppDebugMode">
+          {{ $_.get($announcer, 'data.content') }}
+        </div>
+        <div v-if="!$config.isVueAppDebugMode">
+          <span aria-live="polite" role="alert">{{ $config.fixedWarningOnAllPages }}</span>
+        </div>
+        <div class="btn-wrapper ml-0 align-top">
+          <b-btn
+            id="speedbird"
+            class="btn-dismiss pl-2 pt-0 text-white"
+            variant="link"
+            @click="dismissTheWarning"
+          >
+            <font-awesome icon="plane-departure" />
+            <span class="sr-only">Dismiss warning about BOA environment type</span>
+          </b-btn>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script>
 import Context from '@/mixins/Context'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 
 export default {
   name: 'DismissibleFooterAlert',
-  mixins: [Context],
+  mixins: [Context, DegreeEditSession],
   methods: {
     dismissTheWarning() {
       this.dismissFooterAlert()

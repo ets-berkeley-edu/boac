@@ -189,13 +189,13 @@ table {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.mouseover-grabbable {
+.mouseover-grabbable td {
   background-color: #b9dcf0;
 }
-.mouseover-grabbable td:first-child, th:first-child {
+.mouseover-grabbable td:first-child {
   border-radius: 10px 0 0 10px;
 }
-.mouseover-grabbable td:last-child, th:last-child {
+.mouseover-grabbable td:last-child {
   border-radius: 0 10px 10px 0;
 }
 .table-layout {
@@ -203,14 +203,14 @@ table {
 }
 .td-course-assignment-menu {
   font-size: 14px;
-  padding: 0 2px 0 5px;
+  padding: 0 0 0 10px;
   vertical-align: middle;
   width: 14px;
 }
 .td-course-edit-button {
   padding-right: 0;
   vertical-align: middle;
-  width: 32px;
+  width: 24px;
 }
 .td-grade {
   padding: 0 0.5em 0 0.4em;
@@ -259,10 +259,10 @@ table {
   border-radius: 5px;
   color: white;
 }
-.tr-while-dragging td:first-child, th:first-child {
+.tr-while-dragging td:first-child {
   border-radius: 10px 0 0 10px;
 }
-.tr-while-dragging td:last-child, th:last-child {
+.tr-while-dragging td:last-child {
   border-radius: 0 10px 10px 0;
 }
 </style>
