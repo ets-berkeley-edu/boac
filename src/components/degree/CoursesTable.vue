@@ -61,7 +61,7 @@
                   <div
                     :class="{
                       'font-weight-500': isEditing(bundle),
-                      'pr-1': $_.get(bundle.course, 'isCopy')
+                      'pr-2': $_.get(bundle.course, 'isCopy')
                     }"
                   >
                     {{ bundle.name }}
