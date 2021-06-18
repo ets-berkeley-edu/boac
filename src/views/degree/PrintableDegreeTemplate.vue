@@ -109,7 +109,7 @@
           <div class="mb-3 mt-2">
             <div class="footer-border pt-3">
               <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-              <div class="font-size-10">
+              <div class="font-size-12">
                 {{ degreeNote.body }}
               </div>
             </div>

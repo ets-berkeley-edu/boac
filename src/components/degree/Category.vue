@@ -18,14 +18,14 @@
         <h2
           v-if="category.categoryType === 'Category'"
           class="category-header"
-          :class="{'font-size-12': printable, 'font-size-18': !printable}"
+          :class="{'font-size-14': printable, 'font-size-18': !printable}"
         >
           {{ category.name }}
         </h2>
         <h3
           v-if="category.categoryType === 'Subcategory'"
           class="subcategory-header"
-          :class="{'font-size-10': printable, 'font-size-16': !printable}"
+          :class="{'font-size-12': printable, 'font-size-16': !printable}"
         >
           {{ category.name }}
         </h3>
@@ -58,7 +58,7 @@
         v-if="category.description"
         id="category-header-description"
         class="pl-1 py-1"
-        :class="{'font-size-10': printable}"
+        :class="{'font-size-12': printable}"
       >
         {{ category.description }}
       </div>

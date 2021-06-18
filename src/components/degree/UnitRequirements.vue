@@ -33,7 +33,7 @@
             v-if="!items.length"
             id="unit-requirements-no-data"
             class="no-data-text pl-1"
-            :class="{'font-size-10': printable}"
+            :class="{'font-size-12': printable}"
           >
             No unit requirements created
           </div>
@@ -76,7 +76,7 @@
               </div>
             </template>
             <template v-if="sid" #foot()="data">
-              <div class="footer-cell" :class="{'font-size-10': printable, 'font-size-16': !printable}">
+              <div class="footer-cell" :class="{'font-size-12': printable, 'font-size-16': !printable}">
                 <div v-if="data.field.key.toLowerCase() === 'name'" class="font-weight-bold">
                   Total Units
                 </div>
@@ -146,19 +146,18 @@ export default {
   },
   created() {
     const tdFontSize = this.printable ? 'font-size-12' : 'font-size-16'
-    const thFontSize = this.printable ? 'font-size-10' : 'font-size-12'
     this.fields = [
       {
         key: 'name',
         label: 'Fulfillment Requirements',
         tdClass: `${tdFontSize} pl-0 pr-1 pt-1`,
-        thClass: `${thFontSize} faint-text pl-0 pr-1 text-uppercase`
+        thClass: 'font-size-12 faint-text pl-0 pr-1 text-uppercase'
       },
       {
         key: 'minUnits',
         label: this.sid ? 'Min' : 'Min Units',
         tdClass: `${tdFontSize} pl-0 pr-1 pt-1 text-right`,
-        thClass: `${thFontSize} faint-text pl-0 pr-1 text-right text-uppercase`
+        thClass: 'font-size-12 faint-text pl-0 pr-1 text-right text-uppercase'
       }
     ]
     if (this.sid) {
@@ -166,14 +165,14 @@ export default {
         key: 'completed',
         label: 'Completed',
         tdClass: `${tdFontSize} d-flex justify-content-end`,
-        thClass: `${thFontSize} faint-text px-0 text-right text-uppercase`
+        thClass: 'font-size-12 faint-text px-0 text-right text-uppercase'
       })
     } else if (this.$currentUser.canEditDegreeProgress) {
       this.fields.push({
         key: 'actions',
         label: '',
         tdClass: 'd-flex justify-content-end',
-        thClass: `${thFontSize} faint-text px-0 text-uppercase`
+        thClass: 'font-size-12 faint-text px-0 text-uppercase'
       })
     }
     this.refresh()

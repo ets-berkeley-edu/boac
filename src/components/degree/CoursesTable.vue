@@ -12,11 +12,11 @@
             <b-th v-if="assignedCourseCount && canEdit" class="th-course-assignment-menu">
               <span class="sr-only">Options to re-assign course</span>
             </b-th>
-            <b-th class="pl-0" :class="{'font-size-10': printable}">Course</b-th>
-            <b-th class="pl-0 text-right" :class="{'font-size-10': printable}">Units</b-th>
-            <b-th v-if="sid" :class="{'font-size-10': printable}">Grade</b-th>
-            <b-th v-if="sid" :class="{'font-size-10': printable}">Note</b-th>
-            <b-th v-if="!sid" class="px-0" :class="{'font-size-10': printable}">Fulfillment</b-th>
+            <b-th class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
+            <b-th class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
+            <b-th v-if="sid" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
+            <b-th v-if="!sid" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
             <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
@@ -53,7 +53,7 @@
                 class="td-name"
                 :class="{
                   'faint-text font-italic': !bundle.course,
-                  'font-size-10': printable,
+                  'font-size-12': printable,
                   'font-size-14': !printable
                 }"
               >
@@ -91,16 +91,21 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
-                <span :class="{'font-size-10': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
+                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="sid" class="td-grade">
-                <span :class="{'font-size-10': printable, 'font-size-14 text-nowrap': !printable}">
+                <span :class="{'font-size-12': printable, 'font-size-14 text-nowrap': !printable}">
                   {{ $_.get(bundle.course, 'grade') }}
                 </span>
               </td>
-              <td v-if="sid" class="ellipsis-if-overflow td-note" :title="$_.get(bundle.course, 'note')">
-                <span :class="{'font-size-10': printable, 'font-size-14': !printable}">
+              <td
+                v-if="sid"
+                class="ellipsis-if-overflow"
+                :class="{'td-note-printable': printable, 'td-note': !printable}"
+                :title="$_.get(bundle.course, 'note')"
+              >
+                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">
                   {{ $_.get(bundle.course, 'note') }}
                 </span>
               </td>
@@ -109,7 +114,7 @@
                 class="align-middle td-max-width-0"
                 :class="{
                   'faint-text font-italic': !bundle.course,
-                  'font-size-10': printable,
+                  'font-size-12': printable,
                   'font-size-14': !printable
                 }"
                 :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
@@ -189,7 +194,7 @@
               <span
                 :id="emptyCategoryId"
                 class="faint-text font-italic"
-                :class="{'font-size-12': printable, 'font-size-16': !printable}"
+                :class="{'font-size-14': printable, 'font-size-16': !printable}"
               >
                 No completed requirements
               </span>
@@ -281,7 +286,7 @@ export default {
           category,
           course,
           key: course ? `course-${course.id}` : `category-${category.id}`,
-          name: (course || category).name,
+          name: this.getBundleName(course, category),
           units: course ? course.units : this.describeCategoryUnits(category),
           unitRequirements: (course || category).unitRequirements
         })
@@ -340,6 +345,19 @@ export default {
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
       this.$putFocusNextTick(`column-${this.position}-name-input`)
+    },
+    getBundleName(course, category) {
+      let name = (course || category).name
+      if (course && this.printable) {
+        this.$_.each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
+          const trimmed = name.replace(new RegExp(` ${format} [0-9]+$`), '')
+          if (trimmed !== name) {
+            name = trimmed
+            return false
+          }
+        })
+      }
+      return name
     },
     getCourseFulfillments(bundle) {
       return bundle.course ? this.$_.map(bundle.course.unitRequirements, 'name') : []
@@ -495,6 +513,12 @@ table {
 }
 .td-note {
   max-width: 60px;
+  padding: 0 0.5em 0 0;
+  vertical-align: middle;
+  width: 1px;
+}
+.td-note-printable {
+  max-width: 180px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
   width: 1px;
