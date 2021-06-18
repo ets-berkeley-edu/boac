@@ -68,7 +68,14 @@ export default {
       'updateUnitRequirement'
     ]),
     categoryHasCourse(category, course) {
-      return _.map(category.courses, this.getCourseKey).includes(this.getCourseKey(course))
+      let courses = []
+      const extractCourses = c => {
+        courses = courses.concat(c.courses)
+        _.each(c.courseRequirements, r => courses = courses.concat(r.courses))
+      }
+      extractCourses(category)
+      _.each(category.subcategories, subcategory => extractCourses(subcategory))
+      return _.map(courses, this.getCourseKey).includes(this.getCourseKey(course))
     },
     findCategoriesByTypes(types, position) {
       return _.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
