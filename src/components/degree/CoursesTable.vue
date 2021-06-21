@@ -101,8 +101,7 @@
               </td>
               <td
                 v-if="sid"
-                class="ellipsis-if-overflow"
-                :class="{'td-note-printable': printable, 'td-note': !printable}"
+                :class="{'td-note-printable': printable, 'ellipsis-if-overflow td-note': !printable}"
                 :title="$_.get(bundle.course, 'note')"
               >
                 <span :class="{'font-size-12': printable, 'font-size-14': !printable}">
@@ -518,10 +517,9 @@ table {
   width: 1px;
 }
 .td-note-printable {
-  max-width: 180px;
+  max-width: 60px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
-  width: 1px;
 }
 .td-max-width-0 {
   max-width: 0;
