@@ -6,10 +6,10 @@
     :lazy="true"
     no-caret
     toggle-class="p-0 text-decoration-none"
-    :toggle-text="`Assign ${course.name} to requirement`"
     variant="link"
   >
     <template #button-content>
+      <span class="sr-only">{{ course.name }} category options</span>
       <font-awesome
         class="faint-text font-size-16"
         :class="{'text-white': isUserDragging(course.id)}"

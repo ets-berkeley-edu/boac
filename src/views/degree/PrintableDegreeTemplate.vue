@@ -63,9 +63,9 @@
           <template>
             <div>
               <div
-                v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+                v-for="(category, index) in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
                 :key="category.id"
-                class="print-degree-course-requirements"
+                :class="{'pt-3': index > 0}"
               >
                 <Category
                   v-if="category.id"
@@ -73,25 +73,26 @@
                   :position="position"
                   :printable="true"
                 />
-                <div v-if="$_.size(category.courseRequirements)" class="pl-1 py-2">
+                <div v-if="!category.subcategories.length" class="pl-1 py-1">
                   <CoursesTable
-                    :items="category.courseRequirements"
+                    :id="`column-${position}-category-${category.id}-courses`"
+                    :items="getCourses(category)"
                     :parent-category="category"
                     :position="position"
                     :printable="true"
                   />
                 </div>
                 <div v-if="$_.size(category.subcategories)">
-                  <div v-for="subcategory in category.subcategories" :key="subcategory.id">
+                  <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pl-2 pt-2">
                     <Category
                       v-if="subcategory.id"
                       :category="subcategory"
                       :position="position"
                       :printable="true"
                     />
-                    <div v-if="$_.size(subcategory.courseRequirements)" class="pl-1 py-2">
+                    <div class="pl-1 py-1">
                       <CoursesTable
-                        :items="subcategory.courseRequirements"
+                        :items="getCourses(subcategory)"
                         :parent-category="subcategory"
                         :position="position"
                         :printable="true"
