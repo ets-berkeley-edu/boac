@@ -31,7 +31,7 @@
                 @dragstart="onDrag($event,'start', 'ignored')"
                 @drop="dropToUnassign($event, 'ignored')"
               >
-                <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Junk Drawer</h2>
+                <h3 class="font-size-20 font-weight-bold pb-0 text-nowrap">Junk Drawer</h3>
                 <UnassignedCourses :ignored="true" />
               </div>
             </b-col>
@@ -48,12 +48,13 @@
                 @dragstart="onDrag($event,'start', 'unassigned')"
                 @drop="dropToUnassign($event, 'unassigned')"
               >
-                <h2 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h2>
+                <h3 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h3>
                 <UnassignedCourses />
               </div>
             </b-col>
           </b-row>
         </b-container>
+        <h3 class="sr-only">Categories</h3>
         <b-container class="mx-0 pt-3 px-0" :fluid="true">
           <b-row>
             <b-col

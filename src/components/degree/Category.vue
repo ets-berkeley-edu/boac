@@ -15,20 +15,20 @@
       @drop="onDropCourse($event)"
     >
       <div class="align-items-center d-flex justify-content-between w-100">
-        <h2
+        <h4
           v-if="category.categoryType === 'Category'"
           class="category-header"
           :class="{'font-size-14': printable, 'font-size-18': !printable}"
         >
           {{ category.name }}
-        </h2>
-        <h3
+        </h4>
+        <h5
           v-if="category.categoryType === 'Subcategory'"
           class="subcategory-header"
           :class="{'font-size-12': printable, 'font-size-16': !printable}"
         >
           {{ category.name }}
-        </h3>
+        </h5>
         <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
           <b-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
