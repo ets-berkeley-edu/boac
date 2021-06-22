@@ -46,7 +46,9 @@
             <div>Printed by {{ $currentUser.name }} on {{ new Date() | moment('MMMM D, YYYY') }}</div>
           </div>
           <h2 class="font-size-14">{{ degreeName }}</h2>
-          <UnitRequirements :printable="true" />
+          <div :class="{'unit-requirements-of-template': !student}">
+            <UnitRequirements :printable="true" />
+          </div>
         </b-col>
       </b-row>
       <b-row>
@@ -149,12 +151,17 @@ export default {
     const id = this.toInt(this.$_.get(this.$route, 'params.id'))
     this.includeNote = this.toBoolean(this.$route.query.includeNote)
     this.init(id).then(() => {
-      getStudentBySid(this.sid).then(data => {
-        this.student = data
-        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
-        this.setPageTitle(`${studentName} - ${this.degreeName}`)
-        this.loaded(`${this.degreeName} for ${this.student.name}`)
-      })
+      if (this.sid) {
+        getStudentBySid(this.sid).then(data => {
+          this.student = data
+          const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+          this.setPageTitle(`${studentName} - ${this.degreeName}`)
+          this.loaded(`${this.degreeName} for ${this.student.name}`)
+        })
+      } else {
+        this.setPageTitle(this.degreeName)
+        this.loaded(`${this.degreeName} is ready to print.`)
+      }
     })
   }
 }
@@ -169,6 +176,9 @@ export default {
 }
 .section-border-minor {
   border-bottom: 1px #999 solid;
+}
+.unit-requirements-of-template {
+  width: 34%;
 }
 .unofficial-label-pill {
   background-color: #000000;

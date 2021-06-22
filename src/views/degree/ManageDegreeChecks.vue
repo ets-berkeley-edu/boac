@@ -130,9 +130,11 @@
                     :id="`degree-check-${row.item.id}-print-link`"
                     class="p-1"
                     :disabled="isBusy"
+                    target="_blank"
                     :to="`/degree/${row.item.id}/print`"
                   >
                     Print
+                    <span class="sr-only"> (will open new browser tab)</span>
                   </router-link>
                 </div>
                 <div v-if="$currentUser.canEditDegreeProgress">
