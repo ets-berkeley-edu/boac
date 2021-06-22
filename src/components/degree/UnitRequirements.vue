@@ -55,7 +55,7 @@
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click.prevent="onClickEdit(row.index)"
+                  @click.prevent="onClickEdit(row.item)"
                 >
                   <font-awesome icon="edit" />
                   <span class="sr-only">Edit {{ row.item.name }}</span>
@@ -68,7 +68,7 @@
                   :disabled="disableButtons"
                   size="sm"
                   variant="link"
-                  @click.prevent="onClickDelete(row.index)"
+                  @click.prevent="onClickDelete(row.item)"
                 >
                   <font-awesome icon="trash-alt" />
                   <span class="sr-only">Delete {{ row.item.name }}</span>
@@ -88,11 +88,7 @@
           </b-table-lite>
         </div>
         <div v-if="isEditing" class="mb-3">
-          <EditUnitRequirement
-            :index="indexOfSelected"
-            :on-exit="reset"
-            :unit-requirement="items[indexOfSelected]"
-          />
+          <EditUnitRequirement :on-exit="reset" :unit-requirement="selected" />
         </div>
       </b-col>
     </b-row>
@@ -127,18 +123,13 @@ export default {
   },
   data: () => ({
     fields: undefined,
-    indexOfSelected: undefined,
     isDeleting: false,
     isEditing: false,
     items: undefined,
     render: false,
+    selected: undefined,
     totalCompleted: undefined
   }),
-  computed: {
-    selected() {
-      return this.indexOfSelected && this.items[this.indexOfSelected]
-    }
-  },
   watch: {
     lastPageRefreshAt() {
       this.refresh()
@@ -187,7 +178,7 @@ export default {
     },
     deleteConfirmed() {
       const name = this.$_.get(this.selected, 'name')
-      this.deleteUnitRequirement(this.indexOfSelected).then(() => {
+      this.deleteUnitRequirement(this.selected.id).then(() => {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
@@ -216,6 +207,7 @@ export default {
         const unitsCompleted = this.getUnitsCompleted(u)
         this.totalCompleted += unitsCompleted
         items.push({
+          id: u.id,
           name: u.name,
           minUnits: u.minUnits,
           completed: unitsCompleted
@@ -225,24 +217,24 @@ export default {
     },
     onClickAdd() {
       this.setDisableButtons(true)
-      this.indexOfSelected = null
+      this.selected = null
       this.isEditing = true
     },
-    onClickDelete(index) {
+    onClickDelete(item) {
       this.setDisableButtons(true)
-      this.indexOfSelected = index
+      this.selected = item
       this.isDeleting = true
     },
-    onClickEdit(index) {
+    onClickEdit(item) {
       this.setDisableButtons(true)
-      this.indexOfSelected = index
+      this.selected = item
       this.isEditing = true
     },
     reset() {
-      const focusId = this.$_.isNil(this.indexOfSelected) ? 'unit-requirement-create-link' : `unit-requirement-${this.items[this.indexOfSelected].id}-edit-btn`
       this.setDisableButtons(false)
-      this.indexOfSelected = null
+      this.selected = null
       this.isEditing = false
+      const focusId = this.selected ? `unit-requirement-${this.selected.id}-edit-btn` : 'unit-requirement-create-link'
       this.$putFocusNextTick(focusId)
     }
   }

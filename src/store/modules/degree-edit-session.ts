@@ -195,10 +195,9 @@ const actions = {
       deleteDegreeCourse(courseId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
-  deleteUnitRequirement: ({commit, state}, index: number) => {
+  deleteUnitRequirement: ({commit, state}, unitRequirementId: number) => {
     return new Promise<void>(resolve => {
-      const id = _.get(state.unitRequirements[index], 'id')
-      deleteUnitRequirement(id).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      deleteUnitRequirement(unitRequirementId).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
@@ -282,10 +281,9 @@ const actions = {
       })
     })
   },
-  updateUnitRequirement: ({commit, state}, {index, name, minUnits}) => {
+  updateUnitRequirement: ({commit, state}, {name, minUnits, unitRequirementId}) => {
     return new Promise<void>(resolve => {
-      const id = _.get(state.unitRequirements[index], 'id')
-      updateUnitRequirement(id, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      updateUnitRequirement(unitRequirementId, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   updateCategory: ({commit, state}, {
