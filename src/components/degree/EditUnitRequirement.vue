@@ -16,7 +16,7 @@
         maxlength="255"
         required
         type="text"
-        @keypress.enter="() => $_.isNil(index) ? create() : update()"
+        @keypress.enter="() => unitRequirement ? update() : create()"
       />
       <div class="pl-2">
         <span class="faint-text font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
@@ -32,13 +32,13 @@
         input-id="unit-requirement-min-units-input"
         label="Minimum Units (required)"
         :max="100"
-        :on-submit="() => $_.isNil(index) ? create() : update()"
+        :on-submit="() => unitRequirement ? update() : create()"
         :set-units-lower="setMinUnits"
         :units-lower="minUnits"
       />
     </div>
     <b-btn
-      v-if="$_.isNil(index)"
+      v-if="!unitRequirement"
       id="create-unit-requirement-btn"
       :disabled="disableSaveButton"
       class="btn-primary-color-override"
@@ -48,7 +48,7 @@
       Create Unit Requirement
     </b-btn>
     <b-btn
-      v-if="!$_.isNil(index)"
+      v-if="unitRequirement"
       id="update-unit-requirement-btn"
       :disabled="disableSaveButton"
       class="btn-primary-color-override"
@@ -78,11 +78,6 @@ export default {
   mixins: [Context, DegreeEditSession, Util],
   components: {UnitsInput},
   props: {
-    index: {
-      default: undefined,
-      required: false,
-      type: [Number, String]
-    },
     onExit: {
       required: true,
       type: Function
@@ -151,9 +146,9 @@ export default {
         this.$announcer.polite('Saving')
         this.isSaving = true
         this.updateUnitRequirement({
-          index: this.index,
           name: this.name,
-          minUnits: this.minUnits
+          minUnits: this.minUnits,
+          unitRequirementId: this.unitRequirement.id
         }).then(() => {
           this.isSaving = false
           this.$announcer.polite(`Updated ${this.name}.`)
