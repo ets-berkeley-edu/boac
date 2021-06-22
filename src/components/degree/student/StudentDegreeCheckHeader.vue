@@ -96,9 +96,9 @@
       </b-col>
       <b-col>
         <div class="align-items-baseline d-flex justify-content-end">
-          <div class="pr-3">
+          <label for="degree-note-print-toggle" class="faint-text font-weight-500 pr-3">
             Show notes when printed
-          </div>
+          </label>
           <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
             <div class="d-flex">
               <div class="toggle-label">
@@ -106,8 +106,8 @@
               </div>
               <b-form-checkbox
                 id="degree-note-print-toggle"
-                switch
                 :checked="includeNotesWhenPrint"
+                switch
                 @keypress.native.enter="onToggleNotesWhenPrint(!includeNotesWhenPrint)"
                 @change="onToggleNotesWhenPrint"
               />

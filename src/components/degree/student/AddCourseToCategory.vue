@@ -69,7 +69,7 @@
         @click.prevent="openMenu"
       >
         <div class="font-size-16 text-nowrap">
-          Add Course
+          Add Course<span class="sr-only"> to {{ parentCategory.categoryType }} "{{ parentCategory.name }}"</span>
         </div>
         <div class="font-size-14 pr-1">
           <font-awesome icon="plus" />
