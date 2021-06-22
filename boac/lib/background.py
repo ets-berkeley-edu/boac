@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 
-def bg_execute(method):
+def bg_execute(method, **kwargs):
     from flask import current_app as app
     if app.config['BACKGROUND_TASKS']:
         app.logger.debug('Launching background task.')
@@ -39,13 +39,14 @@ def bg_execute(method):
             kwargs={
                 'app': app._get_current_object(),
                 'method': method,
+                'kwargs': kwargs,
             },
         )
         t.start()
     else:
         from boac import db
         app.logger.debug('Background tasks disabled, will run task in foreground.')
-        method(db_session=db.session)
+        method(db_session=db.session, **kwargs)
 
 
 # Database engine and session factory for background threads, distinct from the request-bound Flask-SQLAlchemy db object.
@@ -63,7 +64,7 @@ def get_engine(app):
 BACKGROUND_THREAD_LOCK_ID = 1000
 
 
-def _bg_executor(app, method):
+def _bg_executor(app, method, kwargs):
     global session_factory
     with app.app_context():
         app.logger.debug('Started background thread.')
@@ -80,7 +81,7 @@ def _bg_executor(app, method):
                     if session_factory is None:
                         session_factory = sessionmaker(bind=db_engine)
                     session = scoped_session(session_factory)
-                    method(db_session=session)
+                    method(db_session=session, **kwargs)
                 except Exception as e:
                     app.logger.exception(e)
                     raise e
