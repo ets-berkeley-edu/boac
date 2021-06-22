@@ -146,6 +146,9 @@
           Cancel
         </b-btn>
       </div>
+      <div v-if="!$_.isNil(percentComplete)">
+        Progress: <span>{{ percentComplete }}%</span>
+      </div>
     </div>
   </div>
 </template>
@@ -180,6 +183,7 @@ export default {
     excludedStudents: [],
     isSaving: false,
     isValidating: false,
+    percentComplete: undefined,
     templateId: undefined,
     textarea: undefined,
     warning: undefined
@@ -315,9 +319,10 @@ export default {
     save() {
       this.isSaving = true
       this.alertScreenReader('Saving.')
-      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then(() => {
+      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then((progress) => {
         this.alertScreenReader('Batch degree check saved.')
-        this.$nextTick(() => this.$router.push('/degrees'))
+        this.percentComplete = this.$_.get(progress, 'percentComplete')
+        // this.$nextTick(() => this.$router.push('/degrees'))
       }).finally(() => {
         this.isSaving = false
       })

@@ -43,9 +43,10 @@ class DegreeProgressCategoryUnitRequirement(db.Model):
         self.unit_requirement_id = unit_requirement_id
 
     @classmethod
-    def create(cls, category_id, unit_requirement_id):
-        db.session.add(cls(category_id=category_id, unit_requirement_id=unit_requirement_id))
-        std_commit()
+    def create(cls, category_id, unit_requirement_id, db_session=None):
+        session = db_session or db.session
+        session.add(cls(category_id=category_id, unit_requirement_id=unit_requirement_id))
+        std_commit(session=session)
 
     @classmethod
     def delete_mappings(cls, unit_requirement_id):

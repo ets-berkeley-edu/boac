@@ -72,7 +72,7 @@ class DegreeProgressUnitRequirement(Base):
                     updated_by={self.updated_by}>"""
 
     @classmethod
-    def create(cls, created_by, min_units, name, template_id):
+    def create(cls, created_by, min_units, name, template_id, db_session=None):
         unit_requirement = cls(
             created_by=created_by,
             min_units=min_units,
@@ -80,8 +80,9 @@ class DegreeProgressUnitRequirement(Base):
             template_id=template_id,
             updated_by=created_by,
         )
-        db.session.add(unit_requirement)
-        std_commit()
+        session = db_session or db.session
+        session.add(unit_requirement)
+        std_commit(session=session)
         return unit_requirement
 
     @classmethod
