@@ -23,23 +23,18 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-ALERT_INFREQUENT_ACTIVITY_ENABLED = False
-ALERT_WITHDRAWAL_ENABLED = False
+from boac import cache
+from flask import current_app as app
 
-AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
-BACKGROUND_TASKS = False
+def fetch(key):
+    if cache:
+        return cache.get(key)
+    else:
+        app.logger.warning('Cache is not initialized.')
+        return None
 
-CACHE_DEFAULT_TIMEOUT = 600
 
-DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
-
-FEATURE_FLAG_DEGREE_CHECK = True
-
-INDEX_HTML = 'tests/static/test-index.html'
-
-LOGGING_LOCATION = 'STDOUT'
-
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
-
-TESTING = True
+def store(key, value):
+    if cache:
+        cache.set(key, value)

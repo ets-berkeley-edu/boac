@@ -61,7 +61,7 @@ BOAC_SUPPORT_EMAIL = 'boahelp@berkeley.edu'
 
 # Flask-caching (number of seconds, or False to disable)
 CACHE_DEFAULT_TIMEOUT = False
-CACHE_TYPE = 'null'
+CACHE_TYPE = 'simple'
 
 CANVAS_CURRENT_ENROLLMENT_TERM = 'auto'
 CANVAS_EARLIEST_TERM = 'Fall 2016'
