@@ -182,7 +182,7 @@ export default {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
-        this.$putFocusNextTick('unit-requirements-table')
+        this.$putFocusNextTick('unit-requirement-create-link')
       })
     },
     getUnitsCompleted(unitRequirement) {
@@ -200,21 +200,6 @@ export default {
       })
       return count
     },
-    refresh() {
-      const items = []
-      this.totalCompleted = 0
-      this.$_.each(this.unitRequirements, u => {
-        const unitsCompleted = this.getUnitsCompleted(u)
-        this.totalCompleted += unitsCompleted
-        items.push({
-          id: u.id,
-          name: u.name,
-          minUnits: u.minUnits,
-          completed: unitsCompleted
-        })
-      })
-      this.items = items
-    },
     onClickAdd() {
       this.setDisableButtons(true)
       this.selected = null
@@ -229,6 +214,21 @@ export default {
       this.setDisableButtons(true)
       this.selected = item
       this.isEditing = true
+    },
+    refresh() {
+      const items = []
+      this.totalCompleted = 0
+      this.$_.each(this.unitRequirements, u => {
+        const unitsCompleted = this.getUnitsCompleted(u)
+        this.totalCompleted += unitsCompleted
+        items.push({
+          id: u.id,
+          name: u.name,
+          minUnits: u.minUnits,
+          completed: unitsCompleted
+        })
+      })
+      this.items = items
     },
     reset() {
       this.setDisableButtons(false)
