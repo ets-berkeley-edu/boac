@@ -18,6 +18,7 @@
             <b-select
               id="degree-template-select"
               v-model="selectedOption"
+              aria-label="Select a degree template"
               :disabled="isSaving"
               size="md"
               @change="onChangeSelect"

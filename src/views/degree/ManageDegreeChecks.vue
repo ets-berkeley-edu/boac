@@ -134,7 +134,7 @@
                     :to="`/degree/${row.item.id}/print`"
                   >
                     Print
-                    <span class="sr-only"> (will open new browser tab)</span>
+                    <span class="sr-only">{{ row.item.name }} (will open new browser tab)</span>
                   </router-link>
                 </div>
                 <div v-if="$currentUser.canEditDegreeProgress">
@@ -146,7 +146,7 @@
                     variant="link"
                     @click="edit(row.item)"
                   >
-                    Rename
+                    Rename<span class="sr-only"> {{ row.item.name }}</span>
                   </b-btn>
                 </div>
                 <div v-if="$currentUser.canEditDegreeProgress">
@@ -158,7 +158,7 @@
                     variant="link"
                     @click="openCreateCloneModal(row.item)"
                   >
-                    Copy
+                    Copy<span class="sr-only"> {{ row.item.name }}</span>
                   </b-btn>
                 </div>
                 <div v-if="$currentUser.canEditDegreeProgress">
@@ -171,7 +171,7 @@
                     @click="showDeleteModal(row.item)"
                     @keypress.enter="showDeleteModal(row.item)"
                   >
-                    Delete
+                    Delete<span class="sr-only"> {{ row.item.name }}</span>
                   </b-btn>
                 </div>
               </div>
