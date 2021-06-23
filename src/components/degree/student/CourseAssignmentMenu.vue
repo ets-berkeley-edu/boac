@@ -51,7 +51,10 @@
       :value="option"
       @click="onSelect(option, false)"
     >
+      <span v-if="!option.disabled" class="sr-only">Move to </span>
+      <span class="sr-only">{{ option.lineage }}</span>
       {{ option.name }}
+      <span v-if="option.disabled" class="sr-only"> (disabled)</span>
     </b-dropdown-item>
   </b-dropdown>
 </template>
@@ -74,19 +77,20 @@ export default {
   }),
   computed: {
     options() {
-      const put = option => {
+      const put = (option, parent, grandparent) => {
         option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
           || this.categoryHasCourse(option, this.course)
+        option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
         options.push(option)
       }
       const options = []
       this.$_.each(this.$_.cloneDeep(this.categories), category => {
         put(category)
-        this.$_.each(category.courseRequirements, courseRequirement => put(courseRequirement))
+        this.$_.each(category.courseRequirements, courseRequirement => put(courseRequirement, category))
         this.$_.each(category.subcategories, subcategory => {
-          put(subcategory)
-          this.$_.each(subcategory.courseRequirements, course => put(course))
+          put(subcategory, category)
+          this.$_.each(subcategory.courseRequirements, course => put(course, subcategory, category))
         })
       })
       return options
