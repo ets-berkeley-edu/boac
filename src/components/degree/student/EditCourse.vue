@@ -11,9 +11,9 @@
       />
     </div>
     <div v-if="course.categoryId">
-      <div class="font-weight-500">
+      <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
         Counts Towards Unit Fulfillment
-      </div>
+      </label>
       <div class="pb-2">
         <SelectUnitFulfillment
           :disable="isSaving"
@@ -23,9 +23,9 @@
         />
       </div>
     </div>
-    <div class="font-weight-500 pb-1">
+    <label for="course-note-textarea" class="font-weight-500 pb-1">
       Note
-    </div>
+    </label>
     <div class="pb-2">
       <b-form-textarea
         id="course-note-textarea"

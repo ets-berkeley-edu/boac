@@ -41,7 +41,7 @@
           variant="link"
           @click="viewDegreeChecks"
         >
-          Degree Checks
+          Degree Checks<span class="sr-only"> of {{ student.name }}</span>
         </b-btn>
       </div>
     </div>
