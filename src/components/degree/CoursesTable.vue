@@ -27,7 +27,7 @@
               :key="`tr-${index}`"
               :class="{
                 'cursor-grab': isDraggable(bundle),
-                'drop-zone-on': isDroppable(bundle.category) && draggingContext.target === bundle.category.id,
+                'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
                 'tr-while-dragging': bundle.course && isUserDragging(bundle.course.id)
               }"
@@ -381,7 +381,8 @@ export default {
     isDroppable(category) {
       let droppable = category && !category.courses.length && category.id === this.draggingContext.target
       if (droppable) {
-        const courseKeys = this.$_.map(this.parentCategory.courses, this.getCourseKey)
+        const assignedCourses = this.getAssignedCourses(this.parentCategory, this.draggingContext.course.id)
+        const courseKeys = this.$_.map(assignedCourses, this.getCourseKey)
         const course = this.draggingContext.course
         droppable = course.categoryId === category.parentCategoryId || !this.$_.includes(courseKeys, this.getCourseKey(course))
       }

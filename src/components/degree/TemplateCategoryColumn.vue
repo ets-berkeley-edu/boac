@@ -54,7 +54,7 @@
       <div v-if="!category.subcategories.length" class="py-1">
         <CoursesTable
           :id="`column-${position}-category-${category.id}-courses`"
-          :items="getCourses(category)"
+          :items="getItemsForCoursesTable(category)"
           :parent-category="category"
           :position="position"
         />
@@ -81,7 +81,7 @@
           <div class="py-1">
             <CoursesTable
               :id="`column-${position}-subcategory-${subcategory.id}-courses`"
-              :items="getCourses(subcategory)"
+              :items="getItemsForCoursesTable(subcategory)"
               :parent-category="subcategory"
               :position="position"
             />
