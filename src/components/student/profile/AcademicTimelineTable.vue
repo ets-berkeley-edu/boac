@@ -99,6 +99,10 @@
               :id="`timeline-tab-${activeTab}-pill-${index}`"
               :class="`pill-${message.type}`"
               class="pill text-center text-uppercase text-white"
+              :role="message.type === 'requirement' ? 'cell' : 'button'"
+              :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
+              @keyup.enter="open(message, true)"
+              @click="open(message, true)"
             >
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
