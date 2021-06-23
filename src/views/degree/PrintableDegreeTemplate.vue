@@ -78,7 +78,7 @@
                 <div v-if="!category.subcategories.length" class="pl-1 py-1">
                   <CoursesTable
                     :id="`column-${position}-category-${category.id}-courses`"
-                    :items="getCourses(category)"
+                    :items="getItemsForCoursesTable(category)"
                     :parent-category="category"
                     :position="position"
                     :printable="true"
@@ -94,7 +94,7 @@
                     />
                     <div class="pl-1 py-1">
                       <CoursesTable
-                        :items="getCourses(subcategory)"
+                        :items="getItemsForCoursesTable(subcategory)"
                         :parent-category="subcategory"
                         :position="position"
                         :printable="true"

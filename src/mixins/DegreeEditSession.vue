@@ -6,7 +6,7 @@ const $_flatten = categories => {
   let flattened = []
   _.each(categories, category => {
     flattened.push(category)
-    _.each(_.concat(category.courseRequirements, category.subcategories), child => {
+    _.each(_.concat(category.courseRequirements, category.subcategories || []), child => {
       flattened.push(child)
       if (child.courseRequirements) {
         flattened = _.concat(flattened, child.courseRequirements)
@@ -87,7 +87,18 @@ export default {
       return _.find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
     },
     getCourseKey: course => course && `${course.termId}-${course.sectionId}`,
-    getCourses(category) {
+    getAssignedCourses(category, ignoreCourseId) {
+      let assigned = []
+      _.each($_flatten([category]), c => {
+        _.each(c.courses, course => {
+          if (course.sectionId && (!ignoreCourseId || course.id !== ignoreCourseId)) {
+            assigned.push(course)
+          }
+        })
+      })
+      return assigned
+    },
+    getItemsForCoursesTable(category) {
       if (this.courses) {
         const categoryCourseIds = _.map(category.courses, 'id')
         const predicate = c => _.includes(categoryCourseIds, c.id)
