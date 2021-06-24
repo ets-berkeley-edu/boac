@@ -42,7 +42,7 @@
       <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
         <b-btn
           id="clone-confirm"
-          :disabled="!name.length || isSaving || !!error || (templateToClone.name === name)"
+          :disabled="!name.trim().length || isSaving || !!error || (templateToClone.name === name)"
           class="btn-primary-color-override"
           variant="primary"
           @click.prevent="createClone"
