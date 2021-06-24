@@ -42,7 +42,10 @@
               @mouseleave="onMouse('leave', bundle)"
             >
               <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu">
-                <div v-if="bundle.course && !isUserDragging(bundle.course.id)">
+                <div
+                  v-if="bundle.course && !isUserDragging(bundle.course.id)"
+                  :id="`assign-course-${bundle.course.id}-menu-container`"
+                >
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
                     :course="bundle.course"

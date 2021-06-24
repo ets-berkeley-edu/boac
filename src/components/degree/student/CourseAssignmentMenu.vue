@@ -1,6 +1,6 @@
 <template>
   <b-dropdown
-    :id="`assign-course-${course.id}-select`"
+    :id="`assign-course-${course.id}-dropdown`"
     v-model="selectedOption"
     :disabled="disableButtons || isSaving"
     :lazy="true"

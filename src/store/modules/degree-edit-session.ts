@@ -150,8 +150,11 @@ const actions = {
     })
   },
   copyCourseAndAssign: ({commit, state}, {categoryId, sectionId, sid, termId}) => {
-    return new Promise<void>(resolve => {
-      copyCourseAndAssign(categoryId, sectionId, sid, termId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    return new Promise(resolve => {
+      copyCourseAndAssign(categoryId, sectionId, sid, termId).then(course => {
+        $_refresh(commit, state.templateId)
+        resolve(course)
+      })
     })
   },
   createCategory: ({commit, state}, {
