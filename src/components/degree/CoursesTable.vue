@@ -69,7 +69,7 @@
                   >
                     {{ bundle.name }}
                   </div>
-                  <div v-if="$_.get(bundle.course, 'isCopy') && !printable">
+                  <div v-if="$_.get(bundle.course, 'isCopy') && !printable" class="pr-1">
                     <font-awesome
                       icon="copy"
                       size="sm"
