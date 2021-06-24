@@ -132,7 +132,7 @@ export default {
       this.$putFocusNextTick(`column-${this.position}-name-input`)
     },
     onExitEditCategory() {
-      const putFocus = `column-${this.position}-edit-category-${this.categoryForEdit.id}-btn`
+      const putFocus = this.categoryForEdit ? `column-${this.position}-edit-category-${this.categoryForEdit.id}-btn` : `column-${this.position}-create-btn`
       this.categoryForEdit = null
       this.isAddingCategory = false
       this.setDisableButtons(false)

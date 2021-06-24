@@ -35,7 +35,7 @@
           v-model="nameInput"
           :disabled="isSaving"
           maxlength="255"
-          @keypress.enter="create"
+          @keypress.enter="onSubmit"
         />
         <div class="pl-1">
           <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
@@ -225,24 +225,6 @@ export default {
       this.selectedCategoryType = null
       this.afterCancel()
     },
-    create() {
-      if (!this.disableSaveButton) {
-        this.isSaving = true
-        this.createCategory({
-          categoryType: this.selectedCategoryType,
-          description: this.descriptionText,
-          name: this.nameInput,
-          position: this.position,
-          parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-          unitsLower: this.unitsLower,
-          unitsUpper: this.unitsUpper
-        }).then(() => {
-          this.$announcer.polite(`${this.selectedCategoryType} created`)
-          this.afterSave()
-        })
-      }
-    },
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
@@ -266,7 +248,35 @@ export default {
     },
     onSubmit() {
       if (!this.disableSaveButton) {
-        this.existingCategory ? this.update() : this.create()
+        this.isSaving = true
+        const parentCategoryId = this.selectedParentCategory && this.selectedParentCategory.id
+        const unitRequirementIds = this.$_.map(this.selectedUnitRequirements, 'id')
+        const done = () => {
+          this.$announcer.polite(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
+          this.afterSave()
+        }
+        if (this.existingCategory) {
+          this.updateCategory({
+            categoryId: this.existingCategory.id,
+            description: this.descriptionText,
+            name: this.nameInput,
+            parentCategoryId: parentCategoryId,
+            unitRequirementIds: unitRequirementIds,
+            unitsLower: this.unitsLower,
+            unitsUpper: this.unitsUpper
+          }).then(done)
+        } else {
+          this.createCategory({
+            categoryType: this.selectedCategoryType,
+            description: this.descriptionText,
+            name: this.nameInput,
+            position: this.position,
+            parentCategoryId: parentCategoryId,
+            unitRequirementIds: unitRequirementIds,
+            unitsLower: this.unitsLower,
+            unitsUpper: this.unitsUpper
+          }).then(done)
+        }
       }
     },
     onUnitRequirementsChange(unitRequirements) {
@@ -281,21 +291,6 @@ export default {
     shouldDisableLocationOption(category) {
       return (this.selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory')
         || (this.selectedCategoryType === 'Course Requirement' && category.categoryType === 'Category' && !!category.subcategories.length)
-    },
-    update() {
-      this.isSaving = true
-      this.updateCategory({
-        categoryId: this.existingCategory.id,
-        description: this.descriptionText,
-        name: this.nameInput,
-        parentCategoryId: this.selectedParentCategory && this.selectedParentCategory.id,
-        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-        unitsLower: this.unitsLower,
-        unitsUpper: this.unitsUpper
-      }).then(() => {
-        this.$announcer.polite(`${this.selectedCategoryType} created`)
-        this.afterSave()
-      })
     }
   }
 }
