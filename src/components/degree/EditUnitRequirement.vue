@@ -24,6 +24,11 @@
           Fulfillment requirement name cannot exceed 255 characters.
         </span>
       </div>
+      <b-collapse :visible="!!nameErrorMessage">
+        <span class="has-error faint-text font-size-12">
+          {{ nameErrorMessage }}
+        </span>
+      </b-collapse>
     </div>
     <div class="d-flex flex-column pb-3">
       <UnitsInput
@@ -90,23 +95,40 @@ export default {
   data: () => ({
     isSaving: false,
     name: '',
-    minUnits: undefined
+    minUnits: undefined,
+    otherUnitRequirements: undefined
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !this.name || !!this.unitsErrorMessage
+      return this.isSaving || !this.name || !!this.unitsErrorMessage || !!this.nameErrorMessage
     },
     unitsErrorMessage() {
       const isEmpty = this.$_.isEmpty(this.$_.trim(this.minUnits))
       return isEmpty ? 'Required' : this.validateUnitRange(this.minUnits, undefined, 100).message
+    },
+    nameErrorMessage() {
+      let message = undefined
+      if (this.name) {
+        const lowerCase = this.name.toLowerCase()
+        const existingNames = this.$_.map(this.otherUnitRequirements, u => u.name.toLowerCase())
+        if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
+          message = 'Name cannot match the name of an existing Unit Requirement.'
+          this.$announcer.polite(message)
+        }
+      }
+      return message
     }
   },
   created() {
     if (this.unitRequirement) {
       this.name = this.unitRequirement.name
       this.minUnits = this.unitRequirement.minUnits
+      this.otherUnitRequirements = this.$_.filter(this.unitRequirements, u => {
+        return u.id !== this.unitRequirement.id
+      })
       this.alertScreenReader(`Edit unit requirement ${this.name}`)
     } else {
+      this.otherUnitRequirements = this.unitRequirements
       this.alertScreenReader('Create unit requirement')
     }
     this.$putFocusNextTick('unit-requirement-name-input')
