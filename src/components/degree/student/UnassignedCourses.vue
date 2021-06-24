@@ -132,16 +132,17 @@ export default {
   },
   methods: {
     afterCancel() {
+      const putFocus = `edit-${this.key}-course-${this.courseForEdit.id}-btn`
       this.$announcer.polite('Cancelled')
-      this.$putFocusNextTick(`edit-${this.key}-course-${this.courseForEdit.id}-btn`)
       this.courseForEdit = null
       this.setDisableButtons(false)
+      this.$putFocusNextTick(putFocus)
     },
     afterSave(course) {
       this.courseForEdit = null
       this.$announcer.polite(`Updated ${this.key} course ${course.name}`)
-      this.$putFocusNextTick(`edit-${this.key}-course-${course.termId}-${course.sectionId}-btn`)
       this.setDisableButtons(false)
+      this.$putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
     },
     edit(course) {
       this.setDisableButtons(true)

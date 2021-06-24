@@ -116,6 +116,7 @@ export default {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
       this.$announcer.polite('Cancelled')
+      this.$putFocusNextTick(`column-${this.position}-add-course-to-category-${this.parentCategory.id}`)
     },
     onClickSave() {
       this.isSaving = true
@@ -126,11 +127,12 @@ export default {
         sectionId: this.selected.sectionId,
         sid: this.selected.sid,
         termId: this.selected.termId
-      }).then(() => {
+      }).then(course => {
         this.isMenuOpen = this.isSaving = false
         this.selected = null
         this.setDisableButtons(false)
         this.$announcer.polite(`Course added to ${this.parentCategory.name}`)
+        this.$putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
       })
     },
     onSelect() {
@@ -139,8 +141,8 @@ export default {
     openMenu() {
       this.setDisableButtons(true)
       this.isMenuOpen = true
-      this.$announcer.polite('The \'Add Course\' menu is open.')
-      this.$putFocusNextTick(`column-${this.position}-category-${this.parentCategory.id}-add-course-select`)
+      this.$announcer.polite('Add Course menu is open.')
+      this.$putFocusNextTick('add-course-select')
     }
   }
 }

@@ -245,6 +245,7 @@ export default {
         this.initNote()
         this.setDisableButtons(false)
         this.$announcer.polite('Note saved')
+        this.$putFocusNextTick('create-degree-note-btn')
       })
     }
   }
