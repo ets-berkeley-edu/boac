@@ -180,7 +180,7 @@ export default {
   computed: {
     disableSaveButton() {
       return this.isSaving
-        || !this.nameInput
+        || !this.nameInput.trim()
         || !this.selectedCategoryType
         || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
         || !!this.unitsErrorMessage

@@ -86,7 +86,7 @@
               <div class="align-items-center d-flex pb-3 mb-2 mr-2">
                 <b-btn
                   id="confirm-rename-btn"
-                  :disabled="!templateForEdit.name || !!errorDuringEdit"
+                  :disabled="!templateForEdit.name.trim() || !!errorDuringEdit"
                   class="btn-primary-color-override rename-btn"
                   variant="primary"
                   size="sm"
@@ -290,7 +290,7 @@ export default {
       this.isBusy = true
     },
     save() {
-      updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name).then(() => {
+      updateDegreeTemplate(this.templateForEdit.id, this.templateForEdit.name.trim()).then(() => {
         const templateId = this.templateForEdit.id
         this.templateForEdit = null
         getDegreeTemplates().then(data => {
