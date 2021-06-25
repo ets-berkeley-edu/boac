@@ -40,6 +40,7 @@ def create_app():
     cache.init_app(app, app.config)
 
     with app.app_context():
+        cache.clear()
         register_routes(app)
 
     return app

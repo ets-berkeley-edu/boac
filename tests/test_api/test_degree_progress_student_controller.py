@@ -251,13 +251,21 @@ class TestBatchStudentDegreeChecks:
         fake_auth.login(coe_advisor_read_write_uid)
         student_sids = [coe_student_sid, '11667051', '7890123456', '9100000000']
         api_json = self._api_batch_degree_checks(client, sids=student_sids, template_id=mock_template.id)
-        assert api_json['percentComplete'] == 0
-        # TODO: Once background job finishes, assert that degree checks were created.
-        # for sid in student_sids:
-        #     assert api_json[sid]
-        #     degree_check = DegreeProgressTemplate.find_by_id(api_json[sid])
-        #     assert degree_check
-        #     assert degree_check.student_sid == sid
+        assert api_json == 'started'
+
+    def test_get_status(self, client, fake_auth, mock_template):
+        fake_auth.login(coe_advisor_read_write_uid)
+        response = client.get('/api/degree/check/batch')
+        assert response.status_code == 200
+        api_json = json.loads(response.data)
+        assert api_json['percentComplete'] is None
+
+        self._api_batch_degree_checks(client, sids=[coe_student_sid], template_id=mock_template.id)
+
+        response = client.get('/api/degree/check/batch')
+        assert response.status_code == 200
+        api_json = json.loads(response.data)
+        assert api_json['percentComplete'] == 1
 
 
 class TestCreateStudentDegreeCheck:

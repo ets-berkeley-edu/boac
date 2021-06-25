@@ -163,7 +163,7 @@ import Spinner from '@/components/util/Spinner'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import {createBatchDegreeCheck, getStudents} from '@/api/degree'
+import {createBatchDegreeCheck, getBatchJobStatus, getStudents} from '@/api/degree'
 import {getStudentsBySids} from '@/api/student'
 
 export default {
@@ -184,6 +184,7 @@ export default {
     isSaving: false,
     isValidating: false,
     percentComplete: undefined,
+    progressChecker: undefined,
     templateId: undefined,
     textarea: undefined,
     warning: undefined
@@ -216,6 +217,9 @@ export default {
   },
   mounted() {
     this.loaded('Batch degree checks loaded')
+  },
+  beforeDestroy() {
+    clearInterval(this.progressChecker)
   },
   methods: {
     addCohort(cohort) {
@@ -295,6 +299,28 @@ export default {
         this.excludedStudents = []
       }
     },
+    monitorJobProgress() {
+      this.progressChecker = setInterval(() => {
+        getBatchJobStatus().then(status => {
+          this.percentComplete = Math.round(status.percentComplete * 100)
+          if (this.percentComplete === 100) {
+            clearInterval(this.progressChecker)
+            this.alertScreenReader('Batch degree check saved.')
+            this.$nextTick(() => this.$router.push('/degrees'))
+          } else if (this.$_.isNil(this.percentComplete)) {
+            clearInterval(this.progressChecker)
+            this.error = 'Error saving batch degree check.'
+            this.alertScreenReader(this.error)
+            this.isSaving = false
+          }
+        }).catch(error => {
+          clearInterval(this.progressChecker)
+          this.alertScreenReader(error)
+          this.error = error
+          this.isSaving = false
+        })
+      }, 2000)
+    },
     removeCohort(cohort) {
       const index = this.$_.indexOf(this.addedCohorts, cohort)
       if (index !== -1) {
@@ -319,11 +345,11 @@ export default {
     save() {
       this.isSaving = true
       this.alertScreenReader('Saving.')
-      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then((progress) => {
-        this.alertScreenReader('Batch degree check saved.')
-        this.percentComplete = this.$_.get(progress, 'percentComplete')
-        // this.$nextTick(() => this.$router.push('/degrees'))
-      }).finally(() => {
+      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then(() => {
+        this.percentComplete = 0
+        this.monitorJobProgress()
+      }).catch(error => {
+        this.error = error
         this.isSaving = false
       })
     }
