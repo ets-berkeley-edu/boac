@@ -106,7 +106,7 @@
               :id="`column-${position}-parent-select-option-${category.name}`"
               :key="category.id"
               :aria-label="`${category.categoryType} ${category.name}`"
-              :disabled="shouldDisableLocationOption(category)"
+              :disabled="disableLocationOption(category)"
               :value="category"
             >
               {{ category.name }}
@@ -225,6 +225,13 @@ export default {
       this.selectedCategoryType = null
       this.afterCancel()
     },
+    disableLocationOption(option) {
+      const optionType = option.categoryType
+      const selectedType = this.selectedCategoryType
+      return (selectedType === 'Subcategory' && optionType === 'Subcategory')
+        || (selectedType === 'Subcategory' && optionType === 'Category' && this.getItemsForCoursesTable(option).length > 0)
+        || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
+    },
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
@@ -287,10 +294,6 @@ export default {
     },
     setUnitsUpper(units) {
       this.unitsUpper = units
-    },
-    shouldDisableLocationOption(category) {
-      return (this.selectedCategoryType === 'Subcategory' && category.categoryType === 'Subcategory')
-        || (this.selectedCategoryType === 'Course Requirement' && category.categoryType === 'Category' && !!category.subcategories.length)
     }
   }
 }
