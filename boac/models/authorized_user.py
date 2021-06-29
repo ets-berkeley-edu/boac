@@ -190,7 +190,7 @@ class AuthorizedUser(Base):
                 can_access_canvas_data=can_access_canvas_data,
                 degree_progress_permission=degree_progress_permission,
             )
-            db.session.add(user)
+        db.session.add(user)
         std_commit()
         return user
 
