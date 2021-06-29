@@ -223,9 +223,7 @@ def get_students(template_id):
     template = DegreeProgressTemplate.find_by_id(template_id)
     if not template:
         raise ResourceNotFoundError('Degree template not found')
-    # TODO: Add a foreign key linking the student degree check and master template records. Find
-    # student degree checks by master template id instead of by name. See BOAC-4138
-    degree_checks = DegreeProgressTemplate.find_by_name(template.degree_name, student_sids=sids)
+    degree_checks = DegreeProgressTemplate.get_student_degree_checks_by_parent_template_id(template_id, sids)
     sids = [d.student_sid for d in degree_checks]
     students = get_basic_student_data(sids)
 
