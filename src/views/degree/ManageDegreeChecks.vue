@@ -1,6 +1,19 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
+    <b-alert
+      id="alert-batch-created"
+      :show="!!batchSavedAlert"
+      class="w-100"
+      dismissible
+      fade
+      variant="success"
+      aria-live="polite"
+      role="alert"
+      @dismissed="setBatchSavedAlert"
+    >
+      <span class="font-weight-bolder">Success!</span> {{ batchSavedAlert }}
+    </b-alert>
     <h1 id="page-header" class="page-section-header">
       Managing Degree Checks
     </h1>
@@ -202,6 +215,7 @@
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import Context from '@/mixins/Context'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
@@ -210,7 +224,7 @@ import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/
 export default {
   name: 'ManageDegreeChecks',
   components: {AreYouSureModal, CloneTemplateModal, Spinner},
-  mixins: [Context, Loading, Util],
+  mixins: [Context, DegreeEditSession, Loading, Util],
   data: () => ({
     deleteModalBody: undefined,
     degreeTemplates: undefined,
@@ -233,6 +247,9 @@ export default {
       this.degreeTemplates = data
       this.loaded('Degree Checks loaded')
     })
+  },
+  beforeDestroy() {
+    this.setBatchSavedAlert()
   },
   methods: {
     afterClone(clone) {

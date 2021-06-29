@@ -53,6 +53,7 @@ const $_refresh = (commit, templateId) => {
 
 const state = {
   addCourseMenuOptions: undefined,
+  batchSavedAlert: undefined,
   categories: undefined,
   courses: undefined,
   createdAt: undefined,
@@ -79,6 +80,7 @@ const state = {
 
 const getters = {
   addCourseMenuOptions: (state: any): any[] => state.addCourseMenuOptions,
+  batchSavedAlert: (state: any): string => state.batchSavedAlert,
   categories: (state: any): any[] => state.categories,
   courses: (state: any): any[] => state.courses,
   createdAt: (state: any): any[] => state.createdAt,
@@ -137,6 +139,7 @@ const mutations = {
     }
     state.lastPageRefreshAt = new Date()
   },
+  setBatchSavedAlert: (state: any, message: any) => state.batchSavedAlert = message,
   setDisableButtons: (state: any, disableAll: any) => state.disableButtons = disableAll,
   setDraggingTarget: (state: any, target: any) => state.draggingContext.target = target,
   setIncludeNotesWhenPrint: (state: any, include: any) => state.includeNotesWhenPrint = include
@@ -204,6 +207,7 @@ const actions = {
     })
   },
   dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
+  setBatchSavedAlert: ({commit}, message: any) => commit('setBatchSavedAlert', message),
   setDraggingTarget: ({commit}, target: any) => commit('setDraggingTarget', target),
   init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => commit('draggingContextReset'),

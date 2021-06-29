@@ -119,7 +119,7 @@
         />
       </div>
       <div v-if="!isRecalculating && !isValidating && !$_.isEmpty(excludedStudents)" class="alert-box warning-message-container p-3 mt-2 mb-3 w-75">
-        <div>{{ excludedStudents.length }} students currently use the {{ degreeName }} degree check. The degree check will not be added to their student record.</div>
+        <div>{{ excludedStudents.length }} students currently use the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.</div>
         <ul class="mt-1 mb-0">
           <li v-for="(student, index) in excludedStudents" :key="index">
             {{ student.firstName }} {{ student.lastName }} ({{ student.sid }})
@@ -130,7 +130,7 @@
         <b-btn
           id="batch-degree-check-save"
           class="btn-primary-color-override"
-          :disabled="isBusy || !templateId || $_.isEmpty(sidsToInclude)"
+          :disabled="isBusy || !selectedTemplate || $_.isEmpty(sidsToInclude)"
           variant="primary"
           @click="save"
         >
@@ -159,6 +159,7 @@
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
+import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Loading from '@/mixins/Loading'
 import ProgressBar from '@/components/util/ProgressBar'
@@ -177,19 +178,18 @@ export default {
     ProgressBar,
     Spinner
   },
-  mixins: [Context, CurrentUserExtras, Loading, StudentAggregator, Util, Validator],
+  mixins: [Context, CurrentUserExtras, DegreeEditSession, Loading, StudentAggregator, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
     addedStudents: [],
-    degreeName: undefined,
     error: undefined,
     excludedStudents: [],
     isSaving: false,
     isValidating: false,
     percentComplete: undefined,
     progressChecker: undefined,
-    templateId: undefined,
+    selectedTemplate: undefined,
     textarea: undefined,
     warning: undefined
   }),
@@ -212,11 +212,11 @@ export default {
     }
   },
   watch: {
-    templateId(newValue) {
+    selectedTemplate(newValue) {
       this.findStudentsWithDegreeCheck(newValue, this.distinctSids)
     },
     distinctSids(newValue) {
-      this.findStudentsWithDegreeCheck(this.templateId, newValue)
+      this.findStudentsWithDegreeCheck(this.selectedTemplate, newValue)
     }
   },
   mounted() {
@@ -283,19 +283,18 @@ export default {
       }
       this.$putFocusNextTick('degree-check-add-student-input')
     },
-    addTemplate(degreeName, templateId) {
-      this.degreeName = degreeName
-      this.templateId = templateId
+    addTemplate(template) {
+      this.selectedTemplate = template
       this.findStudentsWithDegreeCheck()
     },
     cancel() {
       this.alertScreenReader('Canceled. Nothing saved.')
       this.$router.push('/degrees')
     },
-    findStudentsWithDegreeCheck(templateId, sids) {
-      if (templateId && !this.$_.isEmpty(sids)) {
+    findStudentsWithDegreeCheck(selectedTemplate, sids) {
+      if (this.$_.get(selectedTemplate, 'id') && !this.$_.isEmpty(sids)) {
         this.isValidating = true
-        getStudents(templateId, sids).then(students => {
+        getStudents(selectedTemplate.id, sids).then(students => {
           this.excludedStudents = students
           this.isValidating = false
         })
@@ -309,8 +308,10 @@ export default {
           this.percentComplete = Math.round(status.percentComplete * 100)
           if (this.percentComplete === 100) {
             clearInterval(this.progressChecker)
-            this.alertScreenReader('Batch degree check saved.')
-            this.$nextTick(() => this.$router.push('/degrees'))
+            this.$nextTick(() => {
+              this.setBatchSavedAlert(`Degree check ${this.selectedTemplate.name} added to ${this.pluralize('student profile', this.sidsToInclude.length)}.`)
+              this.$router.push('/degrees')
+            })
           } else if (this.$_.isNil(this.percentComplete)) {
             clearInterval(this.progressChecker)
             this.error = 'Error saving batch degree check.'
@@ -349,7 +350,7 @@ export default {
     save() {
       this.isSaving = true
       this.alertScreenReader('Saving.')
-      createBatchDegreeCheck(this.sidsToInclude, this.templateId).then(() => {
+      createBatchDegreeCheck(this.sidsToInclude, this.$_.get(this.selectedTemplate, 'id')).then(() => {
         this.percentComplete = 0
         this.monitorJobProgress()
       }).catch(error => {

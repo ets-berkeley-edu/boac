@@ -62,7 +62,7 @@ export default {
   methods: {
     select(template) {
       this.selectedTemplate = template
-      this.onSelect(template.degree_name, template.id)
+      this.onSelect(template)
     }
   }
 }
