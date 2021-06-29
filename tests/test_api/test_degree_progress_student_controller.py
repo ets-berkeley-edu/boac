@@ -78,12 +78,18 @@ def mock_degree_checks():
     marker = datetime.now().timestamp()
     degree_checks = []
     for index in (1, 2, 3):
+        parent_template = DegreeProgressTemplate.create(
+            advisor_dept_codes=['COENG'],
+            created_by=user.id,
+            degree_name=f'I am a mock template ({marker}_{index})',
+        )
         degree_checks.append(
             DegreeProgressTemplate.create(
                 advisor_dept_codes=['COENG'],
                 created_by=user.id,
-                degree_name=f'I am a mock template, made for a mock category ({marker}_{index})',
+                degree_name=f'I am a mock degree check ({marker}_{index})',
                 student_sid=coe_student_sid,
+                parent_template_id=parent_template.id,
             ),
         )
     std_commit(allow_test_environment=True)
@@ -375,20 +381,31 @@ class TestGetDegreeCheckStudents:
         api_json = self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid])
         assert api_json == []
 
-    def test_authorized(self, client, fake_auth, mock_template):
-        """Authorized user gets a list of students with the degree check."""
+    def test_authorized(self, client, fake_auth, mock_degree_checks):
+        """Authorized user gets a list of students currently assigned the degree check."""
         fake_auth.login(coe_advisor_read_write_uid)
-        client.post(
-            f'/api/degree/check/{coe_student_sid}/create',
-            data=json.dumps({'templateId': mock_template.id}),
-            content_type='application/json',
+
+        def _sort_by(item):
+            return item.updated_at
+        mock_degree_checks.sort(key=_sort_by, reverse=True)
+
+        current_template_students = self._api_get_students(
+            client,
+            template_id=mock_degree_checks[0].parent_template_id,
+            sids=[coe_student_sid],
         )
-        api_json = self._api_get_students(client, template_id=mock_template.id, sids=[coe_student_sid])
-        assert len(api_json) == 1
-        assert api_json[0]['sid'] == coe_student_sid
-        assert api_json[0]['uid'] == coe_student_uid
-        assert api_json[0]['firstName'] == 'Wolfgang'
-        assert api_json[0]['lastName'] == "Pauli-O'Rourke"
+        assert len(current_template_students) == 1
+        assert current_template_students[0]['sid'] == coe_student_sid
+        assert current_template_students[0]['uid'] == coe_student_uid
+        assert current_template_students[0]['firstName'] == 'Wolfgang'
+        assert current_template_students[0]['lastName'] == "Pauli-O'Rourke"
+
+        old_template_students = self._api_get_students(
+            client,
+            template_id=mock_degree_checks[2].parent_template_id,
+            sids=[coe_student_sid],
+        )
+        assert len(old_template_students) == 0
 
 
 class TestGetStudentDegreeChecks:
@@ -418,7 +435,6 @@ class TestGetStudentDegreeChecks:
         expected_current_id = mock_degree_checks[0].id
 
         degree_checks = self._api_get_degree_checks(client, uid=coe_student_uid)
-        assert len(degree_checks) == 3
         assert degree_checks[0]['id'] == expected_current_id
         assert degree_checks[0]['isCurrent'] is True
         assert degree_checks[1]['isCurrent'] is False
