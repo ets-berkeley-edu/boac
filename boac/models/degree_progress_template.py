@@ -34,7 +34,7 @@ from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from dateutil.tz import tzutc
-from sqlalchemy import and_, func, text
+from sqlalchemy import and_, text
 from sqlalchemy.dialects.postgresql import ARRAY
 
 
@@ -115,16 +115,7 @@ class DegreeProgressTemplate(Base):
         return cls.query.filter_by(id=template_id, deleted_at=None).first()
 
     @classmethod
-    def find_by_name(cls, name, student_sids=None, case_insensitive=False):
-        if student_sids:
-            return db.session.query(
-                cls.student_sid,
-                func.max(cls.updated_at),
-            ).filter(
-                cls.degree_name == name,
-                cls.deleted_at == None,  # noqa: E711
-                cls.student_sid.in_(student_sids),
-            ).group_by(cls.student_sid).all()
+    def find_by_name(cls, name, case_insensitive=False):
         if case_insensitive:
             return cls.query.filter(and_(cls.degree_name.ilike(name), cls.deleted_at == None, cls.student_sid == None)).first()  # noqa: E711
         else:
@@ -156,6 +147,22 @@ class DegreeProgressTemplate(Base):
             ORDER BY degree_name, created_at
         """)
         return [_row_to_simple_json(row) for row in db.session.execute(sql)]
+
+    @classmethod
+    def get_student_degree_checks_by_parent_template_id(cls, parent_template_id, student_sids):
+        sql = text("""
+            SELECT id, created_at, degree_name, created_by, parent_template_id, student_sid, updated_at, updated_by
+            FROM degree_progress_templates t
+            WHERE t.parent_template_id = :parent_template_id
+            AND t.student_sid = ANY(:student_sids)
+            AND t.updated_at = (
+                SELECT max(updated_at)
+                FROM degree_progress_templates
+                WHERE student_sid = t.student_sid
+                AND deleted_at IS NULL
+            )
+        """)
+        return db.session.execute(sql, {'parent_template_id': parent_template_id, 'student_sids': student_sids})
 
     @classmethod
     def refresh_updated_at(cls, template_id):
