@@ -431,7 +431,7 @@ def get_students_by_sids(sids):
         SELECT s.first_name, s.last_name, s.sid, s.uid
         FROM {student_schema()}.student_names_hist_enr s
         WHERE s.sid = ANY(:sids)"""
-    sql = f"""SELECT DISTINCT q.*
+    sql = f"""SELECT DISTINCT ON (q.sid) q.first_name, q.last_name, q.sid, q.uid
         FROM ({inner_sql}) q
         ORDER BY q.sid"""
     return safe_execute_rds(sql, sids=sids)
