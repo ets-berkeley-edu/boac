@@ -189,6 +189,7 @@ def assign_course(course_id):
                     category = DegreeProgressCategory.find_by_id(copy_of_course.category_id)
                     if category and 'Placeholder' in category.category_type:
                         DegreeProgressCategory.delete(category.id)
+                    DegreeProgressCourse.delete(copy_of_course)
             ignore = to_bool_or_none(get_param(params, 'ignore'))
             course = DegreeProgressCourse.unassign(course_id=course.id, ignore=ignore)
 
