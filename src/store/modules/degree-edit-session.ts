@@ -17,11 +17,15 @@ import {
 
 const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
 
-const $_allowCourseDrop = (category, course) => {
-  const getCourseKey = c => c && `${c.termId}-${c.sectionId}`
-  return (category.categoryType !== 'Course Requirement' || !category.courses.length)
-    && (category.categoryType !== 'Category' || !category.subcategories.length)
-    && !_.map(category.courses, getCourseKey).includes(getCourseKey(course))
+const $_allowCourseDrop = (category, course, context) => {
+  if (category) {
+    const getCourseKey = c => c && `${c.termId}-${c.sectionId}`
+    return (category.categoryType !== 'Course Requirement' || !category.courses.length)
+      && (category.categoryType !== 'Category' || !category.subcategories.length)
+      && !_.map(category.courses, getCourseKey).includes(getCourseKey(course))
+  } else if (context) {
+    return !course.isCopy && _.includes(['ignored', 'unassigned'], context)
+  }
 }
 
 const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
@@ -238,7 +242,11 @@ const actions = {
           case 'assigned to unassigned':
           case 'ignored to unassigned':
           case 'unassigned to ignored':
-            $_dropToAssign(null, commit, course, context === 'ignored', state).then(() => done(`Course ${context}`))
+            if ($_allowCourseDrop(null, course, context)) {
+              $_dropToAssign(null, commit, course, context === 'ignored', state).then(() => done(`Course ${context}`))
+            } else {
+              done('Drop canceled. No assignment made.', true)
+            }
             break
           case 'assigned to assigned':
           case 'ignored to assigned':
@@ -248,7 +256,7 @@ const actions = {
           case 'assigned to requirement':
           case 'ignored to requirement':
           case 'unassigned to requirement':
-            if ($_allowCourseDrop(category, course)) {
+            if ($_allowCourseDrop(category, course, null)) {
               $_dropToAssign(category.id, commit, course, false, state).then(() => done(`Course assigned to ${category.name}`))
             } else {
               done('Drop canceled. No assignment made.', true)
