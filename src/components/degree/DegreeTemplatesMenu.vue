@@ -18,7 +18,7 @@
       variant="outline-dark"
     >
       <template #button-content>
-        <span v-if="!selectedTemplate">Choose...</span>
+        <span v-if="!selectedTemplate">Choose<span class="sr-only">&nbsp;degree check</span>...</span>
         <span v-if="selectedTemplate" class="truncate-with-ellipsis">{{ selectedTemplate.name }}</span>
       </template>
       <b-dropdown-item

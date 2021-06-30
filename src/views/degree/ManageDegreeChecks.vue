@@ -245,7 +245,7 @@ export default {
   mounted() {
     getDegreeTemplates().then(data => {
       this.degreeTemplates = data
-      this.loaded('Degree Checks loaded')
+      this.loaded('Managing Degree Checks loaded')
     })
   },
   beforeDestroy() {
