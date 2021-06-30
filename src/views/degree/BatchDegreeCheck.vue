@@ -50,7 +50,7 @@
             id="degree-check-add-student"
             v-model="textarea"
             :disabled="isBusy"
-            aria-label="Type or paste student SID numbers here"
+            aria-label="Type or paste a list of student SID numbers here"
             rows="8"
             max-rows="30"
             @keydown.esc="cancel"
@@ -118,7 +118,11 @@
           :on-select="addTemplate"
         />
       </div>
-      <div v-if="!isRecalculating && !isValidating && !$_.isEmpty(excludedStudents)" class="alert-box warning-message-container p-3 mt-2 mb-3 w-75">
+      <div
+        v-if="!isRecalculating && !isValidating && !$_.isEmpty(excludedStudents)"
+        class="alert-box warning-message-container p-3 mt-2 mb-3 w-75"
+        role="alert"
+      >
         <div>{{ excludedStudents.length }} students currently use the {{ selectedTemplate.name }} degree check. The degree check will not be added to their student record.</div>
         <ul class="mt-1 mb-0">
           <li v-for="(student, index) in excludedStudents" :key="index">
@@ -241,28 +245,21 @@ export default {
         this.isValidating = true
         const sids = this.validateSids(this.textarea)
         if (sids) {
-          const novelSids = this.$_.difference(this.$_.uniq(sids), this.distinctSids)
-          if (novelSids.length) {
-            getStudentsBySids(novelSids).then(students => {
-              this.addStudents(students)
-              const notFound = this.$_.difference(novelSids, this.$_.map(students, 'sid'))
-              if (notFound.length === 1) {
-                this.warning = `Student ${notFound[0]} not found.`
-                this.alertScreenReader(this.warning)
-              } else if (notFound.length > 1) {
-                this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
-                this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
-              }
-              this.isValidating = false
-              this.textarea = undefined
-              resolve()
-            })
-          }
-          else {
+          const uniqueSids = this.$_.uniq(sids)
+          getStudentsBySids(uniqueSids).then(students => {
+            this.addStudents(students)
+            const notFound = this.$_.difference(uniqueSids, this.$_.map(students, 'sid'))
+            if (notFound.length === 1) {
+              this.warning = `Student ${notFound[0]} not found.`
+              this.alertScreenReader(this.warning)
+            } else if (notFound.length > 1) {
+              this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
+              this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
+            }
             this.isValidating = false
             this.textarea = undefined
             resolve()
-          }
+          })
         } else {
           if (this.error) {
             this.alertScreenReader(`Error: ${this.error}`)
@@ -275,11 +272,13 @@ export default {
       })
     },
     addStudents(students) {
+      console.log(students)
       if (students && students.length) {
         this.addedStudents.push(...students)
-        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(
-          () => this.alertScreenReader(`${this.pluralize('student', students.length)} added to degree check`)
-        )
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then( () => {
+          const obj = students.length === 1 ? `${students[0].label}` : this.pluralize('student', students.length)
+          this.alertScreenReader(`${obj} added to degree check`)
+        })
       }
       this.$putFocusNextTick('degree-check-add-student-input')
     },
