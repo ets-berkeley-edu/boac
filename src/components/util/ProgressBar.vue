@@ -16,27 +16,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
-
 export default {
   name: 'ProgressBar',
-  mixins: [Context],
   props: {
     percentComplete: {
       type: Number,
       default: 0
-    }
-  },
-  watch: {
-    percentComplete(newValue) {
-      if (this.$_.isNumber(newValue)) {
-        this.alertScreenReader(`${newValue} percent complete`)
-      }
-    }
-  },
-  created() {
-    if (this.$_.isNumber(this.percentComplete)) {
-      this.alertScreenReader(`${this.percentComplete} percent complete`)
     }
   }
 }
