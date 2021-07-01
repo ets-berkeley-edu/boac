@@ -167,6 +167,13 @@ export default {
 }
 </script>
 
+<style>
+html,
+body {
+  height: fit-content;
+}
+</style>
+
 <style scoped>
 .footer-border {
   border-top: 1px #999 solid;
@@ -184,6 +191,7 @@ export default {
   background-color: #000000;
   border-radius: 5px;
   color: #fff;
+  color-adjust: exact;
   font-size: 12px;
   font-weight: bold;
   margin-bottom: 12px;
