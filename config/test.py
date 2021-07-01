@@ -30,8 +30,6 @@ AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
 BACKGROUND_TASKS = False
 
-CACHE_DEFAULT_TIMEOUT = 600
-
 DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
 
 FEATURE_FLAG_DEGREE_CHECK = True
