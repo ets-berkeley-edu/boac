@@ -5,7 +5,7 @@
       class="w-100"
       :class="{
         'drop-zone-container': !$_.size(category.subcategories) && !printable,
-        'drop-zone-container-on': isDroppable(category) && draggingContext.target === category.id
+        'drop-zone-container-on': isDroppable() && draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
       @dragenter="onDrag($event, 'enter')"
@@ -170,7 +170,9 @@ export default {
     onDropCourse(event) {
       event.stopPropagation()
       event.preventDefault()
-      this.onDrop({category: this.category, context: 'requirement'})
+      if (this.isDroppable()) {
+        this.onDrop({category: this.category, context: 'requirement'})
+      }
       this.setDraggingTarget(null)
       return false
     }
