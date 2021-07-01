@@ -381,3 +381,10 @@ select.form-control {
   color: #31708f;
   background-color: #d9edf7;
 }
+
+@media print {
+  html,
+  body {
+    height: fit-content;
+  }
+}
