@@ -15,7 +15,7 @@
       <span class="font-weight-bolder">Success!</span> {{ batchSavedAlert }}
     </b-alert>
     <h1 id="page-header" class="page-section-header">
-      Managing Degree Checks
+      Degree Checks
     </h1>
     <div v-if="$currentUser.canEditDegreeProgress" class="pb-3 w-10">
       <router-link
@@ -46,6 +46,9 @@
       </router-link>
     </div>
     <div v-if="!loading">
+      <div v-if="!degreeTemplates.length">
+        There are no degree templates available.
+      </div>
       <div v-if="degreeTemplates.length">
         <b-table-lite
           id="degree-checks-table"
