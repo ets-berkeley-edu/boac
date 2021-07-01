@@ -150,11 +150,9 @@
           Cancel
         </b-btn>
       </div>
-      <ProgressBar
-        v-if="!$_.isNil(percentComplete)"
-        class="w-75"
-        :percent-complete="percentComplete"
-      />
+      <div v-if="!$_.isNil(percentComplete)">
+        Progress: <span>{{ percentComplete }}%</span>
+      </div>
     </div>
   </div>
 </template>
@@ -166,7 +164,6 @@ import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Loading from '@/mixins/Loading'
-import ProgressBar from '@/components/util/ProgressBar'
 import Spinner from '@/components/util/Spinner'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
@@ -179,7 +176,6 @@ export default {
   components: {
     BatchAddStudentSet,
     DegreeTemplatesMenu,
-    ProgressBar,
     Spinner
   },
   mixins: [Context, CurrentUserExtras, DegreeEditSession, Loading, StudentAggregator, Util, Validator],
