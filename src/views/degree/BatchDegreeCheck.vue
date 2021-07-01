@@ -304,20 +304,18 @@ export default {
     monitorJobProgress() {
       this.progressChecker = setInterval(() => {
         getBatchJobStatus().then(status => {
-          if (this.$_.isNil(status.percentComplete)) {
+          this.percentComplete = Math.round(status.percentComplete * 100)
+          if (this.percentComplete === 100) {
+            clearInterval(this.progressChecker)
+            this.$nextTick(() => {
+              this.setBatchSavedAlert(`Degree check ${this.selectedTemplate.name} added to ${this.pluralize('student profile', this.sidsToInclude.length)}.`)
+              this.$router.push('/degrees')
+            })
+          } else if (this.$_.isNil(this.percentComplete)) {
             clearInterval(this.progressChecker)
             this.error = 'Error saving batch degree check.'
             this.alertScreenReader(this.error)
             this.isSaving = false
-          } else {
-            this.percentComplete = Math.round(status.percentComplete * 100)
-            if (this.percentComplete === 100) {
-              clearInterval(this.progressChecker)
-              this.$nextTick(() => {
-                this.setBatchSavedAlert(`Degree check ${this.selectedTemplate.name} added to ${this.pluralize('student profile', this.sidsToInclude.length)}.`)
-                this.$router.push('/degrees')
-              })
-            }
           }
         }).catch(error => {
           clearInterval(this.progressChecker)
