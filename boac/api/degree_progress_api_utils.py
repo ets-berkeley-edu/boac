@@ -26,11 +26,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.lib.background import bg_execute
 from boac.lib.berkeley import dept_codes_where_advising
-from boac.lib.cache_utils import fetch, store
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from flask import current_app as app
 from flask_login import current_user
 
 
@@ -48,28 +46,19 @@ def clone_degree_template(template_id, name=None, sid=None):
 
 def create_batch_degree_checks(template_id, sids):
     created_by = current_user.get_id()
-    cache_key = get_cache_key()
-    existing_status = fetch(cache_key)
-    if not (existing_status is None or int(existing_status) == 1):
-        raise BadRequestError('Existing batch degree check job in progress.')
     advisor_dept_codes = dept_codes_where_advising(current_user)
+    results_by_sid = {}
 
     def _create(db_session):
         template = fetch_degree_template(template_id)
         if template_id and not template:
             raise ResourceNotFoundError(f'No template found with id={template_id}.')
-        completed = 0
-        store(cache_key, 0)
         for sid in sids:
-            if fetch(cache_key) is None:
-                app.logger.info('Batch degree check canceled.')
-                break
-            clone(template, created_by, advisor_dept_codes, sid=sid, db_session=db_session)
-            completed += 1
-            store(cache_key, completed / len(sids))
+            degree_check = clone(template, created_by, advisor_dept_codes, sid=sid, db_session=db_session)
+            results_by_sid[sid] = degree_check.id
 
     bg_execute(_create)
-    return 'started'
+    return {'percentComplete': 0}
 
 
 def clone(template, created_by, advisor_dept_codes, name=None, sid=None, db_session=None):
@@ -128,11 +117,6 @@ def fetch_degree_template(template_id):
     if not template:
         raise ResourceNotFoundError(f'No template found with id={template_id}.')
     return template
-
-
-def get_cache_key():
-    user_id = current_user.get_id()
-    return f'degree_progress_batch/{user_id}'
 
 
 def validate_template_upsert(name, template_id=None):

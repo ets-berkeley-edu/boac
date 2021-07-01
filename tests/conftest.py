@@ -80,12 +80,6 @@ def app(request):
     return _app
 
 
-@pytest.fixture(scope='function', autouse=True)
-def clear_cache():
-    from boac import cache
-    cache.clear()
-
-
 # TODO Perform DB schema creation and deletion outside an app context, enabling test-specific app configurations.
 @pytest.fixture(scope='session')
 def db(app):
