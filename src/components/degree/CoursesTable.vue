@@ -439,7 +439,9 @@ export default {
       event.stopPropagation()
       event.preventDefault()
       this.hoverCourseId = null
-      this.onDrop({category, context})
+      if (this.isDroppable(category)) {
+        this.onDrop({category, context})
+      }
       this.setDraggingTarget(null)
       return false
     },
