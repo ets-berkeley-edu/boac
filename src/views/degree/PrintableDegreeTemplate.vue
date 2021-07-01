@@ -167,13 +167,6 @@ export default {
 }
 </script>
 
-<style>
-html,
-body {
-  height: fit-content;
-}
-</style>
-
 <style scoped>
 .footer-border {
   border-top: 1px #999 solid;
