@@ -102,7 +102,6 @@ class DegreeProgressCategory(Base):
             description=None,
             parent_category_id=None,
             unit_requirement_ids=None,
-            db_session=None,
     ):
         course_units = None if course_units_lower is None else NumericRange(
             float(course_units_lower),
@@ -118,14 +117,13 @@ class DegreeProgressCategory(Base):
             position=position,
             template_id=template_id,
         )
-        session = db_session or db.session
-        session.add(category)
-        std_commit(session=session)
+        # TODO: Use 'unit_requirement_ids' in mapping this instance to 'unit_requirements' table
+        db.session.add(category)
+        std_commit()
         for unit_requirement_id in unit_requirement_ids or []:
             DegreeProgressCategoryUnitRequirement.create(
                 category_id=category.id,
                 unit_requirement_id=int(unit_requirement_id),
-                db_session=session,
             )
         return category
 
