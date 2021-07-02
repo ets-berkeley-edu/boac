@@ -119,6 +119,8 @@ CREATE TABLE boac_advising_e_i.advising_notes
     advisor_uid VARCHAR,
     advisor_first_name VARCHAR,
     advisor_last_name VARCHAR,
+    overview VARCHAR,
+    note TEXT,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
@@ -604,12 +606,12 @@ CREATE MATERIALIZED VIEW boac_advising_data_science.advising_notes_search_index 
 );
 
 INSERT INTO boac_advising_e_i.advising_notes
-(id, e_i_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, created_at, updated_at)
+(id, e_i_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, overview, note, created_at, updated_at)
 VALUES
-('11667051-151620', '151620', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133398', 'Charlie', 'Christian', '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
-('11667051-151621', '151621', '11667051', 'Deborah', 'Davies', '2014-01-16', NULL, 'Reception', 'Front Desk', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
-('8901234567-151622', '151622', '8901234567', 'John David', 'Crossman', '2014-01-16', NULL, 'Graduate Intern', '', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
-('2345678901-151622', '151622', '2345678901', 'Dave', 'Doolittle', '2014-01-16', NULL, 'Graduate Intern', '', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
+('11667051-151620', '151620', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133398', 'Charlie', 'Christian', 'Drop-In', NULL, '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
+('11667051-151621', '151621', '11667051', 'Deborah', 'Davies', '2014-01-16', NULL, 'Reception', 'Front Desk', 'Admin', NULL, '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('8901234567-151622', '151622', '8901234567', 'John David', 'Crossman', '2014-01-16', NULL, 'Graduate Intern', '', 'Question', NULL, '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('2345678901-151622', '151622', '2345678901', 'Dave', 'Doolittle', '2014-01-16', NULL, 'Graduate Intern', '', 'Scheduled', NULL, '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
 
 INSERT INTO boac_advising_e_i.advising_note_topics
 (id, e_i_id, sid, topic)

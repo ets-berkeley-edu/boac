@@ -553,6 +553,7 @@ def get_e_i_advising_notes(sid):
         SELECT
             id, sid, advisor_uid AS author_uid,
             advisor_first_name || ' ' || advisor_last_name AS author_name,
+            overview AS subject,
             created_at, updated_at
         FROM {e_i_schema()}.advising_notes
         WHERE sid=:sid
