@@ -23,11 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks, get_cache_key
+from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
 from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
-from boac.lib.cache_utils import fetch
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
@@ -48,13 +47,6 @@ def batch_degree_checks():
     if not template_id or not sids:
         raise BadRequestError('sids and templateId are required.')
     return tolerant_jsonify(create_batch_degree_checks(template_id=template_id, sids=sids))
-
-
-@app.route('/api/degree/check/batch', methods=['GET'])
-@can_edit_degree_progress
-def batch_job_status():
-    percent_complete = fetch(get_cache_key())
-    return tolerant_jsonify({'percentComplete': percent_complete})
 
 
 @app.route('/api/degree/check/<sid>/create', methods=['POST'])

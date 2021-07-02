@@ -65,10 +65,7 @@ const apiBaseUrl = process.env.VUE_APP_API_BASE_URL
 
 const isHandledInComponent = error => {
   const errorUrl = _.get(error, 'response.config.url')
-  return errorUrl && (
-    errorUrl.includes('/api/user/create_or_update') ||
-    errorUrl.includes('/api/degree/check/batch')
-  )
+  return errorUrl && errorUrl.includes('/api/user/create_or_update')
 }
 
 // Axios
