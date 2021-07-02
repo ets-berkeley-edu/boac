@@ -89,7 +89,6 @@ class DegreeProgressTemplate(Base):
             degree_name,
             parent_template_id=None,
             student_sid=None,
-            db_session=None,
     ):
         degree = cls(
             advisor_dept_codes=advisor_dept_codes,
@@ -99,9 +98,8 @@ class DegreeProgressTemplate(Base):
             student_sid=student_sid,
             updated_by=created_by,
         )
-        session = db_session or db.session
-        session.add(degree)
-        std_commit(session=session)
+        db.session.add(degree)
+        std_commit()
         return degree
 
     @classmethod
