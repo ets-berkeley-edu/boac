@@ -211,7 +211,8 @@ def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
         WHERE id = ANY(:cohort_ids) AND owner_id = :current_user_id
     """)
     for row in db.session.execute(query, {'cohort_ids': cohort_ids, 'current_user_id': current_user.get_id()}):
-        all_sids.extend(row['sids'])
+        if row and row['sids']:
+            all_sids.extend(row['sids'])
     query = text("""
         SELECT distinct(m.sid)
         FROM student_group_members m
