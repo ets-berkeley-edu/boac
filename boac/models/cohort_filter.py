@@ -330,6 +330,15 @@ class CohortFilter(Base):
                 sids_only=sids_only,
             )
 
+        # If the cohort is new or cache refresh is underway then store student_count and sids in the db.
+        if self.student_count is None:
+            self.update_sids_and_student_count(
+                sids=results['sids'] if results else [],
+                student_count=results['totalStudentCount'] if results else 0,
+            )
+            if self.domain == 'default':
+                self.track_membership_changes()
+
         if results:
             # Cohort might have tens of thousands of SIDs.
             if include_sids:
@@ -337,11 +346,6 @@ class CohortFilter(Base):
             cohort_json.update({
                 'totalStudentCount': results['totalStudentCount'],
             })
-            # If the cohort is new or cache refresh is underway then store student_count and sids in the db.
-            if self.student_count is None:
-                self.update_sids_and_student_count(results['sids'], results['totalStudentCount'])
-                if self.domain == 'default':
-                    self.track_membership_changes()
             if include_students:
                 cohort_json.update({
                     'students': results['students'],
