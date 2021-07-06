@@ -9,11 +9,16 @@
             <div class="font-weight-bold">
               SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
               <div>
-                {{ student.sisProfile.level.description }}
+                {{ $_.get(student, 'sisProfile.level.description') || 'Level not available' }}
               </div>
               <div class="text-secondary">
-                {{ student.sisProfile.termsInAttendance }} Terms in Attendance
-                <div>Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}</div>
+                <div v-if="$_.get(student, 'sisProfile.termsInAttendance')">
+                  {{ student.sisProfile.termsInAttendance }} Terms in Attendance
+                </div>
+                <div v-if="!$_.get(student, 'sisProfile.termsInAttendance')">
+                  Terms in Attendance not available
+                </div>
+                <div>Expected graduation {{ $_.get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
               </div>
             </div>
             <div class="pt-2">
