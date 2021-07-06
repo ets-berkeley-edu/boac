@@ -40,12 +40,12 @@
       <div class="w-75">
         <label
           for="degree-check-add-student-input"
-          class="font-size-14 input-label text mt-2"
+          class="input-label text mt-1"
         >
           <div class="font-weight-bolder">Student</div>
-          <span>Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
+          <span class="font-size-14">Type or paste a list of SID numbers below. Example: 9999999990, 9999999991</span>
         </label>
-        <div class="mb-3">
+        <div class="mb-2">
           <b-form-textarea
             id="degree-check-add-student"
             v-model="textarea"
@@ -59,6 +59,7 @@
         <div class="d-flex justify-content-end">
           <b-btn
             id="degree-check-add-sids-btn"
+            class="btn-primary-color-override"
             :disabled="!$_.trim(textarea) || isBusy"
             variant="primary"
             @click="addSids"
@@ -89,7 +90,7 @@
         class="alert-box p-3 mt-2 mb-3 w-75"
         v-html="error || warning"
       />
-      <div class="mb-3">
+      <div class="mb-2">
         <BatchAddStudentSet
           v-if="myCohorts && myCohorts.length"
           class="w-75"
@@ -97,10 +98,9 @@
           :disabled="isSaving"
           :is-curated-groups-mode="false"
           :remove-object="removeCohort"
-          :target="'degree check'"
         />
       </div>
-      <div class="mb-3">
+      <div class="mb-2">
         <BatchAddStudentSet
           v-if="myCuratedGroups && myCuratedGroups.length"
           class="w-75"
@@ -108,7 +108,6 @@
           :disabled="isSaving"
           :is-curated-groups-mode="true"
           :remove-object="removeCuratedGroup"
-          :target="'degree check'"
         />
       </div>
       <div class="mb-3">
@@ -143,6 +142,7 @@
         </b-btn>
         <b-btn
           id="batch-degree-check-cancel"
+          class="pr-0"
           :disabled="isBusy"
           variant="link"
           @click.prevent="cancel"
