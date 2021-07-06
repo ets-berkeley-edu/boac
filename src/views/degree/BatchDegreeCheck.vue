@@ -313,7 +313,7 @@ export default {
       this.isSaving = true
       this.alertScreenReader('Saving.')
       createBatchDegreeCheck(this.sidsToInclude, this.$_.get(this.selectedTemplate, 'id')).then(() => {
-        this.alertScreenReader('Batch degree check saved.')
+        this.setBatchSavedAlert(`Degree check ${this.selectedTemplate.name} added to ${this.pluralize('student profile', this.sidsToInclude.length)}.`)
         this.$nextTick(() => this.$router.push('/degrees'))
       }).finally(() => {
         this.isSaving = false
