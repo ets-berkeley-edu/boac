@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.lib.berkeley import dept_codes_where_advising
+from boac.lib.util import get_benchmarker
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
@@ -43,12 +44,16 @@ def clone_degree_template(template_id, name=None, sid=None):
 
 
 def create_batch_degree_checks(template_id, sids):
+    benchmark = get_benchmarker(f'create_batch_degree_checks template_id={template_id}')
+    benchmark('begin')
     template = fetch_degree_template(template_id)
     created_by = current_user.get_id()
     results_by_sid = {}
+    benchmark(f'creating {len(sids)} clones')
     for sid in sids:
         degree_check = clone(template, created_by, sid=sid)
         results_by_sid[sid] = degree_check.id
+    benchmark('end')
     return results_by_sid
 
 
