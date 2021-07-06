@@ -10,29 +10,23 @@
       </router-link>
     </div>
     <div v-if="!loading">
-      <div role="alert" class="student-count-alerts font-italic font-size-14">
-        <span v-if="isRecalculating || isValidating || $_.isEmpty(sidsToInclude)" />
+      <div aria-live="polite" class="font-italic font-size-14 student-count-alerts" role="alert">
         <span
-          v-if="!isRecalculating && !isValidating && !$_.isEmpty(sidsToInclude)"
+          v-if="!$_.isEmpty(sidsToInclude)"
           id="target-student-count-alert"
           :class="{'has-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
         >
           Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
           <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
         </span>
-        <span v-if="!isRecalculating && !isValidating && (addedCohortsEmpty || addedGroupsEmpty)">
-          <span
-            v-if="addedCohortsEmpty && !addedGroupsEmpty"
-            id="no-students-per-cohorts-alert"
-          >There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.</span>
-          <span
-            v-if="!addedCohortsEmpty && addedGroupsEmpty"
-            id="no-students-per-curated-groups-alert"
-          >There are no students in the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }}.</span>
-          <span
-            v-if="addedCohortsEmpty && addedGroupsEmpty"
-            id="no-students-alert"
-          >
+        <span v-if="$_.isEmpty(sidsToInclude) && (addedCohortsEmpty || addedGroupsEmpty)">
+          <span v-if="addedCohortsEmpty && !addedGroupsEmpty" id="no-students-per-cohorts-alert">
+            There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.
+          </span>
+          <span v-if="!addedCohortsEmpty && addedGroupsEmpty" id="no-students-per-curated-groups-alert">
+            There are no students in the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }}.
+          </span>
+          <span v-if="addedCohortsEmpty && addedGroupsEmpty" id="no-students-alert">
             Neither the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }} nor the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }} have students.
           </span>
         </span>
