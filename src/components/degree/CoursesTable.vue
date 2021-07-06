@@ -323,9 +323,10 @@ export default {
       const name = this.bundleForDelete.name
       const done = () => {
         this.$announcer.polite(`${name} deleted.`)
+        const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
         this.bundleForDelete = null
         this.setDisableButtons(false)
-        this.$putFocusNextTick('page-header')
+        this.$putFocusNextTick(putFocus)
       }
       if (this.sid) {
         this.deleteCourse(this.bundleForDelete.course.id).then(done)
