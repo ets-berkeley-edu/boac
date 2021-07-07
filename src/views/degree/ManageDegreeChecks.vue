@@ -32,17 +32,14 @@
           </div>
         </div>
       </router-link>
-      <span class="p-2">|</span>
+      <span v-if="$_.size(degreeTemplates)" class="p-2">|</span>
       <router-link
+        v-if="$_.size(degreeTemplates)"
         id="degree-check-batch-link"
         class="w-25"
         to="/degree/batch"
       >
-        <div class="align-items-center d-inline-flex flex-nowrap">
-          <div class="text-nowrap">
-            Batch degree checks
-          </div>
-        </div>
+        <span class="text-nowrap">Batch degree checks</span>
       </router-link>
     </div>
     <div v-if="!loading">
