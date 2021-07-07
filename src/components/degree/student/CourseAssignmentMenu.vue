@@ -102,9 +102,10 @@ export default {
     },
     onSelect(category, ignore) {
       this.setDisableButtons(true)
-      this.assignCourseToCategory({course: this.course, category, ignore}).then(() => {
+      this.assignCourseToCategory({course: this.course, category, ignore}).then(courseAssigned => {
         this.setDisableButtons(false)
         this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
+        this.$putFocusNextTick(`assign-course-${courseAssigned.id}-dropdown`, 'button')
       })
     }
   }
