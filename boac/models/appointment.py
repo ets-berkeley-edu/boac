@@ -515,14 +515,11 @@ def _to_json(search_terms, search_result):
 def _student_to_json(sid):
     student = data_loch.get_student_by_sid(sid)
     if student:
-        return {
-            'student': {camelize(key): student[key] for key in student.keys()},
-        }
-    profiles = data_loch.get_historical_student_profiles_for_sids([sid])
-    if profiles and profiles[0]:
-        return {
-            'student': json.loads(profiles[0].get('profile')),
-        }
+        api_json = {camelize(key): student[key] for key in student.keys()}
+    else:
+        profiles = data_loch.get_historical_student_profiles_for_sids([sid])
+        api_json = json.loads(profiles[0].get('profile')) if profiles and profiles[0] else {}
+    return {'student': api_json}
 
 
 def _update_appointment_topics(appointment, topics, updated_by):
