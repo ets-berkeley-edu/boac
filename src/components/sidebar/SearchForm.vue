@@ -269,6 +269,7 @@
         Search for students, courses, or notes.
         {{ searchInputRequired ? 'Input is required.' : '' }}
         {{ searchHistory.length ? 'Expect auto-suggest of previous searches.' : '' }}
+        (Type / to put focus in the search input field.)
       </span>
       <div class="d-flex" :class="{'pb-3': showNoteFilters}">
         <div class="flex-grow-1">
@@ -278,7 +279,7 @@
             :disabled="disabledSearch"
             :get-suggestions="filterSuggestions"
             :on-submit="search"
-            placeholder="'/' to search"
+            placeholder="/ to search"
             :required="searchInputRequired"
             type="search"
           />
