@@ -921,12 +921,13 @@ class TestSearchHistory:
         search_history = phrases[::-1]
         assert self._api_my_search_history(client) == search_history
         # Search for phrase a second time and it will move to start of list
-        self._api_add_to_my_search_history(client, polythene_pam)
+        polythene_pam_upper = polythene_pam.upper()
+        self._api_add_to_my_search_history(client, polythene_pam_upper)
         std_commit(allow_test_environment=True)
 
         search_history = self._api_my_search_history(client)
         assert search_history == [
-            polythene_pam,
+            polythene_pam_upper,
             'Golden Slumbers',
             'She Came In Through the Bathroom Window',
             'Mean Mr. Mustard',
@@ -939,7 +940,7 @@ class TestSearchHistory:
         assert search_history == [
             'The End',
             'Carry That Weight',
-            polythene_pam,
+            polythene_pam_upper,
             'Golden Slumbers',
             'She Came In Through the Bathroom Window',
         ]
