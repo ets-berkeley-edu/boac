@@ -250,8 +250,10 @@ class AuthorizedUser(Base):
                     search_phrase = search_phrase[:search_phrase.rindex(' ') + 1].strip()
                 else:
                     search_phrase = search_phrase[:cls.SEARCH_HISTORY_ITEM_MAX_LENGTH]
-            if search_phrase.lower() in [s.lower() for s in search_history]:
-                search_history.remove(search_phrase)
+            phrase_lowered = search_phrase.lower()
+            for idx, entry in enumerate(search_history):
+                if phrase_lowered == entry.lower():
+                    del search_history[idx]
             search_history.insert(0, search_phrase)
 
             max_size = app.config['USER_SEARCH_HISTORY_MAX_SIZE']
