@@ -4,6 +4,7 @@
     :aria-labelledby="ariaLabelledby"
     :aria-required="required"
     :base-class="disabled ? 'disabled' : 'autocomplete'"
+    :class="{'faint-text': !input}"
     :disabled="disabled"
     :placeholder="placeholder"
     :search="search"

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-hotkey="{'/': () => $putFocusNextTick('search-students-input')}">
     <label class="sr-only" for="search-students-form" role="heading">Search Form</label>
     <form class="mb-3 mt-2 mx-2">
       <div class="align-items-end d-flex flex-wrap font-size-14 text-nowrap text-white">
@@ -278,6 +278,7 @@
             :disabled="disabledSearch"
             :get-suggestions="filterSuggestions"
             :on-submit="search"
+            placeholder="'/' to search"
             :required="searchInputRequired"
             type="search"
           />

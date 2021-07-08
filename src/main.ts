@@ -16,6 +16,7 @@ import VCalendar from 'v-calendar'
 import Vue from 'vue'
 import VueAnnouncer from '@vue-a11y/announcer'
 import VueHighcharts from 'vue-highcharts'
+import VueHotkey from 'v-hotkey'
 import VueLodash from 'vue-lodash'
 import VueMoment from 'vue-moment'
 import {routerHistory, writeHistory} from 'vue-router-back-button'
@@ -40,6 +41,7 @@ Vue.use(BootstrapVue)
 Vue.use(CKEditor)
 Vue.use(VCalendar)
 Vue.use(VueAnnouncer)
+Vue.use(VueHotkey)
 Vue.use(VueLodash, {lodash})
 Vue.use(VueMoment, {moment})
 

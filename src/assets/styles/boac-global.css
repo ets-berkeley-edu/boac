@@ -328,6 +328,9 @@ h1 {
   font-weight: bold;
   margin: 0 0 10px 0;
 }
+input:focus::-webkit-input-placeholder {
+  color: transparent;
+}
 select[data-value=''],
 select option[value=''] {
   color: #999;
