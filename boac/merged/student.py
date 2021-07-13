@@ -493,7 +493,9 @@ def query_students(
         )
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
-        if 'group_name' in o or 'entering_term' in o or 'term_gpa' in o or 'terms_in_attendance' in o:
+
+        nulls_last = ('group_name', 'entering_term', 'term_gpa', 'terms_in_attendance')
+        if any(s in o for s in nulls_last) or ('units' in o and o_direction.lower() == 'desc'):
             o_null_order = 'NULLS LAST'
         else:
             o_null_order = 'NULLS FIRST'
