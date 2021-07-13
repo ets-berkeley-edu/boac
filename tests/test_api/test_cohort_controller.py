@@ -974,7 +974,6 @@ class TestCohortDelete:
 
 
 class TestCohortPerFilters:
-    """Cohort API."""
 
     @classmethod
     def _api_get_students_per_filters(cls, client, json_data=(), expected_status_code=200):
@@ -1092,9 +1091,9 @@ class TestCohortPerFilters:
         assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
 
         defensive_line_by_units_desc = self._get_defensive_line(client, False, 'enrolled_units desc')
-        assert 'term' not in defensive_line_by_units_desc[0]
-        assert defensive_line_by_units_desc[1]['term']['enrolledUnits'] == 7
-        assert defensive_line_by_units_desc[2]['term']['enrolledUnits'] == 5
+        assert defensive_line_by_units_desc[0]['term']['enrolledUnits'] == 7
+        assert defensive_line_by_units_desc[1]['term']['enrolledUnits'] == 5
+        assert 'term' not in defensive_line_by_units_desc[2]
 
         def _fall_2017_gpa(student_feed):
             return next((t['gpa'] for t in student_feed['termGpa'] if t['termName'] == 'Fall 2017'), None)

@@ -88,7 +88,6 @@ def coe_advisor_groups():
 
 
 class TestGetCuratedGroup:
-    """Curated Group API."""
 
     @staticmethod
     def _api_get_curated_group(
@@ -253,10 +252,10 @@ class TestGetCuratedGroup:
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='enrolled_units desc')
         units = [f"{s['term'].get('enrolledUnits') if s.get('term') else None} ({s.get('lastName')})" for s in api_json['students']]
         assert units == [
-            'None (Farestveit)',
             '12.5 (Davies)',
             '7 (Jayaprakash)',
             '5 (Kerschen)',
+            'None (Farestveit)',
         ]
 
     def test_order_by_terms_in_attendance(self, asc_advisor, asc_curated_groups, client):
