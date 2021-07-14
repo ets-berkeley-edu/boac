@@ -30,7 +30,7 @@ AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
 BACKGROUND_TASKS = False
 
-DATA_LOCH_RDS_URI = 'postgres://boac:boac@localhost:5432/boac_loch_test'
+DATA_LOCH_RDS_URI = 'postgresql://boac:boac@localhost:5432/boac_loch_test'
 
 FEATURE_FLAG_DEGREE_CHECK = True
 
@@ -38,6 +38,6 @@ INDEX_HTML = 'tests/static/test-index.html'
 
 LOGGING_LOCATION = 'STDOUT'
 
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac_test'
+SQLALCHEMY_DATABASE_URI = 'postgresql://boac:boac@localhost:5432/boac_test'
 
 TESTING = True

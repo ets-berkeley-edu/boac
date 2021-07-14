@@ -85,7 +85,7 @@ DATA_LOCH_OUA_SCHEMA = 'boac_advising_oua'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
 
 # The Data Loch provides read-only Postgres access.
-DATA_LOCH_RDS_URI = 'postgres://nessie:secret@secret-rds-url.com:5432/canvas'
+DATA_LOCH_RDS_URI = 'postgresql://nessie:secret@secret-rds-url.com:5432/canvas'
 
 DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH = 'sis-attachment-path'
 DATA_LOCH_S3_ADVISING_NOTE_BUCKET = 'advising-note-bucket'
@@ -164,7 +164,7 @@ SECRET_KEY = 'secret'
 SQLALCHEMY_COMMIT_ON_TEARDOWN = True
 
 # Override in local configs.
-SQLALCHEMY_DATABASE_URI = 'postgres://boac:boac@localhost:5432/boac'
+SQLALCHEMY_DATABASE_URI = 'postgresql://boac:boac@localhost:5432/boac'
 
 # Disable an expensive bit of the ORM.
 SQLALCHEMY_TRACK_MODIFICATIONS = False

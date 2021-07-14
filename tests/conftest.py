@@ -106,7 +106,7 @@ def db_session(db):
     try:
         db.session.get_bind().close()
     # The session bind will close only if it was provided a specific connection via this fixture.
-    except AttributeError:
+    except TypeError:
         pass
     db.session.remove()
 

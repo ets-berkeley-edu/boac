@@ -515,13 +515,17 @@ class TestManageSchedulers:
             assert len(response.json[0]['schedulers']) == 1
 
             response = self._remove_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
+            std_commit(allow_test_environment=True)
             assert len(response['schedulers']) == 0
+
             response = client.get('/api/users/appointment_schedulers')
             assert len(response.json[0]['schedulers']) == 0
 
             response = self._add_scheduler(client, l_s_college_scheduler_uid, 'QCADV')
+            std_commit(allow_test_environment=True)
             assert len(response['schedulers']) == 1
             assert response['schedulers'][0]['uid'] == l_s_college_scheduler_uid
+
             response = client.get('/api/users/appointment_schedulers')
             assert len(response.json[0]['schedulers']) == 1
             assert response.json[0]['schedulers'][0]['uid'] == l_s_college_scheduler_uid
