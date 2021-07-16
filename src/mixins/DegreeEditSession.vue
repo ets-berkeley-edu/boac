@@ -23,7 +23,6 @@ export default {
   computed: {
     ...mapGetters('degreeEditSession', [
       'addCourseMenuOptions',
-      'batchSavedAlert',
       'categories',
       'courses',
       'createdAt',
@@ -60,7 +59,6 @@ export default {
       'onDrop',
       'onDragEnd',
       'onDragStart',
-      'setBatchSavedAlert',
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
