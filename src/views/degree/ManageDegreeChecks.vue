@@ -3,16 +3,16 @@
     <Spinner />
     <b-alert
       id="alert-batch-created"
-      :show="!!batchSavedAlert"
-      class="w-100"
+      aria-live="polite"
+      class="align-items-center w-100"
       dismissible
       fade
-      variant="success"
-      aria-live="polite"
       role="alert"
-      @dismissed="setBatchSavedAlert"
+      :show="!!successMessage"
+      variant="success"
+      @dismissed="() => successMessage = null"
     >
-      <span class="font-weight-bolder">Success!</span> {{ batchSavedAlert }}
+      <span class="font-weight-bolder">Success!</span> {{ successMessage }}
     </b-alert>
     <h1 id="page-header" class="page-section-header">
       Degree Checks
@@ -229,6 +229,7 @@ export default {
     deleteModalBody: undefined,
     degreeTemplates: undefined,
     isBusy: false,
+    successMessage: undefined,
     templateForDelete: undefined,
     templateForEdit: undefined,
     templateToClone: undefined
@@ -245,11 +246,9 @@ export default {
   mounted() {
     getDegreeTemplates().then(data => {
       this.degreeTemplates = data
+      this.successMessage = this.$route.query.m
       this.loaded('Managing Degree Checks loaded')
     })
-  },
-  beforeDestroy() {
-    this.setBatchSavedAlert()
   },
   methods: {
     afterClone(clone) {
