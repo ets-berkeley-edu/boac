@@ -463,14 +463,14 @@ export default {
   width: 100px;
 }
 .column-toggle-details {
+  padding-top: 6px !important;
   width: 25px;
 }
 .column-toggle-details-button {
   color: #337ab7;
   height: 15px;
   line-height: 1;
-  margin-right: 10px;
-  padding: 0;
+  padding: 0 !important;
 }
 .column-uid {
   width: 140px;

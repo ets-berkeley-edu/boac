@@ -17,42 +17,43 @@
         | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/notes/download_for_sid/${student.sid}`">Download notes</a>
       </div>
       |
-      <label
-        :id="`timeline-${filter}s-query-label`"
-        :for="`timeline-${filter}s-query-input`"
-        class="mb-0 ml-2 mr-2"
-      >
-        Search {{ $_.capitalize(filter) }}s:
-      </label>
-      <input
-        :id="`timeline-${filter}s-query-input`"
-        v-model="timelineQuery"
-        :aria-labelledby="`timeline-${filter}s-query-label`"
-        class="pl-2 pr-2 timeline-query-input"
-        @keypress.enter.stop="searchTimeline"
-      />
+      <div>
+        <label
+          :id="`timeline-${filter}s-query-label`"
+          :for="`timeline-${filter}s-query-input`"
+          class="mb-0 ml-2 mr-1 text-nowrap"
+        >
+          Search {{ $_.capitalize(filter) }}s:
+        </label>
+      </div>
+      <div>
+        <b-input
+          :id="`timeline-${filter}s-query-input`"
+          v-model="timelineQuery"
+          :aria-labelledby="`timeline-${filter}s-query-label`"
+          class="pl-2 pr-2 timeline-query-input"
+          trim
+          type="search"
+        />
+      </div>
     </div>
 
-    <div v-if="searchResultsLoading" id="timeline-notes-spinner" class="mt-4 text-center">
-      <font-awesome icon="sync" size="3x" spin />
-    </div>
-
-    <div v-if="!searchResultsLoading && !countPerActiveTab" class="pb-4 pl-2">
+    <div v-if="!countPerActiveTab" class="pb-4 pl-2">
       <h3 id="zero-messages" class="messages-none">
         <span v-if="filter">No {{ filterTypes[filter].name.toLowerCase() }}s</span>
         <span v-if="!filter">None</span>
       </h3>
     </div>
 
-    <div v-if="!searchResultsLoading && searchResults" class="mb-2">
+    <div v-if="searchResults" class="ml-3 my-2">
       <h3 id="search-results-header" class="messages-none">
         {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
-        &nbsp;with '{{ lastTimelineQuery }}'
+        with '{{ timelineQuery }}'
       </h3>
     </div>
 
-    <div v-if="!searchResultsLoading && countPerActiveTab">
+    <div v-if="countPerActiveTab">
       <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${$_.capitalize(activeTab)}s` }}</h3>
       <table id="timeline-messages" class="w-100">
         <tr class="sr-only">
@@ -88,7 +89,7 @@
           </td>
         </tr>
         <tr
-          v-for="(message, index) in (searchResults ? filterSearchResults() : (isShowingAll ? messagesPerType(filter) : $_.slice(messagesPerType(filter), 0, defaultShowPerTab)))"
+          v-for="(message, index) in (searchResults || (isShowingAll ? messagesPerType(filter) : $_.slice(messagesPerType(filter), 0, defaultShowPerTab)))"
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
           :class="{'message-row-read': message.read}"
@@ -323,7 +324,6 @@ import Util from '@/mixins/Util'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {getAppointment, markAppointmentRead} from '@/api/appointments'
-import {search} from '@/api/search'
 
 export default {
   name: 'AcademicTimelineTable',
@@ -371,12 +371,11 @@ export default {
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
     isShowingAll: false,
-    lastTimelineQuery: undefined,
     messageForDelete: undefined,
     openMessages: [],
-    searchResults: null,
-    searchResultsLoading: false,
-    timelineQuery: null
+    searchIndex: undefined,
+    searchResults: undefined,
+    timelineQuery: ''
   }),
   computed: {
     activeTab() {
@@ -395,7 +394,7 @@ export default {
       return this.$_.includes(['appointment', 'note'], this.filter)
     },
     offerShowAll() {
-      return !this.searchResults && !this.searchResultsLoading && (this.countPerActiveTab > this.defaultShowPerTab)
+      return !this.searchResults && (this.countPerActiveTab > this.defaultShowPerTab)
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete
@@ -404,25 +403,32 @@ export default {
   watch: {
     filter() {
       this.allExpanded = false
-      this.alertScreenReader(this.describeTheActiveTab())
       this.openMessages = []
-      this.lastTimelineQuery = null
       this.searchResults = null
-      this.timelineQuery = null
+      this.timelineQuery = ''
+      this.alertScreenReader(this.describeTheActiveTab())
+      this.refreshSearchIndex()
     },
     isShowingAll() {
       this.alertScreenReader(this.describeTheActiveTab())
     },
-    searchResultsLoading() {
-      if (this.searchResultsLoading) {
-        this.alertScreenReader(`Searching ${this.filter}s for '${this.timelineQuery}'`)
+    timelineQuery() {
+      if (this.timelineQuery) {
+        const query = this.timelineQuery.replace(/\s/g, '').toLowerCase()
+        const results = []
+        this.$_.each(this.searchIndex, entry => {
+          if (entry.idx.indexOf(query) > -1) {
+            results.push(entry.message)
+          }
+        })
+        this.searchResults = results
       } else {
-        this.alertScreenReader('Search results loaded.')
-        this.$putFocusNextTick(this.searchResults ? 'search-results-header' : 'zero-messages')
+        this.searchResults = null
       }
     }
   },
   created() {
+    this.refreshSearchIndex()
     if (this.$currentUser.canAccessAdvisingData) {
       this.$eventHub.on('begin-note-creation', event => {
         if (this.$_.includes(event.completeSidSet, this.student.sid)) {
@@ -519,7 +525,7 @@ export default {
     },
     describeTheActiveTab() {
       const inViewCount = this.isShowingAll || this.countPerActiveTab <= this.defaultShowPerTab ? this.countPerActiveTab : this.defaultShowPerTab
-      let noun = this.filter ? this.filterTypes[this.filter].name.toLowerCase() : 'message'
+      const noun = this.filter ? this.filterTypes[this.filter].name.toLowerCase() : 'message'
       const pluralize = this.pluralize(noun, inViewCount)
       return this.isShowingAll && inViewCount > this.defaultShowPerTab
         ? `Showing all ${pluralize}`
@@ -531,9 +537,6 @@ export default {
     editNote(note) {
       this.editModeNoteId = note.id
       this.$putFocusNextTick('edit-note-subject')
-    },
-    filterSearchResults() {
-      return this.$_.filter(this.messages, message => this.searchResults.includes(message.id))
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`
@@ -587,38 +590,25 @@ export default {
       this.scrollTo(`#permalink-${messageType}-${messageId}`)
       this.$putFocusNextTick(`message-row-${messageId}`)
     },
-    searchTimeline() {
-      if (this.timelineQuery && this.timelineQuery.length) {
-        this.searchResultsLoading = true
-        let includeAppointments = false
-        let includeNotes = false
-        let appointmentOptions = null
-        let noteOptions = null
-        if (this.filter === 'appointment') {
-          includeAppointments = true
-          appointmentOptions = {studentCsid: this.student.sid}
-        }
-        if (this.filter === 'note') {
-          includeNotes = true
-          noteOptions = {studentCsid: this.student.sid}
-        }
-        search(
-          this.timelineQuery,
-          includeAppointments,
-          false,
-          includeNotes,
-          false,
-          appointmentOptions,
-          noteOptions
-        ).then(data => {
-          const items = this.filter === 'appointment' ? this.$_.get(data, 'appointments') : this.$_.get(data, 'notes')
-          this.searchResults = this.$_.map(items, 'id')
-          this.lastTimelineQuery = this.$_.clone(this.timelineQuery)
-          this.searchResultsLoading = false
-        })
-      } else {
-        this.searchResults = null
-      }
+    refreshSearchIndex() {
+      this.searchIndex = []
+      const messages = ['appointment', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
+      this.$_.each(messages, m => {
+        const idx = [
+          m.author.name,
+          (this.$_.map(m.author.departments || [], 'name')).join(),
+          m.author.email,
+          m.body,
+          m.category,
+          m.createdBy,
+          m.legacySource,
+          m.message,
+          m.subcategory,
+          m.subject,
+          (m.topics || []).join()
+        ].join().replace(/\s/g, '').toLowerCase()
+        this.searchIndex.push({idx: idx.toLowerCase(), message: m})
+      })
     },
     toggleExpandAll() {
       this.isShowingAll = true
