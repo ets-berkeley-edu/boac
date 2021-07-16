@@ -181,7 +181,7 @@
               />
               <div v-if="$_.includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
-                  :id="`timeline-tab-${activeTab}-close-message`"
+                  :id="`${activeTab}-close-message-${message.id}`"
                   variant="link"
                   @keyup.enter.stop="close(message, true)"
                   @click.stop="close(message, true)"
