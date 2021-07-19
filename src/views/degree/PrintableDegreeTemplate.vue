@@ -117,9 +117,7 @@
           <div class="mb-3 mt-2">
             <div class="footer-border pt-3">
               <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-              <div class="font-size-12">
-                {{ degreeNote.body }}
-              </div>
+              <pre>{{ degreeNote.body }}</pre>
             </div>
           </div>
         </b-col>
@@ -173,6 +171,11 @@ export default {
 </script>
 
 <style scoped>
+pre {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  margin: 0;
+}
 .footer-border {
   border-top: 1px #999 solid;
 }

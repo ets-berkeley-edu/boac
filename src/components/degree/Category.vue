@@ -60,7 +60,7 @@
         class="pl-1 py-1"
         :class="{'font-size-12': printable}"
       >
-        {{ category.description }}
+        <pre>{{ category.description }}</pre>
       </div>
     </div>
     <AreYouSureModal
@@ -181,6 +181,10 @@ export default {
 </script>
 
 <style scoped>
+pre {
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  margin: 0;
+}
 .category-header {
   font-weight: bold;
   margin-bottom: 0;
