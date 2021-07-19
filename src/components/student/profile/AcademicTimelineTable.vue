@@ -438,6 +438,7 @@ export default {
       const afterCreateNote = note => {
         this.creatingNoteEvent = null
         this.onCreateNewNote(note)
+        this.refreshSearchIndex()
       }
       this.$eventHub.on('advising-note-created', afterCreateNote)
       this.$eventHub.on('batch-of-notes-created', noteIdsBySid => {
@@ -445,6 +446,7 @@ export default {
         if (noteId) {
           getNote(noteId).then(afterCreateNote)
         }
+        this.refreshSearchIndex()
       })
     }
     this.sortMessages()
@@ -481,6 +483,7 @@ export default {
       note.topics = updatedNote.topics
       note.attachments = updatedNote.attachments
       note.updatedAt = updatedNote.updatedAt
+      this.refreshSearchIndex()
     },
     afterNoteEditCancel() {
       this.editModeNoteId = null
@@ -522,6 +525,7 @@ export default {
       deleteNote(note.id).then(() => {
         this.alertScreenReader('Note deleted')
       })
+      this.refreshSearchIndex()
     },
     describeTheActiveTab() {
       const inViewCount = this.isShowingAll || this.countPerActiveTab <= this.defaultShowPerTab ? this.countPerActiveTab : this.defaultShowPerTab
