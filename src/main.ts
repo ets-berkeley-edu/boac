@@ -70,10 +70,10 @@ const isHandledInComponent = error => {
   return errorUrl && errorUrl.includes('/api/user/create_or_update')
 }
 
-// Axios
 const axiosErrorHandler = error => {
+  const user = Vue.prototype.$currentUser
   const errorStatus = _.get(error, 'response.status')
-  if (_.get(Vue.prototype.$currentUser, 'isAuthenticated')) {
+  if (_.get(user, 'isAuthenticated')) {
     if (errorStatus === 404) {
       router.push({path: '/404'})
     } else if (!errorStatus || errorStatus >= 400) {

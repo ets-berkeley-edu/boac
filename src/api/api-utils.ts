@@ -24,6 +24,13 @@ export default {
                 'Content-Type': 'multipart/form-data'
               }
             })
-        .then(response => response.data)
+        .then(response => {
+          return response.data
+        })
+        .catch(error => {
+          console.log(error)
+          return error
+        }
+      )
   }
 }
