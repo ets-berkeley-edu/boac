@@ -36,7 +36,7 @@ from boac.api.util import (
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
-from boac.lib.util import is_int, process_input_from_rich_text_editor
+from boac.lib.util import get_benchmarker, is_int, process_input_from_rich_text_editor
 from boac.merged.advising_note import (
     get_boa_attachment_stream,
     get_zip_stream_for_sid,
@@ -73,18 +73,23 @@ def mark_note_read(note_id):
 @app.route('/api/notes/create', methods=['POST'])
 @advising_data_access_required
 def create_notes():
+    benchmark = get_benchmarker('create_notes')
     params = request.form
     sids = _get_sids_for_note_creation()
+    benchmark(f'SID count: {len(sids)}')
     subject = params.get('subject', None)
     body = params.get('body', None)
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
+        benchmark('end (BadRequest)')
         raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
     dept_codes = dept_codes_where_advising(current_user)
     if current_user.is_admin or not len(dept_codes):
+        benchmark('end (Forbidden)')
         raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
 
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
+    benchmark(f'Attachment count: {len(attachments)}')
     body = process_input_from_rich_text_editor(body)
     template_attachment_ids = get_template_attachment_ids_from_http_post()
 
@@ -98,9 +103,9 @@ def create_notes():
             attachments=attachments,
             template_attachment_ids=template_attachment_ids,
         )
-        return tolerant_jsonify(_boa_note_to_compatible_json(note, note_read=True))
+        response = tolerant_jsonify(_boa_note_to_compatible_json(note, note_read=True))
     else:
-        return tolerant_jsonify(
+        response = tolerant_jsonify(
             Note.create_batch(
                 author_id=current_user.to_api_json()['id'],
                 **_get_author_profile(),
@@ -112,6 +117,8 @@ def create_notes():
                 template_attachment_ids=template_attachment_ids,
             ),
         )
+    benchmark('end')
+    return response
 
 
 @app.route('/api/notes/update', methods=['POST'])
