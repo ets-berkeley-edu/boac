@@ -50,6 +50,7 @@ export default {
       'assignCourseToCategory',
       'copyCourseAndAssign',
       'createCategory',
+      'createCourse',
       'createUnitRequirement',
       'deleteCategory',
       'deleteCourse',

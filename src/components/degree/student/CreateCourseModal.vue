@@ -1,0 +1,217 @@
+<template>
+  <div>
+    <div class="font-size-14">
+      <b-btn
+        id="create-course-button"
+        class="font-weight-bolder p-0"
+        :disabled="disableButtons"
+        variant="link"
+        @click.prevent="openModal"
+      >
+        <font-awesome class="font-size-16" icon="plus" /> Manually Create New Course<span class="sr-only"> for {{ student.name }}</span>
+      </b-btn>
+    </div>
+    <b-modal
+      v-model="showModal"
+      body-class="pl-0 pr-0"
+      hide-footer
+      hide-header
+      @shown="$putFocusNextTick('modal-header')"
+      @hidden="closeModal"
+    >
+      <div>
+        <ModalHeader text="Create Course" />
+        <div class="modal-body">
+          <div>
+            <label for="course-name-input"><span class="sr-only">Course </span>Name:</label>
+            <b-form-input
+              id="course-name-input"
+              v-model="name"
+              class="cohort-create-input-name"
+              maxlength="255"
+              size="lg"
+            />
+            <div class="faint-text mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+            <div
+              v-if="error"
+              id="create-error"
+              class="has-error"
+              aria-live="polite"
+              role="alert"
+            >
+              {{ error }}
+            </div>
+            <div
+              v-if="name.length === 255"
+              class="sr-only"
+              aria-live="polite"
+            >
+              Course name cannot exceed 255 characters.
+            </div>
+          </div>
+
+          <div class="pb-2">
+            <b-select
+              id="color-code-select"
+              v-model="accentColor"
+            >
+              <b-select-option
+                v-for="colorCode in $config.degreeProgressColorCodes.keys"
+                :id="`accent-color-${colorCode}`"
+                :key="colorCode"
+                :value="colorCode"
+              >
+                {{ colorCode }}
+              </b-select-option>
+            </b-select>
+          </div>
+
+          <div class="pb-2">
+            <UnitsInput
+              :disable="isSaving"
+              :error-message="unitsErrorMessage"
+              input-id="course-units-input"
+              :on-submit="update"
+              :set-units-lower="setUnits"
+              :units-lower="units"
+            />
+          </div>
+          <div>
+            <label :for="`column-0-unit-requirement-select`" class="font-weight-500">
+              Counts Towards Unit Fulfillment
+            </label>
+            <div class="pb-2">
+              <SelectUnitFulfillment
+                :disable="isSaving"
+                :initial-unit-requirements="selectedUnitRequirements"
+                :on-unit-requirements-change="onUnitRequirementsChange"
+                :position="0"
+              />
+            </div>
+          </div>
+          <label for="course-note-textarea" class="font-weight-500 pb-1">
+            Note
+          </label>
+          <div class="pb-2">
+            <b-form-textarea
+              id="course-note-textarea"
+              v-model="note"
+              :disabled="isSaving"
+              rows="4"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <form @submit.prevent="$_.noop">
+            <b-btn
+              id="delete-confirm"
+              class="btn-primary-color-override"
+              variant="primary"
+              @click.prevent="save"
+            >
+              Save
+            </b-btn>
+            <b-btn
+              id="delete-cancel"
+              class="pl-2"
+              variant="link"
+              @click="cancel"
+            >
+              Cancel
+            </b-btn>
+          </form>
+        </div>
+      </div>
+    </b-modal>
+  </div>
+</template>
+
+<script>
+import DegreeEditSession from '@/mixins/DegreeEditSession'
+import ModalHeader from '@/components/util/ModalHeader'
+import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
+import UnitsInput from '@/components/degree/UnitsInput'
+
+export default {
+  name: 'CreateCourseModal',
+  mixins: [DegreeEditSession],
+  components: {ModalHeader, SelectUnitFulfillment, UnitsInput},
+  props: {
+    student: {
+      required: true,
+      type: Object
+    }
+  },
+  data: () => ({
+    accentColor: undefined,
+    error: undefined,
+    grade: undefined,
+    isSaving: false,
+    name: '',
+    note: '',
+    selectedUnitRequirements: [],
+    showModal: false,
+    units: undefined
+  }),
+  computed: {
+    disableSaveButton() {
+      return this.isSaving || !!this.unitsErrorMessage
+    },
+    unitsErrorMessage() {
+      const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
+      return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
+    }
+  },
+  methods: {
+    cancel() {
+      this.closeModal()
+      this.$announcer.polite('Canceled')
+    },
+    closeModal() {
+      this.showModal = false
+      this.setDisableButtons(false)
+    },
+    onUnitRequirementsChange(unitRequirements) {
+      this.selectedUnitRequirements = unitRequirements
+    },
+    openModal() {
+      this.showModal = true
+      this.setDisableButtons(true)
+    },
+    save() {
+      this.createCourse({
+        accentColor: this.accentColor,
+        degreeCheckId: this.templateId,
+        grade: this.grade,
+        name: this.name,
+        note: this.note,
+        sid: this.sid,
+        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+        units: this.units
+      }).then(course => {
+        this.closeModal()
+        this.$announcer.polite(`Course ${course.name} created`)
+      })
+    },
+    setUnits(units) {
+      this.units = units
+    },
+    update() {
+      if (!this.disableSaveButton) {
+        this.isSaving = true
+        this.$_.noop({
+          note: this.note,
+          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+          units: this.units
+        }).then(() => {
+          this.$announcer.polite('Course created')
+          this.setDisableButtons(false)
+        })
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+</style>

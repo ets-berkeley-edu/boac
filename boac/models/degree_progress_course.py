@@ -34,6 +34,16 @@ from boac.models.degree_progress_course_unit_requirement import DegreeProgressCo
 from dateutil.tz import tzutc
 
 
+# TODO: Get hex codes from UX Dept.
+ACCENT_COLOR_CODES = {
+    'Blue': 'blue',
+    'Green': 'green',
+    'Orange': 'orange',
+    'Purple': 'purple',
+    'Red': 'red',
+}
+
+
 class DegreeProgressCourse(Base):
     __tablename__ = 'degree_progress_courses'
 

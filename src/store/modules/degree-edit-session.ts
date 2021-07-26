@@ -4,6 +4,7 @@ import {
   addUnitRequirement,
   assignCourse,
   copyCourseAndAssign,
+  createCourse,
   createDegreeCategory,
   deleteDegreeCategory,
   deleteDegreeCourse,
@@ -186,6 +187,31 @@ const actions = {
         unitsUpper
       ).then(category => {
         $_refresh(commit, state.templateId).then(() => resolve(category))
+      })
+    })
+  },
+  createCourse: ({commit, state}, {
+    accentColor,
+    degreeCheckId,
+    grade,
+    name,
+    note,
+    sid,
+    unitRequirementIds,
+    units
+  }) => {
+    return new Promise(resolve => {
+      createCourse(
+        accentColor,
+        degreeCheckId,
+        grade,
+        name,
+        note,
+        sid,
+        unitRequirementIds,
+        units
+      ).then(course => {
+        $_refresh(commit, state.templateId).then(() => resolve(course))
       })
     })
   },
