@@ -299,6 +299,68 @@ class TestCreateStudentDegreeCheck:
         assert api_json['parentTemplateId'] == mock_template.id
 
 
+class TestCreateCourse:
+
+    @classmethod
+    def _api_create_course(cls, client, degree_check_id, grade, name, sid, units, expected_status_code=200):
+        response = client.post(
+            '/api/degree/course/create',
+            data=json.dumps({
+                'degreeCheckId': degree_check_id,
+                'grade': grade,
+                'name': name,
+                'sid': sid,
+                'units': units,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_create_course(
+            client=client,
+            degree_check_id=1,
+            expected_status_code=401,
+            grade='B+T',
+            name='Math 101, Transfer',
+            sid=coe_student_sid,
+            units=3,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_create_course(
+            client=client,
+            degree_check_id=1,
+            expected_status_code=401,
+            grade='B+T',
+            name='Math 101, Transfer',
+            sid=coe_student_sid,
+            units=3,
+        )
+
+    def test_create_course(self, client, fake_auth, mock_degree_check):
+        """Authorized user can create course."""
+        fake_auth.login(coe_advisor_read_write_uid)
+        api_json = self._api_create_course(
+            client=client,
+            degree_check_id=mock_degree_check.id,
+            grade='B+T',
+            name='Math 101, Transfer',
+            sid=mock_degree_check.student_sid,
+            units=3,
+        )
+        course_id = api_json['id']
+        assert course_id > 0
+        # Verify
+        api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
+        unassigned_courses = api_json['courses']['unassigned']
+        assert next((c for c in unassigned_courses if c['id'] == course_id), None)
+
+
 class TestUpdateCourse:
     """Update course in degree check."""
 
