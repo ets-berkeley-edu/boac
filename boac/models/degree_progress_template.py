@@ -205,14 +205,11 @@ class DegreeProgressTemplate(Base):
         unassigned_courses = []
         degree_progress_courses = {}
         sid = self.student_sid
-        # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
-        courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
-        courses = sorted(courses, key=lambda c: c.created_at)
 
-        def _key(section_id_, term_id_):
-            return f'{section_id_}_{term_id_}'
-        for course in courses:
-            key = _key(course.section_id, course.term_id)
+        # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
+        degree_courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
+        for course in sorted(degree_courses, key=lambda c: c.created_at):
+            key = f'{course.section_id}_{course.term_id}'
             if key not in degree_progress_courses:
                 degree_progress_courses[key] = []
             degree_progress_courses[key].append(course)
@@ -221,6 +218,22 @@ class DegreeProgressTemplate(Base):
             sid=sid,
             latest_term_id=current_term_id(),
         )
+
+        def _organize_courses(key_):
+            courses_ = degree_progress_courses.pop(key_)
+            for idx, course_ in enumerate(courses_):
+                api_json = {
+                    **course_.to_api_json(),
+                    **{'sis': sis},
+                    'isCopy': idx > 0,
+                }
+                if api_json['categoryId']:
+                    assigned_courses.append(api_json)
+                elif api_json['ignore']:
+                    ignored_courses.append(api_json)
+                else:
+                    unassigned_courses.append(api_json)
+
         for index, term in enumerate(merge_enrollment_terms(enrollments)):
             for enrollment in term.get('enrollments', []):
                 for section in enrollment['sections']:
@@ -229,20 +242,9 @@ class DegreeProgressTemplate(Base):
                     units = section['units']
                     # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
                     sis = {'units': units}
-                    key = _key(section_id, term_id)
+                    key = f'{section_id}_{term_id}'
                     if key in degree_progress_courses:
-                        for idx, course in enumerate(degree_progress_courses[key]):
-                            course_json = {
-                                **course.to_api_json(),
-                                **{'sis': sis},
-                                'isCopy': idx > 0,
-                            }
-                            if course_json['categoryId']:
-                                assigned_courses.append(course_json)
-                            elif course_json['ignore']:
-                                ignored_courses.append(course_json)
-                            else:
-                                unassigned_courses.append(course_json)
+                        _organize_courses(key)
                     else:
                         grade = section['grade']
                         if section.get('primary') and grade and units:
@@ -260,6 +262,9 @@ class DegreeProgressTemplate(Base):
                                 **{'sis': sis},
                                 'isCopy': False,
                             })
+        for key in list(degree_progress_courses.keys()):
+            _organize_courses(key)
+
         return assigned_courses, ignored_courses, unassigned_courses
 
 

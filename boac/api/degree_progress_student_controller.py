@@ -230,6 +230,39 @@ def get_students(template_id):
     return tolerant_jsonify([_to_api_json(student) for student in students])
 
 
+@app.route('/api/degree/course/create', methods=['POST'])
+@can_edit_degree_progress
+def create_course():
+    params = request.get_json()
+    degree_check_id = get_param(params, 'degreeCheckId')
+    grade = get_param(params, 'grade')
+    name = get_param(params, 'name')
+    note = get_param(params, 'note')
+    sid = get_param(params, 'sid')
+    value = get_param(request.get_json(), 'unitRequirementIds')
+    unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
+    units = get_param(params, 'units')
+
+    if 0 in map(lambda v: len(str(v).strip()) if v else 0, (grade, name, sid, units)):
+        raise BadRequestError('Missing one or more required parameters')
+    course = DegreeProgressCourse.create(
+        accent_color=_normalize_accent_color(get_param(params, 'accentColor')),
+        degree_check_id=degree_check_id,
+        display_name=name,
+        grade=grade,
+        manually_created_by=current_user.get_id(),
+        note=note,
+        section_id=None,
+        sid=sid,
+        term_id=None,
+        unit_requirement_ids=unit_requirement_ids or (),
+        units=units,
+    )
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+    return tolerant_jsonify(course.to_api_json())
+
+
 @app.route('/api/degree/course/<course_id>/update', methods=['POST'])
 @can_edit_degree_progress
 def update_course(course_id):
@@ -278,3 +311,9 @@ def _can_accept_course_requirements(category):
 def _get_category_children(category_id, category_type):
     children = DegreeProgressCategory.find_by_parent_category_id(category_id)
     return list(filter(lambda c: c.category_type == category_type, children))
+
+
+def _normalize_accent_color(color):
+    if color:
+        capitalized = color.capitalize()
+        return capitalized if capitalized in ['Blue', 'Green', 'Orange', 'Purple', 'Red'] else None
