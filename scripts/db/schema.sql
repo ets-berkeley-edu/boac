@@ -445,15 +445,18 @@ CREATE INDEX degree_progress_categories_id_idx ON degree_progress_categories USI
 
 CREATE TABLE degree_progress_courses (
   id integer NOT NULL,
+  accent_color VARCHAR(255),
   category_id INTEGER,
   degree_check_id INTEGER,
+  display_name VARCHAR(255) NOT NULL,
   grade VARCHAR(50) NOT NULL,
-  display_name character varying(255) NOT NULL,
   ignore BOOLEAN NOT NULL,
+  manually_created_at TIMESTAMP WITH TIME ZONE,
+  manually_created_by INTEGER,
   note text,
-  section_id INTEGER NOT NULL,
+  section_id INTEGER,
   sid VARCHAR(80) NOT NULL,
-  term_id INTEGER NOT NULL,
+  term_id INTEGER,
   units NUMERIC NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
@@ -471,8 +474,11 @@ ALTER TABLE ONLY degree_progress_courses ALTER COLUMN id SET DEFAULT nextval('de
 ALTER TABLE ONLY degree_progress_courses
     ADD CONSTRAINT degree_progress_courses_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY degree_progress_courses
+    ADD CONSTRAINT degree_progress_courses_manually_created_by_fkey
+    FOREIGN KEY (manually_created_by) REFERENCES authorized_users(id) ON DELETE CASCADE;
+ALTER TABLE ONLY degree_progress_courses
     ADD CONSTRAINT degree_progress_courses_category_id_course_unique_constraint
-    UNIQUE (category_id, degree_check_id, section_id, sid, term_id);
+    UNIQUE (category_id, degree_check_id, display_name, section_id, sid, term_id);
 
 --
 
