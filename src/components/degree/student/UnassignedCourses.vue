@@ -74,18 +74,33 @@
                 {{ course.note || '&mdash;' }}
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
-                <div v-if="!isUserDragging(course.id)">
-                  <b-btn
-                    :id="`edit-${key}-course-${course.id}-btn`"
-                    class="font-size-14 pl-0 pr-1 py-0"
-                    :disabled="disableButtons"
-                    size="sm"
-                    variant="link"
-                    @click="edit(course)"
-                  >
-                    <font-awesome icon="edit" />
-                    <span class="sr-only">Edit {{ course.name }}</span>
-                  </b-btn>
+                <div v-if="!isUserDragging(course.id)" class="d-flex">
+                  <div v-if="course.manuallyCreatedBy">
+                    <b-btn
+                      :id="`delete-${course.id}-btn`"
+                      class="pl-0 pr-1 py-0"
+                      :disabled="disableButtons"
+                      size="sm"
+                      variant="link"
+                      @click="onDelete(course)"
+                    >
+                      <font-awesome icon="trash-alt" />
+                      <span class="sr-only">Delete {{ course.name }}</span>
+                    </b-btn>
+                  </div>
+                  <div>
+                    <b-btn
+                      :id="`edit-${key}-course-${course.id}-btn`"
+                      class="font-size-14 pl-0 pr-1 py-0"
+                      :disabled="disableButtons"
+                      size="sm"
+                      variant="link"
+                      @click="edit(course)"
+                    >
+                      <font-awesome icon="edit" />
+                      <span class="sr-only">Edit {{ course.name }}</span>
+                    </b-btn>
+                  </div>
                 </div>
               </td>
             </b-tr>
@@ -103,10 +118,20 @@
         </b-tbody>
       </b-table-simple>
     </div>
+    <AreYouSureModal
+      v-if="courseForDelete"
+      :function-cancel="deleteCanceled"
+      :function-confirm="deleteConfirmed"
+      :modal-body="`Are you sure you want to delete <strong>&quot;${courseForDelete.name}&quot;</strong>?`"
+      :show-modal="!!courseForDelete"
+      button-label-confirm="Delete"
+      modal-header="Delete Course"
+    />
   </div>
 </template>
 
 <script>
+import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
@@ -115,7 +140,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'UnassignedCourses',
   mixins: [DegreeEditSession, Util],
-  components: {CourseAssignmentMenu, EditCourse},
+  components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
   props: {
     ignored: {
       required: false,
@@ -123,6 +148,7 @@ export default {
     }
   },
   data: () => ({
+    courseForDelete: undefined,
     courseForEdit: undefined,
     hoverCourseId: undefined,
     key: undefined
@@ -153,8 +179,27 @@ export default {
     canDrag() {
       return !this.disableButtons && this.$currentUser.canEditDegreeProgress
     },
+    deleteCanceled() {
+      this.$putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
+      this.courseForDelete = null
+      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.setDisableButtons(false)
+    },
+    deleteConfirmed() {
+      this.deleteCourse(this.courseForDelete.id).then(() => {
+        this.$announcer.polite(`${this.courseForDelete.name} deleted.`)
+        this.courseForDelete = null
+        this.setDisableButtons(false)
+        this.$putFocusNextTick('create-course-button')
+      })
+    },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
+    },
+    onDelete(course) {
+      this.setDisableButtons(true)
+      this.courseForDelete = course
+      this.$announcer.polite(`Delete ${course.name}`)
     },
     onDrag(event, stage, course) {
       switch (stage) {

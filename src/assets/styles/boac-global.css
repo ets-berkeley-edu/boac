@@ -1,3 +1,18 @@
+.accent-color-blue {
+  color: #005c91;
+}
+.accent-color-green {
+  color: #36a600;
+}
+.accent-color-orange {
+  color: #e48600;
+}
+.accent-color-purple {
+  color: #b300c5;
+}
+.accent-color-red {
+  color: #d0021b;
+}
 .align-items-center {
   align-items: center;
 }

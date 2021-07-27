@@ -1,5 +1,37 @@
 <template>
-  <div id="edit-unassigned-course" class="pb-3">
+  <div id="edit-unassigned-course" class="pb-2">
+    <div v-if="course.manuallyCreatedBy && !course.isCopy">
+      <label
+        for="course-name-input"
+        class="font-weight-bolder mb-1"
+      >
+        <span class="sr-only">Course </span>Name
+      </label>
+      <b-form-input
+        id="course-name-input"
+        v-model="name"
+        class="cohort-create-input-name"
+        maxlength="255"
+        size="md"
+      />
+      <div class="faint-text mb-2"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+      <div
+        v-if="error"
+        id="create-error"
+        class="has-error"
+        aria-live="polite"
+        role="alert"
+      >
+        {{ error }}
+      </div>
+      <div
+        v-if="name.length === 255"
+        class="sr-only"
+        aria-live="polite"
+      >
+        Course name cannot exceed 255 characters.
+      </div>
+    </div>
     <div class="pb-2">
       <UnitsInput
         :disable="isSaving"
@@ -9,6 +41,47 @@
         :set-units-lower="setUnits"
         :units-lower="units"
       />
+    </div>
+    <div v-if="course.manuallyCreatedBy" class="pb-2">
+      <label id="units-grade-label" for="course-grade-input" class="font-weight-bolder mb-1 pr-2">
+        Grade
+      </label>
+      <b-form-input
+        id="course-grade-input"
+        v-model="grade"
+        aria-labelledby="units-grade-label"
+        class="grade-input"
+        maxlength="3"
+        size="sm"
+        trim
+        @keypress.enter="update"
+      />
+    </div>
+    <div v-if="course.manuallyCreatedBy" class="pb-2">
+      <label
+        for="color-code-select"
+        class="font-weight-bolder"
+      >
+        Color Code
+      </label>
+      <b-select
+        id="color-code-select"
+        v-model="accentColor"
+        size="md"
+      >
+        <b-form-select-option :value="undefined">Choose...</b-form-select-option>
+        <b-select-option
+          v-for="(hexCode, colorName) in $config.degreeProgressColorCodes"
+          :id="`accent-color-${colorName.toLowerCase()}`"
+          :key="hexCode"
+          :style="`color: ${colorName.toLowerCase()}`"
+          :value="colorName"
+        >
+          <div>
+            <font-awesome icon="square" /> {{ colorName }}
+          </div>
+        </b-select-option>
+      </b-select>
     </div>
     <div v-if="course.categoryId">
       <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
@@ -23,10 +96,10 @@
         />
       </div>
     </div>
-    <label for="course-note-textarea" class="font-weight-500 pb-1">
+    <label for="course-note-textarea" class="font-weight-500 pb-0">
       Note
     </label>
-    <div class="pb-2">
+    <div class="pb-3">
       <b-form-textarea
         id="course-note-textarea"
         v-model="note"
@@ -95,7 +168,11 @@ export default {
     }
   },
   data: () => ({
+    accentColor: undefined,
+    error: undefined,
+    grade: undefined,
     isSaving: false,
+    name: undefined,
     note: '',
     selectedUnitRequirements: [],
     units: undefined
@@ -110,6 +187,9 @@ export default {
     }
   },
   created() {
+    this.accentColor = this.course.accentColor
+    this.grade = this.course.grade
+    this.name = this.course.name
     this.note = this.course.note
     this.units = this.course.units
     this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
@@ -130,7 +210,10 @@ export default {
       if (!this.disableSaveButton) {
         this.isSaving = true
         this.updateCourse({
+          accentColor: this.accentColor,
           courseId: this.course.id,
+          grade: this.grade,
+          name: this.name,
           note: this.note,
           unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
           units: this.units
@@ -143,3 +226,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.grade-input {
+  width: 3rem;
+}
+</style>

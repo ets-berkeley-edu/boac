@@ -126,8 +126,23 @@ export function getStudents(templateId: number, sids: number[]) {
   ).then(response => response.data, () => null)
 }
 
-export function updateCourse(courseId: number, note: string, unitRequirementIds: number[], units: number) {
-  const data = {note, unitRequirementIds, units}
+export function updateCourse(
+  accentColor: string,
+  courseId: number,
+  grade: string,
+  name: string,
+  note: string,
+  unitRequirementIds: number[],
+  units: number
+) {
+  const data = {
+    accentColor,
+    grade,
+    name,
+    note,
+    unitRequirementIds,
+    units
+  }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/update`, data).then(response => response.data, () => null)
 }
 

@@ -304,9 +304,25 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
-  updateCourse: ({commit, state}, {courseId, note, unitRequirementIds, units}) => {
+  updateCourse: ({commit, state}, {
+    accentColor,
+    grade,
+    courseId,
+    name,
+    note,
+    unitRequirementIds,
+    units
+  }) => {
     return new Promise(resolve => {
-      updateCourse(courseId, note, unitRequirementIds, units).then(data => {
+      updateCourse(
+        accentColor,
+        courseId,
+        grade,
+        name,
+        note,
+        unitRequirementIds,
+        units
+      ).then(data => {
         $_refresh(commit, state.templateId).then(() => resolve(data))
       })
     })

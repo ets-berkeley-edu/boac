@@ -205,8 +205,15 @@ export default {
       this.$announcer.polite('Canceled')
     },
     closeModal() {
+      this.accentColor = undefined,
+      this.error = undefined
+      this.grade = undefined
       this.isSaving = false
+      this.name = ''
+      this.note = ''
+      this.selectedUnitRequirements = []
       this.showModal = false
+      this.units = undefined
       this.setDisableButtons(false)
     },
     onUnitRequirementsChange(unitRequirements) {
@@ -230,6 +237,7 @@ export default {
         }).then(course => {
           this.closeModal()
           this.$announcer.polite(`Course ${course.name} created`)
+          this.$putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
         })
       }
     },
@@ -241,21 +249,6 @@ export default {
 </script>
 
 <style scoped>
-.accent-color-blue {
-  color: #005c91;
-}
-.accent-color-green {
-  color: #36a600;
-}
-.accent-color-orange {
-  color: #e48600;
-}
-.accent-color-purple {
-  color: #b300c5;
-}
-.accent-color-red {
-  color: #d0021b;
-}
 .grade-input {
   width: 3rem;
 }
