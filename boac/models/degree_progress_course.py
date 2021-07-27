@@ -23,8 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
-
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
 from boac.lib.util import is_int
@@ -102,7 +100,9 @@ class DegreeProgressCourse(Base):
         self.ignore = ignore
         self.manually_created_by = manually_created_by
         if self.manually_created_by and not manually_created_at:
-            self.manually_created_at = datetime.now()
+            raise ValueError('manually_created_at is required if manually_created_by is present.')
+        else:
+            self.manually_created_at = manually_created_at
         self.note = note
         self.section_id = section_id
         self.sid = sid
@@ -195,9 +195,11 @@ class DegreeProgressCourse(Base):
         return cls.query.filter_by(degree_check_id=degree_check_id, sid=sid).all()
 
     @classmethod
-    def get_courses(cls, degree_check_id, section_id, sid, term_id):
+    def get_courses(cls, degree_check_id, manually_created_at, manually_created_by, section_id, sid, term_id):
         return cls.query.filter_by(
             degree_check_id=degree_check_id,
+            manually_created_at=manually_created_at,
+            manually_created_by=manually_created_by,
             section_id=section_id,
             sid=sid,
             term_id=term_id,

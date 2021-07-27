@@ -5,12 +5,10 @@ export function addUnitRequirement(templateId: number, name: string, minUnits: n
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/unit_requirement`, {name, minUnits}).then(response => response.data, () => null)
 }
 
-export function copyCourseAndAssign(categoryId, sectionId, sid, termId) {
+export function copyCourse(categoryId, courseId) {
   const data = {
     categoryId,
-    sectionId,
-    sid,
-    termId,
+    courseId
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, data).then(response => response.data, () => null)
 }

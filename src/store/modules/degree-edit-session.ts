@@ -3,7 +3,7 @@ import Vue from 'vue'
 import {
   addUnitRequirement,
   assignCourse,
-  copyCourseAndAssign,
+  copyCourse,
   createCourse,
   createDegreeCategory,
   deleteDegreeCategory,
@@ -156,11 +156,10 @@ const actions = {
       })
     })
   },
-  copyCourseAndAssign: ({commit, state}, {categoryId, sectionId, sid, termId}) => {
+  copyCourse: ({commit, state}, {categoryId, courseId}) => {
     return new Promise(resolve => {
-      copyCourseAndAssign(categoryId, sectionId, sid, termId).then(course => {
-        $_refresh(commit, state.templateId)
-        resolve(course)
+      copyCourse(categoryId, courseId).then(course => {
+        $_refresh(commit, state.templateId).then(() => resolve(course))
       })
     })
   },

@@ -23,6 +23,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import can_edit_degree_progress, can_read_degree_progress
@@ -64,15 +66,22 @@ def create_degree_check(sid):
 def copy_course():
     params = request.get_json()
     category_id = to_int_or_none(get_param(params, 'categoryId'))
-    section_id = to_int_or_none(get_param(params, 'sectionId'))
-    sid = get_param(params, 'sid')
-    term_id = to_int_or_none(get_param(params, 'termId'))
-    if False in [is_int(v) for v in (category_id, section_id, sid, term_id)]:
-        raise BadRequestError('category_id, section_id, sid, and term_id are required.')
+    category = category_id and DegreeProgressCategory.find_by_id(category_id)
+    if not category:
+        raise ResourceNotFoundError('Category not found.')
+    course_id = to_int_or_none(get_param(params, 'courseId'))
+    course = DegreeProgressCourse.find_by_id(course_id)
+    if not course:
+        raise ResourceNotFoundError('Course not found.')
 
-    category = DegreeProgressCategory.find_by_id(category_id)
+    sid = course.sid
+    section_id = course.section_id
+    term_id = course.term_id
+    degree_check_id = category.template_id
     courses = DegreeProgressCourse.get_courses(
-        degree_check_id=category.template_id,
+        degree_check_id=degree_check_id,
+        manually_created_at=course.manually_created_at,
+        manually_created_by=course.manually_created_by,
         section_id=section_id,
         sid=sid,
         term_id=term_id,
@@ -99,14 +108,14 @@ def copy_course():
         course = courses[0]
         course = DegreeProgressCourse.create(
             accent_color=course.accent_color,
-            degree_check_id=category.template_id,
+            degree_check_id=degree_check_id,
             display_name=course.display_name,
             grade=course.grade,
             manually_created_at=course.manually_created_at,
             manually_created_by=course.manually_created_by,
-            section_id=course.section_id,
-            sid=course.sid,
-            term_id=course.term_id,
+            section_id=section_id,
+            sid=sid,
+            term_id=term_id,
             unit_requirement_ids=[u.unit_requirement_id for u in course.unit_requirements],
             units=course.units,
         )
@@ -114,7 +123,7 @@ def copy_course():
             category_type='Placeholder: Course Copy',
             name=course.display_name,
             position=category.position,
-            template_id=category.template_id,
+            template_id=degree_check_id,
             course_units_lower=course.units,
             course_units_upper=course.units,
             parent_category_id=category.id,
@@ -132,19 +141,29 @@ def delete_course(course_id):
         # Verify that course is a copy
         matches = DegreeProgressCourse.get_courses(
             degree_check_id=course.degree_check_id,
+            manually_created_at=course.manually_created_at,
+            manually_created_by=course.manually_created_by,
             section_id=course.section_id,
             sid=course.sid,
             term_id=course.term_id,
         )
-        matches = sorted(matches, key=lambda c: c.created_at)
-        if not course.manually_created_by and matches[0].id == course.id:
-            raise BadRequestError('Only copied courses can be deleted.')
 
-        category = DegreeProgressCategory.find_by_id(course.category_id)
-        DegreeProgressCourseUnitRequirement.delete(course.id)
-        DegreeProgressCourse.delete(course)
-        if category and 'Placeholder' in category.category_type:
-            DegreeProgressCategory.delete(category_id=category.id)
+        def _delete_course(c):
+            category = DegreeProgressCategory.find_by_id(c.category_id)
+            DegreeProgressCourseUnitRequirement.delete(c.id)
+            DegreeProgressCourse.delete(c)
+            if category and 'Placeholder' in category.category_type:
+                DegreeProgressCategory.delete(category_id=category.id)
+
+        matches = sorted(matches, key=lambda c: c.created_at)
+        if matches[0].id == course.id:
+            if course.manually_created_by:
+                for match in matches:
+                    _delete_course(match)
+            else:
+                raise BadRequestError('Only copied courses can be deleted.')
+        else:
+            _delete_course(course)
 
         # Update updated_at date of top-level record
         DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
@@ -175,6 +194,8 @@ def assign_course(course_id):
             # When user un-assigns a course we delete all copies of that course,.
             for copy_of_course in DegreeProgressCourse.get_courses(
                     degree_check_id=course.degree_check_id,
+                    manually_created_at=course.manually_created_at,
+                    manually_created_by=course.manually_created_by,
                     section_id=course.section_id,
                     sid=course.sid,
                     term_id=course.term_id,
@@ -254,6 +275,7 @@ def create_course():
         degree_check_id=degree_check_id,
         display_name=name,
         grade=grade,
+        manually_created_at=datetime.now(),
         manually_created_by=current_user.get_id(),
         note=note,
         section_id=None,

@@ -3,7 +3,7 @@
     <div class="font-size-14">
       <b-btn
         id="create-course-button"
-        class="font-weight-bolder p-0"
+        class="font-weight-500 p-0"
         :disabled="disableButtons"
         variant="link"
         @click.prevent="openModal"
@@ -134,7 +134,7 @@
         <div class="modal-footer pb-0">
           <form @submit.prevent="$_.noop">
             <b-btn
-              id="delete-confirm"
+              id="create-course-save-btn"
               class="btn-primary-color-override"
               :disabled="disableSaveButton"
               variant="primary"
@@ -143,7 +143,7 @@
               Save
             </b-btn>
             <b-btn
-              id="delete-cancel"
+              id="create-course-cancel-btn"
               class="pl-2"
               variant="link"
               @click="cancel"
