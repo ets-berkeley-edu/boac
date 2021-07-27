@@ -192,22 +192,20 @@ const actions = {
   },
   createCourse: ({commit, state}, {
     accentColor,
-    degreeCheckId,
     grade,
     name,
     note,
-    sid,
     unitRequirementIds,
     units
   }) => {
     return new Promise(resolve => {
       createCourse(
         accentColor,
-        degreeCheckId,
+        state.templateId,
         grade,
         name,
         note,
-        sid,
+        state.sid,
         unitRequirementIds,
         units
       ).then(course => {

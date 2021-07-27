@@ -243,7 +243,7 @@ def create_course():
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
     units = get_param(params, 'units')
 
-    if 0 in map(lambda v: len(str(v).strip()) if v else 0, (grade, name, sid, units)):
+    if 0 in map(lambda v: len(str(v).strip()) if v else 0, (name, sid, units)):
         raise BadRequestError('Missing one or more required parameters')
     course = DegreeProgressCourse.create(
         accent_color=_normalize_accent_color(get_param(params, 'accentColor')),
