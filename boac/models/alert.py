@@ -33,7 +33,7 @@ from boac.api.errors import BadRequestError
 from boac.externals import data_loch
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS, section_is_eligible_for_alerts, term_name_for_sis_id
 from boac.lib.util import camelize, unix_timestamp_to_localtime, utc_timestamp_to_localtime
-from boac.merged.sis_terms import current_term_id
+from boac.merged.sis_terms import current_term_id, current_term_name
 from boac.merged.student import get_academic_standing_by_sid
 from boac.models.base import Base
 from boac.models.db_relationships import AlertView
@@ -280,7 +280,7 @@ class Alert(Base):
     def infrequent_activity_alerts_enabled(cls):
         if not app.config['ALERT_INFREQUENT_ACTIVITY_ENABLED']:
             return False
-        if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
+        if current_term_name().startswith('Summer'):
             return False
         days_into_session = (datetime.date(datetime.today()) - _get_current_term_start()).days
         return days_into_session >= app.config['ALERT_INFREQUENT_ACTIVITY_DAYS']
@@ -289,7 +289,7 @@ class Alert(Base):
     def no_activity_alerts_enabled(cls):
         if not app.config['ALERT_NO_ACTIVITY_ENABLED']:
             return False
-        if app.config['CANVAS_CURRENT_ENROLLMENT_TERM'].startswith('Summer'):
+        if current_term_name().startswith('Summer'):
             return False
         days_into_session = (datetime.date(datetime.today()) - _get_current_term_start()).days
         return days_into_session >= app.config['ALERT_NO_ACTIVITY_DAYS_INTO_SESSION']
