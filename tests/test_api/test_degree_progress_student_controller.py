@@ -362,7 +362,6 @@ class TestCreateCourse:
 
 
 class TestUpdateCourse:
-    """Update course in degree check."""
 
     @classmethod
     def _api_update_course(cls, client, course_id, units, expected_status_code=200):

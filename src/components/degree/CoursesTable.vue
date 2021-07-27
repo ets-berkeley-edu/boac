@@ -151,7 +151,7 @@
                     <span class="sr-only">Edit {{ bundle.name }}</span>
                   </b-btn>
                   <b-btn
-                    v-if="!sid || (bundle.course && bundle.course.isCopy)"
+                    v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy))"
                     :id="`column-${position}-delete-${bundle.key}-btn`"
                     class="pl-0 pr-1 py-0"
                     :disabled="disableButtons"

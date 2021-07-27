@@ -98,9 +98,12 @@ def copy_course():
         # Create a new course instance and a new 'Course Requirement'.
         course = courses[0]
         course = DegreeProgressCourse.create(
+            accent_color=course.accent_color,
             degree_check_id=category.template_id,
             display_name=course.display_name,
             grade=course.grade,
+            manually_created_at=course.manually_created_at,
+            manually_created_by=course.manually_created_by,
             section_id=course.section_id,
             sid=course.sid,
             term_id=course.term_id,
@@ -134,17 +137,17 @@ def delete_course(course_id):
             term_id=course.term_id,
         )
         matches = sorted(matches, key=lambda c: c.created_at)
-        if matches[0].id == course.id:
+        if not course.manually_created_by and matches[0].id == course.id:
             raise BadRequestError('Only copied courses can be deleted.')
 
         category = DegreeProgressCategory.find_by_id(course.category_id)
         DegreeProgressCourseUnitRequirement.delete(course.id)
         DegreeProgressCourse.delete(course)
-        if 'Placeholder' in category.category_type:
+        if category and 'Placeholder' in category.category_type:
             DegreeProgressCategory.delete(category_id=category.id)
 
         # Update updated_at date of top-level record
-        DegreeProgressTemplate.refresh_updated_at(category.template_id)
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
         return tolerant_jsonify({'message': f'Course {course_id} deleted'}), 200
     else:
         raise ResourceNotFoundError('Course not found.')
@@ -234,6 +237,7 @@ def get_students(template_id):
 @can_edit_degree_progress
 def create_course():
     params = request.get_json()
+    accent_color = _normalize_accent_color(get_param(params, 'accentColor'))
     degree_check_id = get_param(params, 'degreeCheckId')
     grade = get_param(params, 'grade')
     name = get_param(params, 'name')
@@ -246,7 +250,7 @@ def create_course():
     if 0 in map(lambda v: len(str(v).strip()) if v else 0, (name, sid, units)):
         raise BadRequestError('Missing one or more required parameters')
     course = DegreeProgressCourse.create(
-        accent_color=_normalize_accent_color(get_param(params, 'accentColor')),
+        accent_color=accent_color,
         degree_check_id=degree_check_id,
         display_name=name,
         grade=grade,
@@ -266,23 +270,33 @@ def create_course():
 @app.route('/api/degree/course/<course_id>/update', methods=['POST'])
 @can_edit_degree_progress
 def update_course(course_id):
-    params = request.get_json()
-    note = get_param(params, 'note')
-    # Courses are mapped to degree_progress_unit_requirements
-    value = get_param(request.get_json(), 'unitRequirementIds')
-    unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
-    units = get_param(params, 'units')
-    if units is None:
-        raise BadRequestError('units parameter is required.')
-    course = DegreeProgressCourse.update(
-        course_id=course_id,
-        note=note,
-        unit_requirement_ids=unit_requirement_ids,
-        units=units,
-    )
-    # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
-    return tolerant_jsonify(course.to_api_json())
+    course = DegreeProgressCourse.find_by_id(course_id)
+    if course:
+        params = request.get_json()
+        accent_color = _normalize_accent_color(get_param(params, 'accentColor'))
+        grade = get_param(params, 'grade') or course.grade
+        name = get_param(params, 'name') or course.display_name
+        note = get_param(params, 'note')
+        # Courses are mapped to degree_progress_unit_requirements
+        value = get_param(request.get_json(), 'unitRequirementIds')
+        unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
+        units = get_param(params, 'units')
+        if name is None or units is None:
+            raise BadRequestError('units parameter is required.')
+        course = DegreeProgressCourse.update(
+            accent_color=accent_color,
+            course_id=course_id,
+            grade=grade,
+            name=name,
+            note=note,
+            unit_requirement_ids=unit_requirement_ids,
+            units=units,
+        )
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+        return tolerant_jsonify(course.to_api_json())
+    else:
+        raise ResourceNotFoundError('Course not found.')
 
 
 @app.route('/api/degree/<degree_check_id>/note', methods=['POST'])

@@ -70,7 +70,8 @@ class DegreeProgressCourse(Base):
     __table_args__ = (db.UniqueConstraint(
         'category_id',
         'degree_check_id',
-        'display_name',
+        'manually_created_at',
+        'manually_created_by',
         'section_id',
         'sid',
         'term_id',
@@ -89,6 +90,7 @@ class DegreeProgressCourse(Base):
             accent_color=None,
             category_id=None,
             ignore=False,
+            manually_created_at=None,
             manually_created_by=None,
             note=None,
     ):
@@ -99,7 +101,7 @@ class DegreeProgressCourse(Base):
         self.grade = grade
         self.ignore = ignore
         self.manually_created_by = manually_created_by
-        if self.manually_created_by:
+        if self.manually_created_by and not manually_created_at:
             self.manually_created_at = datetime.now()
         self.note = note
         self.section_id = section_id
@@ -146,6 +148,7 @@ class DegreeProgressCourse(Base):
             units,
             accent_color=None,
             category_id=None,
+            manually_created_at=None,
             manually_created_by=None,
             note=None,
             unit_requirement_ids=(),
@@ -156,6 +159,7 @@ class DegreeProgressCourse(Base):
             degree_check_id=degree_check_id,
             display_name=display_name,
             grade=grade,
+            manually_created_at=manually_created_at,
             manually_created_by=manually_created_by,
             note=note,
             section_id=section_id,
@@ -209,10 +213,22 @@ class DegreeProgressCourse(Base):
         return course
 
     @classmethod
-    def update(cls, course_id, note, units, unit_requirement_ids):
+    def update(
+            cls,
+            accent_color,
+            course_id,
+            grade,
+            name,
+            note,
+            units,
+            unit_requirement_ids,
+    ):
         course = cls.query.filter_by(id=course_id).first()
-        course.units = units
+        course.accent_color = accent_color
+        course.grade = grade
+        course.display_name = name
         course.note = note
+        course.units = units
 
         existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_course_id(course_id)
         existing_unit_requirement_id_set = set([u.unit_requirement_id for u in existing_unit_requirements])
