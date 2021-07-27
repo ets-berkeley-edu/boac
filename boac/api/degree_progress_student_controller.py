@@ -30,7 +30,7 @@ from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
-from boac.models.degree_progress_course import DegreeProgressCourse
+from boac.models.degree_progress_course import ACCENT_COLOR_CODES, DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
@@ -316,4 +316,4 @@ def _get_category_children(category_id, category_type):
 def _normalize_accent_color(color):
     if color:
         capitalized = color.capitalize()
-        return capitalized if capitalized in ['Blue', 'Green', 'Orange', 'Purple', 'Red'] else None
+        return capitalized if capitalized in list(ACCENT_COLOR_CODES.keys()) else None

@@ -24,6 +24,29 @@ export function cloneDegreeTemplate(templateId: number, name: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/clone`, {name}).then(response => response.data, () => null)
 }
 
+export function createCourse(
+  accentColor: string,
+  degreeCheckId: number,
+  grade: string,
+  name: string,
+  note: string,
+  sid: string,
+  unitRequirementIds: number[],
+  units: number
+) {
+  const data = {
+    accentColor,
+    degreeCheckId,
+    grade,
+    name,
+    note,
+    sid,
+    unitRequirementIds,
+    units
+  }
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/create`, data).then(response => response.data, () => null)
+}
+
 export function createDegreeCategory(
   categoryType: string,
   description: string,
