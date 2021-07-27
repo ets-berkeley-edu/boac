@@ -48,7 +48,7 @@ export default {
   methods: {
     ...mapActions('degreeEditSession', [
       'assignCourseToCategory',
-      'copyCourseAndAssign',
+      'copyCourse',
       'createCategory',
       'createCourse',
       'createUnitRequirement',

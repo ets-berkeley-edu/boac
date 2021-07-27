@@ -576,10 +576,8 @@ class TestCopyCourse:
         _api_copy_course(
             category_id=1,
             client=client,
+            course_id=1,
             expected_status_code=401,
-            section_id=12345,
-            sid=coe_student_sid,
-            term_id=2218,
         )
 
     def test_unauthorized(self, client, fake_auth):
@@ -588,10 +586,8 @@ class TestCopyCourse:
         _api_copy_course(
             category_id=1,
             client=client,
+            course_id=1,
             expected_status_code=401,
-            section_id=12345,
-            sid=coe_student_sid,
-            term_id=2218,
         )
 
     def test_copy_course(self, client, fake_auth):
@@ -633,10 +629,8 @@ class TestCopyCourse:
             course_copy = _api_copy_course(
                 category_id=category_id,
                 client=client,
+                course_id=course_id,
                 expected_status_code=expected_status_code,
-                section_id=section_id,
-                sid=sid,
-                term_id=course['termId'],
             )
             if expected_status_code == 200:
                 copied_course_ids.append(course_copy['id'])
@@ -819,14 +813,11 @@ class TestDeleteCategory:
             course_id=course_id,
         )
         # Copy course to Category #2 and then assign it to the 'Course Requirement'
-        section_id = course['sectionId']
-        term_id = course['termId']
+        course_id = course['id']
         course_copy_1 = _api_copy_course(
             category_id=categories[1]['id'],
             client=client,
-            section_id=section_id,
-            sid=sid,
-            term_id=term_id,
+            course_id=course_id,
         )
         placeholder_category_id = course_copy_1['categoryId']
         course_copy_1 = _api_assign_course(
@@ -843,9 +834,7 @@ class TestDeleteCategory:
         course_copy_2 = _api_copy_course(
             category_id=categories[2]['id'],
             client=client,
-            section_id=section_id,
-            sid=sid,
-            term_id=term_id,
+            course_id=course_id,
         )
         placeholder_category_id = course_copy_2['categoryId']
         assert 'Placeholder' in DegreeProgressCategory.find_by_id(placeholder_category_id).category_type
@@ -866,19 +855,12 @@ def _api_assign_course(category_id, client, course_id, expected_status_code=200,
 def _api_copy_course(
         category_id,
         client,
-        section_id,
-        sid,
-        term_id,
+        course_id,
         expected_status_code=200,
 ):
     response = client.post(
         '/api/degree/course/copy',
-        data=json.dumps({
-            'categoryId': category_id,
-            'sectionId': section_id,
-            'sid': sid,
-            'termId': term_id,
-        }),
+        data=json.dumps({'categoryId': category_id, 'courseId': course_id}),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code

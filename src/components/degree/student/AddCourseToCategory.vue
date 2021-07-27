@@ -122,11 +122,9 @@ export default {
       this.isSaving = true
       this.$announcer.polite('Saving')
       // This 'Course Requirement' category will be deleted if/when the course is unassigned.
-      this.copyCourseAndAssign({
+      this.copyCourse({
         categoryId: this.parentCategory.id,
-        sectionId: this.selected.sectionId,
-        sid: this.selected.sid,
-        termId: this.selected.termId
+        courseId: this.selected.id
       }).then(course => {
         this.isMenuOpen = this.isSaving = false
         this.selected = null
