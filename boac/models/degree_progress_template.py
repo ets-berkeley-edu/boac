@@ -209,7 +209,7 @@ class DegreeProgressTemplate(Base):
         # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
         degree_courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
         for course in sorted(degree_courses, key=lambda c: c.created_at):
-            key = f'{course.section_id}_{course.term_id}'
+            key = f'{course.section_id}_{course.term_id}_{course.manually_created_at}_{course.manually_created_by}'
             if key not in degree_progress_courses:
                 degree_progress_courses[key] = []
             degree_progress_courses[key].append(course)
@@ -242,7 +242,7 @@ class DegreeProgressTemplate(Base):
                     units = section['units']
                     # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
                     sis = {'units': units}
-                    key = f'{section_id}_{term_id}'
+                    key = f'{section_id}_{term_id}_{None}_{None}'
                     if key in degree_progress_courses:
                         _organize_courses(key)
                     else:

@@ -23,13 +23,18 @@
         <ModalHeader text="Create Course" />
         <div class="modal-body">
           <div>
-            <label for="course-name-input"><span class="sr-only">Course </span>Name:</label>
+            <label
+              for="course-name-input"
+              class="font-weight-bolder mb-1"
+            >
+              <span class="sr-only">Course </span>Name
+            </label>
             <b-form-input
               id="course-name-input"
               v-model="name"
               class="cohort-create-input-name"
               maxlength="255"
-              size="lg"
+              size="md"
             />
             <div class="faint-text mb-3"><span class="sr-only">Course name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
             <div
@@ -49,35 +54,60 @@
               Course name cannot exceed 255 characters.
             </div>
           </div>
-
-          <div class="pb-2">
-            <b-select
-              id="color-code-select"
-              v-model="accentColor"
-            >
-              <b-select-option
-                v-for="colorCode in $config.degreeProgressColorCodes.keys"
-                :id="`accent-color-${colorCode}`"
-                :key="colorCode"
-                :value="colorCode"
-              >
-                {{ colorCode }}
-              </b-select-option>
-            </b-select>
-          </div>
-
           <div class="pb-2">
             <UnitsInput
               :disable="isSaving"
               :error-message="unitsErrorMessage"
               input-id="course-units-input"
-              :on-submit="update"
+              label-class="font-weight-bolder mb-1 pr-2"
+              :on-submit="save"
               :set-units-lower="setUnits"
               :units-lower="units"
             />
           </div>
-          <div>
-            <label :for="`column-0-unit-requirement-select`" class="font-weight-500">
+          <div class="pb-3">
+            <label id="units-grade-label" for="course-grade-input" class="font-weight-bolder mb-1 pr-2">
+              Grade
+            </label>
+            <b-form-input
+              id="course-grade-input"
+              v-model="grade"
+              aria-labelledby="units-grade-label"
+              class="grade-input"
+              maxlength="3"
+              size="sm"
+              trim
+              @keypress.enter="save"
+            />
+          </div>
+          <div class="pb-3">
+            <label
+              for="color-code-select"
+              class="font-weight-bolder"
+            >
+              Color Code
+            </label>
+            <b-select
+              id="color-code-select"
+              v-model="accentColor"
+              size="md"
+            >
+              <b-form-select-option :value="undefined">Choose...</b-form-select-option>
+              <b-select-option
+                v-for="(hexCode, colorName) in $config.degreeProgressColorCodes"
+                :id="`accent-color-${colorName.toLowerCase()}`"
+                :key="hexCode"
+                :style="`color: ${colorName.toLowerCase()}`"
+                :value="colorName"
+              >
+                <div>
+                  <font-awesome icon="square" /> {{ colorName }}
+                </div>
+              </b-select-option>
+            </b-select>
+          </div>
+          <div class="pb-2">
+            <label :for="`column-0-unit-requirement-select`" class="font-weight-bolder">
               Counts Towards Unit Fulfillment
             </label>
             <div class="pb-2">
@@ -89,7 +119,7 @@
               />
             </div>
           </div>
-          <label for="course-note-textarea" class="font-weight-500 pb-1">
+          <label for="course-note-textarea" class="font-weight-bolder">
             Note
           </label>
           <div class="pb-2">
@@ -101,11 +131,12 @@
             />
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="modal-footer pb-0">
           <form @submit.prevent="$_.noop">
             <b-btn
               id="delete-confirm"
               class="btn-primary-color-override"
+              :disabled="disableSaveButton"
               variant="primary"
               @click.prevent="save"
             >
@@ -155,12 +186,18 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !!this.unitsErrorMessage
+      return this.isSaving
+        || !!this.unitsErrorMessage
+        || !this.$_.trim(this.name)
+        || !this.$_.trim(this.units)
     },
     unitsErrorMessage() {
       const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
       return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
     }
+  },
+  destroyed() {
+    this.closeModal()
   },
   methods: {
     cancel() {
@@ -168,6 +205,7 @@ export default {
       this.$announcer.polite('Canceled')
     },
     closeModal() {
+      this.isSaving = false
       this.showModal = false
       this.setDisableButtons(false)
     },
@@ -177,41 +215,48 @@ export default {
     openModal() {
       this.showModal = true
       this.setDisableButtons(true)
+      this.$announcer.polite('Create course dialog opened')
     },
     save() {
-      this.createCourse({
-        accentColor: this.accentColor,
-        degreeCheckId: this.templateId,
-        grade: this.grade,
-        name: this.name,
-        note: this.note,
-        sid: this.sid,
-        unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-        units: this.units
-      }).then(course => {
-        this.closeModal()
-        this.$announcer.polite(`Course ${course.name} created`)
-      })
+      if (!this.disableSaveButton) {
+        this.isSaving = true
+        this.createCourse({
+          accentColor: this.accentColor,
+          grade: this.$_.trim(this.grade),
+          name: this.$_.trim(this.name),
+          note: this.$_.trim(this.note),
+          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+          units: this.units
+        }).then(course => {
+          this.closeModal()
+          this.$announcer.polite(`Course ${course.name} created`)
+        })
+      }
     },
     setUnits(units) {
       this.units = units
-    },
-    update() {
-      if (!this.disableSaveButton) {
-        this.isSaving = true
-        this.$_.noop({
-          note: this.note,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
-          units: this.units
-        }).then(() => {
-          this.$announcer.polite('Course created')
-          this.setDisableButtons(false)
-        })
-      }
     }
   }
 }
 </script>
 
 <style scoped>
+.accent-color-blue {
+  color: #005c91;
+}
+.accent-color-green {
+  color: #36a600;
+}
+.accent-color-orange {
+  color: #e48600;
+}
+.accent-color-purple {
+  color: #b300c5;
+}
+.accent-color-red {
+  color: #d0021b;
+}
+.grade-input {
+  width: 3rem;
+}
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <label id="units-input-label" :for="inputId" class="font-weight-500 mb-1 pr-2">
+      <label id="units-input-label" :class="labelClass" :for="inputId">
         {{ label }}
       </label>
       <div v-if="range" class="font-size-12">
@@ -83,6 +83,11 @@ export default {
     },
     label: {
       default: 'Units',
+      required: false,
+      type: String
+    },
+    labelClass: {
+      default: 'font-weight-500 mb-1 pr-2',
       required: false,
       type: String
     },
