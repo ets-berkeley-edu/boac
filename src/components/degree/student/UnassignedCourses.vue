@@ -27,7 +27,7 @@
         <b-tbody>
           <template v-for="(course, index) in courses[key]">
             <b-tr
-              :id="`${key}-course-${course.id}`"
+              :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created` : `${key}-course-${course.termId}-${course.sectionId}`"
               :key="`tr-${index}`"
               class="tr-course"
               :class="{
@@ -67,7 +67,7 @@
                 />
                 <font-awesome
                   v-if="unitsWereEdited(course)"
-                  :id="`${key}-course-units-were-edited-${course.id}`"
+                  :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created-units-edited` : `${key}-course-${course.termId}-${course.sectionId}-units-edited`"
                   class="changed-units-icon"
                   icon="info-circle"
                   size="sm"
