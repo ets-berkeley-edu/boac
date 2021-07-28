@@ -87,12 +87,12 @@ export default {
     getCourse(courseId) {
       return _.find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
     },
-    getCourseKey: course => course && `${course.termId}-${course.sectionId}`,
+    getCourseKey: course => course && `${course.termId}-${course.sectionId}-${course.manuallyCreatedAt}-${course.manuallyCreatedBy}`,
     getAssignedCourses(category, ignoreCourseId) {
       let assigned = []
       _.each($_flatten([category]), c => {
         _.each(c.courses, course => {
-          if (course.sectionId && (!ignoreCourseId || course.id !== ignoreCourseId)) {
+          if ((course.sectionId || course.manuallyCreatedBy) && (!ignoreCourseId || course.id !== ignoreCourseId)) {
             assigned.push(course)
           }
         })

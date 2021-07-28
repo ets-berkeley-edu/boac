@@ -79,9 +79,10 @@
                 {{ course.note || '&mdash;' }}
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
-                <div v-if="!isUserDragging(course.id)" class="d-flex">
-                  <div v-if="course.manuallyCreatedBy">
+                <div class="d-flex">
+                  <div v-if="course.manuallyCreatedBy" class="btn-container">
                     <b-btn
+                      v-if="!isUserDragging(course.id)"
                       :id="`delete-${course.id}-btn`"
                       class="pl-0 pr-1 py-0"
                       :disabled="disableButtons"
@@ -93,8 +94,9 @@
                       <span class="sr-only">Delete {{ course.name }}</span>
                     </b-btn>
                   </div>
-                  <div>
+                  <div class="btn-container">
                     <b-btn
+                      v-if="!isUserDragging(course.id)"
                       :id="`edit-${key}-course-${course.id}-btn`"
                       class="font-size-14 pl-0 pr-1 py-0"
                       :disabled="disableButtons"
@@ -248,6 +250,9 @@ export default {
 table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
+}
+.btn-container {
+  min-width: 20px;
 }
 .changed-units-icon {
   color: #00c13a;
