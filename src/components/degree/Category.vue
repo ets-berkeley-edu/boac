@@ -60,7 +60,7 @@
         class="pl-1 py-1"
         :class="{'font-size-12': printable}"
       >
-        <pre>{{ category.description }}</pre>
+        <pre class="text-wrap">{{ category.description }}</pre>
       </div>
     </div>
     <AreYouSureModal
