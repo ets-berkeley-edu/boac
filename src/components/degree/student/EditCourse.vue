@@ -1,6 +1,6 @@
 <template>
   <div id="edit-unassigned-course" class="pb-2">
-    <div v-if="course.manuallyCreatedBy && !course.isCopy">
+    <div v-if="course.manuallyCreatedBy">
       <label
         for="course-name-input"
         class="font-weight-bolder mb-1"
@@ -58,30 +58,10 @@
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="pb-2">
-      <label
-        for="color-code-select"
-        class="font-weight-bolder"
-      >
-        Color Code
-      </label>
-      <b-select
-        id="color-code-select"
-        v-model="accentColor"
-        size="md"
-      >
-        <b-form-select-option :value="undefined">Choose...</b-form-select-option>
-        <b-select-option
-          v-for="(hexCode, colorName) in $config.degreeProgressColorCodes"
-          :id="`accent-color-${colorName.toLowerCase()}`"
-          :key="hexCode"
-          :style="`color: ${colorName.toLowerCase()}`"
-          :value="colorName"
-        >
-          <div>
-            <font-awesome icon="square" /> {{ colorName }}
-          </div>
-        </b-select-option>
-      </b-select>
+      <AccentColorSelect
+        :accent-color="accentColor"
+        :on-change="value => accentColor = value"
+      />
     </div>
     <div v-if="course.categoryId">
       <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
@@ -140,6 +120,7 @@
 </template>
 
 <script>
+import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -148,7 +129,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'EditCourse',
   mixins: [DegreeEditSession, Util],
-  components: {SelectUnitFulfillment, UnitsInput},
+  components: {AccentColorSelect, SelectUnitFulfillment, UnitsInput},
   props: {
     afterCancel: {
       required: true,

@@ -11,8 +11,16 @@
     <template #button-content>
       <span class="sr-only">{{ course.name }} category options</span>
       <font-awesome
-        class="faint-text font-size-16"
-        :class="{'text-white': isUserDragging(course.id)}"
+        class="font-size-16"
+        :class="{
+          'accent-color-blue': course.accentColor === 'Blue',
+          'accent-color-green': course.accentColor === 'Green',
+          'accent-color-orange': course.accentColor === 'Orange',
+          'accent-color-purple': course.accentColor === 'Purple',
+          'accent-color-red': course.accentColor === 'Red',
+          'faint-text': !course.accentColor,
+          'text-white': isUserDragging(course.id)
+        }"
         icon="grip-vertical"
       />
     </template>

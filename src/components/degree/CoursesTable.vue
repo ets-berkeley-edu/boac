@@ -26,6 +26,11 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               :class="{
+                'accent-color-blue': $_.get(bundle, 'course.accentColor') === 'Blue',
+                'accent-color-green': $_.get(bundle, 'course.accentColor') === 'Green',
+                'accent-color-orange': $_.get(bundle, 'course.accentColor') === 'Orange',
+                'accent-color-purple': $_.get(bundle, 'course.accentColor') === 'Purple',
+                'accent-color-red': $_.get(bundle, 'course.accentColor') === 'Red',
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
