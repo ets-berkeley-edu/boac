@@ -296,8 +296,12 @@ def update_course(course_id):
     if course:
         params = request.get_json()
         accent_color = _normalize_accent_color(get_param(params, 'accentColor'))
+
         grade = get_param(params, 'grade')
+        grade = course.grade if grade is None else grade
         name = get_param(params, 'name')
+        name = course.display_name if name is None else name
+
         note = get_param(params, 'note')
         # Courses are mapped to degree_progress_unit_requirements
         value = get_param(request.get_json(), 'unitRequirementIds')
