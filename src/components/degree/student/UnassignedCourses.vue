@@ -59,6 +59,13 @@
               </td>
               <td class="td-units">
                 <font-awesome
+                  v-if="course.unitRequirements.length"
+                  class="fulfillments-icon mr-1"
+                  icon="check-circle"
+                  size="sm"
+                  :title="`Counts towards ${oxfordJoin($_.map(course.unitRequirements, 'name'))}`"
+                />
+                <font-awesome
                   v-if="unitsWereEdited(course)"
                   :id="`${key}-course-units-were-edited-${course.id}`"
                   class="changed-units-icon"
@@ -262,6 +269,9 @@ table {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.fulfillments-icon {
+  color: #00c13a;
 }
 .mouseover-grabbable td {
   background-color: #b9dcf0;

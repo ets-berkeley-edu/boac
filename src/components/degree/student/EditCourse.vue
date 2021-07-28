@@ -63,7 +63,7 @@
         :on-change="value => accentColor = value"
       />
     </div>
-    <div v-if="course.categoryId">
+    <div v-if="course.categoryId || course.manuallyCreatedBy">
       <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
         Counts Towards Unit Fulfillment
       </label>
