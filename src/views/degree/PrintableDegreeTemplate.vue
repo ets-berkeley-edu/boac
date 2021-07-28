@@ -3,7 +3,7 @@
     <Spinner />
     <b-container v-if="!loading" fluid>
       <b-row>
-        <b-col v-if="student" class="pr-5">
+        <b-col v-if="student">
           <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
           <div class="font-size-12">
             <div class="font-weight-bold">
@@ -45,7 +45,7 @@
             </div>
           </div>
         </b-col>
-        <b-col class="pr-0">
+        <b-col>
           <div class="unofficial-label-pill">
             <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
             <div>Printed by {{ $currentUser.name }} on {{ new Date() | moment('MMMM D, YYYY') }}</div>
@@ -65,61 +65,52 @@
         <b-col
           v-for="position in [1, 2, 3]"
           :key="position"
-          class="print-degree-progress-column"
+          :class="{'pr-2': position > 1}"
         >
-          <template>
-            <div>
-              <div
-                v-for="(category, index) in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
-                :key="category.id"
-                :class="{'pt-3': index > 0}"
-              >
+          <div
+            v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+            :key="category.id"
+          >
+            <Category
+              v-if="category.id"
+              :category="category"
+              :position="position"
+              :printable="true"
+            />
+            <div v-if="!category.subcategories.length" class="pl-1 py-1">
+              <CoursesTable
+                :id="`column-${position}-category-${category.id}-courses`"
+                :items="getItemsForCoursesTable(category)"
+                :parent-category="category"
+                :position="position"
+                :printable="true"
+              />
+            </div>
+            <div v-if="$_.size(category.subcategories)">
+              <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pl-2 pt-2">
                 <Category
-                  v-if="category.id"
-                  :category="category"
+                  v-if="subcategory.id"
+                  :category="subcategory"
                   :position="position"
                   :printable="true"
                 />
-                <div v-if="!category.subcategories.length" class="pl-1 py-1">
+                <div class="pl-1 py-1">
                   <CoursesTable
-                    :id="`column-${position}-category-${category.id}-courses`"
-                    :items="getItemsForCoursesTable(category)"
-                    :parent-category="category"
+                    :items="getItemsForCoursesTable(subcategory)"
+                    :parent-category="subcategory"
                     :position="position"
                     :printable="true"
                   />
                 </div>
-                <div v-if="$_.size(category.subcategories)">
-                  <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pl-2 pt-2">
-                    <Category
-                      v-if="subcategory.id"
-                      :category="subcategory"
-                      :position="position"
-                      :printable="true"
-                    />
-                    <div class="pl-1 py-1">
-                      <CoursesTable
-                        :items="getItemsForCoursesTable(subcategory)"
-                        :parent-category="subcategory"
-                        :position="position"
-                        :printable="true"
-                      />
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
-          </template>
+          </div>
         </b-col>
       </b-row>
       <b-row v-if="degreeNote && includeNote">
-        <b-col>
-          <div class="mb-3 mt-2">
-            <div class="footer-border pt-3">
-              <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-              <pre>{{ degreeNote.body }}</pre>
-            </div>
-          </div>
+        <b-col class="pb-5 pt-3">
+          <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
+          <pre class="text-wrap">{{ degreeNote.body }}</pre>
         </b-col>
       </b-row>
     </b-container>
