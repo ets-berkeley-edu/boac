@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.lib.berkeley import term_name_for_sis_id
-from boac.lib.util import is_int
+from boac.lib.util import is_float
 from boac.models.base import Base
 from boac.models.degree_progress_category_unit_requirement import DegreeProgressCategoryUnitRequirement
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
@@ -165,7 +165,7 @@ class DegreeProgressCourse(Base):
             section_id=section_id,
             sid=sid,
             term_id=term_id,
-            units=units if is_int(units) else 0,
+            units=units if is_float(units) else 0,
         )
         db.session.add(course)
         std_commit()
@@ -230,7 +230,7 @@ class DegreeProgressCourse(Base):
         course.grade = grade
         course.display_name = name
         course.note = note
-        course.units = units
+        course.units = units if is_float(units) else 0
 
         existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_course_id(course_id)
         existing_unit_requirement_id_set = set([u.unit_requirement_id for u in existing_unit_requirements])

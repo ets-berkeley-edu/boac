@@ -46,7 +46,7 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu">
+              <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu pt-1">
                 <div
                   v-if="bundle.course && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -65,7 +65,7 @@
                   'font-size-14': !printable
                 }"
               >
-                <div class="align-items-center d-flex">
+                <div class="align-items-center d-flex pt-1">
                   <div
                     :class="{
                       'font-weight-500': isEditing(bundle),
@@ -139,34 +139,37 @@
               </td>
               <td v-if="canEdit" class="td-actions">
                 <div
-                  v-if="isEditable(bundle) && !isUserDragging($_.get(bundle.course, 'id'))"
+                  v-if="isEditable(bundle)"
                   class="d-flex justify-content-end text-nowrap"
                 >
-                  <b-btn
-                    v-if="isEditable(bundle)"
-                    :id="`column-${position}-edit-${bundle.key}-btn`"
-                    class="p-0"
-                    :class="{'pr-0': sid, 'pr-1': !sid}"
-                    :disabled="disableButtons"
-                    size="sm"
-                    variant="link"
-                    @click="edit(bundle)"
-                  >
-                    <font-awesome icon="edit" />
-                    <span class="sr-only">Edit {{ bundle.name }}</span>
-                  </b-btn>
-                  <b-btn
-                    v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy))"
-                    :id="`column-${position}-delete-${bundle.key}-btn`"
-                    class="pl-0 pr-1 py-0"
-                    :disabled="disableButtons"
-                    size="sm"
-                    variant="link"
-                    @click="onDelete(bundle)"
-                  >
-                    <font-awesome icon="trash-alt" />
-                    <span class="sr-only">Delete {{ bundle.name }}</span>
-                  </b-btn>
+                  <div class="btn-container">
+                    <b-btn
+                      v-if="!isUserDragging($_.get(bundle.course, 'id'))"
+                      :id="`column-${position}-edit-${bundle.key}-btn`"
+                      class="pl-0 pr-1 py-0"
+                      :disabled="disableButtons"
+                      size="sm"
+                      variant="link"
+                      @click="edit(bundle)"
+                    >
+                      <font-awesome icon="edit" />
+                      <span class="sr-only">Edit {{ bundle.name }}</span>
+                    </b-btn>
+                  </div>
+                  <div class="btn-container">
+                    <b-btn
+                      v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !isUserDragging($_.get(bundle.course, 'id'))"
+                      :id="`column-${position}-delete-${bundle.key}-btn`"
+                      class="pl-0 pr-1 py-0"
+                      :disabled="disableButtons"
+                      size="sm"
+                      variant="link"
+                      @click="onDelete(bundle)"
+                    >
+                      <font-awesome icon="trash-alt" />
+                      <span class="sr-only">Delete {{ bundle.name }}</span>
+                    </b-btn>
+                  </div>
                 </div>
               </td>
             </b-tr>
@@ -475,6 +478,9 @@ export default {
 table {
   border-collapse: separate;
   border-spacing: 0 0.05em;
+}
+.btn-container {
+  min-width: 20px;
 }
 .changed-units-icon {
   color: #00c13a;
