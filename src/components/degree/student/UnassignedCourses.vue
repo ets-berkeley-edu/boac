@@ -31,6 +31,11 @@
               :key="`tr-${index}`"
               class="tr-course"
               :class="{
+                'accent-color-blue': course.accentColor === 'Blue',
+                'accent-color-green': course.accentColor === 'Green',
+                'accent-color-orange': course.accentColor === 'Orange',
+                'accent-color-purple': course.accentColor === 'Purple',
+                'accent-color-red': course.accentColor === 'Red',
                 'cursor-grab': canDrag() && !draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !draggingContext.course,
                 'tr-while-dragging': isUserDragging(course.id)

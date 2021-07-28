@@ -81,30 +81,10 @@
             />
           </div>
           <div class="pb-3">
-            <label
-              for="color-code-select"
-              class="font-weight-bolder"
-            >
-              Color Code
-            </label>
-            <b-select
-              id="color-code-select"
-              v-model="accentColor"
-              size="md"
-            >
-              <b-form-select-option :value="undefined">Choose...</b-form-select-option>
-              <b-select-option
-                v-for="(hexCode, colorName) in $config.degreeProgressColorCodes"
-                :id="`accent-color-${colorName.toLowerCase()}`"
-                :key="hexCode"
-                :style="`color: ${colorName.toLowerCase()}`"
-                :value="colorName"
-              >
-                <div>
-                  <font-awesome icon="square" /> {{ colorName }}
-                </div>
-              </b-select-option>
-            </b-select>
+            <AccentColorSelect
+              :accent-color="accentColor"
+              :on-change="value => accentColor = value"
+            />
           </div>
           <div class="pb-2">
             <label :for="`column-0-unit-requirement-select`" class="font-weight-bolder">
@@ -158,6 +138,7 @@
 </template>
 
 <script>
+import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
@@ -166,7 +147,7 @@ import UnitsInput from '@/components/degree/UnitsInput'
 export default {
   name: 'CreateCourseModal',
   mixins: [DegreeEditSession],
-  components: {ModalHeader, SelectUnitFulfillment, UnitsInput},
+  components: {AccentColorSelect, ModalHeader, SelectUnitFulfillment, UnitsInput},
   props: {
     student: {
       required: true,
