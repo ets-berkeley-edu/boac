@@ -20,7 +20,7 @@ const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassig
 
 const $_allowCourseDrop = (category, course, context) => {
   if (category) {
-    const getCourseKey = c => c && `${c.termId}-${c.sectionId}`
+    const getCourseKey = c => c && `${c.termId}-${c.sectionId}-${c.manuallyCreatedAt}-${c.manuallyCreatedBy}`
     return (category.categoryType !== 'Course Requirement' || !category.courses.length)
       && (category.categoryType !== 'Category' || !category.subcategories.length)
       && !_.map(category.courses, getCourseKey).includes(getCourseKey(course))
