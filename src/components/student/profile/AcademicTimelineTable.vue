@@ -598,10 +598,11 @@ export default {
       this.searchIndex = []
       const messages = ['appointment', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
       this.$_.each(messages, m => {
+        const advisor = m.author || m.advisor
         const idx = [
-          m.author.name,
-          (this.$_.map(m.author.departments || [], 'name')).join(),
-          m.author.email,
+          advisor.name,
+          (this.$_.map(advisor.departments || [], 'name')).join(),
+          advisor.email,
           m.body,
           m.category,
           m.createdBy,
