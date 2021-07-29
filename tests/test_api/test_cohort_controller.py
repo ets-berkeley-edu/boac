@@ -1086,9 +1086,9 @@ class TestCohortPerFilters:
         assert _get_first_student('terms_in_attendance desc')['termsInAttendance'] == 5
 
         defensive_line_by_units = self._get_defensive_line(client, False, 'enrolled_units')
-        assert 'term' not in defensive_line_by_units[0]
-        assert defensive_line_by_units[1]['term']['enrolledUnits'] == 5
-        assert defensive_line_by_units[2]['term']['enrolledUnits'] == 7
+        assert 'term' not in defensive_line_by_units[-1]
+        assert defensive_line_by_units[0]['term']['enrolledUnits'] == 5
+        assert defensive_line_by_units[1]['term']['enrolledUnits'] == 7
 
         defensive_line_by_units_desc = self._get_defensive_line(client, False, 'enrolled_units desc')
         assert defensive_line_by_units_desc[0]['term']['enrolledUnits'] == 7
