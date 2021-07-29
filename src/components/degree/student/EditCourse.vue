@@ -160,7 +160,7 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !!this.unitsErrorMessage
+      return !!(this.isSaving || this.unitsErrorMessage || (this.course.manuallyCreatedBy && !this.$_.trim(this.name)))
     },
     unitsErrorMessage() {
       const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
