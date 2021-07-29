@@ -215,8 +215,10 @@ export default {
       this.selectedUnitRequirements = this.$_.clone(this.existingCategory.unitRequirements)
       this.unitsLower = this.existingCategory.unitsLower
       this.unitsUpper = this.existingCategory.unitsUpper
+      this.$putFocusNextTick(`column-${this.position}-name-input`)
+    } else {
+      this.$putFocusNextTick(`column-${this.position}-add-category-select`)
     }
-    this.$putFocusNextTick(`column-${this.position}-add-category-select`)
   },
   methods: {
     cancel() {

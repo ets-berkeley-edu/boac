@@ -174,7 +174,7 @@ export default {
     this.note = this.course.note
     this.units = this.course.units
     this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
-    this.$putFocusNextTick('course-units-input')
+    this.$putFocusNextTick(this.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
   },
   methods: {
     cancel() {
