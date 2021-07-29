@@ -192,14 +192,7 @@
               </b-td>
             </b-tr>
           </template>
-          <b-tr
-            v-if="!items.length"
-            :class="{'drop-zone-on': draggingContext.target === emptyCategoryId}"
-            @dragenter="onDrag($event, 'enter')"
-            @dragleave="onDrag($event, 'leave')"
-            @dragover="onDrag($event, 'over')"
-            @drop="onDropCourse($event, parentCategory, 'assigned')"
-          >
+          <b-tr v-if="!items.length">
             <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
