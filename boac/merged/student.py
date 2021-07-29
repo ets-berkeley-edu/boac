@@ -494,11 +494,8 @@ def query_students(
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
 
-        nulls_last = ('group_name', 'entering_term', 'term_gpa', 'terms_in_attendance')
-        if any(s in o for s in nulls_last) or ('units' in o and o_direction.lower() == 'desc'):
-            o_null_order = 'NULLS LAST'
-        else:
-            o_null_order = 'NULLS FIRST'
+        nulls_last = ('entering_term', 'group_name', 'term_gpa', 'terms_in_attendance', 'units')
+        o_null_order = 'NULLS LAST' if any(s in o for s in nulls_last) else 'NULLS FIRST'
         sql = f"""SELECT
             sas.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             {query_tables}

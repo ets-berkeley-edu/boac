@@ -241,10 +241,10 @@ class TestGetCuratedGroup:
         api_json = self._api_get_curated_group(client, asc_curated_groups[0].id, order_by='enrolled_units')
         units = [f"{s['term'].get('enrolledUnits') if s.get('term') else None} ({s.get('lastName')})" for s in api_json['students']]
         assert units == [
-            'None (Farestveit)',
             '5 (Kerschen)',
             '7 (Jayaprakash)',
             '12.5 (Davies)',
+            'None (Farestveit)',
         ]
 
     def test_order_by_units_enrolled_desc(self, asc_advisor, asc_curated_groups, client):
