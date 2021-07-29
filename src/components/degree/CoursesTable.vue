@@ -355,7 +355,6 @@ export default {
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
-      this.$putFocusNextTick(`column-${this.position}-name-input`)
     },
     getBundleName(course, category) {
       let name = (course || category).name
