@@ -178,7 +178,7 @@ export default {
     },
     deleteConfirmed() {
       const name = this.$_.get(this.selected, 'name')
-      this.deleteUnitRequirement(this.selected.id).then(() => {
+      return this.deleteUnitRequirement(this.selected.id).then(() => {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)

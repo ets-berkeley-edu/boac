@@ -230,7 +230,7 @@ export default {
       this.$putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
-      deleteTopic(this.topicDelete.id).then(() => {
+      return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
         this.topicDelete.deletedAt = this.$moment()
         this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)

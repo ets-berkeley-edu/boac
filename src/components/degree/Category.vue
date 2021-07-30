@@ -124,7 +124,7 @@ export default {
       this.$putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
     },
     deleteConfirmed() {
-      this.deleteCategory(this.category.id).then(() => {
+      return this.deleteCategory(this.category.id).then(() => {
         this.$announcer.polite(`${this.category.name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)

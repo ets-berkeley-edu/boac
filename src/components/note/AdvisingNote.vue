@@ -302,7 +302,7 @@ export default {
       this.showConfirmDeleteAttachment = false
       const attachment = this.existingAttachments[this.deleteAttachmentIndex]
       this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
-      removeAttachment(this.note.id, attachment.id).then(updatedNote => {
+      return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
         this.alertScreenReader(`Attachment '${attachment.displayName}' removed`)
         this.afterSaved(updatedNote)
       })

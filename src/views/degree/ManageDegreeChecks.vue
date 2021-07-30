@@ -279,14 +279,12 @@ export default {
       this.$announcer.polite('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
-      deleteDegreeTemplate(this.templateForDelete.id).then(() => {
-        getDegreeTemplates().then(data => {
-          this.degreeTemplates = data
-          this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
-          this.$putFocusNextTick('page-header')
-          this.deleteModalBody = this.templateForDelete = null
-          this.isBusy = false
-        })
+      return deleteDegreeTemplate(this.templateForDelete.id).then(getDegreeTemplates).then(data => {
+        this.degreeTemplates = data
+        this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
+        this.$putFocusNextTick('page-header')
+        this.deleteModalBody = this.templateForDelete = null
+        this.isBusy = false
       })
     },
     edit(template) {

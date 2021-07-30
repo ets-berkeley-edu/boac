@@ -100,7 +100,7 @@ export default {
         this.alertScreenReader('Are you sure you want to discard unsaved changes?')
         this.cancelConfirmed = () => {
           this.exitSession()
-          next()
+          return next()
         }
         this.cancelTheCancel = () => {
           this.alertScreenReader('Please save changes before exiting the page.')

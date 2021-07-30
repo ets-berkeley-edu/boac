@@ -111,11 +111,11 @@ export default {
     },
     confirmGoOffDuty() {
       this.showOffDutyConfirmModal = false
-      this.confirmChangeAvailability(false)
+      return this.confirmChangeAvailability(false)
     },
     confirmChangeAvailability(newStatus) {
       this.isToggling = true
-      setDropInAvailability(this.deptCode, this.uid, newStatus).then(() => {
+      return setDropInAvailability(this.deptCode, this.uid, newStatus).then(() => {
         this.isAvailable = newStatus
         this.isToggling = false
         this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`)
