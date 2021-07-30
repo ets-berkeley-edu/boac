@@ -329,11 +329,13 @@ export default {
         this.setDisableButtons(false)
         this.$putFocusNextTick(putFocus)
       }
+      let promise = undefined
       if (this.sid) {
-        this.deleteCourse(this.bundleForDelete.course.id).then(done)
+        promise = this.deleteCourse(this.bundleForDelete.course.id).then(done)
       } else {
-        this.deleteCategory(this.bundleForDelete.category.id).then(done)
+        promise = this.deleteCategory(this.bundleForDelete.category.id).then(done)
       }
+      return promise
     },
     describeCategoryUnits(category) {
       if (category) {

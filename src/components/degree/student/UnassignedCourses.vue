@@ -200,7 +200,7 @@ export default {
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
-      this.deleteCourse(this.courseForDelete.id).then(() => {
+      return this.deleteCourse(this.courseForDelete.id).then(() => {
         this.$announcer.polite(`${this.courseForDelete.name} deleted.`)
         this.courseForDelete = null
         this.setDisableButtons(false)

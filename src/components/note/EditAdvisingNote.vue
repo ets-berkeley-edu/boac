@@ -160,7 +160,7 @@ export default {
     cancelConfirmed() {
       this.afterCancel()
       this.alertScreenReader('Edit note form cancelled.')
-      this.exit()
+      return this.exit()
     },
     cancelTheCancel() {
       this.alertScreenReader('Continue editing note.')
@@ -173,7 +173,7 @@ export default {
     },
     exit() {
       this.clearErrors()
-      this.exitSession()
+      return this.exitSession()
     },
     save() {
       const ifAuthenticated = () => {

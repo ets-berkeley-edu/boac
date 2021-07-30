@@ -522,10 +522,10 @@ export default {
       this.$_.remove(this.messages, predicate)
       this.$_.remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
-      deleteNote(note.id).then(() => {
+      return deleteNote(note.id).then(() => {
         this.alertScreenReader('Note deleted')
+        this.refreshSearchIndex()
       })
-      this.refreshSearchIndex()
     },
     describeTheActiveTab() {
       const inViewCount = this.isShowingAll || this.countPerActiveTab <= this.defaultShowPerTab ? this.countPerActiveTab : this.defaultShowPerTab

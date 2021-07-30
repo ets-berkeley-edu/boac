@@ -133,7 +133,7 @@ export default {
       })
     },
     deleteTemplateConfirmed() {
-      deleteNoteTemplate(this.targetTemplate.id).then(() => {
+      return deleteNoteTemplate(this.targetTemplate.id).then(() => {
         this.showDeleteTemplateModal = false
         this.targetTemplate = null
         this.alertScreenReader('Template deleted.')

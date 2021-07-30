@@ -15,18 +15,20 @@
         <span v-html="modalBody"></span>
       </div>
       <div class="modal-footer">
-        <form @submit.prevent="functionConfirm">
+        <form @submit.prevent="confirm">
           <b-btn
             id="are-you-sure-confirm"
             class="btn-primary-color-override"
+            :disabled="isProcessing"
             variant="primary"
-            @click.prevent="functionConfirm"
+            @click.prevent="confirm"
           >
-            {{ buttonLabelConfirm }}
+            <span v-if="isProcessing"><font-awesome class="mr-1" icon="spinner" spin /> </span>{{ buttonLabelConfirm }}
           </b-btn>
           <b-btn
             id="are-you-sure-cancel"
             class="pl-2"
+            :disabled="isProcessing"
             variant="link"
             @click.stop="functionCancel"
           >
@@ -81,6 +83,7 @@ export default {
     }
   },
   data: () => ({
+    isProcessing: false,
     showAreYouSureModal: false
   }),
   watch: {
@@ -90,6 +93,19 @@ export default {
   },
   created() {
     this.showAreYouSureModal = this.showModal
+  },
+  methods: {
+    confirm() {
+      this.isProcessing = true
+      const result = this.functionConfirm()
+      if (result && typeof result.then === 'function') {
+        result.then(() => {
+          this.isProcessing = false
+        })
+      } else {
+        this.isProcessing = false
+      }
+    }
   }
 }
 </script>
