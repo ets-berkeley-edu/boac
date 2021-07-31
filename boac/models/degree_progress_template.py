@@ -122,17 +122,22 @@ class DegreeProgressTemplate(Base):
     @classmethod
     def find_by_sid(cls, student_sid):
         sql = text(f"""
-            SELECT id, created_at, degree_name, created_by, parent_template_id, student_sid, updated_at, updated_by
-            FROM degree_progress_templates
-            WHERE student_sid = '{student_sid}' AND deleted_at IS NULL
-            ORDER BY updated_at DESC
+            SELECT
+              d.id, d.created_at, d.degree_name, d.created_by, d.parent_template_id, d.student_sid, d.updated_at, d.updated_by,
+              t.updated_at AS parent_template_updated_at, t.deleted_at AS parent_template_deleted_at
+            FROM degree_progress_templates d
+            JOIN degree_progress_templates t ON t.id = d.parent_template_id
+            WHERE d.student_sid = '{student_sid}' AND d.deleted_at IS NULL
+            ORDER BY d.updated_at DESC
         """)
         # Most recently updated record is considered 'current'.
         api_json = []
         for index, row in enumerate(db.session.execute(sql)):
+            has_parent = row['parent_template_deleted_at'] is None
             api_json.append({
                 **_row_to_simple_json(row),
                 'isCurrent': index == 0,
+                'parentTemplateUpdatedAt': _isoformat(row['parent_template_updated_at']) if has_parent else None,
             })
         return api_json
 
