@@ -36,7 +36,8 @@
           :fields="[
             {key: 'name', label: 'Degree Check', tdClass: 'align-middle', thClass: 'w-50'},
             {key: 'updatedAt', label: 'Last Updated', tdClass: 'align-top'},
-            {key: 'updatedBy', label: 'Advisor'}
+            {key: 'updatedBy', label: 'Advisor'},
+            {key: 'parentTemplateUpdatedAt', label: 'Template Last Updated', tdClass: 'align-top'}
           ]"
           :items="degreeChecks"
           borderless
@@ -58,6 +59,19 @@
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">
               {{ advisorNamesById[row.item.updatedBy] }}
+            </div>
+          </template>
+          <template #cell(parentTemplateUpdatedAt)="row">
+            <font-awesome
+              v-if="row.item.showRevisionIndicator"
+              icon="exclamation-triangle"
+              class="boac-exclamation mr-1"
+              :title="`Revisions to the original degree template have been made since the creation of this degree check.`"
+            />
+            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ row.item.parentTemplateUpdatedAt | moment('MMM D, YYYY') }}</span>
+            <span v-if="!row.item.parentTemplateUpdatedAt">&mdash;</span>
+            <div class="sr-only">
+              Note: Revisions to the original degree template have been made since the creation of this degree check.
             </div>
           </template>
         </b-table-lite>
@@ -99,6 +113,13 @@ export default {
       this.advisorNamesById = {}
       getDegreeChecks(uid).then(data => {
         this.degreeChecks = data
+        this.$_.each(this.degreeChecks, degreeCheck => {
+          if (degreeCheck.parentTemplateUpdatedAt) {
+            degreeCheck.showRevisionIndicator = this.$moment(new Date(degreeCheck.createdAt)).isBefore(new Date(degreeCheck.parentTemplateUpdatedAt))
+          } else {
+            degreeCheck.showRevisionIndicator = false
+          }
+        })
         const uniqueUserIds = this.$_.uniq(this.$_.map(data, 'updatedBy'))
         if (uniqueUserIds.length) {
           this.$_.each(uniqueUserIds, userId => {
