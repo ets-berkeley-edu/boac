@@ -33,7 +33,7 @@ from flask import current_app as app, request
 
 
 def term():
-    term_id = request.args.get('term') or current_term_id()
+    term_id = request.args.get('term') or current_term_id(use_cache=False)
     return term_id
 
 
