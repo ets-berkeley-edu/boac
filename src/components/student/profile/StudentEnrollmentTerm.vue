@@ -50,7 +50,8 @@
             role="row"
           >
             <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
-              {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }} (Dropped)
+              {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
+              (Dropped<span v-if="droppedSection.dropDate"> as of {{ droppedSection.dropDate | moment('MMM D, YYYY') }}</span>)
             </div>
           </div>
         </div>
