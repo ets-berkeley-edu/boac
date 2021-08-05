@@ -155,6 +155,7 @@ def search_advising_appointments(
 
 def appointment_to_compatible_json(appointment, topics=(), attachments=None, event=None):
     # We have legacy appointments and appointments created via BOA. The following sets a standard for the front-end.
+    advisor_sid = appointment.get('advisor_sid')
     advisor_uid = appointment.get('advisor_uid')
     appointment_id = appointment.get('id')
     appointment_type = appointment.get('appointment_type')
@@ -173,6 +174,7 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
                 ' ',
                 [appointment.get('advisor_first_name'), appointment.get('advisor_last_name')],
             ),
+            'sid': advisor_sid,
             'title': appointment.get('advisor_role'),
             'uid': advisor_uid,
             'departments': departments,

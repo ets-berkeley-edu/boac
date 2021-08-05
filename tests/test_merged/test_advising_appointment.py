@@ -47,6 +47,7 @@ class TestMergedAdvisingAppointment:
         assert appointments[0]['advisor']
         assert appointments[0]['advisor']['id'] == 7
         assert appointments[0]['advisor']['name'] == 'Milicent Balthazar'
+        assert appointments[0]['advisor']['sid'] == '53791'
         assert appointments[0]['advisor']['title'] is None
         assert appointments[0]['advisor']['uid'] == '53791'
         assert appointments[0]['advisor']['departments'] == []
