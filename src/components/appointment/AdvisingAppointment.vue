@@ -11,7 +11,7 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="!(appointment.status === 'checked_in' && appointment.advisor.title === 'Intake Desk') && !appointment.legacySource" class="mt-3">
+      <div v-if="!(appointment.status === 'checked_in' && advisor.title === 'Intake Desk') && !appointment.legacySource" class="mt-3">
         <font-awesome icon="clock" class="status-arrived-icon" />
         <span class="text-secondary ml-1">
           Arrived @
@@ -34,8 +34,8 @@
         <div v-if="appointment.status === 'reserved' && ($currentUser.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
           <span class="text-secondary">
             Assigned
-            <span v-if="appointment.advisor.id" :id="`appointment-${appointment.id}-assigned-to`">
-              to {{ appointment.advisor.id === $currentUser.id ? 'you' : appointment.advisor.name }}
+            <span v-if="advisor.id" :id="`appointment-${appointment.id}-assigned-to`">
+              to {{ advisor.id === $currentUser.id ? 'you' : advisor.name }}
             </span>
           </span>
         </div>
@@ -60,23 +60,26 @@
           </div>
         </div>
       </div>
-      <div v-if="appointment.advisor.name && (appointment.status === 'checked_in' || appointment.legacySource)" class="mt-2">
+      <div v-if="advisor.name && (appointment.status === 'checked_in' || appointment.legacySource)" class="mt-2">
         <a
-          v-if="appointment.advisor.uid"
+          v-if="advisor.uid"
           :id="`appointment-${appointment.id}-advisor-name`"
-          :aria-label="`Open UC Berkeley Directory page of ${appointment.advisor.name} in a new window`"
-          :href="`https://www.berkeley.edu/directory/results?search-term=${appointment.advisor.name}`"
+          :aria-label="`Open UC Berkeley Directory page of ${advisor.name} in a new window`"
+          :href="`https://www.berkeley.edu/directory/results?search-term=${advisor.name}`"
           target="_blank"
-        >{{ appointment.advisor.name }}</a>
+        >{{ advisor.name }}</a>
         <span v-if="!appointment.advisor.uid" :id="`appointment-${appointment.id}-advisor-name`">
-          {{ appointment.advisor.name }}
+          {{ advisor.name }}
         </span>
-        <span v-if="appointment.advisor.title" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">
-          - {{ appointment.advisor.title }}
+        <span v-if="advisor.title" :id="`appointment-${appointment.id}-advisor-role`" class="text-dark">
+          - {{ advisor.title }}
+        </span>
+        <span v-if="appointment.legacySource" class="font-italic text-black-50">
+          (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>
-      <div v-if="$_.size(appointment.advisor.departments)" class="text-secondary">
-        <span v-for="(dept, index) in appointment.advisor.departments" :key="dept.code">
+      <div v-if="$_.size(advisor.departments)" class="text-secondary">
+        <span v-for="(dept, index) in advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>
       </div>
@@ -124,7 +127,7 @@
 import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import {getCalnetProfileByUid} from '@/api/user'
+import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 
 export default {
   name: 'AdvisingAppointment',
@@ -148,6 +151,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    advisor: undefined
+  }),
   watch: {
     isOpen() {
       this.setAdvisor()
@@ -168,21 +174,21 @@ export default {
       return this.$_.includes(deptCodes, this.$_.upperCase(deptCode))
     },
     setAdvisor() {
-      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.appointment, 'advisor.name') || !this.$_.get(this.appointment, 'advisor.title'))
+      this.advisor = this.$_.get(this.appointment, 'advisor')
+      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.advisor, 'name') || !this.$_.get(this.advisor, 'title'))
       if (requiresLazyLoad) {
-        if (this.$_.get(this.appointment, 'advisor.uid')) {
-          const advisor_uid = this.appointment.advisor.uid
-          if (advisor_uid) {
-            if (advisor_uid === this.$currentUser.uid) {
-              // TODO: do not mutate prop
-              this.appointment.advisor = this.$currentUser // eslint-disable-line vue/no-mutating-props
-            } else {
-              getCalnetProfileByUid(advisor_uid).then(data => {
-                // TODO: do not mutate prop
-                this.appointment.advisor = data // eslint-disable-line vue/no-mutating-props
-              })
-            }
+        if (this.$_.get(this.advisor, 'uid')) {
+          if (this.advisor.uid === this.$currentUser.uid) {
+            this.advisor = this.$currentUser
+          } else {
+            getCalnetProfileByUid(this.advisor.uid).then(data => {
+              this.advisor = data
+            })
           }
+        } else if (this.$_.get(this.advisor, 'sid')) {
+          getCalnetProfileByCsid(this.advisor.sid).then(data => {
+            this.advisor = data
+          })
         }
       }
     },
