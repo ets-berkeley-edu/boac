@@ -6,8 +6,10 @@
         <h1 class="page-section-header">{{ degreeName || 'Degree Builder' }}</h1>
       </div>
       <div class="border-bottom py-3 w-50">
+        <h2 class="sr-only">Requirements</h2>
         <UnitRequirements />
       </div>
+      <h2 class="sr-only">Categories</h2>
       <b-container class="mt-4 mx-0 px-0" :fluid="true">
         <b-row>
           <b-col
