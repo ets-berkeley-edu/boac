@@ -52,7 +52,7 @@ def add_unit_requirement(template_id):
         template_id=template_id,
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(template_id)
+    DegreeProgressTemplate.refresh_updated_at(template_id, current_user.get_id())
     return tolerant_jsonify(unit_requirement.to_api_json())
 
 
@@ -92,7 +92,7 @@ def delete_unit_requirement(unit_requirement_id):
     if unit_requirement:
         DegreeProgressUnitRequirement.delete(unit_requirement_id)
         # Update updated_at date of top-level record
-        DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id)
+        DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id, current_user.get_id())
 
         return tolerant_jsonify({'message': f'Unit requirement {unit_requirement_id} deleted'}), 200
     else:
@@ -141,7 +141,7 @@ def update_unit_requirement(unit_requirement_id):
         updated_by=current_user.get_id(),
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id)
+    DegreeProgressTemplate.refresh_updated_at(unit_requirement.template_id, current_user.get_id())
     return tolerant_jsonify(unit_requirement.to_api_json())
 
 

@@ -28,6 +28,7 @@ import json
 
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 import pytest
@@ -224,6 +225,79 @@ class TestGetTemplateWithCategory:
         assert len(unit_requirements) == 1
         assert unit_requirements[0]['id']
         assert unit_requirements[0]['name'] == 'I am requirement.'
+
+
+class TestRecommendDegreeCategory:
+
+    @classmethod
+    def _api_recommend_category(
+            cls,
+            category_id,
+            client,
+            is_recommended,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/degree/category/{category_id}/recommend',
+            data=json.dumps({
+                'category_id': category_id,
+                'isRecommended': is_recommended,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_recommend_category(
+            category_id=1,
+            client=client,
+            expected_status_code=401,
+            is_recommended=True,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_recommend_category(
+            category_id=1,
+            client=client,
+            expected_status_code=401,
+            is_recommended=True,
+        )
+
+    def test_recommend_category(self, client, fake_auth, mock_template):
+        """Authorized user can edit a category."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        category = DegreeProgressCategory.create(
+            category_type='Category',
+            name='Recommend me to your friends.',
+            position=1,
+            template_id=mock_template.id,
+        )
+        category_id = category.id
+        self._api_recommend_category(
+            category_id=category_id,
+            client=client,
+            is_recommended=True,
+        )
+        # Verify the update
+        api_json = _api_get_template(client=client, template_id=mock_template.id)
+        category = api_json['categories'][0]
+        assert category['id'] == category_id
+        assert category['isRecommended'] is True
+        # Set to False
+        self._api_recommend_category(
+            category_id=category_id,
+            client=client,
+            is_recommended=False,
+        )
+        api_json = _api_get_template(client=client, template_id=mock_template.id)
+        category = api_json['categories'][0]
+        assert category['id'] == category_id
+        assert category['isRecommended'] is False
 
 
 class TestUpdateDegreeCategory:
