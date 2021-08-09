@@ -9,8 +9,9 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="assignedCourseCount && canEdit" class="th-course-assignment-menu">
-              <span class="sr-only">Options to re-assign course</span>
+            <b-th v-if="(hasAssignedCourses && canEdit) || hasRecommended" class="th-course-assignment-menu">
+              <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
+              <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </b-th>
             <b-th class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
             <b-th class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
@@ -46,15 +47,24 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="assignedCourseCount && canEdit" class="td-course-assignment-menu pt-1">
+              <td v-if="(hasAssignedCourses && canEdit) || hasRecommended" class="td-course-assignment-menu pt-1">
                 <div
-                  v-if="bundle.course && !isUserDragging(bundle.course.id)"
+                  v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
                 >
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
                     :course="bundle.course"
                   />
+                </div>
+                <div v-if="!bundle.course && bundle.category.isRecommended">
+                  <font-awesome
+                    :id="`category-${bundle.category.id}-is-recommended`"
+                    class="accent-color-orange"
+                    icon="circle"
+                    title="Recommended"
+                  />
+                  <span class="sr-only">This is a recommended course requirement</span>
                 </div>
               </td>
               <td
@@ -268,11 +278,6 @@ export default {
       const bundles = this.$_.filter(this.categoryCourseBundles, b => !!b.course)
       return this.$_.map(bundles, b => b.course)
     },
-    assignedCourseCount() {
-      let count = 0
-      this.$_.each(this.categoryCourseBundles, bundle => bundle.course && count++)
-      return count
-    },
     categoryCourseBundles() {
       const transformed = []
       this.$_.each(this.items, item => {
@@ -295,6 +300,14 @@ export default {
         })
       })
       return transformed
+    },
+    hasAssignedCourses() {
+      return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
+    },
+    hasRecommended() {
+      return !!this.$_.find(this.categoryCourseBundles, bundle => {
+        return !bundle.course && bundle.category.isRecommended
+      })
     }
   },
   created() {
@@ -378,7 +391,7 @@ export default {
     isDraggable(bundle) {
       const draggable =
         !this.disableButtons
-        && this.assignedCourseCount
+        && this.hasAssignedCourses
         && this.canEdit
         && bundle.course
         && !this.draggingContext.course
