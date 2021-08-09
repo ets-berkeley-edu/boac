@@ -50,6 +50,7 @@ class DegreeProgressCategory(Base):
     category_type = db.Column(degree_progress_category_type, nullable=False)
     course_units = db.Column(NUMRANGE)
     description = db.Column(db.Text)
+    is_recommended = db.Column(db.Boolean, nullable=False, default=False)
     name = db.Column(db.String(255), nullable=False)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     position = db.Column(db.Integer, nullable=False)
@@ -174,6 +175,17 @@ class DegreeProgressCategory(Base):
         return hierarchy
 
     @classmethod
+    def recommend(
+            cls,
+            category_id,
+            is_recommended,
+    ):
+        category = cls.query.filter_by(id=category_id).first()
+        category.is_recommended = is_recommended
+        std_commit()
+        return cls.find_by_id(category_id=category_id)
+
+    @classmethod
     def update(
             cls,
             category_id,
@@ -219,6 +231,7 @@ class DegreeProgressCategory(Base):
             'courses': [c.to_api_json() for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
+            'isRecommended': self.is_recommended,
             'name': self.name,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,

@@ -30,6 +30,7 @@ from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from flask import current_app as app, request
+from flask_login import current_user
 
 
 @app.route('/api/degree/category/create', methods=['POST'])
@@ -74,8 +75,7 @@ def create_category():
         unit_requirement_ids=unit_requirement_ids,
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(template_id)
-
+    DegreeProgressTemplate.refresh_updated_at(template_id, current_user.get_id())
     return tolerant_jsonify(category.to_api_json())
 
 
@@ -91,8 +91,21 @@ def delete_degree_category(category_id):
     category = _get_degree_category(category_id)
     DegreeProgressCategory.delete(category.id)
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(category.template_id)
+    DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify({'message': f'Template {category_id} deleted'}), 200
+
+
+@app.route('/api/degree/category/<category_id>/recommend', methods=['POST'])
+@can_edit_degree_progress
+def recommend_category(category_id):
+    params = request.get_json()
+    is_recommended = get_param(params, 'isRecommended')
+    if is_recommended is None:
+        raise BadRequestError('Parameter \'isRecommended\' is required')
+    category = DegreeProgressCategory.recommend(category_id=category_id, is_recommended=is_recommended)
+    # Update updated_at date of top-level record
+    DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
+    return tolerant_jsonify(category.to_api_json())
 
 
 @app.route('/api/degree/category/<category_id>/update', methods=['POST'])
@@ -118,7 +131,7 @@ def update_category(category_id):
         unit_requirement_ids=unit_requirement_ids,
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(category.template_id)
+    DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify(category.to_api_json())
 
 

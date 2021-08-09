@@ -166,7 +166,7 @@ def delete_course(course_id):
             _delete_course(course)
 
         # Update updated_at date of top-level record
-        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id, current_user.get_id())
         return tolerant_jsonify({'message': f'Course {course_id} deleted'}), 200
     else:
         raise ResourceNotFoundError('Course not found.')
@@ -214,7 +214,7 @@ def assign_course(course_id):
             DegreeProgressCategory.delete(previous_category.id)
 
         # Update updated_at date of top-level record
-        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id, current_user.get_id())
         return tolerant_jsonify(course.to_api_json())
     else:
         raise ResourceNotFoundError('Course not found.')
@@ -285,7 +285,7 @@ def create_course():
         units=units,
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+    DegreeProgressTemplate.refresh_updated_at(course.degree_check_id, current_user.get_id())
     return tolerant_jsonify(course.to_api_json())
 
 
@@ -319,7 +319,7 @@ def update_course(course_id):
             units=units,
         )
         # Update updated_at date of top-level record
-        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id)
+        DegreeProgressTemplate.refresh_updated_at(course.degree_check_id, current_user.get_id())
         return tolerant_jsonify(course.to_api_json())
     else:
         raise ResourceNotFoundError('Course not found.')
@@ -336,7 +336,7 @@ def update_degree_note(degree_check_id):
         updated_by=current_user.get_id(),
     )
     # Update updated_at date of top-level record
-    DegreeProgressTemplate.refresh_updated_at(degree_check_id)
+    DegreeProgressTemplate.refresh_updated_at(degree_check_id, current_user.get_id())
     return tolerant_jsonify(note.to_api_json())
 
 

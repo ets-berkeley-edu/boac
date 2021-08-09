@@ -168,9 +168,19 @@ class DegreeProgressTemplate(Base):
         return db.session.execute(sql, {'parent_template_id': parent_template_id, 'student_sids': student_sids})
 
     @classmethod
-    def refresh_updated_at(cls, template_id):
-        sql_text = text('UPDATE degree_progress_templates SET updated_at = now() WHERE id = :id')
-        db.session.execute(sql_text, {'id': template_id})
+    def refresh_updated_at(cls, template_id, updated_by):
+        sql_text = text("""
+            UPDATE degree_progress_templates
+            SET updated_at = now(), updated_by = :updated_by
+            WHERE id = :id
+        """)
+        db.session.execute(
+            sql_text,
+            {
+                'id': template_id,
+                'updated_by': updated_by,
+            },
+        )
 
     @classmethod
     def update(cls, template_id, name):
