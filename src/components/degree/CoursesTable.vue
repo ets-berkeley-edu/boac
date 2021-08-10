@@ -148,10 +148,7 @@
                 </div>
               </td>
               <td v-if="canEdit" class="td-actions">
-                <div
-                  v-if="isEditable(bundle)"
-                  class="d-flex justify-content-end text-nowrap"
-                >
+                <div class="d-flex justify-content-end text-nowrap">
                   <div class="btn-container">
                     <b-btn
                       v-if="!isUserDragging($_.get(bundle.course, 'id'))"
@@ -421,9 +418,6 @@ export default {
         droppable = course.categoryId === category.parentCategoryId || !this.$_.includes(courseKeys, this.getCourseKey(course))
       }
       return droppable
-    },
-    isEditable(bundle) {
-      return bundle.course || bundle.category.isRecommended || !this.sid
     },
     isEditing(bundle) {
       const isMatch = key => {
