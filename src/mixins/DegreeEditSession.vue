@@ -65,6 +65,7 @@ export default {
       'setIncludeNotesWhenPrint',
       'updateCategory',
       'updateCourse',
+      'updateCourseRequirement',
       'updateNote',
       'updateUnitRequirement'
     ]),
