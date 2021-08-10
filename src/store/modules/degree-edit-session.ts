@@ -12,6 +12,7 @@ import {
   getDegreeTemplate,
   updateCategory,
   updateCourse,
+  updateCourseRequirement,
   updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
@@ -303,6 +304,27 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
+  updateCategory: ({commit, state}, {
+    categoryId,
+    description,
+    name,
+    parentCategoryId,
+    unitRequirementIds,
+    unitsLower,
+    unitsUpper
+  }) => {
+    return new Promise(resolve => {
+      updateCategory(
+        categoryId,
+        description,
+        name,
+        parentCategoryId,
+        unitRequirementIds,
+        unitsLower,
+        unitsUpper
+      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    })
+  },
   updateCourse: ({commit, state}, {
     accentColor,
     grade,
@@ -326,6 +348,14 @@ const actions = {
       })
     })
   },
+  updateCourseRequirement: ({commit, state}, {
+    categoryId,
+    isRecommended
+  }) => {
+    return new Promise(resolve => {
+      updateCourseRequirement(categoryId, isRecommended).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    })
+  },
   updateNote: ({commit, state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {
@@ -336,27 +366,6 @@ const actions = {
   updateUnitRequirement: ({commit, state}, {name, minUnits, unitRequirementId}) => {
     return new Promise<void>(resolve => {
       updateUnitRequirement(unitRequirementId, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
-    })
-  },
-  updateCategory: ({commit, state}, {
-    categoryId,
-    description,
-    name,
-    parentCategoryId,
-    unitRequirementIds,
-    unitsLower,
-    unitsUpper
-  }) => {
-    return new Promise(resolve => {
-      updateCategory(
-        categoryId,
-        description,
-        name,
-        parentCategoryId,
-        unitRequirementIds,
-        unitsLower,
-        unitsUpper
-      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   }
 }

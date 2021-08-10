@@ -193,10 +193,17 @@
                   :position="position"
                 />
                 <EditCategory
-                  v-if="!bundle.course"
+                  v-if="!bundle.course && !sid"
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :existing-category="bundle.category"
+                  :position="position"
+                />
+                <EditCourseRequirement
+                  v-if="!bundle.course && sid"
+                  :after-cancel="afterCancel"
+                  :after-save="afterSave"
+                  :category="bundle.category"
                   :position="position"
                 />
               </b-td>
@@ -242,12 +249,20 @@ import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMe
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
+import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, Util],
-  components: {AddCourseToCategory, AreYouSureModal, CourseAssignmentMenu, EditCategory, EditCourse},
+  components: {
+    AddCourseToCategory,
+    AreYouSureModal,
+    CourseAssignmentMenu,
+    EditCategory,
+    EditCourse,
+    EditCourseRequirement
+  },
   props: {
     items: {
       required: true,
@@ -322,7 +337,7 @@ export default {
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.$announcer.polite(`Updated course ${this.bundleForEdit.name}`)
+      this.$announcer.polite(`Updated ${this.bundleForEdit.key} ${this.bundleForEdit.name}`)
       this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
@@ -408,15 +423,14 @@ export default {
       return droppable
     },
     isEditable(bundle) {
-      // The row is editable if (1) it has course assignment/copy, or (2) this is a degree template, not a degree check.
-      return bundle.course || !this.sid
+      return bundle.course || bundle.category.isRecommended || !this.sid
     },
     isEditing(bundle) {
       const isMatch = key => {
         const id = this.$_.get(bundle, `${key}.id`)
         return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
       }
-      return this.sid ? isMatch('course') : isMatch('category')
+      return bundle.course ? isMatch('course') : isMatch('category')
     },
     onDelete(bundle) {
       this.hoverCourseId = null
