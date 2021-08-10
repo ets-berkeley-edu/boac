@@ -9,6 +9,15 @@
         Recommended course
       </b-form-checkbox>
     </div>
+    <label for="recommendation-note-textarea" class="font-weight-500 pb-0">Note</label>
+    <div class="pb-3">
+      <b-form-textarea
+        id="recommendation-note-textarea"
+        v-model="note"
+        :disabled="isSaving"
+        rows="4"
+      />
+    </div>
     <div class="d-flex">
       <div class="pr-2">
         <b-btn
@@ -63,11 +72,13 @@ export default {
   },
   data: () => ({
     isRecommended: undefined,
-    isSaving: false
+    isSaving: false,
+    note: undefined
   }),
   created() {
     this.isRecommended = this.category.isRecommended
-    this.$putFocusNextTick(`category-${this.category.id}-recommended-checkbox`)
+    this.note = this.category.note
+    this.$putFocusNextTick('recommended-course-checkbox')
   },
   methods: {
     cancel() {
@@ -77,13 +88,14 @@ export default {
     onSubmit() {
       this.isSaving = true
       const done = () => {
-        this.$announcer.polite('Course Requirement updated')
+        this.$announcer.polite('Requirement updated')
         this.isSaving = false
         this.afterSave()
       }
       this.updateCourseRequirement({
         categoryId: this.category.id,
-        isRecommended: this.isRecommended
+        isRecommended: this.isRecommended,
+        note: this.note
       }).then(done)
     }
   }

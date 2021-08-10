@@ -52,6 +52,7 @@ class DegreeProgressCategory(Base):
     description = db.Column(db.Text)
     is_recommended = db.Column(db.Boolean, nullable=False, default=False)
     name = db.Column(db.String(255), nullable=False)
+    note = db.Column(db.Text)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     position = db.Column(db.Integer, nullable=False)
     template_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
@@ -84,7 +85,9 @@ class DegreeProgressCategory(Base):
                     category_type={self.category_type},
                     course_units={self.course_units},
                     description={self.description},
+                    is_recommended={self.is_recommended},
                     name={self.name},
+                    note={self.note},
                     parent_category_id={self.parent_category_id},
                     position={self.position},
                     template_id={self.template_id},
@@ -179,9 +182,11 @@ class DegreeProgressCategory(Base):
             cls,
             category_id,
             is_recommended,
+            note,
     ):
         category = cls.query.filter_by(id=category_id).first()
         category.is_recommended = is_recommended
+        category.note = note
         std_commit()
         return cls.find_by_id(category_id=category_id)
 
@@ -233,6 +238,7 @@ class DegreeProgressCategory(Base):
             'description': self.description,
             'isRecommended': self.is_recommended,
             'name': self.name,
+            'note': self.note,
             'parentCategoryId': self.parent_category_id,
             'position': self.position,
             'templateId': self.template_id,
