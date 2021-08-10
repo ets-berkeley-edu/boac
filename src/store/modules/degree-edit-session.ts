@@ -350,10 +350,15 @@ const actions = {
   },
   updateCourseRequirement: ({commit, state}, {
     categoryId,
-    isRecommended
+    isRecommended,
+    note
   }) => {
     return new Promise(resolve => {
-      updateCourseRequirement(categoryId, isRecommended).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      updateCourseRequirement(
+        categoryId,
+        isRecommended,
+        note
+      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },
   updateNote: ({commit, state}, noteBody: string) => {

@@ -419,6 +419,7 @@ CREATE TABLE degree_progress_categories (
     description text,
     is_recommended BOOLEAN DEFAULT false NOT NULL,
     name character varying(255) NOT NULL,
+    note TEXT,
     position integer NOT NULL,
     template_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,

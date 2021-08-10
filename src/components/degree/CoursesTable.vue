@@ -120,10 +120,10 @@
               <td
                 v-if="sid"
                 :class="{'td-note-printable': printable, 'ellipsis-if-overflow td-note': !printable}"
-                :title="$_.get(bundle.course, 'note')"
+                :title="$_.get(bundle.course, 'note') || $_.get(bundle.category, 'note')"
               >
                 <span :class="{'font-size-12': printable, 'font-size-14': !printable}">
-                  {{ $_.get(bundle.course, 'note') }}
+                  {{ $_.get(bundle.course, 'note') || $_.get(bundle.category, 'note') }}
                 </span>
               </td>
               <td

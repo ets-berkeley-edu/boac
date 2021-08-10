@@ -100,9 +100,14 @@ def delete_degree_category(category_id):
 def recommend_category(category_id):
     params = request.get_json()
     is_recommended = get_param(params, 'isRecommended')
+    note = get_param(params, 'note')
     if is_recommended is None:
         raise BadRequestError('Parameter \'isRecommended\' is required')
-    category = DegreeProgressCategory.recommend(category_id=category_id, is_recommended=is_recommended)
+    category = DegreeProgressCategory.recommend(
+        category_id=category_id,
+        is_recommended=is_recommended,
+        note=(note or '').strip() or None,
+    )
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify(category.to_api_json())
