@@ -62,6 +62,10 @@ def _safe_execute(string, db, **kwargs):
     return row_array
 
 
+def advising_appointments_schema():
+    return app.config['DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA']
+
+
 def advising_notes_schema():
     return app.config['DATA_LOCH_ADVISING_NOTES_SCHEMA']
 
@@ -655,6 +659,15 @@ def get_sis_advising_appointments(sid):
         LEFT JOIN {sis_advising_notes_schema()}.advising_appointment_advisors aa ON a.advisor_sid = aa.sid
         WHERE a.sid=:sid
         ORDER BY created_at, updated_at, id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_ycbm_advising_appointments(sid):
+    sql = f"""
+        SELECT
+            id, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details
+        FROM {advising_appointments_schema()}.ycbm_advising_appointments
+        WHERE student_sid=:sid"""
     return safe_execute_rds(sql, sid=sid)
 
 

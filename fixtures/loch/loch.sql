@@ -1,3 +1,4 @@
+DROP SCHEMA IF EXISTS boac_advising_appointments;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_data_science cascade;
@@ -12,6 +13,7 @@ DROP SCHEMA IF EXISTS sis_data cascade;
 DROP SCHEMA IF EXISTS sis_terms cascade;
 DROP SCHEMA IF EXISTS student cascade;
 
+CREATE SCHEMA boac_advising_appointments;
 CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA boac_advising_data_science;
@@ -25,6 +27,21 @@ CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
 CREATE SCHEMA sis_terms;
 CREATE SCHEMA student;
+
+CREATE TABLE boac_advising_appointments.ycbm_advising_appointments
+(
+    id VARCHAR NOT NULL,
+    student_uid VARCHAR,
+    student_sid VARCHAR,
+    title VARCHAR,
+    starts_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    ends_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    cancelled BOOLEAN,
+    cancellation_reason TEXT,
+    advisor_name VARCHAR,
+    appointment_type VARCHAR,
+    details VARCHAR
+);
 
 CREATE TABLE boac_advising_asc.advising_notes
 (
@@ -523,6 +540,13 @@ CREATE TABLE student.visas (
     visa_status VARCHAR,
     visa_type VARCHAR
 );
+
+INSERT INTO boac_advising_appointments.ycbm_advising_appointments
+(id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details) 
+VALUES 
+('34789-925470-48723', '139362', '294875', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'Github', 'Failure is the name of the game'),
+('78342-847236-73423', '139362', '294875', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'), 
+('83920-809233-32433', '139362', '294875', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
 
 INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, subject, body, created_at, updated_at)
