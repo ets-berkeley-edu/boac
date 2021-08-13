@@ -49,6 +49,8 @@ def get_advising_appointments(sid):
     appointments_by_id.update(get_sis_advising_appointments(sid))
     benchmark('begin non legacy advising appointments query')
     appointments_by_id.update(get_non_legacy_advising_appointments(sid))
+    benchmark('begin YCBM advising appointments query')
+    appointments_by_id.update(get_ycbm_advising_appointments(sid))
     if not appointments_by_id.values():
         return None
     appointments_read = AppointmentRead.get_appointments_read_by_user(current_user.get_id(), appointments_by_id.keys())
@@ -89,6 +91,17 @@ def get_non_legacy_advising_appointments(sid):
             appointment=appointment,
             topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
             event=event,
+        )
+    return appointments_by_id
+
+
+def get_ycbm_advising_appointments(sid):
+    appointments_by_id = {}
+    for row in data_loch.get_ycbm_advising_appointments(sid):
+        appointment = row
+        appointment_id = appointment['id']
+        appointments_by_id[str(appointment_id)] = appointment_to_compatible_json(
+            appointment=appointment,
         )
     return appointments_by_id
 
@@ -159,8 +172,11 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
     advisor_uid = appointment.get('advisor_uid')
     appointment_id = appointment.get('id')
     appointment_type = appointment.get('appointment_type')
+    cancelled = appointment.get('cancelled')
     departments = []
     dept_codes = appointment.get('advisor_dept_codes') or []
+    created_by = appointment.get('created_by') or 'YCBM'
+
     for dept_code in dept_codes:
         departments.append({
             'code': dept_code,
@@ -181,8 +197,8 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         },
         'appointmentType': appointment_type,
         'attachments': attachments,
-        'createdAt': resolve_sis_created_at(appointment),
-        'createdBy': appointment.get('created_by'),
+        'createdAt': resolve_sis_created_at(appointment) or appointment.get('starts_at').isoformat(),
+        'createdBy': created_by,
         'deptCode': appointment.get('dept_code'),
         'details': appointment.get('details'),
         'student': {
@@ -191,6 +207,8 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         'topics': topics,
         'updatedAt': resolve_sis_updated_at(appointment),
         'updatedBy': appointment.get('updated_by'),
+        'cancelled': cancelled if created_by == 'YCBM' else None,
+        'cancelReason': appointment.get('cancellation_reason') if created_by == 'YCBM' else None,
     }
     if appointment_type and appointment_type == 'Scheduled':
         api_json.update({

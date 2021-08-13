@@ -54,7 +54,7 @@ class TestMergedAdvisingAppointment:
         assert appointments[0]['appointmentType'] is None
         assert len(appointments[0]['attachments']) == 1
         assert appointments[0]['createdAt'] == '2017-10-31T12:00:00+00:00'
-        assert appointments[0]['createdBy'] is None
+        assert appointments[0]['createdBy'] in [None, 'YCBM']
         assert appointments[0]['deptCode'] is None
         assert appointments[0]['details'] == 'To my people who keep an impressive wingspan even when the cubicle shrink: \
 you got to pull up the intruder by the root of the weed; N.Y. Chew through the machine'
@@ -64,7 +64,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[0]['topics'] is None
         assert appointments[0]['updatedAt'] is None
         assert appointments[0]['updatedBy'] is None
-        assert 'cancelReason' not in appointments[0]
+        assert appointments[0]['cancelReason'] is None
         assert 'cancelReasonExplained' not in appointments[0]
         assert 'status' not in appointments[0]
         assert 'statusBy' not in appointments[0]

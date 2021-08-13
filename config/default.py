@@ -83,6 +83,7 @@ DATA_LOCH_DATA_SCIENCE_ADVISING_SCHEMA = 'boac_advising_data_science'
 DATA_LOCH_E_I_SCHEMA = 'boac_advising_e_i'
 DATA_LOCH_OUA_SCHEMA = 'boac_advising_oua'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
+DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA = 'boac_advising_appointments'
 
 # The Data Loch provides read-only Postgres access.
 DATA_LOCH_RDS_URI = 'postgresql://nessie:secret@secret-rds-url.com:5432/canvas'
