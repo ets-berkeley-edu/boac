@@ -234,12 +234,16 @@ class DegreeProgressTemplate(Base):
             latest_term_id=current_term_id(),
         )
 
-        def _organize_courses(key_):
-            courses_ = degree_progress_courses.pop(key_)
-            for idx, course_ in enumerate(courses_):
+        def _organize_course_and_its_copies(course_key, units_original_value=None):
+            for idx, course_ in enumerate(degree_progress_courses.pop(course_key)):
                 api_json = {
                     **course_.to_api_json(),
-                    **{'sis': sis},
+                    **{
+                        'sis': {
+                            # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
+                            'units': units_original_value,
+                        },
+                    },
                     'isCopy': idx > 0,
                 }
                 if api_json['categoryId']:
@@ -255,11 +259,9 @@ class DegreeProgressTemplate(Base):
                     section_id = section['ccn']
                     term_id = term['termId']
                     units = section['units']
-                    # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
-                    sis = {'units': units}
                     key = f'{section_id}_{term_id}_{None}_{None}'
                     if key in degree_progress_courses:
-                        _organize_courses(key)
+                        _organize_course_and_its_copies(key, units_original_value=units)
                     else:
                         grade = section['grade']
                         if section.get('primary') and grade and units:
@@ -274,11 +276,15 @@ class DegreeProgressTemplate(Base):
                             )
                             unassigned_courses.append({
                                 **course.to_api_json(),
-                                **{'sis': sis},
+                                **{
+                                    'sis': {
+                                        'units': units,
+                                    },
+                                },
                                 'isCopy': False,
                             })
         for key in list(degree_progress_courses.keys()):
-            _organize_courses(key)
+            _organize_course_and_its_copies(key)
 
         return assigned_courses, ignored_courses, unassigned_courses
 
