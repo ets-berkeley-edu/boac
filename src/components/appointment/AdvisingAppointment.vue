@@ -60,7 +60,7 @@
           </div>
         </div>
       </div>
-      <div v-if="advisor.name && (appointment.status === 'checked_in' || appointment.legacySource)" class="mt-2">
+      <div v-if="advisor.name && (appointment.status === 'checked_in' || appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
         <a
           v-if="advisor.uid"
           :id="`appointment-${appointment.id}-advisor-name`"
@@ -189,6 +189,8 @@ export default {
           getCalnetProfileByCsid(this.advisor.sid).then(data => {
             this.advisor = data
           })
+        } else {
+          this.advisor = this.$_.get(this.appointment, 'advisor')
         }
       }
     },

@@ -207,8 +207,8 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         'topics': topics,
         'updatedAt': resolve_sis_updated_at(appointment),
         'updatedBy': appointment.get('updated_by'),
-        'cancelled': cancelled if created_by == 'YCBM' else None,
         'cancelReason': appointment.get('cancellation_reason') if created_by == 'YCBM' else None,
+        'status': 'cancelled' if cancelled else None,
     }
     if appointment_type and appointment_type == 'Scheduled':
         api_json.update({

@@ -65,8 +65,8 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[0]['updatedAt'] is None
         assert appointments[0]['updatedBy'] is None
         assert appointments[0]['cancelReason'] is None
+        assert appointments[0]['status'] in [None, 'cancelled']
         assert 'cancelReasonExplained' not in appointments[0]
-        assert 'status' not in appointments[0]
         assert 'statusBy' not in appointments[0]
         assert 'statusDate' not in appointments[0]
 

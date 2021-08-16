@@ -209,6 +209,14 @@
                 Cancelled
               </div>
               <div
+                v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
+                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
+                class="collapsed-cancelled-icon"
+              >
+                Cancelled
+                <font-awesome icon="calendar-minus" class="status-cancelled-icon " />
+              </div>
+              <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
                 :id="`collapsed-${message.type}-${message.id}-status-checked-in`"
                 class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap"
@@ -633,6 +641,13 @@ export default {
 .close-message {
   width: 100%;
   order: -1;
+}
+.collapsed-cancelled-icon {
+  font-size: 14px;
+  min-width: 108px;
+  padding-top: 6px;
+  padding-right: 6px;
+  text-transform: uppercase;
 }
 .column-message {
   max-width: 1px;
