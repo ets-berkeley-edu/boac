@@ -52,8 +52,11 @@
           <div>
             <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
             <span class="text-secondary ml-1">
-              <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Cancelled' }}</span>
+              Canceled
             </span>
+          </div>
+          <div class="mt-1">
+            <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Canceled' }}</span>
           </div>
           <div v-if="appointment.cancelReasonExplained" class="mt-1">
             <span :id="`appointment-${appointment.id}-cancel-explained`">{{ appointment.cancelReasonExplained }}</span>

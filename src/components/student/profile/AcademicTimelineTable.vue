@@ -206,15 +206,15 @@
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
                 class="pill-appointment-status pill-cancelled pl-2 pr-2 mr-2 text-nowrap"
               >
-                Cancelled
+                Canceled
               </div>
               <div
                 v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
                 class="collapsed-cancelled-icon"
               >
-                Cancelled
                 <font-awesome icon="calendar-minus" class="status-cancelled-icon " />
+                Canceled
               </div>
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
