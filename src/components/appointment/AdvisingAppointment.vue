@@ -5,9 +5,15 @@
       :id="`appointment-${appointment.id}-is-closed`"
       :class="{'truncate-with-ellipsis': !isOpen}"
     >
-      <span :id="`appointment-${appointment.id}-details-closed`" v-html="appointment.details"></span>
+      <span
+        :id="`appointment-${appointment.id}-details-closed`"
+        v-html="appointment.appointmentTitle || appointment.details"
+      />
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
+      <div>
+        <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
+      </div>
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
