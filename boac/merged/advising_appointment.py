@@ -195,6 +195,7 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
             'uid': advisor_uid,
             'departments': departments,
         },
+        'appointmentTitle': appointment.get('title'),
         'appointmentType': appointment_type,
         'attachments': attachments,
         'createdAt': resolve_sis_created_at(appointment) or appointment.get('starts_at').isoformat(),
