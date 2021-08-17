@@ -265,6 +265,12 @@
                     :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Created on'"
                     :include-time-of-day="(message.createdAt.length > 10) && (message.type !== 'appointment')"
                   />
+                  <div
+                    v-if="message.createdBy === 'YCBM' && message.endsAt"
+                    :id="`expanded-${message.type}-${message.id}-appt-time-range`"
+                  >
+                    {{ getSameDayDate(message) }}
+                  </div>
                 </div>
                 <div v-if="displayUpdatedAt(message)">
                   <div class="mt-2 text-muted">Updated:</div>
@@ -549,6 +555,12 @@ export default {
     editNote(note) {
       this.editModeNoteId = note.id
       this.$putFocusNextTick('edit-note-subject')
+    },
+    getSameDayDate(message) {
+      let startsAt = this.$moment(message.createdAt).tz(this.$config.timezone).format('h:mma')
+      let endsAt = this.$moment(message.endsAt).tz(this.$config.timezone).format('h:mma')
+
+      return `${startsAt}-${endsAt}`
     },
     id(rowIndex) {
       return `timeline-tab-${this.activeTab}-message-${rowIndex}`

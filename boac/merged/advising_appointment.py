@@ -202,6 +202,7 @@ def appointment_to_compatible_json(appointment, topics=(), attachments=None, eve
         'createdBy': created_by,
         'deptCode': appointment.get('dept_code'),
         'details': appointment.get('details'),
+        'endsAt': appointment.get('ends_at').isoformat() if created_by == 'YCBM' and appointment.get('ends_at') else None,
         'student': {
             'sid': appointment.get('student_sid'),
         },
