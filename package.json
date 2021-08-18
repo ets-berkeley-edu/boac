@@ -44,7 +44,7 @@
     "vuex": "3.6.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
+    "@babel/core": "^7.15.0",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.23.0",
     "@typescript-eslint/parser": "^4.23.0",
@@ -55,7 +55,7 @@
     "@vue/cli-plugin-typescript": "^4.5.13",
     "@vue/cli-service": "^4.5.13",
     "@vue/eslint-config-typescript": "^7.0.0",
-    "@vue/test-utils": "^1.2.0",
+    "@vue/test-utils": "^1.2.2",
     "eslint": "^7.26.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-no-loops": "^0.3.0",
@@ -65,7 +65,7 @@
     "eslint-utils": "^2.1.0",
     "npm-force-resolutions": "^0.0.10",
     "typescript": "~4.3.5",
-    "vue-eslint-parser": "^7.6.0",
+    "vue-eslint-parser": "^7.10.0",
     "vue-template-compiler": "^2.6.14"
   },
   "license": "SEE LICENSE IN LICENSE",
