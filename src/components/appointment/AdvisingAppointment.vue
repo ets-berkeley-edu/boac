@@ -17,7 +17,7 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="!(appointment.status === 'checked_in' && advisor.title === 'Intake Desk') && !appointment.legacySource" class="mt-3">
+      <div v-if="!(appointment.status === 'checked_in' && advisor.title === 'Intake Desk') && !appointment.legacySource && appointment.createdBy !== 'YCBM'" class="mt-3">
         <font-awesome icon="clock" class="status-arrived-icon" />
         <span class="text-secondary ml-1">
           Arrived @
@@ -54,7 +54,7 @@
             </span>
           </span>
         </div>
-        <div v-if="appointment.status === 'cancelled'">
+        <div v-if="appointment.status === 'cancelled'" class="mt-2">
           <div>
             <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
             <span class="text-secondary ml-1">
