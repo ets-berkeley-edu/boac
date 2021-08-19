@@ -7,12 +7,17 @@
     >
       <span
         :id="`appointment-${appointment.id}-details-closed`"
-        v-html="appointment.appointmentTitle || appointment.details"
+        v-html="fallbackHeading(appointment)"
       />
     </div>
     <div v-if="isOpen" :id="`appointment-${appointment.id}-is-open`">
-      <div>
+      <div v-if="appointment.appointmentTitle">
         <span :id="`appointment-${appointment.id}-title`" v-html="appointment.appointmentTitle" />
+      </div>
+      <div v-if="!appointment.appointmentTitle">
+        <span :id="`appointment-${appointment.id}-title`">
+          {{ summaryHeading(appointment) }}
+        </span>
       </div>
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
@@ -178,6 +183,15 @@ export default {
     downloadUrl(attachment) {
       return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
     },
+    fallbackHeading(appointment) {
+      if (appointment.appointmentTitle && appointment.appointmentTitle.trim().length) {
+        return appointment.appointmentTitle
+      } else if (appointment.details && appointment.details.trim().length) {
+        return appointment.details
+      } else {
+        return this.summaryHeading(appointment)
+      }
+    },
     isUserDropInAdvisor(deptCode) {
       const deptCodes = this.$_.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
       return this.$_.includes(deptCodes, this.$_.upperCase(deptCode))
@@ -203,6 +217,14 @@ export default {
         }
       }
     },
+    summaryHeading(appointment) {
+      const heading = appointment.legacySource === 'SIS' ? 'Imported SIS Appt' : 'Advising Appt'
+      if (appointment.advisor.name) {
+        return `${heading}: ${appointment.advisor.name}`
+      } else {
+        return heading
+      }
+    }
   }
 }
 </script>
