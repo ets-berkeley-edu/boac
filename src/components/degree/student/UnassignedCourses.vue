@@ -83,7 +83,11 @@
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
               <td class="td-note" :class="{'ellipsis-if-overflow': course.note}" :title="course.note || null">
-                {{ course.note || '&mdash;' }}
+                <span
+                  :id="`course-${course.id}-note`"
+                  v-linkified
+                  v-html="course.note || '&mdash;'"
+                />
               </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
                 <div class="d-flex">

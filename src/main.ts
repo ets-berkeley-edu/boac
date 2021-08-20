@@ -7,6 +7,7 @@ import core from './core'
 import Highcharts from 'highcharts'
 import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
+import linkify from 'vue-linkify'
 import lodash from 'lodash'
 import mitt from 'mitt'
 import moment from 'moment-timezone'
@@ -53,6 +54,7 @@ Vue.directive('accessibleGrade', {
   bind: (el, binding) => el.innerHTML = binding.value && binding.value.replace('-', '&minus;').replace('+', '&plus;'),
   unbind: el => el.innerHTML = ''
 })
+Vue.directive('linkified', linkify)
 
 // Emit and listen for events
 Vue.prototype.$eventHub = mitt()

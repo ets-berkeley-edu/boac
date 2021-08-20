@@ -119,12 +119,24 @@
               </td>
               <td
                 v-if="sid"
-                :class="{'td-note-printable': printable, 'ellipsis-if-overflow td-note': !printable}"
+                :class="{
+                  'td-note-printable': printable,
+                  'ellipsis-if-overflow td-note': !printable
+                }"
                 :title="getNote(bundle)"
               >
-                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">
-                  {{ getNote(bundle) }}
-                </span>
+                <span v-if="printable" class="font-size-12">{{ getNote(bundle) }}</span>
+                <span
+                  v-if="!printable"
+                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                  v-linkified
+                  class="font-size-14"
+                  :class="{
+                    'font-size-12': printable,
+                    'font-size-14': !printable
+                  }"
+                  v-html="getNote(bundle)"
+                />
               </td>
               <td
                 v-if="!sid"
