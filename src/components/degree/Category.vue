@@ -60,7 +60,13 @@
         class="pl-1 py-1"
         :class="{'font-size-12': printable}"
       >
-        <pre class="text-wrap">{{ category.description }}</pre>
+        <pre v-if="printable" class="text-wrap">{{ category.description }}</pre>
+        <span
+          v-if="!printable"
+          v-linkified
+          class="text-wrap"
+          v-html="category.description"
+        />
       </div>
     </div>
     <AreYouSureModal
