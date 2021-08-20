@@ -120,10 +120,10 @@
               <td
                 v-if="sid"
                 :class="{'td-note-printable': printable, 'ellipsis-if-overflow td-note': !printable}"
-                :title="$_.get(bundle.course, 'note') || $_.get(bundle.category, 'note')"
+                :title="getNote(bundle)"
               >
                 <span :class="{'font-size-12': printable, 'font-size-14': !printable}">
-                  {{ $_.get(bundle.course, 'note') || $_.get(bundle.category, 'note') }}
+                  {{ getNote(bundle) }}
                 </span>
               </td>
               <td
@@ -392,6 +392,7 @@ export default {
     getCourseFulfillments(bundle) {
       return bundle.course ? this.$_.map(bundle.course.unitRequirements, 'name') : []
     },
+    getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
     isCourseFulfillmentsEdited(bundle) {
       if (bundle.category && bundle.course) {
         const edited = this.$_.xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
