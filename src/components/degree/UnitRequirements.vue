@@ -42,7 +42,6 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :foot-clone="!$_.isNil(sid)"
             :items="items"
             small
             thead-class="sortable-table-header text-nowrap border-bottom"
@@ -73,16 +72,6 @@
                   <font-awesome icon="trash-alt" />
                   <span class="sr-only">Delete {{ row.item.name }}</span>
                 </b-btn>
-              </div>
-            </template>
-            <template v-if="sid" #foot()="data">
-              <div class="footer-cell" :class="{'font-size-12': printable, 'font-size-16': !printable}">
-                <div v-if="data.field.key.toLowerCase() === 'name'" class="font-weight-bold">
-                  Total Units
-                </div>
-                <div v-if="data.field.key.toLowerCase() === 'completed'" id="count-required-units-completed" class="pr-1">
-                  {{ totalCompleted }}
-                </div>
               </div>
             </template>
           </b-table-lite>
@@ -127,14 +116,8 @@ export default {
     isEditing: false,
     items: undefined,
     render: false,
-    selected: undefined,
-    totalCompleted: undefined
+    selected: undefined
   }),
-  watch: {
-    lastPageRefreshAt() {
-      this.refresh()
-    }
-  },
   created() {
     const tdFontSize = this.printable ? 'font-size-12' : 'font-size-16'
     this.fields = [
@@ -217,10 +200,8 @@ export default {
     },
     refresh() {
       const items = []
-      this.totalCompleted = 0
       this.$_.each(this.unitRequirements, u => {
         const unitsCompleted = this.getUnitsCompleted(u)
-        this.totalCompleted += unitsCompleted
         items.push({
           id: u.id,
           name: u.name,
@@ -240,14 +221,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.footer-cell {
-  border-top: 1px solid #999;
-  color: #333;
-  font-weight: bold;
-  padding: 4px 0 4px 0;
-  text-transform: none !important;
-  width: 100%;
-}
-</style>
