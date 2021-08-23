@@ -40,7 +40,7 @@
       :value="null"
       @click="onSelect(null, true)"
     >
-      -- Junk Drawer --
+      -- Free Electives --
     </b-dropdown-item>
     <b-dropdown-item
       v-for="option in options"
