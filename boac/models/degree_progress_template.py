@@ -267,7 +267,7 @@ class DegreeProgressTemplate(Base):
                         if section.get('primary') and grade and units:
                             course = DegreeProgressCourse.create(
                                 degree_check_id=self.id,
-                                display_name=f"{enrollment['displayName']} {section['component']} {section['sectionNumber']}",
+                                display_name=enrollment['displayName'],
                                 grade=grade,
                                 section_id=section_id,
                                 sid=sid,
