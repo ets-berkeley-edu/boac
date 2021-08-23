@@ -164,6 +164,9 @@ export default {
     },
     unitsErrorMessage() {
       const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
+      if (isEmpty && this.course.manuallyCreatedBy) {
+        return null
+      }
       return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
     }
   },

@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE ONLY degree_progress_courses ALTER COLUMN units DROP NOT NULL;
+
+COMMIT;
