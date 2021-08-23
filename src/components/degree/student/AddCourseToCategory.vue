@@ -1,8 +1,8 @@
 <template>
   <div>
     <div v-if="isMenuOpen">
-      <div class="font-weight-500 font-size-18">
-        Add Courses
+      <div class="font-size-14 font-weight-500 pt-2">
+        Duplicate Course
       </div>
       <div class="my-2">
         <b-select
@@ -69,7 +69,7 @@
         @click.prevent="openMenu"
       >
         <div class="font-size-16 text-nowrap">
-          Add Course<span class="sr-only"> to {{ parentCategory.categoryType }} "{{ parentCategory.name }}"</span>
+          Duplicate Course<span class="sr-only"> to {{ parentCategory.categoryType }} "{{ parentCategory.name }}"</span>
         </div>
         <div class="font-size-14 pr-1">
           <font-awesome icon="plus" />
@@ -139,7 +139,7 @@ export default {
     openMenu() {
       this.setDisableButtons(true)
       this.isMenuOpen = true
-      this.$announcer.polite('Add Course menu is open.')
+      this.$announcer.polite('The \'Duplicate Course\' menu is open.')
       this.$putFocusNextTick('add-course-select')
     }
   }
