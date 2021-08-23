@@ -268,7 +268,7 @@ def create_course():
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
     units = get_param(params, 'units')
 
-    if 0 in map(lambda v: len(str(v).strip()) if v else 0, (name, sid, units)):
+    if 0 in map(lambda v: len(str(v).strip()) if v else 0, (name, sid)):
         raise BadRequestError('Missing one or more required parameters')
     course = DegreeProgressCourse.create(
         accent_color=accent_color,
@@ -301,14 +301,15 @@ def update_course(course_id):
         grade = course.grade if grade is None else grade
         name = get_param(params, 'name')
         name = course.display_name if name is None else name
+        if name is None:
+            raise BadRequestError('name is required.')
 
         note = get_param(params, 'note')
         # Courses are mapped to degree_progress_unit_requirements
         value = get_param(request.get_json(), 'unitRequirementIds')
         unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
-        units = get_param(params, 'units')
-        if name is None or units is None:
-            raise BadRequestError('units parameter is required.')
+        units = get_param(params, 'units') or None
+
         course = DegreeProgressCourse.update(
             accent_color=accent_color,
             course_id=course_id,

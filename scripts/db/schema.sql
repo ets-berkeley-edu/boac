@@ -459,7 +459,7 @@ CREATE TABLE degree_progress_courses (
   section_id INTEGER,
   sid VARCHAR(80) NOT NULL,
   term_id INTEGER,
-  units NUMERIC NOT NULL,
+  units NUMERIC,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );

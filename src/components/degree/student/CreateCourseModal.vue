@@ -167,14 +167,11 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving
-        || !!this.unitsErrorMessage
-        || !this.$_.trim(this.name)
-        || !this.$_.trim(this.units)
+      return this.isSaving || !!this.unitsErrorMessage || !this.$_.trim(this.name)
     },
     unitsErrorMessage() {
       const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
-      return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
+      return isEmpty ? null : this.validateUnitRange(this.units, undefined, 10).message
     }
   },
   destroyed() {
