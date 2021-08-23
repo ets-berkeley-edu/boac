@@ -237,6 +237,8 @@ class TestRecommendDegreeCategory:
             is_recommended,
             note=None,
             expected_status_code=200,
+            units_lower=None,
+            units_upper=None,
     ):
         response = client.post(
             f'/api/degree/category/{category_id}/recommend',
@@ -244,6 +246,8 @@ class TestRecommendDegreeCategory:
                 'category_id': category_id,
                 'isRecommended': is_recommended,
                 'note': note,
+                'unitsLower': units_lower,
+                'unitsUpper': units_upper,
             }),
             content_type='application/json',
         )
@@ -286,6 +290,8 @@ class TestRecommendDegreeCategory:
             client=client,
             is_recommended=True,
             note=note,
+            units_lower=3,
+            units_upper=4,
         )
         # Verify the update
         api_json = _api_get_template(client=client, template_id=mock_template.id)
@@ -293,6 +299,8 @@ class TestRecommendDegreeCategory:
         assert category['id'] == category_id
         assert category['isRecommended'] is True
         assert category['note'] == note
+        assert category['unitsLower'] == 3
+        assert category['unitsUpper'] == 4
         # Set to False
         self._api_recommend_category(
             category_id=category_id,
@@ -305,6 +313,8 @@ class TestRecommendDegreeCategory:
         assert category['id'] == category_id
         assert category['isRecommended'] is False
         assert category['note'] is None
+        assert category['unitsLower'] is None
+        assert category['unitsUpper'] is None
 
 
 class TestUpdateDegreeCategory:

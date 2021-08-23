@@ -181,10 +181,18 @@ class DegreeProgressCategory(Base):
     def recommend(
             cls,
             category_id,
+            course_units_lower,
+            course_units_upper,
             is_recommended,
             note,
     ):
         category = cls.query.filter_by(id=category_id).first()
+        units_lower = to_float_or_none(course_units_lower)
+        category.course_units = None if units_lower is None else NumericRange(
+            units_lower,
+            to_float_or_none(course_units_upper) or units_lower,
+            '[]',
+        )
         category.is_recommended = is_recommended
         category.note = note
         std_commit()

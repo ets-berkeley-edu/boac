@@ -9,21 +9,35 @@
         Recommended course
       </b-form-checkbox>
     </div>
-    <label for="recommendation-note-textarea" class="font-weight-500 pb-0">Note</label>
-    <div class="pb-3">
-      <b-form-textarea
-        id="recommendation-note-textarea"
-        v-model="note"
-        :disabled="isSaving"
-        rows="4"
+    <div class="pb-2">
+      <UnitsInput
+        :disable="isSaving"
+        :error-message="unitsErrorMessage"
+        :on-submit="onSubmit"
+        :range="true"
+        :set-units-lower="setUnitsLower"
+        :set-units-upper="setUnitsUpper"
+        :units-lower="unitsLower"
+        :units-upper="unitsUpper"
       />
+    </div>
+    <div>
+      <label for="recommendation-note-textarea" class="font-weight-500 pb-0">Note</label>
+      <div class="pb-3">
+        <b-form-textarea
+          id="recommendation-note-textarea"
+          v-model="note"
+          :disabled="isSaving"
+          rows="4"
+        />
+      </div>
     </div>
     <div class="d-flex">
       <div class="pr-2">
         <b-btn
           id="update-requirement-btn"
           class="btn-primary-color-override"
-          :disabled="isSaving"
+          :disabled="disableSaveButton"
           size="sm"
           variant="primary"
           @click="onSubmit"
@@ -52,10 +66,12 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import UnitsInput from '@/components/degree/UnitsInput'
 
 export default {
   name: 'EditCourseRequirement',
   mixins: [DegreeEditSession],
+  components: {UnitsInput},
   props: {
     afterCancel: {
       required: true,
@@ -73,11 +89,24 @@ export default {
   data: () => ({
     isRecommended: undefined,
     isSaving: false,
-    note: undefined
+    note: undefined,
+    unitsLower: undefined,
+    unitsUpper: undefined
   }),
+  computed: {
+    disableSaveButton() {
+      return this.isSaving || !!this.unitsErrorMessage
+    },
+    unitsErrorMessage() {
+      const validate = !!this.unitsLower || !!this.unitsUpper
+      return validate ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
+    }
+  },
   created() {
     this.isRecommended = this.category.isRecommended
     this.note = this.category.note
+    this.unitsLower = this.category.unitsLower
+    this.unitsUpper = this.category.unitsUpper
     this.$putFocusNextTick('recommended-course-checkbox')
   },
   methods: {
@@ -95,8 +124,16 @@ export default {
       this.updateCourseRequirement({
         categoryId: this.category.id,
         isRecommended: this.isRecommended,
-        note: this.note
+        note: this.note,
+        unitsLower: this.unitsLower,
+        unitsUpper: this.unitsUpper
       }).then(done)
+    },
+    setUnitsLower(units) {
+      this.unitsLower = units
+    },
+    setUnitsUpper(units) {
+      this.unitsUpper = units
     }
   }
 }
