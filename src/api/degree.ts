@@ -144,10 +144,18 @@ export function updateCourse(
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/update`, data).then(response => response.data, () => null)
 }
 
-export function updateCourseRequirement(categoryId: number, isRecommended: boolean, note: string) {
+export function updateCourseRequirement(
+  categoryId: number,
+  isRecommended: boolean,
+  note: string,
+  unitsLower: number,
+  unitsUpper: number
+) {
   const data = {
     isRecommended,
-    note
+    note,
+    unitsLower,
+    unitsUpper
   }
   return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/recommend`, data).then(response => response.data, () => null)
 }

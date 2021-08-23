@@ -1,4 +1,4 @@
-DROP SCHEMA IF EXISTS boac_advising_appointments;
+DROP SCHEMA IF EXISTS boac_advising_appointments cascade;
 DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_data_science cascade;

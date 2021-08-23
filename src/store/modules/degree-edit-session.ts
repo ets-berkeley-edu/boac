@@ -351,13 +351,17 @@ const actions = {
   updateCourseRequirement: ({commit, state}, {
     categoryId,
     isRecommended,
-    note
+    note,
+    unitsLower,
+    unitsUpper
   }) => {
     return new Promise(resolve => {
       updateCourseRequirement(
         categoryId,
         isRecommended,
-        note
+        note,
+        unitsLower,
+        unitsUpper
       ).then(() => $_refresh(commit, state.templateId)).then(resolve)
     })
   },

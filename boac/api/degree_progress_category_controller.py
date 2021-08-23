@@ -100,11 +100,17 @@ def delete_degree_category(category_id):
 def recommend_category(category_id):
     params = request.get_json()
     is_recommended = get_param(params, 'isRecommended')
-    note = get_param(params, 'note')
     if is_recommended is None:
         raise BadRequestError('Parameter \'isRecommended\' is required')
+
+    note = get_param(params, 'note')
+    units_lower = get_param(params, 'unitsLower')
+    units_upper = get_param(params, 'unitsUpper')
+
     category = DegreeProgressCategory.recommend(
         category_id=category_id,
+        course_units_lower=units_lower,
+        course_units_upper=units_upper,
         is_recommended=is_recommended,
         note=(note or '').strip() or None,
     )
@@ -117,8 +123,8 @@ def recommend_category(category_id):
 @can_edit_degree_progress
 def update_category(category_id):
     params = request.get_json()
-    course_units_lower = get_param(params, 'unitsLower')
-    course_units_upper = get_param(params, 'unitsUpper')
+    units_lower = get_param(params, 'unitsLower')
+    units_upper = get_param(params, 'unitsUpper')
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
@@ -128,8 +134,8 @@ def update_category(category_id):
 
     category = DegreeProgressCategory.update(
         category_id=category_id,
-        course_units_lower=course_units_lower,
-        course_units_upper=course_units_upper,
+        course_units_lower=units_lower,
+        course_units_upper=units_upper,
         description=description,
         parent_category_id=parent_category_id,
         name=name,
