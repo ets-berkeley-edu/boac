@@ -77,7 +77,7 @@
               :position="position"
               :printable="true"
             />
-            <div v-if="!category.subcategories.length" class="pl-1 py-1">
+            <div v-if="!category.subcategories.length" class="py-1">
               <CoursesTable
                 :id="`column-${position}-category-${category.id}-courses`"
                 :items="getItemsForCoursesTable(category)"
@@ -87,14 +87,14 @@
               />
             </div>
             <div v-if="$_.size(category.subcategories)">
-              <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pl-2 pt-2">
+              <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pt-2">
                 <Category
                   v-if="subcategory.id"
                   :category="subcategory"
                   :position="position"
                   :printable="true"
                 />
-                <div class="pl-1 py-1">
+                <div class="py-1">
                   <CoursesTable
                     :items="getItemsForCoursesTable(subcategory)"
                     :parent-category="subcategory"
@@ -166,9 +166,6 @@ pre {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 12px;
   margin: 0;
-}
-.footer-border {
-  border-top: 1px #999 solid;
 }
 .section-border-major {
   border-bottom: 3px #999 solid;
