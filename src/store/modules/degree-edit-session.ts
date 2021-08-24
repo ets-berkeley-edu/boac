@@ -350,6 +350,7 @@ const actions = {
   },
   updateCourseRequirement: ({commit, state}, {
     categoryId,
+    grade,
     isRecommended,
     note,
     unitsLower,
@@ -358,6 +359,7 @@ const actions = {
     return new Promise(resolve => {
       updateCourseRequirement(
         categoryId,
+        grade,
         isRecommended,
         note,
         unitsLower,

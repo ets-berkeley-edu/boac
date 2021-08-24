@@ -114,7 +114,7 @@
               </td>
               <td v-if="sid" class="td-grade">
                 <span :class="{'font-size-12': printable, 'font-size-14 text-nowrap': !printable}">
-                  {{ $_.get(bundle.course, 'grade') }}
+                  {{ $_.get(bundle.course || bundle.category, 'grade') }}
                 </span>
               </td>
               <td

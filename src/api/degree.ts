@@ -146,12 +146,14 @@ export function updateCourse(
 
 export function updateCourseRequirement(
   categoryId: number,
+  grade: string,
   isRecommended: boolean,
   note: string,
   unitsLower: number,
   unitsUpper: number
 ) {
   const data = {
+    grade,
     isRecommended,
     note,
     unitsLower,
