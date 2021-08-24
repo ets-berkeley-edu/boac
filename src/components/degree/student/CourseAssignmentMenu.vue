@@ -77,6 +77,11 @@ export default {
     course: {
       required: true,
       type: Object
+    },
+    afterCourseAssignment: {
+      default: () => {},
+      required: false,
+      type: Function
     }
   },
   data: () => ({
@@ -113,7 +118,7 @@ export default {
       this.assignCourseToCategory({course: this.course, category, ignore}).then(courseAssigned => {
         this.setDisableButtons(false)
         this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
-        this.$putFocusNextTick(`assign-course-${courseAssigned.id}-dropdown`, 'button')
+        this.afterCourseAssignment(courseAssigned)
       })
     }
   }

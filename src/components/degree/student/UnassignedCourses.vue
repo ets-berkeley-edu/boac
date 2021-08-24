@@ -51,7 +51,7 @@
             >
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
-                  <CourseAssignmentMenu :course="course" />
+                  <CourseAssignmentMenu :after-course-assignment="() => $putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
               <td class="td-name">
