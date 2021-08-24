@@ -43,13 +43,13 @@
       />
     </div>
     <div v-if="course.manuallyCreatedBy" class="pb-2">
-      <label id="units-grade-label" for="course-grade-input" class="font-weight-bolder mb-1 pr-2">
+      <label id="grade-label" for="course-grade-input" class="font-weight-bolder mb-1 pr-2">
         Grade
       </label>
       <b-form-input
         id="course-grade-input"
         v-model="grade"
-        aria-labelledby="units-grade-label"
+        aria-labelledby="grade-label"
         class="grade-input"
         maxlength="3"
         size="sm"

@@ -1,5 +1,5 @@
 <template>
-  <div class="pb-3 pl-4 pt-2">
+  <div class="pb-3 pl-2 pt-2">
     <div class="mb-2">
       <label for="recommended-course-checkbox" class="font-size-14 font-weight-bolder mb-1">Course Indicator</label>
       <b-form-checkbox
@@ -19,6 +19,21 @@
         :set-units-upper="setUnitsUpper"
         :units-lower="unitsLower"
         :units-upper="unitsUpper"
+      />
+    </div>
+    <div class="pb-2">
+      <label id="grade-label" for="grade-input" class="font-weight-bolder mb-1 pr-2">
+        Grade
+      </label>
+      <b-form-input
+        id="grade-input"
+        v-model="grade"
+        aria-labelledby="grade-label"
+        class="grade-input"
+        maxlength="3"
+        size="sm"
+        trim
+        @keypress.enter="onSubmit"
       />
     </div>
     <div>
@@ -87,6 +102,7 @@ export default {
     }
   },
   data: () => ({
+    grade: undefined,
     isRecommended: undefined,
     isSaving: false,
     note: undefined,
@@ -103,6 +119,7 @@ export default {
     }
   },
   created() {
+    this.grade = this.category.grade
     this.isRecommended = this.category.isRecommended
     this.note = this.category.note
     this.unitsLower = this.category.unitsLower
@@ -123,6 +140,7 @@ export default {
       }
       this.updateCourseRequirement({
         categoryId: this.category.id,
+        grade: this.grade,
         isRecommended: this.isRecommended,
         note: this.note,
         unitsLower: this.unitsLower,
@@ -138,3 +156,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.grade-input {
+  width: 3rem;
+}
+</style>
