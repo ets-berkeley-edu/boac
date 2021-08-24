@@ -31,7 +31,7 @@
                 @dragstart="onDrag($event,'start', 'ignored')"
                 @drop="dropToUnassign($event, 'ignored')"
               >
-                <h3 class="font-size-20 font-weight-bold pb-0 text-nowrap">Free Electives</h3>
+                <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Free Electives</h3>
                 <UnassignedCourses :ignored="true" />
               </div>
             </b-col>
@@ -48,7 +48,7 @@
                 @dragstart="onDrag($event,'start', 'unassigned')"
                 @drop="dropToUnassign($event, 'unassigned')"
               >
-                <h3 class="font-size-20 font-weight-bold pb-0 text-nowrap">Unassigned Courses</h3>
+                <h3 id="unassigned-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Unassigned Courses</h3>
                 <div v-if="$currentUser.canEditDegreeProgress" class="pb-2">
                   <CreateCourseModal :student="student" />
                 </div>

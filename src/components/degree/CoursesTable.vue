@@ -54,6 +54,7 @@
                 >
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
+                    :after-course-assignment="course => $putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')"
                     :course="bundle.course"
                   />
                 </div>
