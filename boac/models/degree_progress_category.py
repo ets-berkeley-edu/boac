@@ -50,6 +50,7 @@ class DegreeProgressCategory(Base):
     category_type = db.Column(degree_progress_category_type, nullable=False)
     course_units = db.Column(NUMRANGE)
     description = db.Column(db.Text)
+    grade = db.Column(db.String(50))
     is_recommended = db.Column(db.Boolean, nullable=False, default=False)
     name = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
@@ -85,6 +86,7 @@ class DegreeProgressCategory(Base):
                     category_type={self.category_type},
                     course_units={self.course_units},
                     description={self.description},
+                    grade={self.grade},
                     is_recommended={self.is_recommended},
                     name={self.name},
                     note={self.note},
@@ -104,6 +106,7 @@ class DegreeProgressCategory(Base):
             course_units_lower=None,
             course_units_upper=None,
             description=None,
+            grade=None,
             parent_category_id=None,
             unit_requirement_ids=None,
     ):
@@ -183,6 +186,7 @@ class DegreeProgressCategory(Base):
             category_id,
             course_units_lower,
             course_units_upper,
+            grade,
             is_recommended,
             note,
     ):
@@ -193,6 +197,7 @@ class DegreeProgressCategory(Base):
             to_float_or_none(course_units_upper) or units_lower,
             '[]',
         )
+        category.grade = grade
         category.is_recommended = is_recommended
         category.note = note
         std_commit()
@@ -244,6 +249,7 @@ class DegreeProgressCategory(Base):
             'courses': [c.to_api_json() for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
+            'grade': self.grade,
             'isRecommended': self.is_recommended,
             'name': self.name,
             'note': self.note,

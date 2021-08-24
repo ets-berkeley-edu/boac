@@ -103,6 +103,7 @@ def recommend_category(category_id):
     if is_recommended is None:
         raise BadRequestError('Parameter \'isRecommended\' is required')
 
+    grade = get_param(params, 'grade')
     note = get_param(params, 'note')
     units_lower = get_param(params, 'unitsLower')
     units_upper = get_param(params, 'unitsUpper')
@@ -111,6 +112,7 @@ def recommend_category(category_id):
         category_id=category_id,
         course_units_lower=units_lower,
         course_units_upper=units_upper,
+        grade=grade,
         is_recommended=is_recommended,
         note=(note or '').strip() or None,
     )
