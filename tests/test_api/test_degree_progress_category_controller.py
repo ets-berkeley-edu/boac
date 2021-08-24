@@ -235,8 +235,9 @@ class TestRecommendDegreeCategory:
             category_id,
             client,
             is_recommended,
-            note=None,
             expected_status_code=200,
+            grade=None,
+            note=None,
             units_lower=None,
             units_upper=None,
     ):
@@ -244,6 +245,7 @@ class TestRecommendDegreeCategory:
             f'/api/degree/category/{category_id}/recommend',
             data=json.dumps({
                 'category_id': category_id,
+                'grade': grade,
                 'isRecommended': is_recommended,
                 'note': note,
                 'unitsLower': units_lower,
@@ -288,6 +290,7 @@ class TestRecommendDegreeCategory:
         self._api_recommend_category(
             category_id=category_id,
             client=client,
+            grade='B',
             is_recommended=True,
             note=note,
             units_lower=3,
@@ -297,6 +300,7 @@ class TestRecommendDegreeCategory:
         api_json = _api_get_template(client=client, template_id=mock_template.id)
         category = api_json['categories'][0]
         assert category['id'] == category_id
+        assert category['grade'] == 'B'
         assert category['isRecommended'] is True
         assert category['note'] == note
         assert category['unitsLower'] == 3
@@ -311,6 +315,7 @@ class TestRecommendDegreeCategory:
         api_json = _api_get_template(client=client, template_id=mock_template.id)
         category = api_json['categories'][0]
         assert category['id'] == category_id
+        assert category['grade'] is None
         assert category['isRecommended'] is False
         assert category['note'] is None
         assert category['unitsLower'] is None

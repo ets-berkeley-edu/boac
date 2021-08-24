@@ -50,7 +50,7 @@ class DegreeProgressCourse(Base):
     category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
     degree_check_id = db.Column(db.Integer, db.ForeignKey('degree_progress_templates.id'), nullable=False)
     display_name = db.Column(db.String(255), nullable=False)
-    grade = db.Column(db.String(255), nullable=False)
+    grade = db.Column(db.String(50), nullable=False)
     ignore = db.Column(db.Boolean, nullable=False)
     note = db.Column(db.Text)
     manually_created_at = db.Column(db.DateTime)
