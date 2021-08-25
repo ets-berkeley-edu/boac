@@ -57,8 +57,8 @@
       <div
         v-if="category.description"
         id="category-header-description"
-        class="pl-1 py-1"
-        :class="{'font-size-12': printable}"
+        class="py-1"
+        :class="{'font-size-12': printable, 'pl-1': !printable}"
       >
         <pre v-if="printable" class="text-wrap">{{ category.description }}</pre>
         <span

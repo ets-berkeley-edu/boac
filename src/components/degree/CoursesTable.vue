@@ -9,7 +9,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="(hasAssignedCourses && canEdit) || hasRecommended" class="th-course-assignment-menu">
+            <b-th v-if="hasAssignedCourses && canEdit" class="th-course-assignment-menu">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </b-th>
@@ -47,7 +47,7 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="(hasAssignedCourses && canEdit) || hasRecommended" class="td-course-assignment-menu pt-1">
+              <td v-if="hasAssignedCourses && canEdit" class="td-course-assignment-menu pt-1">
                 <div
                   v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -58,25 +58,24 @@
                     :course="bundle.course"
                   />
                 </div>
-                <div v-if="!bundle.course && bundle.category.isRecommended">
-                  <font-awesome
-                    :id="`category-${bundle.category.id}-is-recommended`"
-                    class="accent-color-orange"
-                    icon="circle"
-                    title="Recommended"
-                  />
-                  <span class="sr-only">This is a recommended course requirement</span>
-                </div>
               </td>
               <td
-                class="td-name"
                 :class="{
                   'faint-text font-italic': !bundle.course,
-                  'font-size-12': printable,
-                  'font-size-14': !printable
+                  'font-size-12 td-name-printable': printable,
+                  'font-size-14 td-name': !printable
                 }"
               >
                 <div class="align-items-center d-flex pt-1">
+                  <div v-if="!bundle.course && bundle.category.isRecommended" class="pr-1">
+                    <font-awesome
+                      :id="`category-${bundle.category.id}-is-recommended`"
+                      class="accent-color-orange"
+                      icon="circle"
+                      title="Recommended"
+                    />
+                    <span class="sr-only">This is a recommended course requirement</span>
+                  </div>
                   <div
                     :class="{
                       'font-weight-500': isEditing(bundle),
@@ -328,11 +327,6 @@ export default {
     },
     hasAssignedCourses() {
       return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
-    },
-    hasRecommended() {
-      return !!this.$_.find(this.categoryCourseBundles, bundle => {
-        return !bundle.course && bundle.category.isRecommended
-      })
     }
   },
   created() {
@@ -557,6 +551,11 @@ table {
   padding: 0.25em 0 0.25em 0.25em;
   vertical-align: middle;
 }
+.td-name-printable {
+  padding: 0.25em 0;
+  vertical-align: middle;
+  width: 180px !important;
+}
 .td-note {
   max-width: 60px;
   padding: 0 0.5em 0 0;
@@ -564,9 +563,9 @@ table {
   width: 1px;
 }
 .td-note-printable {
-  max-width: 60px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
+  width: 60px !important;
 }
 .td-max-width-0 {
   max-width: 0;
