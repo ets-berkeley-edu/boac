@@ -118,6 +118,11 @@ export default {
     render: false,
     selected: undefined
   }),
+  watch: {
+    lastPageRefreshAt() {
+      this.refresh()
+    }
+  },
   created() {
     const tdFontSize = this.printable ? 'font-size-12' : 'font-size-16'
     this.fields = [
