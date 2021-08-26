@@ -132,20 +132,22 @@ export default {
       this.afterCancel()
     },
     onSubmit() {
-      this.isSaving = true
-      const done = () => {
-        this.$announcer.polite('Requirement updated')
-        this.isSaving = false
-        this.afterSave()
+      if (!this.disableSaveButton) {
+        this.isSaving = true
+        const done = () => {
+          this.$announcer.polite('Requirement updated')
+          this.isSaving = false
+          this.afterSave()
+        }
+        this.updateCourseRequirement({
+          categoryId: this.category.id,
+          grade: this.grade,
+          isRecommended: this.isRecommended,
+          note: this.note,
+          unitsLower: this.unitsLower,
+          unitsUpper: this.unitsUpper
+        }).then(done)
       }
-      this.updateCourseRequirement({
-        categoryId: this.category.id,
-        grade: this.grade,
-        isRecommended: this.isRecommended,
-        note: this.note,
-        unitsLower: this.unitsLower,
-        unitsUpper: this.unitsUpper
-      }).then(done)
     },
     setUnitsLower(units) {
       this.unitsLower = units
