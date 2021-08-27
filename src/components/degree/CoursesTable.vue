@@ -113,13 +113,20 @@
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="sid" class="td-grade">
-                <span :class="{'font-size-12': printable, 'font-size-14 text-nowrap': !printable}">
+                <span
+                  :class="{
+                    'faint-text font-italic': !bundle.course,
+                    'font-size-12': printable,
+                    'font-size-14 text-nowrap': !printable
+                  }"
+                >
                   {{ $_.get(bundle.course || bundle.category, 'grade') }}
                 </span>
               </td>
               <td
                 v-if="sid"
                 :class="{
+                  'faint-text font-italic': !bundle.course,
                   'td-note-printable': printable,
                   'ellipsis-if-overflow td-note': !printable
                 }"
