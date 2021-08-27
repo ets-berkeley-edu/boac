@@ -40,7 +40,7 @@
       :value="null"
       @click="onSelect(null, true)"
     >
-      -- Free Electives --
+      -- {{ junkDrawerName }} --
     </b-dropdown-item>
     <b-dropdown-item
       v-for="option in options"
@@ -86,6 +86,7 @@ export default {
   },
   data: () => ({
     isSaving: false,
+    junkDrawerName: 'Free Electives',
     selectedOption: null
   }),
   computed: {
@@ -117,7 +118,11 @@ export default {
       this.setDisableButtons(true)
       this.assignCourseToCategory({course: this.course, category, ignore}).then(courseAssigned => {
         this.setDisableButtons(false)
-        this.$announcer.polite(category ? `${category.name} selected for ${this.course.name}` : 'Course unassigned')
+        if (category) {
+          this.$announcer.polite(`${category.name} selected for ${this.course.name}`)
+        } else {
+          this.$announcer.polite(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
+        }
         this.afterCourseAssignment(courseAssigned)
       })
     }
