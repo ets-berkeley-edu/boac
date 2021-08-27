@@ -42,7 +42,7 @@
           aria-labelledby="units-input-label"
           class="units-input"
           :disabled="disable"
-          :maxlength="max > 10 ? 4 : 3"
+          maxlength="4"
           size="sm"
           trim
           :value="unitsUpper"
