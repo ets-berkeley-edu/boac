@@ -498,7 +498,7 @@ class TestMarkNoteRead:
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
         all_notes_unread = _get_notes(client, 61889)
-        assert len(all_notes_unread) == 9
+        assert len(all_notes_unread) == 12
         for note in all_notes_unread:
             assert note['read'] is False
 
@@ -516,9 +516,12 @@ class TestMarkNoteRead:
         # E&I note
         response = client.post('/api/notes/11667051-151620/mark_read')
         assert response.status_code == 201
+        # SIS eForm
+        response = client.post('/api/notes/eform-10096/mark_read')
+        assert response.status_code == 201
 
         all_notes_after_read = _get_notes(client, 61889)
-        assert len(all_notes_after_read) == 9
+        assert len(all_notes_after_read) == 12
         assert all_notes_after_read[0]['id'] == '11667051-00001'
         assert all_notes_after_read[0]['read'] is True
         assert all_notes_after_read[1]['id'] == '11667051-00002'
@@ -537,6 +540,12 @@ class TestMarkNoteRead:
         assert all_notes_after_read[7]['read'] is True
         assert all_notes_after_read[8]['id'] == '11667051-151620'
         assert all_notes_after_read[8]['read'] is True
+        assert all_notes_after_read[9]['id'] == 'eform-101'
+        assert all_notes_after_read[9]['read'] is False
+        assert all_notes_after_read[10]['id'] == 'eform-10099'
+        assert all_notes_after_read[10]['read'] is False
+        assert all_notes_after_read[11]['id'] == 'eform-10096'
+        assert all_notes_after_read[11]['read'] is True
 
 
 class TestUpdateNotes:

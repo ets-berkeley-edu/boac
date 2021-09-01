@@ -77,6 +77,8 @@ def get_advising_notes(sid):
     notes_by_id.update(get_e_i_advising_notes(sid))
     benchmark('begin non legacy advising notes query')
     notes_by_id.update(get_non_legacy_advising_notes(sid))
+    benchmark('begin SIS late drop eforms  query')
+    notes_by_id.update(get_sis_late_drop_eforms(sid))
     if not notes_by_id.values():
         return None
     notes_read = NoteRead.get_notes_read_by_user(current_user.get_id(), notes_by_id.keys())
@@ -159,6 +161,15 @@ def get_non_legacy_advising_notes(sid):
             topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
         )
     return notes_by_id
+
+
+def get_sis_late_drop_eforms(sid):
+    eforms_by_id = {}
+    for eform in data_loch.get_sis_late_drop_eforms(sid):
+        eform_id = eform['id']
+        eforms_by_id[eform_id] = note_to_compatible_json(eform)
+        eforms_by_id[eform_id]['legacySource'] = 'SIS'
+    return eforms_by_id
 
 
 def search_advising_notes(

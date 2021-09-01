@@ -453,11 +453,12 @@ class TestMergedAdvisingNote:
             assert contents['dog_eaten_homework.pdf'] == b'When in the course of human events, it becomes necessarf arf woof woof woof'
             today = localize_datetime(utc_now()).strftime('%Y%m%d')
             csv_rows = contents[f"advising_notes_wolfgang_pauli-o'rourke_{today}.csv"].decode('utf-8').strip().split('\r\n')
-            assert len(csv_rows) == 3
+            assert len(csv_rows) == 4
             assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,topics,attachments,body'
             assert csv_rows[1] ==\
                 "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,,dog_eaten_homework.pdf,I am confounded by this confounding student"
             assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,,Is this student even on campus?"
+            assert csv_rows[3] == "2020-12-04,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,"
 
 
 def _create_coe_advisor_note(

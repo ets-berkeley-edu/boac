@@ -173,6 +173,13 @@ class TestDataLoch:
         assert appointments[1]['id'] == '11667051-00011'
         assert appointments[2]['id'] == '11667051-00012'
 
+    def test_get_sis_late_drop_eforms(self):
+        eforms = data_loch.get_sis_late_drop_eforms('11667051')
+        assert len(eforms) == 3
+        assert eforms[0]['id'] == 'eform-101'
+        assert eforms[1]['id'] == 'eform-10099'
+        assert eforms[2]['id'] == 'eform-10096'
+
     def test_get_students_ordering_default(self):
         o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
             '2202',
