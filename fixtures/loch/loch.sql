@@ -368,6 +368,30 @@ CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
   sis_topic VARCHAR NOT NULL
 );
 
+CREATE TABLE sis_advising_notes.student_late_drop_eforms (
+    id VARCHAR,
+    career_code VARCHAR,
+    course_display_name VARCHAR,
+    course_title VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE,
+    edl_load_date VARCHAR,
+    eform_id INTEGER,
+    eform_status VARCHAR,
+    eform_type VARCHAR,
+    grading_basis_code VARCHAR,
+    grading_basis_description VARCHAR,
+    requested_action VARCHAR,
+    requested_grading_basis_code VARCHAR,
+    requested_grading_basis_description VARCHAR,
+    section_id INTEGER,
+    section_num VARCHAR,
+    sid VARCHAR NOT NULL,
+    student_name VARCHAR,
+    term_id VARCHAR(4),
+    units_taken VARCHAR,
+    updated_at TIMESTAMP WITH TIME ZONE
+);
+
 CREATE TABLE sis_data.enrolled_primary_sections
 (
     term_id VARCHAR NOT NULL,
@@ -827,6 +851,14 @@ VALUES
 ('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE),
 ('9100000000-00010', '9100000000', 1, '2017-10-31', '8901', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9100000000_00010_1.pdf', 'not_a_virus.exe', TRUE),
 ('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf', TRUE);
+
+INSERT INTO sis_advising_notes.student_late_drop_eforms
+(id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)
+VALUES
+('eform-10096', 'UGRD', 'MATH 16A', 'ANAL GEO & CALCULUS', '2020-12-05 00:00:00+00', '2021-09-01', 468999, 'Executed', 'SRLATEDROP', 'CPN', 'Pass/No Pass College Adjust', 'Undefined', ' ', ' ', 22335, '001', '11667051', 'Deborah Davies', '2208', '3', '2020-12-08 10:32:08+00'), 
+('eform-10098', 'UGRD', 'PSYCH 110', 'INTROD BIOL PSYCH', '2020-12-05 00:00:00+00', '2021-09-01', 469118, 'In Error', 'SRLATEDROP', 'EPN', 'Elective Pass/No Pass', 'Late Grading Basis Change', 'GRD', 'Graded', 24460, '001', '9000000000', 'Wolfgang Pauli-O''Rourke', '2208', '3', '2020-12-05 00:02:57+00'), 
+('eform-10099', 'UGRD', 'EECS 16A', 'DESIGN INFO DEV I', '2020-12-05 00:00:00+00', '2021-09-01', 469242, 'Executed', 'SRLATEDROP', 'GRD', 'Graded', 'Late Grading Basis Change', 'EPN', 'Elective Pass/No Pass', 31262, '001', '11667051', 'Deborah Davies', '2208', '4', '2020-12-05 00:00:07+00'), 
+('eform-101', 'UGRD', 'PBHLTH 126', 'HEALTH ECONOMICS', '2020-04-15 00:00:00+00', '2021-09-01', 378785, 'Executed', 'SRLATEDROP', ' ', 'DefaultPNP', 'Late Drop', ' ', ' ', 10589, '001', '11667051', 'Deborah Davies', '2202', '3', '2020-04-15 12:46:01+00');
 
 CREATE TABLE boac_advising_notes.advising_notes AS (
 SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
