@@ -91,7 +91,7 @@ export default {
       })
     },
     cancelCreateModal() {
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.showCreateModal = false
     },
     create(name) {

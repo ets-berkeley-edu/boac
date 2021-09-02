@@ -324,7 +324,7 @@ export default {
       this.putFocusNewFilterDropdown()
     },
     onClickCancelEdit() {
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.isModifyingFilter = false
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()

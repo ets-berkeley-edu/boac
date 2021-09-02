@@ -115,7 +115,7 @@ export default {
     cancel() {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
-      this.$announcer.polite('Cancelled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick(`column-${this.position}-add-course-to-category-${this.parentCategory.id}`)
     },
     onClickSave() {

@@ -176,7 +176,7 @@ export default {
     },
     onModalCancel() {
       this.showModal = false
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
     },
     refresh() {

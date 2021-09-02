@@ -503,7 +503,7 @@ export default {
       this.editModeNoteId = null
     },
     cancelTheDelete() {
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.$putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },

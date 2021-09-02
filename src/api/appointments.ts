@@ -10,7 +10,7 @@ export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
     })
     .then(response => {
       const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} cancelled a drop-in appointment`, 'cancel')
+      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} canceled a drop-in appointment`, 'cancel')
       return response.data
     })
 }
