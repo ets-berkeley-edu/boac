@@ -126,7 +126,7 @@ export default {
       this.showDeleteTemplateModal = false
       this.showRenameTemplateModal = false
       this.targetTemplate = null
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.$putFocusNextTick('create-note-subject')
       this.$nextTick(() => {
         this.setFocusLockDisabled(false)

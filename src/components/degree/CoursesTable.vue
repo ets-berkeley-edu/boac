@@ -342,7 +342,7 @@ export default {
   },
   methods: {
     afterCancel() {
-      this.$announcer.polite('Cancelled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)

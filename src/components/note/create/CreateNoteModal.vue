@@ -292,14 +292,14 @@ export default {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
       this.dismissAlertSeconds = 0
-      this.alertScreenReader('Cancelled create new note')
+      this.alertScreenReader('Canceled create new note')
       this.exit()
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
       this.resetModel()
       this.setMode(this.isBatchFeature ? 'batch' : 'create')
-      this.alertScreenReader('Cancelled create template.')
+      this.alertScreenReader('Canceled create template.')
       this.$putFocusNextTick('create-note-subject')
       this.$nextTick(() => {
         this.setFocusLockDisabled(false)

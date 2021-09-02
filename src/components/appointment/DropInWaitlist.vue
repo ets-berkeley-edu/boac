@@ -147,7 +147,7 @@
           no-gutters
           class="border-top"
         >
-          <span v-if="waitlist.resolved.length" class="sr-only">{{ waitlist.resolved.length }} appointments checked in or cancelled</span>
+          <span v-if="waitlist.resolved.length" class="sr-only">{{ waitlist.resolved.length }} appointments checked in or canceled</span>
         </b-row>
         <DropInWaitlistAppointment
           v-for="appointment in waitlist.resolved"

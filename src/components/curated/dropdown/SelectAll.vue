@@ -176,7 +176,7 @@ export default {
     },
     modalCancel() {
       this.showModal = false
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.afterModalCancel()
     },
     modalCreateCuratedGroup(name) {

@@ -165,7 +165,7 @@ export default {
       apiCancel(this.appointment.id, reason, reasonExplained).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false
-          this.alertScreenReader(`${this.appointment.student.name} appointment cancelled`)
+          this.alertScreenReader(`${this.appointment.student.name} appointment canceled`)
         })
       }).catch(this.handleBadRequestError)
     },

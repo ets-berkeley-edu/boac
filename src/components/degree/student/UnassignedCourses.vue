@@ -177,7 +177,7 @@ export default {
   methods: {
     afterCancel() {
       const putFocus = `edit-${this.key}-course-${this.courseForEdit.id}-btn`
-      this.$announcer.polite('Cancelled')
+      this.$announcer.polite('Canceled')
       this.courseForEdit = null
       this.setDisableButtons(false)
       this.$putFocusNextTick(putFocus)

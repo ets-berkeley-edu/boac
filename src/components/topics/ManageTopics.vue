@@ -226,7 +226,7 @@ export default {
     deleteCancel() {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.$putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
@@ -245,7 +245,7 @@ export default {
     },
     onCancelEdit() {
       this.isEditTopicModalOpen = false
-      this.alertScreenReader('Cancelled')
+      this.alertScreenReader('Canceled')
       this.$putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics')
       this.topicEdit = null
     },

@@ -106,7 +106,7 @@
           :id="`appointment-${appointment.id}-cancelled`"
           class="float-right pill-appointment-status pill-cancelled pl-2 pr-2"
         >
-          Cancelled<span class="sr-only"> appointment</span>
+          Canceled<span class="sr-only"> appointment</span>
         </div>
         <div v-if="appointment.status === 'checked_in' && !reopening">
           <div

@@ -165,7 +165,7 @@ export default {
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
         })
       } else {
-        this.alertScreenReader('Cancelled bulk add of students')
+        this.alertScreenReader('Canceled bulk add of students')
         this.$putFocusNextTick('curated-group-name')
       }
     },
