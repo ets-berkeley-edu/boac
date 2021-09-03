@@ -4,9 +4,10 @@
       <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
       <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
       <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
         advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm">L&amp;S Late Change of Schedule Request</span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
@@ -30,7 +31,39 @@
       <div v-if="note.subject && note.message" class="mt-2">
         <span :id="`note-${note.id}-message-open`" v-html="note.message"></span>
       </div>
-      <div v-if="!$_.isNil(author) && !author.name && !author.email" class="mt-2 text-black-50 advisor-profile-not-found">
+      <div v-if="!note.subject && !note.message && note.eForm" class="mt-2">
+        <dl :id="`note-${note.id}-message-open`">
+          <div>
+            <dt>Form ID</dt>
+            <dd>{{ note.eForm.id }}</dd>
+          </div>
+          <div>
+            <dt>Date Initiated</dt>
+            <dd>{{ note.createdAt | moment('MM/DD/YYYY h:mm:ssa') }}</dd>
+          </div>
+          <div>
+            <dt>Form Status </dt>
+            <dd>{{ note.eForm.status }}</dd>
+          </div>
+          <div>
+            <dt>Final Date &amp; Time Stamp</dt>
+            <dd>{{ note.updatedAt | moment('MM/DD/YYYY h:mm:ssa') }}</dd>
+          </div>
+          <div>
+            <dt>Term</dt>
+            <dd>{{ termNameForSisId(note.eForm.term) }}</dd>
+          </div>
+          <div v-if="note.eForm.action !== 'Undefined'">
+            <dt>Late Action</dt>
+            <dd>{{ note.eForm.action }}</dd>
+          </div>
+          <div>
+            <dt>Course</dt>
+            <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
+          </div>
+        </dl>
+      </div>
+      <div v-if="!$_.isNil(author) && !author.name && !author.email && !note.eForm" class="mt-2 text-black-50 advisor-profile-not-found">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
