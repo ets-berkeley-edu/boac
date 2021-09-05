@@ -32,7 +32,7 @@ from os import path
 import re
 
 from boac.externals import data_loch, s3
-from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
+from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
 from boac.lib.sis_advising import (
     get_legacy_attachment_stream,
     get_sis_advising_attachments,
@@ -348,6 +348,10 @@ def get_zip_stream_for_sid(sid):
             'topics',
             'attachments',
             'body',
+            'late_change_request_action',
+            'late_change_request_status',
+            'late_change_request_term',
+            'late_change_request_course',
         ])
         for note in notes:
             calnet_author = supplemental_calnet_advisor_feeds.get(note['author']['sid'])
@@ -362,6 +366,7 @@ def get_zip_stream_for_sid(sid):
             timestamp_created = f"{note['createdAt']}T12:00:00" if len(note['createdAt']) == 10 else note['createdAt'][:19]
             datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
             date_local = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
+            e_form = note.get('eForm', {})
             yield csv_line([
                 date_local,
                 sid,
@@ -373,6 +378,10 @@ def get_zip_stream_for_sid(sid):
                 '; '.join([t for t in note['topics'] or []]),
                 '; '.join([a['displayName'] for a in note['attachments'] or []]),
                 note['body'],
+                e_form['action'] if e_form['action'] != 'Undefined' else None,
+                e_form['status'],
+                term_name_for_sis_id(e_form['term']),
+                f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if e_form['sectionId'] else None,
             ])
     z.write_iter(f'{filename}.csv', iter_csv())
 
@@ -432,6 +441,16 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
         'read': True if note_read else False,
         'topics': topics,
         'attachments': attachments,
+        'eForm': {
+            'id': note.get('eform_id'),
+            'term': note.get('term_id'),
+            'action': note.get('requested_action'),
+            'status': note.get('eform_status'),
+            'sectionId': note.get('section_id'),
+            'section': note.get('section_num'),
+            'courseName': note.get('course_display_name'),
+            'courseTitle': note.get('course_title'),
+        },
     }
 
 

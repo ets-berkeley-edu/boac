@@ -454,11 +454,13 @@ class TestMergedAdvisingNote:
             today = localize_datetime(utc_now()).strftime('%Y%m%d')
             csv_rows = contents[f"advising_notes_wolfgang_pauli-o'rourke_{today}.csv"].decode('utf-8').strip().split('\r\n')
             assert len(csv_rows) == 4
-            assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,topics,attachments,body'
+            assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,topics,attachments,\
+body,late_change_request_action,late_change_request_status,late_change_request_term,late_change_request_course'
             assert csv_rows[1] ==\
-                "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,,dog_eaten_homework.pdf,I am confounded by this confounding student"
-            assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,,Is this student even on campus?"
-            assert csv_rows[3] == "2020-12-04,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,"
+                "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,,dog_eaten_homework.pdf,I am confounded by this confounding student,,,,"
+            assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,,Is this student even on campus?,,,,"
+            assert csv_rows[3] == "2020-12-04,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,,Late Grading Basis Change,In Error,Fall 2020,24460 PSYCH 110 - \
+INTROD BIOL PSYCH 001"
 
 
 def _create_coe_advisor_note(
