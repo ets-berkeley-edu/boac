@@ -39,6 +39,7 @@ from boac.merged.student import get_academic_standing_by_sid, get_historical_stu
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
+from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -189,6 +190,12 @@ def drop_in_required(func):
             app.logger.warning(f'Unauthorized request to {request.path}')
             return app.login_manager.unauthorized()
     return _drop_in_required
+
+
+def normalize_accent_color(color):
+    if color:
+        capitalized = color.capitalize()
+        return capitalized if capitalized in list(ACCENT_COLOR_CODES.keys()) else None
 
 
 def scheduler_required(func):
