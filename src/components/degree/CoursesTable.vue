@@ -27,11 +27,11 @@
               :id="`course-${bundle.category.id}-table-row-${index}`"
               :key="`tr-${index}`"
               :class="{
-                'accent-color-blue': $_.get(bundle, 'course.accentColor') === 'Blue',
-                'accent-color-green': $_.get(bundle, 'course.accentColor') === 'Green',
-                'accent-color-orange': $_.get(bundle, 'course.accentColor') === 'Orange',
-                'accent-color-purple': $_.get(bundle, 'course.accentColor') === 'Purple',
-                'accent-color-red': $_.get(bundle, 'course.accentColor') === 'Red',
+                'accent-color-blue': getAccentColor(bundle) === 'Blue',
+                'accent-color-green': getAccentColor(bundle) === 'Green',
+                'accent-color-orange': getAccentColor(bundle) === 'Orange',
+                'accent-color-purple': getAccentColor(bundle) === 'Purple',
+                'accent-color-red': getAccentColor(bundle) === 'Red',
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
@@ -61,7 +61,7 @@
               </td>
               <td
                 :class="{
-                  'faint-text font-italic': !bundle.course,
+                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
                   'font-size-14 td-name': !printable
                 }"
@@ -93,7 +93,7 @@
                   </div>
                 </div>
               </td>
-              <td class="td-units" :class="{'faint-text font-italic': !bundle.course}">
+              <td class="td-units" :class="{'faint-text font-italic': !bundle.course && !getAccentColor(bundle)}">
                 <font-awesome
                   v-if="isCourseFulfillmentsEdited(bundle) && !printable"
                   class="fulfillments-icon mr-1"
@@ -115,7 +115,7 @@
               <td v-if="sid" class="td-grade">
                 <span
                   :class="{
-                    'faint-text font-italic': !bundle.course,
+                    'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
                     'font-size-14 text-nowrap': !printable
                   }"
@@ -126,7 +126,7 @@
               <td
                 v-if="sid"
                 :class="{
-                  'faint-text font-italic': !bundle.course,
+                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                   'td-note-printable': printable,
                   'ellipsis-if-overflow td-note': !printable
                 }"
@@ -149,7 +149,7 @@
                 v-if="!sid"
                 class="align-middle td-max-width-0"
                 :class="{
-                  'faint-text font-italic': !bundle.course,
+                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
@@ -390,6 +390,7 @@ export default {
       this.$announcer.polite(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
     },
+    getAccentColor: bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor,
     getBundleName(course, category) {
       let name = (course || category).name
       if (course && this.printable) {
