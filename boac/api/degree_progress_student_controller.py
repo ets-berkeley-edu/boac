@@ -27,12 +27,12 @@ from datetime import datetime
 
 from boac.api.degree_progress_api_utils import clone_degree_template, create_batch_degree_checks
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import can_edit_degree_progress, can_read_degree_progress
+from boac.api.util import can_edit_degree_progress, can_read_degree_progress, normalize_accent_color
 from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
 from boac.models.degree_progress_category import DegreeProgressCategory
-from boac.models.degree_progress_course import ACCENT_COLOR_CODES, DegreeProgressCourse
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
@@ -258,7 +258,7 @@ def get_students(template_id):
 @can_edit_degree_progress
 def create_course():
     params = request.get_json()
-    accent_color = _normalize_accent_color(get_param(params, 'accentColor'))
+    accent_color = normalize_accent_color(get_param(params, 'accentColor'))
     degree_check_id = get_param(params, 'degreeCheckId')
     grade = get_param(params, 'grade')
     name = get_param(params, 'name')
@@ -295,7 +295,7 @@ def update_course(course_id):
     course = DegreeProgressCourse.find_by_id(course_id)
     if course:
         params = request.get_json()
-        accent_color = _normalize_accent_color(get_param(params, 'accentColor'))
+        accent_color = normalize_accent_color(get_param(params, 'accentColor'))
 
         grade = get_param(params, 'grade')
         grade = course.grade if grade is None else grade
@@ -352,9 +352,3 @@ def _can_accept_course_requirements(category):
 def _get_category_children(category_id, category_type):
     children = DegreeProgressCategory.find_by_parent_category_id(category_id)
     return list(filter(lambda c: c.category_type == category_type, children))
-
-
-def _normalize_accent_color(color):
-    if color:
-        capitalized = color.capitalize()
-        return capitalized if capitalized in list(ACCENT_COLOR_CODES.keys()) else None

@@ -47,6 +47,7 @@ class DegreeProgressCategory(Base):
     __tablename__ = 'degree_progress_categories'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
+    accent_color = db.Column(db.String(255))
     category_type = db.Column(degree_progress_category_type, nullable=False)
     course_units = db.Column(NUMRANGE)
     description = db.Column(db.Text)
@@ -69,13 +70,17 @@ class DegreeProgressCategory(Base):
             name,
             position,
             template_id,
+            accent_color=None,
             course_units=None,
             description=None,
+            grade=None,
             parent_category_id=None,
     ):
+        self.accent_color = accent_color
         self.category_type = category_type
         self.course_units = course_units
         self.description = description
+        self.grade = grade
         self.name = name
         self.parent_category_id = parent_category_id
         self.position = position
@@ -83,6 +88,7 @@ class DegreeProgressCategory(Base):
 
     def __repr__(self):
         return f"""<DegreeProgressCategory id={self.id},
+                    accent_color={self.accent_color},
                     category_type={self.category_type},
                     course_units={self.course_units},
                     description={self.description},
@@ -103,6 +109,7 @@ class DegreeProgressCategory(Base):
             name,
             position,
             template_id,
+            accent_color=None,
             course_units_lower=None,
             course_units_upper=None,
             description=None,
@@ -116,9 +123,11 @@ class DegreeProgressCategory(Base):
             '[]',
         )
         category = cls(
+            accent_color=accent_color,
             category_type=category_type,
             course_units=course_units,
             description=description,
+            grade=grade,
             name=name,
             parent_category_id=parent_category_id,
             position=position,
@@ -183,6 +192,7 @@ class DegreeProgressCategory(Base):
     @classmethod
     def recommend(
             cls,
+            accent_color,
             category_id,
             course_units_lower,
             course_units_upper,
@@ -191,6 +201,7 @@ class DegreeProgressCategory(Base):
             note,
     ):
         category = cls.query.filter_by(id=category_id).first()
+        category.accent_color = accent_color
         units_lower = to_float_or_none(course_units_lower)
         category.course_units = None if units_lower is None else NumericRange(
             units_lower,
@@ -245,6 +256,7 @@ class DegreeProgressCategory(Base):
         unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
             'id': self.id,
+            'accentColor': self.accent_color,
             'categoryType': self.category_type,
             'courses': [c.to_api_json() for c in DegreeProgressCourse.find_by_category_id(category_id=self.id)],
             'createdAt': _isoformat(self.created_at),

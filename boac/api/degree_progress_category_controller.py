@@ -24,7 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import can_edit_degree_progress, can_read_degree_progress
+from boac.api.util import can_edit_degree_progress, can_read_degree_progress, normalize_accent_color
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param
 from boac.models.degree_progress_category import DegreeProgressCategory
@@ -103,12 +103,14 @@ def recommend_category(category_id):
     if is_recommended is None:
         raise BadRequestError('Parameter \'isRecommended\' is required')
 
+    accent_color = normalize_accent_color(get_param(params, 'accentColor'))
     grade = get_param(params, 'grade')
     note = get_param(params, 'note')
     units_lower = get_param(params, 'unitsLower')
     units_upper = get_param(params, 'unitsUpper')
 
     category = DegreeProgressCategory.recommend(
+        accent_color=accent_color,
         category_id=category_id,
         course_units_lower=units_lower,
         course_units_upper=units_upper,

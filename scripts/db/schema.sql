@@ -413,7 +413,7 @@ CREATE TYPE degree_progress_category_types AS ENUM (
 
 CREATE TABLE degree_progress_categories (
     id integer NOT NULL,
-    parent_category_id integer,
+    accent_color VARCHAR(255),
     category_type degree_progress_category_types NOT NULL,
     course_units numrange,
     description text,
@@ -421,6 +421,7 @@ CREATE TABLE degree_progress_categories (
     is_recommended BOOLEAN DEFAULT false NOT NULL,
     name character varying(255) NOT NULL,
     note TEXT,
+    parent_category_id integer,
     position integer NOT NULL,
     template_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
