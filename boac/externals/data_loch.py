@@ -387,7 +387,7 @@ def get_academic_standing(sids):
     sql = f"""SELECT acad_standing_status as status, action_date, sid, term_id
         FROM {student_schema()}.academic_standing
         WHERE sid = ANY(:sids)
-        ORDER BY sid, term_id DESC"""
+        ORDER BY sid, term_id DESC, action_date, acad_standing_status"""
     return safe_execute_rds(sql, sids=sids)
 
 
