@@ -349,6 +349,7 @@ const actions = {
     })
   },
   updateCourseRequirement: ({commit, state}, {
+    accentColor,
     categoryId,
     grade,
     isRecommended,
@@ -358,6 +359,7 @@ const actions = {
   }) => {
     return new Promise(resolve => {
       updateCourseRequirement(
+        accentColor,
         categoryId,
         grade,
         isRecommended,

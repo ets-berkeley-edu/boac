@@ -3,7 +3,7 @@
     <div>
       <label
         for="color-code-select"
-        class="font-weight-bolder"
+        class="font-weight-500"
       >
         Color Code
       </label>

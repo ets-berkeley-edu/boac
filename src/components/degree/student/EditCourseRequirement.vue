@@ -22,7 +22,7 @@
       />
     </div>
     <div class="pb-2">
-      <label id="grade-label" for="grade-input" class="font-weight-bolder mb-1 pr-2">
+      <label id="grade-label" for="grade-input" class="font-weight-500 mb-1 pr-2">
         Grade
       </label>
       <b-form-input
@@ -34,6 +34,12 @@
         size="sm"
         trim
         @keypress.enter="onSubmit"
+      />
+    </div>
+    <div class="pb-2">
+      <AccentColorSelect
+        :accent-color="accentColor"
+        :on-change="value => accentColor = value"
       />
     </div>
     <div>
@@ -80,13 +86,14 @@
 </template>
 
 <script>
+import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 
 export default {
   name: 'EditCourseRequirement',
   mixins: [DegreeEditSession],
-  components: {UnitsInput},
+  components: {AccentColorSelect, UnitsInput},
   props: {
     afterCancel: {
       required: true,
@@ -102,6 +109,7 @@ export default {
     }
   },
   data: () => ({
+    accentColor: undefined,
     grade: undefined,
     isRecommended: undefined,
     isSaving: false,
@@ -119,6 +127,7 @@ export default {
     }
   },
   created() {
+    this.accentColor = this.category.accentColor
     this.grade = this.category.grade
     this.isRecommended = this.category.isRecommended
     this.note = this.category.note
@@ -140,6 +149,7 @@ export default {
           this.afterSave()
         }
         this.updateCourseRequirement({
+          accentColor: this.accentColor,
           categoryId: this.category.id,
           grade: this.grade,
           isRecommended: this.isRecommended,
