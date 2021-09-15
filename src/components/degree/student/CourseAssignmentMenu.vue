@@ -96,7 +96,9 @@ export default {
           || (option.categoryType === 'Category' && !!option.subcategories.length)
           || this.categoryHasCourse(option, this.course)
         option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
-        options.push(option)
+        if (!option.disabled || !this.isCourseRequirement(option)) {
+          options.push(option)
+        }
       }
       const options = []
       this.$_.each(this.$_.cloneDeep(this.categories), category => {
