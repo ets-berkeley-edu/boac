@@ -665,8 +665,9 @@ def get_sis_advising_appointments(sid):
 def get_sis_late_drop_eforms(sid):
     sql = f"""
         SELECT
-            id, course_display_name, course_title, created_at, eform_id, eform_status, eform_type, grading_basis_code,
-            grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description,
+            id, course_display_name, course_title, created_at, eform_id, eform_status, eform_type,
+            NULLIF(grading_basis_description, ' ') AS grading_basis_description, requested_action,
+            NULLIF(requested_grading_basis_description, ' ') AS requested_grading_basis_description,
             section_id, section_num, sid, student_name, term_id, units_taken, updated_at
         FROM {sis_advising_notes_schema()}.student_late_drop_eforms
         WHERE sid=:sid
