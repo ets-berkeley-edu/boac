@@ -450,6 +450,8 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
             'section': note.get('section_num'),
             'courseName': note.get('course_display_name'),
             'courseTitle': note.get('course_title'),
+            'gradingBasis': note.get('grading_basis_description'),
+            'requestedGradingBasis': note.get('requested_grading_basis_description'),
         },
     }
 

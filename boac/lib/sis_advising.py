@@ -82,7 +82,7 @@ def get_legacy_attachment_stream(filename):
 
 
 def resolve_sis_created_at(note_or_appointment):
-    if note_or_appointment.get('created_by') == 'UCBCONVERSION':
+    if note_or_appointment.get('created_by') == 'UCBCONVERSION' or note_or_appointment.get('eform_id'):
         return note_or_appointment.get('created_at').date().isoformat()
     return _isoformat(note_or_appointment, 'created_at')
 
