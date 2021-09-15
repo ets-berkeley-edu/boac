@@ -459,7 +459,7 @@ body,late_change_request_action,late_change_request_status,late_change_request_t
             assert csv_rows[1] ==\
                 "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,,,dog_eaten_homework.pdf,I am confounded by this confounding student,,,,"
             assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,,Is this student even on campus?,,,,"
-            assert csv_rows[3] == "2020-12-04,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,,Late Grading Basis Change,In Error,Fall 2020,24460 PSYCH 110 - \
+            assert csv_rows[3] == "2020-12-05,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,,Late Grading Basis Change,In Error,Fall 2020,24460 PSYCH 110 - \
 INTROD BIOL PSYCH 001"
 
 
