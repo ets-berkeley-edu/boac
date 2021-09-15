@@ -41,7 +41,7 @@
               <div class="course-term-name">{{ section.termName }}</div>
               <div v-for="(meeting, meetingIndex) in section.meetings" :key="meetingIndex">
                 <div v-if="!$_.isEmpty(meeting.instructors)" class="mt-2">
-                  <span :id="'instructors-' + meetingIndex" class="course-instructors-header">
+                  <span :id="'instructors-' + meetingIndex" class="course-schedule-header">
                     {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
                   </span>
                   {{ meeting.instructors.join(', ') }}
@@ -51,6 +51,9 @@
                   <div>{{ meeting.time }}</div>
                   <div>{{ meeting.location }}<span v-if="meeting.instructionModeName"><span v-if="meeting.location"> &mdash; </span>{{ meeting.instructionModeName }}</span></div>
                 </div>
+              </div>
+              <div id="course-class-number">
+                <span class="course-schedule-header">Class Number:</span> {{ section.sectionId }}
               </div>
             </div>
           </div>
@@ -318,7 +321,7 @@ export default {
   font-weight: bold;
   margin: 0 0 5px 0;
 }
-.course-instructors-header {
+.course-schedule-header {
   font-size: 16px;
   font-weight: bold;
 }
