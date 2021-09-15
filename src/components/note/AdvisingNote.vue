@@ -7,7 +7,7 @@
       <span v-if="!note.subject && !$_.size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
         advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm">L&amp;S Late Change of Schedule Request</span>
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm">eForm: L&amp;S Late Change of Schedule Request &mdash; {{ note.eForm.status }}</span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
@@ -34,6 +34,22 @@
       <div v-if="!note.subject && !note.message && note.eForm" class="mt-2">
         <dl :id="`note-${note.id}-message-open`">
           <div>
+            <dt>Term</dt>
+            <dd>{{ termNameForSisId(note.eForm.term) }}</dd>
+          </div>
+          <div>
+            <dt>Course</dt>
+            <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
+          </div>
+          <div v-if="note.eForm.action !== 'Undefined'">
+            <dt>Late Action</dt>
+            <dd>
+              {{ note.eForm.action }}
+              <span v-if="note.eForm.gradingBasis"> from <span class="font-italic">{{ note.eForm.gradingBasis }}</span></span>
+              <span v-if="note.eForm.requestedGradingBasis"> to <span class="font-italic">{{ note.eForm.requestedGradingBasis }}</span></span>
+            </dd>
+          </div>
+          <div>
             <dt>Form ID</dt>
             <dd>{{ note.eForm.id }}</dd>
           </div>
@@ -48,22 +64,6 @@
           <div>
             <dt>Final Date &amp; Time Stamp</dt>
             <dd>{{ note.updatedAt | moment('MM/DD/YYYY h:mm:ssa') }}</dd>
-          </div>
-          <div>
-            <dt>Term</dt>
-            <dd>{{ termNameForSisId(note.eForm.term) }}</dd>
-          </div>
-          <div v-if="note.eForm.action !== 'Undefined'">
-            <dt>Late Action</dt>
-            <dd>
-              {{ note.eForm.action }}
-              <span v-if="note.eForm.gradingBasis"> from <span class="font-italic">{{ note.eForm.gradingBasis }}</span></span>
-              <span v-if="note.eForm.requestedGradingBasis"> to <span class="font-italic">{{ note.eForm.requestedGradingBasis }}</span></span>
-            </dd>
-          </div>
-          <div>
-            <dt>Course</dt>
-            <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
           </div>
         </dl>
       </div>
