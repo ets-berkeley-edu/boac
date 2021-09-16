@@ -366,7 +366,7 @@ def get_zip_stream_for_sid(sid):
             timestamp_created = f"{note['createdAt']}T12:00:00" if len(note['createdAt']) == 10 else note['createdAt'][:19]
             datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
             date_local = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
-            e_form = note.get('eForm', {})
+            e_form = note.get('eForm') or {}
             yield csv_line([
                 date_local,
                 sid,
@@ -378,10 +378,10 @@ def get_zip_stream_for_sid(sid):
                 '; '.join([t for t in note['topics'] or []]),
                 '; '.join([a['displayName'] for a in note['attachments'] or []]),
                 note['body'],
-                e_form['action'] if e_form['action'] != 'Undefined' else None,
-                e_form['status'],
-                term_name_for_sis_id(e_form['term']),
-                f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if e_form['sectionId'] else None,
+                e_form.get('action'),
+                e_form.get('status'),
+                term_name_for_sis_id(e_form.get('term')),
+                f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if e_form.get('sectionId') else None,
             ])
     z.write_iter(f'{filename}.csv', iter_csv())
 
@@ -441,19 +441,24 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
         'read': True if note_read else False,
         'topics': topics,
         'attachments': attachments,
-        'eForm': {
-            'id': note.get('eform_id'),
-            'term': note.get('term_id'),
-            'action': note.get('requested_action'),
-            'status': note.get('eform_status'),
-            'sectionId': note.get('section_id'),
-            'section': note.get('section_num'),
-            'courseName': note.get('course_display_name'),
-            'courseTitle': note.get('course_title'),
-            'gradingBasis': note.get('grading_basis_description'),
-            'requestedGradingBasis': note.get('requested_grading_basis_description'),
-        },
+        'eForm': _eform_to_json(note),
     }
+
+
+def _eform_to_json(eform):
+    if eform.get('eform_id'):
+        return {
+            'id': eform.get('eform_id'),
+            'term': eform.get('term_id'),
+            'action': eform.get('requested_action'),
+            'status': eform.get('eform_status'),
+            'sectionId': eform.get('section_id'),
+            'section': eform.get('section_num'),
+            'courseName': eform.get('course_display_name'),
+            'courseTitle': eform.get('course_title'),
+            'gradingBasis': eform.get('grading_basis_description'),
+            'requestedGradingBasis': eform.get('requested_grading_basis_description'),
+        }
 
 
 def _get_asc_advising_note_topics(sid):
