@@ -3,7 +3,7 @@
     <div class="mt-3 w-75">
       <b-collapse v-model="showWarning" class="alert-box p-3 mt-2 mb-3 w-100 warning">
         <span v-if="warning">{{ warning }}</span>
-        <span v-if="sidsNotFound.length">
+        <span v-if="!sids.length || (sidsNotFound.length > magicNumber)">
           <span v-if="sids.length"> {{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</span>
           <b-btn
             id="remove-invalid-sids-btn"
@@ -14,6 +14,9 @@
             {{ sids.length ? 'Yes' : 'Clear the textarea.' }}
           </b-btn>
         </span>
+        <ul v-if="sids.length && sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-0 mt-1">
+          <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
+        </ul>
       </b-collapse>
       <div>
         <b-form-textarea
@@ -76,6 +79,7 @@ export default {
   data: () => ({
     error: undefined,
     isValidating: false,
+    magicNumber: 15,
     showWarning: false,
     sids: [],
     sidsNotFound: [],
