@@ -1,12 +1,20 @@
 <template>
   <div>
     <div class="mt-3 w-75">
-      <div
-        v-if="error || warning"
-        :class="{'error': error, 'warning': warning}"
-        class="alert-box p-3 mt-2 mb-3 w-100"
-        v-html="error || warning"
-      />
+      <b-collapse v-model="showWarning" class="alert-box p-3 mt-2 mb-3 w-100 warning">
+        <span v-if="warning">{{ warning }}</span>
+        <span v-if="sidsNotFound.length">
+          <span v-if="sids.length"> {{ sidsNotFound.length === 1 ? 'Remove from list?' : 'Remove these from your list?' }}</span>
+          <b-btn
+            id="remove-invalid-sids-btn"
+            class="font-weight-bolder mb-1 pl-2"
+            variant="link"
+            @click="scrub"
+          >
+            {{ sids.length ? 'Yes' : 'Clear the textarea.' }}
+          </b-btn>
+        </span>
+      </b-collapse>
       <div>
         <b-form-textarea
           id="curated-group-bulk-add-sids"
@@ -21,10 +29,10 @@
       <div class="d-flex justify-content-end mt-3">
         <b-btn
           id="btn-curated-group-bulk-add-sids"
-          class="pl-2"
+          class="px-3"
           :disabled="!$_.trim(textarea) || isValidating || isSaving"
           variant="primary"
-          @click="submitSids"
+          @click="submit"
         >
           <span v-if="isValidating || isSaving"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
           <span v-if="!isValidating && !isSaving">{{ curatedGroupId ? 'Add' : 'Next' }}</span>
@@ -51,16 +59,26 @@ export default {
   name: 'CuratedGroupBulkAdd',
   mixins: [Context, Util],
   props: {
-    bulkAddSids: Function,
-    curatedGroupId: Number,
+    bulkAddSids: {
+      required: true,
+      type: Function
+    },
+    curatedGroupId: {
+      default: undefined,
+      required: false,
+      type: Number
+    },
     isSaving: {
+      required: false,
       type: Boolean
     }
   },
   data: () => ({
     error: undefined,
     isValidating: false,
-    sids: undefined,
+    showWarning: false,
+    sids: [],
+    sidsNotFound: [],
     textarea: undefined,
     warning: undefined
   }),
@@ -71,29 +89,41 @@ export default {
     cancel() {
       if (this.curatedGroupId) {
         // Cancel is only supported in the add-students-to-existing-group case.
-        this.clearErrors()
+        this.clearWarning()
         this.bulkAddSids(null)
       }
     },
-    clearErrors() {
-      this.error = null
-      this.warning = null
+    clearWarning() {
+      this.showWarning = false
+      this.warning = undefined
     },
-    submitSids() {
+    scrub() {
+      this.sids = this.$_.uniq(this.sids)
+      this.textarea = this.sids.length ? this.sids.join(', ') : ''
+      this.$announcer.polite(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
+      this.sidsNotFound = []
+      this.clearWarning()
+    },
+    setWarning(message) {
+      this.warning = message
+      this.showWarning = true
+      this.$announcer.polite(message)
+    },
+    submit() {
       this.sids = []
-      this.clearErrors()
+      this.sidsNotFound = []
+      this.clearWarning()
+
       const trimmed = this.$_.trim(this.textarea, ' ,\n\t')
       if (trimmed) {
         const split = this.$_.split(trimmed, /[,\r\n\t ]+/)
         const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.$_.trim(sid)))[1]
         if (notNumeric.length) {
-          this.error = 'SIDs must be separated by commas, line breaks, or tabs.'
-          this.alertScreenReader(this.error)
+          this.setWarning('SIDs must be numeric and separated by commas, line breaks, or tabs.')
           this.$putFocusNextTick('curated-group-bulk-add-sids')
         } else {
           this.isValidating = true
           validateSids(split).then(data => {
-            const notFound = []
             this.$_.each(data, entry => {
               switch(entry.status) {
               case 200:
@@ -101,25 +131,25 @@ export default {
                 this.sids.push(entry.sid)
                 break
               default:
-                notFound.push(entry.sid)
+                this.sidsNotFound.push(entry.sid)
               }
             })
+            this.sidsNotFound = this.$_.uniq(this.sidsNotFound)
             this.isValidating = false
-            if (notFound.length === 1) {
-              this.warning = `Student ${notFound[0]} not found.`
-              this.alertScreenReader(this.warning)
-            } else if (notFound.length > 1) {
-              this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
-              this.alertScreenReader(`Student IDs not found: ${this.oxfordJoin(notFound)}`)
+            if (this.sidsNotFound.length) {
+              if (this.sids.length) {
+                this.setWarning(this.sidsNotFound.length === 1 ? 'One student not found.' : `${this.sidsNotFound.length} students not found.`)
+              } else {
+                this.setWarning(`No matching student${this.sidsNotFound.length === 1 ? '' : 's'} found.`)
+              }
             } else {
-              this.clearErrors()
-              this.bulkAddSids(this.sids)
+              this.bulkAddSids(this.$_.uniq(this.sids))
+              this.sids = []
             }
           })
         }
       } else {
-        this.warning = 'Please provide one or more SIDs.'
-        this.alertScreenReader(this.warning)
+        this.setWarning('Please provide one or more SIDs.')
         this.$putFocusNextTick('curated-group-bulk-add-sids')
       }
     }
@@ -132,10 +162,6 @@ export default {
   border-radius: 5px;
   font-size: 18px;
   width: auto;
-}
-.error {
-  background-color: #efd6d6;
-  color: #9b393a;
 }
 .warning {
   background-color: #fbf7dc;
