@@ -1,7 +1,7 @@
 <template>
-  <div class="pt-2 pb-1">
-    <div class="d-flex flex-wrap">
-      <div class="gpa text-center">
+  <div class="py-2">
+    <div class="d-flex flex-wrap h-100">
+      <div class="gpa text-center py-2">
         <div id="cumulative-gpa" class="data-number">
           <span v-if="!$_.isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
           <span v-if="$_.isNil(cumulativeGPA)">--</span>
@@ -9,8 +9,8 @@
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
-      <div id="gpa-trends" class="border-left">
-        <div id="gpa-chart" class="ml-3">
+      <div id="gpa-trends" class="border-left gpa-trends py-2">
+        <div id="gpa-chart" class="ml-4">
           <div class="align-items-end d-flex justify-content-between">
             <h4 class="font-weight-bold gpa-trends-label mb-1 text-uppercase">GPA Trends</h4>
             <b-btn
@@ -27,6 +27,7 @@
           <StudentGpaChart
             v-if="$_.get(student, 'termGpa.length') > 1"
             :chart-description="`Chart of GPA over time. ${student.name}'s `"
+            class="gpa-trends-chart"
             :student="student"
           />
           <div v-if="$_.isEmpty(student.termGpa)" class="gpa-trends-label">
@@ -48,9 +49,9 @@
       <b-collapse
         id="term-gpa-collapse"
         v-model="showTermGpa"
-        class="border-top ml-3 mr-3"
+        class="border-top mr-3"
       >
-        <div class="pl-3 pr-4">
+        <div class="px-4">
           <table
             id="table-with-gpa-per-term"
             class="term-gpa-table w-100"
@@ -129,6 +130,7 @@ export default {
 .gpa {
   font-weight: 700;
   margin-left: 20px;
+  min-width: 120px;
   white-space: nowrap;
   width: 40%;
 }
@@ -144,6 +146,14 @@ export default {
   color: #000;
   font-size: 11px;
   font-weight: 700;
+}
+.gpa-trends {
+  min-width: 205px;
+  width: 50%;
+}
+.gpa-trends-chart {
+  min-width: 180px;
+  width: 100%;
 }
 .gpa-trends-label {
   color: #555;
