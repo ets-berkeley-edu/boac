@@ -6,7 +6,7 @@
         <StudentProfileHeader :student="student" />
       </div>
       <h2 class="sr-only">Academic Status</h2>
-      <div class="flex-row border-bottom">
+      <div class="flex-row flex-wrap border-bottom mx-3">
         <div class="w-50">
           <h3 class="sr-only">Units</h3>
           <StudentProfileUnits :student="student" />

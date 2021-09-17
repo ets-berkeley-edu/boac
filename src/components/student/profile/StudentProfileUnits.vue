@@ -1,15 +1,15 @@
 <template>
-  <div class="d-flex flex-wrap pt-2">
+  <div class="d-flex flex-wrap h-100 py-2">
     <div
       id="cumulative-units"
-      class="cumulative-units text-center"
+      class="cumulative-units text-center py-2"
     >
       <div v-if="cumulativeUnits" class="data-number">{{ cumulativeUnits }}</div>
       <div v-if="!cumulativeUnits" class="data-number">--<span class="sr-only">No data</span></div>
       <div class="cumulative-units-label text-uppercase">Units Completed</div>
     </div>
-    <div id="units-chart" class="border-left">
-      <div class="ml-3">
+    <div id="units-chart" class="border-left units-chart py-2">
+      <div class="ml-4">
         <h4 class="font-weight-bold mb-1 unit-totals-label">Unit Totals</h4>
         <div>
           <StudentUnitsChart
@@ -77,7 +77,7 @@ export default {
 <style scoped>
 .cumulative-units {
   font-weight: 700;
-  margin-left: 20px;
+  min-width: 120px;
   white-space: nowrap;
   width: 40%;
 }
@@ -94,7 +94,12 @@ export default {
   font-size: 11px;
   text-transform: uppercase;
 }
+.units-chart {
+  min-width: 225px;
+  width: 50%;
+}
 .student-units-chart {
   min-width: 200px;
+  width: 100%;
 }
 </style>
