@@ -18,7 +18,7 @@
     "@fortawesome/vue-fontawesome": "2.0.2",
     "@trevoreyre/autocomplete-vue": "2.2.0",
     "@vue-a11y/announcer": "2.1.0",
-    "axios": "0.21.1",
+    "axios": "0.21.4",
     "bootstrap-vue": "2.21.2",
     "d3": "5.9.7",
     "highcharts": "9.1.0",
@@ -78,7 +78,7 @@
     "bl": "^2.2.1",
     "elliptic": "^6.5.4",
     "execa": "4.0.3",
-    "lodash": "^4.17.21",
+    "lodash": "4.17.21",
     "merge": "^2.1.1",
     "minimist": ">=1.2.3",
     "selfsigned": ">=1.10.8"
