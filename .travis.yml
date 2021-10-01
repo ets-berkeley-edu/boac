@@ -1,12 +1,12 @@
 sudo: required
 language: python
-python: "3.6"
+python: "3.8"
 
 addons:
   postgresql: "9.6"
 
 before_install:
-  - nvm install 12
+  - nvm install 14
 
 install:
   - npm install
@@ -20,5 +20,4 @@ script:
   - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
   - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
   - pip3 install -r requirements.txt
-  - pip3 install pandas==0.23.3
   - tox --parallel || travis_terminate 1
