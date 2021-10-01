@@ -17,7 +17,7 @@ if [ "$EUID" -ne 0 ]; then
   exit 1
 fi
 
-local_config="/opt/python/current/app/config/production-local.py"
+local_config="/var/app/current/config/production-local.py"
 
 if [ -e "${local_config}" ]; then
   eb_env=$(grep EB_ENVIRONMENT "${local_config}" | sed "s/^EB_ENVIRONMENT[ ]*=[ ]*'//" | sed "s/'[ ]*//")

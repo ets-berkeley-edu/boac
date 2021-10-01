@@ -12,7 +12,6 @@ Berkeley Online Advising
 
 ```
 pip3 install -r requirements.txt [--upgrade]
-pip3 install pandas==0.23.3
 ```
 
 ### Front-end dependencies
@@ -30,7 +29,7 @@ createdb boac_test --owner=boac
 createdb boac_loch_test --owner=boac
 
 # Load schema
-export FLASK_APP=run.py
+export FLASK_APP=application.py
 flask initdb
 ```
 
