@@ -7,7 +7,9 @@
       <span v-if="!note.subject && !$_.size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
         advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm">eForm: L&amp;S Late Change of Schedule Request &mdash; {{ note.eForm.status }}</span>
+      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
+        eForm: L&amp;S Late Change of Schedule Request &mdash; {{ note.eForm.status }}
+      </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
