@@ -408,7 +408,9 @@ CREATE TYPE degree_progress_category_types AS ENUM (
     'Category',
     'Subcategory',
     'Course Requirement',
-    'Placeholder: Course Copy'
+    'Placeholder: Course Copy',
+    'Campus Requirement, Unsatisfied',
+    'Campus Requirement, Satisfied'
 );
 
 CREATE TABLE degree_progress_categories (

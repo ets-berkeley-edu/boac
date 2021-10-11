@@ -38,6 +38,8 @@ degree_progress_category_type = ENUM(
     'Subcategory',
     'Course Requirement',
     'Placeholder: Course Copy',
+    'Campus Requirement, Unsatisfied',
+    'Campus Requirement, Satisfied',
     name='degree_progress_category_types',
     create_type=False,
 )
