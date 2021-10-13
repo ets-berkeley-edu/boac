@@ -438,7 +438,11 @@ export default {
       return !!draggable
     },
     isDroppable(category) {
-      let droppable = category && !category.courses.length && category.id === this.draggingContext.target
+      let droppable =
+        !this.isCampusRequirements
+        && category
+        && !category.courses.length
+        && category.id === this.draggingContext.target
       if (droppable) {
         const course = this.draggingContext.course
         const assignedCourses = this.getAssignedCourses(this.parentCategory, course.id)
