@@ -51,10 +51,10 @@ def create_category():
 
     if not category_type or not name or not _is_valid_position(position) or not template_id:
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
-    if category_type == 'Category' and parent_category_id:
-        raise BadRequestError('Categories cannot have parents.')
+    if category_type in ['Category', 'Campus Requirements'] and parent_category_id:
+        raise BadRequestError(f'{category_type} cannot have a parent.')
     if category_type in ('Course Requirement', 'Subcategory') and not parent_category_id:
-        raise BadRequestError("The parentCategoryId param is required when categoryType equals 'Subcategory'.")
+        raise BadRequestError(f"The parentCategoryId param is required when categoryType equals '{category_type}'.")
     if parent_category_id:
         parent = _get_degree_category(parent_category_id)
         parent_type = parent.category_type
@@ -63,7 +63,7 @@ def create_category():
         if position != parent.position:
             raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
 
-    category = DegreeProgressCategory.create(
+    category = _create_category(
         category_type=category_type,
         course_units_lower=course_units_lower,
         course_units_upper=course_units_upper,
@@ -148,6 +148,44 @@ def update_category(category_id):
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify(category.to_api_json())
+
+
+def _create_category(
+        category_type,
+        course_units_lower,
+        course_units_upper,
+        description,
+        name,
+        parent_category_id,
+        position,
+        template_id,
+        unit_requirement_ids,
+):
+    campus_requirements = []
+    if category_type == 'Campus Requirements':
+        category_type = 'Category'
+        name = 'Campus Requirements'
+        campus_requirements = ['Entry Level Writing', 'American History', 'American Institutions', 'American Cultures']
+    category = DegreeProgressCategory.create(
+        category_type=category_type,
+        course_units_lower=course_units_lower,
+        course_units_upper=course_units_upper,
+        description=description,
+        name=name,
+        parent_category_id=parent_category_id,
+        position=position,
+        template_id=template_id,
+        unit_requirement_ids=unit_requirement_ids,
+    )
+    for name in campus_requirements:
+        DegreeProgressCategory.create(
+            category_type='Campus Requirement, Unsatisfied',
+            name=name,
+            parent_category_id=category.id,
+            position=position,
+            template_id=template_id,
+        )
+    return category
 
 
 def _get_degree_category(category_id):

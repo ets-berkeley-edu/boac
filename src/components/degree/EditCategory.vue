@@ -16,7 +16,7 @@
             v-for="option in $config.degreeCategoryTypeOptions"
             :id="`column-${position}-select-option-${option}`"
             :key="option"
-            :disabled="(!withTypeCategory.length && option !== 'Category')"
+            :disabled="(!withTypeCategory.length && !$_.includes(['Category', 'Campus Requirements'], option))"
             required
             :value="option"
           >
@@ -26,22 +26,24 @@
       </div>
     </div>
     <div v-if="selectedCategoryType" class="pb-1">
-      <div class="font-weight-500">
-        {{ selectedCategoryType }} Name (required)
-      </div>
-      <div class="pb-1">
-        <b-form-input
-          :id="`column-${position}-name-input`"
-          v-model="nameInput"
-          :disabled="isSaving"
-          maxlength="255"
-          @keypress.enter="onSubmit"
-        />
-        <div class="pl-1">
-          <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
-          <span v-if="nameInput.length === 255" class="sr-only" aria-live="polite">
-            Fulfillment requirement name cannot exceed 255 characters.
-          </span>
+      <div v-if="selectedCategoryType !== 'Campus Requirements'">
+        <div class="font-weight-500">
+          {{ selectedCategoryType }} Name (required)
+        </div>
+        <div class="pb-1">
+          <b-form-input
+            :id="`column-${position}-name-input`"
+            v-model="nameInput"
+            :disabled="isSaving"
+            maxlength="255"
+            @keypress.enter="onSubmit"
+          />
+          <div class="pl-1">
+            <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
+            <span v-if="nameInput.length === 255" class="sr-only" aria-live="polite">
+              Fulfillment requirement name cannot exceed 255 characters.
+            </span>
+          </div>
         </div>
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement'" class="pb-1">
@@ -83,7 +85,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Category'" class="pb-1">
+      <div v-if="!$_.includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="pb-1">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
@@ -180,9 +182,9 @@ export default {
   computed: {
     disableSaveButton() {
       return this.isSaving
-        || !this.nameInput.trim()
         || !this.selectedCategoryType
-        || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
+        || (this.selectedCategoryType !== 'Campus Requirements' && !this.nameInput.trim())
+        || (!this.$_.includes(['Category', 'Campus Requirements'], this.selectedCategoryType) && !this.selectedParentCategory)
         || !!this.unitsErrorMessage
     },
     unitsErrorMessage() {
@@ -237,7 +239,15 @@ export default {
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
-        this.$putFocusNextTick(`column-${this.position}-name-input`)
+        if (this.selectedCategoryType === 'Campus Requirements') {
+          this.nameInput = 'Campus Requirements'
+          this.descriptionText = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
+          this.$putFocusNextTick(`column-${this.position}-description-input`)
+        } else {
+          this.descriptionText = null
+          this.nameInput = ''
+          this.$putFocusNextTick(`column-${this.position}-name-input`)
+        }
       }
     },
     onChangeParentCategory(option) {
