@@ -47,7 +47,11 @@ def app_config():
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name(),
         'currentEnrollmentTermId': int(current_term_id()),
-        'degreeCategoryTypeOptions': list(filter(lambda t: 'Placeholder' not in t, degree_progress_category_type.enums)),
+        'degreeCategoryTypeOptions': list(
+            filter(
+                lambda t: 'Placeholder' not in t and 'Campus' not in t, degree_progress_category_type.enums,
+            ),
+        ) + ['Campus Requirements'],
         'degreeProgressColorCodes': ACCENT_COLOR_CODES,
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],

@@ -13,11 +13,13 @@
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </b-th>
-            <b-th class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
-            <b-th class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
-            <b-th v-if="sid" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="!isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
+            <b-th v-if="isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Requirement</b-th>
+            <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
+            <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="sid && isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
-            <b-th v-if="!sid" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
+            <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
             <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
@@ -47,7 +49,7 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="hasAssignedCourses && canEdit" class="td-course-assignment-menu pt-1">
+              <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-course-assignment-menu pt-1">
                 <div
                   v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -93,7 +95,11 @@
                   </div>
                 </div>
               </td>
-              <td class="td-units" :class="{'faint-text font-italic': !bundle.course && !getAccentColor(bundle)}">
+              <td
+                v-if="!isCampusRequirements"
+                class="td-units"
+                :class="{'faint-text font-italic': !bundle.course && !getAccentColor(bundle)}"
+              >
                 <font-awesome
                   v-if="isCourseFulfillmentsEdited(bundle) && !printable"
                   class="fulfillments-icon mr-1"
@@ -112,7 +118,7 @@
                 <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
-              <td v-if="sid" class="td-grade">
+              <td v-if="sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
                     'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
@@ -122,6 +128,9 @@
                 >
                   {{ $_.get(bundle.course || bundle.category, 'grade') }}
                 </span>
+              </td>
+              <td v-if="sid && isCampusRequirements" class="td-satisfied">
+                <b-form-checkbox></b-form-checkbox>
               </td>
               <td
                 v-if="sid"
@@ -146,7 +155,7 @@
                 />
               </td>
               <td
-                v-if="!sid"
+                v-if="!sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
                   'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
@@ -239,7 +248,7 @@
         </b-tbody>
       </b-table-simple>
     </div>
-    <div v-if="sid && canEdit" class="mb-3" :class="{'mt-1': !items.length}">
+    <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allCourses"
         :parent-category="parentCategory"
@@ -334,6 +343,9 @@ export default {
     },
     hasAssignedCourses() {
       return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
+    },
+    isCampusRequirements() {
+      return this.$_.every(this.items, item => this.$_.startsWith(item.categoryType, 'Campus Requirement'))
     }
   },
   created() {
