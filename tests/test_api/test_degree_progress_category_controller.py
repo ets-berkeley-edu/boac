@@ -474,6 +474,85 @@ class TestUpdateDegreeCategory:
         assert unit_requirement_id_set == set(new_unit_requirement_ids)
 
 
+class TestSatisfyCampusRequirement:
+
+    @classmethod
+    def _api_toggle_satisfied(
+            cls,
+            category_id,
+            client,
+            is_satisfied,
+            expected_status_code=200,
+    ):
+        response = client.post(
+            f'/api/degree/category/{category_id}/satisfy',
+            data=json.dumps({
+                'categoryId': category_id,
+                'isSatisfied': is_satisfied,
+            }),
+            content_type='application/json',
+        )
+        assert response.status_code == expected_status_code
+        return json.loads(response.data)
+
+    def test_anonymous(self, client):
+        """Denies anonymous user."""
+        self._api_toggle_satisfied(
+            category_id=1,
+            client=client,
+            is_satisfied=True,
+            expected_status_code=401,
+        )
+
+    def test_unauthorized(self, client, fake_auth):
+        """Denies unauthorized user."""
+        fake_auth.login(qcadv_advisor_uid)
+        self._api_toggle_satisfied(
+            category_id=1,
+            client=client,
+            is_satisfied=True,
+            expected_status_code=401,
+        )
+
+    def test_satisfy_requirement(self, client, fake_auth, mock_template):
+        """Authorized user can toggle a Campus Requirement satisfied/unsatisfied."""
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        parent_category = _api_create_category(
+            client,
+            category_type='Campus Requirements',
+            name='Campus Requirements',
+            position=3,
+            template_id=mock_template.id,
+        )
+        # Requirements are initially unsatisfied
+        requirements = DegreeProgressCategory.find_by_parent_category_id(parent_category['id'])
+        for requirement in requirements:
+            assert requirement.category_type == 'Campus Requirement, Unsatisfied'
+        requirement_id = requirements[0].id
+        self._api_toggle_satisfied(
+            category_id=requirement_id,
+            client=client,
+            is_satisfied=True,
+        )
+        api_json = _api_get_template(client=client, template_id=mock_template.id)
+        category = api_json['categories'][0]
+        assert category['id'] == parent_category['id']
+        assert category['courseRequirements'][0]['id'] == requirement_id
+        assert category['courseRequirements'][0]['categoryType'] == 'Campus Requirement, Satisfied'
+
+        self._api_toggle_satisfied(
+            category_id=requirements[0].id,
+            client=client,
+            is_satisfied=False,
+        )
+        api_json = _api_get_template(client=client, template_id=mock_template.id)
+        category = api_json['categories'][0]
+        assert category['id'] == parent_category['id']
+        assert category['courseRequirements'][0]['id'] == requirement_id
+        assert category['courseRequirements'][0]['categoryType'] == 'Campus Requirement, Unsatisfied'
+
+
 def _api_create_category(
         client,
         category_type,
