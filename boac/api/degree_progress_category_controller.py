@@ -123,6 +123,29 @@ def recommend_category(category_id):
     return tolerant_jsonify(category.to_api_json())
 
 
+@app.route('/api/degree/category/<category_id>/satisfy', methods=['POST'])
+@can_edit_degree_progress
+def toggle_campus_requirement(category_id):
+    params = request.get_json()
+    is_satisfied = get_param(params, 'isSatisfied')
+    if is_satisfied is None:
+        raise BadRequestError('Parameter \'isSatisfied\' is required')
+    category = _get_degree_category(category_id)
+    if category.category_type not in ['Campus Requirement, Satisfied', 'Campus Requirement, Unsatisfied']:
+        raise BadRequestError('Category must be a \'Campus Requirement\' type')
+    if ((category.category_type == 'Campus Requirement, Satisfied' and is_satisfied is True)
+            or (category.category_type == 'Campus Requirement, Unsatisfied' and is_satisfied is False)):
+        app.logger.info(f'Request ignored: set is_satisfied={is_satisfied} on {category.category_type}')
+    else:
+        category = DegreeProgressCategory.set_campus_requirement_satisfied(
+            category_id=category_id,
+            is_satisfied=is_satisfied,
+        )
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
+    return tolerant_jsonify(category.to_api_json())
+
+
 @app.route('/api/degree/category/<category_id>/update', methods=['POST'])
 @can_edit_degree_progress
 def update_category(category_id):

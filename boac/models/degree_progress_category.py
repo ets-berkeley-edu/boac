@@ -217,6 +217,17 @@ class DegreeProgressCategory(Base):
         return cls.find_by_id(category_id=category_id)
 
     @classmethod
+    def set_campus_requirement_satisfied(
+            cls,
+            category_id,
+            is_satisfied,
+    ):
+        category = cls.query.filter_by(id=category_id).first()
+        category.category_type = 'Campus Requirement, Satisfied' if is_satisfied else 'Campus Requirement, Unsatisfied'
+        std_commit()
+        return cls.find_by_id(category_id=category_id)
+
+    @classmethod
     def update(
             cls,
             category_id,
