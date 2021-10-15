@@ -1,6 +1,6 @@
 <template>
   <div class="pb-3 pl-2 pt-2">
-    <div class="mb-2">
+    <div v-if="!isCampusRequirement(category)" class="mb-2">
       <label for="recommended-course-checkbox" class="font-size-14 font-weight-bolder mb-1">Course Indicator</label>
       <b-form-checkbox
         id="recommended-course-checkbox"
@@ -9,7 +9,7 @@
         Recommended course
       </b-form-checkbox>
     </div>
-    <div class="pb-2">
+    <div v-if="!isCampusRequirement(category)" class="pb-2">
       <UnitsInput
         :disable="isSaving"
         :error-message="unitsErrorMessage"
@@ -21,7 +21,7 @@
         :units-upper="unitsUpper"
       />
     </div>
-    <div class="pb-2">
+    <div v-if="!isCampusRequirement(category)" class="pb-2">
       <label id="grade-label" for="grade-input" class="font-weight-500 mb-1 pr-2">
         Grade
       </label>
@@ -36,7 +36,7 @@
         @keypress.enter="onSubmit"
       />
     </div>
-    <div class="pb-2">
+    <div v-if="!isCampusRequirement(category)" class="pb-2">
       <AccentColorSelect
         :accent-color="accentColor"
         :on-change="value => accentColor = value"

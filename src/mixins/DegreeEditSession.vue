@@ -111,6 +111,7 @@ export default {
         return category.courseRequirements
       }
     },
+    isCampusRequirement: courseRequirement => _.startsWith(courseRequirement.categoryType, 'Campus Requirement'),
     isValidUnits: $_isValidUnits,
     unitsWereEdited: course => !_.get(course, 'manuallyCreatedBy') && !!_.get(course, 'units') && (course.units !== course.sis.units),
     validateUnitRange(unitsLower, unitsUpper, maxAllowed) {
