@@ -63,6 +63,7 @@ export default {
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
+      'toggleCampusRequirement',
       'updateCategory',
       'updateCourse',
       'updateCourseRequirement',
