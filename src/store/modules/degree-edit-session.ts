@@ -10,6 +10,7 @@ import {
   deleteDegreeCourse,
   deleteUnitRequirement,
   getDegreeTemplate,
+  toggleCampusRequirement,
   updateCategory,
   updateCourse,
   updateCourseRequirement,
@@ -304,6 +305,11 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
+  toggleCampusRequirement: ({commit}, {categoryId, isSatisfied}) => {
+    return new Promise(resolve => {
+      toggleCampusRequirement(categoryId, isSatisfied).then(() => $_refresh(commit, state.templateId)).then(resolve)
+    })
+  },
   updateCategory: ({commit, state}, {
     categoryId,
     description,

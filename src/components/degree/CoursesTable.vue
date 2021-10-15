@@ -130,7 +130,7 @@
                 </span>
               </td>
               <td v-if="sid && isCampusRequirements" class="td-satisfied">
-                <b-form-checkbox></b-form-checkbox>
+                <CampusRequirementCheckbox :campus-requirement="bundle" :position="position" />
               </td>
               <td
                 v-if="sid"
@@ -270,6 +270,7 @@
 <script>
 import AddCourseToCategory from '@/components/degree/student/AddCourseToCategory'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
@@ -283,6 +284,7 @@ export default {
   components: {
     AddCourseToCategory,
     AreYouSureModal,
+    CampusRequirementCheckbox,
     CourseAssignmentMenu,
     EditCategory,
     EditCourse,
@@ -593,6 +595,9 @@ table {
 }
 .td-max-width-0 {
   max-width: 0;
+}
+.td-satisfied {
+  width: 50px;
 }
 .td-units {
   text-align: right;
