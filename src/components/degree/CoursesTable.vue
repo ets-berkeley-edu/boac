@@ -337,6 +337,7 @@ export default {
           course,
           key: course ? `course-${course.id}` : `category-${category.id}`,
           name: this.getBundleName(course, category),
+          type: course ? 'course' : 'category',
           units: course ? course.units : this.describeCategoryUnits(category),
           unitRequirements: (course || category).unitRequirements
         })
@@ -347,7 +348,7 @@ export default {
       return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
     },
     isCampusRequirements() {
-      return this.$_.every(this.items, item => this.$_.startsWith(item.categoryType, 'Campus Requirement'))
+      return this.$_.every(this.items, this.isCampusRequirement)
     }
   },
   created() {
@@ -362,7 +363,7 @@ export default {
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.$announcer.polite(`Updated ${this.bundleForEdit.key} ${this.bundleForEdit.name}`)
+      this.$announcer.polite(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
       this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)

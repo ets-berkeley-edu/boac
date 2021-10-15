@@ -114,7 +114,7 @@ export default {
   }),
   computed: {
     isCampusRequirements() {
-      return this.$_.every(this.category.courseRequirements, item => this.$_.startsWith(item.categoryType, 'Campus Requirement'))
+      return this.$_.every(this.category.courseRequirements, this.isCampusRequirement)
     },
     parents() {
       return this.$_.filter(this.categories, c => {
