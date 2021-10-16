@@ -81,7 +81,7 @@ export default {
       return _.map(courses, this.getCourseKey).includes(this.getCourseKey(course))
     },
     findCategoriesByTypes(types, position) {
-      return _.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
+      return _.filter($_flatten(this.categories), c => (!position || c.position === position) && _.includes(types, c.categoryType))
     },
     findCategoryById(categoryId) {
       return categoryId ? _.find($_flatten(this.categories), ['id', categoryId]) : null

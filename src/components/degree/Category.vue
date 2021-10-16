@@ -114,7 +114,7 @@ export default {
   }),
   computed: {
     isCampusRequirements() {
-      return this.$_.every(this.category.courseRequirements, this.isCampusRequirement)
+      return !this.$_.isEmpty(this.category.courseRequirements) && this.$_.every(this.category.courseRequirements, this.isCampusRequirement)
     },
     parents() {
       return this.$_.filter(this.categories, c => {

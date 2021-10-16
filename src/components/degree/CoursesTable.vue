@@ -20,7 +20,7 @@
             <b-th v-if="sid && isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
             <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
-            <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
+            <b-th v-if="canEdit && !isCampusRequirements" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -175,7 +175,7 @@
                   </div>
                 </div>
               </td>
-              <td v-if="canEdit" class="td-actions">
+              <td v-if="canEdit && !isCampusRequirements" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
                   <div class="btn-container">
                     <b-btn
@@ -348,7 +348,7 @@ export default {
       return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
     },
     isCampusRequirements() {
-      return this.$_.every(this.items, this.isCampusRequirement)
+      return !this.$_.isEmpty(this.items) && this.$_.every(this.items, this.isCampusRequirement)
     }
   },
   created() {
