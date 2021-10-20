@@ -13,12 +13,14 @@
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </b-th>
-            <b-th class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
-            <b-th class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
-            <b-th v-if="sid" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="!isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Course</b-th>
+            <b-th v-if="isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Requirement</b-th>
+            <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
+            <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
+            <b-th v-if="sid && isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
-            <b-th v-if="!sid" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
-            <b-th v-if="canEdit" class="px-0 sr-only">Actions</b-th>
+            <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
+            <b-th v-if="canEdit && (sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -47,7 +49,7 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="hasAssignedCourses && canEdit" class="td-course-assignment-menu pt-1">
+              <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-course-assignment-menu pt-1">
                 <div
                   v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -93,7 +95,11 @@
                   </div>
                 </div>
               </td>
-              <td class="td-units" :class="{'faint-text font-italic': !bundle.course && !getAccentColor(bundle)}">
+              <td
+                v-if="!isCampusRequirements"
+                class="td-units"
+                :class="{'faint-text font-italic': !bundle.course && !getAccentColor(bundle)}"
+              >
                 <font-awesome
                   v-if="isCourseFulfillmentsEdited(bundle) && !printable"
                   class="fulfillments-icon mr-1"
@@ -112,7 +118,7 @@
                 <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
-              <td v-if="sid" class="td-grade">
+              <td v-if="sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
                     'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
@@ -122,6 +128,9 @@
                 >
                   {{ $_.get(bundle.course || bundle.category, 'grade') }}
                 </span>
+              </td>
+              <td v-if="sid && isCampusRequirements" class="td-satisfied">
+                <CampusRequirementCheckbox :campus-requirement="bundle" :position="position" />
               </td>
               <td
                 v-if="sid"
@@ -146,7 +155,7 @@
                 />
               </td>
               <td
-                v-if="!sid"
+                v-if="!sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
                   'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
@@ -166,7 +175,7 @@
                   </div>
                 </div>
               </td>
-              <td v-if="canEdit" class="td-actions">
+              <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
                   <div class="btn-container">
                     <b-btn
@@ -239,7 +248,7 @@
         </b-tbody>
       </b-table-simple>
     </div>
-    <div v-if="sid && canEdit" class="mb-3" :class="{'mt-1': !items.length}">
+    <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
       <AddCourseToCategory
         :courses-already-added="allCourses"
         :parent-category="parentCategory"
@@ -261,6 +270,7 @@
 <script>
 import AddCourseToCategory from '@/components/degree/student/AddCourseToCategory'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
@@ -274,6 +284,7 @@ export default {
   components: {
     AddCourseToCategory,
     AreYouSureModal,
+    CampusRequirementCheckbox,
     CourseAssignmentMenu,
     EditCategory,
     EditCourse,
@@ -326,6 +337,7 @@ export default {
           course,
           key: course ? `course-${course.id}` : `category-${category.id}`,
           name: this.getBundleName(course, category),
+          type: course ? 'course' : 'category',
           units: course ? course.units : this.describeCategoryUnits(category),
           unitRequirements: (course || category).unitRequirements
         })
@@ -334,6 +346,9 @@ export default {
     },
     hasAssignedCourses() {
       return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
+    },
+    isCampusRequirements() {
+      return !this.$_.isEmpty(this.items) && this.$_.every(this.items, this.isCampusRequirement)
     }
   },
   created() {
@@ -348,7 +363,7 @@ export default {
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.$announcer.polite(`Updated ${this.bundleForEdit.key} ${this.bundleForEdit.name}`)
+      this.$announcer.polite(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
       this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
@@ -426,7 +441,11 @@ export default {
       return !!draggable
     },
     isDroppable(category) {
-      let droppable = category && !category.courses.length && category.id === this.draggingContext.target
+      let droppable =
+        !this.isCampusRequirements
+        && category
+        && !category.courses.length
+        && category.id === this.draggingContext.target
       if (droppable) {
         const course = this.draggingContext.course
         const assignedCourses = this.getAssignedCourses(this.parentCategory, course.id)
@@ -577,6 +596,9 @@ table {
 }
 .td-max-width-0 {
   max-width: 0;
+}
+.td-satisfied {
+  width: 50px;
 }
 .td-units {
   text-align: right;

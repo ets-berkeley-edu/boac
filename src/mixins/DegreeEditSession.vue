@@ -63,6 +63,7 @@ export default {
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
+      'toggleCampusRequirement',
       'updateCategory',
       'updateCourse',
       'updateCourseRequirement',
@@ -80,7 +81,7 @@ export default {
       return _.map(courses, this.getCourseKey).includes(this.getCourseKey(course))
     },
     findCategoriesByTypes(types, position) {
-      return _.filter($_flatten(this.categories), c => c.position === position && _.includes(types, c.categoryType))
+      return _.filter($_flatten(this.categories), c => (!position || c.position === position) && _.includes(types, c.categoryType))
     },
     findCategoryById(categoryId) {
       return categoryId ? _.find($_flatten(this.categories), ['id', categoryId]) : null
@@ -110,6 +111,7 @@ export default {
         return category.courseRequirements
       }
     },
+    isCampusRequirement: courseRequirement => _.startsWith(courseRequirement.categoryType, 'Campus Requirement'),
     isValidUnits: $_isValidUnits,
     unitsWereEdited: course => !_.get(course, 'manuallyCreatedBy') && !!_.get(course, 'units') && (course.units !== course.sis.units),
     validateUnitRange(unitsLower, unitsUpper, maxAllowed) {

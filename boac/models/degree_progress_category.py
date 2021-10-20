@@ -38,6 +38,8 @@ degree_progress_category_type = ENUM(
     'Subcategory',
     'Course Requirement',
     'Placeholder: Course Copy',
+    'Campus Requirement, Unsatisfied',
+    'Campus Requirement, Satisfied',
     name='degree_progress_category_types',
     create_type=False,
 )
@@ -211,6 +213,17 @@ class DegreeProgressCategory(Base):
         category.grade = grade
         category.is_recommended = is_recommended
         category.note = note
+        std_commit()
+        return cls.find_by_id(category_id=category_id)
+
+    @classmethod
+    def set_campus_requirement_satisfied(
+            cls,
+            category_id,
+            is_satisfied,
+    ):
+        category = cls.query.filter_by(id=category_id).first()
+        category.category_type = 'Campus Requirement, Satisfied' if is_satisfied else 'Campus Requirement, Unsatisfied'
         std_commit()
         return cls.find_by_id(category_id=category_id)
 

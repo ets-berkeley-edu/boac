@@ -124,6 +124,10 @@ export function getStudents(templateId: number, sids: number[]) {
   ).then(response => response.data, () => null)
 }
 
+export function toggleCampusRequirement(categoryId: number, isSatisfied: boolean) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/category/${categoryId}/satisfy`, {isSatisfied}).then(response => response.data, () => null)
+}
+
 export function updateCourse(
   accentColor: string,
   courseId: number,

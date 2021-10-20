@@ -113,6 +113,9 @@ export default {
     isDeleting: false
   }),
   computed: {
+    isCampusRequirements() {
+      return !this.$_.isEmpty(this.category.courseRequirements) && this.$_.every(this.category.courseRequirements, this.isCampusRequirement)
+    },
     parents() {
       return this.$_.filter(this.categories, c => {
         return c.position === this.position && this.$_.isNil(c.parentCategoryId)
@@ -148,6 +151,7 @@ export default {
     },
     isDroppable() {
       return this.category.id === this.draggingContext.target
+        && !this.isCampusRequirements
         && !this.$_.size(this.category.subcategories)
         && !this.categoryHasCourse(this.category, this.draggingContext.course)
     },

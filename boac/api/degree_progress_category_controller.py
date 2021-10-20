@@ -51,10 +51,10 @@ def create_category():
 
     if not category_type or not name or not _is_valid_position(position) or not template_id:
         raise BadRequestError("Insufficient data: categoryType, name, position and templateId are required.'")
-    if category_type == 'Category' and parent_category_id:
-        raise BadRequestError('Categories cannot have parents.')
+    if category_type in ['Category', 'Campus Requirements'] and parent_category_id:
+        raise BadRequestError(f'{category_type} cannot have a parent.')
     if category_type in ('Course Requirement', 'Subcategory') and not parent_category_id:
-        raise BadRequestError("The parentCategoryId param is required when categoryType equals 'Subcategory'.")
+        raise BadRequestError(f"The parentCategoryId param is required when categoryType equals '{category_type}'.")
     if parent_category_id:
         parent = _get_degree_category(parent_category_id)
         parent_type = parent.category_type
@@ -63,7 +63,7 @@ def create_category():
         if position != parent.position:
             raise BadRequestError(f'Category position ({position}) must match its parent ({parent.position}).')
 
-    category = DegreeProgressCategory.create(
+    category = _create_category(
         category_type=category_type,
         course_units_lower=course_units_lower,
         course_units_upper=course_units_upper,
@@ -123,6 +123,29 @@ def recommend_category(category_id):
     return tolerant_jsonify(category.to_api_json())
 
 
+@app.route('/api/degree/category/<category_id>/satisfy', methods=['POST'])
+@can_edit_degree_progress
+def toggle_campus_requirement(category_id):
+    params = request.get_json()
+    is_satisfied = get_param(params, 'isSatisfied')
+    if is_satisfied is None:
+        raise BadRequestError('Parameter \'isSatisfied\' is required')
+    category = _get_degree_category(category_id)
+    if category.category_type not in ['Campus Requirement, Satisfied', 'Campus Requirement, Unsatisfied']:
+        raise BadRequestError('Category must be a \'Campus Requirement\' type')
+    if ((category.category_type == 'Campus Requirement, Satisfied' and is_satisfied is True)
+            or (category.category_type == 'Campus Requirement, Unsatisfied' and is_satisfied is False)):
+        app.logger.info(f'Request ignored: set is_satisfied={is_satisfied} on {category.category_type}')
+    else:
+        category = DegreeProgressCategory.set_campus_requirement_satisfied(
+            category_id=category_id,
+            is_satisfied=is_satisfied,
+        )
+        # Update updated_at date of top-level record
+        DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
+    return tolerant_jsonify(category.to_api_json())
+
+
 @app.route('/api/degree/category/<category_id>/update', methods=['POST'])
 @can_edit_degree_progress
 def update_category(category_id):
@@ -148,6 +171,44 @@ def update_category(category_id):
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(category.template_id, current_user.get_id())
     return tolerant_jsonify(category.to_api_json())
+
+
+def _create_category(
+        category_type,
+        course_units_lower,
+        course_units_upper,
+        description,
+        name,
+        parent_category_id,
+        position,
+        template_id,
+        unit_requirement_ids,
+):
+    campus_requirements = []
+    if category_type == 'Campus Requirements':
+        category_type = 'Category'
+        name = 'Campus Requirements'
+        campus_requirements = ['Entry Level Writing', 'American History', 'American Institutions', 'American Cultures']
+    category = DegreeProgressCategory.create(
+        category_type=category_type,
+        course_units_lower=course_units_lower,
+        course_units_upper=course_units_upper,
+        description=description,
+        name=name,
+        parent_category_id=parent_category_id,
+        position=position,
+        template_id=template_id,
+        unit_requirement_ids=unit_requirement_ids,
+    )
+    for name in campus_requirements:
+        DegreeProgressCategory.create(
+            category_type='Campus Requirement, Unsatisfied',
+            name=name,
+            parent_category_id=category.id,
+            position=position,
+            template_id=template_id,
+        )
+    return category
 
 
 def _get_degree_category(category_id):

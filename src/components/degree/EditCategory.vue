@@ -16,7 +16,7 @@
             v-for="option in $config.degreeCategoryTypeOptions"
             :id="`column-${position}-select-option-${option}`"
             :key="option"
-            :disabled="(!withTypeCategory.length && option !== 'Category')"
+            :disabled="disableCategoryOption(option)"
             required
             :value="option"
           >
@@ -26,23 +26,28 @@
       </div>
     </div>
     <div v-if="selectedCategoryType" class="pb-1">
-      <div class="font-weight-500">
-        {{ selectedCategoryType }} Name (required)
-      </div>
-      <div class="pb-1">
-        <b-form-input
-          :id="`column-${position}-name-input`"
-          v-model="nameInput"
-          :disabled="isSaving"
-          maxlength="255"
-          @keypress.enter="onSubmit"
-        />
-        <div class="pl-1">
-          <span class="faint-text font-size-12">255 character limit <span v-if="nameInput.length">({{ 255 - nameInput.length }} left)</span></span>
-          <span v-if="nameInput.length === 255" class="sr-only" aria-live="polite">
-            Fulfillment requirement name cannot exceed 255 characters.
-          </span>
+      <div v-if="!isCampusRequirements(existingCategory)">
+        <div class="font-weight-500">
+          {{ selectedCategoryType }} Name (required)
         </div>
+        <div class="pb-1">
+          <b-form-input
+            :id="`column-${position}-name-input`"
+            v-model="name"
+            :disabled="isSaving"
+            maxlength="255"
+            @keypress.enter="onSubmit"
+          />
+          <div class="pl-1">
+            <span class="faint-text font-size-12">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
+            <span v-if="name.length === 255" class="sr-only" aria-live="polite">
+              Fulfillment requirement name cannot exceed 255 characters.
+            </span>
+          </div>
+        </div>
+      </div>
+      <div v-if="existingCategory && isCampusRequirements(existingCategory)" class="pb-1">
+        <h3 :id="`column-${position}-name`" class="font-weight-bold font-size-18">{{ name }}</h3>
       </div>
       <div v-if="selectedCategoryType === 'Course Requirement'" class="pb-1">
         <UnitsInput
@@ -56,7 +61,7 @@
           :units-upper="unitsUpper"
         />
       </div>
-      <div v-if="unitRequirements.length">
+      <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)">
         <div class="font-weight-500 pb-1">
           Requirement Fulfillment
         </div>
@@ -70,7 +75,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Course Requirement'" class="pb-1">
+      <div class="pb-1">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
@@ -83,7 +88,7 @@
           />
         </div>
       </div>
-      <div v-if="selectedCategoryType !== 'Category'" class="pb-1">
+      <div v-if="!$_.includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="pb-1">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
@@ -180,26 +185,29 @@ export default {
   computed: {
     disableSaveButton() {
       return this.isSaving
-        || !this.nameInput.trim()
         || !this.selectedCategoryType
-        || (this.selectedCategoryType !== 'Category' && !this.selectedParentCategory)
+        || (!this.isCampusRequirements(this.existingCategory) && !this.name.trim())
+        || (!this.$_.includes(['Category', 'Campus Requirements'], this.selectedCategoryType) && !this.selectedParentCategory)
         || !!this.unitsErrorMessage
+    },
+    hasCampusRequirements() {
+      return this.$_.some(this.findCategoriesByTypes(['Category']), this.isCampusRequirements)
     },
     unitsErrorMessage() {
       const validate = this.selectedCategoryType === 'Course Requirement' && (!!this.unitsLower || !!this.unitsUpper)
       return validate ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
     },
     withTypeCategory() {
-      return this.findCategoriesByTypes(['Category'], this.position)
+      return this.$_.reject(this.findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
     },
     withTypeCategoryOrSubcategory() {
-      return this.findCategoriesByTypes(['Category', 'Subcategory'], this.position)
+      return this.$_.reject(this.findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
     }
   },
   data: () => ({
     descriptionText: undefined,
     isSaving: false,
-    nameInput: '',
+    name: '',
     selectedCategoryType: null,
     selectedParentCategory: null,
     selectedUnitRequirements: [],
@@ -209,7 +217,7 @@ export default {
   created() {
     if (this.existingCategory) {
       this.descriptionText = this.existingCategory.description
-      this.nameInput = this.existingCategory.name
+      this.name = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
       this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
       this.selectedUnitRequirements = this.$_.clone(this.existingCategory.unitRequirements)
@@ -223,9 +231,13 @@ export default {
   methods: {
     cancel() {
       this.descriptionText = null
-      this.nameInput = ''
+      this.name = ''
       this.selectedCategoryType = null
       this.afterCancel()
+    },
+    disableCategoryOption(option) {
+      return (option === 'Campus Requirements' && this.hasCampusRequirements)
+        || (!this.withTypeCategory.length && !this.$_.includes(['Category', 'Campus Requirements'], option))
     },
     disableLocationOption(option) {
       const optionType = option.categoryType
@@ -234,10 +246,22 @@ export default {
         || (selectedType === 'Subcategory' && optionType === 'Category' && this.getItemsForCoursesTable(option).length > 0)
         || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
     },
+    isCampusRequirements(category) {
+      return this.selectedCategoryType === 'Campus Requirements'
+        || (category && !this.$_.isEmpty(category.courseRequirements) && this.$_.every(category.courseRequirements, this.isCampusRequirement))
+    },
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
-        this.$putFocusNextTick(`column-${this.position}-name-input`)
+        if (this.selectedCategoryType === 'Campus Requirements') {
+          this.name = 'Campus Requirements'
+          this.descriptionText = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
+          this.$putFocusNextTick(`column-${this.position}-description-input`)
+        } else {
+          this.descriptionText = null
+          this.name = ''
+          this.$putFocusNextTick(`column-${this.position}-name-input`)
+        }
       }
     },
     onChangeParentCategory(option) {
@@ -268,7 +292,7 @@ export default {
           this.updateCategory({
             categoryId: this.existingCategory.id,
             description: this.descriptionText,
-            name: this.nameInput,
+            name: this.name,
             parentCategoryId: parentCategoryId,
             unitRequirementIds: unitRequirementIds,
             unitsLower: this.unitsLower,
@@ -278,7 +302,7 @@ export default {
           this.createCategory({
             categoryType: this.selectedCategoryType,
             description: this.descriptionText,
-            name: this.nameInput,
+            name: this.name,
             position: this.position,
             parentCategoryId: parentCategoryId,
             unitRequirementIds: unitRequirementIds,
