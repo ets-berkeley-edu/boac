@@ -3,7 +3,8 @@
     <b-form-checkbox
       :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
       v-model="isSatisfied"
-      :disabled="disableButtons"
+      :disabled="disableButtons || printable"
+      :plain="printable"
       @change="toggle"
     >
       <span class="sr-only">{{ campusRequirement.name }} is {{ isSatisfied ? 'satisfied' : 'unsatisfied' }}</span>
@@ -27,6 +28,10 @@ export default {
     position: {
       required: true,
       type: Number
+    },
+    printable: {
+      required: true,
+      type: Boolean
     }
   },
   data: () => ({
