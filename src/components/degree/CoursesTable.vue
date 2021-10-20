@@ -20,7 +20,7 @@
             <b-th v-if="sid && isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
             <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
-            <b-th v-if="canEdit && !isCampusRequirements" class="px-0 sr-only">Actions</b-th>
+            <b-th v-if="canEdit && (sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -175,7 +175,7 @@
                   </div>
                 </div>
               </td>
-              <td v-if="canEdit && !isCampusRequirements" class="td-actions">
+              <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
                   <div class="btn-container">
                     <b-btn
