@@ -130,7 +130,11 @@
                 </span>
               </td>
               <td v-if="sid && isCampusRequirements" class="td-satisfied">
-                <CampusRequirementCheckbox :campus-requirement="bundle" :position="position" />
+                <CampusRequirementCheckbox
+                  :campus-requirement="bundle"
+                  :position="position"
+                  :printable="printable"
+                />
               </td>
               <td
                 v-if="sid"
