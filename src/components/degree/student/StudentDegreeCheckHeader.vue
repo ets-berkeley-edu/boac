@@ -57,7 +57,7 @@
           <div class="pr-2">
             <router-link
               id="view-degree-history"
-              :to="`/student/${student.uid}/degree/history`"
+              :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/history`"
             >
               View Degree History
             </router-link>
@@ -68,7 +68,7 @@
           <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
             <router-link
               id="create-new-degree"
-              :to="`/student/${student.uid}/degree/create`"
+              :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
             >
               Create New Degree
             </router-link>

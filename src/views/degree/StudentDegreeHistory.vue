@@ -20,7 +20,7 @@
                 <div class="pr-2">
                   <router-link
                     id="create-new-degree"
-                    :to="`/student/${student.uid}/degree/create`"
+                    :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
                   >
                     Create New Degree
                   </router-link>
@@ -103,7 +103,11 @@ export default {
     student: undefined
   }),
   created() {
-    const uid = this.$_.get(this.$route, 'params.uid')
+    let uid = this.$_.get(this.$route, 'params.uid')
+    if (this.$currentUser.inDemoMode) {
+      // In demo-mode we do not want to expose UID in browser location bar.
+      uid = window.atob(uid)
+    }
     getStudentByUid(uid, true).then(data => {
       this.student = data
       const done = () => {

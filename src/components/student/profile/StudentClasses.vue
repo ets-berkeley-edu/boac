@@ -169,9 +169,9 @@ export default {
       if (currentDegreeCheck) {
         this.$router.push({path: `/student/degree/${currentDegreeCheck.id}`})
       } else if (this.$currentUser.canEditDegreeProgress) {
-        this.$router.push({path: `/student/${this.student.uid}/degree/create`})
+        this.$router.push({path: `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/create`})
       } else {
-        this.$router.push({path: `/student/${this.student.uid}/degree/history`})
+        this.$router.push({path: `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/history`})
       }
     }
   }
