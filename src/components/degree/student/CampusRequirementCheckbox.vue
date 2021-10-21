@@ -3,8 +3,8 @@
     <b-form-checkbox
       :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
       v-model="isSatisfied"
-      :disabled="disableButtons || printable"
-      :plain="printable"
+      :disabled="disableButtons || !canEdit"
+      :plain="!canEdit"
       @change="toggle"
     >
       <span class="sr-only">{{ campusRequirement.name }} is {{ isSatisfied ? 'satisfied' : 'unsatisfied' }}</span>
@@ -35,9 +35,11 @@ export default {
     }
   },
   data: () => ({
+    canEdit: undefined,
     isSatisfied: undefined
   }),
   created() {
+    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
     this.isSatisfied = this.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied'
   },
   methods: {
