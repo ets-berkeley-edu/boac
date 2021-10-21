@@ -75,7 +75,7 @@
           />
         </div>
       </div>
-      <div class="pb-1">
+      <div v-if="selectedCategoryType !== 'Course Requirement'" class="pb-1">
         <div class="font-weight-500">
           {{ selectedCategoryType }} Description
         </div>
