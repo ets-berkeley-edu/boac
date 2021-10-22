@@ -10,8 +10,8 @@ DROP SCHEMA IF EXISTS boac_advisor cascade;
 DROP SCHEMA IF EXISTS boac_analytics cascade;
 DROP SCHEMA IF EXISTS sis_advising_notes cascade;
 DROP SCHEMA IF EXISTS sis_data cascade;
-DROP SCHEMA IF EXISTS sis_terms cascade;
 DROP SCHEMA IF EXISTS student cascade;
+DROP SCHEMA IF EXISTS terms cascade;
 
 CREATE SCHEMA boac_advising_appointments;
 CREATE SCHEMA boac_advising_asc;
@@ -25,8 +25,8 @@ CREATE SCHEMA boac_advisor;
 CREATE SCHEMA boac_analytics;
 CREATE SCHEMA sis_advising_notes;
 CREATE SCHEMA sis_data;
-CREATE SCHEMA sis_terms;
 CREATE SCHEMA student;
+CREATE SCHEMA terms;
 
 CREATE TABLE boac_advising_appointments.ycbm_advising_appointments
 (
@@ -406,20 +406,6 @@ CREATE TABLE sis_data.enrolled_primary_sections
     instructors VARCHAR
 );
 
-CREATE TABLE sis_terms.current_term_index
-(
-    current_term_name VARCHAR NOT NULL,
-    future_term_name VARCHAR NOT NULL
-);
-
-CREATE TABLE sis_terms.term_definitions
-(
-    term_id VARCHAR(4) NOT NULL,
-    term_name VARCHAR NOT NULL,
-    term_begins DATE NOT NULL,
-    term_ends DATE NOT NULL
-);
-
 CREATE TABLE student.academic_standing
 (
     sid VARCHAR NOT NULL,
@@ -563,6 +549,20 @@ CREATE TABLE student.visas (
     sid VARCHAR,
     visa_status VARCHAR,
     visa_type VARCHAR
+);
+
+CREATE TABLE terms.current_term_index
+(
+    current_term_name VARCHAR NOT NULL,
+    future_term_name VARCHAR NOT NULL
+);
+
+CREATE TABLE terms.term_definitions
+(
+    term_id VARCHAR(4) NOT NULL,
+    term_name VARCHAR NOT NULL,
+    term_begins DATE NOT NULL,
+    term_ends DATE NOT NULL
 );
 
 INSERT INTO boac_advising_appointments.ycbm_advising_appointments
@@ -900,22 +900,6 @@ VALUES
 ('2178', '22460', 'MATH 185', 'MATH185', 'MATH', '185', 'Introduction to Complex Analysis', 'LEC', '001', 'Leonhard Euler'),
 ('2178', '22114', 'MATH 55', 'MATH55', 'MATH', '55', 'Discrete Mathematics', 'LEC', '001', 'David Hilbert');
 
-INSERT INTO sis_terms.current_term_index
-(current_term_name, future_term_name)
-VALUES
-('Fall 2017', 'Spring 2018');
-
-INSERT INTO sis_terms.term_definitions
-(term_id, term_name, term_begins, term_ends)
-VALUES
-('2188', 'Fall 2018', '2018-08-15', '2018-12-14'),
-('2185', 'Summer 2018', '2018-05-21', '2018-08-10'),
-('2182', 'Spring 2018', '2018-01-09', '2018-05-11'),
-('2178', 'Fall 2017', '2017-08-16', '2017-12-15'),
-('2175', 'Summer 2017', '2017-05-22', '2017-08-11'),
-('2172', 'Spring 2017', '2017-01-10', '2017-05-12'),
-('2168', 'Fall 2016', '2016-08-17', '2016-12-16');
-
 INSERT INTO student.academic_standing
 (sid, term_id, acad_standing_action, acad_standing_status, action_date)
 VALUES
@@ -1125,3 +1109,19 @@ VALUES
 ('2345678901', 'G', 'F1'),
 ('3456789012', 'A', 'J1'),
 ('5678901234', 'G', 'OT');
+
+INSERT INTO terms.current_term_index
+(current_term_name, future_term_name)
+VALUES
+('Fall 2017', 'Spring 2018');
+
+INSERT INTO terms.term_definitions
+(term_id, term_name, term_begins, term_ends)
+VALUES
+('2188', 'Fall 2018', '2018-08-15', '2018-12-14'),
+('2185', 'Summer 2018', '2018-05-21', '2018-08-10'),
+('2182', 'Spring 2018', '2018-01-09', '2018-05-11'),
+('2178', 'Fall 2017', '2017-08-16', '2017-12-15'),
+('2175', 'Summer 2017', '2017-05-22', '2017-08-11'),
+('2172', 'Spring 2017', '2017-01-10', '2017-05-12'),
+('2168', 'Fall 2016', '2016-08-17', '2016-12-16');

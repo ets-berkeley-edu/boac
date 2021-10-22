@@ -59,7 +59,9 @@ class TestConfigController:
         assert 'boacEnv' in response.json
         # In tests, certain configs are omitted or disabled (e.g., Google Analytics)
         data = response.json
+        assert data['currentEnrollmentTermId'] == 2178
         assert data['ebEnvironment'] is None
+        assert data['futureTermId'] == 2182
         assert data['googleAnalyticsId'] == 'UA-XXX-X'
         assert '@' in data['supportEmailAddress']
         assert data['maxAttachmentsPerNote'] > 0
