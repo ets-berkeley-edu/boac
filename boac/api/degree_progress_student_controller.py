@@ -185,9 +185,14 @@ def assign_course(course_id):
         if category:
             if category.template_id != course.degree_check_id:
                 raise BadRequestError('The category and course do not belong to the same degree_check instance.')
+            if category.category_type in ['Campus Requirement, Satisfied', 'Campus Requirement, Unsatisfied']:
+                raise BadRequestError('A course cannot be assigned to a Campus Requirement.')
             children = DegreeProgressCategory.find_by_parent_category_id(parent_category_id=category_id)
-            if next((c for c in children if c.category_type == 'Subcategory'), None):
-                raise BadRequestError('A course cannot be assigned to a category with a subcategory.')
+            for c in children:
+                if c.category_type == 'Subcategory':
+                    raise BadRequestError('A course cannot be assigned to a category with a subcategory.')
+                if c.category_type in ['Campus Requirement, Satisfied', 'Campus Requirement, Unsatisfied']:
+                    raise BadRequestError('A course cannot be assigned to a category with Campus Requirements.')
             course = DegreeProgressCourse.assign(category_id=category_id, course_id=course.id)
 
         else:
