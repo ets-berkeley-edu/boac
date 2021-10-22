@@ -55,7 +55,10 @@
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
-          <div id="additional-information-outer">
+          <div
+            v-if="student.sisProfile.transfer || student.sisProfile.matriculation || visaDescription || hasCalCentralProfile"
+            id="additional-information-outer"
+          >
             <h3 class="student-profile-h3">
               Additional Information
             </h3>
@@ -72,7 +75,7 @@
               <div v-if="visaDescription" id="student-profile-visa">
                 {{ visaDescription }}
               </div>
-              <div class="no-wrap mt-1">
+              <div v-if="hasCalCentralProfile" class="no-wrap mt-1">
                 <a
                   id="link-to-calcentral"
                   :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
@@ -164,6 +167,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    hasCalCentralProfile: undefined
+  }),
   computed: {
     advisorsSorted() {
       return this.$_.orderBy(this.student.advisors, this.getAdvisorSortOrder)
@@ -184,10 +190,24 @@ export default {
       }
     }
   },
+  created() {
+    this.hasCalCentralProfile = this.enrolledInPastTwoYears() || this.$_.includes(this.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
+  },
   methods: {
     advisorName(advisor) {
       return this.$_.join(this.$_.remove([advisor.firstName, advisor.lastName]), ' ')
     },
+    enrolledInPastTwoYears() {
+      // In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
+      const hasCompletedSection = enrollmentTerm => {
+        const enrollments = enrollmentTerm.enrollments
+        return enrollments.length && this.$_.find(enrollments, e => {
+          return e.sections.length && this.$_.find(e.sections, section => section.enrollmentStatus === 'E')
+        })
+      }
+      const mostRecent = this.$_.find(this.student.enrollmentTerms, e => hasCompletedSection(e))
+      return mostRecent && (this.$config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
+    }
   }
 }
 </script>
