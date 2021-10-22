@@ -31,7 +31,7 @@ from boac.api.util import admin_required
 from boac.lib.berkeley import ACADEMIC_STANDING_DESCRIPTIONS
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
-from boac.merged.sis_terms import current_term_id, current_term_name
+from boac.merged.sis_terms import current_term_id, current_term_name, future_term_id
 from boac.models.degree_progress_category import degree_progress_category_type
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.tool_setting import ToolSetting
@@ -59,6 +59,7 @@ def app_config():
         'featureFlagAdmittedStudents': app.config['FEATURE_FLAG_ADMITTED_STUDENTS'],
         'featureFlagDegreeCheck': app.config['FEATURE_FLAG_DEGREE_CHECK'],
         'fixedWarningOnAllPages': app.config['FIXED_WARNING_ON_ALL_PAGES'],
+        'futureTermId': int(future_term_id()),
         'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
