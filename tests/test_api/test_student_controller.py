@@ -528,6 +528,7 @@ class TestStudent:
             assert student['fullProfilePending'] is True
             assert student['sisProfile']['academicCareer'] == 'UGRD'
             assert student['sisProfile']['academicCareerStatus'] == 'Inactive'
+            assert 'SIS-EXTENDED' in student['sisProfile']['calnetAffiliations']
             assert len(student['sisProfile']['plans']) == 3
             assert student['sisProfile']['plans'][0]['description'] == 'Philosophy BA'
             assert student['sisProfile']['plans'][0]['status'] == 'Discontinued'
@@ -554,6 +555,7 @@ class TestStudent:
             assert student['fullProfilePending'] is True
             assert student['sisProfile']['academicCareer'] == 'GRAD'
             assert student['sisProfile']['academicCareerStatus'] == 'Completed'
+            assert 'FORMER-STUDENT' in student['sisProfile']['calnetAffiliations']
             assert student['sisProfile']['degree']['dateAwarded'] == '2010-05-14'
             assert student['sisProfile']['degree']['description'] == 'Doctor of Philosophy'
             assert student['sisProfile']['degree']['plans'][0]['group'] == 'Graduate Division'

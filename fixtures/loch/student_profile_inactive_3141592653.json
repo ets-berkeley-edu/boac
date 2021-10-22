@@ -6,6 +6,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Inactive",
+        "calnetAffiliations": ["FORMER-STUDENT", "SIS-EXTENDED"],
         "cumulativeGPA": 2.784,
         "cumulativeUnits": 149.6,
         "currentRegistration": null,
