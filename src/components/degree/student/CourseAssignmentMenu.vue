@@ -53,7 +53,7 @@
         'font-weight-lighter': option.disabled,
         'font-size-15 pl-3': option.categoryType === 'Category',
         'font-size-14 pl-3': option.categoryType === 'Subcategory',
-        'font-size-14 pl-4': isCourseRequirement(option),
+        'font-size-14 pl-4': isCourseRequirement(option) || isCampusRequirement(option),
         'text-body text-decoration-none': true
       }"
       :value="option"
@@ -95,6 +95,7 @@ export default {
         option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
           || this.categoryHasCourse(option, this.course)
+          || this.isCampusRequirements(option)
         option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
         if (!option.disabled || !this.isCourseRequirement(option)) {
           options.push(option)
@@ -113,6 +114,10 @@ export default {
     }
   },
   methods: {
+    isCampusRequirements(option) {
+      return this.isCampusRequirement(option)
+        || (!this.$_.isEmpty(option.courseRequirements) && this.$_.every(option.courseRequirements, this.isCampusRequirement))
+    },
     isCourseRequirement(option) {
       return this.$_.includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
     },
