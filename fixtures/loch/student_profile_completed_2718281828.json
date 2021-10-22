@@ -6,6 +6,7 @@
     "sisProfile": {
         "academicCareer": "GRAD",
         "academicCareerStatus": "Completed",
+        "calnetAffiliations": ["FORMER-STUDENT"],
         "cumulativeGPA": 4,
         "cumulativeUnits": 139,
         "currentRegistration": null,
