@@ -125,13 +125,13 @@ def mock_note():
 class TestAssignCourse:
 
     @classmethod
-    def _api_create_category(cls, client, template_id, expected_status_code=200):
+    def _api_create_category(cls, client, template_id, category_type='Category', parent_category_id=None, expected_status_code=200):
         response = client.post(
             '/api/degree/category/create',
             data=json.dumps({
-                'categoryType': 'Category',
+                'categoryType': category_type,
                 'name': f'Category of the now: {datetime.now()}',
-                'parentCategoryId': None,
+                'parentCategoryId': parent_category_id,
                 'position': 2,
                 'templateId': template_id,
             }),
@@ -161,28 +161,26 @@ class TestAssignCourse:
             degree_name=f'Degree for {sid}',
             student_sid=sid,
         )
-        category = DegreeProgressCategory.create(
-            category_type='Category',
-            name=f'Category for {sid}',
-            position=1,
-            template_id=degree_check.id,
-        )
-        # Subcategory
-        subcategory = DegreeProgressCategory.create(
-            category_type='Subcategory',
-            name=f'Subcategory for {sid}',
-            parent_category_id=category.id,
-            position=category.position,
-            template_id=degree_check.id,
-        )
         std_commit(allow_test_environment=True)
+
+        category = self._api_create_category(client, degree_check.id)
+        subcategory = self._api_create_category(
+            client,
+            degree_check.id,
+            category_type='Subcategory',
+            parent_category_id=category['id'],
+        )
+        campus_requirements_category = self._api_create_category(client, degree_check.id, category_type='Campus Requirements')
+        campus_requirements = DegreeProgressCategory.find_by_parent_category_id(campus_requirements_category['id'])
 
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         course_id = api_json['courses']['unassigned'][-1]['id']
         # Expect failure
-        _api_assign_course(category_id=category.id, client=client, course_id=course_id, expected_status_code=400)
+        _api_assign_course(category_id=category['id'], client=client, course_id=course_id, expected_status_code=400)
+        _api_assign_course(category_id=campus_requirements_category['id'], client=client, course_id=course_id, expected_status_code=400)
+        _api_assign_course(category_id=campus_requirements[0].id, client=client, course_id=course_id, expected_status_code=400)
         # Expect success
-        _api_assign_course(category_id=subcategory.id, client=client, course_id=course_id)
+        _api_assign_course(category_id=subcategory['id'], client=client, course_id=course_id)
 
     def test_assign_and_unassign_course(self, client, fake_auth):
         """User can assign and unassign a course."""
