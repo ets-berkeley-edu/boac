@@ -55,7 +55,10 @@
                 {{ student.sisProfile.phoneNumber }}</a>
             </div>
           </div>
-          <div id="additional-information-outer">
+          <div
+            v-if="student.sisProfile.transfer || student.sisProfile.matriculation || visaDescription || hasCalCentralProfile"
+            id="additional-information-outer"
+          >
             <h3 class="student-profile-h3">
               Additional Information
             </h3>
@@ -72,7 +75,7 @@
               <div v-if="visaDescription" id="student-profile-visa">
                 {{ visaDescription }}
               </div>
-              <div class="no-wrap mt-1">
+              <div v-if="hasCalCentralProfile" class="no-wrap mt-1">
                 <a
                   id="link-to-calcentral"
                   :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
@@ -164,6 +167,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    hasCalCentralProfile: undefined
+  }),
   computed: {
     advisorsSorted() {
       return this.$_.orderBy(this.student.advisors, this.getAdvisorSortOrder)
@@ -183,6 +189,10 @@ export default {
         return 'Other Verified International Student'
       }
     }
+  },
+  created() {
+    const profile = this.student.sisProfile
+    this.hasCalCentralProfile = profile.academicCareerStatus === 'Active' || this.$_.includes(profile.calnetAffiliations, 'SIS-EXTENDED')
   },
   methods: {
     advisorName(advisor) {
