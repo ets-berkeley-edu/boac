@@ -106,12 +106,12 @@ def sis_schema():
     return app.config['DATA_LOCH_SIS_SCHEMA']
 
 
-def sis_terms_schema():
-    return app.config['DATA_LOCH_SIS_TERMS_SCHEMA']
-
-
 def student_schema():
     return app.config['DATA_LOCH_STUDENT_SCHEMA']
+
+
+def terms_schema():
+    return app.config['DATA_LOCH_TERMS_SCHEMA']
 
 
 def earliest_term_id():
@@ -143,12 +143,12 @@ def _get_admit_options_excluding_blanks(column):
 
 
 def get_current_term_index():
-    rows = safe_execute_rds(f'SELECT * FROM {sis_terms_schema()}.current_term_index')
+    rows = safe_execute_rds(f'SELECT * FROM {terms_schema()}.current_term_index')
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
 def get_undergraduate_term(term_id):
-    sql = f"""SELECT * FROM {sis_terms_schema()}.term_definitions
+    sql = f"""SELECT * FROM {terms_schema()}.term_definitions
               WHERE term_id = '{term_id}'
            """
     return safe_execute_rds(sql)
