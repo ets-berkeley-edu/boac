@@ -222,6 +222,9 @@ export default {
     onDrag(event, stage, course) {
       switch (stage) {
       case 'end':
+        if (event.target) {
+          event.target.style.opacity = 1
+        }
         this.onDragEnd()
         break
       case 'start':
