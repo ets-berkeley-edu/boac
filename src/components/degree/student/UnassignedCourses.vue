@@ -78,6 +78,12 @@
               </td>
               <td class="td-grade">
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
+                <font-awesome
+                  v-if="isAlertGrade(course.grade)"
+                  aria-label="Non-passing grade"
+                  icon="exclamation-triangle"
+                  class="boac-exclamation ml-1"
+                />
               </td>
               <td v-if="!ignored" class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
@@ -153,11 +159,12 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
+import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'UnassignedCourses',
-  mixins: [DegreeEditSession, Util],
+  mixins: [DegreeEditSession, StudentMetadata, Util],
   components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
   props: {
     ignored: {
