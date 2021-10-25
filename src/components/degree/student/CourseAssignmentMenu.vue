@@ -95,9 +95,8 @@ export default {
         option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
           || this.categoryHasCourse(option, this.course)
-          || this.isCampusRequirements(option)
         option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
-        if (!option.disabled || !this.isCourseRequirement(option)) {
+        if ((!option.disabled || !this.isCourseRequirement(option)) && !this.isCampusRequirements(option)) {
           options.push(option)
         }
       }
