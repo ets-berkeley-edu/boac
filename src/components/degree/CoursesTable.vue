@@ -126,8 +126,14 @@
                     'font-size-14 text-nowrap': !printable
                   }"
                 >
-                  {{ $_.get(bundle.course || bundle.category, 'grade') }}
+                  {{ getGrade(bundle) }}
                 </span>
+                <font-awesome
+                  v-if="isAlertGrade(getGrade(bundle))"
+                  aria-label="Non-passing grade"
+                  icon="exclamation-triangle"
+                  class="boac-exclamation ml-1"
+                />
               </td>
               <td v-if="sid && isCampusRequirements" class="td-satisfied">
                 <CampusRequirementCheckbox
@@ -280,11 +286,12 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
+import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
-  mixins: [DegreeEditSession, Util],
+  mixins: [DegreeEditSession, StudentMetadata, Util],
   components: {
     AddCourseToCategory,
     AreYouSureModal,
@@ -425,6 +432,9 @@ export default {
     },
     getCourseFulfillments(bundle) {
       return bundle.course ? this.$_.map(bundle.course.unitRequirements, 'name') : []
+    },
+    getGrade(bundle) {
+      return this.$_.get(bundle.course || bundle.category, 'grade')
     },
     getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
     isCourseFulfillmentsEdited(bundle) {
