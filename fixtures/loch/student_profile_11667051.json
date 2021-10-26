@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.7999999999999998,
         "cumulativeUnits": 101.3,
         "currentTerm": {
