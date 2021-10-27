@@ -4,9 +4,16 @@
       :id="`column-${position}-${campusRequirement.key}-satisfy-checkbox`"
       v-model="isSatisfied"
       :disabled="disableButtons || !canEdit"
-      :plain="!canEdit"
+      :button="!canEdit"
+      button-variant="outline-transparent"
       @change="toggle"
     >
+      <font-awesome
+        v-if="!canEdit"
+        :icon="isSatisfied ? 'check-square' : 'square'"
+        class="disabled-checkbox"
+        :class="{'fully-opaque': printable}"
+      />
       <span class="sr-only">{{ campusRequirement.name }} is {{ isSatisfied ? 'satisfied' : 'unsatisfied' }}</span>
     </b-form-checkbox>
   </div>
@@ -57,3 +64,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.disabled-checkbox {
+  color: #000;
+  color-adjust: exact;
+}
+</style>
