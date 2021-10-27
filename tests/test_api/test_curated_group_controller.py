@@ -570,8 +570,8 @@ class TestCuratedGroupWithInactives:
         assert group_feed['students'][1]['sid'] == self.completed_sid
         assert group_feed['students'][1]['academicCareerStatus'] == 'Completed'
         assert group_feed['students'][1]['fullProfilePending'] is True
-        assert group_feed['students'][1]['degree']['dateAwarded'] == '2010-05-14'
-        assert group_feed['students'][1]['degree']['description'] == 'Doctor of Philosophy'
+        assert group_feed['students'][1]['degrees'][0]['dateAwarded'] == '2010-05-14'
+        assert group_feed['students'][1]['degrees'][0]['description'] == 'Doctor of Philosophy'
         assert group_feed['students'][2]['sid'] == self.inactive_sid
         assert group_feed['students'][2]['academicCareerStatus'] == 'Inactive'
         assert group_feed['students'][2]['fullProfilePending'] is True

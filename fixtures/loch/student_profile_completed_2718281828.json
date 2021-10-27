@@ -10,16 +10,18 @@
         "cumulativeGPA": 4,
         "cumulativeUnits": 139,
         "currentRegistration": null,
-        "degree": {
-            "dateAwarded": "2010-05-14",
-            "description": "Doctor of Philosophy",
-            "plans": [
-                {
-                    "group": "Graduate Division",
-                    "plan": "English PhD"
-                }
-            ]
-        },
+        "degrees": [
+            {
+                "dateAwarded": "2010-05-14",
+                "description": "Doctor of Philosophy",
+                "plans": [
+                    {
+                        "group": "Graduate Division",
+                        "plan": "English PhD"
+                    }
+                ]
+            }
+        ],
         "emailAddress": null,
         "holds": [],
         "phoneNumber": null,

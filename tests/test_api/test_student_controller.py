@@ -556,10 +556,12 @@ class TestStudent:
             assert student['sisProfile']['academicCareer'] == 'GRAD'
             assert student['sisProfile']['academicCareerStatus'] == 'Completed'
             assert 'FORMER-STUDENT' in student['sisProfile']['calnetAffiliations']
-            assert student['sisProfile']['degree']['dateAwarded'] == '2010-05-14'
-            assert student['sisProfile']['degree']['description'] == 'Doctor of Philosophy'
-            assert student['sisProfile']['degree']['plans'][0]['group'] == 'Graduate Division'
-            assert student['sisProfile']['degree']['plans'][0]['plan'] == 'English PhD'
+
+            degree = student['sisProfile']['degrees'][0]
+            assert degree['dateAwarded'] == '2010-05-14'
+            assert degree['description'] == 'Doctor of Philosophy'
+            assert degree['plans'][0]['group'] == 'Graduate Division'
+            assert degree['plans'][0]['plan'] == 'English PhD'
             assert len(student['enrollmentTerms']) == 3
             assert student['enrollmentTerms'][0]['termName'] == 'Spring 2010'
             assert student['enrollmentTerms'][1]['termName'] == 'Fall 2005'
