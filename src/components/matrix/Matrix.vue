@@ -96,6 +96,14 @@
                   >
                     {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                   </router-link>
+                  <span
+                    v-if="!student.uid"
+                    :id="`student-${student.sid}-has-no-uid`"
+                    class="font-weight-500"
+                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                  >
+                    {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
+                  </span>
                 </div>
                 <div
                   v-if="student.sid"
@@ -467,7 +475,7 @@ export default {
         .attr('r', d => (d.isClassMean ? 22 : 9))
 
       dot.on('click', d => {
-        if (!d.isClassMean) {
+        if (!d.isClassMean && d.uid) {
           this.$router.push(this.studentRoutePath(d.uid, this.$currentUser.inDemoMode))
         }
       })

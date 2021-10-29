@@ -38,14 +38,18 @@
     <div class="cohort-student-bio-container mb-1">
       <div class="cohort-student-name-container">
         <div>
-          <router-link :id="`link-to-student-${student.uid}`" :to="studentRoutePath(student.uid, $currentUser.inDemoMode)">
+          <router-link
+            v-if="student.uid"
+            :id="`link-to-student-${student.uid}`"
+            :to="studentRoutePath(student.uid, $currentUser.inDemoMode)"
+          >
             <h3
               v-if="sortedBy !== 'first_name'"
               :id="`row-${rowIndex}-student-name`"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               class="student-name"
               v-html="lastNameFirst(student)"
-            ></h3>
+            />
             <h3
               v-if="sortedBy === 'first_name'"
               :id="`row-${rowIndex}-student-name`"
@@ -55,6 +59,23 @@
               {{ student.firstName }} {{ student.lastName }}
             </h3>
           </router-link>
+          <span v-if="!student.uid">
+            <span
+              v-if="sortedBy === 'first_name'"
+              :id="`student-${student.sid}-has-no-uid`"
+              class="font-weight-500 student-name"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+              v-html="lastNameFirst(student)"
+            />
+            <span
+              v-if="sortedBy !== 'first_name'"
+              :id="`student-${student.sid}-has-no-uid`"
+              class="font-size-16 m-0"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            >
+              {{ student.firstName }} {{ student.lastName }}
+            </span>
+          </span>
         </div>
       </div>
       <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="d-flex student-sid">

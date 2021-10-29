@@ -6,12 +6,20 @@
   >
     <h3 v-if="appointment.student" class="advising-note-search-result-header">
       <router-link
+        v-if="appointment.student.uid"
         :id="`appointment-link-to-student-${appointment.student.uid}`"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
         :to="`${studentRoutePath(appointment.student.uid, $currentUser.inDemoMode)}#appointment-${appointment.id}`"
         class="advising-note-search-result-header-link"
         v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"
-      ></router-link>
+      />
+      <span
+        v-if="!appointment.student.uid"
+        :id="`student-${appointment.student.sid}-has-no-uid`"
+        class="font-weight-500"
+        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        v-html="`${appointment.student.firstName} ${appointment.student.lastName}`"
+      />
       ({{ appointment.student.sid }})
     </h3>
     <div v-if="!appointment.student">
