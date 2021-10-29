@@ -6,12 +6,20 @@
   >
     <h3 class="advising-note-search-result-header">
       <router-link
+        v-if="note.studentUid"
         :id="`link-to-student-${note.studentUid}`"
         :class="{'demo-mode-blur': $currentUser.inDemoMode}"
         :to="`${studentRoutePath(note.studentUid, $currentUser.inDemoMode)}#note-${note.id}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"
-      ></router-link>
+      />
+      <span
+        v-if="!note.studentUid"
+        :id="`student-${note.studentSid}-has-no-uid`"
+        class="font-weight-500"
+        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        v-html="note.studentName"
+      />
       ({{ note.studentSid }})
     </h3>
     <div

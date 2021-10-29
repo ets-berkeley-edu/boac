@@ -25,15 +25,28 @@
     </template>
     <template v-slot:cell(profile)="row">
       <div>
-        <router-link :id="`link-to-student-${row.item.uid}`" :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)">
+        <router-link
+          v-if="row.item.uid"
+          :id="`link-to-student-${row.item.uid}`"
+          :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
+        >
           <h3
             :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-            class="student-name m-0 p-0"
+            class="m-0 p-0 student-name"
           >
             <span v-if="row.item.firstName" v-html="lastNameFirst(row.item)"></span>
             <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
           </h3>
         </router-link>
+        <span
+          v-if="!row.item.uid"
+          :id="`student-${row.item.sid}-has-no-uid`"
+          class="font-size-16 m-0 p-0 "
+          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        >
+          <span v-if="row.item.firstName" v-html="lastNameFirst(row.item)"></span>
+          <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
+        </span>
       </div>
       <div :id="`row-${row.index}-student-sid`" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="student-sid">
         {{ row.item.sid }}
