@@ -93,6 +93,7 @@ def get_boa_notes_metadata():
             'author_name',
             'author_role',
             'author_dept_codes',
+            'is_private',
             'sid',
             'subject',
             'topics',

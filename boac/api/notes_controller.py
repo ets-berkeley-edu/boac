@@ -36,7 +36,7 @@ from boac.api.util import (
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
-from boac.lib.util import get_benchmarker, is_int, process_input_from_rich_text_editor
+from boac.lib.util import get_benchmarker, is_int, process_input_from_rich_text_editor, to_bool_or_none
 from boac.merged.advising_note import (
     get_boa_attachment_stream,
     get_zip_stream_for_sid,
@@ -77,14 +77,19 @@ def create_notes():
     params = request.form
     sids = _get_sids_for_note_creation()
     benchmark(f'SID count: {len(sids)}')
-    subject = params.get('subject', None)
     body = params.get('body', None)
+    is_private = to_bool_or_none(params.get('isPrivate', False))
+    subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
         benchmark('end (BadRequest)')
         raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
+
     dept_codes = dept_codes_where_advising(current_user)
     if current_user.is_admin or not len(dept_codes):
+        benchmark('end (Forbidden)')
+        raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
+    if is_private and not current_user.is_admin and 'ZCEEE' not in dept_codes:
         benchmark('end (Forbidden)')
         raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
 
@@ -96,12 +101,13 @@ def create_notes():
     if len(sids) == 1:
         note = Note.create(
             **_get_author_profile(),
-            subject=subject,
-            body=body,
-            topics=topics,
-            sid=sids[0],
             attachments=attachments,
+            body=body,
+            is_private=is_private,
+            sid=sids[0],
+            subject=subject,
             template_attachment_ids=template_attachment_ids,
+            topics=topics,
         )
         response = tolerant_jsonify(_boa_note_to_compatible_json(note, note_read=True))
     else:

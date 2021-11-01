@@ -408,7 +408,12 @@ def get_zip_stream_for_sid(sid):
     }
 
 
-def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
+def note_to_compatible_json(
+        note,
+        topics=(),
+        attachments=None,
+        note_read=False,
+):
     # We have legacy notes and notes created via BOAC. The following sets a standard for the front-end.
     departments = []
     dept_codes = note.get('dept_code') if 'dept_code' in note else note.get('author_dept_codes') or []
@@ -417,9 +422,10 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
             'code': dept_code,
             'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
         })
+    omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     return {
-        'id': note.get('id'),
-        'sid': note.get('sid'),
+        'appointmentId': note.get('appointmentId'),
+        'attachments': attachments,
         'author': {
             'id': note.get('author_id'),
             'uid': note.get('author_uid'),
@@ -429,19 +435,20 @@ def note_to_compatible_json(note, topics=(), attachments=None, note_read=False):
             'departments': departments,
             'email': note.get('advisor_email'),
         },
-        'subject': note.get('subject'),
-        'body': note.get('body') or note.get('note_body'),
+        'body': None if omit_note_body else note.get('body') or note.get('note_body'),
         'category': note.get('note_category'),
-        'subcategory': note.get('note_subcategory'),
-        'appointmentId': note.get('appointmentId'),
-        'createdBy': note.get('created_by'),
         'createdAt': resolve_sis_created_at(note),
-        'updatedBy': note.get('updated_by'),
-        'updatedAt': resolve_sis_updated_at(note),
-        'read': True if note_read else False,
-        'topics': topics,
-        'attachments': attachments,
+        'createdBy': note.get('created_by'),
         'eForm': _eform_to_json(note),
+        'id': note.get('id'),
+        'isPrivate': note.get('is_private') or False,
+        'read': True if note_read else False,
+        'sid': note.get('sid'),
+        'subcategory': note.get('note_subcategory'),
+        'subject': note.get('subject'),
+        'topics': topics,
+        'updatedAt': resolve_sis_updated_at(note),
+        'updatedBy': note.get('updated_by'),
     }
 
 
