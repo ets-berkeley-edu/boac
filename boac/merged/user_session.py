@@ -55,6 +55,10 @@ class UserSession(UserMixin):
         return self.api_json['canAccessCanvasData']
 
     @property
+    def can_access_private_notes(self):
+        return self.api_json['canAccessPrivateNotes']
+
+    @property
     def can_edit_degree_progress(self):
         return self.api_json['canEditDegreeProgress']
 
@@ -185,6 +189,7 @@ class UserSession(UserMixin):
                 'id': user and user.id,
                 'canAccessAdvisingData': user and user.can_access_advising_data,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
+                'canAccessPrivateNotes': user and (user.is_admin or 'ZCEEE' in [d['code'] for d in departments]),
                 'canEditDegreeProgress': degree_progress_permission == 'read_write',
                 'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'],
                 'degreeProgressPermission': degree_progress_permission,

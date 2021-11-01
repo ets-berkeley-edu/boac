@@ -46,9 +46,10 @@ class Note(Base):
     author_name = db.Column(db.String(255), nullable=False)
     author_role = db.Column(db.String(255), nullable=False)
     author_dept_codes = db.Column(ARRAY(db.String), nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    is_private = db.Column(db.Boolean, nullable=False, default=False)
     sid = db.Column(db.String(80), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
-    body = db.Column(db.Text, nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     topics = db.relationship(
         'NoteTopic',
@@ -63,14 +64,15 @@ class Note(Base):
         lazy=True,
     )
 
-    def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body):
-        self.author_uid = author_uid
+    def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, is_private=False):
+        self.author_dept_codes = author_dept_codes
         self.author_name = author_name
         self.author_role = author_role
-        self.author_dept_codes = author_dept_codes
+        self.author_uid = author_uid
+        self.body = body
+        self.is_private = is_private
         self.sid = sid
         self.subject = subject
-        self.body = body
 
     @classmethod
     def find_by_id(cls, note_id):
@@ -88,6 +90,7 @@ class Note(Base):
             body,
             topics=(),
             attachments=(),
+            is_private=False,
             template_attachment_ids=(),
     ):
         ids_by_sid = cls.create_batch(
@@ -99,6 +102,7 @@ class Note(Base):
             sids=[sid],
             subject=subject,
             body=body,
+            is_private=is_private,
             topics=topics,
             attachments=attachments,
             template_attachment_ids=template_attachment_ids,
@@ -122,6 +126,7 @@ class Note(Base):
             body,
             topics=(),
             attachments=(),
+            is_private=False,
             template_attachment_ids=(),
     ):
         sid_count = len(sids)
@@ -133,6 +138,7 @@ class Note(Base):
             author_role=author_role,
             author_dept_codes=author_dept_codes,
             body=body,
+            is_private=is_private,
             sids=sids,
             subject=subject,
         )
@@ -152,7 +158,16 @@ class Note(Base):
         return ids_by_sid
 
     @classmethod
-    def search(cls, search_phrase, author_uid, student_csid, topic, datetime_from, datetime_to):
+    def search(
+            cls,
+            search_phrase,
+            author_uid,
+            student_csid,
+            topic,
+            datetime_from,
+            datetime_to,
+            include_private_notes=False,
+    ):
         if search_phrase:
             fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM notes_fts_index
@@ -189,6 +204,8 @@ class Note(Base):
         else:
             topic_join = ''
 
+        where_clause = '' if include_private_notes else 'WHERE notes.is_private IS FALSE'
+
         query = text(f"""
             SELECT notes.* FROM ({fts_selector}) AS fts
             JOIN notes
@@ -197,6 +214,7 @@ class Note(Base):
                 {student_filter}
                 {date_filter}
             {topic_join}
+            {where_clause}
             ORDER BY fts.rank DESC, notes.id
         """).bindparams(**params)
         result = db.session.execute(query)
@@ -316,11 +334,13 @@ class Note(Base):
             'authorName': self.author_name,
             'authorRole': self.author_role,
             'authorDeptCodes': self.author_dept_codes,
+            'body': self.body,
+            'isPrivate': self.is_private,
             'sid': self.sid,
             'subject': self.subject,
-            'body': self.body,
             'topics': [topic.topic for topic in self.topics],
             'createdAt': self.created_at,
+            'deletedAt': self.deleted_at,
             'updatedAt': self.updated_at,
         }
 
@@ -328,7 +348,17 @@ class Note(Base):
         return [a.to_api_json() for a in self.attachments if not a.deleted_at]
 
 
-def _create_notes(author_id, author_uid, author_name, author_role, author_dept_codes, body, sids, subject):
+def _create_notes(
+        author_id,
+        author_uid,
+        author_name,
+        author_role,
+        author_dept_codes,
+        body,
+        is_private,
+        sids,
+        subject,
+):
     ids_by_sid = {}
     now = utc_now().strftime('%Y-%m-%dT%H:%M:%S+00')
     # The syntax of the following is what Postgres expects in json_populate_recordset(...)
@@ -337,8 +367,8 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
         query = """
-            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at)
-            SELECT author_dept_codes, author_name, author_role, author_uid, body, sid, subject, created_at, updated_at
+            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, is_private, sid, subject, created_at, updated_at)
+            SELECT author_dept_codes, author_name, author_role, author_uid, body, is_private, sid, subject, created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id, sid;
         """
@@ -351,6 +381,7 @@ def _create_notes(author_id, author_uid, author_name, author_role, author_dept_c
                 'sid': sid,
                 'subject': subject,
                 'body': body,
+                'is_private': is_private,
                 'created_at': now,
                 'updated_at': now,
             } for sid in sids_subset
