@@ -84,17 +84,22 @@ def mock_asc_advising_note(app, db):
 
 
 @pytest.fixture()
-def mock_private_advising_note():
-    return Note.create(
-        author_uid=ce3_advisor_uid,
-        author_name='Kate Pierson',
-        author_role='Advisor',
-        author_dept_codes=['ZCEEE'],
-        body='Underground like a wild potato.',
-        is_private=True,
-        sid=coe_student['sid'],
-        subject='You\'re living in your own Private Idaho.',
-    )
+def mock_private_advising_note(app):
+    with mock_advising_note_s3_bucket(app):
+        base_dir = app.config['BASE_DIR']
+        path_to_file = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
+        with open(path_to_file, 'r') as file:
+            return Note.create(
+                attachments=[{'name': path_to_file.rsplit('/', 1)[-1], 'byte_stream': file.read()}],
+                author_uid=ce3_advisor_uid,
+                author_name='Kate Pierson',
+                author_role='Advisor',
+                author_dept_codes=['ZCEEE'],
+                body='Underground like a wild potato.',
+                is_private=True,
+                sid=coe_student['sid'],
+                subject='You\'re living in your own Private Idaho.',
+            )
 
 
 class TestGetNote:
@@ -611,18 +616,20 @@ class TestUpdateNotes:
     def _api_note_update(
             cls,
             app,
+            body,
             client,
             note_id,
             subject,
-            body,
-            topics=(),
             expected_status_code=200,
+            is_private=False,
+            topics=(),
     ):
         with mock_advising_note_s3_bucket(app):
             data = {
                 'id': note_id,
-                'subject': subject,
                 'body': body,
+                'isPrivate': is_private,
+                'subject': subject,
                 'topics': ','.join(topics),
             }
             response = client.post(
@@ -637,24 +644,37 @@ class TestUpdateNotes:
     def test_note_update_not_authenticated(self, app, mock_advising_note, client):
         """Returns 401 if not authenticated."""
         self._api_note_update(
-            app,
-            client,
+            app=app,
+            body='Hack the body!',
+            client=client,
+            expected_status_code=401,
             note_id=mock_advising_note.id,
             subject='Hack the subject!',
-            body='Hack the body!',
-            expected_status_code=401,
+        )
+
+    def test_unauthorized_note_privacy_change(self, app, client, fake_auth, mock_advising_note):
+        """Returns 401 if unauthorized to update note privacy."""
+        fake_auth.login(coe_advisor_uid)
+        self._api_note_update(
+            app=app,
+            body=mock_advising_note.body,
+            client=client,
+            expected_status_code=403,
+            is_private=not mock_advising_note.is_private,
+            note_id=mock_advising_note.id,
+            subject=mock_advising_note.subject,
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth, mock_coe_advising_note):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         assert self._api_note_update(
-            app,
-            client,
+            app=app,
+            body='',
+            client=client,
+            expected_status_code=401,
             note_id=mock_coe_advising_note.id,
             subject='Change the subject',
-            body='',
-            expected_status_code=401,
         )
 
     def test_unauthorized_update_note(self, app, client, fake_auth, mock_coe_advising_note):
@@ -662,12 +682,12 @@ class TestUpdateNotes:
         original_subject = mock_coe_advising_note.subject
         fake_auth.login(asc_advisor_uid)
         assert self._api_note_update(
-            app,
-            client,
+            app=app,
+            body='Hack someone else\'s body!',
+            client=client,
+            expected_status_code=403,
             note_id=mock_coe_advising_note.id,
             subject='Hack someone else\'s subject!',
-            body='Hack someone else\'s body!',
-            expected_status_code=403,
         )
         assert Note.find_by_id(note_id=mock_coe_advising_note.id).subject == original_subject
 
@@ -678,11 +698,11 @@ class TestUpdateNotes:
         body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b>https://marsh.mallows.com</b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
         expected_body = '<p>They were <a href="http://www.guzzle.com">www.guzzle.com</a> at <b><a href="https://marsh.mallows.com" target="_blank">https://marsh.mallows.com</a></b> and <a href="http://www.foxnews.com">FOX news</a></p>'  # noqa: E501
         updated_note_response = self._api_note_update(
-            app,
-            client,
+            app=app,
+            body=body,
+            client=client,
             note_id=mock_coe_advising_note.id,
             subject=expected_subject,
-            body=body,
         )
         assert updated_note_response['read'] is True
         updated_note = Note.find_by_id(note_id=mock_coe_advising_note.id)
@@ -694,11 +714,11 @@ class TestUpdateNotes:
         fake_auth.login(mock_asc_advising_note.author_uid)
         expected_topics = ['Blinking lights', ' and other revelations']
         api_json = self._api_note_update(
-            app,
-            client,
+            app=app,
+            body=mock_asc_advising_note.body,
+            client=client,
             note_id=mock_asc_advising_note.id,
             subject=mock_asc_advising_note.subject,
-            body=mock_asc_advising_note.body,
             topics=expected_topics,
         )
         assert api_json['read'] is True
@@ -712,21 +732,21 @@ class TestUpdateNotes:
         original_topics = mock_asc_advising_note.topics
         assert len(original_topics)
         api_json = self._api_note_update(
-            app,
-            client,
+            app=app,
+            body=mock_asc_advising_note.body,
+            client=client,
             note_id=mock_asc_advising_note.id,
             subject=mock_asc_advising_note.subject,
-            body=mock_asc_advising_note.body,
             topics=[],
         )
         assert not api_json['topics']
         # Put those topics back
         api_json = self._api_note_update(
-            app,
-            client,
+            app=app,
+            body=mock_asc_advising_note.body,
+            client=client,
             note_id=mock_asc_advising_note.id,
             subject=mock_asc_advising_note.subject,
-            body=mock_asc_advising_note.body,
             topics=[t.topic for t in original_topics],
         )
         assert set(api_json['topics']) == set([t.topic for t in original_topics])
@@ -832,6 +852,20 @@ class TestStreamNoteAttachments:
         with mock_legacy_note_attachment(app):
             fake_auth.login(coe_advisor_no_advising_data_uid)
             assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
+
+    def test_unauthorized_request_for_private_note(self, app, client, mock_private_advising_note, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_uid)
+        attachments = mock_private_advising_note.attachments
+        assert attachments
+        assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 403
+
+    def test_authorized_request_for_private_note(self, app, client, mock_private_advising_note, fake_auth):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(ce3_advisor_uid)
+        attachments = mock_private_advising_note.attachments
+        assert attachments
+        assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 200
 
     def test_stream_attachment(self, app, client, fake_auth):
         with mock_legacy_note_attachment(app):

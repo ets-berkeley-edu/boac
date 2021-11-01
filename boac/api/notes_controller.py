@@ -46,6 +46,7 @@ from boac.merged.calnet import get_calnet_user_for_uid
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
+from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response
 from flask_login import current_user
@@ -89,9 +90,9 @@ def create_notes():
     if current_user.is_admin or not len(dept_codes):
         benchmark('end (Forbidden)')
         raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
-    if is_private and not current_user.is_admin and 'ZCEEE' not in dept_codes:
+    if is_private and not current_user.can_access_private_notes:
         benchmark('end (Forbidden)')
-        raise ForbiddenRequestError('Sorry, only advisors can create advising notes')
+        raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy.')
 
     attachments = get_note_attachments_from_http_post(tolerate_none=True)
     benchmark(f'Attachment count: {len(attachments)}')
@@ -131,18 +132,27 @@ def create_notes():
 @advising_data_access_required
 def update_note():
     params = request.form
+    body = params.get('body', None)
+    is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
     subject = params.get('subject', None)
-    body = params.get('body', None)
     topics = get_note_topics_from_http_post()
-    if not note_id or not subject:
-        raise BadRequestError('Note requires \'id\' and \'subject\'')
-    if Note.find_by_id(note_id=note_id).author_uid != current_user.get_uid():
+
+    note = Note.find_by_id(note_id=note_id) if note_id else None
+    if not note:
+        raise ResourceNotFoundError('Note not found')
+    if not subject:
+        raise BadRequestError('Note subject is required')
+    if note.author_uid != current_user.get_uid():
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
+    if (is_private is not note.is_private) and not current_user.can_access_private_notes:
+        raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
+
     note = Note.update(
+        body=process_input_from_rich_text_editor(body),
+        is_private=is_private,
         note_id=note_id,
         subject=subject,
-        body=process_input_from_rich_text_editor(body),
         topics=topics,
     )
     note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
@@ -209,7 +219,14 @@ def remove_attachment(note_id, attachment_id):
 def download_attachment(attachment_id):
     is_legacy = not is_int(attachment_id)
     id_ = attachment_id if is_legacy else int(attachment_id)
-    stream_data = get_legacy_attachment_stream(id_) if is_legacy else get_boa_attachment_stream(id_)
+    if is_legacy:
+        stream_data = get_legacy_attachment_stream(id_)
+    else:
+        attachment = NoteAttachment.find_by_id(id_)
+        if attachment.note.is_private and not current_user.can_access_private_notes:
+            raise ForbiddenRequestError('Unauthorized')
+        stream_data = get_boa_attachment_stream(attachment)
+
     if not stream_data or not stream_data['stream']:
         return Response('Sorry, attachment not available.', mimetype='text/html', status=404)
     r = Response(stream_data['stream'])

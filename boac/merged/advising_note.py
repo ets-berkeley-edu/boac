@@ -251,7 +251,9 @@ def _get_local_notes_search_results(local_results, cutoff, search_terms):
         sid = note.get('sid')
         student_row = students_by_sid.get(sid, {})
         if student_row:
-            text = join_if_present(' - ', [note.get('subject'), note.get('body')])
+            omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
+            subject = note.get('subject')
+            text = subject if omit_note_body else join_if_present(' - ', [subject, note.get('body')])
             results.append({
                 'id': note.get('id'),
                 'studentSid': sid,
@@ -295,8 +297,7 @@ def _get_loch_notes_search_results(loch_results, search_terms):
     return results
 
 
-def get_boa_attachment_stream(attachment_id):
-    attachment = NoteAttachment.find_by_id(attachment_id)
+def get_boa_attachment_stream(attachment):
     if attachment:
         path = attachment.path_to_attachment
         return {
@@ -367,6 +368,7 @@ def get_zip_stream_for_sid(sid):
             datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
             date_local = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
             e_form = note.get('eForm') or {}
+            omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
             yield csv_line([
                 date_local,
                 sid,
@@ -376,8 +378,8 @@ def get_zip_stream_for_sid(sid):
                 (note['author']['name'] or calnet_author_name),
                 note['subject'],
                 '; '.join([t for t in note['topics'] or []]),
-                '; '.join([a['displayName'] for a in note['attachments'] or []]),
-                note['body'],
+                '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
+                '' if omit_note_body else note['body'],
                 e_form.get('action'),
                 e_form.get('status'),
                 term_name_for_sis_id(e_form.get('term')),
@@ -388,20 +390,24 @@ def get_zip_stream_for_sid(sid):
     all_attachment_filenames = set()
     all_attachment_filenames.add(f'{filename}.csv')
     for note in notes:
-        for attachment in note['attachments'] or []:
-            is_legacy_attachment = not is_int(attachment['id'])
-            id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
-            stream_data = get_legacy_attachment_stream(id_) if is_legacy_attachment else get_boa_attachment_stream(id_)
-            if stream_data:
-                attachment_filename = stream_data['filename']
-                basename, extension = path.splitext(attachment_filename)
-                suffix = 1
-                while attachment_filename in all_attachment_filenames:
-                    attachment_filename = f'{basename} ({suffix}){extension}'
-                    suffix += 1
-                all_attachment_filenames.add(attachment_filename)
-                z.write_iter(attachment_filename, stream_data['stream'])
-
+        if not note.get('isPrivate') or current_user.can_access_private_notes:
+            for attachment in note['attachments'] or []:
+                is_legacy_attachment = not is_int(attachment['id'])
+                id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
+                if is_legacy_attachment:
+                    stream_data = get_legacy_attachment_stream(id_)
+                else:
+                    attachment = NoteAttachment.find_by_id(id_)
+                    stream_data = get_boa_attachment_stream(attachment)
+                if stream_data:
+                    attachment_filename = stream_data['filename']
+                    basename, extension = path.splitext(attachment_filename)
+                    suffix = 1
+                    while attachment_filename in all_attachment_filenames:
+                        attachment_filename = f'{basename} ({suffix}){extension}'
+                        suffix += 1
+                    all_attachment_filenames.add(attachment_filename)
+                    z.write_iter(attachment_filename, stream_data['stream'])
     return {
         'filename': f'{filename}.zip',
         'stream': z,
@@ -425,7 +431,7 @@ def note_to_compatible_json(
     omit_note_body = note.get('is_private') and not current_user.can_access_private_notes
     return {
         'appointmentId': note.get('appointmentId'),
-        'attachments': attachments,
+        'attachments': None if omit_note_body else attachments,
         'author': {
             'id': note.get('author_id'),
             'uid': note.get('author_uid'),
