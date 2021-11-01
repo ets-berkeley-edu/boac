@@ -64,7 +64,7 @@ class Note(Base):
         lazy=True,
     )
 
-    def __init__(self, author_uid, author_name, author_role, author_dept_codes, sid, subject, body, is_private=False):
+    def __init__(self, author_uid, author_name, author_role, author_dept_codes, body, sid, subject, is_private=False):
         self.author_dept_codes = author_dept_codes
         self.author_name = author_name
         self.author_role = author_role
@@ -230,11 +230,12 @@ class Note(Base):
         bg_execute(_refresh_search_index)
 
     @classmethod
-    def update(cls, note_id, subject, body=None, topics=()):
+    def update(cls, note_id, subject, body=None, is_private=False, topics=()):
         note = cls.find_by_id(note_id=note_id)
         if note:
-            note.subject = subject
             note.body = body
+            note.is_private = is_private
+            note.subject = subject
             cls._update_note_topics(note, topics)
             std_commit()
             db.session.refresh(note)
