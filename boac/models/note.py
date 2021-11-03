@@ -121,12 +121,12 @@ class Note(Base):
             author_name,
             author_role,
             author_dept_codes,
+            body,
+            is_private,
             sids,
             subject,
-            body,
-            topics=(),
             attachments=(),
-            is_private=False,
+            topics=(),
             template_attachment_ids=(),
     ):
         sid_count = len(sids)

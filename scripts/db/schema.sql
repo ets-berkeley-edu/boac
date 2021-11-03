@@ -608,7 +608,7 @@ CREATE INDEX notes_sid_idx ON notes USING btree (sid);
 CREATE MATERIALIZED VIEW notes_fts_index AS (
   SELECT
     id,
-    CASE WHEN (body IS NULL) THEN to_tsvector('english', subject)
+    CASE WHEN (body IS NULL OR is_private) THEN to_tsvector('english', subject)
          ELSE to_tsvector('english', subject || ' ' || body)
          END AS fts_index
   FROM notes

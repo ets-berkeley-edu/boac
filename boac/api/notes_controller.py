@@ -114,14 +114,15 @@ def create_notes():
     else:
         response = tolerant_jsonify(
             Note.create_batch(
-                author_id=current_user.to_api_json()['id'],
                 **_get_author_profile(),
-                subject=subject,
-                body=body,
-                topics=topics,
-                sids=sids,
                 attachments=attachments,
+                author_id=current_user.to_api_json()['id'],
+                body=body,
+                is_private=is_private,
+                sids=sids,
+                subject=subject,
                 template_attachment_ids=template_attachment_ids,
+                topics=topics,
             ),
         )
     benchmark('end')
