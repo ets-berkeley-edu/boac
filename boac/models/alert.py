@@ -324,8 +324,8 @@ class Alert(Base):
         profiles = data_loch.get_student_profiles()
         if app.config['ALERT_WITHDRAWAL_ENABLED'] and str(term_id) == current_term_id():
             for row in profiles:
-                profile_feed = json.loads(row['profile'])
-                if 'withdrawalCancel' in (profile_feed.get('sisProfile') or {}):
+                sis_profile_feed = json.loads(row['profile']).get('sisProfile') or {}
+                if sis_profile_feed.get('withdrawalCancel', {}).get('termId') == str(term_id):
                     cls.update_withdrawal_cancel_alerts(row['sid'], term_id)
 
         sids = [p['sid'] for p in profiles]

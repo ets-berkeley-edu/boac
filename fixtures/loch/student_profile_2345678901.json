@@ -64,7 +64,8 @@
         "withdrawalCancel": {
             "date": "2017-08-21",
             "description": "Withdrew",
-            "reason": "Personal"
+            "reason": "Personal",
+            "termId": "2178"
         }
     },
     "uid": "98765"
