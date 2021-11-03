@@ -49,6 +49,14 @@
             </div>
             <div class="d-flex justify-content-between">
               <div>
+                <label for="private-notes-count">Private notes</label>
+              </div>
+              <div id="private-notes-count" class="font-weight-bolder">
+                {{ numFormat(report.boa.privateNoteCount) }}
+              </div>
+            </div>
+            <div class="d-flex justify-content-between">
+              <div>
                 <label for="notes-count-boa-with-attachments">Notes with one or more attachments</label>
               </div>
               <div id="notes-count-boa-with-attachments" class="font-weight-bolder">
