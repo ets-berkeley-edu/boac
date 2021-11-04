@@ -28,12 +28,14 @@ import re
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import admin_or_director_required, admin_required, authorized_users_api_feed
-from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, get_sis_advising_note_count
+from boac.externals.data_loch import get_asc_advising_note_count, get_e_and_i_advising_note_count, \
+    get_sis_advising_note_count
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import localized_timestamp_to_utc, utc_now
-from boac.merged.reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, get_note_count_per_user,\
-    get_note_with_attachments_count, get_note_with_topics_count, get_summary_of_boa_notes, low_assignment_scores
+from boac.merged.reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, \
+    get_note_count_per_user, get_note_with_attachments_count, get_note_with_topics_count, get_private_note_count, \
+    get_summary_of_boa_notes, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -116,8 +118,9 @@ def get_notes_report_by_dept(dept_code):
                 'ei': get_e_and_i_advising_note_count(),
                 'sis': get_sis_advising_note_count(),
                 'boa': {
-                    'total': total_note_count,
                     'authors': get_note_author_count(),
+                    'privateNoteCount': get_private_note_count(),
+                    'total': total_note_count,
                     'withAttachments': get_note_with_attachments_count(),
                     'withTopics': get_note_with_topics_count(),
                 },

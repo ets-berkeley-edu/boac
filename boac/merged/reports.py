@@ -106,6 +106,11 @@ def get_note_count(dept_code=None):
     return [row['count'] for row in results][0]
 
 
+def get_private_note_count():
+    results = db.session.execute('SELECT COUNT(*) FROM notes WHERE deleted_at IS NULL AND is_private IS TRUE')
+    return [row['count'] for row in results][0]
+
+
 def get_note_count_per_user(dept_code):
     query = f"""
         SELECT n.author_uid AS uid, COUNT(n.id) AS count
