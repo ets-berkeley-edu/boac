@@ -34,6 +34,9 @@
         :topics="model.topics"
       />
     </div>
+    <div v-if="$currentUser.canAccessPrivateNotes" class="pb-3">
+      <PrivacyPermissions :disabled="isSaving || boaSessionExpired" />
+    </div>
     <div>
       <div
         v-if="boaSessionExpired"
@@ -110,6 +113,7 @@ import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
+import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
@@ -118,12 +122,21 @@ import {getUserProfile} from '@/api/user'
 
 export default {
   name: 'EditAdvisingNote',
-  components: {AdvisingNoteTopics, AreYouSureModal, RichTextEditor, SessionExpired},
+  components: {AdvisingNoteTopics, AreYouSureModal, PrivacyPermissions, RichTextEditor, SessionExpired},
   mixins: [Context, NoteEditSession, Util],
   props: {
-    afterCancel: Function,
-    afterSaved: Function,
-    noteId: Number
+    afterCancel: {
+      required: true,
+      type: Function
+    },
+    afterSaved: {
+      required: true,
+      type: Function
+    },
+    noteId: {
+      required: true,
+      type: Number
+    }
   },
   data: () => ({
     error: undefined,
@@ -179,7 +192,13 @@ export default {
       const ifAuthenticated = () => {
         const trimmedSubject = this.$_.trim(this.model.subject)
         if (trimmedSubject) {
-          updateNote(this.model.id, trimmedSubject, this.$_.trim(this.model.body), this.model.topics).then(updatedNote => {
+          updateNote(
+            this.$_.trim(this.model.body),
+            this.model.isPrivate,
+            this.model.id,
+            trimmedSubject,
+            this.model.topics
+          ).then(updatedNote => {
             this.afterSaved(updatedNote)
             this.alertScreenReader('Changes to note have been saved')
             this.exit()

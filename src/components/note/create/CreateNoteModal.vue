@@ -70,21 +70,29 @@
             </div>
           </div>
           <div>
-            <AdvisingNoteTopics
-              :key="mode"
-              :disabled="isSaving || boaSessionExpired"
-              :function-add="addTopic"
-              :function-remove="removeTopic"
-              :topics="model.topics"
-              class="mt-2 mr-3 mb-1 ml-3"
-            />
-            <AdvisingNoteAttachments
-              :add-attachment="addAttachment"
-              :disabled="isSaving || boaSessionExpired"
-              :existing-attachments="model.attachments"
-              :remove-attachment="removeAttachment"
-              class="mt-2 mr-3 mb-1 ml-3"
-            />
+            <div class="mt-2 mr-3 mb-1 ml-3">
+              <AdvisingNoteTopics
+                :key="mode"
+                :disabled="isSaving || boaSessionExpired"
+                :function-add="addTopic"
+                :function-remove="removeTopic"
+                :topics="model.topics"
+              />
+            </div>
+            <div class="mt-2 mr-3 mb-3 ml-3">
+              <PrivacyPermissions
+                v-if="$currentUser.canAccessPrivateNotes"
+                :disabled="isSaving || boaSessionExpired"
+              />
+            </div>
+            <div class="mt-2 mr-3 mb-1 ml-3">
+              <AdvisingNoteAttachments
+                :add-attachment="addAttachment"
+                :disabled="isSaving || boaSessionExpired"
+                :existing-attachments="model.attachments"
+                :remove-attachment="removeAttachment"
+              />
+            </div>
           </div>
           <hr />
           <div>
@@ -132,6 +140,7 @@ import CreateNoteHeader from '@/components/note/create/CreateNoteHeader'
 import CreateTemplateModal from '@/components/note/create/CreateTemplateModal'
 import FocusLock from 'vue-focus-lock'
 import NoteEditSession from '@/mixins/NoteEditSession'
+import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
@@ -150,6 +159,7 @@ export default {
     CreateNoteHeader,
     CreateTemplateModal,
     FocusLock,
+    PrivacyPermissions,
     RichTextEditor
   },
   mixins: [Context, NoteEditSession, Util],
@@ -180,6 +190,7 @@ export default {
   mounted() {
     store.dispatch('noteEditSession/loadNoteTemplates')
     this.resetModel()
+    this.setIsPrivate(false)
     if (this.sid) {
       this.addSid(this.sid)
     }
