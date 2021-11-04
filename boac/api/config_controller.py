@@ -47,6 +47,10 @@ def app_config():
         'boacEnv': app.config['BOAC_ENV'],
         'currentEnrollmentTerm': current_term_name(),
         'currentEnrollmentTermId': int(current_term_id()),
+        'defaultTermUnitsAllowed': {
+            'max': 20.5,
+            'min': 0.5,
+        },
         'degreeCategoryTypeOptions': list(
             filter(
                 lambda t: 'Placeholder' not in t and 'Campus' not in t, degree_progress_category_type.enums,

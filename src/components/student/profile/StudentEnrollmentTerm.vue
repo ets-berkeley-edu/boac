@@ -57,19 +57,34 @@
         </div>
       </div>
     </b-card-body>
-    <b-card-footer
-      footer-bg-variant="transparent"
-      footer-class="student-term-footer"
-    >
-      <div :id="`term-${term.termId}-gpa`">
-        <span class="student-course-label mr-1">Term GPA: </span>
-        <span v-if="round($_.get(term, 'termGpa.gpa', 0), 3) > 0">{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}</span>
-        <span v-else>&mdash;</span>
+    <b-card-footer footer-bg-variant="transparent" footer-class="student-term-footer">
+      <div class="d-flex justify-content-between">
+        <div :id="`term-${term.termId}-gpa`">
+          <span class="student-course-label mr-1">Term GPA: </span>
+          <span v-if="round($_.get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}</span>
+          <span v-else>&mdash;</span>
+        </div>
+        <div :id="`term-${term.termId}-units`" class="align-items-center d-flex justify-content-end">
+          <div class="student-course-label align-right mr-1">Total Units: </div>
+          <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
+            <span v-if="$_.get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
+            <span v-else>&mdash;</span>
+          </div>
+        </div>
       </div>
-      <div :id="`term-${term.termId}-units`">
-        <span class="student-course-label align-right mr-1">Total Units: </span>
-        <span v-if="$_.get(term, 'enrolledUnits', 0) !== 0">{{ $_.get(term, 'enrolledUnits', 0) }}</span>
-        <span v-else>&mdash;</span>
+      <div
+        v-if="showMinUnits || showMaxUnits"
+        :id="`term-${term.termId}-units-allowed`"
+        class="text-right"
+      >
+        <div v-if="showMinUnits" class="align-items-center d-flex justify-content-end">
+          <div class="student-course-label align-right mr-1">Exception Min Units: </div>
+          <div class="font-size-14 units-total">{{ term.minTermUnitsAllowed }}</div>
+        </div>
+        <div v-if="showMaxUnits" class="align-items-center d-flex justify-content-end">
+          <div class="student-course-label align-right mr-1">Exception Max Units: </div>
+          <div class="font-size-14 units-total">{{ term.maxTermUnitsAllowed }}</div>
+        </div>
       </div>
     </b-card-footer>
   </b-card>
@@ -98,6 +113,16 @@ export default {
       required: true,
       type: Object
     }
+  },
+  data: () => ({
+    showMaxUnits: undefined,
+    showMinUnits: undefined,
+  }),
+  created() {
+    const maxUnits = this.term.maxTermUnitsAllowed
+    const minUnits = this.term.minTermUnitsAllowed
+    this.showMaxUnits = !this.$_.isNil(maxUnits) && maxUnits !== this.$config.defaultTermUnitsAllowed.max
+    this.showMinUnits = !this.$_.isNil(minUnits) && minUnits !== this.$config.defaultTermUnitsAllowed.min
   }
 }
 </script>
@@ -152,11 +177,11 @@ export default {
 }
 .student-term-footer {
   border-top: 1px #999 solid !important;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
   margin: 10px;
   padding: 10px 0 0;
+}
+.units-total {
+  min-width: 30px;
 }
 </style>
 
