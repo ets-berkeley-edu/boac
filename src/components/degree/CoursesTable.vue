@@ -63,7 +63,7 @@
               </td>
               <td
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
+                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
                   'font-size-14 td-name': !printable
                 }"
@@ -145,7 +145,7 @@
               <td
                 v-if="sid"
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
+                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'td-note-printable': printable,
                   'ellipsis-if-overflow td-note': !printable
                 }"
@@ -474,6 +474,9 @@ export default {
         return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
       }
       return bundle.course ? isMatch('course') : isMatch('category')
+    },
+    isSatisfied(bundle) {
+      return bundle.course || this.$_.get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
     },
     onDelete(bundle) {
       this.hoverCourseId = null

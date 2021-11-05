@@ -10,7 +10,7 @@
     >
       <font-awesome
         v-if="!canEdit"
-        :icon="isSatisfied ? 'check-square' : 'square'"
+        :icon="isSatisfied ? 'check-square' : ['far', 'square']"
         class="disabled-checkbox"
         :class="{'fully-opaque': printable}"
       />
