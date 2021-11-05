@@ -33,7 +33,7 @@ from boac.factory import create_app
 
 Usage mode A:
 
->>> python run.py
+>>> python application.py
 
 Usage mode B:
 

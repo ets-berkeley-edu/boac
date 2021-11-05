@@ -6,7 +6,7 @@ Berkeley Online Advising
 
 ## Installation
 
-* Install Python 3
+* Install Python 3.8
 * Create your virtual environment (venv)
 * Install dependencies
 
@@ -17,6 +17,7 @@ pip3 install -r requirements.txt [--upgrade]
 ### Front-end dependencies
 
 ```
+nvm use
 npm install
 ```
 

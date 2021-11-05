@@ -138,7 +138,7 @@ LEGACY_EARLIEST_TERM = 'Fall 2001'
 
 # Logging
 LOGGING_FORMAT = '[%(asctime)s] - %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-LOGGING_LOCATION = 'boac.log'
+LOGGING_LOCATION = 'boa.log'
 LOGGING_LEVEL = logging.DEBUG
 LOGGING_PROPAGATION_LEVEL = logging.INFO
 
