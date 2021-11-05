@@ -42,7 +42,12 @@ export default {
     editorConfig: {
       required: false,
       default: () => ({
-        toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link']
+        toolbar: ['bold', 'italic', 'bulletedList', 'numberedList', 'link'],
+        typing: {
+          transformations: {
+            remove: ['oneForth', 'oneHalf', 'oneThird', 'threeQuarters', 'twoThirds']
+          }
+        }
       }),
       type: Object
     },
