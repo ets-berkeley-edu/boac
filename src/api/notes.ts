@@ -20,30 +20,42 @@ export function markNoteRead(noteId) {
 }
 
 export function createNotes(
+    attachments: any[],
+    body: string,
+    cohortIds: number[],
+    curatedGroupIds: number[],
+    isPrivate: boolean,
     sids: any,
     subject: string,
-    body: string,
-    topics: string[],
-    attachments: any[],
     templateAttachmentIds: [],
-    cohortIds: number[],
-    curatedGroupIds: number[]
+    topics: string[]
 ) {
-  const data = {sids, subject, body, topics, templateAttachmentIds, cohortIds, curatedGroupIds}
+  const data = {
+    body,
+    cohortIds,
+    curatedGroupIds,
+    isPrivate,
+    sids,
+    subject,
+    templateAttachmentIds,
+    topics
+  }
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/notes/create', data)
 }
 
 export function updateNote(
+    body: string,
+    isPrivate: boolean,
     noteId: number,
     subject: string,
-    body: string,
     topics: string[]
 ) {
   const data = {
-    id: noteId,
-    subject: subject,
     body: body,
+    id: noteId,
+    isPrivate: isPrivate,
+    subject: subject,
     topics: topics
   }
   const api_json = utils.postMultipartFormData('/api/notes/update', data)

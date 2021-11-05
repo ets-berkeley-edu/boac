@@ -38,8 +38,9 @@ export default {
       'resetModel',
       'setBody',
       'setFocusLockDisabled',
-      'setIsSaving',
+      'setIsPrivate',
       'setIsRecalculating',
+      'setIsSaving',
       'setMode',
       'setModel',
       'setSubject'

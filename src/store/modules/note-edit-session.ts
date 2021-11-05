@@ -11,6 +11,7 @@ const $_getDefaultModel = () => {
     id: undefined,
     subject: undefined,
     body: undefined,
+    isPrivate: undefined,
     topics: [],
     attachments: [],
     deleteAttachmentIds: []
@@ -111,18 +112,20 @@ const mutations = {
   setModel: (state: any, model: any) => {
     if (model) {
       state.model = {
-        id: model.id,
-        subject: model.subject,
-        body: model.body,
-        topics: model.topics || [],
         attachments: model.attachments || [],
-        deleteAttachmentIds: []
+        body: model.body,
+        deleteAttachmentIds: [],
+        id: model.id,
+        isPrivate: model.isPrivate,
+        subject: model.subject,
+        topics: model.topics || [],
       }
     } else {
       state.model = $_getDefaultModel()
     }
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
+  setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }
 
@@ -163,14 +166,15 @@ const actions = {
         subject: state.model.subject
       })
       createNotes(
+        attachments,
+        state.model.body,
+        _.map(state.addedCohorts, 'id'),
+        _.map(state.addedCuratedGroups, 'id'),
+        state.model.isPrivate,
         state.sids,
         state.model.subject,
-        state.model.body,
-        state.model.topics,
-        attachments,
         _.map(templateAttachments, 'id'),
-        _.map(state.addedCohorts, 'id'),
-        _.map(state.addedCuratedGroups, 'id')
+        state.model.topics
       ).then(data => {
         const eventType = state.completeSidSet.length > 1 ? 'batch-of-notes-created' : 'advising-note-created'
         Vue.prototype.$eventHub.emit(eventType, data)
@@ -213,6 +217,7 @@ const actions = {
   resetModel: ({commit}) => commit('setModel', $_getDefaultModel()),
   setBody: ({commit}, body: string) => commit('setBody', body),
   setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
+  setIsPrivate: ({commit}, isPrivate: boolean) => commit('setIsPrivate', isPrivate),
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({commit}, mode: string) => commit('setMode', mode),

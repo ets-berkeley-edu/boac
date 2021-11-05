@@ -35,7 +35,7 @@
       <div>
         <ul
           id="note-topics-list"
-          class="pill-list pl-0"
+          class="mb-2 pill-list pl-0"
           aria-labelledby="note-topics-label"
         >
           <li

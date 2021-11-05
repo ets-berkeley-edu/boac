@@ -492,10 +492,11 @@ export default {
     afterNoteEdit(updatedNote) {
       this.editModeNoteId = null
       const note = this.$_.find(this.messages, ['id', updatedNote.id])
-      note.subject = updatedNote.subject
-      note.body = note.message = updatedNote.body
-      note.topics = updatedNote.topics
       note.attachments = updatedNote.attachments
+      note.body = note.message = updatedNote.body
+      note.isPrivate = updatedNote.isPrivate
+      note.subject = updatedNote.subject
+      note.topics = updatedNote.topics
       note.updatedAt = updatedNote.updatedAt
       this.refreshSearchIndex()
     },
