@@ -3,17 +3,19 @@
     <Spinner />
     <div v-if="!loading">
       <div class="list-group">
-        <div class="align-items-baseline d-flex mb-2 mt-2">
+        <div class="align-items-baseline d-flex mb-3 mt-2">
           <div class="pr-2">
-            <font-awesome :style="{color: '#3b7ea5'}" icon="clipboard-check" size="2x" />
+            <font-awesome :style="{color: '#3b7ea5'}" icon="address-card" size="2x" />
           </div>
-          <div class="pr-2">
-            <h1 id="dept-users-section" class="page-section-header">
-              Passenger Manifest
-            </h1>
-          </div>
-          <div class="pt-0">
-            <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${$config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+          <div class="align-items-baseline d-flex">
+            <div class="pr-2">
+              <h1 id="dept-users-section" class="page-section-header">
+                Passenger Manifest
+              </h1>
+            </div>
+            <div class="pt-0">
+              <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${$config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+            </div>
           </div>
           <div class="flex-grow-1 text-right">
             <EditUserProfileModal
