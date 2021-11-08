@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <div v-if="academicCareerStatus === 'Completed' && student.sisProfile.degrees.length" class="mb-3">
+    <div v-if="academicCareerStatus === 'Completed' && $_.size(student.sisProfile.degrees)" class="mb-3">
       <h3 class="student-profile-h3">Degree</h3>
       <div v-for="(degree, index) in student.sisProfile.degrees" :key="degree.plan">
         <div :id="`student-bio-degree-type-${index}`" class="font-weight-bolder">
