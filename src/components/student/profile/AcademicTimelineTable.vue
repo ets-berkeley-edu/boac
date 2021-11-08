@@ -111,7 +111,7 @@
               v-if="isEditable(message) && !editModeNoteId && $_.includes(openMessages, message.transientId)"
               class="mt-2"
             >
-              <div v-if="$currentUser.uid === message.author.uid">
+              <div v-if="$currentUser.uid === message.author.uid && (!message.isPrivate || $currentUser.canAccessPrivateNotes)">
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
                   :disabled="disableNewNoteButton"
