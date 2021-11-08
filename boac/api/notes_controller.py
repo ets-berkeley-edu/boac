@@ -224,7 +224,7 @@ def download_attachment(attachment_id):
         stream_data = get_legacy_attachment_stream(id_)
     else:
         attachment = NoteAttachment.find_by_id(id_)
-        if attachment.note.is_private and not current_user.can_access_private_notes:
+        if attachment.note and attachment.note.is_private and not current_user.can_access_private_notes:
             raise ForbiddenRequestError('Unauthorized')
         stream_data = get_boa_attachment_stream(attachment)
 
