@@ -3,7 +3,6 @@ import AdmitStudent from '@/views/AdmitStudent.vue'
 import AdmitStudents from '@/views/AdmitStudents.vue'
 import AllCohorts from '@/views/AllCohorts.vue'
 import AllGroups from '@/views/AllGroups.vue'
-import Analytics from '@/views/Analytics.vue'
 import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue'
 import auth from './auth'
 import BatchDegreeCheck from '@/views/degree/BatchDegreeCheck.vue'
@@ -12,14 +11,15 @@ import Course from '@/views/Course.vue'
 import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
 import CreateDegreeTemplate from '@/views/degree/CreateDegreeTemplate.vue'
 import CuratedGroup from '@/views/CuratedGroup.vue'
-import ManageDegreeChecks from '@/views/degree/ManageDegreeChecks.vue'
 import DegreeTemplate from '@/views/degree/DegreeTemplate.vue'
 import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
 import DropInDesk from '@/views/DropInDesk.vue'
 import Error from '@/views/Error.vue'
+import FlightDataRecorder from '@/views/FlightDataRecorder.vue'
 import FlightDeck from '@/views/FlightDeck.vue'
 import Home from '@/views/Home.vue'
 import Login from '@/layouts/Login.vue'
+import ManageDegreeChecks from '@/views/degree/ManageDegreeChecks.vue'
 import NotFound from '@/views/NotFound.vue'
 import PassengerManifest from '@/views/PassengerManifest.vue'
 import PrintableDegreeTemplate from '@/views/degree/PrintableDegreeTemplate.vue'
@@ -207,7 +207,7 @@ const router = new Router({
       children: [
         {
           path: '/analytics/:deptCode',
-          component: Analytics,
+          component: FlightDataRecorder,
           meta: {
             title: 'Flight Data Recorder'
           }
