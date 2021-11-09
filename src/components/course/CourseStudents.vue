@@ -92,8 +92,15 @@
         </div>
       </div>
       <div v-if="row.item.academicCareerStatus === 'Completed'">
-        <div v-if="$_.get(row.item, 'degree.dateAwarded')" :id="`student-${row.item.uid}-graduated-date`">
-          <span class="student-text">Graduated {{ row.item.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
+        <div v-if="$_.filter(row.item.degrees || [], 'dateAwarded').length > 0" :id="`student-${row.item.uid}-graduated-date`">
+          <div
+            v-for="(degree, index) in $_.filter(row.item.degrees || [], 'dateAwarded')"
+            :key="index"
+            class="student-text"
+          >
+            Graduated {{ degree.dateAwarded | moment('MMM DD, YYYY') }}
+            <span v-if="$_.size(degree.plans) && degree.plans[0].plan">({{ degree.plans[0].plan }})</span>
+          </div>
         </div>
         <div :id="`student-${row.item.uid}-graduated-colleges`">
           <div v-for="owner in degreePlanOwners(row.item)" :key="owner" class="student-text">
