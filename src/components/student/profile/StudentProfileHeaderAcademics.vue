@@ -58,9 +58,9 @@
       </div>
     </div>
     <div v-if="academicCareerStatus === 'Completed' && $_.size(student.sisProfile.degrees)" class="mb-3">
-      <h3 class="student-profile-h3">Degree</h3>
+      <h3 class="student-profile-h3">Degree{{ $_.size(student.sisProfile.degrees) === 1 ? '' : 's' }}</h3>
       <div v-for="(degree, index) in student.sisProfile.degrees" :key="degree.plan">
-        <div :id="`student-bio-degree-type-${index}`" class="font-weight-bolder">
+        <div :id="`student-bio-degree-type-${index}`" class="font-weight-bolder" :class="{'mt-2': index > 0}">
           <span v-if="!$_.includes(degree.planOwners, 'Graduate Division')">
             {{ degree.description }} in
           </span>
