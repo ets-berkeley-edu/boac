@@ -164,8 +164,15 @@
         >
           Entered {{ student.matriculation }}
         </div>
-        <div v-if="$_.get(student, 'degree.dateAwarded')">
-          <span class="student-text">Graduated {{ student.degree.dateAwarded | moment('MMM DD, YYYY') }}</span>
+        <div v-if="degreesAwarded.length > 0">
+          <div
+            v-for="(degree, index) in degreesAwarded"
+            :key="index"
+            class="student-text"
+          >
+            Graduated {{ degree.dateAwarded | moment('MMM DD, YYYY') }}
+            <span v-if="$_.size(degree.plans) && degree.plans[0].plan">({{ degree.plans[0].plan }})</span>
+          </div>
         </div>
         <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
           <span class="student-text">{{ owner }}</span>
@@ -390,6 +397,7 @@ export default {
     }
   },
   data: () => ({
+    degreesAwarded: undefined,
     hover: false,
     termEnrollments: []
   }),
@@ -413,6 +421,7 @@ export default {
     }
   },
   created() {
+    this.degreesAwarded = this.$_.filter(this.student.degrees || [], 'dateAwarded')
     const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
     this.$_.each(termEnrollments, this.setWaitlistedStatus)
     this.termEnrollments = termEnrollments
