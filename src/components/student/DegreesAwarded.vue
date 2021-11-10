@@ -27,10 +27,10 @@ export default {
     this.$_.each(this.student.degrees || [], degree => {
       const key = degree.dateAwarded
       if (key) {
-        if (!this.degreesAwarded[key]) {
-          this.degreesAwarded[key] = []
+        const plans = this.$_.filter(degree.plans || [], ['type', 'MAJ'])
+        if (plans.length) {
+          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(this.$_.map(plans, 'plan'))
         }
-        this.degreesAwarded[key].push(this.$_.map(degree.plans, 'plan'))
       }
     })
   }
