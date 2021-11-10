@@ -164,16 +164,7 @@
         >
           Entered {{ student.matriculation }}
         </div>
-        <div v-if="degreesAwarded.length > 0">
-          <div
-            v-for="(degree, index) in degreesAwarded"
-            :key="index"
-            class="student-text"
-          >
-            Graduated {{ degree.dateAwarded | moment('MMM DD, YYYY') }}
-            <span v-if="$_.size(degree.plans) && degree.plans[0].plan">({{ degree.plans[0].plan }})</span>
-          </div>
-        </div>
+        <DegreesAwarded :student="student" />
         <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
           <span class="student-text">{{ owner }}</span>
         </div>
@@ -343,6 +334,7 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
@@ -355,6 +347,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentRow',
   components: {
+    DegreesAwarded,
     ManageStudent,
     StudentAcademicStanding,
     StudentAvatar,
@@ -396,7 +389,6 @@ export default {
     }
   },
   data: () => ({
-    degreesAwarded: undefined,
     hover: false,
     termEnrollments: []
   }),
@@ -420,7 +412,6 @@ export default {
     }
   },
   created() {
-    this.degreesAwarded = this.$_.filter(this.student.degrees || [], 'dateAwarded')
     const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
     this.$_.each(termEnrollments, this.setWaitlistedStatus)
     this.termEnrollments = termEnrollments
