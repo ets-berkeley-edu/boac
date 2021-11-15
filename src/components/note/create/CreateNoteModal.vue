@@ -272,12 +272,13 @@ export default {
           this.showAlert(`Template '${title}' created.`)
           this.setIsSaving(false)
           this.setModel({
-            id: undefined,
-            subject: template.subject,
-            body: template.body,
-            topics: template.topics,
             attachments: template.attachments,
-            deleteAttachmentIds: []
+            body: template.body,
+            deleteAttachmentIds: [],
+            id: undefined,
+            isPrivate: false,
+            subject: template.subject,
+            topics: template.topics
           })
           this.setMode(this.isBatchFeature ? 'batch' : 'create')
           this.$putFocusNextTick('create-note-subject')
@@ -297,7 +298,7 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
-      this.resetModel()
+      this.resetModel(false)
       this.setMode(this.isBatchFeature ? 'batch' : 'create')
       this.alertScreenReader('Canceled create template.')
       this.$putFocusNextTick('create-note-subject')
@@ -366,12 +367,13 @@ export default {
       ).then(template => {
         this.setIsSaving(false)
         this.setModel({
-          id: undefined,
-          subject: template.subject,
-          body: template.body,
-          topics: template.topics,
           attachments: template.attachments,
-          deleteAttachmentIds: []
+          body: template.body,
+          deleteAttachmentIds: [],
+          id: undefined,
+          isPrivate: false,
+          subject: template.subject,
+          topics: template.topics
         })
         this.setMode(this.isBatchFeature ? 'batch' : 'create')
         this.showAlert(`Template '${template.title}' updated`)

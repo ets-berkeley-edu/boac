@@ -6,11 +6,12 @@ import {getMyNoteTemplates} from '@/api/note-templates'
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate']
 
-const $_getDefaultModel = () => {
+const $_getDefaultModel = (isPrivate?) => {
   return {
     id: undefined,
     subject: undefined,
     body: undefined,
+    isPrivate: _.isNil(isPrivate) ? undefined : isPrivate,
     topics: [],
     attachments: [],
     deleteAttachmentIds: []
@@ -210,7 +211,7 @@ const actions = {
     }).finally(() => commit('setIsRecalculating', false))
   },
   removeTopic: ({commit}, topic: string) => commit('removeTopic', topic),
-  resetModel: ({commit}) => commit('setModel', $_getDefaultModel()),
+  resetModel: ({commit}, isPrivate?: boolean) => commit('setModel', $_getDefaultModel(isPrivate)),
   setBody: ({commit}, body: string) => commit('setBody', body),
   setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
