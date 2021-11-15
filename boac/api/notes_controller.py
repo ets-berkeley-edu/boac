@@ -246,7 +246,8 @@ def download_notes_and_attachments(sid):
         return Response('Notes not available.', mimetype='text/html', status=404)
     r = Response(stream_data['stream'])
     r.headers['Content-Type'] = 'application/zip'
-    r.headers['Content-Disposition'] = f"attachment; filename={stream_data['filename']}"
+    encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
+    r.headers['Content-Disposition'] = f'attachment; filename={encoding_safe_filename}'
     return r
 
 
