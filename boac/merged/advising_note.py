@@ -45,10 +45,8 @@ from boac.lib.util import (
     get_benchmarker,
     is_int,
     join_if_present,
-    localize_datetime,
     search_result_text_snippet,
     TEXT_SEARCH_PATTERN,
-    utc_now,
 )
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
 from boac.models.note import Note
@@ -308,27 +306,7 @@ def get_boa_attachment_stream(attachment):
         return None
 
 
-def get_zip_stream_for_sid(sid):
-    z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
-    notes = get_advising_notes(sid)
-    if not notes:
-        return None
-
-    filename = 'advising_notes'
-    student_data = data_loch.get_basic_student_data([sid])
-    if student_data:
-        student_row = student_data[0]
-        student_name = join_if_present(' ', [student_row.get('first_name'), student_row.get('last_name')])
-        filename = '_'.join([filename, student_row.get('first_name', '').lower(), student_row.get('last_name', '').lower()])
-    else:
-        student_name = ''
-    filename = '_'.join([filename, localize_datetime(utc_now()).strftime('%Y%m%d')])
-
-    supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(
-        app,
-        list(set([note['author']['sid'] for note in notes if note['author']['sid'] and not note['author']['name']])),
-    )
-
+def get_zip_stream(filename, notes, student):
     app_timezone = pytz.timezone(app.config['TIMEZONE'])
 
     def iter_csv():
@@ -355,6 +333,11 @@ def get_zip_stream_for_sid(sid):
             'late_change_request_term',
             'late_change_request_course',
         ])
+
+        supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(
+            app,
+            list(set([note['author']['sid'] for note in notes if note['author']['sid'] and not note['author']['name']])),
+        )
         for note in notes:
             calnet_author = supplemental_calnet_advisor_feeds.get(note['author']['sid'])
             if calnet_author:
@@ -372,8 +355,8 @@ def get_zip_stream_for_sid(sid):
             omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
             yield csv_line([
                 date_local,
-                sid,
-                student_name,
+                student['sid'],
+                join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
                 (note['author']['uid'] or calnet_author_uid),
                 note['author']['sid'],
                 (note['author']['name'] or calnet_author_name),
@@ -387,33 +370,33 @@ def get_zip_stream_for_sid(sid):
                 term_name_for_sis_id(e_form.get('term')),
                 f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if e_form.get('sectionId') else None,
             ])
-    z.write_iter(f'{filename}.csv', iter_csv())
 
-    all_attachment_filenames = set()
-    all_attachment_filenames.add(f'{filename}.csv')
-    for note in notes:
-        if not note.get('isPrivate') or current_user.can_access_private_notes:
-            for attachment in note['attachments'] or []:
-                is_legacy_attachment = not is_int(attachment['id'])
-                id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
-                if is_legacy_attachment:
-                    stream_data = get_legacy_attachment_stream(id_)
-                else:
-                    attachment = NoteAttachment.find_by_id(id_)
-                    stream_data = get_boa_attachment_stream(attachment)
-                if stream_data:
-                    attachment_filename = stream_data['filename']
-                    basename, extension = path.splitext(attachment_filename)
-                    suffix = 1
-                    while attachment_filename in all_attachment_filenames:
-                        attachment_filename = f'{basename} ({suffix}){extension}'
-                        suffix += 1
-                    all_attachment_filenames.add(attachment_filename)
-                    z.write_iter(attachment_filename, stream_data['stream'])
-    return {
-        'filename': f'{filename}.zip',
-        'stream': z,
-    }
+    z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
+    csv_filename = f'{filename}.csv'
+    z.write_iter(csv_filename, iter_csv())
+
+    if notes:
+        all_attachment_filenames = {csv_filename}
+        for note in notes:
+            if not note.get('isPrivate') or current_user.can_access_private_notes:
+                for attachment in note['attachments'] or []:
+                    is_legacy_attachment = not is_int(attachment['id'])
+                    id_ = attachment['id'] if is_legacy_attachment else int(attachment['id'])
+                    if is_legacy_attachment:
+                        stream_data = get_legacy_attachment_stream(id_)
+                    else:
+                        attachment = NoteAttachment.find_by_id(id_)
+                        stream_data = get_boa_attachment_stream(attachment)
+                    if stream_data:
+                        attachment_filename = stream_data['filename']
+                        basename, extension = path.splitext(attachment_filename)
+                        suffix = 1
+                        while attachment_filename in all_attachment_filenames:
+                            attachment_filename = f'{basename} ({suffix}){extension}'
+                            suffix += 1
+                        all_attachment_filenames.add(attachment_filename)
+                        z.write_iter(attachment_filename, stream_data['stream'])
+    return z
 
 
 def note_to_compatible_json(

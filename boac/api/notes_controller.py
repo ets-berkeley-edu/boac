@@ -33,13 +33,22 @@ from boac.api.util import (
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
 )
+from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
-from boac.lib.util import get_benchmarker, is_int, process_input_from_rich_text_editor, to_bool_or_none
+from boac.lib.util import (
+    get_benchmarker,
+    is_int,
+    localize_datetime,
+    process_input_from_rich_text_editor,
+    to_bool_or_none,
+    utc_now,
+)
 from boac.merged.advising_note import (
+    get_advising_notes,
     get_boa_attachment_stream,
-    get_zip_stream_for_sid,
+    get_zip_stream,
     note_to_compatible_json,
 )
 from boac.merged.calnet import get_calnet_user_for_uid
@@ -48,7 +57,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
-from flask import current_app as app, request, Response
+from flask import current_app as app, request, Response, stream_with_context
 from flask_login import current_user
 
 
@@ -241,14 +250,27 @@ def download_attachment(attachment_id):
 @app.route('/api/notes/download_for_sid/<sid>', methods=['GET'])
 @director_advising_data_access_required
 def download_notes_and_attachments(sid):
-    stream_data = get_zip_stream_for_sid(sid)
-    if not stream_data or not stream_data['stream']:
-        return Response('Notes not available.', mimetype='text/html', status=404)
-    r = Response(stream_data['stream'])
-    r.headers['Content-Type'] = 'application/zip'
-    encoding_safe_filename = urllib.parse.quote(stream_data['filename'].encode('utf8'))
-    r.headers['Content-Disposition'] = f'attachment; filename={encoding_safe_filename}'
-    return r
+    students = data_loch.get_basic_student_data([sid])
+    student = students[0] if students else None
+    notes = get_advising_notes(sid) if student else None
+    if not student or not notes:
+        return Response('Not found', status=404)
+
+    filename = '_'.join([
+        'advising_notes',
+        student.get('first_name', '').lower(),
+        student.get('last_name', '').lower(),
+        localize_datetime(utc_now()).strftime('%Y%m%d'),
+    ])
+
+    def generator():
+        for chunk in get_zip_stream(filename=filename, notes=notes, student=student):
+            yield chunk
+
+    response = Response(stream_with_context(generator()), mimetype='application/zip')
+    encoding_safe_filename = urllib.parse.quote(f'{filename}.zip'.encode('utf8'))
+    response.headers['Content-Disposition'] = f'attachment; filename={encoding_safe_filename}'
+    return response
 
 
 def _get_sids_for_note_creation():
