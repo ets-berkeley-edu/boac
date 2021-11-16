@@ -216,35 +216,38 @@
       </div>
     </div>
     <div class="student-column">
-      <div :id="`row-${rowIndex}-student-enrolled-units`" class="student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
-      <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
-      <div v-if="$_.get(student, 'currentTerm.unitsMin') && student.currentTerm.unitsMin !== $config.defaultTermUnitsAllowed.min">
-        <div :id="`row-${rowIndex}-student-min-units`" class="student-gpa">
-          {{ student.currentTerm.unitsMin }}
-        </div>
-        <div class="student-text">Min&nbsp;Approved</div>
+      <div class="d-flex flex-wrap">
+        <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
+        <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
+      </div>
+      <div
+        v-if="$_.get(student, 'currentTerm.unitsMin') && student.currentTerm.unitsMin !== $config.defaultTermUnitsAllowed.min"
+        class="d-flex flex-wrap"
+      >
+        <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.currentTerm.unitsMin }}</div>
+        <div class="no-wrap student-text">Min&nbsp;Approved</div>
       </div>
       <div v-if="$_.get(student, 'currentTerm.unitsMax') && student.currentTerm.unitsMax !== $config.defaultTermUnitsAllowed.max">
-        <div :id="`row-${rowIndex}-student-max-units`" class="student-gpa">
-          {{ student.currentTerm.unitsMax }}
+        <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.currentTerm.unitsMax }}</span>
+        <span class="no-wrap student-text">Max&nbsp;Approved</span>
+      </div>
+      <div v-if="isCurrentTerm" class="d-flex flex-wrap">
+        <div
+          v-if="student.cumulativeUnits"
+          :id="`row-${rowIndex}-student-cumulative-units`"
+          class="mr-1 student-gpa"
+        >
+          {{ student.cumulativeUnits }}
         </div>
-        <div class="student-text">Max&nbsp;Approved</div>
+        <div
+          v-if="!student.cumulativeUnits"
+          :id="`row-${rowIndex}-student-cumulative-units`"
+          class="student-gpa"
+        >
+          --<span class="sr-only"> No data</span>
+        </div>
+        <div class="no-wrap student-text">Units Completed</div>
       </div>
-      <div
-        v-if="student.cumulativeUnits && isCurrentTerm"
-        :id="`row-${rowIndex}-student-cumulative-units`"
-        class="student-gpa"
-      >
-        {{ student.cumulativeUnits }}
-      </div>
-      <div
-        v-if="!student.cumulativeUnits && isCurrentTerm"
-        :id="`row-${rowIndex}-student-cumulative-units`"
-        class="student-gpa"
-      >
-        --<span class="sr-only">No data</span>
-      </div>
-      <div v-if="isCurrentTerm" class="student-text">Units Completed</div>
     </div>
     <div class="cohort-course-activity-wrapper">
       <table class="cohort-course-activity-table">
