@@ -911,7 +911,7 @@ class TestStreamNotesZip:
             response = client.get('/api/notes/download_for_sid/9000000000')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/zip'
-            assert response.headers['Content-Disposition'] == f"attachment; filename=advising_notes_wolfgang_pauli-o%27rourke_{today}.zip"
+            assert response.headers['Content-Disposition'] == f'attachment; filename=advising_notes_wolfgang_pauli-o%27rourke_{today}.zip'
             assert response.data
 
     def test_authorizes_director(self, app, client, fake_auth):
