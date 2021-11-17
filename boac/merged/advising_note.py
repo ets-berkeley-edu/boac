@@ -185,7 +185,7 @@ def search_advising_notes(
     benchmark('begin')
 
     if search_phrase:
-        search_terms = [t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t]
+        search_terms = list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
         search_phrase = ' & '.join(search_terms)
     else:
         search_terms = []
