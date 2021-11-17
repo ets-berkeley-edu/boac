@@ -333,7 +333,7 @@ class Appointment(Base):
         offset=0,
     ):
         if search_phrase:
-            search_terms = [t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t]
+            search_terms = list({t.group(0) for t in list(re.finditer(TEXT_SEARCH_PATTERN, search_phrase)) if t})
             search_phrase = ' & '.join(search_terms)
             fts_selector = """SELECT id, ts_rank(fts_index, plainto_tsquery('english', :search_phrase)) AS rank
                 FROM appointments_fts_index

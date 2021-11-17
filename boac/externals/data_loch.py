@@ -992,7 +992,7 @@ def get_students_query(     # noqa
 
     # Name or SID search
     if search_phrase:
-        words = search_phrase.upper().split()
+        words = list(set(search_phrase.upper().split()))
         # A numeric string indicates an SID search.
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
             query_filter += ' AND (sas.sid LIKE :sid_phrase)'
@@ -1284,7 +1284,7 @@ def get_admitted_students_query(
         query_filter += _number_ranges_to_sql('CAST(NULLIF(student_dependents_num, \'\') AS INT)', sql_ready_ranges)
     # Name or SID search
     if search_phrase:
-        words = search_phrase.upper().split()
+        words = list(set(search_phrase.upper().split()))
         # A numeric string indicates an SID search.
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
             query_filter += ' AND (sa.cs_empl_id LIKE :sid_phrase)'
