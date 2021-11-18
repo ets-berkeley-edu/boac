@@ -212,7 +212,7 @@ class DegreeProgressCategory(Base):
         )
         category.grade = grade
         category.is_recommended = is_recommended
-        category.note = note
+        category.note = note.strip() if note else None
         std_commit()
         return cls.find_by_id(category_id=category_id)
 

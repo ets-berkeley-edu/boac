@@ -103,7 +103,7 @@ class DegreeProgressCourse(Base):
             raise ValueError('manually_created_at is required if manually_created_by is present.')
         else:
             self.manually_created_at = manually_created_at
-        self.note = note
+        self.note = note.strip() if note else None
         self.section_id = section_id
         self.sid = sid
         self.term_id = term_id
@@ -229,7 +229,7 @@ class DegreeProgressCourse(Base):
         course.accent_color = accent_color
         course.grade = grade
         course.display_name = name
-        course.note = note
+        course.note = note.strip() if note else None
         course.units = units if (units is None or is_float(units)) else 0
 
         existing_unit_requirements = DegreeProgressCourseUnitRequirement.find_by_course_id(course_id)
