@@ -20,7 +20,6 @@
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th class="th-grade">Grade</b-th>
             <b-th v-if="!ignored" class="pl-0">Term</b-th>
-            <b-th class="pl-0">Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
         </b-thead>
@@ -36,6 +35,7 @@
                 'accent-color-orange': course.accentColor === 'Orange',
                 'accent-color-purple': course.accentColor === 'Purple',
                 'accent-color-red': course.accentColor === 'Red',
+                'border-left border-right border-top': $_.includes(notesVisible, course.id),
                 'cursor-grab': canDrag() && !draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !draggingContext.course,
                 'tr-while-dragging': isUserDragging(course.id)
@@ -88,15 +88,31 @@
               <td v-if="!ignored" class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
-              <td class="td-note" :class="{'ellipsis-if-overflow': course.note}" :title="course.note || null">
-                <span
-                  :id="`course-${course.id}-note`"
-                  v-linkified
-                  v-html="course.note || '&mdash;'"
-                />
-              </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
-                <div class="d-flex">
+                <div class="d-flex justify-content-end">
+                  <div
+                    v-if="course.note && !isUserDragging(course.id)"
+                    class="btn-container"
+                  >
+                    <b-btn
+                      :id="`unassigned-course-${course.id}-view-note-btn`"
+                      class="pb-0 pl-0 pr-1 pt-1"
+                      :disabled="disableButtons || $_.includes(notesVisible, course.id)"
+                      size="sm"
+                      variant="link"
+                      @click="showNote(course)"
+                    >
+                      <font-awesome
+                        class="font-size-18"
+                        :class="{
+                          'text-secondary': $_.includes(notesVisible, course.id),
+                          'accent-color-orange': !$_.includes(notesVisible, course.id)
+                        }"
+                        :icon="['far', 'comment-dots']"
+                      />
+                      <span class="sr-only">Read note</span>
+                    </b-btn>
+                  </div>
                   <div v-if="course.manuallyCreatedBy" class="btn-container">
                     <b-btn
                       v-if="!isUserDragging(course.id)"
@@ -129,13 +145,39 @@
               </td>
             </b-tr>
             <b-tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <b-td colspan="7">
+              <b-td colspan="6">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
                   :course="course"
                   :position="0"
                 />
+              </b-td>
+            </b-tr>
+            <b-tr
+              v-if="$_.includes(notesVisible, course.id)"
+              :key="`tr-${index}-note`"
+              class="border-bottom border-left border-right"
+            >
+              <b-td colspan="5" class="px-4">
+                <span
+                  :id="`${course.id}-note`"
+                  aria-live="polite"
+                  class="font-size-14"
+                  role="alert"
+                >
+                  <span class="sr-only">Note: </span>
+                  {{ course.note }}
+                </span>
+                <span class="font-size-12 ml-1 no-wrap">
+                  [<b-btn
+                    :id="`course-${course.id}-hide-note-btn`"
+                    class="px-0 py-1"
+                    size="sm"
+                    variant="link"
+                    @click="hideNote(course)"
+                  >Hide note</b-btn>]
+                </span>
               </b-td>
             </b-tr>
           </template>
@@ -176,7 +218,8 @@ export default {
     courseForDelete: undefined,
     courseForEdit: undefined,
     hoverCourseId: undefined,
-    key: undefined
+    key: undefined,
+    notesVisible: []
   }),
   created() {
     this.key = this.ignored ? 'ignored' : 'unassigned'
@@ -196,6 +239,7 @@ export default {
       this.$putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
     },
     edit(course) {
+      this.hideNote(course, false)
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${this.key} ${course.name}`)
       this.courseForEdit = course
@@ -217,6 +261,12 @@ export default {
         this.setDisableButtons(false)
         this.$putFocusNextTick('create-course-button')
       })
+    },
+    hideNote(course, srAlert=true) {
+      this.notesVisible = this.$_.remove(this.notesVisible, course.id)
+      if (srAlert) {
+        this.$announcer.polite('Note hidden')
+      }
     },
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
@@ -262,6 +312,10 @@ export default {
       default:
         break
       }
+    },
+    showNote(course) {
+      this.notesVisible.push(course.id)
+      this.$announcer.polite(`Showing note of ${course.name}`)
     }
   }
 }

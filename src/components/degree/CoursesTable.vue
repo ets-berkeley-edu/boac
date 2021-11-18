@@ -18,7 +18,7 @@
             <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
             <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
             <b-th v-if="sid && isCampusRequirements" class="px-0 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
-            <b-th v-if="sid" :class="{'font-size-12': printable}">Note</b-th>
+            <b-th v-if="sid && printable" class="font-size-12">Note</b-th>
             <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
             <b-th v-if="canEdit && (sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
           </b-tr>
@@ -34,6 +34,7 @@
                 'accent-color-orange': getAccentColor(bundle) === 'Orange',
                 'accent-color-purple': getAccentColor(bundle) === 'Purple',
                 'accent-color-red': getAccentColor(bundle) === 'Red',
+                'border-left border-right border-top': $_.includes(notesVisible, bundle.key),
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
@@ -142,27 +143,8 @@
                   :printable="printable"
                 />
               </td>
-              <td
-                v-if="sid"
-                :class="{
-                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
-                  'td-note-printable': printable,
-                  'ellipsis-if-overflow td-note': !printable
-                }"
-                :title="getNote(bundle)"
-              >
-                <span v-if="printable" class="font-size-12">{{ getNote(bundle) }}</span>
-                <span
-                  v-if="!printable"
-                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
-                  v-linkified
-                  class="font-size-14"
-                  :class="{
-                    'font-size-12': printable,
-                    'font-size-14': !printable
-                  }"
-                  v-html="getNote(bundle)"
-                />
+              <td v-if="sid && printable" class="font-size-12 faint-text font-italic td-note-printable">
+                {{ getNote(bundle) }}
               </td>
               <td
                 v-if="!sid && !isCampusRequirements"
@@ -187,6 +169,29 @@
               </td>
               <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
+                  <div
+                    v-if="!printable && getNote(bundle) && !isUserDragging($_.get(bundle.course, 'id'))"
+                    class="btn-container"
+                  >
+                    <b-btn
+                      :id="`column-${position}-${bundle.key}-view-note-btn`"
+                      class="pb-0 pl-0 pr-1 pt-1"
+                      :disabled="disableButtons || $_.includes(notesVisible, bundle.key)"
+                      size="sm"
+                      variant="link"
+                      @click="showNote(bundle)"
+                    >
+                      <font-awesome
+                        class="font-size-18"
+                        :class="{
+                          'text-secondary': $_.includes(notesVisible, bundle.key),
+                          'accent-color-orange': !$_.includes(notesVisible, bundle.key)
+                        }"
+                        :icon="['far', 'comment-dots']"
+                      />
+                      <span class="sr-only">Read note</span>
+                    </b-btn>
+                  </div>
                   <div class="btn-container">
                     <b-btn
                       v-if="!isUserDragging($_.get(bundle.course, 'id'))"
@@ -241,6 +246,32 @@
                   :category="bundle.category"
                   :position="position"
                 />
+              </b-td>
+            </b-tr>
+            <b-tr
+              v-if="$_.includes(notesVisible, bundle.key)"
+              :key="`tr-${index}-note`"
+              class="border-bottom border-left border-right"
+            >
+              <b-td colspan="5" class="px-2">
+                <span
+                  :id="bundle.course ? `course-${bundle.course.id}-note` : `category-${bundle.category.id}-note`"
+                  aria-live="polite"
+                  class="font-size-14"
+                  role="alert"
+                >
+                  <span class="sr-only">Note: </span>
+                  {{ getNote(bundle) }}
+                </span>
+                <span class="font-size-12 ml-1 no-wrap">
+                  [<b-btn
+                    :id="`column-${position}-${bundle.key}-hide-note-btn`"
+                    class="px-0 py-1"
+                    size="sm"
+                    variant="link"
+                    @click="hideNote(bundle)"
+                  >Hide note</b-btn>]
+                </span>
               </b-td>
             </b-tr>
           </template>
@@ -324,7 +355,8 @@ export default {
     bundleForEdit: undefined,
     canEdit: undefined,
     emptyCategoryId: undefined,
-    hoverCourseId: undefined
+    hoverCourseId: undefined,
+    notesVisible: []
   }),
   computed: {
     allCourses() {
@@ -411,6 +443,7 @@ export default {
       }
     },
     edit(bundle) {
+      this.hideNote(bundle, false)
       this.hoverCourseId = null
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${bundle.name}`)
@@ -437,6 +470,12 @@ export default {
       return this.$_.get(bundle.course || bundle.category, 'grade')
     },
     getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
+    hideNote(bundle, srAlert=true) {
+      this.notesVisible = this.$_.remove(this.notesVisible, bundle.key)
+      if (srAlert) {
+        this.$announcer.polite('Note hidden')
+      }
+    },
     isCourseFulfillmentsEdited(bundle) {
       if (bundle.category && bundle.course) {
         const edited = this.$_.xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
@@ -536,6 +575,10 @@ export default {
           break
         }
       }
+    },
+    showNote(bundle) {
+      this.notesVisible.push(bundle.key)
+      this.$announcer.polite(`Showing note of ${bundle.name}`)
     }
   }
 }
@@ -543,7 +586,7 @@ export default {
 
 <style scoped>
 table {
-  border-collapse: separate;
+  border-collapse: collapse;
   border-spacing: 0 0.05em;
 }
 .btn-container {
