@@ -263,7 +263,7 @@ export default {
       })
     },
     hideNote(course, srAlert=true) {
-      this.notesVisible = this.$_.remove(this.notesVisible, course.id)
+      this.notesVisible = this.$_.remove(this.notesVisible, id => course.id !== id)
       if (srAlert) {
         this.$announcer.polite('Note hidden')
       }
