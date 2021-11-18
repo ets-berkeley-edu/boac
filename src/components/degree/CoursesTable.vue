@@ -471,7 +471,7 @@ export default {
     },
     getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
     hideNote(bundle, srAlert=true) {
-      this.notesVisible = this.$_.remove(this.notesVisible, bundle.key)
+      this.notesVisible = this.$_.remove(this.notesVisible, key => bundle.key !== key)
       if (srAlert) {
         this.$announcer.polite('Note hidden')
       }
