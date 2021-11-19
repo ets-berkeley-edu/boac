@@ -5,7 +5,8 @@ export default {
   name: 'Attachments',
   beforeCreate() {
     const preventFileDropOutsideFormControl = e => {
-      if (!e.target.classList.contains('choose-attachment-file-wrapper')) {
+      const classList = _.get(e.target, 'classList', '')
+      if (!classList.contains('choose-attachment-file-wrapper')) {
         e.preventDefault()
         e.dataTransfer.effectAllowed = 'none'
         e.dataTransfer.dropEffect = 'none'
