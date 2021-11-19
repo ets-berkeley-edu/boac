@@ -5,7 +5,8 @@ const state = {
   announcement: undefined,
   dismissedFooterAlert: false,
   dismissedServiceAnnouncement: false,
-  loading: undefined
+  loading: undefined,
+  loadingStartTime: undefined
 }
 
 const getters = {
@@ -19,6 +20,9 @@ const mutations = {
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
   loadingComplete: (state: any, focusTarget?: string) => {
+    if (!Vue.prototype.$config.isProduction) {
+      console.log(`Page loaded in ${(new Date().getTime() - state.loadingStartTime) / 1000} seconds`)
+    }
     state.loading = false
     if (focusTarget) {
       Vue.prototype.$putFocusNextTick(focusTarget)
@@ -37,7 +41,10 @@ const mutations = {
       })
     }
   },
-  loadingStart: (state: any) => state.loading = true,
+  loadingStart: (state: any) => {
+    state.loading = true
+    state.loadingStartTime = new Date().getTime()
+  },
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
   setAnnouncement: (state: any, data: any) => (state.announcement = data),
 }
