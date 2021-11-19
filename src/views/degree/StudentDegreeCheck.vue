@@ -172,8 +172,7 @@ export default {
     },
     scrollTo(event) {
       // Firefox does not need the intervention below.
-      const isFirefox = navigator.userAgent.indexOf('Firefox') === -1
-      if (this.draggingContext.course && isFirefox) {
+      if (this.draggingContext.course && navigator.userAgent.indexOf('Firefox') === -1) {
         const eventY = event.clientY
         // Distance to bottom of viewport
         const distanceToBottom = window.innerHeight - eventY
