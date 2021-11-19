@@ -1,36 +1,36 @@
+const AdmitStudent = () => import('@/views/AdmitStudent.vue')
+const AdmitStudents = () => import('@/views/AdmitStudents.vue')
+const AllCohorts = () => import('@/views/AllCohorts.vue')
+const AllGroups = () => import('@/views/AllGroups.vue')
+const AppointmentDropIn = () => import('@/layouts/AppointmentDropIn.vue')
+const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
+const Cohort = () => import('@/views/Cohort.vue')
+const Course = () => import('@/views/Course.vue')
+const CreateCuratedGroup = () => import('@/views/CreateCuratedGroup.vue')
+const CreateDegreeTemplate = () => import('@/views/degree/CreateDegreeTemplate.vue')
+const CuratedGroup = () => import('@/views/CuratedGroup.vue')
+const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
+const DropInAdvisorHome = () => import('@/views/DropInAdvisorHome.vue')
+const DropInDesk = () => import('@/views/DropInDesk.vue')
+const Error = () => import('@/views/Error.vue')
+const FlightDataRecorder = () => import('@/views/FlightDataRecorder.vue')
+const FlightDeck = () => import('@/views/FlightDeck.vue')
+const Home = () => import('@/views/Home.vue')
+const Login = () => import('@/layouts/Login.vue')
+const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
+const NotFound = () => import('@/views/NotFound.vue')
+const PassengerManifest = () => import('@/views/PassengerManifest.vue')
+const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
+const Profile = () => import('@/views/Profile.vue')
+const Search = () => import('@/views/Search.vue')
+const StandardLayout = () => import('@/layouts/StandardLayout.vue')
+const Student = () => import('@/views/Student.vue')
+const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
+const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
+const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import _ from 'lodash'
-import AdmitStudent from '@/views/AdmitStudent.vue'
-import AdmitStudents from '@/views/AdmitStudents.vue'
-import AllCohorts from '@/views/AllCohorts.vue'
-import AllGroups from '@/views/AllGroups.vue'
-import AppointmentDropIn from '@/layouts/AppointmentDropIn.vue'
 import auth from './auth'
-import BatchDegreeCheck from '@/views/degree/BatchDegreeCheck.vue'
-import Cohort from '@/views/Cohort.vue'
-import Course from '@/views/Course.vue'
-import CreateCuratedGroup from '@/views/CreateCuratedGroup.vue'
-import CreateDegreeTemplate from '@/views/degree/CreateDegreeTemplate.vue'
-import CuratedGroup from '@/views/CuratedGroup.vue'
-import DegreeTemplate from '@/views/degree/DegreeTemplate.vue'
-import DropInAdvisorHome from '@/views/DropInAdvisorHome.vue'
-import DropInDesk from '@/views/DropInDesk.vue'
-import Error from '@/views/Error.vue'
-import FlightDataRecorder from '@/views/FlightDataRecorder.vue'
-import FlightDeck from '@/views/FlightDeck.vue'
-import Home from '@/views/Home.vue'
-import Login from '@/layouts/Login.vue'
-import ManageDegreeChecks from '@/views/degree/ManageDegreeChecks.vue'
-import NotFound from '@/views/NotFound.vue'
-import PassengerManifest from '@/views/PassengerManifest.vue'
-import PrintableDegreeTemplate from '@/views/degree/PrintableDegreeTemplate.vue'
-import Profile from '@/views/Profile.vue'
 import Router from 'vue-router'
-import Search from '@/views/Search.vue'
-import StandardLayout from '@/layouts/StandardLayout.vue'
-import Student from '@/views/Student.vue'
-import StudentDegreeCheck from '@/views/degree/StudentDegreeCheck.vue'
-import StudentDegreeCreate from '@/views/degree/StudentDegreeCreate.vue'
-import StudentDegreeHistory from '@/views/degree/StudentDegreeHistory.vue'
 import Vue from 'vue'
 
 Vue.use(Router)
