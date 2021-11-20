@@ -124,6 +124,8 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     Vue.prototype.$config = response.data
     Vue.prototype.$config.apiBaseUrl = apiBaseUrl
+    const ebEnvironment = Vue.prototype.$config.ebEnvironment
+    Vue.prototype.$config.isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
     Vue.prototype.$config.isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
     store.commit('currentUserExtras/setUserPreference', {
       key: 'termId',

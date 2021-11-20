@@ -20,6 +20,7 @@
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th class="th-grade">Grade</b-th>
             <b-th v-if="!ignored" class="pl-0">Term</b-th>
+            <b-th class="pl-0">Note</b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
         </b-thead>
@@ -35,7 +36,7 @@
                 'accent-color-orange': course.accentColor === 'Orange',
                 'accent-color-purple': course.accentColor === 'Purple',
                 'accent-color-red': course.accentColor === 'Red',
-                'border-left border-right border-top': $_.includes(notesVisible, course.id),
+                'border-left border-right border-top': isNoteVisible(course),
                 'cursor-grab': canDrag() && !draggingContext.course,
                 'mouseover-grabbable': hoverCourseId === course.id && !draggingContext.course,
                 'tr-while-dragging': isUserDragging(course.id)
@@ -49,18 +50,18 @@
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
-              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-assignment-menu">
+              <td v-if="$currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
                   <CourseAssignmentMenu :after-course-assignment="() => $putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
               <td class="td-name">
-                <span :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</span>
+                <div :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</div>
               </td>
               <td class="td-units">
                 <font-awesome
                   v-if="course.unitRequirements.length"
-                  class="fulfillments-icon mr-1"
+                  class="fulfillments-icon mr-1 pl-0"
                   icon="check-circle"
                   size="sm"
                   :title="`Counts towards ${oxfordJoin($_.map(course.unitRequirements, 'name'))}`"
@@ -88,31 +89,20 @@
               <td v-if="!ignored" class="td-term">
                 <span class="font-size-14">{{ course.termName }}</span>
               </td>
+              <td class="td-note">
+                <div v-if="course.note && !isNoteVisible(course) && !isUserDragging(course.id)" class="d-flex justify-content-start">
+                  <b-link
+                    :id="`course-${course.id}-note`"
+                    class="ellipsis-if-overflow"
+                    href
+                    @click="showNote(course)"
+                    v-html="course.note"
+                  />
+                </div>
+                <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
+              </td>
               <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
                 <div class="d-flex justify-content-end">
-                  <div
-                    v-if="course.note && !isUserDragging(course.id)"
-                    class="btn-container"
-                  >
-                    <b-btn
-                      :id="`unassigned-course-${course.id}-view-note-btn`"
-                      class="pb-0 pl-0 pr-1 pt-1"
-                      :disabled="disableButtons || $_.includes(notesVisible, course.id)"
-                      size="sm"
-                      variant="link"
-                      @click="showNote(course)"
-                    >
-                      <font-awesome
-                        class="font-size-18"
-                        :class="{
-                          'text-secondary': $_.includes(notesVisible, course.id),
-                          'accent-color-orange': !$_.includes(notesVisible, course.id)
-                        }"
-                        :icon="['far', 'comment-dots']"
-                      />
-                      <span class="sr-only">Read note</span>
-                    </b-btn>
-                  </div>
                   <div v-if="course.manuallyCreatedBy" class="btn-container">
                     <b-btn
                       v-if="!isUserDragging(course.id)"
@@ -145,7 +135,7 @@
               </td>
             </b-tr>
             <b-tr v-if="isEditing(course)" :key="`tr-${index}-edit`">
-              <b-td colspan="6">
+              <b-td colspan="7">
                 <EditCourse
                   :after-cancel="afterCancel"
                   :after-save="afterSave"
@@ -155,7 +145,7 @@
               </b-td>
             </b-tr>
             <b-tr
-              v-if="$_.includes(notesVisible, course.id)"
+              v-if="isNoteVisible(course)"
               :key="`tr-${index}-note`"
               class="border-bottom border-left border-right"
             >
@@ -271,6 +261,9 @@ export default {
     isEditing(course) {
       return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
     },
+    isNoteVisible(course) {
+      return this.$_.includes(this.notesVisible, course.id)
+    },
     onDelete(course) {
       this.setDisableButtons(true)
       this.courseForDelete = course
@@ -371,8 +364,10 @@ table {
 }
 .td-name {
   font-size: 14px;
+  line-height: 95%;
   padding: 0.2em 0 0 0.25em;
   vertical-align: middle;
+  width: 72px;
 }
 .td-note {
   max-width: 60px;
@@ -381,9 +376,9 @@ table {
   width: 1px;
 }
 .td-term {
+  line-height: 90%;
   vertical-align: middle;
-  white-space: nowrap;
-  width: 42px;
+  width: 36px;
 }
 .td-units {
   text-align: right;
@@ -400,11 +395,10 @@ table {
   width: 60px;
 }
 .th-name {
-  max-width: 40%;
-  width: 30%;
+  width: 42px;
 }
 .tr-course {
-  height: 36px;
+  height: 42px;
 }
 .tr-while-dragging td {
   background-color: #125074;

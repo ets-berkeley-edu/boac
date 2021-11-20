@@ -9,7 +9,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="hasAssignedCourses && canEdit" class="th-course-assignment-menu">
+            <b-th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
             </b-th>
@@ -18,7 +18,7 @@
             <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
             <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
             <b-th v-if="sid && isCampusRequirements" class="px-0 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
-            <b-th v-if="sid && printable" class="font-size-12">Note</b-th>
+            <b-th v-if="sid" class="pl-0" :class="{'font-size-12': printable}">Note</b-th>
             <b-th v-if="!sid && !isCampusRequirements" class="px-0" :class="{'font-size-12': printable}">Fulfillment</b-th>
             <b-th v-if="canEdit && (sid || !isCampusRequirements)" class="px-0 sr-only">Actions</b-th>
           </b-tr>
@@ -34,7 +34,7 @@
                 'accent-color-orange': getAccentColor(bundle) === 'Orange',
                 'accent-color-purple': getAccentColor(bundle) === 'Purple',
                 'accent-color-red': getAccentColor(bundle) === 'Red',
-                'border-left border-right border-top': $_.includes(notesVisible, bundle.key),
+                'border-left border-right border-top': isNoteVisible(bundle),
                 'cursor-grab': isDraggable(bundle),
                 'drop-zone-on': isDroppable(bundle.category),
                 'mouseover-grabbable': bundle.course && hoverCourseId === bundle.course.id && !draggingContext.course,
@@ -50,7 +50,10 @@
               @mouseenter="onMouse('enter', bundle)"
               @mouseleave="onMouse('leave', bundle)"
             >
-              <td v-if="hasAssignedCourses && canEdit && !isCampusRequirements" class="td-course-assignment-menu pt-1">
+              <td
+                v-if="hasAssignedCourses && canEdit && !isCampusRequirements"
+                class="pt-1 pl-0 td-course-assignment-menu"
+              >
                 <div
                   v-if="bundle.course && canEdit && !isUserDragging(bundle.course.id)"
                   :id="`assign-course-${bundle.course.id}-menu-container`"
@@ -63,6 +66,7 @@
                 </div>
               </td>
               <td
+                class="pl-0 td-course-name"
                 :class="{
                   'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
@@ -143,8 +147,38 @@
                   :printable="printable"
                 />
               </td>
-              <td v-if="sid && printable" class="font-size-12 faint-text font-italic td-note-printable">
-                {{ getNote(bundle) }}
+              <td
+                v-if="sid"
+                :class="{
+                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
+                  'font-size-12 td-note-printable': printable,
+                  'ellipsis-if-overflow font-size-14 td-note': !printable
+                }"
+              >
+                <div
+                  v-if="printable"
+                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                  class="font-size-12"
+                  v-html="getNote(bundle)"
+                />
+                <div
+                  v-if="!printable && getNote(bundle) && !isNoteVisible(bundle)"
+                  class="d-flex font-size-14 justify-content-start"
+                >
+                  <b-link
+                    :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                    class="ellipsis-if-overflow"
+                    href
+                    @click="showNote(bundle)"
+                    v-html="getNote(bundle)"
+                  />
+                </div>
+                <div
+                  v-if="!getNote(bundle)"
+                  :id="`${bundle.course ? 'course' : 'category'}-${bundle.id}-note`"
+                >
+                  &mdash;
+                </div>
               </td>
               <td
                 v-if="!sid && !isCampusRequirements"
@@ -169,29 +203,6 @@
               </td>
               <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
                 <div class="d-flex justify-content-end text-nowrap">
-                  <div
-                    v-if="!printable && getNote(bundle) && !isUserDragging($_.get(bundle.course, 'id'))"
-                    class="btn-container"
-                  >
-                    <b-btn
-                      :id="`column-${position}-${bundle.key}-view-note-btn`"
-                      class="pb-0 pl-0 pr-1 pt-1"
-                      :disabled="disableButtons || $_.includes(notesVisible, bundle.key)"
-                      size="sm"
-                      variant="link"
-                      @click="showNote(bundle)"
-                    >
-                      <font-awesome
-                        class="font-size-18"
-                        :class="{
-                          'text-secondary': $_.includes(notesVisible, bundle.key),
-                          'accent-color-orange': !$_.includes(notesVisible, bundle.key)
-                        }"
-                        :icon="['far', 'comment-dots']"
-                      />
-                      <span class="sr-only">Read note</span>
-                    </b-btn>
-                  </div>
                   <div class="btn-container">
                     <b-btn
                       v-if="!isUserDragging($_.get(bundle.course, 'id'))"
@@ -249,7 +260,7 @@
               </b-td>
             </b-tr>
             <b-tr
-              v-if="$_.includes(notesVisible, bundle.key)"
+              v-if="isNoteVisible(bundle)"
               :key="`tr-${index}-note`"
               class="border-bottom border-left border-right"
             >
@@ -514,6 +525,9 @@ export default {
       }
       return bundle.course ? isMatch('course') : isMatch('category')
     },
+    isNoteVisible(bundle) {
+      return this.$_.includes(this.notesVisible, bundle.key)
+    },
     isSatisfied(bundle) {
       return bundle.course || this.$_.get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
     },
@@ -629,14 +643,19 @@ table {
   vertical-align: middle;
   width: 14px;
 }
+.td-course-name {
+  font-size: 14px;
+  width: 42px;
+}
 .td-grade {
   padding: 0 0.5em 0 0.4em;
   vertical-align: middle;
-  width: 50px;
+  width: 36px;
 }
 .td-name {
   padding: 0.25em 0 0.25em 0.25em;
   vertical-align: middle;
+  width: 42px;
 }
 .td-name-printable {
   padding: 0.25em 0;
