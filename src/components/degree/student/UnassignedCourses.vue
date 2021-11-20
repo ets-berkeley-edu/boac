@@ -20,7 +20,14 @@
             <b-th class="pl-0 text-right">Units</b-th>
             <b-th class="th-grade">Grade</b-th>
             <b-th v-if="!ignored" class="pl-0">Term</b-th>
-            <b-th class="pl-0">Note</b-th>
+            <b-th
+              class="pl-0"
+              :class="{
+                'th-note': hasAnyNotes
+              }"
+            >
+              Note
+            </b-th>
             <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
         </b-thead>
@@ -211,6 +218,11 @@ export default {
     key: undefined,
     notesVisible: []
   }),
+  computed: {
+    hasAnyNotes() {
+      return !!this.$_.find(this.courses[this.key], course => course.note)
+    },
+  },
   created() {
     this.key = this.ignored ? 'ignored' : 'unassigned'
   },
@@ -396,6 +408,9 @@ table {
 }
 .th-name {
   width: 42px;
+}
+.th-note {
+  width: 64px;
 }
 .tr-course {
   height: 42px;
