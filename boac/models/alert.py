@@ -122,22 +122,15 @@ class Alert(Base):
             raise BadRequestError(f'No alert found for id {alert_id}')
 
     @classmethod
-    def current_alert_counts_for_viewer(cls, viewer_id):
-        query = """
-            SELECT alerts.sid, count(*) as alert_count
-            FROM alerts LEFT JOIN alert_views
-                ON alert_views.alert_id = alerts.id
-                AND alert_views.viewer_id = :viewer_id
-            WHERE alerts.deleted_at IS NULL
-                AND alerts.key LIKE :key
-                AND alert_views.dismissed_at IS NULL
-            GROUP BY alerts.sid
-        """
-        params = {'viewer_id': viewer_id, 'key': current_term_id() + '_%'}
-        return cls.alert_counts_by_query(query, params)
-
-    @classmethod
-    def current_alert_counts_for_sids(cls, viewer_id, sids, count_only=False, offset=None, limit=None):
+    def current_alert_counts_for_sids(
+        cls,
+        benchmark,
+        viewer_id,
+        sids,
+        count_only=False,
+        offset=None,
+        limit=None,
+    ):
         query = """
             SELECT alerts.sid, count(*) as alert_count
             FROM alerts LEFT JOIN alert_views
@@ -161,11 +154,13 @@ class Alert(Base):
             'offset': offset,
             'limit': limit,
         }
-        return cls.alert_counts_by_query(query, params, count_only=count_only)
+        return cls.alert_counts_by_query(benchmark, query, params, count_only=count_only)
 
     @classmethod
-    def alert_counts_by_query(cls, query, params, count_only=False):
+    def alert_counts_by_query(cls, benchmark, query, params, count_only=False):
+        benchmark('begin current_alert_counts_for_sids query')
         results = db.session.execute(text(query), params)
+        benchmark('end current_alert_counts_for_sids query')
 
         # If we're only interested in the alert count, skip the student data fetch below.
         if count_only:
@@ -183,7 +178,10 @@ class Alert(Base):
                 'alertCount': alert_counts_by_sid.get(result.get('sid')),
             }
             return result_dict
-        return [result_to_dict(result) for result in data_loch.get_basic_student_data(sids)]
+        benchmark('begin get_basic_student_data query')
+        students = data_loch.get_basic_student_data(sids)
+        benchmark('end get_basic_student_data query')
+        return [result_to_dict(result) for result in students]
 
     @classmethod
     def current_alerts_for_sid(cls, viewer_id, sid):
@@ -440,9 +438,24 @@ class Alert(Base):
         cls.create_or_activate(sid=sid, alert_type='withdrawal', key=key, message=message, preserve_creation_date=True)
 
     @classmethod
-    def include_alert_counts_for_students(cls, viewer_user_id, group, count_only=False, offset=None, limit=None):
+    def include_alert_counts_for_students(
+        cls,
+        benchmark,
+        viewer_user_id,
+        group,
+        count_only=False,
+        offset=None,
+        limit=None,
+    ):
         sids = group.get('sids') if 'sids' in group else [s['sid'] for s in group.get('students', [])]
-        alert_counts = cls.current_alert_counts_for_sids(viewer_user_id, sids, count_only=count_only, offset=offset, limit=limit)
+        alert_counts = cls.current_alert_counts_for_sids(
+            benchmark,
+            viewer_user_id,
+            sids,
+            count_only=count_only,
+            offset=offset,
+            limit=limit,
+        )
         if 'students' in group:
             counts_per_sid = {s.get('sid'): s.get('alertCount') for s in alert_counts}
             for student in group.get('students'):

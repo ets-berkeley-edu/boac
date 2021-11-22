@@ -305,7 +305,6 @@ class CohortFilter(Base):
             benchmark('end')
             return cohort_json
 
-        benchmark('begin students query')
         sids_only = not include_students
 
         if self.domain == 'admitted_students':
@@ -351,14 +350,13 @@ class CohortFilter(Base):
                     'students': results['students'],
                 })
             if include_alerts_for_user_id and self.domain == 'default':
-                benchmark('begin alerts query')
                 alert_count_per_sid = Alert.include_alert_counts_for_students(
+                    benchmark=benchmark,
                     viewer_user_id=include_alerts_for_user_id,
                     group=results,
                     offset=alert_offset,
                     limit=alert_limit,
                 )
-                benchmark('end alerts query')
                 cohort_json.update({
                     'alerts': alert_count_per_sid,
                 })
@@ -383,7 +381,6 @@ def _query_students(
         sids_only,
         term_id,
 ):
-    benchmark('begin students query')
     # Translate the "My Students" filter, if present, into queryable criteria.
     plans = criteria.get('cohortOwnerAcademicPlans')
     if plans:
@@ -397,6 +394,7 @@ def _query_students(
     coe_advisor_ldap_uids = util.get(criteria, 'coeAdvisorLdapUids')
     if not isinstance(coe_advisor_ldap_uids, list):
         coe_advisor_ldap_uids = [coe_advisor_ldap_uids] if coe_advisor_ldap_uids else None
+    benchmark('begin students query')
     results = query_students(
         academic_standings=criteria.get('academicStandings'),
         advisor_plan_mappings=advisor_plan_mappings,

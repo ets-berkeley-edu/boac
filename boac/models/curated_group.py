@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.externals.data_loch import query_historical_sids
+from boac.lib.util import get_benchmarker
 from boac.merged.student import query_students
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
@@ -151,6 +152,8 @@ class CuratedGroup(Base):
         return cohort_filter_ids
 
     def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
+        benchmark = get_benchmarker(f'CuratedGroup {self.id} to_api_json')
+        benchmark('begin')
         feed = {
             'id': self.id,
             'ownerId': self.owner_id,
@@ -175,6 +178,7 @@ class CuratedGroup(Base):
             else:
                 feed['students'] = []
                 feed['totalStudentCount'] = 0
+        benchmark('end')
         return feed
 
 
