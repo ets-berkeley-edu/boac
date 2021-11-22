@@ -232,6 +232,8 @@ def _appointments_search(search_phrase, params):
 
 
 def _student_search(search_phrase, params, order_by):
+    benchmark = util.get_benchmarker('search students')
+    benchmark('begin')
     student_results = search_for_students(
         search_phrase=search_phrase.replace(',', ' '),
         order_by=order_by,
@@ -240,8 +242,9 @@ def _student_search(search_phrase, params, order_by):
     )
     students = student_results['students']
     sids = [s['sid'] for s in students]
-    alert_counts = Alert.current_alert_counts_for_sids(current_user.get_id(), sids)
+    alert_counts = Alert.current_alert_counts_for_sids(benchmark, current_user.get_id(), sids)
     add_alert_counts(alert_counts, students)
+    benchmark('end')
     return {
         'students': students,
         'totalStudentCount': student_results['totalStudentCount'],

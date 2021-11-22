@@ -40,7 +40,8 @@ from flask_login import current_user
 @app.route('/api/curated_groups/my')
 @advisor_required
 def my_curated_groups():
-    return tolerant_jsonify(get_my_curated_groups())
+    benchmark = get_benchmarker('my_curated_groups')
+    return tolerant_jsonify(get_my_curated_groups(benchmark))
 
 
 @app.route('/api/curated_groups/all')
@@ -127,15 +128,14 @@ def get_students_with_alerts(curated_group_id):
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
     if not _can_current_user_view_curated_group(curated_group):
         raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
-    benchmark('begin alerts query')
     students = Alert.include_alert_counts_for_students(
+        benchmark=benchmark,
         viewer_user_id=current_user.get_id(),
         group={'sids': CuratedGroup.get_all_sids(curated_group_id)},
         count_only=True,
         offset=offset,
         limit=limit,
     )
-    benchmark('end alerts query')
     alert_count_per_sid = {}
     for s in list(filter(lambda s: s.get('alertCount') > 0, students)):
         sid = s.get('sid')
@@ -217,9 +217,7 @@ def _curated_group_with_complete_student_profiles(curated_group_id, order_by='la
     sids = [s['sid'] for s in api_json['students']]
     benchmark('begin profile query')
     api_json['students'] = get_summary_student_profiles(sids, term_id=term_id, include_historical=True)
-    benchmark('begin alerts query')
-    Alert.include_alert_counts_for_students(viewer_user_id=current_user.get_id(), group=api_json)
-    benchmark('end')
+    Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('begin get_referencing_cohort_ids')
     api_json['referencingCohortIds'] = curated_group.get_referencing_cohort_ids()
     benchmark('end')

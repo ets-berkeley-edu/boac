@@ -382,13 +382,14 @@ def get_note_topics_from_http_post():
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
-def get_my_curated_groups():
+def get_my_curated_groups(benchmark):
     curated_groups = []
     user_id = current_user.get_id()
     for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
         api_json = curated_group.to_api_json(include_students=False)
         students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
         students_with_alerts = Alert.include_alert_counts_for_students(
+            benchmark=benchmark,
             viewer_user_id=user_id,
             group={'students': students},
             count_only=True,

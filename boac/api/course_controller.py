@@ -37,6 +37,8 @@ from flask_login import current_user
 @app.route('/api/section/<term_id>/<section_id>')
 @advisor_required
 def get_section(term_id, section_id):
+    benchmark = util.get_benchmarker(f'course section {section_id} in term {term_id}')
+    benchmark('begin')
     if not current_user.can_access_canvas_data:
         raise ForbiddenRequestError('Unauthorized to view course data')
     offset = util.get(request.args, 'offset', None)
@@ -51,5 +53,6 @@ def get_section(term_id, section_id):
         raise ResourceNotFoundError(f'No section {section_id} in term {term_id}')
     student_profiles = get_course_student_profiles(term_id, section_id, offset=offset, limit=limit, featured=featured)
     section.update(student_profiles)
-    Alert.include_alert_counts_for_students(viewer_user_id=current_user.get_id(), group=student_profiles)
+    Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=student_profiles)
+    benchmark('end')
     return tolerant_jsonify(section)
