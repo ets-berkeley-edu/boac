@@ -37,11 +37,12 @@ class NoteTemplate(Base):
     __tablename__ = 'note_templates'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    creator_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
-    subject = db.Column(db.String(255), nullable=False)
     body = db.Column(db.Text, nullable=False)
+    creator_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    is_private = db.Column(db.Boolean, nullable=False, default=False)
+    subject = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
     topics = db.relationship(
         'NoteTemplateTopic',
         primaryjoin='and_(NoteTemplate.id==NoteTemplateTopic.note_template_id)',
@@ -62,17 +63,18 @@ class NoteTemplate(Base):
         name='student_groups_owner_id_name_unique_constraint',
     ),)
 
-    def __init__(self, creator_id, title, subject, body):
-        self.creator_id = creator_id
-        self.title = title
-        self.subject = subject
+    def __init__(self, body, creator_id, subject, title, is_private=False):
         self.body = body
+        self.creator_id = creator_id
+        self.is_private = is_private
+        self.subject = subject
+        self.title = title
 
     @classmethod
-    def create(cls, creator_id, title, subject, body='', topics=(), attachments=()):
+    def create(cls, creator_id, subject, title, attachments=(), body='', is_private=False, topics=()):
         creator = AuthorizedUser.find_by_id(creator_id)
         if creator:
-            note_template = cls(creator_id, title, subject, body)
+            note_template = cls(body=body, creator_id=creator_id, is_private=is_private, subject=subject, title=title)
             for topic in topics:
                 note_template.topics.append(
                     NoteTemplateTopic.create(note_template.id, titleize(vacuum_whitespace(topic))),
@@ -109,12 +111,22 @@ class NoteTemplate(Base):
             return None
 
     @classmethod
-    def update(cls, note_template_id, subject, body, topics=(), attachments=(), delete_attachment_ids=()):
+    def update(
+            cls,
+            body,
+            note_template_id,
+            subject,
+            attachments=(),
+            delete_attachment_ids=(),
+            is_private=False,
+            topics=(),
+    ):
         note_template = cls.find_by_id(note_template_id)
         if note_template:
             creator = AuthorizedUser.find_by_id(note_template.creator_id)
-            note_template.subject = subject
             note_template.body = body
+            note_template.is_private = is_private
+            note_template.subject = subject
             cls._update_note_template_topics(note_template, topics)
             if delete_attachment_ids:
                 cls._delete_attachments(note_template, delete_attachment_ids)
