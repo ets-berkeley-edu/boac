@@ -10,20 +10,15 @@ export function getMyNoteTemplates() {
     .then(response => response.data, () => null)
 }
 
-export function getNoteTemplate(templateId: number) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/note_template/${templateId}`)
-    .then(response => response.data, () => null)
-}
-
 export function createNoteTemplate(
-    title: string,
-    subject: string,
+    attachments: any[],
     body: string,
-    topics: string[],
-    attachments: any[]
+    isPrivate: boolean,
+    subject: string,
+    title: string,
+    topics: string[]
 ) {
-  const data = {title, subject, body, topics}
+  const data = {body, isPrivate, subject, title, topics}
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/create', data).then(template => {
     store.dispatch('noteEditSession/onCreateTemplate', template)
@@ -51,19 +46,21 @@ export function renameNoteTemplate(noteTemplateId: number, title: string) {
 }
 
 export function updateNoteTemplate(
+    body: string,
+    deleteAttachmentIds: number[],
+    isPrivate: boolean,
+    newAttachments: any[],
     noteTemplateId: number,
     subject: string,
-    body: string,
-    topics: string[],
-    newAttachments: any[],
-    deleteAttachmentIds: number[]
+    topics: string[]
 ) {
   const data = {
+    body,
+    deleteAttachmentIds: deleteAttachmentIds || [],
     id: noteTemplateId,
-    subject: subject,
-    body: body,
-    topics: topics,
-    deleteAttachmentIds: deleteAttachmentIds || []
+    isPrivate,
+    subject,
+    topics,
   }
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/update', data).then(template => {

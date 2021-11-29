@@ -156,9 +156,10 @@ class NoteTemplate(Base):
         return {
             'id': self.id,
             'attachments': attachments,
-            'title': self.title,
-            'subject': self.subject,
             'body': self.body,
+            'isPrivate': self.is_private,
+            'subject': self.subject,
+            'title': self.title,
             'topics': topics,
             'createdAt': self.created_at.astimezone(tzutc()).isoformat(),
             'updatedAt': self.updated_at.astimezone(tzutc()).isoformat(),

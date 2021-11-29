@@ -150,8 +150,7 @@ export default {
       this.alertScreenReader(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
-      const clone = this.$_.cloneDeep({...template, ...{isPrivate: false}})
-      this.setModel(clone)
+      this.setModel(this.$_.cloneDeep(template))
       this.$putFocusNextTick('create-note-subject')
       this.alertScreenReader(`Template ${template.title} loaded.`)
     },

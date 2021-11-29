@@ -31,6 +31,7 @@ from sqlalchemy import and_
 from tests.util import mock_advising_note_s3_bucket
 
 admin_uid = '2040'
+ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 l_s_major_advisor_uid = '242881'
@@ -99,16 +100,16 @@ class TestMyNoteTemplates:
         assert expected_order == [template['title'] for template in api_json]
 
 
-class TestNoteTemplateCreation:
+class TestCreateNoteTemplate:
 
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         _api_create_note_template(
             app=app,
             client=client,
-            title='Keep a knockin\'',
-            subject='...but you can\'t come in',
             expected_status_code=401,
+            subject='...but you can\'t come in',
+            title='Keep a knockin\'',
         )
 
     def test_admin_is_unauthorized(self, app, client, fake_auth):
@@ -117,9 +118,9 @@ class TestNoteTemplateCreation:
         _api_create_note_template(
             app=app,
             client=client,
-            title='Ain\'t gonna happen',
-            subject='Sorry \'bout it',
             expected_status_code=403,
+            subject='Sorry \'bout it',
+            title='Ain\'t gonna happen',
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth):
@@ -128,9 +129,9 @@ class TestNoteTemplateCreation:
         _api_create_note_template(
             app=app,
             client=client,
-            title='Nope',
-            subject='Nooooooope',
             expected_status_code=401,
+            subject='Nooooooope',
+            title='Nope',
         )
 
     def test_create_note_template(self, app, client, fake_auth):
@@ -140,22 +141,24 @@ class TestNoteTemplateCreation:
         subject = 'I know it\'s good'
         base_dir = app.config['BASE_DIR']
         api_json = _api_create_note_template(
-            app,
-            client,
-            title=title,
-            subject=subject,
-            body='The templates I write, you wish you would',
-            topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
+            app=app,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
+            body='The templates I write, you wish you would',
+            is_private=True,
+            client=client,
+            subject=subject,
+            title=title,
+            topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
         )
         note_template_id = api_json.get('id')
         note_template = NoteTemplate.find_by_id(note_template_id)
         assert note_template_id == note_template.id
-        assert title == note_template.title
+        assert note_template.is_private is True
         assert subject == note_template.subject
+        assert title == note_template.title
         assert len(note_template.topics) == 3
         assert len(note_template.attachments) == 2
 
@@ -168,22 +171,24 @@ class TestUpdateNoteTemplate:
             app,
             client,
             note_template_id,
-            title,
             subject,
-            body=None,
-            topics=(),
+            title,
             attachments=(),
+            body=None,
             delete_attachment_ids=(),
             expected_status_code=200,
+            is_private=False,
+            topics=(),
     ):
         with mock_advising_note_s3_bucket(app):
             data = {
-                'id': note_template_id,
-                'title': title,
-                'subject': subject,
-                'body': body,
-                'topics': ','.join(topics),
                 'deleteAttachmentIds': delete_attachment_ids or [],
+                'body': body,
+                'id': note_template_id,
+                'isPrivate': is_private,
+                'subject': subject,
+                'topics': ','.join(topics),
+                'title': title,
             }
             for index, path in enumerate(attachments):
                 data[f'attachment[{index}]'] = open(path, 'rb')
@@ -199,12 +204,12 @@ class TestUpdateNoteTemplate:
     def test_note_template_update_not_authenticated(self, app, mock_note_template, client):
         """Returns 401 if not authenticated."""
         self._api_note_template_update(
-            app,
-            client,
-            note_template_id=mock_note_template.id,
-            title='Hack the title!',
-            subject='Hack the subject!',
+            app=app,
+            client=client,
             expected_status_code=401,
+            note_template_id=mock_note_template.id,
+            subject='Hack the subject!',
+            title='Hack the title!',
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth, mock_note_template):
@@ -213,10 +218,10 @@ class TestUpdateNoteTemplate:
         self._api_note_template_update(
             app=app,
             client=client,
-            note_template_id=mock_note_template.id,
-            title='Nope',
-            subject='Nooooooope',
             expected_status_code=401,
+            note_template_id=mock_note_template.id,
+            subject='Nooooooope',
+            title='Nope',
         )
 
     def test_unauthorized_note_template_update(self, app, client, fake_auth, mock_note_template):
@@ -224,12 +229,12 @@ class TestUpdateNoteTemplate:
         original_subject = mock_note_template.subject
         fake_auth.login(coe_advisor_uid)
         assert self._api_note_template_update(
-            app,
-            client,
-            note_template_id=mock_note_template.id,
-            title='Hack the title!',
-            subject='Hack the subject!',
+            app=app,
+            client=client,
             expected_status_code=403,
+            note_template_id=mock_note_template.id,
+            subject='Hack the subject!',
+            title='Hack the title!',
         )
         assert NoteTemplate.find_by_id(mock_note_template.id).subject == original_subject
 
@@ -238,28 +243,31 @@ class TestUpdateNoteTemplate:
         user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
         fake_auth.login(user.uid)
         expected_topics = ['this', 'that']
+        expected_is_private = not mock_note_template.is_private
         api_json = self._api_note_template_update(
-            app,
-            client,
+            app=app,
+            client=client,
+            is_private=expected_is_private,
             note_template_id=mock_note_template.id,
-            title=mock_note_template.title,
             subject=mock_note_template.subject,
+            title=mock_note_template.title,
             topics=expected_topics,
         )
         assert len(api_json['topics']) == 2
         assert sorted(api_json['topics']) == ['That', 'This']
+        assert api_json['isPrivate'] is expected_is_private
 
     def test_remove_note_template_topics(self, app, client, fake_auth, mock_note_template):
         """Delete note template topics."""
         user = AuthorizedUser.find_by_id(mock_note_template.creator_id)
         fake_auth.login(user.uid)
         api_json = self._api_note_template_update(
-            app,
-            client,
-            note_template_id=mock_note_template.id,
-            title=mock_note_template.title,
-            subject=mock_note_template.subject,
+            app=app,
             body=mock_note_template.body,
+            client=client,
+            note_template_id=mock_note_template.id,
+            subject=mock_note_template.subject,
+            title=mock_note_template.title,
             topics=(),
         )
         assert not api_json['topics']
@@ -273,14 +281,14 @@ class TestUpdateNoteTemplate:
         filename = 'mock_advising_note_attachment_2.txt'
         path_to_new_attachment = f'{base_dir}/fixtures/{filename}'
         updated_note = self._api_note_template_update(
-            app,
-            client,
-            note_template_id=mock_note_template.id,
-            title=mock_note_template.title,
-            subject=mock_note_template.subject,
-            body=mock_note_template.body,
+            app=app,
             attachments=[path_to_new_attachment],
+            body=mock_note_template.body,
             delete_attachment_ids=[attachment_id],
+            client=client,
+            note_template_id=mock_note_template.id,
+            subject=mock_note_template.subject,
+            title=mock_note_template.title,
         )
         assert mock_note_template.id == updated_note['attachments'][0]['noteTemplateId']
         assert len(updated_note['attachments']) == 1
@@ -391,11 +399,11 @@ class TestDeleteNoteTemplate:
         fake_auth.login(l_s_major_advisor_uid)
         base_dir = app.config['BASE_DIR']
         note_template = _api_create_note_template(
-            app,
-            client,
-            title='Delete me!',
-            subject='I want to be free',
+            app=app,
             attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
+            client=client,
+            subject='I want to be free',
+            title='Delete me!',
         )
         assert len(note_template.get('attachments')) == 1
         attachment_id = note_template.get('attachments')[0]['id']
@@ -410,18 +418,20 @@ class TestDeleteNoteTemplate:
 def _api_create_note_template(
         app,
         client,
-        title,
         subject,
-        body=None,
-        topics=(),
+        title,
         attachments=(),
+        body=None,
         expected_status_code=200,
+        is_private=False,
+        topics=(),
 ):
     with mock_advising_note_s3_bucket(app):
         data = {
-            'title': title,
-            'subject': subject,
             'body': body,
+            'isPrivate': is_private,
+            'subject': subject,
+            'title': title,
             'topics': ','.join(topics),
         }
         for index, path in enumerate(attachments):
