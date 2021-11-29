@@ -233,18 +233,18 @@
       </div>
       <div v-if="isCurrentTerm" class="d-flex flex-wrap">
         <div
-          v-if="student.cumulativeUnits"
+          v-if="!$_.isUndefined(student.cumulativeUnits)"
           :id="`row-${rowIndex}-student-cumulative-units`"
           class="mr-1 student-gpa"
         >
           {{ student.cumulativeUnits }}
         </div>
         <div
-          v-if="!student.cumulativeUnits"
+          v-if="$_.isUndefined(student.cumulativeUnits)"
           :id="`row-${rowIndex}-student-cumulative-units`"
           class="student-gpa"
         >
-          --<span class="sr-only"> No data</span>
+          &mdash;<span class="sr-only"> No data</span>
         </div>
         <div class="no-wrap student-text">Units Completed</div>
       </div>

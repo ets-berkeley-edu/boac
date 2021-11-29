@@ -57,8 +57,8 @@
         <font-awesome v-if="isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div role="cell" class="student-course-column-units text-nowrap pt-1 pl-1">
-        <span :id="`term-${termId}-course-${index}-units`">{{ course.units }}</span>
+      <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
+        <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
     <b-collapse :id="`term-${termId}-course-${index}-spacer`" :visible="showSpacer">

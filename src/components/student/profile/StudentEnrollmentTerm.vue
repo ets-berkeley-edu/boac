@@ -79,11 +79,11 @@
       >
         <div v-if="showMinUnits" class="align-items-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Exception Min Units: </div>
-          <div class="font-size-14 units-total">{{ term.minTermUnitsAllowed }}</div>
+          <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">{{ numFormat(term.minTermUnitsAllowed, '0.0') }}</div>
         </div>
         <div v-if="showMaxUnits" class="align-items-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Exception Max Units: </div>
-          <div class="font-size-14 units-total">{{ term.maxTermUnitsAllowed }}</div>
+          <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
         </div>
       </div>
     </b-card-footer>
