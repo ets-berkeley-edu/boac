@@ -1,5 +1,5 @@
 autolink==0.1.2
-boto3==1.7.84
+boto3==1.20.15
 decorator==5.1.0
 Flask-Caching==1.10.1
 Flask-Login==0.5.0
@@ -31,7 +31,7 @@ pytz==2021.3
 
 # For testing
 
-moto==1.3.6
+moto==2.2.16
 pytest==6.2.5
 pytest-flask==1.2.0
 responses==0.15.0

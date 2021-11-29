@@ -34,7 +34,7 @@ def mock_legacy_appointment_attachment(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
-        s3.create_bucket(Bucket=bucket)
+        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['DATA_LOCH_S3_REGION']})
         key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9100000000/9100000000_00010_1.pdf"
         s3.Object(bucket, key).put(Body='01001000 01100101 01101100 01101100 01101111 00100000 01010111 01101111 01110010 01101100 01100100')
         yield s3
@@ -45,7 +45,7 @@ def mock_legacy_note_attachment(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
-        s3.create_bucket(Bucket=bucket)
+        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['DATA_LOCH_S3_REGION']})
         key = f"{app.config['DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH']}/9000000000/9000000000_00002_1.pdf"
         s3.Object(bucket, key).put(Body='When in the course of human events, it becomes necessarf arf woof woof woof')
         yield s3
@@ -56,7 +56,7 @@ def mock_advising_note_s3_bucket(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
-        s3.create_bucket(Bucket=bucket)
+        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['DATA_LOCH_S3_REGION']})
         yield s3
 
 
