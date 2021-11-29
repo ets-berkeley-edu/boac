@@ -279,7 +279,14 @@ export default {
         this.setFocusLockDisabled(false)
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
-        createNoteTemplate(title, this.model.subject, this.model.body, this.model.topics, this.model.attachments).then(template => {
+        createNoteTemplate(
+          this.model.attachments,
+          this.model.body,
+          this.model.isPrivate,
+          this.model.subject,
+          title,
+          this.model.topics,
+        ).then(template => {
           this.showAlert(`Template '${title}' created.`)
           this.setIsSaving(false)
           this.setModel({
@@ -287,7 +294,7 @@ export default {
             body: template.body,
             deleteAttachmentIds: [],
             id: undefined,
-            isPrivate: false,
+            isPrivate: this.model.isPrivate,
             subject: template.subject,
             topics: template.topics
           })
@@ -369,12 +376,13 @@ export default {
         this.showAlert('Updating template...', 60)
       }
       updateNoteTemplate(
+        this.model.body,
+        this.model.deleteAttachmentIds,
+        this.model.isPrivate,
+        newAttachments,
         this.model.id,
         this.model.subject,
-        this.model.body,
         this.model.topics,
-        newAttachments,
-        this.model.deleteAttachmentIds
       ).then(template => {
         this.setIsSaving(false)
         this.setModel({
@@ -382,7 +390,7 @@ export default {
           body: template.body,
           deleteAttachmentIds: [],
           id: undefined,
-          isPrivate: false,
+          isPrivate: this.model.isPrivate,
           subject: template.subject,
           topics: template.topics
         })
