@@ -664,10 +664,11 @@ CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_
 
 CREATE TABLE note_templates (
     id INTEGER NOT NULL,
-    creator_id INTEGER NOT NULL,
-    title VARCHAR(255) NOT NULL,
-    subject VARCHAR(255) NOT NULL,
     body text,
+    creator_id INTEGER NOT NULL,
+    is_private BOOLEAN DEFAULT FALSE NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
