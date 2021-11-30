@@ -20,6 +20,7 @@ export default {
     }
   },
   data: () => ({
+    acceptedPlanTypes: ['CRT', 'HS', 'MAJ', 'SP', 'SS'],
     degreesAwarded: undefined
   }),
   created() {
@@ -27,7 +28,9 @@ export default {
     this.$_.each(this.student.degrees || [], degree => {
       const key = degree.dateAwarded
       if (key) {
-        const plans = this.$_.filter(degree.plans || [], ['type', 'MAJ'])
+        const plans = this.$_.filter(degree.plans || [], plan => {
+          return this.$_.includes(this.acceptedPlanTypes, plan.type)
+        })
         if (plans.length) {
           this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(this.$_.map(plans, 'plan'))
         }
