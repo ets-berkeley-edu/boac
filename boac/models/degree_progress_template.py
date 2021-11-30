@@ -229,64 +229,78 @@ class DegreeProgressTemplate(Base):
                 degree_progress_courses[key] = []
             degree_progress_courses[key].append(course)
 
-        enrollments = data_loch.get_enrollments_for_sid(
-            sid=sid,
-            latest_term_id=current_term_id(),
-        )
+        def _categorize_course(course_, is_copy, units_original_value=None):
+            api_json = {
+                **course_.to_api_json(),
+                **{
+                    'sis': {
+                        # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
+                        'units': units_original_value,
+                    },
+                },
+                'isCopy': is_copy,
+            }
+            if api_json['categoryId']:
+                assigned_courses.append(api_json)
+            elif api_json['ignore']:
+                ignored_courses.append(api_json)
+            else:
+                unassigned_courses.append(api_json)
 
-        def _organize_course_and_its_copies(course_key, units_original_value=None):
-            for idx, course_ in enumerate(degree_progress_courses.pop(course_key)):
-                api_json = {
-                    **course_.to_api_json(),
+        for section in _get_enrollment_sections(sid):
+            grade = section['grade']
+            section_id = section['ccn']
+            term_id = section['termId']
+            units = section['units']
+            key = f'{section_id}_{term_id}_{None}_{None}'
+            if key in degree_progress_courses:
+                for idx, course in enumerate(degree_progress_courses.pop(key)):
+                    if grade != course.grade:
+                        course = DegreeProgressCourse.update_grade(course_id=course.id, grade=grade)
+                    _categorize_course(
+                        course_=course,
+                        is_copy=idx > 0,
+                        units_original_value=units,
+                    )
+            elif section.get('primary') and grade and units:
+                course = DegreeProgressCourse.create(
+                    degree_check_id=self.id,
+                    display_name=section['displayName'],
+                    grade=grade,
+                    section_id=section_id,
+                    sid=sid,
+                    term_id=term_id,
+                    units=units,
+                )
+                unassigned_courses.append({
+                    **course.to_api_json(),
                     **{
                         'sis': {
-                            # If user edits degreeCheck.units then we alert the user of diff with original sis.units.
-                            'units': units_original_value,
+                            'units': units,
                         },
                     },
-                    'isCopy': idx > 0,
-                }
-                if api_json['categoryId']:
-                    assigned_courses.append(api_json)
-                elif api_json['ignore']:
-                    ignored_courses.append(api_json)
-                else:
-                    unassigned_courses.append(api_json)
-
-        for index, term in enumerate(merge_enrollment_terms(enrollments)):
-            for enrollment in term.get('enrollments', []):
-                for section in enrollment['sections']:
-                    section_id = section['ccn']
-                    term_id = term['termId']
-                    units = section['units']
-                    key = f'{section_id}_{term_id}_{None}_{None}'
-                    if key in degree_progress_courses:
-                        _organize_course_and_its_copies(key, units_original_value=units)
-                    else:
-                        grade = section['grade']
-                        if section.get('primary') and grade and units:
-                            course = DegreeProgressCourse.create(
-                                degree_check_id=self.id,
-                                display_name=enrollment['displayName'],
-                                grade=grade,
-                                section_id=section_id,
-                                sid=sid,
-                                term_id=term_id,
-                                units=units,
-                            )
-                            unassigned_courses.append({
-                                **course.to_api_json(),
-                                **{
-                                    'sis': {
-                                        'units': units,
-                                    },
-                                },
-                                'isCopy': False,
-                            })
+                    'isCopy': False,
+                })
         for key in list(degree_progress_courses.keys()):
-            _organize_course_and_its_copies(key)
+            for idx, course in enumerate(degree_progress_courses.pop(key)):
+                _categorize_course(course_=course, is_copy=idx > 0)
 
         return assigned_courses, ignored_courses, unassigned_courses
+
+
+def _get_enrollment_sections(sid):
+    sections = []
+    enrollments = data_loch.get_enrollments_for_sid(
+        sid=sid,
+        latest_term_id=current_term_id(),
+    )
+    for index, term in enumerate(merge_enrollment_terms(enrollments)):
+        for enrollment in term.get('enrollments', []):
+            for section in enrollment['sections']:
+                section['displayName'] = enrollment['displayName']
+                section['termId'] = term['termId']
+                sections.append(section)
+    return sections
 
 
 def _isoformat(value):

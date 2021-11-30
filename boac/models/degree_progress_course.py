@@ -247,6 +247,13 @@ class DegreeProgressCourse(Base):
         std_commit()
         return course
 
+    @classmethod
+    def update_grade(cls, course_id, grade):
+        course = cls.query.filter_by(id=course_id).first()
+        course.grade = grade
+        std_commit()
+        return course
+
     def to_api_json(self):
         unit_requirements = [m.unit_requirement.to_api_json() for m in (self.unit_requirements or [])]
         return {
