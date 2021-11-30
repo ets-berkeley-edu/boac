@@ -63,19 +63,6 @@
         :on-change="value => accentColor = value"
       />
     </div>
-    <div v-if="course.categoryId || course.manuallyCreatedBy">
-      <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
-        Counts Towards Unit Fulfillment
-      </label>
-      <div class="pb-2">
-        <SelectUnitFulfillment
-          :disable="isSaving"
-          :initial-unit-requirements="selectedUnitRequirements"
-          :on-unit-requirements-change="onUnitRequirementsChange"
-          :position="position"
-        />
-      </div>
-    </div>
     <label for="course-note-textarea" class="font-weight-500 pb-0">
       Note
     </label>
@@ -122,14 +109,13 @@
 <script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCourse',
   mixins: [DegreeEditSession, Util],
-  components: {AccentColorSelect, SelectUnitFulfillment, UnitsInput},
+  components: {AccentColorSelect, UnitsInput},
   props: {
     afterCancel: {
       required: true,
@@ -155,7 +141,6 @@ export default {
     isSaving: false,
     name: undefined,
     note: '',
-    selectedUnitRequirements: [],
     units: undefined
   }),
   computed: {
@@ -176,16 +161,12 @@ export default {
     this.name = this.course.name
     this.note = this.course.note
     this.units = this.course.units
-    this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
     this.$putFocusNextTick(this.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
   },
   methods: {
     cancel() {
       this.$announcer.polite('Canceled')
       this.afterCancel()
-    },
-    onUnitRequirementsChange(unitRequirements) {
-      this.selectedUnitRequirements = unitRequirements
     },
     setUnits(units) {
       this.units = units
@@ -199,7 +180,6 @@ export default {
           grade: this.grade,
           name: this.name,
           note: this.note,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(data => {
           this.$announcer.polite('Course updated')

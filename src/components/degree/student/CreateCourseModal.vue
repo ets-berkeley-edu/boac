@@ -86,19 +86,6 @@
               :on-change="value => accentColor = value"
             />
           </div>
-          <div class="pb-2">
-            <label :for="`column-0-unit-requirement-select`" class="font-weight-bolder">
-              Counts Towards Unit Fulfillment
-            </label>
-            <div class="pb-2">
-              <SelectUnitFulfillment
-                :disable="isSaving"
-                :initial-unit-requirements="selectedUnitRequirements"
-                :on-unit-requirements-change="onUnitRequirementsChange"
-                :position="0"
-              />
-            </div>
-          </div>
           <label for="course-note-textarea" class="font-weight-bolder">
             Note
           </label>
@@ -141,13 +128,12 @@
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
-import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 
 export default {
   name: 'CreateCourseModal',
   mixins: [DegreeEditSession],
-  components: {AccentColorSelect, ModalHeader, SelectUnitFulfillment, UnitsInput},
+  components: {AccentColorSelect, ModalHeader, UnitsInput},
   props: {
     student: {
       required: true,
@@ -161,7 +147,6 @@ export default {
     isSaving: false,
     name: '',
     note: '',
-    selectedUnitRequirements: [],
     showModal: false,
     units: undefined
   }),
@@ -193,9 +178,6 @@ export default {
       this.showModal = false
       this.units = undefined
       this.setDisableButtons(false)
-    },
-    onUnitRequirementsChange(unitRequirements) {
-      this.selectedUnitRequirements = unitRequirements
     },
     openModal() {
       this.showModal = true
