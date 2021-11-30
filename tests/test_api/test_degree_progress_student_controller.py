@@ -27,12 +27,14 @@ from datetime import datetime
 import json
 
 from boac import std_commit
+from boac.externals.data_loch import safe_execute_rds
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_note import DegreeProgressNote
 from boac.models.degree_progress_template import DegreeProgressTemplate
 import pytest
+from sqlalchemy import create_engine, text
 
 coe_advisor_read_only_uid = '6972201'
 coe_advisor_read_write_uid = '1133399'
@@ -182,7 +184,7 @@ class TestAssignCourse:
         # Expect success
         _api_assign_course(category_id=subcategory['id'], client=client, course_id=course_id)
 
-    def test_assign_and_unassign_course(self, client, fake_auth):
+    def test_assign_and_unassign_course(self, app, client, fake_auth):
         """User can assign and unassign a course."""
         advisor = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         fake_auth.login(advisor.uid)
@@ -206,18 +208,60 @@ class TestAssignCourse:
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         course_id = api_json['courses']['unassigned'][-1]['id']
         course = _api_assign_course(category_id=category.id, client=client, course_id=course_id)
+        original_grade = course['grade']
+        assert original_grade == 'P'
+
         # Verify assignment
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         assert course['categoryId'] == category.id
         assert course_id in [c['id'] for c in api_json['courses']['assigned']]
         assert course_id not in [c['id'] for c in api_json['courses']['unassigned']]
+
+        # Modify grade in data lake and verify that assigned course receives the update
+        modified_grade = 'C+'
+        _change_grade_in_data_loch(
+            app=app,
+            grade=modified_grade,
+            section_id=course['sectionId'],
+            sid=sid,
+            term_id=course['termId'],
+        )
+        api_json = _api_get_degree(client, degree_check_id=degree_check.id)
+        assigned_course = api_json['courses']['assigned'][0]
+        assert assigned_course['id'] == course_id
+        assert assigned_course['grade'] == modified_grade
+        _change_grade_in_data_loch(
+            app=app,
+            grade=original_grade,
+            section_id=course['sectionId'],
+            sid=sid,
+            term_id=course['termId'],
+        )
+
         # Unassign
         _api_assign_course(category_id=None, client=client, course_id=course_id)
         api_json = _api_get_degree(client, degree_check_id=degree_check.id)
         assert course_id not in [c['id'] for c in api_json['courses']['assigned']]
-        assert course_id in [c['id'] for c in api_json['courses']['unassigned']]
+        unassigned_course = api_json['courses']['unassigned'][-1]
+        assert unassigned_course['id'] == course_id
+        assert unassigned_course['grade'] == original_grade
         # Verify update of updated_at
         assert DegreeProgressTemplate.find_by_id(degree_check.id).updated_at != original_updated_at
+
+
+def _change_grade_in_data_loch(app, grade, section_id, sid, term_id):
+    where_clause = f"WHERE sid = '{sid}' AND term_id = '{term_id}'"
+    rows = safe_execute_rds(f'SELECT enrollment_term FROM student.student_enrollment_terms {where_clause}')
+    enrollment_term = json.loads(rows[0]['enrollment_term'])
+    sections = [e['sections'] for e in enrollment_term['enrollments']]
+
+    for section in [item for s in sections for item in s]:
+        if section['ccn'] == section_id:
+            section['grade'] = grade
+            data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
+            sql = f"UPDATE student.student_enrollment_terms SET enrollment_term = '{json.dumps(enrollment_term)}' {where_clause}"
+            data_loch_db.execute(text(sql))
+            break
 
 
 class TestBatchStudentDegreeChecks:
