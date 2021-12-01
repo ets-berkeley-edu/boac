@@ -221,14 +221,14 @@
         <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
       </div>
       <div
-        v-if="$_.get(student, 'currentTerm.unitsMin') && student.currentTerm.unitsMin !== $config.defaultTermUnitsAllowed.min"
+        v-if="!$_.isNil($_.get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== $config.defaultTermUnitsAllowed.min"
         class="d-flex flex-wrap"
       >
-        <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.currentTerm.unitsMin }}</div>
+        <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
         <div class="no-wrap student-text">Min&nbsp;Approved</div>
       </div>
-      <div v-if="$_.get(student, 'currentTerm.unitsMax') && student.currentTerm.unitsMax !== $config.defaultTermUnitsAllowed.max">
-        <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.currentTerm.unitsMax }}</span>
+      <div v-if="!$_.isNil($_.get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== $config.defaultTermUnitsAllowed.max">
+        <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
         <span class="no-wrap student-text">Max&nbsp;Approved</span>
       </div>
       <div v-if="isCurrentTerm" class="d-flex flex-wrap">
@@ -254,16 +254,15 @@
         <tr>
           <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
           <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">
-            <span aria-hidden="true">BCOURSES ACTIVITY</span>
+            <span aria-hidden="true" class="text-uppercase">bCourses Activity</span>
             <span class="sr-only">Most recent B Courses activity</span>
           </th>
           <th class="cohort-course-activity-header">
-            <span aria-hidden="true">MID</span>
+            <span aria-hidden="true" class="text-uppercase">Mid</span>
             <span class="sr-only">Midpoint grade</span>
           </th>
           <th class="cohort-course-activity-header">
-            <span aria-hidden="true">FINAL</span>
-            <span class="sr-only">Final grade</span>
+            <span class="text-uppercase">Final<span class="sr-only"> grade</span></span>
           </th>
         </tr>
         <tr v-for="(enrollment, index) in termEnrollments" :key="index">
