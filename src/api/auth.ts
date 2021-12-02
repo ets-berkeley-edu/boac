@@ -13,7 +13,6 @@ export function devAuthLogIn(uid: string, password: string) {
     .then(response => {
       Vue.prototype.$currentUser = response.data
       Vue.prototype.$core.initializeCurrentUser().then(_.noop)
-      Vue.prototype.$core.mountGoogleAnalytics().then(_.noop)
       store.dispatch('context/loadServiceAnnouncement').then(_.noop)
       return Vue.prototype.$currentUser
     }, error => error)

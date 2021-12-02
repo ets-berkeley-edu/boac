@@ -4,6 +4,7 @@ import Vue from 'vue'
 
 export default {
   apiBaseUrl: () => Vue.prototype.$config.apiBaseUrl,
+  getGaReportUrl: reportType => `https://analyticsdata.googleapis.com/v1beta/properties/${Vue.prototype.$config.googleAnalyticsId}:${reportType}`,
   postMultipartFormData: (
     path: string,
     data: object
