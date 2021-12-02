@@ -75,7 +75,7 @@
                 </div>
               </td>
               <td
-                class="pl-0 td-course-name"
+                class="font-size-14 pl-0"
                 :class="{
                   'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
@@ -655,10 +655,6 @@ table {
   vertical-align: middle;
   width: 14px;
 }
-.td-course-name {
-  font-size: 14px;
-  width: 42px;
-}
 .td-grade {
   padding: 0 0.5em 0 0.4em;
   vertical-align: middle;
@@ -667,7 +663,6 @@ table {
 .td-name {
   padding: 0.25em 0 0.25em 0.25em;
   vertical-align: middle;
-  width: 42px;
 }
 .td-name-printable {
   padding: 0.25em 0;
