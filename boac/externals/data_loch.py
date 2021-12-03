@@ -1065,8 +1065,8 @@ def get_students_query(     # noqa
         query_bindings.update({'entering_terms': entering_terms})
     if epn_cpn_grading_terms:
         query_tables += ' JOIN student.student_enrollment_terms enr ON enr.sid=sas.sid '
-        query_filter += ' AND (enr.enrollment_term LIKE \'%gradingBasis": "EPN"%\' '
-        query_filter += ' OR enr.enrollment_term LIKE \'%gradingBasis": "CPN"%\') AND enr.term_id = ANY(:epn_cpn_grading_terms)'
+        query_filter += ' AND enr.epn_grading_option IS TRUE'
+        query_filter += ' AND enr.term_id = ANY(:epn_cpn_grading_terms)'
         query_bindings.update({'epn_cpn_grading_terms': epn_cpn_grading_terms})
     if ethnicities:
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
