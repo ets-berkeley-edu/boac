@@ -31,11 +31,13 @@ from boac.merged.calnet import get_calnet_users_for_uids
 from boac.merged.calnet import get_csid_for_uid
 from boac.merged.sis_terms import current_term_id, future_term_id
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.json_cache import stow
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
 
 
+@stow('cohort_filter_options_coe_profiles')
 def get_coe_profiles():
     users = list(filter(lambda _user: 'COENG' in _get_dept_codes(_user), AuthorizedUser.get_all_active_users()))
     calnet_users = get_calnet_users_for_uids(app, [u.uid for u in users])
@@ -50,6 +52,7 @@ def get_coe_profiles():
     return sorted(profiles, key=lambda p: p['name'])
 
 
+@stow('cohort_filter_options_academic_plans_for_{owner_uid}')
 def academic_plans_for_cohort_owner(owner_uid):
     if owner_uid:
         owner_csid = get_csid_for_uid(app, owner_uid)
@@ -66,6 +69,7 @@ def academic_plans_for_cohort_owner(owner_uid):
     return plans
 
 
+@stow('cohort_filter_options_academic_standing')
 def academic_standing_options(min_term_id=0):
     option_groups = {}
     for term_id in (r['term_id'] for r in data_loch.get_academic_standing_terms(min_term_id)):
@@ -94,24 +98,29 @@ def curated_groups(user_id):
     return [{'name': row['name'], 'value': row['id']} for row in results]
 
 
+@stow('cohort_filter_options_colleges')
 def colleges():
     college_results = [row['college'] for row in data_loch.get_colleges()]
     return [{'name': college, 'value': college} for college in college_results]
 
 
+@stow('cohort_filter_options_entering_terms')
 def entering_terms():
     term_ids = [r['entering_term'] for r in data_loch.get_entering_terms()]
     return [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
 
 
+@stow('cohort_filter_options_ethnicities')
 def ethnicities():
     return [{'name': row['ethnicity'], 'value': row['ethnicity']} for row in data_loch.get_distinct_ethnicities()]
 
 
+@stow('cohort_filter_options_genders')
 def genders():
     return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
 
 
+@stow('cohort_filter_options_grad_terms')
 def grad_terms():
     current_term_id_ = current_term_id()
     option_groups = {
@@ -127,6 +136,7 @@ def grad_terms():
     return option_groups
 
 
+@stow('cohort_filter_options_grading_terms')
 def grading_terms():
     current_term = current_term_id()
     all_terms = term_ids_range(current_term, future_term_id())
@@ -138,6 +148,7 @@ def grading_terms():
     return [_term_option(term_id) for term_id in all_terms]
 
 
+@stow('cohort_filter_options_intended_majors')
 def intended_majors():
     intended_major_results = [row['major'] for row in data_loch.get_intended_majors()]
     options = [{'name': major, 'value': major} for major in intended_major_results]
@@ -153,6 +164,7 @@ def level_options():
     ]
 
 
+@stow('cohort_filter_options_coe_ethnicities')
 def coe_ethnicities():
     rows = data_loch.get_coe_ethnicity_codes(['COENG'])
     key = 'ethnicity_code'
@@ -177,36 +189,43 @@ def team_groups():
     return [{'name': row['groupName'], 'value': row['groupCode']} for row in rows]
 
 
+@stow('cohort_filter_options_majors')
 def majors():
     major_results = [row['major'] for row in data_loch.get_majors()]
     return [{'name': major, 'value': major} for major in major_results]
 
 
+@stow('cohort_filter_options_minors')
 def minors():
     minor_results = [row['minor'] for row in data_loch.get_minors()]
     return [{'name': minor, 'value': minor} for minor in minor_results]
 
 
+@stow('cohort_filter_options_admit_colleges')
 def student_admit_college_options():
     college_results = [row['college'] for row in data_loch.get_admit_colleges()]
     return [{'name': college, 'value': college} for college in college_results]
 
 
+@stow('cohort_filter_options_admit_ethnicities')
 def student_admit_ethnicity_options():
     ethnicity_results = [row['xethnic'] for row in data_loch.get_admit_ethnicities()]
     return [{'name': ethnicity, 'value': ethnicity} for ethnicity in ethnicity_results]
 
 
+@stow('cohort_filter_options_admit_freshman_or_transfer')
 def student_admit_freshman_or_transfer_options():
     freshman_or_transfer_results = [row['freshman_or_transfer'] for row in data_loch.get_admit_freshman_or_transfer()]
     return [{'name': freshman_or_transfer, 'value': freshman_or_transfer} for freshman_or_transfer in freshman_or_transfer_results]
 
 
+@stow('cohort_filter_options_admit_residency_categories')
 def student_admit_residency_category_options():
     residency_category_results = [row['residency_category'] for row in data_loch.get_admit_residency_categories()]
     return [{'name': residency_category, 'value': residency_category} for residency_category in residency_category_results]
 
 
+@stow('cohort_filter_options_admit_special_program_cep')
 def student_admit_special_program_cep_options():
     special_program_cep_results = [row['special_program_cep'] for row in data_loch.get_admit_special_program_cep()]
     return [{'name': special_program_cep, 'value': special_program_cep} for special_program_cep in special_program_cep_results]
@@ -222,6 +241,7 @@ def unit_range_options():
     ]
 
 
+@stow('cohort_filter_options_visa_types')
 def visa_types():
     other_types = [row['visa_type'] for row in data_loch.get_other_visa_types()]
     return [

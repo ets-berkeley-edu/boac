@@ -193,6 +193,8 @@ def refresh_department_memberships():
 
 def load_filtered_cohort_counts():
     from boac.models.cohort_filter import CohortFilter
+    from boac.models import json_cache
+    json_cache.clear('cohort_filter_options_%')
     for cohort in CohortFilter.query.all():
         # Remove!
         cohort.clear_sids_and_student_count()

@@ -23,8 +23,36 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.lib.cohort_utils import grading_terms
+from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, colleges, grading_terms
+from boac.models import json_cache
 from tests.util import override_config
+
+
+coe_advisor = '1133399'
+
+
+class TestCohortFilterOptions:
+
+    def test_academic_plans_for_cohort_owner(self):
+        json_cache.clear('%')
+        assert json_cache.fetch(f'cohort_filter_options_academic_plans_for_{coe_advisor}') is None
+        options = academic_plans_for_cohort_owner(coe_advisor)
+        assert len(options) == 5
+        assert json_cache.fetch(f'cohort_filter_options_academic_plans_for_{coe_advisor}') is not None
+
+    def test_academic_standing_options(self):
+        json_cache.clear('%')
+        assert json_cache.fetch('cohort_filter_options_academic_standing') is None
+        options = academic_standing_options(2172)
+        assert len(options) == 4
+        assert json_cache.fetch('cohort_filter_options_academic_standing') is not None
+
+    def test_colleges(self):
+        json_cache.clear('%')
+        assert json_cache.fetch('cohort_filter_options_colleges') is None
+        options = colleges()
+        assert len(options) == 3
+        assert json_cache.fetch('cohort_filter_options_colleges') is not None
 
 
 class TestGradingTerms:
@@ -32,6 +60,7 @@ class TestGradingTerms:
 
     def test_two_terms(self, app):
         """Contains two items when current and future terms are consecutive."""
+        json_cache.clear('%')
         with override_config(app, 'CANVAS_CURRENT_ENROLLMENT_TERM', 'Summer 2021'), \
                 override_config(app, 'CANVAS_FUTURE_ENROLLMENT_TERM', 'Fall 2021'):
             options = grading_terms()
@@ -42,6 +71,7 @@ class TestGradingTerms:
 
     def test_three_terms(self, app):
         """Contains three items when a term exists between the current and future terms."""
+        json_cache.clear('%')
         with override_config(app, 'CANVAS_CURRENT_ENROLLMENT_TERM', 'Spring 2021'), \
                 override_config(app, 'CANVAS_FUTURE_ENROLLMENT_TERM', 'Fall 2021'):
             options = grading_terms()

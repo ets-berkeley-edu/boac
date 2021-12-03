@@ -115,6 +115,8 @@ class TestDevAuth:
     def test_user_expired_according_to_calnet(self, app, client):
         """Fails if user has no record in LDAP."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
+            from boac.models import json_cache
+            json_cache.clear('%')
             self._api_dev_auth_login(
                 client,
                 params={
