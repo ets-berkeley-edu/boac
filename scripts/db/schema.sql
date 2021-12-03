@@ -49,7 +49,7 @@ CREATE TABLE alert_views (
 ALTER TABLE alert_views OWNER TO boac;
 ALTER TABLE ONLY alert_views
     ADD CONSTRAINT alert_views_pkey PRIMARY KEY (alert_id, viewer_id);
-CREATE INDEX alert_views_alert_id_idx ON alert_views USING btree (alert_id);
+CREATE INDEX alert_views_dismissed_at_idx ON alert_views (dismissed_at);
 CREATE INDEX alert_views_viewer_id_idx ON alert_views USING btree (viewer_id);
 
 --
@@ -78,6 +78,7 @@ ALTER TABLE ONLY alerts
     ADD CONSTRAINT alerts_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY alerts
     ADD CONSTRAINT alerts_sid_alert_type_key_created_at_unique_constraint UNIQUE (sid, alert_type, key, created_at);
+CREATE INDEX alerts_deleted_at_idx ON alerts (deleted_at);
 CREATE INDEX alerts_sid_idx ON alerts USING btree (sid);
 
 --
@@ -603,6 +604,8 @@ ALTER SEQUENCE notes_id_seq OWNED BY notes.id;
 ALTER TABLE ONLY notes ALTER COLUMN id SET DEFAULT nextval('notes_id_seq'::regclass);
 ALTER TABLE ONLY notes ADD CONSTRAINT notes_pkey PRIMARY KEY (id);
 CREATE INDEX notes_author_uid_idx ON notes USING btree (author_uid);
+CREATE INDEX notes_deleted_at_idx ON notes (deleted_at);
+CREATE INDEX notes_is_private_idx ON notes (is_private);
 CREATE INDEX notes_sid_idx ON notes USING btree (sid);
 
 CREATE MATERIALIZED VIEW notes_fts_index AS (
