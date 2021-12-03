@@ -1,4 +1,4 @@
-BEGIN
+BEGIN;
 
 CREATE INDEX alerts_deleted_at_idx ON alerts (deleted_at);
 CREATE INDEX alert_views_dismissed_at_idx ON alert_views (dismissed_at);
