@@ -797,8 +797,9 @@ ALTER TABLE schedulers
 
 CREATE TABLE student_groups (
   id INTEGER NOT NULL,
-  owner_id INTEGER NOT NULL,
+  domain cohort_domain_types NOT NULL,
   name VARCHAR(255) NOT NULL,
+  owner_id INTEGER NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
