@@ -29,6 +29,7 @@ from boac.lib.util import get_benchmarker
 from boac.merged.student import query_students
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
+from boac.models.db_relationships import cohort_domain_type
 from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from sqlalchemy import text
 
@@ -37,8 +38,9 @@ class CuratedGroup(Base):
     __tablename__ = 'student_groups'
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    owner_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
+    domain = db.Column(cohort_domain_type, nullable=False)
     name = db.Column(db.String(255), nullable=False)
+    owner_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
 
     __table_args__ = (db.UniqueConstraint(
         'owner_id',
@@ -46,22 +48,31 @@ class CuratedGroup(Base):
         name='student_groups_owner_id_name_unique_constraint',
     ),)
 
-    def __init__(self, name, owner_id):
+    def __init__(self, domain, name, owner_id):
+        self.domain = domain
         self.name = name
         self.owner_id = owner_id
+
+    def __repr__(self):
+        return f"""<CohortFilter {self.id},
+            domain={self.domain},
+            name={self.name},
+            owner_id={self.owner_id},
+            updated_at={self.updated_at},
+            created_at={self.created_at}>"""
 
     @classmethod
     def find_by_id(cls, curated_group_id):
         return cls.query.filter_by(id=curated_group_id).first()
 
     @classmethod
-    def get_curated_groups_by_owner_id(cls, owner_id):
-        return cls.query.filter_by(owner_id=owner_id).order_by(cls.name).all()
+    def get_curated_groups_by_owner_id(cls, owner_id, domain='default'):
+        return cls.query.filter_by(domain=domain, owner_id=owner_id).order_by(cls.name).all()
 
     @classmethod
-    def get_groups_owned_by_uids(cls, uids):
+    def get_groups_owned_by_uids(cls, uids, domain='default'):
         query = text("""
-            SELECT sg.id, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
+            SELECT sg.id, sg.domain, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
             FROM student_groups sg
             LEFT JOIN student_group_members sgm ON sg.id = sgm.student_group_id
             JOIN authorized_users au ON sg.owner_id = au.id
@@ -73,6 +84,7 @@ class CuratedGroup(Base):
         def transform(row):
             return {
                 'id': row['id'],
+                'domain': row['domain'],
                 'name': row['name'],
                 'totalStudentCount': row['student_count'],
                 'ownerUid': row['owner_uid'],
@@ -90,8 +102,8 @@ class CuratedGroup(Base):
         return [row['id'] for row in results]
 
     @classmethod
-    def create(cls, owner_id, name):
-        curated_group = cls(name, owner_id)
+    def create(cls, owner_id, name, domain='default'):
+        curated_group = cls(domain=domain, name=name, owner_id=owner_id)
         db.session.add(curated_group)
         std_commit()
         return curated_group
@@ -156,8 +168,9 @@ class CuratedGroup(Base):
         benchmark('begin')
         feed = {
             'id': self.id,
-            'ownerId': self.owner_id,
             'name': self.name,
+            'domain': self.domain,
+            'ownerId': self.owner_id,
         }
         if include_students:
             sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)

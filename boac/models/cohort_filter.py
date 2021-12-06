@@ -39,19 +39,12 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.cohort_filter_event import CohortFilterEvent
+from boac.models.db_relationships import cohort_domain_type
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
-from sqlalchemy.dialects.postgresql import ARRAY, ENUM, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import deferred, undefer
-
-
-cohort_domain_type = ENUM(
-    'default',
-    'admitted_students',
-    name='cohort_domain_types',
-    create_type=False,
-)
 
 
 class CohortFilter(Base):

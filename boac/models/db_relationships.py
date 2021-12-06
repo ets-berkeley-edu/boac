@@ -26,6 +26,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac import db
+from sqlalchemy.dialects.postgresql import ENUM
+
+
+cohort_domain_type = ENUM(
+    'default',
+    'admitted_students',
+    name='cohort_domain_types',
+    create_type=False,
+)
 
 
 # Alert views are represented as a model class because they contain 'created_at' and 'dismissed_at' metadata in
