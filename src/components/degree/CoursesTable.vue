@@ -670,7 +670,7 @@ table {
   width: 180px !important;
 }
 .td-note {
-  max-width: 60px;
+  max-width: 100px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
   width: 1px;
@@ -678,7 +678,7 @@ table {
 .td-note-printable {
   padding: 0 0.5em 0 0;
   vertical-align: middle;
-  width: 60px !important;
+  width: 100px !important;
 }
 .td-max-width-0 {
   max-width: 0;
@@ -697,7 +697,7 @@ table {
   width: 14px;
 }
 .th-note {
-  width: 64px;
+  width: 100px;
 }
 .tr-while-dragging td {
   background-color: #125074;

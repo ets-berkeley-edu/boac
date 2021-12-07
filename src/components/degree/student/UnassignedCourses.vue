@@ -382,7 +382,7 @@ table {
   width: 72px;
 }
 .td-note {
-  max-width: 60px;
+  max-width: 100px;
   padding: 0 0.5em 0 0;
   vertical-align: middle;
   width: 1px;
@@ -410,7 +410,7 @@ table {
   width: 42px;
 }
 .th-note {
-  width: 64px;
+  width: 100px;
 }
 .tr-course {
   height: 42px;
