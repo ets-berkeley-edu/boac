@@ -17,7 +17,7 @@
             <b-th v-if="isCampusRequirements" class="pl-0" :class="{'font-size-12': printable}">Requirement</b-th>
             <b-th v-if="!isCampusRequirements" class="pl-0 text-right" :class="{'font-size-12': printable}">Units</b-th>
             <b-th v-if="sid && !isCampusRequirements" :class="{'font-size-12': printable}">Grade</b-th>
-            <b-th v-if="sid && isCampusRequirements" class="px-0 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
+            <b-th v-if="sid && isCampusRequirements" class="pl-0 pr-2 text-center" :class="{'font-size-12': printable}">Satisfied</b-th>
             <b-th
               v-if="sid"
               class="pl-0"
