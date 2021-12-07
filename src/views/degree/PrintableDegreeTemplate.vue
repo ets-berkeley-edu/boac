@@ -2,16 +2,16 @@
   <div class="m-4">
     <Spinner />
     <b-container v-if="!loading" fluid>
-      <b-row>
+      <b-row class="pb-2">
         <b-col v-if="student">
-          <h1 class="font-size-14 font-weight-bold" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
-          <div class="font-size-12">
-            <div class="font-weight-bold">
+          <h1 class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
+          <div class="font-size-14">
+            <div class="font-weight-500">
               SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
               <div>
                 {{ $_.get(student, 'sisProfile.level.description') || 'Level not available' }}
               </div>
-              <div class="text-secondary">
+              <div>
                 <div v-if="$_.get(student, 'sisProfile.termsInAttendance')">
                   {{ student.sisProfile.termsInAttendance }} Terms in Attendance
                 </div>
@@ -21,26 +21,22 @@
                 <div>Expected graduation {{ $_.get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
               </div>
             </div>
-            <div class="pt-2">
-              <div class="py-2 section-border-minor">
-                <span class="font-weight-bold p-0 text-secondary text-uppercase">Major</span>
+            <div v-if="student.sisProfile.plans.length" class="pt-2">
+              <div class="section-border-minor">
+                <span class="font-weight-bold p-0 text-uppercase">Major</span>
               </div>
-              <div
-                v-for="(plan, index) in student.sisProfile.plans"
-                :key="plan.description"
-                :class="{'pt-2': index === 0}"
-              >
+              <div v-for="(plan, index) in student.sisProfile.plans" :key="index">
                 <div class="font-weight-bold">{{ plan.description }}</div>
-                <div class="text-secondary">{{ plan.program }}</div>
+                <div>{{ plan.program }}</div>
               </div>
             </div>
-            <div v-if="student.sisProfile.plansMinor.length" class="pt-2">
+            <div v-if="student.sisProfile.plansMinor.length" class="py-2">
               <div class="section-border-minor">
-                <span class="font-weight-bold mt-2 p-0 text-secondary text-uppercase">Minor</span>
+                <span class="font-weight-bold mt-2 p-0 text-uppercase">Minor</span>
               </div>
               <div v-for="minorPlan of student.sisProfile.plansMinor" :key="minorPlan.description">
                 <div class="font-weight-bold">{{ minorPlan.description }}</div>
-                <div class="text-secondary">{{ minorPlan.program }}</div>
+                <div>{{ minorPlan.program }}</div>
               </div>
             </div>
           </div>
@@ -162,6 +158,11 @@ export default {
 </script>
 
 <style scoped>
+@media print{
+  @page {
+    size: landscape;
+  }
+}
 pre {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 12px;

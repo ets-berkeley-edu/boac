@@ -1,6 +1,6 @@
 <template>
   <transition name="drawer">
-    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext" id="fixed_bottom">
+    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext && !$_.get($route.meta, 'printable')" id="fixed_bottom">
       <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
         <div class="flex-grow-1">
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
