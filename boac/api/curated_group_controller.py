@@ -24,7 +24,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, get_my_curated_groups, response_with_students_csv_download
+from boac.api.util import advisor_required, get_my_curated_groups, is_unauthorized_domain, \
+    response_with_students_csv_download
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
@@ -40,17 +41,20 @@ from flask_login import current_user
 @app.route('/api/curated_groups/my')
 @advisor_required
 def my_curated_groups():
-    benchmark = get_benchmarker('my_curated_groups')
-    return tolerant_jsonify(get_my_curated_groups(benchmark))
+    domain = get_param(request.args, 'domain', 'default')
+    return tolerant_jsonify(get_my_curated_groups(domain))
 
 
 @app.route('/api/curated_groups/all')
 @advisor_required
 def all_curated_groups():
     scope = get_query_scope(current_user)
+    domain = get_param(request.args, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     groups_per_uid = dict((uid, []) for uid in uids)
-    for group in CuratedGroup.get_groups_owned_by_uids(uids):
+    for group in CuratedGroup.get_groups_owned_by_uids(domain=domain, uids=uids):
         groups_per_uid[group['ownerUid']].append(group)
     api_json = []
     for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
@@ -67,10 +71,13 @@ def all_curated_groups():
 @advisor_required
 def create_curated_group():
     params = request.get_json()
+    domain = get_param(params, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to use the \'{domain}\' domain')
     name = params.get('name', None)
     if not name:
         raise BadRequestError('Curated group creation requires \'name\'')
-    curated_group = CuratedGroup.create(current_user.get_id(), name)
+    curated_group = CuratedGroup.create(domain=domain, name=name, owner_id=current_user.get_id())
     # Optionally, add students
     if 'sids' in params:
         sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
@@ -153,7 +160,14 @@ def get_students_with_alerts(curated_group_id):
 @app.route('/api/curated_groups/my/<sid>')
 @advisor_required
 def curated_group_ids_per_sid(sid):
-    return tolerant_jsonify(CuratedGroup.curated_group_ids_per_sid(user_id=current_user.get_id(), sid=sid))
+    domain = get_param(request.args, 'domain', 'default')
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
+    return tolerant_jsonify(CuratedGroup.curated_group_ids_per_sid(
+        domain=domain,
+        sid=sid,
+        user_id=current_user.get_id(),
+    ))
 
 
 @app.route('/api/curated_group/<curated_group_id>/remove_student/<sid>', methods=['DELETE'])

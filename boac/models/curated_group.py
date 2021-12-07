@@ -76,10 +76,10 @@ class CuratedGroup(Base):
             FROM student_groups sg
             LEFT JOIN student_group_members sgm ON sg.id = sgm.student_group_id
             JOIN authorized_users au ON sg.owner_id = au.id
-            WHERE au.uid = ANY(:uids)
+            WHERE au.uid = ANY(:uids) AND sg.domain = :domain
             GROUP BY sg.id, sg.name, au.id, au.uid
         """)
-        results = db.session.execute(query, {'uids': uids})
+        results = db.session.execute(query, {'domain': domain, 'uids': uids})
 
         def transform(row):
             return {
@@ -92,13 +92,17 @@ class CuratedGroup(Base):
         return [transform(row) for row in results]
 
     @classmethod
-    def curated_group_ids_per_sid(cls, user_id, sid):
+    def curated_group_ids_per_sid(cls, domain, sid, user_id):
         query = text("""SELECT
             student_group_id as id
             FROM student_group_members m
             JOIN student_groups g ON g.id = m.student_group_id
-            WHERE g.owner_id = :user_id AND m.sid = :sid""")
-        results = db.session.execute(query, {'user_id': user_id, 'sid': sid})
+            WHERE g.domain = :domain AND g.owner_id = :user_id AND m.sid = :sid""")
+        results = db.session.execute(query, {
+            'domain': domain,
+            'sid': sid,
+            'user_id': user_id,
+        })
         return [row['id'] for row in results]
 
     @classmethod

@@ -64,20 +64,6 @@ def api_cohort_events(client, cohort_id, expected_status_code=200):
     return response.json
 
 
-def api_curated_group_create(client, expected_status_code=200, name=None, sids=()):
-    response = client.post(
-        '/api/curated_group/create',
-        data=json.dumps({
-            'name': name,
-            'sids': sids,
-        }),
-        content_type='application/json',
-    )
-    std_commit(allow_test_environment=True)
-    assert response.status_code == expected_status_code
-    return response.json
-
-
 def api_curated_group_add_students(
         client,
         curated_group_id,
