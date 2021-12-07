@@ -299,6 +299,7 @@ const router = new Router({
         {
           path: '/degree/:id/print',
           meta: {
+            printable: true,
             title: 'Print Degree Template',
           }
         },

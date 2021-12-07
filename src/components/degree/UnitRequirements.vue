@@ -5,7 +5,7 @@
         <div class="align-items-start d-flex flex-row justify-content-between">
           <h3
             class="font-weight-bold pb-0 pr-2 text-nowrap"
-            :class="{'font-size-12': printable, 'font-size-20': !printable}"
+            :class="{'font-size-14': printable, 'font-size-20': !printable}"
           >
             Unit Requirements
           </h3>
