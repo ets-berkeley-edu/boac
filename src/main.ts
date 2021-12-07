@@ -67,36 +67,31 @@ router.afterEach(writeHistory)
 
 const apiBaseUrl = process.env.VUE_APP_API_BASE_URL
 
-const isHandledInComponent = error => {
-  const errorUrl = _.get(error, 'response.config.url')
-  return errorUrl && errorUrl.includes('/api/user/create_or_update')
-}
-
 const axiosErrorHandler = error => {
   const user = Vue.prototype.$currentUser
   const errorStatus = _.get(error, 'response.status')
-  if (_.get(user, 'isAuthenticated')) {
-    if (errorStatus === 404) {
-      router.push({path: '/404'})
-    } else if (!errorStatus || errorStatus >= 400) {
-      const message = _.get(error, 'response.data.message') || error.message
-      console.error(message)
-      if (!isHandledInComponent(error)) {
-        router.push({
-          path: '/error',
-          query: {
-            m: message
-          }
-        })
-      }
-    }
-  } else {
+  if (!_.get(user, 'isAuthenticated')) {
     router.push({
       path: '/login',
       query: {
         m: 'Your session has expired'
       }
     })
+  } else if (errorStatus === 404) {
+    router.push({path: '/404'})
+  } else {
+    const skipRedirect = ['/api/user/create_or_update']
+    const url = _.get(error, 'response.config.url')
+    if (!_.find(skipRedirect, path => url.includes(path))) {
+      router.push({
+        path: '/error',
+        query: {
+          m: _.get(error, 'response.data.message') || error.message,
+          s: errorStatus,
+          t: _.get(error, 'response.statusText')
+        }
+      })
+    }
   }
 }
 

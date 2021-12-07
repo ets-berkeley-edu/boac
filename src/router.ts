@@ -105,14 +105,6 @@ const router = new Router({
       beforeEnter: auth.requiresAdvisor,
       children: [
         {
-          path: '/admin',
-          name: 'admin',
-          component: FlightDeck,
-          meta: {
-            title: 'Flight Deck'
-          }
-        },
-        {
           path: '/cohorts/all',
           component: AllCohorts,
           meta: {
@@ -177,6 +169,14 @@ const router = new Router({
       component: StandardLayout,
       beforeEnter: auth.requiresAdmin,
       children: [
+        {
+          path: '/admin',
+          name: 'admin',
+          component: FlightDeck,
+          meta: {
+            title: 'Flight Deck'
+          }
+        },
         {
           path: '/admin/passengers',
           component: PassengerManifest,
