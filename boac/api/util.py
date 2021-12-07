@@ -30,7 +30,7 @@ from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.externals.data_loch import get_admitted_students_by_sids, get_sis_holds, get_student_profiles
 from boac.lib.berkeley import dept_codes_where_advising, previous_term_id
 from boac.lib.http import response_with_csv_download
-from boac.lib.util import join_if_present
+from boac.lib.util import get_benchmarker, join_if_present
 from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
@@ -382,10 +382,11 @@ def get_note_topics_from_http_post():
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
-def get_my_curated_groups(benchmark):
+def get_my_curated_groups(domain):
+    benchmark = get_benchmarker('my_curated_groups')
     curated_groups = []
     user_id = current_user.get_id()
-    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(user_id):
+    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(domain=domain, owner_id=user_id):
         api_json = curated_group.to_api_json(include_students=False)
         students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
         students_with_alerts = Alert.include_alert_counts_for_students(

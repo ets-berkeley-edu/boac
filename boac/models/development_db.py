@@ -727,6 +727,14 @@ def _create_curated_groups():
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
     curated_group = CuratedGroup.create(coe_advisor.id, 'I have one student')
     CuratedGroup.add_student(curated_group.id, '7890123456')
+
+    ce3_advisor = AuthorizedUser.find_by_uid('2525')
+    curated_group = CuratedGroup.create(
+        domain='admitted_students',
+        name="My 'admitted_students' group",
+        owner_id=ce3_advisor.id,
+    )
+    CuratedGroup.add_student(curated_group.id, '7890123456')
     std_commit(allow_test_environment=True)
 
 
