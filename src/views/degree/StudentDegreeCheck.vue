@@ -15,10 +15,10 @@
         </div>
         <b-container class="px-0 py-2 section-separator" fluid>
           <b-row no-gutters>
-            <b-col>
+            <b-col cols="4">
               <UnitRequirements />
             </b-col>
-            <b-col>
+            <b-col :cols="courses['ignored'].length ? 4 : 3">
               <div
                 id="drop-zone-ignored-courses"
                 class="drop-zone"
