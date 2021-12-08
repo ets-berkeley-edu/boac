@@ -211,10 +211,10 @@ def get_sis_section(term_id, sis_section_id):
 
 
 def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid):
-    sql = f"""SELECT DISTINCT sas.sid
-              FROM {student_schema()}.student_academic_status sas
+    sql = f"""SELECT DISTINCT spi.sid
+              FROM {student_schema()}.student_profile_index spi
               JOIN {sis_schema()}.sis_enrollments enr
-                ON sas.uid = enr.ldap_uid
+                ON spi.uid = enr.ldap_uid
                 AND enr.ldap_uid = :uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id"""
@@ -224,14 +224,15 @@ def get_sis_section_enrollment_for_uid(term_id, sis_section_id, uid):
 
 @fixture('loch/sis_section_enrollments_{term_id}_{sis_section_id}.csv')
 def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None):
-    sql = f"""SELECT sas.sid, sas.uid, sas.first_name, sas.last_name
-              FROM {student_schema()}.student_academic_status sas
+    sql = f"""SELECT spi.sid, spi.uid, spi.first_name, spi.last_name
+              FROM {student_schema()}.student_profile_index spi
               JOIN {sis_schema()}.sis_enrollments enr
-                ON sas.uid = enr.ldap_uid
+                ON spi.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
-              GROUP BY sas.sid, sas.uid, sas.first_name, sas.last_name
-              ORDER BY {_naturalize_order('sas.last_name')}, {_naturalize_order('sas.first_name')}, sas.sid"""
+                AND spi.hist_enr IS FALSE
+              GROUP BY spi.sid, spi.uid, spi.first_name, spi.last_name
+              ORDER BY {_naturalize_order('spi.last_name')}, {_naturalize_order('spi.first_name')}, spi.sid"""
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     if offset:
         sql += ' OFFSET :offset'
@@ -243,12 +244,13 @@ def get_sis_section_enrollments(term_id, sis_section_id, offset=None, limit=None
 
 
 def get_sis_section_enrollments_count(term_id, sis_section_id):
-    sql = f"""SELECT COUNT(DISTINCT sas.sid) as count
-              FROM {student_schema()}.student_academic_status sas
+    sql = f"""SELECT COUNT(DISTINCT spi.sid) as count
+              FROM {student_schema()}.student_profile_index spi
               JOIN {sis_schema()}.sis_enrollments enr
-                ON sas.uid = enr.ldap_uid
+                ON spi.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
+                AND spi.hist_enr IS FALSE
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     return safe_execute_rds(sql, **params)
@@ -297,33 +299,33 @@ def get_coe_profiles(sids):
 
 
 def get_student_by_sid(sid):
-    sql = f"""SELECT sas.*
-        FROM {student_schema()}.student_academic_status sas
-        WHERE sas.sid = :sid"""
+    sql = f"""SELECT spi.*
+        FROM {student_schema()}.student_profile_index spi
+        WHERE spi.sid = :sid AND spi.hist_enr IS FALSE"""
     rows = safe_execute_rds(sql, sid=sid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
 def get_student_by_uid(uid):
-    sql = f"""SELECT sas.*
-        FROM {student_schema()}.student_academic_status sas
-        WHERE sas.uid = :uid"""
+    sql = f"""SELECT spi.*
+        FROM {student_schema()}.student_profile_index spi
+        WHERE spi.uid = :uid and spi.hist_enr IS FALSE"""
     rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
 def get_sid_by_uid(uid):
-    sql = f"""SELECT sas.sid
-        FROM {student_schema()}.student_academic_status sas
-        WHERE sas.uid = :uid"""
+    sql = f"""SELECT spi.sid
+        FROM {student_schema()}.student_profile_index spi
+        WHERE spi.uid = :uid"""
     rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]['sid']
 
 
 def get_basic_student_data(sids):
     sql = f"""SELECT sid, uid, first_name, last_name
-        FROM {student_schema()}.student_academic_status
-        WHERE sid = ANY(:sids)
+        FROM {student_schema()}.student_profile_index
+        WHERE sid = ANY(:sids) AND hist_enr IS FALSE
         """
     return safe_execute_rds(sql, sids=sids)
 
@@ -428,16 +430,10 @@ def get_enrollments_for_term(term_id, sids=None):
 
 
 def get_students_by_sids(sids):
-    inner_sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
-        FROM {student_schema()}.student_academic_status sas
-        WHERE sas.sid = ANY(:sids)
-        UNION
-        SELECT s.first_name, s.last_name, s.sid, s.uid
-        FROM {student_schema()}.student_names_hist_enr s
-        WHERE s.sid = ANY(:sids)"""
-    sql = f"""SELECT DISTINCT ON (q.sid) q.first_name, q.last_name, q.sid, q.uid
-        FROM ({inner_sql}) q
-        ORDER BY q.sid"""
+    sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+        FROM {student_schema()}.student_profile_index spi
+        WHERE spi.sid = ANY(:sids) AND spi.hist_enr IS FALSE
+        ORDER BY spi.sid"""
     return safe_execute_rds(sql, sids=sids)
 
 
@@ -481,34 +477,25 @@ def match_advising_note_authors_by_name(prefixes, limit=None):
 
 
 def match_students_by_name_or_sid(prefixes, limit=None):
-    current_student_conditions = []
-    non_current_student_conditions = []
+    conditions = []
     prefix_kwargs = {}
-    for idx, prefix in enumerate(prefixes):
-        current_student_conditions.append(
-            f"""JOIN {student_schema()}.student_names sn{idx}
-            ON (sn{idx}.name LIKE :prefix_{idx} OR sn{idx}.sid LIKE :prefix_{idx})
-            AND sn{idx}.sid = sas.sid""",
-        )
-        if not prefix.isalpha():
-            non_current_student_conditions.append(
-                f"""JOIN {student_schema()}.student_name_index_hist_enr sn{idx}
-                ON sn{idx}.sid LIKE :prefix_{idx}
-                AND sn{idx}.sid = s.sid""",
+    prefixes = list(prefixes)
+    # A single numeric search term can match SIDs from current or hist_enr students.
+    if len(prefixes) == 1 and not prefixes[0].isalpha():
+        conditions.append('WHERE spi.sid LIKE :prefix')
+        prefix_kwargs['prefix'] = f'{prefixes[0]}%'
+    else:
+        for idx, prefix in enumerate(prefixes):
+            conditions.append(
+                f"""JOIN {student_schema()}.student_names sn{idx}
+                ON (sn{idx}.name LIKE :prefix_{idx} OR sn{idx}.sid LIKE :prefix_{idx})
+                AND sn{idx}.sid = spi.sid""",
             )
-        prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
+            prefix_kwargs[f'prefix_{idx}'] = f'{prefix}%'
 
-    inner_sql = f"""SELECT sas.first_name, sas.last_name, sas.sid, sas.uid
-        FROM {student_schema()}.student_academic_status sas
-        {' '.join(current_student_conditions)}"""
-    if len(non_current_student_conditions) > 0:
-        inner_sql += f"""\nUNION
-            SELECT s.first_name, s.last_name, s.sid, s.uid
-            FROM {student_schema()}.student_names_hist_enr s
-            {' '.join(non_current_student_conditions)}"""
-    sql = f"""SELECT DISTINCT q.*
-        FROM ({inner_sql}) q
-        ORDER BY q.first_name, q.last_name"""
+    sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
+        FROM {student_schema()}.student_profile_index spi
+        {' '.join(conditions)}"""
     if limit:
         sql += f' LIMIT {limit}'
     return safe_execute_rds(sql, **prefix_kwargs)
@@ -602,7 +589,7 @@ def get_admitted_students_by_sids(sids):
         a.special_program_cep, a.us_citizenship_status, a.us_non_citizen_status, a.citizenship_country, a.permanent_residence_country,
         a.non_immigrant_visa_current, a.non_immigrant_visa_planned, a.updated_at
         FROM {oua_schema()}.student_admits a
-        LEFT JOIN {student_schema()}.student_academic_status s ON a.cs_empl_id = s.sid
+        LEFT JOIN {student_schema()}.student_profile_index s ON a.cs_empl_id = s.sid AND s.hist_enr IS FALSE
         WHERE a.cs_empl_id = ANY(:sids)"""
     return safe_execute_rds(sql, sids=sids)
 
@@ -836,8 +823,9 @@ def search_sis_advising(
 def get_academic_plans_for_advisor(advisor_sid):
     sql = f"""SELECT DISTINCT advs.academic_plan_code, advs.academic_plan
         FROM {advisor_schema()}.advisor_students advs
-        JOIN {student_schema()}.student_academic_status sas
-        ON sas.sid = advs.student_sid
+        JOIN {student_schema()}.student_profile_index spi
+        ON spi.sid = advs.student_sid
+        AND spi.hist_enr IS FALSE
         AND advs.advisor_sid = :advisor_sid"""
     return safe_execute_rds(sql, advisor_sid=advisor_sid)
 
@@ -882,8 +870,8 @@ def get_coe_ethnicity_codes(scope=()):
 
 def get_colleges():
     sql = f"""SELECT DISTINCT maj.college
-        FROM {student_schema()}.student_academic_status sas
-        JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.hist_enr IS FALSE
         WHERE maj.college NOT LIKE 'Graduate%'
         ORDER BY college"""
     return safe_execute_rds(sql)
@@ -898,39 +886,39 @@ def get_distinct_ethnicities():
 
 
 def get_entering_terms():
-    sql = f"""SELECT DISTINCT entering_term FROM {student_schema()}.student_academic_status
-        WHERE entering_term > '0'
+    sql = f"""SELECT DISTINCT entering_term FROM {student_schema()}.student_profile_index
+        WHERE entering_term > '0' AND hist_enr IS FALSE
         ORDER BY entering_term DESC"""
     return safe_execute_rds(sql)
 
 
 def get_expected_graduation_terms():
-    sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_academic_status
-        WHERE expected_grad_term > '0'
+    sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_profile_index
+        WHERE expected_grad_term > '0' AND hist_enr IS FALSE
         ORDER BY expected_grad_term DESC"""
     return safe_execute_rds(sql)
 
 
 def get_intended_majors():
     sql = f"""SELECT DISTINCT im.major
-        FROM {student_schema()}.student_academic_status sas
-        JOIN {student_schema()}.intended_majors im ON im.sid = sas.sid
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.intended_majors im ON im.sid = spi.sid AND spi.hist_enr IS FALSE
         ORDER BY major"""
     return safe_execute_rds(sql)
 
 
 def get_majors():
     sql = f"""SELECT DISTINCT maj.major AS major
-        FROM {student_schema()}.student_academic_status sas
-        JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.hist_enr IS FALSE
         ORDER BY major"""
     return safe_execute_rds(sql)
 
 
 def get_minors():
     sql = f"""SELECT DISTINCT min.minor AS minor
-        FROM {student_schema()}.student_academic_status sas
-        JOIN {student_schema()}.minors min ON min.sid = sas.sid
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.minors min ON min.sid = spi.sid AND spi.hist_enr IS FALSE
         ORDER BY minor"""
     return safe_execute_rds(sql)
 
@@ -987,7 +975,7 @@ def get_students_query(     # noqa
     if not query_tables:
         return None, None, None
 
-    query_filter = ' WHERE true'
+    query_filter = ' WHERE spi.hist_enr IS FALSE'
     query_bindings = {}
 
     # Name or SID search
@@ -995,7 +983,7 @@ def get_students_query(     # noqa
         words = list(set(search_phrase.upper().split()))
         # A numeric string indicates an SID search.
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
-            query_filter += ' AND (sas.sid LIKE :sid_phrase)'
+            query_filter += ' AND (spi.sid LIKE :sid_phrase)'
             query_bindings.update({'sid_phrase': f'{words[0]}%'})
         # If a single word, search on both name and email.
         elif len(words) == 1:
@@ -1004,8 +992,8 @@ def get_students_query(     # noqa
             query_tables += f"""
                 LEFT JOIN {student_schema()}.student_names n
                         ON n.name LIKE :name_string
-                        AND n.sid = sas.sid"""
-            query_filter += ' AND (sas.email_address LIKE :email_string OR n.name IS NOT NULL)'
+                        AND n.sid = spi.sid"""
+            query_filter += ' AND (spi.email_address LIKE :email_string OR n.name IS NOT NULL)'
             query_bindings.update({'email_string': f'{email_string}%', 'name_string': f'{name_string}%'})
         # If multiple words, search name only.
         else:
@@ -1013,26 +1001,26 @@ def get_students_query(     # noqa
                 query_tables += f"""
                     JOIN {student_schema()}.student_names n{i}
                         ON n{i}.name LIKE :name_phrase_{i}
-                        AND n{i}.sid = sas.sid"""
+                        AND n{i}.sid = spi.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
     if academic_standings:
-        query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = sas.sid"""
+        query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = spi.sid"""
     if ethnicities:
-        query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = sas.sid"""
+        query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = spi.sid"""
     if genders or underrepresented is not None:
-        query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = sas.sid"""
+        query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = spi.sid"""
     if visa_types:
-        query_tables += f""" JOIN {student_schema()}.visas v ON v.sid = sas.sid"""
+        query_tables += f""" JOIN {student_schema()}.visas v ON v.sid = spi.sid"""
     if sids:
-        query_filter += ' AND sas.sid = ANY(:sids)'
+        query_filter += ' AND spi.sid = ANY(:sids)'
         query_bindings.update({'sids': sids})
     if curated_group_ids:
         results = db.session.execute(
             'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
             {'curated_group_ids': curated_group_ids},
         )
-        query_filter += ' AND sas.sid = ANY(:sids_of_curated_groups)'
+        query_filter += ' AND spi.sid = ANY(:sids_of_curated_groups)'
         query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
 
     # Generic SIS criteria
@@ -1049,22 +1037,22 @@ def get_students_query(     # noqa
         query_filter += ')'
     if gpa_ranges:
         sql_ready_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in gpa_ranges]
-        query_filter += _number_ranges_to_sql('sas.gpa', sql_ready_gpa_ranges)
+        query_filter += _number_ranges_to_sql('spi.gpa', sql_ready_gpa_ranges)
     if last_term_gpa_ranges:
         sql_ready_term_gpa_ranges = [f"numrange({gpa_range['min']}, {gpa_range['max']}, '[]')" for gpa_range in last_term_gpa_ranges]
         query_filter += _number_ranges_to_sql('previous_term.term_gpa', sql_ready_term_gpa_ranges)
         query_tables += f"""
             JOIN {student_schema()}.student_enrollment_terms previous_term
-            ON previous_term.sid = sas.sid AND previous_term.term_id = :previous_term_id"""
+            ON previous_term.sid = spi.sid AND previous_term.term_id = :previous_term_id"""
         query_bindings.update({'previous_term_id': previous_term_id(current_term_id)})
-    query_filter += _number_ranges_to_sql('sas.units', unit_ranges) if unit_ranges else ''
+    query_filter += _number_ranges_to_sql('spi.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
         query_filter += _last_name_ranges_to_sql(last_name_ranges)
     if entering_terms:
-        query_filter += ' AND sas.entering_term = ANY(:entering_terms)'
+        query_filter += ' AND spi.entering_term = ANY(:entering_terms)'
         query_bindings.update({'entering_terms': entering_terms})
     if epn_cpn_grading_terms:
-        query_tables += ' JOIN student.student_enrollment_terms enr ON enr.sid=sas.sid '
+        query_tables += ' JOIN student.student_enrollment_terms enr ON enr.sid=spi.sid '
         query_filter += ' AND enr.epn_grading_option IS TRUE'
         query_filter += ' AND enr.term_id = ANY(:epn_cpn_grading_terms)'
         query_bindings.update({'epn_cpn_grading_terms': epn_cpn_grading_terms})
@@ -1072,7 +1060,7 @@ def get_students_query(     # noqa
         query_filter += ' AND e.ethnicity = ANY(:ethnicities)'
         query_bindings.update({'ethnicities': ethnicities})
     if expected_grad_terms:
-        query_filter += ' AND sas.expected_grad_term = ANY(:expected_grad_terms)'
+        query_filter += ' AND spi.expected_grad_term = ANY(:expected_grad_terms)'
         query_bindings.update({'expected_grad_terms': expected_grad_terms})
     if underrepresented is not None:
         query_filter += ' AND d.minority IS :underrepresented'
@@ -1081,10 +1069,10 @@ def get_students_query(     # noqa
         query_filter += ' AND d.gender = ANY(:genders)'
         query_bindings.update({'genders': genders})
     if levels:
-        query_filter += ' AND sas.level = ANY(:levels)'
+        query_filter += ' AND spi.level = ANY(:levels)'
         query_bindings.update({'levels': [_level_to_code(level) for level in levels]})
     if intended_majors:
-        query_tables += f""" JOIN {student_schema()}.intended_majors i ON i.sid = sas.sid"""
+        query_tables += f""" JOIN {student_schema()}.intended_majors i ON i.sid = spi.sid"""
         query_filter += ' AND i.major = ANY(:intended_majors)'
         query_bindings.update({'intended_majors': intended_majors})
     if colleges:
@@ -1105,21 +1093,21 @@ def get_students_query(     # noqa
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_bindings.update({'majors': _majors})
     if majors or colleges:
-        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = sas.sid'
+        query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid'
     if midpoint_deficient_grade is True:
         query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
-                             ON ser.sid = sas.sid
+                             ON ser.sid = spi.sid
                              AND ser.term_id = :term_id
                              AND ser.midpoint_deficient_grade = TRUE"""
         query_bindings.update({'term_id': current_term_id})
     if minors:
-        query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = sas.sid'
+        query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += ' AND min.minor = ANY(:minors)'
         query_bindings.update({'minors': minors})
     if student_holds is True:
-        query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = sas.sid'
+        query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = spi.sid'
     if transfer is True:
-        query_filter += ' AND sas.transfer = TRUE'
+        query_filter += ' AND spi.transfer = TRUE'
     if advisor_plan_mappings:
         advisor_plan_filters = []
         for idx, mapping in enumerate(advisor_plan_mappings):
@@ -1133,7 +1121,7 @@ def get_students_query(     # noqa
                 advisor_plan_filters.append(
                     f'(advs.advisor_sid = :advisor_sid_{idx} AND advs.academic_plan_code = :academic_plan_code_{idx})',
                 )
-        query_tables += f""" JOIN {advisor_schema()}.advisor_students advs ON advs.student_sid = sas.sid"""
+        query_tables += f""" JOIN {advisor_schema()}.advisor_students advs ON advs.student_sid = spi.sid"""
         query_tables += ' AND (' + ' OR '.join(advisor_plan_filters) + ')'
     if visa_types:
         if '*' in visa_types:
@@ -1180,15 +1168,15 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         order_by, o_direction = order_by.rsplit(' ', 1)
     supplemental_query_tables = None
     # Case-insensitive sort of first_name and last_name.
-    by_first_name = _naturalize_order('sas.first_name')
-    by_last_name = _naturalize_order('sas.last_name')
+    by_first_name = _naturalize_order('spi.first_name')
+    by_last_name = _naturalize_order('spi.last_name')
     o = by_last_name
     if order_by == 'in_intensive_cohort':
         o = 's.intensive'
     elif order_by in ['first_name', 'last_name']:
-        o = _naturalize_order(f'sas.{order_by}')
+        o = _naturalize_order(f'spi.{order_by}')
     elif order_by in ['entering_term', 'gpa', 'units', 'level', 'terms_in_attendance']:
-        o = f'sas.{order_by}'
+        o = f'spi.{order_by}'
     elif order_by == 'group_name':
         # Sorting by athletic team introduces a couple of onerous special cases where we
         # have to do an extra join on the athletics table.
@@ -1201,7 +1189,7 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         # Why not do this complex sorting after the query? Because correctly calculating
         # pagination offsets requires filtering and ordering to be done at the SQL level.
         if group_codes or (scope and asc_schema() not in _student_query_tables_for_scope(scope)):
-            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students asc_students ON asc_students.sid = sas.sid'
+            supplemental_query_tables = f' LEFT JOIN {asc_schema()}.students asc_students ON asc_students.sid = spi.sid'
             o = _naturalize_order('asc_students.group_name')
         else:
             o = _naturalize_order('s.group_name')
@@ -1209,25 +1197,25 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
         # Majors, like group names, require extra handling in the special case where they are both filter
         # criteria and ordering criteria.
         if majors:
-            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = sas.sid'
+            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors maj2 ON maj2.sid = spi.sid'
             o = _naturalize_order('maj2.major')
         else:
-            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = sas.sid'
+            supplemental_query_tables = f' LEFT JOIN {student_schema()}.student_majors m ON m.sid = spi.sid'
             o = _naturalize_order('m.major')
     elif order_by == 'enrolled_units':
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = sas.sid AND set.term_id = '{current_term_id}'"""
+            ON set.sid = spi.sid AND set.term_id = '{current_term_id}'"""
         o = 'set.enrolled_units'
     elif order_by and order_by.startswith('term_gpa_'):
         gpa_term_id = order_by.replace('term_gpa_', '')
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = sas.sid AND set.term_id = '{gpa_term_id}'"""
+            ON set.sid = spi.sid AND set.term_id = '{gpa_term_id}'"""
         o = 'set.term_gpa'
     o_secondary = by_first_name if order_by == 'last_name' else by_last_name
     diff = {by_first_name, by_last_name} - {o, o_secondary}
-    o_tertiary = diff.pop() if diff else 'sas.sid'
+    o_tertiary = diff.pop() if diff else 'spi.sid'
     return o, o_secondary, o_tertiary, o_direction, supplemental_query_tables
 
 
@@ -1380,12 +1368,12 @@ def _last_name_ranges_to_sql(last_name_ranges):
             range_min = last_name_range['min'].upper()
             range_max = last_name_range['max'].upper()
             if range_max == range_min:
-                query_filter += f'(sas.last_name ILIKE \'{range_min}%\')'
+                query_filter += f'(spi.last_name ILIKE \'{range_min}%\')'
             else:
-                query_filter += f'(UPPER(SUBSTRING(sas.last_name, 0, {len(range_min) + 1})) >= \'{range_min}\''
+                query_filter += f'(UPPER(SUBSTRING(spi.last_name, 0, {len(range_min) + 1})) >= \'{range_min}\''
                 if range_max < 'ZZ':
                     # If 'stop' were 'ZZ' then upper bound would not be necessary
-                    query_filter += f' AND UPPER(SUBSTRING(sas.last_name, 0, {len(range_max) + 1})) <= \'{range_max}\''
+                    query_filter += f' AND UPPER(SUBSTRING(spi.last_name, 0, {len(range_max) + 1})) <= \'{range_max}\''
                 query_filter += ')'
             if idx < count - 1:
                 query_filter += ' OR '
@@ -1397,7 +1385,7 @@ def _student_query_tables_for_scope(scope):
     if not scope:
         return None
     elif 'ADMIN' in scope:
-        table_sql = f"""FROM {student_schema()}.student_academic_status sas"""
+        table_sql = f"""FROM {student_schema()}.student_profile_index spi"""
     else:
         schemas_for_codes = {
             'UWASC': asc_schema(),
@@ -1421,11 +1409,11 @@ def _student_query_tables_for_scope(scope):
         elif len(tables) == 1:
             # If we are pulling from a single schema, include all schema-specific columns.
             table_sql = f"""FROM {tables[0]} s
-                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
         elif join_type == 'union':
             # In a union of multiple schemas, SID will be the only common element.
             table_sql = f"""FROM ({' UNION '.join(['SELECT sid FROM ' + t for t in tables])}) s
-                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
         elif join_type == 'intersection':
             # In an intersection of multiple schemas, all queryable columns should be returned.
             columns_for_codes = {
@@ -1455,5 +1443,5 @@ def _student_query_tables_for_scope(scope):
             for table in tables[1:]:
                 intersection_sql += f' INNER JOIN {table} ON {table}.sid = {tables[0]}.sid'
             table_sql = f"""FROM ({intersection_sql}) s
-                JOIN {student_schema()}.student_academic_status sas ON sas.sid = s.sid"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
     return table_sql

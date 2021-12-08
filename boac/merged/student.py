@@ -474,7 +474,7 @@ def query_students(
             'students': [],
             'totalStudentCount': 0,
         }    # First, get total_count of matching students
-    sids_result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    sids_result = data_loch.safe_execute_rds(f'SELECT DISTINCT(spi.sid) {query_tables} {query_filter}', **query_bindings)
     if sids_result is None:
         return None
     # Upstream logic may require the full list of SIDs even if we're only returning full results for a particular
@@ -497,13 +497,13 @@ def query_students(
         nulls_last = ('entering_term', 'group_name', 'term_gpa', 'terms_in_attendance', 'units')
         o_null_order = 'NULLS LAST' if any(s in o for s in nulls_last) else 'NULLS FIRST'
         sql = f"""SELECT
-            sas.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
+            spi.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})
             {query_tables}
             {query_filter}
-            GROUP BY sas.sid
+            GROUP BY spi.sid
             ORDER BY MIN({o}) {o_direction} {o_null_order}, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
-        if o_tertiary != 'sas.sid':
-            sql += ', sas.sid'
+        if o_tertiary != 'spi.sid':
+            sql += ', spi.sid'
         sql += ' OFFSET :offset'
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
@@ -539,7 +539,7 @@ def search_for_students(
     if supplemental_query_tables:
         query_tables += supplemental_query_tables
     benchmark('begin SID query')
-    result = data_loch.safe_execute_rds(f'SELECT DISTINCT(sas.sid) {query_tables} {query_filter}', **query_bindings)
+    result = data_loch.safe_execute_rds(f'SELECT DISTINCT(spi.sid) {query_tables} {query_filter}', **query_bindings)
     benchmark('end SID query')
     total_student_count = len(result)
 
@@ -548,13 +548,13 @@ def search_for_students(
         return search_for_student_historical(search_phrase)
 
     sql = f"""SELECT
-        sas.sid
+        spi.sid
         {query_tables}
         {query_filter}
-        GROUP BY sas.sid
+        GROUP BY spi.sid
         ORDER BY MIN({o}) {o_direction} NULLS FIRST, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
-    if o_tertiary != 'sas.sid':
-        sql += ', sas.sid'
+    if o_tertiary != 'spi.sid':
+        sql += ', spi.sid'
     sql += f' OFFSET {offset}'
     if limit and limit < 100:  # Sanity check large limits
         sql += ' LIMIT :limit'
