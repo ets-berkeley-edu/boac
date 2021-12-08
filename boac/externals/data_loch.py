@@ -1277,32 +1277,14 @@ def get_admitted_students_query(
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
             query_filter += ' AND (sa.cs_empl_id LIKE :sid_phrase)'
             query_bindings.update({'sid_phrase': f'{words[0]}%'})
-            temp_table = ''
         else:
             for i, word in enumerate(words):
                 query_tables += f"""
-                    JOIN admit_names n{i}
+                    JOIN {oua_schema()}.student_admit_names n{i}
                         ON n{i}.name LIKE :name_phrase_{i}
-                        AND n{i}.cs_empl_id = sa.cs_empl_id"""
+                        AND n{i}.sid = sa.cs_empl_id"""
                 word = ''.join(re.split(r'\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
-            temp_table = f"""WITH admit_names AS (
-                SELECT DISTINCT cs_empl_id, unnest(string_to_array(
-                regexp_replace(upper(first_name), '[^\w ]', '', 'g'),
-                ' '
-                )) AS name FROM {oua_schema()}.student_admits
-                UNION
-                SELECT DISTINCT cs_empl_id, unnest(string_to_array(
-                    regexp_replace(upper(middle_name), '[^\w ]', '', 'g'),
-                    ' '
-                )) AS name FROM {oua_schema()}.student_admits
-                UNION
-                SELECT DISTINCT cs_empl_id, unnest(string_to_array(
-                    regexp_replace(upper(last_name), '[^\w ]', '', 'g'),
-                    ' '
-                )) AS name FROM {oua_schema()}.student_admits
-            )"""
-        return query_tables, query_filter, query_bindings, temp_table
     return query_tables, query_filter, query_bindings
 
 
