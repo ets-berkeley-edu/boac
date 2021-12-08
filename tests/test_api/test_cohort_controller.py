@@ -60,11 +60,6 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
-def coe_scheduler_login(fake_auth):
-    fake_auth.login(coe_scheduler_uid)
-
-
-@pytest.fixture()
 def asc_and_coe_advisor_login(fake_auth):
     fake_auth.login(asc_and_coe_advisor_uid)
 
@@ -77,16 +72,6 @@ def guest_user_login(fake_auth):
 @pytest.fixture()
 def no_canvas_access_advisor_login(fake_auth):
     fake_auth.login('1')
-
-
-@pytest.fixture()
-def zzzzz_user_login(fake_auth):
-    fake_auth.login(zzzzz_user_uid)
-
-
-@pytest.fixture()
-def ce3_user_login(fake_auth):
-    fake_auth.login(ce3_advisor_uid)
 
 
 @pytest.fixture()
@@ -122,53 +107,7 @@ def new_undeclared_cohort(client):
     return response.json
 
 
-class TestMyCohorts:
-    """My Cohorts API."""
-
-    @classmethod
-    def _api_my_cohorts(cls, client, domain='default', expected_status_code=200):
-        response = client.get(f'/api/cohorts/my?domain={domain}')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_my_cohorts_not_authenticated(self, client):
-        """Rejects anonymous user."""
-        self._api_my_cohorts(client, expected_status_code=401)
-
-    def test_scheduler_role_is_unauthorized(self, coe_scheduler_login, client):
-        """Rejects COE scheduler user."""
-        self._api_my_cohorts(client, expected_status_code=401)
-
-    def test_my_cohorts(self, coe_advisor_login, client):
-        """Returns cohorts of COE advisor."""
-        cohorts = self._api_my_cohorts(client)
-        assert len(cohorts) == 2
-        for key in 'name', 'alertCount', 'criteria', 'totalStudentCount', 'isOwnedByCurrentUser':
-            assert key in cohorts[0], f'Missing cohort element: {key}'
-
-    def test_feature_flag_false_for_admitted_students_domain(self, ce3_user_login, client):
-        """Returns 404 if feature flag is false and domain is 'admitted_students'."""
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
-            self._api_my_cohorts(client, domain='admitted_students', expected_status_code=404)
-
-    def test_cohorts_all_for_ce3(self, ce3_user_login, client):
-        """Returns all standard cohorts for CE3 advisor."""
-        cohorts = self._api_my_cohorts(client)
-        count = len(cohorts)
-        assert count == 1
-        assert cohorts[0]['name'] == 'Undeclared students'
-
-    def test_admitted_students_cohorts_all_for_ce3(self, ce3_user_login, client):
-        """Returns all standard cohorts for CE3 advisor."""
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
-            cohorts = self._api_my_cohorts(client, domain='admitted_students')
-            count = len(cohorts)
-            assert count == 1
-            assert cohorts[0]['name'] == 'First Generation Students'
-
-
 class TestCohortById:
-    """Cohort API."""
 
     def test_students_with_alert_counts(self, asc_advisor_login, client, create_alerts, db_session):
         """Pre-load students into cache for consistent alert data."""
@@ -569,9 +508,10 @@ class TestCohortsEveryone:
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             self._api_cohorts_all(client, domain='admitted_students', expected_status_code=403)
 
-    def test_admitted_students_feature_flag(self, ce3_user_login, client):
+    def test_admitted_students_feature_flag(self, client, fake_auth):
         """Deny non-CE3 advisor access to non-default cohort domain."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            fake_auth.login(ce3_advisor_uid)
             self._api_cohorts_all(client, domain='admitted_students', expected_status_code=404)
 
     def test_cohorts_all(self, asc_advisor_login, client):
@@ -593,33 +533,35 @@ class TestCohortsEveryone:
                     assert cohort['name'] > cohorts[c_index - 1]['name']
                 assert 'id' in cohort
 
-    def test_all_cohorts_of_default_domain(self, ce3_user_login, client):
+    def test_all_cohorts_of_default_domain(self, client, fake_auth):
         """Returns all cohorts, excluding admitted students."""
+        fake_auth.login(ce3_advisor_uid)
         api_json = self._api_cohorts_all(client)
         for row in api_json:
             for cohort in row['cohorts']:
                 assert cohort['domain'] == 'default'
                 assert cohort['name'] != 'First Generation Students'
 
-    def test_all_admitted_students_cohorts(self, ce3_user_login, client):
+    def test_all_admitted_students_cohorts(self, client, fake_auth):
         """Returns all cohorts, excluding admitted students."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
             api_json = self._api_cohorts_all(client, domain='admitted_students')
             for row in api_json:
                 for cohort in row['cohorts']:
                     assert cohort['domain'] == 'admitted_students'
                     assert cohort['name'] != 'Undeclared students'
 
-    def test_history_not_available_when_admitted_students_domain(self, ce3_user_login, client):
+    def test_history_not_available_when_admitted_students_domain(self, client, fake_auth):
         """The cohort history feature is not available if domain is 'admitted_students'."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
             api_json = self._api_cohorts_all(client, domain='admitted_students')
             cohorts = next(row['cohorts'] for row in api_json if len(row['cohorts']))
             api_cohort_events(client, cohorts[0]['id'], expected_status_code=400)
 
 
 class TestCohortCreate:
-    """Cohort Create API."""
 
     def test_create_cohort(self, client, asc_advisor_login):
         """Creates custom cohort, owned by current user."""
@@ -653,8 +595,9 @@ class TestCohortCreate:
         assert cohort_id
         _verify(api_cohort_get(client, cohort_id))
 
-    def test_scheduler_role_is_forbidden(self, coe_scheduler_login, client):
+    def test_scheduler_role_is_forbidden(self, client, fake_auth):
         """Rejects COE scheduler user."""
+        fake_auth.login(coe_scheduler_uid)
         data = {
             'name': 'COE scheduler cannot create cohorts',
             'filters': [
@@ -799,7 +742,6 @@ class TestCohortCreate:
 
 
 class TestCohortUpdate:
-    """Cohort Update API."""
 
     @classmethod
     def _post_cohort_update(cls, client, json_data=()):
@@ -925,7 +867,6 @@ class TestCohortUpdate:
 
 
 class TestCohortDelete:
-    """Cohort Delete API."""
 
     def test_delete_cohort_not_authenticated(self, client):
         """Custom cohort deletion requires authentication."""
@@ -1339,7 +1280,6 @@ class TestDownloadCohortCsv:
 
 
 class TestDownloadCsvPerFilters:
-    """Download Cohort CSV API."""
 
     @classmethod
     def _api_download_csv_per_filters(cls, client, json_data=(), expected_status_code=200):
@@ -1534,8 +1474,9 @@ class TestDownloadCsvPerFilters:
         assert response.status_code == expected_status_code
         return response
 
-    def test_download_csv_admit_domain(self, client, ce3_user_login):
+    def test_download_csv_admit_domain(self, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
             response = self._api_download_admit_csv(client)
             assert 'csv' in response.content_type
             csv = str(response.data)
@@ -1558,13 +1499,13 @@ class TestDownloadCsvPerFilters:
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             self._api_download_admit_csv(client, 403)
 
-    def test_admit_domain_respects_feature_flag(self, client, ce3_user_login):
-        assert app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] is False
-        self._api_download_admit_csv(client, 404)
+    def test_admit_domain_respects_feature_flag(self, client, fake_auth):
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            fake_auth.login(ce3_advisor_uid)
+            self._api_download_admit_csv(client, 404)
 
 
 class TestCohortFilterOptions:
-    """Cohort Filter Options API."""
 
     @classmethod
     def _api_cohort_filter_options(cls, client, json_data=(), owner='me', expected_status_code=200):
@@ -1596,8 +1537,9 @@ class TestCohortFilterOptions:
         assert len(api_json)
         assert 'options' in list(api_json.values())[0][0]
 
-    def test_filter_options_for_user_of_type_other(self, client, zzzzz_user_login):
+    def test_filter_options_for_user_of_type_other(self, client, fake_auth):
         """Filter options available to ZZZZZ user."""
+        fake_auth.login(zzzzz_user_uid)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         assert len(api_json)
         assert 'options' in list(api_json.values())[0][0]
@@ -1743,16 +1685,17 @@ class TestCohortFilterOptions:
                     verified = True
         assert verified
 
-    def test_404_when_feature_flag_is_false(self, client, ce3_user_login):
-        assert app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] is False
-        self._api_cohort_filter_options(
-            client,
-            {
-                'domain': 'admitted_students',
-                'existingFilters': [],
-            },
-            expected_status_code=404,
-        )
+    def test_404_when_feature_flag_is_false(self, client, fake_auth):
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            fake_auth.login(ce3_advisor_uid)
+            self._api_cohort_filter_options(
+                client,
+                {
+                    'domain': 'admitted_students',
+                    'existingFilters': [],
+                },
+                expected_status_code=404,
+            )
 
     def test_invalid_domain_value(self, client, guest_user_login):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
@@ -1776,8 +1719,9 @@ class TestCohortFilterOptions:
                 expected_status_code=403,
             )
 
-    def test_admitted_students_domain(self, client, ce3_user_login):
+    def test_admitted_students_domain(self, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
             api_json = self._api_cohort_filter_options(
                 client,
                 {
@@ -1794,7 +1738,6 @@ class TestCohortFilterOptions:
 
 
 class TestTranslateToFilterOptions:
-    """Cohort Filter Options API."""
 
     @classmethod
     def _api_translate_to_filter_options(cls, client, json_data=(), owner='me', expected_status_code=200):

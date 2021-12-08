@@ -1,12 +1,12 @@
 import _ from 'lodash'
-import store from '@/store'
 import {addStudents, getCuratedGroup, removeFromCuratedGroup, renameCuratedGroup} from '@/api/curated'
+import Vue from 'vue'
 
 const $_goToPage = ({commit, state}, pageNumber: number) => {
   return new Promise(resolve => {
     commit('setPageNumber', pageNumber)
-    const preferences = store.getters['currentUserExtras/preferences']
     const offset = _.multiply(pageNumber - 1, state.itemsPerPage)
+    const preferences = Vue.prototype.$currentUser.preferences
     getCuratedGroup(state.curatedGroupId, preferences.sortBy, preferences.termId, offset, state.itemsPerPage).then(group => {
       if (group) {
         commit('setCuratedGroupName', group.name)

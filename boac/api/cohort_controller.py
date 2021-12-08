@@ -41,19 +41,6 @@ from flask import current_app as app, request
 from flask_login import current_user
 
 
-@app.route('/api/cohorts/my')
-@advisor_required
-def my_cohorts():
-    domain = get_param(request.args, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    cohorts = []
-    for cohort in CohortFilter.get_cohorts_of_user_id(current_user.get_id(), domain=domain):
-        cohort['isOwnedByCurrentUser'] = True
-        cohorts.append(cohort)
-    return tolerant_jsonify(cohorts)
-
-
 @app.route('/api/cohorts/all')
 @advisor_required
 def all_cohorts():

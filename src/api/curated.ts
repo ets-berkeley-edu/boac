@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import axios from 'axios'
 import moment from 'moment-timezone'
 import store from '@/store'
@@ -15,7 +14,6 @@ export function addStudents(curatedGroupId: number, sids: string[], returnStuden
     .then(response => {
       const group = response.data
       store.commit('currentUserExtras/curatedGroupUpdated', group)
-      store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop)
       return group
     })
 }
@@ -42,7 +40,6 @@ export function deleteCuratedGroup(id) {
     })
     .then(() => {
       store.commit('currentUserExtras/curatedGroupDeleted', id)
-      store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop)
     })
     .then(() => Vue.prototype.$ga.curatedEvent(id, null, 'delete'))
     .catch(error => error)
@@ -93,10 +90,6 @@ export function removeFromCuratedGroup(groupId, sid) {
     .then(response => {
       const group = response.data
       store.commit('currentUserExtras/curatedGroupUpdated', group)
-      store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop)
-      return group
-    })
-    .then(group => {
       Vue.prototype.$ga.curatedEvent(group.id, group.name, 'remove_student')
       return group
     })
@@ -108,9 +101,6 @@ export function renameCuratedGroup(id, name) {
     .then(response => {
       const group = response.data
       store.commit('currentUserExtras/curatedGroupUpdated', group)
-      return group
-    })
-    .then(group => {
       Vue.prototype.$ga.curatedEvent(group.id, group.name, 'rename')
       return group
     })

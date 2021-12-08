@@ -87,7 +87,7 @@ export default {
   created() {
     this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
     // TODO: do not mutate prop
-    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.myCohorts // eslint-disable-line vue/no-mutating-props
+    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.$currentUser.myCohorts // eslint-disable-line vue/no-mutating-props
     this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {

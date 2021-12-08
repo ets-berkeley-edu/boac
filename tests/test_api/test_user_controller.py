@@ -36,6 +36,7 @@ from tests.util import override_config
 
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
+ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 coe_scheduler_uid = '6972201'
@@ -148,6 +149,47 @@ class TestUserProfile:
         fake_auth.login(admin_uid)
         response = client.get('/api/profile/2549')
         assert response.status_code == 404
+
+
+class TestMyCohorts:
+
+    @classmethod
+    def _api_my_profile(cls, client, expected_status_code=200):
+        response = client.get('/api/profile/my')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_my_cohorts(self, client, fake_auth):
+        """Returns cohorts of COE advisor."""
+        fake_auth.login(coe_advisor_uid)
+        cohorts = self._api_my_profile(client)['myCohorts']
+        for key in 'name', 'alertCount', 'criteria', 'totalStudentCount', 'isOwnedByCurrentUser':
+            assert key in cohorts[0], f'Missing cohort element: {key}'
+
+    def test_feature_flag_false_for_admitted_students_domain(self, client, fake_auth):
+        """No 'admitted_students' cohorts if feature flag is false."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
+            fake_auth.login(ce3_advisor_uid)
+            cohorts = self._api_my_profile(client)['myCohorts']
+            assert not [c for c in cohorts if c['domain'] == 'admitted_students']
+
+    def test_cohorts_all_for_ce3(self, client, fake_auth):
+        """Returns all standard cohorts for CE3 advisor."""
+        fake_auth.login(ce3_advisor_uid)
+        cohorts = self._api_my_profile(client)['myCohorts']
+        count = len(cohorts)
+        assert count == 1
+        assert cohorts[0]['name'] == 'Undeclared students'
+
+    def test_admitted_students_cohorts_all_for_ce3(self, client, fake_auth):
+        """Returns all standard cohorts for CE3 advisor."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
+            cohorts = self._api_my_profile(client)['myCohorts']
+            cohorts = [c for c in cohorts if c['domain'] == 'admitted_students']
+            count = len(cohorts)
+            assert count == 1
+            assert cohorts[0]['name'] == 'First Generation Students'
 
 
 class TestCalnetProfileByUid:

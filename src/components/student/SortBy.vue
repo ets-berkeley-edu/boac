@@ -53,7 +53,6 @@
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
-import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
@@ -76,7 +75,7 @@ export default {
     this.optionGroups = this.getSortByOptionGroups(this.domain)
     this.sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     this.$eventHub.on(`${this.sortByKey}-user-preference-change`, v => this.sortBy = v)
-    this.sortBy = this.$_.get(this.preferences, this.sortByKey)
+    this.sortBy = this.$_.get(this.$currentUser.preferences, this.sortByKey)
     this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
     this.isReady = true
   },
@@ -154,14 +153,11 @@ export default {
       return label
     },
     onSelect(value) {
-      if (value !== this.$_.get(this.preferences, this.sortByKey)) {
+      if (value !== this.$_.get(this.$currentUser.preferences, this.sortByKey)) {
         this.sortBy = value
         this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
         this.alertScreenReader(`${this.dropdownLabel} selected`)
-        store.commit('currentUserExtras/setUserPreference', {
-          key: this.sortByKey,
-          value: this.sortBy
-        })
+        this.$currentUser.preferences.sortByKey = this.sortBy
       }
     }
   }

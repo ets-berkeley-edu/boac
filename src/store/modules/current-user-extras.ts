@@ -1,52 +1,21 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import {getMyCohorts} from '@/api/cohort'
 import {getMyCuratedGroups} from '@/api/curated'
 
 const state = {
-  includeAdmits: false,
-  myAdmitCohorts: undefined,
-  myCohorts: undefined,
-  myCuratedGroups: undefined,
-  preferences: {
-    admitSortBy: 'last_name',
-    sortBy: 'last_name',
-    termId: undefined
-  }
+  myAdmitCuratedGroups: undefined,
+  myCuratedGroups: undefined
 }
 
 const getters = {
-  includeAdmits: (state: any): any => state.includeAdmits,
-  myAdmitCohorts: (state: any): any => state.myAdmitCohorts,
-  myCohorts: (state: any): any => state.myCohorts,
-  myCuratedGroups: (state: any): any => state.myCuratedGroups,
-  preferences: (state: any): any => state.preferences
+  myAdmitCuratedGroups: (state: any): any => state.myAdmitCuratedGroups,
+  myCuratedGroups: (state: any): any => state.myCuratedGroups
 }
 
 const mutations = {
-  cohortCreated: (state: any, cohort: any) => {
-    const cohorts = cohort.domain === 'admitted_students' ? state.myAdmitCohorts : state.myCohorts
-    cohorts.push(cohort)
-  },
-  cohortDeleted: (state: any, id: any) => {
-    const removeFromList = cohorts => {
-      const indexOf = cohorts.findIndex(cohort => cohort.id === id)
-      if (indexOf > -1) {
-        cohorts.splice(indexOf, 1)
-        return true
-      }
-    }
-    if (!removeFromList(state.myCohorts)) {
-      removeFromList(state.myAdmitCohorts)
-    }
-  },
-  cohortUpdated: (state: any, updatedCohort: any) => {
-    const cohorts = state.myCohorts.concat(state.myAdmitCohorts)
-    const cohort = cohorts.find(cohort => cohort.id === +updatedCohort.id)
-    Object.assign(cohort, updatedCohort)
-  },
   curatedGroupCreated: (state: any, group: any) => {
-    state.myCuratedGroups.push(group)
+    const groups = group.domain === 'admitted_students' ? state.myAdmitCuratedGroups : state.myCuratedGroups
+    groups.push(group)
     Vue.prototype.$eventHub.emit('my-curated-groups-updated')
   },
   curatedGroupDeleted: (state: any, id: any) => {
@@ -65,9 +34,10 @@ const mutations = {
     Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, dropInAdvisor)
   },
   dropInAdvisorDeleted: (state: any, deptCode: string) => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}),
-  loadMyCohorts: (state: any, cohorts: any[]) => state.myCohorts = cohorts,
-  loadMyAdmitCohorts: (state: any, cohorts: any[]) => state.myAdmitCohorts = cohorts,
-  loadMyCuratedGroups: (state: any, curatedGroups: any) => state.myCuratedGroups = curatedGroups,
+  loadMyCuratedGroups: (state: any, curatedGroups: any) => {
+    state.myCuratedGroups = _.filter(curatedGroups, c => c['domain'] === 'default')
+    state.myAdmitCuratedGroups = _.filter(curatedGroups, c => c['domain'] === 'admitted_students')
+  },
   setDropInStatus: (state: any, {deptCode, available, status}) => {
     const currentUser = Vue.prototype.$currentUser
     const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()})
@@ -76,25 +46,10 @@ const mutations = {
       dropInAdvisorStatus.status = status
       Vue.prototype.$eventHub.emit('drop-in-status-change', dropInAdvisorStatus)
     }
-  },
-  setIncludeAdmits: (state: any, includeAdmits: Boolean) => state.includeAdmits = includeAdmits,
-  setUserPreference: (state: any, {key, value}) => {
-    if (_.has(state.preferences, key)) {
-      state.preferences[key] = value
-      Vue.prototype.$eventHub.emit(`${key}-user-preference-change`, value)
-    } else {
-      throw new TypeError('Invalid user preference type: ' + key)
-    }
   }
 }
 
 const actions = {
-  async loadMyCohorts({commit, state}) {
-    getMyCohorts('default').then(cohorts => commit('loadMyCohorts', cohorts))
-    if (state.includeAdmits) {
-      getMyCohorts('admitted_students').then(cohorts => commit('loadMyAdmitCohorts', cohorts))
-    }
-  },
   async loadMyCuratedGroups({commit}) {
     getMyCuratedGroups().then(curatedGroups => commit('loadMyCuratedGroups', curatedGroups))
   }

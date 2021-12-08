@@ -7,11 +7,7 @@ export default {
   mixins: [Berkeley],
   computed: {
     ...mapGetters('currentUserExtras', [
-      'includeAdmits',
-      'myAdmitCohorts',
-      'myCohorts',
       'myCuratedGroups',
-      'preferences'
     ])
   },
   methods: {

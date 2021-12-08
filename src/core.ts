@@ -10,11 +10,6 @@ export default {
     const user = Vue.prototype.$currentUser
     if (user.isAuthenticated) {
       if (auth.isAdvisor(user) || auth.isDirector(user) || user.isAdmin) {
-        const includeAdmits = Vue.prototype.$config.featureFlagAdmittedStudents && (
-          user.isAdmin || auth.isCE3(user)
-        )
-        store.commit('currentUserExtras/setIncludeAdmits', includeAdmits)
-        store.dispatch('currentUserExtras/loadMyCohorts').then(_.noop)
         store.dispatch('currentUserExtras/loadMyCuratedGroups').then(_.noop)
       }
       bootstrap().then(() => {

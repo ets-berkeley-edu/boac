@@ -1,5 +1,5 @@
 <template>
-  <div v-if="myCohorts">
+  <div v-if="cohorts">
     <div class="d-flex justify-content-between mb-1 sidebar-row-link">
       <div class="ml-2 sidebar-header">
         Cohorts
@@ -16,7 +16,7 @@
       </div>
     </div>
     <div
-      v-for="cohort in myCohorts"
+      v-for="cohort in cohorts"
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
@@ -48,6 +48,12 @@ import Util from '@/mixins/Util'
 export default {
   name: 'Cohorts',
   components: {NavLink},
-  mixins: [CurrentUserExtras, Util]
+  mixins: [CurrentUserExtras, Util],
+  props: {
+    cohorts: {
+      type: Array,
+      required: true
+    }
+  }
 }
 </script>
