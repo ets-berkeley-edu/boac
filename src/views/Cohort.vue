@@ -64,8 +64,8 @@
                   :key="student.sid"
                   :row-index="index"
                   :student="student"
-                  :sorted-by="preferences.sortBy"
-                  :term-id="preferences.termId"
+                  :sorted-by="$currentUser.preferences.sortBy"
+                  :term-id="$currentUser.preferences.termId"
                   :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                   list-type="cohort"
                   class="border-right-0 list-group-item border-left-0 pl-0"
@@ -92,7 +92,7 @@
                     :id="`admit-${student.csEmplId}`"
                     :key="student.csEmplId"
                     :row-index="index"
-                    :sorted-by="preferences.admitSortBy"
+                    :sorted-by="$currentUser.preferences.admitSortBy"
                     :admit-student="student"
                   />
                 </tbody>
@@ -191,10 +191,10 @@ export default {
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-      const termId = this.$_.get(this.preferences, 'termId')
+      const termId = this.$_.get(this.$currentUser.preferences, 'termId')
       this.init({
         id,
-        orderBy: this.$_.get(this.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        orderBy: this.$_.get(this.$currentUser.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         termId: termId,
         domain
       }).then(() => {
@@ -232,7 +232,7 @@ export default {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
       } else {
-        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.$currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     goToPage(page) {

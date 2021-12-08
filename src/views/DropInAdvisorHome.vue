@@ -22,25 +22,25 @@
             <div class="homepage-header-border">
               <h2 class="alerts-header mb-0 page-section-header">Alerts</h2>
             </div>
-            <div v-if="myCohorts" class="mt-3">
+            <div v-if="$currentUser.myCohorts" class="mt-3">
               <div class="d-flex justify-content-between mr-3">
                 <div>
                   <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Cohorts</h3>
                 </div>
-                <div v-if="myCohorts.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
+                <div v-if="$currentUser.myCohorts.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
                   Total
                 </div>
               </div>
-              <div v-if="myCohorts.length">
+              <div v-if="$currentUser.myCohorts.length">
                 <SortableGroup
-                  v-for="cohort in myCohorts"
+                  v-for="cohort in $currentUser.myCohorts"
                   :key="cohort.id"
                   :compact="true"
                   :group="cohort"
                   :is-cohort="true"
                 />
               </div>
-              <div v-if="!myCohorts.length">
+              <div v-if="!$currentUser.myCohorts.length">
                 <div>
                   You have no saved cohorts.
                 </div>

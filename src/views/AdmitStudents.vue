@@ -72,7 +72,7 @@
                     :id="`admit-${admit.csEmplId}`"
                     :key="admit.csEmplId"
                     :row-index="index"
-                    :sorted-by="preferences.admitSortBy"
+                    :sorted-by="$currentUser.preferences.admitSortBy"
                     :admit-student="admit"
                   />
                 </tbody>
@@ -191,7 +191,7 @@ export default {
         this.pagination.currentPage === 0
           ? 0
           : (this.pagination.currentPage - 1) * limit
-      getAllAdmits(this.preferences.admitSortBy, limit, offset).then(response => {
+      getAllAdmits(this.$currentUser.preferences.admitSortBy, limit, offset).then(response => {
         if (response) {
           this.admits = this.$_.get(response, 'students')
           this.totalAdmitCount = this.$_.get(response, 'totalStudentCount')

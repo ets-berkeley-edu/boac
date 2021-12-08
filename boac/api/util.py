@@ -113,14 +113,16 @@ def advisor_required(func):
     return _advisor_required
 
 
+def can_access_admitted_students(user):
+    return app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] \
+        and user.is_authenticated \
+        and (current_user.is_admin or _is_advisor_in_department(current_user, 'ZCEEE'))
+
+
 def ce3_required(func):
     @wraps(func)
     def _ce3_required(*args, **kw):
-        is_authorized = app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] and current_user.is_authenticated \
-            and (
-                current_user.is_admin
-                or _is_advisor_in_department(current_user, 'ZCEEE')
-        )
+        is_authorized = can_access_admitted_students(current_user)
         if is_authorized or _api_key_ok():
             return func(*args, **kw)
         else:

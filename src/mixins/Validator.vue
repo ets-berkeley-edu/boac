@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import Berkeley from '@/mixins/Berkeley'
 import store from '@/store'
+import Vue from 'vue'
 
 export default {
   name: 'Validator',
@@ -31,7 +32,7 @@ export default {
       } else {
         let all = {
           'curated group': store.getters['currentUserExtras/myCuratedGroups'],
-          cohort: store.getters['currentUserExtras/myCohorts']
+          cohort: Vue.prototype.$currentUser.myCohorts
         }
         _.each(all, (cohorts, cohortType) => {
           _.each(cohorts, existing => {

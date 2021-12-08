@@ -31,6 +31,7 @@ from boac.api.util import (
     advising_data_access_required,
     advisor_required,
     authorized_users_api_feed,
+    can_access_admitted_students,
     drop_in_advisors_for_dept_code,
     drop_in_required,
     scheduler_required,
@@ -40,10 +41,12 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
+from boac.merged.sis_terms import current_term_id
 from boac.merged.user_session import UserSession
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor, Scheduler
+from boac.models.cohort_filter import CohortFilter
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -52,7 +55,20 @@ from flask_login import current_user, login_required, login_user
 
 @app.route('/api/profile/my')
 def my_profile():
-    return tolerant_jsonify(current_user.to_api_json())
+    cohorts = []
+    for cohort in CohortFilter.get_cohorts(current_user.get_id()):
+        cohort['isOwnedByCurrentUser'] = True
+        cohorts.append(cohort)
+    return tolerant_jsonify({
+        **current_user.to_api_json(),
+        'canAccessAdmittedStudents': can_access_admitted_students(current_user),
+        'myCohorts': cohorts,
+        'preferences': {
+            'admitSortBy': 'last_name',
+            'sortBy': 'last_name',
+            'termId': current_term_id(),
+        },
+    })
 
 
 @app.route('/api/profile/<uid>')

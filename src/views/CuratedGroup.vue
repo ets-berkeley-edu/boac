@@ -33,8 +33,8 @@
                 :row-index="index"
                 :student="student"
                 :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
-                :sorted-by="preferences.sortBy"
-                :term-id="preferences.termId"
+                :sorted-by="$currentUser.preferences.sortBy"
+                :term-id="$currentUser.preferences.termId"
                 :class="{'list-group-item-info': anchor === `#${student.uid}`}"
                 class="list-group-item student-list-item"
               />
@@ -74,7 +74,6 @@ import Scrollable from '@/mixins/Scrollable'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import TermSelector from '@/components/student/TermSelector'
-import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import Util from '@/mixins/Util'
 
@@ -153,10 +152,7 @@ export default {
       this.setMode(undefined)
       if (this.$_.size(sids)) {
         this.alertScreenReader(`Adding ${sids.length} students`)
-        store.commit('currentUserExtras/setUserPreference', {
-          key: 'sortBy',
-          value: 'last_name'
-        })
+        this.$currentUser.preferences.sortBy = 'last_name'
         this.loadingStart()
         this.addStudents(sids).then(() => {
           this.loaded(this.getLoadedAlert())
@@ -170,7 +166,7 @@ export default {
       }
     },
     getLoadedAlert() {
-      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.translateSortByOption(this.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.translateSortByOption(this.$currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
       this.loadingStart()

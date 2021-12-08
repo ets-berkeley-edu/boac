@@ -11,6 +11,7 @@ import {
 } from '@/api/cohort'
 import router from '@/router'
 import store from '@/store'
+import Vue from 'vue'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
@@ -153,14 +154,11 @@ const actions = {
       commit('resetSession', {})
       commit('isCompactView', !!id)
       commit('setModifiedSinceLastSearch', undefined)
-      store.commit('currentUserExtras/setUserPreference', {
-        key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
-        value: orderBy
-      })
-      store.commit('currentUserExtras/setUserPreference', {
-        key: 'termId',
-        value: termId
-      })
+
+      const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      Vue.prototype.$currentUser.preferences[key] = orderBy
+      Vue.prototype.$currentUser.preferences.termId = termId
+
       if (id) {
         store.dispatch('cohortEditSession/loadCohort', {
           id: id,
@@ -189,7 +187,7 @@ const actions = {
     })
   },
   onPageNumberChange: ({commit, state}) => {
-    const preferences = store.getters['currentUserExtras/preferences']
+    const preferences = Vue.prototype.$currentUser.preferences
     return $_applyFilters(
       {commit, state},
       _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),

@@ -836,7 +836,7 @@ class TestDistinctSids:
     def test_distinct_sids_not_owner(self, client, fake_auth):
         """Deny user access to cohort owned by some other dept."""
         user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-        cohorts = CohortFilter.get_cohorts_of_user_id(user_id)
+        cohorts = CohortFilter.get_cohorts(user_id)
         # Assert non-zero student count
         assert sum(list(map(lambda c: c['totalStudentCount'], cohorts)))
         # Log in as non-owner
@@ -849,7 +849,7 @@ class TestDistinctSids:
         user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
         cohort_ids = []
         sids = set()
-        for cohort in CohortFilter.get_cohorts_of_user_id(user_id):
+        for cohort in CohortFilter.get_cohorts(user_id):
             cohort_id = cohort['id']
             cohort_ids.append(cohort_id)
             sids.update(set(CohortFilter.get_sids(cohort_id)))

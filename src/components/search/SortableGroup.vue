@@ -61,7 +61,10 @@
       <div v-if="$_.size(studentsWithAlerts)">
         <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
           Showing 50 students with a high number of alerts.
-          <router-link :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`" :to="`/${keyword}/${group.id}`">
+          <router-link
+            :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
+            :to="getRoutePath(group)"
+          >
             View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
           </router-link>
         </div>
@@ -73,7 +76,10 @@
         </div>
       </div>
       <div v-if="openAndLoaded" class="mb-3 ml-3">
-        <router-link :id="`sortable-${keyword}-${group.id}-view-all`" :to="`/${keyword}/${group.id}`">
+        <router-link
+          :id="`sortable-${keyword}-${group.id}-view-all`"
+          :to="getRoutePath(group)"
+        >
           <span v-if="group.totalStudentCount">
             View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
             in {{ groupTypeName }} "{{ group.name }}"
@@ -159,6 +165,9 @@ export default {
           })
         })
       }
+    },
+    getRoutePath(group) {
+      return `/${this.keyword}/${group.id}?domain=${group.domain}`
     }
   }
 }

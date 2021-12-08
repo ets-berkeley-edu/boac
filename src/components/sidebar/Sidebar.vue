@@ -5,15 +5,15 @@
     </div>
     <div role="navigation" aria-label="Cohorts and Curated Groups">
       <div v-if="myCohorts">
-        <Cohorts />
+        <Cohorts :cohorts="myCohorts" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myCuratedGroups">
         <CuratedGroups />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="$config.featureFlagAdmittedStudents && myAdmitCohorts">
-        <MyAdmitCohorts />
+      <div v-if="myAdmitCohorts">
+        <MyAdmitCohorts :cohorts="myAdmitCohorts" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div class="mb-2 sidebar-row-link">
@@ -73,7 +73,9 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Util],
   data: () => ({
-    isCreateNoteModalOpen: false
+    isCreateNoteModalOpen: false,
+    myAdmitCohorts: undefined,
+    myCohorts: undefined
   }),
   computed: {
     domain() {
@@ -84,11 +86,15 @@ export default {
       if (this.$currentUser.canAccessAdvisingData) {
         domain.push('notes')
       }
-      if (this.includeAdmits) {
+      if (this.$currentUser.canAccessAdmittedStudents) {
         domain.push('admits')
       }
       return domain
     }
+  },
+  created() {
+    this.myAdmitCohorts = this.$_.filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
+    this.myCohorts = this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
   },
   methods: {
     onCreateNoteModalClose() {

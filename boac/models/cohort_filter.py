@@ -146,14 +146,15 @@ class CohortFilter(Base):
         self.__transient_sids = []
 
     @classmethod
-    def get_cohorts_of_user_id(cls, user_id, domain='default'):
-        query = text("""
+    def get_cohorts(cls, user_id):
+        domain_clause = '' if app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] else " AND c.domain = 'default'"
+        query = text(f"""
             SELECT id, domain, name, filter_criteria, alert_count, student_count
             FROM cohort_filters c
-            WHERE c.owner_id = :user_id AND c.domain = :domain
-            ORDER BY c.name
+            WHERE c.owner_id = :user_id {domain_clause}
+            ORDER BY c.domain, c.name
         """)
-        results = db.session.execute(query, {'domain': domain, 'user_id': user_id})
+        results = db.session.execute(query, {'user_id': user_id})
 
         def transform(row):
             return {

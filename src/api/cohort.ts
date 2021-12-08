@@ -1,7 +1,22 @@
 import axios from 'axios'
 import moment from 'moment-timezone'
-import store from '@/store'
 import utils from '@/api/api-utils'
+import Vue from 'vue'
+
+
+const $_onCohortCreate = cohort => {
+  Vue.prototype.$currentUser.myCohorts.push(cohort)
+}
+
+const $_onCohortDelete = cohortId => {
+  const indexOf = Vue.prototype.$currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
+  Vue.prototype.$currentUser.myCohorts.splice(indexOf, 1)
+}
+
+const $_onCohortUpdate = updatedCohort => {
+  const cohort = Vue.prototype.$currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)
+  Object.assign(cohort, updatedCohort)
+}
 
 export function createCohort(
   domain: string,
@@ -16,7 +31,7 @@ export function createCohort(
     })
     .then(response => {
       const cohort = response.data
-      store.commit('currentUserExtras/cohortCreated', cohort)
+      $_onCohortCreate(cohort)
       return cohort
     }, () => null)
 }
@@ -28,9 +43,7 @@ export function deleteCohort(id) {
         'Content-Type': 'application/json'
       }
     })
-    .then(() => {
-      store.commit('currentUserExtras/cohortDeleted', id)
-    }, () => null)
+    .then(() => $_onCohortDelete(id), () => null)
 }
 
 export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: any[]) {
@@ -90,12 +103,6 @@ export function getCohortFilterOptions(domain: string, owner: string, existingFi
     .then(response => response.data, () => null)
 }
 
-export function getMyCohorts(domain: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/cohorts/my?domain=${domain}`)
-    .then(response => response.data, () => null)
-}
-
 export function getStudentsPerFilters(
   domain: string,
   filters: any[],
@@ -141,7 +148,7 @@ export function saveCohort(
     })
     .then(response => {
       const cohort = response.data
-      store.commit('currentUserExtras/cohortUpdated', cohort)
+      $_onCohortUpdate(cohort)
       return cohort
     }, () => null)
 }

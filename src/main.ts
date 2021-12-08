@@ -122,11 +122,6 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     const ebEnvironment = Vue.prototype.$config.ebEnvironment
     Vue.prototype.$config.isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
     Vue.prototype.$config.isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
-    store.commit('currentUserExtras/setUserPreference', {
-      key: 'termId',
-      value: `${Vue.prototype.$config.currentEnrollmentTermId}`
-    })
-
     // Mount BOA
     new Vue({
       router,

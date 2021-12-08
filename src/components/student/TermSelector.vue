@@ -46,7 +46,6 @@
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CurrentUserExtras from '@/mixins/CurrentUserExtras'
-import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
@@ -67,7 +66,7 @@ export default {
   created() {
     this.selectTermOptions = this.getSelectTermOptions()
     this.$eventHub.on(`${this.sortByKey}-user-preference-change`, v => this.selectedTermId = v)
-    const selectedTermOption = this.termOptionForId(this.$_.get(this.preferences, 'termId'))
+    const selectedTermOption = this.termOptionForId(this.$_.get(this.$currentUser.preferences, 'termId'))
     this.selectedTermId = selectedTermOption.value
     this.selectedTermLabel = selectedTermOption.label
     this.isReady = true
@@ -85,14 +84,11 @@ export default {
       return this.$_.map(termIds, this.termOptionForId)
     },
     onSelectTerm(value) {
-      if (value !== this.$_.get(this.preferences, 'termId')) {
+      if (value !== this.$_.get(this.$currentUser.preferences, 'termId')) {
         this.selectedTermId = value
         this.selectedTermLabel = this.termNameForSisId(value)
         this.alertScreenReader(`${this.selectedTermLabel} selected`)
-        store.commit('currentUserExtras/setUserPreference', {
-          key: 'termId',
-          value: this.selectedTermId
-        })
+        this.$currentUser.preferences.termId = this.selectedTermId
       }
     },
     termOptionForId(termId) {
