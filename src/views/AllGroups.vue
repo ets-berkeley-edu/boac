@@ -2,7 +2,7 @@
   <div class="m-3">
     <Spinner />
     <div v-if="!loading">
-      <h1 class="mb-4">
+      <h1 class="mb-4 page-section-header">
         Everyone's Groups
       </h1>
       <div v-if="!rows.length">
@@ -13,14 +13,11 @@
           <span v-if="row.user.name">{{ row.user.name }}</span>
           <span v-if="!row.user.name">UID: {{ row.user.uid }}</span>
         </h2>
-        <ul v-if="row.groups.length">
+        <ul>
           <li v-for="group in row.groups" :key="group.id">
             <router-link :to="'/curated/' + group.id">{{ group.name }}</router-link> ({{ group.totalStudentCount }})
           </li>
         </ul>
-        <div v-if="!row.groups.length" class="m-3">
-          User has no groups.
-        </div>
       </div>
     </div>
   </div>
@@ -41,7 +38,7 @@ export default {
   }),
   created() {
     getUsersWithGroups().then(data => {
-      this.rows = data
+      this.rows = this.$_.filter(data, row => row.groups.length)
       this.loaded('Everyone\'s Groups has loaded')
     })
   }
