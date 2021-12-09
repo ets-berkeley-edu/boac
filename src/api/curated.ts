@@ -72,10 +72,10 @@ export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSele
 
 export function getCuratedGroup(
   id: number,
-  orderBy: string,
-  termId: string,
+  limit: number,
   offset: number,
-  limit: number
+  orderBy: string,
+  termId: string
 ) {
   const url = `${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit${limit}`
   return axios.get(url).then(response => response.data, () => null)

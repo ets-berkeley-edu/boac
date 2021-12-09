@@ -113,14 +113,18 @@ class TestCreateCuratedGroup:
     def test_authorized_ce3(self, app, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             fake_auth.login(ce3_advisor_uid)
+            sid = '11667051'
             group = _api_curated_group_create(
                 client=client,
                 domain='admitted_students',
                 name='The domain of admitted_students',
-                sids=['5678901234'],
+                sids=[sid],
             )
-            student_feed = _api_get_curated_group(client, group['id'])['students'][0]
-            assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]
+            students = _api_get_curated_group(client, group['id'])['students']
+            assert len(students) == 1
+            assert 'applyucCpid' in students[0]
+            assert students[0]['sid'] == sid
+            assert students[0]['admitStatus'] == 'Yes'
 
 
 class TestGetCuratedGroup:

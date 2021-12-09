@@ -5,9 +5,16 @@ import Vue from 'vue'
 const $_goToPage = ({commit, state}, pageNumber: number) => {
   return new Promise(resolve => {
     commit('setPageNumber', pageNumber)
+    const user = Vue.prototype.$currentUser
     const offset = _.multiply(pageNumber - 1, state.itemsPerPage)
-    const preferences = Vue.prototype.$currentUser.preferences
-    getCuratedGroup(state.curatedGroupId, preferences.sortBy, preferences.termId, offset, state.itemsPerPage).then(group => {
+    const orderBy = _.get(user.preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+    getCuratedGroup(
+      state.curatedGroupId,
+      state.itemsPerPage,
+      offset,
+      orderBy,
+      user.preferences.termId
+    ).then(group => {
       if (group) {
         commit('setCuratedGroupName', group.name)
         commit('setOwnerId', group.ownerId)
@@ -27,6 +34,7 @@ const VALID_MODES = ['bulkAdd', 'rename']
 const state = {
   curatedGroupId: undefined,
   curatedGroupName: undefined,
+  domain: undefined,
   itemsPerPage: 50,
   mode: undefined,
   ownerId: undefined,
@@ -57,6 +65,7 @@ const mutations = {
   },
   setCuratedGroupId: (state: any, curatedGroupId: number) => state.curatedGroupId = curatedGroupId,
   setCuratedGroupName: (state: any, curatedGroupName: string) => state.curatedGroupName = curatedGroupName,
+  setDomain: (state: any, domain: string) => state.domain = domain,
   setMode(state: any, mode: string) {
     if (_.isNil(mode)) {
       state.mode = undefined
@@ -82,8 +91,9 @@ const actions = {
     })
   },
   goToPage: ({commit, state}, pageNumber) => $_goToPage({commit, state}, pageNumber),
-  init: ({commit}, curatedGroupId: number) => {
-    commit('setCuratedGroupId', curatedGroupId)
+  init: ({commit}, {domain, id}) => {
+    commit('setCuratedGroupId', id)
+    commit('setDomain', domain)
     return $_goToPage({commit, state}, 1)
   },
   removeStudent: ({commit, state}, sid: string) => {

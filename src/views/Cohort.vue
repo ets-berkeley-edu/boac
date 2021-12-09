@@ -72,32 +72,9 @@
                   class="border-right-0 list-group-item border-left-0 pl-0"
                 />
               </div>
-              <table v-if="domain === 'admitted_students'" id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
-                <thead class="sortable-table-header">
-                  <tr>
-                    <th class="pt-3">Name</th>
-                    <th class="pt-3">CS ID</th>
-                    <th class="pt-3">SIR</th>
-                    <th class="pt-3">CEP</th>
-                    <th class="pt-3">Re-entry</th>
-                    <th class="pt-3">1st Gen</th>
-                    <th class="pt-3">UREM</th>
-                    <th class="pt-3">Waiver</th>
-                    <th class="pt-3">INT'L</th>
-                    <th class="pt-3">Freshman/Transfer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <AdmitStudentRow
-                    v-for="(student, index) in students"
-                    :id="`admit-${student.csEmplId}`"
-                    :key="student.csEmplId"
-                    :row-index="index"
-                    :sorted-by="$currentUser.preferences.admitSortBy"
-                    :admit-student="student"
-                  />
-                </tbody>
-              </table>
+              <div v-if="domain === 'admitted_students'">
+                <AdmitStudentsTable :students="students" />
+              </div>
             </div>
             <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
               <Pagination
@@ -120,7 +97,7 @@
 
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
-import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
+import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
 import Berkeley from '@/mixins/Berkeley'
 import CohortEditSession from '@/mixins/CohortEditSession'
@@ -143,7 +120,7 @@ export default {
   name: 'Cohort',
   components: {
     AdmitDataWarning,
-    AdmitStudentRow,
+    AdmitStudentsTable,
     ApplyAndSaveButtons,
     CohortHistory,
     CohortPageHeader,
@@ -192,13 +169,9 @@ export default {
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+      const orderBy = this.$_.get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
       const termId = this.$_.get(this.$currentUser.preferences, 'termId')
-      this.init({
-        id,
-        orderBy: this.$_.get(this.$currentUser.preferences, domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
-        termId: termId,
-        domain
-      }).then(() => {
+      this.init({domain, id, orderBy, termId}).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
