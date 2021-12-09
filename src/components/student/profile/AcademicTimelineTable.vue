@@ -330,7 +330,6 @@ import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
 import Scrollable from '@/mixins/Scrollable'
 import TimelineDate from '@/components/student/profile/TimelineDate'
@@ -341,7 +340,7 @@ import {getAppointment, markAppointmentRead} from '@/api/appointments'
 
 export default {
   name: 'AcademicTimelineTable',
-  mixins: [Berkeley, Context, CurrentUserExtras, Scrollable, Util],
+  mixins: [Berkeley, Context, Scrollable, Util],
   components: {
     AdvisingAppointment,
     AdvisingNote,

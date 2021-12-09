@@ -52,12 +52,11 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SortBy',
-  mixins: [Berkeley, Context, CurrentUserExtras, Util],
+  mixins: [Berkeley, Context, Util],
   props: {
     domain: {
       type: String,

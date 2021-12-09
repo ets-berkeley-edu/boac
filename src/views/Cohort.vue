@@ -122,11 +122,11 @@
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
+import Berkeley from '@/mixins/Berkeley'
 import CohortEditSession from '@/mixins/CohortEditSession'
 import CohortHistory from '@/components/cohort/CohortHistory'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import FilterRow from '@/components/cohort/FilterRow'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
@@ -157,11 +157,11 @@ export default {
     TermSelector
   },
   mixins: [
+    Berkeley,
     CohortEditSession,
     Context,
     Loading,
     Scrollable,
-    CurrentUserExtras,
     Util
   ],
   data: () => ({

@@ -1,7 +1,6 @@
 import cohortEditSession from '@/store/modules/cohort-edit-session'
 import context from '@/store/modules/context'
 import curatedEditSession from '@/store/modules/curated-edit-session'
-import currentUserExtras from '@/store/modules/current-user-extras'
 import degreeEditSession from '@/store/modules/degree-edit-session'
 import noteEditSession from '@/store/modules/note-edit-session'
 import Vue from 'vue'
@@ -14,7 +13,6 @@ export default new Vuex.Store({
     cohortEditSession,
     context,
     curatedEditSession,
-    currentUserExtras,
     degreeEditSession,
     noteEditSession
   },

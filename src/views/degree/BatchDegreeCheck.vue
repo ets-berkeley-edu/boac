@@ -151,7 +151,6 @@
 <script>
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Loading from '@/mixins/Loading'
@@ -169,7 +168,7 @@ export default {
     DegreeTemplatesMenu,
     Spinner
   },
-  mixins: [Context, CurrentUserExtras, DegreeEditSession, Loading, StudentAggregator, Util, Validator],
+  mixins: [Context, DegreeEditSession, Loading, StudentAggregator, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],

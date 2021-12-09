@@ -76,7 +76,6 @@
 
 <script>
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import DropInWaitlist from '@/components/appointment/DropInWaitlist'
 import Loading from '@/mixins/Loading'
 import SortableGroup from '@/components/search/SortableGroup'
@@ -92,7 +91,7 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [Context, CurrentUserExtras, Loading, Util],
+  mixins: [Context, Loading, Util],
   data: () => ({
     advisors: undefined,
     deptCode: undefined,

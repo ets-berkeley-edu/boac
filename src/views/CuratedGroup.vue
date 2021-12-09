@@ -63,11 +63,11 @@
 </template>
 
 <script>
+import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
@@ -88,7 +88,7 @@ export default {
     StudentRow,
     TermSelector
   },
-  mixins: [Context, CuratedEditSession, CurrentUserExtras, Loading, Scrollable, Util],
+  mixins: [Berkeley, Context, CuratedEditSession, Loading, Scrollable, Util],
   props: {
     id: {
       required: true,

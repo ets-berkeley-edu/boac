@@ -41,14 +41,13 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import NavLink from '@/components/util/NavLink'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Cohorts',
   components: {NavLink},
-  mixins: [CurrentUserExtras, Util],
+  mixins: [Util],
   props: {
     cohorts: {
       type: Array,
