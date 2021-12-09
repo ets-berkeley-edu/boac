@@ -1,8 +1,5 @@
 <template>
-  <router-link
-    :to="`${path}?_=${counter}&${query}`"
-    @click.native="incrementCounter"
-  >
+  <router-link :to="{path, query}" @click.native="() => counter++">
     <slot></slot>
   </router-link>
 </template>
@@ -25,23 +22,19 @@ export default {
       required: false
     }
   },
-  data() {
-    return {
-      counter: this.defaultCounter,
-      query: ''
+  data: () => ({
+    counter: undefined
+  }),
+  computed: {
+    query() {
+      return {
+        ...{'_': this.counter},
+        ...this.queryArgs
+      }
     }
   },
   created() {
-    if (this.queryArgs) {
-      this.$_.each(this.$_.keys(this.queryArgs), key => {
-        this.query += `&${key}=${this.queryArgs[key]}`
-      })
-    }
-  },
-  methods: {
-    incrementCounter() {
-      this.counter = this.counter + 1
-    }
+    this.counter = this.defaultCounter
   }
 }
 </script>

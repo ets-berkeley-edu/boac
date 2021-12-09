@@ -29,6 +29,7 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
+from boac.merged.admitted_student import get_admitted_students_by_sids
 from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -96,7 +97,13 @@ def get_curated_group(curated_group_id):
     limit = get_param(request.args, 'limit', 50)
     order_by = get_param(request.args, 'orderBy', 'last_name')
     term_id = get_param(request.args, 'termId', None)
-    curated_group = _curated_group_with_complete_student_profiles(curated_group_id, order_by, term_id, int(offset), int(limit))
+    curated_group = _curated_group_with_complete_student_profiles(
+        curated_group_id=curated_group_id,
+        limit=int(limit),
+        offset=int(offset),
+        order_by=order_by,
+        term_id=term_id,
+    )
     return tolerant_jsonify(curated_group)
 
 
@@ -198,7 +205,13 @@ def rename_curated_group():
     return tolerant_jsonify(CuratedGroup.find_by_id(curated_group_id).to_api_json())
 
 
-def _curated_group_with_complete_student_profiles(curated_group_id, order_by='last_name', term_id=None, offset=0, limit=50):
+def _curated_group_with_complete_student_profiles(
+        curated_group_id,
+        order_by='last_name',
+        term_id=None,
+        offset=0,
+        limit=50,
+):
     benchmark = get_benchmarker(f'curated group {curated_group_id} with student profiles')
     benchmark('begin')
     curated_group = CuratedGroup.find_by_id(curated_group_id)
@@ -209,7 +222,10 @@ def _curated_group_with_complete_student_profiles(curated_group_id, order_by='la
     api_json = curated_group.to_api_json(order_by=order_by, offset=offset, limit=limit)
     sids = [s['sid'] for s in api_json['students']]
     benchmark('begin profile query')
-    api_json['students'] = get_summary_student_profiles(sids, term_id=term_id, include_historical=True)
+    if curated_group.domain == 'admitted_students':
+        api_json['students'] = get_admitted_students_by_sids(sids)
+    else:
+        api_json['students'] = get_summary_student_profiles(sids, term_id=term_id, include_historical=True)
     Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('begin get_referencing_cohort_ids')
     api_json['referencingCohortIds'] = curated_group.get_referencing_cohort_ids()

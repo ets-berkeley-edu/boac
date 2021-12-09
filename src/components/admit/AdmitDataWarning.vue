@@ -1,5 +1,5 @@
 <template>
-  <h2 v-if="admitDataWarning" class="has-error font-size-18 font-weight-bold">{{ admitDataWarning }}</h2>
+  <h2 v-if="admitDataWarning" class="has-error font-size-16 font-weight-bold">{{ admitDataWarning }}</h2>
 </template>
 
 <script>

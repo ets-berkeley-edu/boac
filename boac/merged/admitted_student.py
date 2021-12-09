@@ -38,6 +38,10 @@ def get_admitted_student_by_sid(sid):
     return _to_api_json(admit) if admit else None
 
 
+def get_admitted_students_by_sids(sids):
+    return [_to_api_json(admit) for admit in data_loch.get_admitted_students_by_sids(sids)]
+
+
 def search_for_admitted_students(
     search_phrase=None,
     order_by=None,

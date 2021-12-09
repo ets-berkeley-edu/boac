@@ -3,6 +3,7 @@
     <Spinner />
     <div v-if="!loading">
       <CuratedGroupHeader />
+      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="$_.get(students, '[0].updatedAt')" />
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div class="cohort-column-results">
@@ -25,19 +26,24 @@
           </div>
           <div v-if="$_.size(students)" class="mt-2">
             <div id="curated-cohort-students" class="list-group">
-              <StudentRow
-                v-for="(student, index) in students"
-                :id="`student-${student.uid}`"
-                :key="student.sid"
-                :remove-student="removeStudent"
-                :row-index="index"
-                :student="student"
-                :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
-                :sorted-by="$currentUser.preferences.sortBy"
-                :term-id="$currentUser.preferences.termId"
-                :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-                class="list-group-item student-list-item"
-              />
+              <div v-if="domain === 'default'">
+                <StudentRow
+                  v-for="(student, index) in students"
+                  :id="`student-${student.uid}`"
+                  :key="student.sid"
+                  :remove-student="removeStudent"
+                  :row-index="index"
+                  :student="student"
+                  :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+                  :sorted-by="$currentUser.preferences.sortBy"
+                  :term-id="$currentUser.preferences.termId"
+                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
+                  class="list-group-item student-list-item"
+                />
+              </div>
+              <div v-if="domain === 'admitted_students'">
+                <AdmitStudentsTable :students="students" />
+              </div>
             </div>
             <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
               <Pagination
@@ -63,6 +69,8 @@
 </template>
 
 <script>
+import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
@@ -80,6 +88,8 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CuratedGroup',
   components: {
+    AdmitDataWarning,
+    AdmitStudentsTable,
     CuratedGroupBulkAdd,
     CuratedGroupHeader,
     Pagination,
@@ -96,15 +106,20 @@ export default {
     }
   },
   data: () => ({
+    domain: undefined,
     error: undefined
   }),
   computed: {
     anchor: () => location.hash
   },
   created() {
+    this.domain = this.$route.query.domain || 'default'
     this.$eventHub.off('sortBy-user-preference-change')
     this.setMode(undefined)
-    this.init(parseInt(this.id)).then(group => {
+    this.init({
+      domain: this.domain,
+      id: parseInt(this.id)
+    }).then(group => {
       if (group) {
         this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)

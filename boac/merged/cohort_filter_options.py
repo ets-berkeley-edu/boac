@@ -238,7 +238,7 @@ class CohortFilterOptions:
         return value in [item['value'] for item in flattened]
 
     @classmethod
-    def get_cohort_filter_option_groups(cls, owner_uid, domain, existing_filters=()):
+    def get_cohort_filter_option_groups(cls, domain, owner_uid, existing_filters=()):
         # Disable filter options based on existing cohort criteria.
         option_groups = cls(owner_uid, get_student_query_scope()).get_available_filter_option_groups(domain)
         cohort_filter_per_key = {}

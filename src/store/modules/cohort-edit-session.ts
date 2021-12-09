@@ -149,7 +149,7 @@ const mutations = {
 }
 
 const actions = {
-  init({commit, state}, {id, orderBy, termId, domain}) {
+  init({commit, state}, {domain, id, orderBy, termId}) {
     return new Promise<void>(resolve => {
       commit('resetSession', {})
       commit('isCompactView', !!id)
