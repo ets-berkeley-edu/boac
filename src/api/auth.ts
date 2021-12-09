@@ -11,7 +11,7 @@ export function devAuthLogIn(uid: string, password: string) {
       password: password
     })
     .then(response => {
-      Vue.prototype.$currentUser = response.data
+      Vue.prototype.$currentUser = Vue.observable(response.data)
       Vue.prototype.$core.initializeCurrentUser().then(_.noop)
       store.dispatch('context/loadServiceAnnouncement').then(_.noop)
       return Vue.prototype.$currentUser

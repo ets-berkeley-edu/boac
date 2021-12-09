@@ -28,12 +28,12 @@
           </span>
         </div>
       </template>
-      <b-dropdown-item v-if="!$_.size(myCuratedGroups)">
+      <b-dropdown-item v-if="!$_.filter($currentUser.myCuratedGroups, ['domain', domain])">
         <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
       </b-dropdown-item>
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
-          v-for="group in myCuratedGroups"
+          v-for="group in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
           :id="`curated-group-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
@@ -91,11 +91,15 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Scrollable, Util],
   props: {
-    srOnly: {
+    domain: {
+      required: true,
+      type: String
+    },
+    isButtonVariantLink: {
       required: false,
       type: Boolean
     },
-    isButtonVariantLink: {
+    srOnly: {
       required: false,
       type: Boolean
     },
@@ -157,7 +161,7 @@ export default {
         this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
         this.isAdding = false
       }
-      createCuratedGroup(name, [this.student.sid]).then(group => {
+      createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
         this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
         this.$_.each(
@@ -178,9 +182,10 @@ export default {
       this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
     },
     refresh() {
-      this.checkedGroups = this.$_.filter(this.$currentUser.myCuratedGroups, g => {
-        return this.$_.includes(g.sids, this.student.sid)
-      })
+      const containsSid = group => {
+        return this.$_.includes(group.sids, this.student.sid)
+      }
+      this.checkedGroups = this.$_.map(this.$_.filter(this.$currentUser.myCuratedGroups, containsSid), 'id')
       this.groupsLoading = false
     }
   }

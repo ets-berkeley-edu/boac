@@ -1,5 +1,5 @@
 <template>
-  <div class="m-2 p-4">
+  <div class="m-2 p-3">
     <Spinner />
     <div v-if="!loading">
       <h1 class="page-section-header">{{ title }}</h1>
@@ -34,7 +34,7 @@ export default {
   mounted() {
     this.errorStatus = this.$route.query.s
     this.message = this.$route.query.m || 'Uh oh, there was a problem.'
-    this.title = this.$_.capitalize(this.$route.query.t || 'Error')
+    this.title = this.$route.query.t ? `Error: ${this.$_.capitalize(this.$route.query.t)}` : 'Error'
     this.loaded(this.title)
   }
 }

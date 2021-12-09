@@ -6,6 +6,7 @@ import Vue from 'vue'
 
 const $_onCreate = group => {
   Vue.prototype.$currentUser.myCuratedGroups.push(group)
+  Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(Vue.prototype.$currentUser.myCuratedGroups, 'name')
   Vue.prototype.$eventHub.emit('my-curated-groups-updated')
 }
 
@@ -16,8 +17,10 @@ const $_onDelete = groupId => {
 }
 
 const $_onUpdate = updatedGroup => {
-  const group = Vue.prototype.$currentUser.myCuratedGroups.find(group => group.id === +updatedGroup.id)
+  const groups = Vue.prototype.$currentUser.myCuratedGroups
+  const group = groups.find(group => group.id === +updatedGroup.id)
   Object.assign(group, updatedGroup)
+  Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(groups, 'name')
   Vue.prototype.$eventHub.emit('my-curated-groups-updated')
 }
 

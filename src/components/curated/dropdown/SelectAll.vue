@@ -98,6 +98,10 @@ export default {
       required: true,
       type: String
     },
+    domain: {
+      required: true,
+      type: String
+    },
     gaEventTracker: {
       required: true,
       type: Function
@@ -198,7 +202,7 @@ export default {
           }
         )
       }
-      createCuratedGroup(name, this.sids)
+      createCuratedGroup(this.domain, name, this.sids)
         .then(trackEvent)
         .finally(() => setTimeout(() => done(), 2000))
     },

@@ -17,7 +17,7 @@
       </div>
     </div>
     <div
-      v-for="(group, index) in groups"
+      v-for="(group, index) in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
@@ -53,10 +53,6 @@ export default {
   props: {
     domain: {
       type: String,
-      required: true
-    },
-    groups: {
-      type: Array,
       required: true
     },
     headerText: {
