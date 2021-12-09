@@ -35,12 +35,9 @@ export function addStudents(curatedGroupId: number, sids: string[], returnStuden
     })
 }
 
-export function createCuratedGroup(name: string, sids: string[]) {
+export function createCuratedGroup(domain: string, name: string, sids: string[]) {
   return axios
-    .post(`${utils.apiBaseUrl()}/api/curated_group/create`, {
-      name: name,
-      sids: sids
-    })
+    .post(`${utils.apiBaseUrl()}/api/curated_group/create`, {domain, name, sids})
     .then(function(response) {
       const group = response.data
       $_onCreate(group)
