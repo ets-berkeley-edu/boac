@@ -9,7 +9,10 @@
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myCuratedGroups">
-        <CuratedGroups :groups="myCuratedGroups" />
+        <CuratedGroups
+          domain="default"
+          :groups="myCuratedGroups"
+        />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myAdmitCohorts">
@@ -17,7 +20,11 @@
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myAdmitCuratedGroups">
-        <CuratedGroups :groups="myAdmitCuratedGroups" header-text="CE3 Groups" />
+        <CuratedGroups
+          domain="admitted_students"
+          :groups="myAdmitCuratedGroups"
+          header-text="CE3 Groups"
+        />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div class="mb-2 sidebar-row-link">

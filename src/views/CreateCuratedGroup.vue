@@ -1,6 +1,6 @@
 <template>
   <div class="pt-3 pr-3 pl-3">
-    <h1 class="page-section-header">Create Curated Group</h1>
+    <h1 class="page-section-header">Create {{ domain === 'admitted_students' ? 'CE3' : 'Curated' }} Group</h1>
     <div>
       Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
     </div>
@@ -33,10 +33,14 @@ export default {
   components: {CreateCuratedGroupModal, CuratedGroupBulkAdd},
   mixins: [Context, Util],
   data: () => ({
+    domain: undefined,
     isSaving: false,
     showCreateModal: false,
     sids: undefined
   }),
+  created() {
+    this.domain = this.$route.query.domain || 'default'
+  },
   methods: {
     bulkAddSids(sids) {
       this.isSaving = true
@@ -51,7 +55,7 @@ export default {
     },
     create(name) {
       this.showCreateModal = false
-      createCuratedGroup(name, this.sids)
+      createCuratedGroup(this.domain, name, this.sids)
         .then(group => {
           this.$ga.curatedEvent( group.id, group.name, 'Create curated group with bulk SIDs')
           this.alertScreenReader(`Curated group '${name}' created. It has ${this.sids.length} students.`)

@@ -10,6 +10,7 @@
           aria-label="Create a new curated group"
           class="sidebar-create-link"
           path="/curate"
+          :query-args="{'domain': domain}"
         >
           <font-awesome icon="plus" class="sidebar-header" />
         </NavLink>
@@ -50,6 +51,10 @@ export default {
   components: {NavLink},
   mixins: [CurrentUserExtras, Util],
   props: {
+    domain: {
+      type: String,
+      required: true
+    },
     groups: {
       type: Array,
       required: true
