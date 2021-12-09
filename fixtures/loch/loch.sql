@@ -178,11 +178,6 @@ CREATE TABLE boac_advising_notes.advising_note_authors
     campus_email VARCHAR
 );
 
-CREATE TABLE boac_advising_oua.student_admit_names (
-    sid VARCHAR,
-    name VARCHAR
-);
-
 CREATE TABLE boac_advising_oua.student_admits
 (
     applyuc_cpid VARCHAR NOT NULL,
@@ -674,19 +669,6 @@ VALUES
 ('1133398', '700600500', 'Charlie', 'Christian', NULL),
 ('1133399', '800700600', 'Joni', 'Mitchell', 'joni@berkeley.edu'),
 ('33333', '333333333', 'John', 'Deleted-in-BOA', '33333@berkeley.edu');
-
-INSERT INTO boac_advising_oua.student_admit_names
-(sid, name)
-VALUES
-('00005852', 'RALPH'),
-('00005852', 'BURGESS'),
-('00029117', 'DANIEL'),
-('00029117', 'J'),
-('00005852', 'MCKNIGHT'),
-('11667051', 'DEBORAH'),
-('11667051', 'JESSICA'),
-('11667051', 'LYNN'),
-('11667051', 'DAVIES');
 
 INSERT INTO boac_advising_oua.student_admits
 (applyuc_cpid, cs_empl_id, residency_category, freshman_or_transfer, admit_term, admit_status, current_sir, college, first_name, middle_name, last_name, birthdate, daytime_phone, mobile, email, campus_email_1, permanent_street_1, permanent_street_2, permanent_city, permanent_region, permanent_postal, permanent_country, sex, gender_identity, xethnic, hispanic, urem, first_generation_college, parent_1_education_level, parent_2_education_level, highest_parent_education_level, hs_unweighted_gpa, hs_weighted_gpa, transfer_gpa, act_composite, act_math, act_english, act_reading, act_writing, sat_total, sat_r_evidence_based_rw_section, sat_r_math_section, sat_r_essay_reading, sat_r_essay_analysis, sat_r_essay_writing, application_fee_waiver_flag, foster_care_flag, family_is_single_parent, student_is_single_parent, family_dependents_num, student_dependents_num, family_income, student_income, is_military_dependent, military_status, reentry_status, athlete_status, summer_bridge_status, last_school_lcff_plus_flag, special_program_cep, us_citizenship_status, us_non_citizen_status, citizenship_country, permanent_residence_country, non_immigrant_visa_current, non_immigrant_visa_planned, uid, created_at, updated_at)
