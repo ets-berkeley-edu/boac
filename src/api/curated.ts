@@ -82,9 +82,7 @@ export function getCuratedGroup(
 }
 
 export function getUsersWithGroups() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_groups/all`)
-    .then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/curated_groups/all`).then(response => response.data, () => null)
 }
 
 export function removeFromCuratedGroup(groupId, sid) {

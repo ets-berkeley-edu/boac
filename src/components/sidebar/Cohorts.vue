@@ -1,10 +1,10 @@
 <template>
   <div v-if="cohorts">
     <div class="d-flex justify-content-between mb-1 sidebar-row-link">
-      <div class="ml-2 sidebar-header">
+      <div class="ml-1 sidebar-header">
         Cohorts
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <NavLink
           id="cohort-create"
           class="sidebar-create-link"
@@ -20,7 +20,7 @@
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
-      <div class="ml-2 truncate-with-ellipsis">
+      <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
@@ -29,7 +29,7 @@
           {{ cohort.name }}
         </NavLink>
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <span
           :id="`sidebar-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill"

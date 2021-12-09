@@ -12,21 +12,33 @@
         <CuratedGroups domain="default" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="myAdmitCohorts">
-        <MyAdmitCohorts :cohorts="myAdmitCohorts" />
-        <hr class="ml-2 mr-2 section-divider" />
-      </div>
-      <div v-if="$currentUser.myCuratedGroups">
-        <CuratedGroups domain="admitted_students" header-text="Admission Groups" />
-        <hr class="ml-2 mr-2 section-divider" />
+      <div v-if="myAdmitCohorts || myAdmitCuratedGroups">
+        <div class="ml-2 sidebar-header">
+          Admitted Students
+        </div>
+        <div class="ml-1">
+          <div v-if="myAdmitCohorts" class="py-2">
+            <MyAdmitCohorts :cohorts="myAdmitCohorts" />
+          </div>
+          <div v-if="$currentUser.myCuratedGroups">
+            <div class="pt-2">
+              <CuratedGroups
+                domain="admitted_students"
+                header-class="sidebar-sub-header"
+                header-text="CE3 Groups"
+              />
+            </div>
+          </div>
+        </div>
+        <hr class="mx-2 section-divider" />
       </div>
       <div class="mb-2 sidebar-row-link">
-        <div class="ml-2 mr-2">
+        <div class="ml-1 mr-2">
           <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
         </div>
       </div>
       <div class="mb-2 sidebar-row-link">
-        <div class="ml-2 mr-2">
+        <div class="ml-1 mr-2">
           <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
         </div>
       </div>
@@ -125,6 +137,11 @@ export default {
   color: #fff;
   font-size: 16px;
   font-weight: 800;
+}
+.sidebar-sub-header {
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
 }
 .sidebar-pill {
   background-color: #8bbdda;
