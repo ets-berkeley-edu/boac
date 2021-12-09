@@ -47,10 +47,7 @@ def all_cohorts():
     scope = get_query_scope(current_user)
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     cohorts_per_uid = dict((uid, []) for uid in uids)
-    domain = get_param(request.args, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    for cohort in CohortFilter.get_cohorts_owned_by_uids(uids, domain=domain):
+    for cohort in CohortFilter.get_cohorts_owned_by_uids(uids):
         cohorts_per_uid[cohort['ownerUid']].append(cohort)
     api_json = []
     for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():

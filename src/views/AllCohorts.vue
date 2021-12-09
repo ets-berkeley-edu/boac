@@ -2,9 +2,13 @@
   <div class="m-4">
     <Spinner />
     <div v-if="!loading">
-      <h1 class="mb-4 page-section-header">
-        Everyone's Cohorts
-      </h1>
+      <div class="mb-4">
+        <h1 class="page-section-header">Everyone's Cohorts</h1>
+        <div v-if="$_.find($_.flatten($_.map(rows, 'cohorts')), g => g.domain === 'admitted_students')" class="pl-1">
+          <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
+          denotes a group of admitted students.
+        </div>
+      </div>
       <div v-if="!rows.length">
         <div>There are no saved cohorts</div>
       </div>
@@ -15,6 +19,10 @@
         </h2>
         <ul>
           <li v-for="cohort in row.cohorts" :key="cohort.id">
+            <span v-if="cohort.domain === 'admitted_students'" class="mr-1 text-success">
+              <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
+              <span class="sr-only">Admitted Students</span>
+            </span>
             <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
           </li>
         </ul>
@@ -37,7 +45,7 @@ export default {
     rows: []
   }),
   created() {
-    getUsersWithCohorts('default').then(data => {
+    getUsersWithCohorts().then(data => {
       this.rows = this.$_.filter(data, row => row.cohorts.length)
       this.loaded('Everyone\'s Cohorts page has loaded')
     })

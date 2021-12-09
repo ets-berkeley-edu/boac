@@ -168,16 +168,17 @@ class CohortFilter(Base):
         return [transform(row) for row in results]
 
     @classmethod
-    def get_cohorts_owned_by_uids(cls, uids, domain='default'):
-        query = text("""
+    def get_cohorts_owned_by_uids(cls, uids):
+        domain_clause = 'true' if app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] else "c.domain = 'default'"
+        query = text(f"""
             SELECT
             c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
             FROM cohort_filters c
             INNER JOIN authorized_users u ON c.owner_id = u.id
-            WHERE u.uid = ANY(:uids) AND c.domain = :domain
+            WHERE u.uid = ANY(:uids) AND {domain_clause}
             GROUP BY c.id, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
         """)
-        results = db.session.execute(query, {'domain': domain, 'uids': uids})
+        results = db.session.execute(query, {'uids': uids})
 
         def transform(row):
             return {

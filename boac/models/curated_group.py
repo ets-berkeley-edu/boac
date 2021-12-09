@@ -73,16 +73,17 @@ class CuratedGroup(Base):
         return filter_by.order_by(cls.name).all()
 
     @classmethod
-    def get_groups_owned_by_uids(cls, uids, domain='default'):
-        query = text("""
+    def get_groups_owned_by_uids(cls, uids):
+        domain_clause = 'true' if app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] else "sg.domain = 'default'"
+        query = text(f"""
             SELECT sg.id, sg.domain, sg.name, count(sgm.sid) AS student_count, au.uid AS owner_uid
             FROM student_groups sg
             LEFT JOIN student_group_members sgm ON sg.id = sgm.student_group_id
             JOIN authorized_users au ON sg.owner_id = au.id
-            WHERE au.uid = ANY(:uids) AND sg.domain = :domain
+            WHERE au.uid = ANY(:uids) AND {domain_clause}
             GROUP BY sg.id, sg.name, au.id, au.uid
         """)
-        results = db.session.execute(query, {'domain': domain, 'uids': uids})
+        results = db.session.execute(query, {'uids': uids})
 
         def transform(row):
             return {

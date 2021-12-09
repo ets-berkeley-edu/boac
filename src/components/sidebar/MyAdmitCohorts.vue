@@ -1,17 +1,17 @@
 <template>
   <div v-if="cohorts">
-    <div class="d-flex justify-content-between mb-1 sidebar-row-link">
-      <div class="ml-2 sidebar-header">
+    <div class="d-flex justify-content-between my-1 sidebar-row-link">
+      <div class="ml-1 sidebar-sub-header">
         <NavLink
           id="admitted-students-all"
           class="sidebar-create-link"
           aria-label="View CE3 Admissions"
           path="/admit/students"
         >
-          CE3 Admissions
+          CE3 Cohorts
         </NavLink>
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <NavLink
           id="admitted-students-cohort-create"
           class="sidebar-create-link"
@@ -19,7 +19,7 @@
           path="/cohort/new"
           :query-args="{domain: 'admitted_students'}"
         >
-          <font-awesome icon="plus" class="sidebar-header" />
+          <font-awesome icon="plus" class="sidebar-sub-header" />
         </NavLink>
       </div>
     </div>
@@ -28,7 +28,7 @@
       :key="cohort.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
-      <div class="ml-2 truncate-with-ellipsis">
+      <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-admitted-students-cohort-${cohort.id}`"
           :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} admitted students`"
@@ -38,7 +38,7 @@
           {{ cohort.name }}
         </NavLink>
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <span
           :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill"

@@ -129,10 +129,8 @@ export function getStudentsWithAlerts(cohortId) {
     .then(response => response.data, () => null)
 }
 
-export function getUsersWithCohorts(domain: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/cohorts/all?domain=${domain || 'default'}`)
-    .then(response => response.data, () => null)
+export function getUsersWithCohorts() {
+  return axios.get(`${utils.apiBaseUrl()}/api/cohorts/all`).then(response => response.data, () => null)
 }
 
 export function saveCohort(

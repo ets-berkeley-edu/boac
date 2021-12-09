@@ -493,21 +493,19 @@ class TestCohortById:
 class TestCohortsEveryone:
 
     @classmethod
-    def _api_cohorts_all(cls, client, domain='default', expected_status_code=200):
-        response = client.get(f'/api/cohorts/all?domain={domain}')
+    def _api_cohorts_all(cls, client, expected_status_code=200):
+        response = client.get('/api/cohorts/all')
         assert response.status_code == expected_status_code
         return response.json
-
-    def test_deny_admitted_students_domain(self, asc_advisor_login, client):
-        """Deny non-CE3 advisor access to non-default cohort domain."""
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
-            self._api_cohorts_all(client, domain='admitted_students', expected_status_code=403)
 
     def test_admitted_students_feature_flag(self, client, fake_auth):
         """Deny non-CE3 advisor access to non-default cohort domain."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
             fake_auth.login(ce3_advisor_uid)
-            self._api_cohorts_all(client, domain='admitted_students', expected_status_code=404)
+            api_json = self._api_cohorts_all(client)
+            all_cohorts = [cohort for row in api_json for cohort in row['cohorts']]
+            iterator = (cohort for cohort in all_cohorts if cohort['domain'] == 'admitted_students')
+            assert next(iterator, None) is None
 
     def test_cohorts_all(self, asc_advisor_login, client):
         """Returns all cohorts per owner."""
@@ -541,17 +539,16 @@ class TestCohortsEveryone:
         """Returns all cohorts, excluding admitted students."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             fake_auth.login(ce3_advisor_uid)
-            api_json = self._api_cohorts_all(client, domain='admitted_students')
-            for row in api_json:
-                for cohort in row['cohorts']:
-                    assert cohort['domain'] == 'admitted_students'
-                    assert cohort['name'] != 'Undeclared students'
+            api_json = self._api_cohorts_all(client)
+            all_cohorts = [cohort for row in api_json for cohort in row['cohorts']]
+            iterator = (cohort for cohort in all_cohorts if cohort['domain'] == 'admitted_students')
+            assert next(iterator, None) is not None
 
     def test_history_not_available_when_admitted_students_domain(self, client, fake_auth):
         """The cohort history feature is not available if domain is 'admitted_students'."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             fake_auth.login(ce3_advisor_uid)
-            api_json = self._api_cohorts_all(client, domain='admitted_students')
+            api_json = self._api_cohorts_all(client)
             cohorts = next(row['cohorts'] for row in api_json if len(row['cohorts']))
             api_cohort_events(client, cohorts[0]['id'], expected_status_code=400)
 

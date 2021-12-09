@@ -1,10 +1,10 @@
 <template>
   <div>
     <div class="d-flex justify-content-between mb-1 sidebar-row-link">
-      <div class="ml-2 sidebar-header">
+      <div class="ml-1" :class="headerClass">
         {{ headerText }}
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <NavLink
           id="create-curated-group-from-sidebar"
           aria-label="Create a new curated group"
@@ -12,7 +12,7 @@
           path="/curate"
           :query-args="{'domain': domain}"
         >
-          <font-awesome icon="plus" class="sidebar-header" />
+          <font-awesome icon="plus" :class="headerClass" />
         </NavLink>
       </div>
     </div>
@@ -21,7 +21,7 @@
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
-      <div class="ml-2 truncate-with-ellipsis">
+      <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
@@ -30,7 +30,7 @@
           {{ group.name }}
         </NavLink>
       </div>
-      <div class="ml-2 mr-2">
+      <div class="ml-1 mr-2">
         <span
           :id="`sidebar-curated-group-${index}-count`"
           class="sidebar-pill"
@@ -53,6 +53,11 @@ export default {
     domain: {
       type: String,
       required: true
+    },
+    headerClass: {
+      default: 'sidebar-header',
+      required: false,
+      type: String
     },
     headerText: {
       default: 'Curated Groups',

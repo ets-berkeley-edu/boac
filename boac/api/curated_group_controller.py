@@ -42,12 +42,9 @@ from flask_login import current_user
 @advisor_required
 def all_curated_groups():
     scope = get_query_scope(current_user)
-    domain = get_param(request.args, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     uids = AuthorizedUser.get_all_uids_in_scope(scope)
     groups_per_uid = dict((uid, []) for uid in uids)
-    for group in CuratedGroup.get_groups_owned_by_uids(domain=domain, uids=uids):
+    for group in CuratedGroup.get_groups_owned_by_uids(uids=uids):
         groups_per_uid[group['ownerUid']].append(group)
     api_json = []
     for uid, user in calnet.get_calnet_users_for_uids(app, uids).items():
