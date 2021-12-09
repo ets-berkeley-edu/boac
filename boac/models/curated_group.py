@@ -24,13 +24,11 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import db, std_commit
-from boac.externals.data_loch import query_historical_sids
 from boac.lib.util import get_benchmarker
 from boac.merged.student import query_students
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
 from boac.models.db_relationships import cohort_domain_type
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from sqlalchemy import text
 
@@ -184,19 +182,16 @@ class CuratedGroup(Base):
         if include_students:
             sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
             if sids:
-                result = query_students(sids=sids, order_by=order_by, offset=offset, limit=limit, include_profiles=False)
+                result = query_students(
+                    sids=sids,
+                    include_historical=True,
+                    include_profiles=False,
+                    order_by=order_by,
+                    offset=offset,
+                    limit=limit,
+                )
                 feed['students'] = result['students']
                 feed['totalStudentCount'] = result['totalStudentCount']
-                # Attempt to supplement with historical student rows if we seem to be missing something.
-                if result['totalStudentCount'] < len(sids):
-                    remaining_sids = list(set(sids) - set(result['sids']))
-                    historical_sid_rows = query_historical_sids(remaining_sids)
-                    if len(historical_sid_rows):
-                        for row in historical_sid_rows:
-                            ManuallyAddedAdvisee.find_or_create(row['sid'])
-                        feed['totalStudentCount'] += len(historical_sid_rows)
-                        page_shortfall = max(0, limit - len(result['students']))
-                        feed['students'] += historical_sid_rows[:page_shortfall]
             else:
                 feed['students'] = []
                 feed['totalStudentCount'] = 0

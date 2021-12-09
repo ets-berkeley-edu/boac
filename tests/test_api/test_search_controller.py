@@ -28,7 +28,6 @@ from boac.externals import data_loch
 from boac.lib import util
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 import pytest
 import simplejson as json
@@ -134,7 +133,6 @@ class TestStudentSearch:
         assert len(students) == 1
         assert students[0]['sid'] == '2718281828'
         assert students[0]['academicCareerStatus'] == 'Completed'
-        assert students[0]['fullProfilePending'] is True
         assert students[0]['firstName'] == 'Ernest'
         assert students[0]['lastName'] == 'Pontifex'
 
@@ -153,15 +151,6 @@ class TestStudentSearch:
         assert api_json['totalStudentCount'] == 0
         students = api_json['students']
         assert len(students) == 0
-
-    def test_inactive_sids_search_creates_manually_added_advisee(self, client, fake_auth):
-        ManuallyAddedAdvisee.query.delete()
-        assert len(ManuallyAddedAdvisee.query.all()) == 0
-        fake_auth.login('2040')
-        _api_search(client, '2718281828', students=True)
-        manually_added_advisees = ManuallyAddedAdvisee.query.all()
-        assert len(manually_added_advisees) == 1
-        assert manually_added_advisees[0].sid == '2718281828'
 
     def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
         """Search results include alert counts."""

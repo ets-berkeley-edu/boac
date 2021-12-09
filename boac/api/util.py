@@ -35,7 +35,7 @@ from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
 from boac.merged.sis_terms import current_term_id
-from boac.merged.student import get_academic_standing_by_sid, get_historical_student_profiles, get_term_gpas_by_sid
+from boac.merged.student import get_academic_standing_by_sid, get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.curated_group import CuratedGroup
@@ -495,10 +495,6 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
         profile = student.get('profile')
         if profile:
             _add_row(json.loads(profile))
-    remaining_sids = list(set(sids) - set([s.get('sid') for s in students]))
-    if remaining_sids:
-        for profile in get_historical_student_profiles(remaining_sids):
-            _add_row(profile)
 
     benchmark('end')
 

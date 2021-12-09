@@ -161,7 +161,6 @@ ALTER TABLE IF EXISTS ONLY public.degree_progress_unit_requirements DROP CONSTRA
 ALTER TABLE IF EXISTS ONLY public.drop_in_advisors DROP CONSTRAINT IF EXISTS drop_in_advisors;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_key_key;
 ALTER TABLE IF EXISTS ONLY public.json_cache DROP CONSTRAINT IF EXISTS json_cache_pkey;
-ALTER TABLE IF EXISTS ONLY public.manually_added_advisees DROP CONSTRAINT IF EXISTS manually_added_advisees_pkey;
 ALTER TABLE IF EXISTS ONLY public.note_attachments DROP CONSTRAINT IF EXISTS note_attachments_pkey;
 ALTER TABLE IF EXISTS ONLY public.note_template_attachments DROP CONSTRAINT IF EXISTS note_template_attachments_pkey;
 ALTER TABLE IF EXISTS ONLY public.note_template_topics DROP CONSTRAINT IF EXISTS note_template_topics_pkey;
@@ -200,7 +199,6 @@ DROP SEQUENCE IF EXISTS public.note_templates_id_seq;
 DROP TABLE IF EXISTS public.note_topics;
 DROP SEQUENCE IF EXISTS public.note_topics_id_seq;
 DROP TABLE IF EXISTS public.notes_read;
-DROP TABLE IF EXISTS public.manually_added_advisees;
 DROP SEQUENCE IF EXISTS public.json_cache_id_seq;
 DROP TABLE IF EXISTS public.json_cache;
 DROP TABLE IF EXISTS public.drop_in_advisors;

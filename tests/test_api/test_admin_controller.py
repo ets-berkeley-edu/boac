@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 import pytest
 from tests.util import override_config
 
@@ -39,11 +38,6 @@ def asc_advisor_session(fake_auth):
 
 
 advisee_sid = '5000000000'
-
-
-@pytest.fixture()
-def mock_manually_added_advisee():
-    return ManuallyAddedAdvisee.find_or_create(sid=advisee_sid)
 
 
 class TestCachejobAccess:
@@ -83,40 +77,3 @@ class TestCachejobAccess:
             headers = {'app_key': None}
             response = client.get('/api/admin/cachejob', headers=headers)
             assert response.status_code == 401
-
-
-class TestGetManuallyAddedAdvisees:
-
-    @classmethod
-    def _api_get_all(cls, client, headers=None, expected_status_code=200):
-        response = client.get('/api/admin/manually_added_advisees', headers=headers)
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_not_authenticated(self, app, client, mock_manually_added_advisee):
-        """Returns 401 if not authenticated."""
-        self._api_get_all(client=client, expected_status_code=401)
-
-    def test_non_admin(self, app, client, mock_manually_added_advisee, asc_advisor_session):
-        """Returns 401 for normal users."""
-        self._api_get_all(client=client, expected_status_code=401)
-
-    def test_admin(self, app, client, mock_manually_added_advisee, admin_session):
-        """Returns valid response for admin users."""
-        response = self._api_get_all(client=client, expected_status_code=200)
-        assert len(response) == 1
-        assert response[0]['sid'] == advisee_sid
-
-    def test_api_key_match(self, app, client, mock_manually_added_advisee):
-        """Returns valid response when api key is provided."""
-        with override_config(app, 'API_KEY', 'dongle'):
-            headers = {'app_key': 'dongle'}
-            response = self._api_get_all(client=client, headers=headers, expected_status_code=200)
-            assert len(response) == 1
-            assert response[0]['sid'] == advisee_sid
-
-    def test_api_key_mismatch(self, app, client, mock_manually_added_advisee):
-        """Returns 401 when bad api key is provided."""
-        with override_config(app, 'API_KEY', 'dongle'):
-            headers = {'app_key': 'widget'}
-            self._api_get_all(client=client, headers=headers, expected_status_code=401)
