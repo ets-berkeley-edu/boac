@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from datetime import datetime
-import json
 import re
 
 from boac import db, std_commit
@@ -517,8 +516,7 @@ def _student_to_json(sid):
     if student:
         api_json = {camelize(key): student[key] for key in student.keys()}
     else:
-        profiles = data_loch.get_historical_student_profiles_for_sids([sid])
-        api_json = json.loads(profiles[0].get('profile')) if profiles and profiles[0] else {}
+        api_json = {}
     return {'student': api_json}
 
 

@@ -301,7 +301,7 @@ def get_coe_profiles(sids):
 def get_student_by_sid(sid):
     sql = f"""SELECT spi.*
         FROM {student_schema()}.student_profile_index spi
-        WHERE spi.sid = :sid AND spi.hist_enr IS FALSE"""
+        WHERE spi.sid = :sid"""
     rows = safe_execute_rds(sql, sid=sid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
@@ -309,7 +309,7 @@ def get_student_by_sid(sid):
 def get_student_by_uid(uid):
     sql = f"""SELECT spi.*
         FROM {student_schema()}.student_profile_index spi
-        WHERE spi.uid = :uid and spi.hist_enr IS FALSE"""
+        WHERE spi.uid = :uid"""
     rows = safe_execute_rds(sql, uid=uid)
     return None if not rows or (len(rows) == 0) else rows[0]
 
@@ -325,7 +325,7 @@ def get_sid_by_uid(uid):
 def get_basic_student_data(sids):
     sql = f"""SELECT sid, uid, first_name, last_name
         FROM {student_schema()}.student_profile_index
-        WHERE sid = ANY(:sids) AND hist_enr IS FALSE
+        WHERE sid = ANY(:sids)
         """
     return safe_execute_rds(sql, sids=sids)
 
@@ -340,44 +340,6 @@ def get_student_profiles(sids=None):
         return safe_execute_rds(sql, sids=sids)
     else:
         return safe_execute_rds(sql)
-
-
-def query_historical_sids(sids):
-    sql = f'SELECT sid FROM {student_schema()}.student_profiles_hist_enr WHERE sid = ANY(:sids) ORDER BY sid'
-    return safe_execute_rds(sql, sids=sids)
-
-
-def get_historical_student_profiles_for_sids(sids):
-    sql = f"""SELECT sid, uid, profile
-        FROM {student_schema()}.student_profiles_hist_enr
-        WHERE sid = ANY(:sids)"""
-    return safe_execute_rds(sql, sids=sids)
-
-
-def get_historical_student_profiles_for_uid(uid):
-    sql = f"""SELECT sid, uid, profile
-        FROM {student_schema()}.student_profiles_hist_enr
-        WHERE uid = :uid"""
-    return safe_execute_rds(sql, uid=uid)
-
-
-def get_historical_enrollments_for_sid(sid, latest_term_id=None):
-    sql = f"""SELECT term_id, enrollment_term
-        FROM {student_schema()}.student_enrollment_terms_hist_enr
-        WHERE sid = :sid
-        AND term_id >= '{earliest_term_id()}'"""
-    if latest_term_id:
-        sql += f" AND term_id <= '{latest_term_id}'"
-    sql += 'ORDER BY term_id DESC'
-    return safe_execute_rds(sql, sid=sid)
-
-
-def get_historical_enrollments_for_term(term_id, sids):
-    sql = f"""SELECT term_id, sid, enrollment_term
-        FROM {student_schema()}.student_enrollment_terms_hist_enr
-        WHERE term_id = :term_id
-        AND sid = ANY(:sids)"""
-    return safe_execute_rds(sql, term_id=term_id, sids=sids)
 
 
 def extract_valid_sids(sids):
@@ -432,7 +394,7 @@ def get_enrollments_for_term(term_id, sids=None):
 def get_students_by_sids(sids):
     sql = f"""SELECT spi.first_name, spi.last_name, spi.sid, spi.uid
         FROM {student_schema()}.student_profile_index spi
-        WHERE spi.sid = ANY(:sids) AND spi.hist_enr IS FALSE
+        WHERE spi.sid = ANY(:sids)
         ORDER BY spi.sid"""
     return safe_execute_rds(sql, sids=sids)
 
@@ -589,7 +551,7 @@ def get_admitted_students_by_sids(sids):
         a.special_program_cep, a.us_citizenship_status, a.us_non_citizen_status, a.citizenship_country, a.permanent_residence_country,
         a.non_immigrant_visa_current, a.non_immigrant_visa_planned, a.updated_at
         FROM {oua_schema()}.student_admits a
-        LEFT JOIN {student_schema()}.student_profile_index s ON a.cs_empl_id = s.sid AND s.hist_enr IS FALSE
+        LEFT JOIN {student_schema()}.student_profile_index s ON a.cs_empl_id = s.sid
         WHERE a.cs_empl_id = ANY(:sids)"""
     return safe_execute_rds(sql, sids=sids)
 
@@ -949,6 +911,7 @@ def get_students_query(     # noqa
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
+    include_historical=False,
     intended_majors=None,
     is_active_asc=None,
     is_active_coe=None,
@@ -975,7 +938,11 @@ def get_students_query(     # noqa
     if not query_tables:
         return None, None, None
 
-    query_filter = ' WHERE spi.hist_enr IS FALSE'
+    if include_historical:
+        query_filter = ' WHERE TRUE'
+    else:
+        query_filter = ' WHERE spi.hist_enr IS FALSE'
+
     query_bindings = {}
 
     # Name or SID search
@@ -983,8 +950,10 @@ def get_students_query(     # noqa
         words = list(set(search_phrase.upper().split()))
         # A numeric string indicates an SID search.
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
-            query_filter += ' AND (spi.sid LIKE :sid_phrase)'
-            query_bindings.update({'sid_phrase': f'{words[0]}%'})
+            # In the special case of a numeric SID search we want to include historical students by default, so
+            # replace the query_filter set above. Historical students are returned on exact matched only.
+            query_filter = ' WHERE ((spi.sid LIKE :sid_prefix AND spi.hist_enr IS FALSE) OR spi.sid = :sid_exact)'
+            query_bindings.update({'sid_prefix': f'{words[0]}%', 'sid_exact': words[0]})
         # If a single word, search on both name and email.
         elif len(words) == 1:
             name_string = ''.join(re.split('\W', words[0]))
@@ -1004,6 +973,7 @@ def get_students_query(     # noqa
                         AND n{i}.sid = spi.sid"""
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
+
     if academic_standings:
         query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = spi.sid"""
     if ethnicities:

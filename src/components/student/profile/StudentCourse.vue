@@ -95,7 +95,7 @@
         </span>
       </div>
       <div :id="`term-${termId}-course-${index}-title`">{{ course.title }}</div>
-      <div v-if="$currentUser.canAccessCanvasData && !student.fullProfilePending">
+      <div v-if="$currentUser.canAccessCanvasData">
         <div
           v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
           :key="canvasSiteIdx"

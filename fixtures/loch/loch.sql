@@ -457,13 +457,6 @@ CREATE TABLE student.student_profiles
     profile TEXT NOT NULL
 );
 
-CREATE TABLE student.student_profiles_hist_enr
-(
-    sid VARCHAR NOT NULL,
-    uid VARCHAR NOT NULL,
-    profile TEXT NOT NULL
-);
-
 CREATE TABLE student.student_profile_index
 (
     sid VARCHAR NOT NULL,
@@ -503,13 +496,6 @@ CREATE TABLE student.student_enrollment_terms
     midpoint_deficient_grade BOOLEAN NOT NULL,
     enrolled_units DECIMAL(3,1),
     term_gpa DECIMAL(5,3)
-);
-
-CREATE TABLE student.student_enrollment_terms_hist_enr
-(
-    sid VARCHAR NOT NULL,
-    term_id VARCHAR(4) NOT NULL,
-    enrollment_term TEXT NOT NULL
 );
 
 CREATE TABLE student.student_term_gpas
@@ -965,13 +951,9 @@ VALUES
 ('8901234567', :profile_8901234567),
 ('890127492', :profile_890127492),
 ('9000000000', :profile_9000000000),
-('9100000000', :profile_9100000000);
-
-INSERT INTO student.student_profiles_hist_enr
-(sid, uid, profile)
-VALUES
-('2718281828', '271828', :profile_completed_2718281828),
-('3141592653', '314159', :profile_inactive_3141592653);
+('9100000000', :profile_9100000000),
+('2718281828', :profile_completed_2718281828),
+('3141592653', :profile_inactive_3141592653);
 
 INSERT INTO student.student_profile_index
 (sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status, hist_enr)
@@ -1040,14 +1022,11 @@ VALUES
 ('2345678901', '2172', :enrollment_term_2345678901_2172, FALSE, 10.0, 3.5),
 ('2345678901', '2175', :enrollment_term_2345678901_2175, FALSE, 4.0, 0.0),
 ('3456789012', '2178', :enrollment_term_3456789012_2178, FALSE, 5.0, 3.2),
-('5678901234', '2178', :enrollment_term_5678901234_2178, FALSE, 7.0, 2.1);
+('5678901234', '2178', :enrollment_term_5678901234_2178, FALSE, 7.0, 2.1),
+('2718281828', '2058', :enrollment_term_completed_2718281828_2058, FALSE, 10.0, 3.0),
+('2718281828', '2102', :enrollment_term_completed_2718281828_2102, FALSE, 10.0, 3.0),
+('3141592653', '2052', :enrollment_term_inactive_3141592653_2052, FALSE, 10.0, 3.0);
 
-INSERT INTO student.student_enrollment_terms_hist_enr
-(sid, term_id, enrollment_term)
-VALUES
-('2718281828', '2058', :enrollment_term_completed_2718281828_2058),
-('2718281828', '2102', :enrollment_term_completed_2718281828_2102),
-('3141592653', '2052', :enrollment_term_inactive_3141592653_2052);
 
 INSERT INTO student.student_term_gpas
 (sid, term_id, gpa, units_taken_for_gpa)

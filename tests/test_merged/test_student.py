@@ -24,7 +24,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.merged import student
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 
 
 coe_advisor = '1133399'
@@ -43,10 +42,9 @@ class TestMergedStudent:
 
     def test_get_distilled_student_profiles(self):
         """Returns basic profiles of both current and non-current students."""
-        profiles = student.get_distilled_student_profiles(['2718281828', '11667051'])
+        profiles = student.get_distilled_student_profiles(['11667051', '2718281828'])
         assert len(profiles) == 2
         assert profiles[0]['firstName'] == 'Deborah'
-        assert profiles[0]['fullProfilePending'] is None
         assert profiles[0]['gender'] == 'Different Identity'
         assert profiles[0]['lastName'] == 'Davies'
         assert profiles[0]['name'] == 'Deborah Davies'
@@ -57,7 +55,6 @@ class TestMergedStudent:
         assert profiles[0]['athleticsProfile']
 
         assert profiles[1]['firstName'] == 'Ernest'
-        assert profiles[1]['fullProfilePending'] is True
         assert profiles[1]['gender'] is None
         assert profiles[1]['lastName'] == 'Pontifex'
         assert profiles[1]['name'] == 'Ernest Pontifex'
@@ -65,12 +62,3 @@ class TestMergedStudent:
         assert profiles[1]['sid'] == '2718281828'
         assert profiles[1]['uid'] == '27182'
         assert profiles[1]['underrepresented'] is None
-
-    def test_get_historical_student_profiles(self):
-        """Returns profiles of non-current students after adding them to manually_added_advisees."""
-        ManuallyAddedAdvisee.query.delete()
-        assert len(ManuallyAddedAdvisee.get_all()) == 0
-
-        profiles = student.get_historical_student_profiles(['2718281828', '3141592653'])
-        assert len(profiles) == 2
-        assert len(ManuallyAddedAdvisee.get_all()) == 2

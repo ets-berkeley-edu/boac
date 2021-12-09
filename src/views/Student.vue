@@ -139,12 +139,11 @@ export default {
     },
     parseCourse(course) {
       const canAccessCanvasData = this.$currentUser.canAccessCanvasData
-      const fullProfileAvailable = !this.student.fullProfilePending
       this.setWaitlistedStatus(course)
       this.$_.each(course.sections, function(section) {
         course.isOpen = false
         section.displayName = section.component + ' ' + section.sectionNumber
-        section.isViewableOnCoursePage = section.primary && canAccessCanvasData && fullProfileAvailable
+        section.isViewableOnCoursePage = section.primary && canAccessCanvasData
       })
     }
   }

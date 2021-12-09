@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.api.util import advisor_required, put_notifications
-from boac.externals.data_loch import get_students_by_sids, match_students_by_name_or_sid, query_historical_sids
+from boac.externals.data_loch import get_students_by_sids, match_students_by_name_or_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
@@ -110,9 +110,7 @@ def validate_sids():
             raise BadRequestError('Each SID must be numeric')
         else:
             summary = []
-            available_sids = query_students(sids=sids, sids_only=True)['sids']
-            remaining_sids = list(set(sids) - set(available_sids))
-            available_sids += [row['sid'] for row in query_historical_sids(remaining_sids)]
+            available_sids = query_students(sids=sids, sids_only=True, include_historical=True)['sids']
             for sid in sids:
                 summary.append({
                     'sid': sid,

@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from itertools import groupby
 import json
 import operator
-import re
 
 from boac import db
 from boac.externals import data_loch, s3
@@ -34,7 +33,6 @@ from boac.lib import analytics
 from boac.lib.berkeley import academic_year_for_term_name, dept_codes_where_advising, term_name_for_sis_id
 from boac.lib.util import get_benchmarker
 from boac.merged.sis_terms import current_term_id, current_term_name, future_term_id
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 from flask import current_app as app
 from flask_login import current_user
 from sqlalchemy import text
@@ -52,7 +50,6 @@ def get_distilled_student_profiles(sids):
             key: profile.get(key) for key in
             [
                 'firstName',
-                'fullProfilePending',
                 'gender',
                 'lastName',
                 'name',
@@ -70,10 +67,6 @@ def get_distilled_student_profiles(sids):
             distilled['coeProfile'] = profile['coeProfile']
         return distilled
     profiles = get_full_student_profiles(sids)
-    remaining_sids = list(set(sids) - set([p.get('sid') for p in profiles]))
-    if remaining_sids:
-        historical_profiles = get_historical_student_profiles(remaining_sids)
-        profiles += historical_profiles
     return [distill_profile(profile) for profile in profiles]
 
 
@@ -254,16 +247,6 @@ def get_summary_student_profiles(sids, include_historical=False, term_id=None):
     term_gpas = get_term_gpas_by_sid(sids)
     benchmark('end term GPA query')
 
-    remaining_sids = list(set(sids) - set([p.get('sid') for p in profiles]))
-    if len(remaining_sids) and include_historical:
-        benchmark('begin historical profile supplement')
-        historical_profiles = get_historical_student_profiles(remaining_sids)
-        profiles += historical_profiles
-        historical_enrollments_for_term = data_loch.get_historical_enrollments_for_term(str(term_id), remaining_sids)
-        for row in historical_enrollments_for_term:
-            enrollments_by_sid[row['sid']] = json.loads(row['enrollment_term'])
-        benchmark('end historical profile supplement')
-
     benchmark('begin profile transformation')
     for profile in profiles:
         summarize_profile(profile, enrollments=enrollments_by_sid, academic_standing=academic_standing, term_gpas=term_gpas)
@@ -327,33 +310,16 @@ def get_academic_standing_by_sid(sids, as_dicts=False):
     return academic_standing_feed
 
 
-def get_historical_student_profiles(sids):
-    historical_profile_rows = data_loch.get_historical_student_profiles_for_sids(sids)
-    historical_profiles = [_historicize_profile(row) for row in historical_profile_rows]
-    # We don't expect photo information to show for historical profiles, but we still need a placeholder element
-    # in the feed so the front end can show the proper fallback.
-    _merge_photo_urls(historical_profiles)
-    for historical_profile in historical_profiles:
-        ManuallyAddedAdvisee.find_or_create(historical_profile['sid'])
-    return historical_profiles
-
-
 def get_student_and_terms_by_sid(sid):
     student = data_loch.get_student_by_sid(sid)
     if student:
         return _construct_student_profile(student)
-    else:
-        profile_rows = data_loch.get_historical_student_profiles_for_sids([sid])
-        return _construct_historical_student_profile(profile_rows)
 
 
 def get_student_and_terms_by_uid(uid):
     student = data_loch.get_student_by_uid(uid)
     if student:
         return _construct_student_profile(student)
-    else:
-        profile_rows = data_loch.get_historical_student_profiles_for_uid(uid)
-        return _construct_historical_student_profile(profile_rows)
 
 
 def get_term_gpas_by_sid(sids, as_dicts=False):
@@ -386,6 +352,7 @@ def query_students(
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
+    include_historical=False,
     include_profiles=False,
     intended_majors=None,
     is_active_asc=None,
@@ -451,6 +418,7 @@ def query_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
+        include_historical=include_historical,
         intended_majors=intended_majors,
         is_active_asc=is_active_asc,
         is_active_coe=is_active_coe,
@@ -543,10 +511,6 @@ def search_for_students(
     benchmark('end SID query')
     total_student_count = len(result)
 
-    # In the special case of a numeric search phrase that returned no matches, fall back to historical student search.
-    if total_student_count == 0 and search_phrase and re.match(r'^\d+$', search_phrase):
-        return search_for_student_historical(search_phrase)
-
     sql = f"""SELECT
         spi.sid
         {query_tables}
@@ -568,23 +532,6 @@ def search_for_students(
         'students': students,
         'totalStudentCount': total_student_count,
     }
-
-
-def search_for_student_historical(sid):
-    student = data_loch.get_historical_student_profiles_for_sids([sid])
-    profile = _construct_historical_student_profile(student)
-    if profile:
-        ManuallyAddedAdvisee.find_or_create(sid)
-        summarize_profile(profile)
-        return {
-            'students': [profile],
-            'totalStudentCount': 1,
-        }
-    else:
-        return {
-            'students': [],
-            'totalStudentCount': 0,
-        }
 
 
 def get_student_query_scope(user=None):
@@ -703,15 +650,6 @@ def _get_active_plan_descriptions(profile):
     return sorted(plan.get('description') for plan in profile.get('plans', []) if plan.get('status') == 'Active')
 
 
-def _historicize_profile(row):
-    return {
-        **json.loads(row['profile']),
-        **{
-            'fullProfilePending': True,
-        },
-    }
-
-
 def _merge_photo_urls(profiles):
     def _photo_key(profile):
         return f"{app.config['DATA_LOCH_S3_PHOTO_PATH']}/{profile['uid']}.jpg"
@@ -759,19 +697,6 @@ def _construct_student_profile(student):
         if advisor.get('sid') == 'UCBUGADHAAS':
             profile['advisors'][index]['firstName'] = 'Haas Undergraduate Program'
             profile['advisors'][index]['email'] = 'UGMajorAdvising@haas.berkeley.edu'
-    return profile
-
-
-def _construct_historical_student_profile(profile_rows):
-    if not profile_rows or not profile_rows[0]:
-        return
-
-    profile = json.loads(profile_rows[0]['profile'])
-    # As above, no photo information is expected but we still need a placeholder element in the feed.
-    _merge_photo_urls([profile])
-    enrollment_results = data_loch.get_historical_enrollments_for_sid(profile['sid'], latest_term_id=future_term_id())
-    profile['enrollmentTerms'] = merge_enrollment_terms(enrollment_results)
-    profile['fullProfilePending'] = True
     return profile
 
 

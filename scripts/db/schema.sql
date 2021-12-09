@@ -556,15 +556,6 @@ ALTER TABLE drop_in_advisors
 
 --
 
-CREATE TABLE manually_added_advisees(
-    sid character varying NOT NULL,
-    created_at timestamp with time zone NOT NULL
-);
-ALTER TABLE ONLY manually_added_advisees
-    ADD CONSTRAINT manually_added_advisees_pkey PRIMARY KEY (sid);
-
---
-
 CREATE TABLE notes_read (
     note_id character varying(255) NOT NULL,
     viewer_id integer NOT NULL,

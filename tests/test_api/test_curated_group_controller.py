@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import std_commit
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
-from boac.models.manually_added_advisee import ManuallyAddedAdvisee
 import pytest
 import simplejson as json
 from tests.test_api.api_test_utils import api_curated_group_add_students, api_curated_group_remove_student
@@ -534,14 +533,12 @@ class TestCuratedGroupWithInactives:
         group_feed = client.get(f'/api/curated_group/{group_id}').json
         assert group_feed['totalStudentCount'] == 3
         assert len(group_feed['students']) == 3
-        assert group_feed['students'][1]['sid'] == self.completed_sid
-        assert group_feed['students'][1]['academicCareerStatus'] == 'Completed'
-        assert group_feed['students'][1]['fullProfilePending'] is True
-        assert group_feed['students'][1]['degrees'][0]['dateAwarded'] == '2010-05-14'
-        assert group_feed['students'][1]['degrees'][0]['description'] == 'Doctor of Philosophy'
-        assert group_feed['students'][2]['sid'] == self.inactive_sid
-        assert group_feed['students'][2]['academicCareerStatus'] == 'Inactive'
-        assert group_feed['students'][2]['fullProfilePending'] is True
+        assert group_feed['students'][0]['sid'] == self.inactive_sid
+        assert group_feed['students'][0]['academicCareerStatus'] == 'Inactive'
+        assert group_feed['students'][2]['sid'] == self.completed_sid
+        assert group_feed['students'][2]['academicCareerStatus'] == 'Completed'
+        assert group_feed['students'][2]['degrees'][0]['dateAwarded'] == '2010-05-14'
+        assert group_feed['students'][2]['degrees'][0]['description'] == 'Doctor of Philosophy'
 
     def test_add_inactive_to_group(self, asc_advisor, client):
         group = _api_curated_group_create(
@@ -557,22 +554,8 @@ class TestCuratedGroupWithInactives:
             sids=[self.inactive_sid],
         )
         assert updated_group['totalStudentCount'] == 2
-        assert updated_group['students'][0]['sid'] == self.active_sid
-        assert updated_group['students'][1]['sid'] == self.inactive_sid
-
-    def test_inactive_group_creation_creates_manually_added_advisee(self, client, fake_auth):
-        ManuallyAddedAdvisee.query.delete()
-        assert len(ManuallyAddedAdvisee.query.all()) == 0
-        fake_auth.login('2040')
-        _api_curated_group_create(
-            client=client,
-            name='Madonna of the Wasps',
-            sids=[self.active_sid, self.inactive_sid, self.completed_sid],
-        )
-        manually_added_advisees = ManuallyAddedAdvisee.query.all()
-        assert len(manually_added_advisees) == 2
-        assert manually_added_advisees[0].sid == self.completed_sid
-        assert manually_added_advisees[1].sid == self.inactive_sid
+        assert updated_group['students'][1]['sid'] == self.active_sid
+        assert updated_group['students'][0]['sid'] == self.inactive_sid
 
 
 class TestDownloadCuratedGroupCSV:
