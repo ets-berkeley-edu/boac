@@ -60,11 +60,6 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
-def asc_and_coe_advisor_login(fake_auth):
-    fake_auth.login(asc_and_coe_advisor_uid)
-
-
-@pytest.fixture()
 def guest_user_login(fake_auth):
     fake_auth.login(guest_user_uid)
 
@@ -716,8 +711,9 @@ class TestCohortCreate:
         cohort = api_cohort_create(client, self._intersecting_filter_criteria)
         assert len(cohort['students']) == 1
 
-    def test_multi_dept_intersecting_filters(self, client, asc_and_coe_advisor_login):
+    def test_multi_dept_intersecting_filters(self, client, fake_auth):
         """An advisor belonging to multiple departments can create a cohort using intersecting criteria."""
+        fake_auth.login(asc_and_coe_advisor_uid)
         cohort = api_cohort_create(client, self._intersecting_filter_criteria)
         assert len(cohort['students']) == 1
 
@@ -1672,10 +1668,11 @@ class TestCohortFilterOptions:
         assert len(filter_options['Past']) == 1
         assert filter_options['Past'][0]['name'] == '1997 Fall'
 
-    def test_no_curated_group_options(self, client, asc_and_coe_advisor_login):
+    def test_no_curated_group_options(self, client, fake_auth):
         """User with no curated groups gets no cohort filter option where key='curatedGroupIds'."""
+        fake_auth.login(asc_and_coe_advisor_uid)
         user_id = AuthorizedUser.get_id_per_uid(asc_and_coe_advisor_uid)
-        assert not CuratedGroup.get_curated_groups_by_owner_id(user_id)
+        assert not CuratedGroup.get_curated_groups(user_id)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         verified = False
         for label, option_group in api_json.items():

@@ -1,17 +1,12 @@
 import _ from 'lodash'
-import auth from '@/auth'
 import Vue from 'vue'
 import router from '@/router'
-import store from '@/store'
 import VueGtag, {bootstrap} from 'vue-gtag'
 
 export default {
   async initializeCurrentUser() {
     const user = Vue.prototype.$currentUser
     if (user.isAuthenticated) {
-      if (auth.isAdvisor(user) || auth.isDirector(user) || user.isAdmin) {
-        store.dispatch('currentUserExtras/loadMyCuratedGroups').then(_.noop)
-      }
       bootstrap().then(() => {
         Vue.prototype.$gtag.config({
           dimension1: user.isAdmin ? 'ADMIN' : _.keys(user.departments)[0],

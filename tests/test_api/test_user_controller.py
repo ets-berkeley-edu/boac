@@ -192,6 +192,37 @@ class TestMyCohorts:
             assert cohorts[0]['name'] == 'First Generation Students'
 
 
+class TestMyCuratedGroups:
+
+    @staticmethod
+    def _api_my_profile(client, expected_status_code=200):
+        response = client.get('/api/profile/my')
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_authorized(self, client, fake_auth):
+        """Returns curated groups of authorized advisor."""
+        fake_auth.login(coe_advisor_uid)
+        api_json = self._api_my_profile(client)['myCuratedGroups']
+        assert len(api_json)
+        group = api_json[0]
+        assert 'id' in group
+        assert 'alertCount' in group
+        assert 'totalStudentCount' in group
+        assert group['name'] == 'I have one student'
+
+    def test_admitted_students_domain(self, app, client, fake_auth):
+        """Returns 'admitted_students' groups of CE3 advisor."""
+        fake_auth.login(ce3_advisor_uid)
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            curated_groups = self._api_my_profile(client)['myCuratedGroups']
+            assert len(curated_groups) > 0
+            domains = set([c['domain'] for c in curated_groups])
+            assert len(domains) == 1
+            assert list(domains)[0] == 'admitted_students'
+            assert curated_groups[0]['name'] == "My 'admitted_students' group"
+
+
 class TestCalnetProfileByUid:
     """Calnet Profile API."""
 

@@ -73,19 +73,19 @@ def admin_user_session(fake_auth):
 @pytest.fixture()
 def admin_curated_groups():
     user = AuthorizedUser.find_by_uid(admin_uid)
-    return CuratedGroup.get_curated_groups_by_owner_id(user.id)
+    return CuratedGroup.get_curated_groups(user.id)
 
 
 @pytest.fixture()
 def asc_curated_groups():
     advisor = AuthorizedUser.find_by_uid(asc_advisor_uid)
-    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
+    return CuratedGroup.get_curated_groups(advisor.id)
 
 
 @pytest.fixture()
 def coe_advisor_groups():
     advisor = AuthorizedUser.find_by_uid(coe_advisor_uid)
-    return CuratedGroup.get_curated_groups_by_owner_id(advisor.id)
+    return CuratedGroup.get_curated_groups(advisor.id)
 
 
 class TestCreateCuratedGroup:
@@ -389,63 +389,7 @@ class TestGetCuratedGroup:
                 assert entry['groups'][0]['totalStudentCount']
 
 
-class TestMyCuratedGroups:
-    """Curated Group API."""
-
-    @staticmethod
-    def _api_my_curated_groups(client, domain='default', expected_status_code=200):
-        response = client.get(f'/api/curated_groups/my?domain={domain}')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    @staticmethod
-    def _api_my_curated_groups_by_sid(client, sid, expected_status_code=200):
-        response = client.get(f'/api/curated_groups/my/{sid}')
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_not_authenticated(self, client):
-        """Anonymous user is rejected."""
-        self._api_my_curated_groups(client, expected_status_code=401)
-
-    def test_coe_scheduler_not_allowed(self, client, coe_scheduler):
-        """User with scheduler role will be denied."""
-        self._api_my_curated_groups(client, expected_status_code=401)
-
-    def test_authorized(self, client, coe_advisor):
-        """Returns curated groups of authorized advisor."""
-        api_json = self._api_my_curated_groups(client)
-        assert len(api_json)
-        group = api_json[0]
-        assert 'id' in group
-        assert 'alertCount' in group
-        assert 'totalStudentCount' in group
-        assert group['name'] == 'I have one student'
-
-    def test_admitted_students_domain(self, app, client, fake_auth):
-        """Returns 'admitted_students' groups of CE3 advisor."""
-        fake_auth.login(ce3_advisor_uid)
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
-            curated_groups = self._api_my_curated_groups(client=client, domain='admitted_students')
-            assert len(curated_groups) > 0
-            domains = set([c['domain'] for c in curated_groups])
-            assert len(domains) == 1
-            assert list(domains)[0] == 'admitted_students'
-            assert curated_groups[0]['name'] == "My 'admitted_students' group"
-
-    def test_not_authenticated_curated_groups_by_sid(self, client):
-        """Anonymous user is rejected."""
-        assert self._api_my_curated_groups_by_sid(client, sid='7890123456', expected_status_code=401)
-
-    def test_curated_groups_by_sid(self, client, coe_advisor, coe_advisor_groups):
-        """API delivers accurate set of student SIDs."""
-        sids = CuratedGroup.get_all_sids(curated_group_id=coe_advisor_groups[0].id)
-        sample_sid = sids[0]
-        assert self._api_my_curated_groups_by_sid(client, sid=sample_sid) == [coe_advisor_groups[0].id]
-
-
 class TestAddStudents:
-    """Curated Group API."""
 
     def test_not_authenticated(self, asc_curated_groups, client):
         """Anonymous user is rejected."""

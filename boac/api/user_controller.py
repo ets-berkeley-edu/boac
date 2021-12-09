@@ -31,9 +31,9 @@ from boac.api.util import (
     advising_data_access_required,
     advisor_required,
     authorized_users_api_feed,
-    can_access_admitted_students,
     drop_in_advisors_for_dept_code,
     drop_in_required,
+    get_my_curated_groups,
     scheduler_required,
 )
 from boac.lib import util
@@ -61,8 +61,8 @@ def my_profile():
         cohorts.append(cohort)
     return tolerant_jsonify({
         **current_user.to_api_json(),
-        'canAccessAdmittedStudents': can_access_admitted_students(current_user),
         'myCohorts': cohorts,
+        'myCuratedGroups': get_my_curated_groups(),
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',

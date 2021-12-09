@@ -1013,7 +1013,7 @@ def _api_batch_note_create(
 def _get_curated_groups_ids_and_sids(advisor):
     sids = []
     curated_group_ids = []
-    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(advisor.id):
+    for curated_group in CuratedGroup.get_curated_groups(advisor.id):
         curated_group_ids.append(curated_group.id)
         sids = sids + CuratedGroup.get_all_sids(curated_group.id)
     return curated_group_ids, sids
