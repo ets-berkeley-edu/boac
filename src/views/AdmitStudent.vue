@@ -21,7 +21,12 @@
           </div>
         </div>
         <div>
-          <ManageStudent domain="admitted_students" :student="admit" />
+          <ManageStudent
+            domain="admitted_students"
+            label="Add to Admission Group"
+            label-class="px-2"
+            :student="admit"
+          />
         </div>
       </div>
       <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />

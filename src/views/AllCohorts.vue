@@ -6,7 +6,7 @@
         <h1 class="page-section-header">Everyone's Cohorts</h1>
         <div v-if="$_.find($_.flatten($_.map(rows, 'cohorts')), g => g.domain === 'admitted_students')" class="pl-1">
           <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
-          denotes a group of admitted students.
+          denotes a cohort of admitted students.
         </div>
       </div>
       <div v-if="!rows.length">

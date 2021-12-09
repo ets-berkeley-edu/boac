@@ -171,17 +171,19 @@ class CuratedGroup(Base):
                 cohort_filter_ids.append(row['id'])
         return cohort_filter_ids
 
-    def to_api_json(self, order_by='last_name', offset=0, limit=50, include_students=True):
+    def to_api_json(self, include_students, order_by='last_name', offset=0, limit=50):
         benchmark = get_benchmarker(f'CuratedGroup {self.id} to_api_json')
         benchmark('begin')
+        sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
         feed = {
+            'domain': self.domain,
             'id': self.id,
             'name': self.name,
-            'domain': self.domain,
             'ownerId': self.owner_id,
+            'sids': sids,
+            'totalStudentCount': len(sids),
         }
         if include_students:
-            sids = CuratedGroupStudent.get_sids(curated_group_id=self.id)
             if sids:
                 result = query_students(
                     sids=sids,
@@ -192,10 +194,8 @@ class CuratedGroup(Base):
                     limit=limit,
                 )
                 feed['students'] = result['students']
-                feed['totalStudentCount'] = result['totalStudentCount']
             else:
                 feed['students'] = []
-                feed['totalStudentCount'] = 0
         benchmark('end')
         return feed
 
@@ -239,4 +239,4 @@ def _refresh_related_cohorts(curated_group):
         cohort = CohortFilter.query.filter_by(id=cohort_id).first()
         cohort.clear_sids_and_student_count()
         cohort.update_alert_count(None)
-        cohort.to_api_json(include_students=False, include_alerts_for_user_id=cohort.owner_id)
+        cohort.to_api_json(include_alerts_for_user_id=cohort.owner_id, include_students=False)

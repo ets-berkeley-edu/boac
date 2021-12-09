@@ -14,13 +14,15 @@
       <template slot="button-content">
         <div :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
-            <div :class="{'font-size-14': isButtonVariantLink, 'pl-3': !isButtonVariantLink}">Add to Group</div>
+            <div :class="labelClass">
+              {{ label }}
+            </div>
             <div v-if="!isButtonVariantLink" class="pr-2">
               <font-awesome v-if="disableSelector || groupsLoading" icon="spinner" spin />
               <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" />
             </div>
           </div>
-          <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink}">
+          <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">
             <font-awesome icon="times" /> Removed
           </span>
           <span v-if="isAdding" :class="{'text-success': isButtonVariantLink}">
@@ -97,6 +99,16 @@ export default {
     isButtonVariantLink: {
       required: false,
       type: Boolean
+    },
+    label: {
+      default: 'Add to Group',
+      required: false,
+      type: String
+    },
+    labelClass: {
+      default: 'font-size-14 px-2',
+      required: false,
+      type: String
     },
     srOnly: {
       required: false,

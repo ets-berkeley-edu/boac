@@ -31,8 +31,6 @@ legend {
 .b-dd-narrow {
   height: 35px !important;
   margin-left: 0 !important;
-  min-width: 160px !important;
-  width: 160px !important;
 }
 .b-table th[aria-sort] div::after {
   display: inline !important;

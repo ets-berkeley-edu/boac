@@ -72,7 +72,7 @@ def create_curated_group():
     if 'sids' in params:
         sids = [sid for sid in set(params.get('sids')) if sid.isdigit()]
         CuratedGroup.add_students(curated_group_id=curated_group.id, sids=sids)
-    return tolerant_jsonify(curated_group.to_api_json())
+    return tolerant_jsonify(curated_group.to_api_json(include_students=True))
 
 
 @app.route('/api/curated_group/delete/<curated_group_id>', methods=['DELETE'])
@@ -162,7 +162,7 @@ def remove_student_from_curated_group(curated_group_id, sid):
     if curated_group.owner_id != current_user.get_id():
         raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, does not own curated group {curated_group.id}')
     CuratedGroup.remove_student(curated_group_id, sid)
-    return tolerant_jsonify(curated_group.to_api_json())
+    return tolerant_jsonify(curated_group.to_api_json(include_students=False))
 
 
 @app.route('/api/curated_group/students/add', methods=['POST'])
@@ -184,7 +184,7 @@ def add_students_to_curated_group():
         return tolerant_jsonify(_curated_group_with_complete_student_profiles(curated_group_id=curated_group_id))
     else:
         group = CuratedGroup.find_by_id(curated_group_id)
-        return tolerant_jsonify(group.to_api_json())
+        return tolerant_jsonify(group.to_api_json(include_students=False))
 
 
 @app.route('/api/curated_group/rename', methods=['POST'])
@@ -199,7 +199,7 @@ def rename_curated_group():
     if not curated_group or curated_group.owner_id != current_user.get_id():
         raise BadRequestError('Curated group does not exist or is not available to you')
     CuratedGroup.rename(curated_group_id=curated_group.id, name=name)
-    return tolerant_jsonify(CuratedGroup.find_by_id(curated_group_id).to_api_json())
+    return tolerant_jsonify(CuratedGroup.find_by_id(curated_group_id).to_api_json(include_students=False))
 
 
 def _curated_group_with_complete_student_profiles(
@@ -216,7 +216,7 @@ def _curated_group_with_complete_student_profiles(
         raise ResourceNotFoundError(f'Sorry, no curated group found with id {curated_group_id}.')
     if not _can_current_user_view_curated_group(curated_group):
         raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
-    api_json = curated_group.to_api_json(order_by=order_by, offset=offset, limit=limit)
+    api_json = curated_group.to_api_json(include_students=True, limit=limit, offset=offset, order_by=order_by)
     sids = [s['sid'] for s in api_json['students']]
     benchmark('begin profile query')
     if curated_group.domain == 'admitted_students':
