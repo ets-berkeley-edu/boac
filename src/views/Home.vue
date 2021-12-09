@@ -25,12 +25,12 @@
           />
         </div>
       </div>
-      <div v-if="$_.size(myCuratedGroups)">
+      <div v-if="$currentUser.myCuratedGroups.length">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <SortableGroup
-          v-for="curatedGroup in myCuratedGroups"
+          v-for="curatedGroup in $currentUser.myCuratedGroups"
           :key="curatedGroup.id"
           :group="curatedGroup"
           :is-cohort="false"
@@ -41,7 +41,6 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable'
 import SortableGroup from '@/components/search/SortableGroup.vue'
@@ -54,7 +53,7 @@ export default {
     SortableGroup,
     Spinner
   },
-  mixins: [CurrentUserExtras, Loading, Scrollable, Util],
+  mixins: [Loading, Scrollable, Util],
   mounted() {
     this.loaded('BOA has loaded')
     this.scrollToTop()

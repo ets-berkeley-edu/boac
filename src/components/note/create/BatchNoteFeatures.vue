@@ -66,7 +66,6 @@
 import BatchNoteAddCohort from '@/components/note/create/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/create/BatchNoteAddStudent'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'
 
@@ -76,7 +75,7 @@ export default {
     BatchNoteAddCohort,
     BatchNoteAddStudent
   },
-  mixins: [Context, CurrentUserExtras, NoteEditSession, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     cancel: Function
   },

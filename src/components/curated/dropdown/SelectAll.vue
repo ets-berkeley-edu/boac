@@ -85,14 +85,13 @@
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Util from '@/mixins/Util'
 import {addStudents, createCuratedGroup} from '@/api/curated'
 
 export default {
   name: 'SelectAll',
   components: {CreateCuratedGroupModal},
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   props: {
     contextDescription: {
       required: true,

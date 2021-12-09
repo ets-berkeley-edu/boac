@@ -67,13 +67,12 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Util from '@/mixins/Util'
 import {getCasLogoutUrl} from '@/api/auth'
 
 export default {
   name: 'HeaderMenu',
-  mixins: [Berkeley, Context, CurrentUserExtras, Util],
+  mixins: [Berkeley, Context, Util],
   data: () => ({
     myDirectorDepartment: undefined
   }),

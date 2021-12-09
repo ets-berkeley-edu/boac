@@ -9,13 +9,20 @@
       >
         {{ fullName }}
       </h1>
-      <div v-if="admit.studentUid" class="pt-2 pb-3">
-        <router-link
-          :id="`link-to-student-${admit.studentUid}`"
-          :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
-        >
-          View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
-        </router-link>
+      <div class="d-flex justify-content-between">
+        <div>
+          <div v-if="admit.studentUid" class="pt-2 pb-3">
+            <router-link
+              :id="`link-to-student-${admit.studentUid}`"
+              :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
+            >
+              View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
+            </router-link>
+          </div>
+        </div>
+        <div>
+          <ManageStudent domain="admitted_students" :student="admit" />
+        </div>
       </div>
       <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />
 
@@ -289,6 +296,7 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import Loading from '@/mixins/Loading'
+import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import Scrollable from '@/mixins/Scrollable'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
@@ -296,7 +304,7 @@ import {getAdmitBySid} from '@/api/admit'
 
 export default {
   name: 'AdmitStudent',
-  components: {AdmitDataWarning, Spinner},
+  components: {AdmitDataWarning, ManageStudent, Spinner},
   mixins: [Loading, Scrollable, Util],
   data: () => ({
     admit: {}

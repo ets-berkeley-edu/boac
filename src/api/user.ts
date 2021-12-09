@@ -1,8 +1,17 @@
 import _ from 'lodash'
 import axios from 'axios'
-import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
+
+const $_setDropInStatus = (deptCode, available, status) => {
+  const currentUser = Vue.prototype.$currentUser
+  const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()})
+  if (dropInAdvisorStatus) {
+    dropInAdvisorStatus.available = available
+    dropInAdvisorStatus.status = status
+    Vue.prototype.$eventHub.emit('drop-in-status-change', dropInAdvisorStatus)
+  }
+}
 
 export function getDepartments(excludeEmpty?: boolean) {
   return axios
@@ -96,11 +105,11 @@ export function setDropInAvailability(deptCode: string, uid: string, available: 
     .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_advising/${deptCode}/${availability}`)
     .then(response => {
       if (uid === Vue.prototype.$currentUser.uid) {
-        store.commit('currentUserExtras/setDropInStatus', {
-          available: _.get(response.data, 'available'),
-          deptCode: deptCode,
-          status: _.get(response.data, 'status')
-        })
+        $_setDropInStatus(
+          _.get(response.data, 'available'),
+          deptCode,
+          _.get(response.data, 'status')
+        )
       } else {
         return response.data
       }
@@ -111,11 +120,11 @@ export function setDropInStatus(deptCode: string, status?: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/status`, {status: status || ''})
     .then(response => {
-      store.commit('currentUserExtras/setDropInStatus', {
-          available: _.get(response.data, 'available'),
-          deptCode: deptCode,
-          status: _.get(response.data, 'status'),
-      })
+      $_setDropInStatus(
+        _.get(response.data, 'available'),
+        deptCode,
+        _.get(response.data, 'status'),
+      )
     }, () => null)
 }
 
@@ -156,13 +165,13 @@ export function createOrUpdateUser(profile: any, memberships: any[], deleteActio
 export function disableDropInAdvising(deptCode: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/disable`)
-    .then(() => store.commit('currentUserExtras/dropInAdvisorDeleted', deptCode))
+    .then(() => _.remove(Vue.prototype.$currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()}))
     .catch(error => error)
   }
 
 export function enableDropInAdvising(deptCode: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/enable`)
-    .then(response => store.commit('currentUserExtras/dropInAdvisorAdded', response.data))
+    .then(response => Vue.prototype.$currentUser.dropInAdvisorStatus = _.concat(Vue.prototype.$currentUser.dropInAdvisorStatus, response.data))
     .catch(error => error)
 }

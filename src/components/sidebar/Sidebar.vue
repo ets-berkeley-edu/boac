@@ -61,7 +61,6 @@ import Cohorts from '@/components/sidebar/Cohorts.vue'
 import Context from '@/mixins/Context'
 import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
 import SearchForm from '@/components/sidebar/SearchForm.vue'
@@ -75,7 +74,7 @@ export default {
     MyAdmitCohorts,
     SearchForm
   },
-  mixins: [Context, CurrentUserExtras, Util],
+  mixins: [Context, Util],
   data: () => ({
     isCreateNoteModalOpen: false
   }),

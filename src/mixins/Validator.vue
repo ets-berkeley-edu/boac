@@ -30,8 +30,8 @@ export default {
       } else if (isReservedName(name)) {
         msg = `Sorry, '${name}' is a reserved name. Please choose a different name.`
       } else {
-        let all = {
-          'curated group': store.getters['currentUserExtras/myCuratedGroups'],
+        const all = {
+          'curated group': Vue.prototype.$currentUser.myCuratedGroups,
           cohort: Vue.prototype.$currentUser.myCohorts
         }
         _.each(all, (cohorts, cohortType) => {

@@ -204,7 +204,6 @@
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import ExportListModal from '@/components/util/ExportListModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
@@ -214,7 +213,7 @@ import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 export default {
   name: 'CuratedGroupHeader',
   components: {ExportListModal, ModalHeader},
-  mixins: [Berkeley, Context, CuratedEditSession, CurrentUserExtras, Util, Validator],
+  mixins: [Berkeley, Context, CuratedEditSession, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,

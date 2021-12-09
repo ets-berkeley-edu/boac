@@ -25,7 +25,7 @@
         <NavLink
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
-          :path="`/curated/${group.id}`"
+          :path="`/curated/${group.id}?domain=${domain}`"
         >
           {{ group.name }}
         </NavLink>
@@ -42,14 +42,13 @@
 </template>
 
 <script>
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import NavLink from '@/components/util/NavLink'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CuratedGroups',
   components: {NavLink},
-  mixins: [CurrentUserExtras, Util],
+  mixins: [Util],
   props: {
     domain: {
       type: String,

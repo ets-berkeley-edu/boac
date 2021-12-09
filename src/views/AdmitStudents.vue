@@ -99,7 +99,6 @@ import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Loading from '@/mixins/Loading'
 import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
@@ -127,7 +126,6 @@ export default {
     Context,
     Loading,
     Scrollable,
-    CurrentUserExtras,
     Util
   ],
   data: () => ({

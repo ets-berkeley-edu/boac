@@ -75,7 +75,6 @@
 <script>
 import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import CurrentUserExtras from '@/mixins/CurrentUserExtras'
 import Scrollable from '@/mixins/Scrollable'
 import Util from '@/mixins/Util'
 import {
@@ -89,7 +88,7 @@ export default {
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, CurrentUserExtras, Scrollable, Util],
+  mixins: [Context, Scrollable, Util],
   props: {
     domain: {
       required: true,
