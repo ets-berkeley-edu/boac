@@ -32,7 +32,12 @@
         />
       </div>
       <div v-if="listType === 'cohort'" class="manage-curated-student mb-1 text-center">
-        <ManageStudent :is-button-variant-link="true" :sr-only="!hover" :student="student" />
+        <ManageStudent
+          domain="default"
+          :is-button-variant-link="true"
+          :sr-only="!hover"
+          :student="student"
+        />
       </div>
     </div>
     <div class="cohort-student-bio-container mb-1">

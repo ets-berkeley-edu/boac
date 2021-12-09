@@ -42,6 +42,7 @@
       <div class="search-header-curated-cohort">
         <SelectAll
           context-description="Search"
+          domain="default"
           :ga-event-tracker="$ga.searchEvent"
           :students="results.students"
         />

@@ -11,7 +11,7 @@
         </div>
         <div class="text-center" :class="{'column-with-avatar-compact': compact, 'column-with-avatar': !compact}">
           <StudentAvatar class="mb-2" :size="compact ? 'medium' : 'large'" :student="student" />
-          <ManageStudent v-if="!compact" :student="student" />
+          <ManageStudent v-if="!compact" domain="default" :student="student" />
         </div>
       </div>
       <div class="mr-5">

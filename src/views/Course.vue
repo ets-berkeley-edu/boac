@@ -71,6 +71,7 @@
             <SelectAll
               v-if="!$_.isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
+              domain="default"
               :ga-event-tracker="$ga.courseEvent"
               :students="section.students"
               class="mr-2"

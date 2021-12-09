@@ -8,23 +8,16 @@
         <Cohorts :cohorts="myCohorts" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="myCuratedGroups">
-        <CuratedGroups
-          domain="default"
-          :groups="myCuratedGroups"
-        />
+      <div v-if="$currentUser.myCuratedGroups">
+        <CuratedGroups domain="default" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myAdmitCohorts">
         <MyAdmitCohorts :cohorts="myAdmitCohorts" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="myAdmitCuratedGroups">
-        <CuratedGroups
-          domain="admitted_students"
-          :groups="myAdmitCuratedGroups"
-          header-text="CE3 Groups"
-        />
+      <div v-if="$currentUser.myCuratedGroups">
+        <CuratedGroups domain="admitted_students" header-text="Admission Groups" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div class="mb-2 sidebar-row-link">
@@ -108,9 +101,6 @@ export default {
     },
     myCohorts() {
       return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
-    },
-    myCuratedGroups() {
-      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', 'default'])
     }
   },
   methods: {

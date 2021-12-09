@@ -32,6 +32,7 @@
             <SelectAll
               v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
+              :domain="domain"
               :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students"
