@@ -43,11 +43,12 @@ def search_for_admitted_students(
     order_by=None,
 ):
     benchmark = get_benchmarker('search_for_admitted_students')
-    query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
+    query_tables, query_filter, query_bindings, temp_table = data_loch.get_admitted_students_query(
         search_phrase=search_phrase,
     )
     order_by = order_by or 'last_name'
     sql = f"""
+    {temp_table}
     SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,
         sa.middle_name,
