@@ -1,8 +1,25 @@
+import _ from 'lodash'
 import axios from 'axios'
 import moment from 'moment-timezone'
-import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
+
+const $_onCreate = group => {
+  Vue.prototype.$currentUser.myCuratedGroups.push(group)
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+}
+
+const $_onDelete = groupId => {
+  const indexOf = Vue.prototype.$currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === groupId)
+  Vue.prototype.$currentUser.myCuratedGroups.splice(indexOf, 1)
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+}
+
+const $_onUpdate = updatedGroup => {
+  const group = Vue.prototype.$currentUser.myCuratedGroups.find(group => group.id === +updatedGroup.id)
+  Object.assign(group, updatedGroup)
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+}
 
 export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
   return axios
@@ -13,7 +30,7 @@ export function addStudents(curatedGroupId: number, sids: string[], returnStuden
     })
     .then(response => {
       const group = response.data
-      store.commit('currentUserExtras/curatedGroupUpdated', group)
+      group.sids = _.uniq(group.sids.concat(sids))
       return group
     })
 }
@@ -26,7 +43,7 @@ export function createCuratedGroup(name: string, sids: string[]) {
     })
     .then(function(response) {
       const group = response.data
-      store.commit('currentUserExtras/curatedGroupCreated', group)
+      $_onCreate(group)
       return group
     })
 }
@@ -39,9 +56,9 @@ export function deleteCuratedGroup(id) {
       }
     })
     .then(() => {
-      store.commit('currentUserExtras/curatedGroupDeleted', id)
+      $_onDelete(id)
+      Vue.prototype.$ga.curatedEvent(id, null, 'delete')
     })
-    .then(() => Vue.prototype.$ga.curatedEvent(id, null, 'delete'))
     .catch(error => error)
 }
 
@@ -61,21 +78,7 @@ export function getCuratedGroup(
   limit: number
 ) {
   const url = `${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit${limit}`
-  return axios
-    .get(url)
-    .then(response => response.data, () => null)
-}
-
-export function getMyCuratedGroupIdsPerStudentId(sid: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_groups/my/${sid}`)
-    .then(response => response.data, () => null)
-}
-
-export function getMyCuratedGroups() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_groups/my`)
-    .then(response => response.data, () => null)
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getUsersWithGroups() {
@@ -89,7 +92,7 @@ export function removeFromCuratedGroup(groupId, sid) {
     .delete(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data
-      store.commit('currentUserExtras/curatedGroupUpdated', group)
+      group.sids = _.remove(group.sids, s => sid === s)
       Vue.prototype.$ga.curatedEvent(group.id, group.name, 'remove_student')
       return group
     })
@@ -100,7 +103,7 @@ export function renameCuratedGroup(id, name) {
     .post(`${utils.apiBaseUrl()}/api/curated_group/rename`, {id: id, name: name})
     .then(response => {
       const group = response.data
-      store.commit('currentUserExtras/curatedGroupUpdated', group)
+      $_onUpdate(group)
       Vue.prototype.$ga.curatedEvent(group.id, group.name, 'rename')
       return group
     })

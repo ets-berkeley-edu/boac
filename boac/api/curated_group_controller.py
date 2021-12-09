@@ -24,8 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, get_my_curated_groups, is_unauthorized_domain, \
-    response_with_students_csv_download
+from boac.api.util import advisor_required, is_unauthorized_domain, response_with_students_csv_download
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
@@ -36,13 +35,6 @@ from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 from flask import current_app as app, request
 from flask_login import current_user
-
-
-@app.route('/api/curated_groups/my')
-@advisor_required
-def my_curated_groups():
-    domain = get_param(request.args, 'domain', 'default')
-    return tolerant_jsonify(get_my_curated_groups(domain))
 
 
 @app.route('/api/curated_groups/all')
@@ -155,19 +147,6 @@ def get_students_with_alerts(curated_group_id):
         student['alertCount'] = alert_count_per_sid[student['sid']]
     benchmark('end')
     return tolerant_jsonify(students_with_alerts)
-
-
-@app.route('/api/curated_groups/my/<sid>')
-@advisor_required
-def curated_group_ids_per_sid(sid):
-    domain = get_param(request.args, 'domain', 'default')
-    if is_unauthorized_domain(domain):
-        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
-    return tolerant_jsonify(CuratedGroup.curated_group_ids_per_sid(
-        domain=domain,
-        sid=sid,
-        user_id=current_user.get_id(),
-    ))
 
 
 @app.route('/api/curated_group/<curated_group_id>/remove_student/<sid>', methods=['DELETE'])

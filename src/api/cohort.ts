@@ -4,16 +4,16 @@ import utils from '@/api/api-utils'
 import Vue from 'vue'
 
 
-const $_onCohortCreate = cohort => {
+const $_onCreate = cohort => {
   Vue.prototype.$currentUser.myCohorts.push(cohort)
 }
 
-const $_onCohortDelete = cohortId => {
+const $_onDelete = cohortId => {
   const indexOf = Vue.prototype.$currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
   Vue.prototype.$currentUser.myCohorts.splice(indexOf, 1)
 }
 
-const $_onCohortUpdate = updatedCohort => {
+const $_onUpdate = updatedCohort => {
   const cohort = Vue.prototype.$currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)
   Object.assign(cohort, updatedCohort)
 }
@@ -31,7 +31,7 @@ export function createCohort(
     })
     .then(response => {
       const cohort = response.data
-      $_onCohortCreate(cohort)
+      $_onCreate(cohort)
       return cohort
     }, () => null)
 }
@@ -43,7 +43,7 @@ export function deleteCohort(id) {
         'Content-Type': 'application/json'
       }
     })
-    .then(() => $_onCohortDelete(id), () => null)
+    .then(() => $_onDelete(id), () => null)
 }
 
 export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: any[]) {
@@ -148,7 +148,7 @@ export function saveCohort(
     })
     .then(response => {
       const cohort = response.data
-      $_onCohortUpdate(cohort)
+      $_onUpdate(cohort)
       return cohort
     }, () => null)
 }

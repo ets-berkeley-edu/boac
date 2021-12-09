@@ -183,13 +183,15 @@ class UserSession(UserMixin):
         else:
             degree_progress_permission = None
 
+        can_access_ce3_features = user and (user.is_admin or 'ZCEEE' in [d['code'] for d in departments])
         return {
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
+                'canAccessAdmittedStudents': app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] and can_access_ce3_features,
                 'canAccessAdvisingData': user and user.can_access_advising_data,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
-                'canAccessPrivateNotes': user and (user.is_admin or 'ZCEEE' in [d['code'] for d in departments]),
+                'canAccessPrivateNotes': can_access_ce3_features,
                 'canEditDegreeProgress': degree_progress_permission == 'read_write',
                 'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'],
                 'degreeProgressPermission': degree_progress_permission,

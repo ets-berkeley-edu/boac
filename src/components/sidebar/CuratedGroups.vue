@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-content-between mb-1 sidebar-row-link">
       <div class="ml-2 sidebar-header">
-        Curated Groups
+        {{ headerText }}
       </div>
       <div class="ml-2 mr-2">
         <NavLink
@@ -16,7 +16,7 @@
       </div>
     </div>
     <div
-      v-for="(group, index) in myCuratedGroups"
+      v-for="(group, index) in groups"
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
@@ -48,6 +48,17 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CuratedGroups',
   components: {NavLink},
-  mixins: [CurrentUserExtras, Util]
+  mixins: [CurrentUserExtras, Util],
+  props: {
+    groups: {
+      type: Array,
+      required: true
+    },
+    headerText: {
+      default: 'Curated Groups',
+      required: false,
+      type: String
+    }
+  }
 }
 </script>

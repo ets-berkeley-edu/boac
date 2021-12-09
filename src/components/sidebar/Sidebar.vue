@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <SearchForm :domain="domain" />
+      <SearchForm :domain="searchDomain" />
     </div>
     <div role="navigation" aria-label="Cohorts and Curated Groups">
       <div v-if="myCohorts">
@@ -9,11 +9,15 @@
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myCuratedGroups">
-        <CuratedGroups />
+        <CuratedGroups :groups="myCuratedGroups" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div v-if="myAdmitCohorts">
         <MyAdmitCohorts :cohorts="myAdmitCohorts" />
+        <hr class="ml-2 mr-2 section-divider" />
+      </div>
+      <div v-if="myAdmitCuratedGroups">
+        <CuratedGroups :groups="myAdmitCuratedGroups" header-text="CE3 Groups" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
       <div class="mb-2 sidebar-row-link">
@@ -73,13 +77,11 @@ export default {
   },
   mixins: [Context, CurrentUserExtras, Util],
   data: () => ({
-    isCreateNoteModalOpen: false,
-    myAdmitCohorts: undefined,
-    myCohorts: undefined
+    isCreateNoteModalOpen: false
   }),
   computed: {
-    domain() {
-      let domain = ['students']
+    searchDomain() {
+      const domain = ['students']
       if (this.$currentUser.canAccessCanvasData) {
         domain.push('courses')
       }
@@ -90,11 +92,19 @@ export default {
         domain.push('admits')
       }
       return domain
+    },
+    myAdmitCohorts() {
+      return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
+    },
+    myAdmitCuratedGroups() {
+      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', 'admitted_students'])
+    },
+    myCohorts() {
+      return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
+    },
+    myCuratedGroups() {
+      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', 'default'])
     }
-  },
-  created() {
-    this.myAdmitCohorts = this.$_.filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
-    this.myCohorts = this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
   },
   methods: {
     onCreateNoteModalClose() {

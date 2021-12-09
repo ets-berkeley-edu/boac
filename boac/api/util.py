@@ -384,12 +384,11 @@ def get_note_topics_from_http_post():
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 
-def get_my_curated_groups(domain):
+def get_my_curated_groups():
     benchmark = get_benchmarker('my_curated_groups')
     curated_groups = []
     user_id = current_user.get_id()
-    for curated_group in CuratedGroup.get_curated_groups_by_owner_id(domain=domain, owner_id=user_id):
-        api_json = curated_group.to_api_json(include_students=False)
+    for curated_group in CuratedGroup.get_curated_groups(owner_id=user_id):
         students = [{'sid': sid} for sid in CuratedGroup.get_all_sids(curated_group.id)]
         students_with_alerts = Alert.include_alert_counts_for_students(
             benchmark=benchmark,
@@ -397,9 +396,12 @@ def get_my_curated_groups(domain):
             group={'students': students},
             count_only=True,
         )
-        api_json['alertCount'] = sum(s['alertCount'] for s in students_with_alerts)
-        api_json['totalStudentCount'] = len(students)
-        curated_groups.append(api_json)
+        curated_groups.append({
+            **curated_group.to_api_json(include_students=False),
+            'alertCount': sum(s['alertCount'] for s in students_with_alerts),
+            'sids': [student['sid'] for student in students],
+            'totalStudentCount': len(students),
+        })
     return curated_groups
 
 

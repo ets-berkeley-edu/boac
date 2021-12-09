@@ -81,7 +81,6 @@ import Util from '@/mixins/Util'
 import {
   addStudents,
   createCuratedGroup,
-  getMyCuratedGroupIdsPerStudentId,
   removeFromCuratedGroup
 } from '@/api/curated'
 
@@ -122,9 +121,8 @@ export default {
     }
   },
   created() {
-    this.refresh().then(() => {
-      this.$eventHub.on('my-curated-groups-updated', this.refresh)
-    })
+    this.refresh()
+    this.$eventHub.on('my-curated-groups-updated', this.refresh)
   },
   methods: {
     groupCheckboxClick(group) {
@@ -180,10 +178,10 @@ export default {
       this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
     },
     refresh() {
-      return getMyCuratedGroupIdsPerStudentId(this.student.sid).then(data => {
-        this.checkedGroups = data
-        this.groupsLoading = false
+      this.checkedGroups = this.$_.filter(this.$currentUser.myCuratedGroups, g => {
+        return this.$_.includes(g.sids, this.student.sid)
       })
+      this.groupsLoading = false
     }
   }
 }
