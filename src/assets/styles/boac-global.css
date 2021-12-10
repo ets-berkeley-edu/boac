@@ -66,14 +66,6 @@
   color: #333;
   background-color: #eee;
 }
-.cohort-admitted-students {
-  border-top: 1px solid rgba(0,0,0,.125);
-  padding: 2px;
-}
-.cohort-column-results {
-  flex: 0 0 70%;
-  flex-grow: 1;
-}
 .cohort-create-input-name {
   border: 1px solid #d9d9d9;
   border-color: #66afe9;
@@ -86,14 +78,6 @@
   color: #666;
   font-size: 14px;
   font-style: italic;
-}
-.cohort-student-bio-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
-}
-.curated-checkbox-label {
-  padding: 10px;
 }
 .cursor-grab {
   cursor: grab;
@@ -395,9 +379,15 @@ select.form-control {
 #content h1:focus {
   outline: none;
 }
-#content .list-group-item-info {
+.list-group-item-info {
   color: #31708f;
   background-color: #d9edf7;
+}
+.list-group-item-info td:first-child {
+  border-radius: 10px 0 0 10px;
+}
+.list-group-item-info td:last-child {
+  border-radius: 0 10px 10px 0;
 }
 
 @media print {

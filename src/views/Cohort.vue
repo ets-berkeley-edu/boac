@@ -3,7 +3,10 @@
     <Spinner />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="$_.get(students, '[0].updatedAt')" />
+      <AdmitDataWarning
+        v-if="domain === 'admitted_students' && students"
+        :updated-at="$_.get(students, '[0].updatedAt')"
+      />
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"
@@ -20,15 +23,14 @@
       </b-collapse>
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <hr class="filters-section-separator mr-2 mt-0" />
-        <div class="cohort-column-results">
-          <div
-            :class="{
-              'justify-content-end': domain === 'admitted_students',
-              'justify-content-between': domain === 'default'
-            }"
-            class="align-items-center d-flex mr-3 pb-1 pt-2"
-          >
+        <div
+          :class="{
+            'justify-content-end': domain === 'admitted_students',
+            'justify-content-between': domain === 'default'
+          }"
+          class="align-items-center d-flex mr-3 pt-1"
+        >
+          <div class="mr-auto">
             <SelectAll
               v-if="domain === 'default'"
               :context-description="`Cohort ${cohortName || ''}`"
@@ -37,55 +39,51 @@
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students"
             />
-            <div class="pt-1">
-              <TermSelector v-if="domain === 'default'" />
-            </div>
-            <div class="pt-1">
-              <SortBy v-if="showSortBy" :domain="domain" />
-            </div>
           </div>
-          <div v-if="totalStudentCount > pagination.itemsPerPage">
-            <hr class="filters-section-separator mr-3" />
-            <div class="mt-3">
-              <Pagination
-                :click-handler="goToPage"
-                :init-page-number="pageNumber"
-                :limit="10"
-                :per-page="pagination.itemsPerPage"
-                :total-rows="totalStudentCount"
-              />
-            </div>
+          <div class="pr-4">
+            <TermSelector v-if="domain === 'default'" />
           </div>
           <div>
-            <div class="cohort-column-results">
-              <div v-if="domain === 'default'" id="cohort-students" class="list-group mr-2">
-                <StudentRow
-                  v-for="(student, index) in students"
-                  :id="`student-${student.uid}`"
-                  :key="student.sid"
-                  :row-index="index"
-                  :student="student"
-                  :sorted-by="$currentUser.preferences.sortBy"
-                  :term-id="$currentUser.preferences.termId"
-                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-                  list-type="cohort"
-                  class="border-right-0 list-group-item border-left-0 pl-0"
-                />
-              </div>
-              <div v-if="domain === 'admitted_students'">
-                <AdmitStudentsTable :students="students" />
-              </div>
-            </div>
-            <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
-              <Pagination
-                :click-handler="goToPage"
-                :init-page-number="pageNumber"
-                :limit="10"
-                :per-page="pagination.itemsPerPage"
-                :total-rows="totalStudentCount"
-              />
-            </div>
+            <SortBy v-if="showSortBy" :domain="domain" />
           </div>
+        </div>
+        <div v-if="totalStudentCount > pagination.itemsPerPage" class="pt-1">
+          <Pagination
+            :click-handler="goToPage"
+            :init-page-number="pageNumber"
+            :limit="10"
+            :per-page="pagination.itemsPerPage"
+            :total-rows="totalStudentCount"
+          />
+        </div>
+        <div v-if="domain === 'default'" id="cohort-students" class="list-group mr-2">
+          <StudentRow
+            v-for="(student, index) in students"
+            :id="`student-${student.uid}`"
+            :key="student.sid"
+            :row-index="index"
+            :student="student"
+            :sorted-by="$currentUser.preferences.sortBy"
+            :term-id="$currentUser.preferences.termId"
+            :class="{'list-group-item-info': anchor === `#${student.uid}`}"
+            list-type="cohort"
+            class="border-right-0 list-group-item border-left-0 pl-0"
+          />
+        </div>
+        <div v-if="domain === 'admitted_students'">
+          <div class="pb-1">
+            <hr class="filters-section-separator" />
+          </div>
+          <AdmitStudentsTable :students="students" />
+        </div>
+        <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
+          <Pagination
+            :click-handler="goToPage"
+            :init-page-number="pageNumber"
+            :limit="10"
+            :per-page="pagination.itemsPerPage"
+            :total-rows="totalStudentCount"
+          />
         </div>
       </div>
       <div v-if="showHistory">

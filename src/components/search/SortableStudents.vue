@@ -64,7 +64,7 @@
       </template>
 
       <template v-slot:cell(sid)="row">
-        <span class="sr-only">S I D</span>
+        <span class="sr-only">S I D </span>
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 

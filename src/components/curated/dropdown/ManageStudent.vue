@@ -1,5 +1,5 @@
 <template>
-  <div :class="{'sr-only': srOnly && !isAdding && !isRemoving && !showModal}">
+  <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <b-dropdown
       :id="`curated-group-dropdown-${student.sid}`"
       :aria-label="`Curated groups for ${student.name}`"
@@ -215,5 +215,8 @@ export default {
   height: 35px !important;
   min-width: 160px !important;
   width: 160px !important;
+}
+.opacity-zero {
+  opacity: 0;
 }
 </style>

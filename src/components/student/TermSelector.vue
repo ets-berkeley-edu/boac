@@ -1,7 +1,7 @@
 <template>
   <div v-if="isReady" class="align-items-center d-flex pb-1">
     <div>
-      <label id="term-select-label" class="mb-0 pr-2 text-nowrap" for="students-term-select">
+      <label id="term-select-label" class="font-size-16 mb-0 pr-2 text-secondary" for="students-term-select">
         <span class="sr-only">Select </span>Term
       </label>
     </div>
@@ -10,8 +10,9 @@
         id="students-term-select"
         aria-labelledby="term-select-label"
         block
+        left
+        menu-class="w-100"
         no-caret
-        right
         toggle-class="dd-override"
         variant="link"
         @hidden="alertScreenReader('Term select menu closed')"
@@ -32,7 +33,6 @@
           v-for="(option, index) in selectTermOptions"
           :id="`term-select-option-${option.value}`"
           :key="`select-term-option-${index}`"
-          class="pl-3"
           @click="onSelectTerm(option.value)"
         >
           {{ option.label }}

@@ -10,10 +10,20 @@
             class="faint-text"
           >{{ pluralize('admitted student', totalAdmitCount) }}</span>
         </h1>
+        <a
+          v-if="totalAdmitCount > pagination.itemsPerPage"
+          id="skip-to-pagination-widget"
+          class="sr-only"
+          href="#pagination-widget"
+          @click="alertScreenReader('Go to another page of search results')"
+          @keyup.enter="alertScreenReader('Go to another page of search results')"
+        >
+          Skip to bottom, other pages of search results
+        </a>
         <div class="d-flex align-self-baseline mr-4">
           <NavLink
             id="admitted-students-cohort-show-filters"
-            class="btn btn-link no-wrap pl-2 pr-2 pt-0"
+            class="btn btn-link no-wrap pl-0 pr-1 pt-0"
             aria-label="Create a CE3 Admissions cohort"
             path="/cohort/new"
             :default-counter="counter"
@@ -25,7 +35,7 @@
           <b-btn
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalAdmitCount"
-            class="no-wrap pl-2 pr-2 pt-0"
+            class="no-wrap pl-1 pr-0 pt-0"
             variant="link"
             @click.prevent="exportCohort"
           >
@@ -33,61 +43,48 @@
           </b-btn>
         </div>
       </div>
-      <AdmitDataWarning v-if="admits" :updated-at="$_.get(admits, '[0].updatedAt')" />
-      <hr class="filters-section-separator mr-2 mt-3" />
+      <div v-if="admits" class="pb-2">
+        <AdmitDataWarning :updated-at="$_.get(admits, '[0].updatedAt')" />
+      </div>
       <SectionSpinner :loading="sorting" />
-      <div>
-        <a
-          v-if="totalAdmitCount > pagination.itemsPerPage"
-          id="skip-to-pagination-widget"
-          class="sr-only"
-          href="#pagination-widget"
-          @click="alertScreenReader('Go to another page of search results')"
-          @keyup.enter="alertScreenReader('Go to another page of search results')"
-        >Skip to bottom, other pages of search results</a>
-        <div v-if="!sorting" class="cohort-column-results">
-          <div class="justify-content-end d-flex align-items-center p-2">
-            <SortBy domain="admitted_students" />
-          </div>
-          <div>
-            <div class="cohort-column-results">
-              <table id="cohort-admitted-students" class="table table-sm table-borderless cohort-admitted-students mx-2">
-                <thead class="sortable-table-header">
-                  <tr>
-                    <th class="pt-3">Name</th>
-                    <th class="pt-3">CS ID</th>
-                    <th class="pt-3">SIR</th>
-                    <th class="pt-3">CEP</th>
-                    <th class="pt-3">Re-entry</th>
-                    <th class="pt-3">1st Gen</th>
-                    <th class="pt-3">UREM</th>
-                    <th class="pt-3">Waiver</th>
-                    <th class="pt-3">INT'L</th>
-                    <th class="pt-3">Freshman/Transfer</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <AdmitStudentRow
-                    v-for="(admit, index) in admits"
-                    :id="`admit-${admit.csEmplId}`"
-                    :key="admit.csEmplId"
-                    :row-index="index"
-                    :sorted-by="$currentUser.preferences.admitSortBy"
-                    :admit-student="admit"
-                  />
-                </tbody>
-              </table>
-            </div>
-            <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
-              <Pagination
-                :click-handler="goToPage"
-                :init-page-number="pagination.currentPage"
-                :limit="10"
-                :per-page="pagination.itemsPerPage"
-                :total-rows="totalAdmitCount"
-              />
-            </div>
-          </div>
+      <div v-if="!sorting">
+        <div class="float-right pb-2">
+          <SortBy domain="admitted_students" />
+        </div>
+        <table id="cohort-admitted-students" class="border-top-0 table table-sm table-borderless cohort-admitted-students mx-2">
+          <thead class="sortable-table-header">
+            <tr>
+              <th class="align-top pt-3">Name</th>
+              <th class="align-top pt-3 text-nowrap">CS ID</th>
+              <th class="align-top pt-3">SIR</th>
+              <th class="align-top pt-3">CEP</th>
+              <th class="align-top pt-3 text-nowrap">Re-entry</th>
+              <th class="align-top pt-3 text-nowrap">1st Gen</th>
+              <th class="align-top pt-3">UREM</th>
+              <th class="align-top pt-3">Waiver</th>
+              <th class="align-top pt-3">INT'L</th>
+              <th class="align-top pt-3">Freshman or Transfer</th>
+            </tr>
+          </thead>
+          <tbody>
+            <AdmitStudentRow
+              v-for="(admit, index) in admits"
+              :id="`admit-${admit.csEmplId}`"
+              :key="admit.csEmplId"
+              :row-index="index"
+              :sorted-by="$currentUser.preferences.admitSortBy"
+              :admit-student="admit"
+            />
+          </tbody>
+        </table>
+        <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
+          <Pagination
+            :click-handler="goToPage"
+            :init-page-number="pagination.currentPage"
+            :limit="10"
+            :per-page="pagination.itemsPerPage"
+            :total-rows="totalAdmitCount"
+          />
         </div>
       </div>
     </div>

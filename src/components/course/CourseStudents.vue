@@ -10,22 +10,20 @@
     @row-hovered="rowHovered"
     @row-unhovered="rowUnhovered"
   >
-    <template v-slot:cell(curated)="row">
-      <div class="pt-2">
-        <StudentCheckbox domain="default" :student="row.item" />
-      </div>
-    </template>
     <template v-slot:cell(avatar)="row">
-      <div>
-        <StudentAvatar :key="row.item.sid" size="medium" :student="row.item" />
-      </div>
-      <div class="manage-curated-student mb-1 text-center">
-        <ManageStudent
-          domain="default"
-          :is-button-variant-link="true"
-          :sr-only="hoverSid !== row.item.sid"
-          :student="row.item"
-        />
+      <div class="align-items-center d-flex">
+        <div class="px-2">
+          <StudentCheckbox domain="default" :student="row.item" />
+        </div>
+        <div class="mb-1 text-center">
+          <StudentAvatar :key="row.item.sid" size="medium" :student="row.item" />
+          <ManageStudent
+            domain="default"
+            :is-button-variant-link="true"
+            :sr-only="hoverSid !== row.item.sid"
+            :student="row.item"
+          />
+        </div>
       </div>
     </template>
     <template v-slot:cell(profile)="row">
@@ -276,7 +274,6 @@ export default {
   }),
   created() {
     let cols = [
-      {key: 'curated', label: '', class: 'pl-3'},
       {key: 'avatar', label: ''},
       {key: 'profile', label: ''},
       {key: 'courseSites', label: 'Course Site(s)'},
@@ -304,8 +301,7 @@ export default {
       }
     },
     rowClass(item) {
-      const clazz = 'border-bottom pb-3 pt-3'
-      return this.featured === item.uid ? `${clazz} list-group-item-info` : clazz
+      return this.featured === item.uid ? 'list-group-item-info pb-3 pt-3' : 'border-bottom pb-3 pt-3'
     },
     rowHovered(item) {
       this.hoverSid = item.sid
@@ -327,10 +323,6 @@ export default {
 .flex-col > div {
   align-items: flex-start;
   flex: 0 0 50px;
-}
-.manage-curated-student {
-  height: 24px;
-  width: 92px;
 }
 .student-name {
   color: #49b;

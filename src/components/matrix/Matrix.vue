@@ -708,10 +708,15 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .cohort-list-row-info {
   background-color: #bee5eb;
   color: #0c5460;
+}
+.cohort-student-bio-container {
+  flex: 0.8;
+  margin-left: 20px;
+  min-width: 200px;
 }
 .cohort-missing-student-data {
   margin-top: 30px;
@@ -730,6 +735,17 @@ export default {
   padding: 5px 0;
   margin-bottom: 5px;
 }
+.missing-student-data-table {
+  width: 100%;
+}
+.student-avatar-container {
+  align-items: center;
+  display: flex;
+  flex: 0 0 60px;
+}
+</style>
+
+<style>
 .matrix {
   border: 1px solid #999;
   height: 500px;
@@ -845,13 +861,5 @@ export default {
 .matrix-zoom-wrapper {
   margin-bottom: 5px;
   text-align: right;
-}
-.missing-student-data-table {
-  width: 100%;
-}
-.student-avatar-container {
-  align-items: center;
-  display: flex;
-  flex: 0 0 60px;
 }
 </style>
