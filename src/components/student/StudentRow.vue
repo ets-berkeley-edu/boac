@@ -21,7 +21,7 @@
       </button>
     </div>
     <div v-if="listType === 'cohort'" class="mr-3">
-      <StudentCheckbox :student="student" />
+      <StudentCheckbox domain="default" :student="student" />
     </div>
     <div>
       <div>

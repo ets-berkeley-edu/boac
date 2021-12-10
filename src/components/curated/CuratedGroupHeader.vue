@@ -262,8 +262,8 @@ export default {
       this.$putFocusNextTick('curated-group-name')
     },
     deleteGroup() {
-      deleteCuratedGroup(this.curatedGroupId)
-        .then(() => {
+      deleteCuratedGroup(this.domain, this.curatedGroupId).then(
+        () => {
           this.isDeleteModalOpen = false
           this.$router.push({path: '/'}, this.$_.noop)
         })

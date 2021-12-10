@@ -12,6 +12,13 @@
       stacked="md"
       thead-class="sortable-table-header text-nowrap"
     >
+      <template v-slot:cell(curated)="row">
+        <StudentCheckbox
+          domain="admitted_students"
+          :student="row.item"
+        />
+      </template>
+
       <template v-slot:cell(lastName)="row">
         <span class="sr-only">Admitted student name</span>
         <router-link
@@ -72,11 +79,13 @@
 
 <script>
 import Context from '@/mixins/Context'
+import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableAdmits',
   mixins: [Context, Util],
+  components: {StudentCheckbox},
   props: {
     admittedStudents: {
       required: true,
@@ -100,6 +109,7 @@ export default {
   },
   created() {
     this.fields = [
+      {key: 'curated', label: ''},
       {key: 'lastName', label: 'Name', sortable: true},
       {key: 'csEmplId', label: 'CS ID', sortable: true},
       {key: 'currentSir', label: 'SIR', sortable: false},

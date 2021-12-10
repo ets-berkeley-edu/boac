@@ -1,13 +1,13 @@
 <template>
   <div class="d-flex">
-    <label id="add-all-checkbox-label" for="add-all-to-curated-group" class="sr-only">
+    <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a curated group
     </label>
     <div class="add-all-checkbox">
       <b-form-checkbox
-        id="add-all-to-curated-group"
+        :id="checkboxId"
         v-model="isSelectAllChecked"
-        aria-controls="curated-group-dropdown-select"
+        :aria-controls="dropdownId"
         aria-labelledby="add-all-checkbox-label"
         :disabled="isSaving"
         :indeterminate="indeterminate"
@@ -18,7 +18,7 @@
     <div>
       <b-dropdown
         v-if="!!$_.size(sids)"
-        id="curated-group-dropdown-select"
+        :id="dropdownId"
         :variant="isSaving ? 'success' : 'primary'"
         :disabled="isSaving"
         class="curated-selector mr-2"
@@ -40,7 +40,7 @@
             </div>
           </div>
         </template>
-        <b-dropdown-item v-if="!$_.size(myCuratedGroups)">
+        <b-dropdown-item v-if="!myCuratedGroups.length">
           <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
         </b-dropdown-item>
         <b-dropdown-item
@@ -116,20 +116,33 @@ export default {
     }
   },
   data: () => ({
+    checkboxId: undefined,
+    dropdownId: undefined,
     sids: [],
     isSelectAllChecked: false,
     indeterminate: false,
     isSaving: false,
     showModal: false
   }),
+  computed: {
+    myCuratedGroups() {
+      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', this.domain])
+    }
+  },
   created() {
-    this.$eventHub.on('curated-group-checkbox-checked', sid => {
-      this.sids.push(sid)
-      this.refresh()
+    this.checkboxId = `add-all-to-${this.domain}-curated-group`
+    this.dropdownId = `${this.domain}-curated-group-dropdown-select`
+    this.$eventHub.on('curated-group-checkbox-checked', args => {
+      if (this.domain === args.domain) {
+        this.sids.push(args.sid)
+        this.refresh()
+      }
     })
-    this.$eventHub.on('curated-group-checkbox-unchecked', sid => {
-      this.sids = this.$_.remove(this.sids, s => s !== sid)
-      this.refresh()
+    this.$eventHub.on('curated-group-checkbox-unchecked', args => {
+      if (this.domain === args.domain) {
+        this.sids = this.$_.remove(this.sids, s => s !== args.sid)
+        this.refresh()
+      }
     })
   },
   methods: {
@@ -137,21 +150,21 @@ export default {
       this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
-      this.$eventHub.emit('curated-group-deselect-all')
+      this.$eventHub.emit('curated-group-deselect-all', this.domain)
       this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
     },
     afterCreateGroup() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.$putFocusNextTick('add-all-to-curated-group')
+      this.$putFocusNextTick(this.checkboxId)
       this.onCreateCuratedGroup()
     },
     afterCreateGroupModalCancel() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.$putFocusNextTick('add-all-to-curated-group')
+      this.$putFocusNextTick(this.checkboxId)
     },
     curatedGroupCheckboxClick(group) {
       this.isSaving = true
@@ -161,15 +174,10 @@ export default {
       addStudents(group.id, this.sids)
         .then(() => {
           this.afterAddStudents(group)
-        })
-        .finally(() => setTimeout(done, 2000))
+        }).finally(() => setTimeout(done, 2000))
     },
     refresh() {
-      this.indeterminate = this.$_.inRange(
-        this.$_.size(this.sids),
-        1,
-        this.$_.size(this.students)
-      )
+      this.indeterminate = this.$_.inRange(this.$_.size(this.sids), 1, this.$_.size(this.students))
       this.isSelectAllChecked = this.$_.size(this.sids) === this.$_.size(this.students)
     },
     modalCancel() {
@@ -203,12 +211,12 @@ export default {
     toggle(checked) {
       if (checked) {
         this.sids = this.$_.map(this.students, 'sid')
-        this.$eventHub.emit('curated-group-select-all')
-        this.$putFocusNextTick('curated-group-dropdown-select', 'button')
+        this.$eventHub.emit('curated-group-select-all', this.domain)
+        this.$putFocusNextTick(this.dropdownId, 'button')
         this.alertScreenReader('All students on this page selected.')
       } else {
         this.sids = []
-        this.$eventHub.emit('curated-group-deselect-all')
+        this.$eventHub.emit('curated-group-deselect-all', this.domain)
         this.alertScreenReader('All students on this page deselected.')
       }
     }
@@ -226,8 +234,7 @@ label {
   border: 1px solid #aaa;
   border-radius: 6px;
   height: 36px;
-  padding-left: 7px;
-  padding-top: 2px;
+  padding: 2px 2px 0 7px;
   width: 36px;
 }
 .curated-selector {
