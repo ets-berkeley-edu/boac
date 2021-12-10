@@ -411,7 +411,7 @@ class TestAddStudents:
         updated_group = api_curated_group_add_students(client, group['id'], sids=[sid])
         assert updated_group['name'] == group_name
         assert updated_group['totalStudentCount'] == 1
-        assert updated_group['students'][0]['sid'] == sid
+        assert updated_group['sids'] == [sid]
 
     def test_add_students(self, asc_advisor, client):
         """Create group and add students."""
@@ -465,11 +465,10 @@ class TestRemoveStudent:
         curated_group = _api_curated_group_create(client, name=name)
         curated_group_id = curated_group['id']
         curated_group = api_curated_group_add_students(client, curated_group_id, sids=[sid])
-        assert curated_group['name'] == name
+        assert curated_group['sids'] == [sid]
         assert curated_group['totalStudentCount'] == 1
         # Remove the SID
         curated_group = api_curated_group_remove_student(client, curated_group_id, sid)
-        assert curated_group['name'] == name
         assert curated_group['totalStudentCount'] == 0
 
 
