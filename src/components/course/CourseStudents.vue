@@ -12,7 +12,7 @@
   >
     <template v-slot:cell(curated)="row">
       <div class="pt-2">
-        <StudentCheckbox :student="row.item" />
+        <StudentCheckbox domain="default" :student="row.item" />
       </div>
     </template>
     <template v-slot:cell(avatar)="row">

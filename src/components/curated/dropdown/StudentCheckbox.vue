@@ -1,7 +1,7 @@
 <template>
   <div class="student-checkbox">
     <b-form-checkbox
-      :id="`student-${student.sid}-curated-group-checkbox`"
+      :id="`student-${sid}-curated-group-checkbox`"
       v-model="status"
       :aria-label="checkboxDescription"
       size="sm"
@@ -17,9 +17,17 @@ export default {
   name: 'StudentCheckbox',
   mixins: [Context],
   props: {
-    student: Object
+    domain: {
+      required: true,
+      type: String
+    },
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
+    sid: undefined,
     status: false
   }),
   computed: {
@@ -31,12 +39,22 @@ export default {
     }
   },
   created() {
-    this.$eventHub.on('curated-group-select-all', () => (this.status = true))
-    this.$eventHub.on('curated-group-deselect-all', () => (this.status = false))
+    this.sid = this.domain === 'default' ? this.student.sid : this.student.csEmplId
+    this.$eventHub.on('curated-group-select-all', domain => {
+      if (this.domain === domain) {
+        this.status = true
+      }
+    })
+    this.$eventHub.on('curated-group-deselect-all', domain => {
+      if (this.domain === domain) {
+        this.status = false
+      }
+    })
   },
   methods: {
     toggle(checked) {
-      this.$eventHub.emit(checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked', this.student.sid)
+      const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
+      this.$eventHub.emit(eventName, {domain: this.domain, sid: this.sid})
       this.alertScreenReader(`${this.student.name} ${checked ? 'selected' : 'deselected'}`)
     }
   }

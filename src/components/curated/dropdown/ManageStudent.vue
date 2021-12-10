@@ -137,7 +137,11 @@ export default {
   },
   created() {
     this.refresh()
-    this.$eventHub.on('my-curated-groups-updated', this.refresh)
+    this.$eventHub.on('my-curated-groups-updated', domain => {
+      if (domain === this.domain) {
+        this.refresh()
+      }
+    })
   },
   methods: {
     groupCheckboxClick(group) {

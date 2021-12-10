@@ -7,13 +7,13 @@ import Vue from 'vue'
 const $_onCreate = group => {
   Vue.prototype.$currentUser.myCuratedGroups.push(group)
   Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(Vue.prototype.$currentUser.myCuratedGroups, 'name')
-  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated', group.domain)
 }
 
-const $_onDelete = groupId => {
+const $_onDelete = (domain, groupId) => {
   const indexOf = Vue.prototype.$currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === groupId)
   Vue.prototype.$currentUser.myCuratedGroups.splice(indexOf, 1)
-  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated', domain)
 }
 
 const $_onUpdate = updatedGroup => {
@@ -21,7 +21,7 @@ const $_onUpdate = updatedGroup => {
   const group = groups.find(group => group.id === +updatedGroup.id)
   Object.assign(group, updatedGroup)
   Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(groups, 'name')
-  Vue.prototype.$eventHub.emit('my-curated-groups-updated')
+  Vue.prototype.$eventHub.emit('my-curated-groups-updated', updatedGroup.domain)
 }
 
 export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {
@@ -48,7 +48,7 @@ export function createCuratedGroup(domain: string, name: string, sids: string[])
     })
 }
 
-export function deleteCuratedGroup(id) {
+export function deleteCuratedGroup(domain, id) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/curated_group/delete/${id}`, {
       headers: {
@@ -56,7 +56,7 @@ export function deleteCuratedGroup(id) {
       }
     })
     .then(() => {
-      $_onDelete(id)
+      $_onDelete(domain, id)
       Vue.prototype.$ga.curatedEvent(id, null, 'delete')
     })
     .catch(error => error)

@@ -26,6 +26,14 @@
         Showing the first {{ $_.size(results.admits) }} admitted students.
       </div>
       <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
+      <div class="search-header-curated-cohort">
+        <SelectAll
+          context-description="Search"
+          domain="admitted_students"
+          :ga-event-tracker="$ga.searchEvent"
+          :students="results.admits"
+        />
+      </div>
       <div>
         <SortableAdmits :admitted-students="results.admits" />
       </div>
@@ -48,7 +56,11 @@
         />
       </div>
       <div>
-        <SortableStudents :students="results.students" :options="studentListOptions" />
+        <SortableStudents
+          domain="default"
+          :students="results.students"
+          :options="studentListOptions"
+        />
       </div>
     </div>
     <div v-if="!loading && results.totalCourseCount" class="pt-4">

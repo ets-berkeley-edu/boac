@@ -13,7 +13,11 @@
       thead-class="sortable-table-header text-nowrap"
     >
       <template v-slot:cell(curated)="row">
-        <StudentCheckbox v-if="options.includeCuratedCheckbox" :student="row.item" />
+        <StudentCheckbox
+          v-if="options.includeCuratedCheckbox"
+          :domain="domain"
+          :student="row.item"
+        />
       </template>
 
       <template v-slot:cell(avatar)="row">
@@ -138,6 +142,10 @@ export default {
   },
   mixins: [Context, StudentMetadata, Util],
   props: {
+    domain: {
+      required: true,
+      type: String
+    },
     options: {
       type: Object,
       default: () => ({

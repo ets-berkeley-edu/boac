@@ -4,7 +4,7 @@
       <div>
         <span class="sr-only">Admitted student name</span>
         <router-link
-          :id="`link-to-admit-${admitStudent.csEmplId}`"
+          :id="`link-to-admit-${sid}`"
           :aria-label="`Go to admitted student profile page of ${fullName}`"
           :class="{'demo-mode-blur': $currentUser.inDemoMode}"
           :to="admitRoutePath()"
@@ -15,7 +15,7 @@
     <td>
       <div>
         <span class="sr-only">C S I D</span>
-        <span :id="`row-${rowIndex}-cs-empl-id`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ admitStudent.csEmplId }}</span>
+        <span :id="`row-${rowIndex}-cs-empl-id`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ sid }}</span>
       </div>
     </td>
     <td>
@@ -113,6 +113,9 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    sid: undefined
+  }),
   computed: {
     fullName() {
       if (this.sortedBy === 'first_name') {
@@ -122,9 +125,12 @@ export default {
       return this.$_.join(this.$_.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ')
     }
   },
+  created() {
+    this.sid = this.admitStudent.csEmplId || this.admitStudent.sid
+  },
   methods: {
     admitRoutePath() {
-      return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(this.admitStudent.csEmplId)}` : `/admit/student/${this.admitStudent.csEmplId}`
+      return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(this.sid)}` : `/admit/student/${this.sid}`
     }
   }
 }

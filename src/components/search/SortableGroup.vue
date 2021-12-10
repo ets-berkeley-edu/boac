@@ -70,6 +70,7 @@
         </div>
         <div class="pt-4">
           <SortableStudents
+            domain="default"
             :students="studentsWithAlerts"
             :options="sortableGroupOptions"
           />
