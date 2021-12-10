@@ -20,7 +20,7 @@
         v-if="!!$_.size(sids)"
         id="curated-group-dropdown-select"
         :variant="isSaving ? 'success' : 'primary'"
-        :disabled="disableSelector"
+        :disabled="isSaving"
         class="curated-selector mr-2"
         toggle-class="b-dd-override"
         size="sm"
@@ -31,8 +31,8 @@
             <div v-if="!isSaving" class="d-flex justify-content-between">
               <div class="pr-2">Add to Curated Group</div>
               <div>
-                <font-awesome v-if="disableSelector" icon="spinner" spin />
-                <font-awesome v-if="!disableSelector" icon="caret-down" />
+                <font-awesome v-if="isSaving" icon="spinner" spin />
+                <font-awesome v-if="!isSaving" icon="caret-down" />
               </div>
             </div>
             <div v-if="isSaving">
@@ -122,11 +122,6 @@ export default {
     isSaving: false,
     showModal: false
   }),
-  computed: {
-    disableSelector() {
-      return this.isSaving || this.$_.isNil(this.myCuratedGroups)
-    }
-  },
   created() {
     this.$eventHub.on('curated-group-checkbox-checked', sid => {
       this.sids.push(sid)

@@ -88,7 +88,7 @@ export default {
   },
   created() {
     this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
-    this.objects = this.isCuratedGroupsMode ? this.myCuratedGroups : this.$currentUser.myCohorts
+    this.objects = this.isCuratedGroupsMode ? this.$currentUser.myCuratedGroups : this.$currentUser.myCohorts
     this.objectType = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {

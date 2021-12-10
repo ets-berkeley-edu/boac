@@ -86,7 +86,7 @@
       />
       <div class="mb-2">
         <BatchAddStudentSet
-          v-if="$currentUser.myCohorts && $currentUser.myCohorts.length"
+          v-if="$currentUser.myCohorts.length"
           class="w-75"
           :add-object="addCohort"
           :disabled="isSaving"
@@ -96,7 +96,7 @@
       </div>
       <div class="mb-2">
         <BatchAddStudentSet
-          v-if="myCuratedGroups && myCuratedGroups.length"
+          v-if="$currentUser.myCuratedGroups.length"
           class="w-75"
           :add-object="addCuratedGroup"
           :disabled="isSaving"
