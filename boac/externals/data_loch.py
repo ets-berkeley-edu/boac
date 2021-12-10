@@ -249,7 +249,6 @@ def get_sis_section_enrollments_count(term_id, sis_section_id):
                 ON spi.uid = enr.ldap_uid
                 AND enr.sis_term_id = :term_id
                 AND enr.sis_section_id = :sis_section_id
-                AND spi.hist_enr IS FALSE
         """
     params = {'term_id': term_id, 'sis_section_id': sis_section_id}
     return safe_execute_rds(sql, **params)
