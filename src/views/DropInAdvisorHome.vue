@@ -49,17 +49,17 @@
                   automatically by your filtering preferences, such as GPA or units.
                 </div>
               </div>
-              <div v-if="$_.size(myCuratedGroups)" class="mt-4">
+              <div v-if="$currentUser.myCuratedGroups.length" class="mt-4">
                 <div class="d-flex justify-content-between mr-3">
                   <div>
                     <h3 class="color-grey font-size-14 font-weight-bold text-uppercase">Curated Groups</h3>
                   </div>
-                  <div v-if="myCuratedGroups.length" class="color-grey font-size-14 font-weight-bold text-uppercase">
+                  <div class="color-grey font-size-14 font-weight-bold text-uppercase">
                     Total
                   </div>
                 </div>
                 <SortableGroup
-                  v-for="curatedGroup in myCuratedGroups"
+                  v-for="curatedGroup in $currentUser.myCuratedGroups"
                   :key="curatedGroup.id"
                   :group="curatedGroup"
                   :is-cohort="false"

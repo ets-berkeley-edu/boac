@@ -41,7 +41,7 @@
     </div>
     <div>
       <BatchNoteAddCohort
-        v-if="$currentUser.myCohorts && $currentUser.myCohorts.length"
+        v-if="$currentUser.myCohorts.length"
         :add-object="addCohortToBatch"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="false"
@@ -51,11 +51,11 @@
     </div>
     <div>
       <BatchNoteAddCohort
-        v-if="myCuratedGroups && myCuratedGroups.length"
+        v-if="$currentUser.myCuratedGroups.length"
         :add-object="addCuratedGroupToBatch"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
-        :objects="myCuratedGroups"
+        :objects="$currentUser.myCuratedGroups"
         :remove-object="removeCuratedGroupFromBatch"
       />
     </div>
