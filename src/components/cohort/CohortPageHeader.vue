@@ -39,7 +39,7 @@
         <div v-if="cohortId && isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
-            class="pl-2 pr-2 pt-0"
+            class="pt-0 px-1"
             variant="link"
             @click="beginRename"
           >
@@ -51,7 +51,7 @@
           <b-btn
             id="delete-button"
             v-b-modal="'confirm-delete-modal'"
-            class="pl-2 pr-2 pt-0"
+            class="pt-0 px-1"
             variant="link"
           >
             Delete
@@ -78,7 +78,7 @@
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            class="no-wrap pl-2 pr-2 pt-0"
+            class="no-wrap pt-0 px-1"
             variant="link"
           >
             Export List
@@ -87,7 +87,7 @@
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            class="no-wrap pl-2 pr-2 pt-0"
+            class="no-wrap pt-0 px-1"
             variant="link"
             @click.prevent="exportCohort(getCsvExportColumnsSelected())"
           >
@@ -114,7 +114,7 @@
           <b-btn
             id="show-cohort-history-button"
             :disabled="isModifiedSinceLastSearch"
-            class="no-wrap pl-2 pr-0 pt-0"
+            class="no-wrap pl-1 pr-0 pt-0"
             variant="link"
             @click="toggleShowHistory(true)"
           >

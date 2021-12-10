@@ -2,7 +2,7 @@
   <div>
     <div class="d-flex justify-content-between">
       <div v-if="mode !== 'rename'">
-        <h1 id="curated-group-name" class="page-section-header mt-0">
+        <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || 'Curated Group' }}
           <span v-if="!$_.isNil(totalStudentCount)" class="faint-text"> ({{ pluralize('student', totalStudentCount, {1: '1'}) }})</span>
         </h1>
@@ -60,6 +60,7 @@
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="bulk-add-sids-button"
+            class="px-1"
             variant="link"
             @click="enterBulkAddMode"
           >
@@ -70,6 +71,7 @@
         <div v-if="isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
+            class="px-1"
             variant="link"
             @click="enterRenameMode"
           >
@@ -81,6 +83,7 @@
           <b-btn
             id="delete-button"
             v-b-modal="referencingCohorts.length ? 'cohort-warning-modal' : 'confirm-delete-modal'"
+            class="px-1"
             variant="link"
           >
             Delete
@@ -153,6 +156,7 @@
           <b-btn
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
+            class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
           >

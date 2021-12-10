@@ -8,36 +8,39 @@
   >
     <span :id="`row-index-of-${student.sid}`" hidden aria-hidden="true">{{ rowIndex }}</span>
     <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
-    <div>
-      <button
-        v-if="listType === 'curatedGroupForOwner'"
-        :id="`row-${rowIndex}-remove-student-from-curated-group`"
-        class="btn btn-link"
-        @click="onClickRemoveStudent(student)"
-        @keyup.enter="onClickRemoveStudent(student)"
-      >
-        <font-awesome icon="times-circle" class="font-size-24" />
-        <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
-      </button>
-    </div>
-    <div v-if="listType === 'cohort'" class="mr-3">
-      <StudentCheckbox domain="default" :student="student" />
-    </div>
-    <div>
-      <div>
-        <StudentAvatar
-          :alert-count="student.alertCount"
-          size="medium"
-          :student="student"
-        />
+    <div class="align-items-center d-flex">
+      <div v-if="listType === 'curatedGroupForOwner'">
+        <button
+          :id="`row-${rowIndex}-remove-student-from-curated-group`"
+          class="btn btn-link pl-0"
+          @click="onClickRemoveStudent(student)"
+          @keyup.enter="onClickRemoveStudent(student)"
+        >
+          <font-awesome icon="times-circle" class="font-size-24" />
+          <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
+        </button>
       </div>
-      <div v-if="listType === 'cohort'" class="manage-curated-student mb-1 text-center">
-        <ManageStudent
-          domain="default"
-          :is-button-variant-link="true"
-          :sr-only="!hover"
-          :student="student"
-        />
+      <div>
+        <div class="align-items-center d-flex">
+          <div v-if="listType === 'cohort'" class="mr-2">
+            <StudentCheckbox domain="default" :student="student" />
+          </div>
+          <div>
+            <StudentAvatar
+              :alert-count="student.alertCount"
+              size="medium"
+              :student="student"
+            />
+          </div>
+        </div>
+        <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
+          <ManageStudent
+            domain="default"
+            :is-button-variant-link="true"
+            :sr-only="!hover"
+            :student="student"
+          />
+        </div>
       </div>
     </div>
     <div class="cohort-student-bio-container mb-1">
@@ -459,6 +462,11 @@ export default {
   margin-left: 0;
   min-width: 340px;
 }
+.cohort-student-bio-container {
+  flex: 0.8;
+  margin-left: 20px;
+  min-width: 200px;
+}
 .cohort-student-name-container {
   display: flex;
 }
@@ -467,6 +475,7 @@ export default {
 }
 .manage-curated-student {
   height: 24px;
+  margin-right: 18px;
   width: 92px;
 }
 .profile-gpa-alert {

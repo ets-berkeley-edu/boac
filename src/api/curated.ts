@@ -91,6 +91,9 @@ export function removeFromCuratedGroup(groupId, sid) {
     .then(response => {
       const group = response.data
       group.sids = _.remove(group.sids, s => sid === s)
+      if (group.students) {
+        group.students = _.remove(group.students, student => sid === (student.sid || student.csEmplId))
+      }
       Vue.prototype.$ga.curatedEvent(group.id, group.name, 'remove_student')
       return group
     })

@@ -46,7 +46,7 @@
         Showing the first {{ studentLimit }} students.
       </div>
     </div>
-    <div v-if="!loading && results.totalStudentCount" class="cohort-column-results">
+    <div v-if="!loading && results.totalStudentCount">
       <div class="search-header-curated-cohort">
         <SelectAll
           context-description="Search"

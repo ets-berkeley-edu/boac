@@ -24,6 +24,7 @@ export default {
   name: 'Util',
   methods: {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     isToday: date => {
       return moment().diff(date, 'days') === 0
     },

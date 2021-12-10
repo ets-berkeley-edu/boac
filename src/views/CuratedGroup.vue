@@ -6,43 +6,46 @@
       <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="$_.get(students, '[0].updatedAt')" />
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
-        <div class="cohort-column-results">
-          <div class="align-items-start d-flex justify-content-between mt-3">
-            <div v-if="totalStudentCount > itemsPerPage" class="flex-grow-1">
-              <Pagination
-                :click-handler="onClickPagination"
-                :init-page-number="pageNumber"
-                :limit="10"
-                :per-page="itemsPerPage"
-                :total-rows="totalStudentCount"
-              />
-            </div>
-            <div class="mr-4">
+        <div>
+          <div class="d-flex justify-content-end pt-2">
+            <div class="pr-4">
               <TermSelector />
             </div>
             <div v-if="totalStudentCount > 1">
               <SortBy />
             </div>
           </div>
+          <div v-if="totalStudentCount > itemsPerPage">
+            <Pagination
+              :click-handler="onClickPagination"
+              :init-page-number="pageNumber"
+              :limit="10"
+              :per-page="itemsPerPage"
+              :total-rows="totalStudentCount"
+            />
+          </div>
           <div v-if="$_.size(students)" class="mt-2">
-            <div id="curated-cohort-students" class="list-group">
+            <div id="curated-cohort-students">
               <div v-if="domain === 'default'">
                 <StudentRow
                   v-for="(student, index) in students"
                   :id="`student-${student.uid}`"
                   :key="student.sid"
+                  class="border-bottom border-top pb-2 pt-3"
+                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
+                  :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                   :remove-student="removeStudent"
                   :row-index="index"
-                  :student="student"
-                  :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                   :sorted-by="$currentUser.preferences.sortBy"
+                  :student="student"
                   :term-id="$currentUser.preferences.termId"
-                  :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-                  class="list-group-item student-list-item"
                 />
               </div>
               <div v-if="domain === 'admitted_students'">
-                <AdmitStudentsTable :students="students" />
+                <div class="pb-1">
+                  <hr class="filters-section-separator" />
+                </div>
+                <AdmitStudentsTable :remove-student="removeStudent" :students="students" />
               </div>
             </div>
             <div v-if="totalStudentCount > itemsPerPage" class="mr-3">
@@ -198,10 +201,5 @@ export default {
 h3 {
   color: #666;
   font-size: 18px;
-}
-.student-list-item {
-  border-left: none;
-  border-right: none;
-  display: flex;
 }
 </style>

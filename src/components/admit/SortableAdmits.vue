@@ -30,7 +30,7 @@
       </template>
 
       <template v-slot:cell(csEmplId)="row">
-        <span class="sr-only">C S I D</span>
+        <span class="sr-only">C S I D </span>
         <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ row.item.csEmplId }}</span>
       </template>
 
