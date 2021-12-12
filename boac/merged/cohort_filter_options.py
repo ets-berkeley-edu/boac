@@ -28,7 +28,7 @@ from datetime import datetime
 
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
-    coe_gender_options, coe_prep_status_options, colleges, curated_groups, entering_terms, ethnicities, genders, \
+    coe_gender_options, coe_prep_status_options, colleges, curated_group_options, entering_terms, ethnicities, genders, \
     get_coe_profiles, grad_terms, grading_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
     student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
     student_admit_residency_category_options, student_admit_special_program_cep_options, team_groups, \
@@ -128,7 +128,11 @@ class CohortFilterOptions:
                 _boolean_filter_coe('coeUnderrepresented', 'Underrepresented Minority (COE)'),
             ],
             'Advising': [
-                _filter('curatedGroupIds', 'My Curated Groups', options=curated_groups(owner_user_id) if owner_user_id else None),
+                _filter(
+                    'curatedGroupIds',
+                    'My Curated Groups',
+                    options=curated_group_options(owner_user_id) if owner_user_id else None,
+                ),
                 _filter(
                     'cohortOwnerAcademicPlans',
                     'My Students',

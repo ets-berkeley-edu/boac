@@ -17,6 +17,7 @@ const $_goToPage = ({commit, state}, pageNumber: number) => {
     ).then(group => {
       if (group) {
         commit('setCuratedGroupName', group.name)
+        commit('setDomain', group.domain)
         commit('setOwnerId', group.ownerId)
         commit('setReferencingCohortIds', group.referencingCohortIds)
         commit('setStudents', group.students)
@@ -47,6 +48,7 @@ const state = {
 const getters = {
   curatedGroupId: (state: any): number => state.curatedGroupId,
   curatedGroupName: (state: any): string => state.curatedGroupName,
+  domain: (state: any): string => state.domain,
   itemsPerPage: (state: any): number => state.itemsPerPage,
   mode: (state: any): string => state.mode,
   ownerId: (state: any): number => state.ownerId,
@@ -91,9 +93,8 @@ const actions = {
     })
   },
   goToPage: ({commit, state}, pageNumber) => $_goToPage({commit, state}, pageNumber),
-  init: ({commit}, {domain, id}) => {
+  init: ({commit}, id) => {
     commit('setCuratedGroupId', id)
-    commit('setDomain', domain)
     return $_goToPage({commit, state}, 1)
   },
   removeStudent: ({commit, state}, sid: string) => {

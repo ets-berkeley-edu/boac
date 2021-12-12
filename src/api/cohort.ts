@@ -80,17 +80,12 @@ export function getCohort(
   termId: string
 ) {
   const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
-  return axios
-    .get(url)
-    .then(response => response.data, () => null)
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getCohortEvents(id: number, offset: number, limit: number) {
-  return axios
-    .get(
-      `${utils.apiBaseUrl()}/api/cohort/${id}/events?offset=${offset}&limit=${limit}`
-    )
-    .then(response => response.data, () => null)
+  const url = `${utils.apiBaseUrl()}/api/cohort/${id}/events?offset=${offset}&limit=${limit}`
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getCohortFilterOptions(domain: string, owner: string, existingFilters: any[]) {
@@ -124,9 +119,8 @@ export function getStudentsPerFilters(
 }
 
 export function getStudentsWithAlerts(cohortId) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/cohort/${cohortId}/students_with_alerts`)
-    .then(response => response.data, () => null)
+  const url = `${utils.apiBaseUrl()}/api/cohort/${cohortId}/students_with_alerts`
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getUsersWithCohorts() {
@@ -152,10 +146,10 @@ export function saveCohort(
 }
 
 export function translateToFilterOptions(domain: string, owner: string, criteria: any) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`, {
-      criteria,
-      domain
-    })
-    .then(response => response.data, () => null)
+  const data = {
+    criteria,
+    domain
+  }
+  const url = `${utils.apiBaseUrl()}/api/cohort/translate_to_filter_options/${owner}`
+  return axios.post(url, data).then(response => response.data, () => null)
 }

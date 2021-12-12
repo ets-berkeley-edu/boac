@@ -90,9 +90,9 @@ def coe_gender_options():
     ]
 
 
-def curated_groups(user_id):
+def curated_group_options(user_id):
     results = db.session.execute(
-        text('SELECT id, name FROM student_groups WHERE owner_id = :user_id'),
+        text("SELECT id, name FROM student_groups WHERE domain='default' AND owner_id = :user_id"),
         {'user_id': user_id},
     )
     return [{'name': row['name'], 'value': row['id']} for row in results]

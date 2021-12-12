@@ -200,6 +200,12 @@ def disable_same_day_advising(dept_code):
     return tolerant_jsonify({'message': 'Same-day advisor status has been disabled'}, status=200)
 
 
+@app.route('/api/user/session_keep_alive')
+@login_required
+def session_keep_alive():
+    return tolerant_jsonify(current_user.to_api_json())
+
+
 @app.route('/api/user/<uid>/drop_in_advising/<dept_code>/available', methods=['POST'])
 @scheduler_required
 def set_drop_in_advising_available(uid, dept_code):

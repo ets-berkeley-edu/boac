@@ -25,7 +25,7 @@
         <NavLink
           :id="`sidebar-curated-group-${index}`"
           :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
-          :path="`/curated/${group.id}?domain=${domain}`"
+          :path="`/curated/${group.id}`"
         >
           {{ group.name }}
         </NavLink>

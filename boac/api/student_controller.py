@@ -23,9 +23,9 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.api.errors import BadRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, put_notifications
-from boac.externals.data_loch import get_students_by_sids, match_students_by_name_or_sid
+from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
+from boac.api.util import advisor_required, is_unauthorized_domain, put_notifications
+from boac.externals.data_loch import get_admitted_students_by_sids, get_students_by_sids, match_students_by_name_or_sid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged.student import get_distinct_sids, get_student_and_terms_by_sid, get_student_and_terms_by_uid, \
@@ -105,12 +105,18 @@ def find_by_sids():
 def validate_sids():
     params = request.get_json()
     sids = [sid.strip() for sid in list(params.get('sids'))]
+    domain = params.get('domain') or 'default'
+    if is_unauthorized_domain(domain):
+        raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     if sids:
         if next((sid for sid in sids if not sid.isnumeric()), None):
             raise BadRequestError('Each SID must be numeric')
         else:
             summary = []
-            available_sids = query_students(sids=sids, sids_only=True, include_historical=True)['sids']
+            if domain == 'admitted_students':
+                available_sids = [row['sid'] for row in get_admitted_students_by_sids(sids=sids)]
+            else:
+                available_sids = query_students(include_historical=True, sids=sids, sids_only=True)['sids']
             for sid in sids:
                 summary.append({
                     'sid': sid,

@@ -90,7 +90,7 @@ export function removeFromCuratedGroup(groupId, sid) {
     .delete(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/remove_student/${sid}`)
     .then(response => {
       const group = response.data
-      group.sids = _.remove(group.sids, s => sid === s)
+      $_onUpdate(group)
       if (group.students) {
         group.students = _.remove(group.students, student => sid === (student.sid || student.csEmplId))
       }
@@ -112,7 +112,6 @@ export function renameCuratedGroup(id, name) {
 }
 
 export function getStudentsWithAlerts(groupId) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/curated_group/${groupId}/students_with_alerts`)
-    .then(response => response.data, () => null)
+  const url = `${utils.apiBaseUrl()}/api/curated_group/${groupId}/students_with_alerts`
+  return axios.get(url).then(response => response.data, () => null)
 }
