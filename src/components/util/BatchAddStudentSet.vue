@@ -95,12 +95,12 @@ export default {
     add(object) {
       this.added.push(object)
       this.addObject(object)
-      this.alertScreenReader(`${this.header} '${object.name}' added to batch`)
+      this.$announcer.polite(`${this.header} '${object.name}' added to batch`)
     },
     remove(object) {
       this.added = this.$_.filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
-      this.alertScreenReader(`${this.header} '${object.name}' removed`)
+      this.$announcer.polite(`${this.header} '${object.name}' removed`)
       this.$putFocusNextTick(`batch-degree-check-${this.objectType}`, 'button')
     }
   }

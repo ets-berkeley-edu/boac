@@ -160,7 +160,7 @@ export default {
             this.loaded('Drop-in Advisor homepage has loaded')
           }
           if (announceUpdate) {
-            this.alertScreenReader('The appointment waitlist has been updated')
+            this.$announcer.polite('The appointment waitlist has been updated')
           }
         })
       })

@@ -250,7 +250,7 @@ export default {
   methods: {
     cancelExportGroupModal() {
       this.showExportListModal = false
-      this.alertScreenReader(`Cancel export of ${this.name} curated group`)
+      this.$announcer.polite(`Cancel export of ${this.name} curated group`)
     },
     enterBulkAddMode() {
       this.setMode('bulkAdd')
@@ -278,7 +278,7 @@ export default {
     exportGroup(csvColumnsSelected) {
       this.showExportListModal = false
       this.exportEnabled = false
-      this.alertScreenReader(`Exporting ${this.name} curated group`)
+      this.$announcer.polite(`Exporting ${this.name} curated group`)
       downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true
       })

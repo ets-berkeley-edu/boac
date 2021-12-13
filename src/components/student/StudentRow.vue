@@ -406,7 +406,7 @@ export default {
   methods: {
     onClickRemoveStudent(student) {
       this.removeStudent(student.sid)
-      this.alertScreenReader(`Removed ${student.firstName} ${student.lastName} from group`)
+      this.$announcer.polite(`Removed ${student.firstName} ${student.lastName} from group`)
     }
   },
   computed: {

@@ -84,14 +84,14 @@ export default {
         this.addedStudents.push(student)
         this.addSid(student.sid)
         this.resetAutoCompleteKey = new Date().getTime()
-        this.alertScreenReader(`${student.label} added to batch note`)
+        this.$announcer.polite(`${student.label} added to batch note`)
       }
     },
     removeStudent(student) {
       if (student) {
         this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
         this.removeSid(student.sid)
-        this.alertScreenReader(`${student.label} removed from batch note`)
+        this.$announcer.polite(`${student.label} removed from batch note`)
       }
     },
     studentsByNameOrSid(query, limit) {

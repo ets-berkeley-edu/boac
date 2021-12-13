@@ -117,13 +117,13 @@ export default {
     },
     loadEvents() {
       this.loading = true
-      this.alertScreenReader('Cohort history is loading')
+      this.$announcer.polite('Cohort history is loading')
       this.scrollToTop(10)
       getCohortEvents(this.cohortId, this.offset, this.itemsPerPage).then((response) => {
         this.totalEventsCount = response.count
         this.events = response.events
         this.loading = false
-        this.alertScreenReader('Cohort history has loaded')
+        this.$announcer.polite('Cohort history has loaded')
       })
     }
   },

@@ -147,13 +147,13 @@ export default {
   created() {
     this.reset()
     this.showLogResolvedIssueModal = this.showModal
-    this.alertScreenReader('Log resolved issue form is open')
+    this.$announcer.polite('Log resolved issue form is open')
   },
   methods: {
     addStudent(student) {
       if (student) {
         this.student = student
-        this.alertScreenReader(`Student ${this.student.label} selected`)
+        this.$announcer.polite(`Student ${this.student.label} selected`)
         this.$putFocusNextTick('add-topic-select-list')
       }
     },
@@ -177,7 +177,7 @@ export default {
       this.reset()
     },
     removeStudent() {
-      this.alertScreenReader(`${this.student.label} removed`)
+      this.$announcer.polite(`${this.student.label} removed`)
       this.student = undefined
     },
     removeTopic(topic) {

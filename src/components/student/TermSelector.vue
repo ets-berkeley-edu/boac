@@ -15,8 +15,8 @@
         no-caret
         toggle-class="dd-override"
         variant="link"
-        @hidden="alertScreenReader('Term select menu closed')"
-        @shown="alertScreenReader('Term select menu opened')"
+        @hidden="$announcer.polite('Term select menu closed')"
+        @shown="$announcer.polite('Term select menu opened')"
       >
         <template slot="button-content">
           <div class="d-flex dropdown-width justify-content-between text-dark">
@@ -86,7 +86,7 @@ export default {
       if (value !== this.$_.get(this.$currentUser.preferences, 'termId')) {
         this.selectedTermId = value
         this.selectedTermLabel = this.termNameForSisId(value)
-        this.alertScreenReader(`${this.selectedTermLabel} selected`)
+        this.$announcer.polite(`${this.selectedTermLabel} selected`)
         this.$currentUser.preferences.termId = this.selectedTermId
       }
     },

@@ -173,7 +173,7 @@ export default {
       apiReopen(this.appointment.id).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.reopening = false
-          this.alertScreenReader(`${this.appointment.student.name} appointment reopened`)
+          this.$announcer.polite(`${this.appointment.student.name} appointment reopened`)
         })
       }).catch(this.handleBadRequestError)
     }

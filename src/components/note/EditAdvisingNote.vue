@@ -151,7 +151,7 @@ export default {
       this.addSid(note.sid)
       this.setMode('edit')
       this.$putFocusNextTick('edit-note-subject')
-      this.alertScreenReader('Edit note form is open.')
+      this.$announcer.polite('Edit note form is open.')
     })
     this.$eventHub.on('user-session-expired', () => {
       this.onBoaSessionExpires()
@@ -172,11 +172,11 @@ export default {
     },
     cancelConfirmed() {
       this.afterCancel()
-      this.alertScreenReader('Edit note form canceled.')
+      this.$announcer.polite('Edit note form canceled.')
       return this.exit()
     },
     cancelTheCancel() {
-      this.alertScreenReader('Continue editing note.')
+      this.$announcer.polite('Continue editing note.')
       this.showAreYouSureModal = false
       this.$putFocusNextTick('edit-note-subject')
     },
@@ -200,13 +200,13 @@ export default {
             this.model.topics
           ).then(updatedNote => {
             this.afterSaved(updatedNote)
-            this.alertScreenReader('Changes to note have been saved')
+            this.$announcer.polite('Changes to note have been saved')
             this.exit()
           })
         } else {
           this.error = 'Subject is required'
           this.showErrorPopover = true
-          this.alertScreenReader(`Validation failed: ${this.error}`)
+          this.$announcer.polite(`Validation failed: ${this.error}`)
           this.$putFocusNextTick('edit-note-subject')
         }
       }

@@ -89,7 +89,7 @@ export default {
           this.messages.push(note)
           this.updateCountsPerType('note', this.countsPerType.note + 1)
           this.sortMessages()
-          this.alertScreenReader(`New advising note created for student ${this.student.name}.`)
+          this.$announcer.polite(`New advising note created for student ${this.student.name}.`)
         }
       }
     },

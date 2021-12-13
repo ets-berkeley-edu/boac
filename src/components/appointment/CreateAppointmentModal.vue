@@ -191,13 +191,13 @@ export default {
     this.reset()
     this.updateAvailableAdvisors()
     this.showCreateAppointmentModal = this.showModal
-    this.alertScreenReader('Create appointment form is open')
+    this.$announcer.polite('Create appointment form is open')
   },
   methods: {
     addStudent(student) {
       if (student) {
         this.student = student
-        this.alertScreenReader(`Student ${this.student.label} selected`)
+        this.$announcer.polite(`Student ${this.student.label} selected`)
         this.$putFocusNextTick('add-topic-select-list')
       }
     },
@@ -221,7 +221,7 @@ export default {
       this.reset()
     },
     removeStudent() {
-      this.alertScreenReader(`${this.student.label} removed`)
+      this.$announcer.polite(`${this.student.label} removed`)
       this.student = undefined
     },
     removeTopic(topic) {

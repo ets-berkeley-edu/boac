@@ -299,7 +299,7 @@ export default {
     },
     onClickAddButton() {
       const announce = alert => {
-        this.alertScreenReader(alert)
+        this.$announcer.polite(alert)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
       }
       switch (this.$_.get(this.filter, 'type.ux')) {
@@ -324,7 +324,7 @@ export default {
       this.putFocusNewFilterDropdown()
     },
     onClickCancelEdit() {
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.isModifyingFilter = false
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
@@ -345,7 +345,7 @@ export default {
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
       this.putFocusSecondaryDropdown()
-      this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`)
+      this.$announcer.polite(`Begin edit of ${this.filter.label.primary} filter`)
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
@@ -359,7 +359,7 @@ export default {
         this.isModifyingFilter = false
         this.setEditMode(null)
         let alert = `${this.filter.label.primary} filter updated`
-        this.alertScreenReader(alert)
+        this.$announcer.polite(alert)
         this.$ga.cohortEvent(this.cohortId, this.cohortName, alert)
       })
     },
@@ -368,7 +368,7 @@ export default {
       this.filter = this.$_.cloneDeep(this.selectedFilter)
       this.showAdd = this.$_.get(this.filter, 'type.ux') === 'boolean'
       if (this.filter) {
-        this.alertScreenReader(`${this.filter.label.primary} selected`)
+        this.$announcer.polite(`${this.filter.label.primary} selected`)
         switch (this.filter.type.ux) {
         case 'dropdown':
           this.putFocusSecondaryDropdown()
@@ -387,7 +387,7 @@ export default {
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
         this.$putFocusNextTick('unsaved-filter-add')
-        this.alertScreenReader(`${this.selectedOption.name} selected`)
+        this.$announcer.polite(`${this.selectedOption.name} selected`)
       }
     },
     prepareFilterOptionGroups() {
@@ -443,7 +443,7 @@ export default {
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
       let alert = `${this.filter.label.primary} filter removed`
-      this.alertScreenReader(alert)
+      this.$announcer.polite(alert)
       this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
     },
     reset() {

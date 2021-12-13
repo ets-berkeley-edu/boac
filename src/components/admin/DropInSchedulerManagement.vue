@@ -106,14 +106,14 @@ export default {
     },
     cancelRemoveSchedulerModal() {
       this.showRemoveSchedulerModal = false
-      this.alertScreenReader(`Cancel removal of ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
+      this.$announcer.polite(`Cancel removal of ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
     },
     confirmRemoveScheduler(scheduler) {
       this.showRemoveSchedulerModal = true
       this.schedulerToRemove = scheduler
     },
     removeScheduler() {
-      this.alertScreenReader(`Removing ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
+      this.$announcer.polite(`Removing ${this.schedulerToRemove.firstName} ${this.schedulerToRemove.lastName}`)
       this.showRemoveSchedulerModal = false
       this.isRemoving = true
       removeDropInScheduler(this.dept.code, this.schedulerToRemove.uid).then(updatedDept => {

@@ -261,11 +261,11 @@ export default {
   methods: {
     cancelCreateAppointment() {
       this.showCreateAppointmentModal = false
-      this.alertScreenReader('Dialog closed')
+      this.$announcer.polite('Dialog closed')
     },
     cancelLogResolvedIssue() {
       this.showLogResolvedIssueModal = false
-      this.alertScreenReader('Dialog closed')
+      this.$announcer.polite('Dialog closed')
     },
     clearDropInStatus() {
       this.dropInStatusLoading = true
@@ -273,7 +273,7 @@ export default {
         this.updateDropInAttributes(response)
         this.dropInStatusLoading = false
         this.dropInStatusNew = null
-        this.alertScreenReader('Drop-in status cleared')
+        this.$announcer.polite('Drop-in status cleared')
       })
     },
     createAppointment(
@@ -294,7 +294,7 @@ export default {
         this.showCreateAppointmentModal = false
         this.onAppointmentStatusChange().then(() => {
           this.creating = false
-          this.alertScreenReader(`${student.label} appointment created`)
+          this.$announcer.polite(`${student.label} appointment created`)
           this.$putFocusNextTick(`waitlist-student-${student.sid}`)
         })
       })
@@ -315,24 +315,24 @@ export default {
       ).then(() => {
         this.showLogResolvedIssueModal = false
         this.onAppointmentStatusChange().then(() => {
-          this.alertScreenReader(`Resolved issue for ${student.label}`)
+          this.$announcer.polite(`Resolved issue for ${student.label}`)
         })
       })
     },
     openCreateAppointmentModal() {
       this.showCreateAppointmentModal = true
-      this.alertScreenReader('Create appointment form is open')
+      this.$announcer.polite('Create appointment form is open')
     },
     openLogResolvedIssueModal() {
       this.showLogResolvedIssueModal = true
-      this.alertScreenReader('Log resolved issue form is open')
+      this.$announcer.polite('Log resolved issue form is open')
     },
     submitDropInStatus() {
       this.dropInStatusLoading = true
       setDropInStatus(this.deptCode, this.dropInStatusNew).then(response => {
         this.updateDropInAttributes(response)
         this.dropInStatusLoading = false
-        this.alertScreenReader('Drop-in status updated')
+        this.$announcer.polite('Drop-in status updated')
       })
     },
     updateDropInAttributes(attrs) {

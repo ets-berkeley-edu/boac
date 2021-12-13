@@ -117,7 +117,7 @@ export default {
     this.topics = this.$_.clone(this.appointment.topics)
     this.showDetailsModal = this.showModal
     this.$putFocusNextTick('modal-header')
-    this.alertScreenReader('Appointment details form is open')
+    this.$announcer.polite('Appointment details form is open')
   },
   methods: {
     addTopic(topic) {

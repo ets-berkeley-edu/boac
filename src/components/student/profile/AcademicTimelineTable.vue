@@ -419,11 +419,11 @@ export default {
       this.openMessages = []
       this.searchResults = null
       this.timelineQuery = ''
-      this.alertScreenReader(this.describeTheActiveTab())
+      this.$announcer.polite(this.describeTheActiveTab())
       this.refreshSearchIndex()
     },
     isShowingAll() {
-      this.alertScreenReader(this.describeTheActiveTab())
+      this.$announcer.polite(this.describeTheActiveTab())
     },
     timelineQuery() {
       if (this.timelineQuery) {
@@ -463,7 +463,7 @@ export default {
       })
     }
     this.sortMessages()
-    this.alertScreenReader(`${this.student.name} profile loaded.`)
+    this.$announcer.polite(`${this.student.name} profile loaded.`)
   },
   mounted() {
     if (this.anchor) {
@@ -503,7 +503,7 @@ export default {
       this.editModeNoteId = null
     },
     cancelTheDelete() {
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
@@ -521,12 +521,12 @@ export default {
         this.allExpanded = false
       }
       if (notifyScreenReader) {
-        this.alertScreenReader(`${this.$_.capitalize(message.type)} closed`)
+        this.$announcer.polite(`${this.$_.capitalize(message.type)} closed`)
       }
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
-      this.alertScreenReader('Please confirm delete')
+      this.$announcer.polite('Please confirm delete')
       this.messageForDelete = message
     },
     deleteConfirmed() {
@@ -537,7 +537,7 @@ export default {
       this.$_.remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
       return deleteNote(note.id).then(() => {
-        this.alertScreenReader('Note deleted')
+        this.$announcer.polite('Note deleted')
         this.refreshSearchIndex()
       })
     },
@@ -607,7 +607,7 @@ export default {
         this.allExpanded = true
       }
       if (notifyScreenReader) {
-        this.alertScreenReader(`${this.$_.capitalize(message.type)} opened`)
+        this.$announcer.polite(`${this.$_.capitalize(message.type)} opened`)
       }
     },
     scrollToPermalink(messageType, messageId) {
@@ -640,10 +640,10 @@ export default {
       this.allExpanded = !this.allExpanded
       if (this.allExpanded) {
         this.$_.each(this.messagesPerType(this.filter), this.open)
-        this.alertScreenReader(`All ${this.filter}s expanded`)
+        this.$announcer.polite(`All ${this.filter}s expanded`)
       } else {
         this.$_.each(this.messagesPerType(this.filter), this.close)
-        this.alertScreenReader(`All ${this.filter}s collapsed`)
+        this.$announcer.polite(`All ${this.filter}s collapsed`)
       }
     }
   }

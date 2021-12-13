@@ -151,7 +151,7 @@ export default {
           this.checkedGroups = this.$_.without(this.checkedGroups, group.id)
           this.isRemoving = false
           this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
-          this.alertScreenReader(`${this.student.name} removed from "${group.name}"`)
+          this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Removed SID ${this.student.sid}`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
@@ -163,7 +163,7 @@ export default {
           this.checkedGroups.push(group.id)
           this.isAdding = false
           this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
-          this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
+          this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
         addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
@@ -178,7 +178,7 @@ export default {
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
-        this.alertScreenReader(`${this.student.name} added to new curated group, "${name}".`)
+        this.$announcer.polite(`${this.student.name} added to new curated group, "${name}".`)
         this.$_.each(
           [
             'create',
@@ -193,7 +193,7 @@ export default {
     },
     onModalCancel() {
       this.showModal = false
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
     },
     refresh() {

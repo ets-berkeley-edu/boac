@@ -208,7 +208,7 @@ export default {
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo
     }
     if (this.phrase || includeNotesAndAppointments) {
-      this.alertScreenReader(`Searching for '${this.phrase}'`)
+      this.$announcer.polite(`Searching for '${this.phrase}'`)
       let queries = []
       if (includeCourses || includeNotesAndAppointments || includeStudents) {
         queries.push(

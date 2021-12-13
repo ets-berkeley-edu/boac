@@ -148,16 +148,16 @@ export default {
   },
   created() {
     this.showCancellationModal = this.showModal
-    this.alertScreenReader('Cancel appointment modal is open')
+    this.$announcer.polite('Cancel appointment modal is open')
   },
   methods: {
     cancelTheAppointment() {
       this.appointmentCancellation(this.appointment.id, this.reason, this.reasonExplained)
-      this.alertScreenReader(`Appointment with ${this.student.name} canceled`)
+      this.$announcer.polite(`Appointment with ${this.student.name} canceled`)
       this.showCancellationModal = false
     },
     reasonSelected() {
-      this.alertScreenReader(`Reason '${this.reason}' selected`)
+      this.$announcer.polite(`Reason '${this.reason}' selected`)
       this.$putFocusNextTick('cancellation-reason-explained')
     }
   }

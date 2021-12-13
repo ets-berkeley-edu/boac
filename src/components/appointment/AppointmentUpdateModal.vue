@@ -62,7 +62,7 @@ export default {
   },
   created() {
     this.showUpdateModal = this.showModal
-    this.alertScreenReader('Drop-in Update')
+    this.$announcer.polite('Drop-in Update')
   }
 }
 </script>

@@ -140,7 +140,7 @@ export default {
     this.$eventHub.on('sortBy-user-preference-change', sortBy => {
       if (!this.loading) {
         this.loadingStart()
-        this.alertScreenReader(`Sorting students by ${sortBy}`)
+        this.$announcer.polite(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
           this.loaded(this.getLoadedAlert())
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `sort by ${sortBy}`)
@@ -172,17 +172,17 @@ export default {
     bulkAddSids(sids) {
       this.setMode(undefined)
       if (this.$_.size(sids)) {
-        this.alertScreenReader(`Adding ${sids.length} students`)
+        this.$announcer.polite(`Adding ${sids.length} students`)
         this.$currentUser.preferences.sortBy = 'last_name'
         this.loadingStart()
         this.addStudents(sids).then(() => {
           this.loaded(this.getLoadedAlert())
           this.$putFocusNextTick('curated-group-name')
-          this.alertScreenReader(`${sids.length} students added to group '${this.name}'`)
+          this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
           this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
         })
       } else {
-        this.alertScreenReader('Canceled bulk add of students')
+        this.$announcer.polite('Canceled bulk add of students')
         this.$putFocusNextTick('curated-group-name')
       }
     },
