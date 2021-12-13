@@ -4,7 +4,11 @@
     <div>
       Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
     </div>
-    <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :is-saving="isSaving" />
+    <CuratedGroupBulkAdd
+      :bulk-add-sids="bulkAddSids"
+      :domain="domain"
+      :is-saving="isSaving"
+    />
     <b-modal
       v-model="showCreateModal"
       body-class="pl-0 pr-0"

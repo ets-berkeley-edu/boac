@@ -71,6 +71,11 @@ export default {
       required: false,
       type: Number
     },
+    domain: {
+      default: undefined,
+      required: false,
+      type: String
+    },
     isSaving: {
       required: false,
       type: Boolean
@@ -127,7 +132,7 @@ export default {
           this.$putFocusNextTick('curated-group-bulk-add-sids')
         } else {
           this.isValidating = true
-          validateSids(split).then(data => {
+          validateSids(this.domain, split).then(data => {
             this.$_.each(data, entry => {
               switch(entry.status) {
               case 200:

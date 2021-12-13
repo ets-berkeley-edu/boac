@@ -7,6 +7,7 @@ export default {
     ...mapGetters('curatedEditSession', [
       'curatedGroupId',
       'curatedGroupName',
+      'domain',
       'itemsPerPage',
       'mode',
       'ownerId',

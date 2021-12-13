@@ -3,7 +3,10 @@
     <Spinner />
     <div v-if="!loading">
       <CuratedGroupHeader />
-      <AdmitDataWarning v-if="domain === 'admitted_students' && students" :updated-at="$_.get(students, '[0].updatedAt')" />
+      <AdmitDataWarning
+        v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
+        :updated-at="$_.get(students, '[0].updatedAt')"
+      />
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div>
@@ -60,12 +63,17 @@
           </div>
         </div>
       </div>
-      <div v-if="!loading && mode === 'bulkAdd'">
-        <h2 class="page-section-header-sub">Add Students</h2>
+      <div v-if="!loading && mode === 'bulkAdd'" class="pt-2">
+        <h2 class="page-section-header-sub my-2">Add Students</h2>
         <div class="w-75">
-          Type or paste a list of Student Identification (SID) numbers below. Example: 9999999990, 9999999991
+          <div>Type or paste a list of Student Identification (SID) numbers below.</div>
+          <div class="text-secondary">Example: 9999999990, 9999999991</div>
         </div>
-        <CuratedGroupBulkAdd :bulk-add-sids="bulkAddSids" :curated-group-id="curatedGroupId" />
+        <CuratedGroupBulkAdd
+          :bulk-add-sids="bulkAddSids"
+          :curated-group-id="curatedGroupId"
+          :domain="domain"
+        />
       </div>
     </div>
   </div>
@@ -109,20 +117,15 @@ export default {
     }
   },
   data: () => ({
-    domain: undefined,
     error: undefined
   }),
   computed: {
     anchor: () => location.hash
   },
   created() {
-    this.domain = this.$route.query.domain || 'default'
     this.$eventHub.off('sortBy-user-preference-change')
     this.setMode(undefined)
-    this.init({
-      domain: this.domain,
-      id: parseInt(this.id)
-    }).then(group => {
+    this.init(parseInt(this.id)).then(group => {
       if (group) {
         this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)

@@ -132,7 +132,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     if (Vue.prototype.$config.pingFrequency) {
       // Keep session alive with periodic requests
       setInterval(() => {
-        axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
+        axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
           if (!response.data.isAuthenticated) {
             Vue.prototype.$eventHub.emit('user-session-expired')
           }
