@@ -87,20 +87,24 @@
       <div class="mb-2">
         <BatchAddStudentSet
           v-if="$currentUser.myCohorts.length"
-          class="w-75"
           :add-object="addCohort"
+          class="w-75"
           :disabled="isSaving"
-          :is-curated-groups-mode="false"
+          header="Cohort"
+          :objects="$currentUser.myCohorts"
+          object-type="cohort"
           :remove-object="removeCohort"
         />
       </div>
       <div class="mb-2">
         <BatchAddStudentSet
           v-if="$currentUser.myCuratedGroups.length"
-          class="w-75"
           :add-object="addCuratedGroup"
+          class="w-75"
           :disabled="isSaving"
-          :is-curated-groups-mode="true"
+          header="Curated Group"
+          :objects="$_.filter($currentUser.myCuratedGroups, ['domain', 'default'])"
+          object-type="curated"
           :remove-object="removeCuratedGroup"
         />
       </div>

@@ -3,7 +3,7 @@
     <div class="d-flex justify-content-between">
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
-          {{ curatedGroupName || 'Curated Group' }}
+          {{ curatedGroupName || domainLabel(true) }}
           <span v-if="!$_.isNil(totalStudentCount)" class="faint-text"> ({{ pluralize('student', totalStudentCount, {1: '1'}) }})</span>
         </h1>
       </div>
@@ -15,7 +15,7 @@
               v-model="renameInput"
               :aria-invalid="!renameInput"
               class="form-control"
-              aria-label="Curated group name, 255 characters or fewer"
+              :aria-label="`${domainLabel(true)} name, 255 characters or fewer`"
               aria-required="true"
               maxlength="255"
               required
@@ -94,7 +94,7 @@
             hide-header
             @shown="$putFocusNextTick('modal-header')"
           >
-            <ModalHeader text="Delete Curated Group" />
+            <ModalHeader :text="`Delete ${domainLabel(true)}`" />
             <div class="modal-body">
               Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
             </div>
@@ -129,7 +129,7 @@
               aria-live="polite"
               role="alert"
             >
-              Sorry, you cannot delete this curated group until you have removed the filter
+              Sorry, you cannot delete this {{ domainLabel(false) }} until you have removed the filter
               from
               <span v-if="referencingCohorts.length === 1">cohort <span class="font-weight-bolder">{{ referencingCohorts[0].name }}</span>.</span>
               <span v-if="referencingCohorts.length > 1">cohorts:</span>
@@ -250,7 +250,7 @@ export default {
   methods: {
     cancelExportGroupModal() {
       this.showExportListModal = false
-      this.$announcer.polite(`Cancel export of ${this.name} curated group`)
+      this.$announcer.polite(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
       this.setMode('bulkAdd')
@@ -265,6 +265,14 @@ export default {
       this.setMode(undefined)
       this.$putFocusNextTick('curated-group-name')
     },
+    exportGroup(csvColumnsSelected) {
+      this.showExportListModal = false
+      this.exportEnabled = false
+      this.$announcer.polite(`Exporting ${this.name} ${this.domainLabel(false)}`)
+      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
+        this.exportEnabled = true
+      })
+    },
     deleteGroup() {
       deleteCuratedGroup(this.domain, this.curatedGroupId).then(
         () => {
@@ -275,13 +283,8 @@ export default {
           this.error = error
         })
     },
-    exportGroup(csvColumnsSelected) {
-      this.showExportListModal = false
-      this.exportEnabled = false
-      this.$announcer.polite(`Exporting ${this.name} curated group`)
-      downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
-        this.exportEnabled = true
-      })
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
     },
     rename() {
       this.renameError = this.validateCohortName({

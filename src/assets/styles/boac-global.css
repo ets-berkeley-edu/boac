@@ -208,12 +208,6 @@
   -webkit-box-shadow: none;
   box-shadow: 0;
 }
-.panel-group {
-  margin-bottom: 20px;
-}
-.panel-group .panel + .panel {
-  margin-top: 5px;
-}
 .pill {
   background-color: #fff;
   border: 1px solid #999;

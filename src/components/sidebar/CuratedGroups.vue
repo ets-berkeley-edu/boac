@@ -2,12 +2,12 @@
   <div>
     <div class="d-flex justify-content-between mb-1 sidebar-row-link">
       <div class="ml-1" :class="headerClass">
-        {{ headerText }}
+        {{ domain === 'admitted_students' ? 'CE3 Groups' : 'Curated Groups' }}
       </div>
       <div class="ml-1 mr-2">
         <NavLink
           id="create-curated-group-from-sidebar"
-          aria-label="Create a new curated group"
+          :aria-label="`Create a new ${domainLabel(false)}.`"
           class="sidebar-create-link"
           path="/curate"
           :query-args="{'domain': domain}"
@@ -24,7 +24,7 @@
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-curated-group-${index}`"
-          :aria-label="'Curated group ' + group.name + ' has ' + group.totalStudentCount + ' students'"
+          :aria-label="`${$_.capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
           :path="`/curated/${group.id}`"
         >
           {{ group.name }}
@@ -58,11 +58,11 @@ export default {
       default: 'sidebar-header',
       required: false,
       type: String
-    },
-    headerText: {
-      default: 'Curated Groups',
-      required: false,
-      type: String
+    }
+  },
+  methods: {
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
     }
   }
 }

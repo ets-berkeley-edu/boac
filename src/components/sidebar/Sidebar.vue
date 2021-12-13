@@ -22,11 +22,7 @@
           </div>
           <div v-if="$currentUser.myCuratedGroups">
             <div class="pt-2">
-              <CuratedGroups
-                domain="admitted_students"
-                header-class="sidebar-sub-header"
-                header-text="CE3 Groups"
-              />
+              <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
             </div>
           </div>
         </div>

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <ModalHeader text="Name Your Curated Group" />
+    <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
     <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
       <div class="m-3">
-        <label id="label-of-create-input" for="create-input" tabindex="-1"><span class="sr-only">Curated group </span>Name:</label>
+        <label id="label-of-create-input" for="create-input" tabindex="-1"><span class="sr-only">{{ domainLabel(true) }} </span>Name:</label>
         <b-form-input
           id="create-input"
           v-model="name"
@@ -27,7 +27,7 @@
           class="sr-only"
           aria-live="polite"
         >
-          Curated group name cannot exceed 255 characters.
+          {{ $_.capitalize(domainLabel(false)) }} name cannot exceed 255 characters.
         </div>
       </div>
       <div class="modal-footer mb-0 pb-0 pl-0 mr-2">
@@ -69,6 +69,10 @@ export default {
     create: {
       required: true,
       type: Function
+    },
+    domain: {
+      required: true,
+      type: String
     }
   },
   data: () => ({
@@ -81,10 +85,6 @@ export default {
     }
   },
   methods: {
-    reset() {
-      this.name = ''
-      this.error = undefined
-    },
     cancelModal() {
       this.cancel()
       this.reset()
@@ -95,6 +95,13 @@ export default {
         this.create(this.name)
         this.reset()
       }
+    },
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
+    },
+    reset() {
+      this.name = ''
+      this.error = undefined
     }
   }
 }

@@ -3,14 +3,18 @@
     :id="`sortable-${keyword}-${group.id}`"
     body-class="p-0"
     :border-variant="isFetching || openAndLoaded ? 'primary' : 'light'"
-    class="mt-2 mr-3 sortable-group"
-    :class="{'bg-pale-blue': isFetching || openAndLoaded}"
+    class="mr-3 sortable-group"
+    :class="{
+      'bg-pale-blue': isFetching || openAndLoaded,
+      'border-0': !isFetching && !openAndLoaded
+    }"
   >
-    <b-card-header class="bg-transparent border-0 p-1" :class="{'p-0': compact}">
+    <b-card-header class="bg-transparent border-0 pl-1" :class="{'p-0': compact}">
       <b-button
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
         block
+        class="border-0"
         :class="{'shadow-none': !isOpen && !buttonHasFocus}"
         :pressed="null"
         variant="link"
@@ -24,7 +28,7 @@
               <font-awesome v-if="isFetching" icon="spinner" spin />
               <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
             </div>
-            <h3 class="page-section-header-sub m-0 text-wrap">
+            <h3 class="page-section-header-sub text-wrap">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
               {{ group.name }}
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>

@@ -14,7 +14,7 @@
       :lazy="true"
       menu-class="w-100"
       toggle-class="d-flex justify-content-between align-items-center"
-      :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
+      :text="objectType === 'cohort' ? 'Add Cohort' : 'Add Group'"
       :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
     >
@@ -66,9 +66,17 @@ export default {
       required: false,
       type: Boolean
     },
-    isCuratedGroupsMode: {
+    header: {
       required: true,
-      type: Boolean
+      type: String
+    },
+    objects: {
+      required: true,
+      type: Array
+    },
+    objectType: {
+      required: true,
+      type: String
     },
     removeObject: {
       required: true,
@@ -76,20 +84,12 @@ export default {
     }
   },
   data: () => ({
-    added: [],
-    header: undefined,
-    objects: [],
-    objectType: undefined
+    added: []
   }),
   computed: {
     addedIds() {
       return this.$_.map(this.added, 'id')
     }
-  },
-  created() {
-    this.header = this.isCuratedGroupsMode ? 'Curated Group' : 'Cohort'
-    this.objects = this.isCuratedGroupsMode ? this.$currentUser.myCuratedGroups : this.$currentUser.myCohorts
-    this.objectType = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {
     add(object) {

@@ -3,7 +3,7 @@
     <b-form-checkbox
       :id="`student-${sid}-curated-group-checkbox`"
       v-model="status"
-      :aria-label="checkboxDescription"
+      :aria-label="status ? `${studentName} selected, ready to add to ${domainLabel}` : `Select ${studentName} to add to ${domainLabel}`"
       size="sm"
       @change="toggle"
     />
@@ -12,10 +12,11 @@
 
 <script>
 import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CuratedStudentCheckbox',
-  mixins: [Context],
+  mixins: [Context, Util],
   props: {
     domain: {
       required: true,
@@ -28,18 +29,12 @@ export default {
   },
   data: () => ({
     sid: undefined,
-    status: false
+    status: false,
+    studentName: undefined
   }),
-  computed: {
-    checkboxDescription() {
-      const name = `${this.student.firstName} ${this.student.lastName}`
-      return this.checked
-        ? `${name} selected, ready to add to curated group`
-        : `Select ${name} to add to curated group`
-    }
-  },
   created() {
     this.sid = this.student.sid || this.student.csEmplId
+    this.studentName = `${this.student.firstName} ${this.student.lastName}`
     this.$eventHub.on('curated-group-select-all', domain => {
       if (this.domain === domain) {
         this.status = true
@@ -52,10 +47,13 @@ export default {
     })
   },
   methods: {
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
+    },
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
       this.$eventHub.emit(eventName, {domain: this.domain, sid: this.sid})
-      this.$announcer.polite(`${this.student.name} ${checked ? 'selected' : 'deselected'}`)
+      this.$announcer.polite(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
     }
   }
 }

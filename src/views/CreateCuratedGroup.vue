@@ -17,9 +17,9 @@
       @shown="$putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal
-        :sids="sids"
-        :create="create"
         :cancel="cancel"
+        :create="create"
+        :domain="domain"
       />
     </b-modal>
   </div>
@@ -54,14 +54,14 @@ export default {
     cancel() {
       this.showCreateModal = false
       this.isSaving = false
-      this.$announcer.polite('You have canceled the operation to create a new curated group.')
+      this.$announcer.polite(`You have canceled the operation to create a new ${this.describeCuratedGroupDomain(this.domain)}.`)
       this.$putFocusNextTick('curated-group-bulk-add-sids')
     },
     create(name) {
       this.showCreateModal = false
       createCuratedGroup(this.domain, name, this.sids)
         .then(group => {
-          this.$ga.curatedEvent( group.id, group.name, 'Create curated group with bulk SIDs')
+          this.$ga.curatedEvent( group.id, group.name, `Create ${this.describeCuratedGroupDomain(this.domain)} with bulk SIDs`)
           this.$announcer.polite(`Curated group '${name}' created. It has ${this.sids.length} students.`)
           this.isSaving = false
           this.$router.push(`/curated/${group.id}`)
