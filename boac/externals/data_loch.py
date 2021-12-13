@@ -890,6 +890,7 @@ def get_other_visa_types():
 
 
 def get_students_query(     # noqa
+    academic_career_status=None,
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -909,7 +910,6 @@ def get_students_query(     # noqa
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
-    include_historical=False,
     intended_majors=None,
     is_active_asc=None,
     is_active_coe=None,
@@ -936,8 +936,12 @@ def get_students_query(     # noqa
     if not query_tables:
         return None, None, None
 
-    if include_historical:
+    if not academic_career_status:
+        academic_career_status = ('active',)
+    if 'inactive' in academic_career_status and 'active' in academic_career_status:
         query_filter = ' WHERE TRUE'
+    elif 'inactive' in academic_career_status:
+        query_filter = " WHERE spi.academic_career_status != 'active'"
     else:
         query_filter = " WHERE spi.academic_career_status = 'active'"
 
@@ -948,7 +952,7 @@ def get_students_query(     # noqa
         words = list(set(search_phrase.upper().split()))
         # A numeric string indicates an SID search.
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
-            # In the special case of a numeric SID search we want to include historical students by default, so
+            # In the special case of a numeric SID search we want to include inactive students by default, so
             # replace the query_filter set above. Historical students are returned on exact matched only.
             query_filter = " WHERE ((spi.sid LIKE :sid_prefix AND spi.academic_career_status = 'active') OR spi.sid = :sid_exact)"
             query_bindings.update({'sid_prefix': f'{words[0]}%', 'sid_exact': words[0]})

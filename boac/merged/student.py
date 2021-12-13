@@ -224,7 +224,7 @@ def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
     return set(all_sids)
 
 
-def get_summary_student_profiles(sids, include_historical=False, term_id=None):
+def get_summary_student_profiles(sids, term_id=None):
     if not sids:
         return []
     benchmark = get_benchmarker('get_summary_student_profiles')
@@ -334,6 +334,7 @@ def get_term_gpas_by_sid(sids, as_dicts=False):
 
 
 def query_students(
+    academic_career_status=None,
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -352,7 +353,6 @@ def query_students(
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
-    include_historical=False,
     include_profiles=False,
     intended_majors=None,
     is_active_asc=None,
@@ -399,6 +399,7 @@ def query_students(
     scope = scope_for_criteria(**criteria)
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
+        academic_career_status=academic_career_status,
         academic_standings=academic_standings,
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
@@ -418,7 +419,6 @@ def query_students(
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
-        include_historical=include_historical,
         intended_majors=intended_majors,
         is_active_asc=is_active_asc,
         is_active_coe=is_active_coe,

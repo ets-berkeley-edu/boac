@@ -984,7 +984,9 @@ VALUES
 ('8901234567', 'Undergrad Letters & Science', 'Economics BA'),
 ('890127492', 'Undergrad Letters & Science', 'Mathematics'),
 ('9000000000', 'Undergrad Engineering', 'Engineering Undeclared UG'),
-('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG');
+('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG'),
+('2718281828', 'Undergrad Letters & Science', 'English BA');
+
 
 INSERT INTO student.student_names
 (sid, name)
