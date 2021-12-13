@@ -48,35 +48,10 @@
       </div>
       <SectionSpinner :loading="sorting" />
       <div v-if="!sorting">
-        <div class="float-right pb-2">
+        <div class="float-right mr-4 pb-2">
           <SortBy domain="admitted_students" />
         </div>
-        <table id="cohort-admitted-students" class="border-top-0 table table-sm table-borderless cohort-admitted-students mx-2">
-          <thead class="sortable-table-header">
-            <tr>
-              <th class="align-top pt-3">Name</th>
-              <th class="align-top pt-3 text-nowrap">CS ID</th>
-              <th class="align-top pt-3">SIR</th>
-              <th class="align-top pt-3">CEP</th>
-              <th class="align-top pt-3 text-nowrap">Re-entry</th>
-              <th class="align-top pt-3 text-nowrap">1st Gen</th>
-              <th class="align-top pt-3">UREM</th>
-              <th class="align-top pt-3">Waiver</th>
-              <th class="align-top pt-3">INT'L</th>
-              <th class="align-top pt-3">Freshman or Transfer</th>
-            </tr>
-          </thead>
-          <tbody>
-            <AdmitStudentRow
-              v-for="(admit, index) in admits"
-              :id="`admit-${admit.csEmplId}`"
-              :key="admit.csEmplId"
-              :row-index="index"
-              :sorted-by="$currentUser.preferences.admitSortBy"
-              :student="admit"
-            />
-          </tbody>
-        </table>
+        <AdmitStudentsTable :students="admits" />
         <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
           <Pagination
             :click-handler="goToPage"
@@ -93,7 +68,7 @@
 
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
-import AdmitStudentRow from '@/components/admit/AdmitStudentRow'
+import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
@@ -111,7 +86,7 @@ export default {
   name: 'AdmitStudents',
   components: {
     AdmitDataWarning,
-    AdmitStudentRow,
+    AdmitStudentsTable,
     NavLink,
     Pagination,
     SectionSpinner,
