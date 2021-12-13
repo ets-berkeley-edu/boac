@@ -22,6 +22,7 @@
         </div>
         <div>
           <ManageStudent
+            :align-dropdown-right="true"
             domain="admitted_students"
             label="Add to Admission Group"
             label-class="px-2"

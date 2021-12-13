@@ -10,8 +10,9 @@
         id="students-sort-by"
         aria-labelledby="sort-by"
         block
+        left
+        menu-class="w-100"
         no-caret
-        right
         toggle-class="dd-override"
         variant="link"
         @hidden="$announcer.polite('Sort-by menu closed')"

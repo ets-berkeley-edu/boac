@@ -2,11 +2,12 @@
   <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <b-dropdown
       :id="`curated-group-dropdown-${student.sid}`"
-      :aria-label="`Curated groups for ${student.name}`"
+      :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :class="{'p-0': isButtonVariantLink}"
       :disabled="disableSelector"
       :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
       no-caret
+      :right="alignDropdownRight"
       size="sm"
       :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow btn-primary-color-override'"
       :variant="dropdownVariant"
@@ -31,7 +32,7 @@
         </div>
       </template>
       <b-dropdown-item v-if="!$_.filter($currentUser.myCuratedGroups, ['domain', domain])">
-        <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
+        <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
       </b-dropdown-item>
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
@@ -48,18 +49,18 @@
             :aria-label="$_.includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
             :value="group.id"
           >
-            <span class="sr-only">Curated group </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
+            <span class="sr-only">{{ domainLabel(true) }} </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
           </b-form-checkbox>
         </b-dropdown-item>
       </div>
       <b-dropdown-divider />
       <b-dropdown-item
         id="create-curated-group"
-        aria-label="Create a new curated group"
+        :aria-label="`Create a new ${domainLabel(false)}`"
         class="create-new-button mb-0 pl-0 text-dark"
         @click="showModal = true"
       >
-        <font-awesome icon="plus" /> Create New Curated Group
+        <font-awesome icon="plus" /> Create New {{ domainLabel(true) }}
       </b-dropdown-item>
     </b-dropdown>
     <b-modal
@@ -69,7 +70,11 @@
       hide-header
       @shown="$putFocusNextTick('modal-header')"
     >
-      <CreateCuratedGroupModal :cancel="onModalCancel" :create="onCreateCuratedGroup" />
+      <CreateCuratedGroupModal
+        :cancel="onModalCancel"
+        :create="onCreateCuratedGroup"
+        :domain="domain"
+      />
     </b-modal>
   </div>
 </template>
@@ -92,6 +97,10 @@ export default {
   },
   mixins: [Context, Scrollable, Util],
   props: {
+    alignDropdownRight: {
+      required: false,
+      type: Boolean
+    },
     domain: {
       required: true,
       type: String
@@ -144,6 +153,9 @@ export default {
     })
   },
   methods: {
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
+    },
     groupCheckboxClick(group) {
       if (this.$_.includes(this.checkedGroups, group.id)) {
         this.isRemoving = true
@@ -178,7 +190,7 @@ export default {
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
-        this.$announcer.polite(`${this.student.name} added to new curated group, "${name}".`)
+        this.$announcer.polite(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
         this.$_.each(
           [
             'create',

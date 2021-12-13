@@ -88,7 +88,7 @@ export default {
     addCuratedGroupToBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.addCuratedGroup(curatedGroup)
-      this.$announcer.polite(`Added curated group '${curatedGroup.name}'`)
+      this.$announcer.polite(`Added ${this.describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
     },
     addStudentBySid(sid) {
       this.setIsRecalculating(true)
@@ -103,7 +103,7 @@ export default {
     removeCuratedGroupFromBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
-      this.$announcer.polite(`Curated group '${curatedGroup.name}' removed`)
+      this.$announcer.polite(`${this.$_.capitalize(this.describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
     },
     removeSid(sid) {
       if (this.$_.includes(this.sids, sid)) {

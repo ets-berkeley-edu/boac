@@ -3,7 +3,7 @@
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
-      <div>
+      <div class="pb-3">
         <div id="filtered-cohorts-header-row">
           <h2 v-if="!$currentUser.myCohorts.length" id="no-cohorts-header" class="page-section-header">
             You have no saved cohorts.
@@ -16,7 +16,7 @@
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
-        <div class="panel-group">
+        <div>
           <SortableGroup
             v-for="cohort in $currentUser.myCohorts"
             :key="cohort.id"
@@ -25,12 +25,23 @@
           />
         </div>
       </div>
-      <div v-if="$currentUser.myCuratedGroups.length">
+      <div v-if="$_.filter($currentUser.myCuratedGroups, ['domain', 'default']).length" class="pb-3">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <SortableGroup
-          v-for="curatedGroup in $currentUser.myCuratedGroups"
+          v-for="curatedGroup in $_.filter($currentUser.myCuratedGroups, ['domain', 'default'])"
+          :key="curatedGroup.id"
+          :group="curatedGroup"
+          :is-cohort="false"
+        />
+      </div>
+      <div v-if="$_.filter($currentUser.myCuratedGroups, ['domain', 'admitted_students']).length" class="pb-2">
+        <div id="admissions-groups-header-row">
+          <h2 class="page-section-header">Admissions Groups</h2>
+        </div>
+        <SortableGroup
+          v-for="curatedGroup in $_.filter($currentUser.myCuratedGroups, ['domain', 'admitted_students'])"
           :key="curatedGroup.id"
           :group="curatedGroup"
           :is-cohort="false"

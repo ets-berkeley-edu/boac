@@ -183,7 +183,8 @@ export default {
           this.loaded(this.getLoadedAlert())
           this.$putFocusNextTick('curated-group-name')
           this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'Update curated group with bulk-add SIDs')
+          const domainLabel = this.describeCuratedGroupDomain(this.domain)
+          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Update ${domainLabel} with bulk-add SIDs`)
         })
       } else {
         this.$announcer.polite('Canceled bulk add of students')
@@ -191,7 +192,9 @@ export default {
       }
     },
     getLoadedAlert() {
-      return `Curated group ${this.curatedGroupName || ''}, sorted by ${this.translateSortByOption(this.$currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+      const label = `${this.$_.capitalize(this.describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
+      const sortedBy = this.translateSortByOption(this.$currentUser.preferences.sortBy)
+      return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
       this.loadingStart()

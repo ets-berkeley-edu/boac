@@ -23,6 +23,10 @@ const toBoolean = value => value && value !== 'false'
 export default {
   name: 'Util',
   methods: {
+    describeCuratedGroupDomain(domain, capitalize) {
+      const format = s => capitalize ? _.capitalize(s) : s
+      return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
+    },
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     isToday: date => {

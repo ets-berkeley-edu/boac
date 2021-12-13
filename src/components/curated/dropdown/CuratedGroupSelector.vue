@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex">
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
-      Select all students to add to a curated group
+      Select all students to add to a {{ domainLabel(false) }}
     </label>
     <div class="add-all-checkbox">
       <b-form-checkbox
@@ -29,19 +29,19 @@
         <template slot="button-content">
           <div :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'" class="px-1">
             <div v-if="!isSaving" class="d-flex justify-content-between">
-              <div class="pr-2">Add to Curated Group</div>
+              <div class="pr-2">Add to {{ domainLabel(true) }}</div>
               <div>
                 <font-awesome v-if="isSaving" icon="spinner" spin />
                 <font-awesome v-if="!isSaving" icon="caret-down" />
               </div>
             </div>
             <div v-if="isSaving">
-              <font-awesome icon="check" /> Added to Curated Group
+              <font-awesome icon="check" /> Added to {{ domainLabel(true) }}
             </div>
           </div>
         </template>
         <b-dropdown-item v-if="!myCuratedGroups.length">
-          <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no curated groups.</span>
+          <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
         </b-dropdown-item>
         <b-dropdown-item
           v-for="group in myCuratedGroups"
@@ -61,12 +61,13 @@
         <b-dropdown-divider />
         <b-dropdown-item
           id="create-curated-group"
+          :aria-label="`Create a new ${domainLabel(false)}`"
           class="pl-0 text-dark"
           variant="link"
-          aria-label="Create a new curated group"
           @click="showModal = true"
         >
-          <font-awesome icon="plus" /> Create New Curated Group
+          <font-awesome icon="plus" />
+          Create New {{ domainLabel(true) }}
         </b-dropdown-item>
       </b-dropdown>
       <b-modal
@@ -76,7 +77,11 @@
         hide-header
         @shown="$putFocusNextTick('modal-header')"
       >
-        <CreateCuratedGroupModal :cancel="modalCancel" :create="modalCreateCuratedGroup" />
+        <CreateCuratedGroupModal
+          :cancel="modalCancel"
+          :create="modalCreateCuratedGroup"
+          :domain="domain"
+        />
       </b-modal>
     </div>
   </div>
@@ -148,11 +153,11 @@ export default {
   },
   methods: {
     afterAddStudents(group) {
-      this.$announcer.polite(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to Curated Group "${group.name}".`)
+      this.$announcer.polite(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
       this.$eventHub.emit('curated-group-deselect-all', this.domain)
-      this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to Curated Group`)
+      this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to ${this.domainLabel(true)}`)
     },
     afterCreateGroup() {
       this.sids = []
@@ -177,6 +182,9 @@ export default {
           this.afterAddStudents(group)
         }).finally(() => setTimeout(done, 2000))
     },
+    domainLabel(capitalize) {
+      return this.describeCuratedGroupDomain(this.domain, capitalize)
+    },
     refresh() {
       this.indeterminate = this.$_.inRange(this.$_.size(this.sids), 1, this.$_.size(this.students))
       this.isSelectAllChecked = this.$_.size(this.sids) === this.$_.size(this.students)
@@ -191,14 +199,14 @@ export default {
       this.showModal = false
       let done = () => {
         this.isSaving = false
-        this.$announcer.polite(`Student${this.sids.length === 1 ? 's' : ''} added to curated group ${name}`)
+        this.$announcer.polite(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
         this.afterCreateGroup()
       }
       const trackEvent = group => {
         this.$_.each(
           [
             'create',
-            `${this.contextDescription}: add student${this.sids.length === 1 ? 's' : ''} to Curated Group`
+            `${this.contextDescription}: add student${this.sids.length === 1 ? 's' : ''} to ${this.domainLabel(true)}`
           ],
           action => {
             this.$ga.curatedEvent(group.id, group.name, action)
