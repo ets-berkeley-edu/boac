@@ -23,7 +23,7 @@
         :remove-student="removeStudent"
         :row-index="index"
         :sorted-by="$currentUser.preferences.admitSortBy"
-        :admit-student="student"
+        :student="student"
       />
     </tbody>
   </table>
@@ -37,8 +37,8 @@ export default {
   components: {AdmitStudentRow},
   props: {
     removeStudent: {
+      default: undefined,
       required: false,
-      default: () => {},
       type: Function
     },
     students: {

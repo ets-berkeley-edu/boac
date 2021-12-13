@@ -11,7 +11,7 @@
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div>
           <div class="d-flex justify-content-end pt-2">
-            <div class="pr-4">
+            <div v-if="totalStudentCount" class="pr-4">
               <TermSelector />
             </div>
             <div v-if="totalStudentCount > 1">
