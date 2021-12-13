@@ -440,7 +440,7 @@ def match_students_by_name_or_sid(prefixes, limit=None):
     conditions = []
     prefix_kwargs = {}
     prefixes = list(prefixes)
-    # A single numeric search term can match SIDs from current or hist_enr students.
+    # A single numeric search term can match SIDs from active or inactive students.
     if len(prefixes) == 1 and not prefixes[0].isalpha():
         conditions.append('WHERE spi.sid LIKE :prefix')
         prefix_kwargs['prefix'] = f'{prefixes[0]}%'
@@ -785,7 +785,7 @@ def get_academic_plans_for_advisor(advisor_sid):
         FROM {advisor_schema()}.advisor_students advs
         JOIN {student_schema()}.student_profile_index spi
         ON spi.sid = advs.student_sid
-        AND spi.hist_enr IS FALSE
+        AND spi.academic_career_status = 'active'
         AND advs.advisor_sid = :advisor_sid"""
     return safe_execute_rds(sql, advisor_sid=advisor_sid)
 
@@ -831,7 +831,7 @@ def get_coe_ethnicity_codes(scope=()):
 def get_colleges():
     sql = f"""SELECT DISTINCT maj.college
         FROM {student_schema()}.student_profile_index spi
-        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.hist_enr IS FALSE
+        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.academic_career_status = 'active'
         WHERE maj.college NOT LIKE 'Graduate%'
         ORDER BY college"""
     return safe_execute_rds(sql)
@@ -847,14 +847,14 @@ def get_distinct_ethnicities():
 
 def get_entering_terms():
     sql = f"""SELECT DISTINCT entering_term FROM {student_schema()}.student_profile_index
-        WHERE entering_term > '0' AND hist_enr IS FALSE
+        WHERE entering_term > '0' AND academic_career_status = 'active'
         ORDER BY entering_term DESC"""
     return safe_execute_rds(sql)
 
 
 def get_expected_graduation_terms():
     sql = f"""SELECT DISTINCT expected_grad_term FROM {student_schema()}.student_profile_index
-        WHERE expected_grad_term > '0' AND hist_enr IS FALSE
+        WHERE expected_grad_term > '0' AND academic_career_status = 'active'
         ORDER BY expected_grad_term DESC"""
     return safe_execute_rds(sql)
 
@@ -862,7 +862,7 @@ def get_expected_graduation_terms():
 def get_intended_majors():
     sql = f"""SELECT DISTINCT im.major
         FROM {student_schema()}.student_profile_index spi
-        JOIN {student_schema()}.intended_majors im ON im.sid = spi.sid AND spi.hist_enr IS FALSE
+        JOIN {student_schema()}.intended_majors im ON im.sid = spi.sid AND spi.academic_career_status = 'active'
         ORDER BY major"""
     return safe_execute_rds(sql)
 
@@ -870,7 +870,7 @@ def get_intended_majors():
 def get_majors():
     sql = f"""SELECT DISTINCT maj.major AS major
         FROM {student_schema()}.student_profile_index spi
-        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.hist_enr IS FALSE
+        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.academic_career_status = 'active'
         ORDER BY major"""
     return safe_execute_rds(sql)
 
@@ -878,7 +878,7 @@ def get_majors():
 def get_minors():
     sql = f"""SELECT DISTINCT min.minor AS minor
         FROM {student_schema()}.student_profile_index spi
-        JOIN {student_schema()}.minors min ON min.sid = spi.sid AND spi.hist_enr IS FALSE
+        JOIN {student_schema()}.minors min ON min.sid = spi.sid AND spi.academic_career_status = 'active'
         ORDER BY minor"""
     return safe_execute_rds(sql)
 
@@ -939,7 +939,7 @@ def get_students_query(     # noqa
     if include_historical:
         query_filter = ' WHERE TRUE'
     else:
-        query_filter = ' WHERE spi.hist_enr IS FALSE'
+        query_filter = " WHERE spi.academic_career_status = 'active'"
 
     query_bindings = {}
 
@@ -950,7 +950,7 @@ def get_students_query(     # noqa
         if len(words) == 1 and re.match(r'^\d+$', words[0]):
             # In the special case of a numeric SID search we want to include historical students by default, so
             # replace the query_filter set above. Historical students are returned on exact matched only.
-            query_filter = ' WHERE ((spi.sid LIKE :sid_prefix AND spi.hist_enr IS FALSE) OR spi.sid = :sid_exact)'
+            query_filter = " WHERE ((spi.sid LIKE :sid_prefix AND spi.academic_career_status = 'active') OR spi.sid = :sid_exact)"
             query_bindings.update({'sid_prefix': f'{words[0]}%', 'sid_exact': words[0]})
         # If a single word, search on both name and email.
         elif len(words) == 1:
@@ -1359,11 +1359,11 @@ def _student_query_tables_for_scope(scope):
         elif len(tables) == 1:
             # If we are pulling from a single schema, include all schema-specific columns.
             table_sql = f"""FROM {tables[0]} s
-                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.academic_career_status = 'active'"""
         elif join_type == 'union':
             # In a union of multiple schemas, SID will be the only common element.
             table_sql = f"""FROM ({' UNION '.join(['SELECT sid FROM ' + t for t in tables])}) s
-                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.academic_career_status = 'active'"""
         elif join_type == 'intersection':
             # In an intersection of multiple schemas, all queryable columns should be returned.
             columns_for_codes = {
@@ -1393,5 +1393,5 @@ def _student_query_tables_for_scope(scope):
             for table in tables[1:]:
                 intersection_sql += f' INNER JOIN {table} ON {table}.sid = {tables[0]}.sid'
             table_sql = f"""FROM ({intersection_sql}) s
-                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.hist_enr IS FALSE"""
+                JOIN {student_schema()}.student_profile_index spi ON spi.sid = s.sid AND spi.academic_career_status = 'active'"""
     return table_sql

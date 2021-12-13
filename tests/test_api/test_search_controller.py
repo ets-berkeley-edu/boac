@@ -76,7 +76,7 @@ def asc_inactive_students():
     return data_loch.safe_execute_rds("""
         SELECT DISTINCT(spi.sid) FROM boac_advising_asc.students s
         JOIN student.student_profile_index spi ON spi.sid = s.sid
-        WHERE s.active is FALSE AND spi.hist_enr IS FALSE
+        WHERE s.active is FALSE AND spi.academic_career_status = 'active'
     """)
 
 
