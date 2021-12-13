@@ -73,7 +73,7 @@
               :key="admit.csEmplId"
               :row-index="index"
               :sorted-by="$currentUser.preferences.admitSortBy"
-              :admit-student="admit"
+              :student="admit"
             />
           </tbody>
         </table>

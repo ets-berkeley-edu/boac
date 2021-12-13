@@ -8,7 +8,7 @@
         @keyup.enter="onClickRemoveStudent"
       >
         <font-awesome icon="times-circle" class="font-size-18" />
-        <span class="sr-only">Remove {{ admitStudent.firstName }} {{ admitStudent.lastName }}</span>
+        <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
       </button>
     </td>
     <td>
@@ -27,44 +27,44 @@
     </td>
     <td>
       <span class="sr-only">S I R</span>
-      <span :id="`row-${rowIndex}-current-sir`">{{ admitStudent.currentSir }}</span>
+      <span :id="`row-${rowIndex}-current-sir`">{{ student.currentSir }}</span>
     </td>
     <td>
       <span :id="`row-${rowIndex}-special-program-cep`">
         <span class="sr-only">C E P</span>
-        <span v-if="!isNilOrBlank(admitStudent.specialProgramCep)">{{ admitStudent.specialProgramCep }}</span>
-        <span v-if="isNilOrBlank(admitStudent.specialProgramCep)"><span class="sr-only">No data</span></span>
+        <span v-if="!isNilOrBlank(student.specialProgramCep)">{{ student.specialProgramCep }}</span>
+        <span v-if="isNilOrBlank(student.specialProgramCep)"><span class="sr-only">No data</span></span>
       </span>
     </td>
     <td>
       <span class="sr-only">Re-entry</span>
-      <span :id="`row-${rowIndex}-reentry-status`">{{ admitStudent.reentryStatus }}</span>
+      <span :id="`row-${rowIndex}-reentry-status`">{{ student.reentryStatus }}</span>
     </td>
     <td>
       <span :id="`row-${rowIndex}-first-generation-college`">
         <span class="sr-only">First generation</span>
-        <span v-if="isNilOrBlank(admitStudent.firstGenerationCollege)">&mdash;<span class="sr-only"> No data</span></span>
-        <span v-if="!isNilOrBlank(admitStudent.firstGenerationCollege)">{{ admitStudent.firstGenerationCollege }}</span>
+        <span v-if="isNilOrBlank(student.firstGenerationCollege)">&mdash;<span class="sr-only"> No data</span></span>
+        <span v-if="!isNilOrBlank(student.firstGenerationCollege)">{{ student.firstGenerationCollege }}</span>
       </span>
     </td>
     <td>
       <span class="sr-only">U R E M</span>
-      <span :id="`row-${rowIndex}-urem`">{{ admitStudent.urem }}</span>
+      <span :id="`row-${rowIndex}-urem`">{{ student.urem }}</span>
     </td>
     <td>
       <span class="sr-only">Waiver</span>
       <span :id="`row-${rowIndex}-application-fee-waiver-flag`">
-        <span v-if="isNilOrBlank(admitStudent.applicationFeeWaiverFlag)">&mdash;<span class="sr-only">No data</span></span>
-        <span v-if="!$_.isNil(admitStudent.applicationFeeWaiverFlag)">{{ admitStudent.applicationFeeWaiverFlag }}</span>
+        <span v-if="isNilOrBlank(student.applicationFeeWaiverFlag)">&mdash;<span class="sr-only">No data</span></span>
+        <span v-if="!$_.isNil(student.applicationFeeWaiverFlag)">{{ student.applicationFeeWaiverFlag }}</span>
       </span>
     </td>
     <td>
       <span class="sr-only">Residency</span>
-      <span :id="`row-${rowIndex}-residency-category`">{{ admitStudent.residencyCategory }}</span>
+      <span :id="`row-${rowIndex}-residency-category`">{{ student.residencyCategory }}</span>
     </td>
     <td>
       <span class="sr-only">Freshman or Transfer</span>
-      <span :id="`row-${rowIndex}-freshman-or-transfer`">{{ admitStudent.freshmanOrTransfer }}</span>
+      <span :id="`row-${rowIndex}-freshman-or-transfer`">{{ student.freshmanOrTransfer }}</span>
     </td>
   </tr>
 </template>
@@ -76,13 +76,9 @@ export default {
   name: 'AdmitStudentRow',
   mixins: [Util],
   props: {
-    admitStudent: {
-      required: true,
-      type: Object
-    },
     removeStudent: {
+      default: undefined,
       required: false,
-      default: () => {},
       type: Function
     },
     rowIndex: {
@@ -92,6 +88,10 @@ export default {
     sortedBy: {
       required: true,
       type: String
+    },
+    student: {
+      required: true,
+      type: Object
     }
   },
   data: () => ({
@@ -100,14 +100,14 @@ export default {
   computed: {
     fullName() {
       if (this.sortedBy === 'first_name') {
-        return this.$_.join(this.$_.remove([this.admitStudent.firstName, this.admitStudent.middleName, this.admitStudent.lastName]), ' ')
+        return this.$_.join(this.$_.remove([this.student.firstName, this.student.middleName, this.student.lastName]), ' ')
       }
-      const lastName = this.admitStudent.lastName ? `${this.admitStudent.lastName},` : null
-      return this.$_.join(this.$_.remove([lastName, this.admitStudent.firstName, this.admitStudent.middleName]), ' ')
+      const lastName = this.student.lastName ? `${this.student.lastName},` : null
+      return this.$_.join(this.$_.remove([lastName, this.student.firstName, this.student.middleName]), ' ')
     }
   },
   created() {
-    this.sid = this.admitStudent.csEmplId || this.admitStudent.sid
+    this.sid = this.student.csEmplId || this.student.sid
   },
   methods: {
     admitRoutePath() {
@@ -115,7 +115,7 @@ export default {
     },
     onClickRemoveStudent() {
       this.removeStudent(this.sid)
-      this.$announcer.set(`Removed ${this.admitStudent.firstName} ${this.admitStudent.lastName} from group`, 'polite')
+      this.$announcer.set(`Removed ${this.student.firstName} ${this.student.lastName} from group`, 'polite')
     }
   }
 }
