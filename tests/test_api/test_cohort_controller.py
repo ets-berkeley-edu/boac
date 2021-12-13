@@ -733,6 +733,48 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012', '5678901234'}
 
+    def test_active_students_cohort(self, admin_login, client, fake_auth):
+        """By default finds active English majors only."""
+        data = {
+            'name': 'English Active',
+            'filters': [
+                {'key': 'majors', 'value': 'English BA'},
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 2
+        sids = [s['sid'] for s in cohort['students']]
+        assert set(sids) == {'11667051', '3456789012'}
+
+    def test_inactive_students_cohort(self, admin_login, client, fake_auth):
+        """Can find inactive English majors on request."""
+        data = {
+            'name': 'English Inactive',
+            'filters': [
+                {'key': 'majors', 'value': 'English BA'},
+                {'key': 'academicCareerStatus', 'value': 'inactive'},
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 1
+        sids = [s['sid'] for s in cohort['students']]
+        assert set(sids) == {'2718281828'}
+
+    def test_active_and_inactivate_students_cohort(self, admin_login, client, fake_auth):
+        """Can find active and inactive English majors on request."""
+        data = {
+            'name': 'English All',
+            'filters': [
+                {'key': 'majors', 'value': 'English BA'},
+                {'key': 'academicCareerStatus', 'value': 'active'},
+                {'key': 'academicCareerStatus', 'value': 'inactive'},
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 3
+        sids = [s['sid'] for s in cohort['students']]
+        assert set(sids) == {'11667051', '3456789012', '2718281828'}
+
 
 class TestCohortUpdate:
 

@@ -27,7 +27,8 @@ from copy import copy, deepcopy
 from datetime import datetime
 
 from boac.lib.berkeley import sis_term_id_for_name
-from boac.lib.cohort_utils import academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
+from boac.lib.cohort_utils import academic_career_status_options, \
+    academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_group_options, entering_terms, ethnicities, genders, \
     get_coe_profiles, grad_terms, grading_terms, intended_majors, level_options, majors, minors, student_admit_college_options, \
     student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
@@ -81,6 +82,7 @@ class CohortFilterOptions:
                     'Academic Standing',
                     options=academic_standing_options(min_term_id=sis_term_id_for_name(f'Fall {current_year - 5}')),
                 ),
+                _filter('academicCareerStatus', 'Career Status', options=academic_career_status_options()),
                 _filter('colleges', 'College', options=colleges()),
                 _filter('enteringTerms', 'Entering Term', options=entering_terms()),
                 _filter('epnCpnGradingTerms', 'EPN/CPN Grading Option', options=grading_terms()),

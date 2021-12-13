@@ -222,7 +222,7 @@ def _curated_group_with_complete_student_profiles(
     if curated_group.domain == 'admitted_students':
         api_json['students'] = get_admitted_students_by_sids(sids)
     else:
-        api_json['students'] = get_summary_student_profiles(sids, term_id=term_id, include_historical=True)
+        api_json['students'] = get_summary_student_profiles(sids, term_id=term_id)
     Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('begin get_referencing_cohort_ids')
     api_json['referencingCohortIds'] = curated_group.get_referencing_cohort_ids()

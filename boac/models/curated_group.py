@@ -187,7 +187,7 @@ class CuratedGroup(Base):
             if sids:
                 result = query_students(
                     sids=sids,
-                    include_historical=True,
+                    academic_career_status=('active', 'inactive'),
                     include_profiles=False,
                     order_by=order_by,
                     offset=offset,
