@@ -134,9 +134,7 @@ def ce3_required(func):
 def can_edit_degree_progress(func):
     @wraps(func)
     def _qualifies(*args, **kw):
-        is_authorized = app.config['FEATURE_FLAG_DEGREE_CHECK'] and current_user.is_authenticated \
-            and current_user.can_edit_degree_progress
-        if is_authorized or _api_key_ok():
+        if (current_user.is_authenticated and current_user.can_edit_degree_progress) or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -147,9 +145,7 @@ def can_edit_degree_progress(func):
 def can_read_degree_progress(func):
     @wraps(func)
     def _qualifies(*args, **kw):
-        is_authorized = app.config['FEATURE_FLAG_DEGREE_CHECK'] and current_user.is_authenticated \
-            and current_user.can_read_degree_progress
-        if is_authorized or _api_key_ok():
+        if (current_user.is_authenticated and current_user.can_read_degree_progress) or _api_key_ok():
             return func(*args, **kw)
         else:
             app.logger.warning(f'Unauthorized request to {request.path}')
@@ -244,16 +240,15 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
         if not profile.get('name'):
             profile['name'] = ((profile.get('firstName') or '') + ' ' + (profile.get('lastName') or '')).strip()
 
-        degree_progress_permission = user.degree_progress_permission if app.config['FEATURE_FLAG_DEGREE_CHECK'] else None
         profile.update({
             'id': user.id,
             'isAdmin': user.is_admin,
             'isBlocked': user.is_blocked,
             'canAccessAdvisingData': user.can_access_advising_data,
             'canAccessCanvasData': user.can_access_canvas_data,
-            'canEditDegreeProgress': degree_progress_permission == 'read_write' or user.is_admin,
-            'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'] or user.is_admin,
-            'degreeProgressPermission': degree_progress_permission,
+            'canEditDegreeProgress': user.degree_progress_permission == 'read_write' or user.is_admin,
+            'canReadDegreeProgress': user.degree_progress_permission in ['read', 'read_write'] or user.is_admin,
+            'degreeProgressPermission': user.degree_progress_permission,
             'deletedAt': _isoformat(user.deleted_at),
             'departments': [],
         })

@@ -32,8 +32,6 @@ BACKGROUND_TASKS = False
 
 DATA_LOCH_RDS_URI = 'postgresql://boac:boac@localhost:5432/boac_loch_test'
 
-FEATURE_FLAG_DEGREE_CHECK = True
-
 INDEX_HTML = 'tests/static/test-index.html'
 
 LOGGING_LOCATION = 'STDOUT'

@@ -178,12 +178,9 @@ class UserSession(UserMixin):
             ]
 
         is_admin = user and user.is_admin
-        if app.config['FEATURE_FLAG_DEGREE_CHECK']:
-            degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
-        else:
-            degree_progress_permission = None
-
+        degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
         can_access_ce3_features = user and (user.is_admin or 'ZCEEE' in [d['code'] for d in departments])
+
         return {
             **(calnet_profile or {}),
             **{

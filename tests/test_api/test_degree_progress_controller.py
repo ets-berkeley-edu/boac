@@ -30,9 +30,7 @@ from boac.lib.berkeley import get_dept_codes
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
-from flask import current_app as app
 import pytest
-from tests.util import override_config
 
 
 admin_uid = '2040'
@@ -315,7 +313,7 @@ class TestCreateUnitRequirement:
             expected_status_code=401,
         )
 
-    def test_advisor_no_permission(self, client, mock_template, fake_auth, app):
+    def test_advisor_no_permission(self, client, mock_template, fake_auth):
         """Returns 401 if user has no degree progress permission."""
         fake_auth.login(coe_advisor_no_access_uid)
         self._api_add_unit_requirement(
@@ -326,7 +324,7 @@ class TestCreateUnitRequirement:
             expected_status_code=401,
         )
 
-    def test_advisor_read_only_permission(self, client, mock_template, fake_auth, app):
+    def test_advisor_read_only_permission(self, client, mock_template, fake_auth):
         """Returns 401 if user has read-only degree progress permission."""
         fake_auth.login(coe_advisor_read_only_uid)
         self._api_add_unit_requirement(
@@ -337,7 +335,7 @@ class TestCreateUnitRequirement:
             expected_status_code=401,
         )
 
-    def test_advisor_read_write_permission(self, client, mock_template, fake_auth, app):
+    def test_advisor_read_write_permission(self, client, mock_template, fake_auth):
         """Returns newly created unit requirement if user has read-write degree progress permission."""
         fake_auth.login(coe_advisor_read_write_uid)
         unit_requirement = self._api_add_unit_requirement(
@@ -352,7 +350,7 @@ class TestCreateUnitRequirement:
         assert unit_requirement.get('minUnits') == 12
         assert unit_requirement.get('templateId') == str(mock_template.id)
 
-    def test_admin(self, client, mock_template, fake_auth, app):
+    def test_admin(self, client, mock_template, fake_auth):
         """Returns newly created unit requirement if user is admin."""
         fake_auth.login(admin_uid)
         unit_requirement = self._api_add_unit_requirement(
@@ -367,7 +365,7 @@ class TestCreateUnitRequirement:
         assert unit_requirement.get('minUnits') == 10
         assert unit_requirement.get('templateId') == str(mock_template.id)
 
-    def test_add_to_nonexistent_template(self, client, fake_auth, app):
+    def test_add_to_nonexistent_template(self, client, fake_auth):
         """Returns 404 if template_id doesn't exist."""
         fake_auth.login(coe_advisor_read_write_uid)
         self._api_add_unit_requirement(
@@ -377,18 +375,6 @@ class TestCreateUnitRequirement:
             min_units=17,
             expected_status_code=404,
         )
-
-    def test_feature_flag(self, client, mock_template, fake_auth):
-        """Returns 401 if feature flag is False."""
-        with override_config(app, 'FEATURE_FLAG_DEGREE_CHECK', False):
-            fake_auth.login(coe_advisor_read_write_uid)
-            self._api_add_unit_requirement(
-                client,
-                template_id=mock_template.id,
-                name='Physics Units',
-                min_units=10,
-                expected_status_code=401,
-            )
 
 
 class TestDeleteUnitRequirement:
