@@ -13,7 +13,7 @@
       thead-class="sortable-table-header text-nowrap"
     >
       <template v-slot:cell(curated)="row">
-        <StudentCheckbox
+        <CuratedStudentCheckbox
           v-if="options.includeCuratedCheckbox"
           :domain="domain"
           :student="row.item"
@@ -127,18 +127,18 @@
 
 <script>
 import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableStudents',
   components: {
+    CuratedStudentCheckbox,
     ManageStudent,
-    StudentAvatar,
-    StudentCheckbox
+    StudentAvatar
   },
   mixins: [Context, StudentMetadata, Util],
   props: {

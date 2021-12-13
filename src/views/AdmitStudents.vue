@@ -48,10 +48,25 @@
       </div>
       <SectionSpinner :loading="sorting" />
       <div v-if="!sorting">
-        <div class="float-right mr-4 pb-2">
-          <SortBy domain="admitted_students" />
+        <div class="align-items-center d-flex justify-content-end mr-3 py-1">
+          <div class="mr-auto">
+            <CuratedGroupSelector
+              context-description="Admit Students"
+              domain="admitted_students"
+              :ga-event-tracker="$ga.cohortEvent"
+              :students="admits"
+            />
+          </div>
+          <div class="mr-4">
+            <SortBy domain="admitted_students" />
+          </div>
         </div>
-        <AdmitStudentsTable :students="admits" />
+
+        <AdmitStudentsTable
+          :include-curated-checkbox="true"
+          :students="admits"
+        />
+
         <div v-if="totalAdmitCount > pagination.itemsPerPage" class="p-3">
           <Pagination
             :click-handler="goToPage"
@@ -71,6 +86,7 @@ import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import Loading from '@/mixins/Loading'
 import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
@@ -87,6 +103,7 @@ export default {
   components: {
     AdmitDataWarning,
     AdmitStudentsTable,
+    CuratedGroupSelector,
     NavLink,
     Pagination,
     SectionSpinner,

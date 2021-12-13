@@ -2,7 +2,7 @@
   <table id="cohort-admitted-students" class="border-top-0 table table-sm table-borderless">
     <thead class="sortable-table-header">
       <tr>
-        <th v-if="removeStudent" class="pt-3"></th>
+        <th v-if="includeCuratedCheckbox || removeStudent" class="pt-3"></th>
         <th class="align-top pt-3">Name</th>
         <th class="align-top pt-3 text-nowrap">CS ID</th>
         <th class="align-top pt-3">SIR</th>
@@ -21,6 +21,12 @@
         :id="`admit-${getSid(student)}`"
         :key="index"
       >
+        <td v-if="includeCuratedCheckbox" class="pr-1 pt-1">
+          <CuratedStudentCheckbox
+            domain="admitted_students"
+            :student="student"
+          />
+        </td>
         <td v-if="removeStudent" class="pr-1 pt-1">
           <button
             :id="`row-${index}-remove-student-from-curated-group`"
@@ -93,12 +99,18 @@
 </template>
 
 <script>
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmitStudentsTable',
   mixins: [Util],
+  components: {CuratedStudentCheckbox},
   props: {
+    includeCuratedCheckbox: {
+      required: false,
+      type: Boolean
+    },
     removeStudent: {
       default: undefined,
       required: false,

@@ -68,7 +68,7 @@
         </div>
         <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">
           <div>
-            <SelectAll
+            <CuratedGroupSelector
               v-if="!$_.isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
               domain="default"
@@ -162,7 +162,7 @@ import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
-import SelectAll from '@/components/curated/dropdown/SelectAll'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import Util from '@/mixins/Util'
 import {getSection} from '@/api/course'
 
@@ -173,7 +173,7 @@ export default {
     Matrix,
     Pagination,
     SectionSpinner,
-    SelectAll,
+    CuratedGroupSelector,
     Spinner
   },
   mixins: [

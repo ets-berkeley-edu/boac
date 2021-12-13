@@ -23,7 +23,7 @@
       <div>
         <div class="align-items-center d-flex">
           <div v-if="listType === 'cohort'" class="mr-2">
-            <StudentCheckbox domain="default" :student="student" />
+            <CuratedStudentCheckbox domain="default" :student="student" />
           </div>
           <div>
             <StudentAvatar
@@ -345,12 +345,12 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
@@ -358,11 +358,11 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentRow',
   components: {
+    CuratedStudentCheckbox,
     DegreesAwarded,
     ManageStudent,
     StudentAcademicStanding,
     StudentAvatar,
-    StudentCheckbox,
     StudentGpaChart
   },
   mixins: [

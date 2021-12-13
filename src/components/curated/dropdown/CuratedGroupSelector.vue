@@ -88,8 +88,9 @@ import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addStudents, createCuratedGroup} from '@/api/curated'
 
+
 export default {
-  name: 'SelectAll',
+  name: 'CuratedGroupSelector',
   components: {CreateCuratedGroupModal},
   mixins: [Context, Util],
   props: {
@@ -209,13 +210,15 @@ export default {
         .finally(() => setTimeout(() => done(), 2000))
     },
     toggle(checked) {
+      this.sids = []
       if (checked) {
-        this.sids = this.$_.map(this.students, 'sid')
+        this.$_.each(this.students, student => {
+          this.sids.push(student.sid || student.csEmplId)
+        })
         this.$eventHub.emit('curated-group-select-all', this.domain)
         this.$putFocusNextTick(this.dropdownId, 'button')
         this.$announcer.polite('All students on this page selected.')
       } else {
-        this.sids = []
         this.$eventHub.emit('curated-group-deselect-all', this.domain)
         this.$announcer.polite('All students on this page deselected.')
       }
