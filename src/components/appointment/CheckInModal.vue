@@ -151,7 +151,7 @@ export default {
       if (advisor) {
         this.appointmentCheckin(advisor)
       }
-      this.alertScreenReader(`Checked in ${this.appointment.student.name}`)
+      this.$announcer.polite(`Checked in ${this.appointment.student.name}`)
       this.showCheckInModal = false
     }
   }

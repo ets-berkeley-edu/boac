@@ -165,7 +165,7 @@ export default {
       apiCancel(this.appointment.id, reason, reasonExplained).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false
-          this.alertScreenReader(`${this.appointment.student.name} appointment canceled`)
+          this.$announcer.polite(`${this.appointment.student.name} appointment canceled`)
         })
       }).catch(this.handleBadRequestError)
     },
@@ -182,24 +182,24 @@ export default {
         this.closeCheckInModal()
         this.onAppointmentStatusChange(appointmentId).then(() => {
           this.loading = false
-          this.alertScreenReader(`${this.appointment.student.name} checked in`)
+          this.$announcer.polite(`${this.appointment.student.name} checked in`)
         })
       }).catch(this.handleBadRequestError)
     },
     closeAppointmentAssignModal() {
       this.showAppointmentAssignModal = false
       this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
-      this.alertScreenReader('Dialog closed')
+      this.$announcer.polite('Dialog closed')
     },
     closeAppointmentCancellationModal() {
       this.showCancelAppointmentModal = false
       this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
-      this.alertScreenReader('Dialog closed')
+      this.$announcer.polite('Dialog closed')
     },
     closeAppointmentDetailsModal() {
       this.showAppointmentDetailsModal = false
       this.$putFocusNextTick(`waitlist-student-${this.appointment.student.sid}`)
-      this.alertScreenReader('Dialog closed')
+      this.$announcer.polite('Dialog closed')
     },
     closeCheckInModal() {
       this.showCheckInModal = false
@@ -241,7 +241,7 @@ export default {
       apiReserve(this.appointment.id, advisor.uid).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false
-          this.alertScreenReader(`${this.appointment.student.name} appointment assigned`)
+          this.$announcer.polite(`${this.appointment.student.name} appointment assigned`)
         })
       }).catch(this.handleBadRequestError)
     },
@@ -253,7 +253,7 @@ export default {
       apiUnreserve(this.appointment.id).then(() => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false
-          this.alertScreenReader(`${this.appointment.student.name} appointment unassigned`)
+          this.$announcer.polite(`${this.appointment.student.name} appointment unassigned`)
         })
       }).catch(this.handleBadRequestError)
     },
@@ -262,7 +262,7 @@ export default {
       apiUpdate(this.appointment.id, details, topics).then(updated => {
         this.onAppointmentStatusChange(this.appointment.id).then(() => {
           this.loading = false
-          this.alertScreenReader(`${updated.student.name} appointment updated`)
+          this.$announcer.polite(`${updated.student.name} appointment updated`)
         })
       }).catch(this.handleBadRequestError)
     }

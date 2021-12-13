@@ -90,7 +90,7 @@ export default {
         this.$options.filters.moment(this.fromDate, this.dateInputFormat),
         this.$options.filters.moment(this.toDate, this.dateInputFormat)
       ).then(() => {
-        this.alertScreenReader('Alerts CSV file downloaded')
+        this.$announcer.polite('Alerts CSV file downloaded')
         this.isDownloading = false
       })
     }

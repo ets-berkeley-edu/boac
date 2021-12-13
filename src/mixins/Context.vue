@@ -19,10 +19,7 @@ export default {
       'dismissFooterAlert',
       'dismissServiceAnnouncement',
       'restoreServiceAnnouncement'
-    ]),
-    alertScreenReader(message, politeness='polite') {
-      this.$announcer.set(message, politeness)
-    }
+    ])
   }
 }
 </script>

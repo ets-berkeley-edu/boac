@@ -118,7 +118,7 @@ export default {
       if (advisor) {
         this.appointmentAssign(advisor)
       }
-      this.alertScreenReader(`Assigned to ${advisor.name}`)
+      this.$announcer.polite(`Assigned to ${advisor.name}`)
       this.showAppointmentAssignModal = false
     }
   }

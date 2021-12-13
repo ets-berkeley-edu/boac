@@ -83,12 +83,12 @@ export default {
     addCohortToBatch(cohort) {
       this.setIsRecalculating(true)
       this.addCohort(cohort)
-      this.alertScreenReader(`Added cohort '${cohort.name}'`)
+      this.$announcer.polite(`Added cohort '${cohort.name}'`)
     },
     addCuratedGroupToBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.addCuratedGroup(curatedGroup)
-      this.alertScreenReader(`Added curated group '${curatedGroup.name}'`)
+      this.$announcer.polite(`Added curated group '${curatedGroup.name}'`)
     },
     addStudentBySid(sid) {
       this.setIsRecalculating(true)
@@ -98,12 +98,12 @@ export default {
     removeCohortFromBatch(cohort) {
       this.setIsRecalculating(true)
       this.removeCohort(cohort)
-      this.alertScreenReader(`Cohort '${cohort.name}' removed`)
+      this.$announcer.polite(`Cohort '${cohort.name}' removed`)
     },
     removeCuratedGroupFromBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
-      this.alertScreenReader(`Curated group '${curatedGroup.name}' removed`)
+      this.$announcer.polite(`Curated group '${curatedGroup.name}' removed`)
     },
     removeSid(sid) {
       if (this.$_.includes(this.sids, sid)) {

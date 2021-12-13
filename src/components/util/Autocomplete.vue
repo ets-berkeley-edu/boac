@@ -197,7 +197,7 @@ export default {
   methods: {
     closeSuggestions() {
       if (this.isOpen) {
-        this.alertScreenReader('Closing auto-suggest dropdown')
+        this.$announcer.polite('Closing auto-suggest dropdown')
       }
       this.isOpen = false
       this.$nextTick(() => {

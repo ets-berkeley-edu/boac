@@ -126,10 +126,10 @@ export default {
       this.otherUnitRequirements = this.$_.filter(this.unitRequirements, u => {
         return u.id !== this.unitRequirement.id
       })
-      this.alertScreenReader(`Edit unit requirement ${this.name}`)
+      this.$announcer.polite(`Edit unit requirement ${this.name}`)
     } else {
       this.otherUnitRequirements = this.unitRequirements
-      this.alertScreenReader('Create unit requirement')
+      this.$announcer.polite('Create unit requirement')
     }
     this.$putFocusNextTick('unit-requirement-name-input')
   },

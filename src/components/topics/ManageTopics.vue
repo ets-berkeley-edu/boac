@@ -210,11 +210,11 @@ export default {
       const focusTarget = `topic-${topic.id}`
       if (match) {
         Object.assign(match, topic)
-        this.alertScreenReader(`Topic '${topic.topic}' updated.`)
+        this.$announcer.polite(`Topic '${topic.topic}' updated.`)
         this.$putFocusNextTick(focusTarget)
       } else {
         this.refresh(focusTarget)
-        this.alertScreenReader(`Topic '${topic.topic}' created.`)
+        this.$announcer.polite(`Topic '${topic.topic}' created.`)
       }
       this.topicEdit = null
       this.isEditTopicModalOpen = false
@@ -226,14 +226,14 @@ export default {
     deleteCancel() {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
         this.topicDelete.deletedAt = this.$moment()
-        this.alertScreenReader(`Topic '${this.topicDelete.topic}' deleted.`)
+        this.$announcer.polite(`Topic '${this.topicDelete.topic}' deleted.`)
         this.$putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined
       })
@@ -241,11 +241,11 @@ export default {
     edit(topic) {
       this.topicEdit = this.$_.clone(topic)
       this.isEditTopicModalOpen = true
-      this.alertScreenReader(`Begin to edit topic '${topic.topic}'`)
+      this.$announcer.polite(`Begin to edit topic '${topic.topic}'`)
     },
     onCancelEdit() {
       this.isEditTopicModalOpen = false
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.$putFocusNextTick(this.topicEdit.id ? `topic-${this.topicEdit.id}` : 'filter-topics')
       this.topicEdit = null
     },
@@ -256,12 +256,12 @@ export default {
         availableInNotes: false
       }
       this.isEditTopicModalOpen = true
-      this.alertScreenReader('Opened modal to create new topic.')
+      this.$announcer.polite('Opened modal to create new topic.')
     },
     openDeleteTopicModal(topic) {
       this.topicDelete = topic
       this.isDeleteTopicModalOpen = true
-      this.alertScreenReader('Opened modal to confirm delete.')
+      this.$announcer.polite('Opened modal to confirm delete.')
     },
     refresh(focusTarget) {
       getAllTopics(true).then(data => {
@@ -279,7 +279,7 @@ export default {
     undelete(topic) {
       undeleteTopic(topic.id).then(() => {
         topic.deletedAt = null
-        this.alertScreenReader(`Topic ${topic.topic} un-deleted.`)
+        this.$announcer.polite(`Topic ${topic.topic} un-deleted.`)
         this.$putFocusNextTick(`topic-${topic.id}`)
       })
     }

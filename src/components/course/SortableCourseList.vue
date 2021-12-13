@@ -107,7 +107,7 @@ export default {
         this.sort.reverse[sortBy] = !this.sort.reverse[sortBy]
         this.sortedCourses = this.sortedCourses.reverse()
       }
-      this.alertScreenReader(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
+      this.$announcer.polite(`Courses sorted by ${this.sort.by === 'section' ? 'section' : 'course name'} ${this.describeReverse(this.sort.reverse[this.sort.by])}`)
     },
     courseComparator(c1, c2) {
       if (this.sort.by === 'title' && c1.courseTitle !== c2.courseTitle) {

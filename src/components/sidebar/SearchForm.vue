@@ -410,33 +410,33 @@ export default {
     },
     includeAdmits(value) {
       if (this.showSearchOptions) {
-        this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include admits.`)
+        this.$announcer.polite(`Search ${value ? 'will' : 'will not'} include admits.`)
       }
     },
     includeCourses(value) {
-      this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include courses.`)
+      this.$announcer.polite(`Search ${value ? 'will' : 'will not'} include courses.`)
     },
     includeNotes(value) {
       if (value) {
-        this.alertScreenReader('Search will include notes and appointments.')
+        this.$announcer.polite('Search will include notes and appointments.')
       } else {
         this.showNoteFilters = false
-        this.alertScreenReader('Search will include neither notes nor appointments.')
+        this.$announcer.polite('Search will include neither notes nor appointments.')
       }
     },
     includeStudents(value) {
       if (this.showSearchOptions) {
-        this.alertScreenReader(`Search ${value ? 'will' : 'will not'} include students.`)
+        this.$announcer.polite(`Search ${value ? 'will' : 'will not'} include students.`)
       }
     },
     showNoteFilters(value) {
       if (value) {
-        this.alertScreenReader('Notes and Appointments search filters opened.')
+        this.$announcer.polite('Notes and Appointments search filters opened.')
         this.$putFocusNextTick('search-option-note-filters-topic')
       }
       else {
         this.resetNoteFilters()
-        this.alertScreenReader('Notes and Appointments search filters closed.')
+        this.$announcer.polite('Notes and Appointments search filters closed.')
         this.$putFocusNextTick('search-options-note-filters-toggle')
       }
     }
@@ -520,7 +520,7 @@ export default {
         }
       } else {
         this.showErrorPopover = true
-        this.alertScreenReader('Search input is required')
+        this.$announcer.polite('Search input is required')
         this.$putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
@@ -543,11 +543,11 @@ export default {
     toggleSearchOptions() {
       this.showSearchOptions = !this.showSearchOptions
       if (this.showSearchOptions) {
-        this.alertScreenReader('Search options opened')
+        this.$announcer.polite('Search options opened')
         this.$putFocusNextTick('search-options-header')
       } else {
         this.resetNoteFilters()
-        this.alertScreenReader('Search options closed')
+        this.$announcer.polite('Search options closed')
         this.$putFocusNextTick('search-students-input')
       }
     }

@@ -118,7 +118,7 @@ export default {
       return setDropInAvailability(this.deptCode, this.uid, newStatus).then(() => {
         this.isAvailable = newStatus
         this.isToggling = false
-        this.alertScreenReader(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`)
+        this.$announcer.polite(`Switching drop-in availability ${this.isAvailable ? 'off' : 'on' }`)
         this.$putFocusNextTick(this.buttonElementId)
       })
     },

@@ -270,7 +270,7 @@ export default {
     toggleView(tabName, focusAfter) {
       this.isToggling = true
       this.tab = tabName
-      this.alertScreenReader(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
+      this.$announcer.polite(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
 
       const done = data => {
         this.setPageTitle(data.displayName)

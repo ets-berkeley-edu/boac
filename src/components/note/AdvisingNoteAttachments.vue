@@ -99,7 +99,7 @@ export default {
           this.$_.each(files, attachment => {
             attachment.displayName = attachment.name
             this.addAttachment(attachment)
-            this.alertScreenReader(`Attachment '${attachment.displayName}' added`)
+            this.$announcer.polite(`Attachment '${attachment.displayName}' added`)
           })
         }
       }
@@ -107,7 +107,7 @@ export default {
   },
   methods: {
     removeAttachmentByIndex(index) {
-      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
+      this.$announcer.polite(`Attachment '${this.existingAttachments[index].name}' removed`)
       this.removeAttachment(index)
     }
   }

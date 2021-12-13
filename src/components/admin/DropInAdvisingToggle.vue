@@ -74,7 +74,7 @@ export default {
       toggleDropInAdvising(this.deptCode).then(() => {
         this.isEnabled = !!this.dropInStatus()
         this.isToggling = false
-        this.alertScreenReader(`Switching drop-in advising ${this.isEnabled ? 'off' : 'on' }`)
+        this.$announcer.polite(`Switching drop-in advising ${this.isEnabled ? 'off' : 'on' }`)
         this.$putFocusNextTick(this.buttonElementId)
       })
     }

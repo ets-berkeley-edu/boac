@@ -126,13 +126,13 @@ export default {
         this.setDisabled(topic, true)
         this.functionAdd(topic)
         this.$putFocusNextTick('add-topic-select-list')
-        this.alertScreenReader(`Topic ${topic} added.`)
+        this.$announcer.polite(`Topic ${topic} added.`)
       }
     },
     remove(topic) {
       this.setDisabled(topic, false)
       this.functionRemove(topic)
-      this.alertScreenReader(`Removed topic ${topic}.`)
+      this.$announcer.polite(`Removed topic ${topic}.`)
       this.$putFocusNextTick('add-topic-select-list')
     },
     setDisabled(topic, disable) {

@@ -98,7 +98,7 @@ export default {
   methods: {
     toggleShowDetails() {
       this.isShowingPersonalDetails = !this.isShowingPersonalDetails
-      this.alertScreenReader(`Student details are ${this.isShowingPersonalDetails ? 'showing' : 'hidden'}.`)
+      this.$announcer.polite(`Student details are ${this.isShowingPersonalDetails ? 'showing' : 'hidden'}.`)
     }
   }
 }

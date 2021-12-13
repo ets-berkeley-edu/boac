@@ -135,7 +135,7 @@ export default {
     },
     onChangeSortBy() {
       const field = this.$_.find(this.fields, ['key', this.sortBy])
-      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
+      this.$announcer.polite(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this.normalizeForSort(this.$_.get(a, sortBy))

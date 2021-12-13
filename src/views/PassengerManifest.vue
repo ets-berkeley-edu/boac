@@ -56,7 +56,7 @@ export default {
   methods: {
     afterCreateUser(name) {
       this.refreshUsers = true
-      this.alertScreenReader(`${name} has been added to BOA.`)
+      this.$announcer.polite(`${name} has been added to BOA.`)
     }
   }
 }

@@ -113,7 +113,7 @@ export default {
   methods: {
     showHideTermGpa() {
       this.showTermGpa = !this.showTermGpa
-      this.alertScreenReader(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
+      this.$announcer.polite(`The table with GPA per term is now ${this.showTermGpa ? 'visible' : 'hidden'}.`)
     }
   }
 }

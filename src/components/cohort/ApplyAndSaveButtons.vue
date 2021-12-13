@@ -78,25 +78,25 @@ export default {
     apply() {
       this.$eventHub.emit('cohort-apply-filters')
       this.isPerforming = 'search'
-      this.alertScreenReader('Searching for students')
+      this.$announcer.polite('Searching for students')
       this.applyFilters(
         this.$_.get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
         this.$_.get(this.$currentUser.preferences, 'termId')
       ).then(() => {
         this.$putFocusNextTick('cohort-results-header')
-        this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
+        this.$announcer.polite(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')
         this.isPerforming = null
       })
     },
     cancelCreateModal() {
-      this.alertScreenReader('Canceled')
+      this.$announcer.polite('Canceled')
       this.showCreateModal = false
     },
     create(name) {
       this.showCreateModal = false
       this.isPerforming = 'save'
-      this.alertScreenReader('Creating cohort')
+      this.$announcer.polite('Creating cohort')
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort "${name}" created`)
         this.setPageTitle(this.cohortName)
@@ -106,19 +106,19 @@ export default {
       })
     },
     resetToLastApply() {
-      this.alertScreenReader('Resetting filters')
+      this.$announcer.polite('Resetting filters')
       this.resetFiltersToLastApply()
     },
     resetToSaved() {
       this.isPerforming = 'search'
       this.resetFiltersToSaved(this.cohortId).then(() => {
-        this.alertScreenReader('Filters reset')
+        this.$announcer.polite('Filters reset')
         this.isPerforming = null
       })
     },
     save() {
       if (this.cohortId) {
-        this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`)
+        this.$announcer.polite(`Saving changes to cohort ${this.cohortName}`)
         this.isPerforming = 'save'
         this.saveExistingCohort().then(() => {
           this.$ga.cohortEvent(this.cohortId, this.cohortName, 'save')
@@ -126,11 +126,11 @@ export default {
         })
       } else {
         this.showCreateModal = true
-        this.alertScreenReader('Create cohort form is open')
+        this.$announcer.polite('Create cohort form is open')
       }
     },
     savedCohortCallback(updateStatus) {
-      this.alertScreenReader(updateStatus)
+      this.$announcer.polite(updateStatus)
       this.isPerforming = 'acknowledgeSave'
       setTimeout(() => (this.isPerforming = null), 2000)
     }

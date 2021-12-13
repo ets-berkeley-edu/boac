@@ -14,8 +14,8 @@
         right
         toggle-class="dd-override"
         variant="link"
-        @hidden="alertScreenReader('Sort-by menu closed')"
-        @shown="alertScreenReader('Sort-by menu opened')"
+        @hidden="$announcer.polite('Sort-by menu closed')"
+        @shown="$announcer.polite('Sort-by menu opened')"
       >
         <template slot="button-content">
           <div class="d-flex dropdown-width justify-content-between text-dark">
@@ -155,7 +155,7 @@ export default {
       if (value !== this.$_.get(this.$currentUser.preferences, this.sortByKey)) {
         this.sortBy = value
         this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
-        this.alertScreenReader(`${this.dropdownLabel} selected`)
+        this.$announcer.polite(`${this.dropdownLabel} selected`)
         this.$currentUser.preferences.sortByKey = this.sortBy
       }
     }

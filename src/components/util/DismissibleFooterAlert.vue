@@ -37,7 +37,7 @@ export default {
   methods: {
     dismissTheWarning() {
       this.dismissFooterAlert()
-      this.alertScreenReader('Warning message dismissed')
+      this.$announcer.polite('Warning message dismissed')
     },
     getBoaEnvLabel() {
       return this.$config.ebEnvironment ? this.$config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test'

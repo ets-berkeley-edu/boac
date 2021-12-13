@@ -195,7 +195,7 @@ export default {
       this.addSid(this.sid)
     }
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
-    this.alertScreenReader(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
+    this.$announcer.polite(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
     this.$putFocusNextTick('modal-header-note')
     this.$eventHub.on('user-session-expired', () => {
       this.onBoaSessionExpires()
@@ -240,7 +240,7 @@ export default {
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
-      this.alertScreenReader('Continue editing note.')
+      this.$announcer.polite('Continue editing note.')
       this.$putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
@@ -258,7 +258,7 @@ export default {
           this.showAlert('Creating note...', 60)
           this.createAdvisingNotes().then(note => {
             this.setIsSaving(false)
-            this.alertScreenReader(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
+            this.$announcer.polite(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
             this.exit(note)
             if (this.isBatchFeature) {
               Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
@@ -311,14 +311,14 @@ export default {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
       this.dismissAlertSeconds = 0
-      this.alertScreenReader('Canceled create new note')
+      this.$announcer.polite('Canceled create new note')
       this.exit()
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
       this.resetModel(false)
       this.setMode(this.isBatchFeature ? 'batch' : 'create')
-      this.alertScreenReader('Canceled create template.')
+      this.$announcer.polite('Canceled create template.')
       this.$putFocusNextTick('create-note-subject')
       this.$nextTick(() => {
         this.setFocusLockDisabled(false)

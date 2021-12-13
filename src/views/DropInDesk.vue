@@ -98,7 +98,7 @@ export default {
             this.scheduleRefreshJob()
           }
           if (announceUpdate) {
-            this.alertScreenReader('The drop-in wait-list has been updated')
+            this.$announcer.polite('The drop-in wait-list has been updated')
           } else if (response.waitlist) {
             this.loaded('The Appointment wait-list has loaded')
           }
