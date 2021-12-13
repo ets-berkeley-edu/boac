@@ -13,7 +13,7 @@
       thead-class="sortable-table-header text-nowrap"
     >
       <template v-slot:cell(curated)="row">
-        <StudentCheckbox
+        <CuratedStudentCheckbox
           domain="admitted_students"
           :student="row.item"
         />
@@ -79,13 +79,13 @@
 
 <script>
 import Context from '@/mixins/Context'
-import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableAdmits',
   mixins: [Context, Util],
-  components: {StudentCheckbox},
+  components: {CuratedStudentCheckbox},
   props: {
     admittedStudents: {
       required: true,

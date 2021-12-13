@@ -31,9 +31,8 @@
           class="align-items-center d-flex mr-3 pt-1"
         >
           <div class="mr-auto">
-            <SelectAll
-              v-if="domain === 'default'"
-              :context-description="`Cohort ${cohortName || ''}`"
+            <CuratedGroupSelector
+              :context-description="domain === 'default' ? `Cohort ${cohortName || ''}` : `Admitted Students Cohort ${cohortName || ''}`"
               :domain="domain"
               :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
@@ -74,7 +73,7 @@
           <div class="pb-1">
             <hr class="filters-section-separator" />
           </div>
-          <AdmitStudentsTable :students="students" />
+          <AdmitStudentsTable :include-curated-checkbox="true" :students="students" />
         </div>
         <div v-if="totalStudentCount > pagination.itemsPerPage" class="p-3">
           <Pagination
@@ -102,12 +101,12 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import CohortHistory from '@/components/cohort/CohortHistory'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import Context from '@/mixins/Context'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FilterRow from '@/components/cohort/FilterRow'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import SelectAll from '@/components/curated/dropdown/SelectAll'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
@@ -122,10 +121,10 @@ export default {
     ApplyAndSaveButtons,
     CohortHistory,
     CohortPageHeader,
+    CuratedGroupSelector,
     FilterRow,
     Pagination,
     SectionSpinner,
-    SelectAll,
     SortBy,
     Spinner,
     StudentRow,

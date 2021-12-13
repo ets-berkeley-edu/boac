@@ -13,7 +13,7 @@
     <template v-slot:cell(avatar)="row">
       <div class="align-items-center d-flex">
         <div class="px-2">
-          <StudentCheckbox domain="default" :student="row.item" />
+          <CuratedStudentCheckbox domain="default" :student="row.item" />
         </div>
         <div class="mb-1 text-center">
           <StudentAvatar :key="row.item.sid" size="medium" :student="row.item" />
@@ -240,23 +240,23 @@
 
 <script>
 import Context from '@/mixins/Context'
+import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
-import StudentCheckbox from '@/components/curated/dropdown/StudentCheckbox'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CourseStudents',
   components: {
+    CuratedStudentCheckbox,
     DegreesAwarded,
     ManageStudent,
     StudentAvatar,
-    StudentBoxplot,
-    StudentCheckbox
+    StudentBoxplot
   },
   mixins: [
     Context,

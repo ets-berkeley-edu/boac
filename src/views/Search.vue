@@ -27,7 +27,7 @@
       </div>
       <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
       <div class="search-header-curated-cohort">
-        <SelectAll
+        <CuratedGroupSelector
           context-description="Search"
           domain="admitted_students"
           :ga-event-tracker="$ga.searchEvent"
@@ -48,7 +48,7 @@
     </div>
     <div v-if="!loading && results.totalStudentCount">
       <div class="search-header-curated-cohort">
-        <SelectAll
+        <CuratedGroupSelector
           context-description="Search"
           domain="default"
           :ga-event-tracker="$ga.searchEvent"
@@ -127,7 +127,7 @@ import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import SelectAll from '@/components/curated/dropdown/SelectAll'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourseList from '@/components/course/SortableCourseList'
 import SortableStudents from '@/components/search/SortableStudents'
@@ -142,7 +142,7 @@ export default {
     AdvisingNoteSnippet,
     AppointmentSnippet,
     SectionSpinner,
-    SelectAll,
+    CuratedGroupSelector,
     SortableAdmits,
     SortableCourseList,
     SortableStudents,

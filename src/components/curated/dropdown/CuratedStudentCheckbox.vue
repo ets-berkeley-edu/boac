@@ -14,7 +14,7 @@
 import Context from '@/mixins/Context'
 
 export default {
-  name: 'StudentCheckbox',
+  name: 'CuratedStudentCheckbox',
   mixins: [Context],
   props: {
     domain: {
@@ -39,7 +39,7 @@ export default {
     }
   },
   created() {
-    this.sid = this.domain === 'default' ? this.student.sid : this.student.csEmplId
+    this.sid = this.student.sid || this.student.csEmplId
     this.$eventHub.on('curated-group-select-all', domain => {
       if (this.domain === domain) {
         this.status = true

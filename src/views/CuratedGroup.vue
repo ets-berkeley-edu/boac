@@ -48,7 +48,11 @@
                 <div class="pb-1">
                   <hr class="filters-section-separator" />
                 </div>
-                <AdmitStudentsTable :remove-student="removeStudent" :students="students" />
+                <AdmitStudentsTable
+                  :include-curated-checkbox="false"
+                  :remove-student="removeStudent"
+                  :students="students"
+                />
               </div>
             </div>
             <div v-if="totalStudentCount > itemsPerPage" class="mr-3">

@@ -33,7 +33,7 @@ export function addStudents(curatedGroupId: number, sids: string[], returnStuden
     })
     .then(response => {
       const group = response.data
-      group.sids = _.uniq(group.sids.concat(sids))
+      $_onUpdate(group)
       return group
     })
 }
