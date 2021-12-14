@@ -64,7 +64,7 @@
             variant="link"
             @click="enterBulkAddMode"
           >
-            Add Students
+            Add {{ domain ? 'Admits' : 'Students' }}
           </b-btn>
         </div>
         <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
@@ -216,8 +216,14 @@ import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 
 export default {
   name: 'CuratedGroupHeader',
-  components: {ExportListModal, ModalHeader},
   mixins: [Berkeley, Context, CuratedEditSession, Util, Validator],
+  components: {ExportListModal, ModalHeader},
+  props: {
+    domain: {
+      required: true,
+      type: String
+    }
+  },
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,

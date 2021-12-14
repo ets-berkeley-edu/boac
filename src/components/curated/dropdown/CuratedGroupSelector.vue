@@ -192,7 +192,6 @@ export default {
     modalCancel() {
       this.showModal = false
       this.$announcer.polite('Canceled')
-      this.afterModalCancel()
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true
