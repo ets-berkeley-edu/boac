@@ -23,7 +23,7 @@
     "js-file-download": "0.4.12",
     "lodash": "4.17.21",
     "lodash.merge": "4.6.2",
-    "mitt": "2.1.0",
+    "mitt": "3.0.0",
     "moment-timezone": "0.5.33",
     "numeral": "2.0.6",
     "v-calendar": "2.3.4",
