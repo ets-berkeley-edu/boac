@@ -72,7 +72,6 @@
               v-if="!$_.isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
               domain="default"
-              :ga-event-tracker="$ga.courseEvent"
               :students="section.students"
               class="mr-2"
             />
@@ -255,9 +254,11 @@ export default {
     loadListView() {
       const limit = this.pagination.itemsPerPage
       const offset = this.pagination.currentPage === 0 ? 0 : (this.pagination.currentPage - 1) * limit
+      this.$ga.course('view', this.section.displayName)
       return getSection(this.termId, this.sectionId, offset, limit, this.featured)
     },
     loadMatrixView() {
+      this.$ga.course('matrix', this.section.displayName)
       return getSection(this.termId, this.sectionId)
     },
     resizePage(itemsPerPage) {

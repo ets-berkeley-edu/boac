@@ -1,5 +1,8 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
+import Vue from 'vue'
+
+const $_track = (action, label?) => Vue.prototype.$ga.degreeProgress(action, label)
 
 export function addUnitRequirement(templateId: number, name: string, minUnits: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/unit_requirement`, {name, minUnits}).then(response => response.data, () => null)
@@ -19,6 +22,7 @@ export function assignCourse(courseId: number, categoryId?: number, ignore?: boo
 }
 
 export function cloneDegreeTemplate(templateId: number, name: string) {
+  $_track('clone', 'Degree Template')
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/clone`, {name}).then(response => response.data, () => null)
 }
 
@@ -71,14 +75,17 @@ export function createDegreeCategory(
 }
 
 export function createBatchDegreeCheck(sids: number[], templateId: number) {
+  $_track('create', `${sids.length} Degree Checks`)
   return axios.post(`${utils.apiBaseUrl()}/api/degree/check/batch`, {sids, templateId}).then(response => response.data, () => null)
 }
 
 export function createDegreeCheck(sid: number, templateId: number) {
+  $_track('create', 'Degree Check')
   return axios.post(`${utils.apiBaseUrl()}/api/degree/check/${sid}/create`, {templateId}).then(response => response.data, () => null)
 }
 
 export function createDegreeTemplate(name: string) {
+  $_track('create', 'Degree Template')
   return axios.post(`${utils.apiBaseUrl()}/api/degree/create`, {name}).then(response => response.data, () => null)
 }
 
@@ -91,6 +98,7 @@ export function deleteDegreeCourse(courseId: number) {
 }
 
 export function deleteDegreeTemplate(templateId: number) {
+  $_track('delete', 'Degree Template')
   return axios.delete(`${utils.apiBaseUrl()}/api/degree/${templateId}`)
 }
 
@@ -103,10 +111,12 @@ export function getDegreeChecks(uid: number) {
 }
 
 export function getDegreeTemplate(templateId: number) {
+  $_track('view', 'Degree Template')
   return axios.get(`${utils.apiBaseUrl()}/api/degree/${templateId}`).then(response => response.data, () => null)
 }
 
 export function getDegreeTemplates() {
+  $_track('view', 'Degree Templates')
   return axios.get(`${utils.apiBaseUrl()}/api/degree/templates`).then(response => response.data, () => null)
 }
 
@@ -193,6 +203,7 @@ export function updateDegreeNote(templateId: number, body: string) {
 }
 
 export function updateDegreeTemplate(templateId: number, name: string) {
+  $_track('update', 'Degree Template')
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/update`, {name}).then(response => response.data, () => null)
 }
 

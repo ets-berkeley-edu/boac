@@ -2,17 +2,15 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
+const $_track = action => Vue.prototype.$ga.appointment(action)
+
 export function cancel(appointmentId, cancelReason, cancelReasonExplained) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/cancel`, {
       cancelReason,
       cancelReasonExplained
     })
-    .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} canceled a drop-in appointment`, 'cancel')
-      return response.data
-    })
+    .then(response => response.data)
 }
 
 export function checkIn(
@@ -22,11 +20,7 @@ export function checkIn(
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/check_in`, {
       advisorUid
-    }).then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} checked in a drop-in appointment`, 'check_in')
-      return response.data
-    })
+    }).then(response => response.data)
 }
 
 export function create(
@@ -46,9 +40,7 @@ export function create(
       sid,
       topics
     }).then(response => {
-      const appointmentId = response.data.id
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} created an appointment`, 'create')
+      $_track('create')
       return response.data
     }, () => null)
 }
@@ -69,8 +61,7 @@ export function markAppointmentRead(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/mark_read`)
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} read an appointment`, 'read')
+      $_track('read')
       return response.data
     }, () => null)
 }
@@ -78,31 +69,20 @@ export function markAppointmentRead(appointmentId) {
 export function reopen(appointmentId) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reopen`)
-    .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} reopened a drop-in appointment`, 'reopen')
-      return response.data
-    })
+    .then(response => response.data)
 }
 
 export function reserve(appointmentId, advisorUid) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/reserve`, {
       advisorUid,
-    }).then(response => {
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${advisorUid} reserved a drop-in appointment`, 'reserve')
-      return response.data
-    })
+    }).then(response => response.data)
 }
 
 export function unreserve(appointmentId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/unreserve`)
-    .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} unreserve a drop-in appointment`, 'unreserve')
-      return response.data
-    })
+    .then(response => response.data)
 }
 
 export function update(appointmentId, details, topics) {
@@ -110,10 +90,8 @@ export function update(appointmentId, details, topics) {
     .post(`${utils.apiBaseUrl()}/api/appointments/${appointmentId}/update`, {
       details,
       topics
-    })
-    .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.appointmentEvent(appointmentId, `Advisor ${uid} updated a drop-in appointment`, 'update')
+    }).then(response => {
+      $_track('update')
       return response.data
     })
 }

@@ -3,19 +3,23 @@ import moment from 'moment-timezone'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
+const $_track = action => Vue.prototype.$ga.cohort(action)
 
 const $_onCreate = cohort => {
   Vue.prototype.$currentUser.myCohorts.push(cohort)
+  $_track('create')
 }
 
 const $_onDelete = cohortId => {
   const indexOf = Vue.prototype.$currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
   Vue.prototype.$currentUser.myCohorts.splice(indexOf, 1)
+  $_track('delete')
 }
 
 const $_onUpdate = updatedCohort => {
   const cohort = Vue.prototype.$currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)
   Object.assign(cohort, updatedCohort)
+  $_track('update')
 }
 
 export function createCohort(

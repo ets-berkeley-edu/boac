@@ -1,7 +1,11 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
+import Vue from 'vue'
+
+const $_track = (action, label?) => Vue.prototype.$ga.search(action, label)
 
 export function dismissStudentAlert(alertId: string) {
+  $_track('dismiss alert')
   return axios
     .get(`${utils.apiBaseUrl()}/api/alerts/${alertId}/dismiss`)
     .then(response => response.data, () => null)
@@ -14,12 +18,14 @@ export function getDistinctSids(sids: string[], cohortIds: number[], curatedGrou
 }
 
 export function getStudentByUid(uid: string, profileOnly?:boolean) {
+  $_track('view')
   let url = `${utils.apiBaseUrl()}/api/student/by_uid/${uid}`
   url = profileOnly ? `${url}?profileOnly=true` : url
   return axios.get(url).then(response => response.data, () => null)
 }
 
 export function getStudentBySid(sid: string, profileOnly?:boolean) {
+  $_track('view')
   let url = `${utils.apiBaseUrl()}/api/student/by_sid/${sid}`
   url = profileOnly ? `${url}?profileOnly=true` : url
   return axios.get(url).then(response => response.data, () => null)

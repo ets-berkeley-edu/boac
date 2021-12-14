@@ -30,7 +30,6 @@
         <CuratedGroupSelector
           context-description="Search"
           domain="admitted_students"
-          :ga-event-tracker="$ga.searchEvent"
           :students="results.admits"
         />
       </div>
@@ -51,7 +50,6 @@
         <CuratedGroupSelector
           context-description="Search"
           domain="default"
-          :ga-event-tracker="$ga.searchEvent"
           :students="results.students"
         />
       </div>
@@ -236,14 +234,9 @@ export default {
       })
         .then(() => {
           this.loaded(this.describeResults())
-          const totalCount =
-            this.toInt(this.results.totalCourseCount, 0) +
-            this.toInt(this.results.totalStudentCount, 0)
+          const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
           this.$putFocusNextTick(focusId)
-          this.$ga.searchEvent(
-            `Search phrase: '${this.phrase || ''}'`,
-            `Search with admits: ${includeAdmits}; courses: ${includeCourses}; notes: ${includeNotesAndAppointments}; students: ${includeStudents}`)
         })
     } else {
       this.$router.push({path: '/'}, this.$_.noop)
@@ -299,27 +292,7 @@ export default {
 }
 </script>
 
-<style>
-.advising-note-search-result {
-  margin: 15px 0;
-}
-.advising-note-search-result-header {
-  font-weight: 400;
-  font-size: 18px;
-  margin-bottom: 5px;
-}
-.advising-note-search-result-header-link {
-   font-weight: 600;
-}
-.advising-note-search-result-footer {
-  color: #999;
-  font-size: 14px;
-}
-.advising-note-search-result-snippet {
-  font-size: 16px;
-  line-height: 1.3em;
-  margin: 5px 0;
-}
+<style scoped>
 .search-header-curated-cohort {
   align-items: center;
   display: flex;

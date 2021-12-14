@@ -298,20 +298,16 @@ export default {
       return this.$_.get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
-      const announce = alert => {
-        this.$announcer.polite(alert)
-        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
-      }
       switch (this.$_.get(this.filter, 'type.ux')) {
       case 'dropdown':
-        announce(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
+        this.$announcer.polite(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        announce(`Added ${this.filter.label.primary}`)
+        this.$announcer.polite(`Added ${this.filter.label.primary}`)
         this.filter.value = true
         break
       case 'range':
-        announce(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
+        this.$announcer.polite(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
         this.filter.value = {
           min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min,
           max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max
@@ -358,9 +354,7 @@ export default {
       this.updateExistingFilter({index: this.position, updatedFilter: this.filter}).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
-        let alert = `${this.filter.label.primary} filter updated`
-        this.$announcer.polite(alert)
-        this.$ga.cohortEvent(this.cohortId, this.cohortName, alert)
+        this.$announcer.polite(`${this.filter.label.primary} filter updated`)
       })
     },
     onSelectFilter() {
@@ -442,9 +436,7 @@ export default {
       this.removeFilter(this.position)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
-      let alert = `${this.filter.label.primary} filter removed`
-      this.$announcer.polite(alert)
-      this.$ga.cohortEvent(this.cohortId, this.cohortName || '', alert)
+      this.$announcer.polite(`${this.filter.label.primary} filter removed`)
     },
     reset() {
       this.selectedFilter = this.selectedOption = undefined

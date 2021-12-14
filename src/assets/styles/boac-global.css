@@ -13,6 +13,26 @@
 .accent-color-red {
   color: #d0021b;
 }
+.advising-note-search-result {
+  margin: 15px 0;
+}
+.advising-note-search-result-header {
+  font-weight: 400;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+.advising-note-search-result-header-link {
+   font-weight: 600;
+}
+.advising-note-search-result-footer {
+  color: #999;
+  font-size: 14px;
+}
+.advising-note-search-result-snippet {
+  font-size: 16px;
+  line-height: 1.3em;
+  margin: 5px 0;
+}
 .align-items-center {
   align-items: center;
 }

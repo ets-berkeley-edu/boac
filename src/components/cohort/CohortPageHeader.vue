@@ -260,7 +260,6 @@ export default {
       this.$announcer.polite(`Deleting cohort '${this.name}'`)
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false
-        this.$ga.cohortEvent(this.cohortId, this.cohortName, 'delete')
         router.push({path: '/'})
       })
     },
@@ -295,7 +294,6 @@ export default {
           this.$announcer.polite(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
           this.$putFocusNextTick('cohort-name')
-          this.$ga.cohortEvent(this.cohortId, this.name, 'rename')
         })
         this.setEditMode(null)
       }

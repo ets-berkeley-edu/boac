@@ -166,7 +166,6 @@ export default {
           this.isRemoving = false
           this.$putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
-          this.$ga.curatedEvent(group.id, group.name, `Student profile: Removed SID ${this.student.sid}`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
           setTimeout(done, this.confirmationTimeout)
@@ -178,7 +177,6 @@ export default {
           this.isAdding = false
           this.$putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
-          this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
         addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
@@ -193,15 +191,6 @@ export default {
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
         this.$announcer.polite(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
-        this.$_.each(
-          [
-            'create',
-            `Student profile: Added SID ${this.student.sid}, after create group`
-          ],
-          action => {
-            this.$ga.curatedEvent(group.id, group.name, action)
-          }
-        )
         setTimeout(done, this.confirmationTimeout)
       })
     },

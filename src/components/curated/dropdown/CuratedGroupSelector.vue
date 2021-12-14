@@ -109,10 +109,6 @@ export default {
       required: true,
       type: String
     },
-    gaEventTracker: {
-      required: true,
-      type: Function
-    },
     onCreateCuratedGroup: {
       default: () => {},
       required: false,
@@ -159,7 +155,6 @@ export default {
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
       this.$eventHub.emit('curated-group-deselect-all', this.domain)
-      this.$ga.curatedEvent(group.id, group.name, `${this.contextDescription}: add students to ${this.domainLabel(true)}`)
     },
     afterCreateGroup() {
       this.sids = []
@@ -203,19 +198,7 @@ export default {
         this.$announcer.polite(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
         this.afterCreateGroup()
       }
-      const trackEvent = group => {
-        this.$_.each(
-          [
-            'create',
-            `${this.contextDescription}: add student${this.sids.length === 1 ? 's' : ''} to ${this.domainLabel(true)}`
-          ],
-          action => {
-            this.$ga.curatedEvent(group.id, group.name, action)
-          }
-        )
-      }
       createCuratedGroup(this.domain, name, this.sids)
-        .then(trackEvent)
         .finally(() => setTimeout(() => done(), 2000))
     },
     toggle(checked) {

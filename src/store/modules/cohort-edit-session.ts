@@ -301,14 +301,14 @@ const actions = {
   },
   setCurrentPage: ({commit}, currentPage: number) => commit('setCurrentPage', currentPage),
   setEditMode: ({commit}, editMode: string) => commit('setEditMode', editMode),
+  toggleCompactView: ({commit}) => commit('toggleCompactView'),
   updateExistingFilter: ({commit, state}, {index, updatedFilter}: any) => {
     return new Promise(resolve => {
       commit('updateExistingFilter', {index, updatedFilter})
       commit('setModifiedSinceLastSearch', true)
       $_updateFilterOptions(commit, state.domain, getters.cohortOwner(state), state.filters).then(resolve)
     })
-  },
-  toggleCompactView: ({commit}) => commit('toggleCompactView')
+  }
 }
 
 export default {

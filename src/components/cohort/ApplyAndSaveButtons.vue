@@ -85,7 +85,6 @@ export default {
       ).then(() => {
         this.$putFocusNextTick('cohort-results-header')
         this.$announcer.polite(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
-        this.$ga.cohortEvent(this.cohortId, this.cohortName || '', 'search')
         this.isPerforming = null
       })
     },
@@ -100,7 +99,6 @@ export default {
       this.createCohort(name).then(() => {
         this.savedCohortCallback(`Cohort "${name}" created`)
         this.setPageTitle(this.cohortName)
-        this.$ga.cohortEvent(this.cohortId, name, 'create')
         history.pushState({}, null, `/cohort/${this.cohortId}`)
         this.isPerforming = null
       })
@@ -121,7 +119,6 @@ export default {
         this.$announcer.polite(`Saving changes to cohort ${this.cohortName}`)
         this.isPerforming = 'save'
         this.saveExistingCohort().then(() => {
-          this.$ga.cohortEvent(this.cohortId, this.cohortName, 'save')
           this.savedCohortCallback(`Cohort "${this.cohortName}" saved`)
         })
       } else {

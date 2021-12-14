@@ -1,7 +1,10 @@
 import axios from 'axios'
 import utils from '@/api/api-utils'
+import Vue from 'vue'
 
 let $_findAdvisorsByNameCancel = axios.CancelToken.source()
+
+const $_track = (action, label?) => Vue.prototype.$ga.search(action, label)
 
 export function findAdvisorsByName(query: string, limit: number) {
   if ($_findAdvisorsByNameCancel) {
@@ -40,6 +43,7 @@ export function search(
   offset?: number,
   limit?: number
 ) {
+  $_track('search', phrase)
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
@@ -57,6 +61,7 @@ export function search(
 }
 
 export function searchAdmittedStudents(phrase: string, orderBy?: string) {
+  $_track('admits', phrase)
   return axios
     .post(`${utils.apiBaseUrl()}/api/search/admits`, {
       searchPhrase: phrase,
