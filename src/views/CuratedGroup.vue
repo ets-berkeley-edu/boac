@@ -138,9 +138,7 @@ export default {
       }
     })
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    const eventName = `${sortByKey}-user-preference-change`
-    this.$eventHub.off(eventName)
-    this.$eventHub.on(eventName, sortBy => {
+    this.$eventHub.on(`${sortByKey}-user-preference-change`, sortBy => {
       if (!this.loading) {
         this.loadingStart()
         this.$announcer.polite(`Sorting students by ${sortBy}`)
