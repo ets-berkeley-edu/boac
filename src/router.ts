@@ -79,23 +79,17 @@ const router = new Router({
         {
           path: '/appt/desk/:deptCode',
           component: DropInDesk,
-          meta: {
-            title: 'Drop-in Appointments Desk'
-          }
+          name: 'Drop-in Appointments Desk'
         },
         {
           path: '/scheduler/profile',
           component: Profile,
-          meta: {
-            title: 'Scheduler Profile'
-          }
+          name: 'Scheduler Profile'
         },
         {
           path: '/scheduler/404',
           component: NotFound,
-          meta: {
-            title: 'Not Found'
-          }
+          name: 'Page Not Found'
         }
       ]
     },
@@ -107,60 +101,44 @@ const router = new Router({
         {
           path: '/cohorts/all',
           component: AllCohorts,
-          meta: {
-            title: 'All Cohorts'
-          }
+          name: 'All Cohorts'
         },
         {
           path: '/cohort/:id',
           component: Cohort,
-          meta: {
-            title: 'Cohort'
-          }
+          name: 'Cohort'
         },
         {
           path: '/course/:termId/:sectionId',
           component: Course,
-          meta: {
-            title: 'Course'
-          }
+          name: 'Course'
         },
         {
           path: '/curated/:id',
           component: CuratedGroup,
           props: true,
-          meta: {
-            title: 'Curated Group'
-          }
+          name: 'Curated Group'
         },
         {
           path: '/curate',
           component: CreateCuratedGroup,
           props: true,
-          meta: {
-            title: 'Create Curated Group'
-          }
+          name: 'Create Curated Group'
         },
         {
           path: '/groups/all',
           component: AllGroups,
-          meta: {
-            title: 'All Groups'
-          }
+          name: 'All Groups'
         },
         {
           path: '/search',
           component: Search,
-          meta: {
-            title: 'Search'
-          }
+          name: 'Search'
         },
         {
           path: '/student/:uid',
           component: Student,
-          meta: {
-            title: 'Student'
-          }
+          name: 'Student'
         }
       ]
     },
@@ -171,18 +149,13 @@ const router = new Router({
       children: [
         {
           path: '/admin',
-          name: 'admin',
           component: FlightDeck,
-          meta: {
-            title: 'Flight Deck'
-          }
+          name: 'Flight Deck'
         },
         {
           path: '/admin/passengers',
           component: PassengerManifest,
-          meta: {
-            title: 'Passenger Manifest'
-          }
+          name: 'Passenger Manifest'
         }
       ]
     },
@@ -194,9 +167,7 @@ const router = new Router({
         {
           path: '/home/:deptCode',
           component: DropInAdvisorHome,
-          meta: {
-            title: 'Home'
-          }
+          name: 'Drop-In Advisor Home'
         }
       ]
     },
@@ -208,9 +179,7 @@ const router = new Router({
         {
           path: '/analytics/:deptCode',
           component: FlightDataRecorder,
-          meta: {
-            title: 'Flight Data Recorder'
-          }
+          name: 'Flight Data Recorder'
         }
       ]
     },
@@ -222,16 +191,12 @@ const router = new Router({
         {
           path: '/admit/student/:sid',
           component: AdmitStudent,
-          meta: {
-            title: 'Admitted Student'
-          }
+          name: 'Admitted Student'
         },
         {
           path: '/admit/students',
           component: AdmitStudents,
-          meta: {
-            title: 'Admitted Students'
-          }
+          name: 'All Admitted Students'
         }
       ]
     },
@@ -243,52 +208,38 @@ const router = new Router({
         {
           path: '/degrees',
           component: ManageDegreeChecks,
-          meta: {
-            title: 'Managing Degree Checks'
-          }
+          name: 'Manage Degree Checks'
         },
         {
           path: '/degree/batch',
           component: BatchDegreeCheck,
-          meta: {
-            title: 'Batch Degree Checks',
-          },
+          name: 'Create Batch Degree Check'
         },
         {
           path: '/degree/new',
           component: CreateDegreeTemplate,
-          meta: {
-            title: 'Create New Degree',
-          },
+          name: 'Create New Degree Template',
         },
         {
           path: '/degree/:id',
           component: DegreeTemplate,
-          meta: {
-            title: 'Degree',
-          },
+          name: 'Degree Template',
         },
         {
           path: '/student/:uid/degree/create',
           component: StudentDegreeCreate,
-          meta: {
-            title: 'Create Degree',
-          },
+          name: 'Create Degree Check'
         },
         {
           path: '/student/:uid/degree/history',
           component: StudentDegreeHistory,
-          meta: {
-            title: 'Student Degree History',
-          },
+          name: 'Student Degree History',
         },
         {
           path: '/student/degree/:id',
           component: StudentDegreeCheck,
-          meta: {
-            title: 'Student Degree',
-          },
-        },
+          name: 'Student Degree Check',
+        }
       ]
     },
     {
@@ -300,9 +251,9 @@ const router = new Router({
           path: '/degree/:id/print',
           meta: {
             printable: true,
-            title: 'Print Degree Template',
-          }
-        },
+          },
+          name: 'Print Degree Template'
+        }
       ]
     },
     {
@@ -328,26 +279,18 @@ const router = new Router({
             }
           },
           path: '/home',
-          name: 'home',
           component: Home,
-          meta: {
-            title: 'Home'
-          }
+          name: 'Home'
         },
         {
           path: '/profile',
-          name: 'profile',
           component: Profile,
-          meta: {
-            title: 'Profile'
-          }
+          name: 'Advisor Profile'
         },
         {
           path: '/error',
           component: Error,
-          meta: {
-            title: 'Error'
-          }
+          name: 'Error'
         },
         {
           beforeEnter: (to: any, from: any, next: any) => {
@@ -360,13 +303,12 @@ const router = new Router({
           },
           path: '/404',
           component: NotFound,
-          meta: {
-            title: 'Page not found'
-          }
+          name: 'Page not found'
         },
         {
           path: '*',
-          redirect: '/404'
+          redirect: '/404',
+          name: 'Page not found'
         }
       ]
     }
@@ -374,7 +316,7 @@ const router = new Router({
 })
 
 router.afterEach((to: any) => {
-  const pageTitle = _.get(to, 'meta.title')
+  const pageTitle = _.get(to, 'name')
   document.title = `${pageTitle || _.capitalize(to.name) || 'Welcome'} | BOA`
   Vue.prototype.$announcer.assertive(`${pageTitle || 'Page'} is loading`)
 })

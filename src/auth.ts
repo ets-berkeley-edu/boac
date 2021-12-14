@@ -6,7 +6,7 @@ const $_goToLogin = (to: any, next: any) => {
     path: '/login',
     query: {
       error: to.query.error,
-      redirect: to.name === 'home' ? undefined : to.fullPath
+      redirect: to.name === 'Home' ? undefined : to.fullPath
     }
   })
 }

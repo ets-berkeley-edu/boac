@@ -4,7 +4,7 @@ import Vue from 'vue'
 
 let $_findAdvisorsByNameCancel = axios.CancelToken.source()
 
-const $_track = (action, label?) => Vue.prototype.$ga.search(action, label)
+const $_track = action => Vue.prototype.$ga.search(action)
 
 export function findAdvisorsByName(query: string, limit: number) {
   if ($_findAdvisorsByNameCancel) {
@@ -20,15 +20,13 @@ export function findAdvisorsByName(query: string, limit: number) {
 }
 
 export function getMySearchHistory() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/search/my_search_history`)
-    .then(response => response.data, () => null)
+  const url = `${utils.apiBaseUrl()}/api/search/my_search_history`
+  return axios.get(url).then(response => response.data, () => null)
 }
 
 export function addToSearchHistory(phrase) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/search/add_to_search_history`, {phrase})
-    .then(response => response.data, () => null)
+  const url = `${utils.apiBaseUrl()}/api/search/add_to_search_history`
+  return axios.post(url, {phrase}).then(response => response.data, () => null)
 }
 
 export function search(
@@ -43,7 +41,7 @@ export function search(
   offset?: number,
   limit?: number
 ) {
-  $_track('search', phrase)
+  $_track(phrase)
   return axios
     .post(`${utils.apiBaseUrl()}/api/search`, {
       searchPhrase: phrase,
@@ -61,7 +59,6 @@ export function search(
 }
 
 export function searchAdmittedStudents(phrase: string, orderBy?: string) {
-  $_track('admits', phrase)
   return axios
     .post(`${utils.apiBaseUrl()}/api/search/admits`, {
       searchPhrase: phrase,
