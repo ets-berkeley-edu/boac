@@ -27,7 +27,10 @@
         no-caret
       >
         <template slot="button-content">
-          <div :id="isSaving ? 'add-to-curated-group-confirmation' : 'add-to-curated-group'" class="px-1">
+          <div
+            :id="isSaving ? `add-to-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-confirmation` : `add-to-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
+            class="px-1"
+          >
             <div v-if="!isSaving" class="d-flex justify-content-between">
               <div class="pr-2">Add to {{ domainLabel(true) }}</div>
               <div>
@@ -50,8 +53,7 @@
           @click="curatedGroupCheckboxClick(group)"
         >
           <b-form-checkbox
-            :id="`curated-group-${group.id}-checkbox`"
-            :aria-labelledby="`curated-group-${group.id}-checkbox`"
+            :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-checkbox`"
             @click="curatedGroupCheckboxClick(group)"
             @keyup.enter="curatedGroupCheckboxClick(group)"
           >
@@ -60,7 +62,7 @@
         </b-dropdown-item>
         <b-dropdown-divider />
         <b-dropdown-item
-          id="create-curated-group"
+          :id="`create--${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
           :aria-label="`Create a new ${domainLabel(false)}`"
           class="pl-0 text-dark"
           variant="link"
@@ -137,7 +139,7 @@ export default {
   },
   created() {
     this.checkboxId = `add-all-to-${this.domain}-curated-group`
-    this.dropdownId = `${this.domain}-curated-group-dropdown-select`
+    this.dropdownId = `${this.domain === 'admitted_students' ? 'admissions' : 'curated'}-group-dropdown-select`
     this.$eventHub.on('curated-group-checkbox-checked', args => {
       if (this.domain === args.domain) {
         this.sids.push(args.sid)

@@ -1,7 +1,7 @@
 <template>
   <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
     <b-dropdown
-      :id="`curated-group-dropdown-${student.sid}`"
+      :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :class="{'p-0': isButtonVariantLink}"
       :disabled="disableSelector"
@@ -37,14 +37,14 @@
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
           v-for="group in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
-          :id="`curated-group-${group.id}-menu-item`"
+          :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
           @click="groupCheckboxClick(group)"
           @keyup.enter="groupCheckboxClick(group)"
         >
           <b-form-checkbox
-            :id="`curated-group-${group.id}-checkbox`"
+            :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-checkbox`"
             v-model="checkedGroups"
             :aria-label="$_.includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
             :value="group.id"
@@ -55,7 +55,7 @@
       </div>
       <b-dropdown-divider />
       <b-dropdown-item
-        id="create-curated-group"
+        :id="`create-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
         :aria-label="`Create a new ${domainLabel(false)}`"
         class="create-new-button mb-0 pl-0 text-dark"
         @click="showModal = true"
@@ -131,6 +131,7 @@ export default {
   data: () => ({
     checkedGroups: undefined,
     confirmationTimeout: 1500,
+    dropdownId: undefined,
     groupsLoading: true,
     isAdding: false,
     isRemoving: false,
@@ -145,6 +146,7 @@ export default {
     }
   },
   created() {
+    this.dropdownId = `${this.domain === 'admitted_students' ? 'admissions' : 'curated'}-group-dropdown-${this.student.sid}`
     this.refresh()
     this.$eventHub.on('my-curated-groups-updated', domain => {
       if (domain === this.domain) {
@@ -162,7 +164,7 @@ export default {
         const done = () => {
           this.checkedGroups = this.$_.without(this.checkedGroups, group.id)
           this.isRemoving = false
-          this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+          this.$putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Removed SID ${this.student.sid}`)
         }
@@ -174,7 +176,7 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+          this.$putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
           this.$ga.curatedEvent(group.id, group.name, `Student profile: Added SID ${this.student.sid}`)
         }
@@ -185,7 +187,7 @@ export default {
       this.isAdding = true
       this.showModal = false
       const done = () => {
-        this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+        this.$putFocusNextTick(this.dropdownId, 'button')
         this.isAdding = false
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
@@ -206,7 +208,7 @@ export default {
     onModalCancel() {
       this.showModal = false
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick(`curated-group-dropdown-${this.student.sid}`, 'button')
+      this.$putFocusNextTick(this.dropdownId, 'button')
     },
     refresh() {
       const containsSid = group => {
