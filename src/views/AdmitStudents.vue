@@ -53,7 +53,6 @@
             <CuratedGroupSelector
               context-description="Admit Students"
               domain="admitted_students"
-              :ga-event-tracker="$ga.cohortEvent"
               :students="admits"
             />
           </div>

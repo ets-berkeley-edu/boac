@@ -573,13 +573,10 @@ export default {
         message.read = true
         if (this.$_.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id)
-          this.$ga.studentAlert(`Advisor ${this.$currentUser.uid} dismissed alert`)
         } else if (message.type === 'note') {
           markNoteRead(message.id)
-          this.$ga.noteEvent(message.id, null, `Advisor ${this.$currentUser.uid} read note`)
         } else if (message.type === 'appointment') {
           markAppointmentRead(message.id)
-          this.$ga.appointmentEvent(message.id, null, `Advisor ${this.$currentUser.uid} read appointment`)
         }
       }
     },

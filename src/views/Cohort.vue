@@ -34,7 +34,6 @@
             <CuratedGroupSelector
               :context-description="domain === 'default' ? `Cohort ${cohortName || ''}` : `Admitted Students Cohort ${cohortName || ''}`"
               :domain="domain"
-              :ga-event-tracker="$ga.cohortEvent"
               :on-create-curated-group="resetFiltersToLastApply"
               :students="students"
             />
@@ -175,7 +174,6 @@ export default {
         this.setPageTitle(pageTitle)
         this.loaded(this.getLoadedAlert())
         this.$putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', 'view')
       })
     }
   },
@@ -184,16 +182,15 @@ export default {
     this.$eventHub.on('cohort-apply-filters', () => {
       this.setPagination(1)
     })
-    this.$eventHub.on(`${domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, sortBy => {
+    const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    this.$eventHub.on(`${key}-user-preference-change`, () => {
       if (!this.loading) {
         this.goToPage(1)
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Sort ${domain === 'admitted_students' ? 'admitted ' : ''}students by ${sortBy}`)
       }
     })
-    this.$eventHub.on('termId-user-preference-change', termId => {
+    this.$eventHub.on('termId-user-preference-change', () => {
       if (!this.loading) {
         this.goToPage(this.pageNumber)
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Term id changed to ${termId}`)
       }
     })
   },
@@ -207,9 +204,6 @@ export default {
       }
     },
     goToPage(page) {
-      if (page > 1) {
-        this.$ga.cohortEvent(this.cohortId || '', this.cohortName || '', `Go to page ${page}`)
-      }
       this.setPagination(page)
       this.onPageNumberChange().then(this.scrollToTop)
     },

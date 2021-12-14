@@ -4,6 +4,8 @@ import utils from '@/api/api-utils'
 import store from '@/store'
 import Vue from 'vue'
 
+const $_track = action => Vue.prototype.$ga.noteTemplate(action)
+
 export function getMyNoteTemplates() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/note_templates/my`)
@@ -22,8 +24,7 @@ export function createNoteTemplate(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/create', data).then(template => {
     store.dispatch('noteEditSession/onCreateTemplate', template)
-    const uid = Vue.prototype.$currentUser.uid
-    Vue.prototype.$ga.noteTemplateEvent(template.id, `Advisor ${uid} created a note template`, 'create')
+    $_track('create')
     return template
   })
 }
@@ -39,8 +40,7 @@ export function renameNoteTemplate(noteTemplateId: number, title: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(response => {
     const template = response.data
     store.dispatch('noteEditSession/onUpdateTemplate', template)
-    const uid = Vue.prototype.$currentUser.uid
-    Vue.prototype.$ga.noteTemplateEvent(noteTemplateId, `Advisor ${uid} renamed a note template`, 'update')
+    $_track('update')
     return template
   })
 }
@@ -65,8 +65,7 @@ export function updateNoteTemplate(
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/update', data).then(template => {
     store.dispatch('noteEditSession/onUpdateTemplate', template)
-    const uid = Vue.prototype.$currentUser.uid
-    Vue.prototype.$ga.noteTemplateEvent(noteTemplateId, `Advisor ${uid} updated a note template`, 'update')
+    $_track('update')
     return template
   })
 }

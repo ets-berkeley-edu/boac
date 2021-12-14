@@ -61,7 +61,6 @@ export default {
       this.showCreateModal = false
       createCuratedGroup(this.domain, name, this.sids)
         .then(group => {
-          this.$ga.curatedEvent( group.id, group.name, `Create ${this.describeCuratedGroupDomain(this.domain)} with bulk SIDs`)
           this.$announcer.polite(`Curated group '${name}' created. It has ${this.sids.length} students.`)
           this.isSaving = false
           this.$router.push(`/curated/${group.id}`)

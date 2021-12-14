@@ -133,9 +133,6 @@ export default {
         this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
         this.$putFocusNextTick('curated-group-name')
-        if (this.pageNumber > 1) {
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, 'view')
-        }
       } else {
         this.$router.push({path: '/404'})
       }
@@ -149,16 +146,14 @@ export default {
         this.$announcer.polite(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
           this.loaded(this.getLoadedAlert())
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `sort by ${sortBy}`)
         })
       }
     })
-    this.$eventHub.on('termId-user-preference-change', termId => {
+    this.$eventHub.on('termId-user-preference-change', () => {
       if (!this.loading) {
         this.loadingStart()
         this.goToPage(this.pageNumber).then(() => {
           this.loaded(this.getLoadedAlert())
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Term id changed to ${termId}`)
         })
       }
     })
@@ -185,8 +180,6 @@ export default {
           this.loaded(this.getLoadedAlert())
           this.$putFocusNextTick('curated-group-name')
           this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
-          const domainLabel = this.describeCuratedGroupDomain(this.domain)
-          this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Update ${domainLabel} with bulk-add SIDs`)
         })
       } else {
         this.$announcer.polite('Canceled bulk add of students')
@@ -202,7 +195,6 @@ export default {
       this.loadingStart()
       this.goToPage(pageNumber).then(() => {
         this.loaded(this.getLoadedAlert())
-        this.$ga.curatedEvent(this.curatedGroupId, this.curatedGroupName, `Page ${pageNumber}`)
       })
     }
   }

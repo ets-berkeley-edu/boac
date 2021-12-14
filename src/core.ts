@@ -9,9 +9,13 @@ export default {
     if (user.isAuthenticated) {
       bootstrap().then(() => {
         Vue.prototype.$gtag.config({
-          dimension1: user.isAdmin ? 'ADMIN' : _.keys(user.departments)[0],
           router,
-          user_id: user.uid
+          params: {
+            user_id: user.uid
+          }
+        })
+        Vue.prototype.$gtag.set({
+          department: user.isAdmin ? 'ADMIN' : _.keys(user.departments)[0]
         })
       })
     }
@@ -23,30 +27,31 @@ export default {
         checkDuplicatedScript: true,
         debug: {
           // If debug.enabled is true then browser console gets GA debug info.
-          enabled: false
+          enabled: Vue.prototype.$config.isVueAppDebugMode
         },
         fields: {},
         id: Vue.prototype.$config.googleAnalyticsId,
         pageTrackerScreenviewEnabled: true
       }
     })
-    const track = (action, category, label?, value?) => {
+    const track = (action, category, label?, id?) => {
       Vue.prototype.$gtag.event(action, {
         event_category: category,
         event_label: label,
-        value
+        value: id
       })
     }
     // BOA shortcuts
     Vue.prototype.$ga = {
-      appointmentEvent: (id, label, action) => track('Appointment', action, label, id),
-      cohortEvent: (id, label, action) => track('Cohort', action, label, id),
-      courseEvent: (id, label, action) => track('Course', action, label, id),
-      curatedEvent: (id, label, action) => track('Curated Group', action, label, id),
-      noteEvent: (id, label, action) => track('Advising Note', action, label, id),
-      noteTemplateEvent: (id, label, action) => track('Advising Note Template', action, label, id),
-      searchEvent: (label, action) => track('Search', action, label),
-      studentAlert: action => track('Student Alert', action)
+      appointment: action => track(action, 'Appointment'),
+      cohort: (action, label?, id?) => track(action, 'Cohort', label, id),
+      course: (action, label?) => track(action, 'Course', label),
+      curated: (action, label?, id?) => track(action, 'Curated Group', label, id),
+      degreeProgress: (action, label?) => track(action, 'Degree Progress', label),
+      note: action => track(action, 'Advising Note'),
+      noteTemplate: action => track(action, 'Note Template'),
+      search: (action, label?) => track(action, 'Search', label),
+      student: (action, label?) => track(action, 'Student', label)
     }
   }
 }

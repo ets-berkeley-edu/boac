@@ -3,7 +3,10 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
+const $_track = action => Vue.prototype.$ga.note(action)
+
 export function getNote(noteId) {
+  $_track('view')
   return axios
     .get(`${utils.apiBaseUrl()}/api/note/${noteId}`)
     .then(response => response.data, () => null)
@@ -13,8 +16,7 @@ export function markNoteRead(noteId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
     .then(response => {
-      const uid = Vue.prototype.$currentUser.uid
-      Vue.prototype.$ga.noteEvent(noteId, `Advisor ${uid} read a note`, 'read')
+      $_track('read')
       return response.data
     }, () => null)
 }
@@ -41,6 +43,7 @@ export function createNotes(
     topics
   }
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
+  $_track(sids.length > 1 ? 'batch' : 'create')
   return utils.postMultipartFormData('/api/notes/create', data)
 }
 
@@ -59,12 +62,12 @@ export function updateNote(
     topics: topics
   }
   const api_json = utils.postMultipartFormData('/api/notes/update', data)
-  const uid = Vue.prototype.$currentUser.uid
-  Vue.prototype.$ga.noteEvent(noteId, `Advisor ${uid} updated a note`, 'update')
+  $_track('update')
   return api_json
 }
 
 export function deleteNote(noteId: number) {
+  $_track('delete')
   return axios
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${noteId}`)
     .then(response => response.data)

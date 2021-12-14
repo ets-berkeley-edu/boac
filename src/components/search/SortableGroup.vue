@@ -157,17 +157,11 @@ export default {
       this.isOpen = !this.isOpen
       if (this.$_.isNil(this.studentsWithAlerts)) {
         this.isFetching = true
-        const ga = this.isCohort ? this.$ga.cohortEvent : this.$ga.curatedEvent
         const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
         apiCall(this.group.id).then(students => {
           this.studentsWithAlerts = students
           this.isFetching = false
           this.$announcer.polite(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
-          ga({
-            id: this.group.id,
-            name: this.group.name,
-            action: 'Fetch students with alerts'
-          })
         })
       }
     },

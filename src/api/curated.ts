@@ -4,16 +4,20 @@ import moment from 'moment-timezone'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
+const $_track = action => Vue.prototype.$ga.curated(action)
+
 const $_onCreate = group => {
   Vue.prototype.$currentUser.myCuratedGroups.push(group)
   Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(Vue.prototype.$currentUser.myCuratedGroups, 'name')
   Vue.prototype.$eventHub.emit('my-curated-groups-updated', group.domain)
+  $_track('create')
 }
 
 const $_onDelete = (domain, groupId) => {
   const indexOf = Vue.prototype.$currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === groupId)
   Vue.prototype.$currentUser.myCuratedGroups.splice(indexOf, 1)
   Vue.prototype.$eventHub.emit('my-curated-groups-updated', domain)
+  $_track('delete')
 }
 
 const $_onUpdate = updatedGroup => {
@@ -22,6 +26,7 @@ const $_onUpdate = updatedGroup => {
   Object.assign(group, updatedGroup)
   Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(groups, 'name')
   Vue.prototype.$eventHub.emit('my-curated-groups-updated', updatedGroup.domain)
+  $_track('update')
 }
 
 export function addStudents(curatedGroupId: number, sids: string[], returnStudentProfiles?: boolean) {

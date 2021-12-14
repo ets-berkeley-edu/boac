@@ -144,7 +144,6 @@ import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import Vue from 'vue'
 import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
 
@@ -260,11 +259,6 @@ export default {
             this.setIsSaving(false)
             this.$announcer.polite(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
             this.exit(note)
-            if (this.isBatchFeature) {
-              Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a batch of notes`, 'batch_create')
-            } else {
-              Vue.prototype.$ga.noteEvent(note.id, `Advisor ${this.$currentUser.uid} created a note`, 'create')
-            }
           })
         }
       }
