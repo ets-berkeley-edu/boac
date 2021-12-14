@@ -43,7 +43,8 @@ export function createNotes(
     topics
   }
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
-  $_track(sids.length > 1 ? 'batch' : 'create')
+  const action = sids.length > 1 ? 'batch' : 'create'
+  $_track(isPrivate ? `${action} private` : action)
   return utils.postMultipartFormData('/api/notes/create', data)
 }
 

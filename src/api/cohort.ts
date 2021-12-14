@@ -3,7 +3,7 @@ import moment from 'moment-timezone'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
-const $_track = action => Vue.prototype.$ga.cohort(action)
+const $_track = (action, label?) => Vue.prototype.$ga.cohort(action, label)
 
 const $_onCreate = cohort => {
   Vue.prototype.$currentUser.myCohorts.push(cohort)
@@ -54,6 +54,7 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
+  $_track('download', filename)
   return axios
     .post(`${utils.apiBaseUrl()}/api/cohort/download_csv`, {
       cohortId,
@@ -66,13 +67,15 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {
-      domain,
-      filters,
-      csvColumnsSelected
-    })
-    .then(response => fileDownload(response.data, `${filename}.csv`), () => null)
+  $_track('download', filename)
+
+  const url = `${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`
+  return axios.post(url, {
+    domain,
+    filters,
+    csvColumnsSelected
+  })
+  .then(response => fileDownload(response.data, `${filename}.csv`), () => null)
 }
 
 export function getCohort(
@@ -83,6 +86,7 @@ export function getCohort(
   orderBy = 'lastName',
   termId: string
 ) {
+  $_track('view')
   const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
   return axios.get(url).then(response => response.data, () => null)
 }

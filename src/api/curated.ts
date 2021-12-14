@@ -68,10 +68,11 @@ export function deleteCuratedGroup(domain, id) {
 }
 
 export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSelected: any[]) {
+  $_track('download')
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`, {csvColumnsSelected})
+  const url = `${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`
+  return axios.post(url, {csvColumnsSelected})
     .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null)
 }
 
@@ -82,6 +83,7 @@ export function getCuratedGroup(
   orderBy: string,
   termId: string
 ) {
+  $_track('view')
   const url = `${utils.apiBaseUrl()}/api/curated_group/${id}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit${limit}`
   return axios.get(url).then(response => response.data, () => null)
 }

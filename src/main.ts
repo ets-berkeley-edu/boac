@@ -142,7 +142,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     // The 'core' functions strictly manage state changes in $currentUser and other "prototype" objects.
     // For example, core functions might be invoked after a successful dev-auth login.
     Vue.prototype.$core = core
-    Vue.prototype.$core.mountGoogleAnalytics()
+    Vue.prototype.$core.mountGoogleAnalytics(router)
     Vue.prototype.$core.initializeCurrentUser()
     // The following non-core function(s) do not involve "prototype" objects.
     store.dispatch('context/loadServiceAnnouncement')

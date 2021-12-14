@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import router from '@/router'
 import VueGtag, {bootstrap} from 'vue-gtag'
 
 export default {
@@ -9,7 +8,6 @@ export default {
     if (user.isAuthenticated) {
       bootstrap().then(() => {
         Vue.prototype.$gtag.config({
-          router,
           params: {
             user_id: user.uid
           }
@@ -20,20 +18,17 @@ export default {
       })
     }
   },
-  async mountGoogleAnalytics() {
+  async mountGoogleAnalytics(router) {
     Vue.use(VueGtag, {
+      appName: 'BOA',
       bootstrap: false,
       config: {
         checkDuplicatedScript: true,
-        debug: {
-          // If debug.enabled is true then browser console gets GA debug info.
-          enabled: Vue.prototype.$config.isVueAppDebugMode
-        },
         fields: {},
         id: Vue.prototype.$config.googleAnalyticsId,
-        pageTrackerScreenviewEnabled: true
-      }
-    })
+      },
+      pageTrackerScreenviewEnabled: true
+    }, router)
     const track = (action, category, label?, id?) => {
       Vue.prototype.$gtag.event(action, {
         event_category: category,
