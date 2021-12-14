@@ -530,11 +530,12 @@ def get_e_i_advising_note_topics(sid):
 
 
 def get_admitted_student_by_sid(sid):
-    rows = get_admitted_students_by_sids([sid])
+    rows = get_admitted_students_by_sids(offset=0, sids=[sid])
     return None if not rows or (len(rows) == 0) else rows[0]
 
 
-def get_admitted_students_by_sids(sids):
+def get_admitted_students_by_sids(offset, sids, limit=None, order_by='last_name'):
+    limit_clause = f'LIMIT {limit}' if limit else ''
     sql = f"""
         SELECT a.applyuc_cpid, a.cs_empl_id AS sid, a.uid, s.uid AS student_uid,
         a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
@@ -550,8 +551,12 @@ def get_admitted_students_by_sids(sids):
         a.non_immigrant_visa_current, a.non_immigrant_visa_planned, a.updated_at
         FROM {oua_schema()}.student_admits a
         LEFT JOIN {student_schema()}.student_profile_index s ON a.cs_empl_id = s.sid
-        WHERE a.cs_empl_id = ANY(:sids)"""
-    return safe_execute_rds(sql, sids=sids)
+        WHERE a.cs_empl_id = ANY(:sids)
+        ORDER BY a.{order_by}, a.last_name, a.first_name, a.middle_name, a.cs_empl_id
+        OFFSET :offset
+        {limit_clause}
+    """
+    return safe_execute_rds(sql, limit=limit, offset=offset, sids=sids)
 
 
 def get_sis_advising_notes(sid):

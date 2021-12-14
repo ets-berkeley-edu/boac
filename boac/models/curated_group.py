@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.lib.util import get_benchmarker
+from boac.merged.admitted_student import get_admitted_students_by_sids
 from boac.merged.student import query_students
 from boac.models.base import Base
 from boac.models.cohort_filter import CohortFilter
@@ -185,15 +186,23 @@ class CuratedGroup(Base):
         }
         if include_students:
             if sids:
-                result = query_students(
-                    sids=sids,
-                    academic_career_status=('active', 'inactive'),
-                    include_profiles=False,
-                    order_by=order_by,
-                    offset=offset,
-                    limit=limit,
-                )
-                feed['students'] = result['students']
+                if self.domain == 'admitted_students':
+                    feed['students'] = get_admitted_students_by_sids(
+                        limit=limit,
+                        offset=offset,
+                        order_by=order_by,
+                        sids=sids,
+                    )
+                else:
+                    result = query_students(
+                        sids=sids,
+                        academic_career_status=('active', 'inactive'),
+                        include_profiles=False,
+                        order_by=order_by,
+                        offset=offset,
+                        limit=limit,
+                    )
+                    feed['students'] = result['students']
             else:
                 feed['students'] = []
         benchmark('end')

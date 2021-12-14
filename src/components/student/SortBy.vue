@@ -67,19 +67,20 @@ export default {
   data: () => ({
     dropdownLabel: undefined,
     isReady: false,
-    optionGroups: undefined,
-    sortBy: undefined,
-    sortByKey: undefined
+    optionGroups: undefined
   }),
   created() {
     this.optionGroups = this.getSortByOptionGroups(this.domain)
-    this.sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.$eventHub.on(`${this.sortByKey}-user-preference-change`, v => this.sortBy = v)
-    this.sortBy = this.$_.get(this.$currentUser.preferences, this.sortByKey)
-    this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
+    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    const sortBy = this.$_.get(this.$currentUser.preferences, sortByKey)
+    this.dropdownLabel = this.getSortByOptionLabel(sortBy)
     this.isReady = true
   },
   methods: {
+    getSortBy() {
+      const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      return this.$_.get(this.$currentUser.preferences, sortByKey)
+    },
     getSortByOptionGroups(domain) {
       const optionGroups = []
       if (domain === 'admitted_students') {
@@ -137,28 +138,25 @@ export default {
       }
       return optionGroups
     },
-    getSortByOptionLabel(optionGroups, value) {
+    getSortByOptionLabel(sortBy) {
       let label = undefined
-      if (this.optionGroups) {
-        this.$_.each(optionGroups, group => {
-          this.$_.each(group.options, option => {
-            if (value === option.value) {
-              label = option.label
-            }
-            return !label
-          })
+      this.$_.each(this.optionGroups, group => {
+        this.$_.each(group.options, option => {
+          if (sortBy === option.value) {
+            label = option.label
+          }
           return !label
         })
-      }
+        return !label
+      })
       return label
     },
-    onSelect(value) {
-      if (value !== this.$_.get(this.$currentUser.preferences, this.sortByKey)) {
-        this.sortBy = value
-        this.dropdownLabel = this.getSortByOptionLabel(this.optionGroups, this.sortBy)
-        this.$announcer.polite(`${this.dropdownLabel} selected`)
-        this.$currentUser.preferences.sortByKey = this.sortBy
-      }
+    onSelect(sortBy) {
+      const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      this.$currentUser.preferences[sortByKey] = sortBy
+      this.$eventHub.emit(`${sortByKey}-user-preference-change`, sortBy)
+      this.dropdownLabel = this.getSortByOptionLabel(sortBy)
+      this.$announcer.polite(`${this.dropdownLabel} selected`)
     }
   }
 }

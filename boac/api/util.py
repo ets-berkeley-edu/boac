@@ -508,7 +508,7 @@ def response_with_admits_csv_download(sids, fieldnames, benchmark):
 
     def _row_for_csv(result):
         return {f: result.get(key_aliases.get(f, f)) for f in fieldnames}
-    rows = [_row_for_csv(student) for student in get_admitted_students_by_sids(sids=sids)]
+    rows = [_row_for_csv(student) for student in get_admitted_students_by_sids(offset=0, sids=sids)]
     benchmark('end')
 
     return response_with_csv_download(

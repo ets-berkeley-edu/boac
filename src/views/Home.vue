@@ -16,25 +16,21 @@
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
-        <div>
-          <SortableGroup
-            v-for="cohort in cohorts"
-            :key="cohort.id"
-            :group="cohort"
-            :is-cohort="true"
-          />
+        <div v-for="cohort in cohorts" :key="cohort.id" class="mb-2">
+          <SortableGroup :group="cohort" :is-cohort="true" />
         </div>
       </div>
       <div v-if="$_.filter(curatedGroups, ['domain', 'default']).length" class="pb-3">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
-        <SortableGroup
+        <div
           v-for="curatedGroup in $_.filter(curatedGroups, ['domain', 'default'])"
           :key="curatedGroup.id"
-          :group="curatedGroup"
-          :is-cohort="false"
-        />
+          class="mb-2"
+        >
+          <SortableGroup :group="curatedGroup" :is-cohort="false" />
+        </div>
       </div>
     </div>
   </div>
