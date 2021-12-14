@@ -72,8 +72,7 @@ def academic_plans_for_cohort_owner(owner_uid):
 def academic_career_status_options():
     return [
         {'name': 'Active', 'value': 'active'},
-        {'name': 'Inactive', 'value': 'inctive'},
-        {'name': 'Active and Inactive', 'value': 'all'},
+        {'name': 'Inactive', 'value': 'inactive'},
     ]
 
 
