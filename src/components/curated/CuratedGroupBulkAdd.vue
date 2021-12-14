@@ -22,8 +22,8 @@
         <b-form-textarea
           id="curated-group-bulk-add-sids"
           v-model="textarea"
+          :aria-label="`Type or paste ${domain === 'admitted_students' ? 'admit CS ID' : 'student identification (SID)'} numbers here`"
           :disabled="isValidating || isSaving"
-          aria-label="Type or paste student SID numbers here"
           rows="8"
           max-rows="30"
           @keydown.esc="cancel"
@@ -146,10 +146,11 @@ export default {
             this.sidsNotFound = this.$_.uniq(this.sidsNotFound)
             this.isValidating = false
             if (this.sidsNotFound.length) {
+              const label = this.domain === 'admitted_students' ? 'admit' : 'student'
               if (this.sids.length) {
-                this.setWarning(this.sidsNotFound.length === 1 ? 'One student not found.' : `${this.sidsNotFound.length} students not found.`)
+                this.setWarning(this.sidsNotFound.length === 1 ? `One ${label} not found.` : `${this.sidsNotFound.length} ${label}s not found.`)
               } else {
-                this.setWarning(`No matching student${this.sidsNotFound.length === 1 ? '' : 's'} found.`)
+                this.setWarning(`No matching ${label}${this.sidsNotFound.length === 1 ? '' : 's'} found.`)
               }
             } else {
               this.bulkAddSids(this.$_.uniq(this.sids))

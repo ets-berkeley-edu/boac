@@ -68,9 +68,9 @@
         </div>
       </div>
       <div v-if="!loading && mode === 'bulkAdd'" class="pt-2">
-        <h2 class="page-section-header-sub my-2">Add Students</h2>
+        <h2 class="page-section-header-sub my-2">Add {{ domain ? 'Admits' : 'Students' }}</h2>
         <div class="w-75">
-          <div>Type or paste a list of Student Identification (SID) numbers below.</div>
+          <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
           <div class="text-secondary">Example: 9999999990, 9999999991</div>
         </div>
         <CuratedGroupBulkAdd

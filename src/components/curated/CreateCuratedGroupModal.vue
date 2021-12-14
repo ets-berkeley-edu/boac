@@ -12,7 +12,7 @@
           maxlength="255"
           size="lg"
         />
-        <div class="faint-text mb-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
+        <div class="faint-text my-3">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
         <div
           v-if="error"
           id="create-error"
@@ -55,11 +55,12 @@
 <script>
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
+import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 
 export default {
   name: 'CreateCuratedGroupModal',
-  mixins: [Context, Validator],
+  mixins: [Context, Util, Validator],
   components: {ModalHeader},
   props: {
     cancel: {
