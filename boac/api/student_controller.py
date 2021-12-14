@@ -114,7 +114,7 @@ def validate_sids():
         else:
             summary = []
             if domain == 'admitted_students':
-                available_sids = [row['sid'] for row in get_admitted_students_by_sids(sids=sids)]
+                available_sids = [row['sid'] for row in get_admitted_students_by_sids(offset=0, sids=sids)]
             else:
                 available_sids = query_students(sids=sids, sids_only=True, academic_career_status=('active', 'inactive'))['sids']
             for sid in sids:

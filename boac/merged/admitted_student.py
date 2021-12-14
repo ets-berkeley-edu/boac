@@ -38,19 +38,29 @@ def get_admitted_student_by_sid(sid):
     return _to_api_json(admit) if admit else None
 
 
-def get_admitted_students_by_sids(sids):
-    return [_to_api_json(admit) for admit in data_loch.get_admitted_students_by_sids(sids)]
+def get_admitted_students_by_sids(
+        sids,
+        limit=50,
+        offset=0,
+        order_by='last_name',
+):
+    admits = data_loch.get_admitted_students_by_sids(
+        limit=limit,
+        offset=offset,
+        order_by=order_by,
+        sids=sids,
+    )
+    return [_to_api_json(admit) for admit in admits]
 
 
 def search_for_admitted_students(
     search_phrase=None,
-    order_by=None,
+    order_by='last_name',
 ):
     benchmark = get_benchmarker('search_for_admitted_students')
     query_tables, query_filter, query_bindings = data_loch.get_admitted_students_query(
         search_phrase=search_phrase,
     )
-    order_by = order_by or 'last_name'
     sql = f"""
     SELECT DISTINCT(sa.cs_empl_id),
         sa.first_name,

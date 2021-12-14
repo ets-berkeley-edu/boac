@@ -15,7 +15,7 @@
               <TermSelector />
             </div>
             <div v-if="totalStudentCount > 1">
-              <SortBy />
+              <SortBy :domain="domain" />
             </div>
           </div>
           <div v-if="totalStudentCount > itemsPerPage">
@@ -127,7 +127,6 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    this.$eventHub.off('sortBy-user-preference-change')
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
@@ -141,7 +140,10 @@ export default {
         this.$router.push({path: '/404'})
       }
     })
-    this.$eventHub.on('sortBy-user-preference-change', sortBy => {
+    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    const eventName = `${sortByKey}-user-preference-change`
+    this.$eventHub.off(eventName)
+    this.$eventHub.on(eventName, sortBy => {
       if (!this.loading) {
         this.loadingStart()
         this.$announcer.polite(`Sorting students by ${sortBy}`)
