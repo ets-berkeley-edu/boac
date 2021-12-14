@@ -218,12 +218,6 @@ export default {
   name: 'CuratedGroupHeader',
   mixins: [Berkeley, Context, CuratedEditSession, Util, Validator],
   components: {ExportListModal, ModalHeader},
-  props: {
-    domain: {
-      required: true,
-      type: String
-    }
-  },
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,

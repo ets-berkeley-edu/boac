@@ -6,7 +6,7 @@
       </div>
       <div class="ml-1 mr-2">
         <NavLink
-          id="create-curated-group-from-sidebar"
+          :id="`create-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-from-sidebar`"
           :aria-label="`Create a new ${domainLabel(false)}.`"
           class="sidebar-create-link"
           path="/curate"
@@ -23,7 +23,7 @@
     >
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
-          :id="`sidebar-curated-group-${index}`"
+          :id="`sidebar-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${index}`"
           :aria-label="`${$_.capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
           :path="`/curated/${group.id}`"
         >
@@ -32,7 +32,7 @@
       </div>
       <div class="ml-1 mr-2">
         <span
-          :id="`sidebar-curated-group-${index}-count`"
+          :id="`sidebar-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${index}-count`"
           class="sidebar-pill"
         >{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
         </span>
