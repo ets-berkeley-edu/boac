@@ -842,6 +842,14 @@ def get_colleges():
     return safe_execute_rds(sql)
 
 
+def get_distinct_degree_term_ids():
+    return safe_execute_rds(f'SELECT DISTINCT term_id FROM {student_schema()}.student_degrees ORDER BY term_id')
+
+
+def get_distinct_degrees():
+    return safe_execute_rds(f'SELECT DISTINCT plan FROM {student_schema()}.student_degrees ORDER BY plan')
+
+
 def get_distinct_genders():
     return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
 
@@ -907,6 +915,8 @@ def get_students_query(     # noqa
     colleges=None,
     curated_group_ids=None,
     current_term_id=None,
+    degree_terms=None,
+    degrees=None,
     ethnicities=None,
     entering_terms=None,
     epn_cpn_grading_terms=None,
@@ -983,6 +993,8 @@ def get_students_query(     # noqa
 
     if academic_standings:
         query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = spi.sid"""
+    if degree_terms or degrees:
+        query_tables += f""" JOIN {student_schema()}.student_degrees sd ON sd.sid = spi.sid"""
     if ethnicities:
         query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = spi.sid"""
     if genders or underrepresented is not None:
@@ -1025,6 +1037,12 @@ def get_students_query(     # noqa
     query_filter += _number_ranges_to_sql('spi.units', unit_ranges) if unit_ranges else ''
     if last_name_ranges:
         query_filter += _last_name_ranges_to_sql(last_name_ranges)
+    if degree_terms:
+        query_filter += ' AND sd.term_id = ANY(:degree_terms)'
+        query_bindings.update({'degree_terms': degree_terms})
+    if degrees:
+        query_filter += ' AND sd.plan = ANY(:degrees)'
+        query_bindings.update({'degrees': degrees})
     if entering_terms:
         query_filter += ' AND spi.entering_term = ANY(:entering_terms)'
         query_bindings.update({'entering_terms': entering_terms})

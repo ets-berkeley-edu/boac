@@ -111,6 +111,17 @@ def colleges():
     return [{'name': college, 'value': college} for college in college_results]
 
 
+@stow('cohort_filter_options_degree_terms')
+def degree_terms():
+    term_ids = [r['term_id'] for r in data_loch.get_distinct_degree_term_ids()]
+    return [{'name': ' '.join(term_name_for_sis_id(term_id).split()[::-1]), 'value': term_id} for term_id in term_ids]
+
+
+@stow('cohort_filter_options_degrees')
+def degrees():
+    return [{'name': row['plan'], 'value': row['plan']} for row in data_loch.get_distinct_degrees()]
+
+
 @stow('cohort_filter_options_entering_terms')
 def entering_terms():
     term_ids = [r['entering_term'] for r in data_loch.get_entering_terms()]

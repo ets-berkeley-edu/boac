@@ -403,6 +403,8 @@ def _query_students(
         coe_underrepresented=criteria.get('coeUnderrepresented'),
         colleges=criteria.get('colleges'),
         curated_group_ids=criteria.get('curatedGroupIds'),
+        degrees=criteria.get('degrees'),
+        degree_terms=criteria.get('degreeTerms'),
         entering_terms=criteria.get('enteringTerms'),
         epn_cpn_grading_terms=criteria.get('epnCpnGradingTerms'),
         ethnicities=criteria.get('ethnicities'),
