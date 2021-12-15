@@ -26,7 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from urllib.parse import urlencode, urljoin, urlparse
 
 from boac.api.errors import ResourceNotFoundError
-from boac.api.util import admin_required
+from boac.api.util import admin_required, get_current_user_profile
 from boac.lib.http import add_param_to_url, tolerant_jsonify
 from boac.merged.user_session import UserSession
 from boac.models.authorized_user import AuthorizedUser
@@ -140,7 +140,7 @@ def _dev_auth_login(uid, password):
 
         login_user(user, force=True, remember=True)
         UserLogin.record_user_login(uid)
-        return tolerant_jsonify(current_user.to_api_json())
+        return tolerant_jsonify(get_current_user_profile())
     else:
         raise ResourceNotFoundError('Unknown path')
 
