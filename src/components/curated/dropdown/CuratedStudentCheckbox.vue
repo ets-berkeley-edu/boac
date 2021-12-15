@@ -1,7 +1,7 @@
 <template>
   <div class="student-checkbox">
     <b-form-checkbox
-      :id="`student-${sid}-curated-group-checkbox`"
+      :id="`${domain === 'admitted_students' ? 'admit' : 'student'}-${sid}-curated-group-checkbox`"
       v-model="status"
       :aria-label="status ? `${studentName} selected, ready to add to ${domainLabel}` : `Select ${studentName} to add to ${domainLabel}`"
       size="sm"
