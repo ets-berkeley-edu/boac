@@ -64,7 +64,7 @@
             variant="link"
             @click="enterBulkAddMode"
           >
-            Add {{ domain ? 'Admits' : 'Students' }}
+            Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}
           </b-btn>
         </div>
         <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
