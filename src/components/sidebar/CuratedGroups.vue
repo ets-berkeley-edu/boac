@@ -6,7 +6,7 @@
       </div>
       <div class="ml-1 mr-2">
         <NavLink
-          :id="`create-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-from-sidebar`"
+          :id="`create-${idFragment}-from-sidebar`"
           :aria-label="`Create a new ${domainLabel(false)}.`"
           class="sidebar-create-link"
           path="/curate"
@@ -23,7 +23,7 @@
     >
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
-          :id="`sidebar-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${index}`"
+          :id="`sidebar-${idFragment}-${index}`"
           :aria-label="`${$_.capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
           :path="`/curated/${group.id}`"
         >
@@ -32,7 +32,7 @@
       </div>
       <div class="ml-1 mr-2">
         <span
-          :id="`sidebar-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${index}-count`"
+          :id="`sidebar-${idFragment}-${index}-count`"
           class="sidebar-pill"
         >{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
         </span>
@@ -59,6 +59,12 @@ export default {
       required: false,
       type: String
     }
+  },
+  data: () => ({
+    idFragment: undefined
+  }),
+  created() {
+    this.idFragment = this.domainLabel(false).replace(' ', '-')
   },
   methods: {
     domainLabel(capitalize) {
