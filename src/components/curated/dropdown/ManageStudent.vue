@@ -55,7 +55,7 @@
       </div>
       <b-dropdown-divider />
       <b-dropdown-item
-        :id="`create-${idFragment}-group`"
+        :id="`create-${idFragment}`"
         :aria-label="`Create a new ${domainLabel(false)}`"
         class="create-new-button mb-0 pl-0 text-dark"
         @click="showModal = true"
