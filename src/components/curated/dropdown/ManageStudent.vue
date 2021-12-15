@@ -13,7 +13,7 @@
       :variant="dropdownVariant"
     >
       <template slot="button-content">
-        <div :id="isAdding ? 'added-to-curated-group' : (isRemoving ? 'removed-from-curated-group' : 'add-to-curated-group')">
+        <div :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div :class="labelClass">
               {{ label }}
@@ -37,14 +37,14 @@
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
           v-for="group in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
-          :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-menu-item`"
+          :id="`${idFragment}-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
           @click="groupCheckboxClick(group)"
           @keyup.enter="groupCheckboxClick(group)"
         >
           <b-form-checkbox
-            :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-checkbox`"
+            :id="`${idFragment}-${group.id}-checkbox`"
             v-model="checkedGroups"
             :aria-label="$_.includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
             :value="group.id"
@@ -55,7 +55,7 @@
       </div>
       <b-dropdown-divider />
       <b-dropdown-item
-        :id="`create-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
+        :id="`create-${idFragment}-group`"
         :aria-label="`Create a new ${domainLabel(false)}`"
         class="create-new-button mb-0 pl-0 text-dark"
         @click="showModal = true"
@@ -133,6 +133,7 @@ export default {
     confirmationTimeout: 1500,
     dropdownId: undefined,
     groupsLoading: true,
+    idFragment: undefined,
     isAdding: false,
     isRemoving: false,
     showModal: false
@@ -146,7 +147,8 @@ export default {
     }
   },
   created() {
-    this.dropdownId = `${this.domain === 'admitted_students' ? 'admissions' : 'curated'}-group-dropdown-${this.student.sid}`
+    this.idFragment = this.domainLabel(false).replace(' ', '-')
+    this.dropdownId = `${this.idFragment}-dropdown-${this.student.sid}`
     this.refresh()
     this.$eventHub.on('my-curated-groups-updated', domain => {
       if (domain === this.domain) {

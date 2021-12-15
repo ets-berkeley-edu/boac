@@ -1,9 +1,9 @@
 <template>
   <div class="student-checkbox">
     <b-form-checkbox
-      :id="`${domain === 'admitted_students' ? 'admit' : 'student'}-${sid}-curated-group-checkbox`"
+      :id="checkboxId"
       v-model="status"
-      :aria-label="status ? `${studentName} selected, ready to add to ${domainLabel}` : `Select ${studentName} to add to ${domainLabel}`"
+      :aria-label="ariaLabel"
       size="sm"
       @change="toggle"
     />
@@ -28,12 +28,21 @@ export default {
     }
   },
   data: () => ({
+    checkboxId: undefined,
     sid: undefined,
     status: false,
     studentName: undefined
   }),
+  computed: {
+    ariaLabel() {
+      const domainLabel = this.describeCuratedGroupDomain(this.domain, true)
+      return this.status ? `${this.studentName} selected, ready to add to ${domainLabel}` : `Select ${this.studentName} to add to ${domainLabel}`
+    }
+  },
   created() {
+    const idFragment = this.describeCuratedGroupDomain(this.domain, false).replace(' ', '-')
     this.sid = this.student.sid || this.student.csEmplId
+    this.checkboxId = `${this.domain === 'admitted_students' ? 'admit' : 'student'}-${this.sid}-${idFragment}-checkbox`
     this.studentName = `${this.student.firstName} ${this.student.lastName}`
     this.$eventHub.on('curated-group-select-all', domain => {
       if (this.domain === domain) {
@@ -47,9 +56,6 @@ export default {
     })
   },
   methods: {
-    domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
-    },
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
       this.$eventHub.emit(eventName, {domain: this.domain, sid: this.sid})

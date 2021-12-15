@@ -28,7 +28,7 @@
       >
         <template slot="button-content">
           <div
-            :id="isSaving ? `add-to-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-confirmation` : `add-to-${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
+            :id="isSaving ? `add-to-${idFragment}-confirmation` : `add-to-${idFragment}`"
             class="px-1"
           >
             <div v-if="!isSaving" class="d-flex justify-content-between">
@@ -53,7 +53,7 @@
           @click="curatedGroupCheckboxClick(group)"
         >
           <b-form-checkbox
-            :id="`${domain === 'admitted_students' ? 'admissions' : 'curated'}-group-${group.id}-checkbox`"
+            :id="`${idFragment}-${group.id}-checkbox`"
             @click="curatedGroupCheckboxClick(group)"
             @keyup.enter="curatedGroupCheckboxClick(group)"
           >
@@ -62,7 +62,7 @@
         </b-dropdown-item>
         <b-dropdown-divider />
         <b-dropdown-item
-          :id="`create--${domain === 'admitted_students' ? 'admissions' : 'curated'}-group`"
+          :id="`create-${idFragment}`"
           :aria-label="`Create a new ${domainLabel(false)}`"
           class="pl-0 text-dark"
           variant="link"
@@ -95,7 +95,6 @@ import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addStudents, createCuratedGroup} from '@/api/curated'
 
-
 export default {
   name: 'CuratedGroupSelector',
   components: {CreateCuratedGroupModal},
@@ -122,11 +121,12 @@ export default {
   data: () => ({
     checkboxId: undefined,
     dropdownId: undefined,
-    sids: [],
-    isSelectAllChecked: false,
+    idFragment: undefined,
     indeterminate: false,
     isSaving: false,
-    showModal: false
+    isSelectAllChecked: false,
+    showModal: false,
+    sids: []
   }),
   computed: {
     myCuratedGroups() {
@@ -134,8 +134,9 @@ export default {
     }
   },
   created() {
-    this.checkboxId = `add-all-to-${this.domain}-curated-group`
-    this.dropdownId = `${this.domain === 'admitted_students' ? 'admissions' : 'curated'}-group-dropdown-select`
+    this.idFragment = this.domainLabel(false).replace(' ', '-')
+    this.checkboxId = `add-all-to-${this.idFragment}`
+    this.dropdownId = `${this.idFragment}-dropdown-select`
     this.$eventHub.on('curated-group-checkbox-checked', args => {
       if (this.domain === args.domain) {
         this.sids.push(args.sid)
@@ -229,6 +230,7 @@ label {
   border: 1px solid #aaa;
   border-radius: 6px;
   height: 36px;
+  margin-right: 6px;
   padding: 2px 2px 0 7px;
   width: 36px;
 }
