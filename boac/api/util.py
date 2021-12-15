@@ -38,6 +38,7 @@ from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_academic_standing_by_sid, get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
+from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
 from boac.models.user_login import UserLogin
@@ -343,6 +344,23 @@ def put_notifications(student):
                     'read': True,
                 },
             })
+
+
+def get_current_user_profile():
+    cohorts = []
+    for cohort in CohortFilter.get_cohorts(current_user.get_id()):
+        cohort['isOwnedByCurrentUser'] = True
+        cohorts.append(cohort)
+    return {
+        **current_user.to_api_json(),
+        'myCohorts': cohorts,
+        'myCuratedGroups': get_my_curated_groups(),
+        'preferences': {
+            'admitSortBy': 'last_name',
+            'sortBy': 'last_name',
+            'termId': current_term_id(),
+        },
+    }
 
 
 def get_note_attachments_from_http_post(tolerate_none=False):
