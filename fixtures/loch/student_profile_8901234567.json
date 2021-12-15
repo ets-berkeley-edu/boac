@@ -62,5 +62,14 @@
         "termsInAttendance": 2,
         "transfer": false
     },
+    "demographics": {
+        "gender": "Different Identity",
+        "ethnicities": [
+            "White"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "123456"
 }

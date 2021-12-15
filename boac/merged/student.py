@@ -50,17 +50,17 @@ def get_distilled_student_profiles(sids):
             key: profile.get(key) for key in
             [
                 'firstName',
-                'gender',
                 'lastName',
                 'name',
                 'photoUrl',
                 'sid',
                 'uid',
-                'underrepresented',
             ]
         }
         distilled['academicCareerStatus'] = profile['sisProfile'].get('academicCareerStatus')
+        distilled['gender'] = profile['demographics'].get('gender')
         distilled['termsInAttendance'] = profile['sisProfile'].get('termsInAttendance')
+        distilled['underrepresented'] = profile['demographics'].get('underrepresented')
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
@@ -94,20 +94,12 @@ def get_full_student_profiles(sids):
     scope = get_student_query_scope()
 
     benchmark('begin ASC profile merge')
-    athletics_profiles = data_loch.get_athletics_profiles(sids)
-    if athletics_profiles:
-        for athletics_profile in athletics_profiles:
-            sid = athletics_profile['sid']
-            _merge_asc_student_profile_data(profiles_by_sid.get(sid), athletics_profile, scope)
+    _merge_asc_student_profile_data(profiles_by_sid, scope)
     benchmark('end ASC profile merge')
 
     if 'COENG' in scope or 'ADMIN' in scope:
         benchmark('begin COE profile merge')
-        coe_profiles = data_loch.get_coe_profiles(sids)
-        if coe_profiles:
-            for coe_profile in coe_profiles:
-                sid = coe_profile['sid']
-                _merge_coe_student_profile_data(profiles_by_sid.get(sid), coe_profile)
+        _merge_coe_student_profile_data(profiles_by_sid)
         benchmark('end COE profile merge')
     return profiles
 
@@ -224,14 +216,35 @@ def get_distinct_sids(sids=(), cohort_ids=(), curated_group_ids=()):
     return set(all_sids)
 
 
-def get_summary_student_profiles(sids, term_id=None):
+def get_student_profile_summaries(sids, term_id=None):
     if not sids:
         return []
-    benchmark = get_benchmarker('get_summary_student_profiles')
+    benchmark = get_benchmarker('get_student_profile_summaries')
     benchmark('begin')
-    # TODO It's probably more efficient to store summary profiles in the loch, rather than distilling them
-    # on the fly from full profiles.
-    profiles = get_full_student_profiles(sids)
+    profile_results = data_loch.get_student_profile_summaries(sids)
+    if not profile_results:
+        return []
+    profiles_by_sid = _get_profiles_by_sid(profile_results)
+    profiles = []
+    for sid in sids:
+        profile = profiles_by_sid.get(sid)
+        if profile:
+            profiles.append(profile)
+
+    benchmark('begin photo merge')
+    _merge_photo_urls(profiles)
+    benchmark('end photo merge')
+
+    scope = get_student_query_scope()
+    benchmark('begin ASC profile merge')
+    _merge_asc_student_profile_data(profiles_by_sid, scope)
+    benchmark('end ASC profile merge')
+
+    if 'COENG' in scope or 'ADMIN' in scope:
+        benchmark('begin COE profile merge')
+        _merge_coe_student_profile_data(profiles_by_sid)
+        benchmark('end COE profile merge')
+
     # TODO Many views require no term enrollment information other than a units count. This datum too should be
     # stored in the loch without BOAC having to crunch it.
     if not term_id:
@@ -247,44 +260,26 @@ def get_summary_student_profiles(sids, term_id=None):
     term_gpas = get_term_gpas_by_sid(sids)
     benchmark('end term GPA query')
 
-    benchmark('begin profile transformation')
+    benchmark('begin profile summary merge')
     for profile in profiles:
-        summarize_profile(profile, enrollments=enrollments_by_sid, academic_standing=academic_standing, term_gpas=term_gpas)
+        _merge_enrollments(profile, enrollments=enrollments_by_sid, academic_standing=academic_standing, term_gpas=term_gpas)
     benchmark('end')
 
     return profiles
 
 
-def summarize_profile(profile, enrollments=None, academic_standing=None, term_gpas=None):
-    # Strip SIS details to lighten the API load.
-    sis_profile = profile.pop('sisProfile', None)
-    if sis_profile:
-        profile['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
-        profile['cumulativeGPA'] = sis_profile.get('cumulativeGPA')
-        profile['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
-        profile['currentTerm'] = sis_profile.get('currentTerm')
-        profile['degrees'] = sis_profile.get('degrees')
-        profile['expectedGraduationTerm'] = sis_profile.get('expectedGraduationTerm')
-        profile['level'] = _get_sis_level_description(sis_profile)
-        profile['majors'] = _get_active_plan_descriptions(sis_profile)
-        profile['matriculation'] = sis_profile.get('matriculation')
-        profile['termsInAttendance'] = sis_profile.get('termsInAttendance')
-        profile['transfer'] = sis_profile.get('transfer')
-        if sis_profile.get('withdrawalCancel'):
-            profile['withdrawalCancel'] = sis_profile['withdrawalCancel']
-            if not sis_profile['withdrawalCancel'].get('termId'):
-                sis_profile['withdrawalCancel']['termId'] = current_term_id()
+def _merge_enrollments(profile_summary, enrollments=None, academic_standing=None, term_gpas=None):
     if enrollments:
         # Add the singleton term.
-        term = enrollments.get(profile['sid'])
+        term = enrollments.get(profile_summary['sid'])
         if term:
             if not current_user.can_access_canvas_data:
                 _suppress_canvas_sites(term)
-            profile['term'] = term
+            profile_summary['term'] = term
     if academic_standing:
-        profile['academicStanding'] = academic_standing.get(profile['sid'])
+        profile_summary['academicStanding'] = academic_standing.get(profile_summary['sid'])
     if term_gpas:
-        profile['termGpa'] = term_gpas.get(profile['sid'])
+        profile_summary['termGpa'] = term_gpas.get(profile_summary['sid'])
 
 
 def _academic_standing_to_feed(rows):
@@ -483,7 +478,7 @@ def query_students(
             sql += ' LIMIT :limit'
         students_result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
-            summary['students'] = get_summary_student_profiles([row['sid'] for row in students_result], term_id=term_id)
+            summary['students'] = get_student_profile_summaries([row['sid'] for row in students_result], term_id=term_id)
         else:
             summary['students'] = get_distilled_student_profiles([row['sid'] for row in students_result])
     return summary
@@ -530,7 +525,7 @@ def search_for_students(
     benchmark('begin student query')
     result = data_loch.safe_execute_rds(sql, **query_bindings)
     benchmark('begin profile collection')
-    students = get_summary_student_profiles([row['sid'] for row in result])
+    students = get_student_profile_summaries([row['sid'] for row in result])
     benchmark('end')
     return {
         'students': students,
@@ -707,28 +702,28 @@ def _construct_student_profile(student):
 def _get_profiles_by_sid(profiles):
     profiles_by_sid = {}
     for row in profiles:
-        profiles_by_sid[row['sid']] = {
-            **json.loads(row['profile']),
-            **{
-                'gender': row['gender'],
-                'underrepresented': row['minority'],
-            },
-        }
+        profile = json.loads(row['profile'])
+        if profile:
+            profiles_by_sid[row['sid']] = profile
     return profiles_by_sid
 
 
-def _merge_asc_student_profile_data(profile, asc_profile, scope):
-    if profile:
-        asc_profile = json.loads(asc_profile['profile'])
+def _merge_asc_student_profile_data(profiles_by_sid, scope):
+    athletics_profiles = data_loch.get_athletics_profiles(list(profiles_by_sid))
+    for athletics_profile in athletics_profiles or []:
+        profile = profiles_by_sid.get(athletics_profile['sid'])
+        athletics_profile = json.loads(athletics_profile['profile'])
         if 'UWASC' in scope or 'ADMIN' in scope:
-            profile['athleticsProfile'] = asc_profile
+            profile['athleticsProfile'] = athletics_profile
         else:
             # Non-ASC advisors have access to team memberships but not other ASC data such as intensive or inactive status.
-            profile['athleticsProfile'] = {'athletics': asc_profile.get('athletics')}
+            profile['athleticsProfile'] = {'athletics': athletics_profile.get('athletics')}
 
 
-def _merge_coe_student_profile_data(profile, coe_profile):
-    if profile:
+def _merge_coe_student_profile_data(profiles_by_sid):
+    coe_profiles = data_loch.get_coe_profiles(list(profiles_by_sid))
+    for coe_profile in coe_profiles or []:
+        profile = profiles_by_sid.get(coe_profile['sid'])
         profile['coeProfile'] = json.loads(coe_profile['profile'])
         if 'minority' in profile['coeProfile']:
             profile['coeProfile']['underrepresented'] = profile['coeProfile']['minority']

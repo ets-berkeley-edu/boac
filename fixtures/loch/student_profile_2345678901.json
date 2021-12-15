@@ -68,5 +68,14 @@
             "termId": "2178"
         }
     },
+    "demographics": {
+        "gender": "Decline to State",
+        "ethnicities": [
+            "African-American / Black"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "98765"
 }

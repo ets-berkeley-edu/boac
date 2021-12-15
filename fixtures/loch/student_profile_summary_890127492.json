@@ -1,0 +1,32 @@
+
+{
+    "academicCareerStatus": "Active",
+    "advisors": [],
+    "canvasUserId": "10000004",
+    "canvasUserName": "Siegfried Schlemiel",
+    "cumulativeGPA": 0.4,
+    "cumulativeUnits": 8,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Siegfried",
+    "gender": "Genderqueer/Gender Non-Conform",
+    "lastName": "Schlemiel",
+    "level": "Sophomore",
+    "majors": [
+        "Mathematics"
+    ],
+    "matriculation": "Summer 2015",
+    "name": "Siegfried Schlemiel",
+    "sid": "890127492",
+    "termsInAttendance": 2,
+    "transfer": false,
+    "uid": "211159",
+    "underrepresented": false
+}

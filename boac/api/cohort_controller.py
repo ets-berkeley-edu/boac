@@ -33,7 +33,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.cohort_filter_options import CohortFilterOptions
-from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
+from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.cohort_filter_event import CohortFilterEvent
@@ -79,7 +79,7 @@ def students_with_alerts(cohort_id):
         _decorate_cohort(cohort)
         students = cohort.get('alerts', [])
         alert_sids = [s['sid'] for s in students]
-        alert_profiles = get_summary_student_profiles(alert_sids)
+        alert_profiles = get_student_profile_summaries(alert_sids)
         benchmark('fetched student profiles')
         alert_profiles_by_sid = {p['sid']: p for p in alert_profiles}
         for student in students:
@@ -141,7 +141,7 @@ def get_cohort_events(cohort_id):
     count = results['count']
     events = results['events']
     event_sids = [e.sid for e in events]
-    event_profiles_by_sid = {e['sid']: e for e in get_summary_student_profiles(event_sids)}
+    event_profiles_by_sid = {e['sid']: e for e in get_student_profile_summaries(event_sids)}
 
     def _event_feed(event):
         profile = event_profiles_by_sid.get(event.sid, {})

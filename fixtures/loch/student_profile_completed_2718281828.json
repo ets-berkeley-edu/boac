@@ -38,5 +38,12 @@
         "termsInAttendance": null,
         "transfer": false
     },
+    "demographics": {
+        "gender": null,
+        "ethnicities": [],
+        "nationalities": [],
+        "underrepresented": null,
+        "visa": null
+    },
     "uid": "27182"
 }

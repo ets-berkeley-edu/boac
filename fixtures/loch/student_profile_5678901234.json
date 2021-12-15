@@ -62,5 +62,14 @@
         "termsInAttendance": null,
         "transfer": false
     },
+    "demographics": {
+        "gender": "Male",
+        "ethnicities": [
+            "Mexican / Mexican-American / Chicano"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "9933311"
 }

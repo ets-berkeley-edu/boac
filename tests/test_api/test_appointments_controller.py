@@ -203,7 +203,7 @@ class TestCreateDropInAppointment:
             assert appointment['status'] == 'waiting'
             assert appointment['statusBy']['uid'] == coe_scheduler_uid
             assert appointment['student']['sid'] == student_sid
-            assert appointment['student']['name'] == 'Paul Kerschen'
+            assert appointment['student']['name'] == 'Pauline Kerschen'
             assert appointment['student']['photoUrl']
             assert appointment['appointmentType'] == 'Drop-in'
             assert len(appointment['topics']) == 2
@@ -312,7 +312,7 @@ class TestCreateScheduledAppointment:
             assert appointment['status'] == 'reserved'
             assert appointment['statusBy']['uid'] == coe_scheduler_uid
             assert appointment['student']['sid'] == student_sid
-            assert appointment['student']['name'] == 'Paul Kerschen'
+            assert appointment['student']['name'] == 'Pauline Kerschen'
             assert appointment['student']['photoUrl']
             assert appointment['appointmentType'] == 'Scheduled'
             assert appointment['scheduledTime'].startswith(localize_datetime(utc_now()).strftime('%Y-%m-%d'))

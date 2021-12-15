@@ -30,7 +30,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
 from boac.merged.admitted_student import get_admitted_students_by_sids
-from boac.merged.student import get_student_query_scope as get_query_scope, get_summary_student_profiles
+from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
@@ -145,7 +145,7 @@ def get_students_with_alerts(curated_group_id):
         alert_count_per_sid[sid] = s.get('alertCount')
     sids = list(alert_count_per_sid.keys())
     benchmark('begin profile query')
-    students_with_alerts = get_summary_student_profiles(sids=sids)
+    students_with_alerts = get_student_profile_summaries(sids=sids)
     benchmark('end profile query')
     for student in students_with_alerts:
         student['alertCount'] = alert_count_per_sid[student['sid']]
@@ -227,7 +227,7 @@ def _curated_group_with_complete_student_profiles(
             sids=sids,
         )
     else:
-        api_json['students'] = get_summary_student_profiles(sids, term_id=term_id)
+        api_json['students'] = get_student_profile_summaries(sids, term_id=term_id)
     Alert.include_alert_counts_for_students(benchmark=benchmark, viewer_user_id=current_user.get_id(), group=api_json)
     benchmark('begin get_referencing_cohort_ids')
     api_json['referencingCohortIds'] = curated_group.get_referencing_cohort_ids()

@@ -62,5 +62,14 @@
         "termsInAttendance": 2,
         "transfer": true
     },
+    "demographics": {
+        "gender": "Different Identity",
+        "ethnicities": [
+            "Korean / Korean-American"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "300848"
 }
