@@ -1121,6 +1121,35 @@ class TestCohortPerFilters:
             assert ('Nuclear Engineering BS' in student['majors'] or 'Chemistry BS' in student['majors']
                     or 'Engineering Undeclared UG' in student['majors'])
 
+    def test_filter_degree(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicCareerStatus', 'value': 'inactive'},
+                    {'key': 'degrees', 'value': 'Philosophy BA'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students) == 1
+        assert students[0]['sid'] == '3141592653'
+
+    def test_filter_degree_term(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicCareerStatus', 'value': 'inactive'},
+                    {'key': 'degreeTerms', 'value': '2202'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students) == 2
+        assert students[0]['sid'] == '3141592653'
+        assert students[1]['sid'] == '2718281828'
+
     def test_filter_entering_term(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,

@@ -445,6 +445,15 @@ CREATE TABLE student.minors
     minor VARCHAR NOT NULL
 );
 
+CREATE TABLE student.student_degrees
+(
+    sid VARCHAR NOT NULL,
+    plan VARCHAR NOT NULL,
+    date_awarded DATE NOT NULL,
+    term_id VARCHAR NOT NULL,
+    hist_enr BOOLEAN NOT NULL
+);
+
 CREATE TABLE student.student_holds
 (
     sid VARCHAR NOT NULL,
@@ -933,6 +942,13 @@ INSERT INTO student.minors
 VALUES
 ('11667051', 'Computer Science UG'),
 ('11667051', 'Physics UG');
+
+INSERT INTO student.student_degrees
+(sid, plan, date_awarded, term_id, hist_enr)
+VALUES
+('9100000000', 'Electrical Eng & Comp Sci BS', '2021-05-16', '2212', TRUE),
+('2718281828', 'Nuclear Engineering BS', '2020-05-16', '2202', TRUE),
+('3141592653', 'Philosophy BA', '2020-05-16', '2202', TRUE);
 
 INSERT INTO student.student_holds
 (sid, feed)
