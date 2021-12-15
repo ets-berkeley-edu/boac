@@ -1,0 +1,54 @@
+{
+    "academicCareerStatus": "Inactive",
+    "advisors": [
+        {
+            "uid": "1",
+            "sid": "2",
+            "firstName": "Real",
+            "lastName": "Advisor",
+            "email": "ARealLiveAdvisor@b.e",
+            "role": "College Advisor",
+            "title": "Director of Advising",
+            "program": "Undergrad Business",
+            "plan": "Business Administration BS"
+        },
+        {
+            "uid": null,
+            "sid": "UCBUGADHAAS",
+            "firstName": null,
+            "lastName": null,
+            "email": null,
+            "role": "Major Advisor",
+            "title": null,
+            "program": "Undergrad Business",
+            "plan": "Business Administration BS"
+        }
+    ],
+    "canvasUserId": "10000004",
+    "canvasUserName": "Paul Farestveit",
+    "cumulativeGPA": 3.9,
+    "cumulativeUnits": 110,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2202",
+        "name": "Spring 2020"
+    },
+    "firstName": "Paul",
+    "gender": "Female",
+    "lastName": "Farestveit",
+    "level": "Senior",
+    "majors": [
+        "Nuclear Engineering BS"
+    ],
+    "matriculation": "Summer 2015",
+    "name": "Paul Farestveit",
+    "sid": "7890123456",
+    "termsInAttendance": 2,
+    "transfer": false,
+    "uid": "1049291",
+    "underrepresented": true
+}

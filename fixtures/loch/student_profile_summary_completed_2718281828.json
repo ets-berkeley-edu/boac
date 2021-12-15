@@ -1,0 +1,41 @@
+
+{
+    "academicCareerStatus": "Completed",
+    "advisors": [],
+    "canvasUserId": "9000100",
+    "canvasUserName": "Ernest Pontifex",
+    "cumulativeGPA": 4,
+    "cumulativeUnits": 139,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": [
+        {
+            "dateAwarded": "2010-05-14",
+            "description": "Doctor of Philosophy",
+            "plans": [
+                {
+                    "group": "Graduate Division",
+                    "plan": "English PhD"
+                }
+            ]
+        }
+    ],
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Ernest",
+    "gender": null,
+    "lastName": "Pontifex",
+    "level": "Junior",
+    "majors": [],
+    "matriculation": "Fall 2015",
+    "name": "Ernest Pontifex",
+    "sid": "2718281828",
+    "termsInAttendance": null,
+    "transfer": false,
+    "uid": "27182",
+    "underrepresented": null
+}

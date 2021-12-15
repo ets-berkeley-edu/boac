@@ -56,5 +56,15 @@
         "termsInAttendance": 2,
         "transfer": false
     },
+    "demographics": {
+        "gender": "Genderqueer/Gender Non-Conform",
+        "ethnicities": [
+            "African-American / Black",
+            "Thai"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "211159"
 }

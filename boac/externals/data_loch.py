@@ -329,12 +329,18 @@ def get_basic_student_data(sids):
 
 
 def get_student_profiles(sids=None):
-    sql = f"""SELECT p.sid, p.profile, d.gender, d.minority
-        FROM {student_schema()}.student_profiles p
-        LEFT JOIN {student_schema()}.demographics d ON d.sid = p.sid
-        """
+    sql = f'SELECT sid, profile FROM {student_schema()}.student_profiles'
     if sids is not None:
-        sql += 'WHERE p.sid = ANY(:sids)'
+        sql += ' WHERE sid = ANY(:sids)'
+        return safe_execute_rds(sql, sids=sids)
+    else:
+        return safe_execute_rds(sql)
+
+
+def get_student_profile_summaries(sids=None):
+    sql = f'SELECT sid, profile_summary AS profile FROM {student_schema()}.student_profiles'
+    if sids is not None:
+        sql += ' WHERE sid = ANY(:sids)'
         return safe_execute_rds(sql, sids=sids)
     else:
         return safe_execute_rds(sql)

@@ -463,7 +463,8 @@ CREATE TABLE student.student_holds
 CREATE TABLE student.student_profiles
 (
     sid VARCHAR NOT NULL,
-    profile TEXT NOT NULL
+    profile TEXT NOT NULL,
+    profile_summary TEXT NOT NULL
 );
 
 CREATE TABLE student.student_profile_index
@@ -647,7 +648,7 @@ CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS (
 INSERT INTO boac_advising_l_s.students
 (sid, acadplan_code, acadplan_descr, acadplan_type_code, acadplan_ownedby_code, ldap_uid, first_name, last_name, email_address, affiliations)
 VALUES
-('3456789012', '252B2U', 'Political Economy BA', 'MAJ', 'ISSP', '242881', 'Paul', 'Kerschen', 'atem@example.edu', 'STUDENT-TYPE-REGISTERED'),
+('3456789012', '252B2U', 'Political Economy BA', 'MAJ', 'ISSP', '242881', 'Pauline', 'Kerschen', 'atem@example.edu', 'STUDENT-TYPE-REGISTERED'),
 ('5678901234', '25000U', 'Letters & Sci Undeclared UG', 'MAJ', 'CLS', '9933311', 'Sandeep', 'Jayaprakash', 'sj@example.edu', 'STUDENT-TYPE-NOT REGISTERED');
 
 INSERT INTO boac_advising_notes.advising_note_author_names
@@ -696,7 +697,7 @@ VALUES
 ('100000000', '13', 'Hurdley', 'Bardolf', 'Student Academic Advisor', 'EDESS', NULL, 'hbarde@berkeley.edu'),
 ('100100100', '90412', 'Ginger', 'Baker', NULL, 'EGCEE', NULL, 'gbaker@berkeley.edu'),
 ('100100300', '1022796', 'Bebe', 'De La Rosa', 'Undergraduate Affairs Officer', 'EDDNO', NULL, 'bebe@berkeley.edu'),
-('800700600', '1133399', 'Roberta', 'Anderson', 'Department Manager', 'EIIEO', 'joni@gmail.edu', 'joni@berkeley.edu'),
+('800700600', '1133399', 'Roberta', 'Anderson', 'Department Manager', 'EIIEO', 'joni@gmail.edu', '100200300'),
 ('211159', '211159', 'Roland', 'Bestwestern', 'Academic Advisor', 'EDESS', NULL, 'rbestwestern@berkeley.edu'),
 ('100100600', '242881', 'Geert', 'Biederschmitz', 'Harmless Drudge', 'HENGL', NULL, 'geert@berkeley.edu'),
 ('600500400', '1133397', 'Robert', 'Johnson', 'Undergraduate Academic Advisor', 'HOGSP', NULL, 'robertjohnson@berkeley.edu'),
@@ -957,26 +958,26 @@ VALUES
 ('5678901234', :holds_5678901234_V00);
 
 INSERT INTO student.student_profiles
-(sid, profile)
+(sid, profile, profile_summary)
 VALUES
-('11667051', :profile_11667051),
-('2345678901', :profile_2345678901),
-('3456789012', :profile_3456789012),
-('5678901234', :profile_5678901234),
-('7890123456', :profile_7890123456),
-('8901234567', :profile_8901234567),
-('890127492', :profile_890127492),
-('9000000000', :profile_9000000000),
-('9100000000', :profile_9100000000),
-('2718281828', :profile_completed_2718281828),
-('3141592653', :profile_inactive_3141592653);
+('11667051', :profile_11667051, :profile_summary_11667051),
+('2345678901', :profile_2345678901, :profile_summary_2345678901),
+('3456789012', :profile_3456789012, :profile_summary_3456789012),
+('5678901234', :profile_5678901234, :profile_summary_5678901234),
+('7890123456', :profile_7890123456, :profile_summary_7890123456),
+('8901234567', :profile_8901234567, :profile_summary_8901234567),
+('890127492', :profile_890127492, :profile_summary_890127492),
+('9000000000', :profile_9000000000, :profile_summary_9000000000),
+('9100000000', :profile_9100000000, :profile_summary_9100000000),
+('2718281828', :profile_completed_2718281828, :profile_summary_completed_2718281828),
+('3141592653', :profile_inactive_3141592653, :profile_summary_inactive_3141592653);
 
 INSERT INTO student.student_profile_index
 (sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status, hist_enr)
 VALUES
 ('11667051', '61889', 'Deborah', 'Davies', NULL, 3.8, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL, 'active', FALSE),
 ('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4, 'active', FALSE),
-('3456789012', '242881', 'Paul', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5, 'active', FALSE),
+('3456789012', '242881', 'Pauline', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5, 'active', FALSE),
 ('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', NULL, 'active', FALSE),
 ('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202', 2, 'active', FALSE),
 ('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978', 2, 'active', FALSE),
@@ -1012,7 +1013,7 @@ VALUES
 ('2345678901', 'DAVE'),
 ('2345678901', 'DOOLITTLE'),
 ('3456789012', 'KERSCHEN'),
-('3456789012', 'PAUL'),
+('3456789012', 'PAULINE'),
 ('5678901234', 'JAYAPRAKASH'),
 ('5678901234', 'SANDEEP'),
 ('7890123456', 'FARESTVEIT'),

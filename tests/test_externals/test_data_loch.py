@@ -75,7 +75,7 @@ class TestDataLoch:
         assert index['current_term_name'] == 'Fall 2017'
         assert index['future_term_name'] == 'Spring 2018'
 
-    def test_get_student_profiles(self, app):
+    def test_get_student_profiles(self):
         import json
         sid = '11667051'
         student_profiles = data_loch.get_student_profiles([sid])
@@ -83,10 +83,10 @@ class TestDataLoch:
 
         student = student_profiles[0]
         assert student['sid'] == sid
-        assert student['gender'] == 'Different Identity'
-        assert student['minority'] is False
-        sis_profile = json.loads(student_profiles[0]['profile'])['sisProfile']
-        assert sis_profile['academicCareer'] == 'UGRD'
+        profile = json.loads(student['profile'])
+        assert profile['demographics']['gender'] == 'Different Identity'
+        assert profile['demographics']['underrepresented'] is False
+        assert profile['sisProfile']['academicCareer'] == 'UGRD'
 
     def test_get_enrolled_primary_sections(self, app):
         sections = data_loch.get_enrolled_primary_sections('2178', 'MATH1')

@@ -1,0 +1,65 @@
+{
+    "academicCareerStatus": "Active",
+    "advisors": [
+        {
+            "uid": "1133399",
+            "sid": "800700600",
+            "firstName": "Roberta",
+            "lastName": "Anderson",
+            "email": "joni@berkeley.edu",
+            "role": "Minor Advisor",
+            "title": "Department Manager",
+            "program": "Undergrad Engineering",
+            "plan": "Bioengineering UG"
+        },
+        {
+            "uid": "1081940",
+            "sid": "100200300",
+            "firstName": "Loramps",
+            "lastName": "Glub",
+            "email": "blub@berkeley.edu",
+            "role": "Major Advisor",
+            "title": "",
+            "program": "Undergrad Letters & Science",
+            "plan": "English BA"
+        },
+        {
+            "uid": "1081940",
+            "sid": "100200300",
+            "firstName": "Loramps",
+            "lastName": "Glub",
+            "email": "blub@berkeley.edu",
+            "role": "Minor Advisor",
+            "title": "",
+            "program": "Undergrad Letters & Science",
+            "plan": "English UG"
+        }
+    ],
+    "canvasUserId": "10000006",
+    "canvasUserName": "Nora Stanton Barney",
+    "cumulativeGPA": 3.58,
+    "cumulativeUnits": 60,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Nora Stanton",
+    "gender": "Different Identity",
+    "lastName": "Barney",
+    "level": "Sophomore",
+    "majors": [
+        "Engineering Undeclared UG"
+    ],
+    "matriculation": "Summer 2015",
+    "name": "Nora Stanton Barney",
+    "sid": "9100000000",
+    "termsInAttendance": 2,
+    "transfer": true,
+    "uid": "300848",
+    "underrepresented": false
+}

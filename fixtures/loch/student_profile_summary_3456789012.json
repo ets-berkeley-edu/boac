@@ -1,0 +1,45 @@
+
+{
+    "academicCareerStatus": "Active",
+    "advisors": [
+        {
+            "uid": "1081940",
+            "sid": "100200300",
+            "firstName": "Loramps",
+            "lastName": "Glub",
+            "email": "blub@berkeley.edu",
+            "role": "Major Advisor",
+            "title": "",
+            "program": "Undergrad Letters & Science",
+            "plan": "English BA"
+        }
+    ],
+    "canvasUserId": "10000002",
+    "canvasUserName": "Pauline Kerschen",
+    "cumulativeGPA": 3.005,
+    "cumulativeUnits": 70,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Pauline",
+    "gender": "Different Identity",
+    "lastName": "Kerschen",
+    "level": "Junior",
+    "majors": [
+        "English BA",
+        "Political Economy BA"
+    ],
+    "matriculation": "Spring 2015",
+    "name": "Pauline Kerschen",
+    "sid": "3456789012",
+    "termsInAttendance": 5,
+    "transfer": false,
+    "uid": "242881",
+    "underrepresented": true
+}

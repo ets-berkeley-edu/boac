@@ -1,0 +1,43 @@
+{
+    "academicCareerStatus": "Active",
+    "advisors": [
+        {
+            "uid": "1081940",
+            "sid": "100200300",
+            "firstName": "Loramps",
+            "lastName": "Glub",
+            "email": "blub@berkeley.edu",
+            "role": "Minor Advisor",
+            "title": "",
+            "program": "Undergrad Letters & Science",
+            "plan": "Medieval Studies UG"
+        }
+    ],
+    "canvasUserId": "10000003",
+    "canvasUserName": "Sandeep Jayaprakash",
+    "cumulativeGPA": 3.501,
+    "cumulativeUnits": 102,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Sandeep",
+    "gender": "Male",
+    "lastName": "Jayaprakash",
+    "level": "Senior",
+    "majors": [
+        "Letters & Sci Undeclared UG"
+    ],
+    "matriculation": "Summer 2015",
+    "name": "Sandeep Jayaprakash",
+    "sid": "5678901234",
+    "termsInAttendance": null,
+    "transfer": false,
+    "uid": "9933311",
+    "underrepresented": false
+}

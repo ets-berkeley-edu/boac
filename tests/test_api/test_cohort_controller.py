@@ -188,7 +188,7 @@ class TestCohortById:
         assert response.status_code == 404
         assert 'No cohort found' in json.loads(response.data)['message']
 
-    def test_undeclared_major(self, asc_advisor_login, client):
+    def test_undeclared_major(self, asc_advisor_login, client, app):
         """Returns a well-formed response with custom cohort."""
         cohort = all_cohorts_owned_by(asc_advisor_uid)[-1]
         cohort_id = cohort['id']
@@ -555,7 +555,7 @@ class TestCohortsEveryone:
 
 class TestCohortCreate:
 
-    def test_create_cohort(self, client, asc_advisor_login):
+    def test_create_cohort(self, client, asc_advisor_login, app):
         """Creates custom cohort, owned by current user."""
         data = {
             'name': 'Tennis',

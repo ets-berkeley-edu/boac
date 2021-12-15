@@ -56,5 +56,14 @@
         "termsInAttendance": 2,
         "transfer": true
     },
+    "demographics": {
+        "gender": "Female",
+        "ethnicities": [
+            "Japanese / Japanese American"
+        ],
+        "nationalities": [],
+        "underrepresented": true,
+        "visa": null
+    },
     "uid": "300847"
 }

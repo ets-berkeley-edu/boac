@@ -1,0 +1,50 @@
+
+{
+    "academicCareerStatus": "Active",
+    "advisors": [
+        {
+            "uid": "1081940",
+            "sid": "100200300",
+            "firstName": "Loramps",
+            "lastName": "Glub",
+            "email": "blub@berkeley.edu",
+            "role": "Major Advisor",
+            "title": "",
+            "program": "Undergrad Letters & Science",
+            "plan": "English BA"
+        }
+    ],
+    "canvasUserId": "10000001",
+    "canvasUserName": "Dave Doolittle",
+    "cumulativeGPA": 3.495,
+    "cumulativeUnits": 34,
+    "currentTerm": {
+        "unitsMax": 25,
+        "unitsMin": 0
+    },
+    "degrees": null,
+    "expectedGraduationTerm": {
+        "id": "2198",
+        "name": "Fall 2019"
+    },
+    "firstName": "Dave",
+    "gender": "Decline to State",
+    "lastName": "Doolittle",
+    "level": "Junior",
+    "majors": [
+        "Chemistry BS"
+    ],
+    "matriculation": "Summer 2015",
+    "name": "Dave Doolittle",
+    "sid": "2345678901",
+    "termsInAttendance": 4,
+    "transfer": false,
+    "uid": "98765",
+    "underrepresented": true,
+    "withdrawalCancel": {
+        "date": "2017-08-21",
+        "description": "Withdrew",
+        "reason": "Personal",
+        "termId": "2178"
+    }
+}

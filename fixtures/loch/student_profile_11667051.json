@@ -92,5 +92,14 @@
         "termsInAttendance": null,
         "transfer": false
     },
+    "demographics": {
+        "gender": "Different Identity",
+        "ethnicities": [
+            "Chinese / Chinese-American"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
+    },
     "uid": "61889"
 }

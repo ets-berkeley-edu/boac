@@ -187,14 +187,14 @@ class TestStudentSearch:
             assert len(students) == api_json['totalStudentCount'] == 1
             assert students[0]['lastName'] == 'Crossman'
 
-    def test_search_by_name_coe(self, coe_advisor, client):
+    def test_search_by_name_coe(self, coe_advisor, client, app):
         """A COE name search finds all Pauls, including COE-specific data for COE Pauls."""
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['coeProfile']['isActiveCoe'] is True)
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
-        assert next(s for s in students if s['name'] == 'Paul Kerschen' and 'coeProfile' not in s)
+        assert next(s for s in students if s['name'] == 'Pauline Kerschen' and 'coeProfile' not in s)
         for s in students:
             assert 'inIntensiveCohort' not in s.get('athleticsProfile', {})
 
@@ -203,7 +203,7 @@ class TestStudentSearch:
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
-        assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
+        assert next(s for s in students if s['name'] == 'Pauline Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and s['athleticsProfile']['inIntensiveCohort'] is True)
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and 'athleticsProfile' not in s)
         for s in students:
@@ -214,7 +214,7 @@ class TestStudentSearch:
         api_json = _api_search(client, 'Paul', students=True)
         students = api_json['students']
         assert len(students) == 3
-        assert next(s for s in students if s['name'] == 'Paul Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
+        assert next(s for s in students if s['name'] == 'Pauline Kerschen' and s['athleticsProfile']['inIntensiveCohort'] is True)
         assert next(s for s in students if s['name'] == 'Paul Farestveit' and 'athleticsProfile' in s and 'coeProfile' in s)
         assert next(s for s in students if s['name'] == 'Wolfgang Pauli-O\'Rourke' and s['coeProfile']['isActiveCoe'] is False)
 

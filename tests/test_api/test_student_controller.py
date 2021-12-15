@@ -581,8 +581,8 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['gender'] == 'Different Identity'
-            assert student['underrepresented'] is False
+            assert student['demographics']['gender'] == 'Different Identity'
+            assert student['demographics']['underrepresented'] is False
 
             assert 'coeProfile' not in student
             athletics_profile = student['athleticsProfile']
@@ -604,8 +604,8 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['gender'] == 'Female'
-            assert student['underrepresented'] is True
+            assert student['demographics']['gender'] == 'Female'
+            assert student['demographics']['underrepresented'] is True
 
             assert 'inIntensiveCohort' not in student['athleticsProfile']
             assert 'coeProfile' in student
@@ -640,8 +640,8 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['gender'] == 'Different Identity'
-            assert student['underrepresented'] is False
+            assert student['demographics']['gender'] == 'Different Identity'
+            assert student['demographics']['underrepresented'] is False
 
             athletics_profile = student['athleticsProfile']
             assert athletics_profile['inIntensiveCohort'] is True
@@ -738,7 +738,7 @@ class TestPrefixSearch:
         assert len(response.json) == 3
         labels = [s['label'] for s in response.json]
         assert 'Paul Farestveit (7890123456)' in labels
-        assert 'Paul Kerschen (3456789012)' in labels
+        assert 'Pauline Kerschen (3456789012)' in labels
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
 
     def test_student_prefix_search_by_sid(self, client, coe_advisor_login):

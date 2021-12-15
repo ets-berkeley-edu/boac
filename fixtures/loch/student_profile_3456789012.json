@@ -1,9 +1,9 @@
 {
     "canvasUserId": "10000002",
-    "canvasUserName": "Paul Kerschen",
-    "firstName": "Paul",
+    "canvasUserName": "Pauline Kerschen",
+    "firstName": "Pauline",
     "lastName": "Kerschen",
-    "name": "Paul Kerschen",
+    "name": "Pauline Kerschen",
     "sid": "3456789012",
     "sisProfile": {
         "academicCareer": "UGRD",
@@ -62,10 +62,19 @@
                 "status": "Active"
             }
         ],
-        "preferredName": "Paul Kerschen",
-        "primaryName": "Paul Kerschen",
+        "preferredName": "Pauline Kerschen",
+        "primaryName": "Pauline Kerschen",
         "termsInAttendance": 5,
         "transfer": false
+    },
+    "demographics": {
+        "gender": "Different Identity",
+        "ethnicities": [
+            "African-American / Black"
+        ],
+        "nationalities": [],
+        "underrepresented": false,
+        "visa": null
     },
     "uid": "242881"
 }
