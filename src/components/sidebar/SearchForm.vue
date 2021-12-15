@@ -258,7 +258,7 @@
         </b-collapse>
       </div>
       <span
-        v-if="allOptionsUnchecked"
+        v-if="showUncheckedOptionsAlert"
         class="sr-only"
         aria-live="polite"
         role="alert"
@@ -363,10 +363,10 @@ export default {
   },
   computed: {
     allOptionsUnchecked() {
-      return this.showSearchOptions && !this.includeAdmits && !this.includeCourses && !this.includeNotes && !this.includeStudents
+      return !this.includeCourses && !this.includeNotes && !this.includeStudents && (!this.domain.includes('admits') || !this.includeAdmits)
     },
     disabledSearch() {
-      return this.validDateRange === false || (!this.includeCourses && !this.includeNotes && !this.includeStudents)
+      return this.validDateRange === false || this.allOptionsUnchecked
     },
     noteAuthor: {
       get: function() {
@@ -390,6 +390,9 @@ export default {
         this.noteFilters.student ||
         this.noteFilters.topic
       ))
+    },
+    showUncheckedOptionsAlert() {
+      return this.showSearchOptions && this.allOptionsUnchecked
     },
     validDateRange() {
       if (!this.noteFilters.dateFrom || !this.noteFilters.dateTo) {
