@@ -222,7 +222,7 @@ def _curated_group_with_complete_student_profiles(
     if curated_group.domain == 'admitted_students':
         api_json['students'] = get_admitted_students_by_sids(
             limit=limit,
-            offset=offset,
+            offset=0,
             order_by=order_by,
             sids=sids,
         )
