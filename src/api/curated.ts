@@ -62,7 +62,7 @@ export function deleteCuratedGroup(domain, id) {
     })
     .then(() => {
       $_onDelete(domain, id)
-      Vue.prototype.$ga.curatedEvent(id, null, 'delete')
+      $_track('delete')
     })
     .catch(error => error)
 }
@@ -101,7 +101,6 @@ export function removeFromCuratedGroup(groupId, sid) {
       if (group.students) {
         group.students = _.remove(group.students, student => sid === (student.sid || student.csEmplId))
       }
-      Vue.prototype.$ga.curatedEvent(group.id, group.name, 'remove_student')
       return group
     })
 }
@@ -112,7 +111,6 @@ export function renameCuratedGroup(id, name) {
     .then(response => {
       const group = response.data
       $_onUpdate(group)
-      Vue.prototype.$ga.curatedEvent(group.id, group.name, 'rename')
       return group
     })
     .catch(error => error)
