@@ -85,7 +85,7 @@ class CohortFilterOptions:
                 ),
                 _filter('academicCareerStatus', 'Career Status', options=academic_career_status_options()),
                 _filter('colleges', 'College', options=colleges()),
-                _filter('degrees', 'Degree', options=degrees()),
+                _filter('degrees', 'Degree Awarded', options=degrees()),
                 _filter('degreeTerms', 'Degree Term', options=degree_terms()),
                 _filter('enteringTerms', 'Entering Term', options=entering_terms()),
                 _filter('epnCpnGradingTerms', 'EPN/CPN Grading Option', options=grading_terms()),

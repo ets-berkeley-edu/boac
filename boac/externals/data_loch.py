@@ -849,7 +849,7 @@ def get_colleges():
 
 
 def get_distinct_degree_term_ids():
-    return safe_execute_rds(f'SELECT DISTINCT term_id FROM {student_schema()}.student_degrees ORDER BY term_id')
+    return safe_execute_rds(f'SELECT DISTINCT term_id FROM {student_schema()}.student_degrees ORDER BY term_id DESC')
 
 
 def get_distinct_degrees():
