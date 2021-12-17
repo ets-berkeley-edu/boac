@@ -26,8 +26,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from datetime import datetime
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search,\
-    response_with_admits_csv_download, response_with_students_csv_download
+from boac.api.util import advisor_required, is_unauthorized_domain, is_unauthorized_search, response_with_students_csv_download
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
@@ -216,7 +215,7 @@ def download_cohort_csv():
     if cohort and _can_current_user_view_cohort(cohort):
         fieldnames = get_param(params, 'csvColumnsSelected', [])
         sids = CohortFilter.get_sids(cohort['id'])
-        return _response_with_csv_download(benchmark, cohort['domain'], fieldnames, sids)
+        return response_with_students_csv_download(benchmark, cohort['domain'], fieldnames, sids)
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
@@ -247,7 +246,7 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
-    return _response_with_csv_download(benchmark, domain, fieldnames, cohort['sids'])
+    return response_with_students_csv_download(benchmark, domain, fieldnames, cohort['sids'])
 
 
 @app.route('/api/cohort/create', methods=['POST'])
@@ -401,10 +400,3 @@ def _get_filter_db_type_per_key(domain):
         for option in option_group:
             filter_type_per_key[option['key']] = option['type']['db']
     return filter_type_per_key
-
-
-def _response_with_csv_download(benchmark, domain, fieldnames, sids):
-    if domain == 'admitted_students':
-        return response_with_admits_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
-    else:
-        return response_with_students_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)

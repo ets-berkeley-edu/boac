@@ -89,7 +89,7 @@
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pt-0 px-1"
             variant="link"
-            @click.prevent="exportCohort(getCsvExportColumnsSelected())"
+            @click.prevent="exportCohort(getCsvExportColumnsSelected(domain))"
           >
             Export List
           </b-btn>
@@ -103,8 +103,8 @@
           >
             <ExportListModal
               :cancel-export-list-modal="cancelExportCohortModal"
-              :csv-columns-selected="getCsvExportColumnsSelected()"
-              :csv-columns="getCsvExportColumns()"
+              :csv-columns-selected="getCsvExportColumnsSelected(domain)"
+              :csv-columns="getCsvExportColumns(domain)"
               :export-list="exportCohort"
             />
           </b-modal>
@@ -270,17 +270,6 @@ export default {
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
       })
-    },
-    getCsvExportColumns() {
-      if (this.domain === 'default') {
-        return this.getDefaultCsvExportColumns()
-      }
-      return this.getAdmitCsvExportColumns()
-    },
-    getCsvExportColumnsSelected() {
-      return this.domain === 'default' ?
-        ['first_name', 'last_name', 'sid', 'email', 'phone'] :
-        this.$_.map(this.getCsvExportColumns(), 'value')
     },
     submitRename() {
       this.renameError = this.validateCohortName({

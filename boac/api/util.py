@@ -447,7 +447,14 @@ def is_unauthorized_search(filter_keys, order_by=None):
     return False
 
 
-def response_with_students_csv_download(sids, fieldnames, benchmark):
+def response_with_students_csv_download(benchmark, domain, fieldnames, sids):
+    if domain == 'admitted_students':
+        return _response_with_admits_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
+    else:
+        return _response_with_students_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
+
+
+def _response_with_students_csv_download(sids, fieldnames, benchmark):
     term_id_last = previous_term_id(current_term_id())
     term_id_previous = previous_term_id(term_id_last)
     rows = []
@@ -519,7 +526,7 @@ def response_with_students_csv_download(sids, fieldnames, benchmark):
 
 
 @ce3_required
-def response_with_admits_csv_download(sids, fieldnames, benchmark):
+def _response_with_admits_csv_download(sids, fieldnames, benchmark):
     key_aliases = {
         'cs_empl_id': 'sid',
     }
