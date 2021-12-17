@@ -156,11 +156,23 @@
         <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
         <div>
           <b-btn
+            v-if="domain === 'default'"
             id="export-student-list-button"
             v-b-modal="'export-list-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
+          >
+            Export List
+          </b-btn>
+          <b-btn
+            v-if="domain === 'admitted_students'"
+            id="export-student-list-button"
+            v-b-modal="'export-list-modal'"
+            class="px-1"
+            :disabled="!exportEnabled || !totalStudentCount"
+            variant="link"
+            @click.prevent="exportGroup(getCsvExportColumnsSelected(domain))"
           >
             Export List
           </b-btn>
@@ -174,8 +186,8 @@
           >
             <ExportListModal
               :cancel-export-list-modal="cancelExportGroupModal"
-              :csv-columns="getDefaultCsvExportColumns()"
-              :csv-columns-selected="['first_name', 'last_name', 'sid', 'email', 'phone']"
+              :csv-columns="getCsvExportColumns(domain)"
+              :csv-columns-selected="getCsvExportColumnsSelected(domain)"
               :export-list="exportGroup"
             />
           </b-modal>

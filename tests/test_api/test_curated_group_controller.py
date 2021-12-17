@@ -596,6 +596,45 @@ class TestDownloadCuratedGroupCSV:
         )
         assert response.status_code == 403
 
+    def test_download_admits_csv(self, app, client, fake_auth):
+        """Advisor can download CSV of 'admits' group."""
+        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            fake_auth.login(ce3_advisor_uid)
+            curated_group = _api_curated_group_create(
+                client=client,
+                domain='admitted_students',
+                name='Admits, curated',
+                sids=['11667051'],
+            )
+            curated_group_id = curated_group['id']
+            students = _api_get_curated_group(client, curated_group_id)['students']
+            assert len(students) == 1
+            data = {
+                'csvColumnsSelected': [
+                    'act_composite',
+                    'birthdate',
+                    'citizenship_country',
+                    'family_dependents_num',
+                    'gender_identity',
+                    'highest_parent_education_level',
+                    'non_immigrant_visa_current',
+                    'xethnic',
+                ],
+            }
+            response = client.post(
+                f'/api/curated_group/{curated_group_id}/download_csv',
+                data=json.dumps(data),
+                content_type='application/json',
+            )
+            assert response.status_code == 200
+            assert 'csv' in response.content_type
+            csv = str(response.data)
+            for snippet in [
+                'act_composite,birthdate,citizenship_country,family_dependents_num,gender_identity,highest_parent_education_level,non_immigrant_visa_current,xethnic',  # noqa: E501
+                '5,1985-06-02,Greece,05,Male,5 - College Attended,,NotSpecified',
+            ]:
+                assert str(snippet) in csv
+
     def test_download_csv(self, asc_advisor, asc_curated_groups, client):
         """Advisor can download CSV with ALL students of group."""
         data = {

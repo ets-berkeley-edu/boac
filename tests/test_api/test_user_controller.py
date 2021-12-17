@@ -215,7 +215,7 @@ class TestMyCuratedGroups:
             domains = set([c['domain'] for c in curated_groups])
             assert len(domains) == 1
             assert list(domains)[0] == 'admitted_students'
-            assert curated_groups[0]['name'] == "My 'admitted_students' group"
+            next((c for c in curated_groups if c['name'] == "My 'admitted_students' group"), False)
 
 
 class TestCalnetProfileByUid:

@@ -94,6 +94,12 @@ export default {
         {text: 'CEP', value: 'special_program_cep'}
       ]
     },
+    getCsvExportColumns(domain) {
+      return domain === 'default' ? this.getDefaultCsvExportColumns() : this.getAdmitCsvExportColumns()
+    },
+    getCsvExportColumnsSelected(domain) {
+      return domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : this.$_.map(this.getCsvExportColumns(), 'value')
+    },
     getDefaultCsvExportColumns() {
       const lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)
       const previousTermId = this.previousSisTermId(lastTermId)

@@ -116,7 +116,12 @@ def download_csv(curated_group_id):
         raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
     if not _can_current_user_view_curated_group(curated_group):
         raise ForbiddenRequestError(f'Current user, {current_user.get_uid()}, cannot view curated group {curated_group.id}')
-    return response_with_students_csv_download(sids=CuratedGroup.get_all_sids(curated_group_id), fieldnames=fieldnames, benchmark=benchmark)
+    return response_with_students_csv_download(
+        benchmark=benchmark,
+        domain=curated_group.domain,
+        fieldnames=fieldnames,
+        sids=CuratedGroup.get_all_sids(curated_group_id),
+    )
 
 
 @app.route('/api/curated_group/<curated_group_id>/students_with_alerts')
