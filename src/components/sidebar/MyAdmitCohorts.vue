@@ -31,9 +31,8 @@
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-admitted-students-cohort-${cohort.id}`"
-          :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} admitted students`"
+          :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} admits`"
           :path="`/cohort/${cohort.id}`"
-          :query-args="{domain: 'admitted_students'}"
         >
           {{ cohort.name }}
         </NavLink>
@@ -42,7 +41,7 @@
         <span
           :id="`sidebar-admitted-students-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill"
-        >{{ cohort.totalStudentCount }}<span class="sr-only">{{ pluralize('admitted student', cohort.totalStudentCount) }}</span>
+        >{{ cohort.totalStudentCount }}<span class="sr-only">{{ pluralize('admits', cohort.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

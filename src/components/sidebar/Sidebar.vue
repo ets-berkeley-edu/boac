@@ -12,7 +12,7 @@
         <CuratedGroups domain="default" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="myAdmitCohorts || myAdmitCuratedGroups">
+      <div v-if="$currentUser.canAccessAdmittedStudents">
         <div class="ml-2 sidebar-header">
           Admitted Students
         </div>

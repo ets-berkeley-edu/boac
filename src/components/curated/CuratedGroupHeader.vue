@@ -4,7 +4,9 @@
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
-          <span v-if="!$_.isNil(totalStudentCount)" class="faint-text"> ({{ pluralize('student', totalStudentCount, {1: '1'}) }})</span>
+          <span v-if="!$_.isNil(totalStudentCount)" class="faint-text">
+            ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
+          </span>
         </h1>
       </div>
       <div v-if="mode === 'rename'" class="w-100 mr-3">

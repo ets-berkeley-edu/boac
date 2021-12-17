@@ -18,7 +18,7 @@
           <span
             v-if="editMode !== 'apply' && totalStudentCount !== undefined"
             class="faint-text"
-          >{{ pluralize('student', totalStudentCount) }}</span>
+          >{{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount) }}</span>
         </h1>
         <h1 v-if="!cohortName && totalStudentCount !== undefined" id="cohort-results-header">
           {{ pluralize('Result', totalStudentCount) }}
@@ -28,7 +28,7 @@
         <div v-if="cohortId && $_.size(filters)">
           <b-btn
             id="show-hide-details-button"
-            class="no-wrap pr-2 p-0"
+            class="no-wrap pr-1 p-0"
             variant="link"
             @click="toggleShowHideDetails"
           >
