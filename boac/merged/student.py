@@ -471,11 +471,11 @@ def query_students(
             ORDER BY MIN({o}) {o_direction} {o_null_order}, MIN({o_secondary}) NULLS FIRST, MIN({o_tertiary}) NULLS FIRST"""
         if o_tertiary != 'spi.sid':
             sql += ', spi.sid'
-        sql += ' OFFSET :offset'
+        sql += ' OFFSET %(offset)s'
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
-            sql += ' LIMIT :limit'
+            sql += ' LIMIT %(limit)s'
         students_result = data_loch.safe_execute_rds(sql, **query_bindings)
         if include_profiles:
             summary['students'] = get_student_profile_summaries([row['sid'] for row in students_result], term_id=term_id)
@@ -520,7 +520,7 @@ def search_for_students(
         sql += ', spi.sid'
     sql += f' OFFSET {offset}'
     if limit and limit < 100:  # Sanity check large limits
-        sql += ' LIMIT :limit'
+        sql += ' LIMIT %(limit)s'
         query_bindings['limit'] = limit
     benchmark('begin student query')
     result = data_loch.safe_execute_rds(sql, **query_bindings)

@@ -154,11 +154,11 @@ def query_admitted_students(
         sa.updated_at
         {query_tables}
         {query_filter}
-        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id OFFSET :offset"""
+        ORDER BY sa.{order_by}, sa.last_name, sa.first_name, sa.cs_empl_id OFFSET %(offset)s"""
         query_bindings['offset'] = offset
         if limit and limit < 100:  # Sanity check large limits
             query_bindings['limit'] = limit
-            sql += ' LIMIT :limit'
+            sql += ' LIMIT %(limit)s'
         admits = data_loch.safe_execute_rds(sql, **query_bindings)
         summary['students'] = [_to_api_json(row) for row in admits] if admits else None
     return summary

@@ -1,5 +1,5 @@
 autolink==0.1.2
-boto3==1.20.15
+boto3==1.20.24
 decorator==5.1.0
 Flask-Caching==1.10.1
 Flask-Login==0.5.0
@@ -10,29 +10,23 @@ names==0.3.0
 nltk==3.6.5
 pandas==0.25.3
 pprintpp==0.4.0
-psycopg2-binary==2.9.1
+psycopg2-binary==2.9.2
+python-dateutil==2.8.2
+pytz==2021.3
 requests==2.26.0
-simplejson==3.17.5
+simplejson==3.17.6
 smart-open==1.8.3
-SQLAlchemy==1.4.27
+SQLAlchemy==1.4.28
 titlecase==2.3
 Werkzeug==2.0.2
 xmltodict==0.12.0
 zipstream-new==1.1.8
 https://github.com/python-cas/python-cas/archive/master.zip
 
-# Dependencies for pandas 0.23.3. Note that pandas is not included in this requirements.txt file because
-# of potential conflicts during installation; it must be separately installed once its dependencies are
-# in place.
-
-numpy==1.21.4
-python-dateutil==2.8.2
-pytz==2021.3
-
 # For testing
 
-moto==2.2.16
+moto==2.2.19
 pytest==6.2.5
 pytest-flask==1.2.0
-responses==0.15.0
+responses==0.16.0
 tox==3.24.4
