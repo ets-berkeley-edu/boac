@@ -289,14 +289,11 @@ def _academic_standing_to_feed(rows):
     return [_row_to_json(row) for row in rows]
 
 
-def get_academic_standing_by_sid(sids, as_dicts=False):
+def get_academic_standing_by_sid(sids):
     results = data_loch.get_academic_standing(sids)
     academic_standing_feed = {}
     for sid, rows in groupby(results, key=operator.itemgetter('sid')):
-        if as_dicts:
-            academic_standing_feed[sid] = {str(r['term_id']): r['status'] for r in rows}
-        else:
-            academic_standing_feed[sid] = _academic_standing_to_feed(rows)
+        academic_standing_feed[sid] = _academic_standing_to_feed(rows)
     return academic_standing_feed
 
 
@@ -673,7 +670,7 @@ def _construct_student_profile(student):
     if sis_profile and 'level' in sis_profile:
         sis_profile['level']['description'] = _get_sis_level_description(sis_profile)
 
-    academic_standing = get_academic_standing_by_sid([student['sid']], as_dicts=False)
+    academic_standing = get_academic_standing_by_sid([student['sid']])
     if academic_standing:
         profile['academicStanding'] = academic_standing.get(student['sid'])
         academic_standing = {term['termId']: term['status'] for term in profile['academicStanding']}

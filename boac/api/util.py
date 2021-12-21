@@ -35,7 +35,7 @@ from boac.merged import calnet
 from boac.merged.advising_appointment import get_advising_appointments
 from boac.merged.advising_note import get_advising_notes
 from boac.merged.sis_terms import current_term_id
-from boac.merged.student import get_academic_standing_by_sid, get_term_gpas_by_sid
+from boac.merged.student import get_term_gpas_by_sid
 from boac.models.alert import Alert
 from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
@@ -490,20 +490,14 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark):
                 ),
             ),
         ),
-        'academic_standing': lambda profile: profile.get('academicStanding'),
         'transfer': lambda profile: 'Yes' if profile.get('sisProfile', {}).get('transfer') else '',
         'intended_major': lambda profile: ', '.join([
                                                     major.get('description') for major
                                                     in (profile.get('sisProfile', {}).get('intendedMajors') or [])]),
     }
-    academic_standing = get_academic_standing_by_sid(sids, as_dicts=True)
     term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
 
-    def _get_last_element(results):
-        return results[sorted(results)[-1]] if results else None
-
     def _add_row(student_profile):
-        student_profile['academicStanding'] = _get_last_element(academic_standing.get(student_profile['sid']))
         student_profile['termGpa'] = term_gpas.get(student_profile['sid'], {})
         row = {}
         for fieldname in fieldnames:
