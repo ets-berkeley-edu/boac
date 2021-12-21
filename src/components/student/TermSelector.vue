@@ -88,6 +88,7 @@ export default {
         this.selectedTermLabel = this.termNameForSisId(value)
         this.$announcer.polite(`${this.selectedTermLabel} selected`)
         this.$currentUser.preferences.termId = this.selectedTermId
+        this.$eventHub.emit('termId-user-preference-change', value)
       }
     },
     termOptionForId(termId) {
