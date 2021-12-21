@@ -23,14 +23,8 @@
       </b-collapse>
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <div
-          :class="{
-            'justify-content-end': domain === 'admitted_students',
-            'justify-content-between': domain === 'default'
-          }"
-          class="align-items-center d-flex mr-3 pt-1"
-        >
-          <div class="mr-auto">
+        <div class="align-items-center d-flex justify-content-between mr-3 pt-1">
+          <div>
             <CuratedGroupSelector
               :context-description="domain === 'default' ? `Cohort ${cohortName || ''}` : `Admitted Students Cohort ${cohortName || ''}`"
               :domain="domain"
@@ -46,13 +40,16 @@
           </div>
         </div>
         <div v-if="totalStudentCount > pagination.itemsPerPage" class="pt-1">
-          <Pagination
-            :click-handler="goToPage"
-            :init-page-number="pageNumber"
-            :limit="10"
-            :per-page="pagination.itemsPerPage"
-            :total-rows="totalStudentCount"
-          />
+          <hr class="filters-section-separator mr-3" />
+          <div class="mt-3">
+            <Pagination
+              :click-handler="goToPage"
+              :init-page-number="pageNumber"
+              :limit="10"
+              :per-page="pagination.itemsPerPage"
+              :total-rows="totalStudentCount"
+            />
+          </div>
         </div>
         <div v-if="domain === 'default'" id="cohort-students" class="list-group mr-2">
           <StudentRow
