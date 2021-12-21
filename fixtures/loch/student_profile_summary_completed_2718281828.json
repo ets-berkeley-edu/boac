@@ -6,10 +6,6 @@
     "canvasUserName": "Ernest Pontifex",
     "cumulativeGPA": 4,
     "cumulativeUnits": 139,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": [
         {
             "dateAwarded": "2010-05-14",

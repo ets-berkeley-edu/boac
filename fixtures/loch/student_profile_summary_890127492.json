@@ -6,10 +6,6 @@
     "canvasUserName": "Siegfried Schlemiel",
     "cumulativeGPA": 0.4,
     "cumulativeUnits": 8,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": null,
     "expectedGraduationTerm": {
         "id": "2198",

@@ -39,10 +39,6 @@
     "canvasUserName": "John David Crossman",
     "cumulativeGPA": 1.85,
     "cumulativeUnits": 12,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": null,
     "expectedGraduationTerm": {
         "id": "1978",

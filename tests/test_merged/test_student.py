@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from boac.merged import student
+from boac.merged.student import get_course_student_profiles, get_distilled_student_profiles
 
 
 coe_advisor = '1133399'
@@ -32,17 +32,15 @@ coe_advisor = '1133399'
 class TestMergedStudent:
     """Student data, merged."""
 
-    def test_get_course_student_profiles(self, app):
-        profiles = student.get_course_student_profiles('2178', '90100')
+    def test_get_course_student_profiles(self):
+        profiles = get_course_student_profiles('2178', '90100')
 
         assert len(profiles['students']) == 1
-        assert profiles['students'][0]['cumulativeUnits'] == 101.3
-        assert profiles['students'][0]['currentTerm']['unitsMax'] == 25
-        assert profiles['students'][0]['currentTerm']['unitsMin'] == 0
+        assert profiles['students'][0]['sid'] == '11667051'
 
     def test_get_distilled_student_profiles(self):
         """Returns basic profiles of both current and non-current students."""
-        profiles = student.get_distilled_student_profiles(['11667051', '2718281828'])
+        profiles = get_distilled_student_profiles(['11667051', '2718281828'])
         assert len(profiles) == 2
         assert profiles[0]['firstName'] == 'Deborah'
         assert profiles[0]['gender'] == 'Different Identity'
