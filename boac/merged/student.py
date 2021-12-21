@@ -135,8 +135,6 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
-    academic_standing = get_academic_standing_by_sid(sids, as_dicts=True)
-    term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
     all_canvas_sites = {}
     benchmark('begin profile transformation')
     for student in students:
@@ -148,7 +146,6 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
             student['cumulativeUnits'] = sis_profile.get('cumulativeUnits')
             student['degrees'] = sis_profile.get('degrees')
             student['level'] = _get_sis_level_description(sis_profile)
-            student['currentTerm'] = sis_profile.get('currentTerm')
             student['majors'] = _get_active_plan_descriptions(sis_profile)
             student['transfer'] = sis_profile.get('transfer')
         term = enrollments_by_sid.get(student['sid'])
@@ -172,8 +169,6 @@ def get_course_student_profiles(term_id, section_id, offset=None, limit=None, fe
                         if site['canvasCourseId'] not in all_canvas_sites:
                             all_canvas_sites[site['canvasCourseId']] = site
                     continue
-        student['academicStanding'] = academic_standing.get(student['sid'])
-        student['termGpa'] = term_gpas.get(student['sid'])
     benchmark('end profile transformation')
     mean_metrics = analytics.mean_metrics_across_sites(all_canvas_sites.values(), 'courseMean')
     mean_metrics['gpa'] = {}

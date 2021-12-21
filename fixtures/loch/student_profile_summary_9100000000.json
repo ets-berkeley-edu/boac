@@ -39,10 +39,6 @@
     "canvasUserName": "Nora Stanton Barney",
     "cumulativeGPA": 3.58,
     "cumulativeUnits": 60,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": null,
     "expectedGraduationTerm": {
         "id": "2198",

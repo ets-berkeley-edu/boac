@@ -28,10 +28,6 @@
     "canvasUserName": "Paul Farestveit",
     "cumulativeGPA": 3.9,
     "cumulativeUnits": 110,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": null,
     "expectedGraduationTerm": {
         "id": "2202",

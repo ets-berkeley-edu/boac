@@ -95,18 +95,19 @@ class TestCourseController:
         students = response.json['students']
         assert len(students) == 1
         assert response.json['totalStudentCount'] == 1
-        assert students[0]['uid'] == student_uid
-        assert students[0]['sid'] == student_sid
+        assert students[0]['academicCareerStatus'] == 'Active'
+        assert students[0]['cumulativeUnits'] == 101.3
+        assert students[0]['degrees'] is None
         assert students[0]['firstName'] == 'Deborah'
         assert students[0]['lastName'] == 'Davies'
-        assert students[0]['academicStanding']['2182'] == 'GST'
-        assert students[0]['cumulativeGPA'] == 3.8
-        assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['level'] == 'Junior'
-        assert len(students[0]['majors']) == 2
+        assert students[0]['majors'] == ['English BA', 'Nuclear Engineering BS']
+        assert students[0]['name'] == 'Deborah Davies'
+        assert students[0]['sid'] == '11667051'
+        assert students[0]['transfer'] is False
+        assert students[0]['uid'] == '61889'
         assert len(students[0]['enrollment']['canvasSites']) == 1
         assert students[0]['enrollment']['midtermGrade'] == 'D+'
-        assert students[0]['termGpa']['2182'] == 2.9
         assert isinstance(students[0].get('alertCount'), int)
 
     def test_section_student_analytics(self, coe_advisor, client):

@@ -39,10 +39,6 @@
     "canvasUserName": "Oski Bear",
     "cumulativeGPA": 2.3,
     "cumulativeUnits": 55,
-    "currentTerm": {
-        "unitsMax": 25,
-        "unitsMin": 0
-    },
     "degrees": null,
     "expectedGraduationTerm": {
         "id": "2202",
