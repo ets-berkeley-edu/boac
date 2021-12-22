@@ -46,6 +46,9 @@ def get_distilled_student_profiles(sids):
         return []
 
     def distill_profile(profile):
+        demographics = profile.get('demographics') or {}
+        sis_profile = profile.get('sisProfile') or {}
+
         distilled = {
             key: profile.get(key) for key in
             [
@@ -57,15 +60,16 @@ def get_distilled_student_profiles(sids):
                 'uid',
             ]
         }
-        distilled['academicCareerStatus'] = profile['sisProfile'].get('academicCareerStatus')
-        distilled['gender'] = profile['demographics'].get('gender')
-        distilled['termsInAttendance'] = profile['sisProfile'].get('termsInAttendance')
-        distilled['underrepresented'] = profile['demographics'].get('underrepresented')
+        distilled['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
+        distilled['gender'] = demographics.get('gender')
+        distilled['termsInAttendance'] = sis_profile.get('termsInAttendance')
+        distilled['underrepresented'] = demographics.get('underrepresented')
         if profile.get('athleticsProfile'):
             distilled['athleticsProfile'] = profile['athleticsProfile']
         if profile.get('coeProfile'):
             distilled['coeProfile'] = profile['coeProfile']
         return distilled
+
     profiles = get_full_student_profiles(sids)
     return [distill_profile(profile) for profile in profiles]
 
