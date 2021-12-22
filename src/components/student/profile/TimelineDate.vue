@@ -18,27 +18,23 @@ export default {
     includeTimeOfDay: Boolean,
     srPrefix: String
   },
-  data: () => ({
-    datePerTimezone: undefined,
-    dateFormat: undefined,
-    now: new Date(),
-    timeOfDay: undefined
-  }),
-  watch: {
-    date() {
-      this.render()
+  data() {
+    return {
+      now: this.$moment()
     }
   },
-  created() {
-    this.render()
-  },
-  methods: {
-    render() {
-      if (this.date) {
-        const now = this.$moment()
-        this.datePerTimezone = this.$moment(this.date).tz(this.$config.timezone)
-        this.dateFormat = this.datePerTimezone.year() === now.year() ? 'MMM D' : 'MMM D, YYYY'
+  computed: {
+    dateFormat() {
+      if (!this.datePerTimezone) {
+        return null
       }
+      return this.datePerTimezone.year() === this.now.year() ? 'MMM D' : 'MMM D, YYYY'
+    },
+    datePerTimezone() {
+      if (!this.date) {
+        return null
+      }
+      return this.$moment(this.date).tz(this.$config.timezone)
     }
   }
 }
