@@ -146,6 +146,9 @@ export default {
     }
   },
   watch: {
+    domain() {
+      this.setUserPreferenceListener(this.domain)
+    },
     isCompactView() {
       this.showFilters = !this.isCompactView
     }
@@ -176,14 +179,9 @@ export default {
   },
   created() {
     const domain = this.$route.query.domain || 'default'
+    this.setUserPreferenceListener(domain)
     this.$eventHub.on('cohort-apply-filters', () => {
       this.setPagination(1)
-    })
-    const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.$eventHub.on(`${key}-user-preference-change`, () => {
-      if (!this.loading) {
-        this.goToPage(1)
-      }
     })
     this.$eventHub.on('termId-user-preference-change', () => {
       if (!this.loading) {
@@ -207,6 +205,14 @@ export default {
     setPagination(page) {
       this.pageNumber = page
       this.setCurrentPage(this.pageNumber)
+    },
+    setUserPreferenceListener(domain) {
+      const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      this.$eventHub.on(`${key}-user-preference-change`, () => {
+        if (!this.loading) {
+          this.goToPage(1)
+        }
+      })
     },
     toggleShowHistory(value) {
       this.showHistory = value
