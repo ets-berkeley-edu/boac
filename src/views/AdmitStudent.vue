@@ -33,7 +33,7 @@
       <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />
 
       <b-container fluid>
-        <b-row>
+        <b-row class="mt-3 py-2">
           <b-col>
             <b-row>
               <b-col>
@@ -115,10 +115,7 @@
             </b-row>
           </b-col>
         </b-row>
-
-        <hr class="table-separator" />
-
-        <b-row>
+        <b-row class="py-2 row-separator">
           <b-col>
             <b-row>
               <b-col>
@@ -232,10 +229,7 @@
             </b-row>
           </b-col>
         </b-row>
-
-        <hr class="table-separator" />
-
-        <b-row>
+        <b-row class="py-2 row-separator">
           <b-col>
             <b-row>
               <b-col>
@@ -358,9 +352,8 @@ export default {
   vertical-align: top;
   width: 450px;
 }
-.table-separator {
+.row-separator {
   border-top: 1px solid rgb(108, 103, 103);
-  margin: 20px 0 20px 0;
 }
 h2 {
   font-size: 16px;

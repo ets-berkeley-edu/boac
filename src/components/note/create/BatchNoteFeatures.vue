@@ -55,7 +55,7 @@
         :add-object="addCuratedGroupToBatch"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
-        :objects="$currentUser.myCuratedGroups"
+        :objects="$_.filter($currentUser.myCuratedGroups, ['domain', 'default'])"
         :remove-object="removeCuratedGroupFromBatch"
       />
     </div>
