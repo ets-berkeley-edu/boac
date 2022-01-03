@@ -3,10 +3,9 @@
     <Spinner />
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
-      <AdmitDataWarning
-        v-if="domain === 'admitted_students' && students"
-        :updated-at="$_.get(students, '[0].updatedAt')"
-      />
+      <div v-if="domain === 'admitted_students' && students" class="pb-2">
+        <AdmitDataWarning :updated-at="$_.get(students, '[0].updatedAt')" />
+      </div>
       <b-collapse
         id="show-hide-filters"
         v-model="showFilters"

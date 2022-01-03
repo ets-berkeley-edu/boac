@@ -12,7 +12,7 @@
             Cohorts
           </h2>
         </div>
-        <div v-if="!cohorts.length">
+        <div v-if="!cohorts.length" class="mb-3">
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
@@ -22,7 +22,7 @@
       </div>
       <div v-if="$_.filter(curatedGroups, ['domain', 'default']).length">
         <div id="curated-groups-header-row">
-          <h2 class="page-section-header">Curated Groups</h2>
+          <h2 class="mb-0 page-section-header">Curated Groups</h2>
         </div>
         <div
           v-for="curatedGroup in $_.filter(curatedGroups, ['domain', 'default'])"
