@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from contextlib import contextmanager
 from datetime import datetime
 import re
 
@@ -33,15 +34,30 @@ from boac.lib.util import join_if_present, tolerant_remove
 from flask import current_app as app
 import psycopg2
 import psycopg2.extras
+from psycopg2.pool import ThreadedConnectionPool
+
+
+connection_pool = None
 
 
 def safe_execute_rds(string, **kwargs):
-    return _safe_execute(string, **kwargs)
+    global connection_pool
+    if connection_pool is None:
+        connection_pool = ThreadedConnectionPool(1, app.config['DATA_LOCH_MAX_CONNECTIONS'], app.config['DATA_LOCH_RDS_URI'])
+    with cursor_from_pool() as cursor:
+        return _safe_execute(string, cursor, **kwargs)
 
 
-def _safe_execute(sql, **kwargs):
-    connection = psycopg2.connect(app.config['DATA_LOCH_RDS_URI'])
-    cursor = connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+@contextmanager
+def cursor_from_pool():
+    try:
+        connection = connection_pool.getconn()
+        yield connection.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    finally:
+        connection_pool.putconn(connection)
+
+
+def _safe_execute(sql, cursor, **kwargs):
     try:
         ts = datetime.now().timestamp()
         cursor.execute(sql, kwargs)

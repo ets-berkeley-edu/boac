@@ -87,6 +87,7 @@ DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA = 'boac_advising_appointments'
 
 # The Data Loch provides read-only Postgres access.
 DATA_LOCH_RDS_URI = 'postgresql://nessie:secret@secret-rds-url.com:5432/canvas'
+DATA_LOCH_MAX_CONNECTIONS = 50
 
 DATA_LOCH_S3_ADVISING_NOTE_ATTACHMENT_PATH = 'sis-attachment-path'
 DATA_LOCH_S3_ADVISING_NOTE_BUCKET = 'advising-note-bucket'
