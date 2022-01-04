@@ -164,7 +164,6 @@ class TestDataLoch:
         assert attachment[0]['created_by'] == 'UCBCONVERSION'
         assert attachment[0]['sis_file_name'] == '11667051_00001_1.pdf'
         assert attachment[0]['user_file_name'] == 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'
-        assert attachment[0]['is_historical'] is True
 
     def test_get_sis_advising_appointments(self, app):
         appointments = data_loch.get_sis_advising_appointments('11667051')
