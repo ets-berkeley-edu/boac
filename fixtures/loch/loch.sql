@@ -364,8 +364,7 @@ CREATE TABLE sis_advising_notes.advising_note_attachments
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     sis_file_name VARCHAR NOT NULL,
-    user_file_name VARCHAR NOT NULL,
-    is_historical BOOLEAN NOT NULL
+    user_file_name VARCHAR NOT NULL
 );
 
 CREATE TABLE sis_advising_notes.advising_note_topic_mappings (
@@ -828,13 +827,13 @@ VALUES
 ('No Show', 'Ne Scéaw');
 
 INSERT INTO sis_advising_notes.advising_note_attachments
-(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name, is_historical)
+(advising_note_id, sid, attachment_seq_nr, attachment_date, created_by, created_at, updated_at, sis_file_name, user_file_name)
 VALUES
-('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf', TRUE),
-('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg', FALSE),
-('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf', TRUE),
-('9100000000-00010', '9100000000', 1, '2017-10-31', '8901', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9100000000_00010_1.pdf', 'not_a_virus.exe', TRUE),
-('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf', TRUE);
+('11667051-00001', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00001_1.pdf', 'efac7b10-c3f2-11e4-9bbd-ab6a6597d26f.pdf'),
+('11667051-00002', '11667051', 2, '2017-10-31', '1234', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051_00002_2.jpeg', 'brigitte_photo.jpeg'),
+('9000000000-00002', '9000000000', 1, '2017-10-31', '4567', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9000000000_00002_1.pdf', 'dog_eaten_homework.pdf'),
+('9100000000-00010', '9100000000', 1, '2017-10-31', '8901', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '9100000000_00010_1.pdf', 'not_a_virus.exe'),
+('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf');
 
 INSERT INTO sis_advising_notes.student_late_drop_eforms
 (id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)

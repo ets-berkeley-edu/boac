@@ -598,7 +598,7 @@ def get_sis_advising_topics(ids):
 
 
 def get_sis_advising_note_attachment(sid, filename):
-    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, is_historical
+    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name
         FROM {sis_advising_notes_schema()}.advising_note_attachments
         WHERE sid = %(sid)s
         AND sis_file_name = %(filename)s"""
@@ -606,11 +606,9 @@ def get_sis_advising_note_attachment(sid, filename):
 
 
 def get_sis_advising_attachments(ids):
-    # Priority is given to is_historical=FALSE.
-    sql = f"""SELECT advising_note_id, created_by, sis_file_name, user_file_name, MIN(is_historical::int)
+    sql = f"""SELECT DISTINCT advising_note_id, created_by, sis_file_name, user_file_name
         FROM {sis_advising_notes_schema()}.advising_note_attachments
         WHERE advising_note_id=ANY(%(ids)s)
-        GROUP BY advising_note_id, created_by, sis_file_name, user_file_name
         ORDER BY advising_note_id"""
     return safe_execute_rds(sql, ids=ids)
 
