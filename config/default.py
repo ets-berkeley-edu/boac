@@ -74,6 +74,7 @@ CAS_LOGOUT_URL = 'https://auth-test.berkeley.edu/cas/logout'
 CSRF_ENABLED = True
 CSRF_SESSION_KEY = 'secret'
 
+DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA = 'boac_advising_appointments'
 DATA_LOCH_ADVISING_NOTES_SCHEMA = 'boac_advising_notes'
 DATA_LOCH_ADVISOR_SCHEMA = 'boac_advisor'
 DATA_LOCH_ASC_SCHEMA = 'boac_advising_asc'
@@ -81,9 +82,9 @@ DATA_LOCH_BOAC_SCHEMA = 'boac_analytics'
 DATA_LOCH_COE_SCHEMA = 'boac_advising_coe'
 DATA_LOCH_DATA_SCIENCE_ADVISING_SCHEMA = 'boac_advising_data_science'
 DATA_LOCH_E_I_SCHEMA = 'boac_advising_e_i'
-DATA_LOCH_OUA_SCHEMA = 'boac_advising_oua'
+DATA_LOCH_HISTORY_DEPT_ADVISING_SCHEMA = 'boac_advising_history_dept'
 DATA_LOCH_INTERMEDIATE_SCHEMA = 'intermediate'
-DATA_LOCH_ADVISING_APPOINTMENTS_SCHEMA = 'boac_advising_appointments'
+DATA_LOCH_OUA_SCHEMA = 'boac_advising_oua'
 
 # The Data Loch provides read-only Postgres access.
 DATA_LOCH_RDS_URI = 'postgresql://nessie:secret@secret-rds-url.com:5432/canvas'
