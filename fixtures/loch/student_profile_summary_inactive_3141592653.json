@@ -1,5 +1,6 @@
 {
     "academicCareerStatus": "Inactive",
+    "academicStanding": {},
     "advisors": [
         {
             "uid": "1133399",
@@ -52,6 +53,7 @@
     "matriculation": "Fall 2015",
     "name": "Johannes Climacus",
     "sid": "3141592653",
+    "termGpa": [],
     "termsInAttendance": null,
     "transfer": false,
     "uid": "314159",

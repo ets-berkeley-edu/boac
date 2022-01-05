@@ -1,6 +1,11 @@
 
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {
+        "actionDate": "2017-12-30",
+        "status": "GST",
+        "termName": "Fall 2017"
+    },
     "advisors": [
         {
             "uid": "1081940",
@@ -34,6 +39,12 @@
     "matriculation": "Spring 2015",
     "name": "Pauline Kerschen",
     "sid": "3456789012",
+    "termGpa": [
+        {
+            "termName": "Fall 2017",
+            "gpa": 3.2
+        }
+    ],
     "termsInAttendance": 5,
     "transfer": false,
     "uid": "242881",

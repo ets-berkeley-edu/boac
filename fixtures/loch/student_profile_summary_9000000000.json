@@ -1,5 +1,6 @@
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {},
     "advisors": [
         {
             "uid": "1133399",
@@ -54,6 +55,7 @@
     "matriculation": "Summer 2015",
     "name": "Wolfgang Pauli-O'Rourke",
     "sid": "9000000000",
+    "termGpa": [],
     "termsInAttendance": 2,
     "transfer": true,
     "uid": "300847",

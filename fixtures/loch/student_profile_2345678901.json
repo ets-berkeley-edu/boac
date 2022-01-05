@@ -8,6 +8,11 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {
+            "actionDate": "2017-08-15",
+            "status": "GST",
+            "termName": "Summer 2017"
+        },
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.495,
         "cumulativeUnits": 34,
@@ -59,6 +64,16 @@
         ],
         "preferredName": "Dave Doolittle",
         "primaryName": "Dave Doolittle",
+        "termGpa": [
+            {
+                "termName": "Summer 2017",
+                "gpa": 0.0
+            },
+            {
+                "termName": "Spring 2017",
+                "gpa": 3.5
+            }
+        ],
         "termsInAttendance": 4,
         "transfer": false,
         "withdrawalCancel": {

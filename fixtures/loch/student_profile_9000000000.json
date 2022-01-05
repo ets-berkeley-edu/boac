@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {},
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 2.3,
         "cumulativeUnits": 55,
@@ -53,6 +54,7 @@
         ],
         "preferredName": "Wolfgang Pauli-O'Rourke",
         "primaryName": "Wolfgang Pauli-O'Rourke",
+        "termGpa": [],
         "termsInAttendance": 2,
         "transfer": true
     },

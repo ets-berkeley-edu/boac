@@ -6,6 +6,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Inactive",
+        "academicStanding": {},
         "calnetAffiliations": ["FORMER-STUDENT", "SIS-EXTENDED"],
         "cumulativeGPA": 2.784,
         "cumulativeUnits": 149.6,
@@ -74,6 +75,7 @@
         ],
         "preferredName": "Johannes Climacus",
         "primaryName": "Johannes Climacus",
+        "termGpa": [],
         "termsInAttendance": null,
         "transfer": false
     },

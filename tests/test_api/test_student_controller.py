@@ -191,26 +191,16 @@ class TestStudent:
             assert len(student['enrollmentTerms'][3]['enrollments']) == 1
 
     def test_user_feed_academic_standing(self, client, coe_advisor_login):
-        """Includes standalone academic standing feed, in addition to per-term merges."""
+        """Includes most recent academic standing, in addition to per-term merges."""
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert len(student['academicStanding']) == 5
-            assert student['academicStanding'][0] == {
+            assert student['sisProfile']['academicStanding'] == {
                 'actionDate': '2018-05-31',
-                'sid': '11667051',
                 'status': 'GST',
-                'termId': '2182',
                 'termName': 'Spring 2018',
-            }
-            assert student['academicStanding'][1] == {
-                'actionDate': '2017-12-30',
-                'termId': '2178',
-                'termName': 'Fall 2017',
-                'sid': '11667051',
-                'status': 'PRO',
             }
 
     def test_user_feed_earliest_term_cutoff(self, client, coe_advisor_login):

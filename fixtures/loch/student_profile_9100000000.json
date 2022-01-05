@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {},
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.85,
         "cumulativeUnits": 60,
@@ -59,6 +60,7 @@
         ],
         "preferredName": "Nora Stanton Barney",
         "primaryName": "Nora Stanton Barney",
+        "termGpa": [],
         "termsInAttendance": 2,
         "transfer": true
     },

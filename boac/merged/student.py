@@ -252,22 +252,14 @@ def get_student_profile_summaries(sids, term_id=None):
     enrollments_for_term = data_loch.get_enrollments_for_term(term_id, sids)
     benchmark('end enrollments query')
     enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in enrollments_for_term}
-    benchmark('begin academic standing query')
-    academic_standing = get_academic_standing_by_sid(sids)
-    benchmark('end academic standing query')
-    benchmark('begin term GPA query')
-    term_gpas = get_term_gpas_by_sid(sids)
-    benchmark('end term GPA query')
-
-    benchmark('begin profile summary merge')
     for profile in profiles:
-        _merge_enrollments(profile, enrollments=enrollments_by_sid, academic_standing=academic_standing, term_gpas=term_gpas)
-    benchmark('end')
+        _merge_enrollments(profile, enrollments=enrollments_by_sid)
 
+    benchmark('end')
     return profiles
 
 
-def _merge_enrollments(profile_summary, enrollments=None, academic_standing=None, term_gpas=None):
+def _merge_enrollments(profile_summary, enrollments=None):
     if enrollments:
         # Add the singleton term.
         term = enrollments.get(profile_summary['sid'])
@@ -275,10 +267,6 @@ def _merge_enrollments(profile_summary, enrollments=None, academic_standing=None
             if not current_user.can_access_canvas_data:
                 _suppress_canvas_sites(term)
             profile_summary['term'] = term
-    if academic_standing:
-        profile_summary['academicStanding'] = academic_standing.get(profile_summary['sid'])
-    if term_gpas:
-        profile_summary['termGpa'] = term_gpas.get(profile_summary['sid'])
 
 
 def _academic_standing_to_feed(rows):
@@ -313,14 +301,11 @@ def get_student_and_terms_by_uid(uid):
         return _construct_student_profile(student)
 
 
-def get_term_gpas_by_sid(sids, as_dicts=False):
+def get_term_gpas_by_sid(sids):
     results = data_loch.get_term_gpas(sids)
     term_gpa_dict = {}
     for sid, rows in groupby(results, key=operator.itemgetter('sid')):
-        if as_dicts:
-            term_gpa_dict[sid] = {str(r['term_id']): r['gpa'] for r in rows}
-        else:
-            term_gpa_dict[sid] = [{'termName': term_name_for_sis_id(r['term_id']), 'gpa': r['gpa']} for r in rows]
+        term_gpa_dict[sid] = {str(r['term_id']): r['gpa'] for r in rows}
     return term_gpa_dict
 
 
@@ -676,8 +661,7 @@ def _construct_student_profile(student):
 
     academic_standing = get_academic_standing_by_sid([student['sid']])
     if academic_standing:
-        profile['academicStanding'] = academic_standing.get(student['sid'])
-        academic_standing = {term['termId']: term['status'] for term in profile['academicStanding']}
+        academic_standing = {term['termId']: term['status'] for term in academic_standing.get(student['sid'])}
 
     enrollment_results = data_loch.get_enrollments_for_sid(student['sid'], latest_term_id=future_term_id())
     profile['enrollmentTerms'] = merge_enrollment_terms(enrollment_results, academic_standing=academic_standing)

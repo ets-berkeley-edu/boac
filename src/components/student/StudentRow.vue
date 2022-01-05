@@ -123,7 +123,7 @@
           {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | moment('MMM DD, YYYY') }}
         </span>
       </div>
-      <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" :row-index="`row-${rowIndex}`" />
+      <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding" :row-index="`row-${rowIndex}`" />
       <div v-if="student.academicCareerStatus !== 'Completed'">
         <div
           :id="`row-${rowIndex}-student-level`"

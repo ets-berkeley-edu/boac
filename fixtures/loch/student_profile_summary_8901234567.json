@@ -1,5 +1,6 @@
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {},
     "advisors": [
         {
             "uid": "1133399",
@@ -54,6 +55,7 @@
     "matriculation": "Fall 1993",
     "name": "John David Crossman",
     "sid": "8901234567",
+    "termGpa": [],
     "termsInAttendance": 2,
     "transfer": false,
     "uid": "123456",

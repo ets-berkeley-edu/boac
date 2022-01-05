@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {},
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 0.4,
         "cumulativeUnits": 8,
@@ -53,6 +54,7 @@
         ],
         "preferredName": "Siegfried Schlemiel",
         "primaryName": "Siegfried Schlemiel",
+        "termGpa": [],
         "termsInAttendance": 2,
         "transfer": false
     },

@@ -8,6 +8,11 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {
+            "actionDate": "2017-12-30",
+            "status": "GST",
+            "termName": "Fall 2017"
+        },
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.501,
         "cumulativeUnits": 102,
@@ -59,6 +64,12 @@
         ],
         "preferredName": "Sandeep Jayaprakash",
         "primaryName": "Sandeep Jayaprakash",
+        "termGpa": [
+            {
+                "termName": "Fall 2017",
+                "gpa": 2.1
+            }
+        ],
         "termsInAttendance": null,
         "transfer": false
     },

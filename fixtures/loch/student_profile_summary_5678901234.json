@@ -1,5 +1,10 @@
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {
+        "actionDate": "2017-12-30",
+        "status": "GST",
+        "termName": "Fall 2017"
+    },
     "advisors": [
         {
             "uid": "1081940",
@@ -32,6 +37,12 @@
     "matriculation": "Summer 2015",
     "name": "Sandeep Jayaprakash",
     "sid": "5678901234",
+    "termGpa": [
+        {
+            "termName": "Fall 2017",
+            "gpa": 2.1
+        }
+    ],
     "termsInAttendance": null,
     "transfer": false,
     "uid": "9933311",

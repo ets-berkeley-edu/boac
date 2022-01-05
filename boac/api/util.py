@@ -495,7 +495,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark):
                                                     major.get('description') for major
                                                     in (profile.get('sisProfile', {}).get('intendedMajors') or [])]),
     }
-    term_gpas = get_term_gpas_by_sid(sids, as_dicts=True)
+    term_gpas = get_term_gpas_by_sid(sids)
 
     def _add_row(student_profile):
         student_profile['termGpa'] = term_gpas.get(student_profile['sid'], {})

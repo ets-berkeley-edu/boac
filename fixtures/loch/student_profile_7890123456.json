@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Inactive",
+        "academicStanding": {},
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.9,
         "cumulativeUnits": 110,
@@ -53,6 +54,7 @@
         ],
         "preferredName": "Paul Farestveit",
         "primaryName": "Paul Farestveit",
+        "termGpa": [],
         "termsInAttendance": 2,
         "transfer": false
     },
