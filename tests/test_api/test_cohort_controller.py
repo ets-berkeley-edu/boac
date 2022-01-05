@@ -124,7 +124,7 @@ class TestCohortById:
         assert deborah['sid'] == '11667051'
         assert deborah['alertCount'] == 4
         # Summary student data is included with alert counts, but full term feeds are not.
-        assert deborah['academicStanding'][0]['status'] == 'GST'
+        assert deborah['academicStanding']['status'] == 'GST'
         assert deborah['cumulativeGPA'] == 3.8
         assert deborah['cumulativeUnits'] == 101.3
         assert deborah['expectedGraduationTerm']['name'] == 'Fall 2019'
@@ -260,20 +260,10 @@ class TestCohortById:
         response = client.get(f'/api/cohort/{cohort_id}?orderBy=firstName')
         assert response.status_code == 200
         deborah = next(m for m in response.json['students'] if m['firstName'] == 'Deborah')
-        assert len(deborah['academicStanding']) == 5
-        assert deborah['academicStanding'][0] == {
+        assert deborah['academicStanding'] == {
             'actionDate': '2018-05-31',
-            'sid': '11667051',
             'status': 'GST',
-            'termId': '2182',
             'termName': 'Spring 2018',
-        }
-        assert deborah['academicStanding'][1] == {
-            'actionDate': '2017-12-30',
-            'sid': '11667051',
-            'status': 'PRO',
-            'termId': '2178',
-            'termName': 'Fall 2017',
         }
 
     def test_includes_cohort_member_athletics_asc(self, asc_advisor_login, asc_owned_cohort, client):

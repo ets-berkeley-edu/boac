@@ -8,6 +8,11 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {
+            "actionDate": "2017-12-30",
+            "status": "GST",
+            "termName": "Fall 2017"
+        },
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 3.005,
         "cumulativeUnits": 70,
@@ -64,6 +69,12 @@
         ],
         "preferredName": "Pauline Kerschen",
         "primaryName": "Pauline Kerschen",
+        "termGpa": [
+            {
+                "termName": "Fall 2017",
+                "gpa": 3.2
+            }
+        ],
         "termsInAttendance": 5,
         "transfer": false
     },

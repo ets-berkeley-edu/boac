@@ -162,7 +162,7 @@ class TestStudentSearch:
         fake_auth.login('2040')
         api_json = _api_search(client, 'davies', students=True)
         students = api_json['students']
-        assert students[0]['academicStanding'][0]['status'] == 'GST'
+        assert students[0]['academicStanding']['status'] == 'GST'
         assert students[0]['cumulativeGPA'] == 3.8
         assert students[0]['cumulativeUnits'] == 101.3
         assert students[0]['expectedGraduationTerm']['name'] == 'Fall 2019'

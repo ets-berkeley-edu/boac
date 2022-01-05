@@ -1,5 +1,10 @@
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {
+        "actionDate": "2018-05-31",
+        "status": "GST",
+        "termName": "Spring 2018"
+    },
     "advisors": [
         {
             "uid": "1133399",
@@ -45,7 +50,6 @@
         "name": "Fall 2019"
     },
     "firstName": "Deborah",
-    "gender": "Different Identity",
     "lastName": "Davies",
     "level": "Junior",
     "majors": [
@@ -55,8 +59,25 @@
     "matriculation": "Fall 2015",
     "name": "Deborah Davies",
     "sid": "11667051",
+    "termGpa": [
+        {
+            "termName": "Spring 2018",
+            "gpa": 2.9
+        },
+        {
+            "termName": "Fall 2017",
+            "gpa": 1.8
+        },
+        {
+            "termName": "Spring 2017",
+            "gpa": 2.7
+        },
+        {
+            "termName": "Spring 2016",
+            "gpa": 3.8
+        }
+    ],
     "termsInAttendance": null,
     "transfer": false,
-    "uid": "61889",
-    "underrepresented": false
+    "uid": "61889"
 }

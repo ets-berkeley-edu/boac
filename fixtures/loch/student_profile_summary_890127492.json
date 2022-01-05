@@ -1,6 +1,7 @@
 
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {},
     "advisors": [],
     "canvasUserId": "10000004",
     "canvasUserName": "Siegfried Schlemiel",
@@ -21,6 +22,7 @@
     "matriculation": "Summer 2015",
     "name": "Siegfried Schlemiel",
     "sid": "890127492",
+    "termGpa": [],
     "termsInAttendance": 2,
     "transfer": false,
     "uid": "211159",

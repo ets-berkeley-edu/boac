@@ -48,7 +48,7 @@
           <font-awesome icon="graduation-cap" />
         </span>
       </div>
-      <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding[0]" />
+      <StudentAcademicStanding v-if="$_.get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
       <div v-if="!compact">
         <div v-if="student.sisProfile.emailAddress" class="mt-2">
           <a

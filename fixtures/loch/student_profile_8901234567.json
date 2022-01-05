@@ -8,6 +8,7 @@
     "sisProfile": {
         "academicCareer": "UGRD",
         "academicCareerStatus": "Active",
+        "academicStanding": {},
         "calnetAffiliations": ["STUDENT-TYPE-REGISTERED"],
         "cumulativeGPA": 1.85,
         "cumulativeUnits": 12,
@@ -59,6 +60,7 @@
         ],
         "preferredName": "John David Crossman",
         "primaryName": "John David Crossman",
+        "termGpa": [],
         "termsInAttendance": 2,
         "transfer": false
     },

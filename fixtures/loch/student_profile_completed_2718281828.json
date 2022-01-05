@@ -6,6 +6,7 @@
     "sisProfile": {
         "academicCareer": "GRAD",
         "academicCareerStatus": "Completed",
+        "academicStanding": {},
         "calnetAffiliations": ["FORMER-STUDENT"],
         "cumulativeGPA": 4,
         "cumulativeUnits": 139,
@@ -35,6 +36,7 @@
         ],
         "preferredName": "Ernest Pontifex",
         "primaryName": "Ernest Pontifex",
+        "termGpa": [],
         "termsInAttendance": null,
         "transfer": false
     },

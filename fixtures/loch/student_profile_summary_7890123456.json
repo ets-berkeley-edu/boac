@@ -1,5 +1,6 @@
 {
     "academicCareerStatus": "Inactive",
+    "academicStanding": {},
     "advisors": [
         {
             "uid": "1",
@@ -43,6 +44,7 @@
     "matriculation": "Summer 2015",
     "name": "Paul Farestveit",
     "sid": "7890123456",
+    "termGpa": [],
     "termsInAttendance": 2,
     "transfer": false,
     "uid": "1049291",

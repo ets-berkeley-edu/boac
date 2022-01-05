@@ -1,6 +1,7 @@
 
 {
     "academicCareerStatus": "Completed",
+    "academicStanding": {},
     "advisors": [],
     "canvasUserId": "9000100",
     "canvasUserName": "Ernest Pontifex",
@@ -30,6 +31,7 @@
     "matriculation": "Fall 2015",
     "name": "Ernest Pontifex",
     "sid": "2718281828",
+    "termGpa": [],
     "termsInAttendance": null,
     "transfer": false,
     "uid": "27182",

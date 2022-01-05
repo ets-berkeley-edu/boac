@@ -1,6 +1,11 @@
 
 {
     "academicCareerStatus": "Active",
+    "academicStanding": {
+        "actionDate": "2017-08-15",
+        "status": "GST",
+        "termName": "Summer 2017"
+    },
     "advisors": [
         {
             "uid": "1081940",
@@ -33,6 +38,16 @@
     "matriculation": "Summer 2015",
     "name": "Dave Doolittle",
     "sid": "2345678901",
+    "termGpa": [
+        {
+            "termName": "Summer 2017",
+            "gpa": 0.0
+        },
+        {
+            "termName": "Spring 2017",
+            "gpa": 3.5
+        }
+    ],
     "termsInAttendance": 4,
     "transfer": false,
     "uid": "98765",

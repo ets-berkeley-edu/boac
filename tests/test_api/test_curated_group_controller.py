@@ -170,20 +170,10 @@ class TestGetCuratedGroup:
         api_json = _api_get_curated_group(client, asc_curated_groups[0].id)
         students = api_json['students']
         deborah = next(s for s in students if s['firstName'] == 'Deborah')
-        assert len(deborah['academicStanding']) == 5
-        assert deborah['academicStanding'][0] == {
+        assert deborah['academicStanding'] == {
             'actionDate': '2018-05-31',
-            'sid': '11667051',
             'status': 'GST',
-            'termId': '2182',
             'termName': 'Spring 2018',
-        }
-        assert deborah['academicStanding'][1] == {
-            'actionDate': '2017-12-30',
-            'termId': '2178',
-            'termName': 'Fall 2017',
-            'sid': '11667051',
-            'status': 'PRO',
         }
 
     def test_view_permitted_shared_dept(self, asc_curated_groups, authorized_advisor, client):
@@ -366,7 +356,7 @@ class TestGetCuratedGroup:
     def test_group_includes_student_summary(self, asc_advisor, asc_curated_groups, client, create_alerts):
         """Returns summary details but not full term and analytics data."""
         api_json = self._api_students_with_alerts(client, asc_curated_groups[0].id)
-        assert api_json[0]['academicStanding'][0]['status'] == 'GST'
+        assert api_json[0]['academicStanding']['status'] == 'GST'
         assert api_json[0]['cumulativeGPA'] == 3.8
         assert api_json[0]['cumulativeUnits'] == 101.3
         assert api_json[0]['expectedGraduationTerm']['name'] == 'Fall 2019'
