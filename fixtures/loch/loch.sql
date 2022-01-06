@@ -147,10 +147,12 @@ CREATE TABLE boac_advising_e_i.advising_notes
 CREATE TABLE boac_advising_history_dept.advising_notes
 (
     id VARCHAR NOT NULL,
+    advisor_uid VARCHAR NOT NULL,
+    note TEXT,
     sid VARCHAR NOT NULL,
     student_first_name VARCHAR,
     student_last_name VARCHAR,
-    note TEXT
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
 CREATE TABLE boac_advising_e_i.advising_note_topics (
@@ -649,10 +651,10 @@ VALUES
 ('11667051-151620', '151620', '11667051', 'Personal');
 
 INSERT INTO boac_advising_history_dept.advising_notes
-(id, sid, student_first_name, student_last_name, note)
+(id, advisor_uid, note, sid, student_first_name, student_last_name, created_at)
 VALUES
-('1','11667051','Deborah','Davies','History dept note #1'),
-('2','11667051','Deborah','Davies','History dept note #2');
+('history_dept_advising_note_1','82523','History dept note #1','11667051','Deborah','Davies', now()),
+('history_dept_advising_note_2','82523','History dept note #2','11667051','Deborah','Davies', now());
 
 CREATE MATERIALIZED VIEW boac_advising_history_dept.advising_notes_search_index AS (
   SELECT id, to_tsvector('english', COALESCE(note, '')) AS fts_index

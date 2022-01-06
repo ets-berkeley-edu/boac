@@ -102,6 +102,10 @@ def e_i_schema():
     return app.config['DATA_LOCH_E_I_SCHEMA']
 
 
+def history_dept_advising_schema():
+    return app.config['DATA_LOCH_HISTORY_DEPT_ADVISING_SCHEMA']
+
+
 def oua_schema():
     return app.config['DATA_LOCH_OUA_SCHEMA']
 
@@ -524,6 +528,25 @@ def get_e_i_advising_notes(sid):
         WHERE sid=%(sid)s
         AND advisor_last_name <> 'Front Desk'
         ORDER BY created_at, updated_at, id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_history_dept_advising_notes(sid):
+    # TODO: Nessie must provide valid 'created_at' date.
+    sql = f"""
+        SELECT
+            h.id,
+            a.email AS advisor_email,
+            a.first_name || ' ' || a.last_name AS author_name,
+            a.sid AS author_sid,
+            h.advisor_uid AS author_uid,
+            h.note as note_body,
+            h.sid,
+            now() AS created_at,
+            now() AS updated_at
+        FROM {history_dept_advising_schema()}.advising_notes h
+        JOIN {advisor_schema()}.advisor_attributes a ON a.uid = h.advisor_uid
+        WHERE h.sid=%(sid)s"""
     return safe_execute_rds(sql, sid=sid)
 
 

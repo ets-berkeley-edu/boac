@@ -73,6 +73,8 @@ def get_advising_notes(sid):
     notes_by_id.update(get_data_science_advising_notes(sid))
     benchmark('begin E&I advising notes query')
     notes_by_id.update(get_e_i_advising_notes(sid))
+    benchmark('begin History Dept advising notes query')
+    notes_by_id.update(get_history_dept_advising_notes(sid))
     benchmark('begin non legacy advising notes query')
     notes_by_id.update(get_non_legacy_advising_notes(sid))
     benchmark('begin SIS late drop eforms  query')
@@ -145,6 +147,15 @@ def get_e_i_advising_notes(sid):
             topics=legacy_topics.get(note_id),
         )
         notes_by_id[note_id]['legacySource'] = 'CE3'
+    return notes_by_id
+
+
+def get_history_dept_advising_notes(sid):
+    notes_by_id = {}
+    for note in data_loch.get_history_dept_advising_notes(sid):
+        note['dept_code'] = ['SHIST']
+        note['legacySource'] = 'History Dept'
+        notes_by_id[note['id']] = note_to_compatible_json(note=note)
     return notes_by_id
 
 
