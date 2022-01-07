@@ -202,7 +202,7 @@ export default {
       const hasCompletedSection = enrollmentTerm => {
         const enrollments = enrollmentTerm.enrollments
         return enrollments.length && this.$_.find(enrollments, e => {
-          return e.sections.length && this.$_.find(e.sections, section => section.enrollmentStatus === 'E')
+          return this.$_.size(e.sections) && this.$_.find(e.sections, section => section.enrollmentStatus === 'E')
         })
       }
       const mostRecent = this.$_.find(this.student.enrollmentTerms, e => hasCompletedSection(e))
