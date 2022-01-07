@@ -10,7 +10,6 @@
       <StudentAcademicStanding
         v-if="term.academicStanding"
         :standing="term.academicStanding"
-        :term-id="term.termId"
         class="font-size-14"
       />
       <StudentWithdrawalCancel

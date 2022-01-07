@@ -3,8 +3,8 @@
     v-if="$_.get(standing, 'status') && standing.status !== 'GST'"
     class="student-academic-standing"
   >
-    <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${standing.termId}`" class="red-flag-status">
-      {{ $config.academicStandingDescriptions[standing.status] || standing.status }} <span class="text-nowrap">({{ termNameForSisId(standing.termId) }})</span>
+    <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`" class="red-flag-status">
+      {{ $config.academicStandingDescriptions[standing.status] || standing.status }} <span class="text-nowrap">({{ termName }})</span>
     </span>
   </div>
 </template>
@@ -21,6 +21,14 @@ export default {
       type: Object
     },
     rowIndex: String
+  },
+  computed: {
+    termId() {
+      return this.standing.termId || this.sisIdForTermName(this.standing.termName)
+    },
+    termName() {
+      return this.standing.termName || this.termNameForSisId(this.standing.termId)
+    }
   }
 }
 </script>
