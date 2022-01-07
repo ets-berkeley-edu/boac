@@ -154,8 +154,9 @@ def get_history_dept_advising_notes(sid):
     notes_by_id = {}
     for note in data_loch.get_history_dept_advising_notes(sid):
         note['dept_code'] = ['SHIST']
-        note['legacySource'] = 'History Dept'
-        notes_by_id[note['id']] = note_to_compatible_json(note=note)
+        note_id = note['id']
+        notes_by_id[note_id] = note_to_compatible_json(note=note)
+        notes_by_id[note_id]['legacySource'] = 'History Dept'
     return notes_by_id
 
 
