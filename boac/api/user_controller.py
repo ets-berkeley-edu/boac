@@ -505,24 +505,26 @@ def _update_drop_in_availability(uid, dept_code, new_availability):
 
 def _update_or_create_authorized_user(memberships, profile, include_deleted=False):
     user_id = profile.get('id')
+    automate_degree_progress_permission = profile.get('automateDegreeProgressPermission')
     can_access_canvas_data = to_bool_or_none(profile.get('canAccessCanvasData'))
     can_access_advising_data = to_bool_or_none(profile.get('canAccessAdvisingData'))
     degree_progress_permission = profile.get('degreeProgressPermission')
 
-    if degree_progress_permission and 'COENG' not in dept_codes_where_advising({'departments': memberships}):
+    if (automate_degree_progress_permission or degree_progress_permission) and 'COENG' not in dept_codes_where_advising({'departments': memberships}):
         raise errors.BadRequestError('Degree Progress feature is only available to the College of Engineering.')
 
     is_admin = to_bool_or_none(profile.get('isAdmin'))
     is_blocked = to_bool_or_none(profile.get('isBlocked'))
     if user_id:
         return AuthorizedUser.update_user(
-            user_id=user_id,
+            automate_degree_progress_permission=automate_degree_progress_permission,
             can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
             degree_progress_permission=degree_progress_permission,
+            include_deleted=include_deleted,
             is_admin=is_admin,
             is_blocked=is_blocked,
-            include_deleted=include_deleted,
+            user_id=user_id,
         )
     else:
         uid = profile.get('uid')
@@ -532,13 +534,14 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
         calnet_user = calnet.get_calnet_user_for_uid(app, uid, skip_expired_users=True)
         if calnet_user and calnet_user.get('csid', None):
             return AuthorizedUser.create_or_restore(
-                uid=uid,
-                created_by=current_user.get_uid(),
-                is_admin=is_admin,
-                is_blocked=is_blocked,
+                automate_degree_progress_permission=automate_degree_progress_permission,
                 can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
+                created_by=current_user.get_uid(),
                 degree_progress_permission=degree_progress_permission,
+                is_admin=is_admin,
+                is_blocked=is_blocked,
+                uid=uid,
             )
         else:
             raise errors.BadRequestError('Invalid UID')

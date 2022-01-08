@@ -947,19 +947,21 @@ class TestUserUpdate:
     def _profile_object(
             cls,
             uid,
+            automate_degree_progress_permission=False,
             authorized_user_id=None,
-            is_admin=False,
-            is_blocked=False,
             can_access_advising_data=True,
             can_access_canvas_data=True,
+            is_admin=False,
+            is_blocked=False,
     ):
         return {
-            'uid': uid,
+            'automateDegreeProgressPermission': automate_degree_progress_permission,
+            'canAccessAdvisingData': can_access_advising_data,
+            'canAccessCanvasData': can_access_canvas_data,
             'id': authorized_user_id,
             'isAdmin': is_admin,
             'isBlocked': is_blocked,
-            'canAccessAdvisingData': can_access_advising_data,
-            'canAccessCanvasData': can_access_canvas_data,
+            'uid': uid,
         }
 
     @classmethod
@@ -974,9 +976,9 @@ class TestUserUpdate:
         response = client.post(
             '/api/user/create_or_update',
             data=json.dumps({
+                'deleteAction': delete_action,
                 'profile': profile,
                 'memberships': memberships,
-                'deleteAction': delete_action,
             }),
             content_type='application/json',
         )
@@ -1070,10 +1072,10 @@ class TestUserUpdate:
         )
         user = self._api_create_or_update(
             client,
-            profile=self._profile_object(uid=uid),
+            profile=self._profile_object(automate_degree_progress_permission=True, uid=uid),
             memberships=[
                 {
-                    'code': 'QCADV',
+                    'code': 'COENG',
                     'role': 'advisor',
                     'automateMembership': True,
                 },
@@ -1082,10 +1084,11 @@ class TestUserUpdate:
         user_id = user['id']
         assert user_id
         assert user['uid'] == uid
+        assert user['automateDegreeProgressPermission'] is True
 
         departments = user['departments']
         assert len(departments) == 1
-        assert departments[0]['code'] == 'QCADV'
+        assert departments[0]['code'] == 'COENG'
         assert departments[0]['role'] == 'advisor'
         assert departments[0]['automateMembership'] is True
 
