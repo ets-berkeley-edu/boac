@@ -45,17 +45,18 @@ class AuthorizedUser(Base):
     SEARCH_HISTORY_ITEM_MAX_LENGTH = 256
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
-    uid = db.Column(db.String(255), nullable=False, unique=True)
-    is_admin = db.Column(db.Boolean)
-    in_demo_mode = db.Column(db.Boolean, nullable=False)
+    automate_degree_progress_permission = db.Column(db.Boolean, nullable=False)
     can_access_advising_data = db.Column(db.Boolean, nullable=False)
     can_access_canvas_data = db.Column(db.Boolean, nullable=False)
     created_by = db.Column(db.String(255), nullable=False)
     degree_progress_permission = db.Column(generic_permission_type_enum)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    in_demo_mode = db.Column(db.Boolean, nullable=False)
+    is_admin = db.Column(db.Boolean)
     # When True, is_blocked prevents a deleted user from being revived by the automated refresh.
     is_blocked = db.Column(db.Boolean, nullable=False, default=False)
     search_history = deferred(db.Column(ARRAY(db.String), nullable=True))
+    uid = db.Column(db.String(255), nullable=False, unique=True)
     department_memberships = db.relationship(
         'UniversityDeptMember',
         back_populates='authorized_user',
@@ -91,6 +92,7 @@ class AuthorizedUser(Base):
             self,
             uid,
             created_by,
+            automate_degree_progress_permission=False,
             is_admin=False,
             is_blocked=False,
             in_demo_mode=False,
@@ -99,29 +101,31 @@ class AuthorizedUser(Base):
             degree_progress_permission=None,
             search_history=(),
     ):
-        self.uid = uid
-        self.created_by = created_by
-        self.is_admin = is_admin
-        self.is_blocked = is_blocked
-        self.in_demo_mode = in_demo_mode
+        self.automate_degree_progress_permission = automate_degree_progress_permission
         self.can_access_advising_data = can_access_advising_data
         self.can_access_canvas_data = can_access_canvas_data
+        self.created_by = created_by
         self.degree_progress_permission = degree_progress_permission
+        self.in_demo_mode = in_demo_mode
+        self.is_admin = is_admin
+        self.is_blocked = is_blocked
         self.search_history = search_history
+        self.uid = uid
 
     def __repr__(self):
         return f"""<AuthorizedUser {self.uid},
-                    is_admin={self.is_admin},
-                    in_demo_mode={self.in_demo_mode},
+                    automate_degree_progress_permission={self.automate_degree_progress_permission},
                     can_access_advising_data={self.can_access_advising_data},
                     can_access_canvas_data={self.can_access_canvas_data},
-                    degree_progress_permission={self.degree_progress_permission},
-                    search_history={self.search_history},
                     created={self.created_at},
                     created_by={self.created_by},
-                    updated={self.updated_at},
+                    degree_progress_permission={self.degree_progress_permission},
                     deleted={self.deleted_at},
-                    is_blocked={self.is_blocked}>
+                    in_demo_mode={self.in_demo_mode},
+                    is_admin={self.is_admin},
+                    is_blocked={self.is_blocked},
+                    search_history={self.search_history},
+                    updated={self.updated_at}>
                 """
 
     @classmethod
@@ -144,11 +148,12 @@ class AuthorizedUser(Base):
             cls,
             uid,
             created_by,
-            is_admin=False,
-            is_blocked=False,
+            automate_degree_progress_permission=False,
             can_access_advising_data=True,
             can_access_canvas_data=True,
             degree_progress_permission=None,
+            is_admin=False,
+            is_blocked=False,
     ):
         existing_user = cls.query.filter_by(uid=uid).first()
         if existing_user:
@@ -156,39 +161,41 @@ class AuthorizedUser(Base):
                 return False
             # If restoring a previously deleted user, respect passed-in attributes.
             if existing_user.deleted_at:
+                existing_user.automate_degree_progress_permission = automate_degree_progress_permission
                 existing_user.is_admin = is_admin
                 existing_user.is_blocked = is_blocked
                 existing_user.can_access_advising_data = can_access_advising_data
                 existing_user.can_access_canvas_data = can_access_canvas_data
                 existing_user.created_by = created_by
-                if not existing_user.degree_progress_permission:
-                    existing_user.degree_progress_permission = degree_progress_permission
+                existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.deleted_at = None
             # If the user currently exists in a non-deleted state, attributes passed in as True
             # should replace existing attributes set to False, but not vice versa.
             else:
+                if automate_degree_progress_permission and not existing_user.automate_degree_progress_permission:
+                    existing_user.automate_degree_progress_permission = True
                 if can_access_advising_data and not existing_user.can_access_advising_data:
                     existing_user.can_access_advising_data = True
                 if can_access_canvas_data and not existing_user.can_access_canvas_data:
                     existing_user.can_access_canvas_data = True
-                if not existing_user.degree_progress_permission:
-                    existing_user.degree_progress_permission = degree_progress_permission
                 if is_admin and not existing_user.is_admin:
                     existing_user.is_admin = True
                 if is_blocked and not existing_user.is_blocked:
                     existing_user.is_blocked = True
+                existing_user.degree_progress_permission = degree_progress_permission
                 existing_user.created_by = created_by
             user = existing_user
         else:
             user = cls(
-                uid=uid,
-                created_by=created_by,
-                is_admin=is_admin,
-                is_blocked=is_blocked,
-                in_demo_mode=False,
+                automate_degree_progress_permission=automate_degree_progress_permission,
                 can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
+                created_by=created_by,
                 degree_progress_permission=degree_progress_permission,
+                in_demo_mode=False,
+                is_admin=is_admin,
+                is_blocked=is_blocked,
+                uid=uid,
             )
         db.session.add(user)
         std_commit()
@@ -317,6 +324,7 @@ class AuthorizedUser(Base):
     def update_user(
         cls,
         user_id,
+        automate_degree_progress_permission=None,
         can_access_advising_data=False,
         can_access_canvas_data=False,
         degree_progress_permission=None,
@@ -325,6 +333,8 @@ class AuthorizedUser(Base):
         include_deleted=False,
     ):
         user = AuthorizedUser.find_by_id(user_id, include_deleted)
+        if automate_degree_progress_permission is not None:
+            user.automate_degree_progress_permission = automate_degree_progress_permission
         user.can_access_advising_data = can_access_advising_data
         user.can_access_canvas_data = can_access_canvas_data
         user.degree_progress_permission = degree_progress_permission

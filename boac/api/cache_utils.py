@@ -171,14 +171,20 @@ def refresh_department_memberships():
     for dept in depts:
         for membership in dept.memberships_from_loch():
             # A non-numeric "uid" indicates a row from SIS advising tables best ignored.
-            if not re.match(r'^\d+$', membership['uid']):
+            uid = membership['uid']
+            if not re.match(r'^\d+$', uid):
                 continue
+            user = AuthorizedUser.find_by_uid(uid)
+            if user and not user.automate_degree_progress_permission:
+                degree_progress_permission = user.degree_progress_permission
+            else:
+                degree_progress_permission = membership['degree_progress_permission']
             user = AuthorizedUser.create_or_restore(
-                uid=membership['uid'],
-                created_by='0',
                 can_access_advising_data=membership['can_access_advising_data'],
                 can_access_canvas_data=membership['can_access_canvas_data'],
-                degree_progress_permission=membership['degree_progress_permission'],
+                created_by='0',
+                degree_progress_permission=degree_progress_permission,
+                uid=uid,
             )
             if user:
                 UniversityDeptMember.create_or_update_membership(

@@ -243,8 +243,7 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
 
         profile.update({
             'id': user.id,
-            'isAdmin': user.is_admin,
-            'isBlocked': user.is_blocked,
+            'automateDegreeProgressPermission': user.automate_degree_progress_permission,
             'canAccessAdvisingData': user.can_access_advising_data,
             'canAccessCanvasData': user.can_access_canvas_data,
             'canEditDegreeProgress': user.degree_progress_permission == 'read_write' or user.is_admin,
@@ -252,6 +251,8 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
             'degreeProgressPermission': user.degree_progress_permission,
             'deletedAt': _isoformat(user.deleted_at),
             'departments': [],
+            'isAdmin': user.is_admin,
+            'isBlocked': user.is_blocked,
         })
         for m in user.department_memberships:
             profile['departments'].append({

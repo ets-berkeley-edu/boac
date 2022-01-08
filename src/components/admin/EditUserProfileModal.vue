@@ -89,6 +89,14 @@
                       {value: 'read_write', text: 'Read and write'}
                     ]"
                   />
+                  <div class="d-flex pl-1 pt-2">
+                    <div class="pl-1">
+                      <b-form-checkbox id="automate-degree-progress-permission" v-model="userProfile.automateDegreeProgressPermission"></b-form-checkbox>
+                    </div>
+                    <div>
+                      <label for="automate-degree-progress-permission">Automate Degree Progress permissions</label>
+                    </div>
+                  </div>
                 </div>
               </b-col>
             </b-row>
@@ -271,6 +279,7 @@ export default {
         id: this.profile.id,
         uid: this.profile.uid,
         name: this.profile.name,
+        automateDegreeProgressPermission: this.profile.automateDegreeProgressPermission,
         canAccessAdvisingData: this.profile.canAccessAdvisingData,
         canAccessCanvasData: this.profile.canAccessCanvasData,
         degreeProgressPermission: this.profile.degreeProgressPermission || null,

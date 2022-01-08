@@ -256,6 +256,7 @@ CREATE TYPE generic_permission_types AS ENUM ('read', 'read_write');
 --
 
 CREATE TABLE authorized_users (
+    automate_degree_progress_permission BOOLEAN DEFAULT FALSE NOT NULL,
     can_access_advising_data boolean DEFAULT true NOT NULL,
     can_access_canvas_data boolean DEFAULT true NOT NULL,
     created_at timestamp with time zone NOT NULL,
