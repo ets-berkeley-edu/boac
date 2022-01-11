@@ -38,6 +38,7 @@ import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
 
 os.environ['BOAC_ENV'] = 'test'  # noqa
+os.environ['EC2_INSTANCE_ID'] = 'test: EC2_INSTANCE_ID'  # noqa
 
 
 class FakeAuth(object):
