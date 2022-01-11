@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
+import os
 
 from boac import __version__ as version
 from boac.api.errors import BadRequestError
@@ -60,6 +61,7 @@ def app_config():
         'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
+        'ec2InstanceId': os.environ.get('EC2_INSTANCE_ID'),
         'featureFlagAdmittedStudents': app.config['FEATURE_FLAG_ADMITTED_STUDENTS'],
         'fixedWarningOnAllPages': app.config['FIXED_WARNING_ON_ALL_PAGES'],
         'futureTermId': int(future_term_id()),

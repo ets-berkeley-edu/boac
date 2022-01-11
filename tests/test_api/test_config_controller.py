@@ -61,6 +61,7 @@ class TestConfigController:
         data = response.json
         assert data['currentEnrollmentTermId'] == 2178
         assert data['ebEnvironment'] is None
+        assert data['ec2InstanceId'] == 'test: EC2_INSTANCE_ID'
         assert data['futureTermId'] == 2182
         assert data['googleAnalyticsId'] == 'UA-XXX-X'
         assert '@' in data['supportEmailAddress']
