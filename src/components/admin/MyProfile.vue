@@ -10,7 +10,7 @@
         {{ key }}
       </b-col>
       <b-col>
-        {{ value }}
+        <span v-html="value" />
       </b-col>
     </b-row>
     <b-row align-v="start" class="p-2">
@@ -62,9 +62,17 @@ export default {
       'Campus Solutions ID': this.$currentUser.csid,
       Email: this.$currentUser.email
     }
-    if (this.$currentUser.degreeProgressPermission) {
-      const permission = this.$_.capitalize(this.$currentUser.degreeProgressPermission.replace('_', '/'))
-      this.profile['Degree Progress'] = `${permission} permission`
+    const memberships = []
+    this.$_.each(this.$currentUser.departments, d => {
+      if (d.role) {
+        memberships.push({code: d.code, role: d.role})
+      }
+    })
+    const permission = this.$currentUser.degreeProgressPermission
+    if (this.isCoe({departments: memberships}) || permission) {
+      const permission = permission && this.$_.capitalize(permission.replace('_', '/'))
+      const automated = this.$currentUser.automateDegreeProgressPermission
+      this.profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
     }
   },
   methods: {

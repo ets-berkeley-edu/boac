@@ -185,6 +185,7 @@ class UserSession(UserMixin):
             **(calnet_profile or {}),
             **{
                 'id': user and user.id,
+                'automateDegreeProgressPermission': user and user.automate_degree_progress_permission,
                 'canAccessAdmittedStudents': app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] and can_access_ce3_features,
                 'canAccessAdvisingData': user and user.can_access_advising_data,
                 'canAccessCanvasData': user and user.can_access_canvas_data,
