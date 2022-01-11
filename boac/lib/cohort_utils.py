@@ -73,6 +73,7 @@ def academic_career_status_options():
     return [
         {'name': 'Active', 'value': 'active'},
         {'name': 'Inactive', 'value': 'inactive'},
+        {'name': 'Completed', 'value': 'completed'},
     ]
 
 

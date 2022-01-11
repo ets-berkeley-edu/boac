@@ -999,7 +999,8 @@ VALUES
 ('9000000000', :profile_9000000000, :profile_summary_9000000000),
 ('9100000000', :profile_9100000000, :profile_summary_9100000000),
 ('2718281828', :profile_completed_2718281828, :profile_summary_completed_2718281828),
-('3141592653', :profile_inactive_3141592653, :profile_summary_inactive_3141592653);
+('3141592653', :profile_inactive_3141592653, :profile_summary_inactive_3141592653),
+('9191919191', :profile_inactive_9191919191, :profile_summary_inactive_9191919191);
 
 INSERT INTO student.student_profile_index
 (sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status, hist_enr)
