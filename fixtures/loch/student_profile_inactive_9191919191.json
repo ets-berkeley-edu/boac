@@ -1,0 +1,16 @@
+{
+    "firstName": "Paul",
+    "lastName": "Tarsus",
+    "name": "Paul Tarsus",
+    "sid": "9191919191",
+    "sisProfile": {
+        "academicCareer": "UGRD",
+        "academicCareerStatus": "Inactive",
+        "academicStanding": {},
+        "calnetAffiliations": ["FORMER-STUDENT", "SIS-EXTENDED"],
+        "currentRegistration": null,
+        "degreeProgress": null,
+        "emailAddress": null
+    },
+    "uid": "191919"
+}

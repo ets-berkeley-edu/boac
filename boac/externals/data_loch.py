@@ -986,14 +986,7 @@ def get_students_query(     # noqa
     if not query_tables:
         return None, None, None
 
-    if not academic_career_status:
-        academic_career_status = ('active',)
-    if 'inactive' in academic_career_status and 'active' in academic_career_status:
-        query_filter = ' WHERE TRUE'
-    elif 'inactive' in academic_career_status:
-        query_filter = " WHERE spi.academic_career_status != 'active'"
-    else:
-        query_filter = " WHERE spi.academic_career_status = 'active'"
+    query_filter = _filter_from_academic_career_status(academic_career_status, degree_terms, degrees)
 
     query_bindings = {}
 
@@ -1190,6 +1183,30 @@ def get_students_query(     # noqa
     elif is_active_coe is True:
         query_filter += " AND s.status NOT IN ('D','P','U','W','X','Z')"
     return query_tables, query_filter, query_bindings
+
+
+def _filter_from_academic_career_status(academic_career_status, degree_terms, degrees):
+    # Academic career status defaults to active-only unless the query includes degree criteria.
+    if not academic_career_status:
+        if degree_terms or degrees:
+            academic_career_status = ('all',)
+        else:
+            academic_career_status = ('active',)
+
+    if 'all' in academic_career_status:
+        _filter = ' WHERE TRUE'
+    else:
+        filters = []
+        if 'active' in academic_career_status:
+            filters.append("spi.academic_career_status = 'active'")
+        # The "inactive" cohort filter option includes null academic career status.
+        if 'inactive' in academic_career_status:
+            filters.append("spi.academic_career_status = 'inactive' OR spi.academic_career_status IS NULL")
+        if 'completed' in academic_career_status:
+            filters.append("spi.academic_career_status = 'completed'")
+        _filter = f" WHERE ({' OR '.join(filters)})"
+
+    return _filter
 
 
 def get_students_ordering(current_term_id, order_by=None, group_codes=None, majors=None, scope=None):

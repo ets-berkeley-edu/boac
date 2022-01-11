@@ -736,13 +736,13 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012'}
 
-    def test_inactive_students_cohort(self, admin_login, client, fake_auth):
-        """Can find inactive English majors on request."""
+    def test_completed_students_cohort(self, admin_login, client, fake_auth):
+        """Can find completed English majors on request."""
         data = {
-            'name': 'English Inactive',
+            'name': 'English Completed',
             'filters': [
                 {'key': 'majors', 'value': 'English BA'},
-                {'key': 'academicCareerStatus', 'value': 'inactive'},
+                {'key': 'academicCareerStatus', 'value': 'completed'},
             ],
         }
         cohort = api_cohort_create(client, data)
@@ -750,20 +750,33 @@ class TestCohortCreate:
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'2718281828'}
 
-    def test_active_and_inactivate_students_cohort(self, admin_login, client, fake_auth):
-        """Can find active and inactive English majors on request."""
+    def test_active_and_completed_students_cohort(self, admin_login, client, fake_auth):
+        """Can find active and completed English majors on request."""
         data = {
             'name': 'English All',
             'filters': [
                 {'key': 'majors', 'value': 'English BA'},
                 {'key': 'academicCareerStatus', 'value': 'active'},
-                {'key': 'academicCareerStatus', 'value': 'inactive'},
+                {'key': 'academicCareerStatus', 'value': 'completed'},
             ],
         }
         cohort = api_cohort_create(client, data)
         assert len(cohort['students']) == 3
         sids = [s['sid'] for s in cohort['students']]
         assert set(sids) == {'11667051', '3456789012', '2718281828'}
+
+    def test_inactive_students_cohort(self, admin_login, client, fake_auth):
+        """Can find inactive students on request."""
+        data = {
+            'name': 'Inactive',
+            'filters': [
+                {'key': 'academicCareerStatus', 'value': 'inactive'},
+            ],
+        }
+        cohort = api_cohort_create(client, data)
+        assert len(cohort['students']) == 2
+        sids = [s['sid'] for s in cohort['students']]
+        assert set(sids) == {'3141592653', '9191919191'}
 
 
 class TestCohortUpdate:
@@ -1116,7 +1129,6 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {'key': 'academicCareerStatus', 'value': 'inactive'},
                     {'key': 'degrees', 'value': 'Philosophy BA'},
                 ],
             },
@@ -1130,7 +1142,6 @@ class TestCohortPerFilters:
             client,
             {
                 'filters': [
-                    {'key': 'academicCareerStatus', 'value': 'inactive'},
                     {'key': 'degreeTerms', 'value': '2202'},
                 ],
             },
