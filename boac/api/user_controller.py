@@ -516,7 +516,7 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
     is_admin = to_bool_or_none(profile.get('isAdmin'))
     is_blocked = to_bool_or_none(profile.get('isBlocked'))
     if user_id:
-        return AuthorizedUser.update_user(
+        user = AuthorizedUser.update_user(
             automate_degree_progress_permission=automate_degree_progress_permission,
             can_access_advising_data=can_access_advising_data,
             can_access_canvas_data=can_access_canvas_data,
@@ -526,6 +526,8 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
             is_blocked=is_blocked,
             user_id=user_id,
         )
+        UserSession.flush_cache_for_id(user_id=user_id)
+        return user
     else:
         uid = profile.get('uid')
         if AuthorizedUser.get_id_per_uid(uid, include_deleted=True):
