@@ -532,7 +532,6 @@ def get_e_i_advising_notes(sid):
 
 
 def get_history_dept_advising_notes(sid):
-    # TODO: Nessie must provide valid 'created_at' date.
     sql = f"""
         SELECT
             h.id,
@@ -542,8 +541,8 @@ def get_history_dept_advising_notes(sid):
             h.advisor_uid AS author_uid,
             h.note as note_body,
             h.sid,
-            now() AS created_at,
-            now() AS updated_at
+            h.created_at,
+            h.created_at AS updated_at
         FROM {history_dept_advising_schema()}.advising_notes h
         JOIN {advisor_schema()}.advisor_attributes a ON a.uid = h.advisor_uid
         WHERE h.sid=%(sid)s"""
