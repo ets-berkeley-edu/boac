@@ -530,6 +530,8 @@ class TestGetStudentDegreeChecks:
         degree_checks = self._api_get_degree_checks(client, uid=coe_student_uid)
         assert degree_checks[0]['id'] == expected_current_id
         assert degree_checks[0]['isCurrent'] is True
+        assert degree_checks[0]['createdByName'] is not None
+        assert degree_checks[0]['updatedByName'] is not None
         assert degree_checks[1]['isCurrent'] is False
         assert degree_checks[2]['isCurrent'] is False
 

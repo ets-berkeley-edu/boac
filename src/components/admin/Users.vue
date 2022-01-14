@@ -171,7 +171,7 @@
         </b-btn>
       </template>
       <template v-slot:cell(uid)="row">
-        <span class="sr-only">U I D</span>
+        <span class="sr-only">U I D </span>
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
       <template v-slot:cell(edit)="row">
