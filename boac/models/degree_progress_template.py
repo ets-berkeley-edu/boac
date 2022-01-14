@@ -123,10 +123,13 @@ class DegreeProgressTemplate(Base):
     def find_by_sid(cls, student_sid):
         sql = text(f"""
             SELECT
-              d.id, d.created_at, d.degree_name, d.created_by, d.parent_template_id, d.student_sid, d.updated_at, d.updated_by,
+              d.id, d.created_at, d.degree_name, d.created_by, au1.uid AS created_by_uid, d.parent_template_id,
+              d.student_sid, d.updated_at, d.updated_by, au2.uid AS updated_by_uid,
               t.updated_at AS parent_template_updated_at, t.deleted_at AS parent_template_deleted_at
             FROM degree_progress_templates d
             JOIN degree_progress_templates t ON t.id = d.parent_template_id
+            JOIN authorized_users au1 ON au1.id = d.created_by
+            JOIN authorized_users au2 ON au2.id = d.updated_by
             WHERE d.student_sid = '{student_sid}' AND d.deleted_at IS NULL
             ORDER BY d.updated_at DESC
         """)
@@ -136,8 +139,10 @@ class DegreeProgressTemplate(Base):
             has_parent = row['parent_template_deleted_at'] is None
             api_json.append({
                 **_row_to_simple_json(row),
+                'createdByUid': row['created_by_uid'],
                 'isCurrent': index == 0,
                 'parentTemplateUpdatedAt': _isoformat(row['parent_template_updated_at']) if has_parent else None,
+                'updatedByUid': row['updated_by_uid'],
             })
         return api_json
 

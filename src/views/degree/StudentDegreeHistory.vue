@@ -58,7 +58,7 @@
           </template>
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">
-              {{ advisorNamesById[row.item.updatedBy] }}
+              {{ row.item.updatedByName || '&mdash;' }}
             </div>
           </template>
           <template #cell(parentTemplateUpdatedAt)="row">
@@ -89,7 +89,6 @@ import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
-import {getCalnetProfileByUserId} from '@/api/user'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
 
@@ -98,7 +97,6 @@ export default {
   components: {Spinner, StudentProfileHeader},
   mixins: [Context, Loading, Util],
   data: () => ({
-    advisorNamesById: undefined,
     degreeChecks: undefined,
     student: undefined
   }),
@@ -110,11 +108,6 @@ export default {
     }
     getStudentByUid(uid, true).then(data => {
       this.student = data
-      const done = () => {
-        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
-        this.loaded(`${studentName} Degree History`)
-      }
-      this.advisorNamesById = {}
       getDegreeChecks(uid).then(data => {
         this.degreeChecks = data
         this.$_.each(this.degreeChecks, degreeCheck => {
@@ -124,19 +117,8 @@ export default {
             degreeCheck.showRevisionIndicator = false
           }
         })
-        const uniqueUserIds = this.$_.uniq(this.$_.map(data, 'updatedBy'))
-        if (uniqueUserIds.length) {
-          this.$_.each(uniqueUserIds, userId => {
-            getCalnetProfileByUserId(userId).then(data => {
-              this.advisorNamesById[userId] = data.name || `${data.uid} (UID)`
-              if (userId === this.$_.last(uniqueUserIds)) {
-                done()
-              }
-            })
-          })
-        } else {
-          done()
-        }
+        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+        this.loaded(`${studentName} Degree History`)
       })
     })
   }

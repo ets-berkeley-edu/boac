@@ -31,6 +31,7 @@ from boac.api.util import can_edit_degree_progress, can_read_degree_progress, no
 from boac.externals.data_loch import get_basic_student_data, get_sid_by_uid
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, is_int, to_bool_or_none, to_int_or_none
+from boac.merged import calnet
 from boac.models.degree_progress_category import DegreeProgressCategory
 from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_course_unit_requirement import DegreeProgressCourseUnitRequirement
@@ -230,7 +231,15 @@ def assign_course(course_id):
 def get_degree_checks(uid):
     sid = get_sid_by_uid(uid)
     if sid:
-        return tolerant_jsonify(DegreeProgressTemplate.find_by_sid(student_sid=sid))
+        degrees = DegreeProgressTemplate.find_by_sid(student_sid=sid)
+        uids = list(set([d['createdByUid'] for d in degrees] + [d['updatedByUid'] for d in degrees]))
+        calnet_users_by_uid = calnet.get_calnet_users_for_uids(app, uids)
+        for degree in degrees:
+            def _get_name(uid):
+                return calnet_users_by_uid[uid]['name'] if uid in calnet_users_by_uid else None
+            degree['createdByName'] = _get_name(degree['createdByUid'])
+            degree['updatedByName'] = _get_name(degree['updatedByUid'])
+        return tolerant_jsonify(degrees)
     else:
         raise ResourceNotFoundError('Student not found')
 
