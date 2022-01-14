@@ -462,8 +462,7 @@ CREATE TABLE student.student_degrees
     sid VARCHAR NOT NULL,
     plan VARCHAR NOT NULL,
     date_awarded DATE NOT NULL,
-    term_id VARCHAR NOT NULL,
-    hist_enr BOOLEAN NOT NULL
+    term_id VARCHAR NOT NULL
 );
 
 CREATE TABLE student.student_holds
@@ -493,8 +492,7 @@ CREATE TABLE student.student_profile_index
     entering_term VARCHAR(4),
     expected_grad_term VARCHAR(4),
     terms_in_attendance INT,
-    academic_career_status VARCHAR,
-    hist_enr BOOLEAN
+    academic_career_status VARCHAR
 );
 
 CREATE TABLE student.student_majors
@@ -974,11 +972,11 @@ VALUES
 ('11667051', 'Physics UG');
 
 INSERT INTO student.student_degrees
-(sid, plan, date_awarded, term_id, hist_enr)
+(sid, plan, date_awarded, term_id)
 VALUES
-('9100000000', 'Electrical Eng & Comp Sci BS', '2021-05-16', '2212', TRUE),
-('2718281828', 'Nuclear Engineering BS', '2020-05-16', '2202', TRUE),
-('3141592653', 'Philosophy BA', '2020-05-16', '2202', TRUE);
+('9100000000', 'Electrical Eng & Comp Sci BS', '2021-05-16', '2212'),
+('2718281828', 'Nuclear Engineering BS', '2020-05-16', '2202'),
+('3141592653', 'Philosophy BA', '2020-05-16', '2202');
 
 INSERT INTO student.student_holds
 (sid, feed)
@@ -1003,20 +1001,20 @@ VALUES
 ('9191919191', :profile_inactive_9191919191, :profile_summary_inactive_9191919191);
 
 INSERT INTO student.student_profile_index
-(sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status, hist_enr)
+(sid, uid, first_name, last_name, level, gpa, units, transfer, email_address, entering_term, expected_grad_term, terms_in_attendance, academic_career_status)
 VALUES
-('11667051', '61889', 'Deborah', 'Davies', NULL, 3.8, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL, 'active', FALSE),
-('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4, 'active', FALSE),
-('3456789012', '242881', 'Pauline', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5, 'active', FALSE),
-('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', NULL, 'active', FALSE),
-('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202', 2, 'active', FALSE),
-('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978', 2, 'active', FALSE),
-('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192', 2, 'active', FALSE),
-('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202', 2, 'active', FALSE),
-('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2, 'active', FALSE),
-('2718281828', '271828', 'Ernest', 'Pontifex', 'GR', 4, 139, FALSE, 'ep@berkeley.edu', '2048', '2102', 12, 'completed', TRUE),
-('3141592653', '314159', 'Johannes', 'Climacus', '40', 2.784, 149.6, FALSE, 'jc@berkeley.edu', '2155', '2118', 9, 'inactive', TRUE),
-('9191919191', '191919', 'Paul', 'Tarsus', NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL, 'inactive', TRUE);
+('11667051', '61889', 'Deborah', 'Davies', NULL, 3.8, 0, FALSE, 'barnburner@berkeley.edu', '2158', '2198', NULL, 'active'),
+('2345678901', '98765', 'Dave', 'Doolittle', '30', 3.495, 34, FALSE, 'debaser@berkeley.edu', '2155', '2192', 4, 'active'),
+('3456789012', '242881', 'Pauline', 'Kerschen', '30', 3.005, 70, FALSE, 'doctork@berkeley.edu', '2152', '2192', 5, 'active'),
+('5678901234', '9933311', 'Sandeep', 'Jayaprakash', '40', 3.501, 102, FALSE, 'ilovela@berkeley.edu', '2155', '2192', NULL, 'active'),
+('7890123456', '1049291', 'Paul', 'Farestveit', '40', 3.9, 110, FALSE, 'qadept@berkeley.edu', '2155', '2202', 2, 'active'),
+('8901234567', '123456', 'John David', 'Crossman', '10', 1.85, 12, FALSE, 'mrwonderful@berkeley.edu', '1938', '1978', 2, 'active'),
+('890127492', '211159', 'Siegfried', 'Schlemiel', '20', 0.4, 8, FALSE, 'neerdowell@berkeley.edu', '2155', '2192', 2, 'active'),
+('9000000000', '300847', 'Wolfgang', 'Pauli-O''Rourke', '20', 2.3, 55, TRUE, 'wpo@berkeley.edu', '2155', '2202', 2, 'active'),
+('9100000000', '300848', 'Nora Stanton', 'Barney', '20', 3.85, 60, TRUE, 'nsb@berkeley.edu', '2155', '2192', 2, 'active'),
+('2718281828', '271828', 'Ernest', 'Pontifex', 'GR', 4, 139, FALSE, 'ep@berkeley.edu', '2048', '2102', 12, 'completed'),
+('3141592653', '314159', 'Johannes', 'Climacus', '40', 2.784, 149.6, FALSE, 'jc@berkeley.edu', '2155', '2118', 9, 'inactive'),
+('9191919191', '191919', 'Paul', 'Tarsus', NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL, 'inactive');
 
 INSERT INTO student.student_majors
 (sid, college, major)
