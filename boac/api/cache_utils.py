@@ -174,7 +174,7 @@ def refresh_department_memberships():
             uid = membership['uid']
             if not re.match(r'^\d+$', uid):
                 continue
-            user = AuthorizedUser.find_by_uid(uid)
+            user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
             if user and not user.automate_degree_progress_permission:
                 degree_progress_permission = user.degree_progress_permission
             else:
