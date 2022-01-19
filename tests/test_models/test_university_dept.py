@@ -37,14 +37,6 @@ class TestUniversityDept:
         uids = [a['uid'] for a in advisors]
         advisors_by_uid = {
             uid: [a for a in advisors if a['uid'] == uid] for uid in uids}
-        assert advisors_by_uid.get('13') == [
-            {
-                'uid': '13',
-                'can_access_advising_data': True,
-                'can_access_canvas_data': False,
-                'degree_progress_permission': 'read_write',
-            },
-        ]
         assert advisors_by_uid.get('90412') == [
             {
                 'uid': '90412',

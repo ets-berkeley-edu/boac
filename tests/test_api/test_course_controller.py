@@ -49,13 +49,7 @@ def coe_scheduler(fake_auth):
     fake_auth.login(coe_scheduler_uid)
 
 
-@pytest.fixture()
-def no_canvas_access_advisor(fake_auth):
-    fake_auth.login('1')
-
-
 class TestCourseController:
-    """API for retrieving course info."""
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
@@ -65,8 +59,10 @@ class TestCourseController:
         """Returns 403 if user is only a scheduler."""
         assert client.get('/api/section/2182/1').status_code == 401
 
-    def test_not_authorized(self, no_canvas_access_advisor, client):
+    def test_not_authorized(self, advisor_factory, client, fake_auth):
         """Returns 403 if user is not authorized."""
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         assert client.get('/api/section/2182/1').status_code == 403
 
     def test_api_route_not_found(self, coe_advisor, client):

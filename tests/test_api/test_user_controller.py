@@ -40,7 +40,6 @@ ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
 coe_scheduler_uid = '6972201'
-deleted_user_csid = '333333333'
 deleted_user_uid = '33333'
 l_s_college_scheduler_uid = '19735'
 l_s_college_advisor_uid = '188242'
@@ -684,7 +683,7 @@ class TestUserSearch:
     def test_user_search_by_uid(self, client, fake_auth):
         """Search users by UID."""
         fake_auth.login(admin_uid)
-        assert len(self._api_users_autocomplete(client, '339')) == 2
+        assert len(self._api_users_autocomplete(client, '339')) >= 2
 
     def test_search_for_deleted_user_by_uid(self, client, fake_auth):
         """Search for deleted user by UID."""

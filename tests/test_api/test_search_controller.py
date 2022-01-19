@@ -66,11 +66,6 @@ def ce3_advisor(fake_auth):
     fake_auth.login('2525')
 
 
-@pytest.fixture()
-def no_canvas_access_advisor(fake_auth):
-    fake_auth.login('1')
-
-
 @pytest.fixture(scope='session')
 def asc_inactive_students():
     return data_loch.safe_execute_rds("""
@@ -225,8 +220,10 @@ class TestStudentSearch:
         assert len(students) == 1
         assert students[0]['name'] == 'Wolfgang Pauli-O\'Rourke'
 
-    def test_search_by_name_no_canvas_data_access(self, no_canvas_access_advisor, client):
+    def test_search_by_name_no_canvas_data_access(self, advisor_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for students."""
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         api_json = _api_search(client, 'Paul', students=True)
         assert len(api_json['students']) == 3
 
@@ -299,8 +296,10 @@ class TestCourseSearch:
         assert len([c for c in courses if c['courseName'] == 'MATH 1A']) == 2
         assert len([c for c in courses if c['courseName'] == 'DANISH 1A']) == 1
 
-    def test_search_courses_no_canvas_data_access(self, no_canvas_access_advisor, client):
+    def test_search_courses_no_canvas_data_access(self, advisor_factory, client, fake_auth):
         """A user with no access to Canvas data cannot search for courses."""
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         _api_search(client, '1A', courses=True, students=True, expected_status_code=403)
 
 
@@ -523,8 +522,10 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=2, note_ids=['9000000000-00002', '9100000000-00001'])
 
-    def test_search_notes_no_canvas_data_access(self, client, no_canvas_access_advisor):
+    def test_search_notes_no_canvas_data_access(self, advisor_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for notes."""
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         api_json = _api_search(
             client,
             '',
@@ -727,8 +728,10 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=2)
 
-    def test_search_appointments_no_canvas_data_access(self, client, no_canvas_access_advisor):
+    def test_search_appointments_no_canvas_data_access(self, advisor_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for appointments."""
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         api_json = _api_search(
             client,
             '',

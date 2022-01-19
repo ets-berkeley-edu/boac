@@ -34,8 +34,6 @@ from tests.test_api.api_test_utils import all_cohorts_owned_by, api_cohort_creat
     api_curated_group_add_students, api_curated_group_remove_student
 from tests.util import override_config
 
-zzzzz_user_uid = '1'
-guest_user_uid = '2'
 admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
@@ -60,16 +58,6 @@ def coe_advisor_login(fake_auth):
 
 
 @pytest.fixture()
-def guest_user_login(fake_auth):
-    fake_auth.login(guest_user_uid)
-
-
-@pytest.fixture()
-def no_canvas_access_advisor_login(fake_auth):
-    fake_auth.login('1')
-
-
-@pytest.fixture()
 def admin_owned_cohort():
     cohorts = all_cohorts_owned_by(admin_uid)
     return cohorts[0]
@@ -85,21 +73,6 @@ def asc_owned_cohort():
 def coe_owned_cohort():
     cohorts = all_cohorts_owned_by(coe_advisor_uid)
     return next((c for c in cohorts if c['name'] == 'Radioactive Women and Men'), None)
-
-
-@pytest.fixture()
-def new_undeclared_cohort(client):
-    data = {
-        'name': 'Nothing to Declare',
-        'filters': [
-            {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
-        ],
-    }
-    cohort = api_cohort_create(client, data)
-    cohort_id = cohort['id']
-    response = client.get(f'/api/cohort/{cohort_id}')
-    assert response.status_code == 200
-    return response.json
 
 
 class TestCohortById:
@@ -238,12 +211,15 @@ class TestCohortById:
         assert term['enrollments'][0]['displayName'] == 'CLASSIC 130 LEC 001'
         assert term['enrollments'][0]['grade'] == 'P'
 
-    def test_includes_canvas_data(self, asc_advisor_login, new_undeclared_cohort):
-        student_feed = new_undeclared_cohort['students'][0]
+    def test_includes_canvas_data(self, client, fake_auth):
+        fake_auth.login(asc_advisor_uid)
+        student_feed = _new_undeclared_cohort(client)['students'][0]
         assert 'analytics' in student_feed['term']['enrollments'][0]['canvasSites'][0]
 
-    def test_no_canvas_access_suppresses_canvas_data(self, no_canvas_access_advisor_login, new_undeclared_cohort):
-        student_feed = new_undeclared_cohort['students'][0]
+    def test_no_canvas_access_suppresses_canvas_data(self, advisor_factory, client, fake_auth):
+        advisor = advisor_factory(can_access_canvas_data=False, dept_code='ZZZZZ')
+        fake_auth.login(advisor.uid)
+        student_feed = _new_undeclared_cohort(client)['students'][0]
         assert student_feed['term']['enrollments'][0]['canvasSites'] == []
 
     def test_includes_cohort_member_term_gpa(self, asc_advisor_login, asc_owned_cohort, client):
@@ -1560,8 +1536,10 @@ class TestDownloadCsvPerFilters:
                 'Destination College,Citizen,,United States,,,,'
             ) in csv
 
-    def test_admit_domain_denies_non_ce3_advisor(self, client, guest_user_login):
+    def test_admit_domain_denies_non_ce3_advisor(self, advisor_factory, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            advisor = advisor_factory(dept_code='GUEST')
+            fake_auth.login(advisor.uid)
             self._api_download_admit_csv(client, 403)
 
     def test_admit_domain_respects_feature_flag(self, client, fake_auth):
@@ -1596,15 +1574,18 @@ class TestCohortFilterOptions:
                     for option in entry['options']:
                         assert 'disabled' not in option
 
-    def test_filter_options_for_guest_user(self, client, guest_user_login):
+    def test_filter_options_for_guest_user(self, advisor_factory, client, fake_auth):
         """Filter options available to GUEST user."""
+        advisor = advisor_factory(dept_code='GUEST')
+        fake_auth.login(advisor.uid)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         assert len(api_json)
         assert 'options' in list(api_json.values())[0][0]
 
-    def test_filter_options_for_user_of_type_other(self, client, fake_auth):
+    def test_filter_options_for_user_of_type_other(self, advisor_factory, client, fake_auth):
         """Filter options available to ZZZZZ user."""
-        fake_auth.login(zzzzz_user_uid)
+        advisor = advisor_factory(dept_code='ZZZZZ')
+        fake_auth.login(advisor.uid)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         assert len(api_json)
         assert 'options' in list(api_json.values())[0][0]
@@ -1721,7 +1702,9 @@ class TestCohortFilterOptions:
                 else:
                     assert 'disabled' not in entry
 
-    def test_range_of_entering_terms(self, client, guest_user_login):
+    def test_range_of_entering_terms(self, advisor_factory, client, fake_auth):
+        advisor = advisor_factory(dept_code='GUEST')
+        fake_auth.login(advisor.uid)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         entering_terms_filter = next((f for f in api_json['Academic'] if f['key'] == 'enteringTerms'), None)
         assert entering_terms_filter
@@ -1729,7 +1712,9 @@ class TestCohortFilterOptions:
         assert len(filter_options) == 4
         assert [o['name'] for o in filter_options] == ['2015 Fall', '2015 Summer', '2015 Spring', '1993 Fall']
 
-    def test_range_of_expected_grad_terms(self, client, guest_user_login):
+    def test_range_of_expected_grad_terms(self, advisor_factory, client, fake_auth):
+        advisor = advisor_factory(dept_code='GUEST')
+        fake_auth.login(advisor.uid)
         api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
         entering_terms_filter = next((f for f in api_json['Academic'] if f['key'] == 'expectedGradTerms'), None)
         assert entering_terms_filter
@@ -1763,8 +1748,10 @@ class TestCohortFilterOptions:
                 expected_status_code=404,
             )
 
-    def test_invalid_domain_value(self, client, guest_user_login):
+    def test_invalid_domain_value(self, advisor_factory, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            advisor = advisor_factory(dept_code='GUEST')
+            fake_auth.login(advisor.uid)
             self._api_cohort_filter_options(
                 client,
                 {
@@ -1774,8 +1761,10 @@ class TestCohortFilterOptions:
                 expected_status_code=400,
             )
 
-    def test_admitted_students_domain_denied(self, client, guest_user_login):
+    def test_admitted_students_domain_denied(self, advisor_factory, client, fake_auth):
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
+            advisor = advisor_factory(dept_code='GUEST')
+            fake_auth.login(advisor.uid)
             self._api_cohort_filter_options(
                 client,
                 {
@@ -1916,3 +1905,17 @@ class TestTranslateToFilterOptions:
         assert api_json[1]['label']['primary'] == 'My Students'
         assert api_json[1]['key'] == 'cohortOwnerAcademicPlans'
         assert api_json[1]['value'] == '25I054U'
+
+
+def _new_undeclared_cohort(client):
+    data = {
+        'name': 'Nothing to Declare',
+        'filters': [
+            {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
+        ],
+    }
+    cohort = api_cohort_create(client, data)
+    cohort_id = cohort['id']
+    response = client.get(f'/api/cohort/{cohort_id}')
+    assert response.status_code == 200
+    return response.json
