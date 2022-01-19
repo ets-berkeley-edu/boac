@@ -129,7 +129,6 @@ class TestRefreshCurrentTermIndex:
 
 
 class TestRefreshDepartmentMemberships:
-    """Test department membership refresh."""
 
     def test_adds_coe_advisors(self, app):
         """Adds COE advisors newly found in the loch."""
@@ -158,30 +157,33 @@ class TestRefreshDepartmentMemberships:
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
 
-    def test_restores_coe_advisors(self, app):
+    def test_restores_coe_advisors(self, advisor_coeng):
         """Restores previously deleted COE advisors found in the loch."""
-        deleted_user = AuthorizedUser.delete(uid=coe_advisor_uid)
-        UniversityDeptMember.query.filter_by(authorized_user_id=deleted_user.id).delete()
+        from boac.api.cache_utils import refresh_department_memberships
+
+        uid = advisor_coeng.uid
+        user_id = advisor_coeng.id
+        AuthorizedUser.delete(uid=uid)
+        UniversityDeptMember.query.filter_by(authorized_user_id=user_id).delete()
         std_commit(allow_test_environment=True)
 
         dept_coe = UniversityDept.find_by_dept_code(dept_code='COENG')
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
         coe_user_count = len(coe_users)
         assert coe_user_count
-        assert next((u for u in coe_users if u.uid == coe_advisor_uid), None) is None
+        assert next((u for u in coe_users if u.uid == uid), None) is None
 
-        from boac.api.cache_utils import refresh_department_memberships
         refresh_department_memberships()
         std_commit(allow_test_environment=True)
 
         coe_users = [au.authorized_user for au in dept_coe.authorized_users]
-        assert len(coe_users) == coe_user_count + 1
-        assert next(u for u in coe_users if u.uid == coe_advisor_uid)
+        assert next(u for u in coe_users if u.uid == uid)
 
-        user = AuthorizedUser.find_by_uid(uid=coe_advisor_uid, ignore_deleted=False)
+        user = AuthorizedUser.find_by_uid(uid=uid, ignore_deleted=False)
         assert user.can_access_canvas_data is False
         assert user.can_access_advising_data is False
         # And degree_progress_permission persists
+        assert user.automate_degree_progress_permission is True
         assert user.degree_progress_permission == 'read_write'
         assert user.deleted_at is None
         assert user.created_by == '0'
