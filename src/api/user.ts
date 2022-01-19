@@ -3,7 +3,7 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
-const $_setDropInStatus = (deptCode, available, status) => {
+const $_setDropInStatus = (available, deptCode, status) => {
   const currentUser = Vue.prototype.$currentUser
   const dropInAdvisorStatus = _.find(currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()})
   if (dropInAdvisorStatus) {
