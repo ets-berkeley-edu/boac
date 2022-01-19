@@ -33,7 +33,6 @@ from tests.util import override_config, pause_mock_sts
 admin_uid = '2040'
 advisor_uid = '1133399'
 unauthorized_uid = '1015674'
-no_calnet_record_for_uid = '13'
 
 
 class TestDevAuth:
@@ -112,15 +111,16 @@ class TestDevAuth:
             assert response.status_code == 200
             assert response.json['isAnonymous']
 
-    def test_user_expired_according_to_calnet(self, app, client):
+    def test_user_expired_according_to_calnet(self, advisor_factory, app, client):
         """Fails if user has no record in LDAP."""
+        advisor = advisor_factory(has_calnet_record=False)
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
             from boac.models import json_cache
             json_cache.clear('%')
             self._api_dev_auth_login(
                 client,
                 params={
-                    'uid': no_calnet_record_for_uid,
+                    'uid': advisor.uid,
                     'password': app.config['DEVELOPER_AUTH_PASSWORD'],
                 },
                 expected_status_code=403,

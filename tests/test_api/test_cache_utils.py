@@ -157,12 +157,13 @@ class TestRefreshDepartmentMemberships:
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
 
-    def test_restores_coe_advisors(self, advisor_coeng):
+    def test_restores_coe_advisors(self, advisor_factory):
         """Restores previously deleted COE advisors found in the loch."""
         from boac.api.cache_utils import refresh_department_memberships
 
-        uid = advisor_coeng.uid
-        user_id = advisor_coeng.id
+        coe_advisor = advisor_factory()
+        uid = coe_advisor.uid
+        user_id = coe_advisor.id
         AuthorizedUser.delete(uid=uid)
         UniversityDeptMember.query.filter_by(authorized_user_id=user_id).delete()
         std_commit(allow_test_environment=True)

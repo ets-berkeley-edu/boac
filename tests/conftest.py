@@ -188,10 +188,16 @@ def create_alerts(client, db_session):
 
 
 @pytest.fixture()
-def advisor_coeng(app, db):
-    authorized_user = _create_advisor(app=app, db=db, dept_code='COENG')
-    yield authorized_user
-    db.session.execute(f"DELETE FROM authorized_users WHERE uid='{authorized_user.uid}'")
+def advisor_factory(app, db):
+    def _advisor_factory(can_access_canvas_data=True, dept_code='COENG', has_calnet_record=True):
+        return _create_advisor(
+            app=app,
+            can_access_canvas_data=can_access_canvas_data,
+            db=db,
+            dept_code=dept_code,
+            has_calnet_record=has_calnet_record,
+        )
+    return _advisor_factory
 
 
 @pytest.fixture()
@@ -265,7 +271,7 @@ def pytest_itemcollected(item):
         item._nodeid = ' '.join((pref, suf))
 
 
-def _create_advisor(app, db, dept_code):
+def _create_advisor(app, db, dept_code, can_access_canvas_data=True, has_calnet_record=True):
     from boac.models.json_cache import insert_row as insert_in_json_cache
     from boac.models.university_dept import UniversityDept
     from boac.models.university_dept_member import UniversityDeptMember
@@ -290,20 +296,21 @@ def _create_advisor(app, db, dept_code):
             ('{csid}', '{uid}', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_ADVISOR_VIEW')
         """),  # noqa: E501
     )
-    insert_in_json_cache(
-        f'calnet_user_for_uid_{uid}',
-        {
-            'uid': uid,
-            'csid': csid,
-            'firstName': first_name,
-            'lastName': last_name,
-            'name': f'{first_name} {last_name}',
-        },
-    )
+    if has_calnet_record:
+        insert_in_json_cache(
+            f'calnet_user_for_uid_{uid}',
+            {
+                'uid': uid,
+                'csid': csid,
+                'firstName': first_name,
+                'lastName': last_name,
+                'name': f'{first_name} {last_name}',
+            },
+        )
     user = AuthorizedUser(
         automate_degree_progress_permission=True,
         can_access_advising_data=True,
-        can_access_canvas_data=True,
+        can_access_canvas_data=can_access_canvas_data,
         created_by='2040',
         degree_progress_permission='read_write',
         uid=uid,
@@ -318,4 +325,5 @@ def _create_advisor(app, db, dept_code):
         role='advisor',
         automate_membership=True,
     )
+    std_commit(allow_test_environment=True)
     return authorized_user

@@ -51,34 +51,8 @@ from sqlalchemy.sql import text
 
 delete_this_admin_uid = '44444'
 delete_this_uid = '33333'
-no_calnet_record_for_uid = '13'
 
 _test_users = [
-    {
-        # This user has no entry in calnet_search_entries
-        'uid': no_calnet_record_for_uid,
-        'csid': None,
-        'isAdmin': True,
-        'inDemoMode': False,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': True,
-    },
-    {
-        'uid': '1',
-        'csid': '111111111',
-        'isAdmin': False,
-        'inDemoMode': True,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': False,
-    },
-    {
-        'uid': '2',
-        'csid': '222222222',
-        'isAdmin': False,
-        'inDemoMode': True,
-        'canAccessAdvisingData': True,
-        'canAccessCanvasData': False,
-    },
     {
         # User deleted (see below)
         'uid': delete_this_uid,
@@ -320,12 +294,6 @@ _university_depts = {
                 'isDropInAdvisor': False,
                 'automate_membership': True,
             },
-            {
-                'uid': no_calnet_record_for_uid,
-                'role': 'advisor',
-                'isDropInAdvisor': False,
-                'automate_membership': True,
-            },
         ],
     },
     'QCADV': {
@@ -416,26 +384,6 @@ _university_depts = {
             },
         ],
     },
-    'ZZZZZ': {
-        'users': [
-            {
-                'uid': '1',
-                'role': 'advisor',
-                'isDropInAdvisor': False,
-                'automate_membership': True,
-            },
-        ],
-    },
-    'GUEST': {
-        'users': [
-            {
-                'uid': '2',
-                'role': 'advisor',
-                'isDropInAdvisor': False,
-                'automate_membership': False,
-            },
-        ],
-    },
 }
 
 
@@ -480,26 +428,23 @@ def _create_users():
         csid = test_user['csid'] or datetime.now().strftime('%H%M%S%f')
         first_name = test_user.get('firstName', ''.join(random.choices(string.ascii_uppercase, k=6)))
         last_name = test_user.get('lastName', ''.join(random.choices(string.ascii_uppercase, k=6)))
-
-        # Put mock CalNet data in our json_cache for all users EXCEPT the test "no_calnet_record" user.
-        if uid != no_calnet_record_for_uid:
-            calnet_feed = {
-                'uid': uid,
-                'csid': csid,
-                'firstName': first_name,
-                'lastName': last_name,
-                'name': f'{first_name} {last_name}',
-            }
-            if 'calnetDeptCodes' in test_user:
-                calnet_feed['departments'] = []
-                for dept_code in test_user['calnetDeptCodes']:
-                    calnet_feed['departments'].append({
-                        'code': dept_code,
-                        'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
-                    })
-            if 'title' in test_user:
-                calnet_feed['title'] = test_user['title']
-            insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
+        calnet_feed = {
+            'uid': uid,
+            'csid': csid,
+            'firstName': first_name,
+            'lastName': last_name,
+            'name': f'{first_name} {last_name}',
+        }
+        if 'calnetDeptCodes' in test_user:
+            calnet_feed['departments'] = []
+            for dept_code in test_user['calnetDeptCodes']:
+                calnet_feed['departments'].append({
+                    'code': dept_code,
+                    'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code),
+                })
+        if 'title' in test_user:
+            calnet_feed['title'] = test_user['title']
+        insert_in_json_cache(f'calnet_user_for_uid_{uid}', calnet_feed)
 
         # Add user to authorized_users table if not already present.
         user = AuthorizedUser.find_by_uid(uid=uid)

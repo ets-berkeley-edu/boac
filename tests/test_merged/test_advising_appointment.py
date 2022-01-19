@@ -24,10 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-from boac.merged.advising_appointment import (
-    get_advising_appointments,
-    search_advising_appointments,
-)
+from boac.merged.advising_appointment import get_advising_appointments, search_advising_appointments
 
 
 coe_advisor_uid = '1133399'
@@ -43,9 +40,9 @@ class TestMergedAdvisingAppointment:
         assert len(appointments) == 5
 
         # Legacy SIS appointments
+        advisor_user_id = appointments[0]['advisor']['id']
         assert appointments[0]['id'] == '11667051-00010'
         assert appointments[0]['advisor']
-        assert appointments[0]['advisor']['id'] == 7
         assert appointments[0]['advisor']['name'] == 'Milicent Balthazar'
         assert appointments[0]['advisor']['sid'] == '53791'
         assert appointments[0]['advisor']['title'] is None
@@ -73,7 +70,6 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         # Non-legacy appointments
         assert appointments[3]['id'] == 5
         assert appointments[3]['advisor']
-        assert appointments[3]['advisor']['id'] == 7
         assert appointments[3]['advisor']['name'] == 'Milicent Balthazar'
         assert appointments[3]['advisor']['title'] == 'Advisor'
         assert appointments[3]['advisor']['uid'] == '53791'
@@ -84,7 +80,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['appointmentType'] == 'Drop-in'
         assert appointments[3]['attachments'] is None
         assert appointments[3]['createdAt']
-        assert appointments[3]['createdBy'] == 7
+        assert appointments[3]['createdBy'] == advisor_user_id
         assert appointments[3]['deptCode'] == 'QCADV'
         assert appointments[3]['details'] == 'It is not the length of life, but depth of life.'
         assert 'legacySource' not in appointments[3]
@@ -92,12 +88,12 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['student']['sid'] == student_sid
         assert appointments[3]['topics'] == ['Topic for appointments, 1']
         assert appointments[3]['updatedAt'] is None
-        assert appointments[3]['updatedBy'] == 7
+        assert appointments[3]['updatedBy'] == advisor_user_id
         assert appointments[3]['cancelReason'] is None
         assert appointments[3]['cancelReasonExplained'] is None
         assert appointments[3]['status'] == 'checked_in'
         assert appointments[3]['statusBy']
-        assert appointments[3]['statusBy']['id'] == 7
+        assert appointments[3]['statusBy']['id'] == advisor_user_id
         assert appointments[3]['statusBy']['uid'] == '53791'
         assert appointments[3]['statusBy']['csid'] == '53791'
         assert appointments[3]['statusBy']['name'] == 'Milicent Balthazar'
@@ -115,7 +111,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['appointmentType'] == 'Drop-in'
         assert appointments[4]['attachments'] is None
         assert appointments[4]['createdAt']
-        assert appointments[4]['createdBy'] == 7
+        assert appointments[4]['createdBy'] == advisor_user_id
         assert appointments[4]['deptCode'] == 'QCADV'
         assert appointments[4]['details'] == 'You be you.'
         assert 'legacySource' not in appointments[4]
@@ -123,12 +119,12 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['student']['sid'] == student_sid
         assert appointments[4]['topics'] == ['Topic for appointments, 1']
         assert appointments[4]['updatedAt'] is None
-        assert appointments[4]['updatedBy'] == 7
+        assert appointments[4]['updatedBy'] == advisor_user_id
         assert appointments[4]['cancelReason'] is None
         assert appointments[4]['cancelReasonExplained'] is None
         assert appointments[4]['status'] == 'waiting'
         assert appointments[4]['statusBy']
-        assert appointments[4]['statusBy']['id'] == 7
+        assert appointments[4]['statusBy']['id'] == advisor_user_id
         assert appointments[4]['statusBy']['uid'] == '53791'
         assert appointments[4]['statusBy']['csid'] == '53791'
         assert appointments[4]['statusBy']['name'] == 'Milicent Balthazar'
@@ -136,7 +132,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[4]['statusBy']['firstName'] == 'Milicent'
         assert appointments[4]['statusDate']
 
-    def test_search(self, fake_auth, app):
+    def test_search(self, fake_auth):
         """Finds new and legacy appointments matching the criteria, ordered by rank."""
         fake_auth.login(coe_advisor_uid)
         results = search_advising_appointments(search_phrase='life')

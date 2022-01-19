@@ -56,11 +56,6 @@ def coe_scheduler_login(fake_auth):
     fake_auth.login(coe_scheduler_uid)
 
 
-@pytest.fixture()
-def no_canvas_data_access_advisor_login(fake_auth):
-    fake_auth.login('1')
-
-
 @pytest.mark.usefixtures('db_session')
 class TestStudent:
     """Student API."""
@@ -333,7 +328,9 @@ class TestStudent:
             assert analytics['lastActivity']['student']['percentile'] == 93
             assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_suppresses_canvas_data_if_unauthorized(self, client, no_canvas_data_access_advisor_login):
+    def test_suppresses_canvas_data_if_unauthorized(self, advisor_factory, client, fake_auth):
+        advisor = advisor_factory(can_access_canvas_data=False)
+        fake_auth.login(advisor.uid)
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
