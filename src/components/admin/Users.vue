@@ -234,8 +234,12 @@
           </span>
         </div>
         <div v-if="row.item.degreeProgressPermission" class="faint-text">
-          <span class="font-weight-500">Degree Progress</span> &mdash; {{ row.item.degreeProgressPermission.replace('_', '/') }}
-          <span v-if="row.item.automateDegreeProgressPermission">(automated)</span>
+          <span class="font-weight-500">Degree Progress</span> &mdash;
+          <span id="degree-progress-permission">{{ row.item.degreeProgressPermission.replace('_', '/') }}</span>
+          <span
+            v-if="row.item.automateDegreeProgressPermission"
+            id="degree-progress-permission-is-automated"
+          >(automated)</span>
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
       </template>

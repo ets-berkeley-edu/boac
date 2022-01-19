@@ -175,11 +175,14 @@ def refresh_department_memberships():
             if not re.match(r'^\d+$', uid):
                 continue
             user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
-            if user and not user.automate_degree_progress_permission:
+            is_coe = dept.dept_code == 'COENG'
+            automate_degree_progress_permission = user.automate_degree_progress_permission if user else is_coe
+            if user and not automate_degree_progress_permission:
                 degree_progress_permission = user.degree_progress_permission
             else:
                 degree_progress_permission = membership['degree_progress_permission']
             user = AuthorizedUser.create_or_restore(
+                automate_degree_progress_permission=automate_degree_progress_permission,
                 can_access_advising_data=membership['can_access_advising_data'],
                 can_access_canvas_data=membership['can_access_canvas_data'],
                 created_by='0',

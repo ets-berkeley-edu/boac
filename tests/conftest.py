@@ -27,6 +27,9 @@ from datetime import datetime
 import glob
 import json
 import os
+import random
+import string
+import time
 
 from boac import std_commit
 import boac.factory
@@ -185,6 +188,13 @@ def create_alerts(client, db_session):
 
 
 @pytest.fixture()
+def advisor_coeng(app, db):
+    authorized_user = _create_advisor(app=app, db=db, dept_code='COENG')
+    yield authorized_user
+    db.session.execute(f"DELETE FROM authorized_users WHERE uid='{authorized_user.uid}'")
+
+
+@pytest.fixture()
 def mock_advising_note(app, db):
     """Create advising note with attachment (mock s3)."""
     with mock_advising_note_s3_bucket(app):
@@ -253,3 +263,59 @@ def pytest_itemcollected(item):
     suf = node.__doc__.strip() if node.__doc__ else node.__name__
     if pref or suf:
         item._nodeid = ' '.join((pref, suf))
+
+
+def _create_advisor(app, db, dept_code):
+    from boac.models.json_cache import insert_row as insert_in_json_cache
+    from boac.models.university_dept import UniversityDept
+    from boac.models.university_dept_member import UniversityDeptMember
+    from sqlalchemy import create_engine
+    from sqlalchemy.sql import text
+
+    uid = str(round(time.time() * 1000))
+    csid = datetime.now().strftime('%H%M%S%f')
+    first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
+    last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
+
+    create_engine(app.config['DATA_LOCH_RDS_URI']).execute(
+        text(f"""
+            INSERT INTO boac_advisor.advisor_attributes
+            (sid, uid, first_name, last_name, title, dept_code, email, campus_email)
+            VALUES
+            ('{csid}', '{uid}', '{first_name}', '{last_name}', 'Academic Advisor', 'EDDNO', NULL, '{uid}@berkeley.edu');
+
+            INSERT INTO boac_advisor.advisor_roles
+            (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
+            VALUES
+            ('{csid}', '{uid}', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_ADVISOR_VIEW')
+        """),  # noqa: E501
+    )
+    insert_in_json_cache(
+        f'calnet_user_for_uid_{uid}',
+        {
+            'uid': uid,
+            'csid': csid,
+            'firstName': first_name,
+            'lastName': last_name,
+            'name': f'{first_name} {last_name}',
+        },
+    )
+    user = AuthorizedUser(
+        automate_degree_progress_permission=True,
+        can_access_advising_data=True,
+        can_access_canvas_data=True,
+        created_by='2040',
+        degree_progress_permission='read_write',
+        uid=uid,
+    )
+    db.session.add(user)
+
+    university_dept = UniversityDept.find_by_dept_code(dept_code)
+    authorized_user = AuthorizedUser.find_by_uid(user.uid)
+    UniversityDeptMember.create_or_update_membership(
+        university_dept_id=university_dept.id,
+        authorized_user_id=authorized_user.id,
+        role='advisor',
+        automate_membership=True,
+    )
+    return authorized_user
