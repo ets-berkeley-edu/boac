@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <div class="mb-4">
         <h1 class="page-section-header">Everyone's Cohorts</h1>
-        <div v-if="$_.find($_.flatten($_.map(rows, 'cohorts')), g => g.domain === 'admitted_students')" class="pl-1">
+        <div v-if="includesAdmittedStudents" class="pl-1">
           <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
           denotes a cohort of admitted students.
         </div>
@@ -42,11 +42,13 @@ export default {
   components: {Spinner},
   mixins: [Loading, Util],
   data: () => ({
-    rows: []
+    rows: [],
+    includesAdmittedStudents: undefined,
   }),
   created() {
     getUsersWithCohorts().then(data => {
       this.rows = this.$_.filter(data, row => row.cohorts.length)
+      this.includesAdmittedStudents = this.$_.find(this.$_.flatten(this.$_.map(this.rows, 'cohorts')), g => g.domain === 'admitted_students')
       this.loaded('Everyone\'s Cohorts page has loaded')
     })
   }
