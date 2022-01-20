@@ -47,6 +47,10 @@ class UserSession(UserMixin):
             self.api_json = self._get_api_json()
 
     @property
+    def can_access_admitted_students(self):
+        return self.api_json['canAccessAdmittedStudents']
+
+    @property
     def can_access_advising_data(self):
         return self.api_json['canAccessAdvisingData']
 
