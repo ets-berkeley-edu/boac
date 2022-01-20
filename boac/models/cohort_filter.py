@@ -168,8 +168,8 @@ class CohortFilter(Base):
         return [transform(row) for row in results]
 
     @classmethod
-    def get_cohorts_owned_by_uids(cls, uids):
-        domain_clause = 'true' if app.config['FEATURE_FLAG_ADMITTED_STUDENTS'] else "c.domain = 'default'"
+    def get_cohorts_owned_by_uids(cls, include_admitted_students, uids):
+        domain_clause = 'true' if include_admitted_students else "c.domain = 'default'"
         query = text(f"""
             SELECT
             c.id, c.domain, c.name, c.filter_criteria, c.alert_count, c.student_count, u.uid
