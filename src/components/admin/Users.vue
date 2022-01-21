@@ -239,7 +239,7 @@
           <span
             v-if="row.item.automateDegreeProgressPermission"
             id="degree-progress-permission-is-automated"
-          >(automated)</span>
+          > (automated)</span>
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
       </template>
