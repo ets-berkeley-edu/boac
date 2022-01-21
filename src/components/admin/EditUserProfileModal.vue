@@ -279,7 +279,7 @@ export default {
         id: this.profile.id,
         uid: this.profile.uid,
         name: this.profile.name,
-        automateDegreeProgressPermission: this.profile.automateDegreeProgressPermission,
+        automateDegreeProgressPermission: this.profile.automateDegreeProgressPermission || false,
         canAccessAdvisingData: this.profile.canAccessAdvisingData,
         canAccessCanvasData: this.profile.canAccessCanvasData,
         degreeProgressPermission: this.profile.degreeProgressPermission || null,
