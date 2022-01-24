@@ -332,6 +332,15 @@ def get_sid_by_uid(uid):
     return None if not rows or (len(rows) == 0) else rows[0]['sid']
 
 
+def get_active_student_profiles(sids=None):
+    sql = f"""SELECT sp.sid, sp.profile
+        FROM {student_schema()}.student_profiles sp
+        JOIN {student_schema()}.student_profile_index spi
+        ON sp.sid = spi.sid
+        AND spi.academic_career_status = 'active'"""
+    return safe_execute_rds(sql)
+
+
 def get_basic_student_data(sids):
     sql = f"""SELECT sid, uid, first_name, last_name
         FROM {student_schema()}.student_profile_index

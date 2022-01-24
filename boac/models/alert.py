@@ -319,7 +319,7 @@ class Alert(Base):
                     no_activity_alerts_enabled=no_activity_alerts_enabled,
                     infrequent_activity_alerts_enabled=infrequent_activity_alerts_enabled,
                 )
-        profiles = data_loch.get_student_profiles()
+        profiles = data_loch.get_active_student_profiles()
         if app.config['ALERT_WITHDRAWAL_ENABLED'] and str(term_id) == current_term_id():
             for row in profiles:
                 sis_profile_feed = json.loads(row['profile']).get('sisProfile') or {}
