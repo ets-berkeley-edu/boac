@@ -59,9 +59,9 @@ class TestCourseController:
         """Returns 403 if user is only a scheduler."""
         assert client.get('/api/section/2182/1').status_code == 401
 
-    def test_not_authorized(self, advisor_factory, client, fake_auth):
+    def test_not_authorized(self, user_factory, client, fake_auth):
         """Returns 403 if user is not authorized."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         assert client.get('/api/section/2182/1').status_code == 403
 

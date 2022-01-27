@@ -30,7 +30,6 @@ import cas
 import mock
 from tests.util import override_config, pause_mock_sts
 
-admin_uid = '2040'
 advisor_uid = '1133399'
 unauthorized_uid = '1015674'
 
@@ -48,25 +47,25 @@ class TestDevAuth:
         assert response.status_code == expected_status_code
         return json.loads(response.data)
 
-    def test_disabled(self, app, client):
+    def test_disabled(self, admin_user_uid, app, client):
         """Blocks access unless enabled."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', False):
             self._api_dev_auth_login(
                 client,
                 params={
-                    'uid': admin_uid,
+                    'uid': admin_user_uid,
                     'password': app.config['DEVELOPER_AUTH_PASSWORD'],
                 },
                 expected_status_code=404,
             )
 
-    def test_password_fail(self, app, client):
+    def test_password_fail(self, admin_user_uid, app, client):
         """Fails if no match on developer password."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
             self._api_dev_auth_login(
                 client,
                 params={
-                    'uid': admin_uid,
+                    'uid': admin_user_uid,
                     'password': 'Born 2 Lose',
                 },
                 expected_status_code=401,
@@ -96,24 +95,24 @@ class TestDevAuth:
                 expected_status_code=403,
             )
 
-    def test_known_user_with_correct_password_logs_in(self, app, client):
+    def test_known_user_with_correct_password_logs_in(self, admin_user_uid, app, client):
         """There is a happy path."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
             api_json = self._api_dev_auth_login(
                 client,
                 params={
-                    'uid': admin_uid,
+                    'uid': admin_user_uid,
                     'password': app.config['DEVELOPER_AUTH_PASSWORD'],
                 },
             )
-            assert api_json['uid'] == admin_uid
+            assert api_json['uid'] == admin_user_uid
             response = client.get('/api/auth/logout')
             assert response.status_code == 200
             assert response.json['isAnonymous']
 
-    def test_user_expired_according_to_calnet(self, advisor_factory, app, client):
+    def test_user_expired_according_to_calnet(self, user_factory, app, client):
         """Fails if user has no record in LDAP."""
-        advisor = advisor_factory(has_calnet_record=False)
+        advisor = user_factory(has_calnet_record=False)
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
             from boac.models import json_cache
             json_cache.clear('%')
@@ -141,8 +140,8 @@ class TestAuthorization:
         assert not api_json['isActive']
         assert not api_json['departments']
 
-    def test_admin_is_active(self, client, fake_auth):
-        fake_auth.login(admin_uid)
+    def test_admin_is_active(self, admin_user_uid, client, fake_auth):
+        fake_auth.login(admin_user_uid)
         api_json = self._api_my_profile(client)
         assert api_json['isActive']
         assert not api_json['departments']
@@ -185,10 +184,10 @@ class TestCasAuth:
 class TestBecomeUser:
     """Easy access to DevAuth for admin users."""
 
-    def test_disabled(self, app, client, fake_auth):
+    def test_disabled(self, admin_user_uid, app, client, fake_auth):
         """Blocks access unless enabled."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', False):
-            fake_auth.login(admin_uid)
+            fake_auth.login(admin_user_uid)
             response = client.post(
                 '/api/auth/become_user',
                 data=json.dumps({'uid': advisor_uid}),
@@ -203,10 +202,10 @@ class TestBecomeUser:
             response = client.post('/api/auth/become_user', data=json.dumps({'uid': advisor_uid}), content_type='application/json')
             assert response.status_code == 401
 
-    def test_authorized_user(self, app, client, fake_auth):
+    def test_authorized_user(self, admin_user_uid, app, client, fake_auth):
         """Gives access to admin user."""
         with override_config(app, 'DEVELOPER_AUTH_ENABLED', True):
-            fake_auth.login(admin_uid)
+            fake_auth.login(admin_user_uid)
             response = client.post('/api/auth/become_user', data=json.dumps({'uid': advisor_uid}), content_type='application/json')
             assert response.status_code == 200
             assert response.json['uid'] == advisor_uid

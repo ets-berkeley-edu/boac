@@ -31,7 +31,6 @@ import simplejson as json
 from tests.test_api.api_test_utils import api_curated_group_add_students, api_curated_group_remove_student
 from tests.util import override_config
 
-admin_uid = '2040'
 asc_advisor_uid = '6446'
 authorized_advisor_uid = '90412'
 ce3_advisor_uid = '2525'
@@ -60,13 +59,13 @@ def coe_scheduler(fake_auth):
 
 
 @pytest.fixture()
-def admin_user_session(fake_auth):
-    fake_auth.login(admin_uid)
+def admin_user_session(admin_user_uid, fake_auth):
+    fake_auth.login(admin_user_uid)
 
 
 @pytest.fixture()
-def admin_curated_groups():
-    user = AuthorizedUser.find_by_uid(admin_uid)
+def admin_curated_groups(admin_user_uid):
+    user = AuthorizedUser.find_by_uid(admin_user_uid)
     return CuratedGroup.get_curated_groups(user.id)
 
 
@@ -330,9 +329,9 @@ class TestGetCuratedGroup:
         assert student_term['enrollments'][0]['displayName'] == 'CLASSIC 130 LEC 001'
         assert student_term['enrollments'][0]['grade'] == 'P'
 
-    def test_curated_group_detail_suppresses_canvas_data_when_unauthorized(self, advisor_factory, client, fake_auth):
+    def test_curated_group_detail_suppresses_canvas_data_when_unauthorized(self, user_factory, client, fake_auth):
         """Suppress Canvas data when unauthorized."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         group = _api_curated_group_create(client, name='The Awkward Age', sids=['5678901234'])
         student_feed = _api_get_curated_group(client, group['id'])['students'][0]
