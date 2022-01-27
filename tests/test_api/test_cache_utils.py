@@ -160,7 +160,7 @@ class TestRefreshDepartmentMemberships:
         from boac.api.cache_utils import refresh_department_memberships
 
         coe_advisor = user_factory(
-            dept_codes=['COENG', 'QCADV'],
+            dept_codes=['QCADVMAJ', 'COENG', 'QCADV'],
         )
         uid = coe_advisor.uid
         user_id = coe_advisor.id
@@ -186,8 +186,7 @@ class TestRefreshDepartmentMemberships:
         assert user.can_access_advising_data is True
         # Verify that degree_progress_permission persists
         assert user.automate_degree_progress_permission is True
-        # TODO: Fix BOAC-4629 ("users with multiple depts lose DP access")
-        # assert user.degree_progress_permission == 'read_write'
+        assert user.degree_progress_permission == 'read_write'
         assert user.deleted_at is None
         assert user.created_by == '0'
         assert user.department_memberships[0].automate_membership is True
