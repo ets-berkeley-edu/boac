@@ -71,9 +71,20 @@ DATA_LOCH_TEST_DATA_BY_DEPT = {
             'dept_code': 'HENGL',
         },
         'advisor_role': {
-            'academic_program_code': 'UCLS',
+            'academic_program_code': 'COLL',
             'academic_program_description': 'Undergrad Letters & Science',
             'advisor_type_code': 'ADVD',
+            'cs_permissions': 'UC_CS_AA_CURRICULAR_ADVISOR',
+        },
+    },
+    'QCADVMAJ': {
+        'advisor_attributes': {
+            'dept_code': 'HFREN',
+        },
+        'advisor_role': {
+            'academic_program_code': 'UCLS',
+            'academic_program_description': 'Letters & Science Major Advisors',
+            'advisor_type_code': 'MAJ',
             'cs_permissions': 'UC_CS_AA_CURRICULAR_ADVISOR',
         },
     },

@@ -164,27 +164,29 @@ def refresh_department_memberships():
     from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor, Scheduler
     from boac.models.university_dept import UniversityDept
     from boac.models.university_dept_member import UniversityDeptMember
+
     depts = UniversityDept.query.all()
     for dept in depts:
         dept.delete_automated_members()
     std_commit(allow_test_environment=True)
+    degree_progress_permission_by_uid = {}
     for dept in depts:
-        for membership in dept.memberships_from_loch():
+        for membership_from_loch in dept.memberships_from_loch():
             # A non-numeric "uid" indicates a row from SIS advising tables best ignored.
-            uid = membership['uid']
+            uid = membership_from_loch['uid']
             if not re.match(r'^\d+$', uid):
                 continue
-            user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
-            is_coe = dept.dept_code == 'COENG'
-            automate_degree_progress_permission = user.automate_degree_progress_permission if user else is_coe
-            if user and not automate_degree_progress_permission:
-                degree_progress_permission = user.degree_progress_permission
-            else:
-                degree_progress_permission = membership['degree_progress_permission']
+            automate_degree_progress_permission, degree_progress_permission = _get_degree_progress_permissions(
+                degree_progress_permission=degree_progress_permission_by_uid.get(uid, None),
+                dept_code=dept.dept_code,
+                membership_from_loch=membership_from_loch,
+                uid=uid,
+            )
+            degree_progress_permission_by_uid[uid] = degree_progress_permission
             user = AuthorizedUser.create_or_restore(
                 automate_degree_progress_permission=automate_degree_progress_permission,
-                can_access_advising_data=membership['can_access_advising_data'],
-                can_access_canvas_data=membership['can_access_canvas_data'],
+                can_access_advising_data=membership_from_loch['can_access_advising_data'],
+                can_access_canvas_data=membership_from_loch['can_access_canvas_data'],
                 created_by='0',
                 degree_progress_permission=degree_progress_permission,
                 uid=uid,
@@ -223,3 +225,16 @@ def update_curated_group_lists():
             app.logger.info(f'Deleting inaccessible SIDs from curated group {curated_group.id}: {unavailable_sids}')
             for sid in unavailable_sids:
                 CuratedGroup.remove_student(curated_group.id, sid)
+
+
+def _get_degree_progress_permissions(degree_progress_permission, dept_code, membership_from_loch, uid):
+    from boac.models.authorized_user import AuthorizedUser
+
+    user = AuthorizedUser.find_by_uid(uid, ignore_deleted=False)
+    automate_degree_progress_permission = user.automate_degree_progress_permission if user else dept_code == 'COENG'
+    if not degree_progress_permission:
+        if user and not automate_degree_progress_permission:
+            degree_progress_permission = user.degree_progress_permission
+        else:
+            degree_progress_permission = membership_from_loch['degree_progress_permission']
+    return automate_degree_progress_permission, degree_progress_permission
