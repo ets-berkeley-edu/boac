@@ -451,7 +451,7 @@ def _create_users():
         if not user:
             user = AuthorizedUser(
                 uid=uid,
-                created_by='2040',
+                created_by='0',
                 is_admin=test_user['isAdmin'],
                 in_demo_mode=test_user['inDemoMode'],
                 can_access_advising_data=test_user['canAccessAdvisingData'],
@@ -657,9 +657,6 @@ def _create_topics():
 
 
 def _create_curated_groups():
-    admin_user = AuthorizedUser.find_by_uid('2040')
-    CuratedGroup.create(admin_user.id, 'My Students')
-
     asc_advisor = AuthorizedUser.find_by_uid('6446')
     CuratedGroup.create(asc_advisor.id, 'My Students')
 
@@ -684,28 +681,6 @@ def _create_curated_groups():
 
 
 def _create_cohorts():
-    # Oliver's cohorts
-    CohortFilter.create(
-        uid='2040',
-        name='All sports',
-        filter_criteria={
-            'groupCodes': ['MFB-DL', 'WFH'],
-        },
-    )
-    CohortFilter.create(
-        uid='2040',
-        name='Football, Defense',
-        filter_criteria={
-            'groupCodes': ['MFB-DB', 'MFB-DL'],
-        },
-    )
-    CohortFilter.create(
-        uid='2040',
-        name='Field Hockey',
-        filter_criteria={
-            'groupCodes': ['WFH'],
-        },
-    )
     # Flint's cohorts
     asc_advisor_uid = '1081940'
     CohortFilter.create(

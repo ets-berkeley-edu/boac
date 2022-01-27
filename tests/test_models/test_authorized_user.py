@@ -41,13 +41,12 @@ class TestAuthorizedUser:
         """Returns None to Flask-Login for unrecognized UID."""
         assert AuthorizedUser.find_by_uid(unknown_uid) is None
 
-    def test_load_admin_user(self):
+    def test_load_admin_user(self, admin_user_uid):
         """Returns authorization record to Flask-Login for recognized UID."""
-        loaded_user = AuthorizedUser.find_by_uid(admin_uid)
-        assert loaded_user.uid == admin_uid
+        loaded_user = AuthorizedUser.find_by_uid(admin_user_uid)
+        assert loaded_user.uid == admin_user_uid
         assert loaded_user.is_admin
         assert len(loaded_user.cohort_filters) > 0
-
         assert loaded_user.cohort_filters[0].owner == loaded_user
 
     def test_create_or_restore_deleted(self):

@@ -30,15 +30,14 @@ import pytest
 import simplejson as json
 from tests.util import override_config
 
-admin_uid = '2040'
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
 coe_scheduler_uid = '6972201'
 
 
 @pytest.fixture()
-def admin_login(fake_auth):
-    fake_auth.login(admin_uid)
+def admin_login(admin_user_uid, fake_auth):
+    fake_auth.login(admin_user_uid)
 
 
 @pytest.fixture()
@@ -90,8 +89,8 @@ class TestStudent:
     }
 
     @pytest.fixture()
-    def admin_auth(self, fake_auth):
-        fake_auth.login('2040')
+    def admin_auth(self, admin_user_uid, fake_auth):
+        fake_auth.login(admin_user_uid)
 
     @staticmethod
     def get_course_for_code(student, term_id, code):
@@ -328,8 +327,8 @@ class TestStudent:
             assert analytics['lastActivity']['student']['percentile'] == 93
             assert analytics['lastActivity']['displayPercentile'] == '90th'
 
-    def test_suppresses_canvas_data_if_unauthorized(self, advisor_factory, client, fake_auth):
-        advisor = advisor_factory(can_access_canvas_data=False)
+    def test_suppresses_canvas_data_if_unauthorized(self, user_factory, client, fake_auth):
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         sid = self.asc_student_in_coe['sid']
         uid = self.asc_student_in_coe['uid']
@@ -678,17 +677,15 @@ class TestStudent:
 
 class TestAlerts:
 
-    admin_uid = '2040'
-
     @classmethod
     def _get_alerts(cls, client, uid):
         response = client.get(f'/api/student/by_uid/{uid}')
         assert response.status_code == 200
         return response.json['notifications']['alert']
 
-    def test_current_alerts_for_sid(self, create_alerts, fake_auth, client):
+    def test_current_alerts_for_sid(self, admin_user_uid, create_alerts, fake_auth, client):
         """Returns current_user's current alerts for a given sid."""
-        fake_auth.login(self.admin_uid)
+        fake_auth.login(admin_user_uid)
         alerts = self._get_alerts(client, 61889)
         assert len(alerts) == 4
         assert alerts[0]['alertType'] == 'academic_standing'

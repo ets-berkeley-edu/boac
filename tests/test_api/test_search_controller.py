@@ -37,8 +37,8 @@ asc_advisor_uid = '1081940'
 
 
 @pytest.fixture()
-def admin_login(fake_auth):
-    fake_auth.login('2040')
+def admin_login(admin_user_uid, fake_auth):
+    fake_auth.login(admin_user_uid)
 
 
 @pytest.fixture()
@@ -86,26 +86,26 @@ class TestStudentSearch:
         """Search is not available to scheduler."""
         _api_search(client, 'Hack it!', expected_status_code=401)
 
-    def test_search_with_missing_input(self, client, fake_auth):
+    def test_search_with_missing_input(self, admin_user_uid, client, fake_auth):
         """Student search is nothing without input."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         _api_search(client, ' \t  ', students=True, expected_status_code=400)
 
-    def test_search_by_complete_email_address(self, client, fake_auth):
-        fake_auth.login('2040')
+    def test_search_by_complete_email_address(self, admin_user_uid, client, fake_auth):
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'debaser@berkeley.edu', students=True)
         students = api_json['students']
         assert len(students) == api_json['totalStudentCount'] == 1
         assert students[0]['lastName'] == 'Doolittle'
 
-    def test_search_by_name_or_email_prefix(self, client, fake_auth):
-        fake_auth.login('2040')
+    def test_search_by_name_or_email_prefix(self, admin_user_uid, client, fake_auth):
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'barn', students=True)
         students = api_json['students']
         assert len(students) == api_json['totalStudentCount'] == 2
         assert ['Barney', 'Davies'] == [s['lastName'] for s in students]
 
-    def test_search_by_sid_snippet(self, client, fake_auth, asc_inactive_students):
+    def test_search_by_sid_snippet(self, admin_user_uid, client, fake_auth, asc_inactive_students):
         """Search by snippet of SID."""
         def _search_students_as_user(uid_, sid_snippet_):
             fake_auth.login(uid_)
@@ -114,14 +114,14 @@ class TestStudentSearch:
 
         sid_snippet = '89012'
         # Admin user and ASC advisor get same results
-        for uid in ['2040', '1081940']:
+        for uid in [admin_user_uid, '1081940']:
             students, total_student_count = _search_students_as_user(uid, sid_snippet)
             assert len(students) == total_student_count == 2
             assert _get_common_sids(asc_inactive_students, students)
 
-    def test_search_by_inactive_sid(self, client, fake_auth):
+    def test_search_by_inactive_sid(self, admin_user_uid, client, fake_auth):
         """Falls back to inactive students when searching by SID."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, '2718281828', students=True)
         assert api_json['totalStudentCount'] == 1
         students = api_json['students']
@@ -131,30 +131,30 @@ class TestStudentSearch:
         assert students[0]['firstName'] == 'Ernest'
         assert students[0]['lastName'] == 'Pontifex'
 
-    def test_search_by_inactive_sid_snippet(self, client, fake_auth):
+    def test_search_by_inactive_sid_snippet(self, admin_user_uid, client, fake_auth):
         """Does not match on inactive SID snippets."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, '271828', students=True)
         assert api_json['totalStudentCount'] == 0
         students = api_json['students']
         assert len(students) == 0
 
-    def test_search_by_inactive_name(self, client, fake_auth):
+    def test_search_by_inactive_name(self, admin_user_uid, client, fake_auth):
         """Does not match on inactive student names."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'Pontifex', students=True)
         assert api_json['totalStudentCount'] == 0
         students = api_json['students']
         assert len(students) == 0
 
-    def test_alerts_in_search_results(self, client, create_alerts, fake_auth):
+    def test_alerts_in_search_results(self, admin_user_uid, client, create_alerts, fake_auth):
         """Search results include alert counts."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'davies', students=True)
         assert api_json['students'][0]['alertCount'] == 4
 
-    def test_summary_profiles_in_search_results(self, client, fake_auth):
-        fake_auth.login('2040')
+    def test_summary_profiles_in_search_results(self, admin_user_uid, client, fake_auth):
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'davies', students=True)
         students = api_json['students']
         assert students[0]['academicStanding']['status'] == 'GST'
@@ -164,17 +164,17 @@ class TestStudentSearch:
         assert students[0]['level'] == 'Junior'
         assert students[0]['termGpa'][0]['gpa'] == 2.9
 
-    def test_search_by_name_snippet(self, client, fake_auth):
+    def test_search_by_name_snippet(self, admin_user_uid, client, fake_auth):
         """Search by snippet of name."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'dav', students=True)
         students = api_json['students']
         assert len(students) == api_json['totalStudentCount'] == 3
         assert ['Crossman', 'Davies', 'Doolittle'] == [s['lastName'] for s in students]
 
-    def test_search_by_full_name_snippet(self, client, fake_auth):
+    def test_search_by_full_name_snippet(self, admin_user_uid, client, fake_auth):
         """Search by snippet of full name."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         permutations = ['david c', 'john  david cro', 'john    cross', ' crossman, j ']
         for phrase in permutations:
             api_json = _api_search(client, phrase, students=True)
@@ -220,16 +220,16 @@ class TestStudentSearch:
         assert len(students) == 1
         assert students[0]['name'] == 'Wolfgang Pauli-O\'Rourke'
 
-    def test_search_by_name_no_canvas_data_access(self, advisor_factory, client, fake_auth):
+    def test_search_by_name_no_canvas_data_access(self, user_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for students."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         api_json = _api_search(client, 'Paul', students=True)
         assert len(api_json['students']) == 3
 
-    def test_search_order_by_offset_limit(self, client, fake_auth):
+    def test_search_order_by_offset_limit(self, admin_user_uid, client, fake_auth):
         """Search by snippet of name."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         api_json = _api_search(client, 'dav', students=True, order_by='major', offset=1, limit=1)
         assert api_json['totalStudentCount'] == 3
         assert len(api_json['students']) == 1
@@ -253,9 +253,9 @@ class TestCourseSearch:
         assert 'courses' not in api_json
         assert 'totalCourseCount' not in api_json
 
-    def test_search_with_missing_input(self, client, fake_auth):
+    def test_search_with_missing_input(self, admin_user_uid, client, fake_auth):
         """Course search is nothing without input."""
-        fake_auth.login('2040')
+        fake_auth.login(admin_user_uid)
         _api_search(client, ' \t  ', courses=True, expected_status_code=400)
 
     def test_search_by_name_includes_courses_if_requested(self, coe_advisor, client):
@@ -296,9 +296,9 @@ class TestCourseSearch:
         assert len([c for c in courses if c['courseName'] == 'MATH 1A']) == 2
         assert len([c for c in courses if c['courseName'] == 'DANISH 1A']) == 1
 
-    def test_search_courses_no_canvas_data_access(self, advisor_factory, client, fake_auth):
+    def test_search_courses_no_canvas_data_access(self, user_factory, client, fake_auth):
         """A user with no access to Canvas data cannot search for courses."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         _api_search(client, '1A', courses=True, students=True, expected_status_code=403)
 
@@ -522,9 +522,9 @@ class TestNoteSearch:
         )
         self._assert(api_json, note_count=2, note_ids=['9000000000-00002', '9100000000-00001'])
 
-    def test_search_notes_no_canvas_data_access(self, advisor_factory, client, fake_auth):
+    def test_search_notes_no_canvas_data_access(self, user_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for notes."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         api_json = _api_search(
             client,
@@ -728,9 +728,9 @@ class TestAppointmentSearch:
         )
         self._assert(api_json, appointment_count=2)
 
-    def test_search_appointments_no_canvas_data_access(self, advisor_factory, client, fake_auth):
+    def test_search_appointments_no_canvas_data_access(self, user_factory, client, fake_auth):
         """A user with no access to Canvas data can still search for appointments."""
-        advisor = advisor_factory(can_access_canvas_data=False)
+        advisor = user_factory(can_access_canvas_data=False)
         fake_auth.login(advisor.uid)
         api_json = _api_search(
             client,

@@ -43,6 +43,54 @@ from tests.util import mock_advising_note_s3_bucket, override_config
 os.environ['BOAC_ENV'] = 'test'  # noqa
 os.environ['EC2_INSTANCE_ID'] = 'test: EC2_INSTANCE_ID'  # noqa
 
+DATA_LOCH_TEST_DATA_BY_DEPT = {
+    'COENG': {
+        'advisor_attributes': {
+            'dept_code': 'EDDNO',
+        },
+        'advisor_role': {
+            'academic_program_code': 'UCOE',
+            'academic_program_description': 'Undergraduate Engineering',
+            'advisor_type_code': 'DNDS',
+            'cs_permissions': 'UC_CS_AA_CURRICULAR_ADVISOR',
+        },
+    },
+    'GUEST': {
+        'advisor_attributes': {
+            'dept_code': None,
+        },
+        'advisor_role': {
+            'academic_program_code': 'UBUS',
+            'academic_program_description': 'Undergrad Business',
+            'advisor_type_code': None,
+            'cs_permissions': 'UC_CS_AA_CO_CURRICULAR_ADVISOR',
+        },
+    },
+    'QCADV': {
+        'advisor_attributes': {
+            'dept_code': 'HENGL',
+        },
+        'advisor_role': {
+            'academic_program_code': 'UCLS',
+            'academic_program_description': 'Undergrad Letters & Science',
+            'advisor_type_code': 'ADVD',
+            'cs_permissions': 'UC_CS_AA_CURRICULAR_ADVISOR',
+        },
+    },
+    'ZZZZZ': {
+        'advisor_attributes': {
+            'dept_code': 'EDESS',
+        },
+        'advisor_role': {
+            'academic_program_code': None,
+            'academic_program_description': 'Graduate Affairs Advisor',
+            'advisor_type_code': None,
+            'cs_permissions': 'UC_CS_AA_CURRICULAR_ADVISOR',
+        },
+
+    },
+}
+
 
 class FakeAuth(object):
     def __init__(self, the_app, the_client):
@@ -188,19 +236,6 @@ def create_alerts(client, db_session):
 
 
 @pytest.fixture()
-def advisor_factory(app, db):
-    def _advisor_factory(can_access_canvas_data=True, dept_code='COENG', has_calnet_record=True):
-        return _create_advisor(
-            app=app,
-            can_access_canvas_data=can_access_canvas_data,
-            db=db,
-            dept_code=dept_code,
-            has_calnet_record=has_calnet_record,
-        )
-    return _advisor_factory
-
-
-@pytest.fixture()
 def mock_advising_note(app, db):
     """Create advising note with attachment (mock s3)."""
     with mock_advising_note_s3_bucket(app):
@@ -261,6 +296,54 @@ def mock_note_template(app, db):
             return note_template
 
 
+@pytest.fixture(scope='session')
+def admin_user_uid(app, db):
+    from boac.models.cohort_filter import CohortFilter
+    from boac.models.curated_group import CuratedGroup
+
+    admin_user = _create_user(
+        app=app,
+        automate_degree_progress_permission=False,
+        can_access_canvas_data=True,
+        db=db,
+        degree_progress_permission=None,
+        has_calnet_record=True,
+        is_admin=True,
+    )
+    CuratedGroup.create(admin_user.id, 'My Students')
+    for name, group_codes in {
+        'All sports': ['MFB-DL', 'WFH'],
+        'Football, Defense': ['MFB-DB', 'MFB-DL'],
+        'Field Hockey': ['WFH'],
+    }.items():
+        CohortFilter.create(uid=admin_user.uid, name=name, filter_criteria={'groupCodes': group_codes})
+    std_commit(allow_test_environment=True)
+    return admin_user.uid
+
+
+@pytest.fixture()
+def user_factory(app, db):
+    def _user_factory(
+            automate_degree_progress_permission=None,
+            can_access_canvas_data=True,
+            dept_codes=['COENG'],
+            degree_progress_permission=None,
+            has_calnet_record=True,
+            is_admin=False,
+    ):
+        return _create_user(
+            app=app,
+            automate_degree_progress_permission=automate_degree_progress_permission,
+            can_access_canvas_data=can_access_canvas_data,
+            db=db,
+            degree_progress_permission=degree_progress_permission,
+            dept_codes=dept_codes,
+            has_calnet_record=has_calnet_record,
+            is_admin=is_admin,
+        )
+    return _user_factory
+
+
 def pytest_itemcollected(item):
     """Print docstrings during test runs for more readable output."""
     par = item.parent.obj
@@ -271,7 +354,16 @@ def pytest_itemcollected(item):
         item._nodeid = ' '.join((pref, suf))
 
 
-def _create_advisor(app, db, dept_code, can_access_canvas_data=True, has_calnet_record=True):
+def _create_user(
+        app,
+        automate_degree_progress_permission,
+        can_access_canvas_data,
+        db,
+        degree_progress_permission,
+        has_calnet_record,
+        is_admin,
+        dept_codes=[],
+):
     from boac.models.json_cache import insert_row as insert_in_json_cache
     from boac.models.university_dept import UniversityDept
     from boac.models.university_dept_member import UniversityDeptMember
@@ -280,22 +372,38 @@ def _create_advisor(app, db, dept_code, can_access_canvas_data=True, has_calnet_
 
     uid = str(round(time.time() * 1000))
     csid = datetime.now().strftime('%H%M%S%f')
+    data_loch_test_data = [DATA_LOCH_TEST_DATA_BY_DEPT[dept_code] for dept_code in dept_codes]
     first_name = ''.join(random.choices(string.ascii_uppercase, k=6))
     last_name = ''.join(random.choices(string.ascii_uppercase, k=6))
 
-    create_engine(app.config['DATA_LOCH_RDS_URI']).execute(
-        text(f"""
-            INSERT INTO boac_advisor.advisor_attributes
-            (sid, uid, first_name, last_name, title, dept_code, email, campus_email)
-            VALUES
-            ('{csid}', '{uid}', '{first_name}', '{last_name}', 'Academic Advisor', 'EDDNO', NULL, '{uid}@berkeley.edu');
+    if data_loch_test_data:
+        sql = ''
+        for data_loch_row in data_loch_test_data:
+            def _to_sql_value(value):
+                return 'NULL' if value is None else f"'{value}'"
 
-            INSERT INTO boac_advisor.advisor_roles
-            (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
-            VALUES
-            ('{csid}', '{uid}', 'COLL', 'College Advisor', 'ADV', 'Advisor Only', 'UCOE', 'Undergrad Engineering', 'UC_CS_AA_ADVISOR_VIEW')
-        """),  # noqa: E501
-    )
+            advisor_attributes = data_loch_row['advisor_attributes']
+            advisor_role = data_loch_row['advisor_role']
+            sql += f"""
+                INSERT INTO boac_advisor.advisor_attributes
+                (sid, uid, first_name, last_name, title, dept_code, email, campus_email)
+                VALUES
+                (
+                    '{csid}', '{uid}', '{first_name}', '{last_name}', 'Academic Advisor',
+                    {_to_sql_value(advisor_attributes['dept_code'])}, NULL, '{uid}@berkeley.edu'
+                );
+                INSERT INTO boac_advisor.advisor_roles
+                (sid, uid, advisor_type_code, advisor_type, instructor_type_code, instructor_type, academic_program_code, academic_program, cs_permissions)
+                VALUES
+                (
+                    '{csid}', '{uid}', {_to_sql_value(advisor_role['advisor_type_code'])}, 'College Advisor', 'ADV', 'Advisor Only',
+                    {_to_sql_value(advisor_role['academic_program_code'])},
+                    {_to_sql_value(advisor_role['academic_program_description'])},
+                    {_to_sql_value(advisor_role['cs_permissions'])}
+                );
+            """  # noqa: E501
+        create_engine(app.config['DATA_LOCH_RDS_URI']).execute(text(sql))
+
     if has_calnet_record:
         insert_in_json_cache(
             f'calnet_user_for_uid_{uid}',
@@ -307,23 +415,24 @@ def _create_advisor(app, db, dept_code, can_access_canvas_data=True, has_calnet_
                 'name': f'{first_name} {last_name}',
             },
         )
-    user = AuthorizedUser(
-        automate_degree_progress_permission=True,
-        can_access_advising_data=True,
+    is_coe = 'COENG' in dept_codes
+    authorized_user = AuthorizedUser(
+        automate_degree_progress_permission=is_coe if automate_degree_progress_permission is None else automate_degree_progress_permission,  # noqa: E501
         can_access_canvas_data=can_access_canvas_data,
-        created_by='2040',
-        degree_progress_permission='read_write',
+        created_by='0',
+        degree_progress_permission=degree_progress_permission,
+        is_admin=is_admin,
         uid=uid,
     )
-    db.session.add(user)
+    db.session.add(authorized_user)
+    for dept_code in dept_codes:
+        university_dept = UniversityDept.find_by_dept_code(dept_code)
+        UniversityDeptMember.create_or_update_membership(
+            university_dept_id=university_dept.id,
+            authorized_user_id=authorized_user.id,
+            role='advisor',
+            automate_membership=True,
+        )
 
-    university_dept = UniversityDept.find_by_dept_code(dept_code)
-    authorized_user = AuthorizedUser.find_by_uid(user.uid)
-    UniversityDeptMember.create_or_update_membership(
-        university_dept_id=university_dept.id,
-        authorized_user_id=authorized_user.id,
-        role='advisor',
-        automate_membership=True,
-    )
     std_commit(allow_test_environment=True)
     return authorized_user
