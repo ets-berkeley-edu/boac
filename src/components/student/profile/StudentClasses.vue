@@ -35,14 +35,13 @@
         </b-button>
       </div>
       <div v-if="$currentUser.canReadDegreeProgress" class="flex-shrink-1">
-        <b-btn
-          id="view-degree-check-btn"
-          class="pr-0"
-          variant="link"
-          @click="viewDegreeChecks"
+        <router-link
+          id="view-degree-checks-link"
+          target="_blank"
+          :to="getDegreeCheckPath()"
         >
-          Degree Checks<span class="sr-only"> of {{ student.name }}</span>
-        </b-btn>
+          Degree Checks<span class="sr-only"> of {{ student.name }} (will open new browser tab)</span>
+        </router-link>
       </div>
     </div>
     <div
@@ -141,6 +140,16 @@ export default {
     includesCurrentTerm(year) {
       return this.$_.includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
     },
+    getDegreeCheckPath() {
+      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, 'isCurrent')
+      if (currentDegreeCheck) {
+        return `/student/degree/${currentDegreeCheck.id}`
+      } else if (this.$currentUser.canEditDegreeProgress) {
+        return `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/create`
+      } else {
+        return `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/history`
+      }
+    },
     getTerm(termName, year) {
       const term = this.$_.find(year.terms, {'termName': termName})
       if (!term) {
@@ -163,16 +172,6 @@ export default {
       this.uncollapsed = this.$_.filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
       this.expanded = !this.expanded
       this.$announcer.polite(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
-    },
-    viewDegreeChecks() {
-      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, 'isCurrent')
-      if (currentDegreeCheck) {
-        this.$router.push({path: `/student/degree/${currentDegreeCheck.id}`})
-      } else if (this.$currentUser.canEditDegreeProgress) {
-        this.$router.push({path: `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/create`})
-      } else {
-        this.$router.push({path: `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/history`})
-      }
     }
   }
 }
