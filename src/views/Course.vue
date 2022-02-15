@@ -47,7 +47,12 @@
                   {{ meeting.instructors.join(', ') }}
                 </div>
                 <div :id="'meetings-' + meetingIndex" class="font-size-16">
-                  <div>{{ meeting.days }}</div>
+                  <div>
+                    {{ meeting.days }}
+                    <span v-if="section.meetings.length > 1">
+                      ({{ meeting.startDate | moment('MMM D') }} to {{ meeting.endDate | moment('MMM D') }})
+                    </span>
+                  </div>
                   <div>{{ meeting.time }}</div>
                   <div>{{ meeting.location }}<span v-if="meeting.instructionModeName"><span v-if="meeting.location"> &mdash; </span>{{ meeting.instructionModeName }}</span></div>
                 </div>
