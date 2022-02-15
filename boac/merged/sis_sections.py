@@ -83,6 +83,8 @@ def _get_meetings(section_rows):
                 'W': 'Online',
             }.get(instruction_mode, instruction_mode),
             'location': row['meeting_location'],
+            'endDate': row['meeting_end_date'],
+            'startDate': row['meeting_start_date'],
             'time': times,
         }
         key = str(meeting)
