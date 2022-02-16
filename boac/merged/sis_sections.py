@@ -27,10 +27,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 import re
 
 from boac.externals import data_loch
-from boac.models.json_cache import stow
 
 
-@stow('sis_section_{sis_section_id}', for_term=True)
 def get_sis_section(term_id, sis_section_id):
     """Provide detailed SIS Class Section data such as meeting schedules and instructors.
 
