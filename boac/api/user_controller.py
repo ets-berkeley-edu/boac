@@ -79,7 +79,7 @@ def calnet_profile_by_uid(uid):
 @app.route('/api/user/calnet_profile/by_user_id/<user_id>')
 @advisor_required
 def calnet_profile_by_user_id(user_id):
-    user = AuthorizedUser.find_by_id(user_id)
+    user = AuthorizedUser.find_by_id(user_id, include_deleted=True)
     if user:
         return tolerant_jsonify(calnet.get_calnet_user_for_uid(app, user.uid))
     else:
