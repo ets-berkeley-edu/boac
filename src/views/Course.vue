@@ -39,7 +39,7 @@
             <div class="course-column-schedule">
               <h2 class="sr-only">Schedule</h2>
               <div class="course-term-name">{{ section.termName }}</div>
-              <div v-for="(meeting, meetingIndex) in section.meetings" :key="meetingIndex">
+              <div v-for="(meeting, meetingIndex) in meetings" :key="meetingIndex">
                 <div v-if="!$_.isEmpty(meeting.instructors)" class="mt-2">
                   <span :id="'instructors-' + meetingIndex" class="course-schedule-header">
                     {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
@@ -49,7 +49,7 @@
                 <div :id="'meetings-' + meetingIndex" class="font-size-16">
                   <div>
                     {{ meeting.days }}
-                    <span v-if="section.meetings.length > 1">
+                    <span v-if="meetings.length > 1">
                       ({{ meeting.startDate | moment('MMM D') }} to {{ meeting.endDate | moment('MMM D') }})
                     </span>
                   </div>
@@ -192,6 +192,7 @@ export default {
     featured: null,
     isToggling: false,
     matrixDisabledMessage: null,
+    meetings: undefined,
     pagination: {
       currentPage: 1,
       defaultItemsPerPage: 50,
@@ -202,8 +203,8 @@ export default {
       students: []
     },
     sectionId: undefined,
-    termId: undefined,
-    tab: 'list'
+    tab: 'list',
+    termId: undefined
   }),
   created() {
     this.sectionId = this.$route.params.sectionId
@@ -281,6 +282,7 @@ export default {
       const done = data => {
         this.setPageTitle(data.displayName)
         this.section = this.featureSearchedStudent(data)
+        this.meetings = this.$_.orderBy(this.section.meetings, ['startDate'], ['asc'])
         let totalStudentCount = this.$_.get(this.section, 'totalStudentCount')
         if (this.exceedsMatrixThreshold(totalStudentCount)) {
           this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`
