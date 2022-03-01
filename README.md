@@ -1,5 +1,4 @@
-# BOA
-
+# BOA. Fly with us!
 Berkeley Online Advising
 
 ![Illustration of airplane flying above the clouds](src/assets/boa-stratocruiser.jpg)
