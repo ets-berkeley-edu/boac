@@ -26,7 +26,7 @@ https://github.com/python-cas/python-cas/archive/master.zip
 # For testing
 
 moto==2.2.19
-pytest==6.2.5
+pytest==7.0.1
 pytest-flask==1.2.0
 responses==0.16.0
-tox==3.24.4
+tox==3.24.5
