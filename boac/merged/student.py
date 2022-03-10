@@ -309,6 +309,17 @@ def get_term_gpas_by_sid(sids):
     return term_gpa_dict
 
 
+def get_term_units_by_sid(term, sids):
+    results = data_loch.get_enrollments_for_term(term, sids)
+    enrollments_by_sid = {row['sid']: json.loads(row['enrollment_term']) for row in results}
+    term_units_dict = {}
+    for sid in sids:
+        if enrollments_by_sid.get(sid):
+            term_units_dict[sid] = enrollments_by_sid.get(sid).pop('enrolledUnits') if enrollments_by_sid.get(sid) else ''
+
+    return term_units_dict
+
+
 def query_students(
     academic_career_status=None,
     academic_standings=None,
