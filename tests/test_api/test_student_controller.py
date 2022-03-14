@@ -278,21 +278,6 @@ class TestStudent:
             assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
             assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
 
-    def test_course_site_without_enrollment(self, client, coe_advisor_login):
-        """Returns course sites with no associated enrollments."""
-        sid = self.asc_student_in_coe['sid']
-        uid = self.asc_student_in_coe['uid']
-        student_by_sid = self._api_student_by_sid(client=client, sid=sid)
-        student_by_uid = self._api_student_by_uid(client=client, uid=uid)
-        for student in [student_by_sid, student_by_uid]:
-            assert len(student['enrollmentTerms'][0]['unmatchedCanvasSites']) == 0
-            assert len(student['enrollmentTerms'][1]['unmatchedCanvasSites']) == 0
-            assert len(student['enrollmentTerms'][2]['unmatchedCanvasSites']) == 1
-            unmatched_site = student['enrollmentTerms'][2]['unmatchedCanvasSites'][0]
-            assert unmatched_site['courseCode'] == 'STAT 154'
-            assert unmatched_site['courseName'] == 'Modern Statistical Prediction and Machine Learning'
-            assert unmatched_site['analytics']
-
     def test_course_site_without_membership(self, client, coe_advisor_login):
         """Returns a graceful error if the expected membership is not found in the course site."""
         sid = self.asc_student_in_coe['sid']

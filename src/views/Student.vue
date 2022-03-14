@@ -113,22 +113,7 @@ export default {
         next()
       }
     },
-    decorateCourse(course) {
-      // course_code is often valuable (eg, 'ECON 1 - LEC 001'), occasionally not (eg, CCN). Use it per strict criteria:
-      const useCourseCode = /^[A-Z].*[A-Za-z]{3} \d/.test(course.courseCode)
-      return this.$_.merge(course, {
-        displayName: useCourseCode ? course.courseCode : course.courseName,
-        title: useCourseCode ? course.courseName : null,
-        canvasSites: [course]
-      })
-    },
     parseEnrollmentTerm(term) {
-      // Merge in unmatched canvas sites
-      const unmatched = this.$_.map(
-        term.unmatchedCanvasSites,
-        this.decorateCourse
-      )
-      term.enrollments = this.$_.concat(term.enrollments, unmatched)
       this.$_.each(term.enrollments, this.parseCourse)
       if (this.$_.get(term, 'termGpa.unitsTakenForGpa')) {
         this.student.termGpa.push({
