@@ -81,24 +81,5 @@
         "unitsTakenForGpa": 17.0
     },
     "termId": "2172",
-    "termName": "Spring 2017",
-    "unmatchedCanvasSites": [
-        {
-            "analytics": {
-                "assignmentsSubmitted": {
-                    "error": "Redshift query returned no results"
-                },
-                "currentScore": {
-                    "error": "Redshift query returned no results"
-                },
-                "lastActivity": {
-                    "error": "Redshift query returned no results"
-                }
-            },
-            "canvasCourseId": 7654325,
-            "courseCode": "STAT 154",
-            "courseName": "Modern Statistical Prediction and Machine Learning",
-            "courseTerm": "Spring 2017"
-        }
-    ]
+    "termName": "Spring 2017"
 }
