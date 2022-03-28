@@ -893,6 +893,10 @@ def get_distinct_degrees():
     return safe_execute_rds(f'SELECT DISTINCT plan FROM {student_schema()}.student_degrees ORDER BY plan')
 
 
+def get_distinct_divisions():
+    return safe_execute_rds(f'SELECT DISTINCT division FROM {student_schema()}.student_majors ORDER BY division ASC')
+
+
 def get_distinct_genders():
     return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
 
@@ -947,6 +951,7 @@ def get_other_visa_types():
 
 def get_students_query(     # noqa
     academic_career_status=None,
+    academic_division=None,
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -1079,6 +1084,9 @@ def get_students_query(     # noqa
     if degrees:
         query_filter += ' AND sd.plan = ANY(%(degrees)s)'
         query_bindings.update({'degrees': degrees})
+    if academic_division:
+        query_filter += ' AND maj.division = ANY(%(academic_division)s)'
+        query_bindings.update({'academic_division': academic_division})
     if entering_terms:
         query_filter += ' AND spi.entering_term = ANY(%(entering_terms)s)'
         query_bindings.update({'entering_terms': entering_terms})
@@ -1123,7 +1131,7 @@ def get_students_query(     # noqa
             major_filters.append('maj.major = ANY(%(majors)s)')
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_bindings.update({'majors': _majors})
-    if majors or colleges:
+    if majors or colleges or academic_division:
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid'
     if midpoint_deficient_grade is True:
         query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser

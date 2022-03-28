@@ -322,6 +322,7 @@ def get_term_units_by_sid(term, sids):
 
 def query_students(
     academic_career_status=None,
+    academic_division=None,
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -389,6 +390,7 @@ def query_students(
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
         academic_career_status=academic_career_status,
+        academic_division=academic_division,
         academic_standings=academic_standings,
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,

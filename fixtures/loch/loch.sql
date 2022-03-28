@@ -499,7 +499,8 @@ CREATE TABLE student.student_majors
 (
     sid VARCHAR NOT NULL,
     college VARCHAR NOT NULL,
-    major VARCHAR NOT NULL
+    major VARCHAR NOT NULL,
+    division VARCHAR NOT NULL
 );
 
 CREATE TABLE student.student_names
@@ -1017,20 +1018,20 @@ VALUES
 ('9191919191', '191919', 'Paul', 'Tarsus', NULL, NULL, NULL, FALSE, NULL, NULL, NULL, NULL, 'inactive');
 
 INSERT INTO student.student_majors
-(sid, college, major)
+(sid, college, major, division)
 VALUES
-('11667051', 'Undergrad Letters & Science', 'English BA'),
-('11667051', 'Undergrad Engineering', 'Nuclear Engineering BS'),
-('2345678901', 'Undergrad Chemistry', 'Chemistry BS'),
-('3456789012', 'Undergrad Letters & Science', 'English BA'),
-('3456789012', 'Undergrad Letters & Science', 'Political Economy BA'),
-('5678901234', 'Undergrad Letters & Science', 'Letters & Sci Undeclared UG'),
-('7890123456', 'Undergrad Engineering', 'Nuclear Engineering BS'),
-('8901234567', 'Undergrad Letters & Science', 'Economics BA'),
-('890127492', 'Undergrad Letters & Science', 'Mathematics'),
-('9000000000', 'Undergrad Engineering', 'Engineering Undeclared UG'),
-('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG'),
-('2718281828', 'Undergrad Letters & Science', 'English BA');
+('11667051', 'Undergrad Letters & Science', 'English BA', 'L&S Arts & Humanities Division'),
+('11667051', 'Undergrad Engineering', 'Nuclear Engineering BS', 'Clg of Engineering'),
+('2345678901', 'Undergrad Chemistry', 'Chemistry BS', 'Clg of Chemistry'),
+('3456789012', 'Undergrad Letters & Science', 'English BA', 'L&S Arts & Humanities Division'),
+('3456789012', 'Undergrad Letters & Science', 'Political Economy BA', 'L&S Social Sciences Division'),
+('5678901234', 'Undergrad Letters & Science', 'Letters & Sci Undeclared UG', 'L&S Undeclared'),
+('7890123456', 'Undergrad Engineering', 'Nuclear Engineering BS', 'Clg of Engineering'),
+('8901234567', 'Undergrad Letters & Science', 'Economics BA', 'L&S Social Sciences Division'),
+('890127492', 'Undergrad Letters & Science', 'Mathematics', 'L&S Math & Phys Sciences Div'),
+('9000000000', 'Undergrad Engineering', 'Engineering Undeclared UG', 'Clg of Engineering'),
+('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG', 'Clg of Engineering'),
+('2718281828', 'Undergrad Letters & Science', 'English BA', 'L&S Arts & Humanities Division');
 
 
 INSERT INTO student.student_names
