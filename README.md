@@ -2,7 +2,7 @@
 
 Berkeley Online Advising
 
-![Illustration of airplane flying above the clouds](src/assets/boa-stratocruiser.jpg)
+![Airplane flying above the clouds](src/assets/boa-stratocruiser.jpg)
 
 ## Installation
 
