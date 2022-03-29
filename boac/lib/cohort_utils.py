@@ -77,6 +77,11 @@ def academic_career_status_options():
     ]
 
 
+def academic_division_options():
+    division_results = [row['division'] for row in data_loch.get_distinct_divisions()]
+    return [{'name': division, 'value': division} for division in division_results]
+
+
 @stow('cohort_filter_options_academic_standing')
 def academic_standing_options(min_term_id=0):
     option_groups = {}

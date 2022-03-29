@@ -1126,6 +1126,21 @@ class TestCohortPerFilters:
         assert students[0]['sid'] == '3141592653'
         assert students[1]['sid'] == '2718281828'
 
+    def test_filter_division(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicDivisions', 'value': 'L&S Arts & Humanities Division'},
+                ],
+            },
+        )
+
+        students = api_json['students']
+        assert len(students) == 2
+        assert students[0]['sid'] == '11667051'
+        assert students[1]['sid'] == '3456789012'
+
     def test_filter_entering_term(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,
