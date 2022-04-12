@@ -7,7 +7,7 @@ Flask-SQLAlchemy==2.5.1
 Flask==2.0.2
 ldap3==2.7
 names==0.3.0
-nltk==3.6.5
+nltk==3.6.6
 pandas==0.25.3
 pprintpp==0.4.0
 psycopg2-binary==2.9.2
