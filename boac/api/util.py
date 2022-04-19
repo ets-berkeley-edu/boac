@@ -502,7 +502,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark):
 
     def _add_row(student_profile):
         student_profile['termGpa'] = term_gpas.get(student_profile['sid'], {})
-        student_profile['enrolledUnits'] = term_units.get(student_profile['sid'], {})
+        student_profile['enrolledUnits'] = term_units.get(student_profile['sid'], '0')
 
         row = {}
         for fieldname in fieldnames:
