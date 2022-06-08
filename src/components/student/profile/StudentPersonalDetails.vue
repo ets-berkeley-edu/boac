@@ -96,9 +96,8 @@
         </div>
         <div class="col-sm pr-2 mr-2">
           <div v-if="student.sisProfile.intendedMajors" id="student-details-intended-majors-outer" class="mb-4">
-            <h3 class="student-profile-h3">
-              Intended Major
-            </h3>
+            <h3 v-if="isGraduate(student)" class="student-profile-h3">Intended Academic Plan</h3>
+            <h3 v-if="!isGraduate(student)" class="student-profile-h3">Intended Major</h3>
             <div id="student-details-intended-majors">
               <div v-for="plan in student.sisProfile.intendedMajors" :key="plan.description" class="mb-2">
                 <div class="font-weight-bolder">
@@ -148,6 +147,7 @@
 
 <script>
 import Berkeley from '@/mixins/Berkeley'
+import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
 
@@ -156,7 +156,7 @@ export default {
   components: {
     StudentProfilePlan
   },
-  mixins: [Berkeley, Util],
+  mixins: [Berkeley, StudentMetadata, Util],
   props: {
     inactiveMajors: {
       required: true,

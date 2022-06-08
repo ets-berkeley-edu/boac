@@ -24,6 +24,9 @@ export default {
     },
     isAlertGrade(grade) {
       return grade && this.$options.alertGrades.test(grade)
+    },
+    isGraduate(student) {
+      return _.get(student, 'sisProfile.level.description') === 'Graduate'
     }
   }
 }

@@ -2,7 +2,8 @@
   <div>
     <div v-if="academicCareerStatus !== 'Completed'">
       <div v-if="plansPartitionedByStatus[0].length" id="student-bio-majors" class="mb-3">
-        <h3 class="student-profile-h3">Major</h3>
+        <h3 v-if="isGraduate(student)" class="student-profile-h3">Academic Plan</h3>
+        <h3 v-if="!isGraduate(student)" class="student-profile-h3">Major</h3>
         <StudentProfilePlan
           v-for="plan in plansPartitionedByStatus[0]"
           :key="plan.description"
@@ -88,12 +89,13 @@
 </template>
 
 <script>
+import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentProfileHeaderAcademics',
-  mixins: [Util],
+  mixins: [StudentMetadata, Util],
   components: {StudentProfilePlan},
   props: {
     compact: {
