@@ -422,7 +422,7 @@ def _query_students(
         last_term_gpa_ranges=criteria.get('lastTermGpaRanges'),
         levels=criteria.get('levels'),
         limit=limit,
-        majors=(criteria.get('majors', []) + criteria.get('graduatePrograms', [])),
+        majors=((criteria.get('majors') or []) + (criteria.get('graduatePrograms') or [])),
         midpoint_deficient_grade=criteria.get('midpointDeficient'),
         minors=criteria.get('minors'),
         offset=offset,
