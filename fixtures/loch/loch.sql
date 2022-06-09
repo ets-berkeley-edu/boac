@@ -963,7 +963,7 @@ VALUES
 ('3456789012', 'Public Health BA'),
 ('5678901234', 'Letters & Sci Undeclared UG'),
 ('8901234567', 'Economics BA'),
-('890127492', 'Mathematics'),
+('890127492', 'Mathematics PhD'),
 ('9100000000', 'Engineering Undeclared UG');
 
 INSERT INTO student.minors
@@ -1028,7 +1028,7 @@ VALUES
 ('5678901234', 'Undergrad Letters & Science', 'Letters & Sci Undeclared UG', 'L&S Undeclared'),
 ('7890123456', 'Undergrad Engineering', 'Nuclear Engineering BS', 'Clg of Engineering'),
 ('8901234567', 'Undergrad Letters & Science', 'Economics BA', 'L&S Social Sciences Division'),
-('890127492', 'Undergrad Letters & Science', 'Mathematics', 'L&S Math & Phys Sciences Div'),
+('890127492', 'Graduate Academic Programs', 'Mathematics PhD', 'L&S Math & Phys Sciences Div'),
 ('9000000000', 'Undergrad Engineering', 'Engineering Undeclared UG', 'Clg of Engineering'),
 ('9100000000', 'Undergrad Engineering', 'Engineering Undeclared UG', 'Clg of Engineering'),
 ('2718281828', 'Undergrad Letters & Science', 'English BA', 'L&S Arts & Humanities Division');

@@ -1155,6 +1155,20 @@ class TestCohortPerFilters:
         for student in students:
             assert student['matriculation'] == 'Summer 2015'
 
+    def test_filter_graduate_program(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'graduatePrograms', 'value': 'Mathematics PhD'},
+                ],
+            },
+        )
+
+        students = api_json['students']
+        assert len(students) == 1
+        assert students[0]['sid'] == '890127492'
+
     def test_filter_multiple_entering_terms(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,
@@ -1735,6 +1749,23 @@ class TestCohortFilterOptions:
         filter_options = entering_terms_filter.get('options')
         assert len(filter_options['Past']) == 1
         assert filter_options['Past'][0]['name'] == '1997 Fall'
+
+    def test_range_of_majors(self, user_factory, client, fake_auth):
+        advisor = user_factory(dept_codes=['GUEST'])
+        fake_auth.login(advisor.uid)
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        majors_filter = next((f for f in api_json['Academic'] if f['key'] == 'majors'), None)
+        assert {'name': 'Chemistry BS', 'value': 'Chemistry BS'} in majors_filter['options']
+        assert {'name': 'Nuclear Engineering BS', 'value': 'Nuclear Engineering BS'} in majors_filter['options']
+        assert {'name': 'Mathematics PhD', 'value': 'Mathematics PhD'} not in majors_filter['options']
+
+    def test_range_of_graduate_programs(self, user_factory, client, fake_auth):
+        advisor = user_factory(dept_codes=['GUEST'])
+        fake_auth.login(advisor.uid)
+        api_json = self._api_cohort_filter_options(client, {'existingFilters': []})
+        majors_filter = next((f for f in api_json['Academic'] if f['key'] == 'graduatePrograms'), None)
+        assert len(majors_filter['options']) == 1
+        assert majors_filter['options'][0] == {'name': 'Mathematics PhD', 'value': 'Mathematics PhD'}
 
     def test_no_curated_group_options(self, client, fake_auth):
         """User with no curated groups gets no cohort filter option where key='curatedGroupIds'."""

@@ -225,6 +225,12 @@ def minors():
     return [{'name': minor, 'value': minor} for minor in minor_results]
 
 
+@stow('cohort_filter_options_graduate_programs')
+def graduate_programs():
+    results = [row['major'] for row in data_loch.get_graduate_programs()]
+    return [{'name': result, 'value': result} for result in results]
+
+
 @stow('cohort_filter_options_admit_colleges')
 def student_admit_college_options():
     college_results = [row['college'] for row in data_loch.get_admit_colleges()]

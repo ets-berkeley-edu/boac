@@ -919,6 +919,15 @@ def get_expected_graduation_terms():
     return safe_execute_rds(sql)
 
 
+def get_graduate_programs():
+    sql = f"""SELECT DISTINCT maj.major AS major
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.student_majors maj
+        ON maj.sid = spi.sid AND spi.academic_career_status = 'active' AND maj.college LIKE 'Graduate%%'
+        ORDER BY major"""
+    return safe_execute_rds(sql)
+
+
 def get_intended_majors():
     sql = f"""SELECT DISTINCT im.major
         FROM {student_schema()}.student_profile_index spi
@@ -930,7 +939,8 @@ def get_intended_majors():
 def get_majors():
     sql = f"""SELECT DISTINCT maj.major AS major
         FROM {student_schema()}.student_profile_index spi
-        JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid AND spi.academic_career_status = 'active'
+        JOIN {student_schema()}.student_majors maj
+        ON maj.sid = spi.sid AND spi.academic_career_status = 'active' AND maj.college NOT LIKE 'Graduate%%'
         ORDER BY major"""
     return safe_execute_rds(sql)
 
