@@ -257,5 +257,6 @@ DROP TYPE IF EXISTS public.cohort_domain_types;
 DROP TYPE IF EXISTS public.degree_progress_category_types;
 DROP TYPE IF EXISTS public.drop_in_advisor_status_types;
 DROP TYPE IF EXISTS public.generic_permission_types;
+DROP TYPE IF EXISTS public.note_contact_types;
 DROP TYPE IF EXISTS public.university_dept_member_role_types;
 DROP TYPE IF EXISTS public.weekday_types;

@@ -570,6 +570,16 @@ CREATE INDEX notes_read_viewer_id_idx ON notes_read USING btree (viewer_id);
 
 --
 
+CREATE TYPE note_contact_types AS ENUM (
+    'Email',
+    'Phone',
+    'Online same day',
+    'Online scheduled',
+    'In-person same day',
+    'In person scheduled',
+    'Admin'
+);
+
 CREATE TABLE notes (
     id INTEGER NOT NULL,
     author_uid VARCHAR(255) NOT NULL,
@@ -577,7 +587,9 @@ CREATE TABLE notes (
     author_role VARCHAR(255) NOT NULL,
     author_dept_codes VARCHAR[] NOT NULL,
     body TEXT,
+    contact_type note_contact_types,
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
+    set_date DATE,
     sid VARCHAR(80) NOT NULL,
     subject VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,

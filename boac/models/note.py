@@ -27,15 +27,28 @@ import json
 
 from boac import db, std_commit
 from boac.lib.background import bg_execute
-from boac.lib.util import get_benchmarker, put_attachment_to_s3, utc_now
+from boac.lib.util import get_benchmarker, put_attachment_to_s3, safe_strftime, utc_now
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_template_attachment import NoteTemplateAttachment
 from boac.models.note_topic import NoteTopic
 from sqlalchemy import and_
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, ENUM
 from sqlalchemy.sql import text
+
+
+note_contact_type_enum = ENUM(
+    'Email',
+    'Phone',
+    'Online same day',
+    'Online scheduled',
+    'In-person same day',
+    'In person scheduled',
+    'Admin',
+    name='note_contact_types',
+    create_type=False,
+)
 
 
 class Note(Base):
@@ -47,7 +60,9 @@ class Note(Base):
     author_role = db.Column(db.String(255), nullable=False)
     author_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     body = db.Column(db.Text, nullable=False)
+    contact_type = db.Column(note_contact_type_enum, nullable=True)
     is_private = db.Column(db.Boolean, nullable=False, default=False)
+    set_date = db.Column(db.Date)
     sid = db.Column(db.String(80), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
@@ -64,13 +79,27 @@ class Note(Base):
         lazy=True,
     )
 
-    def __init__(self, author_uid, author_name, author_role, author_dept_codes, body, sid, subject, is_private=False):
+    def __init__(
+        self,
+        author_uid,
+        author_name,
+        author_role,
+        author_dept_codes,
+        body,
+        sid,
+        subject,
+        contact_type=None,
+        is_private=False,
+        set_date=None,
+    ):
         self.author_dept_codes = author_dept_codes
         self.author_name = author_name
         self.author_role = author_role
         self.author_uid = author_uid
         self.body = body
+        self.contact_type = contact_type
         self.is_private = is_private
+        self.set_date = set_date
         self.sid = sid
         self.subject = subject
 
@@ -90,7 +119,9 @@ class Note(Base):
             body,
             topics=(),
             attachments=(),
+            contact_type=None,
             is_private=False,
+            set_date=None,
             template_attachment_ids=(),
     ):
         ids_by_sid = cls.create_batch(
@@ -102,7 +133,9 @@ class Note(Base):
             sids=[sid],
             subject=subject,
             body=body,
+            contact_type=contact_type,
             is_private=is_private,
+            set_date=set_date,
             topics=topics,
             attachments=attachments,
             template_attachment_ids=template_attachment_ids,
@@ -122,7 +155,9 @@ class Note(Base):
             author_role,
             author_dept_codes,
             body,
+            contact_type,
             is_private,
+            set_date,
             sids,
             subject,
             attachments=(),
@@ -138,7 +173,9 @@ class Note(Base):
             author_role=author_role,
             author_dept_codes=author_dept_codes,
             body=body,
+            contact_type=contact_type,
             is_private=is_private,
+            set_date=set_date,
             sids=sids,
             subject=subject,
         )
@@ -230,11 +267,13 @@ class Note(Base):
         bg_execute(_refresh_search_index)
 
     @classmethod
-    def update(cls, note_id, subject, body=None, is_private=False, topics=()):
+    def update(cls, note_id, subject, body=None, contact_type=None, is_private=False, set_date=None, topics=()):
         note = cls.find_by_id(note_id=note_id)
         if note:
             note.body = body
+            note.contact_type = contact_type
             note.is_private = is_private
+            note.set_date = set_date
             note.subject = subject
             cls._update_note_topics(note, topics)
             std_commit()
@@ -336,7 +375,9 @@ class Note(Base):
             'authorRole': self.author_role,
             'authorDeptCodes': self.author_dept_codes,
             'body': self.body,
+            'contactType': self.contact_type,
             'isPrivate': self.is_private,
+            'setDate': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
             'subject': self.subject,
             'topics': [topic.topic for topic in self.topics],
@@ -356,7 +397,9 @@ def _create_notes(
         author_role,
         author_dept_codes,
         body,
+        contact_type,
         is_private,
+        set_date,
         sids,
         subject,
 ):
@@ -368,8 +411,10 @@ def _create_notes(
     for chunk in range(0, len(sids), count_per_chunk):
         sids_subset = sids[chunk:chunk + count_per_chunk]
         query = """
-            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, is_private, sid, subject, created_at, updated_at)
-            SELECT author_dept_codes, author_name, author_role, author_uid, body, is_private, sid, subject, created_at, updated_at
+            INSERT INTO notes (author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private, set_date, sid, subject,
+                               created_at, updated_at)
+            SELECT author_dept_codes, author_name, author_role, author_uid, body, contact_type, is_private, set_date, sid, subject,
+                   created_at, updated_at
             FROM json_populate_recordset(null::notes, :json_dumps)
             RETURNING id, sid;
         """
@@ -382,7 +427,9 @@ def _create_notes(
                 'sid': sid,
                 'subject': subject,
                 'body': body,
+                'contact_type': contact_type,
                 'is_private': is_private,
+                'set_date': set_date,
                 'created_at': now,
                 'updated_at': now,
             } for sid in sids_subset

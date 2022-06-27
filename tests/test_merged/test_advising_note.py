@@ -56,6 +56,8 @@ class TestMergedAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2017-10-31T12:00:00+00:00')
         assert notes[0]['updatedBy'] is None
         assert notes[0]['updatedAt'] is None
+        assert notes[0]['contactType'] is None
+        assert notes[0]['setDate'] is None
         assert notes[0]['read'] is False
         assert notes[0]['topics'] == ['God Scéaw']
         assert notes[0]['legacySource'] == 'SIS'
@@ -132,6 +134,8 @@ class TestMergedAdvisingNote:
         assert boa_created_note['appointmentId'] is None
         assert boa_created_note['createdBy'] is None
         assert boa_created_note['createdAt']
+        assert boa_created_note['contactType'] is None
+        assert boa_created_note['setDate'] is None
         assert boa_created_note['updatedBy'] is None
         assert boa_created_note['updatedAt'] is None
         assert boa_created_note['read'] is False

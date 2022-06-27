@@ -110,6 +110,10 @@ def remove_none_values(_dict):
     return {k: v for k, v in _dict.items() if v is not None}
 
 
+def safe_strftime(date, date_format):
+    return datetime.strftime(date, date_format) if date else None
+
+
 def titleize(_str):
     def handle_abbreviations(word, **kwargs):
         if app.config['ABBREVIATED_WORDS'] and word.upper().strip(string.punctuation) in app.config['ABBREVIATED_WORDS']:

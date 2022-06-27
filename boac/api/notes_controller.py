@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
@@ -54,7 +55,7 @@ from boac.merged.advising_note import (
 from boac.merged.calnet import get_calnet_user_for_uid
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
-from boac.models.note import Note
+from boac.models.note import Note, note_contact_type_enum
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response, stream_with_context
@@ -88,7 +89,9 @@ def create_notes():
     sids = _get_sids_for_note_creation()
     benchmark(f'SID count: {len(sids)}')
     body = params.get('body', None)
+    contact_type = _validate_contact_type(params)
     is_private = to_bool_or_none(params.get('isPrivate', False))
+    set_date = _validate_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
@@ -113,7 +116,9 @@ def create_notes():
             **_get_author_profile(),
             attachments=attachments,
             body=body,
+            contact_type=contact_type,
             is_private=is_private,
+            set_date=set_date,
             sid=sids[0],
             subject=subject,
             template_attachment_ids=template_attachment_ids,
@@ -127,7 +132,9 @@ def create_notes():
                 attachments=attachments,
                 author_id=current_user.to_api_json()['id'],
                 body=body,
+                contact_type=contact_type,
                 is_private=is_private,
+                set_date=set_date,
                 sids=sids,
                 subject=subject,
                 template_attachment_ids=template_attachment_ids,
@@ -143,8 +150,10 @@ def create_notes():
 def update_note():
     params = request.form
     body = params.get('body', None)
+    contact_type = _validate_contact_type(params)
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
+    set_date = _validate_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
 
@@ -160,8 +169,10 @@ def update_note():
 
     note = Note.update(
         body=process_input_from_rich_text_editor(body),
+        contact_type=contact_type,
         is_private=is_private,
         note_id=note_id,
+        set_date=set_date,
         subject=subject,
         topics=topics,
     )
@@ -326,6 +337,23 @@ def _get_author_profile():
         'author_role': role,
         'author_dept_codes': dept_codes,
     }
+
+
+def _validate_contact_type(params):
+    contact_type = params.get('contactType', None)
+    if contact_type and contact_type not in note_contact_type_enum.enums:
+        raise BadRequestError('Unrecognized contact type')
+    return contact_type
+
+
+def _validate_set_date(params):
+    set_date = params.get('setDate', None)
+    if set_date:
+        try:
+            datetime.strptime(set_date, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            raise BadRequestError('Invalid set date format')
+    return set_date
 
 
 def _boa_note_to_compatible_json(note, note_read):
