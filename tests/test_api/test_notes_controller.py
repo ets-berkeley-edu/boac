@@ -23,7 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
+from datetime import date, datetime
 from time import sleep
 
 from boac.lib.util import localize_datetime, utc_now
@@ -342,6 +342,58 @@ class TestNoteCreation:
         assert note['createdAt'] is not None
         assert note['updatedAt'] is None
 
+    def test_create_note_with_contact_type(self, app, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app=app,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            body='Do you wanna make tea at the BBC?',
+            client=client,
+            contact_type='In-person same day',
+            sids=[coe_student['sid']],
+            subject='Career Opportunities',
+        )
+        assert note['contactType'] == 'In-person same day'
+
+    def test_invalid_contact_type(self, app, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
+        _api_note_create(
+            app=app,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            body='Do you wanna be, do you really wanna be a cop?',
+            client=client,
+            contact_type='Bope',
+            expected_status_code=400,
+            sids=[coe_student['sid']],
+            subject='Career Opportunities',
+        )
+
+    def test_create_note_with_set_date(self, app, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
+        note = _api_note_create(
+            app=app,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            body='Career opportunities, the ones that never knock',
+            client=client,
+            set_date='2021-12-25',
+            sids=[coe_student['sid']],
+            subject='Career Opportunities',
+        )
+        assert note['setDate'] == '2021-12-25'
+
+    def test_invalid_set_date(self, app, client, fake_auth):
+        fake_auth.login(coe_advisor_uid)
+        _api_note_create(
+            app=app,
+            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+            body='Every job they offer you is to keep you out the dock',
+            client=client,
+            expected_status_code=400,
+            set_date='Bope',
+            sids=[coe_student['sid']],
+            subject='Career Opportunities',
+        )
+
 
 class TestBatchNoteCreation:
 
@@ -399,7 +451,9 @@ class TestBatchNoteCreation:
             body='Well you greet the tokens and stamps, beneath the fake oil burnin\' lamps',
             client=client,
             cohort_ids=cohort_ids,
+            contact_type='Admin',
             curated_group_ids=curated_group_ids,
+            set_date='2022-01-01',
             sids=self.sids,
             subject=subject,
             template_attachment_ids=list(map(lambda a: a.id, mock_note_template.attachments)),
@@ -424,6 +478,8 @@ class TestBatchNoteCreation:
             assert 'Slanted' in topics
             assert 'Enchanted' in topics
             assert len(note.attachments) == expected_attachment_count
+            assert note.contact_type == 'Admin'
+            assert note.set_date == date(2022, 1, 1)
 
 
 class TestNoteAttachments:
@@ -621,7 +677,9 @@ class TestUpdateNotes:
             note_id,
             subject,
             expected_status_code=200,
+            contact_type=None,
             is_private=False,
+            set_date=None,
             topics=(),
     ):
         with mock_advising_note_s3_bucket(app):
@@ -632,6 +690,10 @@ class TestUpdateNotes:
                 'subject': subject,
                 'topics': ','.join(topics),
             }
+            if contact_type:
+                data['contactType'] = contact_type
+            if set_date:
+                data['setDate'] = set_date
             response = client.post(
                 '/api/notes/update',
                 buffered=True,
@@ -750,6 +812,34 @@ class TestUpdateNotes:
             topics=[t.topic for t in original_topics],
         )
         assert set(api_json['topics']) == set([t.topic for t in original_topics])
+
+    def test_update_note_contact_type(self, app, client, fake_auth, mock_asc_advising_note):
+        """Update note contact type."""
+        fake_auth.login(mock_asc_advising_note.author_uid)
+        api_json = self._api_note_update(
+            app=app,
+            body=mock_asc_advising_note.body,
+            client=client,
+            note_id=mock_asc_advising_note.id,
+            subject=mock_asc_advising_note.subject,
+            contact_type='Online same day',
+        )
+        assert api_json['read'] is True
+        assert api_json['contactType'] == 'Online same day'
+
+    def test_update_note_set_date(self, app, client, fake_auth, mock_asc_advising_note):
+        """Update note set date."""
+        fake_auth.login(mock_asc_advising_note.author_uid)
+        api_json = self._api_note_update(
+            app=app,
+            body=mock_asc_advising_note.body,
+            client=client,
+            note_id=mock_asc_advising_note.id,
+            subject=mock_asc_advising_note.subject,
+            set_date='2021-10-31',
+        )
+        assert api_json['read'] is True
+        assert api_json['setDate'] == '2021-10-31'
 
 
 class TestDeleteNote:
@@ -945,7 +1035,9 @@ def _api_note_create(
         subject,
         attachments=(),
         expected_status_code=200,
+        contact_type=None,
         is_private=False,
+        set_date=None,
         template_attachment_ids=(),
         topics=(),
 ):
@@ -959,6 +1051,10 @@ def _api_note_create(
             'templateAttachmentIds': ','.join(str(_id) for _id in template_attachment_ids),
             'topics': ','.join(topics),
         }
+        if contact_type:
+            data['contactType'] = contact_type
+        if set_date:
+            data['setDate'] = set_date
         for index, path in enumerate(attachments):
             data[f'attachment[{index}]'] = open(path, 'rb')
         response = client.post(
@@ -981,7 +1077,9 @@ def _api_batch_note_create(
         cohort_ids=None,
         curated_group_ids=None,
         expected_status_code=200,
+        contact_type=None,
         is_private=False,
+        set_date=None,
         sids=None,
         template_attachment_ids=(),
         topics=(),
@@ -1001,6 +1099,10 @@ def _api_batch_note_create(
         }
         for index, path in enumerate(attachments):
             data[f'attachment[{index}]'] = open(path, 'rb')
+        if contact_type:
+            data['contactType'] = contact_type
+        if set_date:
+            data['setDate'] = set_date
         response = client.post(
             '/api/notes/create',
             buffered=True,
