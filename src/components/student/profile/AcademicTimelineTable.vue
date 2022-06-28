@@ -251,7 +251,7 @@
               <div v-if="!$_.includes(openMessages, message.transientId) || !$_.includes(['note', 'appointment'], message.type)">
                 <TimelineDate
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
-                  :date="message.updatedAt || message.createdAt"
+                  :date="message.setDate || message.updatedAt || message.createdAt"
                   :include-time-of-day="false"
                   :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
@@ -280,6 +280,14 @@
                     :include-time-of-day="message.updatedAt.length > 10"
                     class="mb-2"
                     sr-prefix="Last updated on"
+                  />
+                </div>
+                <div v-if="message.setDate">
+                  <div class="mt-2 text-muted">Set Date:</div>
+                  <TimelineDate
+                    :id="`expanded-${message.type}-${message.id}-set-date`"
+                    :date="message.setDate"
+                    class="mb-2"
                   />
                 </div>
                 <div class="text-muted">
@@ -493,7 +501,9 @@ export default {
       const note = this.$_.find(this.messages, ['id', updatedNote.id])
       note.attachments = updatedNote.attachments
       note.body = note.message = updatedNote.body
+      note.contactType = updatedNote.contactType
       note.isPrivate = updatedNote.isPrivate
+      note.setDate = updatedNote.setDate
       note.subject = updatedNote.subject
       note.topics = updatedNote.topics
       note.updatedAt = updatedNote.updatedAt
