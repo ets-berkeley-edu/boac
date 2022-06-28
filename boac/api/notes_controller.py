@@ -340,14 +340,14 @@ def _get_author_profile():
 
 
 def _validate_contact_type(params):
-    contact_type = params.get('contactType', None)
+    contact_type = params.get('contactType') or None
     if contact_type and contact_type not in note_contact_type_enum.enums:
         raise BadRequestError('Unrecognized contact type')
     return contact_type
 
 
 def _validate_set_date(params):
-    set_date = params.get('setDate', None)
+    set_date = params.get('setDate') or None
     if set_date:
         try:
             datetime.strptime(set_date, '%Y-%m-%d').date()

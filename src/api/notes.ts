@@ -25,8 +25,10 @@ export function createNotes(
     attachments: any[],
     body: string,
     cohortIds: number[],
+    contactType: string,
     curatedGroupIds: number[],
     isPrivate: boolean,
+    setDate: string,
     sids: any,
     subject: string,
     templateAttachmentIds: [],
@@ -35,8 +37,10 @@ export function createNotes(
   const data = {
     body,
     cohortIds,
+    contactType,
     curatedGroupIds,
     isPrivate,
+    setDate,
     sids,
     subject,
     templateAttachmentIds,
@@ -50,15 +54,19 @@ export function createNotes(
 
 export function updateNote(
     body: string,
+    contactType: string,
     isPrivate: boolean,
     noteId: number,
+    setDate: string,
     subject: string,
     topics: string[]
 ) {
   const data = {
     body: body,
+    contactType: contactType,
     id: noteId,
     isPrivate: isPrivate,
+    setDate: setDate,
     subject: subject,
     topics: topics
   }

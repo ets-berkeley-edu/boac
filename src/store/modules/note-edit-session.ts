@@ -11,7 +11,9 @@ const $_getDefaultModel = (isPrivate?) => {
     id: undefined,
     subject: undefined,
     body: undefined,
+    contactType: undefined,
     isPrivate: _.isNil(isPrivate) ? undefined : isPrivate,
+    setDate: undefined,
     topics: [],
     attachments: [],
     deleteAttachmentIds: []
@@ -97,6 +99,7 @@ const mutations = {
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
   setBody: (state: any, body: string) => (state.model.body = body),
   setCompleteSidSet: (state: any, completeSidSet: number) => (state.completeSidSet = completeSidSet),
+  setContactType: (state: any, contactType: string) => (state.model.contactType = contactType),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
   setIsRecalculating: (state: any, isRecalculating: boolean) => (state.isRecalculating = isRecalculating),
@@ -114,9 +117,11 @@ const mutations = {
       state.model = {
         attachments: model.attachments || [],
         body: model.body,
+        contactType: model.contactType || null,
         deleteAttachmentIds: [],
         id: model.id,
         isPrivate: model.isPrivate,
+        setDate: model.setDate ? Vue.prototype.$moment(model.setDate) : null,
         subject: model.subject,
         topics: model.topics || [],
       }
@@ -126,6 +131,7 @@ const mutations = {
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
+  setSetDate: (state: any, setDate: any) => (state.model.setDate = setDate ? Vue.prototype.$moment(setDate) : null),
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }
 
@@ -165,12 +171,15 @@ const actions = {
         completeSidSet: state.completeSidSet,
         subject: state.model.subject
       })
+      const dateString = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
       createNotes(
         attachments,
         state.model.body,
         _.map(state.addedCohorts, 'id'),
+        state.model.contactType,
         _.map(state.addedCuratedGroups, 'id'),
         state.model.isPrivate,
+        dateString,
         state.sids,
         state.model.subject,
         _.map(templateAttachments, 'id'),
@@ -216,12 +225,14 @@ const actions = {
   removeTopic: ({commit}, topic: string) => commit('removeTopic', topic),
   resetModel: ({commit}, isPrivate?: boolean) => commit('setModel', $_getDefaultModel(isPrivate)),
   setBody: ({commit}, body: string) => commit('setBody', body),
+  setContactType: ({commit}, contactType: string) => commit('setContactType', contactType),
   setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
   setIsPrivate: ({commit}, isPrivate: boolean) => commit('setIsPrivate', isPrivate),
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({commit}, mode: string) => commit('setMode', mode),
   setModel: ({commit}, model?: any) => commit('setModel', model),
+  setSetDate: ({commit}, setDate: any) => commit('setSetDate', setDate),
   setSubject: ({commit}, subject: string) => commit('setSubject', subject)
 }
 

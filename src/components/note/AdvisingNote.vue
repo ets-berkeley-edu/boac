@@ -117,6 +117,10 @@
           </li>
         </ul>
       </div>
+      <div v-if="note.contactType" class="mt-3">
+        <div class="font-weight-bold">Contact Type</div>
+        <div :id="`note-${note.id}-contact-type`">{{ note.contactType }}</div>
+      </div>
     </div>
     <AreYouSureModal
       v-if="showConfirmDeleteAttachment"

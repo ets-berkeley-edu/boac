@@ -37,6 +37,12 @@
     <div v-if="$currentUser.canAccessPrivateNotes" class="pb-3">
       <PrivacyPermissions :disabled="isSaving || boaSessionExpired" />
     </div>
+    <div class="pb-3">
+      <ContactMethod :disabled="isSaving || boaSessionExpired" />
+    </div>
+    <div class="pb-3">
+      <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
+    </div>
     <div>
       <div
         v-if="boaSessionExpired"
@@ -111,7 +117,9 @@
 <script>
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import ContactMethod from '@/components/note/create/ContactMethod'
 import Context from '@/mixins/Context'
+import ManuallySetDate from '@/components/note/create/ManuallySetDate'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
@@ -122,7 +130,7 @@ import {getUserProfile} from '@/api/user'
 
 export default {
   name: 'EditAdvisingNote',
-  components: {AdvisingNoteTopics, AreYouSureModal, PrivacyPermissions, RichTextEditor, SessionExpired},
+  components: {AdvisingNoteTopics, AreYouSureModal, ContactMethod, ManuallySetDate, PrivacyPermissions, RichTextEditor, SessionExpired},
   mixins: [Context, NoteEditSession, Util],
   props: {
     afterCancel: {
@@ -191,11 +199,14 @@ export default {
     save() {
       const ifAuthenticated = () => {
         const trimmedSubject = this.$_.trim(this.model.subject)
+        const dateString = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
         if (trimmedSubject) {
           updateNote(
             this.$_.trim(this.model.body),
+            this.model.contactType,
             this.model.isPrivate,
             this.model.id,
+            dateString,
             trimmedSubject,
             this.model.topics
           ).then(updatedNote => {

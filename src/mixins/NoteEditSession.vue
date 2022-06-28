@@ -37,12 +37,14 @@ export default {
       'removeTopic',
       'resetModel',
       'setBody',
+      'setContactType',
       'setFocusLockDisabled',
       'setIsPrivate',
       'setIsRecalculating',
       'setIsSaving',
       'setMode',
       'setModel',
+      'setSetDate',
       'setSubject'
     ]),
     setSubjectPerEvent(event) {

@@ -85,6 +85,12 @@
                 :disabled="isSaving || boaSessionExpired"
               />
             </div>
+            <div class="mt-2 mr-3 mb-3 ml-3">
+              <ContactMethod :disabled="isSaving || boaSessionExpired" />
+            </div>
+            <div class="mt-2 mb-3 ml-3">
+              <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
+            </div>
             <div class="mt-2 mr-3 mb-1 ml-3">
               <AdvisingNoteAttachments
                 :add-attachment="addAttachment"
@@ -134,11 +140,13 @@ import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures'
+import ContactMethod from '@/components/note/create/ContactMethod'
 import Context from '@/mixins/Context'
 import CreateNoteFooter from '@/components/note/create/CreateNoteFooter'
 import CreateNoteHeader from '@/components/note/create/CreateNoteHeader'
 import CreateTemplateModal from '@/components/note/create/CreateTemplateModal'
 import FocusLock from 'vue-focus-lock'
+import ManuallySetDate from '@/components/note/create/ManuallySetDate'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
@@ -154,10 +162,12 @@ export default {
     AdvisingNoteTopics,
     AreYouSureModal,
     BatchNoteFeatures,
+    ContactMethod,
     CreateNoteFooter,
     CreateNoteHeader,
     CreateTemplateModal,
     FocusLock,
+    ManuallySetDate,
     PrivacyPermissions,
     RichTextEditor
   },

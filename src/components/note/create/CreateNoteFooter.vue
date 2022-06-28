@@ -15,7 +15,7 @@
           <b-btn
             v-if="mode !== 'editTemplate'"
             id="btn-save-as-template"
-            :disabled="isSaving || !$_.trim(model.subject)"
+            :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
             variant="link"
             @click="saveAsTemplate"
           >
