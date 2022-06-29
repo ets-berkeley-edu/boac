@@ -66,6 +66,7 @@ const mutations = {
   addCohort: (state: any, cohort: any) => state.addedCohorts.push(cohort),
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
   addSid: (state: any, sid: string) => state.sids.push(sid),
+  addSidList: (state: any, sidList: string[]) => (state.sids = state.sids.concat(sidList)),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
   onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
   exitSession: (state: any) => {
@@ -155,6 +156,13 @@ const actions = {
     const sids = state.sids.concat(sid)
     $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
       commit('addSid', sid)
+      commit('setCompleteSidSet', sids)
+    }).finally(() => commit('setIsRecalculating', false))
+  },
+  addSidList: ({commit, state}, sidList: string[]) => {
+    const sids = _.uniq(state.sids.concat(sidList))
+    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
+      commit('addSidList', sidList)
       commit('setCompleteSidSet', sids)
     }).finally(() => commit('setIsRecalculating', false))
   },

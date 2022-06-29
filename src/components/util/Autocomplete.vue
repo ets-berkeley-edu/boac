@@ -25,7 +25,7 @@
         <b-button
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
-          :disabled="addButtonLoading || isLoading || !selectedSuggestion"
+          :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !fallback)"
           @click="onAddButton"
           @keyup.enter="onAddButton"
         >
@@ -106,6 +106,15 @@ export default {
       default: '',
       required: false,
       type: String
+    },
+    fallback: {
+      required: false,
+      type: Function
+    },
+    fallbackWhen: {
+      default: () => {},
+      required: false,
+      type: Function
     },
     formInputType: {
       default: 'text',
@@ -234,6 +243,8 @@ export default {
         this.source(q, this.limit).then(results => {
           if (this.suggestWhen(this.query)) {
             this.populateSuggestions(results)
+          } else {
+            this.isLoading = false
           }
         })
       } else {
@@ -242,7 +253,8 @@ export default {
     },
     onAddButton() {
       this.addButtonLoading = true
-      this.addSelection(this.selectedSuggestion || this.query).then(() => {
+      const handler = (this.fallback && this.fallbackWhen(this.query)) ? this.fallback : this.addSelection
+      handler(this.selectedSuggestion || this.query).then(() => {
         this.closeSuggestions()
       }).catch(() => {
         this.$nextTick(() => this.isOpen = false)
