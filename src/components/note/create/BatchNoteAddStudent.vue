@@ -1,26 +1,36 @@
 <template>
   <div>
+    <b-collapse v-model="showWarning" class="p-3 mt-2 mb-3 warning">
+      <span v-if="warning">{{ warning }}</span>
+      <ul v-if="sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-0 mt-1">
+        <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
+      </ul>
+    </b-collapse>
     <div>
       <label
         for="create-note-add-student-input"
-        class="font-size-14 input-label text mt-2"
+        class="font-size-14 input-label text mt-2 mb-0"
       >
-        <span class="sr-only">Add a </span><span class="font-weight-bolder">Student</span> (name or SID)
-        <span class="sr-only">(expect auto-suggest based on what you enter)</span>
+        <span class="font-weight-bolder">Student</span>
       </label>
+      <div class="mb-2">
+        Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
+      </div>
     </div>
     <div class="mb-2">
-      <span id="create-note-add-student-label" class="sr-only">Select student for note. Expect auto-suggest as you type name or SID.</span>
       <Autocomplete
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
         class="w-75"
         :demo-mode-blur="true"
         :disabled="disabled"
+        :fallback="handleListInput"
+        :fallback-when="isList"
         input-labelled-by="create-note-add-student-label"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
         :source="studentsByNameOrSid"
+        :suggest-when="isSuggestible"
         @input="addStudent"
       />
     </div>
@@ -47,7 +57,7 @@
 import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import {findStudentsByNameOrSid} from '@/api/student'
+import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchNoteAddStudent',
@@ -57,6 +67,10 @@ export default {
   mixins: [Context, Util],
   props: {
     addSid: {
+      required: true,
+      type: Function
+    },
+    addSidList: {
       required: true,
       type: Function
     },
@@ -76,7 +90,12 @@ export default {
   },
   data: () => ({
     addedStudents: [],
-    resetAutoCompleteKey: undefined
+    magicNumber: 15,
+    resetAutoCompleteKey: undefined,
+    showWarning: false,
+    sidDelimiter: /[,\r\n\t ]+/,
+    sidsNotFound: [],
+    warning: undefined
   }),
   methods: {
     addStudent(student) {
@@ -85,7 +104,45 @@ export default {
         this.addSid(student.sid)
         this.resetAutoCompleteKey = new Date().getTime()
         this.$announcer.polite(`${student.label} added to batch note`)
+        this.clearWarning()
       }
+    },
+    clearWarning() {
+      this.warning = null
+      this.showWarning = false
+    },
+    handleListInput(query) {
+      const trimmed = this.$_.trim(query, ' ,\n\t')
+      if (trimmed) {
+        const sids = this.$_.split(query, this.sidDelimiter)
+        return getStudentsBySids(sids).then(data => {
+          const sidList = []
+          this.$_.each(data, student => {
+            this.addedStudents.push(student)
+            sidList.push(student.sid)
+            this.$_.remove(sids, s => s === student.sid)
+          })
+          this.addSidList(sidList)
+          this.$announcer.polite(`${sidList.length} students added to batch note`)
+          this.sidsNotFound = this.$_.uniq(sids)
+          if (this.sidsNotFound.length) {
+            this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
+          } else {
+            this.clearWarning()
+          }
+        })
+      } else {
+        return Promise.resolve()
+      }
+    },
+    isList(query) {
+      return query && this.sidDelimiter.test(this.$_.trim(query, ' ,\n\t'))
+    },
+    isPresent(query) {
+      return query && query.length > 1
+    },
+    isSuggestible(query) {
+      return this.isPresent(query) && !this.isList(query)
     },
     removeStudent(student) {
       if (student) {
@@ -93,6 +150,11 @@ export default {
         this.removeSid(student.sid)
         this.$announcer.polite(`${student.label} removed from batch note`)
       }
+    },
+    setWarning(message) {
+      this.warning = message
+      this.showWarning = true
+      this.$announcer.polite(message)
     },
     studentsByNameOrSid(query, limit) {
       const sids = this.$_.map(this.addedStudents, 'sid')
@@ -105,3 +167,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.warning {
+  background-color: #fbf7dc;
+  border-radius: 5px;
+  color: #795f31;
+}
+</style>
+

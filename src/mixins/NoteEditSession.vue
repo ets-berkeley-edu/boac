@@ -26,6 +26,7 @@ export default {
       'addCohort',
       'addCuratedGroup',
       'addSid',
+      'addSidList',
       'addTopic',
       'createAdvisingNotes',
       'exitSession',

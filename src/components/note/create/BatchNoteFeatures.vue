@@ -33,6 +33,7 @@
     <div>
       <BatchNoteAddStudent
         :add-sid="addStudentBySid"
+        :add-sid-list="addStudentsBySidList"
         :disabled="isSaving || boaSessionExpired"
         :on-esc-form-input="cancel"
         :remove-sid="removeSid"
@@ -93,6 +94,11 @@ export default {
     addStudentBySid(sid) {
       this.setIsRecalculating(true)
       this.addSid(sid)
+      this.$putFocusNextTick('create-note-add-student-input')
+    },
+    addStudentsBySidList(sidList) {
+      this.setIsRecalculating(true)
+      this.addSidList(sidList)
       this.$putFocusNextTick('create-note-add-student-input')
     },
     removeCohortFromBatch(cohort) {
