@@ -25,7 +25,7 @@
         <b-button
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
-          :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !fallback)"
+          :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !(fallback && fallbackWhen(query)))"
           @click="onAddButton"
           @keyup.enter="onAddButton"
         >
