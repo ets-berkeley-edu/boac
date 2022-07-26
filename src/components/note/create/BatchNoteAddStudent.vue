@@ -27,6 +27,7 @@
         :fallback="handleListInput"
         :fallback-when="isList"
         input-labelled-by="create-note-add-student-label"
+        maxlength="-1"
         :on-esc-form-input="onEscFormInput"
         :show-add-button="true"
         :source="studentsByNameOrSid"
