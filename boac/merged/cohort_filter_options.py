@@ -93,7 +93,7 @@ class CohortFilterOptions:
                 _filter('expectedGradTerms', 'Expected Graduation Term', options=grad_terms()),
                 _range_filter('gpaRanges', 'GPA (Cumulative)', labels_range=['', '-'], validation='gpa'),
                 _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
-                _filter('graduatePrograms', 'Graduate Program', options=graduate_programs()),
+                _filter('graduatePrograms', 'Graduate Plan', options=graduate_programs()),
                 _boolean_filter('studentHolds', 'Holds'),
                 _filter('intendedMajors', 'Intended Major', options=intended_majors()),
                 _filter('levels', 'Level', options=level_options()),
