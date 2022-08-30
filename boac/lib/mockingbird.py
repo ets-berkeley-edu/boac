@@ -267,11 +267,9 @@ def register_mock(request_function, response):
     A MockResponse object may be supplied, or, if dynamic behavior is required, a function that returns a MockResponse.
     """
     if isinstance(response, MockResponse):
-        response_function = lambda *args: response
+        _register_mock(request_function, lambda *args: response)
     else:
-        response_function = response
-
-    _register_mock(request_function, response_function)
+        _register_mock(request_function, response)
     try:
         yield
     finally:

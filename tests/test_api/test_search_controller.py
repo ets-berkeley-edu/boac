@@ -815,13 +815,13 @@ class TestAdmittedStudentSearch:
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             api_json = self._api_search_admits(client, 'da', order_by='first_name')
             self._assert(api_json, admit_count=2)
-            assert(api_json['admits'][0]['firstName']) == 'Daniel'
-            assert(api_json['admits'][1]['firstName']) == 'Deborah'
+            assert api_json['admits'][0]['firstName'] == 'Daniel'
+            assert api_json['admits'][1]['firstName'] == 'Deborah'
 
             api_json = self._api_search_admits(client, 'da', order_by='last_name')
             self._assert(api_json, admit_count=2)
-            assert(api_json['admits'][0]['lastName']) == 'Davies'
-            assert(api_json['admits'][1]['lastName']) == 'Mcknight'
+            assert api_json['admits'][0]['lastName'] == 'Davies'
+            assert api_json['admits'][1]['lastName'] == 'Mcknight'
 
 
 class TestSearchHistory:

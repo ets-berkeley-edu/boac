@@ -117,13 +117,13 @@ class TestRefreshCurrentTermIndex:
         index_row.json = 'old'
         json_cache.update_jsonb_row(index_row)
         index = json_cache.fetch('current_term_index')
-        assert(index) == 'old'
+        assert index == 'old'
 
         refresh_current_term_index()
 
         index = json_cache.fetch('current_term_index')
-        assert(index['current_term_name']) == 'Fall 2017'
-        assert(index['future_term_name']) == 'Spring 2018'
+        assert index['current_term_name'] == 'Fall 2017'
+        assert index['future_term_name'] == 'Spring 2018'
 
 
 class TestRefreshDepartmentMemberships:

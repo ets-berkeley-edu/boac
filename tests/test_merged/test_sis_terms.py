@@ -32,8 +32,8 @@ class TestSisTerms:
     def test_get_current_term_index(self):
         """Gets the current and future terms."""
         index = sis_terms.get_current_term_index()
-        assert(index['current_term_name']) == 'Fall 2017'
-        assert(index['future_term_name']) == 'Spring 2018'
+        assert index['current_term_name'] == 'Fall 2017'
+        assert index['future_term_name'] == 'Spring 2018'
 
     def test_all_term_ids(self):
         """Returns SIS IDs of each term covered by BOAC, from current to oldest."""
@@ -41,7 +41,7 @@ class TestSisTerms:
 
     def test_current_term_id(self):
         """Returns the current term ID."""
-        assert(sis_terms.current_term_id()) == '2178'
+        assert sis_terms.current_term_id() == '2178'
 
     def test_current_term_id_caching(self):
         """Fetches current term ID from the loch instead of cache when asked."""
@@ -53,28 +53,28 @@ class TestSisTerms:
         index_row.json = json.loads('{"current_term_name": "Spring 2020"}')
         json_cache.update_jsonb_row(index_row)
 
-        assert(sis_terms.current_term_id()) == '2202'
-        assert(sis_terms.current_term_id(use_cache=False)) == '2178'
+        assert sis_terms.current_term_id() == '2202'
+        assert sis_terms.current_term_id(use_cache=False) == '2178'
 
     def test_current_term_id_from_config(self, app):
         """Falls back on configured current term ID when not set to auto."""
         with override_config(app, 'CANVAS_CURRENT_ENROLLMENT_TERM', 'Summer 1969'):
-            assert(sis_terms.current_term_id()) == '1695'
+            assert sis_terms.current_term_id() == '1695'
 
     def test_current_term_name(self):
         """Returns the current term name."""
-        assert(sis_terms.current_term_name()) == 'Fall 2017'
+        assert sis_terms.current_term_name() == 'Fall 2017'
 
     def test_current_term_name_from_config(self, app):
         """Falls back on configured current term name when not set to auto."""
         with override_config(app, 'CANVAS_CURRENT_ENROLLMENT_TERM', 'Summer 1969'):
-            assert(sis_terms.current_term_name()) == 'Summer 1969'
+            assert sis_terms.current_term_name() == 'Summer 1969'
 
     def test_future_term_id(self):
         """Returns the future term id."""
-        assert(sis_terms.future_term_id()) == '2182'
+        assert sis_terms.future_term_id() == '2182'
 
     def test_future_term_id_from_config(self, app):
         """Falls back on configured future term ID when not set to auto."""
         with override_config(app, 'CANVAS_FUTURE_ENROLLMENT_TERM', 'Summer 1969'):
-            assert(sis_terms.future_term_id()) == '1695'
+            assert sis_terms.future_term_id() == '1695'

@@ -167,10 +167,9 @@ def register_mock(request_function, response):
     A MockRows object may be supplied, or, if dynamic behavior is required, a function that returns a MockRows.
     """
     if isinstance(response, MockRows):
-        response_function = lambda *args: response
+        _register_mock(request_function, lambda *args: response)
     else:
-        response_function = response
-    _register_mock(request_function, response_function)
+        _register_mock(request_function, response)
     try:
         yield
     finally:
