@@ -448,13 +448,6 @@ def _query_admitted_students(
         sids_only,
 ):
     benchmark('begin admitted_students query')
-    app.logger.info(f"""query_admitted_students:
-        criteria={criteria}
-        limit={limit}
-        offset={offset}
-        order_by={order_by}
-        sids_only={sids_only}
-    """)
     results = query_admitted_students(
         colleges=criteria.get('admitColleges'),
         family_dependent_ranges=criteria.get('familyDependentRanges'),
