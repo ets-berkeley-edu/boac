@@ -156,14 +156,14 @@ def get_note_with_topics_count(dept_code=None):
 def get_summary_of_boa_notes():
     query = """
         SELECT
-          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.is_private, n.sid, n.subject,
-          n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
+          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
+          n.sid, n.subject, n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
         FROM notes n
         LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
         WHERE n.deleted_at IS NULL
         GROUP BY
-           n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.is_private, n.sid, n.subject,
-           n.created_at, n.updated_at
+          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
+          n.sid, n.subject, n.created_at, n.updated_at
         ORDER BY created_at
     """
     tz_utc = tzutc()
@@ -174,7 +174,9 @@ def get_summary_of_boa_notes():
             'author_name': row['author_name'],
             'author_role': row['author_role'],
             'author_dept_codes': f"{','.join(row['author_dept_codes'])}",
+            'contact_type': row['contact_type'],
             'is_private': row['is_private'],
+            'set_date': row['set_date'],
             'sid': row['sid'],
             'subject': row['subject'],
             'topics': row['topics'],
