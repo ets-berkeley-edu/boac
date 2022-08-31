@@ -15,7 +15,6 @@ node_modules
 config/*.json
 config/*-local.py
 config/*-local.conf
-config/*.pickle
 .env.*.local
 
 # Local dev
