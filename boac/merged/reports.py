@@ -167,17 +167,24 @@ def get_summary_of_boa_notes():
         ORDER BY created_at
     """
     tz_utc = tzutc()
+    cohorts_by_sid = _get_cohorts_by_sid()
+    curated_groups_by_sid = _get_curated_groups_by_sid()
 
     def _to_api_json(row):
+        sid = row['sid']
+        cohorts = cohorts_by_sid.get(sid, [])
+        curated_groups = curated_groups_by_sid.get(sid, [])
         return {
             'author_uid': row['author_uid'],
             'author_name': row['author_name'],
             'author_role': row['author_role'],
             'author_dept_codes': f"{','.join(row['author_dept_codes'])}",
+            'cohort_ids': ' '.join([str(c['id']) for c in cohorts]),
             'contact_type': row['contact_type'],
+            'curated_group_ids': ' '.join([str(g['id']) for g in curated_groups]),
             'is_private': row['is_private'],
             'set_date': row['set_date'],
-            'sid': row['sid'],
+            'sid': sid,
             'subject': row['subject'],
             'topics': row['topics'],
             'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
@@ -206,3 +213,29 @@ def get_boa_note_count_by_month():
             'count': row['count'],
         })
     return report
+
+
+def _get_cohorts_by_sid():
+    sids = set()
+    for row in db.session.execute('SELECT sids FROM cohort_filters'):
+        sids.update(row['sids'])
+    cohorts_by_sid = dict((sid, []) for sid in sids)
+    for row in db.session.execute('SELECT id, name, sids FROM cohort_filters ORDER BY id'):
+        cohort = {'id': row['id'], 'name': row['name']}
+        for sid in row['sids']:
+            cohorts_by_sid[sid].append(cohort)
+    return cohorts_by_sid
+
+
+def _get_curated_groups_by_sid():
+    query = 'SELECT DISTINCT sid FROM student_group_members'
+    curated_groups_by_sid = dict((row['sid'], []) for row in db.session.execute(query))
+    query = """
+        SELECT g.id, g.name, m.sid FROM student_groups g
+        JOIN student_group_members m ON m.student_group_id = g.id
+        ORDER BY g.id
+    """
+    for row in db.session.execute(query):
+        sid = row['sid']
+        curated_groups_by_sid[sid].append({'id': row['id'], 'name': row['name']})
+    return curated_groups_by_sid
