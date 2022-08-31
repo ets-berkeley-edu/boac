@@ -27,6 +27,7 @@ import json
 
 from boac import db
 from boac.externals import data_loch
+from boac.externals.data_loch import get_basic_student_data
 from boac.merged.sis_terms import current_term_id
 from dateutil.tz import tzutc
 from flask import current_app as app
@@ -185,12 +186,25 @@ def get_summary_of_boa_notes():
             'is_private': row['is_private'],
             'set_date': row['set_date'],
             'sid': sid,
+            'student_first_name': None,
+            'student_last_name': None,
             'subject': row['subject'],
             'topics': row['topics'],
             'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
             'updated_at': row['updated_at'].astimezone(tz_utc).isoformat(),
         }
-    return [_to_api_json(row) for row in db.session.execute(query)]
+
+    api_json = [_to_api_json(row) for row in db.session.execute(query)]
+
+    distinct_sids = list(set([row['sid'] for row in api_json]))
+    students_by_sid = dict((student['sid'], student) for student in get_basic_student_data(distinct_sids))
+    for row in api_json:
+        sid = row['sid']
+        student = students_by_sid.get(sid)
+        if student:
+            row['student_first_name'] = student['first_name']
+            row['student_last_name'] = student['last_name']
+    return api_json
 
 
 def get_boa_note_count_by_month():

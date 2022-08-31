@@ -101,6 +101,8 @@ def get_boa_notes_metadata():
             'is_private',
             'set_date',
             'sid',
+            'student_first_name',
+            'student_last_name',
             'subject',
             'topics',
             'created_at',
