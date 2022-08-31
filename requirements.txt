@@ -8,7 +8,7 @@ Flask==2.0.2
 ldap3==2.7
 names==0.3.0
 nltk==3.6.6
-pandas==0.25.3
+pandas==1.4.4
 pprintpp==0.4.0
 psycopg2-binary==2.9.2
 python-dateutil==2.8.2
@@ -26,7 +26,7 @@ https://github.com/python-cas/python-cas/archive/master.zip
 # For testing
 
 moto==2.2.19
-pytest==7.0.1
+pytest==7.1.2
 pytest-flask==1.2.0
-responses==0.16.0
-tox==3.24.5
+responses==0.21.0
+tox==3.25.1
