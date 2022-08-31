@@ -191,7 +191,7 @@ class TestBoaNotesMetadataReport:
                 body=f'body {index}',
             )
             if index == 1:
-                for topic in ('Rising', 'and', 'Three Feet High'):
+                for topic in ('Three Feet High', 'and', 'Rising'):
                     topics.append(NoteTopic.create(note=note, topic=topic, author_uid=admin_uid))
             notes.append(note)
         std_commit(allow_test_environment=True)
@@ -203,7 +203,8 @@ class TestBoaNotesMetadataReport:
         assert 'author_name 1' in csv
         assert 'author_name 2' in csv
         assert '11667051' in csv
-        assert 'Three Feet High, and, Rising' in csv
+        for topic in topics:
+            assert topic.topic in csv
         # Clean up
         for item in notes + topics:
             db.session.delete(item)
@@ -301,4 +302,4 @@ class TestAvailableDeptCodesPerUser:
         """Admin user can access all departments."""
         fake_auth.login(admin_uid)
         departments = self._api_available_departments(client)
-        assert len(departments) > 5
+        assert len(departments) >= 5
