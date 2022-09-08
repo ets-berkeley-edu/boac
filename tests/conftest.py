@@ -36,6 +36,7 @@ import boac.factory
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
+from flask_login import logout_user
 from moto import mock_sts
 import pytest
 from tests.util import mock_advising_note_s3_bucket, override_config
@@ -152,6 +153,11 @@ def db(app):
     # If we dropped at teardown instead, an interrupted test run would block the next test run.
     development_db.clear()
     return development_db.load(load_test_data=True)
+
+
+@pytest.fixture(autouse=True, scope='function')
+def logout():
+    logout_user()
 
 
 @pytest.fixture(scope='function', autouse=True)
