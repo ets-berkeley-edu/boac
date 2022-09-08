@@ -42,10 +42,40 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :items="items"
+            :items="$_.filter(items, item => !item.parent || item.parent.isExpanded)"
             small
             thead-class="sortable-table-header text-nowrap border-bottom"
           >
+            <template v-if="sid && !printable" #cell(name)="row">
+              <div v-if="row.item.parent" class="pl-3">
+                {{ row.item.name }}
+              </div>
+              <b-button
+                v-if="!row.item.parent"
+                :id="`unit-requirement-${row.item.id}-toggle`"
+                block
+                class="border-0 p-0"
+                :class="{'shadow-none': !row.item.isExpanded}"
+                variant="link"
+                @click.prevent="row.item.isExpanded = !row.item.isExpanded"
+              >
+                <div class="d-flex text-left">
+                  <div class="caret pale-blue pr-2">
+                    <font-awesome :icon="row.item.isExpanded ? 'caret-down' : 'caret-right'" />
+                  </div>
+                  <div class="">
+                    <span class="sr-only">{{ `${row.item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
+                    {{ row.item.name }}
+                  </div>
+                </div>
+              </b-button>
+              <div
+                v-if="row.item.isExpanded && !row.item.children.length"
+                class="faint-text pb-1 pl-4 pt-1"
+              >
+                None
+              </div>
+            </template>
             <template v-if="$currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
               <div class="align-items-center d-flex">
                 <b-btn
@@ -118,6 +148,13 @@ export default {
     render: false,
     selected: undefined
   }),
+  computed: {
+    itemsFiltered() {
+      return this.$_.filter(this.items, item => {
+        return !item.parent || item.parent.isExpanded
+      })
+    }
+  },
   watch: {
     lastPageRefreshAt() {
       this.refresh()
@@ -204,14 +241,31 @@ export default {
       this.isEditing = true
     },
     refresh() {
+      const expandedIds = this.$_.map((this.$_.filter(this.items, 'isExpanded')), 'id')
       const items = []
       this.$_.each(this.unitRequirements, u => {
-        const unitsCompleted = this.getUnitsCompleted(u)
-        items.push({
+        const parent = {
           id: u.id,
-          name: u.name,
+          children: [],
+          completed: this.getUnitsCompleted(u),
+          isExpanded: expandedIds.includes(u.id),
           minUnits: u.minUnits,
-          completed: unitsCompleted
+          name: u.name
+        }
+        items.push(parent)
+        let courses = this.$_.filter(this.courses.assigned, course => {
+          return !!this.$_.find(course.unitRequirements, ['id', u.id])
+        })
+        courses = this.$_.sortBy(courses, ['name', 'id'])
+        this.$_.each(courses, course => {
+          const child = {
+            id: course.id,
+            completed: course.units,
+            name: course.name,
+            parent
+          }
+          items.push(child)
+          parent.children.push(child)
         })
       })
       this.items = items
