@@ -86,7 +86,7 @@ export default {
   },
   data: () => ({
     isSaving: false,
-    junkDrawerName: 'Free Electives',
+    junkDrawerName: 'Other Coursework',
     selectedOption: null
   }),
   computed: {
