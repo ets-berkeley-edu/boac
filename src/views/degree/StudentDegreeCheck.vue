@@ -31,7 +31,7 @@
                 @dragstart="onDrag($event,'start', 'ignored')"
                 @drop="dropToUnassign($event, 'ignored')"
               >
-                <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Free Electives</h3>
+                <h3 id="ignored-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Other Coursework</h3>
                 <UnassignedCourses :ignored="true" />
               </div>
             </b-col>
