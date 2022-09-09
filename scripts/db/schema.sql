@@ -422,6 +422,7 @@ CREATE TABLE degree_progress_categories (
     course_units numrange,
     description text,
     grade VARCHAR(50),
+    is_ignored BOOLEAN DEFAULT false NOT NULL,
     is_recommended BOOLEAN DEFAULT false NOT NULL,
     name character varying(255) NOT NULL,
     note TEXT,

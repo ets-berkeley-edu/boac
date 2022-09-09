@@ -162,6 +162,7 @@ export function updateCourseRequirement(
   accentColor: string,
   categoryId: number,
   grade: string,
+  isIgnored: boolean,
   isRecommended: boolean,
   note: string,
   unitsLower: number,
@@ -170,6 +171,7 @@ export function updateCourseRequirement(
   const data = {
     accentColor,
     grade,
+    isIgnored,
     isRecommended,
     note,
     unitsLower,

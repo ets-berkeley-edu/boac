@@ -325,6 +325,9 @@
   table-layout: fixed;
   width: 100%;
 }
+.text-strikethrough {
+  text-decoration: line-through;
+}
 .truncate {
   height: 24px;
   overflow: hidden;

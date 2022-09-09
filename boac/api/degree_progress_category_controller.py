@@ -99,6 +99,9 @@ def delete_degree_category(category_id):
 @can_edit_degree_progress
 def recommend_category(category_id):
     params = request.get_json()
+    is_ignored = get_param(params, 'isIgnored')
+    if is_ignored is None:
+        raise BadRequestError('Parameter \'isIgnored\' is required')
     is_recommended = get_param(params, 'isRecommended')
     if is_recommended is None:
         raise BadRequestError('Parameter \'isRecommended\' is required')
@@ -115,6 +118,7 @@ def recommend_category(category_id):
         course_units_lower=units_lower,
         course_units_upper=units_upper,
         grade=grade,
+        is_ignored=is_ignored,
         is_recommended=is_recommended,
         note=(note or '').strip() or None,
     )
@@ -164,8 +168,8 @@ def update_category(category_id):
         course_units_lower=units_lower,
         course_units_upper=units_upper,
         description=description,
-        parent_category_id=parent_category_id,
         name=name,
+        parent_category_id=parent_category_id,
         unit_requirement_ids=unit_requirement_ids,
     )
     # Update updated_at date of top-level record

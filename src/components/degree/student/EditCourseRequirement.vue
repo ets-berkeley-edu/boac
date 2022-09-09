@@ -1,13 +1,21 @@
 <template>
   <div class="pb-3 pl-2 pt-2">
     <div v-if="!isCampusRequirement(category)" class="mb-2">
-      <label for="recommended-course-checkbox" class="font-size-14 font-weight-bolder mb-1">Course Indicator</label>
-      <b-form-checkbox
-        id="recommended-course-checkbox"
-        v-model="isRecommended"
-      >
-        Recommended course
-      </b-form-checkbox>
+      <label for="recommended-course-checkbox" class="font-size-14 font-weight-bolder mb-1">Course Indicators</label>
+      <div class="pl-1">
+        <b-form-checkbox
+          id="recommended-course-checkbox"
+          v-model="isRecommended"
+        >
+          Recommended course
+        </b-form-checkbox>
+        <b-form-checkbox
+          id="ignored-course-checkbox"
+          v-model="isIgnored"
+        >
+          Completed or ignored requirement
+        </b-form-checkbox>
+      </div>
     </div>
     <div v-if="!isCampusRequirement(category)" class="pb-2">
       <UnitsInput
@@ -111,6 +119,7 @@ export default {
   data: () => ({
     accentColor: undefined,
     grade: undefined,
+    isIgnored: undefined,
     isRecommended: undefined,
     isSaving: false,
     note: undefined,
@@ -129,6 +138,7 @@ export default {
   created() {
     this.accentColor = this.category.accentColor
     this.grade = this.category.grade
+    this.isIgnored = this.category.isIgnored
     this.isRecommended = this.category.isRecommended
     this.note = this.category.note
     this.unitsLower = this.category.unitsLower
@@ -137,6 +147,7 @@ export default {
   },
   methods: {
     cancel() {
+      this.isIgnored = undefined
       this.isRecommended = undefined
       this.afterCancel()
     },
@@ -152,6 +163,7 @@ export default {
           accentColor: this.accentColor,
           categoryId: this.category.id,
           grade: this.grade,
+          isIgnored: this.isIgnored,
           isRecommended: this.isRecommended,
           note: this.note,
           unitsLower: this.unitsLower,

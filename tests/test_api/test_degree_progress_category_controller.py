@@ -253,6 +253,7 @@ class TestRecommendDegreeCategory:
             cls,
             category_id,
             client,
+            is_ignored,
             is_recommended,
             expected_status_code=200,
             grade=None,
@@ -265,6 +266,7 @@ class TestRecommendDegreeCategory:
             data=json.dumps({
                 'category_id': category_id,
                 'grade': grade,
+                'isIgnored': is_ignored,
                 'isRecommended': is_recommended,
                 'note': note,
                 'unitsLower': units_lower,
@@ -281,6 +283,7 @@ class TestRecommendDegreeCategory:
             category_id=1,
             client=client,
             expected_status_code=401,
+            is_ignored=False,
             is_recommended=True,
         )
 
@@ -291,11 +294,12 @@ class TestRecommendDegreeCategory:
             category_id=1,
             client=client,
             expected_status_code=401,
+            is_ignored=False,
             is_recommended=True,
         )
 
     def test_recommend_category(self, client, fake_auth, mock_template):
-        """Authorized user can edit a category."""
+        """Authorized user can flip 'recommend' flag a category."""
         user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
         fake_auth.login(user.uid)
         category = DegreeProgressCategory.create(
@@ -310,6 +314,7 @@ class TestRecommendDegreeCategory:
             category_id=category_id,
             client=client,
             grade='B',
+            is_ignored=True,
             is_recommended=True,
             note=note,
             units_lower=3,
@@ -320,6 +325,7 @@ class TestRecommendDegreeCategory:
         category = api_json['categories'][0]
         assert category['id'] == category_id
         assert category['grade'] == 'B'
+        assert category['isIgnored'] is True
         assert category['isRecommended'] is True
         assert category['note'] == note
         assert category['unitsLower'] == 3
@@ -328,6 +334,7 @@ class TestRecommendDegreeCategory:
         self._api_recommend_category(
             category_id=category_id,
             client=client,
+            is_ignored=False,
             is_recommended=False,
             note='',
         )
@@ -335,6 +342,7 @@ class TestRecommendDegreeCategory:
         category = api_json['categories'][0]
         assert category['id'] == category_id
         assert category['grade'] is None
+        assert category['isIgnored'] is False
         assert category['isRecommended'] is False
         assert category['note'] is None
         assert category['unitsLower'] is None

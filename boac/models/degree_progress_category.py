@@ -54,6 +54,7 @@ class DegreeProgressCategory(Base):
     course_units = db.Column(NUMRANGE)
     description = db.Column(db.Text)
     grade = db.Column(db.String(50))
+    is_ignored = db.Column(db.Boolean, nullable=False, default=False)
     is_recommended = db.Column(db.Boolean, nullable=False, default=False)
     name = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
@@ -199,6 +200,7 @@ class DegreeProgressCategory(Base):
             course_units_lower,
             course_units_upper,
             grade,
+            is_ignored,
             is_recommended,
             note,
     ):
@@ -211,6 +213,7 @@ class DegreeProgressCategory(Base):
             '[]',
         )
         category.grade = grade
+        category.is_ignored = is_ignored
         category.is_recommended = is_recommended
         category.note = note.strip() if note else None
         std_commit()
@@ -275,6 +278,7 @@ class DegreeProgressCategory(Base):
             'createdAt': _isoformat(self.created_at),
             'description': self.description,
             'grade': self.grade,
+            'isIgnored': self.is_ignored,
             'isRecommended': self.is_recommended,
             'name': self.name,
             'note': self.note,
