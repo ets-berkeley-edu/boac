@@ -98,7 +98,8 @@
                       'pr-2': $_.get(bundle.course, 'isCopy')
                     }"
                   >
-                    {{ bundle.name }}
+                    <span v-if="$_.get(bundle.category, 'isIgnored')" class="text-strikethrough">{{ bundle.name }}</span>
+                    <span v-if="!$_.get(bundle.category, 'isIgnored')">{{ bundle.name }}</span>
                   </div>
                   <div v-if="$_.get(bundle.course, 'isCopy') && !printable" class="pr-1">
                     <font-awesome
