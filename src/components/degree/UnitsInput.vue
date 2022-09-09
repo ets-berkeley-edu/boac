@@ -30,6 +30,7 @@
           :value="unitsLower"
           @input="setUnitsLower"
           @keypress.enter="onSubmit"
+          @keyup.esc="onEscape"
         />
       </div>
       <div v-if="showUnitsUpperInput" class="pr-2 pt-1">
@@ -95,6 +96,11 @@ export default {
       default: 10,
       required: false,
       type: Number
+    },
+    onEscape: {
+      default: () => {},
+      required: false,
+      type: Function
     },
     onSubmit: {
       required: true,

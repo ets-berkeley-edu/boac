@@ -37,6 +37,7 @@
         :disable="isSaving"
         :error-message="unitsErrorMessage"
         input-id="course-units-input"
+        :on-escape="cancel"
         :on-submit="update"
         :set-units-lower="setUnits"
         :units-lower="units"
@@ -85,6 +86,7 @@
         v-model="note"
         :disabled="isSaving"
         rows="4"
+        @keyup.esc="cancel"
       />
     </div>
     <div class="d-flex">
