@@ -61,6 +61,19 @@
           :units-upper="unitsUpper"
         />
       </div>
+      <div v-if="selectedCategoryType === 'Course Requirement'">
+        <div class="font-weight-500 pb-1">
+          Transfer Course
+        </div>
+        <div class="mb-3">
+          <b-form-checkbox
+            id="is-satisfied-by-transfer-course-checkbox"
+            v-model="isSatisfiedByTransferCourse"
+          >
+            Mark transfer course as purple
+          </b-form-checkbox>
+        </div>
+      </div>
       <div v-if="unitRequirements.length && !isCampusRequirements(existingCategory)">
         <div class="font-weight-500 pb-1">
           Requirement Fulfillment
@@ -206,6 +219,7 @@ export default {
   },
   data: () => ({
     descriptionText: undefined,
+    isSatisfiedByTransferCourse: undefined,
     isSaving: false,
     name: '',
     selectedCategoryType: null,
@@ -217,6 +231,7 @@ export default {
   created() {
     if (this.existingCategory) {
       this.descriptionText = this.existingCategory.description
+      this.isSatisfiedByTransferCourse = this.existingCategory.isSatisfiedByTransferCourse
       this.name = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
       this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
@@ -292,6 +307,7 @@ export default {
           this.updateCategory({
             categoryId: this.existingCategory.id,
             description: this.descriptionText,
+            isSatisfiedByTransferCourse: this.isSatisfiedByTransferCourse,
             name: this.name,
             parentCategoryId: parentCategoryId,
             unitRequirementIds: unitRequirementIds,
@@ -302,6 +318,7 @@ export default {
           this.createCategory({
             categoryType: this.selectedCategoryType,
             description: this.descriptionText,
+            isSatisfiedByTransferCourse: this.isSatisfiedByTransferCourse,
             name: this.name,
             position: this.position,
             parentCategoryId: parentCategoryId,

@@ -41,6 +41,7 @@ def create_category():
     course_units_lower = get_param(params, 'unitsLower')
     course_units_upper = get_param(params, 'unitsUpper')
     description = get_param(params, 'description')
+    is_satisfied_by_transfer_course = get_param(params, 'isSatisfiedByTransferCourse', False)
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
     position = get_param(params, 'position')
@@ -68,6 +69,7 @@ def create_category():
         course_units_lower=course_units_lower,
         course_units_upper=course_units_upper,
         description=description,
+        is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
         name=name,
         parent_category_id=parent_category_id,
         position=position,
@@ -154,11 +156,12 @@ def toggle_campus_requirement(category_id):
 @can_edit_degree_progress
 def update_category(category_id):
     params = request.get_json()
-    units_lower = get_param(params, 'unitsLower')
-    units_upper = get_param(params, 'unitsUpper')
+    is_satisfied_by_transfer_course = get_param(params, 'isSatisfiedByTransferCourse', False)
     description = get_param(params, 'description')
     name = get_param(params, 'name')
     parent_category_id = get_param(params, 'parentCategoryId')
+    units_lower = get_param(params, 'unitsLower')
+    units_upper = get_param(params, 'unitsUpper')
     # Courses can be mapped to degree_progress_unit_requirements
     value = get_param(request.get_json(), 'unitRequirementIds')
     unit_requirement_ids = list(filter(None, value.split(','))) if isinstance(value, str) else value
@@ -168,6 +171,7 @@ def update_category(category_id):
         course_units_lower=units_lower,
         course_units_upper=units_upper,
         description=description,
+        is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
         name=name,
         parent_category_id=parent_category_id,
         unit_requirement_ids=unit_requirement_ids,
@@ -182,6 +186,7 @@ def _create_category(
         course_units_lower,
         course_units_upper,
         description,
+        is_satisfied_by_transfer_course,
         name,
         parent_category_id,
         position,
@@ -198,6 +203,7 @@ def _create_category(
         course_units_lower=course_units_lower,
         course_units_upper=course_units_upper,
         description=description,
+        is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
         name=name,
         parent_category_id=parent_category_id,
         position=position,

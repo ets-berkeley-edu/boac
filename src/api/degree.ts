@@ -52,6 +52,7 @@ export function createCourse(
 export function createDegreeCategory(
   categoryType: string,
   description: string,
+  isSatisfiedByTransferCourse: boolean,
   name: string,
   parentCategoryId: number,
   position: number,
@@ -63,6 +64,7 @@ export function createDegreeCategory(
   const data = {
     categoryType,
     description,
+    isSatisfiedByTransferCourse,
     name,
     parentCategoryId,
     position,
@@ -183,6 +185,7 @@ export function updateCourseRequirement(
 export function updateCategory(
   categoryId: number,
   description: string,
+  isSatisfiedByTransferCourse: boolean,
   name: string,
   parentCategoryId: number,
   unitRequirementIds: number[],
@@ -191,6 +194,7 @@ export function updateCategory(
 ) {
   const data = {
     description,
+    isSatisfiedByTransferCourse,
     name,
     parentCategoryId,
     unitRequirementIds,
