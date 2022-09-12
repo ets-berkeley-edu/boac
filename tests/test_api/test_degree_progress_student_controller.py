@@ -102,11 +102,35 @@ def mock_degree_checks():
 def mock_template():
     user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
     marker = datetime.now().timestamp()
-    return DegreeProgressTemplate.create(
+    template = DegreeProgressTemplate.create(
         advisor_dept_codes=['COENG'],
         created_by=user.id,
         degree_name=f'I am a mock template, made for a mock category ({marker})',
     )
+    category = DegreeProgressCategory.create(
+        category_type='Category',
+        name='Category',
+        position=1,
+        template_id=template.id,
+    )
+    sub_category = DegreeProgressCategory.create(
+        category_type='Subcategory',
+        name='Subcategory',
+        parent_category_id=category.id,
+        position=1,
+        template_id=template.id,
+    )
+    DegreeProgressCategory.create(
+        category_type='Course Requirement',
+        course_units_lower=3,
+        course_units_upper=5,
+        is_satisfied_by_transfer_course=True,
+        name='Course',
+        parent_category_id=sub_category.id,
+        position=1,
+        template_id=template.id,
+    )
+    return template
 
 
 @pytest.fixture()
@@ -333,12 +357,34 @@ class TestCreateStudentDegreeCheck:
         fake_auth.login(coe_advisor_read_only_uid)
         self._api_create_degree_check(client, sid=coe_student_sid, template_id=1, expected_status_code=401)
 
-    def test_create_category(self, client, fake_auth, mock_template):
+    def test_create_degree_check(self, client, fake_auth, mock_template):
         """Authorized user can create a degree check."""
-        fake_auth.login(coe_advisor_read_write_uid)
-        api_json = self._api_create_degree_check(client, sid=coe_student_sid, template_id=mock_template.id)
-        assert api_json['id']
+        user = AuthorizedUser.find_by_uid(coe_advisor_read_write_uid)
+        fake_auth.login(user.uid)
+        api_json = self._api_create_degree_check(
+            client,
+            sid=coe_student_sid,
+            template_id=mock_template.id,
+        )
+        degree_check_id = api_json['id']
+        assert degree_check_id
         assert api_json['parentTemplateId'] == mock_template.id
+        # Get degree_check JSON feed used to render student degree check page.
+        api_json = _api_get_degree(client=client, degree_check_id=degree_check_id)
+        categories = api_json['categories']
+        assert len(categories) == 1
+        subcategories = categories[0]['subcategories']
+        assert len(subcategories) == 1
+        course_requirements = subcategories[0]['courseRequirements']
+        assert len(course_requirements) == 1
+        course_requirement_id = course_requirements[0]['id']
+
+        # Find the course that was auto-created because is_satisfied_by_transfer_course is true.
+        assigned_courses = api_json['courses']['assigned']
+        assert len(assigned_courses) == 1
+        assert assigned_courses[0]['accentColor'] == 'Purple'
+        assert assigned_courses[0]['manuallyCreatedBy'] == user.id
+        assert assigned_courses[0]['categoryId'] == course_requirement_id
 
 
 class TestCreateCourse:

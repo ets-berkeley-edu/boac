@@ -23,10 +23,13 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
+
 from boac.api.errors import BadRequestError, ResourceNotFoundError
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.util import get_benchmarker
 from boac.models.degree_progress_category import DegreeProgressCategory
+from boac.models.degree_progress_course import DegreeProgressCourse
 from boac.models.degree_progress_template import DegreeProgressTemplate
 from boac.models.degree_progress_unit_requirement import DegreeProgressUnitRequirement
 from flask_login import current_user
@@ -58,7 +61,7 @@ def create_batch_degree_checks(template_id, sids):
 
 
 def clone(template, created_by, name=None, sid=None):
-    clone = DegreeProgressTemplate.create(
+    template_clone = DegreeProgressTemplate.create(
         advisor_dept_codes=dept_codes_where_advising(current_user),
         created_by=created_by,
         degree_name=name or template.degree_name,
@@ -66,13 +69,14 @@ def clone(template, created_by, name=None, sid=None):
         student_sid=sid,
     )
     unit_requirements_by_source_id = {}
+    template_clone_id = template_clone.id
     for unit_requirement in template.unit_requirements:
         source_id = unit_requirement.id
         unit_requirements_by_source_id[source_id] = DegreeProgressUnitRequirement.create(
             created_by=created_by,
             min_units=unit_requirement.min_units,
             name=unit_requirement.name,
-            template_id=clone.id,
+            template_id=template_clone_id,
         )
 
     def _create_category(category_, parent_id):
@@ -81,18 +85,45 @@ def clone(template, created_by, name=None, sid=None):
             source_id_ = u['id']
             cross_reference = unit_requirements_by_source_id[source_id_]
             unit_requirement_ids.append(cross_reference.id)
-        return DegreeProgressCategory.create(
+        category_name = category_['name']
+        units_lower = category_['unitsLower']
+        units_upper = category_['unitsUpper']
+        is_satisfied_by_transfer_course = category_['isSatisfiedByTransferCourse']
+        category_created = DegreeProgressCategory.create(
             category_type=category_['categoryType'],
-            name=category_['name'],
-            position=category_['position'],
-            template_id=clone.id,
-            course_units_lower=category_['unitsLower'],
-            course_units_upper=category_['unitsUpper'],
+            course_units_lower=units_lower,
+            course_units_upper=units_upper,
             description=category_['description'],
+            is_satisfied_by_transfer_course=False if sid else is_satisfied_by_transfer_course,
+            name=category_name,
             parent_category_id=parent_id,
+            position=category_['position'],
+            template_id=template_clone_id,
             unit_requirement_ids=unit_requirement_ids,
         )
-    for category in DegreeProgressCategory.get_categories(template_id=template.id):
+        if sid and is_satisfied_by_transfer_course:
+            transfer_course = DegreeProgressCourse.create(
+                accent_color='Purple',
+                category_id=category_created.id,
+                degree_check_id=template_clone_id,
+                display_name=category_name,
+                grade='P',
+                manually_created_at=datetime.now(),
+                manually_created_by=current_user.user_id,
+                section_id=None,
+                sid=sid,
+                term_id=None,
+                units=units_lower or units_upper,
+                unit_requirement_ids=unit_requirement_ids,
+            )
+            DegreeProgressCourse.assign(
+                category_id=category_created.id,
+                course_id=transfer_course.id,
+            )
+        return category_created
+
+    categories = DegreeProgressCategory.get_categories(template_id=template.id)
+    for category in categories:
         c = _create_category(category_=category, parent_id=None)
         for course in category['courseRequirements']:
             _create_category(category_=course, parent_id=c.id)
@@ -100,9 +131,7 @@ def clone(template, created_by, name=None, sid=None):
             s = _create_category(category_=subcategory, parent_id=c.id)
             for course in subcategory['courseRequirements']:
                 _create_category(category_=course, parent_id=s.id)
-
-    # TODO: Unit requirements?
-    return DegreeProgressTemplate.find_by_id(clone.id)
+    return DegreeProgressTemplate.find_by_id(template_clone_id)
 
 
 def fetch_degree_template(template_id):
