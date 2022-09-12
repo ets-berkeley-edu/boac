@@ -168,6 +168,7 @@ const actions = {
   createCategory: ({commit, state}, {
     categoryType,
     description,
+    isSatisfiedByTransferCourse,
     name,
     parentCategoryId,
     position,
@@ -179,6 +180,7 @@ const actions = {
       createDegreeCategory(
         categoryType,
         description,
+        isSatisfiedByTransferCourse,
         name,
         parentCategoryId,
         position,
@@ -313,6 +315,7 @@ const actions = {
   updateCategory: ({commit, state}, {
     categoryId,
     description,
+    isSatisfiedByTransferCourse,
     name,
     parentCategoryId,
     unitRequirementIds,
@@ -323,6 +326,7 @@ const actions = {
       updateCategory(
         categoryId,
         description,
+        isSatisfiedByTransferCourse,
         name,
         parentCategoryId,
         unitRequirementIds,

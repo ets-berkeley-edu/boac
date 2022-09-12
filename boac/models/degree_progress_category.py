@@ -56,6 +56,7 @@ class DegreeProgressCategory(Base):
     grade = db.Column(db.String(50))
     is_ignored = db.Column(db.Boolean, nullable=False, default=False)
     is_recommended = db.Column(db.Boolean, nullable=False, default=False)
+    is_satisfied_by_transfer_course = db.Column(db.Boolean, nullable=False, default=False)
     name = db.Column(db.String(255), nullable=False)
     note = db.Column(db.Text)
     parent_category_id = db.Column(db.Integer, db.ForeignKey('degree_progress_categories.id'))
@@ -77,6 +78,9 @@ class DegreeProgressCategory(Base):
             course_units=None,
             description=None,
             grade=None,
+            is_ignored=False,
+            is_recommended=False,
+            is_satisfied_by_transfer_course=False,
             parent_category_id=None,
     ):
         self.accent_color = accent_color
@@ -84,6 +88,9 @@ class DegreeProgressCategory(Base):
         self.course_units = course_units
         self.description = description
         self.grade = grade
+        self.is_ignored = is_ignored
+        self.is_recommended = is_recommended
+        self.is_satisfied_by_transfer_course = is_satisfied_by_transfer_course
         self.name = name
         self.parent_category_id = parent_category_id
         self.position = position
@@ -96,7 +103,9 @@ class DegreeProgressCategory(Base):
                     course_units={self.course_units},
                     description={self.description},
                     grade={self.grade},
+                    is_ignored={self.is_ignored},
                     is_recommended={self.is_recommended},
+                    is_satisfied_by_transfer_course={self.is_satisfied_by_transfer_course},
                     name={self.name},
                     note={self.note},
                     parent_category_id={self.parent_category_id},
@@ -117,6 +126,7 @@ class DegreeProgressCategory(Base):
             course_units_upper=None,
             description=None,
             grade=None,
+            is_satisfied_by_transfer_course=False,
             parent_category_id=None,
             unit_requirement_ids=None,
     ):
@@ -131,6 +141,7 @@ class DegreeProgressCategory(Base):
             course_units=course_units,
             description=description,
             grade=grade,
+            is_satisfied_by_transfer_course=is_satisfied_by_transfer_course,
             name=name,
             parent_category_id=parent_category_id,
             position=position,
@@ -237,6 +248,7 @@ class DegreeProgressCategory(Base):
             course_units_lower,
             course_units_upper,
             description,
+            is_satisfied_by_transfer_course,
             name,
             parent_category_id,
             unit_requirement_ids,
@@ -249,6 +261,7 @@ class DegreeProgressCategory(Base):
             '[]',
         )
         category.description = description
+        category.is_satisfied_by_transfer_course = is_satisfied_by_transfer_course
         category.name = name
         category.parent_category_id = parent_category_id
 
@@ -280,6 +293,7 @@ class DegreeProgressCategory(Base):
             'grade': self.grade,
             'isIgnored': self.is_ignored,
             'isRecommended': self.is_recommended,
+            'isSatisfiedByTransferCourse': self.is_satisfied_by_transfer_course,
             'name': self.name,
             'note': self.note,
             'parentCategoryId': self.parent_category_id,

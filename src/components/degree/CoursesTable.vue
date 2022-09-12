@@ -94,6 +94,7 @@
                   </div>
                   <div
                     :class="{
+                      'accent-color-purple': $_.get(bundle.category, 'isSatisfiedByTransferCourse'),
                       'font-weight-500': isEditing(bundle),
                       'pr-2': $_.get(bundle.course, 'isCopy')
                     }"

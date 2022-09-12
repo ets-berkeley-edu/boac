@@ -424,6 +424,7 @@ CREATE TABLE degree_progress_categories (
     grade VARCHAR(50),
     is_ignored BOOLEAN DEFAULT false NOT NULL,
     is_recommended BOOLEAN DEFAULT false NOT NULL,
+    is_satisfied_by_transfer_course BOOLEAN DEFAULT false NOT NULL,
     name character varying(255) NOT NULL,
     note TEXT,
     parent_category_id integer,

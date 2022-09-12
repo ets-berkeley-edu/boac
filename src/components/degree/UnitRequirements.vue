@@ -42,16 +42,16 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :items="$_.filter(items, item => !item.parent || item.parent.isExpanded)"
+            :items="$_.filter(items, item => !item.unitRequirement || item.unitRequirement.isExpanded)"
             small
             thead-class="sortable-table-header text-nowrap border-bottom"
           >
             <template v-if="sid && !printable" #cell(name)="row">
-              <div v-if="row.item.parent" class="pl-3">
+              <div v-if="row.item.unitRequirement" class="pl-3">
                 {{ row.item.name }}
               </div>
               <b-button
-                v-if="!row.item.parent"
+                v-if="!row.item.unitRequirement"
                 :id="`unit-requirement-${row.item.id}-toggle`"
                 block
                 class="border-0 p-0"
@@ -148,13 +148,6 @@ export default {
     render: false,
     selected: undefined
   }),
-  computed: {
-    itemsFiltered() {
-      return this.$_.filter(this.items, item => {
-        return !item.parent || item.parent.isExpanded
-      })
-    }
-  },
   watch: {
     lastPageRefreshAt() {
       this.refresh()
@@ -244,7 +237,7 @@ export default {
       const expandedIds = this.$_.map((this.$_.filter(this.items, 'isExpanded')), 'id')
       const items = []
       this.$_.each(this.unitRequirements, u => {
-        const parent = {
+        const unitRequirement = {
           id: u.id,
           children: [],
           completed: this.getUnitsCompleted(u),
@@ -252,21 +245,23 @@ export default {
           minUnits: u.minUnits,
           name: u.name
         }
-        items.push(parent)
-        let courses = this.$_.filter(this.courses.assigned, course => {
-          return !!this.$_.find(course.unitRequirements, ['id', u.id])
-        })
-        courses = this.$_.sortBy(courses, ['name', 'id'])
-        this.$_.each(courses, course => {
-          const child = {
-            id: course.id,
-            completed: course.units,
-            name: course.name,
-            parent
-          }
-          items.push(child)
-          parent.children.push(child)
-        })
+        items.push(unitRequirement)
+        if (this.sid) {
+          let courses = this.$_.filter(this.courses.assigned, course => {
+            return !!this.$_.find(course.unitRequirements, ['id', u.id])
+          })
+          courses = this.$_.sortBy(courses, ['name', 'id'])
+          this.$_.each(courses, course => {
+            const child = {
+              id: course.id,
+              completed: course.units,
+              name: course.name,
+              unitRequirement
+            }
+            items.push(child)
+            unitRequirement.children.push(child)
+          })
+        }
       })
       this.items = items
     },
