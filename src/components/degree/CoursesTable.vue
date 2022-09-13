@@ -77,7 +77,7 @@
               <td
                 class="font-size-14 pl-0"
                 :class="{
-                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle) && !printable,
+                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-name-printable': printable,
                   'font-size-14 td-name': !printable
                 }"
@@ -102,7 +102,7 @@
                     <span v-if="$_.get(bundle.category, 'isIgnored')" class="text-strikethrough">{{ bundle.name }}</span>
                     <span v-if="!$_.get(bundle.category, 'isIgnored')">{{ bundle.name }}</span>
                   </div>
-                  <div v-if="$_.get(bundle.course, 'isCopy') && !printable" class="pr-1">
+                  <div v-if="$_.get(bundle.course, 'isCopy')" class="pr-1">
                     <font-awesome
                       icon="copy"
                       size="sm"
@@ -115,18 +115,18 @@
                 v-if="!isCampusRequirements"
                 class="td-units"
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle) && !printable
+                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle)
                 }"
               >
                 <font-awesome
-                  v-if="isCourseFulfillmentsEdited(bundle) && !printable"
+                  v-if="isCourseFulfillmentsEdited(bundle)"
                   class="fulfillments-icon mr-1"
                   icon="check-circle"
                   size="sm"
                   :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
                 />
                 <font-awesome
-                  v-if="unitsWereEdited(bundle.course) && !printable"
+                  v-if="unitsWereEdited(bundle.course)"
                   :id="`units-were-edited-${bundle.course.id}`"
                   class="changed-units-icon"
                   icon="info-circle"
@@ -139,7 +139,7 @@
               <td v-if="sid && !isCampusRequirements" class="td-grade">
                 <span
                   :class="{
-                    'faint-text font-italic': !bundle.course && !getAccentColor(bundle) && !printable,
+                    'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
                     'font-size-14 text-nowrap': !printable
                   }"
@@ -163,7 +163,7 @@
               <td
                 v-if="sid"
                 :class="{
-                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle) && !printable,
+                  'faint-text font-italic': !isSatisfied(bundle) && !getAccentColor(bundle),
                   'font-size-12 td-note-printable': printable,
                   'ellipsis-if-overflow font-size-14 td-note': !printable
                 }"
@@ -197,7 +197,7 @@
                 v-if="!sid && !isCampusRequirements"
                 class="align-middle td-max-width-0"
                 :class="{
-                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle) && !printable,
+                  'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
@@ -303,9 +303,10 @@
             <b-td class="p-2" :class="{'pb-3': !sid}" colspan="5">
               <span
                 :id="emptyCategoryId"
+                class="faint-text font-italic"
                 :class="{
                   'font-size-14': printable,
-                  'faint-text font-italic font-size-16': !printable
+                  'font-size-16': !printable
                 }"
               >
                 No completed requirements
