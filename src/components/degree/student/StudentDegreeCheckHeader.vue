@@ -1,182 +1,214 @@
 <template>
-  <b-container id="student-degree-check-header" class="px-0 mx-0" :fluid="true">
-    <b-row v-if="!$_.includes(dismissedAlerts, templateId) && showRevisionIndicator">
-      <b-col>
-        <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
-          <div class="d-inline-block pr-2 w-100">
-            <span class="font-weight-bolder">Note:</span> Revisions to the
-            <router-link
-              id="original-degree-template"
-              target="_blank"
-              :to="`/degree/${parentTemplateId}`"
-            >
-              original degree template <font-awesome icon="external-link-alt" class="pr-1" />
-              <span class="sr-only"> (will open new browser tab)</span>
-            </router-link>
-            have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
-          </div>
-          <div class="align-self-center pr-1">
-            <b-btn
-              id="dismiss-alert"
-              class="p-0"
-              size="sm"
-              title="Dismiss"
-              variant="link"
-              @click="dismissAlert(templateId)"
-            >
-              <font-awesome icon="times" />
-              <span class="sr-only">Dismiss alert</span>
-            </b-btn>
-          </div>
-        </div>
-      </b-col>
-    </b-row>
-    <b-row>
-      <b-col cols="12" lg="6">
-        <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
-        <div class="faint-text font-size-16 font-weight-500 pb-2">
-          {{ updatedAtDescription }}
-        </div>
-      </b-col>
-      <b-col cols="12" lg="6">
-        <div class="d-flex justify-content-end flex-wrap py-1">
-          <div class="pr-2">
-            <router-link
-              id="print-degree-plan"
-              target="_blank"
-              :to="`/degree/${templateId}/print?includeNote=${includeNotesWhenPrint}`"
-            >
-              <font-awesome class="mr-1" icon="print" />
-              Print Plan
-              <span class="sr-only"> (will open new browser tab)</span>
-            </router-link>
-          </div>
-          <div class="pr-2">
-            |
-          </div>
-          <div class="pr-2">
-            <router-link
-              id="view-degree-history"
-              :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/history`"
-            >
-              View Degree History
-            </router-link>
-          </div>
-          <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
-            |
-          </div>
-          <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
-            <router-link
-              id="create-new-degree"
-              :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
-            >
-              Create New Degree
-            </router-link>
-          </div>
-        </div>
-      </b-col>
-    </b-row>
-    <b-row v-if="isEditingNote || noteBody" class="pl-2 pt-2">
-      <b-col cols="12" sm="4">
-        <h3 class="font-size-20 font-weight-bold mb-1 text-nowrap">Degree Notes</h3>
-        <div v-if="!isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
-          <div v-if="noteUpdatedBy" class="pr-2 text-nowrap">
-            <span v-if="noteUpdatedBy" class="faint-text font-weight-normal">
-              <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
-            </span>
-            <span v-if="noteUpdatedAt" class="faint-text">
-              {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
-              <span v-if="isToday(noteUpdatedAt)"> today.</span>
-              <span v-if="!isToday(noteUpdatedAt)">
-                on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}.</span>
-              </span>
-            </span>
-          </div>
-        </div>
-      </b-col>
-      <b-col>
-        <div class="align-items-baseline d-flex justify-content-end">
-          <label for="degree-note-print-toggle" class="faint-text font-weight-500 pr-3">
-            Show notes when printed
-          </label>
-          <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
-            <div class="d-flex">
-              <div class="toggle-label">
-                {{ includeNotesWhenPrint ? 'Yes' : 'No' }}
-              </div>
-              <b-form-checkbox
-                id="degree-note-print-toggle"
-                :checked="includeNotesWhenPrint"
-                switch
-                @keypress.native.enter="onToggleNotesWhenPrint(!includeNotesWhenPrint)"
-                @change="onToggleNotesWhenPrint"
-              />
+  <div>
+    <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
+      <b-row v-if="!$_.includes(dismissedAlerts, templateId) && showRevisionIndicator">
+        <b-col>
+          <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
+            <div class="d-inline-block pr-2 w-100">
+              <span class="font-weight-bolder">Note:</span> Revisions to the
+              <router-link
+                id="original-degree-template"
+                target="_blank"
+                :to="`/degree/${parentTemplateId}`"
+              >
+                original degree template <font-awesome icon="external-link-alt" class="pr-1" />
+                <span class="sr-only"> (will open new browser tab)</span>
+              </router-link>
+              have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
+            </div>
+            <div class="align-self-center pr-1">
+              <b-btn
+                id="dismiss-alert"
+                class="p-0"
+                size="sm"
+                title="Dismiss"
+                variant="link"
+                @click="dismissAlert(templateId)"
+              >
+                <font-awesome icon="times" />
+                <span class="sr-only">Dismiss alert</span>
+              </b-btn>
             </div>
           </div>
-        </div>
-      </b-col>
-    </b-row>
-    <b-row class="pb-2" :class="{'pt-1': noteBody}">
-      <b-col v-if="!isEditingNote" cols="12" md="8">
-        <div :class="{'px-2': noteBody, 'pb-2': !$currentUser.canEditDegreeProgress}">
-          <div
-            v-if="noteBody"
-            id="degree-note-body"
-            v-linkified
-            class="degree-note-body"
-            v-html="noteBody"
-          />
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col cols="8">
+          <h2 class="mb-1 page-section-header">{{ degreeName }}</h2>
+          <div class="faint-text font-size-16 font-weight-500 pb-2">
+            {{ updatedAtDescription }}
+          </div>
+        </b-col>
+        <b-col cols="4">
+          <div class="d-flex flex-wrap py-1">
+            <div class="pr-2">
+              <router-link
+                id="print-degree-plan"
+                target="_blank"
+                :to="`/degree/${templateId}/print?includeNote=${includeNotesWhenPrint}`"
+              >
+                <font-awesome class="mr-1" icon="print" />
+                Print
+                <span class="sr-only"> (will open new browser tab)</span>
+              </router-link>
+            </div>
+            <div class="pr-2">
+              |
+            </div>
+            <div class="pr-2">
+              <router-link
+                id="view-degree-history"
+                :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/history`"
+              >
+                History
+              </router-link>
+            </div>
+            <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
+              |
+            </div>
+            <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
+              <router-link
+                id="create-new-degree"
+                :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
+              >
+                Create New Degree
+              </router-link>
+            </div>
+          </div>
+        </b-col>
+      </b-row>
+    </b-container>
+    <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
+      <b-row align-v="start">
+        <b-col cols="8">
+          <div v-if="isEditingNote || noteBody" class="d-flex justify-content-between">
+            <div>
+              <h3 class="font-size-20 font-weight-bold text-nowrap">Degree Notes</h3>
+            </div>
+            <div class="align-items-baseline d-flex justify-content-end">
+              <label for="degree-note-print-toggle" class="faint-text font-weight-500 pr-3">
+                Show notes when printed
+              </label>
+              <div :class="{'text-success': includeNotesWhenPrint, 'text-danger': !includeNotesWhenPrint}">
+                <div class="d-flex">
+                  <div class="toggle-label">
+                    {{ includeNotesWhenPrint ? 'Yes' : 'No' }}
+                  </div>
+                  <b-form-checkbox
+                    id="degree-note-print-toggle"
+                    :checked="includeNotesWhenPrint"
+                    switch
+                    @keypress.native.enter="onToggleNotesWhenPrint(!includeNotesWhenPrint)"
+                    @change="onToggleNotesWhenPrint"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
           <b-btn
-            v-if="$currentUser.canEditDegreeProgress"
+            v-if="$currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
             id="create-degree-note-btn"
-            class="pl-0"
+            class="pl-0 pt-0"
             :disabled="disableButtons"
             variant="link"
             @click="editNote"
           >
-            <span v-if="!noteBody">Create degree note</span>
-            <span v-if="noteBody">Edit degree note</span>
+            Create degree note
           </b-btn>
-        </div>
-      </b-col>
-      <b-col v-if="isEditingNote">
-        <div class="px-2">
-          <b-form-textarea
-            id="degree-note-input"
-            v-model.trim="noteBody"
-            :disabled="isSaving"
-            rows="4"
-          />
-        </div>
-        <div class="d-flex ml-2 my-2">
-          <div>
-            <b-btn
-              id="save-degree-note-btn"
-              class="btn-primary-color-override"
-              :disabled="noteBody === $_.get(degreeNote, 'body') || isSaving"
-              variant="primary"
-              @click="saveNote"
-            >
-              <span v-if="isSaving">
-                <font-awesome class="mr-1" icon="spinner" spin /> Saving
+        </b-col>
+        <b-col cols="4">
+          <h3 class="font-size-20 font-weight-bold mb-1 text-nowrap">In-progress courses</h3>
+        </b-col>
+      </b-row>
+      <b-row align-v="start">
+        <b-col cols="8">
+          <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
+            <div v-if="noteUpdatedBy" class="pr-2 text-nowrap">
+              <span v-if="noteUpdatedBy" class="faint-text font-weight-normal">
+                <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
               </span>
-              <span v-if="!isSaving">Save Note</span>
-            </b-btn>
+              <span v-if="noteUpdatedAt" class="faint-text">
+                {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
+                <span v-if="isToday(noteUpdatedAt)"> today.</span>
+                <span v-if="!isToday(noteUpdatedAt)">
+                  on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}.</span>
+                </span>
+              </span>
+            </div>
           </div>
           <div>
-            <b-btn
-              id="cancel-degree-note-btn"
-              :disabled="isSaving"
-              variant="link"
-              @click="cancel"
-            >
-              Cancel
-            </b-btn>
+            <div v-if="noteBody && !isEditingNote">
+              <div
+                id="degree-note-body"
+                v-linkified
+                class="degree-note-body"
+                v-html="noteBody"
+              />
+              <b-btn
+                v-if="$currentUser.canEditDegreeProgress"
+                id="edit-degree-note-btn"
+                class="pl-0"
+                :disabled="disableButtons"
+                variant="link"
+                @click="editNote"
+              >
+                <span>Edit degree note</span>
+              </b-btn>
+            </div>
+            <div v-if="isEditingNote">
+              <div class="px-2">
+                <b-form-textarea
+                  id="degree-note-input"
+                  v-model.trim="noteBody"
+                  :disabled="isSaving"
+                  rows="4"
+                />
+              </div>
+              <div class="d-flex ml-2 my-2">
+                <div>
+                  <b-btn
+                    id="save-degree-note-btn"
+                    class="btn-primary-color-override"
+                    :disabled="noteBody === $_.get(degreeNote, 'body') || isSaving"
+                    variant="primary"
+                    @click="saveNote"
+                  >
+                    <span v-if="isSaving">
+                      <font-awesome class="mr-1" icon="spinner" spin /> Saving
+                    </span>
+                    <span v-if="!isSaving">Save Note</span>
+                  </b-btn>
+                </div>
+                <div>
+                  <b-btn
+                    id="cancel-degree-note-btn"
+                    :disabled="isSaving"
+                    variant="link"
+                    @click="cancel"
+                  >
+                    Cancel
+                  </b-btn>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </b-col>
-    </b-row>
-  </b-container>
+        </b-col>
+        <b-col class="pb-2" cols="4">
+          <b-table
+            v-if="courses.inProgress.length"
+            borderless
+            class="mb-0"
+            :fields="[{key: 'displayName', label: 'Course'}, {class: 'float-right', key: 'units', label: 'Units'}]"
+            :items="courses.inProgress"
+            small
+            tbody-class="font-size-14"
+            thead-class="border-bottom font-size-14"
+          />
+          <span v-if="!courses.inProgress.length" class="faint-text pl-1">None</span>
+        </b-col>
+      </b-row>
+    </b-container>
+  </div>
 </template>
 
 <script>
@@ -261,6 +293,9 @@ export default {
 <style scoped>
 .degree-note-body {
   white-space: pre-line;
+}
+.section-separator {
+  border-bottom: 1px #999 solid;
 }
 .toggle-label {
   font-size: 14px;

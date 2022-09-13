@@ -211,28 +211,33 @@ class DegreeProgressTemplate(Base):
             'updatedBy': self.updated_by,
         }
         if self.student_sid and include_courses:
-            assigned_courses, ignored_courses, unassigned_courses = self._get_partitioned_courses_json()
+            assigned, ignored, in_progress, unassigned = self._get_partitioned_courses_json()
             api_json['courses'] = {
-                'assigned': sorted(assigned_courses, key=lambda c: c['name']),
-                'ignored': sorted(ignored_courses, key=lambda c: c['name']),
-                'unassigned': sorted(unassigned_courses, key=lambda c: c['name']),
+                'assigned': sorted(assigned, key=lambda c: c['name']),
+                'ignored': sorted(ignored, key=lambda c: c['name']),
+                'inProgress': sorted(in_progress, key=lambda c: c['displayName']),
+                'unassigned': sorted(unassigned, key=lambda c: c['name']),
             }
         return api_json
 
-    def _get_partitioned_courses_json(self):
-        assigned_courses = []
-        ignored_courses = []
-        unassigned_courses = []
-        degree_progress_courses = {}
-        sid = self.student_sid
-
+    def _get_degree_progress_courses(self, sid):
         # Sort courses by created_at (asc) so "copied" courses come after the primary assigned course.
+        degree_progress_courses = {}
         degree_courses = DegreeProgressCourse.find_by_sid(degree_check_id=self.id, sid=sid)
         for course in sorted(degree_courses, key=lambda c: c.created_at):
             key = f'{course.section_id}_{course.term_id}_{course.manually_created_at}_{course.manually_created_by}'
             if key not in degree_progress_courses:
                 degree_progress_courses[key] = []
             degree_progress_courses[key].append(course)
+        return degree_progress_courses
+
+    def _get_partitioned_courses_json(self):
+        assigned = []
+        degree_progress_courses = self._get_degree_progress_courses(sid=self.student_sid)
+        ignored = []
+        in_progress = []
+        term_id_current = current_term_id()
+        unassigned = []
 
         def _categorize_course(course_, is_copy, units_original_value=None):
             api_json = {
@@ -246,16 +251,16 @@ class DegreeProgressTemplate(Base):
                 'isCopy': is_copy,
             }
             if api_json['categoryId']:
-                assigned_courses.append(api_json)
+                assigned.append(api_json)
             elif api_json['ignore']:
-                ignored_courses.append(api_json)
+                ignored.append(api_json)
             else:
-                unassigned_courses.append(api_json)
+                unassigned.append(api_json)
 
-        for section in _get_enrollment_sections(sid):
+        for section in _get_enrollment_sections(self.student_sid):
             grade = section['grade']
             section_id = section['ccn']
-            term_id = section['termId']
+            term_id = int(section['termId'])
             units = section['units']
             key = f'{section_id}_{term_id}_{None}_{None}'
             if key in degree_progress_courses:
@@ -267,38 +272,39 @@ class DegreeProgressTemplate(Base):
                         is_copy=idx > 0,
                         units_original_value=units,
                     )
-            elif section.get('primary') and grade and units:
-                course = DegreeProgressCourse.create(
-                    degree_check_id=self.id,
-                    display_name=section['displayName'],
-                    grade=grade,
-                    section_id=section_id,
-                    sid=sid,
-                    term_id=term_id,
-                    units=units,
-                )
-                unassigned_courses.append({
-                    **course.to_api_json(),
-                    **{
-                        'sis': {
-                            'units': units,
+            elif section.get('primary'):
+                if grade and units:
+                    course = DegreeProgressCourse.create(
+                        degree_check_id=self.id,
+                        display_name=section['displayName'],
+                        grade=grade,
+                        section_id=section_id,
+                        sid=self.student_sid,
+                        term_id=term_id,
+                        units=units,
+                    )
+                    unassigned.append({
+                        **course.to_api_json(),
+                        **{
+                            'sis': {
+                                'units': units,
+                            },
                         },
-                    },
-                    'isCopy': False,
-                })
+                        'isCopy': False,
+                    })
+                elif term_id == term_id_current:
+                    in_progress.append(section)
+
         for key in list(degree_progress_courses.keys()):
             for idx, course in enumerate(degree_progress_courses.pop(key)):
                 _categorize_course(course_=course, is_copy=idx > 0)
 
-        return assigned_courses, ignored_courses, unassigned_courses
+        return assigned, ignored, in_progress, unassigned
 
 
 def _get_enrollment_sections(sid):
     sections = []
-    enrollments = data_loch.get_enrollments_for_sid(
-        sid=sid,
-        latest_term_id=current_term_id(),
-    )
+    enrollments = data_loch.get_enrollments_for_sid(sid=sid)
     for index, term in enumerate(merge_enrollment_terms(enrollments)):
         for enrollment in term.get('enrollments', []):
             for section in enrollment['sections']:
