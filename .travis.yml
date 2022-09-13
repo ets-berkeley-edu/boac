@@ -3,7 +3,16 @@ language: python
 python: "3.8"
 
 addons:
-  postgresql: "9.6"
+  postgresql: "11"
+  apt:
+    packages:
+    - postgresql-11
+    - postgresql-client-11
+
+env:
+  global:
+  - PGPORT=5433
+  - PGUSER=travis
 
 before_install:
   - nvm install 14
@@ -13,11 +22,11 @@ install:
   - pip3 install tox
 
 script:
-  - psql -c 'create database boac_test;' -U postgres
-  - psql -c 'create database boac_loch_test;' -U postgres
-  - psql boac_test -c 'create extension pg_trgm;' -U postgres
-  - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U postgres
-  - psql boac_loch_test -c 'create extension pg_trgm;' -U postgres
-  - psql boac_loch_test -c 'alter schema public owner to boac;' -U postgres
+  - psql -c 'create database boac_test;' -U travis
+  - psql -c 'create database boac_loch_test;' -U travis
+  - psql boac_test -c 'create extension pg_trgm;' -U travis
+  - psql boac_test -c 'create role boac superuser login; alter schema public owner to boac;' -U travis
+  - psql boac_loch_test -c 'create extension pg_trgm;' -U travis
+  - psql boac_loch_test -c 'alter schema public owner to boac;' -U travis
   - pip3 install -r requirements.txt
   - tox --parallel || travis_terminate 1

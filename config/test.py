@@ -23,6 +23,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import os
+
+PGPORT = os.environ.get('PGPORT', '5432')
+
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
@@ -30,12 +34,12 @@ AWS_APP_ROLE_ARN = 'arn:aws:iam::123456789012:role/test-role'
 
 BACKGROUND_TASKS = False
 
-DATA_LOCH_RDS_URI = 'postgresql://boac:boac@localhost:5432/boac_loch_test'
+DATA_LOCH_RDS_URI = f'postgresql://boac:boac@localhost:{PGPORT}/boac_loch_test'
 
 INDEX_HTML = 'tests/static/test-index.html'
 
 LOGGING_LOCATION = 'STDOUT'
 
-SQLALCHEMY_DATABASE_URI = 'postgresql://boac:boac@localhost:5432/boac_test'
+SQLALCHEMY_DATABASE_URI = f'postgresql://boac:boac@localhost:{PGPORT}/boac_test'
 
 TESTING = True
