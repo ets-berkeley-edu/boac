@@ -473,24 +473,33 @@ class TestUpdateCourse:
     def test_update_template(self, client, fake_auth, mock_degree_check):
         """Authorized user can edit a template."""
         fake_auth.login(coe_advisor_read_write_uid)
-        api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
-        course = api_json['courses']['unassigned'][0]
-        units = course['units']
+        expected_section_id = 50100
+        expected_term_id = 2178
 
-        units_original = units
-        units_updated = units + 2
-        api_json = self._api_update_course(
+        def _fetch_sample_unassigned_course():
+            api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
+            unassigned = api_json['courses']['unassigned']
+            return next((c for c in unassigned if c['sectionId'] == expected_section_id and c['termId'] == expected_term_id), None)
+
+        course = _fetch_sample_unassigned_course()
+        assert course['sectionId'] == expected_section_id
+        assert course['termId'] == expected_term_id
+        assert course['units'] == 0.5
+
+        # Update
+        units_updated = course['units'] + 2
+        self._api_update_course(
             client=client,
             course_id=course['id'],
-            units=str(units_updated),
+            units=units_updated,
         )
-        assert api_json['id'] == course['id']
         # Verify
-        api_json = _api_get_degree(client, degree_check_id=mock_degree_check.id)
-        unassigned_courses = api_json['courses']['unassigned']
-        course = next((c for c in unassigned_courses if c['id'] == course['id']), None)
-        assert course['units'] == units_updated
-        assert course['sis']['units'] == units_original
+        updated_course = _fetch_sample_unassigned_course()
+        assert updated_course
+        assert updated_course['sectionId'] == expected_section_id
+        assert updated_course['termId'] == expected_term_id
+        assert updated_course['units'] == units_updated
+        assert updated_course['sis']['units'] == course['units']
 
 
 class TestGetDegreeCheckStudents:

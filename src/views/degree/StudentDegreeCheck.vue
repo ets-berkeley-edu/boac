@@ -10,10 +10,8 @@
         />
       </div>
       <div class="m-3">
-        <div class="section-separator w-100">
-          <StudentDegreeCheckHeader :student="student" />
-        </div>
-        <b-container class="px-0 py-2 section-separator" fluid>
+        <StudentDegreeCheckHeader :student="student" />
+        <b-container class="px-0 py-2" fluid>
           <b-row no-gutters>
             <b-col cols="4">
               <UnitRequirements />
