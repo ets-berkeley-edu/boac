@@ -260,9 +260,9 @@ export default {
       })
     },
     createNote() {
+      this.setIsSaving(true)
       const ifAuthenticated = () => {
         if (this.model.subject && this.completeSidSet.length) {
-          this.setIsSaving(true)
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
           this.createAdvisingNotes().then(note => {
@@ -277,9 +277,9 @@ export default {
       })
     },
     createTemplate(title) {
+      this.setIsSaving(true)
       const ifAuthenticated = () => {
         this.showCreateTemplateModal = false
-        this.setIsSaving(true)
         this.setFocusLockDisabled(false)
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
@@ -351,6 +351,7 @@ export default {
       })
     },
     saveAsTemplate() {
+      this.setIsSaving(true)
       const ifAuthenticated = () => {
         this.showCreateTemplateModal = true
         this.setFocusLockDisabled(true)
