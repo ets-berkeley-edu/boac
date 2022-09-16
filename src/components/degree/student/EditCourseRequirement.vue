@@ -21,6 +21,7 @@
       <UnitsInput
         :disable="isSaving"
         :error-message="unitsErrorMessage"
+        :on-escape="cancel"
         :on-submit="onSubmit"
         :range="true"
         :set-units-lower="setUnitsLower"
@@ -58,6 +59,7 @@
           v-model="note"
           :disabled="isSaving"
           rows="4"
+          @keyup.esc="cancel"
         />
       </div>
     </div>
