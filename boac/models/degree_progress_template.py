@@ -236,7 +236,7 @@ class DegreeProgressTemplate(Base):
         degree_progress_courses = self._get_degree_progress_courses(sid=self.student_sid)
         ignored = []
         in_progress = []
-        term_id_current = current_term_id()
+        term_id_current = int(current_term_id())
         unassigned = []
 
         def _categorize_course(course_, is_copy, units_original_value=None):

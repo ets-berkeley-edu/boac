@@ -73,7 +73,7 @@
                 v-if="row.item.isExpanded && !row.item.children.length"
                 class="faint-text pb-1 pl-4 pt-1"
               >
-                None
+                No courses
               </div>
             </template>
             <template v-if="$currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
