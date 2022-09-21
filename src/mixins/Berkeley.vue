@@ -122,6 +122,35 @@ export default {
         {text: 'Units in progress', value: 'units_in_progress'}
       ]
     },
+    getIncompleteGradeDescription: (courseDisplayName, sections) => {
+      const now = new Date()
+      let description
+      if (sections.length > 0) {
+        if (sections.length === 1) {
+          const section = sections[0]
+          const lapseDate = section.incompleteLapseGradeDate ? new Date(section.incompleteLapseGradeDate) : null
+          if (_.toLower(section['incompleteFrozenFlag']) === 'y') {
+            description = 'Frozen incomplete grade will not lapse into a failing grade.'
+          } else if (lapseDate) {
+            const formattedDate = Vue.prototype.$moment(lapseDate).format('ll')
+            if (lapseDate < now) {
+              description = `Formerly an incomplete grade on ${formattedDate}.`
+            } else {
+              description = `Incomplete grade scheduled to become a failing grade on ${formattedDate}.`
+            }
+          } else {
+            const status = section.incompleteStatusDescription || section.incompleteStatusCode
+            description = `Incomplete grade with status "${status}".`
+          }
+          if (section.incompleteComments) {
+            description += ` (${section.incompleteComments})`
+          }
+        } else {
+          description = `Student has incomplete grade in ${sections.length} ${courseDisplayName} sections.`
+        }
+      }
+      return description
+    },
     isCoe: auth.isCoe,
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
     isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),

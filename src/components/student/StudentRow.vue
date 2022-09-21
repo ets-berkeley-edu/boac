@@ -315,7 +315,19 @@
               v-accessible-grade="enrollment.grade"
               class="font-weight-bold"
             ></span>
-            <font-awesome v-if="isAlertGrade(enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
+            <font-awesome
+              v-if="isAlertGrade(enrollment.grade)"
+              icon="exclamation-triangle"
+              class="boac-exclamation ml-1"
+            />
+            <font-awesome
+              v-if="getSectionsWithIncompleteStatus(enrollment).length"
+              :id="`term-${termId}-course-${index}-has-incomplete-status`"
+              :aria-label="getIncompleteGradeDescription(enrollment.displayName, getSectionsWithIncompleteStatus(enrollment))"
+              class="has-error ml-1"
+              icon="info-circle"
+              :title="getIncompleteGradeDescription(enrollment.displayName, getSectionsWithIncompleteStatus(enrollment))"
+            />
             <span
               v-if="!enrollment.grade"
               class="cohort-grading-basis"
@@ -403,12 +415,6 @@ export default {
     hover: false,
     termEnrollments: []
   }),
-  methods: {
-    onClickRemoveStudent(student) {
-      this.removeStudent(student.sid)
-      this.$announcer.polite(`Removed ${student.firstName} ${student.lastName} from group`)
-    }
-  },
   computed: {
     degreePlanOwners() {
       const plans = this.$_.get(this.student, 'degree.plans')
@@ -426,6 +432,15 @@ export default {
     const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
     this.$_.each(termEnrollments, this.setWaitlistedStatus)
     this.termEnrollments = termEnrollments
+  },
+  methods: {
+    getSectionsWithIncompleteStatus(course) {
+      return this.$_.filter(course.sections, 'incompleteStatusCode')
+    },
+    onClickRemoveStudent(student) {
+      this.removeStudent(student.sid)
+      this.$announcer.polite(`Removed ${student.firstName} ${student.lastName} from group`)
+    }
   }
 }
 </script>
