@@ -66,12 +66,12 @@
           icon="exclamation-triangle"
         />
         <font-awesome
-          v-if="$_.filter(course.sections, 'incompleteStatusCode').length"
+          v-if="sectionsWithIncompleteStatus.length"
           :id="`term-${termId}-course-${index}-has-incomplete-status`"
+          :aria-label="getIncompleteGradeDescription(course.displayName, sectionsWithIncompleteStatus)"
           class="has-error ml-1"
           icon="info-circle"
-          aria-label="Course has section(s) with current or expired incomplete status."
-          title="Course has section(s) with current or expired incomplete status."
+          :title="getIncompleteGradeDescription(course.displayName, sectionsWithIncompleteStatus)"
         />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
@@ -242,7 +242,7 @@
         </div>
       </div>
       <div
-        v-for="section in $_.filter(course.sections, 'incompleteStatusCode')"
+        v-for="section in sectionsWithIncompleteStatus"
         :key="section.ccn"
         class="align-items-center d-flex pb-2"
       >
@@ -250,17 +250,16 @@
           <font-awesome class="mr-1" icon="info-circle" size="sm" />
           <span class="font-size-12">Incomplete Grade</span>
         </div>
-        <div v-if="new Date(section.incompleteLapseGradeDate) < new Date()">
-          Formerly an incomplete grade on {{ section.incompleteLapseGradeDate | moment('ddd, MMMM D') }}.
-        </div>
-        <div v-if="new Date(section.incompleteLapseGradeDate) > new Date()">
-          Incomplete grade scheduled to become a failing grade on {{ section.incompleteLapseGradeDate | moment('ddd, MMMM D') }}.
+        <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
+          {{ sectionsWithIncompleteStatus.length > 1 ? `${section.displayName} :` : '' }}
+          {{ getIncompleteGradeDescription(course.displayName, [section]) }}
         </div>
       </div>
     </b-collapse>
   </div>
 </template>
 <script>
+import Berkeley from '@/mixins/Berkeley'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import StudentMetadata from '@/mixins/StudentMetadata'
@@ -271,7 +270,12 @@ export default {
   components: {
     StudentBoxplot
   },
-  mixins: [StudentAnalytics, StudentMetadata, Util],
+  mixins: [
+    Berkeley,
+    StudentAnalytics,
+    StudentMetadata,
+    Util
+  ],
   props: {
     course: {
       required: true,
@@ -296,6 +300,7 @@ export default {
   },
   data: () => ({
     detailsVisible: false,
+    sectionsWithIncompleteStatus: undefined,
     spacerHeight: 0
   }),
   mounted() {
@@ -310,6 +315,9 @@ export default {
   },
   computed: {
     showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
+  },
+  created() {
+    this.sectionsWithIncompleteStatus = this.$_.filter(this.course.sections, 'incompleteStatusCode')
   },
   methods: {
     onHide() {
