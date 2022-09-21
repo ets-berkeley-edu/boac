@@ -48,13 +48,14 @@
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
           v-accessible-grade="course.grade"
-        ></span>
+        />
         <span
           v-if="!course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
         <font-awesome v-if="isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
+        <font-awesome v-if="course.incompleteStatusCode === 'I'" icon="info" class="has-error" />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
