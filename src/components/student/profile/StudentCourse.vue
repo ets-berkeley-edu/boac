@@ -31,7 +31,7 @@
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="student-course-column-grade text-nowrap pt-1 px-1">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -41,9 +41,14 @@
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
-        <font-awesome v-if="isAlertGrade(course.midtermGrade) && !course.grade" icon="exclamation-triangle" class="boac-exclamation" />
+        <font-awesome
+          v-if="isAlertGrade(course.midtermGrade) && !course.grade"
+          :id="`term-${termId}-course-${index}-has-midterm-grade-alert`"
+          icon="exclamation-triangle"
+          class="boac-exclamation"
+        />
       </div>
-      <div role="cell" class="student-course-column-grade text-nowrap pt-1 px-1">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -54,8 +59,20 @@
           :id="`term-${termId}-course-${index}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
-        <font-awesome v-if="isAlertGrade(course.grade)" icon="exclamation-triangle" class="boac-exclamation" />
-        <font-awesome v-if="course.incompleteStatusCode === 'I'" icon="info" class="has-error" />
+        <font-awesome
+          v-if="isAlertGrade(course.grade)"
+          :id="`term-${termId}-course-${index}-has-grade-alert`"
+          class="boac-exclamation ml-1"
+          icon="exclamation-triangle"
+        />
+        <font-awesome
+          v-if="$_.filter(course.sections, 'incompleteStatusCode').length"
+          :id="`term-${termId}-course-${index}-has-incomplete-status`"
+          class="has-error ml-1"
+          icon="info-circle"
+          aria-label="Course has section(s) with current or expired incomplete status."
+          title="Course has section(s) with current or expired incomplete status."
+        />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
       <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
@@ -224,6 +241,22 @@
           No additional information
         </div>
       </div>
+      <div
+        v-for="section in $_.filter(course.sections, 'incompleteStatusCode')"
+        :key="section.ccn"
+        class="align-items-center d-flex pb-2"
+      >
+        <div class="align-items-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
+          <font-awesome class="mr-1" icon="info-circle" size="sm" />
+          <span class="font-size-12">Incomplete Grade</span>
+        </div>
+        <div v-if="new Date(section.incompleteLapseGradeDate) < new Date()">
+          Formerly an incomplete grade on {{ section.incompleteLapseGradeDate | moment('ddd, MMMM D') }}.
+        </div>
+        <div v-if="new Date(section.incompleteLapseGradeDate) > new Date()">
+          Incomplete grade scheduled to become a failing grade on {{ section.incompleteLapseGradeDate | moment('ddd, MMMM D') }}.
+        </div>
+      </div>
     </b-collapse>
   </div>
 </template>
@@ -363,6 +396,16 @@ export default {
   font-weight: bold;
   justify-content: flex-end;
   padding: 0 10px 0 2px;
+}
+.student-course-column-grade {
+  width: 15%;
+}
+.student-course-column-name {
+  width: 60%;
+}
+.student-course-column-units {
+  text-align: right;
+  width: 15%;
 }
 .student-course-details {
   align-self: center;

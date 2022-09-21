@@ -19,7 +19,7 @@
         class="font-size-14"
       />
     </b-card-header>
-    <b-card-body body-class="student-courses" role="table">
+    <b-card-body body-class="p-0" role="table">
       <div role="rowgroup">
         <div role="row" class="student-course-label student-course-header text-nowrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
@@ -127,6 +127,18 @@ export default {
 </script>
 
 <style scoped>
+.student-course-column-grade {
+  display: flex;
+  justify-content: space-between;
+  width: 15%;
+}
+.student-course-column-name {
+  width: 60%;
+}
+.student-course-column-units {
+  text-align: right;
+  width: 15%;
+}
 .student-course-dropped {
   color: #666;
   font-weight: 500;
@@ -146,9 +158,6 @@ export default {
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-}
-.student-courses {
-  padding: 0;
 }
 .student-term {
   margin: 0;
@@ -181,20 +190,5 @@ export default {
 }
 .units-total {
   min-width: 30px;
-}
-</style>
-
-<style>
-.student-course-column-grade {
-  display: flex;
-  justify-content: space-between;
-  width: 15%;
-}
-.student-course-column-name {
-  width: 60%;
-}
-.student-course-column-units {
-  text-align: right;
-  width: 15%;
 }
 </style>
