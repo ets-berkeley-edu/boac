@@ -8,7 +8,7 @@
         advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
       <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
-        eForm: L&amp;S Late Change of Schedule Request &mdash; {{ note.eForm.status }}
+        eForm: Late Change of Schedule Request &mdash; {{ note.eForm.status }}
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
