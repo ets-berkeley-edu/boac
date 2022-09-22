@@ -196,10 +196,12 @@
         <b-col class="pb-2" cols="4">
           <b-table
             v-if="courses.inProgress.length"
+            id="in-progress-courses"
             borderless
             class="mb-0"
             :fields="[{key: 'displayName', label: 'Course'}, {class: 'float-right', key: 'units', label: 'Units'}]"
-            :items="courses.inProgress"
+            :items="getInProgressCourses"
+            primary-key="primaryKey"
             small
             tbody-class="font-size-14"
             thead-class="border-bottom font-size-14"
@@ -262,6 +264,13 @@ export default {
       this.isEditingNote = true
       this.$putFocusNextTick('degree-note-input')
       this.$announcer.polite('Enter note in textarea')
+    },
+    getInProgressCourses() {
+      const courses = []
+      this.$_.each(this.courses.inProgress, course => {
+        courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
+      })
+      return courses
     },
     initNote() {
       if (this.degreeNote) {
