@@ -99,8 +99,13 @@
                       'pr-2': $_.get(bundle.course, 'isCopy')
                     }"
                   >
-                    <span v-if="$_.get(bundle.category, 'isIgnored')" class="text-strikethrough">{{ bundle.name }}</span>
-                    <span v-if="!$_.get(bundle.category, 'isIgnored')">{{ bundle.name }}</span>
+                    <span
+                      class="pl-1"
+                      :class="{'text-strikethrough': $_.get(bundle.category, 'isIgnored')}"
+                    >
+                      <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
+                      {{ bundle.name }}
+                    </span>
                   </div>
                   <div v-if="$_.get(bundle.course, 'isCopy')" class="pr-1">
                     <font-awesome
