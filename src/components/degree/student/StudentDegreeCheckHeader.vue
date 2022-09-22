@@ -205,7 +205,20 @@
             small
             tbody-class="font-size-14"
             thead-class="border-bottom font-size-14"
-          />
+          >
+            <template #cell(displayName)="data">
+              <div class="d-flex">
+                <div class="pr-1">{{ data.item.displayName }}</div>
+                <div
+                  v-if="data.item.enrollmentStatus === 'W'"
+                  :id="`in-progress-course-${data.item.termId}-${data.item.sectionId}-waitlisted`"
+                  class="font-size-14 red-flag-status text-uppercase"
+                >
+                  (W<span class="sr-only">aitlisted</span>)
+                </div>
+              </div>
+            </template>
+          </b-table>
           <span v-if="!courses.inProgress.length" class="faint-text pl-1">None</span>
         </b-col>
       </b-row>
