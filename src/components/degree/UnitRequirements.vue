@@ -42,7 +42,7 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :items="$_.filter(items, item => item.type === 'unitRequirement' || item.parent.isExpanded)"
+            :items="$_.filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
             small
             :tbody-tr-attr="getTableRowAttributes"
             thead-class="sortable-table-header text-nowrap border-bottom"
@@ -58,20 +58,20 @@
                 class="border-0 p-0"
                 :class="{'shadow-none': !row.item.isExpanded}"
                 variant="link"
-                @click.prevent="row.item.isExpanded = !row.item.isExpanded"
+                @click.prevent="toggleExpanded(row.item)"
               >
                 <div class="d-flex text-left">
-                  <div class="caret pale-blue pr-2">
+                  <div class="caret caret-column pale-blue">
                     <font-awesome :icon="row.item.isExpanded ? 'caret-down' : 'caret-right'" />
                   </div>
-                  <div class="">
+                  <div>
                     <span class="sr-only">{{ `${row.item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
                     {{ row.item.name }}
                   </div>
                 </div>
               </b-button>
               <div
-                v-if="row.item.isExpanded && !row.item.children.length"
+                v-if="row.item.type === 'unitRequirement' && !row.item.children.length"
                 :id="`unit-requirement-${row.item.id}-no-courses`"
                 class="faint-text pb-1 pl-4 pt-1"
               >
@@ -245,11 +245,12 @@ export default {
       const expandedIds = this.$_.map((this.$_.filter(this.items, 'isExpanded')), 'id')
       const items = []
       this.$_.each(this.unitRequirements, u => {
+        const isExpanded = expandedIds.includes(u.id)
         const unitRequirement = {
           id: u.id,
           children: [],
           completed: this.getUnitsCompleted(u),
-          isExpanded: expandedIds.includes(u.id),
+          isExpanded,
           minUnits: u.minUnits,
           name: u.name,
           type: 'unitRequirement'
@@ -264,8 +265,9 @@ export default {
             const child = {
               id: course.id,
               completed: course.units,
+              isExpanded,
               name: course.name,
-              parent: unitRequirement,
+              parent: {id: unitRequirement.id},
               type: 'course'
             }
             items.push(child)
@@ -281,7 +283,18 @@ export default {
       this.isEditing = false
       const focusId = this.selected ? `unit-requirement-${this.selected.id}-edit-btn` : 'unit-requirement-create-link'
       this.$putFocusNextTick(focusId)
+    },
+    toggleExpanded(item) {
+      const value = !item.isExpanded
+      item.isExpanded = value
+      this.$_.each(item.children, child => child.isExpanded = value)
     }
   }
 }
 </script>
+
+<style scoped>
+.caret-column {
+  width: 1.3rem;
+}
+</style>
