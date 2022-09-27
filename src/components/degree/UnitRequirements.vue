@@ -42,16 +42,17 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :items="$_.filter(items, item => !item.unitRequirement || item.unitRequirement.isExpanded)"
+            :items="$_.filter(items, item => item.type === 'unitRequirement' || item.parent.isExpanded)"
             small
+            :tbody-tr-attr="getTableRowAttributes"
             thead-class="sortable-table-header text-nowrap border-bottom"
           >
             <template v-if="sid && !printable" #cell(name)="row">
-              <div v-if="row.item.unitRequirement" class="pl-3">
+              <div v-if="row.item.type === 'course'" class="pl-3">
                 {{ row.item.name }}
               </div>
               <b-button
-                v-if="!row.item.unitRequirement"
+                v-if="row.item.type === 'unitRequirement'"
                 :id="`unit-requirement-${row.item.id}-toggle`"
                 block
                 class="border-0 p-0"
@@ -71,6 +72,7 @@
               </b-button>
               <div
                 v-if="row.item.isExpanded && !row.item.children.length"
+                :id="`unit-requirement-${row.item.id}-no-courses`"
                 class="faint-text pb-1 pl-4 pt-1"
               >
                 No courses
@@ -203,6 +205,12 @@ export default {
         this.$putFocusNextTick('unit-requirement-create-link')
       })
     },
+    getTableRowAttributes(item) {
+      const prefix = 'unit-requirement'
+      return {
+        id: item.type === 'course' ? `${prefix}-${item.parent.id}-course-${item.id}` : `${prefix}-${item.id}`
+      }
+    },
     getUnitsCompleted(unitRequirement) {
       let count = 0
       this.$_.each(this.courses, courses => {
@@ -243,7 +251,8 @@ export default {
           completed: this.getUnitsCompleted(u),
           isExpanded: expandedIds.includes(u.id),
           minUnits: u.minUnits,
-          name: u.name
+          name: u.name,
+          type: 'unitRequirement'
         }
         items.push(unitRequirement)
         if (this.sid) {
@@ -256,7 +265,8 @@ export default {
               id: course.id,
               completed: course.units,
               name: course.name,
-              unitRequirement
+              parent: unitRequirement,
+              type: 'course'
             }
             items.push(child)
             unitRequirement.children.push(child)
