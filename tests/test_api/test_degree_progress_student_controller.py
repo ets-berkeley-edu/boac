@@ -673,20 +673,20 @@ class TestCopyCourse:
     def test_anonymous(self, client):
         """Denies anonymous user."""
         _api_copy_course(
-            category_id=1,
             client=client,
             course_id=1,
             expected_status_code=401,
+            parent_category_id=1,
         )
 
     def test_unauthorized(self, client, fake_auth):
         """Denies unauthorized user."""
         fake_auth.login(coe_advisor_read_only_uid)
         _api_copy_course(
-            category_id=1,
             client=client,
             course_id=1,
             expected_status_code=401,
+            parent_category_id=1,
         )
 
     def test_copy_course(self, client, fake_auth):
@@ -724,55 +724,68 @@ class TestCopyCourse:
         section_id = course['sectionId']
         copied_course_ids = []
 
-        def _copy_course(category_id, expected_status_code=200):
+        def _copy_course(expected_status_code=200, parent_category_id=None):
             course_copy = _api_copy_course(
-                category_id=category_id,
                 client=client,
                 course_id=course_id,
                 expected_status_code=expected_status_code,
+                parent_category_id=parent_category_id,
             )
             if expected_status_code == 200:
                 copied_course_ids.append(course_copy['id'])
             return course_copy
 
-        # Verify: user cannot copy an unassigned course.
-        _copy_course(category_id=category_1.id, expected_status_code=400)
+        # Verify: user can copy course with assigning it to a category.
+        _copy_course()
         # Verify: user cannot copy course to a category which already has the course.
-        _api_assign_course(category_id=category_1.id, client=client, course_id=course_id)
-        by_id = DegreeProgressCourse.find_by_id(course_id)
-        assert by_id.category_id == category_1.id
-        _copy_course(category_id=category_1.id, expected_status_code=400)
-
-        subcategory = _create_category(category_type='Subcategory', parent_category_id=category_1.id)
+        assigned_course = _api_assign_course(
+            category_id=category_1.id,
+            client=client,
+            course_id=course_id,
+        )
+        assert assigned_course['categoryId'] == category_1.id
+        _copy_course(
+            expected_status_code=400,
+            parent_category_id=category_1.id,
+        )
         # Verify: user cannot copy course to a category which has subcategories.
-        _copy_course(category_id=category_1.id, expected_status_code=400)
-
+        subcategory = _create_category(
+            category_type='Subcategory',
+            parent_category_id=category_1.id,
+        )
+        _copy_course(
+            expected_status_code=400,
+            parent_category_id=category_1.id,
+        )
         # Verify we can create a copy of course in subcategory, thereby provisioning a new 'Course Requirement'
         child_count = len(DegreeProgressCategory.find_by_parent_category_id(subcategory.id))
-        copy_of_course = _copy_course(category_id=subcategory.id)
+        copy_of_course = _copy_course(parent_category_id=subcategory.id)
         children = DegreeProgressCategory.find_by_parent_category_id(subcategory.id)
         assert len(children) == child_count + 1
         assert children[0].category_type == 'Placeholder: Course Copy'
         assert copy_of_course['categoryId'] == children[0].id
 
         # Assign the copied course to an actual Course Requirement and verify that "placeholder" category is deleted.
-        course_requirement = _create_category(category_type='Course Requirement', parent_category_id=subcategory.id)
+        course_requirement = _create_category(
+            category_type='Course Requirement',
+            parent_category_id=subcategory.id,
+        )
         placeholder_category_id = copy_of_course['categoryId']
-        _api_assign_course(category_id=course_requirement.id, client=client, course_id=copy_of_course['id'])
+        _api_assign_course(
+            category_id=course_requirement.id,
+            client=client,
+            course_id=copy_of_course['id'],
+        )
         assert DegreeProgressCategory.find_by_id(placeholder_category_id) is None
 
         # Finally, we create a copy for a separate category and expect success.
-        copy_of_course = _copy_course(category_id=category_2.id)
+        copy_of_course = _copy_course(parent_category_id=category_2.id)
         assert copy_of_course['id'] != course_id
         assert copy_of_course['sectionId'] == section_id
         # Verify 'isCopy' property per course
         degree_json = _api_get_degree(client=client, degree_check_id=degree_check_id)
         assigned_courses = degree_json['courses']['assigned']
-        unassigned_courses = degree_json['courses']['unassigned']
         assert len(assigned_courses)
-        assert len(unassigned_courses)
-        # Expect no "copies" in the Unassigned set of courses.
-        assert True not in [c['isCopy'] for c in unassigned_courses]
         for assigned_course in assigned_courses:
             course_id = assigned_course['id']
             assert assigned_course['isCopy'] == (course_id in copied_course_ids)
@@ -914,9 +927,9 @@ class TestDeleteCategory:
         # Copy course to Category #2 and then assign it to the 'Course Requirement'
         course_id = course['id']
         course_copy_1 = _api_copy_course(
-            category_id=categories[1]['id'],
             client=client,
             course_id=course_id,
+            parent_category_id=categories[1]['id'],
         )
         placeholder_category_id = course_copy_1['categoryId']
         course_copy_1 = _api_assign_course(
@@ -931,9 +944,9 @@ class TestDeleteCategory:
 
         # Copy course to Category #3 and then delete. Expect removal of course and its 'Placeholder' category.
         course_copy_2 = _api_copy_course(
-            category_id=categories[2]['id'],
             client=client,
             course_id=course_id,
+            parent_category_id=categories[2]['id'],
         )
         placeholder_category_id = course_copy_2['categoryId']
         assert 'Placeholder' in DegreeProgressCategory.find_by_id(placeholder_category_id).category_type
@@ -952,14 +965,14 @@ def _api_assign_course(category_id, client, course_id, expected_status_code=200,
 
 
 def _api_copy_course(
-        category_id,
         client,
         course_id,
+        parent_category_id=None,
         expected_status_code=200,
 ):
     response = client.post(
         '/api/degree/course/copy',
-        data=json.dumps({'categoryId': category_id, 'courseId': course_id}),
+        data=json.dumps({'courseId': course_id, 'parentCategoryId': parent_category_id}),
         content_type='application/json',
     )
     assert response.status_code == expected_status_code
