@@ -48,7 +48,7 @@
               >
                 <h3 id="unassigned-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Unassigned Courses</h3>
                 <div v-if="$currentUser.canEditDegreeProgress" class="pb-2">
-                  <CreateCourseModal :student="student" />
+                  <DuplicateExistingCourse />
                 </div>
                 <UnassignedCourses />
               </div>
@@ -76,9 +76,9 @@
 
 <script>
 import Context from '@/mixins/Context'
-import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
@@ -93,7 +93,7 @@ export default {
   name: 'StudentDegreeCheck',
   mixins: [Context, DegreeEditSession, Loading, Util],
   components: {
-    CreateCourseModal,
+    DuplicateExistingCourse,
     DebugTemplate,
     Spinner,
     StudentDegreeCheckHeader,

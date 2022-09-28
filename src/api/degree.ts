@@ -8,12 +8,8 @@ export function addUnitRequirement(templateId: number, name: string, minUnits: n
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/unit_requirement`, {name, minUnits}).then(response => response.data, () => null)
 }
 
-export function copyCourse(categoryId, courseId) {
-  const data = {
-    categoryId,
-    courseId
-  }
-  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, data).then(response => response.data, () => null)
+export function copyCourse(courseId) {
+  return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, {courseId}).then(response => response.data, () => null)
 }
 
 export function assignCourse(courseId: number, categoryId?: number, ignore?: boolean) {
@@ -28,6 +24,7 @@ export function cloneDegreeTemplate(templateId: number, name: string) {
 
 export function createCourse(
   accentColor: string,
+  categoryId: number,
   degreeCheckId: number,
   grade: string,
   name: string,
@@ -38,6 +35,7 @@ export function createCourse(
 ) {
   const data = {
     accentColor,
+    categoryId,
     degreeCheckId,
     grade,
     name,

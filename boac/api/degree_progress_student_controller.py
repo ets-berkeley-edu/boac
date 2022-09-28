@@ -68,8 +68,6 @@ def copy_course():
     params = request.get_json()
     category_id = to_int_or_none(get_param(params, 'categoryId'))
     category = category_id and DegreeProgressCategory.find_by_id(category_id)
-    if not category:
-        raise ResourceNotFoundError('Category not found.')
     course_id = to_int_or_none(get_param(params, 'courseId'))
     course = DegreeProgressCourse.find_by_id(course_id)
     if not course:
@@ -78,7 +76,7 @@ def copy_course():
     sid = course.sid
     section_id = course.section_id
     term_id = course.term_id
-    degree_check_id = category.template_id
+    degree_check_id = course.degree_check_id
     courses = DegreeProgressCourse.get_courses(
         degree_check_id=degree_check_id,
         manually_created_at=course.manually_created_at,
@@ -90,20 +88,21 @@ def copy_course():
     if not len(courses):
         raise ResourceNotFoundError('Course not found.')
 
-    elif len(courses) == 1 and not courses[0].category_id:
+    elif category_id and len(courses) == 1 and not courses[0].category_id:
         raise BadRequestError(f'Course {courses[0].id} is unassigned. Use the /assign API instead.')
 
     else:
-        if not _can_accept_course_requirements(category):
-            raise BadRequestError(f'A \'Course Requirement\' cannot be added to a {category.category_type}.')
+        if category:
+            if not _can_accept_course_requirements(category):
+                raise BadRequestError(f'A \'Course Requirement\' cannot be added to a {category.category_type}.')
 
-        # Verify that course is not already in the requested category/subcategory.
-        for c in DegreeProgressCourse.find_by_category_id(category.id):
-            if c.section_id == section_id and c.sid == sid and c.term_id:
-                raise BadRequestError(f'Course already belongs to category {category.name}.')
-        for child in DegreeProgressCategory.find_by_parent_category_id(category_id):
-            if child.id == category_id:
-                raise BadRequestError(f'Course already belongs to category {category.name}.')
+            # Verify that course is not already in the requested category/subcategory.
+            for c in DegreeProgressCourse.find_by_category_id(category.id):
+                if c.section_id == section_id and c.sid == sid and c.term_id:
+                    raise BadRequestError(f'Course already belongs to category {category.name}.')
+            for child in DegreeProgressCategory.find_by_parent_category_id(category_id):
+                if child.id == category_id:
+                    raise BadRequestError(f'Course already belongs to category {category.name}.')
 
         # Create a new course instance and a new 'Course Requirement'.
         course = courses[0]
@@ -120,17 +119,18 @@ def copy_course():
             unit_requirement_ids=[u.unit_requirement_id for u in course.unit_requirements],
             units=course.units,
         )
-        course_requirement = DegreeProgressCategory.create(
-            category_type='Placeholder: Course Copy',
-            name=course.display_name,
-            position=category.position,
-            template_id=degree_check_id,
-            course_units_lower=course.units,
-            course_units_upper=course.units,
-            parent_category_id=category.id,
-            unit_requirement_ids=[u.unit_requirement_id for u in category.unit_requirements],
-        )
-        DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
+        if category:
+            course_requirement = DegreeProgressCategory.create(
+                category_type='Placeholder: Course Copy',
+                name=course.display_name,
+                position=category.position,
+                template_id=degree_check_id,
+                course_units_lower=course.units,
+                course_units_upper=course.units,
+                parent_category_id=category.id,
+                unit_requirement_ids=[u.unit_requirement_id for u in category.unit_requirements],
+            )
+            DegreeProgressCourse.assign(category_id=course_requirement.id, course_id=course.id)
         return tolerant_jsonify(DegreeProgressCourse.find_by_id(course.id).to_api_json())
 
 
@@ -273,6 +273,7 @@ def get_students(template_id):
 def create_course():
     params = request.get_json()
     accent_color = normalize_accent_color(get_param(params, 'accentColor'))
+    category_id = get_param(params, 'categoryId')
     degree_check_id = get_param(params, 'degreeCheckId')
     grade = get_param(params, 'grade')
     name = get_param(params, 'name')
@@ -298,6 +299,9 @@ def create_course():
         unit_requirement_ids=unit_requirement_ids or (),
         units=units,
     )
+    if category_id:
+        # TODO: Assign course to category
+        pass
     # Update updated_at date of top-level record
     DegreeProgressTemplate.refresh_updated_at(course.degree_check_id, current_user.get_id())
     return tolerant_jsonify(course.to_api_json())

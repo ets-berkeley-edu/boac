@@ -158,11 +158,9 @@ const actions = {
       })
     })
   },
-  copyCourse: ({commit, state}, {categoryId, courseId}) => {
+  copyCourse: ({commit, state}, courseId) => {
     return new Promise(resolve => {
-      copyCourse(categoryId, courseId).then(course => {
-        $_refresh(commit, state.templateId).then(() => resolve(course))
-      })
+      copyCourse(courseId).then(course => $_refresh(commit, state.templateId).then(() => resolve(course)))
     })
   },
   createCategory: ({commit, state}, {
@@ -195,6 +193,7 @@ const actions = {
   },
   createCourse: ({commit, state}, {
     accentColor,
+    categoryId,
     grade,
     name,
     note,
@@ -204,6 +203,7 @@ const actions = {
     return new Promise(resolve => {
       createCourse(
         accentColor,
+        categoryId,
         state.templateId,
         grade,
         name,
