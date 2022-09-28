@@ -11,7 +11,6 @@
           :disabled="isSaving || !options.length"
           :lazy="true"
           no-caret
-          :toggle-text="`Assign a course to category ${parentCategory.name}`"
         >
           <b-select-option
             id="add-course-select-option-null"
@@ -62,14 +61,14 @@
       <span v-if="!options.length" aria-live="polite" class="sr-only">No courses available to copy.</span>
       <b-btn
         v-if="$currentUser.canEditDegreeProgress"
-        :id="`column-${position}-add-course-to-category-${parentCategory.id}`"
+        id="duplicate-existing-course"
         class="align-items-center d-flex flex-row-reverse p-0"
         :disabled="disableButtons || !options.length"
         variant="link"
         @click.prevent="openMenu"
       >
         <div class="font-size-16 text-nowrap">
-          Duplicate Course<span class="sr-only"> to {{ parentCategory.categoryType }} "{{ parentCategory.name }}"</span>
+          Duplicate Course
         </div>
         <div class="font-size-14 pr-1">
           <font-awesome icon="plus" />
@@ -84,22 +83,8 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'AddCourseToCategory',
+  name: 'DuplicateExistingCourse',
   mixins: [DegreeEditSession, Util],
-  props: {
-    coursesAlreadyAdded: {
-      required: true,
-      type: Array
-    },
-    parentCategory: {
-      required: true,
-      type: Object
-    },
-    position: {
-      required: true,
-      type: Number
-    }
-  },
   data: () => ({
     isMenuOpen: false,
     isSaving: false,
@@ -107,8 +92,8 @@ export default {
   }),
   computed: {
     options() {
-      const keysAdded = this.$_.map(this.coursesAlreadyAdded, course => this.getCourseKey(course))
-      return this.$_.filter(this.courses.assigned, c => !c.isCopy && !keysAdded.includes(this.getCourseKey(c)))
+      const courses = this.courses.assigned.concat(this.courses.unassigned)
+      return this.$_.filter(this.$_.sortBy(courses, ['name', 'id']), c => !c.isCopy)
     }
   },
   methods: {
@@ -116,20 +101,16 @@ export default {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick(`column-${this.position}-add-course-to-category-${this.parentCategory.id}`)
+      this.$putFocusNextTick('duplicate-existing-course')
     },
     onClickSave() {
       this.isSaving = true
       this.$announcer.polite('Saving')
-      // This 'Course Requirement' category will be deleted if/when the course is unassigned.
-      this.copyCourse({
-        categoryId: this.parentCategory.id,
-        courseId: this.selected.id
-      }).then(course => {
+      this.copyCourse(this.selected.id).then(course => {
         this.isMenuOpen = this.isSaving = false
         this.selected = null
         this.setDisableButtons(false)
-        this.$announcer.polite(`Course added to ${this.parentCategory.name}`)
+        this.$announcer.polite('Course duplicated and put in the list of Unassigned.')
         this.$putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
       })
     },

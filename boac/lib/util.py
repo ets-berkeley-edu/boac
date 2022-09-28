@@ -172,6 +172,8 @@ def to_float_or_none(s):
 
 
 def to_int_or_none(s):
+    if s is None:
+        return None
     try:
         return int(s)
     except ValueError:

@@ -322,11 +322,7 @@
       </b-table-simple>
     </div>
     <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
-      <AddCourseToCategory
-        :courses-already-added="allCourses"
-        :parent-category="parentCategory"
-        :position="position"
-      />
+      <CreateCourseModal :category="parentCategory" />
     </div>
     <AreYouSureModal
       v-if="bundleForDelete"
@@ -341,7 +337,7 @@
 </template>
 
 <script>
-import AddCourseToCategory from '@/components/degree/student/AddCourseToCategory'
+import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
@@ -356,10 +352,10 @@ export default {
   name: 'CoursesTable',
   mixins: [DegreeEditSession, StudentMetadata, Util],
   components: {
-    AddCourseToCategory,
     AreYouSureModal,
     CampusRequirementCheckbox,
     CourseAssignmentMenu,
+    CreateCourseModal,
     EditCategory,
     EditCourse,
     EditCourseRequirement

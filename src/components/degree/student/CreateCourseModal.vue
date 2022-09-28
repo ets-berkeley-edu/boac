@@ -8,7 +8,7 @@
         variant="link"
         @click.prevent="openModal"
       >
-        <font-awesome class="font-size-16" icon="plus" /> Manually Create New Course<span class="sr-only"> for {{ student.name }}</span>
+        <font-awesome class="font-size-16" icon="plus" /> Manually Create Course
       </b-btn>
     </div>
     <b-modal
@@ -135,7 +135,7 @@ export default {
   mixins: [DegreeEditSession],
   components: {AccentColorSelect, ModalHeader, UnitsInput},
   props: {
-    student: {
+    category: {
       required: true,
       type: Object
     }
@@ -189,6 +189,7 @@ export default {
         this.isSaving = true
         this.createCourse({
           accentColor: this.accentColor,
+          categoryId: this.category.id,
           grade: this.$_.trim(this.grade),
           name: this.$_.trim(this.name),
           note: this.$_.trim(this.note),
