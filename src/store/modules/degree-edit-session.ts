@@ -193,21 +193,21 @@ const actions = {
   },
   createCourse: ({commit, state}, {
     accentColor,
-    categoryId,
     grade,
     name,
     note,
+    parentCategoryId,
     unitRequirementIds,
     units
   }) => {
     return new Promise(resolve => {
       createCourse(
         accentColor,
-        categoryId,
         state.templateId,
         grade,
         name,
         note,
+        parentCategoryId,
         state.sid,
         unitRequirementIds,
         units

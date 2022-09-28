@@ -189,10 +189,10 @@ export default {
         this.isSaving = true
         this.createCourse({
           accentColor: this.accentColor,
-          categoryId: this.category.id,
           grade: this.$_.trim(this.grade),
           name: this.$_.trim(this.name),
           note: this.$_.trim(this.note),
+          parentCategoryId: this.category.id,
           unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(course => {
