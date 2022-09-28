@@ -2,7 +2,7 @@
   <div>
     <div class="font-size-14">
       <b-btn
-        id="create-course-button"
+        :id="`create-course-under-parent-category-${parentCategory.id}`"
         class="font-weight-500 p-0"
         :disabled="disableButtons"
         variant="link"
@@ -135,7 +135,7 @@ export default {
   mixins: [DegreeEditSession],
   components: {AccentColorSelect, ModalHeader, UnitsInput},
   props: {
-    category: {
+    parentCategory: {
       required: true,
       type: Object
     }
@@ -192,7 +192,7 @@ export default {
           grade: this.$_.trim(this.grade),
           name: this.$_.trim(this.name),
           note: this.$_.trim(this.note),
-          parentCategoryId: this.category.id,
+          parentCategoryId: this.parentCategory.id,
           unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(course => {

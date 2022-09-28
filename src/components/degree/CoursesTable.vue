@@ -322,7 +322,7 @@
       </b-table-simple>
     </div>
     <div v-if="sid && canEdit && !isCampusRequirements" class="mb-3" :class="{'mt-1': !items.length}">
-      <CreateCourseModal :category="parentCategory" />
+      <CreateCourseModal :parent-category="parentCategory" />
     </div>
     <AreYouSureModal
       v-if="bundleForDelete"
