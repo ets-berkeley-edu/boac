@@ -320,13 +320,11 @@
               icon="exclamation-triangle"
               class="boac-exclamation ml-1"
             />
-            <font-awesome
-              v-if="getSectionsWithIncompleteStatus(enrollment).length"
-              :id="`term-${termId}-course-${index}-has-incomplete-status`"
-              :aria-label="getIncompleteGradeDescription(enrollment.displayName, getSectionsWithIncompleteStatus(enrollment))"
-              class="has-error ml-1"
-              icon="info-circle"
-              :title="getIncompleteGradeDescription(enrollment.displayName, getSectionsWithIncompleteStatus(enrollment))"
+            <IncompleteGradeAlertIcon
+              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length"
+              :course="enrollment"
+              :index="index"
+              :term-id="termId"
             />
             <span
               v-if="!enrollment.grade"
@@ -359,6 +357,7 @@ import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
@@ -372,6 +371,7 @@ export default {
   components: {
     CuratedStudentCheckbox,
     DegreesAwarded,
+    IncompleteGradeAlertIcon,
     ManageStudent,
     StudentAcademicStanding,
     StudentAvatar,
@@ -434,9 +434,6 @@ export default {
     this.termEnrollments = termEnrollments
   },
   methods: {
-    getSectionsWithIncompleteStatus(course) {
-      return this.$_.filter(course.sections, 'incompleteStatusCode')
-    },
     onClickRemoveStudent(student) {
       this.removeStudent(student.sid)
       this.$announcer.polite(`Removed ${student.firstName} ${student.lastName} from group`)
