@@ -66,13 +66,11 @@
           class="boac-exclamation ml-1"
           icon="exclamation-triangle"
         />
-        <font-awesome
+        <IncompleteGradeAlertIcon
           v-if="sectionsWithIncompleteStatus.length"
-          :id="`term-${termId}-course-${index}-has-incomplete-status`"
-          :aria-label="getIncompleteGradeDescription(course.displayName, sectionsWithIncompleteStatus)"
-          class="has-error ml-1"
-          icon="info-circle"
-          :title="getIncompleteGradeDescription(course.displayName, sectionsWithIncompleteStatus)"
+          :course="course"
+          :index="index"
+          :term-id="termId"
         />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
@@ -261,6 +259,7 @@
 </template>
 <script>
 import Berkeley from '@/mixins/Berkeley'
+import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import StudentMetadata from '@/mixins/StudentMetadata'
@@ -269,6 +268,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentCourse',
   components: {
+    IncompleteGradeAlertIcon,
     StudentBoxplot
   },
   mixins: [
@@ -318,7 +318,7 @@ export default {
     showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
   },
   created() {
-    this.sectionsWithIncompleteStatus = this.$_.filter(this.course.sections, 'incompleteStatusCode')
+    this.sectionsWithIncompleteStatus = this.getSectionsWithIncompleteStatus(this.course.sections)
   },
   methods: {
     onHide() {

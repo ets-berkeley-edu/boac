@@ -3,9 +3,11 @@ import _ from 'lodash'
 import auth from '@/auth'
 import Vue from 'vue'
 
-const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
+const getSectionsWithIncompleteStatus = sections => _.filter(sections, s => ['I', 'L'].includes(s['incompleteStatusCode']))
 
 const isUserAny = roles => !!myDeptCodes(roles).length
+
+const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
 
 export default {
   name: 'Berkeley',
@@ -125,7 +127,8 @@ export default {
     getIncompleteGradeDescription: (courseDisplayName, sections) => {
       const now = new Date()
       let description
-      if (sections.length > 0) {
+      const sections_with_incomplete = getSectionsWithIncompleteStatus(sections)
+      if (sections_with_incomplete.length) {
         if (sections.length === 1) {
           const section = sections[0]
           const lapseDate = section.incompleteLapseGradeDate ? new Date(section.incompleteLapseGradeDate) : null
@@ -151,6 +154,7 @@ export default {
       }
       return description
     },
+    getSectionsWithIncompleteStatus,
     isCoe: auth.isCoe,
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
     isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
