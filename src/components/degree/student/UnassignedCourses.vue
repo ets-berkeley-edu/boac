@@ -63,7 +63,19 @@
                 </div>
               </td>
               <td class="td-name">
-                <div :class="{'font-weight-500': isEditing(course)}">{{ course.name }}</div>
+                <div class="align-items-center d-flex pt-1">
+                  <div
+                    :class="{
+                      'font-weight-500': isEditing(course),
+                      'pr-2': course.isCopy
+                    }"
+                  >
+                    {{ course.name }}
+                  </div>
+                  <div v-if="course.isCopy" class="pr-1">
+                    <font-awesome icon="copy" size="sm" />
+                  </div>
+                </div>
               </td>
               <td class="td-units">
                 <font-awesome
