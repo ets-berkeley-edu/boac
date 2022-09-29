@@ -367,6 +367,23 @@ def get_student_profile_summaries(sids=None):
         return safe_execute_rds(sql)
 
 
+def get_student_degrees_report(sids):
+    sql = f"""
+        SELECT
+          p.sid,
+          p.uid,
+          p.first_name AS student_first_name,
+          p.last_name AS student_last_name,
+          d.plan AS degree_awarded_name,
+          d.date_awarded AS degree_awarded_date
+        FROM {student_schema()}.student_profile_index p
+        JOIN {student_schema()}.student_degrees d ON d.sid = p.sid
+        WHERE p.sid = ANY(%(sids)s)
+        ORDER BY p.sid, d.date_awarded, d.plan
+        """
+    return safe_execute_rds(sql, sids=sids)
+
+
 def extract_valid_sids(sids):
     sql = f'SELECT sid FROM {student_schema()}.student_profiles WHERE sid = ANY(%(sids)s)'
     return safe_execute_rds(sql, sids=sids)

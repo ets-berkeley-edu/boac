@@ -27,9 +27,9 @@ import json
 
 from boac import db
 from boac.externals import data_loch
-from boac.externals.data_loch import get_basic_student_data
+from boac.externals.data_loch import get_student_degrees_report
 from boac.merged.sis_terms import current_term_id
-from dateutil.tz import tzutc
+from boac.models.note import Note
 from flask import current_app as app
 
 
@@ -155,55 +155,23 @@ def get_note_with_topics_count(dept_code=None):
 
 
 def get_summary_of_boa_notes():
-    query = """
-        SELECT
-          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
-          n.sid, n.subject, n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
-        FROM notes n
-        LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
-        WHERE n.deleted_at IS NULL
-        GROUP BY
-          n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
-          n.sid, n.subject, n.created_at, n.updated_at
-        ORDER BY created_at
-    """
-    tz_utc = tzutc()
+    api_json = Note.get_notes_report()
+    distinct_sids = list(set([row['sid'] for row in api_json]))
+    students_by_sid = _get_students_report(sids=distinct_sids)
     cohorts_by_sid = _get_cohorts_by_sid()
     curated_groups_by_sid = _get_curated_groups_by_sid()
 
-    def _to_api_json(row):
-        sid = row['sid']
-        cohorts = cohorts_by_sid.get(sid, [])
-        curated_groups = curated_groups_by_sid.get(sid, [])
-        return {
-            'author_uid': row['author_uid'],
-            'author_name': row['author_name'],
-            'author_role': row['author_role'],
-            'author_dept_codes': f"{','.join(row['author_dept_codes'])}",
-            'cohort_ids': ','.join([str(c['name']) for c in cohorts]),
-            'contact_type': row['contact_type'],
-            'curated_group_ids': ','.join([str(g['name']) for g in curated_groups]),
-            'is_private': row['is_private'],
-            'set_date': row['set_date'],
-            'sid': sid,
-            'student_first_name': None,
-            'student_last_name': None,
-            'subject': row['subject'],
-            'topics': row['topics'],
-            'created_at': row['created_at'].astimezone(tz_utc).isoformat(),
-            'updated_at': row['updated_at'].astimezone(tz_utc).isoformat(),
-        }
-
-    api_json = [_to_api_json(row) for row in db.session.execute(query)]
-
-    distinct_sids = list(set([row['sid'] for row in api_json]))
-    students_by_sid = dict((student['sid'], student) for student in get_basic_student_data(distinct_sids))
-    for row in api_json:
-        sid = row['sid']
+    for entry in api_json:
+        def _names_csv(groups_by_sid):
+            groups = groups_by_sid.get(sid, [])
+            return ','.join([str(g['name']) for g in groups])
+        sid = entry['sid']
         student = students_by_sid.get(sid)
         if student:
-            row['student_first_name'] = student['first_name']
-            row['student_last_name'] = student['last_name']
+            entry['cohort_names'] = _names_csv(cohorts_by_sid)
+            entry['curated_group_names'] = _names_csv(curated_groups_by_sid)
+            for key in ('degree_awarded_dates', 'degree_awarded_names', 'student_first_name', 'student_last_name'):
+                entry[key] = student[key]
     return api_json
 
 
@@ -253,3 +221,18 @@ def _get_curated_groups_by_sid():
         sid = row['sid']
         curated_groups_by_sid[sid].append({'id': row['id'], 'name': row['name']})
     return curated_groups_by_sid
+
+
+def _get_students_report(sids):
+    students = {}
+    for student in get_student_degrees_report(sids):
+        sid = student['sid']
+        if sid not in students:
+            students[sid] = {
+                **{key: student[key] for key in ('sid', 'uid', 'student_first_name', 'student_last_name')},
+                'degree_awarded_dates': [],
+                'degree_awarded_names': [],
+            }
+        students[sid]['degree_awarded_dates'].append(student['degree_awarded_date'])
+        students[sid]['degree_awarded_names'].append(student['degree_awarded_name'])
+    return students
