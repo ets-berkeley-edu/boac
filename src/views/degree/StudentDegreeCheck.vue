@@ -135,7 +135,7 @@ export default {
     },
     isDroppable(target) {
       const course = this.draggingContext.course
-      let droppable = this.draggingContext.target === target && course && !course.isCopy
+      let droppable = this.draggingContext.target === target && course
       if (droppable) {
         if (target === 'ignored') {
           droppable = !course.ignore

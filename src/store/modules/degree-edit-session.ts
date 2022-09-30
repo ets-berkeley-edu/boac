@@ -27,7 +27,7 @@ const $_allowCourseDrop = (category, course, context) => {
       && (category.categoryType !== 'Category' || !category.subcategories.length)
       && !_.map(category.courses, getCourseKey).includes(getCourseKey(course))
   } else if (context) {
-    return !course.isCopy && _.includes(['ignored', 'unassigned'], context)
+    return _.includes(['ignored', 'unassigned'], context)
   }
 }
 

@@ -25,7 +25,7 @@
       />
     </template>
     <b-dropdown-item
-      v-if="!course.isCopy && (course.categoryId || course.ignore)"
+      v-if="course.categoryId || course.ignore"
       id="assign-course-to-option-null"
       link-class="font-italic font-size-15 pl-3 text-body text-decoration-none"
       :value="null"
