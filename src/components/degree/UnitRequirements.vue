@@ -71,7 +71,7 @@
                 </div>
               </b-button>
               <div
-                v-if="row.item.type === 'unitRequirement' && !row.item.children.length"
+                v-if="row.item.isExpanded && row.item.type === 'unitRequirement' && !row.item.children.length"
                 :id="`unit-requirement-${row.item.id}-no-courses`"
                 class="faint-text pb-1 pl-4 pt-1"
               >
