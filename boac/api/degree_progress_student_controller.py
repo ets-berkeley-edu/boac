@@ -190,21 +190,6 @@ def assign_course(course_id):
             course = DegreeProgressCourse.assign(category_id=category_id, course_id=course.id)
 
         else:
-            # When user un-assigns a course we delete all copies of that course,.
-            for copy_of_course in DegreeProgressCourse.get_courses(
-                    degree_check_id=course.degree_check_id,
-                    manually_created_at=course.manually_created_at,
-                    manually_created_by=course.manually_created_by,
-                    section_id=course.section_id,
-                    sid=course.sid,
-                    term_id=course.term_id,
-            ):
-                if copy_of_course.id != course.id:
-                    DegreeProgressCourseUnitRequirement.delete(copy_of_course.id)
-                    category = DegreeProgressCategory.find_by_id(copy_of_course.category_id)
-                    if category and 'Placeholder' in category.category_type:
-                        DegreeProgressCategory.delete(category.id)
-                    DegreeProgressCourse.delete(copy_of_course)
             ignore = to_bool_or_none(get_param(params, 'ignore'))
             course = DegreeProgressCourse.unassign(course_id=course.id, ignore=ignore)
 
