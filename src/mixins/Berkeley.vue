@@ -3,7 +3,7 @@ import _ from 'lodash'
 import auth from '@/auth'
 import Vue from 'vue'
 
-const getSectionsWithIncompleteStatus = sections => _.filter(sections, s => ['I', 'L'].includes(s['incompleteStatusCode']))
+const getSectionsWithIncompleteStatus = sections => _.filter(sections, 'incompleteStatusCode')
 
 const isUserAny = roles => !!myDeptCodes(roles).length
 
@@ -125,25 +125,32 @@ export default {
       ]
     },
     getIncompleteGradeDescription: (courseDisplayName, sections) => {
-      const now = new Date()
       let description
       const sections_with_incomplete = getSectionsWithIncompleteStatus(sections)
       if (sections_with_incomplete.length) {
         if (sections.length === 1) {
           const section = sections[0]
-          const lapseDate = section.incompleteLapseGradeDate ? new Date(section.incompleteLapseGradeDate) : null
-          if (_.toLower(section['incompleteFrozenFlag']) === 'y') {
+          if (_.toUpper(section['incompleteFrozenFlag']) === 'Y') {
             description = 'Frozen incomplete grade will not lapse into a failing grade.'
-          } else if (lapseDate) {
-            const formattedDate = Vue.prototype.$moment(lapseDate).format('ll')
-            if (lapseDate < now) {
-              description = `Formerly an incomplete grade on ${formattedDate}.`
-            } else {
-              description = `Incomplete grade scheduled to become a failing grade on ${formattedDate}.`
-            }
           } else {
-            const status = section.incompleteStatusDescription || section.incompleteStatusCode
-            description = `Incomplete grade with status "${status}".`
+            const statusCode = _.toUpper(section.incompleteStatusCode)
+            let lapseDate
+            if (section.incompleteLapseGradeDate) {
+              lapseDate = Vue.prototype.$moment(new Date(section.incompleteLapseGradeDate)).format('ll')
+            }
+            switch(statusCode) {
+            case 'I':
+              const prefix = 'Incomplete grade scheduled to become a failing grade'
+              description = lapseDate ? `${prefix} on ${lapseDate}.` : `${prefix}.`
+              break
+            case 'L':
+              description = 'Formerly an incomplete grade' + (lapseDate ? ` on ${lapseDate}.` : '.')
+              break
+            case 'R':
+            default:
+              description = 'Formerly an incomplete grade.'
+              break
+            }
           }
           if (section.incompleteComments) {
             description += ` (${section.incompleteComments})`
