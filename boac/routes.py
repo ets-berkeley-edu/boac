@@ -72,14 +72,14 @@ def register_routes(app):
         return jsonify(success=False, data={'login_required': True}, message='Unauthorized'), 401
 
     # Unmatched API routes return a 404.
-    @app.route('/api/<path:path>')
+    @app.route('/api/<path:path>', methods=['GET', 'POST', 'PUT'])
     def handle_unmatched_api_route(**kwargs):
         app.logger.error('The requested resource could not be found.')
         raise boac.api.errors.ResourceNotFoundError('The requested resource could not be found.')
 
     # Non-API routes are handled by the front end.
     @app.route('/', defaults={'path': ''})
-    @app.route('/<path:path>')
+    @app.route('/<path:path>', methods=['GET', 'POST', 'PUT'])
     def front_end_route(**kwargs):
         vue_base_url = app.config['VUE_LOCALHOST_BASE_URL']
         return redirect(vue_base_url + request.full_path) if vue_base_url else make_response(index_html)
