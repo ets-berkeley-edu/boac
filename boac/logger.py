@@ -31,6 +31,8 @@ import ldap3.utils.log as ldap3_log
 
 
 def initialize_logger(app):
+    from werkzeug.serving import WSGIRequestHandler
+
     level = app.config['LOGGING_LEVEL']
     location = app.config['LOGGING_LOCATION']
     log_propagation_level = app.config['LOGGING_PROPAGATION_LEVEL']
@@ -67,3 +69,10 @@ def initialize_logger(app):
     logging.getLogger('boto3').setLevel(log_propagation_level)
     logging.getLogger('botocore').setLevel(log_propagation_level)
     logging.getLogger('s3transfer').setLevel(log_propagation_level)
+    logging.getLogger('werkzeug').setLevel(log_propagation_level)
+
+    def address_string(self):
+        forwarded_for = self.headers.get('X-Forwarded-For')
+        forwarded_for = forwarded_for.split(',')[0] if forwarded_for else None
+        return forwarded_for or self.client_address[0]
+    WSGIRequestHandler.address_string = address_string
