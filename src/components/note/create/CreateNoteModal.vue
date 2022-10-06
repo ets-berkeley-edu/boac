@@ -241,6 +241,7 @@ export default {
       }
     },
     cancelCreateTemplate() {
+      this.setIsSaving(false)
       this.showCreateTemplateModal = false
       this.$nextTick(() => {
         this.setFocusLockDisabled(false)
