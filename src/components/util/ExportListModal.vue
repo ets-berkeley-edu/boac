@@ -13,6 +13,16 @@
         >
         </b-form-checkbox-group>
       </b-form-group>
+      <div class="px-1">
+        <span class="font-weight-700">Reminder:</span> Exported student records contain FERPA data. Please review the
+        <a
+          id="ferpa-guide-external-href"
+          href="https://registrar.berkeley.edu/ferpa-privacy-disclosure"
+          target="_blank"
+        >
+          Office of the Registrar's FERPA guide
+        </a> for details.
+      </div>
     </div>
     <div class="modal-footer">
       <form @submit.prevent="exportList(selected)">
