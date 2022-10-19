@@ -1,5 +1,11 @@
 <template>
-  <h2 v-if="admitDataWarning" class="font-size-16 font-weight-bold has-error mb-0">{{ admitDataWarning }}</h2>
+  <h2
+    v-if="show"
+    class="font-size-16 has-error mb-0 py-1"
+  >
+    <span class="font-weight-700">Note:</span> Admit data was
+    last updated on {{ $options.filters.moment(localUpdatedAt, 'MMM D, YYYY') }}
+  </h2>
 </template>
 
 <script>
@@ -11,20 +17,16 @@ export default {
       required: false
     }
   },
-  computed: {
-    admitDataWarning() {
-      let warning = null
-      if (this.updatedAt) {
-        const localUpdatedAt = this.$moment(this.updatedAt).tz(this.$config.timezone)
-        if (this.$moment.duration(this.now.diff(localUpdatedAt)).as('hours') >= 24) {
-          warning = `Note: admit data was last updated on ${this.$options.filters.moment(localUpdatedAt, 'MMM D, YYYY')}`
-        }
-      }
-      return warning
-    }
-  },
+  data: () => ({
+    localUpdatedAt: undefined,
+    show: undefined
+  }),
   created() {
-    this.now = this.$moment()
+    const now = this.$moment()
+    if (this.updatedAt) {
+      this.localUpdatedAt = this.$moment(this.updatedAt).tz(this.$config.timezone)
+      this.show = this.$moment.duration(now.diff(this.localUpdatedAt)).as('hours') >= 24
+    }
   }
 }
 </script>

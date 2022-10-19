@@ -76,7 +76,7 @@
           <b-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
-            v-b-modal="'export-list-modal'"
+            v-b-modal="'export-students-modal'"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pt-0 px-1"
             variant="link"
@@ -86,26 +86,39 @@
           <b-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
+            v-b-modal="'export-admits-modal'"
             :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
             class="no-wrap pt-0 px-1"
             variant="link"
-            @click.prevent="exportCohort(getCsvExportColumnsSelected(domain))"
           >
             Export List
           </b-btn>
           <b-modal
-            id="export-list-modal"
-            v-model="showExportListModal"
+            id="export-admits-modal"
+            v-model="showExportAdmitsModal"
+            body-class="pl-0 pr-0"
+            hide-footer
+            hide-header
+            @shown="$putFocusNextTick('modal-header')"
+          >
+            <FerpaReminderModal
+              :cancel="cancelExportModal"
+              :confirm="() => exportStudents(getCsvExportColumnsSelected(domain))"
+            />
+          </b-modal>
+          <b-modal
+            id="export-students-modal"
+            v-model="showExportStudentsModal"
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
             @shown="$putFocusNextTick('modal-header')"
           >
             <ExportListModal
-              :cancel-export-list-modal="cancelExportCohortModal"
+              :cancel="cancelExportModal"
               :csv-columns-selected="getCsvExportColumnsSelected(domain)"
               :csv-columns="getCsvExportColumns(domain)"
-              :export-list="exportCohort"
+              :export="exportStudents"
             />
           </b-modal>
         </div>
@@ -195,6 +208,7 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal'
 import ExportListModal from '@/components/util/ExportListModal'
+import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
@@ -202,7 +216,7 @@ import {deleteCohort} from '@/api/cohort'
 
 export default {
   name: 'CohortPageHeader',
-  components: {DeleteCohortModal, ExportListModal},
+  components: {DeleteCohortModal, ExportListModal, FerpaReminderModal},
   mixins: [Berkeley, CohortEditSession, Context, Util, Validator],
   props: {
     showHistory: {
@@ -220,7 +234,8 @@ export default {
     name: undefined,
     renameError: undefined,
     showDeleteModal: false,
-    showExportListModal: false
+    showExportAdmitsModal: false,
+    showExportStudentsModal: false
   }),
   computed: {
     renameMode() {
@@ -247,8 +262,8 @@ export default {
       this.showDeleteModal = false
       this.$announcer.polite(`Cancel deletion of cohort '${this.name}'`)
     },
-    cancelExportCohortModal() {
-      this.showExportListModal = false
+    cancelExportModal() {
+      this.showExportAdmitsModal = this.showExportStudentsModal = false
       this.$announcer.polite(`Cancel export of cohort '${this.name}'`)
     },
     cancelRename() {
@@ -263,12 +278,12 @@ export default {
         router.push({path: '/'})
       })
     },
-    exportCohort(csvColumnsSelected) {
-      this.showExportListModal = false
-      this.exportEnabled = false
+    exportStudents(csvColumnsSelected) {
+      this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
       this.$announcer.polite(`Exporting cohort '${this.name}'`)
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
+        this.$announcer.polite('Export is done.')
       })
     },
     submitRename() {
