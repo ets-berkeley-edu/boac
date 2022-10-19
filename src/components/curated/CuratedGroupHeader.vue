@@ -158,7 +158,7 @@
           <b-btn
             v-if="domain === 'default'"
             id="export-student-list-button"
-            v-b-modal="'export-list-modal'"
+            v-b-modal="'export-students-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
@@ -168,27 +168,39 @@
           <b-btn
             v-if="domain === 'admitted_students'"
             id="export-student-list-button"
-            v-b-modal="'export-list-modal'"
+            v-b-modal="'export-admits-modal'"
             class="px-1"
             :disabled="!exportEnabled || !totalStudentCount"
             variant="link"
-            @click.prevent="exportGroup(getCsvExportColumnsSelected(domain))"
           >
             Export List
           </b-btn>
           <b-modal
-            id="export-list-modal"
-            v-model="showExportListModal"
+            id="export-admits-modal"
+            v-model="showExportAdmitsModal"
+            body-class="pl-0 pr-0"
+            hide-footer
+            hide-header
+            @shown="$putFocusNextTick('modal-header')"
+          >
+            <FerpaReminderModal
+              :cancel="cancelExportModal"
+              :confirm="() => exportGroup(getCsvExportColumnsSelected(domain))"
+            />
+          </b-modal>
+          <b-modal
+            id="export-students-modal"
+            v-model="showExportStudentsModal"
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
             @shown="$putFocusNextTick('modal-header')"
           >
             <ExportListModal
-              :cancel-export-list-modal="cancelExportGroupModal"
+              :cancel="cancelExportModal"
               :csv-columns="getCsvExportColumns(domain)"
               :csv-columns-selected="getCsvExportColumnsSelected(domain)"
-              :export-list="exportGroup"
+              :export="exportGroup"
             />
           </b-modal>
         </div>
@@ -223,6 +235,7 @@ import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
+import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
@@ -231,7 +244,7 @@ import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
 export default {
   name: 'CuratedGroupHeader',
   mixins: [Berkeley, Context, CuratedEditSession, Util, Validator],
-  components: {ExportListModal, ModalHeader},
+  components: {ExportListModal, FerpaReminderModal, ModalHeader},
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,
@@ -239,7 +252,8 @@ export default {
     referencingCohorts: [],
     renameError: undefined,
     renameInput: undefined,
-    showExportListModal: false
+    showExportAdmitsModal: false,
+    showExportStudentsModal: false
   }),
   computed: {
     isOwnedByCurrentUser() {
@@ -262,8 +276,8 @@ export default {
     this.$putFocusNextTick('curated-group-name')
   },
   methods: {
-    cancelExportGroupModal() {
-      this.showExportListModal = false
+    cancelExportModal() {
+      this.showExportAdmitsModal = this.showExportStudentsModal = false
       this.$announcer.polite(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
@@ -280,11 +294,11 @@ export default {
       this.$putFocusNextTick('curated-group-name')
     },
     exportGroup(csvColumnsSelected) {
-      this.showExportListModal = false
-      this.exportEnabled = false
+      this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
       this.$announcer.polite(`Exporting ${this.name} ${this.domainLabel(false)}`)
       downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true
+        this.$announcer.polite('Export is done.')
       })
     },
     deleteGroup() {

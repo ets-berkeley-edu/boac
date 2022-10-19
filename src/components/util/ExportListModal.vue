@@ -14,24 +14,17 @@
         </b-form-checkbox-group>
       </b-form-group>
       <div class="px-1">
-        <span class="font-weight-700">Reminder:</span> Exported student records contain FERPA data. Please review the
-        <a
-          id="ferpa-guide-external-href"
-          href="https://registrar.berkeley.edu/ferpa-privacy-disclosure"
-          target="_blank"
-        >
-          Office of the Registrar's FERPA guide
-        </a> for details.
+        <span class="font-weight-700">Reminder:</span> <FerpaReminder />
       </div>
     </div>
     <div class="modal-footer">
-      <form @submit.prevent="exportList(selected)">
+      <form @submit.prevent="onSubmit">
         <b-btn
           id="export-list-confirm"
           :disabled="!selected.length"
           class="btn-primary-color-override"
           variant="primary"
-          @click.prevent="exportList(selected)"
+          @click.prevent="onSubmit"
         >
           Export
         </b-btn>
@@ -39,7 +32,7 @@
           id="export-list-cancel"
           class="pl-2"
           variant="link"
-          @click="cancelExportListModal"
+          @click="cancel"
         >
           Close
         </b-btn>
@@ -49,13 +42,14 @@
 </template>
 
 <script>
+import FerpaReminder from '@/components/util/FerpaReminder'
 import ModalHeader from '@/components/util/ModalHeader'
 
 export default {
   name: 'ExportListModal',
-  components: {ModalHeader},
+  components: {FerpaReminder, ModalHeader},
   props: {
-    cancelExportListModal: {
+    cancel: {
       required: true,
       type: Function
     },
@@ -66,7 +60,7 @@ export default {
     csvColumnsSelected: {
       type: Array
     },
-    exportList: {
+    export: {
       required: true,
       type: Function
     }
@@ -76,6 +70,11 @@ export default {
   }),
   created() {
     this.selected = this.csvColumnsSelected
+  },
+  methods: {
+    onSubmit() {
+      this.export(this.selected)
+    }
   }
 }
 </script>

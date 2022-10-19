@@ -55,7 +55,6 @@ tox -e test
 
 # Run specific test(s)
 tox -e test -- tests/test_models/test_authorized_user.py
-tox -e test -- tests/test_externals/
 
 # Linters, à la carte
 tox -e lint-py
