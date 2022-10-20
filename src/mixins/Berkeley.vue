@@ -140,7 +140,16 @@ export default {
             }
             switch(statusCode) {
             case 'I':
-              const prefix = 'Incomplete grade scheduled to become a failing grade'
+              const gradingBasis = _.toUpper(section.gradingBasis)
+              let outcome = 'a failing grade'
+              if (['GRD', 'LETTER'].includes(gradingBasis)) {
+                outcome = 'an F'
+              } else if (['AUD', 'BMT', 'CNC', 'CPN', 'DPN', 'EPN', 'ESU', 'PNP', 'P/NP'].includes(gradingBasis)) {
+                outcome = 'a NP'
+              } else if (['NON', 'SUS'].includes(gradingBasis)) {
+                outcome = 'a U'
+              }
+              const prefix = `Incomplete grade scheduled to become ${outcome}`
               description = lapseDate ? `${prefix} on ${lapseDate}.` : `${prefix}.`
               break
             case 'L':
