@@ -112,5 +112,5 @@ def register_routes(app):
             elif response.status_code >= 400:
                 app.logger.warning(log_message)
             else:
-                app.logger.debug(log_message)
+                app.logger.info(log_message)
         return response
