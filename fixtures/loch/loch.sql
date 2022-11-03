@@ -400,6 +400,7 @@ CREATE TABLE sis_advising_notes.student_late_drop_eforms (
     requested_action VARCHAR,
     requested_grading_basis_code VARCHAR,
     requested_grading_basis_description VARCHAR,
+    requested_units_taken VARCHAR,
     section_id INTEGER,
     section_num VARCHAR,
     sid VARCHAR NOT NULL,
@@ -548,10 +549,10 @@ CREATE TABLE terms.term_definitions
 );
 
 INSERT INTO boac_advising_appointments.ycbm_advising_appointments
-(id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details) 
-VALUES 
+(id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details)
+VALUES
 ('34789-925470-48723', '139362', '294875', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'Github', 'Failure is the name of the game'),
-('78342-847236-73423', '139362', '294875', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'), 
+('78342-847236-73423', '139362', '294875', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'),
 ('83920-809233-32433', '139362', '294875', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
 
 INSERT INTO boac_advising_asc.advising_notes
@@ -859,12 +860,12 @@ VALUES
 ('11667051-00010', '11667051', 1, '2017-10-31', 'UCBCONVERSION', '2017-10-31T12:00:00+00', '2017-10-31T12:00:00+00', '11667051-00010_1.pdf', '11667051-00010_1.pdf');
 
 INSERT INTO sis_advising_notes.student_late_drop_eforms
-(id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)
+(id, career_code, course_display_name, course_title, created_at, edl_load_date, eform_id, eform_status, eform_type, grading_basis_code, grading_basis_description, requested_action, requested_grading_basis_code, requested_grading_basis_description, requested_units_taken, section_id, section_num, sid, student_name, term_id, units_taken, updated_at)
 VALUES
-('eform-10096', 'UGRD', 'MATH 16A', 'ANAL GEO & CALCULUS', '2020-12-05 00:00:00+00', '2021-09-01', 468999, 'Executed', 'SRLATEDROP', 'CPN', 'Pass/No Pass College Adjust', 'Undefined', ' ', ' ', 22335, '001', '11667051', 'Deborah Davies', '2208', '3', '2020-12-08 10:32:08+00'), 
-('eform-10098', 'UGRD', 'PSYCH 110', 'INTROD BIOL PSYCH', '2020-12-05 12:00:00+00', '2021-09-01', 469118, 'In Error', 'SRLATEDROP', 'EPN', 'Elective Pass/No Pass', 'Late Grading Basis Change', 'GRD', 'Graded', 24460, '001', '9000000000', 'Wolfgang Pauli-O''Rourke', '2208', '3', '2020-12-05 00:02:57+00'), 
-('eform-10099', 'UGRD', 'EECS 16A', 'DESIGN INFO DEV I', '2020-12-05 00:00:00+00', '2021-09-01', 469242, 'Executed', 'SRLATEDROP', 'GRD', 'Graded', 'Late Grading Basis Change', 'EPN', 'Elective Pass/No Pass', 31262, '001', '11667051', 'Deborah Davies', '2208', '4', '2020-12-05 00:00:07+00'), 
-('eform-101', 'UGRD', 'PBHLTH 126', 'HEALTH ECONOMICS', '2020-04-15 00:00:00+00', '2021-09-01', 378785, 'Executed', 'SRLATEDROP', ' ', 'DefaultPNP', 'Late Drop', ' ', ' ', 10589, '001', '11667051', 'Deborah Davies', '2202', '3', '2020-04-15 12:46:01+00');
+('eform-10096', 'UGRD', 'MATH 16A', 'ANAL GEO & CALCULUS', '2020-12-05 00:00:00+00', '2021-09-01', 468999, 'Executed', 'SRLATEDROP', 'CPN', 'Pass/No Pass College Adjust', 'Unit Change', ' ', ' ', '1.00', 22335, '001', '11667051', 'Deborah Davies', '2208', '3', '2020-12-08 10:32:08+00'),
+('eform-10098', 'UGRD', 'PSYCH 110', 'INTROD BIOL PSYCH', '2020-12-05 12:00:00+00', '2021-09-01', 469118, 'In Error', 'SRLATEDROP', 'EPN', 'Elective Pass/No Pass', 'Late Grading Basis Change', 'GRD', 'Graded', '0.00', 24460, '001', '9000000000', 'Wolfgang Pauli-O''Rourke', '2208', '3', '2020-12-05 00:02:57+00'),
+('eform-10099', 'UGRD', 'EECS 16A', 'DESIGN INFO DEV I', '2020-12-05 00:00:00+00', '2021-09-01', 469242, 'Executed', 'SRLATEDROP', 'GRD', 'Graded', 'Late Grading Basis Change', 'EPN', 'Elective Pass/No Pass', '0.00', 31262, '001', '11667051', 'Deborah Davies', '2208', '4', '2020-12-05 00:00:07+00'),
+('eform-101', 'UGRD', 'PBHLTH 126', 'HEALTH ECONOMICS', '2020-04-15 00:00:00+00', '2021-09-01', 378785, 'Executed', 'SRLATEDROP', ' ', 'DefaultPNP', 'Late Drop', ' ', ' ', '0.00', 10589, '001', '11667051', 'Deborah Davies', '2202', '3', '2020-04-15 12:46:01+00');
 
 CREATE TABLE boac_advising_notes.advising_notes AS (
 SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
