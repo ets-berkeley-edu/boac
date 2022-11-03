@@ -8,7 +8,7 @@
         advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
       </span>
       <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
-        eForm: Late Change of Schedule Request &mdash; {{ note.eForm.status }}
+        eForm: {{ note.eForm.action }} &mdash; {{ note.eForm.status }}
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
@@ -43,12 +43,14 @@
             <dt>Course</dt>
             <dd>{{ note.eForm.sectionId }} {{ note.eForm.courseName }} - {{ note.eForm.courseTitle }} {{ note.eForm.section }}</dd>
           </div>
-          <div v-if="note.eForm.action !== 'Undefined'">
-            <dt>Late Action</dt>
+          <div>
+            <dt>Action</dt>
             <dd>
               {{ note.eForm.action }}
               <span v-if="note.eForm.action === 'Late Grading Basis Change' && note.eForm.gradingBasis"> from <span class="font-italic">{{ note.eForm.gradingBasis }}</span></span>
               <span v-if="note.eForm.action === 'Late Grading Basis Change' && note.eForm.requestedGradingBasis"> to <span class="font-italic">{{ note.eForm.requestedGradingBasis }}</span></span>
+              <span v-if="note.eForm.action === 'Unit Change' && note.eForm.unitsTaken"> from <span class="font-italic">{{ numFormat(note.eForm.unitsTaken, '0.0') }}</span>{{ 1 === toInt(note.eForm.unitsTaken) ? ' unit' : ' units' }}</span>
+              <span v-if="note.eForm.action === 'Unit Change' && note.eForm.requestedUnitsTaken"> to <span class="font-italic">{{ numFormat(note.eForm.requestedUnitsTaken, '0.0') }}</span>{{ 1 === toInt(note.eForm.requestedUnitsTaken) ? ' unit' : ' units' }}</span>
             </dd>
           </div>
           <div>

@@ -471,6 +471,8 @@ def _eform_to_json(eform):
             'courseTitle': eform.get('course_title'),
             'gradingBasis': eform.get('grading_basis_description'),
             'requestedGradingBasis': eform.get('requested_grading_basis_description'),
+            'requestedUnitsTaken': eform.get('requested_units_taken'),
+            'unitsTaken': eform.get('units_taken'),
         }
 
 
