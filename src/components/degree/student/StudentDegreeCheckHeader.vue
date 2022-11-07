@@ -14,7 +14,8 @@
                 original degree template <font-awesome icon="external-link-alt" class="pr-1" />
                 <span class="sr-only"> (will open new browser tab)</span>
               </router-link>
-              have been made since the creation of {{ student.name }}'s degree check. Please update below if necessary.
+              have been made since the creation of <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}'s</span>
+              degree check. Please update below if necessary.
             </div>
             <div class="align-self-center pr-1">
               <b-btn
