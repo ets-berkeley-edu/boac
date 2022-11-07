@@ -34,8 +34,8 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME, term_name_for_sis_id
 from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import localized_timestamp_to_utc, utc_now
 from boac.merged.reports import get_boa_note_count_by_month, get_note_author_count, get_note_count, \
-    get_note_count_per_user, get_note_with_attachments_count, get_note_with_topics_count, get_private_note_count, \
-    get_summary_of_boa_notes, low_assignment_scores
+    get_note_count_per_batch, get_note_count_per_user, get_note_with_attachments_count, \
+    get_note_with_topics_count, get_private_note_count, get_summary_of_boa_notes, low_assignment_scores
 from boac.merged.sis_terms import current_term_id
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -121,6 +121,7 @@ def get_notes_report_by_dept(dept_code):
     if dept_name:
         if current_user.is_admin or _current_user_is_director_of(dept_code):
             total_note_count = get_note_count()
+            note_count_per_batch = get_note_count_per_batch()
             return tolerant_jsonify({
                 'asc': get_asc_advising_note_count(),
                 'ei': get_e_and_i_advising_note_count(),
@@ -129,6 +130,10 @@ def get_notes_report_by_dept(dept_code):
                     'authors': get_note_author_count(),
                     'privateNoteCount': get_private_note_count(),
                     'total': total_note_count,
+                    'batchNotes': {
+                        'totalBatchCount': len(note_count_per_batch),
+                        'totalNoteCount': sum(note_count_per_batch),
+                    },
                     'withAttachments': get_note_with_attachments_count(),
                     'withTopics': get_note_with_topics_count(),
                 },

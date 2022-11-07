@@ -36,7 +36,7 @@
           (<a id="download-boa_notes-metadata" :href="`${$config.apiBaseUrl}/api/reports/boa_notes/metadata`">download</a>)
         </div>
       </div>
-      <b-collapse v-model="isShowingReport" class="mt-0 pt-3">
+      <b-collapse v-model="isShowingReport" class="mt-0">
         <div>
           <div class="pl-3">
             <div class="d-flex justify-content-between">
@@ -69,6 +69,47 @@
               </div>
               <div id="notes-count-boa-with-topics" class="font-weight-bolder">
                 {{ numFormat((report.boa.withTopics / report.boa.total) * 100, '0.0') }}%
+              </div>
+            </div>
+            <div class="pt-1">
+              <h5 class="font-size-16 font-weight-bold">Batch Notes</h5>
+              <div class="pl-3">
+                <div
+                  v-for="row in [
+                    {id: 'notes-batch-count', label: 'Total batch count', value: report.boa.batchNotes.totalBatchCount},
+                    {id: 'notes-count-asc', label: 'Total count of notes created via batch', value: report.boa.batchNotes.totalNoteCount}
+                  ]"
+                  :key="row.id"
+                  class="d-flex justify-content-between"
+                >
+                  <div>
+                    <label :for="row.id">{{ row.label }}</label>
+                  </div>
+                  <div :id="row.id" class="font-weight-bolder">
+                    {{ numFormat(row.value) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="pt-1">
+              <h5 class="font-size-16 font-weight-bold">Imported Notes</h5>
+              <div class="pl-3">
+                <div
+                  v-for="row in [
+                    {id: 'notes-count-sis', label: 'CalCentral/SIS', value: report.sis},
+                    {id: 'notes-count-asc', label: 'Athletic Study Center', value: report.asc},
+                    {id: 'notes-count-ei', label: 'CE3', value: report.ei}
+                  ]"
+                  :key="row.id"
+                  class="d-flex justify-content-between"
+                >
+                  <div>
+                    <label :for="row.id">{{ row.label }}</label>
+                  </div>
+                  <div :id="row.id" class="font-weight-bolder">
+                    {{ numFormat(row.value) }}
+                  </div>
+                </div>
               </div>
             </div>
             <div class="align-items-center d-flex">
@@ -112,45 +153,6 @@
                 </b-list-group>
               </b-card>
             </b-collapse>
-          </div>
-        </div>
-        <div class="pt-2">
-          <h5 class="font-size-16 font-weight-bold">Imported from CalCentral/SIS</h5>
-          <div class="pl-3">
-            <div class="d-flex justify-content-between">
-              <div>
-                <label for="notes-count-sis">Total</label>
-              </div>
-              <div id="notes-count-sis" class="font-weight-bolder">
-                {{ numFormat(report.sis) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="pt-2">
-          <h5 class="font-size-16 font-weight-bold">Imported from Athletic Study Center</h5>
-          <div class="pl-3">
-            <div class="d-flex justify-content-between">
-              <div>
-                <label for="notes-count-asc">Total</label>
-              </div>
-              <div id="notes-count-asc" class="font-weight-bolder">
-                {{ numFormat(report.asc) }}
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="pt-2">
-          <h5 class="font-size-16 font-weight-bold">Imported from Centers for Educational Equity and Excellence</h5>
-          <div class="pl-3">
-            <div class="d-flex justify-content-between">
-              <div>
-                <label for="notes-count-ei">Total</label>
-              </div>
-              <div id="notes-count-ei" class="font-weight-bolder">
-                {{ numFormat(report.ei) }}
-              </div>
-            </div>
           </div>
         </div>
       </b-collapse>
