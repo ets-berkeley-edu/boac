@@ -123,6 +123,9 @@ class TestNotesByDeptReport:
         fake_auth.login(admin_uid)
         report = self._api_notes_report(client, 'qcadv')
         assert 'boa' in report
+        batch_notes_report = report['boa']['batchNotes']
+        assert batch_notes_report['totalBatchCount'] >= 0
+        assert batch_notes_report['totalNoteCount'] >= 0
 
 
 class TestBoaNotesMonthlyCountReport:
