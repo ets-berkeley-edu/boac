@@ -1158,7 +1158,7 @@ def get_students_query(     # noqa
             major_filters.append('maj.major = ANY(%(majors)s)')
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_bindings.update({'majors': _majors})
-    if majors or colleges or academic_division:
+    if majors or minors or colleges or academic_division:
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid'
     if midpoint_deficient_grade is True:
         query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
@@ -1168,7 +1168,7 @@ def get_students_query(     # noqa
         query_bindings.update({'term_id': current_term_id})
     if minors:
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
-        query_filter += ' AND min.minor = ANY(%(minors)s)'
+        query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"
         query_bindings.update({'minors': minors})
     if student_holds is True:
         query_tables += f' JOIN {student_schema()}.student_holds sh ON sh.sid = spi.sid'
