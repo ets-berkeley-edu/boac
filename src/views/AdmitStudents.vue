@@ -34,13 +34,26 @@
           <div class="faint-text">|</div>
           <b-btn
             id="export-student-list-button"
+            v-b-modal="'export-admits-modal'"
             :disabled="!exportEnabled || !totalAdmitCount"
             class="no-wrap pl-1 pr-0 pt-0"
             variant="link"
-            @click.prevent="exportCohort"
           >
             Export List
           </b-btn>
+          <b-modal
+            id="export-admits-modal"
+            v-model="showExportListModal"
+            body-class="pl-0 pr-0"
+            hide-footer
+            hide-header
+            @shown="$putFocusNextTick('modal-header')"
+          >
+            <FerpaReminderModal
+              :cancel="cancelExportModal"
+              :confirm="exportCohort"
+            />
+          </b-modal>
         </div>
       </div>
       <div v-if="admits" class="pb-2">
@@ -86,6 +99,7 @@ import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
+import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import Loading from '@/mixins/Loading'
 import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
@@ -103,6 +117,7 @@ export default {
     AdmitDataWarning,
     AdmitStudentsTable,
     CuratedGroupSelector,
+    FerpaReminderModal,
     NavLink,
     Pagination,
     SectionSpinner,
@@ -124,6 +139,7 @@ export default {
       currentPage: 1,
       itemsPerPage: 50
     },
+    showExportListModal: false,
     sorting: false,
     totalAdmitCount: undefined
   }),
@@ -144,6 +160,10 @@ export default {
     })
   },
   methods: {
+    cancelExportModal() {
+      this.showExportListModal = false
+      this.$announcer.polite('Export canceled')
+    },
     exportCohort() {
       const name = 'CE3 Admissions'
       const fields = this.$_.map(this.getAdmitCsvExportColumns(), 'value')
