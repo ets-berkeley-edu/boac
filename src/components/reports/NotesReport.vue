@@ -77,7 +77,7 @@
                 <div
                   v-for="row in [
                     {id: 'notes-batch-count', label: 'Total batch count', value: report.boa.batchNotes.totalBatchCount},
-                    {id: 'notes-count-asc', label: 'Total count of notes created via batch', value: report.boa.batchNotes.totalNoteCount}
+                    {id: 'notes-count-via-batch', label: 'Total count of notes created via batch', value: report.boa.batchNotes.totalNoteCount}
                   ]"
                   :key="row.id"
                   class="d-flex justify-content-between"
