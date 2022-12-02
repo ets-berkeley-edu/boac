@@ -35,7 +35,7 @@ else
 fi
 
 # Download from Amazon S3
-config_location="s3://la-deploy-configs/boac/${eb_env}.py"
+config_location="s3://boac-deploy-configs/boac/${eb_env}.py"
 
 echo "In five seconds, ${config_location} will be copied to ${local_config}."; echo
 echo "Use CTRL-C to abort..."; echo
