@@ -274,9 +274,9 @@ class TestStudent:
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
             spring_2017_enrollments = student['enrollmentTerms'][2]['enrollments']
-            assert(spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001')
-            assert(spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002')
-            assert(spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C')
+            assert spring_2017_enrollments[0]['displayName'] == 'CLASSIC 130 LEC 001'
+            assert spring_2017_enrollments[1]['displayName'] == 'CLASSIC 130 LEC 002'
+            assert spring_2017_enrollments[2]['displayName'] == 'MUSIC 41C'
 
     def test_course_site_without_membership(self, client, coe_advisor_login):
         """Returns a graceful error if the expected membership is not found in the course site."""
