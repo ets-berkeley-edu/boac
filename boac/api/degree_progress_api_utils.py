@@ -89,6 +89,8 @@ def clone(template, created_by, name=None, sid=None):
         units_lower = category_['unitsLower']
         units_upper = category_['unitsUpper']
         is_satisfied_by_transfer_course = category_['isSatisfiedByTransferCourse']
+        now = datetime.now()
+
         category_created = DegreeProgressCategory.create(
             category_type=category_['categoryType'],
             course_units_lower=units_lower,
@@ -107,8 +109,8 @@ def clone(template, created_by, name=None, sid=None):
                 category_id=category_created.id,
                 degree_check_id=template_clone_id,
                 display_name=category_name,
-                grade='P',
-                manually_created_at=datetime.now(),
+                grade='T',
+                manually_created_at=now,
                 manually_created_by=current_user.user_id,
                 section_id=None,
                 sid=sid,
