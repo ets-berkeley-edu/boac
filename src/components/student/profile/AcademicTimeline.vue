@@ -56,6 +56,7 @@ export default {
       requirement: {name: 'Requirement', tab: 'Reqs'}
     }
     if (this.$currentUser.canAccessAdvisingData) {
+      this.filterTypes.eForm = {name: 'EForm', tab: 'eForms'}
       this.filterTypes.note = {name: 'Advising Note', tab: 'Notes'}
       this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments'}
     }

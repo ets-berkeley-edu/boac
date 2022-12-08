@@ -292,6 +292,7 @@ def put_notifications(student):
     }
     if current_user.can_access_advising_data:
         student['notifications']['appointment'] = []
+        student['notifications']['eForm'] = []
         student['notifications']['note'] = []
         for appointment in get_advising_appointments(sid) or []:
             message = appointment['details']
@@ -306,11 +307,12 @@ def put_notifications(student):
         # The front-end requires 'type', 'message' and 'read'. Optional fields: id, status, createdAt, updatedAt.
         for note in get_advising_notes(sid) or []:
             message = note['body']
-            student['notifications']['note'].append({
+            note_type = 'eForm' if note.get('eForm') else 'note'
+            student['notifications'][note_type].append({
                 **note,
                 **{
                     'message': message.strip() if message else None,
-                    'type': 'note',
+                    'type': note_type,
                 },
             })
     for alert in Alert.current_alerts_for_sid(viewer_id=current_user.get_id(), sid=sid):
