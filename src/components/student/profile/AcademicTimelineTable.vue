@@ -13,8 +13,8 @@
         />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
-      <div v-if="filter === 'note' && ($currentUser.isAdmin || isDirector($currentUser))">
-        | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/notes/download_for_sid/${student.sid}`">Download notes</a>
+      <div v-if="['eForm', 'note'].includes(filter) && ($currentUser.isAdmin || isDirector($currentUser))">
+        | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/${filter}/${student.sid}/download`">Download {{ filter }}s</a>
       </div>
       |
       <div>
@@ -23,7 +23,7 @@
           :for="`timeline-${filter}s-query-input`"
           class="mb-0 ml-2 mr-1 text-nowrap"
         >
-          Search {{ $_.capitalize(filter) }}s:
+          Search {{ filter === 'eForm' ? 'eForm' : $_.capitalize(filter) }}s:
         </label>
       </div>
       <div>
@@ -147,20 +147,20 @@
               :class="{
                 'align-top message-open': $_.includes(openMessages, message.transientId) && message.type !== 'requirement' ,
                 'truncate': !$_.includes(openMessages, message.transientId),
-                'img-blur': $currentUser.inDemoMode && ['appointment', 'note'].includes(message.type)
+                'img-blur': $currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)"
             >
-              <span v-if="['appointment', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
+              <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
-              <span v-if="!$_.includes(['appointment', 'note'] , message.type)">{{ message.message }}</span>
+              <span v-if="!$_.includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
-                v-if="message.type === 'note' && message.id !== editModeNoteId"
+                v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :note="message"
@@ -168,7 +168,7 @@
                 :is-open="$_.includes(openMessages, message.transientId)"
               />
               <EditAdvisingNote
-                v-if="message.type === 'note' && message.id === editModeNoteId"
+                v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
                 :note-id="message.id"
                 :after-cancel="afterNoteEditCancel"
                 :after-saved="afterNoteEdit"
@@ -238,7 +238,7 @@
                 Waiting
               </div>
             </div>
-            <div v-if="message.type === 'note' || message.type === 'appointment'">
+            <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
               <font-awesome v-if="$_.size(message.attachments)" icon="paperclip" class="mt-2" />
               <span class="sr-only">{{ $_.size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
             </div>
@@ -248,7 +248,7 @@
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="pt-2 pr-2 text-nowrap"
             >
-              <div v-if="!$_.includes(openMessages, message.transientId) || !$_.includes(['note', 'appointment'], message.type)">
+              <div v-if="!$_.includes(openMessages, message.transientId) || !$_.includes(['appointment', 'eForm', 'note'], message.type)">
                 <TimelineDate
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.setDate || message.updatedAt || message.createdAt"
@@ -256,7 +256,7 @@
                   :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
               </div>
-              <div v-if="$_.includes(openMessages, message.transientId) && ['appointment', 'note'].includes(message.type)">
+              <div v-if="$_.includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
@@ -292,8 +292,8 @@
                 </div>
                 <div class="text-muted">
                   <router-link
-                    v-if="message.type === 'note' && message.id !== editModeNoteId"
-                    :id="`advising-note-permalink-${message.id}`"
+                    v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
+                    :id="`advising-${message.type}-permalink-${message.id}`"
                     :to="`#${message.type}-${message.id}`"
                     @click.native="scrollToPermalink(message.type, message.id)"
                   >
@@ -412,7 +412,7 @@ export default {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
     },
     isExpandAllAvailable() {
-      return this.$_.includes(['appointment', 'note'], this.filter)
+      return ['appointment', 'eForm', 'note'].includes(this.filter)
     },
     offerShowAll() {
       return !this.searchResults && (this.countPerActiveTab > this.defaultShowPerTab)
@@ -583,7 +583,7 @@ export default {
         message.read = true
         if (this.$_.includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id)
-        } else if (message.type === 'note') {
+        } else if (['eForm', 'note'].includes(message.type)) {
           markNoteRead(message.id)
         } else if (message.type === 'appointment') {
           markAppointmentRead(message.id)
@@ -603,7 +603,7 @@ export default {
       })
     },
     open(message, notifyScreenReader) {
-      if (message.type === 'note' && message.id === this.editModeNoteId || message.type === 'requirement') {
+      if (['eForm', 'note'].includes(message.type) && message.id === this.editModeNoteId || message.type === 'requirement') {
         return false
       }
       if (!this.$_.includes(this.openMessages, message.transientId)) {
@@ -623,7 +623,7 @@ export default {
     },
     refreshSearchIndex() {
       this.searchIndex = []
-      const messages = ['appointment', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
+      const messages = ['appointment', 'eForm', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
       this.$_.each(messages, m => {
         const advisor = m.author || m.advisor
         const idx = [
@@ -633,6 +633,7 @@ export default {
           m.body,
           m.category,
           m.createdBy,
+          JSON.stringify(m.eForm || {}),
           m.legacySource,
           m.message,
           m.subcategory,
@@ -713,6 +714,10 @@ export default {
   color: #666 !important;
   font-weight: bolder;
   width: 100px;
+}
+.pill-eForm {
+  background-color: #5fbeb6;
+  width: 60px;
 }
 .pill-hold {
   background-color: #bc74fe;

@@ -38,26 +38,16 @@ from flask_login import current_user, login_required
 @app.route('/api/student/by_sid/<sid>')
 @advisor_required
 def get_student_by_sid(sid):
-    profile_only = to_bool_or_none(request.args.get('profileOnly'))
     student = get_student_and_terms_by_sid(sid)
-    if not student:
-        raise ResourceNotFoundError('Unknown student')
-    if not profile_only:
-        put_notifications(student)
-        _put_degree_checks_json(student)
+    _decorate_student(student)
     return tolerant_jsonify(student)
 
 
 @app.route('/api/student/by_uid/<uid>')
 @advisor_required
 def get_student_by_uid(uid):
-    profile_only = to_bool_or_none(request.args.get('profileOnly'))
     student = get_student_and_terms_by_uid(uid)
-    if not student:
-        raise ResourceNotFoundError('Unknown student')
-    if not profile_only:
-        put_notifications(student)
-        _put_degree_checks_json(student)
+    _decorate_student(student)
     return tolerant_jsonify(student)
 
 
@@ -127,6 +117,15 @@ def validate_sids():
         raise BadRequestError('Requires \'sids\' param')
 
 
+def _decorate_student(student):
+    if not student:
+        raise ResourceNotFoundError('Unknown student')
+    profile_only = to_bool_or_none(request.args.get('profileOnly'))
+    if not profile_only:
+        put_notifications(student)
+        _put_degree_checks_json(student)
+
+
 def _get_name_range_boundaries(values):
     if isinstance(values, list) and len(values):
         values = sorted(values, key=lambda v: v.upper())
@@ -135,13 +134,13 @@ def _get_name_range_boundaries(values):
         return None
 
 
+def _put_degree_checks_json(student):
+    student['degreeChecks'] = DegreeProgressTemplate.find_by_sid(student_sid=student['sid']) if current_user.can_read_degree_progress else []
+
+
 def _student_search_result(s):
     return {
         'label': f"{s.get('first_name', '')} {s.get('last_name', '')} ({s.get('sid')})".strip(),
         'sid': s.get('sid'),
         'uid': s.get('uid'),
     }
-
-
-def _put_degree_checks_json(student):
-    student['degreeChecks'] = DegreeProgressTemplate.find_by_sid(student_sid=student['sid']) if current_user.can_read_degree_progress else []

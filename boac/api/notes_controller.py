@@ -258,7 +258,7 @@ def download_attachment(attachment_id):
     return r
 
 
-@app.route('/api/notes/download_for_sid/<sid>', methods=['GET'])
+@app.route('/api/notes/<sid>/download', methods=['GET'])
 @director_advising_data_access_required
 def download_notes_and_attachments(sid):
     students = data_loch.get_basic_student_data([sid])

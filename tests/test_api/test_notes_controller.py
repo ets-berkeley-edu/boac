@@ -237,7 +237,7 @@ class TestNoteCreation:
         assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
         assert new_note['updatedAt'] is None
         # Get notes per SID and compare
-        notes = _get_notes(client, coe_student['uid'])
+        notes = _get_student_notifications(client, coe_student['uid'])['note']
         match = next((n for n in notes if n['id'] == note_id), None)
         assert match and match['subject'] == subject
 
@@ -530,7 +530,7 @@ class TestNoteAttachments:
         assert len(delete_response.json['attachments']) == 1
         assert delete_response.json['attachments'][0]['id'] == id_to_keep
 
-        notes = _get_notes(client, coe_student['uid'])
+        notes = _get_student_notifications(client, coe_student['uid'])['note']
         match = next((n for n in notes if n['id'] == note_id), None)
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
@@ -615,8 +615,8 @@ class TestMarkNoteRead:
     def test_mark_note_read(self, app, client, fake_auth):
         """Marks a note as read."""
         fake_auth.login(coe_advisor_uid)
-        all_notes_unread = _get_notes(client, 61889)
-        assert len(all_notes_unread) == 12
+        all_notes_unread = _get_student_notifications(client, 61889)['note']
+        assert len(all_notes_unread)
         for note in all_notes_unread:
             assert note['read'] is False
 
@@ -638,8 +638,9 @@ class TestMarkNoteRead:
         response = client.post('/api/notes/eform-10096/mark_read')
         assert response.status_code == 201
 
-        all_notes_after_read = _get_notes(client, 61889)
-        assert len(all_notes_after_read) == 12
+        notifications = _get_student_notifications(client, 61889)
+        all_notes_after_read = notifications['note']
+        assert len(all_notes_after_read) == 9
         assert all_notes_after_read[0]['id'] == '11667051-00001'
         assert all_notes_after_read[0]['read'] is True
         assert all_notes_after_read[1]['id'] == '11667051-00002'
@@ -658,12 +659,15 @@ class TestMarkNoteRead:
         assert all_notes_after_read[7]['read'] is True
         assert all_notes_after_read[8]['id'] == '11667051-151620'
         assert all_notes_after_read[8]['read'] is True
-        assert all_notes_after_read[9]['id'] == 'eform-101'
-        assert all_notes_after_read[9]['read'] is False
-        assert all_notes_after_read[10]['id'] == 'eform-10099'
-        assert all_notes_after_read[10]['read'] is False
-        assert all_notes_after_read[11]['id'] == 'eform-10096'
-        assert all_notes_after_read[11]['read'] is True
+
+        all_eforms_after_read = notifications['eForm']
+        assert len(all_eforms_after_read) == 3
+        assert all_eforms_after_read[0]['id'] == 'eform-101'
+        assert all_eforms_after_read[0]['read'] is False
+        assert all_eforms_after_read[1]['id'] == 'eform-10099'
+        assert all_eforms_after_read[1]['read'] is False
+        assert all_eforms_after_read[2]['id'] == 'eform-10096'
+        assert all_eforms_after_read[2]['read'] is True
 
 
 class TestUpdateNotes:
@@ -978,27 +982,27 @@ class TestStreamNotesZip:
 
     def test_not_authenticated(self, client):
         """Returns 401 if not authenticated."""
-        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+        assert client.get('/api/notes/9000000000/download').status_code == 401
 
     def test_not_authorized(self, client, fake_auth):
         """Returns 401 if not admin or director."""
         fake_auth.login(coe_advisor_uid)
-        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+        assert client.get('/api/notes/9000000000/download').status_code == 401
 
     def test_director_without_advising_data_access(self, client, fake_auth):
         """Denies access to a director who cannot access notes and appointments."""
         fake_auth.login(l_s_director_no_advising_data_uid)
-        assert client.get('/api/notes/download_for_sid/9000000000').status_code == 401
+        assert client.get('/api/notes/9000000000/download').status_code == 401
 
     def test_not_found(self, client, fake_auth):
         """Returns 404 if SID not found."""
         fake_auth.login(admin_uid)
-        assert client.get('/api/notes/download_for_sid/9999999999').status_code == 404
+        assert client.get('/api/notes/9999999999/download').status_code == 404
 
     def _assert_zip_download(self, app, client):
         today = localize_datetime(utc_now()).strftime('%Y%m%d')
         with mock_legacy_note_attachment(app):
-            response = client.get('/api/notes/download_for_sid/9000000000')
+            response = client.get('/api/notes/9000000000/download')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/zip'
             assert response.headers['Content-Disposition'] == f'attachment; filename=advising_notes_wolfgang_pauli-o%27rourke_{today}.zip'
@@ -1013,10 +1017,10 @@ class TestStreamNotesZip:
         self._assert_zip_download(app, client)
 
 
-def _get_notes(client, uid):
+def _get_student_notifications(client, uid):
     response = client.get(f'/api/student/by_uid/{uid}')
     assert response.status_code == 200
-    return response.json['notifications']['note']
+    return response.json['notifications']
 
 
 def _asc_note_with_attachment():
