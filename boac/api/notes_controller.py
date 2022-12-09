@@ -39,6 +39,7 @@ from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.sis_advising import get_legacy_attachment_stream
 from boac.lib.util import (
+    get as get_param,
     get_benchmarker,
     is_int,
     localize_datetime,
@@ -260,10 +261,17 @@ def download_attachment(attachment_id):
 
 @app.route('/api/notes/<sid>/download', methods=['GET'])
 @director_advising_data_access_required
-def download_notes_and_attachments(sid):
+def download_notes(sid):
+    download_type = get_param(request.args, 'type', 'note')
     students = data_loch.get_basic_student_data([sid])
     student = students[0] if students else None
-    notes = get_advising_notes(sid) if student else None
+
+    def _filter_rule(note):
+        is_eform = bool(note.get('eForm', False))
+        return is_eform if download_type == 'eForm' else not is_eform
+    notes = get_advising_notes(sid) if student else []
+    notes = list(filter(_filter_rule, notes))
+
     if not student or not notes:
         return Response('Not found', status=404)
 

@@ -14,7 +14,7 @@
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
       <div v-if="['eForm', 'note'].includes(filter) && ($currentUser.isAdmin || isDirector($currentUser))">
-        | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/${filter}/${student.sid}/download`">Download {{ filter }}s</a>
+        | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
       </div>
       |
       <div>
