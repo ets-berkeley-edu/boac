@@ -276,7 +276,7 @@ def download_notes(sid):
         return Response('Not found', status=404)
 
     filename = '_'.join([
-        'advising_notes',
+        f'advising_{download_type}s',
         student.get('first_name', '').lower(),
         student.get('last_name', '').lower(),
         localize_datetime(utc_now()).strftime('%Y%m%d'),
