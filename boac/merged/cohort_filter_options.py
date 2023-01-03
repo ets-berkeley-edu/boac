@@ -37,6 +37,7 @@ from boac.lib.cohort_utils import academic_career_status_options, academic_divis
     unit_range_options, visa_types
 from boac.merged.student import get_student_query_scope
 from boac.models.authorized_user import AuthorizedUser
+from flask import current_app as app
 
 
 class CohortFilterOptions:
@@ -74,14 +75,15 @@ class CohortFilterOptions:
         return option_groups
 
     def get_filter_option_groups(self):
-        current_year = datetime.now().year
         owner_user_id = AuthorizedUser.get_id_per_uid(self.owner_uid) if self.owner_uid else None
+        academic_standing_years_cutoff = app.config['COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF']
+        academic_standing_min_term = f'Fall {datetime.now().year - academic_standing_years_cutoff}'
         return {
             'Academic': [
                 _filter(
                     'academicStandings',
                     'Academic Standing',
-                    options=academic_standing_options(min_term_id=sis_term_id_for_name(f'Fall {current_year - 5}')),
+                    options=academic_standing_options(min_term_id=sis_term_id_for_name(academic_standing_min_term)),
                 ),
                 _filter('academicCareerStatus', 'Career Status', options=academic_career_status_options()),
                 _filter('academicDivisions', 'Academic Division', options=academic_division_options()),
