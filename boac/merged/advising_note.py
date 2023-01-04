@@ -178,8 +178,10 @@ def get_sis_late_drop_eforms(sid):
     eforms_by_id = {}
     for eform in data_loch.get_sis_late_drop_eforms(sid):
         eform_id = eform['id']
-        eforms_by_id[eform_id] = note_to_compatible_json(eform)
-        eforms_by_id[eform_id]['legacySource'] = 'SIS'
+        eforms_by_id[eform_id] = {
+            **note_to_compatible_json(eform),
+            **{'legacySource': 'SIS'},
+        }
     return eforms_by_id
 
 
@@ -319,8 +321,15 @@ def get_boa_attachment_stream(attachment):
         return None
 
 
-def get_zip_stream(filename, notes, student):
+def get_zip_stream(
+        download_type,
+        filename,
+        notes,
+        student,
+):
     app_timezone = pytz.timezone(app.config['TIMEZONE'])
+    is_eforms_download = download_type == 'eForm'
+    notes = _filter_notes(download_type, notes)
 
     def iter_csv():
         def csv_line(_list):
@@ -329,60 +338,91 @@ def get_zip_stream(filename, notes, student):
             return csv_output.getvalue().encode('utf-8')
             csv_output.close()
 
-        yield csv_line([
-            'date_created',
-            'student_sid',
-            'student_name',
-            'author_uid',
-            'author_csid',
-            'author_name',
-            'subject',
-            'topics',
-            'attachments',
-            'body',
-            'is_private',
-            'late_change_request_action',
-            'late_change_request_status',
-            'late_change_request_term',
-            'late_change_request_course',
-        ])
+        if is_eforms_download:
+            csv_headers = [
+                'student_sid',
+                'student_name',
+                'eform_id',
+                'eform_type',
+                'requested_action',
+                'grading_basis',
+                'requested_grading_basis',
+                'units_taken',
+                'requested_units_taken',
+                'late_change_request_action',
+                'late_change_request_status',
+                'late_change_request_term',
+                'late_change_request_course',
+                'date_created',
+                'updated_at',
+            ]
+        else:
+            csv_headers = [
+                'date_created',
+                'student_sid',
+                'student_name',
+                'author_uid',
+                'author_csid',
+                'author_name',
+                'subject',
+                'body',
+                'topics',
+                'attachments',
+                'is_private',
+            ]
 
-        supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(
-            app,
-            list(set([note['author']['sid'] for note in notes if note['author']['sid'] and not note['author']['name']])),
-        )
+        yield csv_line(csv_headers)
+
         for note in notes:
-            calnet_author = supplemental_calnet_advisor_feeds.get(note['author']['sid'])
-            if calnet_author:
-                calnet_author_name =\
-                    calnet_author.get('name') or join_if_present(' ', [calnet_author.get('firstName'), calnet_author.get('lastName')])
-                calnet_author_uid = calnet_author.get('uid')
-            else:
-                calnet_author_name = None
-                calnet_author_uid = None
             # strptime expects a timestamp without timezone; ancient date-only legacy notes get a bogus time appended.
             timestamp_created = f"{note['createdAt']}T12:00:00" if len(note['createdAt']) == 10 else note['createdAt'][:19]
             datetime_created = pytz.utc.localize(datetime.strptime(timestamp_created, '%Y-%m-%dT%H:%M:%S'))
-            date_local = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
-            e_form = note.get('eForm') or {}
-            omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
-            yield csv_line([
-                date_local,
-                student['sid'],
-                join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
-                (note['author']['uid'] or calnet_author_uid),
-                note['author']['sid'],
-                (note['author']['name'] or calnet_author_name),
-                note['subject'],
-                '; '.join([t for t in note['topics'] or []]),
-                '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
-                '' if omit_note_body else note['body'],
-                note.get('isPrivate'),
-                e_form.get('action'),
-                e_form.get('status'),
-                term_name_for_sis_id(e_form.get('term')),
-                f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if e_form.get('sectionId') else None,
-            ])
+            localized_created_at = datetime_created.astimezone(app_timezone).strftime('%Y-%m-%d')
+
+            if is_eforms_download:
+                e_form = note.get('eForm')
+                section_id = e_form.get('sectionId')
+                course = f"{e_form['sectionId']} {e_form['courseName']} - {e_form['courseTitle']} {e_form['section']}" if section_id else None
+                column_data = [
+                    student['sid'],
+                    join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
+                    e_form.get('id'),
+                    e_form.get('type'),
+                    e_form.get('requestedAction'),
+                    e_form.get('gradingBasis'),
+                    e_form.get('requestedGradingBasis'),
+                    e_form.get('unitsTaken'),
+                    e_form.get('requestedUnitsTaken'),
+                    e_form.get('action'),
+                    e_form.get('status'),
+                    term_name_for_sis_id(e_form.get('term')),
+                    course,
+                    localized_created_at,
+                    e_form.get('updatedAt'),
+                ]
+            else:
+                author_sids = [n['author']['sid'] for n in notes if n['author']['sid'] and not n['author']['name']]
+                author_sids = list(set(author_sids))
+                supplemental_calnet_advisor_feeds = get_calnet_users_for_csids(app, author_sids)
+                author = supplemental_calnet_advisor_feeds.get(note['author']['sid']) or {}
+                author_name = author.get('name') or join_if_present(' ', [author.get('firstName'), author.get('lastName')])
+                author_uid = author.get('uid')
+
+                omit_note_body = note.get('isPrivate') and not current_user.can_access_private_notes
+                column_data = [
+                    localized_created_at,
+                    student['sid'],
+                    join_if_present(' ', [student.get('first_name', ''), student.get('last_name', '')]),
+                    (note['author']['uid'] or author_uid),
+                    note['author']['sid'],
+                    (note['author']['name'] or author_name),
+                    note['subject'],
+                    '' if omit_note_body else note['body'],
+                    '; '.join([t for t in note['topics'] or []]),
+                    '' if omit_note_body else '; '.join([a['displayName'] for a in note['attachments'] or []]),
+                    note.get('isPrivate'),
+                ]
+            yield csv_line(column_data)
 
     z = zipstream.ZipFile(mode='w', compression=zipstream.ZIP_DEFLATED)
     csv_filename = f'{filename}.csv'
@@ -444,7 +484,7 @@ def note_to_compatible_json(
         'contactType': note.get('contact_type'),
         'createdAt': resolve_sis_created_at(note),
         'createdBy': note.get('created_by'),
-        'eForm': _eform_to_json(note),
+        'eForm': _eform_to_json(note) if note.get('eform_id') else None,
         'id': note.get('id'),
         'isPrivate': note.get('is_private') or False,
         'read': True if note_read else False,
@@ -459,21 +499,30 @@ def note_to_compatible_json(
 
 
 def _eform_to_json(eform):
-    if eform.get('eform_id'):
-        return {
-            'id': eform.get('eform_id'),
-            'term': eform.get('term_id'),
-            'action': eform.get('requested_action'),
-            'status': eform.get('eform_status'),
-            'sectionId': eform.get('section_id'),
-            'section': eform.get('section_num'),
-            'courseName': eform.get('course_display_name'),
-            'courseTitle': eform.get('course_title'),
-            'gradingBasis': eform.get('grading_basis_description'),
-            'requestedGradingBasis': eform.get('requested_grading_basis_description'),
-            'requestedUnitsTaken': eform.get('requested_units_taken'),
-            'unitsTaken': eform.get('units_taken'),
-        }
+    return {
+        'action': eform.get('requested_action'),
+        'courseName': eform.get('course_display_name'),
+        'courseTitle': eform.get('course_title'),
+        'gradingBasis': eform.get('grading_basis_description'),
+        'id': eform.get('eform_id'),
+        'requestedAction': eform['requested_action'],
+        'requestedGradingBasis': eform.get('requested_grading_basis_description'),
+        'requestedUnitsTaken': eform.get('requested_units_taken'),
+        'section': eform.get('section_num'),
+        'sectionId': eform.get('section_id'),
+        'status': eform.get('eform_status'),
+        'term': eform.get('term_id'),
+        'type': eform.get('eform_type'),
+        'unitsTaken': eform.get('units_taken'),
+        'updatedAt': eform.get('updated_at').astimezone(pytz.timezone(app.config['TIMEZONE'])).strftime('%Y-%m-%d'),
+    }
+
+
+def _filter_notes(download_type, notes):
+    def _filter_rule(note):
+        is_eform = bool(note.get('eForm', False))
+        return is_eform if download_type == 'eForm' else not is_eform
+    return list(filter(_filter_rule, notes))
 
 
 def _get_asc_advising_note_topics(sid):

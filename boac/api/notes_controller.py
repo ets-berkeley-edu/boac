@@ -265,12 +265,7 @@ def download_notes(sid):
     download_type = get_param(request.args, 'type', 'note')
     students = data_loch.get_basic_student_data([sid])
     student = students[0] if students else None
-
-    def _filter_rule(note):
-        is_eform = bool(note.get('eForm', False))
-        return is_eform if download_type == 'eForm' else not is_eform
     notes = get_advising_notes(sid) if student else []
-    notes = list(filter(_filter_rule, notes))
 
     if not student or not notes:
         return Response('Not found', status=404)
@@ -283,7 +278,12 @@ def download_notes(sid):
     ])
 
     def generator():
-        for chunk in get_zip_stream(filename=filename, notes=notes, student=student):
+        for chunk in get_zip_stream(
+                download_type=download_type,
+                filename=filename,
+                notes=notes,
+                student=student,
+        ):
             yield chunk
 
     response = Response(stream_with_context(generator()), mimetype='application/zip')
