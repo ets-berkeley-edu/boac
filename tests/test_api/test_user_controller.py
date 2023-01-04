@@ -203,7 +203,7 @@ class TestMyCuratedGroups:
         assert 'id' in group
         assert 'alertCount' in group
         assert 'totalStudentCount' in group
-        assert group['name'] == 'I have one student'
+        assert group['name'] == 'I have two students'
 
     def test_admitted_students_domain(self, app, client, fake_auth):
         """Returns 'admitted_students' groups of CE3 advisor."""

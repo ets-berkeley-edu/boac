@@ -30,6 +30,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker
 from boac.merged import calnet
 from boac.merged.admitted_student import get_admitted_students_by_sids
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
@@ -112,6 +113,7 @@ def download_csv(curated_group_id):
     curated_group = CuratedGroup.find_by_id(curated_group_id)
     params = request.get_json()
     fieldnames = get_param(params, 'csvColumnsSelected', [])
+    term_id = get_param(params, 'termId') or current_term_id()
     if not curated_group:
         raise ResourceNotFoundError(f'No curated group found with id: {curated_group_id}')
     if not _can_current_user_view_curated_group(curated_group):
@@ -121,6 +123,7 @@ def download_csv(curated_group_id):
         domain=curated_group.domain,
         fieldnames=fieldnames,
         sids=CuratedGroup.get_all_sids(curated_group_id),
+        term_id=term_id,
     )
 
 

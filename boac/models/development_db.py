@@ -667,8 +667,9 @@ def _create_curated_groups():
     CuratedGroup.add_student(curated_group.id, '7890123456')
 
     coe_advisor = AuthorizedUser.find_by_uid('1133399')
-    curated_group = CuratedGroup.create(coe_advisor.id, 'I have one student')
+    curated_group = CuratedGroup.create(coe_advisor.id, 'I have two students')
     CuratedGroup.add_student(curated_group.id, '7890123456')
+    CuratedGroup.add_student(curated_group.id, '11667051')
 
     ce3_advisor = AuthorizedUser.find_by_uid('2525')
     curated_group = CuratedGroup.create(
