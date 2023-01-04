@@ -54,11 +54,14 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
+  const termId = Vue.prototype.$currentUser.preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+
   $_track('download', filename)
   return axios
     .post(`${utils.apiBaseUrl()}/api/cohort/download_csv`, {
       cohortId,
-      csvColumnsSelected
+      csvColumnsSelected,
+      termId
     })
     .then(response => fileDownload(response.data, `${filename}.csv`), () => null)
 }
@@ -67,13 +70,14 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
+  const termId = Vue.prototype.$currentUser.preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
   $_track('download', filename)
 
-  const url = `${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`
-  return axios.post(url, {
+  return axios.post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {
+    csvColumnsSelected,
     domain,
     filters,
-    csvColumnsSelected
+    termId
   })
   .then(response => fileDownload(response.data, `${filename}.csv`), () => null)
 }

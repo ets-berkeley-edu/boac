@@ -32,6 +32,7 @@ from boac.lib.http import tolerant_jsonify
 from boac.lib.util import get as get_param, get_benchmarker, to_bool_or_none as to_bool
 from boac.merged import calnet
 from boac.merged.cohort_filter_options import CohortFilterOptions
+from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_student_profile_summaries, get_student_query_scope as get_query_scope
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
@@ -218,7 +219,14 @@ def download_cohort_csv():
     if cohort and _can_current_user_view_cohort(cohort):
         fieldnames = get_param(params, 'csvColumnsSelected', [])
         sids = CohortFilter.get_sids(cohort['id'])
-        return response_with_students_csv_download(benchmark, cohort['domain'], fieldnames, sids)
+        term_id = get_param(params, 'termId') or current_term_id()
+        return response_with_students_csv_download(
+            benchmark=benchmark,
+            domain=cohort['domain'],
+            fieldnames=fieldnames,
+            sids=sids,
+            term_id=term_id,
+        )
     else:
         raise ResourceNotFoundError(f'No cohort found with identifier: {cohort_id}')
 
@@ -232,12 +240,13 @@ def download_csv_per_filters():
     filters = get_param(params, 'filters', [])
     fieldnames = get_param(params, 'csvColumnsSelected', [])
     domain = get_param(params, 'domain', 'default')
+    term_id = get_param(params, 'termId') or current_term_id()
+
     if (domain == 'default' and not filters) or filters is None:
         raise BadRequestError('API requires \'filters\'')
     filter_keys = list(map(lambda f: f['key'], filters))
     if is_unauthorized_search(filter_keys):
         raise ForbiddenRequestError('You are unauthorized to access student data managed by other departments')
-    domain = get_param(params, 'domain', 'default')
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     cohort = _construct_phantom_cohort(
@@ -249,7 +258,13 @@ def download_csv_per_filters():
         include_sids=True,
         include_students=False,
     )
-    return response_with_students_csv_download(benchmark, domain, fieldnames, cohort['sids'])
+    return response_with_students_csv_download(
+        benchmark=benchmark,
+        domain=domain,
+        fieldnames=fieldnames,
+        sids=cohort['sids'],
+        term_id=term_id,
+    )
 
 
 @app.route('/api/cohort/create', methods=['POST'])

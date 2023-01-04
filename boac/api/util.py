@@ -450,14 +450,23 @@ def is_unauthorized_search(filter_keys, order_by=None):
     return False
 
 
-def response_with_students_csv_download(benchmark, domain, fieldnames, sids):
+def response_with_students_csv_download(benchmark, domain, fieldnames, sids, term_id):
     if domain == 'admitted_students':
-        return _response_with_admits_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
+        return _response_with_admits_csv_download(
+            benchmark=benchmark,
+            fieldnames=fieldnames,
+            sids=sids,
+        )
     else:
-        return _response_with_students_csv_download(sids=sids, fieldnames=fieldnames, benchmark=benchmark)
+        return _response_with_students_csv_download(
+            benchmark=benchmark,
+            fieldnames=fieldnames,
+            sids=sids,
+            term_id=term_id,
+        )
 
 
-def _response_with_students_csv_download(sids, fieldnames, benchmark):
+def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
     term_id_last = previous_term_id(current_term_id())
     term_id_previous = previous_term_id(term_id_last)
     rows = []
@@ -500,7 +509,7 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark):
         'units_in_progress': lambda profile: profile.get('enrolledUnits', {}),
     }
     term_gpas = get_term_gpas_by_sid(sids)
-    term_units = get_term_units_by_sid(current_term_id(), sids)
+    term_units = get_term_units_by_sid(term_id, sids)
 
     def _add_row(student_profile):
         student_profile['termGpa'] = term_gpas.get(student_profile['sid'], {})

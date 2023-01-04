@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac import std_commit
+from boac.merged.sis_terms import current_term_id
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.curated_group import CuratedGroup
 import pytest
@@ -305,7 +306,7 @@ class TestGetCuratedGroup:
     def test_curated_group_detail_omits_athletics_non_asc(self, client, coe_advisor, coe_advisor_groups):
         """Returns team memberships only for non-ASC advisors."""
         api_json = _api_get_curated_group(client, coe_advisor_groups[0].id)
-        student = api_json['students'][0]
+        student = next((s for s in api_json['students'] if s['sid'] == '7890123456'), None)
         assert len(student['athleticsProfile']['athletics']) == 1
         assert 'inIntensiveCohort' not in student['athleticsProfile']
         assert 'isActiveAsc' not in student['athleticsProfile']
@@ -711,6 +712,34 @@ class TestDownloadCuratedGroupCSV:
             'Nuclear Engineering BS,Senior,2,Spring 2020,110,,3.9,Active',
         ]:
             assert str(snippet) in csv
+
+    def test_download_csv_per_term_id(self, coe_advisor_groups, authorized_advisor, client):
+        """Advisor can download CSV per specified term_id."""
+        curated_group = coe_advisor_groups[0]
+        assert curated_group
+
+        results = {}
+        default_term_id = str(current_term_id())
+        custom_term_id = '2172'
+        assert default_term_id != custom_term_id
+
+        for term_id in (default_term_id, custom_term_id):
+            data = {
+                'csvColumnsSelected': [
+                    'units_in_progress',
+                ],
+                'termId': term_id,
+            }
+            response = client.post(
+                f'/api/curated_group/{curated_group.id}/download_csv',
+                data=json.dumps(data),
+                content_type='application/json',
+            )
+            assert response.status_code == 200
+            assert 'csv' in response.content_type
+            results[term_id] = str(response.data)
+
+        assert results[default_term_id] != results[custom_term_id]
 
 
 def _api_curated_group_create(client, expected_status_code=200, domain='default', name=None, sids=()):
