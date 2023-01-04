@@ -443,39 +443,49 @@ class TestMergedAdvisingNote:
 
     def test_stream_zipped_bundle(self, app):
         with mock_legacy_note_attachment(app):
-            sid = '9000000000'
-            filename = 'advising_notes'
-            stream = get_zip_stream(
-                filename=filename,
-                notes=get_advising_notes(sid),
-                student={
-                    'first_name': 'Wolfgang',
-                    'last_name': 'Pauli-O\'Rourke',
-                    'sid': sid,
-                },
-            )
-            body = b''
-            for chunk in stream:
-                body += chunk
-            zipfile = ZipFile(io.BytesIO(body), 'r')
-            contents = {}
-            for name in zipfile.namelist():
-                contents[name] = zipfile.read(name)
+            for download_type in ('eForm', 'note'):
+                sid = '9000000000'
+                filename = 'advising_notes'
+                stream = get_zip_stream(
+                    download_type=download_type,
+                    filename=filename,
+                    notes=get_advising_notes(sid),
+                    student={
+                        'first_name': 'Wolfgang',
+                        'last_name': 'Pauli-O\'Rourke',
+                        'sid': sid,
+                    },
+                )
+                body = b''
+                for chunk in stream:
+                    body += chunk
+                zipfile = ZipFile(io.BytesIO(body), 'r')
+                contents = {}
+                for name in zipfile.namelist():
+                    contents[name] = zipfile.read(name)
 
-            assert len(contents) == 2
-            assert contents['dog_eaten_homework.pdf'] == b'When in the course of human events, it becomes necessarf arf woof woof woof'
-            csv_rows = contents[f'{filename}.csv'].decode('utf-8').strip().split('\r\n')
-            assert len(csv_rows) == 4
-            assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,subject,' \
-                                  'topics,attachments,body,is_private,late_change_request_action,' \
-                                  'late_change_request_status,late_change_request_term,late_change_request_course'
-            assert csv_rows[1] == '2017-11-02,9000000000,Wolfgang Pauli-O\'Rourke,,700600500,,,,' \
-                                  'dog_eaten_homework.pdf,I am confounded by this confounding student,False,,,,'
-            assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,,Ne Scéaw,," \
-                                  'Is this student even on campus?,False,,,,'
-            assert csv_rows[3] == "2020-12-05,9000000000,Wolfgang Pauli-O'Rourke,,,,,,,," \
-                                  'False,Late Grading Basis Change,In Error,Fall 2020,' \
-                                  '24460 PSYCH 110 - INTROD BIOL PSYCH 001'
+                csv_rows = contents[f'{filename}.csv'].decode('utf-8').strip().split('\r\n')
+                if download_type == 'note':
+                    assert len(contents) == 2
+                    assert len(csv_rows) == 3
+                    assert contents['dog_eaten_homework.pdf'] == b'When in the course of human events, it becomes necessarf arf woof woof woof'
+                    assert csv_rows[0] == 'date_created,student_sid,student_name,author_uid,author_csid,author_name,' \
+                                          'subject,body,topics,attachments,is_private'
+                    assert csv_rows[1] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,700600500,,," \
+                                          'I am confounded by this confounding student,,dog_eaten_homework.pdf,False'
+                    assert csv_rows[2] == "2017-11-02,9000000000,Wolfgang Pauli-O'Rourke,,600500400,,," \
+                                          'Is this student even on campus?,Ne Scéaw,,False'
+                else:
+                    assert len(contents) == 1
+                    assert len(csv_rows) == 2
+                    assert csv_rows[0] == 'student_sid,student_name,eform_id,eform_type,requested_action,' \
+                                          'grading_basis,requested_grading_basis,units_taken,requested_units_taken,' \
+                                          'late_change_request_action,late_change_request_status,' \
+                                          'late_change_request_term,late_change_request_course,date_created,updated_at'
+                    assert csv_rows[1] == "9000000000,Wolfgang Pauli-O'Rourke,469118,SRLATEDROP," \
+                                          'Late Grading Basis Change,Elective Pass/No Pass,Graded,3,0.00,' \
+                                          'Late Grading Basis Change,In Error,Fall 2020,' \
+                                          '24460 PSYCH 110 - INTROD BIOL PSYCH 001,2020-12-05,2020-12-04'
 
 
 def _create_coe_advisor_note(
