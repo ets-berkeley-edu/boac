@@ -86,7 +86,7 @@ import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'InputTextAutocomplete',
+  name: 'Autocomplete',
   mixins: [Context, Util],
   props: {
     addSelection: {

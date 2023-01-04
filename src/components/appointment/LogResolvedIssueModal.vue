@@ -32,7 +32,7 @@
           <div v-if="!student">
             <div class="mb-2">
               <span id="log-resolved-issue-student-label" class="sr-only">Select student to resolve. Expect auto-suggest as you type name or SID.</span>
-              <InputTextAutocomplete
+              <Autocomplete
                 id="log-resolved-issue-student"
                 :key="resetAutoCompleteKey"
                 class="w-75"
@@ -95,9 +95,9 @@
 <script>
 import AppointmentStudentPill from '@/components/appointment/AppointmentStudentPill'
 import AppointmentTopics from '@/components/appointment/AppointmentTopics'
+import Autocomplete from '@/components/util/Autocomplete'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import ModalHeader from '@/components/util/ModalHeader'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
@@ -106,7 +106,7 @@ import {findStudentsByNameOrSid} from '@/api/student'
 
 export default {
   name: 'LogResolvedIssueModal',
-  components: {AppointmentStudentPill, AppointmentTopics, InputTextAutocomplete, ModalHeader, RichTextEditor},
+  components: {AppointmentStudentPill, AppointmentTopics, Autocomplete, ModalHeader, RichTextEditor},
   mixins: [Berkeley, Context, Util, Validator],
   props: {
     cancel: {
