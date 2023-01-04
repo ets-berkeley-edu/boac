@@ -16,6 +16,7 @@ export default {
 </script>
 
 <style>
-@import './assets/styles/bootstrap-overrides.css';
+@import './assets/styles/autocomplete-overrides.css';
 @import './assets/styles/boac-global.css';
+@import './assets/styles/bootstrap-overrides.css';
 </style>
