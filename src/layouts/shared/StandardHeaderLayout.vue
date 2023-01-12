@@ -1,6 +1,6 @@
 <template>
-  <div class="d-flex justify-content-between min-width-100 p-2">
-    <div class="align-self-center flex-grow-1">
+  <b-row class="header" no-gutters>
+    <b-col cols="auto" class="mr-auto mb-3 ml-2 mt-3">
       <a
         id="skip-to-content-link"
         href="#content"
@@ -22,40 +22,20 @@
           Online Advising
         </router-link>
       </div>
-    </div>
-    <div class="align-self-center">
-      <SearchForm :domain="searchDomain" />
-    </div>
-    <div class="align-self-center">
+    </b-col>
+    <b-col cols="auto" class="p-0 mt-2">
       <HeaderMenu />
-    </div>
-  </div>
+    </b-col>
+  </b-row>
 </template>
 
 <script>
 import HeaderMenu from '@/components/HeaderMenu'
-import SearchForm from '@/components/sidebar/SearchForm'
 
 export default {
   name: 'StandardHeaderLayout',
   components: {
-    HeaderMenu,
-    SearchForm
-  },
-  computed: {
-    searchDomain() {
-      const domain = ['students']
-      if (this.$currentUser.canAccessCanvasData) {
-        domain.push('courses')
-      }
-      if (this.$currentUser.canAccessAdvisingData) {
-        domain.push('notes')
-      }
-      if (this.$currentUser.canAccessAdmittedStudents) {
-        domain.push('admits')
-      }
-      return domain
-    }
+    HeaderMenu
   }
 }
 </script>
@@ -76,5 +56,8 @@ export default {
 .header-text h1 {
   font-size: inherit;
   font-weight: inherit;
+}
+.header {
+  background-color: #3b7ea5;
 }
 </style>

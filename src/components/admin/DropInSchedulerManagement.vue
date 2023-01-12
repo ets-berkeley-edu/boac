@@ -3,7 +3,7 @@
     <h2 class="page-section-header-sub">Drop-in Scheduler Management ({{ dept.name }})</h2>
     <div class="mb-2">
       <span id="add-scheduler-input-label" class="sr-only">Choose a scheduler. Expect auto-suggest as you type name or SID.</span>
-      <InputTextAutocomplete
+      <Autocomplete
         id="add-scheduler-input"
         class="w-50"
         :add-selection="addScheduler"
@@ -69,8 +69,8 @@
 </template>
 
 <script>
+import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
-import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import RemoveDropInSchedulerModal from '@/components/admin/RemoveDropInSchedulerModal'
 import Util from '@/mixins/Util'
 import {findStudentsByNameOrSid} from '@/api/student'
@@ -79,7 +79,7 @@ import {addDropInScheduler, removeDropInScheduler} from '@/api/user'
 export default {
   name: 'DropInSchedulerManagement',
   components: {
-    InputTextAutocomplete,
+    Autocomplete,
     RemoveDropInSchedulerModal
   },
   mixins: [Context, Util],
