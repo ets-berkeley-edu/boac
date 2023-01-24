@@ -1000,6 +1000,7 @@ def get_students_query(     # noqa
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
+    incomplete_grade=None,
     intended_majors=None,
     is_active_asc=None,
     is_active_coe=None,
@@ -1166,6 +1167,11 @@ def get_students_query(     # noqa
                              AND ser.term_id = %(term_id)s
                              AND ser.midpoint_deficient_grade = TRUE"""
         query_bindings.update({'term_id': current_term_id})
+    if incomplete_grade is True:
+        query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
+                             ON ser.sid = spi.sid
+                             AND ser.term_id >= '{earliest_term_id()}'
+                             AND ser.incomplete_grade = TRUE"""
     if minors:
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"
