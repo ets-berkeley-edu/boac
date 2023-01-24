@@ -414,6 +414,7 @@ def _query_students(
         gpa_ranges=criteria.get('gpaRanges'),
         group_codes=criteria.get('groupCodes'),
         in_intensive_cohort=criteria.get('inIntensiveCohort'),
+        incomplete_grade=criteria.get('incomplete'),
         include_profiles=include_profiles,
         intended_majors=criteria.get('intendedMajors'),
         is_active_asc=None if criteria.get('isInactiveAsc') is None else not criteria.get('isInactiveAsc'),

@@ -101,6 +101,7 @@ class CohortFilterOptions:
                 _filter('levels', 'Level', options=level_options()),
                 _filter('majors', 'Major', options=majors()),
                 _filter('minors', 'Minor', options=minors()),
+                _boolean_filter('incomplete', 'Incomplete Grade'),
                 _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
                 _boolean_filter('transfer', 'Transfer Student'),
                 _filter('unitRanges', 'Units Completed', options=unit_range_options()),

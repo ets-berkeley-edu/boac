@@ -24,10 +24,10 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 import json
+from unittest import mock
 
 from boac.models.user_login import UserLogin
 import cas
-import mock
 from tests.util import override_config, pause_mock_sts
 
 advisor_uid = '1133399'

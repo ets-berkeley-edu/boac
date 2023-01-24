@@ -1227,6 +1227,19 @@ class TestCohortPerFilters:
         sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['2345678901', '3456789012', '890127492']
 
+    def test_incomplete_grade_filter(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'incomplete', 'value': 'true'},
+                    {'key': 'academicCareerStatus', 'value': 'inactive'},
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['3141592653']
+
     def test_midpoint_deficient_grade_filter(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,
