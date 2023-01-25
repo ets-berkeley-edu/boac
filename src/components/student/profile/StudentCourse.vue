@@ -112,6 +112,11 @@
         </span>
       </div>
       <div :id="`term-${termId}-course-${index}-title`">{{ course.title }}</div>
+      <div v-if="course.courseRequirements">
+        <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
+          <font-awesome :icon="['far', 'star']" class="text-warning" /> {{ requirement }}
+        </div>
+      </div>
       <div v-if="$currentUser.canAccessCanvasData">
         <div
           v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
@@ -444,6 +449,10 @@ export default {
   line-height: 1.1;
   max-width: 90%;
   overflow: hidden;
+}
+.student-course-requirements {
+  font-size: 14px;
+  white-space: nowrap;
 }
 .student-course-row {
   display: flex;
