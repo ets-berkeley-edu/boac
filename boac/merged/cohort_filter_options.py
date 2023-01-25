@@ -80,13 +80,13 @@ class CohortFilterOptions:
         academic_standing_min_term = f'Fall {datetime.now().year - academic_standing_years_cutoff}'
         return {
             'Academic': [
+                _filter('academicDivisions', 'Academic Division', options=academic_division_options()),
                 _filter(
                     'academicStandings',
                     'Academic Standing',
                     options=academic_standing_options(min_term_id=sis_term_id_for_name(academic_standing_min_term)),
                 ),
                 _filter('academicCareerStatus', 'Career Status', options=academic_career_status_options()),
-                _filter('academicDivisions', 'Academic Division', options=academic_division_options()),
                 _filter('colleges', 'College', options=colleges()),
                 _filter('degrees', 'Degree Awarded', options=degrees()),
                 _filter('degreeTerms', 'Degree Term', options=degree_terms()),
@@ -97,12 +97,12 @@ class CohortFilterOptions:
                 _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
                 _filter('graduatePrograms', 'Graduate Plan', options=graduate_programs()),
                 _boolean_filter('studentHolds', 'Holds'),
+                _boolean_filter('incomplete', 'Incomplete Grade'),
                 _filter('intendedMajors', 'Intended Major', options=intended_majors()),
                 _filter('levels', 'Level', options=level_options()),
                 _filter('majors', 'Major', options=majors()),
-                _filter('minors', 'Minor', options=minors()),
-                _boolean_filter('incomplete', 'Incomplete Grade'),
                 _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
+                _filter('minors', 'Minor', options=minors()),
                 _boolean_filter('transfer', 'Transfer Student'),
                 _filter('unitRanges', 'Units Completed', options=unit_range_options()),
             ],
