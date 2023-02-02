@@ -1,10 +1,7 @@
 <template>
-  <h2
-    v-if="show"
-    class="font-size-16 has-error mb-0 py-1"
-  >
-    <span class="font-weight-700">Note:</span> Admit data was
-    last updated on {{ $options.filters.moment(localUpdatedAt, 'MMM D, YYYY') }}
+  <h2 v-if="show" class="font-size-16 has-error mb-0 py-1">
+    <span class="has-error mr-1"><font-awesome icon="exclamation-triangle" /></span>
+    Admit data was last updated on {{ $options.filters.moment(localUpdatedAt, 'MMM D, YYYY') }}
   </h2>
 </template>
 
