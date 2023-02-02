@@ -1,6 +1,6 @@
 <template>
-  <b-row class="header" no-gutters>
-    <b-col cols="auto" class="mr-auto mb-3 ml-2 mt-3">
+  <div class="d-flex justify-content-between min-width-100 p-2">
+    <div class="align-self-center flex-grow-1">
       <a
         id="skip-to-content-link"
         href="#content"
@@ -22,19 +22,24 @@
           Online Advising
         </router-link>
       </div>
-    </b-col>
-    <b-col cols="auto" class="p-0 mt-2">
+    </div>
+    <div class="align-self-center">
+      <BasicSearch />
+    </div>
+    <div class="align-self-center">
       <HeaderMenu />
-    </b-col>
-  </b-row>
+    </div>
+  </div>
 </template>
 
 <script>
-import HeaderMenu from '@/components/HeaderMenu'
+import BasicSearch from '@/components/header/BasicSearch'
+import HeaderMenu from '@/components/header/HeaderMenu'
 
 export default {
   name: 'StandardHeaderLayout',
   components: {
+    BasicSearch,
     HeaderMenu
   }
 }
@@ -56,8 +61,5 @@ export default {
 .header-text h1 {
   font-size: inherit;
   font-weight: inherit;
-}
-.header {
-  background-color: #3b7ea5;
 }
 </style>

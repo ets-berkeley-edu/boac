@@ -303,7 +303,7 @@ const router = new Router({
           },
           path: '/404',
           component: NotFound,
-          name: 'Page not found'
+          name: '404'
         },
         {
           path: '*',
