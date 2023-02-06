@@ -96,7 +96,11 @@ export default {
     },
     sortDate(message) {
       if (message.type === 'appointment' || message.type === 'note') {
-        return message.setDate || message.createdAt
+        if (message.setDate) {
+          return this.$moment(message.setDate).tz(this.$config.timezone).utc().format()
+        } else {
+          return message.createdAt
+        }
       } else {
         return message.updatedAt || message.createdAt
       }
