@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="mb-2">
-      <Autocomplete
+      <InputTextAutocomplete
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
         class="w-75"
@@ -55,15 +55,15 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete'
 import Context from '@/mixins/Context'
+import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import Util from '@/mixins/Util'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchNoteAddStudent',
   components: {
-    Autocomplete
+    InputTextAutocomplete
   },
   mixins: [Context, Util],
   props: {

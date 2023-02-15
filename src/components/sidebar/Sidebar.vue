@@ -1,8 +1,5 @@
 <template>
-  <div>
-    <div>
-      <SearchForm :domain="searchDomain" />
-    </div>
+  <div class="pt-3">
     <div role="navigation" aria-label="Cohorts and Curated Groups">
       <div v-if="myCohorts">
         <Cohorts :cohorts="myCohorts" />
@@ -71,7 +68,6 @@ import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
-import SearchForm from '@/components/sidebar/SearchForm.vue'
 
 export default {
   name: 'Sidebar',
@@ -79,32 +75,15 @@ export default {
     Cohorts,
     CreateNoteModal,
     CuratedGroups,
-    MyAdmitCohorts,
-    SearchForm
+    MyAdmitCohorts
   },
   mixins: [Context, Util],
   data: () => ({
     isCreateNoteModalOpen: false
   }),
   computed: {
-    searchDomain() {
-      const domain = ['students']
-      if (this.$currentUser.canAccessCanvasData) {
-        domain.push('courses')
-      }
-      if (this.$currentUser.canAccessAdvisingData) {
-        domain.push('notes')
-      }
-      if (this.$currentUser.canAccessAdmittedStudents) {
-        domain.push('admits')
-      }
-      return domain
-    },
     myAdmitCohorts() {
       return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
-    },
-    myAdmitCuratedGroups() {
-      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', 'admitted_students'])
     },
     myCohorts() {
       return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
@@ -122,12 +101,6 @@ export default {
 <style>
 .batch-note-button {
   width: 17%;
-}
-.section-divider {
-  background-color: #4a90e2;
-  border: none;
-  color: #4a90e2;
-  height: 1px;
 }
 .sidebar-header {
   color: #fff;

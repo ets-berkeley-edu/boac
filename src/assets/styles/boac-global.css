@@ -279,6 +279,12 @@
   font-size: 12px;
   font-weight: bold;
 }
+.section-divider {
+  background-color: #4a90e2;
+  border: none;
+  color: #4a90e2;
+  height: 1px;
+}
 .service-announcement {
   background-color: #f0ad4e;
   font-weight: 500;

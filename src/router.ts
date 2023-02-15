@@ -22,7 +22,7 @@ const NotFound = () => import('@/views/NotFound.vue')
 const PassengerManifest = () => import('@/views/PassengerManifest.vue')
 const PrintableDegreeTemplate = () => import('@/views/degree/PrintableDegreeTemplate.vue')
 const Profile = () => import('@/views/Profile.vue')
-const Search = () => import('@/views/Search.vue')
+const SearchResults = () => import('@/views/SearchResults.vue')
 const StandardLayout = () => import('@/layouts/StandardLayout.vue')
 const Student = () => import('@/views/Student.vue')
 const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
@@ -132,7 +132,7 @@ const router = new Router({
         },
         {
           path: '/search',
-          component: Search,
+          component: SearchResults,
           name: 'Search'
         },
         {
@@ -303,7 +303,7 @@ const router = new Router({
           },
           path: '/404',
           component: NotFound,
-          name: 'Page not found'
+          name: '404'
         },
         {
           path: '*',

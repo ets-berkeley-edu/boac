@@ -1,25 +1,15 @@
 <template>
   <div>
-    <div v-if="totalCourseCount">
-      <h1
-        v-if="renderPrimaryHeader"
-        id="course-results-page-h1"
-        class="page-section-header"
-      >
-        {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
-      </h1>
-      <h2
-        v-if="!renderPrimaryHeader"
-        id="course-results-page-h2"
-        class="page-section-header"
-      >
-        {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
-      </h2>
-      <div v-if="courses.length < totalCourseCount">
-        Showing the first {{ courses.length }} classes.
-      </div>
+    <h2
+      id="course-results-page-h1"
+      :class="headerClassName"
+    >
+      {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ queryText }}'
+    </h2>
+    <div v-if="courses.length < totalCourseCount">
+      Showing the first {{ courses.length }} classes.
     </div>
-    <table v-if="totalCourseCount" class="table-full-width">
+    <table class="table-full-width">
       <tr>
         <th>
           <button
@@ -70,16 +60,25 @@
 
 <script>
 import Context from '@/mixins/Context'
+import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SortableCourseList',
-  mixins: [Context, Util],
+  mixins: [Context, SearchSession, Util],
   props: {
-    searchPhrase: String,
-    courses: Array,
-    totalCourseCount: Number,
-    renderPrimaryHeader: Boolean
+    courses: {
+      required: true,
+      type: Array
+    },
+    headerClassName: {
+      required: true,
+      type: String
+    },
+    totalCourseCount: {
+      required: true,
+      type: Number
+    }
   },
   data: () => ({
     sort: {

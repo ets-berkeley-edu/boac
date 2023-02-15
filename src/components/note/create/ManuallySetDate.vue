@@ -63,3 +63,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.search-input-date {
+  margin-bottom: 10px;
+}
+</style>

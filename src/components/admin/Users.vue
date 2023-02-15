@@ -17,7 +17,7 @@
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
-          <Autocomplete
+          <InputTextAutocomplete
             id="search-user"
             v-model="userSelection"
             class="w-50"
@@ -279,16 +279,16 @@
 </template>
 
 <script>
-import Autocomplete from '@/components/util/Autocomplete'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
+import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import Util from '@/mixins/Util'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
 
 export default {
   name: 'Users',
-  components: {Autocomplete, EditUserProfileModal},
+  components: {EditUserProfileModal, InputTextAutocomplete},
   mixins: [Berkeley, Context, Util],
   props: {
     departments: {

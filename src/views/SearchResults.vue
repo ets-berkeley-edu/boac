@@ -1,79 +1,29 @@
 <template>
   <div class="m-3">
     <Spinner />
-    <div v-if="loading || (results.totalStudentCount || results.totalCourseCount || results.totalAdmitCount || $_.size(results.notes) || $_.size(results.appointments))">
-      <h1 id="page-header" class="sr-only" tabindex="-1">Search Results</h1>
-    </div>
-    <div v-if="!loading && !results.totalStudentCount && !results.totalCourseCount && !results.totalAdmitCount && !$_.size(results.notes) && !$_.size(results.appointments)">
-      <h1 id="page-header-no-results" class="page-section-header" tabindex="-1">
-        No results<span v-if="phrase"> matching '{{ phrase }}'</span>
-      </h1>
-      <div>Suggestions:</div>
-      <ul>
-        <li>Keep your search term simple.</li>
-        <li>Check your spelling and try again.</li>
-        <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
-        <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
-        <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
-        <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
-      </ul>
-    </div>
+    <SearchResultsHeader :results="results" />
     <div v-if="!loading && $_.size(results.admits)">
-      <h2 id="admit-results-page-header" class="page-section-header">
-        {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
-      </h2>
-      <div v-if="$_.size(results.admits) < results.totalAdmitCount">
-        Showing the first {{ $_.size(results.admits) }} admitted students.
-      </div>
-      <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
-      <div class="search-header-curated-cohort">
-        <CuratedGroupSelector
-          context-description="Search"
-          domain="admitted_students"
-          :students="results.admits"
-        />
-      </div>
-      <div>
-        <SortableAdmits :admitted-students="results.admits" />
-      </div>
+      <hr class="section-divider" />
+      <AdmittedStudentResults :results="results" />
     </div>
     <div v-if="!loading && results.totalStudentCount">
-      <h2 id="student-results-page-header" class="page-section-header">
-        {{ pluralize('student', results.totalStudentCount) }}<span v-if="phrase">  matching '{{ phrase }}'</span>
-      </h2>
-      <div v-if="results.totalStudentCount > studentLimit">
-        Showing the first {{ studentLimit }} students.
-      </div>
-    </div>
-    <div v-if="!loading && results.totalStudentCount">
-      <div class="search-header-curated-cohort">
-        <CuratedGroupSelector
-          context-description="Search"
-          domain="default"
-          :students="results.students"
-        />
-      </div>
-      <div>
-        <SortableStudents
-          domain="default"
-          :students="results.students"
-          :options="studentListOptions"
-        />
-      </div>
+      <hr class="section-divider" />
+      <StudentResults :results="results" />
     </div>
     <div v-if="!loading && results.totalCourseCount" class="pt-4">
+      <hr class="section-divider" />
       <SortableCourseList
-        :search-phrase="phrase"
         :courses="results.courses"
+        :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes) ? 'page-section-header' : 'font-size-18'"
         :total-course-count="results.totalCourseCount"
-        :render-primary-header="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes)"
       />
     </div>
     <div v-if="!loading && $_.size(results.notes)" class="pt-4">
-      <h2 id="search-results-category-header-notes" class="page-section-header">
+      <hr class="section-divider" />
+      <h2 id="note-results-page-header" class="font-size-18">
         {{ $_.size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ $_.size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-        <span v-if="phrase"> with '{{ phrase }}'</span>
+        <span v-if="queryText"> with '{{ queryText }}'</span>
       </h2>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
@@ -93,10 +43,11 @@
       </div>
     </div>
     <div v-if="!loading && $_.size(results.appointments)" class="pt-4">
-      <h2 id="search-results-category-header-appointments" class="page-section-header">
+      <hr class="section-divider" />
+      <h2 id="appointment-results-page-header" class="font-size-18">
         {{ $_.size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ $_.size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
-        <span v-if="phrase"> with '{{ phrase }}'</span>
+        <span v-if="queryText"> with '{{ queryText }}'</span>
       </h2>
       <AppointmentSnippet
         v-for="appointment in results.appointments"
@@ -119,34 +70,33 @@
 </template>
 
 <script>
-import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
+import AdmittedStudentResults from '@/components/search/AdmittedStudentResults'
+import SearchResultsHeader from '@/components/search/SearchResultsHeader'
+import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import SortableAdmits from '@/components/admit/SortableAdmits'
 import SortableCourseList from '@/components/course/SortableCourseList'
-import SortableStudents from '@/components/search/SortableStudents'
 import Spinner from '@/components/util/Spinner'
+import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
 import {search, searchAdmittedStudents} from '@/api/search'
 
 export default {
-  name: 'Search',
+  name: 'SearchResults',
   components: {
-    AdmitDataWarning,
+    AdmittedStudentResults,
     AdvisingNoteSnippet,
     AppointmentSnippet,
+    SearchResultsHeader,
     SectionSpinner,
-    CuratedGroupSelector,
-    SortableAdmits,
     SortableCourseList,
-    SortableStudents,
-    Spinner
+    Spinner,
+    StudentResults
   },
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Loading, SearchSession, Util],
   data: () => ({
     appointmentOptions: {
       limit: 20,
@@ -166,7 +116,6 @@ export default {
       limit: 20,
       offset: 0
     },
-    phrase: null,
     results: {
       admits: null,
       appointments: null,
@@ -175,12 +124,6 @@ export default {
       students: null,
       totalCourseCount: null,
       totalStudentCount: null
-    },
-    studentLimit: 50,
-    studentListOptions: {
-      includeCuratedCheckbox: true,
-      sortBy: 'lastName',
-      reverse: false
     }
   }),
   computed: {
@@ -192,7 +135,7 @@ export default {
     }
   },
   mounted() {
-    this.phrase = this.$route.query.q
+    this.queryText = this.$route.query.q || this.queryText
     const includeAdmits = this.toBoolean(this.$route.query.admits)
     const includeCourses = this.toBoolean(this.$route.query.courses)
     const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
@@ -205,13 +148,13 @@ export default {
       this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo
     }
-    if (this.phrase || includeNotesAndAppointments) {
-      this.$announcer.polite(`Searching for '${this.phrase}'`)
+    if (this.queryText || includeNotesAndAppointments) {
+      this.$announcer.polite(`Searching for '${this.queryText}'`)
       let queries = []
       if (includeCourses || includeNotesAndAppointments || includeStudents) {
         queries.push(
           search(
-            this.phrase,
+            this.queryText,
             includeNotesAndAppointments,
             includeCourses,
             includeNotesAndAppointments,
@@ -221,8 +164,8 @@ export default {
           )
         )
       }
-      if (includeAdmits && this.$_.trim(this.phrase)) {
-        queries.push(searchAdmittedStudents(this.phrase))
+      if (includeAdmits && this.$_.trim(this.queryText)) {
+        queries.push(searchAdmittedStudents(this.queryText))
       }
       Promise.all(queries).then(responses => {
         this.$_.each(responses, (response) => this.$_.merge(this.results, response))
@@ -257,7 +200,7 @@ export default {
       this.appointmentOptions.limit = 20
       this.loadingAdditionalAppointments = true
       search(
-        this.phrase,
+        this.queryText,
         true,
         false,
         false,
@@ -275,7 +218,7 @@ export default {
       this.noteOptions.limit = 20
       this.loadingAdditionalNotes = true
       search(
-        this.phrase,
+        this.queryText,
         false,
         false,
         true,
@@ -291,13 +234,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.search-header-curated-cohort {
-  align-items: center;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  padding: 20px 0 10px 0;
-}
-</style>

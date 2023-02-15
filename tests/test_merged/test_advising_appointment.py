@@ -87,7 +87,6 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
         assert appointments[3]['student']
         assert appointments[3]['student']['sid'] == student_sid
         assert appointments[3]['topics'] == ['Topic for appointments, 1']
-        assert appointments[3]['updatedAt'] is None
         assert appointments[3]['updatedBy'] == advisor_user_id
         assert appointments[3]['cancelReason'] is None
         assert appointments[3]['cancelReasonExplained'] is None

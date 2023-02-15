@@ -1,6 +1,8 @@
 <template>
   <b-container class="h-100 p-0" fluid>
-    <StandardHeaderLayout role="banner" />
+    <b-row class="header" no-gutters>
+      <StandardHeaderLayout role="banner" />
+    </b-row>
     <b-row class="row-content" no-gutters>
       <b-col class="sidebar" sm="2">
         <Sidebar />
@@ -51,6 +53,9 @@ export default {
 <style scoped>
 .body-text {
   font-size: 16px;
+}
+.header {
+  background-color: #3b7ea5;
 }
 .row-content {
   min-height: 82%;
