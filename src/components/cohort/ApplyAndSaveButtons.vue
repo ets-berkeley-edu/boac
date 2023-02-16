@@ -79,10 +79,10 @@ export default {
       this.$eventHub.emit('cohort-apply-filters')
       this.isPerforming = 'search'
       this.$announcer.polite('Searching for students')
-      this.applyFilters(
-        this.$_.get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
-        this.$_.get(this.$currentUser.preferences, 'termId')
-      ).then(() => {
+      this.applyFilters({
+        orderBy: this.$_.get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        termId: this.$_.get(this.$currentUser.preferences, 'termId')
+      }).then(() => {
         this.$putFocusNextTick('cohort-results-header')
         this.$announcer.polite(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.isPerforming = null
