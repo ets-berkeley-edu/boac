@@ -9,6 +9,7 @@ export default {
   name: 'SearchSession',
   computed: {
     ...mapGetters('search', [
+      'autocompleteInputResetKey',
       'domain',
       'isFocusOnSearch',
       'topicOptions'
@@ -83,6 +84,7 @@ export default {
     ...mapActions('search', [
       'init',
       'resetAdvancedSearch',
+      'resetAutocompleteInput',
       'setAuthor',
       'setFromDate',
       'setIsFocusOnSearch',
