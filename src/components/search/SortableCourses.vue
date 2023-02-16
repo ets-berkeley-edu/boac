@@ -4,7 +4,7 @@
       id="course-results-page-h1"
       :class="headerClassName"
     >
-      {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ queryText }}'
+      {{ pluralize('class', totalCourseCount, {1: '1'}, 'es') }} matching '{{ searchPhrase }}'
     </h2>
     <div v-if="courses.length < totalCourseCount">
       Showing the first {{ courses.length }} classes.
@@ -60,12 +60,11 @@
 
 <script>
 import Context from '@/mixins/Context'
-import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 
 export default {
-  name: 'SortableCourseList',
-  mixins: [Context, SearchSession, Util],
+  name: 'SortableCourses',
+  mixins: [Context, Util],
   props: {
     courses: {
       required: true,
@@ -74,6 +73,11 @@ export default {
     headerClassName: {
       required: true,
       type: String
+    },
+    searchPhrase: {
+      required: true,
+      type: String,
+      validator: v => typeof v === 'string' || [null, undefined].includes(v)
     },
     totalCourseCount: {
       required: true,

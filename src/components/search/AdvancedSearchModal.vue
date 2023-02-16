@@ -236,7 +236,7 @@
             <b-btn
               id="advanced-search"
               class="btn-primary-color-override"
-              :disabled="allOptionsUnchecked"
+              :disabled="allOptionsUnchecked || (searchInputRequired && !queryText)"
               variant="primary"
               @click.prevent="search"
             >

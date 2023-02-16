@@ -58,13 +58,26 @@
               variant="link"
               @click.prevent="openAdvancedSearch"
             >
-              <font-awesome class="text-white" icon="sliders-h" size="lg" />
+              <font-awesome
+                class="text-white"
+                icon="sliders-h"
+                size="lg"
+                title="Advanced search options"
+              />
             </b-btn>
+            <b-popover
+              placement="bottom"
+              target="search-options-panel-toggle"
+              triggers="hover"
+              variant="primary"
+            >
+              Advanced search options
+            </b-popover>
           </div>
           <div>
             <b-button
               id="go-search"
-              class="h-100 mr-3 text-white"
+              class="h-100 mr-3"
               variant="outline-light"
               @keydown.enter="search"
               @click.stop="search"
