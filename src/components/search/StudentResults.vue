@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 id="student-results-page-header" class="font-size-18">
-      {{ pluralize('student', results.totalStudentCount) }}<span v-if="queryText">  matching '{{ queryText }}'</span>
+      {{ pluralize('student', results.totalStudentCount) }}<span v-if="searchPhrase">  matching '{{ searchPhrase }}'</span>
     </h2>
     <div v-if="results.totalStudentCount > studentLimit" class="mb-2">
       Showing the first {{ studentLimit }} students.
@@ -25,13 +25,12 @@
 
 <script>
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import SortableStudents from '@/components/search/SortableStudents'
 
 export default {
   name: 'StudentResults',
-  mixins: [SearchSession, Util],
+  mixins: [Util],
   components: {
     CuratedGroupSelector,
     SortableStudents,
@@ -40,6 +39,11 @@ export default {
     results: {
       required: true,
       type: Object
+    },
+    searchPhrase: {
+      required: true,
+      type: String,
+      validator: v => typeof v === 'string' || [null, undefined].includes(v)
     }
   },
   data: () => ({

@@ -1,7 +1,7 @@
 <template>
   <div>
     <h2 id="admit-results-page-header" class="font-size-18">
-      {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="queryText">  matching '{{ queryText }}'</span>
+      {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="searchPhrase">  matching '{{ searchPhrase }}'</span>
     </h2>
     <div class="mb-2 ml-1">
       <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
@@ -23,13 +23,12 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import SearchSession from '@/mixins/SearchSession'
 import SortableAdmits from '@/components/admit/SortableAdmits'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmittedStudentResults',
-  mixins: [SearchSession, Util],
+  mixins: [Util],
   components: {
     AdmitDataWarning,
     CuratedGroupSelector,
@@ -39,6 +38,11 @@ export default {
     results: {
       required: true,
       type: Object
+    },
+    searchPhrase: {
+      required: true,
+      type: String,
+      validator: v => typeof v === 'string' || [null, undefined].includes(v)
     }
   }
 }

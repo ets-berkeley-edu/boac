@@ -4,17 +4,24 @@
     <SearchResultsHeader :results="results" />
     <div v-if="!loading && $_.size(results.admits)">
       <hr class="section-divider" />
-      <AdmittedStudentResults :results="results" />
+      <AdmittedStudentResults
+        :results="results"
+        :search-phrase="searchPhraseSubmitted"
+      />
     </div>
     <div v-if="!loading && results.totalStudentCount">
       <hr class="section-divider" />
-      <StudentResults :results="results" />
+      <StudentResults
+        :results="results"
+        :search-phrase="searchPhraseSubmitted"
+      />
     </div>
     <div v-if="!loading && results.totalCourseCount" class="pt-4">
       <hr class="section-divider" />
-      <SortableCourseList
+      <SortableCourses
         :courses="results.courses"
         :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes) ? 'page-section-header' : 'font-size-18'"
+        :search-phrase="searchPhraseSubmitted"
         :total-course-count="results.totalCourseCount"
       />
     </div>
@@ -23,7 +30,7 @@
       <h2 id="note-results-page-header" class="font-size-18">
         {{ $_.size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
         {{ $_.size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
-        <span v-if="queryText"> with '{{ queryText }}'</span>
+        <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
       </h2>
       <AdvisingNoteSnippet
         v-for="advisingNote in results.notes"
@@ -47,7 +54,7 @@
       <h2 id="appointment-results-page-header" class="font-size-18">
         {{ $_.size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
         {{ $_.size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
-        <span v-if="queryText"> with '{{ queryText }}'</span>
+        <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
       </h2>
       <AppointmentSnippet
         v-for="appointment in results.appointments"
@@ -78,7 +85,7 @@ import AdmittedStudentResults from '@/components/search/AdmittedStudentResults'
 import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
-import SortableCourseList from '@/components/course/SortableCourseList'
+import SortableCourses from '@/components/search/SortableCourses'
 import Spinner from '@/components/util/Spinner'
 import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
@@ -92,7 +99,7 @@ export default {
     AppointmentSnippet,
     SearchResultsHeader,
     SectionSpinner,
-    SortableCourseList,
+    SortableCourses,
     Spinner,
     StudentResults
   },
@@ -124,7 +131,8 @@ export default {
       students: null,
       totalCourseCount: null,
       totalStudentCount: null
-    }
+    },
+    searchPhraseSubmitted: undefined
   }),
   computed: {
     completeAppointmentResults() {
@@ -135,7 +143,10 @@ export default {
     }
   },
   mounted() {
+    // Update 'queryText' in Vuex store per 'q' arg. If arg is null then preserve existing 'queryText' value.
     this.queryText = this.$route.query.q || this.queryText
+    // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
+    this.searchPhraseSubmitted = this.queryText
     const includeAdmits = this.toBoolean(this.$route.query.admits)
     const includeCourses = this.toBoolean(this.$route.query.courses)
     const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
