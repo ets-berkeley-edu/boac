@@ -4,7 +4,7 @@
       <div class="mr-2">
         <h1 class="page-section-header">Search Results</h1>
       </div>
-      <div v-if="!loading" class="pb-1">
+      <div v-if="!loading && (queryText || author || fromDate || toDate || postedBy !== 'anyone' || student || topic)" class="pb-1">
         [<b-btn
           id="edit-search-btn"
           class="px-0"
