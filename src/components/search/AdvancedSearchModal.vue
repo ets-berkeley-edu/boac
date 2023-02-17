@@ -46,7 +46,7 @@
           placeholder="Search"
           :search="onChangeAutocomplete"
           type="search"
-          @keypress.enter.prevent="$_.noop"
+          @keydown.enter="search"
           @submit="onSubmitAutocomplete"
         >
           <template #result="{result, props}">
@@ -83,6 +83,7 @@
                   <div class="mr-2">
                     <b-form-radio
                       id="search-options-note-filters-posted-by-anyone"
+                      class="z-index-0"
                       :ischecked="postedBy === 'anyone'"
                       name="note-filters-posted-by"
                       value="anyone"
@@ -93,6 +94,7 @@
                   <div>
                     <b-form-radio
                       id="search-options-note-filters-posted-by-you"
+                      class="z-index-0"
                       :ischecked="postedBy === 'you'"
                       name="note-filters-posted-by"
                       value="you"
@@ -403,5 +405,11 @@ export default {
 #advanced-search-students-input {
   border:  1px solid #337ab7;
   height: 64px;
+}
+</style>
+
+<style scoped>
+.z-index-0 {
+  z-index: 0;
 }
 </style>
