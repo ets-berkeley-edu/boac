@@ -16,20 +16,17 @@
       </div>
     </div>
     <div v-if="!loading">
-      <div class="font-weight-500" v-html="description" />
+      <div class="font-weight-500 py-2" v-html="description" />
       <div v-if="!hasSearchResults" id="page-header-no-results">
-        No matching records found.
-        <div v-if="!hasSearchResults">
-          <div>Suggestions:</div>
-          <ul>
-            <li>Keep your search term simple.</li>
-            <li>Check your spelling and try again.</li>
-            <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
-            <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
-            <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
-            <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
-          </ul>
-        </div>
+        <div>Suggestions:</div>
+        <ul>
+          <li>Keep your search term simple.</li>
+          <li>Check your spelling and try again.</li>
+          <li>Search classes by section title, e.g., <strong>AMERSTD 10</strong>.</li>
+          <li>Avoid using generic terms, such as <strong>test</strong> or <strong>enrollment</strong>.</li>
+          <li>Longer search terms may refine results; <strong>registration fees</strong> instead of <strong>registration</strong>.</li>
+          <li>Abbreviations of section titles may not return results; <strong>COMPSCI 161</strong> instead of <strong>CS 161</strong>.</li>
+        </ul>
       </div>
     </div>
   </div>
@@ -52,13 +49,11 @@ export default {
   computed: {
     description() {
       const phrases = []
+      let total = 0
       const push = (noun, count, included) => {
         if (included) {
-          const substituitions = {
-            '0': phrases.length ? '<i>zero</i>' : 'Zero',
-            '1': phrases.length ? 'one' : 'One'
-          }
-          const phrase = this.pluralize(noun, count, substituitions)
+          total += count
+          const phrase = this.pluralize(noun, count, {'0': '<i>zero</i>', '1': 'one'})
           phrases.push(count ? `<a href="#${noun}-results-page-header">${phrase}</a>` : phrase)
         }
       }
@@ -67,7 +62,7 @@ export default {
       push('course', this.results.totalCourseCount, this.includeStudents)
       push('note', this.$_.size(this.results.notes), this.includeStudents)
       push('appointment', this.$_.size(this.results.appointments), this.includeStudents)
-      return `Results include ${this.oxfordJoin(phrases)}`
+      return total ? `Results include ${this.oxfordJoin(phrases)}` : 'No matching records found.'
     },
     hasSearchResults() {
       return this.results.totalStudentCount

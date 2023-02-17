@@ -5,7 +5,7 @@
     hide-footer
     hide-header
     size="lg"
-    @hidden="cancel"
+    @hidden="onHidden"
   >
     <div>
       <div class="align-items-center d-flex justify-content-between my-2">
@@ -36,6 +36,7 @@
         </span>
         <Autocomplete
           id="advanced-search-students-input"
+          :key="autocompleteInputResetKey"
           aria-labelledby="search-input-label"
           :aria-required="searchInputRequired"
           :base-class="validDateRange === false ? 'disabled' : 'autocomplete'"
@@ -231,7 +232,18 @@
         </div>
       </transition>
       <div class="mb-2 w-100">
-        <div class="justify-content-end d-flex">
+        <div class="align-items-center d-flex">
+          <div v-if="includeNotes" class="flex-grow-1">
+            <b-btn
+              v-if="queryText || author || fromDate || toDate || postedBy !== 'anyone' || student || topic"
+              id="reset-advanced-search-form-btn"
+              size="sm"
+              variant="link"
+              @click="reset"
+            >
+              Reset
+            </b-btn>
+          </div>
           <div class="pr-2">
             <b-btn
               id="advanced-search"
@@ -278,12 +290,6 @@ export default {
     InputTextAutocomplete
   },
   mixins: [Context, Scrollable, SearchSession, Util],
-  props: {
-    onCancel: {
-      required: true,
-      type: Function
-    }
-  },
   data: () => ({
     searchHistory: []
   }),
@@ -307,8 +313,7 @@ export default {
   },
   methods: {
     cancel() {
-      this.showAdvancedSearch = false
-      this.onCancel()
+      this.onHidden()
       setTimeout(this.resetAdvancedSearch, 100)
     },
     findAdvisorsByName,
@@ -318,6 +323,10 @@ export default {
       const q = this.$_.trim(input && input.toLowerCase())
       return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     },
+    onHidden() {
+      this.showAdvancedSearch = false
+      this.resetAutocompleteInput()
+    },
     onSubmitAutocomplete(value) {
       const query = this.$_.trim(value || this.queryText)
       if (query.length) {
@@ -325,6 +334,10 @@ export default {
         this.queryText = el && el.value
         this.search()
       }
+    },
+    reset() {
+      this.queryText = ''
+      this.resetAdvancedSearch()
     },
     search() {
       const q = this.$_.trim(this.queryText)

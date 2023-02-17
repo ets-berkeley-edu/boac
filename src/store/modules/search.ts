@@ -5,6 +5,7 @@ import {getAllTopics} from '@/api/topics'
 
 const state = {
   author: null,
+  autocompleteInputResetKey: 0,
   domain: undefined,
   fromDate: null,
   includeAdmits: undefined,
@@ -24,6 +25,7 @@ const state = {
 
 const getters = {
   author: (state: any): string => state.author,
+  autocompleteInputResetKey: (state: any): any => state.autocompleteInputResetKey,
   domain: (state: any): string[] => state.domain,
   fromDate: (state: any): string => state.fromDate,
   includeAdmits: (state: any): boolean => state.includeAdmits,
@@ -59,6 +61,11 @@ const mutations = {
     state.postedBy = 'anyone'
     state.student = null
     state.queryText = queryText
+    if (!state.queryText) {
+      // Our third-party "autocomplete" component does not have a reset hook.
+      // We reset its text-input by triggering a component reload with a :key change.
+      state.autocompleteInputResetKey++
+    }
     state.toDate = null
     state.topic = null
     state.includeAdmits = domain.includes('admits')
@@ -66,6 +73,7 @@ const mutations = {
     state.includeNotes = domain.includes('notes')
     state.includeStudents = domain.includes('students')
   },
+  resetAutocompleteInput: (state: any) => state.autocompleteInputResetKey++,
   setDomain: (state: any, domain: string) => state.domain = domain,
   setAuthor: (state: any, value: string) => state.author = value,
   setFromDate: (state: any, value: string) => state.fromDate = value,
@@ -107,6 +115,7 @@ const actions = {
     })
   },
   resetAdvancedSearch: ({commit}) => commit('resetAdvancedSearch'),
+  resetAutocompleteInput: ({commit}) => commit('resetAutocompleteInput'),
   setAuthor: ({commit}, value: string) => commit('setAuthor', value),
   setFromDate: ({commit}, value: string) => commit('setFromDate', value),
   setIsFocusOnSearch: ({commit}, value: boolean) => commit('setIsFocusOnSearch', value),

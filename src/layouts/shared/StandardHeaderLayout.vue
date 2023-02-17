@@ -13,6 +13,7 @@
           <div>
             <Autocomplete
               id="search-students-input"
+              :key="autocompleteInputResetKey"
               aria-labelledby="search-input-label"
               base-class="autocomplete"
               :class="{
@@ -86,7 +87,7 @@
             </b-button>
           </div>
         </div>
-        <AdvancedSearchModal :on-cancel="$_.noop" />
+        <AdvancedSearchModal />
       </b-col>
       <b-col align-self="center" cols="1">
         <HeaderMenu class="float-right" />
