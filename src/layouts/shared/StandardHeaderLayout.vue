@@ -22,13 +22,13 @@
                 'search-focus-out': !isFocusOnSearch
               }"
               :default-value="queryText"
+              :disabled="isSearching"
               name="q"
               placeholder="/ to search"
               :search="onChangeAutocomplete"
               type="search"
-              @keypress.enter.prevent="$_.noop"
+              @keydown.enter.prevent="search"
               @submit="onSubmitAutocomplete"
-              @keydown.enter="search"
               @focusin="onFocusInSearch"
               @focusout="onFocusOutSearch"
             >
@@ -83,7 +83,13 @@
               @keydown.enter="search"
               @click.stop="search"
             >
-              Search
+              <span v-if="isSearching">
+                <b-spinner class="mr-1" small></b-spinner>
+                Searching
+              </span>
+              <span v-if="!isSearching">
+                Search
+              </span>
             </b-button>
           </div>
         </div>
@@ -111,7 +117,6 @@ export default {
   components: {AdvancedSearchModal, Autocomplete, HeaderBranding, HeaderMenu},
   mixins: [Context, Scrollable, SearchSession, Util],
   data: () => ({
-    searchHistory: [],
     showErrorPopover: false
   }),
   created() {

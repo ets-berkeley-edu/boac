@@ -13,6 +13,7 @@ const state = {
   includeNotes: undefined,
   includeStudents: undefined,
   isFocusOnSearch: false,
+  isSearching: false,
   postedBy: 'anyone',
   queryText: undefined,
   searchHistory: [],
@@ -33,8 +34,10 @@ const getters = {
   includeNotes: (state: any): boolean => state.includeNotes,
   includeStudents: (state: any): boolean => state.includeStudents,
   isFocusOnSearch: (state: any): boolean => state.isFocusOnSearch,
+  isSearching: (state: any): boolean => state.isSearching,
   postedBy: (state: any): string => state.postedBy,
   queryText: (state: any): string => state.queryText,
+  searchHistory: (state: any): boolean => state.searchHistory,
   showAdvancedSearch: (state: any): boolean => state.showAdvancedSearch,
   student: (state: any): string => state.student,
   toDate: (state: any): string => state.toDate,
@@ -86,7 +89,8 @@ const mutations = {
   setIncludeNotes: (state: any, value: boolean) => state.includeNotes = value,
   setIncludeStudents: (state: any, value: boolean) => state.includeStudents = value,
   setIsFocusOnSearch: (state: any, value: boolean) => state.isFocusOnSearch = value,
-  setSearchHistory: (state: any, searchHistory: any[]) => state.searchHistory = searchHistory,
+  setIsSearching: (state: any, value: boolean) => state.isSearching = value,
+  setSearchHistory: (state: any, history: string[]) => state.searchHistory = history,
   setShowAdvancedSearch: (state: any, show: boolean) => state.showAdvancedSearch = show,
   setTopicOptions: (state: any, topicOptions: any[]) => state.topicOptions = topicOptions,
   setQueryText: (state: any, queryText: string) => state.queryText = queryText
@@ -96,22 +100,22 @@ const actions = {
   init: ({commit}, queryText?: string) => {
     return new Promise<void>(resolve => {
       commit('resetAdvancedSearch', queryText)
-
-      getAllTopics(true).then(rows => {
-        const topicOptions: any[] = []
-        _.each(rows, row => {
-          const topic = row['topic']
-          topicOptions.push({
-            text: topic,
-            value: topic
+      getMySearchHistory().then(history => {
+        commit('setSearchHistory', history)
+        getAllTopics(true).then(rows => {
+          const topicOptions: any[] = []
+          _.each(rows, row => {
+            const topic = row['topic']
+            topicOptions.push({
+              text: topic,
+              value: topic
+            })
           })
-        })
-        commit('setTopicOptions', topicOptions)
-        getMySearchHistory().then(history => {
-          commit('setSearchHistory', history)
+          commit('setTopicOptions', topicOptions)
           return resolve()
         })
       })
+
     })
   },
   resetAdvancedSearch: ({commit}) => commit('resetAdvancedSearch'),
