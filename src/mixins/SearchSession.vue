@@ -12,6 +12,7 @@ export default {
       'autocompleteInputResetKey',
       'domain',
       'isFocusOnSearch',
+      'searchHistory',
       'topicOptions'
     ]),
     author: {
@@ -54,6 +55,10 @@ export default {
         store.commit('search/setIncludeStudents', v)
         p.$announcer.polite(`Search ${v ? 'will' : 'will not'} include students.`)
       }
+    },
+    isSearching: {
+      get: () => store.getters['search/isSearching'],
+      set: v => store.commit('search/setIsSearching', v)
     },
     postedBy: {
       get: () => store.getters['search/postedBy'],

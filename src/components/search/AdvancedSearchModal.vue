@@ -41,12 +41,12 @@
           :aria-required="searchInputRequired"
           :base-class="validDateRange === false ? 'disabled' : 'autocomplete'"
           :default-value="queryText"
-          :disabled="validDateRange === false"
+          :disabled="isSearching || validDateRange === false"
           name="q"
           placeholder="Search"
           :search="onChangeAutocomplete"
           type="search"
-          @keydown.enter="search"
+          @keydown.enter.prevent="search"
           @submit="onSubmitAutocomplete"
         >
           <template #result="{result, props}">
@@ -68,6 +68,7 @@
               id="search-option-note-filters-topic"
               v-model="topic"
               class="w-75"
+              :disabled="isSearching"
               size="md"
               :options="topicOptions"
             >
@@ -85,6 +86,7 @@
                       id="search-options-note-filters-posted-by-anyone"
                       class="z-index-0"
                       :ischecked="postedBy === 'anyone'"
+                      :disabled="isSearching"
                       name="note-filters-posted-by"
                       value="anyone"
                     >
@@ -96,6 +98,7 @@
                       id="search-options-note-filters-posted-by-you"
                       class="z-index-0"
                       :ischecked="postedBy === 'you'"
+                      :disabled="isSearching"
                       name="note-filters-posted-by"
                       value="you"
                       @change.native="() => setAuthor(null)"
@@ -113,7 +116,7 @@
               <InputTextAutocomplete
                 id="search-options-note-filters-author"
                 v-model="author"
-                :disabled="postedBy === 'you'"
+                :disabled="isSearching || postedBy === 'you'"
                 input-labelled-by="notes-search-author-input-label"
                 :placeholder="postedBy === 'you' ? $currentUser.name : 'Enter name...'"
                 :source="findAdvisorsByName"
@@ -126,6 +129,7 @@
               <InputTextAutocomplete
                 id="search-options-note-filters-student"
                 v-model="student"
+                :disabled="isSearching"
                 :demo-mode-blur="true"
                 input-labelled-by="notes-search-student-input-label"
                 placeholder="Enter name or SID..."
@@ -158,6 +162,7 @@
                         id="search-options-note-filters-last-updated-from"
                         aria-labelledby="note-filters-date-from-label"
                         class="form-control"
+                        :disabled="isSearching"
                         name="note-filters-date-from"
                         placeholder="MM/DD/YYYY"
                         type="text"
@@ -204,6 +209,7 @@
                         id="search-options-note-filters-last-updated-to"
                         aria-labelledby="note-filters-date-to-label"
                         class="form-control"
+                        :disabled="isSearching"
                         name="note-filters-date-to"
                         placeholder="MM/DD/YYYY"
                         type="text"
@@ -239,6 +245,7 @@
             <b-btn
               v-if="queryText || author || fromDate || toDate || postedBy !== 'anyone' || student || topic"
               id="reset-advanced-search-form-btn"
+              :disabled="isSearching"
               size="sm"
               variant="link"
               @click="reset"
@@ -250,11 +257,17 @@
             <b-btn
               id="advanced-search"
               class="btn-primary-color-override"
-              :disabled="allOptionsUnchecked || (searchInputRequired && !queryText)"
+              :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !queryText)"
               variant="primary"
               @click.prevent="search"
             >
-              Search
+              <span v-if="isSearching" class="px-1">
+                <b-spinner small class="mr-2"></b-spinner>
+                <span>Searching...</span>
+              </span>
+              <span v-if="!isSearching">
+                Search
+              </span>
             </b-btn>
           </div>
           <div>
@@ -292,9 +305,6 @@ export default {
     InputTextAutocomplete
   },
   mixins: [Context, Scrollable, SearchSession, Util],
-  data: () => ({
-    searchHistory: []
-  }),
   computed: {
     allOptionsUnchecked() {
       const admits = this.domain && this.domain.includes('admits') && this.includeAdmits
