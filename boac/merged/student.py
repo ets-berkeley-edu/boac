@@ -457,7 +457,7 @@ def query_students(
         if supplemental_query_tables:
             query_tables += supplemental_query_tables
 
-        nulls_last = ('entering_term', 'group_name', 'term_gpa', 'terms_in_attendance', 'units')
+        nulls_last = ('entering_term', 'expected_grad_term', 'group_name', 'term_gpa', 'terms_in_attendance', 'units')
         o_null_order = 'NULLS LAST' if any(s in o for s in nulls_last) else 'NULLS FIRST'
         sql = f"""SELECT
             spi.sid, MIN({o}), MIN({o_secondary}), MIN({o_tertiary})

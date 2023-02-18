@@ -111,6 +111,7 @@ export default {
           label: 'Terms',
           options: [
             {label: 'Entering Term', value: 'entering_term'},
+            {label: 'Expected Graduation Term', value: 'expected_grad_term'},
             {label: 'Terms in Attendance, ascending', value: 'terms_in_attendance'},
             {label: 'Terms in Attendance, descending', value: 'terms_in_attendance desc'}
           ]
