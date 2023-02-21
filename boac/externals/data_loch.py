@@ -1227,10 +1227,17 @@ def get_students_query(     # noqa
         query_filter += f' AND s.probation IS {coe_probation}'
     if coe_underrepresented is not None:
         query_filter += f' AND s.minority IS {coe_underrepresented}'
+
+    # COE criteria in a cohort filter will default to COE-active students only.
+    if is_active_coe is None and (
+        coe_advisor_ldap_uids or coe_ethnicities or coe_genders or coe_prep_statuses or coe_probation or coe_underrepresented
+    ):
+        is_active_coe = True
     if is_active_coe is False:
         query_filter += " AND s.status IN ('D','P','U','W','X','Z')"
     elif is_active_coe is True:
         query_filter += " AND s.status NOT IN ('D','P','U','W','X','Z')"
+
     return query_tables, query_filter, query_bindings
 
 
