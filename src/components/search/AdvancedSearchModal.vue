@@ -10,20 +10,24 @@
     <div>
       <div class="align-items-center d-flex justify-content-between my-2">
         <div class="ml-2">
-          <h2 class="font-size-24 font-weight-700">Advanced Search</h2>
+          <h2
+            id="advanced-search-header"
+            class="font-size-24 font-weight-700"
+            tabindex="-1"
+          >
+            Advanced Search
+          </h2>
         </div>
         <div class="faint-text mr-1">
-          <b-btn variant="link">
+          <b-btn
+            id="advanced-search-close"
+            class="pt-0"
+            variant="link"
+            @click="cancel"
+            @keydown.enter="cancel"
+          >
             <span class="sr-only">Close</span>
-            <b-btn
-              id="advanced-search-close"
-              class="pt-0"
-              variant="link"
-              @click="cancel"
-            >
-              <span class="sr-only">Cancel</span>
-              <font-awesome class="font-size-14" icon="times" />
-            </b-btn>
+            <font-awesome class="font-size-14" icon="times" />
           </b-btn>
         </div>
       </div>
@@ -320,6 +324,13 @@ export default {
         return false
       } else {
         return null
+      }
+    }
+  },
+  watch: {
+    showAdvancedSearch(value) {
+      if (value) {
+        this.$putFocusNextTick('advanced-search-header')
       }
     }
   },

@@ -11,8 +11,8 @@ export default {
     ...mapGetters('search', [
       'autocompleteInputResetKey',
       'domain',
+      'isDirty',
       'isFocusOnSearch',
-      'searchHistory',
       'topicOptions'
     ]),
     author: {
@@ -67,6 +67,10 @@ export default {
     queryText: {
       get: () => store.getters['search/queryText'],
       set: v => store.commit('search/setQueryText', v)
+    },
+    searchHistory: {
+      get: () => store.getters['search/searchHistory'],
+      set: v => store.commit('search/setSearchHistory', v)
     },
     showAdvancedSearch: {
       get: () => store.getters['search/showAdvancedSearch'],

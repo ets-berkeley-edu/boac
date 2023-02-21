@@ -33,6 +33,14 @@ const getters = {
   includeCourses: (state: any): boolean => state.includeCourses,
   includeNotes: (state: any): boolean => state.includeNotes,
   includeStudents: (state: any): boolean => state.includeStudents,
+  isDirty: (state: any): boolean => {
+    const currentUser = Vue.prototype.$currentUser
+    return (currentUser.canAccessCanvasData && !state.includeCourses)
+      || (currentUser.canAccessCanvasData && !state.includeNotes)
+      || (currentUser.canAccessAdmittedStudents && !state.includeAdmits)
+      || !!state.author || !!state.fromDate || state.postedBy !== 'anyone'
+      || !!state.student || !!state.toDate || !!state.topic
+  },
   isFocusOnSearch: (state: any): boolean => state.isFocusOnSearch,
   isSearching: (state: any): boolean => state.isSearching,
   postedBy: (state: any): string => state.postedBy,
