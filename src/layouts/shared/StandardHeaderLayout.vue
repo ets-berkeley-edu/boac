@@ -56,15 +56,24 @@
             <b-btn
               id="search-options-panel-toggle"
               aria-controls="search-options-panel"
+              class="px-2 py-0"
               variant="link"
               @click.prevent="openAdvancedSearch"
             >
-              <font-awesome
-                class="text-white"
-                icon="sliders-h"
-                size="lg"
-                title="Advanced search options"
-              />
+              <b-avatar
+                :badge="isDirty"
+                badge-left
+                badge-top
+                badge-variant="danger"
+                class="bg-transparent"
+              >
+                <font-awesome
+                  class="text-white"
+                  icon="sliders-h"
+                  size="lg"
+                  title="Advanced search options"
+                />
+              </b-avatar>
             </b-btn>
             <b-popover
               placement="bottom"

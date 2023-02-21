@@ -57,11 +57,11 @@ export default {
           phrases.push(count ? `<a href="#${noun}-results-page-header">${phrase}</a>` : phrase)
         }
       }
-      push('admit', this.results.totalAdmitCount, this.includeStudents)
+      push('admit', this.results.totalAdmitCount, this.includeAdmits)
       push('student', this.results.totalStudentCount, this.includeStudents)
-      push('course', this.results.totalCourseCount, this.includeStudents)
-      push('note', this.$_.size(this.results.notes), this.includeStudents)
-      push('appointment', this.$_.size(this.results.appointments), this.includeStudents)
+      push('course', this.results.totalCourseCount, this.includeCourses)
+      push('note', this.$_.size(this.results.notes), this.includeNotes)
+      push('appointment', this.$_.size(this.results.appointments), this.includeNotes)
       return total ? `Results include ${this.oxfordJoin(phrases)}` : 'No matching records found.'
     },
     hasSearchResults() {
