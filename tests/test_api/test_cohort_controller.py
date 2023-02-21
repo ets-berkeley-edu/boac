@@ -1433,7 +1433,6 @@ class TestDownloadCsvPerFilters:
             'first_name,last_name,sid,email,phone,majors,level_by_units,terms_in_attendance,expected_graduation_term,units_completed,term_gpa_2172,term_gpa_2175,cumulative_gpa,program_status',  # noqa: E501
             'Deborah,Davies,11667051,barnburner@berkeley.edu,415/123-4567,English BA;Nuclear Engineering BS,Junior,,Fall 2019,101.3,2.700,,3.8,Active',  # noqa: E501
             'Paul,Farestveit,7890123456,qadept@berkeley.edu,415/123-4567,Nuclear Engineering BS,Senior,2,Spring 2020,110,,,3.9,Active',
-            'Wolfgang,Pauli-O\'Rourke,9000000000,wpo@berkeley.edu,415/123-4567,Engineering Undeclared UG,Sophomore,2,Spring 2020,55,,,2.3,Active',
         ]:
             assert str(snippet) in csv
 

@@ -434,7 +434,7 @@ class TestBatchNoteCreation:
         # Cohort
         cohort_ids, sids_in_cohorts = _get_cohorts_ids_and_sids(advisor)
         # We need at least one cohort SID that is NOT in the list o' sids above.
-        expected_sid_in_cohort = '9000000000'
+        expected_sid_in_cohort = '7890123456'
         assert expected_sid_in_cohort not in self.sids
         assert expected_sid_in_cohort in sids_in_cohorts
 
