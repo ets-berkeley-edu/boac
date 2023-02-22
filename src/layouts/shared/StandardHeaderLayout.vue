@@ -53,7 +53,7 @@
           </div>
           <div class="d-flex">
             <div class="pl-2">
-              <b-button
+              <b-btn
                 id="go-search"
                 class="h-100"
                 variant="outline-light"
@@ -62,24 +62,27 @@
               >
                 <div class="d-flex">
                   <div v-if="isSearching" class="pr-1">
-                    <b-spinner small></b-spinner>
+                    <b-spinner small />
                   </div>
                   <div>
                     <span class="text-nowrap">Search<span v-if="isSearching">ing</span></span>
                   </div>
                 </div>
-              </b-button>
+              </b-btn>
             </div>
-            <div class="text-center">
+            <div>
               <b-btn
                 id="search-options-panel-toggle"
                 aria-controls="search-options-panel"
-                variant="link"
-                @click="openAdvancedSearch"
+                class="px-2"
+                :class="{'border-0': !isFocusAdvSearchButton}"
+                variant="outline-light"
+                @click.prevent="openAdvancedSearch"
+                @focusin="() => isFocusAdvSearchButton = true"
+                @focusout="() => isFocusAdvSearchButton = false"
               >
                 <span class="sr-only">Open advanced search</span>
                 <font-awesome
-                  class="text-white"
                   icon="sliders-h"
                   size="lg"
                 />
@@ -119,6 +122,7 @@ export default {
   components: {AdvancedSearchModal, Autocomplete, HeaderBranding, HeaderMenu},
   mixins: [Context, Scrollable, SearchSession, Util],
   data: () => ({
+    isFocusAdvSearchButton: false,
     showErrorPopover: false
   }),
   created() {

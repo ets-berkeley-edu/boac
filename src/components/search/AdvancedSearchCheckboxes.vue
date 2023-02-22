@@ -14,7 +14,6 @@
         <b-checkbox
           id="search-include-admits-checkbox"
           v-model="includeAdmits"
-          plain
         />
         <label
           for="search-include-admits-checkbox"
@@ -28,7 +27,6 @@
         <b-checkbox
           id="search-include-students-checkbox"
           v-model="includeStudents"
-          plain
         />
         <label
           for="search-include-students-checkbox"
@@ -42,7 +40,6 @@
         <b-checkbox
           id="search-include-courses-checkbox"
           v-model="includeCourses"
-          plain
         />
         <label
           for="search-include-courses-checkbox"
@@ -56,7 +53,6 @@
         <b-checkbox
           id="search-include-notes-checkbox"
           v-model="includeNotes"
-          plain
           @change="onChangeIncludeNotes"
         />
         <label
