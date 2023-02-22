@@ -5,11 +5,11 @@
     fluid
   >
     <b-row>
-      <b-col align-self="center" cols="3">
+      <b-col align-self="center" cols="4">
         <HeaderBranding />
       </b-col>
-      <b-col cols="8">
-        <div class="align-items-center d-flex float-right">
+      <b-col cols="6">
+        <div class="align-items-center d-flex">
           <div>
             <Autocomplete
               id="search-students-input"
@@ -18,8 +18,8 @@
               base-class="autocomplete"
               :class="{
                 'faint-text': !queryText,
-                'search-focus-in': isFocusOnSearch,
-                'search-focus-out': !isFocusOnSearch
+                'search-focus-in': isFocusOnSearch || queryText,
+                'search-focus-out': !isFocusOnSearch && !queryText
               }"
               :default-value="queryText"
               :disabled="isSearching"
@@ -51,60 +51,53 @@
               </span>
             </b-popover>
           </div>
-          <div class="text-center">
-            <label class="sr-only" for="search-options-panel-toggle">Advanced search for students, notes, appointments and classes</label>
-            <b-btn
-              id="search-options-panel-toggle"
-              aria-controls="search-options-panel"
-              class="px-2 py-0"
-              variant="link"
-              @click.prevent="openAdvancedSearch"
-            >
-              <b-avatar
-                :badge="isDirty"
-                badge-left
-                badge-top
-                badge-variant="danger"
-                class="bg-transparent"
+          <div class="d-flex">
+            <div class="pl-2">
+              <b-button
+                id="go-search"
+                class="h-100"
+                variant="outline-light"
+                @keydown.enter="search"
+                @click.stop="search"
               >
+                <div class="d-flex">
+                  <div v-if="isSearching" class="pr-1">
+                    <b-spinner small></b-spinner>
+                  </div>
+                  <div>
+                    <span class="text-nowrap">Search<span v-if="isSearching">ing</span></span>
+                  </div>
+                </div>
+              </b-button>
+            </div>
+            <div class="text-center">
+              <b-btn
+                id="search-options-panel-toggle"
+                aria-controls="search-options-panel"
+                variant="link"
+                @click="openAdvancedSearch"
+              >
+                <span class="sr-only">Open advanced search</span>
                 <font-awesome
                   class="text-white"
                   icon="sliders-h"
                   size="lg"
-                  title="Advanced search options"
                 />
-              </b-avatar>
-            </b-btn>
-            <b-popover
-              placement="bottom"
-              target="search-options-panel-toggle"
-              triggers="hover"
-              variant="primary"
-            >
-              Advanced search options
-            </b-popover>
-          </div>
-          <div>
-            <b-button
-              id="go-search"
-              class="h-100 mr-3"
-              variant="outline-light"
-              @keydown.enter="search"
-              @click.stop="search"
-            >
-              <span v-if="isSearching">
-                <b-spinner class="mr-1" small></b-spinner>
-                Searching
-              </span>
-              <span v-if="!isSearching">
-                Search
-              </span>
-            </b-button>
+              </b-btn>
+              <b-popover
+                placement="bottom"
+                target="search-options-panel-toggle"
+                triggers="hover"
+                variant="primary"
+              >
+                Advanced search options
+              </b-popover>
+            </div>
           </div>
         </div>
         <AdvancedSearchModal />
       </b-col>
-      <b-col align-self="center" cols="1">
+      <b-col align-self="center" cols="2">
         <HeaderMenu class="float-right" />
       </b-col>
     </b-row>
