@@ -247,12 +247,12 @@
         <div class="align-items-center d-flex">
           <div v-if="includeNotes" class="flex-grow-1">
             <b-btn
-              v-if="queryText || author || fromDate || toDate || postedBy !== 'anyone' || student || topic"
+              v-if="isDirty"
               id="reset-advanced-search-form-btn"
               :disabled="isSearching"
               size="sm"
               variant="link"
-              @click="reset"
+              @click="() => reset(true)"
             >
               Reset
             </b-btn>
@@ -340,7 +340,7 @@ export default {
   methods: {
     cancel() {
       this.onHidden()
-      setTimeout(this.resetAdvancedSearch, 100)
+      setTimeout(this.reset, 100)
     },
     findAdvisorsByName,
     findStudentsByNameOrSid,
@@ -361,9 +361,11 @@ export default {
         this.search()
       }
     },
-    reset() {
-      this.queryText = ''
-      this.resetAdvancedSearch()
+    reset(force) {
+      if (force || !this.$route.path.startsWith('/search')) {
+        this.queryText = ''
+        this.resetAdvancedSearch()
+      }
     },
     search() {
       const q = this.$_.trim(this.queryText)
