@@ -5,10 +5,12 @@
     fluid
   >
     <b-row>
-      <b-col align-self="center" cols="4">
-        <HeaderBranding />
+      <b-col align-self="center" cols="auto" md="4">
+        <div class="py-2">
+          <HeaderBranding />
+        </div>
       </b-col>
-      <b-col cols="6">
+      <b-col>
         <div class="align-items-center d-flex">
           <div>
             <Autocomplete
@@ -100,7 +102,7 @@
         </div>
         <AdvancedSearchModal />
       </b-col>
-      <b-col align-self="center" cols="2">
+      <b-col align-self="center" cols="auto" sm>
         <HeaderMenu class="float-right" />
       </b-col>
     </b-row>
