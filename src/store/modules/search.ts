@@ -107,21 +107,26 @@ const mutations = {
 const actions = {
   init: ({commit}, queryText?: string) => {
     return new Promise<void>(resolve => {
+      const currentUser = Vue.prototype.$currentUser
       commit('resetAdvancedSearch', queryText)
       getMySearchHistory().then(history => {
         commit('setSearchHistory', history)
-        getAllTopics(true).then(rows => {
-          const topicOptions: any[] = []
-          _.each(rows, row => {
-            const topic = row['topic']
-            topicOptions.push({
-              text: topic,
-              value: topic
+        if (currentUser.canAccessAdvisingData) {
+          getAllTopics(true).then(rows => {
+            const topicOptions: any[] = []
+            _.each(rows, row => {
+              const topic = row['topic']
+              topicOptions.push({
+                text: topic,
+                value: topic
+              })
             })
+            commit('setTopicOptions', topicOptions)
+            return resolve()
           })
-          commit('setTopicOptions', topicOptions)
+        } else {
           return resolve()
-        })
+        }
       })
 
     })
