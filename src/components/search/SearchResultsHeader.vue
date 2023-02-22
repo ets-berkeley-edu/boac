@@ -16,7 +16,7 @@
       </div>
     </div>
     <div v-if="!loading">
-      <div class="font-weight-500 py-2" v-html="description" />
+      <div class="font-weight-500 pt-2" v-html="description" />
       <div v-if="!hasSearchResults" id="page-header-no-results">
         <div>Suggestions:</div>
         <ul>
@@ -57,9 +57,9 @@ export default {
           phrases.push(count ? `<a href="#${noun}-results-page-header">${phrase}</a>` : phrase)
         }
       }
-      push('admit', this.results.totalAdmitCount, this.includeAdmits)
-      push('student', this.results.totalStudentCount, this.includeStudents)
-      push('course', this.results.totalCourseCount, this.includeCourses)
+      push('admit', this.results.totalAdmitCount || 0, this.includeAdmits)
+      push('student', this.results.totalStudentCount || 0, this.includeStudents)
+      push('course', this.results.totalCourseCount || 0, this.includeCourses)
       push('note', this.$_.size(this.results.notes), this.includeNotes)
       push('appointment', this.$_.size(this.results.appointments), this.includeNotes)
       return total ? `Results include ${this.oxfordJoin(phrases)}` : 'No matching records found.'

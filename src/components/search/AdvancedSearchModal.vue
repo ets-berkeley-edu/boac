@@ -309,6 +309,9 @@ export default {
     InputTextAutocomplete
   },
   mixins: [Context, Scrollable, SearchSession, Util],
+  data: () => ({
+    counter: 0
+  }),
   computed: {
     allOptionsUnchecked() {
       const admits = this.domain && this.domain.includes('admits') && this.includeAdmits
@@ -366,6 +369,7 @@ export default {
       const q = this.$_.trim(this.queryText)
       if (q || !this.searchInputRequired) {
         const query = {
+          _: this.counter++,
           notes: this.includeNotes,
           students: this.includeStudents
         }
