@@ -147,11 +147,11 @@ export default {
     this.queryText = this.$route.query.q || this.queryText
     // Take a snapshot of the submitted search phrase. The 'queryText' value (in store) may change.
     this.searchPhraseSubmitted = this.queryText
-    const includeAdmits = this.toBoolean(this.$route.query.admits)
-    const includeCourses = this.toBoolean(this.$route.query.courses)
-    const includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
-    const includeStudents = this.toBoolean(this.$route.query.students)
-    if (includeNotesAndAppointments) {
+    this.includeAdmits = this.toBoolean(this.$route.query.admits)
+    this.includeCourses = this.toBoolean(this.$route.query.courses)
+    this.includeNotesAndAppointments = this.toBoolean(this.$route.query.notes)
+    this.includeStudents = this.toBoolean(this.$route.query.students)
+    if (this.includeNotesAndAppointments) {
       this.noteAndAppointmentOptions.advisorCsid = this.$route.query.advisorCsid
       this.noteAndAppointmentOptions.advisorUid = this.$route.query.advisorUid
       this.noteAndAppointmentOptions.studentCsid = this.$route.query.studentCsid
@@ -159,24 +159,24 @@ export default {
       this.noteAndAppointmentOptions.dateFrom = this.$route.query.noteDateFrom
       this.noteAndAppointmentOptions.dateTo = this.$route.query.noteDateTo
     }
-    if (this.queryText || includeNotesAndAppointments) {
+    if (this.queryText || this.includeNotesAndAppointments) {
       this.isSearching = true
       this.$announcer.polite(`Searching for '${this.queryText}'`)
       let queries = []
-      if (includeCourses || includeNotesAndAppointments || includeStudents) {
+      if (this.includeCourses || this.includeNotesAndAppointments || this.includeStudents) {
         queries.push(
           search(
             this.queryText,
-            includeNotesAndAppointments,
-            includeCourses,
-            includeNotesAndAppointments,
-            includeStudents,
+            this.includeNotesAndAppointments,
+            this.includeCourses,
+            this.includeNotesAndAppointments,
+            this.includeStudents,
             this.$_.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
             this.$_.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
           )
         )
       }
-      if (includeAdmits && this.$_.trim(this.queryText)) {
+      if (this.includeAdmits && this.$_.trim(this.queryText)) {
         queries.push(searchAdmittedStudents(this.queryText))
       }
       Promise.all(queries).then(responses => {
