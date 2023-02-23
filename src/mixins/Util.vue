@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import moment from 'moment-timezone'
 import numeral from 'numeral'
+import {oxfordJoin} from '@/utils'
 
 const decodeHtml = (snippet) => {
   if (snippet && snippet.indexOf('&') > 0) {
@@ -34,14 +35,7 @@ export default {
     },
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     numFormat: (num, format=null) => numeral(num).format(format),
-    oxfordJoin: (arr, zeroString) => {
-      switch((arr || []).length) {
-      case 0: return _.isNil(zeroString) ? '' : zeroString
-      case 1: return _.head(arr)
-      case 2: return `${_.head(arr)} and ${_.last(arr)}`
-      default: return _.join(_.concat(_.initial(arr), `and ${_.last(arr)}`), ', ')
-      }
-    },
+    oxfordJoin,
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {
       return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
     },

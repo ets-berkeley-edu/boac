@@ -13,6 +13,10 @@
       <b-col>
         <div class="align-items-center d-flex">
           <div>
+            <label for="search-students-input" class="sr-only">
+              {{ labelForSearchInput }}
+              (Type / to put focus in the search input field.)
+            </label>
             <Autocomplete
               id="search-students-input"
               :key="autocompleteInputResetKey"

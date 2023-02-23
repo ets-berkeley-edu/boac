@@ -2,6 +2,7 @@
 import store from '@/store'
 import Vue from 'vue'
 import {mapActions, mapGetters} from 'vuex'
+import {oxfordJoin} from '@/utils'
 
 const p = Vue.prototype
 
@@ -25,6 +26,17 @@ export default {
     fromDate: {
       get: () => store.getters['search/fromDate'],
       set: v => store.commit('search/setFromDate', v)
+    },
+    labelForSearchInput: () => {
+      const scopes = ['students']
+      if (p.$currentUser.canAccessCanvasData) {
+        scopes.push('courses')
+      }
+      if (p.$currentUser.canAccessAdvisingData) {
+        scopes.push('notes')
+      }
+      const history = store.getters['search/searchHistory']
+      return `Search for ${oxfordJoin(scopes)}.${history.length ? ' Expect auto-suggest of previous searches.' : ''}`
     },
     includeAdmits: {
       get: function() {

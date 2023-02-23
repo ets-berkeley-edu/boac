@@ -32,12 +32,7 @@
         </div>
       </div>
       <div class="mb-3 ml-2 mr-5">
-        <span id="search-input-label" class="sr-only">
-          Search for students, courses, or notes.
-          {{ searchInputRequired ? 'Input is required.' : '' }}
-          {{ searchHistory.length ? 'Expect auto-suggest of previous searches.' : '' }}
-          (Type / to put focus in the search input field.)
-        </span>
+        <label id="search-input-label" class="sr-only">{{ labelForSearchInput }}</label>
         <Autocomplete
           id="advanced-search-students-input"
           :key="autocompleteInputResetKey"
