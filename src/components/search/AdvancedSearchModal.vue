@@ -31,7 +31,7 @@
           </b-btn>
         </div>
       </div>
-      <div class="mb-3 ml-2 mr-5">
+      <div class="mb-3 mx-2">
         <label id="search-input-label" class="sr-only">{{ labelForSearchInput }}</label>
         <Autocomplete
           id="advanced-search-students-input"
@@ -60,8 +60,9 @@
         <div
           v-if="$currentUser.canAccessAdvisingData && includeNotes"
           :aria-expanded="includeNotes"
-          class="ml-2"
+          class="border border-info mb-3 mx-2 p-3 rounded"
         >
+          <h2 class="notes-and-appointments-filters-header">Filters for notes and appointments</h2>
           <b-form-group label="Topic">
             <b-form-select
               id="search-option-note-filters-topic"
@@ -137,7 +138,7 @@
             </b-form-group>
           </div>
           <div class="pt-2">
-            <b-form-group label="Date Range">
+            <b-form-group class="mb-0" label="Date Range">
               <div class="align-items-center d-flex">
                 <div>
                   <label
@@ -238,7 +239,7 @@
           </div>
         </div>
       </transition>
-      <div class="mb-2 w-100">
+      <div class="my-2 pr-2">
         <div class="align-items-center d-flex">
           <div v-if="includeNotes" class="flex-grow-1">
             <b-btn
@@ -426,6 +427,11 @@ export default {
 </style>
 
 <style scoped>
+.notes-and-appointments-filters-header {
+  color: #337ab7;
+  font-size: 18px;
+  font-weight: bolder;
+}
 .z-index-0 {
   z-index: 0;
 }
