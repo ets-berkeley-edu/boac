@@ -46,7 +46,7 @@
           :search="onChangeAutocomplete"
           type="search"
           @keydown.enter.prevent="search"
-          @submit="onSubmitAutocomplete"
+          @submit="setQueryText"
         >
           <template #result="{result, props}">
             <li v-bind="props" :id="`search-auto-suggest-${props['data-result-index']}`">
@@ -348,14 +348,6 @@ export default {
       this.showAdvancedSearch = false
       this.resetAutocompleteInput()
     },
-    onSubmitAutocomplete(value) {
-      const query = this.$_.trim(value || this.queryText)
-      if (query.length) {
-        const el = document.getElementById('search-students-input')
-        this.queryText = el && el.value
-        this.search()
-      }
-    },
     reset(force) {
       if (force || !this.$route.path.startsWith('/search')) {
         this.queryText = ''
@@ -418,6 +410,9 @@ export default {
         this.$putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
+    },
+    setQueryText(value) {
+      this.queryText = value
     }
   }
 }
