@@ -57,7 +57,7 @@
               </span>
             </b-popover>
           </div>
-          <div v-if="$currentUser.canAccessAdvisingData && $currentUser.canAccessCanvasData" class="d-flex">
+          <div v-if="$currentUser.canAccessAdvisingData || $currentUser.canAccessCanvasData" class="d-flex">
             <div class="pl-2">
               <b-btn
                 id="go-search"
