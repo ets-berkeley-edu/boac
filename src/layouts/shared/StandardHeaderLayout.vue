@@ -79,7 +79,6 @@
             <div>
               <b-btn
                 id="search-options-panel-toggle"
-                aria-controls="search-options-panel"
                 class="px-2"
                 :class="{'border-0': !isFocusAdvSearchButton}"
                 variant="outline-light"
