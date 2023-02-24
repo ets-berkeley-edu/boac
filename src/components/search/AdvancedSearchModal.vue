@@ -59,11 +59,11 @@
       <transition class="pt-2" name="drawer">
         <div
           v-if="$currentUser.canAccessAdvisingData && includeNotes"
-          :aria-expanded="includeNotes"
           class="border border-info mb-3 mx-2 p-3 rounded"
         >
-          <h2 class="notes-and-appointments-filters-header">Filters for notes and appointments</h2>
-          <b-form-group label="Topic">
+          <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+          <label class="font-size-16 font-weight-700" for="search-option-note-filters-topic">Topic</label>
+          <div>
             <b-form-select
               id="search-option-note-filters-topic"
               v-model="topic"
@@ -76,9 +76,9 @@
                 <option :value="null">Any topic</option>
               </template>
             </b-form-select>
-          </b-form-group>
-          <div class="pt-2">
-            <b-form-group label="Posted By">
+          </div>
+          <div class="pt-3">
+            <b-form-group class="mb-0" label="Posted By">
               <b-form-radio-group v-model="postedBy">
                 <div class="d-flex">
                   <div class="mr-2">
@@ -110,8 +110,8 @@
               </b-form-radio-group>
             </b-form-group>
           </div>
-          <div class="pt-2">
-            <b-form-group class="w-50" label="Advisor">
+          <div class="pt-3">
+            <b-form-group class="mb-0 w-50" label="Advisor">
               <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
               <InputTextAutocomplete
                 id="search-options-note-filters-author"
@@ -123,8 +123,8 @@
               />
             </b-form-group>
           </div>
-          <div class="pt-2">
-            <b-form-group class="w-50" label="Student (name or SID)">
+          <div class="pt-3">
+            <b-form-group class="mb-0 w-50" label="Student (name or SID)">
               <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
               <InputTextAutocomplete
                 id="search-options-note-filters-student"
@@ -137,7 +137,7 @@
               />
             </b-form-group>
           </div>
-          <div class="pt-2">
+          <div class="pt-3">
             <b-form-group class="mb-0" label="Date Range">
               <div class="align-items-center d-flex">
                 <div>
@@ -221,7 +221,7 @@
                 </div>
                 <div class="sr-only">
                   <b-btn
-                    id="search-options-note-filters-last-updated-from-clear"
+                    id="search-options-note-filters-last-updated-to-clear"
                     :disabled="!toDate"
                     variant="link"
                     @click="toDate = null"
