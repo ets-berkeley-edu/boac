@@ -508,3 +508,4 @@ def _create_coe_advisor_note(
         subject=subject,
         body=body,
     )
+    Note.refresh_search_index()

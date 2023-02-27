@@ -28,6 +28,7 @@ from boac.externals import data_loch
 from boac.lib import util
 from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
+from boac.models.note import Note
 from flask import current_app as app
 import pytest
 import simplejson as json
@@ -408,7 +409,7 @@ class TestNoteSearch:
         )
         assert response.status_code == 200
         note = response.json
-
+        Note.refresh_search_index()
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])
 
@@ -961,6 +962,7 @@ class TestFindAdvisorsByName:
 
     def test_find_advisors_by_name(self, client, coe_advisor):
         """Finds matches including appointment advisors."""
+        Appointment.refresh_search_index()
         response = self._api_search_advisors(client, 'Vis')
         assert len(response) == 1
         labels = [s['label'] for s in response]
@@ -968,6 +970,7 @@ class TestFindAdvisorsByName:
 
     def test_find_note_authors_by_name(self, client, coe_advisor, mock_advising_note):
         """Finds matches including authors of legacy and non-legacy notes."""
+        Note.refresh_search_index()
         response = self._api_search_advisors(client, 'Jo')
         assert len(response) == 4
         labels = set([s['label'] for s in response])
@@ -988,6 +991,9 @@ def _api_search(
         limit=None,
         expected_status_code=200,
 ):
+    if appointments:
+        Appointment.refresh_search_index()
+
     response = client.post(
         '/api/search',
         content_type='application/json',

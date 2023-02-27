@@ -190,8 +190,6 @@ class Note(Base):
             author_uid=author_uid,
             note_ids=note_ids,
         )
-        benchmark('begin refresh search index')
-        cls.refresh_search_index()
         benchmark('end note creation' if sid_count == 1 else f'end creation of {sid_count} notes')
         return ids_by_sid
 
@@ -315,7 +313,6 @@ class Note(Base):
             cls._update_note_topics(note, topics)
             std_commit()
             db.session.refresh(note)
-            cls.refresh_search_index()
             return note
         else:
             return None
@@ -400,7 +397,6 @@ class Note(Base):
             for topic in note.topics:
                 topic.deleted_at = now
             std_commit()
-            cls.refresh_search_index()
 
     def to_api_json(self):
         attachments = self.attachments_to_api_json()
