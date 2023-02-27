@@ -23,9 +23,11 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import os
 
 from boac import cache, db
 from boac.configs import load_configs
+from boac.lib.background import initialize_scheduler_loop
 from boac.logger import initialize_logger
 from boac.routes import register_routes
 from flask import Flask
@@ -41,5 +43,9 @@ def create_app():
 
     with app.app_context():
         register_routes(app)
+
+        # See https://stackoverflow.com/questions/9449101/how-to-stop-flask-from-initialising-twice-in-debug-mode
+        if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+            initialize_scheduler_loop(app)
 
     return app

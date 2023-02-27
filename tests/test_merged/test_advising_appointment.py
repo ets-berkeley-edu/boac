@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 
 from boac.merged.advising_appointment import get_advising_appointments, search_advising_appointments
+from boac.models.appointment import Appointment
 
 
 coe_advisor_uid = '1133399'
@@ -134,6 +135,7 @@ you got to pull up the intruder by the root of the weed; N.Y. Chew through the m
     def test_search(self, fake_auth):
         """Finds new and legacy appointments matching the criteria, ordered by rank."""
         fake_auth.login(coe_advisor_uid)
+        Appointment.refresh_search_index()
         results = search_advising_appointments(search_phrase='life')
         assert len(results) == 3
         assert results[0]['advisorName'] == 'Milicent Balthazar'

@@ -212,7 +212,6 @@ class Appointment(Base):
             user_id=created_by,
             event_type=status,
         )
-        cls.refresh_search_index()
         return appointment
 
     @classmethod
@@ -257,7 +256,6 @@ class Appointment(Base):
             )
             std_commit()
             db.session.refresh(appointment)
-            cls.refresh_search_index()
             return appointment
         else:
             return None
@@ -403,7 +401,6 @@ class Appointment(Base):
         _update_appointment_topics(self, topics, updated_by)
         std_commit()
         db.session.refresh(self)
-        self.refresh_search_index()
 
     @classmethod
     def refresh_search_index(cls):
@@ -422,7 +419,6 @@ class Appointment(Base):
             for topic in appointment.topics:
                 topic.deleted_at = now
             std_commit()
-            cls.refresh_search_index()
 
     def status_change_available(self):
         return self.status in ['reserved', 'waiting']
