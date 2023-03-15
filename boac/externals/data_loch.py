@@ -1000,7 +1000,8 @@ def get_students_query(     # noqa
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
-    incomplete_grade=None,
+    incomplete_date_ranges=None,
+    incomplete_statuses=None,
     intended_majors=None,
     is_active_asc=None,
     is_active_coe=None,
@@ -1167,11 +1168,11 @@ def get_students_query(     # noqa
                              AND ser.term_id = %(term_id)s
                              AND ser.midpoint_deficient_grade = TRUE"""
         query_bindings.update({'term_id': current_term_id})
-    if incomplete_grade is True:
-        query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser
-                             ON ser.sid = spi.sid
-                             AND ser.term_id >= '{earliest_term_id()}'
-                             AND ser.incomplete_grade = TRUE"""
+    if incomplete_date_ranges or incomplete_statuses:
+        query_tables += f""" JOIN {student_schema()}.student_incompletes si
+                             ON spi.sid = si.sid
+                             AND si.term_id >= '{earliest_term_id()}'
+                             AND {_incomplete_criteria(incomplete_date_ranges, incomplete_statuses)}"""
     if minors:
         query_tables += f' LEFT JOIN {student_schema()}.minors min ON min.sid = spi.sid'
         query_filter += " AND min.minor = ANY(%(minors)s) AND maj.college NOT LIKE 'Graduate%%'"
@@ -1389,6 +1390,32 @@ def get_admitted_students_query(
                 word = ''.join(re.split(r'\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
     return query_tables, query_filter, query_bindings
+
+
+def _incomplete_criteria(incomplete_date_ranges, incomplete_statuses):
+    criteria = []
+    if incomplete_date_ranges:
+        for r in incomplete_date_ranges:
+            date_criteria = []
+            if re.match('^\\d{4}-\\d{2}-\\d{2}$', r['min']) and re.match('^\\d{4}-\\d{2}-\\d{2}$', r['max']):
+                date_criteria.append(f"(si.lapse_date >= '{r['min']}' AND si.lapse_date <= '{r['max']}')")
+            if date_criteria:
+                criteria.append("(si.frozen IS FALSE AND si.status = 'I' AND (" + ' OR '.join(date_criteria) + '))')
+    if incomplete_statuses:
+        status_to_sql = {
+            'failing': "(si.frozen IS FALSE AND si.status IN ('L', 'R') AND si.grade IN ('F', 'NP', 'U'))",
+            'frozen': '(si.frozen IS TRUE)',
+            'passing': "(si.frozen IS FALSE AND si.status IN ('L', 'R') AND si.grade NOT IN ('F', 'NP', 'U'))",
+            'scheduled': "(si.frozen IS FALSE AND si.status = 'I')",
+        }
+        status_criteria = [status_to_sql[status] for status in incomplete_statuses]
+        criteria.append('(' + ' OR '.join(status_criteria) + ')')
+    if not criteria:
+        return ''
+    elif len(criteria) == 1:
+        return criteria[0]
+    else:
+        return '(' + ' AND '.join(criteria) + ')'
 
 
 def _level_to_code(level):

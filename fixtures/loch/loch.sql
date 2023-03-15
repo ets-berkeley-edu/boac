@@ -472,6 +472,16 @@ CREATE TABLE student.student_holds
     feed TEXT NOT NULL
 );
 
+CREATE TABLE student.student_incompletes
+(
+    sid VARCHAR NOT NULL,
+    term_id VARCHAR NOT NULL,
+    status VARCHAR NOT NULL,
+    frozen BOOLEAN,
+    lapse_date VARCHAR,
+    grade VARCHAR
+);
+
 CREATE TABLE student.student_profiles
 (
     sid VARCHAR NOT NULL,
@@ -986,6 +996,11 @@ INSERT INTO student.student_holds
 VALUES
 ('5678901234', :holds_5678901234_S01),
 ('5678901234', :holds_5678901234_V00);
+
+INSERT INTO student.student_incompletes
+(sid, term_id, status, frozen, lapse_date, grade)
+VALUES
+('3141592653', '2052', 'I', FALSE, '2022-12-31', 'I');
 
 INSERT INTO student.student_profiles
 (sid, profile, profile_summary)
