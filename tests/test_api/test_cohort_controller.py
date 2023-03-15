@@ -1227,12 +1227,25 @@ class TestCohortPerFilters:
         sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['2345678901', '3456789012', '890127492']
 
-    def test_incomplete_grade_filter(self, client, coe_advisor_login):
+    def test_incomplete_date_filter(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,
             {
                 'filters': [
-                    {'key': 'incomplete', 'value': 'true'},
+                    {'key': 'incompleteDateRanges', 'value': {'min': '2022-01-01', 'max': '2022-12-31'}},
+                    {'key': 'academicCareerStatus', 'value': 'inactive'},
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['3141592653']
+
+    def test_incomplete_status_filter(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'incomplete', 'value': 'scheduled'},
                     {'key': 'academicCareerStatus', 'value': 'inactive'},
                 ],
             },

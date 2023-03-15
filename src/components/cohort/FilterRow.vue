@@ -57,6 +57,7 @@
             v-model="range.min"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
+            :placeholder="placeholder()"
             class="filter-range-input"
           />
         </div>
@@ -72,6 +73,7 @@
             v-model="range.max"
             :maxlength="rangeInputSize()"
             :size="rangeInputSize()"
+            :placeholder="placeholder()"
             class="filter-range-input"
           />
         </div>
@@ -261,6 +263,14 @@ export default {
             this.errorPerRangeInput = 'Requires letters in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
+        } else if (this.filter.validation === 'date') {
+          const isValid = s => /^\d{4}-\d{2}-\d{2}$/.test(s)
+          const isBadData = (min && !isValid(min)) || (max && !isValid(max))
+          if (isBadData || (min && max && min > max)) {
+            // Invalid data or values are descending.
+            this.errorPerRangeInput = 'Requires ending date after start date.'
+          }
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation) {
           this.disableUpdateButton = true
           this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`
@@ -382,6 +392,13 @@ export default {
       if (this.selectedOption) {
         this.$putFocusNextTick('unsaved-filter-add')
         this.$announcer.polite(`${this.selectedOption.name} selected`)
+      }
+    },
+    placeholder() {
+      if (this.filter.validation === 'date') {
+        return 'YYYY-DD-MM'
+      } else {
+        return ''
       }
     },
     prepareFilterOptionGroups() {

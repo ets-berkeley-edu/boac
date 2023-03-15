@@ -172,6 +172,15 @@ def grading_terms():
     return [_term_option(term_id) for term_id in all_terms]
 
 
+def incomplete_types():
+    return [
+        {'name': 'Frozen', 'value': 'frozen'},
+        {'name': 'Failing grade, formerly an incomplete', 'value': 'failing'},
+        {'name': 'Passing grade, formerly an incomplete', 'value': 'passing'},
+        {'name': 'Scheduled to become an F/NP', 'value': 'scheduled'},
+    ]
+
+
 @stow('cohort_filter_options_intended_majors')
 def intended_majors():
     intended_major_results = [row['major'] for row in data_loch.get_intended_majors()]

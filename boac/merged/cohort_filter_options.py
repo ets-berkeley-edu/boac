@@ -31,7 +31,8 @@ from boac.lib.cohort_utils import academic_career_status_options, academic_divis
     academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_group_options, \
     degree_terms, degrees, entering_terms, ethnicities, genders, get_coe_profiles, \
-    grad_terms, grading_terms, graduate_programs, intended_majors, level_options, majors, minors, student_admit_college_options, \
+    grad_terms, grading_terms, graduate_programs, incomplete_types, intended_majors, \
+    level_options, majors, minors, student_admit_college_options, \
     student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
     student_admit_residency_category_options, student_admit_special_program_cep_options, team_groups, \
     unit_range_options, visa_types
@@ -97,7 +98,8 @@ class CohortFilterOptions:
                 _range_filter('lastTermGpaRanges', 'GPA (Last Term)', labels_range=['', '-'], validation='gpa'),
                 _filter('graduatePrograms', 'Graduate Plan', options=graduate_programs()),
                 _boolean_filter('studentHolds', 'Holds'),
-                _boolean_filter('incomplete', 'Incomplete Grade'),
+                _filter('incomplete', 'Incomplete Grade', options=incomplete_types()),
+                _range_filter('incompleteDateRanges', 'Incomplete Scheduled Grades', labels_range=['From', 'to'], validation='date'),
                 _filter('intendedMajors', 'Intended Major', options=intended_majors()),
                 _filter('levels', 'Level', options=level_options()),
                 _filter('majors', 'Major', options=majors()),
