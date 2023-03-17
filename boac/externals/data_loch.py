@@ -1395,12 +1395,12 @@ def get_admitted_students_query(
 def _incomplete_criteria(incomplete_date_ranges, incomplete_statuses):
     criteria = []
     if incomplete_date_ranges:
+        date_criteria = []
         for r in incomplete_date_ranges:
-            date_criteria = []
             if re.match('^\\d{4}-\\d{2}-\\d{2}$', r['min']) and re.match('^\\d{4}-\\d{2}-\\d{2}$', r['max']):
                 date_criteria.append(f"(si.lapse_date >= '{r['min']}' AND si.lapse_date <= '{r['max']}')")
-            if date_criteria:
-                criteria.append("(si.frozen IS FALSE AND si.status = 'I' AND (" + ' OR '.join(date_criteria) + '))')
+        if date_criteria:
+            criteria.append("(si.frozen IS FALSE AND si.status = 'I' AND (" + ' OR '.join(date_criteria) + '))')
     if incomplete_statuses:
         status_to_sql = {
             'failing': "(si.frozen IS FALSE AND si.status IN ('L', 'R') AND si.grade IN ('F', 'NP', 'U'))",
