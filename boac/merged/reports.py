@@ -213,7 +213,9 @@ def get_boa_note_count_by_month():
 def _get_cohorts_by_sid():
     sids = set()
     for row in db.session.execute('SELECT sids FROM cohort_filters'):
-        sids.update(row['sids'])
+        sid_list = row['sids']
+        if sid_list:
+            sids.update(sid_list)
     cohorts_by_sid = dict((sid, []) for sid in sids)
     for row in db.session.execute('SELECT id, name, sids FROM cohort_filters ORDER BY id'):
         cohort = {'id': row['id'], 'name': row['name']}
