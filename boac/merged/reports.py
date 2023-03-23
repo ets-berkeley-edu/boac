@@ -219,7 +219,8 @@ def _get_cohorts_by_sid():
     cohorts_by_sid = dict((sid, []) for sid in sids)
     for row in db.session.execute('SELECT id, name, sids FROM cohort_filters ORDER BY id'):
         cohort = {'id': row['id'], 'name': row['name']}
-        for sid in row['sids']:
+        sids = row['sids'] or []
+        for sid in sids:
             cohorts_by_sid[sid].append(cohort)
     return cohorts_by_sid
 
