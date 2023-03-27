@@ -106,7 +106,7 @@
       <b-row v-if="degreeNote && includeNote">
         <b-col class="pb-5 pt-3">
           <h3 id="degree-note" class="font-size-12 font-weight-bold">Degree Notes</h3>
-          <pre class="text-wrap">{{ degreeNote.body }}</pre>
+          <pre class="text-wrap" v-html="degreeNote.body" />
         </b-col>
       </b-row>
     </b-container>
