@@ -1,5 +1,9 @@
 {
   "name": "boac",
+  "engines": {
+    "npm": ">=8.0.0 <9.0.0",
+    "node": ">=16.0.0 <17.0.0"
+  },
   "scripts": {
     "build-vue": "vue-cli-service build --modern --dest 'dist/static'",
     "lint-vue": "vue-cli-service lint --config .eslintrc.js --no-fix",
