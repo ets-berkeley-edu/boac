@@ -358,6 +358,7 @@ def get_current_user_profile():
         **current_user.to_api_json(),
         'myCohorts': cohorts,
         'myCuratedGroups': get_my_curated_groups(),
+        'myDraftNoteCount': 0,
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',
