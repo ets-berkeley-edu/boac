@@ -34,7 +34,7 @@
         <span
           :id="`sidebar-${idFragment}-${index}-count`"
           class="sidebar-pill"
-        >{{ group.totalStudentCount }}<span class="sr-only">{{ pluralize('student', group.totalStudentCount) }}</span>
+        >{{ group.totalStudentCount }}<span class="sr-only"> {{ pluralize('student', group.totalStudentCount) }}</span>
         </span>
       </div>
     </div>

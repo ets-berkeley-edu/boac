@@ -37,26 +37,34 @@
       </div>
     </div>
     <div
-      v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData"
-      class="batch-note-button d-flex fixed-bottom justify-content-center mb-3 pl-3 pr-3"
+      v-if="$currentUser.canAccessAdvisingData"
+      class="batch-note-button fixed-bottom"
     >
-      <b-btn
-        id="batch-note-button"
-        :disabled="!!mode"
-        class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
-        variant="primary"
-        @click="isCreateNoteModalOpen = true"
+      <div :class="{'mb-3': $currentUser.isAdmin}">
+        <LinkToDraftNotes />
+      </div>
+      <div
+        v-if="!$currentUser.isAdmin"
+        class="d-flex justify-content-center mb-3 pl-3 pr-3"
       >
-        <span class="m-1">
-          <font-awesome icon="file-alt" />
-          New Note
-        </span>
-      </b-btn>
-      <CreateNoteModal
-        v-if="isCreateNoteModalOpen"
-        :is-batch-feature="true"
-        :on-close="onCreateNoteModalClose"
-      />
+        <b-btn
+          id="batch-note-button"
+          :disabled="!!mode"
+          class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
+          variant="primary"
+          @click="isCreateNoteModalOpen = true"
+        >
+          <span class="m-1">
+            <font-awesome icon="file-alt" />
+            New Note
+          </span>
+        </b-btn>
+        <CreateNoteModal
+          v-if="isCreateNoteModalOpen"
+          :is-batch-feature="true"
+          :on-close="onCreateNoteModalClose"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -66,6 +74,7 @@ import Cohorts from '@/components/sidebar/Cohorts.vue'
 import Context from '@/mixins/Context'
 import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
+import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
 
@@ -75,6 +84,7 @@ export default {
     Cohorts,
     CreateNoteModal,
     CuratedGroups,
+    LinkToDraftNotes,
     MyAdmitCohorts
   },
   mixins: [Context, Util],

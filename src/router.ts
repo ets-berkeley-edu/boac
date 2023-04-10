@@ -10,6 +10,7 @@ const CreateCuratedGroup = () => import('@/views/CreateCuratedGroup.vue')
 const CreateDegreeTemplate = () => import('@/views/degree/CreateDegreeTemplate.vue')
 const CuratedGroup = () => import('@/views/CuratedGroup.vue')
 const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
+const DraftNotes = () => import('@/views/DraftNotes.vue')
 const DropInAdvisorHome = () => import('@/views/DropInAdvisorHome.vue')
 const DropInDesk = () => import('@/views/DropInDesk.vue')
 const Error = () => import('@/views/Error.vue')
@@ -129,6 +130,12 @@ const router = new Router({
           path: '/groups/all',
           component: AllGroups,
           name: 'All Groups'
+        },
+        {
+          path: '/note/drafts',
+          component: DraftNotes,
+          props: true,
+          name: 'Create Curated Group'
         },
         {
           path: '/search',
