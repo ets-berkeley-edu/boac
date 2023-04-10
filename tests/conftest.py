@@ -35,6 +35,7 @@ from boac import std_commit
 import boac.factory
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
+from boac.models.note_draft import NoteDraft
 from boac.models.note_template import NoteTemplate
 from flask_login import logout_user
 from moto import mock_sts
@@ -289,6 +290,35 @@ def mock_advising_note(app, db):
     yield note
     Note.delete(note_id=note.id)
     std_commit(allow_test_environment=True)
+
+
+@pytest.fixture()
+def mock_note_draft(app, db):
+    """Create advising note draft with attachment (mock s3)."""
+    with mock_advising_note_s3_bucket(app):
+        base_dir = app.config['BASE_DIR']
+        path_to_file = f'{base_dir}/fixtures/mock_note_draft_attachment_1.txt'
+        timestamp = datetime.now().timestamp()
+        with open(path_to_file, 'r') as file:
+            note_draft = NoteDraft.create(
+                creator_id=AuthorizedUser.get_id_per_uid('242881'),
+                title=f'Potholes in my lawn ({timestamp})',
+                sids=['11667051', '2345678901'],
+                subject=f'It\'s unwise to leave my garden untended ({timestamp})',
+                body="""
+                    See, I've found that everyone's sayin'
+                    What to do when suckers are preyin'
+                """,
+                topics=['Three Feet High', 'Rising'],
+                attachments=[
+                    {
+                        'name': path_to_file.rsplit('/', 1)[-1],
+                        'byte_stream': file.read(),
+                    },
+                ],
+            )
+            std_commit(allow_test_environment=True)
+            return note_draft
 
 
 @pytest.fixture()

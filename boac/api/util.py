@@ -41,6 +41,7 @@ from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
+from boac.models.note_draft import NoteDraft
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -351,14 +352,16 @@ def put_notifications(student):
 
 def get_current_user_profile():
     cohorts = []
-    for cohort in CohortFilter.get_cohorts(current_user.get_id()):
+    user_id = current_user.get_id()
+    for cohort in CohortFilter.get_cohorts(user_id):
         cohort['isOwnedByCurrentUser'] = True
         cohorts.append(cohort)
+    draft_note_count = NoteDraft.get_draft_note_count(None if current_user.is_admin else user_id)
     return {
         **current_user.to_api_json(),
         'myCohorts': cohorts,
         'myCuratedGroups': get_my_curated_groups(),
-        'myDraftNoteCount': 0,
+        'myDraftNoteCount': draft_note_count,
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',
