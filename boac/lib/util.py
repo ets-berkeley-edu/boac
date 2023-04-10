@@ -235,6 +235,8 @@ def note_attachment_to_api_json(attachment):
     }
     if hasattr(attachment, 'note_id'):
         api_json['noteId'] = attachment.note_id
+    if hasattr(attachment, 'note_draft_id'):
+        api_json['noteDraftId'] = attachment.note_draft_id
     elif hasattr(attachment, 'note_template_id'):
         api_json['noteTemplateId'] = attachment.note_template_id
     return api_json

@@ -671,6 +671,83 @@ CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_
 
 --
 
+CREATE TABLE note_drafts (
+    id INTEGER NOT NULL,
+    body text,
+    creator_id INTEGER NOT NULL,
+    sids VARCHAR(80)[] NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    deleted_at TIMESTAMP WITH TIME ZONE
+);
+ALTER TABLE note_drafts OWNER TO boac;
+CREATE SEQUENCE note_drafts_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE note_drafts_id_seq OWNER TO boac;
+ALTER SEQUENCE note_drafts_id_seq OWNED BY note_drafts.id;
+ALTER TABLE ONLY note_drafts ALTER COLUMN id SET DEFAULT nextval('note_drafts_id_seq'::regclass);
+ALTER TABLE ONLY note_drafts ADD CONSTRAINT note_drafts_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY note_drafts
+    ADD CONSTRAINT note_drafts_creator_id_title_unique_constraint UNIQUE (creator_id, title, deleted_at);
+CREATE INDEX note_drafts_creator_id_idx ON note_drafts USING btree (creator_id);
+
+--
+
+CREATE TABLE note_draft_attachments (
+    id integer NOT NULL,
+    note_draft_id INTEGER NOT NULL,
+    path_to_attachment character varying(255) NOT NULL,
+    uploaded_by_uid character varying(255) NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    deleted_at timestamp with time zone
+);
+ALTER TABLE note_draft_attachments OWNER TO boac;
+CREATE SEQUENCE note_draft_attachments_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE note_draft_attachments_id_seq OWNER TO boac;
+ALTER SEQUENCE note_draft_attachments_id_seq OWNED BY note_draft_attachments.id;
+ALTER TABLE ONLY note_draft_attachments ALTER COLUMN id SET DEFAULT nextval('note_draft_attachments_id_seq'::regclass);
+ALTER TABLE ONLY note_draft_attachments
+    ADD CONSTRAINT note_draft_attachments_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY note_draft_attachments
+    ADD CONSTRAINT nta_note_draft_id_path_to_attachment_unique_constraint UNIQUE (note_draft_id, path_to_attachment);
+CREATE INDEX note_draft_attachments_note_draft_id_idx ON note_draft_attachments USING btree (note_draft_id);
+
+--
+
+CREATE TABLE note_draft_topics (
+    id INTEGER NOT NULL,
+    note_draft_id INTEGER NOT NULL,
+    topic VARCHAR(50) NOT NULL
+);
+ALTER TABLE note_draft_topics OWNER TO boac;
+CREATE SEQUENCE note_draft_topics_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+ALTER TABLE note_draft_topics_id_seq OWNER TO boac;
+ALTER SEQUENCE note_draft_topics_id_seq OWNED BY note_draft_topics.id;
+ALTER TABLE ONLY note_draft_topics ALTER COLUMN id SET DEFAULT nextval('note_draft_topics_id_seq'::regclass);
+ALTER TABLE ONLY note_draft_topics
+    ADD CONSTRAINT note_draft_topics_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY note_draft_topics
+    ADD CONSTRAINT note_draft_topics_note_draft_id_topic_unique_constraint UNIQUE (note_draft_id, topic);
+CREATE INDEX note_draft_topics_note_draft_id_idx ON note_draft_topics (note_draft_id);
+
+--
+
 CREATE TABLE note_templates (
     id INTEGER NOT NULL,
     body text,
@@ -1096,6 +1173,11 @@ ALTER TABLE ONLY notes_read
 
 ALTER TABLE ONLY note_attachments
     ADD CONSTRAINT note_attachments_note_id_fkey FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
+
+--
+
+ALTER TABLE ONLY note_drafts
+    ADD CONSTRAINT note_drafts_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
