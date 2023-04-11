@@ -25,10 +25,7 @@ import Util from '@/mixins/Util.vue'
 export default {
   name: 'LinkToDraftNotes',
   components: {NavLink},
-  mixins: [Util],
-  data: () => ({
-    myDraftNoteCount: undefined
-  })
+  mixins: [Util]
 }
 </script>
 

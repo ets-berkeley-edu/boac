@@ -677,7 +677,6 @@ CREATE TABLE note_drafts (
     creator_id INTEGER NOT NULL,
     sids VARCHAR(80)[] NOT NULL,
     subject VARCHAR(255) NOT NULL,
-    title VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
     deleted_at TIMESTAMP WITH TIME ZONE
@@ -693,8 +692,6 @@ ALTER TABLE note_drafts_id_seq OWNER TO boac;
 ALTER SEQUENCE note_drafts_id_seq OWNED BY note_drafts.id;
 ALTER TABLE ONLY note_drafts ALTER COLUMN id SET DEFAULT nextval('note_drafts_id_seq'::regclass);
 ALTER TABLE ONLY note_drafts ADD CONSTRAINT note_drafts_pkey PRIMARY KEY (id);
-ALTER TABLE ONLY note_drafts
-    ADD CONSTRAINT note_drafts_creator_id_title_unique_constraint UNIQUE (creator_id, title, deleted_at);
 CREATE INDEX note_drafts_creator_id_idx ON note_drafts USING btree (creator_id);
 
 --

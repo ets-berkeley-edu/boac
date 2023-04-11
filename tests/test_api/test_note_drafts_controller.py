@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note_draft import NoteDraft
 from boac.models.note_draft_attachment import NoteDraftAttachment
-import simplejson as json
 from sqlalchemy import and_
 from tests.util import mock_advising_note_s3_bucket
 
@@ -64,7 +63,6 @@ class TestGetNoteDraft:
         fake_auth.login(l_s_major_advisor_uid)
         api_json = self._api_note_draft(client=client, note_draft_id=mock_note_draft.id)
         assert api_json.get('id') == mock_note_draft.id
-        assert api_json.get('title') == mock_note_draft.title
         assert api_json.get('subject') == mock_note_draft.subject
         for key in ('attachments', 'body', 'topics', 'createdAt', 'updatedAt'):
             assert key in api_json
@@ -91,18 +89,16 @@ class TestMyNoteDrafts:
         """Returns note templates created by current user."""
         fake_auth.login(l_s_major_advisor_uid)
         creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
-        names = ['Johnny', 'Tommy', 'Joey', 'Dee Dee']
         for i in range(0, 4):
             NoteDraft.create(
                 creator_id=creator_id,
                 subject=f'Subject {i}',
                 sids=['11667051'],
-                title=f'{names[i]}',
             )
         api_json = self._api_my_note_drafts(client=client)
-        expected_order = [template['title'] for template in api_json]
+        expected_order = [template['subject'] for template in api_json]
         expected_order.sort()
-        assert expected_order == [template['title'] for template in api_json]
+        assert expected_order == [template['subject'] for template in api_json]
 
 
 class TestCreateNoteDraft:
@@ -115,7 +111,6 @@ class TestCreateNoteDraft:
             expected_status_code=401,
             sids=['11667051', '2345678901'],
             subject='...but you can\'t come in',
-            title='Keep a knockin\'',
         )
 
     def test_admin_is_unauthorized(self, app, client, fake_auth):
@@ -127,7 +122,6 @@ class TestCreateNoteDraft:
             expected_status_code=403,
             sids=['11667051'],
             subject='Sorry \'bout it',
-            title='Ain\'t gonna happen',
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth):
@@ -139,13 +133,11 @@ class TestCreateNoteDraft:
             expected_status_code=401,
             sids=['11667051'],
             subject='Nooooooope',
-            title='Nope',
         )
 
     def test_create_note_draft(self, app, client, fake_auth):
         """Create a note template."""
         fake_auth.login(coe_advisor_uid)
-        title = 'I get it, I got it'
         subject = 'I know it\'s good'
         base_dir = app.config['BASE_DIR']
         api_json = _api_create_note_draft(
@@ -158,7 +150,6 @@ class TestCreateNoteDraft:
             client=client,
             sids=['11667051', '2345678901'],
             subject=subject,
-            title=title,
             topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
         )
         note_draft_id = api_json.get('id')
@@ -166,7 +157,6 @@ class TestCreateNoteDraft:
         assert note_draft_id == note_draft.id
         assert len(note_draft.sids) == 2
         assert subject == note_draft.subject
-        assert title == note_draft.title
         assert len(note_draft.topics) == 3
         assert len(note_draft.attachments) == 2
 
@@ -180,7 +170,6 @@ class TestUpdateNoteDraft:
             client,
             note_draft_id,
             subject,
-            title,
             attachments=(),
             body=None,
             delete_attachment_ids=(),
@@ -196,7 +185,6 @@ class TestUpdateNoteDraft:
                 'sids': sids,
                 'subject': subject,
                 'topics': ','.join(topics),
-                'title': title,
             }
             for index, path in enumerate(attachments):
                 data[f'attachment[{index}]'] = open(path, 'rb')
@@ -217,7 +205,6 @@ class TestUpdateNoteDraft:
             expected_status_code=401,
             note_draft_id=mock_note_draft.id,
             subject='Hack the subject!',
-            title='Hack the title!',
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth, mock_note_draft):
@@ -229,7 +216,6 @@ class TestUpdateNoteDraft:
             expected_status_code=401,
             note_draft_id=mock_note_draft.id,
             subject='Nooooooope',
-            title='Nope',
         )
 
     def test_unauthorized_note_draft_update(self, app, client, fake_auth, mock_note_draft):
@@ -242,7 +228,6 @@ class TestUpdateNoteDraft:
             expected_status_code=403,
             note_draft_id=mock_note_draft.id,
             subject='Hack the subject!',
-            title='Hack the title!',
         )
         assert NoteDraft.find_by_id(mock_note_draft.id).subject == original_subject
 
@@ -256,7 +241,6 @@ class TestUpdateNoteDraft:
             client=client,
             note_draft_id=mock_note_draft.id,
             subject=mock_note_draft.subject,
-            title=mock_note_draft.title,
             topics=expected_topics,
         )
         assert len(api_json['topics']) == 2
@@ -272,7 +256,6 @@ class TestUpdateNoteDraft:
             client=client,
             note_draft_id=mock_note_draft.id,
             subject=mock_note_draft.subject,
-            title=mock_note_draft.title,
             topics=(),
         )
         assert not api_json['topics']
@@ -293,7 +276,6 @@ class TestUpdateNoteDraft:
             client=client,
             note_draft_id=mock_note_draft.id,
             subject=mock_note_draft.subject,
-            title=mock_note_draft.title,
         )
         assert mock_note_draft.id == updated_note['attachments'][0]['noteDraftId']
         assert len(updated_note['attachments']) == 1
@@ -310,72 +292,6 @@ class TestUpdateNoteDraft:
         assert len(attachments) == 1
         assert filename in attachments[0].path_to_attachment
         assert not NoteDraftAttachment.find_by_id(attachment_id)
-
-
-class TestRenameNoteDraft:
-
-    @classmethod
-    def _api_note_draft_rename(
-            cls,
-            client,
-            note_draft_id,
-            title,
-            expected_status_code=200,
-    ):
-        response = client.post(
-            '/api/note_draft/rename',
-            data=json.dumps({
-                'id': note_draft_id,
-                'title': title,
-            }),
-            content_type='application/json',
-        )
-        assert response.status_code == expected_status_code
-        return response.json
-
-    def test_rename_note_draft_not_authenticated(self, app, mock_note_draft, client):
-        """Returns 401 if not authenticated."""
-        self._api_note_draft_rename(
-            client,
-            note_draft_id=mock_note_draft.id,
-            title='Hack the title!',
-            expected_status_code=401,
-        )
-
-    def test_user_without_advising_data_access(self, client, fake_auth, mock_note_draft):
-        """Denies access to a user who cannot access notes and appointments."""
-        fake_auth.login(coe_advisor_no_advising_data_uid)
-        self._api_note_draft_rename(
-            client,
-            note_draft_id=mock_note_draft.id,
-            title='Nopity Nope',
-            expected_status_code=401,
-        )
-
-    def test_rename_note_draft_unauthorized(self, app, client, fake_auth, mock_note_draft):
-        """Deny user's attempt to rename someone else's note template."""
-        original_subject = mock_note_draft.subject
-        fake_auth.login(coe_advisor_uid)
-        assert self._api_note_draft_rename(
-            client,
-            note_draft_id=mock_note_draft.id,
-            title='Hack the title!',
-            expected_status_code=403,
-        )
-        assert NoteDraft.find_by_id(mock_note_draft.id).subject == original_subject
-
-    def test_update_note_draft_topics(self, app, client, fake_auth, mock_note_draft):
-        """Update note template title."""
-        user = AuthorizedUser.find_by_id(mock_note_draft.creator_id)
-        fake_auth.login(user.uid)
-        expected_title = 'As cool as Kim Deal'
-        api_json = self._api_note_draft_rename(
-            client,
-            note_draft_id=mock_note_draft.id,
-            title=expected_title,
-        )
-        assert api_json['title'] == expected_title
-        assert NoteDraft.find_by_id(mock_note_draft.id).title == expected_title
 
 
 class TestDeleteNoteDraft:
@@ -409,7 +325,6 @@ class TestDeleteNoteDraft:
             client=client,
             sids=['11667051'],
             subject='I want to be free',
-            title='Delete me!',
         )
         assert len(note_draft.get('attachments')) == 1
         attachment_id = note_draft.get('attachments')[0]['id']
@@ -426,7 +341,6 @@ def _api_create_note_draft(
         client,
         sids,
         subject,
-        title,
         attachments=(),
         body=None,
         expected_status_code=200,
@@ -437,7 +351,6 @@ def _api_create_note_draft(
             'body': body,
             'sids': ','.join(sids),
             'subject': subject,
-            'title': title,
             'topics': ','.join(topics),
         }
         for index, path in enumerate(attachments):

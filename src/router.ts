@@ -135,7 +135,7 @@ const router = new Router({
           path: '/note/drafts',
           component: DraftNotes,
           props: true,
-          name: 'Create Curated Group'
+          name: 'Draft Notes'
         },
         {
           path: '/search',
