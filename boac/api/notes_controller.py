@@ -23,7 +23,6 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
-from datetime import datetime
 import urllib.parse
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
@@ -33,6 +32,7 @@ from boac.api.util import (
     get_note_attachments_from_http_post,
     get_note_topics_from_http_post,
     get_template_attachment_ids_from_http_post,
+    validate_advising_note_set_date,
 )
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
@@ -92,7 +92,7 @@ def create_notes():
     body = params.get('body', None)
     contact_type = _validate_contact_type(params)
     is_private = to_bool_or_none(params.get('isPrivate', False))
-    set_date = _validate_set_date(params)
+    set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
@@ -154,7 +154,7 @@ def update_note():
     contact_type = _validate_contact_type(params)
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
-    set_date = _validate_set_date(params)
+    set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
 
@@ -352,16 +352,6 @@ def _validate_contact_type(params):
     if contact_type and contact_type not in note_contact_type_enum.enums:
         raise BadRequestError('Unrecognized contact type')
     return contact_type
-
-
-def _validate_set_date(params):
-    set_date = params.get('setDate') or None
-    if set_date:
-        try:
-            datetime.strptime(set_date, '%Y-%m-%d').date()
-        except (TypeError, ValueError):
-            raise BadRequestError('Invalid set date format')
-    return set_date
 
 
 def _boa_note_to_compatible_json(note, note_read):

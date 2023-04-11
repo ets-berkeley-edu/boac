@@ -24,10 +24,15 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
-from boac.api.util import advising_data_access_required, get_note_attachments_from_http_post, get_note_topics_from_http_post
+from boac.api.util import (
+    advising_data_access_required,
+    get_note_attachments_from_http_post,
+    get_note_topics_from_http_post,
+    validate_advising_note_set_date,
+)
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
-from boac.lib.util import process_input_from_rich_text_editor
+from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
 from boac.models.note_draft import NoteDraft
 from flask import current_app as app, request
 from flask_login import current_user
@@ -37,8 +42,11 @@ from flask_login import current_user
 @advising_data_access_required
 def create_note_draft():
     params = request.form
-    subject = params.get('subject', None)
     body = params.get('body', None)
+    contact_type = params.get('contactType', None)
+    is_private = to_bool_or_none(params.get('isPrivate', False))
+    set_date = validate_advising_note_set_date(params)
+    subject = params.get('subject', None)
     sids = _get_sids_from_http_post()
     topics = get_note_topics_from_http_post()
     if not sids or not subject:
@@ -52,7 +60,10 @@ def create_note_draft():
     note_draft = NoteDraft.create(
         attachments=attachments,
         body=process_input_from_rich_text_editor(body),
+        contact_type=contact_type,
         creator_id=current_user.get_id(),
+        is_private=is_private,
+        set_date=set_date,
         sids=sids,
         subject=subject,
         topics=topics,
@@ -100,9 +111,12 @@ def update_note_draft():
         raise ForbiddenRequestError('Draft not available.')
     note_draft = NoteDraft.update(
         attachments=get_note_attachments_from_http_post(tolerate_none=True),
+        contact_type=None,
         body=process_input_from_rich_text_editor(body),
         delete_attachment_ids=delete_attachment_ids,
         note_draft_id=note_draft_id,
+        is_private=False,
+        set_date=None,
         sids=sids,
         subject=subject,
         topics=topics,

@@ -91,8 +91,11 @@ class TestMyNoteDrafts:
         creator_id = AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid)
         for i in range(0, 4):
             NoteDraft.create(
+                contact_type=None,
                 creator_id=creator_id,
                 subject=f'Subject {i}',
+                is_private=False,
+                set_date=None,
                 sids=['11667051'],
             )
         api_json = self._api_my_note_drafts(client=client)

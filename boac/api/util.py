@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from datetime import datetime
 from functools import wraps
 import json
 
@@ -46,8 +47,6 @@ from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
 from flask_login import current_user
-
-"""Utility module containing standard API-feed translations of data objects."""
 
 
 def admin_required(func):
@@ -468,6 +467,16 @@ def response_with_students_csv_download(benchmark, domain, fieldnames, sids, ter
             sids=sids,
             term_id=term_id,
         )
+
+
+def validate_advising_note_set_date(params):
+    set_date = params.get('setDate') or None
+    if set_date:
+        try:
+            datetime.strptime(set_date, '%Y-%m-%d').date()
+        except (TypeError, ValueError):
+            raise BadRequestError('Invalid set date format')
+    return set_date
 
 
 def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
