@@ -82,7 +82,6 @@ export default {
     }
   },
   data: () => ({
-    isLoading: true,
     totalUserCount: undefined
   }),
   watch: {

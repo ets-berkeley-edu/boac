@@ -43,7 +43,6 @@ class NoteDraft(Base):
     deleted_at = db.Column(db.DateTime, nullable=True)
     sids = db.Column(ARRAY(db.String(80)), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
     topics = db.relationship(
         'NoteDraftTopic',
         primaryjoin='and_(NoteDraft.id==NoteDraftTopic.note_draft_id)',
@@ -57,19 +56,11 @@ class NoteDraft(Base):
         lazy=True,
     )
 
-    __table_args__ = (db.UniqueConstraint(
-        'creator_id',
-        'title',
-        'deleted_at',
-        name='student_groups_owner_id_name_unique_constraint',
-    ),)
-
-    def __init__(self, body, creator_id, sids, subject, title):
+    def __init__(self, body, creator_id, sids, subject):
         self.body = body
         self.creator_id = creator_id
         self.sids = sids
         self.subject = subject
-        self.title = title
 
     @classmethod
     def create(
@@ -77,7 +68,6 @@ class NoteDraft(Base):
             creator_id,
             sids,
             subject,
-            title,
             attachments=(),
             body='',
             topics=(),
@@ -89,7 +79,6 @@ class NoteDraft(Base):
                 creator_id=creator_id,
                 sids=sids,
                 subject=subject,
-                title=title,
             )
             for topic in topics:
                 note_draft.topics.append(
@@ -113,8 +102,12 @@ class NoteDraft(Base):
         return cls.query.filter(and_(cls.id == note_draft_id, cls.deleted_at == None)).first()  # noqa: E711
 
     @classmethod
+    def get_all_draft_notes(cls):
+        return cls.query.filter_by(deleted_at=None).order_by(cls.subject).all()
+
+    @classmethod
     def get_drafts_created_by(cls, creator_id):
-        return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.title).all()
+        return cls.query.filter_by(creator_id=creator_id, deleted_at=None).order_by(cls.subject).all()
 
     @classmethod
     def get_draft_note_count(cls, user_id=None):
@@ -123,16 +116,6 @@ class NoteDraft(Base):
             sql += ' AND creator_id = :creator_id'
         results = db.session.execute(text(sql), {'creator_id': user_id})
         return results.first()['count']
-
-    @classmethod
-    def rename(cls, note_draft_id, title):
-        note_draft = cls.find_by_id(note_draft_id)
-        if note_draft:
-            note_draft.title = title
-            std_commit()
-            return note_draft
-        else:
-            return None
 
     @classmethod
     def update(
@@ -174,20 +157,31 @@ class NoteDraft(Base):
                 db.session.delete(topic)
             std_commit()
 
-    def to_api_json(self):
+    def to_api_json(self, include_students=False):
+        from boac.externals import data_loch
+
         attachments = [a.to_api_json() for a in self.attachments if not a.deleted_at]
         topics = [t.to_api_json() for t in self.topics]
-        return {
+        api_json = {
             'id': self.id,
             'attachments': attachments,
             'body': self.body,
             'sids': self.sids,
             'subject': self.subject,
-            'title': self.title,
             'topics': topics,
             'createdAt': self.created_at.astimezone(tzutc()).isoformat(),
             'updatedAt': self.updated_at.astimezone(tzutc()).isoformat(),
         }
+        if include_students:
+            api_json['students'] = []
+            for student in data_loch.get_basic_student_data(sids=self.sids):
+                api_json['students'].append({
+                    'sid': student['sid'],
+                    'uid': student['uid'],
+                    'firstName': student['first_name'],
+                    'lastName': student['last_name'],
+                })
+        return api_json
 
     @classmethod
     def _update_note_draft_topics(cls, note_draft, topics):

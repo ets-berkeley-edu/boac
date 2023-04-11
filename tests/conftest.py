@@ -302,7 +302,6 @@ def mock_note_draft(app, db):
         with open(path_to_file, 'r') as file:
             note_draft = NoteDraft.create(
                 creator_id=AuthorizedUser.get_id_per_uid('242881'),
-                title=f'Potholes in my lawn ({timestamp})',
                 sids=['11667051', '2345678901'],
                 subject=f'It\'s unwise to leave my garden untended ({timestamp})',
                 body="""

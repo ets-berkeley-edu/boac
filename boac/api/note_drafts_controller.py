@@ -37,12 +37,11 @@ from flask_login import current_user
 @advising_data_access_required
 def create_note_draft():
     params = request.form
-    title = params.get('title', None)
     subject = params.get('subject', None)
     body = params.get('body', None)
     sids = _get_sids_from_http_post()
     topics = get_note_topics_from_http_post()
-    if not title or not sids or not subject:
+    if not sids or not subject:
         raise BadRequestError('Required parameters are missing')
     user_dept_codes = dept_codes_where_advising(current_user)
     if current_user.is_admin or not len(user_dept_codes):
@@ -56,10 +55,9 @@ def create_note_draft():
         creator_id=current_user.get_id(),
         sids=sids,
         subject=subject,
-        title=title,
         topics=topics,
     )
-    return tolerant_jsonify(note_draft.to_api_json())
+    return tolerant_jsonify(note_draft.to_api_json(include_students=True))
 
 
 @app.route('/api/note_draft/<note_draft_id>')
@@ -76,25 +74,9 @@ def get_note_draft(note_draft_id):
 @app.route('/api/note_drafts/my')
 @advising_data_access_required
 def get_my_note_drafts():
-    note_drafts = NoteDraft.get_drafts_created_by(creator_id=current_user.get_id())
-    return tolerant_jsonify([t.to_api_json() for t in note_drafts])
-
-
-@app.route('/api/note_draft/rename', methods=['POST'])
-@advising_data_access_required
-def rename_note_draft():
-    params = request.get_json()
-    note_draft_id = params.get('id', None)
-    title = params.get('title', None)
-    if not title:
-        raise BadRequestError('Requires \'title\'')
-    note_draft = NoteDraft.find_by_id(note_draft_id=note_draft_id)
-    if not note_draft:
-        raise ResourceNotFoundError('Draft not found')
-    if note_draft.creator_id != current_user.get_id():
-        raise ForbiddenRequestError('Draft not available.')
-    note_draft = NoteDraft.rename(note_draft_id=note_draft_id, title=title)
-    return tolerant_jsonify(note_draft.to_api_json())
+    user_id = current_user.get_id()
+    note_drafts = NoteDraft.get_all_draft_notes() if current_user.is_admin else NoteDraft.get_drafts_created_by(creator_id=user_id)
+    return tolerant_jsonify([t.to_api_json(include_students=True) for t in note_drafts])
 
 
 @app.route('/api/note_draft/update', methods=['POST'])
