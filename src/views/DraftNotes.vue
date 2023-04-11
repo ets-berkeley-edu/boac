@@ -58,7 +58,33 @@
           </span>
         </template>
         <template v-slot:cell(subject)="row">
-          {{ row.item.subject }}
+          <div class="ml-1 truncate-with-ellipsis">
+            <span v-if="row.item.creatorId !== $currentUser.id">
+              {{ row.item.subject }}
+            </span>
+            <b-btn
+              v-if="row.item.creatorId === $currentUser.id"
+              :id="`open-draft-note-${row.item.id}`"
+              variant="text"
+              @click="() => openDraftNote(row.item.id)"
+            >
+              {{ row.item.subject }}
+            </b-btn>
+            <b-modal
+              v-if="showEditUserModal"
+              v-model="showEditUserModal"
+              body-class="pl-0 pr-0"
+              hide-footer
+              hide-header
+              @shown="$putFocusNextTick('modal-header')"
+            >
+              <EditDraftNote
+                :after-cancel="afterCancelEdit"
+                :after-saved="afterSaveDraftNote"
+                :draft-note-id="editingNoteDraftId"
+              />
+            </b-modal>
+          </div>
         </template>
         <template v-slot:cell(updatedAt)="row">
           <TimelineDate :date="row.item.updatedAt" sr-prefix="Draft note saved on" />
@@ -69,6 +95,7 @@
 </template>
 
 <script>
+import EditDraftNote from '@/components/note/EditDraftNote.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable.vue'
 import Spinner from '@/components/util/Spinner.vue'
@@ -79,8 +106,9 @@ import {getMyNoteDrafts} from '@/api/note-drafts'
 export default {
   name: 'DraftNotes',
   mixins: [Loading, Scrollable, Util],
-  components: {Spinner, TimelineDate},
+  components: {EditDraftNote, Spinner, TimelineDate},
   data: () => ({
+    editingNoteDraftId: undefined,
     myNoteDrafts: undefined
   }),
   created() {
@@ -89,6 +117,31 @@ export default {
       this.myNoteDrafts = data
       this.loaded('Draft notes list is ready.')
     })
+  },
+  computed: {
+    showEditUserModal: {
+      get() {
+        return !!this.editingNoteDraftId
+      },
+      set(value) {
+        if (!value) {
+          this.editingNoteDraftId = null
+        }
+      }
+    }
+  },
+  methods: {
+    afterCancelEdit() {
+      this.editingNoteDraftId = null
+    },
+    afterSaveDraftNote(data) {
+      const existing = this.$_.find(this.myNoteDrafts, ['id', this.editingNoteDraftId])
+      Object.assign(existing, data)
+      this.editingNoteDraftId = null
+    },
+    openDraftNote(noteDraftId) {
+      this.editingNoteDraftId = noteDraftId
+    }
   }
 }
 </script>

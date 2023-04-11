@@ -3,12 +3,6 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
-export function getMyNoteDrafts() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/note_drafts/my`)
-    .then(response => response.data, () => null)
-}
-
 export function createNoteDraft(
     attachments: any[],
     body: string,
@@ -31,25 +25,34 @@ export function deleteNoteDraft(draftNoteId: number) {
   })
 }
 
-export function renameNoteDraft(draftNoteId: number, title: string) {
-  const data = {id: draftNoteId, title: title}
-  return axios.post(`${utils.apiBaseUrl()}/api/note_draft/rename`, data).then(response => {
-    return response.data
-  })
+export function getMyNoteDrafts() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/note_drafts/my`)
+    .then(response => response.data, () => null)
+}
+
+export function getNoteDraft(noteId) {
+  return axios.get(`${utils.apiBaseUrl()}/api/note_draft/${noteId}`).then(response => response.data, () => null)
 }
 
 export function updateNoteDraft(
     body: string,
+    contactType: string,
     deleteAttachmentIds: number[],
     draftNoteId: number,
+    isPrivate: boolean,
     newAttachments: any[],
+    setDate: string,
     subject: string,
     topics: string[]
 ) {
   const data = {
     body,
+    contactType,
     deleteAttachmentIds: deleteAttachmentIds || [],
     id: draftNoteId,
+    isPrivate,
+    setDate,
     subject,
     topics,
   }

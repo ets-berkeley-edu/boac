@@ -27,6 +27,7 @@ from boac import db, std_commit
 from boac.lib.util import titleize, utc_now, vacuum_whitespace
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.base import Base
+from boac.models.note import note_contact_type_enum
 from boac.models.note_draft_attachment import NoteDraftAttachment
 from boac.models.note_draft_topic import NoteDraftTopic
 from dateutil.tz import tzutc
@@ -39,8 +40,11 @@ class NoteDraft(Base):
 
     id = db.Column(db.Integer, nullable=False, primary_key=True)  # noqa: A003
     body = db.Column(db.Text, nullable=False)
+    contact_type = db.Column(note_contact_type_enum, nullable=True)
     creator_id = db.Column(db.Integer, db.ForeignKey('authorized_users.id'), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
+    is_private = db.Column(db.Boolean, nullable=False, default=False)
+    set_date = db.Column(db.Date)
     sids = db.Column(ARRAY(db.String(80)), nullable=False)
     subject = db.Column(db.String(255), nullable=False)
     topics = db.relationship(
@@ -56,16 +60,31 @@ class NoteDraft(Base):
         lazy=True,
     )
 
-    def __init__(self, body, creator_id, sids, subject):
+    def __init__(
+            self,
+            body,
+            contact_type,
+            creator_id,
+            is_private,
+            set_date,
+            sids,
+            subject,
+    ):
         self.body = body
+        self.contact_type = contact_type
         self.creator_id = creator_id
+        self.is_private = is_private
+        self.set_date = set_date
         self.sids = sids
         self.subject = subject
 
     @classmethod
     def create(
             cls,
+            contact_type,
             creator_id,
+            is_private,
+            set_date,
             sids,
             subject,
             attachments=(),
@@ -76,7 +95,10 @@ class NoteDraft(Base):
         if creator:
             note_draft = cls(
                 body=body,
+                contact_type=contact_type,
                 creator_id=creator_id,
+                is_private=is_private,
+                set_date=set_date,
                 sids=sids,
                 subject=subject,
             )
@@ -121,7 +143,10 @@ class NoteDraft(Base):
     def update(
             cls,
             body,
+            contact_type,
+            is_private,
             note_draft_id,
+            set_date,
             sids,
             subject,
             attachments=(),
@@ -132,6 +157,9 @@ class NoteDraft(Base):
         if note_draft:
             creator = AuthorizedUser.find_by_id(note_draft.creator_id)
             note_draft.body = body
+            note_draft.contact_type = contact_type
+            note_draft.is_private = is_private
+            note_draft.set_date = set_date
             note_draft.sids = sids
             note_draft.subject = subject
             cls._update_note_draft_topics(note_draft, topics)
@@ -166,11 +194,16 @@ class NoteDraft(Base):
             'id': self.id,
             'attachments': attachments,
             'body': self.body,
+            'contactType': self.contact_type,
+            'creatorId': self.creator_id,
+            'isPrivate': self.is_private,
+            'setDate': self.set_date,
             'sids': self.sids,
             'subject': self.subject,
             'topics': topics,
             'createdAt': self.created_at.astimezone(tzutc()).isoformat(),
             'updatedAt': self.updated_at.astimezone(tzutc()).isoformat(),
+            'deletedAt': self.deleted_at and self.deleted_at.astimezone(tzutc()).isoformat(),
         }
         if include_students:
             api_json['students'] = []

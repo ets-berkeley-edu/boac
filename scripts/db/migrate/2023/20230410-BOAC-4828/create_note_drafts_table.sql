@@ -3,7 +3,10 @@ BEGIN;
 CREATE TABLE note_drafts (
     id SERIAL PRIMARY KEY,
     body text NOT NULL,
+    contact_type note_contact_types,
     creator_id INTEGER NOT NULL,
+    is_private BOOLEAN DEFAULT FALSE NOT NULL,
+    set_date DATE,
     sids VARCHAR(80)[] NOT NULL,
     subject VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
