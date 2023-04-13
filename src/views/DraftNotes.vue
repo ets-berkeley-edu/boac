@@ -7,29 +7,9 @@
     <div v-if="!loading">
       <b-table
         borderless
-        :fields="[
-          {
-            class: '',
-            key: 'students',
-            label: 'Student(s)'
-          },
-          {
-            class: '',
-            key: 'sids',
-            label: 'SID(s)'
-          },
-          {
-            class: '',
-            key: 'subject'
-          },
-          {
-            class: '',
-            key: 'updatedAt',
-            label: 'Saved'
-          }
-        ]"
+        :fields="fields"
         hover
-        :items="myNoteDrafts"
+        :items="myDraftNotes"
         responsive
         stacked="md"
         thead-class="text-nowrap text-secondary text-uppercase"
@@ -50,21 +30,22 @@
           </span>
         </template>
         <template v-slot:cell(sids)="row">
-          <span v-if="row.item.sids.length === 1">
-            {{ row.item.sids[0] }}
+          <span v-if="row.item.isDraftForSids.length === 1">
+            {{ row.item.isDraftForSids[0] }}
           </span>
-          <span v-if="row.item.sids.length > 1" class="font-italic">
+          <span v-if="row.item.isDraftForSids.length > 1" class="font-italic">
             Multiple
           </span>
         </template>
         <template v-slot:cell(subject)="row">
-          <div class="ml-1 truncate-with-ellipsis">
-            <span v-if="row.item.creatorId !== $currentUser.id">
+          <div class="truncate-with-ellipsis">
+            <span v-if="row.item.author.uid !== $currentUser.uid">
               {{ row.item.subject }}
             </span>
             <b-btn
-              v-if="row.item.creatorId === $currentUser.id"
+              v-if="row.item.author.uid === $currentUser.uid"
               :id="`open-draft-note-${row.item.id}`"
+              class="border-0 p-0"
               variant="text"
               @click="() => openDraftNote(row.item.id)"
             >
@@ -78,16 +59,36 @@
               hide-header
               @shown="$putFocusNextTick('modal-header')"
             >
-              <EditDraftNote
+              <EditAdvisingNote
                 :after-cancel="afterCancelEdit"
                 :after-saved="afterSaveDraftNote"
-                :draft-note-id="editingNoteDraftId"
+                :note-id="editingDraftNoteId"
               />
             </b-modal>
           </div>
         </template>
         <template v-slot:cell(updatedAt)="row">
-          <TimelineDate :date="row.item.updatedAt" sr-prefix="Draft note saved on" />
+          <TimelineDate
+            :date="row.item.updatedAt || row.item.createdAt"
+            sr-prefix="Draft note saved on"
+          />
+        </template>
+        <template v-slot:cell(delete)="row">
+          <div class="float-right min-width-100">
+            <b-button
+              v-if="!row.item.deletedAt"
+              class="pr-0"
+              variant="link"
+              @click="openDeleteModal(row.item)"
+            >
+              <font-awesome
+                icon="trash-alt"
+                aria-label="Delete"
+                class="text-secondary"
+                title="Delete"
+              />
+            </b-button>
+          </div>
         </template>
       </b-table>
     </div>
@@ -95,52 +96,83 @@
 </template>
 
 <script>
-import EditDraftNote from '@/components/note/EditDraftNote.vue'
+import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable.vue'
 import Spinner from '@/components/util/Spinner.vue'
 import TimelineDate from '@/components/student/profile/TimelineDate.vue'
 import Util from '@/mixins/Util.vue'
-import {getMyNoteDrafts} from '@/api/note-drafts'
+import {getMyDraftNotes} from '@/api/notes'
 
 export default {
   name: 'DraftNotes',
   mixins: [Loading, Scrollable, Util],
-  components: {EditDraftNote, Spinner, TimelineDate},
+  components: {EditAdvisingNote, Spinner, TimelineDate},
   data: () => ({
-    editingNoteDraftId: undefined,
-    myNoteDrafts: undefined
+    draftNoteToDelete: undefined,
+    editingDraftNoteId: undefined,
+    fields: [
+      {
+        class: '',
+        key: 'students',
+        label: 'Student(s)'
+      },
+      {
+        class: '',
+        key: 'sids',
+        label: 'SID(s)'
+      },
+      {
+        class: '',
+        key: 'subject'
+      },
+      {
+        class: '',
+        key: 'updatedAt',
+        label: 'Saved'
+      },
+      {
+        class: '',
+        key: 'delete',
+        label: 'Delete'
+      }
+    ],
+    myDraftNotes: undefined
   }),
   created() {
     this.scrollToTop()
-    getMyNoteDrafts().then(data => {
-      this.myNoteDrafts = data
+    getMyDraftNotes().then(data => {
+      this.myDraftNotes = data
       this.loaded('Draft notes list is ready.')
     })
   },
   computed: {
     showEditUserModal: {
       get() {
-        return !!this.editingNoteDraftId
+        return !!this.editingDraftNoteId
       },
       set(value) {
         if (!value) {
-          this.editingNoteDraftId = null
+          this.editingDraftNoteId = null
         }
       }
     }
   },
   methods: {
     afterCancelEdit() {
-      this.editingNoteDraftId = null
+      this.editingDraftNoteId = null
     },
     afterSaveDraftNote(data) {
-      const existing = this.$_.find(this.myNoteDrafts, ['id', this.editingNoteDraftId])
+      const existing = this.$_.find(this.myDraftNotes, ['id', this.editingDraftNoteId])
       Object.assign(existing, data)
-      this.editingNoteDraftId = null
+      this.editingDraftNoteId = null
+    },
+    openDeleteModal(draftNote) {
+      this.draftNoteToDelete = draftNote
+      this.$announcer.polite('Please confirm draft note deletion.')
     },
     openDraftNote(noteDraftId) {
-      this.editingNoteDraftId = noteDraftId
+      this.editingDraftNoteId = noteDraftId
     }
   }
 }

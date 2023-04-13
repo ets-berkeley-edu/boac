@@ -53,7 +53,6 @@ def register_routes(app):
     import boac.api.degree_progress_controller
     import boac.api.degree_progress_category_controller
     import boac.api.degree_progress_student_controller
-    import boac.api.note_drafts_controller
     import boac.api.note_templates_controller
     import boac.api.notes_controller
     import boac.api.reports_controller

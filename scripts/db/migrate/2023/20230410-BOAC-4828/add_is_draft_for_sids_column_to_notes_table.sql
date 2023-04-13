@@ -1,0 +1,5 @@
+BEGIN;
+
+ALTER TABLE notes ADD COLUMN IF NOT EXISTS is_draft_for_sids VARCHAR(80)[];
+
+COMMIT;

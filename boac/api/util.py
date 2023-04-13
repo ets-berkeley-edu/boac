@@ -42,7 +42,7 @@ from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
-from boac.models.note_draft import NoteDraft
+from boac.models.note import Note
 from boac.models.user_login import UserLogin
 from dateutil.tz import tzutc
 from flask import current_app as app, request
@@ -355,12 +355,11 @@ def get_current_user_profile():
     for cohort in CohortFilter.get_cohorts(user_id):
         cohort['isOwnedByCurrentUser'] = True
         cohorts.append(cohort)
-    draft_note_count = NoteDraft.get_draft_note_count(None if current_user.is_admin else user_id)
     return {
         **current_user.to_api_json(),
         'myCohorts': cohorts,
         'myCuratedGroups': get_my_curated_groups(),
-        'myDraftNoteCount': draft_note_count,
+        'myDraftNoteCount': Note.get_draft_note_count(None if current_user.is_admin else current_user.get_uid()),
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',

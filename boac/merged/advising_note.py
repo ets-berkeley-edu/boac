@@ -487,6 +487,7 @@ def note_to_compatible_json(
         'eForm': _eform_to_json(note) if note.get('eform_id') else None,
         'id': note.get('id'),
         'isPrivate': note.get('is_private') or False,
+        'isDraftForSids': note.get('is_draft_for_sids'),
         'read': True if note_read else False,
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
         'sid': note.get('sid'),
