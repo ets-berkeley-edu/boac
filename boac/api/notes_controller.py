@@ -193,6 +193,25 @@ def delete_note(note_id):
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
 
+@app.route('/api/notes/my_drafts')
+@advising_data_access_required
+def get_my_note_drafts():
+    api_json = []
+    draft_notes = Note.get_draft_notes(None if current_user.is_admin else current_user.get_uid())
+    for draft_note in draft_notes:
+        draft_note_json = _boa_note_to_compatible_json(note=draft_note, note_read=False)
+        draft_note_json['students'] = []
+        for student in data_loch.get_basic_student_data(sids=draft_note.is_draft_for_sids):
+            draft_note_json['students'].append({
+                'sid': student['sid'],
+                'uid': student['uid'],
+                'firstName': student['first_name'],
+                'lastName': student['last_name'],
+            })
+        api_json.append(draft_note_json)
+    return tolerant_jsonify(api_json)
+
+
 @app.route('/api/notes/<note_id>/attachments', methods=['POST'])
 @advising_data_access_required
 def add_attachments(note_id):

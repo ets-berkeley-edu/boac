@@ -12,6 +12,12 @@ export function getNote(noteId) {
     .then(response => response.data, () => null)
 }
 
+export function getMyDraftNotes() {
+  return axios
+    .get(`${utils.apiBaseUrl()}/api/notes/my_drafts`)
+    .then(response => response.data, () => null)
+}
+
 export function markNoteRead(noteId) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)

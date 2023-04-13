@@ -35,7 +35,6 @@ from boac import std_commit
 import boac.factory
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
-from boac.models.note_draft import NoteDraft
 from boac.models.note_template import NoteTemplate
 from flask_login import logout_user
 from moto import mock_sts
@@ -300,22 +299,26 @@ def mock_note_draft(app, db):
         path_to_file = f'{base_dir}/fixtures/mock_note_draft_attachment_1.txt'
         timestamp = datetime.now().timestamp()
         with open(path_to_file, 'r') as file:
-            note_draft = NoteDraft.create(
+            note_author_uid = '90412'
+            note_draft = Note.create(
                 attachments=[
                     {
                         'name': path_to_file.rsplit('/', 1)[-1],
                         'byte_stream': file.read(),
                     },
                 ],
+                author_uid=note_author_uid,
+                author_name='Joni Mitchell CC',
+                author_role='Director',
+                author_dept_codes=['UWASC'],
                 body="""
                     See, I've found that everyone's sayin'
                     What to do when suckers are preyin'
                 """,
                 contact_type=None,
-                creator_id=AuthorizedUser.get_id_per_uid('242881'),
+                is_draft_for_sids=['11667051', '2345678901'],
                 is_private=False,
                 set_date=None,
-                sids=['11667051', '2345678901'],
                 subject=f'It\'s unwise to leave my garden untended ({timestamp})',
                 topics=['Three Feet High', 'Rising'],
             )

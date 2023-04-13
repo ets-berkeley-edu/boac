@@ -62,6 +62,7 @@ class Note(Base):
     author_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     body = db.Column(db.Text, nullable=False)
     contact_type = db.Column(note_contact_type_enum, nullable=True)
+    is_draft_for_sids = db.Column(ARRAY(db.String(80)))
     is_private = db.Column(db.Boolean, nullable=False, default=False)
     set_date = db.Column(db.Date)
     sid = db.Column(db.String(80), nullable=False)
@@ -90,6 +91,7 @@ class Note(Base):
         sid,
         subject,
         contact_type=None,
+        is_draft_for_sids=None,
         is_private=False,
         set_date=None,
     ):
@@ -99,6 +101,7 @@ class Note(Base):
         self.author_uid = author_uid
         self.body = body
         self.contact_type = contact_type
+        self.is_draft_for_sids = is_draft_for_sids
         self.is_private = is_private
         self.set_date = set_date
         self.sid = sid
@@ -107,6 +110,26 @@ class Note(Base):
     @classmethod
     def find_by_id(cls, note_id):
         return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
+
+    @classmethod
+    def get_draft_note_count(cls, author_uid=None):
+        query = text(f"""
+            SELECT
+              count(*) FROM notes
+            WHERE
+              deleted_at IS NULL
+              AND is_draft_for_sids IS NOT NULL
+              { f"AND author_uid = '{author_uid}'" if author_uid else ''}
+        """)
+        return db.session.execute(query).first()['count']
+
+    @classmethod
+    def get_draft_notes(cls, author_uid=None):
+        if author_uid:
+            criteria = and_(cls.author_uid == author_uid, cls.is_draft_for_sids.is_not(None), cls.deleted_at == None)  # noqa: E711
+        else:
+            criteria = and_(cls.is_draft_for_sids.is_not(None), cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).all()  # noqa: E711
 
     @classmethod
     def create(
@@ -121,31 +144,59 @@ class Note(Base):
             topics=(),
             attachments=(),
             contact_type=None,
+            is_draft_for_sids=None,
             is_private=False,
             set_date=None,
             template_attachment_ids=(),
     ):
-        ids_by_sid = cls.create_batch(
-            author_id=AuthorizedUser.get_id_per_uid(author_uid),
-            author_uid=author_uid,
-            author_name=author_name,
-            author_role=author_role,
-            author_dept_codes=author_dept_codes,
-            sids=[sid],
-            subject=subject,
-            body=body,
-            contact_type=contact_type,
-            is_private=is_private,
-            set_date=set_date,
-            topics=topics,
-            attachments=attachments,
-            template_attachment_ids=template_attachment_ids,
-        )
+        if is_draft_for_sids:
+            note = cls(
+                author_dept_codes=author_dept_codes,
+                author_name=author_name,
+                author_role=author_role,
+                author_uid=author_uid,
+                body=body,
+                contact_type=contact_type,
+                is_draft_for_sids=is_draft_for_sids,
+                is_private=is_private,
+                set_date=set_date,
+                sid=sid,
+                subject=subject,
+            )
+            _add_topics_to_notes(
+                author_uid=author_uid,
+                note_ids=[note.id],
+                topics=topics,
+            )
+            _add_attachments_to_notes(
+                attachments=attachments,
+                author_uid=author_uid,
+                note_ids=[note.id],
+                template_attachment_ids=template_attachment_ids,
+            )
+        else:
+            ids_by_sid = cls.create_batch(
+                author_id=AuthorizedUser.get_id_per_uid(author_uid),
+                author_uid=author_uid,
+                author_name=author_name,
+                author_role=author_role,
+                author_dept_codes=author_dept_codes,
+                sids=[sid],
+                subject=subject,
+                body=body,
+                contact_type=contact_type,
+                is_private=is_private,
+                set_date=set_date,
+                topics=topics,
+                attachments=attachments,
+                template_attachment_ids=template_attachment_ids,
+            )
 
-        def _get_note_id():
-            values = list(ids_by_sid.values())
-            return values[0] if len(values) > 0 else None
-        return cls.find_by_id(_get_note_id())
+            def _get_note_id():
+                values = list(ids_by_sid.values())
+                return values[0] if len(values) > 0 else None
+            note = cls.find_by_id(_get_note_id())
+        return note
 
     @classmethod
     def create_batch(
@@ -186,9 +237,9 @@ class Note(Base):
         benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {len(attachments)} attachments')
         _add_attachments_to_notes(
             attachments=attachments,
-            template_attachment_ids=template_attachment_ids,
             author_uid=author_uid,
             note_ids=note_ids,
+            template_attachment_ids=template_attachment_ids,
         )
         benchmark('end note creation' if sid_count == 1 else f'end creation of {sid_count} notes')
         return ids_by_sid
@@ -409,6 +460,7 @@ class Note(Base):
             'authorDeptCodes': self.author_dept_codes,
             'body': self.body,
             'contactType': self.contact_type,
+            'isDraftForSids': self.is_draft_for_sids,
             'isPrivate': self.is_private,
             'setDate': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
@@ -509,7 +561,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
             db.session.execute(query, {'json_dumps': json.dumps(data)})
 
 
-def _add_attachments_to_notes(attachments, template_attachment_ids, author_uid, note_ids):
+def _add_attachments_to_notes(attachments, author_uid, note_ids, template_attachment_ids):
     now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
 
     def _add_attachment(_s3_path):

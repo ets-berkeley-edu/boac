@@ -590,6 +590,7 @@ CREATE TABLE notes (
     author_dept_codes VARCHAR[] NOT NULL,
     body TEXT,
     contact_type note_contact_types,
+    is_draft_for_sids VARCHAR(80)[],
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
     set_date DATE,
     sid VARCHAR(80) NOT NULL,
@@ -621,7 +622,7 @@ CREATE MATERIALIZED VIEW notes_fts_index AS (
          ELSE to_tsvector('english', subject || ' ' || body)
          END AS fts_index
   FROM notes
-  WHERE deleted_at IS NULL
+  WHERE deleted_at IS NULL AND is_draft_for_sids IS NULL
 );
 
 CREATE INDEX idx_notes_fts_index
@@ -668,51 +669,6 @@ ALTER TABLE ONLY note_attachments
 ALTER TABLE ONLY note_attachments
     ADD CONSTRAINT note_attachments_note_id_path_to_attachment_unique_constraint UNIQUE (note_id, path_to_attachment);
 CREATE INDEX note_attachments_note_id_idx ON note_attachments USING btree (note_id);
-
---
-
-CREATE TABLE note_drafts (
-    id SERIAL PRIMARY KEY,
-    body text,
-    contact_type note_contact_types,
-    creator_id INTEGER NOT NULL,
-    is_private BOOLEAN DEFAULT FALSE NOT NULL,
-    set_date DATE,
-    sids VARCHAR(80)[] NOT NULL,
-    subject VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-    deleted_at TIMESTAMP WITH TIME ZONE
-);
-ALTER TABLE note_drafts OWNER TO boac;
-CREATE INDEX note_drafts_creator_id_idx ON note_drafts USING btree (creator_id);
-
---
-
-CREATE TABLE note_draft_attachments (
-    id SERIAL PRIMARY KEY,
-    note_draft_id INTEGER NOT NULL,
-    path_to_attachment character varying(255) NOT NULL,
-    uploaded_by_uid character varying(255) NOT NULL,
-    created_at timestamp with time zone NOT NULL,
-    deleted_at timestamp with time zone
-);
-ALTER TABLE note_draft_attachments OWNER TO boac;
-ALTER TABLE ONLY note_draft_attachments
-    ADD CONSTRAINT nta_note_draft_id_path_to_attachment_unique_constraint UNIQUE (note_draft_id, path_to_attachment);
-CREATE INDEX note_draft_attachments_note_draft_id_idx ON note_draft_attachments USING btree (note_draft_id);
-
---
-
-CREATE TABLE note_draft_topics (
-    id SERIAL PRIMARY KEY,
-    note_draft_id INTEGER NOT NULL,
-    topic VARCHAR(50) NOT NULL
-);
-ALTER TABLE note_draft_topics OWNER TO boac;
-ALTER TABLE ONLY note_draft_topics
-    ADD CONSTRAINT note_draft_topics_note_draft_id_topic_unique_constraint UNIQUE (note_draft_id, topic);
-CREATE INDEX note_draft_topics_note_draft_id_idx ON note_draft_topics (note_draft_id);
 
 --
 
@@ -1090,16 +1046,6 @@ ALTER TABLE ONLY drop_in_advisors
 
 --
 
-ALTER TABLE ONLY note_draft_attachments
-    ADD CONSTRAINT note_draft_attachments_note_draft_id_fkey FOREIGN KEY (note_draft_id) REFERENCES note_drafts(id) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY note_draft_topics
-    ADD CONSTRAINT note_draft_topics_note_draft_id_fkey FOREIGN KEY (note_draft_id) REFERENCES note_drafts(id) ON DELETE CASCADE;
-
---
-
 ALTER TABLE ONLY same_day_advisors
     ADD CONSTRAINT same_day_advisors_authorized_user_id_fkey FOREIGN KEY (authorized_user_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
@@ -1151,11 +1097,6 @@ ALTER TABLE ONLY notes_read
 
 ALTER TABLE ONLY note_attachments
     ADD CONSTRAINT note_attachments_note_id_fkey FOREIGN KEY (note_id) REFERENCES notes(id) ON DELETE CASCADE;
-
---
-
-ALTER TABLE ONLY note_drafts
-    ADD CONSTRAINT note_drafts_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES authorized_users(id) ON DELETE CASCADE;
 
 --
 
