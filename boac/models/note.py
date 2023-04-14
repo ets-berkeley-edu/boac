@@ -62,10 +62,10 @@ class Note(Base):
     author_dept_codes = db.Column(ARRAY(db.String), nullable=False)
     body = db.Column(db.Text, nullable=False)
     contact_type = db.Column(note_contact_type_enum, nullable=True)
-    is_draft_for_sids = db.Column(ARRAY(db.String(80)))
+    is_draft = db.Column(db.Boolean, nullable=False, default=False)
     is_private = db.Column(db.Boolean, nullable=False, default=False)
     set_date = db.Column(db.Date)
-    sid = db.Column(db.String(80), nullable=False)
+    sid = db.Column(db.String(80))
     subject = db.Column(db.String(255), nullable=False)
     deleted_at = db.Column(db.DateTime, nullable=True)
     topics = db.relationship(
@@ -91,25 +91,30 @@ class Note(Base):
         sid,
         subject,
         contact_type=None,
-        is_draft_for_sids=None,
+        is_draft=False,
         is_private=False,
         set_date=None,
     ):
+        validate_sid(is_draft=is_draft, note_id=None, sid=sid)
         self.author_dept_codes = author_dept_codes
         self.author_name = author_name
         self.author_role = author_role
         self.author_uid = author_uid
         self.body = body
         self.contact_type = contact_type
-        self.is_draft_for_sids = is_draft_for_sids
+        self.is_draft = is_draft
         self.is_private = is_private
         self.set_date = set_date
         self.sid = sid
         self.subject = subject
 
     @classmethod
-    def find_by_id(cls, note_id):
-        return cls.query.filter(and_(cls.id == note_id, cls.deleted_at == None)).first()  # noqa: E711
+    def find_by_id(cls, note_id, include_draft_notes=False):
+        if include_draft_notes:
+            criteria = and_(cls.id == note_id, cls.deleted_at == None)  # noqa: E711
+        else:
+            criteria = and_(cls.id == note_id, cls.is_draft.is_(False), cls.deleted_at == None)  # noqa: E711
+        return cls.query.filter(criteria).first()
 
     @classmethod
     def get_draft_note_count(cls, author_uid=None):
@@ -117,8 +122,7 @@ class Note(Base):
             SELECT
               count(*) FROM notes
             WHERE
-              deleted_at IS NULL
-              AND is_draft_for_sids IS NOT NULL
+              deleted_at IS NULL AND is_draft IS TRUE
               { f"AND author_uid = '{author_uid}'" if author_uid else ''}
         """)
         return db.session.execute(query).first()['count']
@@ -126,9 +130,9 @@ class Note(Base):
     @classmethod
     def get_draft_notes(cls, author_uid=None):
         if author_uid:
-            criteria = and_(cls.author_uid == author_uid, cls.is_draft_for_sids.is_not(None), cls.deleted_at == None)  # noqa: E711
+            criteria = and_(cls.author_uid == author_uid, cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
         else:
-            criteria = and_(cls.is_draft_for_sids.is_not(None), cls.deleted_at == None)  # noqa: E711
+            criteria = and_(cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
         return cls.query.filter(criteria).all()  # noqa: E711
 
     @classmethod
@@ -144,12 +148,13 @@ class Note(Base):
             topics=(),
             attachments=(),
             contact_type=None,
-            is_draft_for_sids=None,
+            is_draft=False,
             is_private=False,
             set_date=None,
             template_attachment_ids=(),
     ):
-        if is_draft_for_sids:
+        validate_sid(is_draft=is_draft, note_id=None, sid=sid)
+        if is_draft:
             note = cls(
                 author_dept_codes=author_dept_codes,
                 author_name=author_name,
@@ -157,12 +162,14 @@ class Note(Base):
                 author_uid=author_uid,
                 body=body,
                 contact_type=contact_type,
-                is_draft_for_sids=is_draft_for_sids,
+                is_draft=is_draft,
                 is_private=is_private,
                 set_date=set_date,
                 sid=sid,
                 subject=subject,
             )
+            db.session.add(note)
+            std_commit()
             _add_topics_to_notes(
                 author_uid=author_uid,
                 note_ids=[note.id],
@@ -252,7 +259,7 @@ class Note(Base):
               n.sid, n.subject, n.created_at, n.updated_at, string_agg(t.topic, ', ') AS topics
             FROM notes n
             LEFT JOIN note_topics t ON (n.id = t.note_id AND t.deleted_at IS NULL)
-            WHERE n.deleted_at IS NULL
+            WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
             GROUP BY
               n.author_uid, n.author_name, n.author_role, n.author_dept_codes, n.contact_type, n.is_private, n.set_date,
               n.sid, n.subject, n.created_at, n.updated_at
@@ -299,7 +306,7 @@ class Note(Base):
                 'search_phrase': search_phrase,
             }
         else:
-            fts_selector = 'SELECT id, 0 AS rank FROM notes WHERE deleted_at IS NULL'
+            fts_selector = 'SELECT id, 0 AS rank FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
             params = {}
 
         if author_uid:
@@ -327,7 +334,8 @@ class Note(Base):
         else:
             topic_join = ''
 
-        where_clause = '' if include_private_notes else 'WHERE notes.is_private IS FALSE'
+        where_clause = 'WHERE notes.is_draft IS FALSE'
+        where_clause += '' if include_private_notes else ' AND notes.is_private IS FALSE'
 
         query = text(f"""
             SELECT notes.* FROM ({fts_selector}) AS fts
@@ -353,9 +361,20 @@ class Note(Base):
         bg_execute(_refresh_search_index)
 
     @classmethod
-    def update(cls, note_id, subject, body=None, contact_type=None, is_private=False, set_date=None, topics=()):
+    def update(
+            cls,
+            note_id,
+            sid,
+            subject,
+            body=None,
+            contact_type=None,
+            is_private=False,
+            set_date=None,
+            topics=(),
+    ):
         note = cls.find_by_id(note_id=note_id)
         if note:
+            validate_sid(is_draft=note.is_draft, note_id=note.id, sid=sid)
             note.body = body
             note.contact_type = contact_type
             note.is_private = is_private
@@ -433,9 +452,13 @@ class Note(Base):
             note.updated_at = now
 
     @classmethod
-    def get_notes_by_sid(cls, sid):
-        # SQLAlchemy uses "magic methods" to create SQL; it requires '==' instead of 'is'.
-        return cls.query.filter(and_(cls.sid == sid, cls.deleted_at == None)).order_by(cls.updated_at, cls.id).all()  # noqa: E711
+    def get_notes_by_sid(cls, current_user_is_admin, current_user_uid, sid):
+        sql = 'SELECT id FROM notes WHERE deleted_at IS NULL AND sid = :sid'
+        if not current_user_is_admin:
+            sql += ' AND (author_uid = :uid OR is_draft IS FALSE)'
+        results = db.session.execute(sql, {'sid': sid, 'uid': current_user_uid})
+        note_ids = [row['id'] for row in results]
+        return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
 
     @classmethod
     def delete(cls, note_id):
@@ -460,7 +483,7 @@ class Note(Base):
             'authorDeptCodes': self.author_dept_codes,
             'body': self.body,
             'contactType': self.contact_type,
-            'isDraftForSids': self.is_draft_for_sids,
+            'isDraft': self.is_draft,
             'isPrivate': self.is_private,
             'setDate': safe_strftime(self.set_date, '%Y-%m-%d'),
             'sid': self.sid,
@@ -589,3 +612,8 @@ def _add_attachments_to_notes(attachments, author_uid, note_ids, template_attach
     if template_attachment_ids:
         for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
             _add_attachment(template_attachment.path_to_attachment)
+
+
+def validate_sid(is_draft, note_id, sid):
+    if not sid and not is_draft:
+        raise ValueError(f"Missing SID for {f'note {note_id}' if note_id else 'unsaved note'}")

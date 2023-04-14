@@ -30,12 +30,7 @@
           </span>
         </template>
         <template v-slot:cell(sids)="row">
-          <span v-if="row.item.isDraftForSids.length === 1">
-            {{ row.item.isDraftForSids[0] }}
-          </span>
-          <span v-if="row.item.isDraftForSids.length > 1" class="font-italic">
-            Multiple
-          </span>
+          {{ row.item.sid || '&mdash;' }}
         </template>
         <template v-slot:cell(subject)="row">
           <div class="truncate-with-ellipsis">

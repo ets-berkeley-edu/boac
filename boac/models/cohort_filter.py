@@ -382,7 +382,7 @@ def _query_students(
         if owner:
             owner_sid = get_csid_for_uid(app, owner.uid)
         else:
-            owner_sid = current_user.get_csid()
+            owner_sid = current_user.csid
         advisor_plan_mappings = [{'advisor_sid': owner_sid, 'academic_plan_code': plan} for plan in plans]
     else:
         advisor_plan_mappings = None

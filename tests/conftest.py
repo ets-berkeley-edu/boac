@@ -316,8 +316,9 @@ def mock_note_draft(app, db):
                     What to do when suckers are preyin'
                 """,
                 contact_type=None,
-                is_draft_for_sids=['11667051', '2345678901'],
+                is_draft=True,
                 is_private=False,
+                sid='11667051',
                 set_date=None,
                 subject=f'It\'s unwise to leave my garden untended ({timestamp})',
                 topics=['Three Feet High', 'Rising'],

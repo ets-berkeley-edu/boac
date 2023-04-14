@@ -877,14 +877,27 @@ class TestDeleteNote:
 
     def test_admin_delete(self, client, fake_auth, mock_coe_advising_note):
         """Admin can delete another user's note."""
-        original_count_per_sid = len(Note.get_notes_by_sid(mock_coe_advising_note.sid))
         fake_auth.login(admin_uid)
+        current_user = AuthorizedUser.find_by_uid(admin_uid)
+        notes = Note.get_notes_by_sid(
+            current_user_is_admin=current_user.is_admin,
+            current_user_uid=current_user.uid,
+            sid=mock_coe_advising_note.sid,
+        )
         note_id = mock_coe_advising_note.id
         response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
         assert not Note.find_by_id(note_id)
-        assert 1 == original_count_per_sid - len(Note.get_notes_by_sid(mock_coe_advising_note.sid))
-        assert not Note.update(note_id=note_id, subject='Deleted note cannot be updated')
+        assert 1 == len(notes) - len(Note.get_notes_by_sid(
+            current_user_is_admin=current_user.is_admin,
+            current_user_uid=current_user.uid,
+            sid=mock_coe_advising_note.sid,
+        ))
+        assert not Note.update(
+            note_id=note_id,
+            sid=mock_coe_advising_note.sid,
+            subject='Deleted note cannot be updated',
+        )
 
     def test_delete_note_with_topics(self, app, client, fake_auth):
         """Delete a note with topics."""
@@ -1021,13 +1034,6 @@ def _get_student_notifications(client, uid):
     response = client.get(f'/api/student/by_uid/{uid}')
     assert response.status_code == 200
     return response.json['notifications']
-
-
-def _asc_note_with_attachment():
-    for note in Note.get_notes_by_sid('11667051'):
-        if len(note.attachments):
-            return note
-    return None
 
 
 def _api_note_create(
