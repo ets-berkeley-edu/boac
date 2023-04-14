@@ -22,10 +22,10 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
+from flask_login import logout_user
 import pytest
 import simplejson as json
 from tests.util import override_config
@@ -658,6 +658,41 @@ class TestStudent:
             assert _is_appointment_read(legacy_appointment_id) is False
             client.post(f'/api/appointments/{legacy_appointment_id}/mark_read')
             assert _is_appointment_read(legacy_appointment_id) is True
+
+    def test_draft_notes(self, admin_user_uid, client, fake_auth):
+        """Draft notes are excluded when written for 2 or more students."""
+        # COE advisor creates draft_note
+        fake_auth.login(coe_advisor_uid)
+        response = client.post(
+            '/api/notes/create',
+            buffered=True,
+            content_type='multipart/form-data',
+            data={
+                'authorId': coe_advisor_uid,
+                'isDraft': True,
+                'sids': [self.coe_student['sid']],
+                'subject': 'Rows and flows of angel hair, and ice cream castles in the air',
+                'topics': ','.join(['Slanted', 'Enchanted']),
+            },
+        )
+        assert response.status_code == 200
+        note_id = response.json['id']
+        assert note_id
+
+        expectations = {
+            admin_user_uid: True,
+            asc_advisor_uid: False,
+            coe_advisor_uid: True,
+        }
+        for uid in expectations:
+            fake_auth.login(uid)
+            student_by_sid = self._api_student_by_sid(client=client, sid=self.coe_student['sid'])
+            student_by_uid = self._api_student_by_uid(client=client, uid=self.coe_student['uid'])
+            for student in [student_by_sid, student_by_uid]:
+                notes = student['notifications']['note']
+                is_draft_note_present = bool(next((n for n in notes if n['id'] == note_id), None))
+                assert is_draft_note_present is expectations[uid]
+            logout_user()
 
 
 class TestAlerts:

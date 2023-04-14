@@ -590,10 +590,10 @@ CREATE TABLE notes (
     author_dept_codes VARCHAR[] NOT NULL,
     body TEXT,
     contact_type note_contact_types,
-    is_draft_for_sids VARCHAR(80)[],
+    is_draft BOOLEAN DEFAULT FALSE NOT NULL,
     is_private BOOLEAN DEFAULT FALSE NOT NULL,
     set_date DATE,
-    sid VARCHAR(80) NOT NULL,
+    sid VARCHAR(80),
     subject VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
@@ -622,7 +622,7 @@ CREATE MATERIALIZED VIEW notes_fts_index AS (
          ELSE to_tsvector('english', subject || ' ' || body)
          END AS fts_index
   FROM notes
-  WHERE deleted_at IS NULL AND is_draft_for_sids IS NULL
+  WHERE deleted_at IS NULL AND is_draft IS FALSE
 );
 
 CREATE INDEX idx_notes_fts_index

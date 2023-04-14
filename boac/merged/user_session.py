@@ -46,6 +46,10 @@ class UserSession(UserMixin):
         else:
             self.api_json = self._get_api_json()
 
+    def get_id(self):
+        # Flask-login requires this method. Do NOT remove it.
+        return self.user_id
+
     @property
     def can_access_admitted_students(self):
         return self.api_json['canAccessAdmittedStudents']
@@ -71,6 +75,10 @@ class UserSession(UserMixin):
         return self.api_json['canReadDegreeProgress']
 
     @property
+    def csid(self):
+        return self.api_json.get('csid')
+
+    @property
     def departments(self):
         return self.api_json['departments']
 
@@ -82,17 +90,12 @@ class UserSession(UserMixin):
     def flush_cache_for_id(cls, user_id):
         clear(f'boa_user_session_{user_id}')
 
+    @property
+    def uid(self):
+        return self.api_json['uid']
+
     def flush_cached(self):
         clear(f'boa_user_session_{self.user_id}')
-
-    def get_csid(self):
-        return self.api_json.get('csid')
-
-    def get_id(self):
-        return self.user_id
-
-    def get_uid(self):
-        return self.api_json['uid']
 
     @property
     def in_demo_mode(self):

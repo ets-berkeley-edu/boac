@@ -359,7 +359,7 @@ def get_current_user_profile():
         **current_user.to_api_json(),
         'myCohorts': cohorts,
         'myCuratedGroups': get_my_curated_groups(),
-        'myDraftNoteCount': Note.get_draft_note_count(None if current_user.is_admin else current_user.get_uid()),
+        'myDraftNoteCount': Note.get_draft_note_count(None if current_user.is_admin else current_user.uid),
         'preferences': {
             'admitSortBy': 'last_name',
             'sortBy': 'last_name',

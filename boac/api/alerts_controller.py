@@ -37,4 +37,4 @@ def dismiss_alert(alert_id):
     user_id = current_user.get_id()
     Alert.dismiss(alert_id, user_id)
     CohortFilter.refresh_alert_counts_for_owner(user_id)
-    return tolerant_jsonify({'message': f'Alert {alert_id} dismissed by UID {current_user.get_uid()}'}), 200
+    return tolerant_jsonify({'message': f'Alert {alert_id} dismissed by UID {current_user.uid}'}), 200

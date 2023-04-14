@@ -77,7 +77,11 @@ def get_advising_notes(sid):
     benchmark('begin History Dept advising notes query')
     notes_by_id.update(get_history_dept_advising_notes(sid))
     benchmark('begin non legacy advising notes query')
-    notes_by_id.update(get_non_legacy_advising_notes(sid))
+    notes_by_id.update(get_native_boa_notes(
+        current_user_is_admin=current_user.is_admin,
+        current_user_uid=current_user.uid,
+        sid=sid,
+    ))
     benchmark('begin SIS late drop eforms  query')
     notes_by_id.update(get_sis_late_drop_eforms(sid))
     if not notes_by_id.values():
@@ -161,9 +165,13 @@ def get_history_dept_advising_notes(sid):
     return notes_by_id
 
 
-def get_non_legacy_advising_notes(sid):
+def get_native_boa_notes(current_user_is_admin, current_user_uid, sid):
     notes_by_id = {}
-    for row in Note.get_notes_by_sid(sid):
+    for row in Note.get_notes_by_sid(
+            current_user_is_admin=current_user_is_admin,
+            current_user_uid=current_user_uid,
+            sid=sid,
+    ):
         note = row.__dict__
         note_id = note['id']
         notes_by_id[str(note_id)] = note_to_compatible_json(
@@ -487,7 +495,7 @@ def note_to_compatible_json(
         'eForm': _eform_to_json(note) if note.get('eform_id') else None,
         'id': note.get('id'),
         'isPrivate': note.get('is_private') or False,
-        'isDraftForSids': note.get('is_draft_for_sids'),
+        'isDraft': note.get('is_draft'),
         'read': True if note_read else False,
         'setDate': safe_strftime(note.get('set_date'), '%Y-%m-%d'),
         'sid': note.get('sid'),

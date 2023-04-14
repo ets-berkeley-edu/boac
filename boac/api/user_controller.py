@@ -209,7 +209,7 @@ def set_drop_in_advising_status(dept_code):
     user = AuthorizedUser.find_by_id(current_user.get_id())
     drop_in_membership = next((d for d in user.drop_in_departments if d.dept_code == dept_code.upper()), None)
     if not drop_in_membership:
-        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={current_user.get_uid()}, dept_code={dept_code})')
+        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={current_user.uid}, dept_code={dept_code})')
     params = request.get_json()
     if 'status' not in params:
         raise errors.BadRequestError('Missing status')
@@ -375,7 +375,7 @@ def add_appointment_scheduler_to_dept(dept_code):
         raise errors.BadRequestError('Invalid scheduler UID')
     user = AuthorizedUser.create_or_restore(
         scheduler_uid,
-        created_by=current_user.get_uid(),
+        created_by=current_user.uid,
         is_admin=False,
         is_blocked=False,
         can_access_canvas_data=False,
@@ -485,7 +485,7 @@ def _is_appointment_enabled(membership):
 
 def _update_drop_in_availability(uid, dept_code, new_availability):
     dept_code = dept_code.upper()
-    if uid != current_user.get_uid():
+    if uid != current_user.uid:
         authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('role') == 'scheduler']
         if not authorized_to_toggle:
             raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in availability for department {dept_code}')
@@ -539,7 +539,7 @@ def _update_or_create_authorized_user(memberships, profile, include_deleted=Fals
                 automate_degree_progress_permission=automate_degree_progress_permission,
                 can_access_advising_data=can_access_advising_data,
                 can_access_canvas_data=can_access_canvas_data,
-                created_by=current_user.get_uid(),
+                created_by=current_user.uid,
                 degree_progress_permission=degree_progress_permission,
                 is_admin=is_admin,
                 is_blocked=is_blocked,

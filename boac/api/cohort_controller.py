@@ -285,7 +285,7 @@ def create_cohort():
     if not name or not filter_criteria:
         raise BadRequestError('Cohort creation requires \'name\' and \'filters\'')
     cohort = CohortFilter.create(
-        uid=current_user.get_uid(),
+        uid=current_user.uid,
         name=name,
         filter_criteria=filter_criteria,
         domain=domain,
@@ -333,7 +333,7 @@ def delete_cohort(cohort_id):
             CohortFilter.delete(cohort_id)
             return tolerant_jsonify({'message': f'Cohort deleted (id={cohort_id})'}), 200
         else:
-            raise BadRequestError(f'User {current_user.get_uid()} does not own cohort with id={cohort_id}')
+            raise BadRequestError(f'User {current_user.uid} does not own cohort with id={cohort_id}')
     else:
         raise ForbiddenRequestError(f'Programmatic deletion of canned cohorts is not allowed (id={cohort_id})')
 
@@ -342,7 +342,7 @@ def delete_cohort(cohort_id):
 @advisor_required
 def all_cohort_filter_options(cohort_owner_uid):
     if cohort_owner_uid == 'me':
-        cohort_owner_uid = current_user.get_uid()
+        cohort_owner_uid = current_user.uid
     params = request.get_json()
     existing_filters = get_param(params, 'existingFilters', [])
     domain = get_param(params, 'domain', 'default')
@@ -365,14 +365,14 @@ def translate_cohort_filter_to_menu(cohort_owner_uid):
     if is_unauthorized_domain(domain):
         raise ForbiddenRequestError(f'You are unauthorized to query the \'{domain}\' domain')
     if cohort_owner_uid == 'me':
-        cohort_owner_uid = current_user.get_uid()
+        cohort_owner_uid = current_user.uid
     criteria = get_param(params, 'criteria')
     return tolerant_jsonify(CohortFilterOptions.translate_to_filter_options(cohort_owner_uid, domain, criteria))
 
 
 def _decorate_cohort(cohort):
     if cohort.get('owner'):
-        cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.get_uid()})
+        cohort.update({'isOwnedByCurrentUser': cohort['owner'].get('uid') == current_user.uid})
 
 
 def _can_current_user_view_cohort(cohort):
@@ -413,7 +413,7 @@ def _translate_filters_to_cohort_criteria(filters, domain):
 
 def _get_filter_db_type_per_key(domain):
     filter_type_per_key = {}
-    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(domain=domain, owner_uid=current_user.get_uid())
+    option_groups = CohortFilterOptions.get_cohort_filter_option_groups(domain=domain, owner_uid=current_user.uid)
     for label, option_group in option_groups.items():
         for option in option_group:
             filter_type_per_key[option['key']] = option['type']['db']

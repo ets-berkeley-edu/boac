@@ -57,7 +57,7 @@ def academic_plans_for_cohort_owner(owner_uid):
     if owner_uid:
         owner_csid = get_csid_for_uid(app, owner_uid)
     else:
-        owner_csid = current_user.get_csid()
+        owner_csid = current_user.csid
     plans = [
         {'name': 'All plans', 'value': '*'},
     ]

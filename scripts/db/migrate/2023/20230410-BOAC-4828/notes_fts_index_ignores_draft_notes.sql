@@ -10,7 +10,7 @@ CREATE MATERIALIZED VIEW notes_fts_index AS (
          ELSE to_tsvector('english', subject || ' ' || body)
          END AS fts_index
   FROM notes
-  WHERE deleted_at IS NULL AND is_draft_for_sids IS NULL
+  WHERE deleted_at IS NULL AND is_draft IS FALSE AND sid IS NOT NULL
 );
 
 CREATE INDEX idx_notes_fts_index ON notes_fts_index USING gin(fts_index);

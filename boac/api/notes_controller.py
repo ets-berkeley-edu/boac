@@ -79,7 +79,7 @@ def mark_note_read(note_id):
     if NoteRead.find_or_create(current_user.get_id(), note_id):
         return tolerant_jsonify({'status': 'created'}, status=201)
     else:
-        raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.get_uid()}')
+        raise BadRequestError(f'Failed to mark note {note_id} as read by user {current_user.uid}')
 
 
 @app.route('/api/notes/create', methods=['POST'])
@@ -91,6 +91,7 @@ def create_notes():
     benchmark(f'SID count: {len(sids)}')
     body = params.get('body', None)
     contact_type = _validate_contact_type(params)
+    is_draft = to_bool_or_none(params.get('isDraft', False))
     is_private = to_bool_or_none(params.get('isPrivate', False))
     set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
@@ -112,12 +113,15 @@ def create_notes():
     body = process_input_from_rich_text_editor(body)
     template_attachment_ids = get_template_attachment_ids_from_http_post()
 
-    if len(sids) == 1:
+    if len(sids) < 2:
+        if not len(sids) and is_draft:
+            raise BadRequestError('Non-draft notes must have non-null SID.')
         note = Note.create(
             **_get_author_profile(),
             attachments=attachments,
             body=body,
             contact_type=contact_type,
+            is_draft=is_draft,
             is_private=is_private,
             set_date=set_date,
             sid=sids[0],
@@ -163,7 +167,7 @@ def update_note():
         raise ResourceNotFoundError('Note not found')
     if not subject:
         raise BadRequestError('Note subject is required')
-    if note.author_uid != current_user.get_uid():
+    if note.author_uid != current_user.uid:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     if (is_private is not note.is_private) and not current_user.can_access_private_notes:
         raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
@@ -172,8 +176,9 @@ def update_note():
         body=process_input_from_rich_text_editor(body),
         contact_type=contact_type,
         is_private=is_private,
-        note_id=note_id,
+        note_id=note.id,
         set_date=set_date,
+        sid=note.sid,
         subject=subject,
         topics=topics,
     )
@@ -197,17 +202,16 @@ def delete_note(note_id):
 @advising_data_access_required
 def get_my_note_drafts():
     api_json = []
-    draft_notes = Note.get_draft_notes(None if current_user.is_admin else current_user.get_uid())
+    draft_notes = Note.get_draft_notes(None if current_user.is_admin else current_user.uid)
     for draft_note in draft_notes:
         draft_note_json = _boa_note_to_compatible_json(note=draft_note, note_read=False)
-        draft_note_json['students'] = []
-        for student in data_loch.get_basic_student_data(sids=draft_note.is_draft_for_sids):
-            draft_note_json['students'].append({
-                'sid': student['sid'],
-                'uid': student['uid'],
-                'firstName': student['first_name'],
-                'lastName': student['last_name'],
-            })
+        students = data_loch.get_basic_student_data(sids=[draft_note.sid])
+        draft_note_json['student'] = {
+            'sid': students[0]['sid'],
+            'uid': students[0]['uid'],
+            'firstName': students[0]['first_name'],
+            'lastName': students[0]['last_name'],
+        } if students else None
         api_json.append(draft_note_json)
     return tolerant_jsonify(api_json)
 
@@ -216,7 +220,7 @@ def get_my_note_drafts():
 @advising_data_access_required
 def add_attachments(note_id):
     note = Note.find_by_id(note_id=note_id)
-    if note.author_uid != current_user.get_uid():
+    if note.author_uid != current_user.uid:
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     attachments = get_note_attachments_from_http_post()
     attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
@@ -241,7 +245,7 @@ def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:
         raise BadRequestError('Note id not found.')
-    if existing_note.author_uid != current_user.get_uid() and not current_user.is_admin:
+    if existing_note.author_uid != current_user.uid and not current_user.is_admin:
         raise ForbiddenRequestError('You are not authorized to remove attachments from this note.')
     note = Note.delete_attachment(
         note_id=note_id,
