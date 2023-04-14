@@ -6,6 +6,7 @@
     </h1>
     <div v-if="!loading">
       <b-table
+        v-if="myDraftNotes.length"
         borderless
         :fields="fields"
         hover
@@ -14,19 +15,19 @@
         stacked="md"
         thead-class="text-nowrap text-secondary text-uppercase"
       >
-        <template v-slot:cell(students)="row">
-          <span v-if="row.item.students.length === 1">
+        <template v-slot:cell(student)="row">
+          <span v-if="row.item.student">
             <router-link
-              :id="`link-to-student-${row.item.students[0].uid}`"
-              :to="studentRoutePath(row.item.students[0].uid, $currentUser.inDemoMode)"
+              :id="`link-to-student-${row.item.student.uid}`"
+              :to="studentRoutePath(row.item.student.uid, $currentUser.inDemoMode)"
             >
               <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-                {{ row.item.students[0].firstName }} {{ row.item.students[0].lastName }}
+                {{ row.item.student.firstName }} {{ row.item.student.lastName }}
               </span>
             </router-link>
           </span>
-          <span v-if="row.item.students.length > 1" class="font-italic">
-            Multiple ({{ row.item.students.length }})
+          <span v-if="!row.item.student" class="font-italic">
+            &mdash;
           </span>
         </template>
         <template v-slot:cell(sids)="row">
@@ -72,7 +73,7 @@
           <div class="float-right min-width-100">
             <b-button
               v-if="!row.item.deletedAt"
-              class="pr-0"
+              class="px-0 py-0"
               variant="link"
               @click="openDeleteModal(row.item)"
             >
@@ -86,6 +87,9 @@
           </div>
         </template>
       </b-table>
+      <div v-if="!myDraftNotes.length">
+        You have no saved drafts.
+      </div>
     </div>
   </div>
 </template>
@@ -109,8 +113,8 @@ export default {
     fields: [
       {
         class: '',
-        key: 'students',
-        label: 'Student(s)'
+        key: 'student',
+        label: 'Student'
       },
       {
         class: '',
