@@ -105,6 +105,7 @@
             <CreateNoteFooter
               :cancel="cancelRequested"
               :create-note="createNote"
+              :create-draft="createDraft"
               :save-as-template="saveAsTemplate"
               :update-template="updateTemplate"
             />
@@ -258,6 +259,26 @@ export default {
       this.$putFocusNextTick('create-note-subject')
       this.$nextTick(() => {
         this.setFocusLockDisabled(false)
+      })
+    },
+    createDraft() {
+      this.setIsSaving(true)
+      const ifAuthenticated = () => {
+        // File upload might take time; alert will be overwritten when API call is done.
+        this.showAlert('Creating draft note...', 60)
+        if (this.sids.length > 1) {
+          this.removeAllStudents()
+        }
+        this.setIsDraft(true)
+        this.setSubject(this.model.subject || '[DRAFT NOTE]')
+        this.createAdvisingNotes().then(note => {
+          this.setIsSaving(false)
+          this.$announcer.polite(this.isBatchFeature ? `Note created for ${this.completeSidSet.length} students.` : 'New note saved.')
+          this.exit(note)
+        })
+      }
+      this.invokeIfAuthenticated(ifAuthenticated, () => {
+        this.setIsSaving(false)
       })
     },
     createNote() {

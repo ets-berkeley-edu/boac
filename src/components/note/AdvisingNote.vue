@@ -1,6 +1,9 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
     <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
+      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="pr-2">
+        <b-badge pill variant="danger">Draft</b-badge>
+      </span>
       <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
       <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
       <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>

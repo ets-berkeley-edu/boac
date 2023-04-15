@@ -6,13 +6,14 @@ import {getMyNoteTemplates} from '@/api/note-templates'
 
 const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate']
 
-const $_getDefaultModel = (isPrivate?) => {
+const $_getDefaultModel = () => {
   return {
     id: undefined,
     subject: undefined,
     body: undefined,
     contactType: undefined,
-    isPrivate: _.isNil(isPrivate) ? undefined : isPrivate,
+    isDraft: undefined,
+    isPrivate: undefined,
     setDate: undefined,
     topics: [],
     attachments: [],
@@ -87,6 +88,7 @@ const mutations = {
     const indexOf = state.noteTemplates.findIndex(t => t.id === template.id)
     Object.assign(state.noteTemplates[indexOf], template)
   },
+  removeAllStudents: (state: any) => state.sids = [],
   removeAttachment: (state: any, index: number) => {
     const attachment = state.model.attachments[index]
     if (attachment.id) {
@@ -121,6 +123,7 @@ const mutations = {
         contactType: model.contactType || null,
         deleteAttachmentIds: [],
         id: model.id,
+        isDraft: model.isDraft,
         isPrivate: model.isPrivate,
         setDate: model.setDate ? Vue.prototype.$moment(model.setDate) : null,
         subject: model.subject,
@@ -131,6 +134,7 @@ const mutations = {
     }
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
+  setIsDraft: (state: any, isDraft: boolean) => (state.model.isDraft = isDraft),
   setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
   setSetDate: (state: any, setDate: any) => (state.model.setDate = setDate ? Vue.prototype.$moment(setDate) : null),
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
@@ -186,6 +190,7 @@ const actions = {
         _.map(state.addedCohorts, 'id'),
         state.model.contactType,
         _.map(state.addedCuratedGroups, 'id'),
+        state.model.isDraft,
         state.model.isPrivate,
         dateString,
         state.sids,
@@ -208,6 +213,7 @@ const actions = {
   onCreateTemplate: ({commit}, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({commit}, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({commit}, template: any) => commit('onUpdateTemplate', template),
+  removeAllStudents: ({commit}) => commit('removeAllStudents'),
   removeAttachment: ({commit}, index: number) => commit('removeAttachment', index),
   removeCohort: ({commit, state}, cohort: any) => {
     const cohorts = _.reject(state.addedCohorts, ['id', cohort.id])
@@ -231,10 +237,15 @@ const actions = {
     }).finally(() => commit('setIsRecalculating', false))
   },
   removeTopic: ({commit}, topic: string) => commit('removeTopic', topic),
-  resetModel: ({commit}, isPrivate?: boolean) => commit('setModel', $_getDefaultModel(isPrivate)),
+  resetModel: ({commit}, isPrivate?: any) => {
+    const model = $_getDefaultModel()
+    model.isPrivate = isPrivate
+    commit('setModel', model)
+  },
   setBody: ({commit}, body: string) => commit('setBody', body),
   setContactType: ({commit}, contactType: string) => commit('setContactType', contactType),
   setFocusLockDisabled: ({commit}, isDisabled: boolean) => commit('setFocusLockDisabled', isDisabled),
+  setIsDraft: ({commit}, isDraft: boolean) => commit('setIsDraft', isDraft),
   setIsPrivate: ({commit}, isPrivate: boolean) => commit('setIsPrivate', isPrivate),
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),

@@ -109,11 +109,8 @@ class Note(Base):
         self.subject = subject
 
     @classmethod
-    def find_by_id(cls, note_id, include_draft_notes=False):
-        if include_draft_notes:
-            criteria = and_(cls.id == note_id, cls.deleted_at == None)  # noqa: E711
-        else:
-            criteria = and_(cls.id == note_id, cls.is_draft.is_(False), cls.deleted_at == None)  # noqa: E711
+    def find_by_id(cls, note_id):
+        criteria = and_(cls.id == note_id, cls.deleted_at == None)  # noqa: E711
         return cls.query.filter(criteria).first()
 
     @classmethod
@@ -452,11 +449,9 @@ class Note(Base):
             note.updated_at = now
 
     @classmethod
-    def get_notes_by_sid(cls, current_user_is_admin, current_user_uid, sid):
+    def get_notes_by_sid(cls, sid):
         sql = 'SELECT id FROM notes WHERE deleted_at IS NULL AND sid = :sid'
-        if not current_user_is_admin:
-            sql += ' AND (author_uid = :uid OR is_draft IS FALSE)'
-        results = db.session.execute(sql, {'sid': sid, 'uid': current_user_uid})
+        results = db.session.execute(sql, {'sid': sid})
         note_ids = [row['id'] for row in results]
         return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
 
