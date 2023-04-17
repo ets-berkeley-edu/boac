@@ -57,11 +57,12 @@ export function createNotes(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   const action = sids.length > 1 ? 'batch' : 'create'
   $_track(isPrivate ? `${action} private` : action)
-  return utils.postMultipartFormData('/api/notes/create', data).then(() => {
+  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
     if (isDraft) {
       Vue.prototype.$eventHub.emit('draft-note-created')
       Vue.prototype.$currentUser.myDraftNoteCount++
     }
+    return data
   })
 }
 

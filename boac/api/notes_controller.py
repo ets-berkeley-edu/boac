@@ -98,9 +98,9 @@ def create_notes():
     set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
-    if not subject or (not is_draft and not sids):
+    if subject is None or (not is_draft and not sids):
         benchmark('end (BadRequest)')
-        raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
+        raise BadRequestError(f"{'Subject and ' if subject is None else ''}SIDs are required.")
 
     dept_codes = dept_codes_where_advising(current_user)
     if current_user.is_admin or not len(dept_codes):

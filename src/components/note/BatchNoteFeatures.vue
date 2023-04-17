@@ -70,8 +70,8 @@
 </template>
 
 <script>
-import BatchNoteAddCohort from '@/components/note/create/BatchNoteAddCohort'
-import BatchNoteAddStudent from '@/components/note/create/BatchNoteAddStudent'
+import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
+import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'

@@ -45,7 +45,7 @@
             :disabled="!!mode"
             class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
             variant="primary"
-            @click="isCreateNoteModalOpen = true"
+            @click="editNote"
           >
             <span class="m-1">
               <font-awesome icon="file-alt" />
@@ -53,11 +53,11 @@
             </span>
           </b-btn>
         </div>
-        <CreateNoteModal
-          v-if="isCreateNoteModalOpen"
+        <EditBatchNoteModal
+          v-if="draftNote && isEditingNote"
           :is-batch-feature="false"
-          :on-close="onCreateNoteModalClose"
-          :sid="student.sid"
+          :note="draftNote"
+          :on-close="onModalClose"
         />
       </div>
     </div>
@@ -66,13 +66,14 @@
 
 <script>
 import Context from '@/mixins/Context'
-import CreateNoteModal from '@/components/note/create/CreateNoteModal'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Util from '@/mixins/Util'
+import {createNotes} from '@/api/notes'
 
 export default {
   name: 'AcademicTimelineHeader',
   mixins: [Context, Util],
-  components: {CreateNoteModal},
+  components: {EditBatchNoteModal},
   props: {
     countsPerType: {
       required: true,
@@ -96,11 +97,33 @@ export default {
     }
   },
   data: () => ({
-    isCreateNoteModalOpen: false
+    draftNote: undefined,
+    isEditingNote: false
   }),
   methods: {
-    onCreateNoteModalClose(note) {
-      this.isCreateNoteModalOpen = false
+    editNote() {
+      const isDraft = true
+      createNotes(
+        [],
+        null,
+        [],
+        null,
+        [],
+        isDraft,
+        false,
+        null,
+        [this.student.sid],
+        '',
+        [],
+        []
+      ).then(data => {
+        this.draftNote = data
+        this.isEditingNote = true
+      })
+    },
+    onModalClose(note) {
+      this.isEditingNote = false
+      this.draftNote = null
       this.$putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
     }
   }
