@@ -2,16 +2,22 @@
   <div>
     <div>
       <span role="alert">
-        <span v-if="isRecalculating" />
-        <span
-          v-if="!isRecalculating && completeSidSet.length"
-          id="target-student-count-alert"
-          :class="{'has-error': completeSidSet.length >= 250, 'font-weight-bolder': completeSidSet.length >= 500}"
-          class="font-italic"
-        >
-          Note will be added to {{ pluralize('student record', completeSidSet.length) }}.
-          <span v-if="completeSidSet.length >= 500">Are you sure?</span>
-        </span>
+        <transition name="drawer">
+          <div
+            v-if="!isRecalculating && completeSidSet.length"
+            id="target-student-count-alert"
+            :class="{'has-error': completeSidSet.length >= 250, 'font-weight-bolder': completeSidSet.length >= 500}"
+            class="font-italic pb-2"
+          >
+            <span v-if="completeSidSet.length < 500">This note will be attached</span>
+            <span v-if="completeSidSet.length >= 500">Are you sure you want to attach this note</span>
+            to {{ pluralize('student record', completeSidSet.length) }}.
+            <div v-if="completeSidSet.length > 1">
+              <span class="font-weight-700 has-error">Important:</span> Saving as a draft will save the content of your
+              note but not the associated students.
+            </div>
+          </div>
+        </transition>
         <span v-if="!completeSidSet.length && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
           <span
             v-if="addedCohorts.length && !addedCuratedGroups.length"

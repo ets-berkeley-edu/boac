@@ -62,6 +62,7 @@
           <b-btn
             id="save-note-button"
             class="btn-primary-color-override"
+            :disabled="!sids.length"
             variant="primary"
             @click="() => save(false)"
           >
@@ -143,7 +144,15 @@ import {getUserProfile} from '@/api/user'
 
 export default {
   name: 'EditAdvisingNote',
-  components: {AdvisingNoteTopics, AreYouSureModal, ContactMethod, ManuallySetDate, PrivacyPermissions, RichTextEditor, SessionExpired},
+  components: {
+    AdvisingNoteTopics,
+    AreYouSureModal,
+    ContactMethod,
+    ManuallySetDate,
+    PrivacyPermissions,
+    RichTextEditor,
+    SessionExpired
+  },
   mixins: [Context, NoteEditSession, Util],
   props: {
     afterCancel: {
@@ -169,7 +178,10 @@ export default {
     getNote(this.noteId).then(note => {
       this.resetModel()
       this.setModel(this.$_.cloneDeep(note))
-      this.addSid(note.sid)
+      // A draft-note may have a null SID value.
+      if (note.sid) {
+        this.addSid(note.sid)
+      }
       this.setMode('edit')
       this.$putFocusNextTick('edit-note-subject')
       this.$announcer.polite('Edit note form is open.')

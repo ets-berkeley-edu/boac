@@ -5,7 +5,7 @@
       {{ $currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>
     <div v-if="!loading" class="pr-3">
-      <div v-if="!$currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 text-secondary">
+      <div v-if="!$currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 pl-2 text-secondary">
         A draft note is only visible to its author.
       </div>
       <b-table
@@ -45,7 +45,7 @@
               v-if="row.item.author.uid === $currentUser.uid"
               :id="`open-draft-note-${row.item.id}`"
               class="border-0 p-0"
-              variant="text"
+              variant="link"
               @click="() => openEditModal(row.item)"
             >
               {{ row.item.subject }}
@@ -53,37 +53,46 @@
             <b-modal
               v-if="showEditModal"
               v-model="showEditModal"
-              body-class="pl-0 pr-0"
               hide-footer
               hide-header
+              size="lg"
               @shown="$putFocusNextTick('modal-header')"
             >
               <EditAdvisingNote
                 :after-cancel="deselectDraftNote"
                 :after-saved="afterSave"
-                :note-id="selectedDraftNote"
+                :note-id="selectedDraftNote.id"
               />
             </b-modal>
           </div>
         </template>
+        <template v-slot:cell(author)="row">
+          {{ row.item.author.name }}
+        </template>
         <template v-slot:cell(updatedAt)="row">
+          <TimelineDate
+            :date="row.item.updatedAt"
+            sr-prefix="Draft note saved on"
+          />
+        </template>
+        <template v-slot:cell(setDate)="row">
           <TimelineDate
             :date="row.item.setDate || row.item.updatedAt || row.item.createdAt"
             sr-prefix="Draft note saved on"
           />
         </template>
         <template v-slot:cell(delete)="row">
-          <div class="min-width-100">
+          <div class="min-width-100 pr-1">
             <b-button
               v-if="!row.item.deletedAt"
-              class="float-right px-0 py-0"
+              class="float-right mr-2 py-0"
               variant="link"
               @click="openDeleteModal(row.item)"
             >
               <font-awesome
                 icon="trash-alt"
                 aria-label="Delete"
-                class="text-secondary"
+                class="has-error"
                 title="Delete"
               />
             </b-button>
@@ -129,22 +138,28 @@ export default {
   created() {
     this.fields = [
       {
-        class: '',
         key: 'student',
         label: 'Student'
       },
       {
-        class: '',
         key: 'sids',
         label: 'SID(s)'
       },
       {
-        class: '',
         key: 'subject'
-      },
+      }
+    ]
+    if (this.$currentUser.isAdmin) {
+      this.fields.push(
+        {
+          key: 'author',
+          label: 'Author'
+        }
+      )
+    }
+    this.fields.push(
       {
-        class: '',
-        key: 'updatedAt',
+        key: 'setDate',
         label: 'Saved'
       },
       {
@@ -152,7 +167,7 @@ export default {
         key: 'delete',
         label: 'Delete'
       }
-    ]
+    )
     this.reloadDraftNotes('Draft notes list is ready.')
     this.$eventHub.on('draft-note-created', () => {
       this.reloadDraftNotes()

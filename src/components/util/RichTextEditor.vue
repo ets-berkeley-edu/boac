@@ -4,7 +4,7 @@
       <label
         :id="`${ckElementId}-label`"
         :for="ckElementId"
-        class="font-size-14 font-weight-bolder mt-3 mb-1"
+        class="font-size-16 font-weight-bolder mt-3 mb-1"
       >
         {{ label }}
       </label>
