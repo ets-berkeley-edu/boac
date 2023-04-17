@@ -10,11 +10,13 @@
     @shown="$putFocusNextTick('modal-header')"
   >
     <div>
-      <ModalHeader :text="modalHeader" />
+      <ModalHeader clazz="px-3" :text="modalHeader" />
       <div v-if="modalBody" class="modal-body">
-        <span v-html="modalBody"></span>
+        <div class="px-3">
+          <span v-html="modalBody" />
+        </div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer mb-0 pb-0 pt-3">
         <form @submit.prevent="confirm">
           <b-btn
             id="are-you-sure-confirm"

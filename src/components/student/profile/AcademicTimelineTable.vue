@@ -546,7 +546,7 @@ export default {
       this.$_.remove(this.messages, predicate)
       this.$_.remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
-      return deleteNote(note.id).then(() => {
+      return deleteNote(note).then(() => {
         this.$announcer.polite('Note deleted')
         this.refreshSearchIndex()
       })

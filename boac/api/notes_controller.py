@@ -98,7 +98,7 @@ def create_notes():
     set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
-    if not sids or not subject:
+    if not subject or (not is_draft and not sids):
         benchmark('end (BadRequest)')
         raise BadRequestError('Note creation requires \'subject\' and \'sids\'')
 
@@ -116,8 +116,6 @@ def create_notes():
     template_attachment_ids = get_template_attachment_ids_from_http_post()
 
     if len(sids) < 2:
-        if not len(sids) and is_draft:
-            raise BadRequestError('Non-draft notes must have non-null SID.')
         note = Note.create(
             **_get_author_profile(),
             attachments=attachments,
@@ -126,7 +124,7 @@ def create_notes():
             is_draft=is_draft,
             is_private=is_private,
             set_date=set_date,
-            sid=sids[0],
+            sid=sids[0] if sids else None,
             subject=subject,
             template_attachment_ids=template_attachment_ids,
             topics=topics,
@@ -191,11 +189,12 @@ def update_note():
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
 @advising_data_access_required
 def delete_note(note_id):
-    if not current_user.is_admin:
-        raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
     note = Note.find_by_id(note_id=note_id)
     if not note:
         raise ResourceNotFoundError('Note not found')
+    can_user_delete = current_user.is_admin or (note.is_draft and can_current_user_edit_note(note))
+    if not can_user_delete:
+        raise ForbiddenRequestError('Sorry, you are not authorized to delete notes.')
     Note.delete(note_id=note_id)
     return tolerant_jsonify({'message': f'Note {note_id} deleted'}), 200
 
