@@ -5,7 +5,7 @@
         id="link-to-draft-notes"
         path="/note/drafts"
       >
-        Note Drafts
+        Draft Notes
       </NavLink>
     </div>
     <div>

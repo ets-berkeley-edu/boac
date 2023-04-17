@@ -90,11 +90,17 @@ export function updateNote(
   return api_json
 }
 
-export function deleteNote(noteId: number) {
+export function deleteNote(note: any) {
   $_track('delete')
   return axios
-    .delete(`${utils.apiBaseUrl()}/api/notes/delete/${noteId}`)
-    .then(response => response.data)
+    .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
+    .then(response => {
+      Vue.prototype.$eventHub.emit('advising-note-deleted', note.id)
+      if (note.isDraft) {
+        Vue.prototype.$currentUser.myDraftNoteCount = Vue.prototype.$currentUser.myDraftNoteCount - 1
+      }
+      return response.data
+    })
 }
 
 export function addAttachments(noteId: number, attachments: any[]) {
