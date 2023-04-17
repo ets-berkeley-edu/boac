@@ -33,6 +33,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
+from flask_login import logout_user
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
 from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
@@ -105,9 +106,9 @@ def mock_private_advising_note(app):
 class TestGetNote:
 
     @classmethod
-    def _api_note_by_id(cls, client, note_id, expected_status_code=200):
+    def _api_note_by_id(cls, client, note_id, expected_status_code=200, failure_message=None):
         response = client.get(f'/api/note/{note_id}')
-        assert response.status_code == expected_status_code
+        assert response.status_code == expected_status_code, failure_message
         return response.json
 
     def test_not_authenticated(self, app, client, mock_coe_advising_note):
@@ -144,6 +145,23 @@ class TestGetNote:
         # Mark as read and re-test
         NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), note['id'])
         assert self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
+
+    def test_restrictions_on_draft_note(self, client, fake_auth, mock_note_draft):
+        expectations = {
+            admin_uid: 200,
+            asc_advisor_uid: 404,
+            mock_note_draft.author_uid: 200,
+        }
+        for uid in expectations:
+            fake_auth.login(uid)
+            expectation = expectations[uid]
+            self._api_note_by_id(
+                client=client,
+                expected_status_code=expectation,
+                failure_message=f"UID {uid} should {'NOT' if expectation else ''} have access to draft note.'",
+                note_id=mock_note_draft.id,
+            )
+            logout_user()
 
 
 class TestNoteCreation:
@@ -878,21 +896,12 @@ class TestDeleteNote:
     def test_admin_delete(self, client, fake_auth, mock_coe_advising_note):
         """Admin can delete another user's note."""
         fake_auth.login(admin_uid)
-        current_user = AuthorizedUser.find_by_uid(admin_uid)
-        notes = Note.get_notes_by_sid(
-            current_user_is_admin=current_user.is_admin,
-            current_user_uid=current_user.uid,
-            sid=mock_coe_advising_note.sid,
-        )
+        notes = Note.get_notes_by_sid(sid=mock_coe_advising_note.sid)
         note_id = mock_coe_advising_note.id
         response = client.delete(f'/api/notes/delete/{note_id}')
         assert response.status_code == 200
         assert not Note.find_by_id(note_id)
-        assert 1 == len(notes) - len(Note.get_notes_by_sid(
-            current_user_is_admin=current_user.is_admin,
-            current_user_uid=current_user.uid,
-            sid=mock_coe_advising_note.sid,
-        ))
+        assert 1 == len(notes) - len(Note.get_notes_by_sid(sid=mock_coe_advising_note.sid))
         assert not Note.update(
             note_id=note_id,
             sid=mock_coe_advising_note.sid,
@@ -965,7 +974,7 @@ class TestStreamNoteAttachments:
         fake_auth.login(coe_advisor_uid)
         attachments = mock_private_advising_note.attachments
         assert attachments
-        assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 403
+        assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 404
 
     def test_authorized_request_for_private_note(self, app, client, mock_private_advising_note, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""

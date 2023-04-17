@@ -35,6 +35,17 @@
         </div>
         <div v-if="mode !== 'editTemplate'">
           <b-btn
+            id="save-as-draft-button"
+            class="mr-2"
+            :disabled="isSaving || (!$_.trim(model.subject) && !$_.trim(model.body))"
+            variant="link"
+            @click.prevent="createDraft"
+          >
+            Save Draft
+          </b-btn>
+        </div>
+        <div v-if="mode !== 'editTemplate'">
+          <b-btn
             id="create-note-button"
             :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
@@ -75,6 +86,10 @@ export default {
       type: Function
     },
     createNote: {
+      required: true,
+      type: Function
+    },
+    createDraft: {
       required: true,
       type: Function
     },

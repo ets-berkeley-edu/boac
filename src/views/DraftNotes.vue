@@ -139,10 +139,9 @@ export default {
     myDraftNotes: undefined
   }),
   created() {
-    this.scrollToTop()
-    getMyDraftNotes().then(data => {
-      this.myDraftNotes = data
-      this.loaded('Draft notes list is ready.')
+    this.reloadDraftNotes('Draft notes list is ready.')
+    this.$eventHub.on('draft-note-created', () => {
+      this.reloadDraftNotes()
     })
   },
   computed: {
@@ -165,6 +164,15 @@ export default {
       const existing = this.$_.find(this.myDraftNotes, ['id', this.editingDraftNoteId])
       Object.assign(existing, data)
       this.editingDraftNoteId = null
+    },
+    reloadDraftNotes(srAlert) {
+      this.scrollToTop()
+      getMyDraftNotes().then(data => {
+        this.myDraftNotes = data
+        if (srAlert) {
+          this.loaded(srAlert)
+        }
+      })
     },
     openDeleteModal(draftNote) {
       this.draftNoteToDelete = draftNote

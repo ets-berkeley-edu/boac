@@ -120,7 +120,7 @@
                   @keypress.enter.stop="editNote(message)"
                   @click.stop="editNote(message)"
                 >
-                  Edit Note
+                  Edit {{ message.isDraft ? 'Draft' : 'Note' }}
                 </b-btn>
               </div>
               <div v-if="$currentUser.isAdmin">

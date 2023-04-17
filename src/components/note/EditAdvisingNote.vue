@@ -1,5 +1,9 @@
 <template>
   <form class="edit-note-form" @submit.prevent="save">
+    <div v-if="model.isDraft" class="font-size-18 has-error p-2">
+      <font-awesome icon="exclamation-triangle" class="pr-1" />
+      You are editing a draft note.
+    </div>
     <div>
       <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
     </div>
@@ -59,9 +63,18 @@
             id="save-note-button"
             class="btn-primary-color-override"
             variant="primary"
-            @click="save"
+            @click="() => save(false)"
           >
-            Save
+            {{ model.isDraft ? 'Publish' : 'Save' }}
+          </b-btn>
+        </div>
+        <div v-if="model.isDraft">
+          <b-btn
+            id="update-draft-note-button"
+            variant="link"
+            @click="() => save(true)"
+          >
+            Update Draft
           </b-btn>
         </div>
         <div>
@@ -196,7 +209,7 @@ export default {
       this.clearErrors()
       return this.exitSession()
     },
-    save() {
+    save(isDraft) {
       const ifAuthenticated = () => {
         const trimmedSubject = this.$_.trim(this.model.subject)
         const dateString = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
@@ -204,6 +217,7 @@ export default {
           updateNote(
             this.$_.trim(this.model.body),
             this.model.contactType,
+            isDraft,
             this.model.isPrivate,
             this.model.id,
             dateString,

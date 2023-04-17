@@ -33,6 +33,7 @@ export function createNotes(
     cohortIds: number[],
     contactType: string,
     curatedGroupIds: number[],
+    isDraft: boolean,
     isPrivate: boolean,
     setDate: string,
     sids: any,
@@ -45,6 +46,7 @@ export function createNotes(
     cohortIds,
     contactType,
     curatedGroupIds,
+    isDraft,
     isPrivate,
     setDate,
     sids,
@@ -55,12 +57,18 @@ export function createNotes(
   _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   const action = sids.length > 1 ? 'batch' : 'create'
   $_track(isPrivate ? `${action} private` : action)
-  return utils.postMultipartFormData('/api/notes/create', data)
+  return utils.postMultipartFormData('/api/notes/create', data).then(() => {
+    if (isDraft) {
+      Vue.prototype.$eventHub.emit('draft-note-created')
+      Vue.prototype.$currentUser.myDraftNoteCount++
+    }
+  })
 }
 
 export function updateNote(
     body: string,
     contactType: string,
+    isDraft: boolean,
     isPrivate: boolean,
     noteId: number,
     setDate: string,
@@ -68,13 +76,14 @@ export function updateNote(
     topics: string[]
 ) {
   const data = {
-    body: body,
-    contactType: contactType,
+    body,
+    contactType,
     id: noteId,
-    isPrivate: isPrivate,
-    setDate: setDate,
-    subject: subject,
-    topics: topics
+    isDraft,
+    isPrivate,
+    setDate,
+    subject,
+    topics
   }
   const api_json = utils.postMultipartFormData('/api/notes/update', data)
   $_track('update')

@@ -661,8 +661,8 @@ class TestStudent:
 
     def test_draft_notes(self, admin_user_uid, client, fake_auth):
         """Draft notes are excluded when written for 2 or more students."""
-        # COE advisor creates draft_note
         fake_auth.login(coe_advisor_uid)
+        # COE advisor creates draft_note
         response = client.post(
             '/api/notes/create',
             buffered=True,
@@ -691,7 +691,9 @@ class TestStudent:
             for student in [student_by_sid, student_by_uid]:
                 notes = student['notifications']['note']
                 is_draft_note_present = bool(next((n for n in notes if n['id'] == note_id), None))
-                assert is_draft_note_present is expectations[uid]
+                expectation = expectations[uid]
+                assert is_draft_note_present is expectation, \
+                    f"UID {uid} should {'NOT' if expectation else ''} have access to draft note.'"
             logout_user()
 
 

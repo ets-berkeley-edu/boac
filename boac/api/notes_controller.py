@@ -48,6 +48,8 @@ from boac.lib.util import (
     utc_now,
 )
 from boac.merged.advising_note import (
+    can_current_user_access_note,
+    can_current_user_edit_note,
     get_advising_notes,
     get_boa_attachment_stream,
     get_zip_stream,
@@ -67,7 +69,7 @@ from flask_login import current_user
 @advising_data_access_required
 def get_note(note_id):
     note = Note.find_by_id(note_id=note_id)
-    if not note:
+    if not note or not can_current_user_access_note(note):
         raise ResourceNotFoundError('Note not found')
     note_read = NoteRead.when_user_read_note(current_user.get_id(), str(note.id))
     return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
@@ -167,7 +169,7 @@ def update_note():
         raise ResourceNotFoundError('Note not found')
     if not subject:
         raise BadRequestError('Note subject is required')
-    if note.author_uid != current_user.uid:
+    if not can_current_user_edit_note(note):
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     if (is_private is not note.is_private) and not current_user.can_access_private_notes:
         raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
@@ -220,7 +222,7 @@ def get_my_note_drafts():
 @advising_data_access_required
 def add_attachments(note_id):
     note = Note.find_by_id(note_id=note_id)
-    if note.author_uid != current_user.uid:
+    if not can_current_user_edit_note(note):
         raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     attachments = get_note_attachments_from_http_post()
     attachment_limit = app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE']
@@ -245,7 +247,7 @@ def remove_attachment(note_id, attachment_id):
     existing_note = Note.find_by_id(note_id=note_id)
     if not existing_note:
         raise BadRequestError('Note id not found.')
-    if existing_note.author_uid != current_user.uid and not current_user.is_admin:
+    if not can_current_user_edit_note(existing_note):
         raise ForbiddenRequestError('You are not authorized to remove attachments from this note.')
     note = Note.delete_attachment(
         note_id=note_id,
@@ -270,7 +272,7 @@ def download_attachment(attachment_id):
         attachment = NoteAttachment.find_by_id(id_)
         note = attachment and attachment.note
         if note and note.is_private and not current_user.can_access_private_notes:
-            raise ForbiddenRequestError('Unauthorized')
+            raise ResourceNotFoundError('Note not found')
         stream_data = get_boa_attachment_stream(attachment)
 
     if not stream_data or not stream_data['stream']:
