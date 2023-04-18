@@ -58,9 +58,10 @@
               size="lg"
               @shown="$putFocusNextTick('modal-header')"
             >
-              <EditAdvisingNote
+              <EditBatchNoteModal
                 :after-cancel="deselectDraftNote"
                 :after-saved="afterSave"
+                :is-batch-feature="false"
                 :note-id="selectedDraftNote.id"
               />
             </b-modal>
@@ -117,7 +118,6 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
-import EditAdvisingNote from '@/components/note/EditAdvisingNote.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable.vue'
 import Spinner from '@/components/util/Spinner.vue'
@@ -128,7 +128,7 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 export default {
   name: 'DraftNotes',
   mixins: [Loading, Scrollable, Util],
-  components: {AreYouSureModal, EditAdvisingNote, Spinner, TimelineDate},
+  components: {AreYouSureModal, Spinner, TimelineDate},
   data: () => ({
     fields: undefined,
     mode: undefined,

@@ -140,16 +140,16 @@
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import BatchNoteFeatures from '@/components/note/create/BatchNoteFeatures'
-import ContactMethod from '@/components/note/create/ContactMethod'
+import BatchNoteFeatures from '@/components/note/BatchNoteFeatures'
+import ContactMethod from '@/components/note/ContactMethod'
 import Context from '@/mixins/Context'
-import CreateNoteFooter from '@/components/note/create/CreateNoteFooter'
-import CreateNoteHeader from '@/components/note/create/CreateNoteHeader'
-import CreateTemplateModal from '@/components/note/create/CreateTemplateModal'
+import CreateNoteFooter from '@/components/note/CreateNoteFooter'
+import CreateNoteHeader from '@/components/note/CreateNoteHeader'
+import CreateTemplateModal from '@/components/note/CreateTemplateModal'
 import FocusLock from 'vue-focus-lock'
-import ManuallySetDate from '@/components/note/create/ManuallySetDate'
+import ManuallySetDate from '@/components/note/ManuallySetDate'
 import NoteEditSession from '@/mixins/NoteEditSession'
-import PrivacyPermissions from '@/components/note/create/PrivacyPermissions'
+import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
@@ -157,7 +157,7 @@ import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
 
 export default {
-  name: 'CreateNoteModal',
+  name: 'EditBatchNoteModal',
   components: {
     AdvisingNoteAttachments,
     AdvisingNoteTopics,
@@ -178,15 +178,14 @@ export default {
       required: true,
       type: Boolean
     },
+    note: {
+      required: true,
+      type: Object
+    },
     onClose: {
       default: () => {},
       required: false,
       type: Function
-    },
-    sid: {
-      default: undefined,
-      required: false,
-      type: String
     }
   },
   data: () => ({
@@ -200,10 +199,7 @@ export default {
   mounted() {
     store.dispatch('noteEditSession/loadNoteTemplates')
     this.resetModel()
-    this.setIsPrivate(false)
-    if (this.sid) {
-      this.addSid(this.sid)
-    }
+    this.setModel(this.$_.cloneDeep(this.note))
     this.setMode(this.isBatchFeature ? 'batch' : 'create')
     this.$announcer.polite(this.isBatchFeature ? 'Create batch note form is open.' : 'Create note form is open')
     this.$putFocusNextTick('modal-header-note')

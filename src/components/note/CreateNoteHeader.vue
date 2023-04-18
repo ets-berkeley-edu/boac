@@ -102,7 +102,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import NoteEditSession from '@/mixins/NoteEditSession'
-import RenameTemplateModal from '@/components/note/create/RenameTemplateModal'
+import RenameTemplateModal from '@/components/note/RenameTemplateModal'
 import Util from '@/mixins/Util'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 

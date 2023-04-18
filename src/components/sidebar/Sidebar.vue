@@ -59,7 +59,7 @@
             New Note
           </span>
         </b-btn>
-        <CreateNoteModal
+        <EditBatchNoteModal
           v-if="isCreateNoteModalOpen"
           :is-batch-feature="true"
           :on-close="onCreateNoteModalClose"
@@ -72,8 +72,8 @@
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue'
 import Context from '@/mixins/Context'
-import CreateNoteModal from '@/components/note/create/CreateNoteModal.vue'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
@@ -82,8 +82,8 @@ export default {
   name: 'Sidebar',
   components: {
     Cohorts,
-    CreateNoteModal,
     CuratedGroups,
+    EditBatchNoteModal,
     LinkToDraftNotes,
     MyAdmitCohorts
   },
