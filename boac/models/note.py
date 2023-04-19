@@ -375,6 +375,7 @@ class Note(Base):
             note.body = body
             note.contact_type = contact_type
             note.is_private = is_private
+            note.sid = sid
             note.set_date = set_date
             note.subject = subject
             cls._update_note_topics(note, topics)

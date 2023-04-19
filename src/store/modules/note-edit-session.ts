@@ -1,14 +1,35 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import {createNotes} from '@/api/notes'
+import {updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
 
-const VALID_MODES = ['batch', 'create', 'edit', 'editTemplate']
+const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
-const $_getDefaultModel = () => {
+type Model = {
+  id: number;
+  subject?: string;
+  body?: string;
+  contactType?: string;
+  isDraft?: boolean;
+  isPrivate?: boolean;
+  setDate?: any;
+  topics?: string[];
+  attachments?: string[];
+  deleteAttachmentIds?: number[];
+}
+
+const $_addSid = ({commit, state}, sid: string) => {
+  const sids = state.sids.concat(sid)
+  $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
+    commit('addSid', sid)
+    commit('setCompleteSidSet', sids)
+  }).finally(() => commit('setIsRecalculating', false))
+}
+
+function $_getDefaultModel():Model {
   return {
-    id: undefined,
+    id: NaN,
     subject: undefined,
     body: undefined,
     contactType: undefined,
@@ -156,13 +177,7 @@ const actions = {
       commit('setCompleteSidSet', sids)
     }).finally(() => commit('setIsRecalculating', false))
   },
-  addSid: ({commit, state}, sid: string) => {
-    const sids = state.sids.concat(sid)
-    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
-      commit('addSid', sid)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
+  addSid: $_addSid,
   addSidList: ({commit, state}, sidList: string[]) => {
     const sids = _.uniq(state.sids.concat(sidList))
     $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
@@ -172,38 +187,6 @@ const actions = {
   },
   addTopic: ({commit}, topic: string) => commit('addTopic', topic),
   onBoaSessionExpires: ({commit}) => commit('onBoaSessionExpires'),
-  createAdvisingNotes: ({commit, state}) => {
-    return new Promise(resolve => {
-      commit('setBody', _.trim(state.model.body))
-      const [templateAttachments, attachments] = state.model.attachments.reduce((result, a) => {
-        result[a.noteTemplateId ? 0 : 1].push(a)
-        return result
-      }, [[], []])
-      Vue.prototype.$eventHub.emit('begin-note-creation', {
-        completeSidSet: state.completeSidSet,
-        subject: state.model.subject
-      })
-      const dateString = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
-      createNotes(
-        attachments,
-        state.model.body,
-        _.map(state.addedCohorts, 'id'),
-        state.model.contactType,
-        _.map(state.addedCuratedGroups, 'id'),
-        state.model.isDraft,
-        state.model.isPrivate,
-        dateString,
-        state.sids,
-        state.model.subject,
-        _.map(templateAttachments, 'id'),
-        state.model.topics
-      ).then(data => {
-        const eventType = state.completeSidSet.length > 1 ? 'batch-of-notes-created' : 'advising-note-created'
-        Vue.prototype.$eventHub.emit(eventType, data)
-        resolve(data)
-      })
-    })
-  },
   exitSession: ({commit}) => commit('exitSession'),
   async loadNoteTemplates({commit, state}) {
     if (_.isUndefined(state.myNoteTemplates)) {
@@ -250,9 +233,36 @@ const actions = {
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({commit}, mode: string) => commit('setMode', mode),
-  setModel: ({commit}, model?: any) => commit('setModel', model),
+  setModel: ({commit}, model?: any) => {
+    commit('setModel', model)
+    if (model.sid) {
+      $_addSid({commit, state}, model.sid)
+    }
+  },
   setSetDate: ({commit}, setDate: any) => commit('setSetDate', setDate),
-  setSubject: ({commit}, subject: string) => commit('setSubject', subject)
+  setSubject: ({commit}, subject: string) => commit('setSubject', subject),
+  updateAdvisingNote: ({commit}) => {
+    return new Promise(resolve => {
+      commit('setBody', _.trim(state.model.body))
+      const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
+      if (state.model.isDraft) {
+        commit('setSubject', _.trim(state.model.subject) || '[DRAFT NOTE]')
+      }
+      updateNote(
+        state.model.id,
+        state.model.body,
+        _.map(state.addedCohorts, 'id'),
+        state.model.contactType,
+        _.map(state.addedCuratedGroups, 'id'),
+        state.model.isDraft,
+        state.model.isPrivate,
+        setDate,
+        state.sids,
+        state.model.subject,
+        state.model.topics
+      ).then(resolve)
+    })
+  }
 }
 
 export default {

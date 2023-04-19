@@ -1,7 +1,11 @@
 <template>
   <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1">
-      <ModalHeader class="border-bottom-0" header-id="modal-header-note" :text="mode === 'editTemplate' ? 'Edit Template' : 'New Note'" />
+      <ModalHeader
+        class="border-bottom-0"
+        header-id="modal-header-note"
+        :text="headerText"
+      />
     </div>
     <div class="mr-4">
       <b-dropdown
@@ -117,10 +121,34 @@ export default {
     }
   },
   data: () => ({
+    modalHeader: undefined,
     showDeleteTemplateModal: false,
     showRenameTemplateModal: false,
     targetTemplate: undefined
   }),
+  computed: {
+    headerText() {
+      let text
+      switch (this.mode) {
+      case 'createBatch':
+        text = 'Create Note(s)'
+        break
+      case 'createNote':
+        text = 'Create Note'
+        break
+      case 'editDraft':
+        text = 'Edit Draft Note'
+        break
+      case 'editNote':
+        text = 'Edit Note'
+        break
+      case 'editTemplate':
+        text = 'Edit Note Template'
+        break
+      }
+      return text
+    }
+  },
   methods: {
     cancel() {
       this.showDeleteTemplateModal = false

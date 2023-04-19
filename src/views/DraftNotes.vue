@@ -17,6 +17,7 @@
         responsive
         stacked="md"
         thead-class="text-nowrap text-secondary text-uppercase"
+        :tbody-tr-attr="item => ({id: `draft-note-${item.id}`})"
       >
         <template v-slot:cell(student)="row">
           <span v-if="row.item.student">
@@ -33,14 +34,14 @@
             &mdash;
           </span>
         </template>
-        <template v-slot:cell(sids)="row">
+        <template v-slot:cell(sid)="row">
           {{ row.item.sid || '&mdash;' }}
         </template>
         <template v-slot:cell(subject)="row">
-          <div class="truncate-with-ellipsis">
-            <span v-if="row.item.author.uid !== $currentUser.uid">
+          <div>
+            <div v-if="row.item.author.uid !== $currentUser.uid" class="truncate-with-ellipsis">
               {{ row.item.subject }}
-            </span>
+            </div>
             <b-btn
               v-if="row.item.author.uid === $currentUser.uid"
               :id="`open-draft-note-${row.item.id}`"
@@ -50,21 +51,14 @@
             >
               {{ row.item.subject }}
             </b-btn>
-            <b-modal
+            <EditBatchNoteModal
               v-if="showEditModal"
               v-model="showEditModal"
-              hide-footer
-              hide-header
-              size="lg"
-              @shown="$putFocusNextTick('modal-header')"
-            >
-              <EditBatchNoteModal
-                :after-cancel="deselectDraftNote"
-                :after-saved="afterSave"
-                :is-batch-feature="false"
-                :note-id="selectedDraftNote.id"
-              />
-            </b-modal>
+              initial-mode="editDraft"
+              :note-id="selectedDraftNote.id"
+              :sid="selectedDraftNote.sid"
+              :on-close="afterEditDraft"
+            />
           </div>
         </template>
         <template v-slot:cell(author)="row">
@@ -118,6 +112,7 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable.vue'
 import Spinner from '@/components/util/Spinner.vue'
@@ -128,7 +123,7 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 export default {
   name: 'DraftNotes',
   mixins: [Loading, Scrollable, Util],
-  components: {AreYouSureModal, Spinner, TimelineDate},
+  components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
   data: () => ({
     fields: undefined,
     mode: undefined,
@@ -142,8 +137,8 @@ export default {
         label: 'Student'
       },
       {
-        key: 'sids',
-        label: 'SID(s)'
+        key: 'sid',
+        label: 'SID'
       },
       {
         key: 'subject'
@@ -169,8 +164,18 @@ export default {
       }
     )
     this.reloadDraftNotes('Draft notes list is ready.')
-    this.$eventHub.on('draft-note-created', () => {
+    this.$eventHub.on('note-created', () => {
       this.reloadDraftNotes()
+    })
+    this.$eventHub.on('note-deleted', noteId => {
+      if (this.$_.find(this.myDraftNotes, ['id', noteId])) {
+        this.reloadDraftNotes()
+      }
+    })
+    this.$eventHub.on('note-updated', noteId => {
+      if (this.$_.find(this.myDraftNotes, ['id', noteId])) {
+        this.reloadDraftNotes()
+      }
     })
   },
   computed: {
@@ -205,10 +210,11 @@ export default {
     }
   },
   methods: {
-    afterSave(data) {
+    afterEditDraft(data) {
       const existing = this.$_.find(this.myDraftNotes, ['id', this.selectedDraftNote.id])
       Object.assign(existing, data)
       this.deselectDraftNote()
+      this.reloadDraftNotes()
     },
     deleteDraftNote() {
       deleteNote(this.selectedDraftNote).then(() => {

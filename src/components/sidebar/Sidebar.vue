@@ -61,7 +61,7 @@
         </b-btn>
         <EditBatchNoteModal
           v-if="isCreateNoteModalOpen"
-          :is-batch-feature="true"
+          initial-mode="createBatch"
           :on-close="onCreateNoteModalClose"
         />
       </div>
