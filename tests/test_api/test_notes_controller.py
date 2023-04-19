@@ -737,8 +737,8 @@ class TestUpdateNotes:
         )
 
     def test_unauthorized_note_privacy_change(self, app, client, fake_auth, mock_advising_note):
-        """Returns 401 if unauthorized to update note privacy."""
-        fake_auth.login(coe_advisor_uid)
+        """Returns 404 if unauthorized to edit note privacy."""
+        fake_auth.login(mock_advising_note.author_uid)
         self._api_note_update(
             app=app,
             body=mock_advising_note.body,
@@ -769,7 +769,7 @@ class TestUpdateNotes:
             app=app,
             body='Hack someone else\'s body!',
             client=client,
-            expected_status_code=403,
+            expected_status_code=404,
             note_id=mock_coe_advising_note.id,
             subject='Hack someone else\'s subject!',
         )

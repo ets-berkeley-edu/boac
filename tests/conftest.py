@@ -261,31 +261,13 @@ def create_alerts(client, db_session):
 @pytest.fixture()
 def mock_advising_note(app, db):
     """Create advising note with attachment (mock s3)."""
-    with mock_advising_note_s3_bucket(app):
-        note_author_uid = '90412'
-        base_dir = app.config['BASE_DIR']
-        path_to_file = f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'
-        with open(path_to_file, 'r') as file:
-            note = Note.create(
-                author_uid=note_author_uid,
-                author_name='Joni Mitchell CC',
-                author_role='Director',
-                author_dept_codes=['UWASC'],
-                sid='11667051',
-                subject='In France they kiss on main street',
-                body="""
-                    My darling dime store thief, in the War of Independence
-                    Rock 'n Roll rang sweet as victory, under neon signs
-                """,
-                attachments=[
-                    {
-                        'name': path_to_file.rsplit('/', 1)[-1],
-                        'byte_stream': file.read(),
-                    },
-                ],
-            )
-            db.session.add(note)
-            std_commit(allow_test_environment=True)
+    note = _create_mock_note(
+        app=app,
+        attachment='fixtures/mock_advising_note_attachment_1.txt',
+        author_dept_codes=['UWASC'],
+        author_uid='90412',
+        db=db,
+    )
     yield note
     Note.delete(note_id=note.id)
     std_commit(allow_test_environment=True)
@@ -294,37 +276,17 @@ def mock_advising_note(app, db):
 @pytest.fixture()
 def mock_note_draft(app, db):
     """Create advising note draft with attachment (mock s3)."""
-    with mock_advising_note_s3_bucket(app):
-        base_dir = app.config['BASE_DIR']
-        path_to_file = f'{base_dir}/fixtures/mock_note_draft_attachment_1.txt'
-        timestamp = datetime.now().timestamp()
-        with open(path_to_file, 'r') as file:
-            note_author_uid = '90412'
-            note_draft = Note.create(
-                attachments=[
-                    {
-                        'name': path_to_file.rsplit('/', 1)[-1],
-                        'byte_stream': file.read(),
-                    },
-                ],
-                author_uid=note_author_uid,
-                author_name='Joni Mitchell CC',
-                author_role='Director',
-                author_dept_codes=['UWASC'],
-                body="""
-                    See, I've found that everyone's sayin'
-                    What to do when suckers are preyin'
-                """,
-                contact_type=None,
-                is_draft=True,
-                is_private=False,
-                sid='11667051',
-                set_date=None,
-                subject=f'It\'s unwise to leave my garden untended ({timestamp})',
-                topics=['Three Feet High', 'Rising'],
-            )
-            std_commit(allow_test_environment=True)
-            return note_draft
+    note = _create_mock_note(
+        app=app,
+        attachment='fixtures/mock_advising_note_attachment_1.txt',
+        author_dept_codes=['UWASC'],
+        author_uid='90412',
+        db=db,
+        is_draft=True,
+    )
+    yield note
+    Note.delete(note_id=note.id)
+    std_commit(allow_test_environment=True)
 
 
 @pytest.fixture()
@@ -411,6 +373,42 @@ def pytest_itemcollected(item):
     suf = node.__doc__.strip() if node.__doc__ else node.__name__
     if pref or suf:
         item._nodeid = ' '.join((pref, suf))
+
+
+def _create_mock_note(
+        app,
+        attachment,
+        author_dept_codes,
+        author_uid,
+        db,
+        is_draft=False,
+):
+    with mock_advising_note_s3_bucket(app):
+        base_dir = app.config['BASE_DIR']
+        attachment = f'{base_dir}/{attachment}'
+        with open(attachment, 'r') as file:
+            note = Note.create(
+                attachments=[
+                    {
+                        'name': attachment.rsplit('/', 1)[-1],
+                        'byte_stream': file.read(),
+                    },
+                ],
+                author_uid=author_uid,
+                author_name='Joni Mitchell CC',
+                author_role='Director',
+                author_dept_codes=author_dept_codes,
+                body="""
+                    My darling dime store thief, in the War of Independence
+                    Rock 'n Roll rang sweet as victory, under neon signs
+                """,
+                is_draft=is_draft,
+                sid='11667051',
+                subject='In France they kiss on main street',
+            )
+            db.session.add(note)
+            std_commit(allow_test_environment=True)
+            return note
 
 
 def _create_user(
