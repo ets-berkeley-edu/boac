@@ -20,7 +20,7 @@
         :editor="editor"
         :config="editorConfig"
         @input="onUpdate"
-      ></ckeditor>
+      />
     </div>
   </div>
 </template>

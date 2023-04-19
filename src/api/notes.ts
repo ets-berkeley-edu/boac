@@ -59,36 +59,44 @@ export function createNotes(
   $_track(isPrivate ? `${action} private` : action)
   return utils.postMultipartFormData('/api/notes/create', data).then(data => {
     if (isDraft) {
-      Vue.prototype.$eventHub.emit('draft-note-created')
       Vue.prototype.$currentUser.myDraftNoteCount++
     }
+    Vue.prototype.$eventHub.emit(sids.length > 1 ? 'notes-created' : 'note-created', data)
     return data
   })
 }
 
 export function updateNote(
-    body: string,
-    contactType: string,
-    isDraft: boolean,
-    isPrivate: boolean,
     noteId: number,
-    setDate: string,
-    subject: string,
-    topics: string[]
+    body?: string,
+    cohortIds?: number[],
+    contactType?: string,
+    curatedGroupIds?: number[],
+    isDraft?: boolean,
+    isPrivate?: boolean,
+    setDate?: string,
+    sids?: string[],
+    subject?: string,
+    topics?: string[]
 ) {
   const data = {
-    body,
-    contactType,
     id: noteId,
+    body,
+    cohortIds,
+    contactType,
+    curatedGroupIds,
     isDraft,
     isPrivate,
     setDate,
+    sids,
     subject,
     topics
   }
-  const api_json = utils.postMultipartFormData('/api/notes/update', data)
-  $_track('update')
-  return api_json
+  return utils.postMultipartFormData('/api/notes/update', data).then(note => {
+    Vue.prototype.$eventHub.emit('note-updated', note.id)
+    $_track('update')
+    return note
+  })
 }
 
 export function deleteNote(note: any) {
@@ -96,7 +104,7 @@ export function deleteNote(note: any) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
     .then(response => {
-      Vue.prototype.$eventHub.emit('advising-note-deleted', note.id)
+      Vue.prototype.$eventHub.emit('note-deleted', note.id)
       if (note.isDraft) {
         Vue.prototype.$currentUser.myDraftNoteCount = Vue.prototype.$currentUser.myDraftNoteCount - 1
       }

@@ -28,7 +28,6 @@ export default {
       'addSid',
       'addSidList',
       'addTopic',
-      'createAdvisingNotes',
       'exitSession',
       'onBoaSessionExpires',
       'removeAllStudents',
@@ -48,7 +47,8 @@ export default {
       'setMode',
       'setModel',
       'setSetDate',
-      'setSubject'
+      'setSubject',
+      'updateAdvisingNote'
     ]),
     setSubjectPerEvent(event) {
       store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value)

@@ -205,7 +205,7 @@ def update_note():
             is_private=is_private,
             note_id=note.id,
             set_date=set_date,
-            sid=sids[0],
+            sid=sids[0] if sids else None,
             subject=subject,
             topics=topics,
         )

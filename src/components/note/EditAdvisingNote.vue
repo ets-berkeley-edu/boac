@@ -182,7 +182,7 @@ export default {
       if (note.sid) {
         this.addSid(note.sid)
       }
-      this.setMode('edit')
+      this.setMode('editNote')
       this.$putFocusNextTick('edit-note-subject')
       this.$announcer.polite('Edit note form is open.')
     })
@@ -224,15 +224,18 @@ export default {
     save(isDraft) {
       const ifAuthenticated = () => {
         const trimmedSubject = this.$_.trim(this.model.subject)
-        const dateString = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
+        const setDate = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
         if (trimmedSubject) {
           updateNote(
+            this.model.id,
             this.$_.trim(this.model.body),
+            [],
             this.model.contactType,
+            [],
             isDraft,
             this.model.isPrivate,
-            this.model.id,
-            dateString,
+            setDate,
+            this.sids,
             trimmedSubject,
             this.model.topics
           ).then(updatedNote => {

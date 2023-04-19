@@ -45,7 +45,7 @@
             :disabled="!!mode"
             class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
             variant="primary"
-            @click="editNote"
+            @click="isEditingNote = true"
           >
             <span class="m-1">
               <font-awesome icon="file-alt" />
@@ -54,10 +54,10 @@
           </b-btn>
         </div>
         <EditBatchNoteModal
-          v-if="draftNote && isEditingNote"
-          :is-batch-feature="false"
-          :note="draftNote"
+          v-if="isEditingNote"
+          initial-mode="createNote"
           :on-close="onModalClose"
+          :sid="student.sid"
         />
       </div>
     </div>
@@ -68,7 +68,6 @@
 import Context from '@/mixins/Context'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Util from '@/mixins/Util'
-import {createNotes} from '@/api/notes'
 
 export default {
   name: 'AcademicTimelineHeader',
@@ -97,33 +96,11 @@ export default {
     }
   },
   data: () => ({
-    draftNote: undefined,
     isEditingNote: false
   }),
   methods: {
-    editNote() {
-      const isDraft = true
-      createNotes(
-        [],
-        null,
-        [],
-        null,
-        [],
-        isDraft,
-        false,
-        null,
-        [this.student.sid],
-        '',
-        [],
-        []
-      ).then(data => {
-        this.draftNote = data
-        this.isEditingNote = true
-      })
-    },
     onModalClose(note) {
       this.isEditingNote = false
-      this.draftNote = null
       this.$putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
     }
   }

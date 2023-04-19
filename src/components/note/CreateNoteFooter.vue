@@ -13,7 +13,7 @@
       <div class="d-flex flex-wrap-reverse">
         <div class="flex-grow-1">
           <b-btn
-            v-if="mode !== 'editTemplate'"
+            v-if="!['editTemplate'].includes(mode)"
             id="btn-save-as-template"
             :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
             variant="link"
@@ -33,26 +33,26 @@
             Update Template
           </b-btn>
         </div>
-        <div v-if="mode !== 'editTemplate'">
+        <div v-if="model.isDraft">
           <b-btn
             id="save-as-draft-button"
             class="mr-2"
             :disabled="isSaving || (!$_.trim(model.subject) && !$_.trim(model.body))"
             variant="link"
-            @click.prevent="createDraft"
+            @click.prevent="updateNote"
           >
-            Save Draft
+            {{ mode === 'editDraft' ? 'Update' : 'Save' }} Draft
           </b-btn>
         </div>
-        <div v-if="mode !== 'editTemplate'">
+        <div v-if="!['editTemplate'].includes(mode)">
           <b-btn
             id="create-note-button"
             :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
             variant="primary"
-            @click.prevent="createNote"
+            @click.prevent="publish"
           >
-            Save
+            {{ mode === 'editDraft' ? 'Publish' : 'Save' }}
           </b-btn>
         </div>
         <div>
@@ -85,21 +85,23 @@ export default {
       required: true,
       type: Function
     },
-    createNote: {
-      required: true,
-      type: Function
-    },
-    createDraft: {
-      required: true,
-      type: Function
-    },
     saveAsTemplate: {
+      required: true,
+      type: Function
+    },
+    updateNote: {
       required: true,
       type: Function
     },
     updateTemplate: {
       required: true,
       type: Function
+    }
+  },
+  methods: {
+    publish() {
+      this.setIsDraft(false)
+      this.updateNote()
     }
   }
 }

@@ -43,7 +43,7 @@
             :id="`remove-student-from-batch-${index}`"
             variant="link"
             class="p-0"
-            @click.prevent="removeStudent(addedStudent)"
+            @click.prevent="remove(addedStudent)"
           >
             <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
             <span class="sr-only">Remove {{ addedStudent.label }} from batch note</span>
@@ -57,6 +57,7 @@
 <script>
 import Context from '@/mixins/Context'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
+import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 
@@ -65,16 +66,8 @@ export default {
   components: {
     InputTextAutocomplete
   },
-  mixins: [Context, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
-    addSid: {
-      required: true,
-      type: Function
-    },
-    addSidList: {
-      required: true,
-      type: Function
-    },
     disabled: {
       required: false,
       type: Boolean
@@ -82,10 +75,6 @@ export default {
     onEscFormInput: {
       default: () => {},
       required: false,
-      type: Function
-    },
-    removeSid: {
-      required: true,
       type: Function
     }
   },
@@ -98,14 +87,25 @@ export default {
     sidsNotFound: [],
     warning: undefined
   }),
+  mounted() {
+    if (this.sids.length) {
+      getStudentsBySids(this.sids).then(students => {
+        this.$_.each(students, student => {
+          this.addStudent(student)
+        })
+      })
+    }
+  },
   methods: {
     addStudent(student) {
       if (student) {
+        this.setIsRecalculating(true)
         this.addedStudents.push(student)
         this.addSid(student.sid)
         this.resetAutoCompleteKey = new Date().getTime()
         this.$announcer.polite(`${student.label} added to batch note`)
         this.clearWarning()
+        this.$putFocusNextTick('create-note-add-student-input')
       }
     },
     clearWarning() {
@@ -117,6 +117,7 @@ export default {
       if (trimmed) {
         const sids = this.$_.split(query, this.sidDelimiter)
         return getStudentsBySids(sids).then(data => {
+          this.setIsRecalculating(true)
           const sidList = []
           this.$_.each(data, student => {
             this.addedStudents.push(student)
@@ -131,6 +132,7 @@ export default {
           } else {
             this.clearWarning()
           }
+          this.$putFocusNextTick('create-note-add-student-input')
         })
       } else {
         return Promise.resolve()
@@ -145,10 +147,14 @@ export default {
     isSuggestible(query) {
       return this.isPresent(query) && !this.isList(query)
     },
-    removeStudent(student) {
+    remove(student) {
       if (student) {
         this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
-        this.removeSid(student.sid)
+        if (this.sids.includes(student.sid)) {
+          this.setIsRecalculating(true)
+          this.removeStudent(student.sid)
+          this.$putFocusNextTick('create-note-add-student-input')
+        }
         this.$announcer.polite(`${student.label} removed from batch note`)
       }
     },
