@@ -156,34 +156,62 @@ def update_note():
     params = request.form
     body = params.get('body', None)
     contact_type = _validate_contact_type(params)
+    is_draft = to_bool_or_none(params.get('isDraft'))
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
     set_date = validate_advising_note_set_date(params)
     subject = params.get('subject', None)
     topics = get_note_topics_from_http_post()
-
+    # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
-    if not note:
+    if not note or not can_current_user_edit_note(note):
         raise ResourceNotFoundError('Note not found')
-    if not subject:
-        raise BadRequestError('Note subject is required')
-    if not can_current_user_edit_note(note):
-        raise ForbiddenRequestError('Sorry, you are not the author of this note.')
     if (is_private is not note.is_private) and not current_user.can_access_private_notes:
         raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
-
-    note = Note.update(
-        body=process_input_from_rich_text_editor(body),
-        contact_type=contact_type,
-        is_private=is_private,
-        note_id=note.id,
-        set_date=set_date,
-        sid=note.sid,
-        subject=subject,
-        topics=topics,
-    )
-    note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
-    return tolerant_jsonify(_boa_note_to_compatible_json(note=note, note_read=note_read))
+    # A note is "published" when the 'is_draft' value goes from True to False.
+    is_publishing_note = note.is_draft and not is_draft
+    sids = _get_sids_for_note_creation() if is_draft else [note.sid]
+    if is_draft:
+        if not note.is_draft:
+            raise BadRequestError('A non-draft note cannot return to draft status.')
+        if len(sids) > 1:
+            raise BadRequestError('Draft notes can have only one associated SID.')
+    else:
+        if not subject or len(sids) != 1:
+            raise BadRequestError('Note update requires subject and one SID.')
+        if is_publishing_note and not sids:
+            raise BadRequestError('Note must have at least one SID.')
+    if is_publishing_note and len(sids) > 1:
+        # Draft note is being "published" as a batch of notes.
+        api_json = Note.create_batch(
+            **_get_author_profile(),
+            attachments=note.attachments,
+            author_id=current_user.to_api_json()['id'],
+            body=body,
+            contact_type=contact_type,
+            is_private=is_private,
+            set_date=set_date,
+            sids=sids,
+            subject=subject,
+            template_attachment_ids=[],  # TODO: Necessary?
+            topics=topics,
+        )
+        # Delete the draft. It has served its purpose.
+        Note.delete(note_id=note.id)
+    else:
+        note = Note.update(
+            body=process_input_from_rich_text_editor(body),
+            contact_type=contact_type,
+            is_private=is_private,
+            note_id=note.id,
+            set_date=set_date,
+            sid=sids[0],
+            subject=subject,
+            topics=topics,
+        )
+        note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
+        api_json = _boa_note_to_compatible_json(note=note, note_read=note_read)
+    return tolerant_jsonify(api_json)
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])
