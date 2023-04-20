@@ -177,7 +177,7 @@ export default {
   created() {
     getNote(this.noteId).then(note => {
       this.resetModel()
-      this.setModel(this.$_.cloneDeep(note))
+      this.setModel(note)
       // A draft-note may have a null SID value.
       if (note.sid) {
         this.addSid(note.sid)
@@ -206,7 +206,7 @@ export default {
     cancelConfirmed() {
       this.afterCancel()
       this.$announcer.polite('Edit note form canceled.')
-      return this.exit()
+      this.exit()
     },
     cancelTheCancel() {
       this.$announcer.polite('Continue editing note.')
@@ -219,7 +219,7 @@ export default {
     },
     exit() {
       this.clearErrors()
-      return this.exitSession()
+      this.exitSession()
     },
     save(isDraft) {
       const ifAuthenticated = () => {

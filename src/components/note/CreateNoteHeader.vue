@@ -172,13 +172,13 @@ export default {
       })
     },
     editTemplate(template) {
-      this.setModel(this.$_.cloneDeep(template))
+      this.setModel(template)
       this.setMode('editTemplate')
       this.$putFocusNextTick('create-note-subject')
       this.$announcer.polite(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
-      this.setModel(this.$_.cloneDeep(template))
+      this.setModel(template)
       this.$putFocusNextTick('create-note-subject')
       this.$announcer.polite(`Template ${template.title} loaded.`)
     },

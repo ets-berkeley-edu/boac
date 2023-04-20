@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import {updateNote} from '@/api/notes'
+import {deleteNote, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
 
@@ -53,6 +53,30 @@ const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
     }
   })
 }
+
+const $_updateAdvisingNote = ({commit, state}) => {
+  return new Promise(resolve => {
+    commit('setBody', _.trim(state.model.body))
+    const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
+    if (state.model.isDraft) {
+      commit('setSubject', _.trim(state.model.subject) || '[DRAFT NOTE]')
+    }
+    updateNote(
+      state.model.id,
+      state.model.body,
+      _.map(state.addedCohorts, 'id'),
+      state.model.contactType,
+      _.map(state.addedCuratedGroups, 'id'),
+      state.model.isDraft,
+      state.model.isPrivate,
+      setDate,
+      state.sids,
+      state.model.subject,
+      state.model.topics
+    ).then(resolve)
+  })
+}
+
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
@@ -65,6 +89,7 @@ const state = {
   mode: undefined,
   model: $_getDefaultModel(),
   noteTemplates: undefined,
+  originalModel: undefined,
   sids: []
 }
 
@@ -99,6 +124,7 @@ const mutations = {
     state.isSaving = false
     state.mode = undefined
     state.model = $_getDefaultModel()
+    state.originalModel = _.cloneDeep(state.model)
     state.sids = []
   },
   onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
@@ -139,8 +165,9 @@ const mutations = {
       throw new TypeError('Invalid mode: ' + mode)
     }
   },
-  setModel: (state: any, model: any) => {
-    if (model) {
+  setModel: (state: any, note?: any) => {
+    if (note) {
+      const model = _.cloneDeep(note)
       state.model = {
         attachments: model.attachments || [],
         body: model.body,
@@ -156,6 +183,7 @@ const mutations = {
     } else {
       state.model = $_getDefaultModel()
     }
+    state.originalModel = _.cloneDeep(state.model)
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setIsDraft: (state: any, isDraft: boolean) => (state.model.isDraft = isDraft),
@@ -193,7 +221,23 @@ const actions = {
     clearTimeout(state.autoSaveJob)
     commit('setAutoSaveJob', null)
   },
-  exitSession: ({commit}) => commit('exitSession'),
+  exitSession: ({commit, state}) => {
+    return new Promise<void>(resolve => {
+      const mode = _.toString(state.mode)
+      const done = function() {
+        commit('exitSession')
+        resolve()
+      }
+      if (['createBatch', 'createNote'].includes(mode)) {
+        deleteNote(state.model).then(done)
+      } else if (mode === 'editNote' && state.model.isDraft) {
+        commit('setModel', state.originalModel)
+        $_updateAdvisingNote({commit, state}).then(done)
+      } else {
+        done()
+      }
+    })
+  },
   async loadNoteTemplates({commit, state}) {
     if (_.isUndefined(state.myNoteTemplates)) {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates))
@@ -244,7 +288,7 @@ const actions = {
   setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
   setIsSaving: ({commit}, isSaving: boolean) => commit('setIsSaving', isSaving),
   setMode: ({commit}, mode: string) => commit('setMode', mode),
-  setModel: ({commit}, model?: any) => {
+  setModel: ({commit, state}, model?: any) => {
     commit('setModel', model)
     if (model.sid) {
       $_addSid({commit, state}, model.sid)
@@ -252,28 +296,7 @@ const actions = {
   },
   setSetDate: ({commit}, setDate: any) => commit('setSetDate', setDate),
   setSubject: ({commit}, subject: string) => commit('setSubject', subject),
-  updateAdvisingNote: ({commit}) => {
-    return new Promise(resolve => {
-      commit('setBody', _.trim(state.model.body))
-      const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
-      if (state.model.isDraft) {
-        commit('setSubject', _.trim(state.model.subject) || '[DRAFT NOTE]')
-      }
-      updateNote(
-        state.model.id,
-        state.model.body,
-        _.map(state.addedCohorts, 'id'),
-        state.model.contactType,
-        _.map(state.addedCuratedGroups, 'id'),
-        state.model.isDraft,
-        state.model.isPrivate,
-        setDate,
-        state.sids,
-        state.model.subject,
-        state.model.topics
-      ).then(resolve)
-    })
-  }
+  updateAdvisingNote: $_updateAdvisingNote
 }
 
 export default {
