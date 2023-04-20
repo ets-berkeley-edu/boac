@@ -206,7 +206,7 @@ export default {
     cancelConfirmed() {
       this.afterCancel()
       this.$announcer.polite('Edit note form canceled.')
-      this.exit()
+      this.exit(true)
     },
     cancelTheCancel() {
       this.$announcer.polite('Continue editing note.')
@@ -217,9 +217,9 @@ export default {
       this.error = null
       this.showErrorPopover = false
     },
-    exit() {
+    exit(revert) {
       this.clearErrors()
-      this.exitSession()
+      this.exitSession(revert)
     },
     save(isDraft) {
       const ifAuthenticated = () => {
@@ -241,7 +241,7 @@ export default {
           ).then(updatedNote => {
             this.afterSaved(updatedNote)
             this.$announcer.polite('Changes to note have been saved')
-            this.exit()
+            this.exit(false)
           })
         } else {
           this.error = 'Subject is required'

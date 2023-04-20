@@ -307,7 +307,7 @@ export default {
     discardNote() {
       this.setFocusLockDisabled(false)
       this.$announcer.polite('Canceled create new note')
-      this.exit()
+      this.exit(true)
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
@@ -325,10 +325,10 @@ export default {
         this.alert = undefined
       }
     },
-    exit(note=undefined) {
+    exit(revert) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
-      this.exitSession().then(() => {
+      this.exitSession(revert).then(note => {
         this.onClose(note)
       })
     },
@@ -393,10 +393,10 @@ export default {
         if (this.model.isDraft || (this.model.subject && this.completeSidSet.length)) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
-          this.updateAdvisingNote().then(note => {
+          this.updateAdvisingNote().then(() => {
             this.setIsSaving(false)
             this.$announcer.polite(this.mode.includes('create') ? 'Note created' : 'Note saved')
-            this.exit(note)
+            this.exit(false)
           })
         }
       }

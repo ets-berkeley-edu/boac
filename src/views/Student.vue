@@ -99,7 +99,7 @@ export default {
       if (this.noteMode) {
         this.$announcer.polite('Are you sure you want to discard unsaved changes?')
         this.cancelConfirmed = () => {
-          this.exitSession()
+          this.exitSession(true)
           return next()
         }
         this.cancelTheCancel = () => {
@@ -109,7 +109,7 @@ export default {
         }
         this.showAreYouSureModal = true
       } else {
-        this.exitSession()
+        this.exitSession(true)
         next()
       }
     },
