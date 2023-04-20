@@ -70,6 +70,13 @@ export default {
       })
     })
     this.isTimelineLoading = false
+    this.$eventHub.on('note-deleted', noteId => {
+      const removed = this.$_.remove(this.messages, m => m.type === 'note' && m.id === noteId)
+      if (removed) {
+        this.updateCountsPerType('note', this.countsPerType.note - 1)
+        this.sortMessages()
+      }
+    })
   },
   methods: {
     setFilter(filter) {

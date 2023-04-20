@@ -13,7 +13,7 @@
       <div class="d-flex flex-wrap-reverse">
         <div class="flex-grow-1">
           <b-btn
-            v-if="!['editTemplate'].includes(mode)"
+            v-if="!['createNote', 'editTemplate'].includes(mode)"
             id="btn-save-as-template"
             :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
             variant="link"
