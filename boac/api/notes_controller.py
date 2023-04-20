@@ -156,7 +156,7 @@ def update_note():
     params = request.form
     body = params.get('body', None)
     contact_type = _validate_contact_type(params)
-    is_draft = to_bool_or_none(params.get('isDraft'))
+    is_draft = to_bool_or_none(params.get('isDraft', False))
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
     set_date = validate_advising_note_set_date(params)
@@ -202,6 +202,7 @@ def update_note():
         note = Note.update(
             body=process_input_from_rich_text_editor(body),
             contact_type=contact_type,
+            is_draft=is_draft,
             is_private=is_private,
             note_id=note.id,
             set_date=set_date,

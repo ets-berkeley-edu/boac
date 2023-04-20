@@ -451,24 +451,9 @@ export default {
   created() {
     this.refreshSearchIndex()
     if (this.$currentUser.canAccessAdvisingData) {
-      this.$eventHub.on('note-creation-is-starting', event => {
-        if (this.$_.includes(event.completeSidSet, this.student.sid)) {
-          this.creatingNoteEvent = event
-        }
-      })
-      const afterCreateNote = note => {
-        this.creatingNoteEvent = null
-        this.onCreateNewNote(note)
-        this.refreshSearchIndex()
-      }
-      this.$eventHub.on('note-created', afterCreateNote)
-      this.$eventHub.on('notes-created', noteIdsBySid => {
-        const noteId = noteIdsBySid[this.student.sid]
-        if (noteId) {
-          getNote(noteId).then(afterCreateNote)
-        }
-        this.refreshSearchIndex()
-      })
+      this.$eventHub.on('note-creation-is-starting', this.onNoteCreateStartEvent)
+      this.$eventHub.on('note-created', this.afterNoteCreated)
+      this.$eventHub.on('notes-created', this.afterNotesCreated)
     }
     this.sortMessages()
     this.$announcer.polite(`${this.student.name} profile loaded.`)
@@ -495,13 +480,31 @@ export default {
       }
     }
   },
+  destroyed() {
+    this.$eventHub.off('note-creation-is-starting', this.onNoteCreateStartEvent)
+    this.$eventHub.off('note-created', this.afterNoteCreated)
+    this.$eventHub.off('notes-created', this.afterNotesCreated)
+  },
   methods: {
+    afterNoteCreated(note) {
+      this.creatingNoteEvent = null
+      this.onCreateNewNote(note)
+      this.refreshSearchIndex()
+    },
+    afterNotesCreated(noteIdsBySid) {
+      const noteId = noteIdsBySid[this.student.sid]
+      if (noteId) {
+        getNote(noteId).then(this.afterNoteCreated)
+      }
+      this.refreshSearchIndex()
+    },
     afterNoteEdit(updatedNote) {
       this.editModeNoteId = null
       const note = this.$_.find(this.messages, ['id', updatedNote.id])
       note.attachments = updatedNote.attachments
       note.body = note.message = updatedNote.body
       note.contactType = updatedNote.contactType
+      note.isDraft = updatedNote.isDraft
       note.isPrivate = updatedNote.isPrivate
       note.setDate = updatedNote.setDate
       note.subject = updatedNote.subject
@@ -601,6 +604,11 @@ export default {
           resolve()
         })
       })
+    },
+    onNoteCreateStartEvent(event) {
+      if (this.$_.includes(event.completeSidSet, this.student.sid)) {
+        this.creatingNoteEvent = event
+      }
     },
     open(message, notifyScreenReader) {
       if (['eForm', 'note'].includes(message.type) && message.id === this.editModeNoteId || message.type === 'requirement') {

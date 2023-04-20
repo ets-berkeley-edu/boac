@@ -348,6 +348,10 @@ export default {
           // Create a draft note.
           const isDraft = true
           const sids = this.sid ? [this.sid] : []
+          this.$eventHub.emit('begin-note-creation', {
+            completeSidSet: sids,
+            subject: 'note-creation-is-starting'
+          })
           createNotes(
             [],
             null,

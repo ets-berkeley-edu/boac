@@ -31,6 +31,8 @@ import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+const isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
+
 library.add(far, fas, faSpinner)
 Vue.component('font-awesome', FontAwesomeIcon) // eslint-disable-line vue/component-definition-name-casing
 
@@ -57,7 +59,11 @@ Vue.directive('accessibleGrade', {
 Vue.directive('linkified', linkify)
 
 // Emit and listen for events
-Vue.prototype.$eventHub = mitt()
+const eventHub = mitt()
+if (isVueAppDebugMode) {
+  eventHub.on('*', (type, e) => console.log(`Mitt event: ${type.toString()}`, e) )
+}
+Vue.prototype.$eventHub = eventHub
 
 // Lodash
 Vue.prototype.$_ = _
@@ -121,7 +127,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     Vue.prototype.$config.apiBaseUrl = apiBaseUrl
     const ebEnvironment = Vue.prototype.$config.ebEnvironment
     Vue.prototype.$config.isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
-    Vue.prototype.$config.isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
+    Vue.prototype.$config.isVueAppDebugMode = isVueAppDebugMode
     // Mount BOA
     new Vue({
       router,
