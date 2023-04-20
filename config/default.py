@@ -154,8 +154,10 @@ LOGGING_PROPAGATION_LEVEL = logging.INFO
 # At the beginning of a term, the bar may be lowered.
 MEANINGFUL_STATS_MINIMUM = 4
 
-NOTES_SEARCH_RESULT_SNIPPET_PADDING = 29
 NOTES_ATTACHMENTS_MAX_PER_NOTE = 10
+# During edit of draft note, we continually save changes via background thread. (This config is in milliseconds.)
+NOTES_DRAFT_AUTO_SAVE_INTERVAL = 10000
+NOTES_SEARCH_RESULT_SNIPPET_PADDING = 29
 
 # Default is 15 minutes
 PHOTO_SIGNED_URL_EXPIRES_IN_SECONDS = 15 * 60

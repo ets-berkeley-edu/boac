@@ -56,6 +56,7 @@ const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
 const state = {
   addedCohorts: [],
   addedCuratedGroups: [],
+  autoSaveJob: undefined,
   boaSessionExpired: false,
   completeSidSet: [],
   isFocusLockDisabled: undefined,
@@ -70,6 +71,7 @@ const state = {
 const getters = {
   addedCohorts: (state: any): any[] => state.addedCohorts,
   addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
+  autoSaveJob: (state: any): any => state.autoSaveJob,
   boaSessionExpired: (state: any): any[] => state.boaSessionExpired,
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
@@ -90,7 +92,6 @@ const mutations = {
   addSid: (state: any, sid: string) => state.sids.push(sid),
   addSidList: (state: any, sidList: string[]) => (state.sids = state.sids.concat(sidList)),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
-  onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
   exitSession: (state: any) => {
     state.addedCohorts = []
     state.addedCuratedGroups = []
@@ -100,6 +101,7 @@ const mutations = {
     state.model = $_getDefaultModel()
     state.sids = []
   },
+  onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
   onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
   onDeleteTemplate: (state: any, templateId: any) => {
     const indexOf = state.noteTemplates.findIndex(template => template.id === templateId)
@@ -121,6 +123,7 @@ const mutations = {
   removeCuratedGroup: (state:any, curatedGroup: any) => (state.addedCuratedGroups = _.filter(state.addedCuratedGroups, c => c.id !== curatedGroup.id)),
   removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
+  setAutoSaveJob: (state: any, jobId: number) => state.autoSaveJob = jobId,
   setBody: (state: any, body: string) => (state.model.body = body),
   setCompleteSidSet: (state: any, completeSidSet: number) => (state.completeSidSet = completeSidSet),
   setContactType: (state: any, contactType: string) => (state.model.contactType = contactType),
@@ -186,13 +189,17 @@ const actions = {
     }).finally(() => commit('setIsRecalculating', false))
   },
   addTopic: ({commit}, topic: string) => commit('addTopic', topic),
-  onBoaSessionExpires: ({commit}) => commit('onBoaSessionExpires'),
+  clearAutoSaveJob: ({commit, state}) => {
+    clearTimeout(state.autoSaveJob)
+    commit('setAutoSaveJob', null)
+  },
   exitSession: ({commit}) => commit('exitSession'),
   async loadNoteTemplates({commit, state}) {
     if (_.isUndefined(state.myNoteTemplates)) {
       getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates))
     }
   },
+  onBoaSessionExpires: ({commit}) => commit('onBoaSessionExpires'),
   onCreateTemplate: ({commit}, template: any) => commit('onCreateTemplate', template),
   onDeleteTemplate: ({commit}, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({commit}, template: any) => commit('onUpdateTemplate', template),
@@ -224,6 +231,10 @@ const actions = {
     const model = $_getDefaultModel()
     model.isPrivate = isPrivate
     commit('setModel', model)
+  },
+  setAutoSaveJob: ({commit, state}, jobId: number) => {
+    clearTimeout(state.autoSaveJob)
+    commit('setAutoSaveJob', jobId)
   },
   setBody: ({commit}, body: string) => commit('setBody', body),
   setContactType: ({commit}, contactType: string) => commit('setContactType', contactType),
