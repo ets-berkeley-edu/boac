@@ -360,6 +360,7 @@ class Note(Base):
     @classmethod
     def update(
             cls,
+            is_draft,
             note_id,
             sid,
             subject,
@@ -374,6 +375,7 @@ class Note(Base):
             validate_sid(is_draft=note.is_draft, note_id=note.id, sid=sid)
             note.body = body
             note.contact_type = contact_type
+            note.is_draft = is_draft
             note.is_private = is_private
             note.sid = sid
             note.set_date = set_date

@@ -903,6 +903,7 @@ class TestDeleteNote:
         assert not Note.find_by_id(note_id)
         assert 1 == len(notes) - len(Note.get_notes_by_sid(sid=mock_coe_advising_note.sid))
         assert not Note.update(
+            is_draft=False,
             note_id=note_id,
             sid=mock_coe_advising_note.sid,
             subject='Deleted note cannot be updated',

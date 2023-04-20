@@ -70,24 +70,12 @@ export default {
       })
     })
     this.isTimelineLoading = false
-    this.$eventHub.on('note-deleted', noteId => {
-      const removed = this.$_.remove(this.messages, m => m.type === 'note' && m.id === noteId)
-      if (removed) {
-        this.updateCountsPerType('note', this.countsPerType.note - 1)
-        this.sortMessages()
-      }
-    })
+    this.$eventHub.on('note-deleted', this.onDeleteNoteEvent)
+  },
+  destroyed() {
+    this.$eventHub.off('note-deleted', this.onDeleteNoteEvent)
   },
   methods: {
-    setFilter(filter) {
-      this.lastTimelineQuery = null
-      this.searchResults = null
-      this.timelineQuery = null
-      if (filter !== this.filter) {
-        this.filter = filter
-        this.allExpanded = false
-      }
-    },
     onCreateNewNote(note) {
       if (note.sid === this.student.sid) {
         const currentNoteIds = this.$_.map(this.$_.filter(this.messages, ['type', 'note']), 'id')
@@ -99,6 +87,22 @@ export default {
           this.sortMessages()
           this.$announcer.polite(`New advising note created for student ${this.student.name}.`)
         }
+      }
+    },
+    onDeleteNoteEvent(noteId) {
+      const removed = this.$_.remove(this.messages, m => m.type === 'note' && m.id === noteId)
+      if (removed) {
+        this.updateCountsPerType('note', this.countsPerType.note - 1)
+        this.sortMessages()
+      }
+    },
+    setFilter(filter) {
+      this.lastTimelineQuery = null
+      this.searchResults = null
+      this.timelineQuery = null
+      if (filter !== this.filter) {
+        this.filter = filter
+        this.allExpanded = false
       }
     },
     sortDate(message) {
