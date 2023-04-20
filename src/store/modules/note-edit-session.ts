@@ -221,20 +221,24 @@ const actions = {
     clearTimeout(state.autoSaveJob)
     commit('setAutoSaveJob', null)
   },
-  exitSession: ({commit, state}) => {
-    return new Promise<void>(resolve => {
+  exitSession: ({commit, state}, revert: boolean) => {
+    return new Promise(resolve => {
       const mode = _.toString(state.mode)
-      const done = function() {
+      const done = note => {
         commit('exitSession')
-        resolve()
+        resolve(note)
       }
-      if (['createBatch', 'createNote'].includes(mode)) {
-        deleteNote(state.model).then(done)
-      } else if (mode === 'editNote' && state.model.isDraft) {
-        commit('setModel', state.originalModel)
-        $_updateAdvisingNote({commit, state}).then(done)
+      if (revert) {
+        if (['createBatch', 'createNote'].includes(mode)) {
+          deleteNote(state.model).then(() => done(null))
+        } else if (mode === 'editNote' && state.model.isDraft) {
+          commit('setModel', state.originalModel)
+          $_updateAdvisingNote({commit, state}).then(done)
+        } else {
+          done(state.model)
+        }
       } else {
-        done()
+        done(state.model)
       }
     })
   },
