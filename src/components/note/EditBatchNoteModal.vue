@@ -156,7 +156,7 @@ import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import {createNotes, deleteNote, getNote} from '@/api/notes'
+import {createNotes, getNote} from '@/api/notes'
 import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
 
@@ -210,7 +210,7 @@ export default {
     store.dispatch('noteEditSession/loadNoteTemplates')
     this.resetModel()
     this.init().then(note => {
-      this.setModel(this.$_.cloneDeep(note))
+      this.setModel(note)
       this.setMode(this.initialMode)
       this.$announcer.polite(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
       this.$putFocusNextTick('modal-header-note')
@@ -305,18 +305,9 @@ export default {
       })
     },
     discardNote() {
-      const done = () => {
-        this.showDiscardNoteModal = false
-        this.setFocusLockDisabled(false)
-        this.dismissAlertSeconds = 0
-        this.$announcer.polite('Canceled create new note')
-        this.exit()
-      }
-      if (['createBatch', 'createNote'].includes(this.mode)) {
-        deleteNote(this.model).then(done)
-      } else {
-        done()
-      }
+      this.setFocusLockDisabled(false)
+      this.$announcer.polite('Canceled create new note')
+      this.exit()
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
@@ -337,8 +328,9 @@ export default {
     exit(note=undefined) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
-      this.exitSession()
-      this.onClose(note)
+      this.exitSession().then(() => {
+        this.onClose(note)
+      })
     },
     init() {
       return new Promise(resolve => {
