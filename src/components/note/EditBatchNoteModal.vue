@@ -441,16 +441,16 @@ export default {
 <!-- The 'batch' classes (below) are used by Vue transition above. -->
 <style scoped>
 .batch-enter-active {
-   -webkit-transition-duration: 0.3s;
-   transition-duration: 0.3s;
-   -webkit-transition-timing-function: ease-in;
-   transition-timing-function: ease-in;
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-timing-function: ease-in;
+  transition-timing-function: ease-in;
 }
 .batch-leave-active {
-   -webkit-transition-duration: 0.3s;
-   transition-duration: 0.5s;
-   -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
-   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.5s;
+  -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
 .batch-enter-to, .batch-leave {
   max-height: 280px;

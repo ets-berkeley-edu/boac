@@ -160,7 +160,7 @@ def update_note():
     is_private = to_bool_or_none(params.get('isPrivate', False))
     note_id = params.get('id', None)
     set_date = validate_advising_note_set_date(params)
-    subject = params.get('subject', None)
+    subject = (params.get('subject', None) or '').strip()
     topics = get_note_topics_from_http_post()
     # Fetch existing note
     note = Note.find_by_id(note_id=note_id) if note_id else None
@@ -169,20 +169,19 @@ def update_note():
     if (is_private is not note.is_private) and not current_user.can_access_private_notes:
         raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
     # A note is "published" when the 'is_draft' value goes from True to False.
-    is_publishing_note = note.is_draft and not is_draft
+    is_publishing_draft_note = note.is_draft and not is_draft
     sids = _get_sids_for_note_creation() if is_draft else [note.sid]
     if is_draft:
+        subject = subject or '[DRAFT NOTE]'
+        # Draft note can have zero or one SIDs. If multiple SIDs are present then ignore them.
+        sids = None if len(sids) > 1 else sids
         if not note.is_draft:
-            raise BadRequestError('A non-draft note cannot return to draft status.')
-        if len(sids) > 1:
-            raise BadRequestError('Draft notes can have only one associated SID.')
+            raise BadRequestError('A published note cannot revert to draft status.')
     else:
-        if not subject or len(sids) != 1:
+        if not subject or not len(sids):
             raise BadRequestError('Note update requires subject and one SID.')
-        if is_publishing_note and not sids:
-            raise BadRequestError('Note must have at least one SID.')
-    if is_publishing_note and len(sids) > 1:
-        # Draft note is being "published" as a batch of notes.
+    if is_publishing_draft_note and len(sids) > 1:
+        # Create a batch of notes!
         api_json = Note.create_batch(
             **_get_author_profile(),
             attachments=note.attachments,

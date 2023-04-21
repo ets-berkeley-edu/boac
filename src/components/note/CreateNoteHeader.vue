@@ -1,11 +1,25 @@
 <template>
-  <div class="align-items-end d-flex flex-wrap mb-1 mt-2 pt-2">
+  <div class="d-flex flex-wrap mb-1 mt-2 pt-2">
     <div class="flex-grow-1">
-      <ModalHeader
-        class="border-bottom-0"
-        header-id="modal-header-note"
-        :text="headerText"
-      />
+      <div class="align-items-center d-flex">
+        <ModalHeader
+          class="border-bottom-0"
+          header-id="modal-header-note"
+          :text="headerText"
+        />
+        <transition
+          aria-live="polite"
+          name="bounce"
+          role="alert"
+        >
+          <span
+            v-if="isAutoSavingDraftNote && !suppressAutoSaveDraftNoteAlert"
+            class="accent-color-green font-size-12 font-weight-700 mb-1 ml-2"
+          >
+            DRAFT SAVED
+          </span>
+        </transition>
+      </div>
     </div>
     <div class="mr-4">
       <b-dropdown
@@ -124,6 +138,7 @@ export default {
     modalHeader: undefined,
     showDeleteTemplateModal: false,
     showRenameTemplateModal: false,
+    suppressAutoSaveDraftNoteAlert: false,
     targetTemplate: undefined
   }),
   computed: {
@@ -147,6 +162,15 @@ export default {
         break
       }
       return text
+    }
+  },
+  watch: {
+    isAutoSavingDraftNote(value) {
+      if (value) {
+        setTimeout(() => {
+          this.suppressAutoSaveDraftNoteAlert = true
+        }, 5000)
+      }
     }
   },
   methods: {
@@ -219,6 +243,23 @@ export default {
 </script>
 
 <style scoped>
+.bounce-enter-active {
+  animation: bounce-in 0.75s;
+}
+.bounce-leave-active {
+  animation: bounce-in 0.75s reverse;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .template-dropdown-title {
   max-width: 200px;
 }

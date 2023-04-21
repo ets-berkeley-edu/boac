@@ -58,9 +58,6 @@ const $_updateAdvisingNote = ({commit, state}) => {
   return new Promise(resolve => {
     commit('setBody', _.trim(state.model.body))
     const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
-    if (state.model.isDraft) {
-      commit('setSubject', _.trim(state.model.subject) || '[DRAFT NOTE]')
-    }
     updateNote(
       state.model.id,
       state.model.body,
@@ -84,6 +81,7 @@ const state = {
   boaSessionExpired: false,
   completeSidSet: new Set(),
   isFocusLockDisabled: undefined,
+  isAutoSavingDraftNote: false,
   isSaving: false,
   isRecalculating: false,
   mode: undefined,
@@ -99,6 +97,7 @@ const getters = {
   autoSaveJob: (state: any): any => state.autoSaveJob,
   boaSessionExpired: (state: any): any[] => state.boaSessionExpired,
   disableNewNoteButton: (state: any): boolean => !!state.mode,
+  isAutoSavingDraftNote: (state: any): boolean => state.isAutoSavingDraftNote,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
   isSaving: (state: any): boolean => state.isSaving,
   isRecalculating: (state: any): boolean => state.isRecalculating,
@@ -118,6 +117,8 @@ const mutations = {
   addSidList: (state: any, sidList: string[]) => (state.sids = state.sids.concat(sidList)),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
   exitSession: (state: any) => {
+    clearTimeout(state.autoSaveJob)
+    state.autoSaveJob = null
     state.addedCohorts = []
     state.addedCuratedGroups = []
     state.completeSidSet = new Set()
@@ -127,7 +128,8 @@ const mutations = {
     state.originalModel = _.cloneDeep(state.model)
     state.sids = []
   },
-  onBoaSessionExpires: (state: any) => (state.boaSessionExpired = true),
+  isAutoSavingDraftNote: (state: any, value: boolean) => state.isAutoSavingDraftNote = value,
+  onBoaSessionExpires: (state: any) => state.boaSessionExpired = true,
   onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
   onDeleteTemplate: (state: any, templateId: any) => {
     const indexOf = state.noteTemplates.findIndex(template => template.id === templateId)
