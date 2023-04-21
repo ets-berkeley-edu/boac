@@ -82,7 +82,7 @@ const state = {
   addedCuratedGroups: [],
   autoSaveJob: undefined,
   boaSessionExpired: false,
-  completeSidSet: [],
+  completeSidSet: new Set(),
   isFocusLockDisabled: undefined,
   isSaving: false,
   isRecalculating: false,
@@ -106,7 +106,7 @@ const getters = {
   model: (state: any): any => state.model,
   noteTemplates: (state: any): any[] => state.noteTemplates,
   sids: (state: any): string[] => state.sids,
-  completeSidSet: (state: any): number => state.completeSidSet,
+  completeSidSet: (state: any): number[] => Array.from(state.completeSidSet),
   template: (state: any): any => state.template
 }
 
@@ -120,7 +120,7 @@ const mutations = {
   exitSession: (state: any) => {
     state.addedCohorts = []
     state.addedCuratedGroups = []
-    state.completeSidSet = []
+    state.completeSidSet = new Set()
     state.isSaving = false
     state.mode = undefined
     state.model = $_getDefaultModel()
@@ -151,7 +151,7 @@ const mutations = {
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
   setAutoSaveJob: (state: any, jobId: number) => state.autoSaveJob = jobId,
   setBody: (state: any, body: string) => (state.model.body = body),
-  setCompleteSidSet: (state: any, completeSidSet: number) => (state.completeSidSet = completeSidSet),
+  setCompleteSidSet: (state: any, completeSidSet: number[]) => state.completeSidSet = new Set(completeSidSet),
   setContactType: (state: any, contactType: string) => (state.model.contactType = contactType),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
   setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
