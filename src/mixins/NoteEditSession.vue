@@ -18,6 +18,7 @@ export default {
       'autoSaveJob',
       'boaSessionExpired',
       'completeSidSet',
+      'isAutoSavingDraftNote',
       'isFocusLockDisabled',
       'isSaving',
       'isRecalculating',
@@ -62,12 +63,15 @@ export default {
     autoSaveDraftNote() {
       this.clearAutoSaveJob()
       if (this.model.isDraft) {
-        // We auto-save draft notes.
+        store.commit('noteEditSession/isAutoSavingDraftNote', true)
         this.updateAdvisingNote().then(() => {
           if (this.$config.isVueAppDebugMode) {
             const now = this.$moment(new Date()).format('h:mm:ss')
             console.log(`[DEBUG] Auto-save draft note ${this.model.id} at ${now}`)
           }
+          setTimeout(() => {
+            store.commit('noteEditSession/isAutoSavingDraftNote', false)
+          }, 2000)
           this.scheduleAutoSaveJob()
         })
       }
