@@ -232,15 +232,17 @@ def delete_note(note_id):
 def get_my_note_drafts():
     api_json = []
     draft_notes = Note.get_draft_notes(None if current_user.is_admin else current_user.uid)
+    all_sids = set([draft_note.sid for draft_note in draft_notes])
+    students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids=list(all_sids))}
     for draft_note in draft_notes:
         draft_note_json = _boa_note_to_compatible_json(note=draft_note, note_read=False)
-        students = data_loch.get_basic_student_data(sids=[draft_note.sid])
+        student = students_by_sid[draft_note.sid] if draft_note.sid else None
         draft_note_json['student'] = {
-            'sid': students[0]['sid'],
-            'uid': students[0]['uid'],
-            'firstName': students[0]['first_name'],
-            'lastName': students[0]['last_name'],
-        } if students else None
+            'sid': student['sid'],
+            'uid': student['uid'],
+            'firstName': student['first_name'],
+            'lastName': student['last_name'],
+        } if student else None
         api_json.append(draft_note_json)
     return tolerant_jsonify(api_json)
 
