@@ -38,14 +38,14 @@
     </div>
     <div
       v-if="$currentUser.canAccessAdvisingData"
-      class="batch-note-button fixed-bottom"
+      class="batch-note-button fixed-bottom sidebar"
     >
       <div :class="{'mb-3': $currentUser.isAdmin}">
         <LinkToDraftNotes />
       </div>
       <div
         v-if="!$currentUser.isAdmin"
-        class="d-flex justify-content-center mb-3 pl-3 pr-3"
+        class="d-flex justify-content-center mb-3 pl-3"
       >
         <b-btn
           id="batch-note-button"
@@ -55,7 +55,7 @@
           @click="isCreateNoteModalOpen = true"
         >
           <span class="m-1">
-            <font-awesome icon="file-alt" />
+            <font-awesome class="mr-2" icon="file-alt" />
             New Note
           </span>
         </b-btn>
@@ -110,7 +110,7 @@ export default {
 
 <style>
 .batch-note-button {
-  width: 17%;
+  width: 16%;
 }
 .sidebar-header {
   color: #fff;

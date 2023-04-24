@@ -1,5 +1,5 @@
 <template>
-  <div class="align-items-center d-flex justify-content-between link-container mb-1 pl-3 pr-4">
+  <div class="align-items-center d-flex justify-content-between link-container mb-1 pl-3 pr-2">
     <div class="truncate-with-ellipsis">
       <NavLink
         id="link-to-draft-notes"
