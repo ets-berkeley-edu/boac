@@ -39,7 +39,7 @@
         </template>
         <template v-slot:cell(subject)="row">
           <div>
-            <div v-if="row.item.author.uid !== $currentUser.uid" class="truncate-with-ellipsis">
+            <div v-if="row.item.author.uid !== $currentUser.uid">
               {{ row.item.subject }}
             </div>
             <b-btn
@@ -61,7 +61,10 @@
             />
           </div>
         </template>
-        <template v-slot:cell(author)="row">
+        <template
+          v-if="$currentUser.isAdmin"
+          v-slot:cell(author)="row"
+        >
           {{ row.item.author.name }}
         </template>
         <template v-slot:cell(updatedAt)="row">
