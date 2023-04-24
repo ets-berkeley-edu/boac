@@ -43,150 +43,11 @@
         </div>
       </div>
     </div>
-    <div class="cohort-student-bio-container mb-1">
-      <div class="cohort-student-name-container">
-        <div>
-          <router-link
-            v-if="student.uid"
-            :id="`link-to-student-${student.uid}`"
-            :to="studentRoutePath(student.uid, $currentUser.inDemoMode)"
-          >
-            <h3
-              v-if="sortedBy !== 'first_name'"
-              :id="`row-${rowIndex}-student-name`"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-              class="student-name"
-              v-html="lastNameFirst(student)"
-            />
-            <h3
-              v-if="sortedBy === 'first_name'"
-              :id="`row-${rowIndex}-student-name`"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-              class="student-name"
-            >
-              {{ student.firstName }} {{ student.lastName }}
-            </h3>
-          </router-link>
-          <span v-if="!student.uid">
-            <span
-              v-if="sortedBy === 'first_name'"
-              :id="`student-${student.sid}-has-no-uid`"
-              class="font-weight-500 student-name"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-              v-html="lastNameFirst(student)"
-            />
-            <span
-              v-if="sortedBy !== 'first_name'"
-              :id="`student-${student.sid}-has-no-uid`"
-              class="font-size-16 m-0"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-            >
-              {{ student.firstName }} {{ student.lastName }}
-            </span>
-          </span>
-        </div>
-      </div>
-      <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="d-flex student-sid">
-        <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
-        <div
-          v-if="student.academicCareerStatus === 'Inactive'"
-          :id="`row-${rowIndex}-inactive`"
-          class="red-flag-status ml-1"
-        >
-          INACTIVE
-        </div>
-        <div
-          v-if="student.academicCareerStatus === 'Completed'"
-          class="ml-1"
-          uib-tooltip="Graduated"
-          tooltip-placement="bottom"
-        >
-          <font-awesome icon="graduation-cap" />
-        </div>
-      </div>
-      <div
-        v-if="displayAsAscInactive(student)"
-        :id="`row-${rowIndex}-inactive-asc`"
-        class="d-flex student-sid red-flag-status"
-      >
-        ASC INACTIVE
-      </div>
-      <div
-        v-if="displayAsCoeInactive(student)"
-        :id="`row-${rowIndex}-inactive-coe`"
-        class="d-flex student-sid red-flag-status"
-      >
-        CoE INACTIVE
-      </div>
-      <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
-        <span class="red-flag-small">
-          {{ student.withdrawalCancel.description }} {{ student.withdrawalCancel.date | moment('MMM DD, YYYY') }}
-        </span>
-      </div>
-      <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding" :row-index="`row-${rowIndex}`" />
-      <div v-if="student.academicCareerStatus !== 'Completed'">
-        <div
-          :id="`row-${rowIndex}-student-level`"
-          class="student-text"
-        >
-          {{ student.level }}
-        </div>
-        <div
-          v-if="student.matriculation"
-          :id="`row-${rowIndex}-student-matriculation`"
-          class="student-text"
-          aria-label="Entering term"
-        >
-          Entered {{ student.matriculation }}
-        </div>
-        <div
-          v-if="student.expectedGraduationTerm"
-          :id="`row-${rowIndex}-student-grad-term`"
-          class="student-text"
-          aria-label="Expected graduation term"
-        >
-          Grad:&nbsp;{{ student.expectedGraduationTerm.name }}
-        </div>
-        <div
-          v-if="student.termsInAttendance"
-          :id="`row-${rowIndex}-student-terms-in-attendance`"
-          class="student-text"
-          aria-label="Terms in attendance"
-        >
-          Terms in Attendance:&nbsp;{{ student.termsInAttendance }}
-        </div>
-        <div
-          v-for="(major, index) in student.majors"
-          :key="index"
-          class="student-text"
-        >
-          <span :id="`row-${rowIndex}-student-major-${index}`">{{ major }}</span>
-        </div>
-      </div>
-      <div v-if="student.academicCareerStatus === 'Completed'">
-        <div
-          v-if="student.matriculation"
-          :id="`row-${rowIndex}-student-matriculation`"
-          class="student-text"
-          aria-label="Entering term"
-        >
-          Entered {{ student.matriculation }}
-        </div>
-        <DegreesAwarded :student="student" />
-        <div v-for="owner in degreePlanOwners" :key="owner" class="student-text">
-          <span class="student-text">{{ owner }}</span>
-        </div>
-      </div>
-      <div v-if="student.athleticsProfile" class="student-teams-container">
-        <div
-          v-for="(team, index) in student.athleticsProfile.athletics"
-          :key="index"
-          class="student-text"
-        >
-          <span :id="`row-${rowIndex}-student-team-${index}`">{{ team.groupName }}</span>
-        </div>
-      </div>
-    </div>
+    <StudentRowBioColumn
+      :row-index="rowIndex"
+      :student="student"
+      :sorted-by="sortedBy"
+    />
     <div class="student-column student-column-gpa">
       <div>
         <span
@@ -257,98 +118,7 @@
         <div class="no-wrap student-text">Units Completed</div>
       </div>
     </div>
-    <div class="cohort-course-activity-wrapper">
-      <table class="cohort-course-activity-table">
-        <tr>
-          <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
-          <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">
-            <span aria-hidden="true" class="text-uppercase">bCourses Activity</span>
-            <span class="sr-only">Most recent B Courses activity</span>
-          </th>
-          <th class="cohort-course-activity-header">
-            <span aria-hidden="true" class="text-uppercase">Mid</span>
-            <span class="sr-only">Midpoint grade</span>
-          </th>
-          <th class="cohort-course-activity-header">
-            <span class="text-uppercase">Final<span class="sr-only"> grade</span></span>
-          </th>
-        </tr>
-        <tr v-for="(enrollment, index) in termEnrollments" :key="index">
-          <td class="cohort-course-activity-data cohort-course-activity-course-name">
-            <span :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</span>
-            <span
-              v-if="enrollment.waitlisted"
-              :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"
-              aria-hidden="true"
-              class="pl-1 red-flag-status"
-            >(W)</span>
-            <span v-if="enrollment.waitlisted" class="sr-only">
-              Waitlisted
-            </span>
-          </td>
-          <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
-            <div
-              v-for="(canvasSite, cIndex) in enrollment.canvasSites"
-              :key="cIndex"
-              class="cohort-boxplot-container"
-            >
-              <span
-                v-if="enrollment.canvasSites.length > 1"
-                class="sr-only"
-              >
-                {{ `Course site ${cIndex + 1} of ${enrollment.canvasSites.length}` }}
-              </span>
-              {{ lastActivityDays(canvasSite.analytics) }}
-            </div>
-            <div v-if="!$_.get(enrollment, 'canvasSites').length">
-              <span class="sr-only">No data </span>&mdash;
-            </div>
-          </td>
-          <td class="cohort-course-activity-data">
-            <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
-            <font-awesome v-if="isAlertGrade(enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
-            <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-          </td>
-          <td class="cohort-course-activity-data">
-            <span
-              v-if="enrollment.grade"
-              v-accessible-grade="enrollment.grade"
-              class="font-weight-bold"
-            ></span>
-            <font-awesome
-              v-if="isAlertGrade(enrollment.grade)"
-              icon="exclamation-triangle"
-              class="boac-exclamation ml-1"
-            />
-            <IncompleteGradeAlertIcon
-              v-if="getSectionsWithIncompleteStatus(enrollment.sections).length"
-              :course="enrollment"
-              :index="index"
-              :term-id="termId"
-            />
-            <span
-              v-if="!enrollment.grade"
-              class="cohort-grading-basis"
-            >{{ enrollment.gradingBasis }}</span>
-            <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-          </td>
-        </tr>
-        <tr v-if="!termEnrollments.length">
-          <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
-            No {{ termNameForSisId(termId) }} enrollments
-          </td>
-          <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
-            <span class="sr-only">No data</span>&mdash;
-          </td>
-          <td class="cohort-course-activity-data">
-            <span class="sr-only">No data</span>&mdash;
-          </td>
-          <td class="cohort-course-activity-data">
-            <span class="sr-only">No data</span>&mdash;
-          </td>
-        </tr>
-      </table>
-    </div>
+    <StudentRowCourseActivity :row-index="rowIndex" :student="student" :term-id="termId" />
   </div>
 </template>
 
@@ -356,34 +126,24 @@
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
-import DegreesAwarded from '@/components/student/DegreesAwarded'
-import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentGpaChart from '@/components/student/StudentGpaChart'
-import StudentMetadata from '@/mixins/StudentMetadata'
+import StudentRowBioColumn from '@/components/student/StudentRowBioColumn.vue'
+import StudentRowCourseActivity from '@/components/student/StudentRowCourseActivity.vue'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentRow',
   components: {
     CuratedStudentCheckbox,
-    DegreesAwarded,
-    IncompleteGradeAlertIcon,
     ManageStudent,
-    StudentAcademicStanding,
     StudentAvatar,
-    StudentGpaChart
+    StudentGpaChart,
+    StudentRowBioColumn,
+    StudentRowCourseActivity
   },
-  mixins: [
-    Berkeley,
-    Context,
-    StudentAnalytics,
-    StudentMetadata,
-    Util
-  ],
+  mixins: [Berkeley, Context, Util],
   props: {
     listType: {
       required: true,
@@ -412,26 +172,12 @@ export default {
     }
   },
   data: () => ({
-    hover: false,
-    termEnrollments: []
+    hover: false
   }),
   computed: {
-    degreePlanOwners() {
-      const plans = this.$_.get(this.student, 'degree.plans')
-      if (plans) {
-        return this.$_.uniq(this.$_.map(plans, 'group'))
-      } else {
-        return []
-      }
-    },
     isCurrentTerm() {
       return this.termId === `${this.$config.currentEnrollmentTermId}`
     }
-  },
-  created() {
-    const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
-    this.$_.each(termEnrollments, this.setWaitlistedStatus)
-    this.termEnrollments = termEnrollments
   },
   methods: {
     onClickRemoveStudent(student) {
@@ -443,45 +189,6 @@ export default {
 </script>
 
 <style scoped>
-.cohort-boxplot-container {
-  align-items: flex-end;
-  display: flex;
-}
-.cohort-course-activity-course-name {
-  width: 180px;
-}
-.cohort-course-activity-data {
-  font-size: 14px;
-  line-height: 1.4em;
-  padding: 0 0 5px 15px;
-  vertical-align: top;
-}
-.cohort-course-activity-header {
-  color: #aaa;
-  font-size: 13px;
-  font-weight: normal;
-  padding: 0 0 5px 15px;
-  vertical-align: top;
-}
-.cohort-course-activity-table {
-  margin: auto;
-  min-width: 340px;
-  width: 85%;
-}
-.cohort-course-activity-wrapper {
-  flex-basis: auto;
-  flex-grow: 0.6;
-  margin-left: 0;
-  min-width: 340px;
-}
-.cohort-student-bio-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
-}
-.cohort-student-name-container {
-  display: flex;
-}
 .cohort-student-name-container div:first-child {
   flex-basis: 70%;
 }
