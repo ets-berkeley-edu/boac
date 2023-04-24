@@ -130,7 +130,7 @@ class Note(Base):
             criteria = and_(cls.author_uid == author_uid, cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
         else:
             criteria = and_(cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
-        return cls.query.filter(criteria).all()  # noqa: E711
+        return cls.query.filter(criteria).order_by(cls.set_date, cls.updated_at, cls.created_at).all()
 
     @classmethod
     def create(

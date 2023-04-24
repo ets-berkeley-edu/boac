@@ -35,17 +35,20 @@
           </span>
         </template>
         <template v-slot:cell(sid)="row">
-          {{ row.item.sid || '&mdash;' }}
+          <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+            {{ row.item.sid || '&mdash;' }}
+          </span>
         </template>
         <template v-slot:cell(subject)="row">
           <div>
-            <div v-if="row.item.author.uid !== $currentUser.uid">
+            <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
               {{ row.item.subject }}
             </div>
             <b-btn
               v-if="row.item.author.uid === $currentUser.uid"
               :id="`open-draft-note-${row.item.id}`"
               class="border-0 p-0"
+              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               variant="link"
               @click="() => openEditModal(row.item)"
             >
