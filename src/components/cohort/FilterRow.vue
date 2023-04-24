@@ -264,9 +264,10 @@ export default {
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation === 'date') {
-          const isValid = s => /^\d{4}-\d{2}-\d{2}$/.test(s)
-          const isBadData = (min && !isValid(min)) || (max && !isValid(max))
-          if (isBadData || (min && max && min > max)) {
+          const formattedMin = this.formatUsaDate(min)
+          const formattedMax = this.formatUsaDate(max)
+          const isBadData = (min && !formattedMin) || (max && !formattedMax)
+          if (isBadData || (formattedMin && formattedMax && formattedMin > formattedMax)) {
             // Invalid data or values are descending.
             this.errorPerRangeInput = 'Requires ending date after start date.'
           }
@@ -318,10 +319,7 @@ export default {
         break
       case 'range':
         this.$announcer.polite(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
-        this.filter.value = {
-          min: this.filter.validation === 'gpa' ? this.formatGPA(this.range.min) : this.range.min,
-          max: this.filter.validation === 'gpa' ? this.formatGPA(this.range.max) : this.range.max
-        }
+        this.updateRangeFilter()
         this.range.min = this.range.max = undefined
         break
       }
@@ -345,8 +343,13 @@ export default {
         this.filter.options = options
         this.selectedOption = Array.isArray(options) ? find(options, this.filter.value) : find(flatten(options), this.filter.value)
       } else if (this.isUX('range')) {
-        this.range.min = this.filter.value.min
-        this.range.max = this.filter.value.max
+        if (this.filter.validation === 'date') {
+          this.range.min = this.formatIsoDate(this.filter.value.min)
+          this.range.max = this.formatIsoDate(this.filter.value.max)
+        } else {
+          this.range.min = this.filter.value.min
+          this.range.max = this.filter.value.max
+        }
       }
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
@@ -355,11 +358,7 @@ export default {
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
-        const isGPA = this.filter.validation === 'gpa'
-        this.filter.value = {
-          min: isGPA ? this.formatGPA(this.range.min) : this.range.min,
-          max: isGPA ? this.formatGPA(this.range.max) : this.range.max
-        }
+        this.updateRangeFilter()
       }
       this.updateExistingFilter({index: this.position, updatedFilter: this.filter}).then(() => {
         this.isModifyingFilter = false
@@ -396,7 +395,7 @@ export default {
     },
     placeholder() {
       if (this.filter.validation === 'date') {
-        return 'YYYY-DD-MM'
+        return 'MM/DD/YYYY'
       } else {
         return ''
       }
@@ -426,8 +425,12 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[1]
       } else {
+        let max = this.$_.get(this.filter, 'value.max')
+        if (max && this.filter.validation === 'date') {
+          max = this.$moment(max).format('MMM DD, YYYY')
+        }
         const labels = this.$_.get(this.filter.label, 'range')
-        snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${this.$_.get(this.filter, 'value.max')}`
+        snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
       }
       return snippet
     },
@@ -443,7 +446,10 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[0]
       } else {
-        const min = this.$_.get(this.filter, 'value.min')
+        let min = this.$_.get(this.filter, 'value.min')
+        if (min && this.filter.validation === 'date') {
+          min = this.$moment(min).format('MMM DD, YYYY')
+        }
         const labels = this.$_.get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
@@ -464,6 +470,19 @@ export default {
       this.filter = this.isExistingFilter ? this.$_.cloneDeep(this.filters[this.position]) : {}
       this.isModifyingFilter = !this.isExistingFilter
       this.putFocusNewFilterDropdown()
+    },
+    updateRangeFilter() {
+      this.filter.value = {
+        min: this.range.min,
+        max: this.range.max
+      }
+      if (this.filter.validation === 'gpa') {
+        this.filter.value.min = this.formatGPA(this.filter.value.min)
+        this.filter.value.max = this.formatGPA(this.filter.value.max)
+      } else if (this.filter.validation === 'date') {
+        this.filter.value.min = this.formatUsaDate(this.filter.value.min)
+        this.filter.value.max = this.formatUsaDate(this.filter.value.max)
+      }
     }
   }
 }
