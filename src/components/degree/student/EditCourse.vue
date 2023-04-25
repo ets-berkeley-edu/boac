@@ -32,6 +32,19 @@
         Course name cannot exceed 255 characters.
       </div>
     </div>
+    <div v-if="course.categoryId || $_.size(selectedUnitRequirements)">
+      <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
+        Counts Towards Unit Fulfillment
+      </label>
+      <div class="pb-2">
+        <SelectUnitFulfillment
+          :disable="isSaving"
+          :initial-unit-requirements="selectedUnitRequirements"
+          :on-unit-requirements-change="onUnitRequirementsChange"
+          :position="position"
+        />
+      </div>
+    </div>
     <div class="pb-2">
       <UnitsInput
         :disable="isSaving"
@@ -63,19 +76,6 @@
         :accent-color="accentColor"
         :on-change="value => accentColor = value"
       />
-    </div>
-    <div v-if="course.categoryId || $_.size(selectedUnitRequirements)">
-      <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
-        Counts Towards Unit Fulfillment
-      </label>
-      <div class="pb-2">
-        <SelectUnitFulfillment
-          :disable="isSaving"
-          :initial-unit-requirements="selectedUnitRequirements"
-          :on-unit-requirements-change="onUnitRequirementsChange"
-          :position="position"
-        />
-      </div>
     </div>
     <label for="course-note-textarea" class="font-weight-500 pb-0">
       Note
