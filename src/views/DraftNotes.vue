@@ -54,14 +54,6 @@
             >
               {{ row.item.subject }}
             </b-btn>
-            <EditBatchNoteModal
-              v-if="showEditModal"
-              v-model="showEditModal"
-              initial-mode="editDraft"
-              :note-id="selectedDraftNote.id"
-              :sid="selectedDraftNote.sid"
-              :on-close="afterEditDraft"
-            />
           </div>
         </template>
         <template
@@ -113,6 +105,14 @@
         modal-header="Are you sure?"
       />
     </div>
+    <EditBatchNoteModal
+      v-if="showEditModal"
+      v-model="showEditModal"
+      initial-mode="editDraft"
+      :note-id="selectedDraftNote.id"
+      :sid="selectedDraftNote.sid"
+      :on-close="afterEditDraft"
+    />
   </div>
 </template>
 
