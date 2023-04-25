@@ -1,125 +1,136 @@
 <template>
-  <div
-    class="d-flex flex-wrap"
+  <b-container
+    class="px-0"
+    fluid
     @focusin="hover = true"
     @focusout="hover = false"
     @mouseover="hover = true"
     @mouseleave="hover = false"
   >
-    <span :id="`row-index-of-${student.sid}`" hidden aria-hidden="true">{{ rowIndex }}</span>
-    <span :id="`student-sid-of-row-${rowIndex}`" hidden aria-hidden="true">{{ student.sid }}</span>
-    <div class="align-items-center d-flex">
-      <div v-if="listType === 'curatedGroupForOwner'">
-        <button
-          :id="`row-${rowIndex}-remove-student-from-curated-group`"
-          class="btn btn-link pl-0"
-          @click="onClickRemoveStudent(student)"
-          @keyup.enter="onClickRemoveStudent(student)"
-        >
-          <font-awesome icon="times-circle" class="font-size-24" />
-          <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
-        </button>
-      </div>
-      <div>
+    <b-row>
+      <b-col cols="2">
         <div class="align-items-center d-flex">
-          <div v-if="listType === 'cohort'" class="mr-2">
-            <CuratedStudentCheckbox domain="default" :student="student" />
+          <div v-if="listType === 'curatedGroupForOwner'">
+            <button
+              :id="`row-${rowIndex}-remove-student-from-curated-group`"
+              class="btn btn-link pl-0"
+              @click="onClickRemoveStudent(student)"
+              @keyup.enter="onClickRemoveStudent(student)"
+            >
+              <font-awesome icon="times-circle" class="font-size-24" />
+              <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
+            </button>
           </div>
           <div>
-            <StudentAvatar
-              :alert-count="student.alertCount"
-              size="medium"
-              :student="student"
-            />
+            <div class="align-items-center d-flex">
+              <div v-if="listType === 'cohort'" class="mr-2">
+                <CuratedStudentCheckbox domain="default" :student="student" />
+              </div>
+              <div>
+                <StudentAvatar
+                  :alert-count="student.alertCount"
+                  size="medium"
+                  :student="student"
+                />
+              </div>
+            </div>
+            <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
+              <ManageStudent
+                domain="default"
+                :is-button-variant-link="true"
+                :sr-only="!hover"
+                :student="student"
+              />
+            </div>
           </div>
         </div>
-        <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
-          <ManageStudent
-            domain="default"
-            :is-button-variant-link="true"
-            :sr-only="!hover"
-            :student="student"
-          />
-        </div>
-      </div>
-    </div>
-    <StudentRowBioColumn
-      :row-index="rowIndex"
-      :student="student"
-      :sorted-by="sortedBy"
-    />
-    <div class="student-column student-column-gpa">
-      <div>
-        <span
-          v-if="$_.isNil(student.cumulativeGPA)"
-          :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="student-gpa"
-        >--<span class="sr-only">No data</span></span>
-        <span
-          v-if="!$_.isNil(student.cumulativeGPA)"
-          :id="`row-${rowIndex}-student-cumulative-gpa`"
-          class="student-gpa"
-        >{{ round(student.cumulativeGPA, 3) }}</span>
-        <span class="student-text"> GPA (Cumulative)</span>
-      </div>
-      <StudentGpaChart
-        v-if="$_.size(student.termGpa) > 1"
-        :chart-description="`Chart of GPA over time. ${student.name}'s cumulative GPA is ${round(student.cumulativeGPA, 3)}`"
-        :student="student"
-        :width="130"
-      />
-      <div
-        v-if="$_.size(student.termGpa)"
-        class="student-bio-status-legend profile-last-term-gpa-outer pl-0"
-      >
-        <font-awesome
-          v-if="student.termGpa[0].gpa < 2"
-          icon="exclamation-triangle"
-          class="boac-exclamation mr-1"
+      </b-col>
+      <b-col class="pl-0" cols="2">
+        <StudentRowBioColumn
+          :row-index="rowIndex"
+          :student="student"
+          :sorted-by="sortedBy"
         />
-        <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
-        <strong
-          :id="`row-${rowIndex}-student-term-gpa`"
-          :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'"
-        >{{ round(student.termGpa[0].gpa, 3) }}</strong>
-      </div>
-    </div>
-    <div class="student-column">
-      <div class="d-flex flex-wrap">
-        <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
-        <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
-      </div>
-      <div
-        v-if="!$_.isNil($_.get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== $config.defaultTermUnitsAllowed.min"
-        class="d-flex flex-wrap"
-      >
-        <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
-        <div class="no-wrap student-text">Min&nbsp;Approved</div>
-      </div>
-      <div v-if="!$_.isNil($_.get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== $config.defaultTermUnitsAllowed.max">
-        <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
-        <span class="no-wrap student-text">Max&nbsp;Approved</span>
-      </div>
-      <div v-if="isCurrentTerm" class="d-flex flex-wrap">
+      </b-col>
+      <b-col class="pl-0" cols="2">
+        <div>
+          <span
+            v-if="$_.isNil(student.cumulativeGPA)"
+            :id="`row-${rowIndex}-student-cumulative-gpa`"
+            class="student-gpa"
+          >--<span class="sr-only">No data</span></span>
+          <span
+            v-if="!$_.isNil(student.cumulativeGPA)"
+            :id="`row-${rowIndex}-student-cumulative-gpa`"
+            class="student-gpa"
+          >{{ round(student.cumulativeGPA, 3) }}</span>
+          <span class="student-text"> GPA (Cumulative)</span>
+        </div>
+        <StudentGpaChart
+          v-if="$_.size(student.termGpa) > 1"
+          :chart-description="`Chart of GPA over time. ${student.name}'s cumulative GPA is ${round(student.cumulativeGPA, 3)}`"
+          :student="student"
+          :width="130"
+        />
         <div
-          v-if="!$_.isUndefined(student.cumulativeUnits)"
-          :id="`row-${rowIndex}-student-cumulative-units`"
-          class="mr-1 student-gpa"
+          v-if="$_.size(student.termGpa)"
+          class="student-bio-status-legend profile-last-term-gpa-outer pl-0"
         >
-          {{ student.cumulativeUnits }}
+          <font-awesome
+            v-if="student.termGpa[0].gpa < 2"
+            icon="exclamation-triangle"
+            class="boac-exclamation mr-1"
+          />
+          <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
+          <strong
+            :id="`row-${rowIndex}-student-term-gpa`"
+            :class="student.termGpa[0].gpa >= 2 ? 'profile-last-term-gpa' : 'profile-gpa-alert'"
+          >{{ round(student.termGpa[0].gpa, 3) }}</strong>
+        </div>
+      </b-col>
+      <b-col class="pl-0" cols="2">
+        <div class="d-flex flex-wrap">
+          <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
+          <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
         </div>
         <div
-          v-if="$_.isUndefined(student.cumulativeUnits)"
-          :id="`row-${rowIndex}-student-cumulative-units`"
-          class="student-gpa"
+          v-if="!$_.isNil($_.get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== $config.defaultTermUnitsAllowed.min"
+          class="d-flex flex-wrap"
         >
-          &mdash;<span class="sr-only"> No data</span>
+          <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
+          <div class="no-wrap student-text">Min&nbsp;Approved</div>
         </div>
-        <div class="no-wrap student-text">Units Completed</div>
-      </div>
-    </div>
-    <StudentRowCourseActivity :row-index="rowIndex" :student="student" :term-id="termId" />
-  </div>
+        <div v-if="!$_.isNil($_.get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== $config.defaultTermUnitsAllowed.max">
+          <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
+          <span class="no-wrap student-text">Max&nbsp;Approved</span>
+        </div>
+        <div v-if="isCurrentTerm" class="d-flex flex-wrap">
+          <div
+            v-if="!$_.isUndefined(student.cumulativeUnits)"
+            :id="`row-${rowIndex}-student-cumulative-units`"
+            class="mr-1 student-gpa"
+          >
+            {{ student.cumulativeUnits }}
+          </div>
+          <div
+            v-if="$_.isUndefined(student.cumulativeUnits)"
+            :id="`row-${rowIndex}-student-cumulative-units`"
+            class="student-gpa"
+          >
+            &mdash;<span class="sr-only"> No data</span>
+          </div>
+          <div class="no-wrap student-text">Units Completed</div>
+        </div>
+      </b-col>
+      <b-col class="float-right pl-0" cols="4">
+        <StudentRowCourseActivity
+          :row-index="rowIndex"
+          :student="student"
+          :term-id="termId"
+        />
+      </b-col>
+    </b-row>
+  </b-container>
 </template>
 
 <script>
@@ -213,10 +224,6 @@ export default {
   font-size: 13px;
   font-weight: 300;
   text-transform: uppercase;
-}
-.student-column-gpa {
-  flex: 0.5 0 130px;
-  margin-left: 15px;
 }
 .student-gpa {
   font-size: 13px;
