@@ -83,10 +83,10 @@
           />
         </template>
         <template v-slot:cell(delete)="row">
-          <div class="min-width-100 pr-1">
+          <div class="min-width-100 pl-2 pr-1">
             <b-button
               v-if="!row.item.deletedAt"
-              class="float-right mr-2 py-0"
+              class="mr-2 py-0"
               variant="link"
               @click="openDeleteModal(row.item)"
             >
@@ -147,7 +147,8 @@ export default {
         label: 'SID'
       },
       {
-        key: 'subject'
+        key: 'subject',
+        label: 'Subject'
       }
     ]
     if (this.$currentUser.isAdmin) {
@@ -164,7 +165,6 @@ export default {
         label: 'Date'
       },
       {
-        class: 'float-right',
         key: 'delete',
         label: 'Delete'
       }

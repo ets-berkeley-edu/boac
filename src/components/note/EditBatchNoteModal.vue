@@ -6,6 +6,7 @@
     >
       <div
         id="new-note-modal-container"
+        class="mt-3"
         :class="{
           'd-none': $_.isNil(mode),
           'modal-content': ['createBatch', 'createNote', 'editDraft', 'editTemplate'].includes(mode),

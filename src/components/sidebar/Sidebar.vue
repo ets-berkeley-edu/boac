@@ -59,13 +59,13 @@
             New Note
           </span>
         </b-btn>
-        <EditBatchNoteModal
-          v-if="isCreateNoteModalOpen"
-          initial-mode="createBatch"
-          :on-close="onCreateNoteModalClose"
-        />
       </div>
     </div>
+    <EditBatchNoteModal
+      v-if="isCreateNoteModalOpen"
+      initial-mode="createBatch"
+      :on-close="onCreateNoteModalClose"
+    />
   </div>
 </template>
 
