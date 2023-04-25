@@ -75,7 +75,7 @@ def can_current_user_edit_note(note):
     return current_user.can_access_advising_data and _get_author_uid(note) == current_user.uid
 
 
-def get_advising_notes(sid):
+def get_advising_notes(sid, exclude_draft_notes=False):
     benchmark = get_benchmarker(f'get_advising_notes {sid}')
     benchmark('begin')
     notes_by_id = {}
@@ -90,7 +90,7 @@ def get_advising_notes(sid):
     benchmark('begin History Dept advising notes query')
     notes_by_id.update(get_history_dept_advising_notes(sid))
     benchmark('begin native BOA advising notes query')
-    native_boa_notes = get_native_boa_notes(sid=sid)
+    native_boa_notes = get_native_boa_notes(exclude_draft_notes=exclude_draft_notes, sid=sid)
     for note_id in native_boa_notes:
         note = native_boa_notes[note_id]
         if can_current_user_access_note(note):
@@ -178,9 +178,9 @@ def get_history_dept_advising_notes(sid):
     return notes_by_id
 
 
-def get_native_boa_notes(sid):
+def get_native_boa_notes(sid, exclude_draft_notes=False):
     notes_by_id = {}
-    for row in Note.get_notes_by_sid(sid=sid):
+    for row in Note.get_notes_by_sid(exclude_draft_notes=exclude_draft_notes, sid=sid):
         note = row.__dict__
         if can_current_user_access_note(note):
             note_id = note['id']
