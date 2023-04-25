@@ -1,6 +1,6 @@
 <template>
-  <div class="cohort-student-bio-container mb-1">
-    <div class="cohort-student-name-container">
+  <div>
+    <div>
       <div>
         <router-link
           v-if="student.uid"
@@ -184,14 +184,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.cohort-student-bio-container {
-  flex: 0.8;
-  margin-left: 20px;
-  min-width: 200px;
-}
-.cohort-student-name-container {
-  display: flex;
-}
-</style>

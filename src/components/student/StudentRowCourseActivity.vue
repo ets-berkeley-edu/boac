@@ -1,22 +1,30 @@
 <template>
-  <div class="cohort-course-activity-wrapper">
-    <table class="cohort-course-activity-table">
-      <tr>
-        <th class="cohort-course-activity-header cohort-course-activity-course-name">CLASS</th>
-        <th v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-header">
-          <span aria-hidden="true" class="text-uppercase">bCourses Activity</span>
+  <b-table-simple
+    borderless
+    hover
+    responsive
+    small
+  >
+    <b-thead>
+      <b-tr>
+        <b-th class="col-course">Class</b-th>
+        <b-th class="col-units">Units</b-th>
+        <b-th v-if="$currentUser.canAccessCanvasData" class="col-bcourses">
+          <span aria-hidden="true">bCourses Activity</span>
           <span class="sr-only">Most recent B Courses activity</span>
-        </th>
-        <th class="cohort-course-activity-header">
-          <span aria-hidden="true" class="text-uppercase">Mid</span>
+        </b-th>
+        <b-th class="col-midterm">
+          <span aria-hidden="true">Mid</span>
           <span class="sr-only">Midpoint grade</span>
-        </th>
-        <th class="cohort-course-activity-header">
-          <span class="text-uppercase">Final<span class="sr-only"> grade</span></span>
-        </th>
-      </tr>
-      <tr v-for="(enrollment, index) in termEnrollments" :key="index">
-        <td class="cohort-course-activity-data cohort-course-activity-course-name">
+        </b-th>
+        <b-th class="col-final">
+          <span>Final<span class="sr-only"> grade</span></span>
+        </b-th>
+      </b-tr>
+    </b-thead>
+    <b-tbody>
+      <b-tr v-for="(enrollment, index) in termEnrollments" :key="index">
+        <b-td class="col-course">
           <span :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</span>
           <span
             v-if="enrollment.waitlisted"
@@ -27,12 +35,14 @@
           <span v-if="enrollment.waitlisted" class="sr-only">
             Waitlisted
           </span>
-        </td>
-        <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
+        </b-td>
+        <b-td class="col-units pl-2">
+          {{ enrollment.units || '&mdash;' }}
+        </b-td>
+        <b-td v-if="$currentUser.canAccessCanvasData" class="col-bcourses pl-1">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
-            class="cohort-boxplot-container"
           >
             <span
               v-if="enrollment.canvasSites.length > 1"
@@ -45,13 +55,13 @@
           <div v-if="!$_.get(enrollment, 'canvasSites').length">
             <span class="sr-only">No data </span>&mdash;
           </div>
-        </td>
-        <td class="cohort-course-activity-data">
+        </b-td>
+        <b-td class="col-midterm">
           <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
           <font-awesome v-if="isAlertGrade(enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
           <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
-        </td>
-        <td class="cohort-course-activity-data">
+        </b-td>
+        <b-td class="col-final">
           <span
             v-if="enrollment.grade"
             v-accessible-grade="enrollment.grade"
@@ -73,24 +83,27 @@
             class="cohort-grading-basis"
           >{{ enrollment.gradingBasis }}</span>
           <span v-if="!enrollment.grade && !enrollment.gradingBasis"><span class="sr-only">No data</span>&mdash;</span>
-        </td>
-      </tr>
-      <tr v-if="!termEnrollments.length">
-        <td class="cohort-course-activity-data cohort-course-activity-course-name faint-text">
+        </b-td>
+      </b-tr>
+      <b-tr v-if="!termEnrollments.length">
+        <b-td class="col-course faint-text">
           No {{ termNameForSisId(termId) }} enrollments
-        </td>
-        <td v-if="$currentUser.canAccessCanvasData" class="cohort-course-activity-data">
+        </b-td>
+        <b-td class="col-units">
           <span class="sr-only">No data</span>&mdash;
-        </td>
-        <td class="cohort-course-activity-data">
+        </b-td>
+        <b-td v-if="$currentUser.canAccessCanvasData" class="col-bcourses">
           <span class="sr-only">No data</span>&mdash;
-        </td>
-        <td class="cohort-course-activity-data">
+        </b-td>
+        <b-td class="col-midterm">
           <span class="sr-only">No data</span>&mdash;
-        </td>
-      </tr>
-    </table>
-  </div>
+        </b-td>
+        <b-td class="col-final">
+          <span class="sr-only">No data</span>&mdash;
+        </b-td>
+      </b-tr>
+    </b-tbody>
+  </b-table-simple>
 </template>
 
 <script>
@@ -129,35 +142,30 @@ export default {
 </script>
 
 <style scoped>
-.cohort-boxplot-container {
-  align-items: flex-end;
-  display: flex;
-}
-.cohort-course-activity-course-name {
-  width: 180px;
-}
-.cohort-course-activity-data {
-  font-size: 14px;
+td {
+  font-size: 12px;
   line-height: 1.4em;
-  padding: 0 0 5px 15px;
   vertical-align: top;
 }
-.cohort-course-activity-header {
+th {
   color: #aaa;
-  font-size: 13px;
-  font-weight: normal;
-  padding: 0 0 5px 15px;
-  vertical-align: top;
+  font-size: 12px;
+  vertical-align: bottom;
 }
-.cohort-course-activity-table {
-  margin: auto;
-  min-width: 340px;
-  width: 85%;
+.col-course {
+  min-width: 80px;
+  padding-right: 15px;
 }
-.cohort-course-activity-wrapper {
-  flex-basis: auto;
-  flex-grow: 0.6;
-  margin-left: 0;
-  min-width: 340px;
+.col-bcourses {
+  min-width: 120px;
+}
+.col-final {
+  min-width: 40px;
+}
+.col-midterm {
+  min-width: 40px;
+}
+.col-units {
+  min-width: 40px;
 }
 </style>

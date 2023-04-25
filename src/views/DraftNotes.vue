@@ -161,7 +161,7 @@ export default {
     this.fields.push(
       {
         key: 'setDate',
-        label: 'Saved'
+        label: 'Date'
       },
       {
         class: 'float-right',
