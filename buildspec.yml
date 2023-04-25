@@ -6,7 +6,7 @@ phases:
       nodejs: 16
       python: 3.9
     commands:
-      - npm install
+      - npm install --legacy-peer-deps
 
   build:
     commands:
