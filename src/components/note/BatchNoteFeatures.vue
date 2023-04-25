@@ -4,15 +4,23 @@
       <div
         v-if="!isRecalculating && completeSidSet.length"
         id="target-student-count-alert"
-        :class="{'has-error': completeSidSet.length >= 250, 'font-weight-bolder': completeSidSet.length >= 500}"
+        :class="{
+          'has-error': mode !== 'editDraft' && completeSidSet.length >= 250,
+          'font-weight-bolder': mode !== 'editDraft' && completeSidSet.length >= 500
+        }"
         class="font-italic pb-2"
       >
-        <span v-if="completeSidSet.length < 500">This note will be attached</span>
-        <span v-if="completeSidSet.length >= 500">Are you sure you want to attach this note</span>
-        to {{ pluralize('student record', completeSidSet.length) }}.
-        <div v-if="!['editDraft', 'editTemplate'].includes(mode) && completeSidSet.length > 1">
-          <span class="font-weight-700 has-error">Important:</span> Saving as a draft will save the content of your
-          note but not the associated students.
+        <span v-if="mode !== 'editDraft'">
+          <span v-if="completeSidSet.length < 500">This note will be attached</span>
+          <span v-if="completeSidSet.length >= 500">Are you sure you want to attach this note</span>
+          to {{ pluralize('student record', completeSidSet.length) }}{{ completeSidSet.length >= 500 ? '?' : '.' }}
+        </span>
+        <div v-if="!['editTemplate'].includes(mode) && completeSidSet.length > 1">
+          <span class="font-weight-700 has-error">Important:</span>
+          <span class="text-body">
+            {{ mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
+            but not the associated students.
+          </span>
         </div>
       </div>
       <span v-if="!completeSidSet.length && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
