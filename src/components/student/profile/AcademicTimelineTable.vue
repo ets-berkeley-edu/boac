@@ -123,7 +123,9 @@
                   Edit {{ message.isDraft ? 'Draft' : 'Note' }}
                 </b-btn>
               </div>
-              <div v-if="$currentUser.isAdmin">
+              <div
+                v-if="$currentUser.isAdmin || (message.isDraft && message.author.uid === $currentUser.uid)"
+              >
                 <b-btn
                   :id="`delete-note-button-${message.id}`"
                   :disabled="disableNewNoteButton"
