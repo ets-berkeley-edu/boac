@@ -319,7 +319,7 @@ def download_notes(sid):
     download_type = get_param(request.args, 'type', 'note')
     students = data_loch.get_basic_student_data([sid])
     student = students[0] if students else None
-    notes = get_advising_notes(sid) if student else []
+    notes = get_advising_notes(exclude_draft_notes=True, sid=sid) if student else []
 
     if not student or not notes:
         return Response('Not found', status=404)

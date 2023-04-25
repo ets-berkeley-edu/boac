@@ -452,8 +452,13 @@ class Note(Base):
             note.updated_at = now
 
     @classmethod
-    def get_notes_by_sid(cls, sid):
-        sql = 'SELECT id FROM notes WHERE deleted_at IS NULL AND sid = :sid'
+    def get_notes_by_sid(cls, sid, exclude_draft_notes=False):
+        sql = f"""
+            SELECT id FROM notes
+            WHERE deleted_at IS NULL
+                AND sid = :sid
+                {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
+        """
         results = db.session.execute(sql, {'sid': sid})
         note_ids = [row['id'] for row in results]
         return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
