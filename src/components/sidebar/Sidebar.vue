@@ -39,6 +39,7 @@
     <div
       v-if="$currentUser.canAccessAdvisingData"
       class="batch-note-button fixed-bottom sidebar"
+      :class="{'z-index-0': !loading}"
     >
       <div :class="{'mb-3': $currentUser.isAdmin}">
         <LinkToDraftNotes />
@@ -75,6 +76,7 @@ import Context from '@/mixins/Context'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
+import Loading from '@/mixins/Loading.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
 
@@ -87,7 +89,7 @@ export default {
     LinkToDraftNotes,
     MyAdmitCohorts
   },
-  mixins: [Context, Util],
+  mixins: [Context, Loading, Util],
   data: () => ({
     isCreateNoteModalOpen: false
   }),

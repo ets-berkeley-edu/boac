@@ -381,6 +381,9 @@ select.form-control {
   border-radius: 4px;
   color: #795f31;
 }
+.z-index-0 {
+  z-index: 0 !important;
+}
 #content {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
