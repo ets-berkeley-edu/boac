@@ -6,10 +6,10 @@ addons:
   postgresql: "9.6"
 
 before_install:
-  - nvm install 14
+  - nvm install 16
 
 install:
-  - npm install
+  - npm install --legacy-peer-deps
   - pip3 install tox
 
 script:
