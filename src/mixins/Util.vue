@@ -29,6 +29,22 @@ export default {
       return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
     },
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
+    formatIsoDate(isoDate) {
+      // YYYY-MM-DD to MM/DD/YYYY.
+      if (!isoDate || !(/^\d{4}-\d{2}-\d{2}$/.test(isoDate))) {
+        return null
+      }
+      const dateComponents = isoDate.split('-')
+      return [dateComponents[1], dateComponents[2], dateComponents[0]].join('/')
+    },
+    formatUsaDate(usaDate) {
+      // MM/DD/YYYY to YYYY-MM-DD.
+      if (!usaDate || !(/^\d{2}\/\d{2}\/\d{4}$/.test(usaDate))) {
+        return null
+      }
+      const dateComponents = usaDate.split('/')
+      return [dateComponents[2], dateComponents[0], dateComponents[1]].join('-')
+    },
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     isToday: date => {
       return moment().diff(date, 'days') === 0
