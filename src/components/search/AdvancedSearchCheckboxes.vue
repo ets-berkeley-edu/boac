@@ -14,7 +14,7 @@
         <b-checkbox
           id="search-include-admits-checkbox"
           v-model="includeAdmits"
-          class="domain-subset-checkbox"
+          class="z-index-0"
         />
         <label
           for="search-include-admits-checkbox"
@@ -28,7 +28,7 @@
         <b-checkbox
           id="search-include-students-checkbox"
           v-model="includeStudents"
-          class="domain-subset-checkbox"
+          class="z-index-0"
         />
         <label
           for="search-include-students-checkbox"
@@ -42,7 +42,7 @@
         <b-checkbox
           id="search-include-courses-checkbox"
           v-model="includeCourses"
-          class="domain-subset-checkbox"
+          class="z-index-0"
         />
         <label
           for="search-include-courses-checkbox"
@@ -56,7 +56,7 @@
         <b-checkbox
           id="search-include-notes-checkbox"
           v-model="includeNotes"
-          class="domain-subset-checkbox"
+          class="z-index-0"
           @change="onChangeIncludeNotes"
         />
         <label
@@ -93,9 +93,6 @@ export default {
 </script>
 
 <style scoped>
-.domain-subset-checkbox {
-  z-index: 0 !important;
-}
 .search-form-label {
   margin-bottom: 2px;
 }
