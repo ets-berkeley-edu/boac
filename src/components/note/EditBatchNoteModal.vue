@@ -462,16 +462,16 @@ export default {
   max-height: 0;
 }
 .create-note-container {
-  display: block;
-  position: fixed;
-  z-index: 1050;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
   background-color: rgb(0,0,0);
   background-color: rgba(0,0,0,0.4);
+  display: block;
+  height: 100%;
+  left: 0;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
 }
 .modal-content {
   background-color: #fff;

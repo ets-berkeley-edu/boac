@@ -93,7 +93,7 @@ export function updateNote(
     topics
   }
   return utils.postMultipartFormData('/api/notes/update', data).then(note => {
-    Vue.prototype.$eventHub.emit('note-updated', note.id)
+    Vue.prototype.$eventHub.emit('note-updated', note)
     $_track('update')
     return note
   })
