@@ -170,7 +170,10 @@ def update_note():
         raise ForbiddenRequestError('Sorry, you are not authorized to manage note privacy')
     # A note is "published" when the 'is_draft' value goes from True to False.
     is_publishing_draft_note = note.is_draft and not is_draft
-    sids = _get_sids_for_note_creation() if is_draft else [note.sid]
+    if is_draft or is_publishing_draft_note:
+        sids = _get_sids_for_note_creation()
+    else:
+        sids = [note.sid] if note.sid else []
     if is_draft:
         subject = subject or '[DRAFT NOTE]'
         # Draft note can have zero or one SIDs. If multiple SIDs are present then ignore them.
