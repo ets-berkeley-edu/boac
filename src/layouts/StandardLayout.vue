@@ -18,7 +18,7 @@
       </b-col>
     </b-row>
     <b-row class="row-footer" no-gutters>
-      <b-col class="sidebar" sm="2"></b-col>
+      <b-col class="sidebar z-index-sub-zero" sm="2"></b-col>
       <b-col sm="10" role="contentinfo">
         <Footer v-if="!loading" class="mb-3 ml-3 mt-5" />
       </b-col>
@@ -62,5 +62,8 @@ export default {
 }
 .row-footer {
   min-height: 18%;
+}
+.z-index-sub-zero {
+  z-index: -1;
 }
 </style>

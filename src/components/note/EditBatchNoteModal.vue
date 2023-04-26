@@ -464,7 +464,7 @@ export default {
 .create-note-container {
   display: block;
   position: fixed;
-  z-index: 3;
+  z-index: 1050;
   left: 0;
   top: 0;
   width: 100%;

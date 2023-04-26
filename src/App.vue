@@ -1,5 +1,5 @@
 <template>
-  <div id="app" class="fill-viewport">
+  <div id="app" class="font-size-14 vh-100">
     <VueAnnouncer />
     <router-view></router-view>
     <DismissibleFooterAlert />

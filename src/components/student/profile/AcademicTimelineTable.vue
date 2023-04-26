@@ -134,7 +134,7 @@
                   @keypress.enter.stop="deleteNote(message)"
                   @click.stop="deleteNote(message)"
                 >
-                  Delete Note
+                  Delete {{ message.isDraft ? 'Draft' : 'Note' }}
                 </b-btn>
               </div>
             </div>
