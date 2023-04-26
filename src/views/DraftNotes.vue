@@ -178,8 +178,8 @@ export default {
         this.reloadDraftNotes()
       }
     })
-    this.$eventHub.on('note-updated', noteId => {
-      if (this.$_.find(this.myDraftNotes, ['id', noteId])) {
+    this.$eventHub.on('note-updated', note => {
+      if (this.$_.find(this.myDraftNotes, ['id', note.id])) {
         this.reloadDraftNotes()
       }
     })
@@ -233,7 +233,6 @@ export default {
       this.mode = null
     },
     reloadDraftNotes(srAlert) {
-      this.scrollToTop()
       getMyDraftNotes().then(data => {
         this.myDraftNotes = data
         if (srAlert) {
