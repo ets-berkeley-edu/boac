@@ -88,7 +88,7 @@ const axiosErrorHandler = error => {
   } else {
     const skipRedirect = ['/api/user/create_or_update']
     const url = _.get(error, 'response.config.url')
-    if (!_.find(skipRedirect, path => url.includes(path))) {
+    if (!_.find(skipRedirect, path => _.includes(url, path))) {
       router.push({
         path: '/error',
         query: {

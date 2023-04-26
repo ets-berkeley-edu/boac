@@ -141,10 +141,6 @@
 .faint-text {
   color: grey;
 }
-.fill-viewport {
-  height: 100%;
-  font-size: 14px;
-}
 .filters-section-separator {
   border-top: 2px solid #eee;
   margin: 5px 0 0 0;

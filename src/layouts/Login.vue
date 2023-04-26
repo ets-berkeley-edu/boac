@@ -1,5 +1,5 @@
 <template>
-  <div class="background-blue-sky fill-viewport">
+  <div class="background-blue-sky font-size-14 vh-100">
     <b-popover
       v-if="showError"
       placement="top"

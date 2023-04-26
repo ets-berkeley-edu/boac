@@ -38,15 +38,15 @@
     </div>
     <div
       v-if="$currentUser.canAccessAdvisingData"
-      class="batch-note-button fixed-bottom-sidebar sidebar"
+      class="batch-note-button fixed-bottom-sidebar"
       :class="{'z-index-0': !loading}"
     >
-      <div :class="{'mb-3': $currentUser.isAdmin}">
+      <div class="sidebar" :class="{'mb-3': $currentUser.isAdmin}">
         <LinkToDraftNotes />
       </div>
       <div
         v-if="!$currentUser.isAdmin"
-        class="d-flex justify-content-center mb-3 pl-3"
+        class="d-flex justify-content-center mb-3 pl-3 sidebar"
       >
         <b-btn
           id="batch-note-button"
