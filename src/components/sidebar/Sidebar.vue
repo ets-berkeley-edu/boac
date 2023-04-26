@@ -38,7 +38,7 @@
     </div>
     <div
       v-if="$currentUser.canAccessAdvisingData"
-      class="batch-note-button fixed-bottom sidebar"
+      class="batch-note-button fixed-bottom-sidebar sidebar"
       :class="{'z-index-0': !loading}"
     >
       <div :class="{'mb-3': $currentUser.isAdmin}">
@@ -113,6 +113,11 @@ export default {
 <style>
 .batch-note-button {
   width: 16%;
+}
+.fixed-bottom-sidebar {
+  bottom: 0;
+  position: fixed;
+  z-index: 2;
 }
 .sidebar-header {
   color: #fff;
