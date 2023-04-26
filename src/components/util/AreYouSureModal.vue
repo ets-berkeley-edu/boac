@@ -25,7 +25,13 @@
             variant="primary"
             @click.prevent="confirm"
           >
-            <span v-if="isProcessing"><font-awesome class="mr-1" icon="spinner" spin /> </span>{{ buttonLabelConfirm }}
+            <font-awesome
+              v-if="isProcessing"
+              class="mr-1"
+              icon="spinner"
+              spin
+            />
+            {{ buttonLabelConfirm }}
           </b-btn>
           <b-btn
             id="are-you-sure-cancel"
