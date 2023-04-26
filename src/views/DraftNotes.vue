@@ -79,13 +79,14 @@
             <b-button
               v-if="!row.item.deletedAt"
               class="mr-2 py-0"
+              :disabled="isDeleting"
               variant="link"
               @click="openDeleteModal(row.item)"
             >
               <font-awesome
                 icon="trash-alt"
                 aria-label="Delete"
-                class="has-error"
+                :class="isDeleting ? 'text-secondary' : 'has-error'"
                 title="Delete"
               />
             </b-button>
@@ -97,12 +98,12 @@
       </div>
       <AreYouSureModal
         v-if="showDeleteModal"
+        :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
         :function-cancel="deselectDraftNote"
         :function-confirm="deleteDraftNote"
         :modal-body="deleteModalBodyText"
-        :show-modal="showDeleteModal"
-        button-label-confirm="Delete"
         modal-header="Are you sure?"
+        :show-modal="showDeleteModal"
       />
     </div>
     <EditBatchNoteModal
@@ -110,8 +111,8 @@
       v-model="showEditModal"
       initial-mode="editDraft"
       :note-id="selectedDraftNote.id"
-      :sid="selectedDraftNote.sid"
       :on-close="afterEditDraft"
+      :sid="selectedDraftNote.sid"
     />
   </div>
 </template>
@@ -132,6 +133,7 @@ export default {
   components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
   data: () => ({
     fields: undefined,
+    isDeleting: false,
     mode: undefined,
     myDraftNotes: undefined,
     selectedDraftNote: undefined
@@ -219,13 +221,20 @@ export default {
     afterEditDraft(data) {
       const existing = this.$_.find(this.myDraftNotes, ['id', this.selectedDraftNote.id])
       Object.assign(existing, data)
-      this.deselectDraftNote()
-      this.reloadDraftNotes()
+      this.reloadDraftNotes().then(() => {
+        this.deselectDraftNote()
+      })
     },
     deleteDraftNote() {
-      deleteNote(this.selectedDraftNote).then(() => {
-        this.deselectDraftNote()
-        this.reloadDraftNotes('Draft note deleted')
+      return new Promise(resolve => {
+        this.isDeleting = true
+        deleteNote(this.selectedDraftNote).then(() => {
+          this.reloadDraftNotes('Draft note deleted').then(() => {
+            this.deselectDraftNote()
+            this.isDeleting = false
+            resolve()
+          })
+        })
       })
     },
     deselectDraftNote() {
@@ -233,7 +242,7 @@ export default {
       this.mode = null
     },
     reloadDraftNotes(srAlert) {
-      getMyDraftNotes().then(data => {
+      return getMyDraftNotes().then(data => {
         this.myDraftNotes = data
         if (srAlert) {
           this.loaded(srAlert)
