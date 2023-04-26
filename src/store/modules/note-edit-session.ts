@@ -58,6 +58,7 @@ const $_updateAdvisingNote = ({commit, state}) => {
   return new Promise(resolve => {
     commit('setBody', _.trim(state.model.body))
     const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
+    const sids: string[] = Array.from(state.completeSidSet)
     updateNote(
       state.model.id,
       state.model.body,
@@ -67,7 +68,7 @@ const $_updateAdvisingNote = ({commit, state}) => {
       state.model.isDraft,
       state.model.isPrivate,
       setDate,
-      state.sids,
+      sids,
       state.model.subject,
       state.model.topics
     ).then(resolve)
