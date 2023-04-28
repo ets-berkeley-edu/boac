@@ -214,7 +214,6 @@ export default {
       this.setModel(note)
       this.setMode(this.initialMode)
       this.$announcer.polite(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-      this.$putFocusNextTick('modal-header-note')
       this.$eventHub.on('user-session-expired', () => {
         this.onBoaSessionExpires()
       })
