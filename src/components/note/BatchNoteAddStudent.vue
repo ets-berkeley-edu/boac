@@ -105,7 +105,6 @@ export default {
         this.resetAutoCompleteKey = new Date().getTime()
         this.$announcer.polite(`${student.label} added to batch note`)
         this.clearWarning()
-        this.$putFocusNextTick('create-note-add-student-input')
       }
     },
     clearWarning() {
