@@ -38,29 +38,27 @@
           </div>
         </div>
       </div>
-      <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData">
-        <div>
-          <b-btn
-            id="new-note-button"
-            :disabled="!!mode"
-            class="mt-1 mr-2 btn-primary-color-override btn-primary-color-override-opaque"
-            variant="primary"
-            @click="isEditingNote = true"
-          >
-            <span class="m-1">
-              <font-awesome icon="file-alt" />
-              New Note
-            </span>
-          </b-btn>
-        </div>
-        <EditBatchNoteModal
-          v-if="isEditingNote"
-          initial-mode="createNote"
-          :on-close="onModalClose"
-          :sid="student.sid"
-        />
+      <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData" class="my-2">
+        <b-btn
+          id="new-note-button"
+          :disabled="!!mode"
+          class="mr-2 btn-primary-color-override btn-primary-color-override-opaque"
+          variant="primary"
+          @click="isEditingNote = true"
+        >
+          <span class="m-1">
+            <font-awesome icon="file-alt" />
+            New Note
+          </span>
+        </b-btn>
       </div>
     </div>
+    <EditBatchNoteModal
+      v-if="isEditingNote"
+      initial-mode="createNote"
+      :on-close="onModalClose"
+      :sid="student.sid"
+    />
   </div>
 </template>
 

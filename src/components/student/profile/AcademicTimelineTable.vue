@@ -465,7 +465,7 @@ export default {
     if (this.$currentUser.canAccessAdvisingData) {
       this.$eventHub.on('note-creation-is-starting', this.onNoteCreateStartEvent)
       this.$eventHub.on('note-created', this.afterNoteCreated)
-      this.$eventHub.on('note-updated', this.afterNoteEdit)
+      this.$eventHub.on('note-updated', this.refreshNote)
       this.$eventHub.on('notes-created', this.afterNotesCreated)
     }
     this.sortMessages()
@@ -496,7 +496,7 @@ export default {
   destroyed() {
     this.$eventHub.off('note-creation-is-starting', this.onNoteCreateStartEvent)
     this.$eventHub.off('note-created', this.afterNoteCreated)
-    this.$eventHub.off('note-updated', this.afterNoteEdit)
+    this.$eventHub.off('note-updated', this.refreshNote)
     this.$eventHub.off('notes-created', this.afterNotesCreated)
   },
   methods: {
@@ -514,17 +514,7 @@ export default {
     },
     afterNoteEdit(updatedNote) {
       this.editModeNoteId = null
-      const note = this.$_.find(this.messages, ['id', updatedNote.id])
-      note.attachments = updatedNote.attachments
-      note.body = note.message = updatedNote.body
-      note.contactType = updatedNote.contactType
-      note.isDraft = updatedNote.isDraft
-      note.isPrivate = updatedNote.isPrivate
-      note.setDate = updatedNote.setDate
-      note.subject = updatedNote.subject
-      note.topics = updatedNote.topics
-      note.updatedAt = updatedNote.updatedAt
-      this.refreshSearchIndex()
+      this.refreshNote(updatedNote)
     },
     afterNoteEditCancel() {
       this.editModeNoteId = null
@@ -639,9 +629,20 @@ export default {
         this.$announcer.polite(`${this.$_.capitalize(message.type)} opened`)
       }
     },
-    scrollToPermalink(messageType, messageId) {
-      this.scrollTo(`#permalink-${messageType}-${messageId}`)
-      this.$putFocusNextTick(`message-row-${messageId}`)
+    refreshNote(updatedNote) {
+      const note = this.$_.find(this.messages, ['id', updatedNote.id])
+      if (note) {
+        note.attachments = updatedNote.attachments
+        note.body = note.message = updatedNote.body
+        note.contactType = updatedNote.contactType
+        note.isDraft = updatedNote.isDraft
+        note.isPrivate = updatedNote.isPrivate
+        note.setDate = updatedNote.setDate
+        note.subject = updatedNote.subject
+        note.topics = updatedNote.topics
+        note.updatedAt = updatedNote.updatedAt
+        this.refreshSearchIndex()
+      }
     },
     refreshSearchIndex() {
       this.searchIndex = []
@@ -664,6 +665,10 @@ export default {
         ].join().replace(/\s/g, '').toLowerCase()
         this.searchIndex.push({idx: idx.toLowerCase(), message: m})
       })
+    },
+    scrollToPermalink(messageType, messageId) {
+      this.scrollTo(`#permalink-${messageType}-${messageId}`)
+      this.$putFocusNextTick(`message-row-${messageId}`)
     },
     toggleExpandAll() {
       this.isShowingAll = true

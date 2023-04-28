@@ -65,7 +65,7 @@ export default {
       if (this.model.isDraft) {
         store.commit('noteEditSession/isAutoSavingDraftNote', true)
         this.updateAdvisingNote().then(note => {
-          this.setModel(note)
+          store.commit('noteEditSession/setModelId', note.id)
           setTimeout(() => store.commit('noteEditSession/isAutoSavingDraftNote', false), 2000)
           this.scheduleAutoSaveJob()
         })

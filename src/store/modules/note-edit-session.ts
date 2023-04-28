@@ -168,6 +168,7 @@ const mutations = {
       throw new TypeError('Invalid mode: ' + mode)
     }
   },
+  setModelId: (state: any, modelId: number) => state.model.id = modelId,
   setModel: (state: any, note?: any) => {
     if (note) {
       const model = _.cloneDeep(note)
