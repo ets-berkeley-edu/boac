@@ -103,48 +103,45 @@ def mock_private_advising_note(app):
             )
 
 
-class TestGetNote:
+class TestGetDraftNotes:
 
     @classmethod
-    def _api_note_by_id(cls, client, note_id, expected_status_code=200, failure_message=None):
-        response = client.get(f'/api/note/{note_id}')
-        assert response.status_code == expected_status_code, failure_message
+    def _api_draft_notes(cls, client, expected_status_code=200):
+        response = client.get('/api/notes/my_drafts')
+        assert response.status_code == expected_status_code
         return response.json
 
     def test_not_authenticated(self, app, client, mock_coe_advising_note):
         """Returns 401 if not authenticated."""
-        self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
+        self._api_draft_notes(client=client, expected_status_code=401)
 
     def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
+        self._api_draft_notes(client=client, expected_status_code=401)
 
-    def test_limited_access_to_private_note(self, client, fake_auth, mock_private_advising_note):
-        fake_auth.login(coe_advisor_uid)
-        api_json = self._api_note_by_id(client=client, note_id=mock_private_advising_note.id)
-        assert 'Private Idaho' in api_json['subject']
-        assert api_json['author']
-        assert api_json['body'] is None
-
-    def test_full_access_to_private_note(self, client, fake_auth, mock_private_advising_note):
-        fake_auth.login(ce3_advisor_uid)
-        api_json = self._api_note_by_id(client=client, note_id=mock_private_advising_note.id)
-        assert 'Private Idaho' in api_json['subject']
-        assert 'potato' in api_json['body']
-
-    def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
+    def test_get_note_by_id(self, app, client, fake_auth):
         """Returns note in JSON compatible with BOA front-end."""
-        fake_auth.login(admin_uid)
-        note = self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)
-        assert note
-        assert 'id' in note
-        assert note['type'] == 'note'
-        assert note['body'] == note['message']
-        assert note['read'] is False
-        # Mark as read and re-test
-        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), note['id'])
-        assert self._api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
+        uid = coe_advisor_uid
+        fake_auth.login(uid)
+        author_id = AuthorizedUser.get_id_per_uid(uid)
+        draft_notes = []
+        for index in (1, 2, 3):
+            draft_notes.append(_api_note_create(
+                app=app,
+                author_id=author_id,
+                body=f'Body {index}',
+                client=client,
+                sids=[],
+                subject=f'Subject {index}',
+                is_draft=True,
+            ))
+        api_json = self._api_draft_notes(client=client)
+        assert len(api_json) == 3
+        # Expect reverse chronological order.
+        assert api_json[0]['id'] == draft_notes[2]['id']
+        assert api_json[1]['id'] == draft_notes[1]['id']
+        assert api_json[2]['id'] == draft_notes[0]['id']
 
     def test_restrictions_on_draft_note(self, client, fake_auth, mock_note_draft):
         expectations = {
@@ -155,7 +152,62 @@ class TestGetNote:
         for uid in expectations:
             fake_auth.login(uid)
             expectation = expectations[uid]
-            self._api_note_by_id(
+            _api_note_by_id(
+                client=client,
+                expected_status_code=expectation,
+                failure_message=f"UID {uid} should {'NOT' if expectation else ''} have access to draft note.'",
+                note_id=mock_note_draft.id,
+            )
+            logout_user()
+
+
+class TestGetNote:
+
+    def test_not_authenticated(self, app, client, mock_coe_advising_note):
+        """Returns 401 if not authenticated."""
+        _api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
+
+    def test_user_without_advising_data_access(self, client, fake_auth, mock_coe_advising_note):
+        """Denies access to a user who cannot access notes and appointments."""
+        fake_auth.login(coe_advisor_no_advising_data_uid)
+        _api_note_by_id(client=client, note_id=mock_coe_advising_note.id, expected_status_code=401)
+
+    def test_limited_access_to_private_note(self, client, fake_auth, mock_private_advising_note):
+        fake_auth.login(coe_advisor_uid)
+        api_json = _api_note_by_id(client=client, note_id=mock_private_advising_note.id)
+        assert 'Private Idaho' in api_json['subject']
+        assert api_json['author']
+        assert api_json['body'] is None
+
+    def test_full_access_to_private_note(self, client, fake_auth, mock_private_advising_note):
+        fake_auth.login(ce3_advisor_uid)
+        api_json = _api_note_by_id(client=client, note_id=mock_private_advising_note.id)
+        assert 'Private Idaho' in api_json['subject']
+        assert 'potato' in api_json['body']
+
+    def test_get_note_by_id(self, app, client, fake_auth, mock_coe_advising_note):
+        """Returns note in JSON compatible with BOA front-end."""
+        fake_auth.login(admin_uid)
+        note = _api_note_by_id(client=client, note_id=mock_coe_advising_note.id)
+        assert note
+        assert 'id' in note
+        assert note['type'] == 'note'
+        assert note['body'] == note['message']
+        assert note['read'] is False
+        # Mark as read and re-test
+        NoteRead.find_or_create(AuthorizedUser.get_id_per_uid(admin_uid), note['id'])
+        assert _api_note_by_id(client=client, note_id=mock_coe_advising_note.id)['read'] is True
+
+    def test_restrictions_on_draft_note(self, client, fake_auth, mock_note_draft):
+        expectations = {
+            admin_uid: 200,
+            asc_advisor_uid: 404,
+            mock_note_draft.author_uid: 200,
+        }
+        for uid in expectations:
+            fake_auth.login(uid)
+            expectation = expectations[uid]
+            _api_note_by_id(
                 client=client,
                 expected_status_code=expectation,
                 failure_message=f"UID {uid} should {'NOT' if expectation else ''} have access to draft note.'",
@@ -1056,6 +1108,7 @@ def _api_note_create(
         attachments=(),
         expected_status_code=200,
         contact_type=None,
+        is_draft=False,
         is_private=False,
         set_date=None,
         template_attachment_ids=(),
@@ -1065,6 +1118,7 @@ def _api_note_create(
         data = {
             'authorId': author_id,
             'body': body,
+            'isDraft': is_draft,
             'isPrivate': is_private,
             'sids': sids,
             'subject': subject,
@@ -1147,3 +1201,9 @@ def _get_cohorts_ids_and_sids(advisor):
     for cohort_id in cohort_ids:
         sids = sids + CohortFilter.get_sids(cohort_id)
     return cohort_ids, sids
+
+
+def _api_note_by_id(client, note_id, expected_status_code=200, failure_message=None):
+    response = client.get(f'/api/note/{note_id}')
+    assert response.status_code == expected_status_code, failure_message
+    return response.json

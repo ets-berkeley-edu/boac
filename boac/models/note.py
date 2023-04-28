@@ -36,8 +36,7 @@ from boac.models.note_topic import NoteTopic
 from dateutil.tz import tzutc
 from sqlalchemy import and_
 from sqlalchemy.dialects.postgresql import ARRAY, ENUM
-from sqlalchemy.sql import text
-
+from sqlalchemy.sql import desc, text
 
 note_contact_type_enum = ENUM(
     'Email',
@@ -130,7 +129,7 @@ class Note(Base):
             criteria = and_(cls.author_uid == author_uid, cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
         else:
             criteria = and_(cls.is_draft.is_(True), cls.deleted_at == None)  # noqa: E711
-        return cls.query.filter(criteria).order_by(cls.set_date, cls.updated_at, cls.created_at).all()
+        return cls.query.filter(criteria).order_by(desc(cls.created_at)).all()
 
     @classmethod
     def create(
