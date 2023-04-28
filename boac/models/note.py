@@ -467,12 +467,11 @@ class Note(Base):
     def delete(cls, note_id):
         note = cls.find_by_id(note_id)
         if note:
-            now = utc_now()
-            note.deleted_at = now
+            note.deleted_at = utc_now()
             for attachment in note.attachments:
-                attachment.deleted_at = now
+                attachment.deleted_at = utc_now()
             for topic in note.topics:
-                topic.deleted_at = now
+                topic.deleted_at = utc_now()
             std_commit()
 
     def to_api_json(self):
