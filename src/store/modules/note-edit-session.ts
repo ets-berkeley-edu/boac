@@ -232,7 +232,7 @@ const actions = {
         resolve(note)
       }
       if (revert) {
-        if (['createBatch', 'createNote'].includes(mode)) {
+        if (state.model.id && ['createBatch', 'createNote'].includes(mode)) {
           deleteNote(state.model).then(() => done(null))
         } else if (mode === 'editNote' && state.model.isDraft) {
           commit('setModel', state.originalModel)
