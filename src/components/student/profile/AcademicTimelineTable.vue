@@ -4,6 +4,7 @@
       <h3 class="sr-only">Quick Links</h3>
       <b-btn
         :id="`toggle-expand-all-${filter}s`"
+        class="pr-1"
         variant="link"
         @click.prevent="toggleExpandAll"
       >
@@ -13,7 +14,7 @@
         />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
-      <div v-if="['eForm', 'note'].includes(filter) && ($currentUser.isAdmin || isDirector($currentUser))">
+      <div v-if="showDownloadNotesLink">
         | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
       </div>
       |
@@ -421,6 +422,15 @@ export default {
     },
     showDeleteConfirmModal() {
       return !!this.messageForDelete
+    },
+    showDownloadNotesLink() {
+      const hasNonDrafts = () => {
+        const notes = this.messagesPerType('note')
+        return this.$_.find(notes, n => !n.isDraft)
+      }
+      return ['eForm', 'note'].includes(this.filter)
+        && (this.$currentUser.isAdmin || this.isDirector(this.$currentUser))
+        && hasNonDrafts()
     }
   },
   watch: {
