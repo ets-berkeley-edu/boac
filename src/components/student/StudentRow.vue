@@ -8,8 +8,8 @@
     @mouseleave="hover = false"
   >
     <b-row>
-      <b-col sm="2">
-        <div class="align-items-center d-flex">
+      <b-col md="4">
+        <div class="align-items-center d-flex flex-wrap">
           <div v-if="listType === 'curatedGroupForOwner'">
             <button
               :id="`row-${rowIndex}-remove-student-from-curated-group`"
@@ -21,9 +21,9 @@
               <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
             </button>
           </div>
-          <div>
+          <div class="mr-4">
             <div class="align-items-center d-flex">
-              <div v-if="listType === 'cohort'" class="mr-2">
+              <div v-if="listType === 'cohort'" class="mr-3">
                 <CuratedStudentCheckbox domain="default" :student="student" />
               </div>
               <div>
@@ -43,16 +43,16 @@
               />
             </div>
           </div>
+          <div>
+            <StudentRowBioColumn
+              :row-index="rowIndex"
+              :student="student"
+              :sorted-by="sortedBy"
+            />
+          </div>
         </div>
       </b-col>
-      <b-col class="pl-0" sm="2">
-        <StudentRowBioColumn
-          :row-index="rowIndex"
-          :student="student"
-          :sorted-by="sortedBy"
-        />
-      </b-col>
-      <b-col class="pl-0" sm="2">
+      <b-col class="pl-0" md="2">
         <div>
           <span
             v-if="$_.isNil(student.cumulativeGPA)"
@@ -88,7 +88,7 @@
           >{{ round(student.termGpa[0].gpa, 3) }}</strong>
         </div>
       </b-col>
-      <b-col class="pl-0" sm="2">
+      <b-col class="pl-0" md="2">
         <div class="d-flex flex-wrap">
           <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
           <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
@@ -122,7 +122,7 @@
           <div class="no-wrap student-text">Units Completed</div>
         </div>
       </b-col>
-      <b-col class="float-right pl-0" sm="4">
+      <b-col class="float-right pl-0" md="4">
         <StudentRowCourseActivity
           :row-index="rowIndex"
           :student="student"
