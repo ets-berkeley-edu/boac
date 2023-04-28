@@ -64,14 +64,9 @@ export default {
       this.clearAutoSaveJob()
       if (this.model.isDraft) {
         store.commit('noteEditSession/isAutoSavingDraftNote', true)
-        this.updateAdvisingNote().then(() => {
-          if (this.$config.isVueAppDebugMode) {
-            const now = this.$moment(new Date()).format('h:mm:ss')
-            console.log(`[DEBUG] Auto-save draft note ${this.model.id} at ${now}`)
-          }
-          setTimeout(() => {
-            store.commit('noteEditSession/isAutoSavingDraftNote', false)
-          }, 2000)
+        this.updateAdvisingNote().then(note => {
+          this.setModel(note)
+          setTimeout(() => store.commit('noteEditSession/isAutoSavingDraftNote', false), 2000)
           this.scheduleAutoSaveJob()
         })
       }
