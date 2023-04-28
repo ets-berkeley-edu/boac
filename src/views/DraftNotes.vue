@@ -191,8 +191,9 @@ export default {
       let message
       if (this.selectedDraftNote) {
         const student = this.selectedDraftNote.student
+        const style = this.$currentUser.inDemoMode ? 'demo-mode-blur' : ''
         message = 'Please confirm the deletion of the draft note '
-        message += student ? `for <b>${student.firstName} ${student.lastName}</b>.` : `with subject ${this.selectedDraftNote.subject}.`
+        message += student ? `for <b class="${style}">${student.firstName} ${student.lastName}</b>.` : `with subject ${this.selectedDraftNote.subject}.`
       }
       return message
     },
