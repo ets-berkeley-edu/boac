@@ -369,6 +369,12 @@ select.form-control {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.w-15 {
+  width: 15% !important;
+}
+.w-5 {
+  width: 5% !important;
+}
 .w-30 {
   width: 30% !important;
 }
