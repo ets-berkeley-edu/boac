@@ -27,6 +27,7 @@
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
 import Context from '@/mixins/Context'
+import {getNote} from '@/api/notes'
 
 export default {
   name: 'AcademicTimeline',
@@ -71,9 +72,11 @@ export default {
     })
     this.isTimelineLoading = false
     this.$eventHub.on('note-deleted', this.onDeleteNoteEvent)
+    this.$eventHub.on('notes-batch-published', this.onPublishBatchNotes)
   },
   destroyed() {
     this.$eventHub.off('note-deleted', this.onDeleteNoteEvent)
+    this.$eventHub.off('notes-batch-published', this.onPublishBatchNotes)
   },
   methods: {
     onCreateNewNote(note) {
@@ -94,6 +97,14 @@ export default {
       if (removed) {
         this.updateCountsPerType('note', this.countsPerType.note - 1)
         this.sortMessages()
+      }
+    },
+    onPublishBatchNotes(noteIdsBySid) {
+      const noteId = this.$_.get(noteIdsBySid, this.student.sid)
+      if (noteId) {
+        getNote(noteId).then(note => {
+          this.onCreateNewNote(note)
+        })
       }
     },
     setFilter(filter) {
