@@ -112,7 +112,9 @@ export default {
 
 <style>
 .batch-note-button {
-  width: 16%;
+  background-color: rgb(18, 80, 116);
+  padding-top: 10px;
+  width: 16.6%;
 }
 .fixed-bottom-sidebar {
   bottom: 0;
