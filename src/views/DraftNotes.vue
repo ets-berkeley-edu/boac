@@ -47,7 +47,7 @@
             <b-btn
               v-if="row.item.author.uid === $currentUser.uid"
               :id="`open-draft-note-${row.item.id}`"
-              class="border-0 p-0"
+              class="border-0 p-0 text-left"
               :class="{'demo-mode-blur': $currentUser.inDemoMode}"
               variant="link"
               @click="() => openEditModal(row.item)"
@@ -141,14 +141,17 @@ export default {
   created() {
     this.fields = [
       {
+        class: 'w-15',
         key: 'student',
         label: 'Student'
       },
       {
+        class: 'w-5',
         key: 'sid',
         label: 'SID'
       },
       {
+        class: 'w-auto',
         key: 'subject',
         label: 'Subject'
       }
@@ -156,6 +159,7 @@ export default {
     if (this.$currentUser.isAdmin) {
       this.fields.push(
         {
+          class: 'w-15',
           key: 'author',
           label: 'Author'
         }
@@ -163,10 +167,12 @@ export default {
     }
     this.fields.push(
       {
+        class: 'text-nowrap w-5',
         key: 'setDate',
         label: 'Date'
       },
       {
+        class: 'w-5',
         key: 'delete',
         label: 'Delete'
       }

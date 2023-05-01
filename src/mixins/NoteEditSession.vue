@@ -7,9 +7,11 @@ export default {
   name: 'NoteEditSession',
   created() {
     this.scheduleAutoSaveJob()
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
   },
   destroyed() {
     this.clearAutoSaveJob()
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },
   computed: {
     ...mapGetters('noteEditSession', [
@@ -69,6 +71,15 @@ export default {
           setTimeout(() => store.commit('noteEditSession/isAutoSavingDraftNote', false), 2000)
           this.scheduleAutoSaveJob()
         })
+      }
+    },
+    onVisibilityChange() {
+      const visibility = document.visibilityState
+      if (visibility) {
+        this.clearAutoSaveJob()
+        if (visibility === 'visible') {
+          this.scheduleAutoSaveJob()
+        }
       }
     },
     scheduleAutoSaveJob() {
