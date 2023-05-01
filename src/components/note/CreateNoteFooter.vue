@@ -36,12 +36,12 @@
         <div v-if="model.isDraft">
           <b-btn
             id="save-as-draft-button"
-            class="mr-2"
+            class="mr-1"
             :disabled="isSaving || (!$_.trim(model.subject) && !$_.trim(model.body))"
             variant="link"
             @click.prevent="updateNote"
           >
-            {{ mode === 'editDraft' ? 'Update' : 'Save' }} Draft
+            Save and Close Draft
           </b-btn>
         </div>
         <div v-if="!['editTemplate'].includes(mode)">
@@ -49,20 +49,22 @@
             id="create-note-button"
             :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
             class="btn-primary-color-override"
+            :class="{'mr-2': mode !== 'editDraft'}"
             variant="primary"
             @click.prevent="publish"
           >
-            {{ mode === 'editDraft' ? 'Publish' : 'Save' }}
+            Publish Note
           </b-btn>
         </div>
-        <div>
+        <div v-if="mode !== 'editDraft'">
           <b-btn
             id="create-note-cancel"
+            class="has-error"
             :disabled="isSaving"
-            variant="link"
+            variant="outline-danger"
             @click.prevent="cancel"
           >
-            Cancel
+            Discard
           </b-btn>
         </div>
       </div>
