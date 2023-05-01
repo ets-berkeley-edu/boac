@@ -92,10 +92,11 @@ export function updateNote(
     subject,
     topics
   }
-  return utils.postMultipartFormData('/api/notes/update', data).then(note => {
-    Vue.prototype.$eventHub.emit('note-updated', note)
+  return utils.postMultipartFormData('/api/notes/update', data).then(data => {
+    const eventName = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
+    Vue.prototype.$eventHub.emit(eventName, data)
     $_track('update')
-    return note
+    return data
   })
 }
 
