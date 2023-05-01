@@ -239,6 +239,10 @@ export default {
             trimmedSubject,
             this.model.topics
           ).then(updatedNote => {
+            const isPublishing = !updatedNote.isDraft && isDraft
+            if (isPublishing) {
+              this.$currentUser.myDraftNoteCount = this.$currentUser.myDraftNoteCount - 1
+            }
             this.afterSaved(updatedNote)
             this.$announcer.polite('Changes to note have been saved')
             this.exit(false)

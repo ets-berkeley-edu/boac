@@ -59,13 +59,18 @@ const $_updateAdvisingNote = ({commit, state}) => {
     commit('setBody', _.trim(state.model.body))
     const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
     const sids: string[] = Array.from(state.completeSidSet)
+    const isDraft = state.model.isDraft
+    const isPublishing = state.mode === 'editDraft' && !isDraft
+    if (isPublishing) {
+      Vue.prototype.$currentUser.myDraftNoteCount = Vue.prototype.$currentUser.myDraftNoteCount - 1
+    }
     updateNote(
       state.model.id,
       state.model.body,
       _.map(state.addedCohorts, 'id'),
       state.model.contactType,
       _.map(state.addedCuratedGroups, 'id'),
-      state.model.isDraft,
+      isDraft,
       state.model.isPrivate,
       setDate,
       sids,
