@@ -202,7 +202,7 @@ export default {
       this.$announcer.polite(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
-      this.setModel(template)
+      this.applyTemplate(template)
       this.$putFocusNextTick('create-note-subject')
       this.$announcer.polite(`Template ${template.title} loaded.`)
     },

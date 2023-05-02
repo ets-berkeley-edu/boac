@@ -387,6 +387,15 @@ class Note(Base):
             return None
 
     @classmethod
+    def update_subject(cls, note_id, subject):
+        note = cls.find_by_id(note_id=note_id)
+        if note:
+            note.subject = subject
+            std_commit()
+            db.session.refresh(note)
+            return note
+
+    @classmethod
     def add_attachment(cls, note_id, attachment):
         note = cls.find_by_id(note_id=note_id)
         if note:
