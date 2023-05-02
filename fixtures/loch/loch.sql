@@ -1039,7 +1039,8 @@ INSERT INTO student.student_degrees
 VALUES
 ('9100000000', 'Electrical Eng & Comp Sci BS', '2021-05-16', '2212'),
 ('2718281828', 'Nuclear Engineering BS', '2020-05-16', '2202'),
-('3141592653', 'Philosophy BA', '2020-05-16', '2202');
+('3141592653', 'Philosophy BA', '2020-05-16', '2202'),
+('11667051', 'Ed Cred Pgm Single Subj Cert', '1996-05-25', '1962');
 
 INSERT INTO student.student_holds
 (sid, feed)

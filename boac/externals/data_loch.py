@@ -381,7 +381,7 @@ def get_student_degrees_report(sids):
           d.plan AS degree_awarded_name,
           d.date_awarded AS degree_awarded_date
         FROM {student_schema()}.student_profile_index p
-        JOIN {student_schema()}.student_degrees d ON d.sid = p.sid
+        LEFT JOIN {student_schema()}.student_degrees d ON d.sid = p.sid
         WHERE p.sid = ANY(%(sids)s)
         ORDER BY p.sid, d.date_awarded, d.plan
         """
