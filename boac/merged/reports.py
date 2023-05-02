@@ -92,7 +92,7 @@ def low_assignment_scores(term_id=None):
 
 
 def get_note_author_count(dept_code=None):
-    query = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL'
+    query = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     results = db.session.execute(query)
@@ -100,7 +100,7 @@ def get_note_author_count(dept_code=None):
 
 
 def get_note_count(dept_code=None):
-    query = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL'
+    query = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     results = db.session.execute(query)
@@ -111,7 +111,7 @@ def get_note_count_per_batch(dept_code=None):
     query = """
         SELECT COUNT(*) AS count
         FROM notes
-        WHERE deleted_at IS NULL
+        WHERE deleted_at IS NULL AND is_draft IS FALSE
     """
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
@@ -121,7 +121,11 @@ def get_note_count_per_batch(dept_code=None):
 
 
 def get_private_note_count():
-    results = db.session.execute('SELECT COUNT(*) FROM notes WHERE deleted_at IS NULL AND is_private IS TRUE')
+    results = db.session.execute("""
+        SELECT COUNT(*)
+        FROM notes
+        WHERE deleted_at IS NULL AND is_private IS TRUE AND is_draft IS FALSE
+    """)
     return [row['count'] for row in results][0]
 
 
@@ -132,7 +136,7 @@ def get_note_count_per_user(dept_code):
         JOIN authorized_users a ON a.uid = n.author_uid
         JOIN university_dept_members m ON m.authorized_user_id = a.id
         JOIN university_depts d ON d.id = m.university_dept_id AND d.dept_code = '{dept_code}'
-        WHERE n.deleted_at IS NULL
+        WHERE n.deleted_at IS NULL AND n.is_draft IS FALSE
         GROUP BY author_uid
     """
     results = {}
@@ -146,7 +150,7 @@ def get_note_with_attachments_count(dept_code=None):
         SELECT COUNT(DISTINCT a.note_id)
         FROM note_attachments a
         JOIN notes n ON n.id = a.note_id
-        WHERE a.deleted_at IS NULL AND n.deleted_at IS NULL
+        WHERE a.deleted_at IS NULL AND n.deleted_at IS NULL AND n.is_draft IS FALSE
     """
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
@@ -159,7 +163,7 @@ def get_note_with_topics_count(dept_code=None):
         SELECT COUNT(DISTINCT t.note_id)
         FROM note_topics t
         JOIN notes n ON n.id = t.note_id
-        WHERE t.deleted_at IS NULL AND n.deleted_at IS NULL
+        WHERE t.deleted_at IS NULL AND n.deleted_at IS NULL AND is_draft IS FALSE
     """
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
