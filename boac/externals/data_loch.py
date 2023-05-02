@@ -102,6 +102,10 @@ def e_i_schema():
     return app.config['DATA_LOCH_E_I_SCHEMA']
 
 
+def eop_advising_schema():
+    return app.config['DATA_LOCH_EOP_ADVISING_SCHEMA']
+
+
 def history_dept_advising_schema():
     return app.config['DATA_LOCH_HISTORY_DEPT_ADVISING_SCHEMA']
 
@@ -557,6 +561,30 @@ def get_e_i_advising_notes(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_eop_advising_notes(sid):
+    sql = f"""
+        SELECT
+            n.id,
+            a.campus_email AS advisor_email,
+            a.first_name || ' ' || a.last_name AS author_name,
+            a.sid AS author_sid,
+            n.advisor_uid AS author_uid,
+            n.overview AS subject,
+            n.note AS body,
+            n.sid,
+            n.contact_method AS contact_type,
+            CASE
+                WHEN n.privacy_permissions IS NOT NULL THEN TRUE
+                ELSE FALSE
+            END AS is_private,
+            n.advisor_uid AS created_by,
+            n.created_at
+        FROM {eop_advising_schema()}.advising_notes n
+        JOIN {advising_notes_schema()}.advising_note_authors a ON a.uid = n.advisor_uid
+        WHERE n.sid=%(sid)s"""
+    return safe_execute_rds(sql, sid=sid)
+
+
 def get_history_dept_advising_notes(sid):
     sql = f"""
         SELECT
@@ -586,6 +614,14 @@ def get_e_and_i_advising_note_count():
 def get_e_i_advising_note_topics(sid):
     sql = f"""SELECT id, topic
         FROM {e_i_schema()}.advising_note_topics
+        WHERE sid=%(sid)s
+        ORDER BY id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
+def get_eop_advising_note_topics(sid):
+    sql = f"""SELECT id, topic
+        FROM {eop_advising_schema()}.advising_note_topics
         WHERE sid=%(sid)s
         ORDER BY id"""
     return safe_execute_rds(sql, sid=sid)

@@ -122,6 +122,22 @@ class TestMergedAdvisingNote:
         assert notes[8]['read'] is False
         assert notes[8]['legacySource'] == 'CE3'
 
+        # Legacy EOP note
+        assert notes[9]['id'] == 'eop_advising_note_100'
+        assert notes[9]['sid'] == '11667051'
+        assert notes[9]['body'] is None
+        assert notes[9]['subject'] == 'TBB Check In'
+        assert notes[9]['author']['uid'] == '211159'
+        assert notes[9]['author']['name'] == 'Roland Bestwestern'
+        assert notes[9]['topics'] == ['Post-Graduation', 'Cool Podcasts', 'Instagrammable Restaurants']
+        assert notes[9]['createdBy'] == '211159'
+        assert notes[9]['createdAt']
+        assert notes[9]['updatedAt'] is None
+        assert notes[9]['contactType'] == 'Online scheduled'
+        assert notes[9]['read'] is False
+        assert notes[9]['isPrivate'] is True
+        assert notes[9]['legacySource'] == 'EOP'
+
         # Non-legacy note
         boa_created_note = next((n for n in notes if n['id'] == mock_advising_note.id), None)
         assert boa_created_note['id']

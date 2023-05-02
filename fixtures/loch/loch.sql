@@ -3,6 +3,7 @@ DROP SCHEMA IF EXISTS boac_advising_asc cascade;
 DROP SCHEMA IF EXISTS boac_advising_coe cascade;
 DROP SCHEMA IF EXISTS boac_advising_data_science cascade;
 DROP SCHEMA IF EXISTS boac_advising_e_i cascade;
+DROP SCHEMA IF EXISTS boac_advising_eop cascade;
 DROP SCHEMA IF EXISTS boac_advising_history_dept cascade;
 DROP SCHEMA IF EXISTS boac_advising_l_s cascade;
 DROP SCHEMA IF EXISTS boac_advising_notes cascade;
@@ -19,6 +20,7 @@ CREATE SCHEMA boac_advising_asc;
 CREATE SCHEMA boac_advising_coe;
 CREATE SCHEMA boac_advising_data_science;
 CREATE SCHEMA boac_advising_e_i;
+CREATE SCHEMA boac_advising_eop;
 CREATE SCHEMA boac_advising_history_dept;
 CREATE SCHEMA boac_advising_l_s;
 CREATE SCHEMA boac_advising_notes;
@@ -144,6 +146,37 @@ CREATE TABLE boac_advising_e_i.advising_notes
     updated_at TIMESTAMP WITH TIME ZONE NOT NULL
 );
 
+CREATE TABLE boac_advising_e_i.advising_note_topics (
+    id VARCHAR NOT NULL,
+    e_i_id VARCHAR NOT NULL,
+    sid VARCHAR NOT NULL,
+    topic VARCHAR
+);
+
+CREATE TABLE boac_advising_eop.advising_note_topics (
+    id VARCHAR,
+    sid VARCHAR NOT NULL,
+    topic VARCHAR
+);
+
+CREATE TABLE boac_advising_eop.advising_notes (
+    id VARCHAR PRIMARY KEY,
+    sid VARCHAR NOT NULL,
+    student_first_name VARCHAR,
+    student_last_name VARCHAR,
+    meeting_date VARCHAR,
+    advisor_uid VARCHAR,
+    advisor_first_name VARCHAR,
+    advisor_last_name VARCHAR,
+    overview VARCHAR,
+    note TEXT,
+    contact_method VARCHAR,
+    attachment_url VARCHAR,
+    privacy_permissions VARCHAR,
+    searchable_topics VARCHAR,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
 CREATE TABLE boac_advising_history_dept.advising_notes
 (
     id VARCHAR NOT NULL,
@@ -153,13 +186,6 @@ CREATE TABLE boac_advising_history_dept.advising_notes
     student_first_name VARCHAR,
     student_last_name VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
-);
-
-CREATE TABLE boac_advising_e_i.advising_note_topics (
-    id VARCHAR NOT NULL,
-    e_i_id VARCHAR NOT NULL,
-    sid VARCHAR NOT NULL,
-    topic VARCHAR
 );
 
 CREATE TABLE boac_advising_l_s.students
@@ -661,6 +687,29 @@ VALUES
 ('11667051-151620', '151620', '11667051', 'Course Planning'),
 ('11667051-151620', '151620', '11667051', 'Personal');
 
+CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS (
+  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
+  FROM boac_advising_e_i.advising_notes n
+  LEFT OUTER JOIN boac_advising_e_i.advising_note_topics t
+  ON n.id = t.id
+);
+
+INSERT INTO boac_advising_eop.advising_note_topics
+(id, sid, topic)
+VALUES
+('eop_advising_note_100', '11667051', 'Post-Graduation'),
+('eop_advising_note_100', '11667051', 'Cool Podcasts'),
+('eop_advising_note_100', '11667051', 'Instagrammable Restaurants');
+
+INSERT INTO boac_advising_eop.advising_notes
+(id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, overview, note, contact_method, attachment_url, privacy_permissions, searchable_topics, created_at)
+VALUES
+('eop_advising_note_100', '11667051', 'Deborah', 'Davies', '3/7/2023', '211159', 'ROLAND', 'BESTWESTERN', 'TBB Check In', 'An EOP note', 'Online scheduled', NULL, 'Note available only to CE3', '["Post-Graduation", "Cool Podcasts", "Instagrammable Restaurants"]', '2023-03-06 16:00:00+00');
+
+CREATE MATERIALIZED VIEW boac_advising_eop.advising_notes_search_index AS
+  SELECT n.id, to_tsvector('english', COALESCE(n.searchable_topics || ' ', '') || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview || ' ' || n.note) AS fts_index
+  FROM boac_advising_eop.advising_notes n;
+
 INSERT INTO boac_advising_history_dept.advising_notes
 (id, advisor_uid, note, sid, student_first_name, student_last_name, created_at)
 VALUES
@@ -670,13 +719,6 @@ VALUES
 CREATE MATERIALIZED VIEW boac_advising_history_dept.advising_notes_search_index AS (
   SELECT id, to_tsvector('english', COALESCE(note, '')) AS fts_index
   FROM boac_advising_history_dept.advising_notes
-);
-
-CREATE MATERIALIZED VIEW boac_advising_e_i.advising_notes_search_index AS (
-  SELECT n.id, to_tsvector('english', COALESCE(topic || ' ', '') || advisor_first_name || ' ' || advisor_last_name) AS fts_index
-  FROM boac_advising_e_i.advising_notes n
-  LEFT OUTER JOIN boac_advising_e_i.advising_note_topics t
-  ON n.id = t.id
 );
 
 INSERT INTO boac_advising_l_s.students
@@ -695,7 +737,9 @@ VALUES
 ('1133399', 'JONI'),
 ('1133399', 'MITCHELL'),
 ('33333', 'JOHN'),
-('33333', 'DELETED-IN-BOA');
+('33333', 'DELETED-IN-BOA'),
+('211159', 'ROLAND'),
+('211159', 'BESTWESTERN');
 
 INSERT INTO boac_advising_notes.advising_note_authors
 (uid, sid, first_name, last_name, campus_email)
@@ -703,7 +747,8 @@ VALUES
 ('1133397', '600500400', 'Robert', 'Johnson', NULL),
 ('1133398', '700600500', 'Charlie', 'Christian', NULL),
 ('1133399', '800700600', 'Joni', 'Mitchell', 'joni@berkeley.edu'),
-('33333', '333333333', 'John', 'Deleted-in-BOA', '33333@berkeley.edu');
+('33333', '333333333', 'John', 'Deleted-in-BOA', '33333@berkeley.edu'),
+('211159', '211159', 'Roland', 'Bestwestern', 'rbestwestern@berkeley.edu');
 
 INSERT INTO boac_advising_oua.student_admit_names
 (sid, name)
@@ -897,6 +942,10 @@ SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid,
        NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at
 FROM boac_advising_e_i.advising_notes ein
 UNION
+SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid, eop.advisor_uid, eop.advisor_first_name, eop.advisor_last_name,
+       NULL AS note_category, NULL AS note_subcategory, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
+FROM boac_advising_eop.advising_notes eop
+UNION
 SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name,
        NULL AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, NULL AS created_by,
        NULL AS created_at, NULL AS updated_at
@@ -907,6 +956,7 @@ CREATE MATERIALIZED VIEW boac_advising_notes.advising_notes_search_index AS (
   SELECT id, fts_index FROM boac_advising_asc.advising_notes_search_index
   UNION SELECT id, fts_index FROM boac_advising_data_science.advising_notes_search_index
   UNION SELECT id, fts_index FROM boac_advising_e_i.advising_notes_search_index
+  UNION SELECT id, fts_index FROM boac_advising_eop.advising_notes_search_index
   UNION SELECT id, fts_index FROM boac_advising_history_dept.advising_notes_search_index
   UNION SELECT id, fts_index FROM sis_advising_notes.advising_notes_search_index
 );

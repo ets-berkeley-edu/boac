@@ -710,7 +710,7 @@ class TestMarkNoteRead:
 
         notifications = _get_student_notifications(client, 61889)
         all_notes_after_read = notifications['note']
-        assert len(all_notes_after_read) == 9
+        assert len(all_notes_after_read) == 10
         assert all_notes_after_read[0]['id'] == '11667051-00001'
         assert all_notes_after_read[0]['read'] is True
         assert all_notes_after_read[1]['id'] == '11667051-00002'

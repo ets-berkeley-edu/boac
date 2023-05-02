@@ -87,6 +87,8 @@ def get_advising_notes(sid, exclude_draft_notes=False):
     notes_by_id.update(get_data_science_advising_notes(sid))
     benchmark('begin E&I advising notes query')
     notes_by_id.update(get_e_i_advising_notes(sid))
+    benchmark('begin EOP advising notes query')
+    notes_by_id.update(get_eop_advising_notes(sid))
     benchmark('begin History Dept advising notes query')
     notes_by_id.update(get_history_dept_advising_notes(sid))
     benchmark('begin native BOA advising notes query')
@@ -165,6 +167,20 @@ def get_e_i_advising_notes(sid):
             topics=legacy_topics.get(note_id),
         )
         notes_by_id[note_id]['legacySource'] = 'CE3'
+    return notes_by_id
+
+
+def get_eop_advising_notes(sid):
+    notes_by_id = {}
+    topics = _get_eop_advising_note_topics(sid)
+    for note in data_loch.get_eop_advising_notes(sid):
+        note['dept_code'] = ['ZCEEE']
+        note_id = note['id']
+        notes_by_id[note_id] = note_to_compatible_json(
+            note=note,
+            topics=topics.get(note_id),
+        )
+        notes_by_id[note_id]['legacySource'] = 'EOP'
     return notes_by_id
 
 
@@ -558,6 +574,14 @@ def _get_author_uid(note):
 
 def _get_e_i_advising_note_topics(sid):
     topics = data_loch.get_e_i_advising_note_topics(sid)
+    topics_by_id = {}
+    for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
+        topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
+    return topics_by_id
+
+
+def _get_eop_advising_note_topics(sid):
+    topics = data_loch.get_eop_advising_note_topics(sid)
     topics_by_id = {}
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
