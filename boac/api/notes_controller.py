@@ -64,6 +64,8 @@ from boac.models.note_read import NoteRead
 from flask import current_app as app, request, Response, stream_with_context
 from flask_login import current_user
 
+DEFAULT_DRAFT_NOTE_SUBJECT = '[DRAFT NOTE]'
+
 
 @app.route('/api/note/<note_id>')
 @advising_data_access_required
@@ -175,7 +177,7 @@ def update_note():
     else:
         sids = [note.sid] if note.sid else []
     if is_draft:
-        subject = subject or '[DRAFT NOTE]'
+        subject = subject or DEFAULT_DRAFT_NOTE_SUBJECT
         # Draft note can have zero or one SIDs. If multiple SIDs are present then ignore them.
         sids = None if len(sids) > 1 else sids
         if not note.is_draft:
@@ -238,6 +240,8 @@ def get_my_note_drafts():
     all_sids = set([draft_note.sid for draft_note in draft_notes])
     students_by_sid = {student['sid']: student for student in data_loch.get_basic_student_data(sids=list(all_sids))}
     for draft_note in draft_notes:
+        if not draft_note.subject:
+            draft_note = Note.update_subject(note_id=draft_note.id, subject=DEFAULT_DRAFT_NOTE_SUBJECT)
         draft_note_json = _boa_note_to_compatible_json(note=draft_note, note_read=False)
         student = students_by_sid[draft_note.sid] if draft_note.sid else None
         draft_note_json['student'] = {

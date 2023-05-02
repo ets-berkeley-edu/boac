@@ -38,6 +38,7 @@ export default {
       'addSid',
       'addSidList',
       'addTopic',
+      'applyTemplate',
       'clearAutoSaveJob',
       'exitSession',
       'onBoaSessionExpires',

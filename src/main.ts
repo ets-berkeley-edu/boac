@@ -59,11 +59,7 @@ Vue.directive('accessibleGrade', {
 Vue.directive('linkified', linkify)
 
 // Emit and listen for events
-const eventHub = mitt()
-if (isVueAppDebugMode) {
-  eventHub.on('*', (type, e) => console.log(`Mitt event: ${type.toString()}`, e) )
-}
-Vue.prototype.$eventHub = eventHub
+Vue.prototype.$eventHub = mitt()
 
 // Lodash
 Vue.prototype.$_ = _
