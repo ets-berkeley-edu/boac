@@ -9,19 +9,19 @@
     >
       <SessionExpired />
     </div>
-    <div v-if="!boaSessionExpired">
-      <div class="d-flex flex-wrap-reverse">
-        <div class="flex-grow-1">
-          <b-btn
-            v-if="!['editTemplate'].includes(mode)"
-            id="btn-save-as-template"
-            :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
-            variant="link"
-            @click="saveAsTemplate"
-          >
-            Save as template
-          </b-btn>
-        </div>
+    <div v-if="!boaSessionExpired" class="d-flex flex-wrap">
+      <div class="flex-grow-1">
+        <b-btn
+          v-if="!['editTemplate'].includes(mode)"
+          id="btn-save-as-template"
+          :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
+          variant="link"
+          @click="saveAsTemplate"
+        >
+          Save as template
+        </b-btn>
+      </div>
+      <div class="d-flex">
         <div v-if="mode === 'editTemplate'">
           <b-btn
             id="btn-update-template"
