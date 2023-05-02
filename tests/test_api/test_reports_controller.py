@@ -206,6 +206,10 @@ class TestBoaNotesMetadataReport:
         assert 'author_name 1' in csv
         assert 'author_name 2' in csv
         assert '11667051' in csv
+        assert 'Radioactive Women and Men' in csv
+        assert 'Four students' in csv
+        assert 'Deborah,Davies' in csv
+        assert 'Ed Cred Pgm Single Subj Cert' in csv
         for topic in topics:
             assert topic.topic in csv
         # Clean up
