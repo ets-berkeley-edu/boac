@@ -49,21 +49,21 @@
     </div>
     <div>
       <BatchNoteAddCohort
-        v-if="$currentUser.myCohorts.length"
+        v-if="nonAdmitCohorts.length"
         :add-object="addCohortToBatch"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="false"
-        :objects="$currentUser.myCohorts"
+        :objects="nonAdmitCohorts"
         :remove-object="removeCohortFromBatch"
       />
     </div>
     <div>
       <BatchNoteAddCohort
-        v-if="$currentUser.myCuratedGroups.length"
+        v-if="nonAdmitCuratedGroups.length"
         :add-object="addCuratedGroupToBatch"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
-        :objects="$_.filter($currentUser.myCuratedGroups, ['domain', 'default'])"
+        :objects="nonAdmitCuratedGroups"
         :remove-object="removeCuratedGroupFromBatch"
       />
     </div>
@@ -88,6 +88,14 @@ export default {
     cancel: {
       required: true,
       type: Function
+    }
+  },
+  computed: {
+    nonAdmitCohorts() {
+      return this.$_.reject(this.$currentUser.myCohorts, {'domain': 'admitted_students'})
+    },
+    nonAdmitCuratedGroups() {
+      return this.$_.reject(this.$currentUser.myCuratedGroups, {'domain': 'admitted_students'})
     }
   },
   methods: {
