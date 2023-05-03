@@ -31,11 +31,13 @@
               :students="students"
             />
           </div>
-          <div class="pr-4">
-            <TermSelector v-if="domain === 'default'" />
-          </div>
-          <div>
-            <SortBy v-if="showSortBy" :domain="domain" />
+          <div class="d-flex flex-wrap justify-content-end">
+            <div>
+              <TermSelector v-if="domain === 'default'" />
+            </div>
+            <div class="pl-4">
+              <SortBy v-if="showSortBy" :domain="domain" />
+            </div>
           </div>
         </div>
         <div v-if="totalStudentCount > pagination.itemsPerPage" class="pt-1">

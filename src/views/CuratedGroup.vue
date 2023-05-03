@@ -10,11 +10,11 @@
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
         <div>
-          <div class="d-flex justify-content-end pt-2">
-            <div v-if="totalStudentCount && domain === 'default'" class="pr-4">
+          <div class="d-flex flex-wrap justify-content-end pt-2">
+            <div v-if="totalStudentCount && domain === 'default'">
               <TermSelector />
             </div>
-            <div v-if="totalStudentCount > 1">
+            <div v-if="totalStudentCount > 1" class="pl-4">
               <SortBy :domain="domain" />
             </div>
           </div>

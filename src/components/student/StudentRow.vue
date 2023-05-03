@@ -8,8 +8,8 @@
     @mouseleave="hover = false"
   >
     <b-row>
-      <b-col md="4">
-        <div class="align-items-center d-flex flex-wrap">
+      <b-col class="pb-3 pb-xl-0" xl="4" md="6">
+        <div class="align-items-center d-flex">
           <div v-if="listType === 'curatedGroupForOwner'">
             <button
               :id="`row-${rowIndex}-remove-student-from-curated-group`"
@@ -21,38 +21,40 @@
               <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
             </button>
           </div>
-          <div class="mr-4">
-            <div class="align-items-center d-flex">
-              <div v-if="listType === 'cohort'" class="mr-3">
-                <CuratedStudentCheckbox domain="default" :student="student" />
+          <div class="d-flex flex-column flex-sm-row">
+            <div>
+              <div class="align-items-center d-flex">
+                <div v-if="listType === 'cohort'" class="mr-3">
+                  <CuratedStudentCheckbox domain="default" :student="student" />
+                </div>
+                <div>
+                  <StudentAvatar
+                    :alert-count="student.alertCount"
+                    size="medium"
+                    :student="student"
+                  />
+                </div>
               </div>
-              <div>
-                <StudentAvatar
-                  :alert-count="student.alertCount"
-                  size="medium"
+              <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
+                <ManageStudent
+                  domain="default"
+                  :is-button-variant-link="true"
+                  :sr-only="!hover"
                   :student="student"
                 />
               </div>
             </div>
-            <div v-if="listType === 'cohort'" class="float-right manage-curated-student mb-1">
-              <ManageStudent
-                domain="default"
-                :is-button-variant-link="true"
-                :sr-only="!hover"
+            <div class="ml-4">
+              <StudentRowBioColumn
+                :row-index="rowIndex"
                 :student="student"
+                :sorted-by="sortedBy"
               />
             </div>
           </div>
-          <div>
-            <StudentRowBioColumn
-              :row-index="rowIndex"
-              :student="student"
-              :sorted-by="sortedBy"
-            />
-          </div>
         </div>
       </b-col>
-      <b-col class="pl-0" md="2">
+      <b-col class="student-gpa-col ml-5 ml-md-0 pb-3 pb-md-0" md="2" sm="4">
         <div>
           <span
             v-if="$_.isNil(student.cumulativeGPA)"
@@ -88,7 +90,7 @@
           >{{ round(student.termGpa[0].gpa, 3) }}</strong>
         </div>
       </b-col>
-      <b-col class="pl-0" md="2">
+      <b-col class="ml-5 ml-sm-0 pb-3 pb-md-0" md="2" sm="4">
         <div class="d-flex flex-wrap">
           <div :id="`row-${rowIndex}-student-enrolled-units`" class="mr-1 student-gpa">{{ $_.get(student.term, 'enrolledUnits', 0) }}</div>
           <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
@@ -122,7 +124,7 @@
           <div class="no-wrap student-text">Units Completed</div>
         </div>
       </b-col>
-      <b-col class="float-right pl-0" md="4">
+      <b-col class="float-right ml-5 ml-xl-0" xl="4" md="8">
         <StudentRowCourseActivity
           :row-index="rowIndex"
           :student="student"
@@ -228,6 +230,9 @@ export default {
 .student-gpa {
   font-size: 13px;
   font-weight: bold;
+}
+.student-gpa-col {
+  min-width: 155px;
 }
 </style>
 
