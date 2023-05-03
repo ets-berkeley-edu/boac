@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex justify-content-between">
+    <div class="d-flex flex-wrap justify-content-between">
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
