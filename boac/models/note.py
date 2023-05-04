@@ -94,7 +94,7 @@ class Note(Base):
         is_private=False,
         set_date=None,
     ):
-        validate_sid(is_draft=is_draft, note_id=None, sid=sid)
+        _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
         self.author_dept_codes = author_dept_codes
         self.author_name = author_name
         self.author_role = author_role
@@ -149,7 +149,7 @@ class Note(Base):
             set_date=None,
             template_attachment_ids=(),
     ):
-        validate_sid(is_draft=is_draft, note_id=None, sid=sid)
+        _validate_sid(is_draft=is_draft, note_id=None, sid=sid)
         if is_draft:
             note = cls(
                 author_dept_codes=author_dept_codes,
@@ -171,7 +171,7 @@ class Note(Base):
                 note_ids=[note.id],
                 topics=topics,
             )
-            _add_attachments_to_notes(
+            _add_attachments_and_template_attachments(
                 attachments=attachments,
                 author_uid=author_uid,
                 note_ids=[note.id],
@@ -238,7 +238,7 @@ class Note(Base):
         benchmark('begin add 1 topic' if len(topics) == 1 else f'begin add {len(topics)} topics')
         _add_topics_to_notes(author_uid=author_uid, note_ids=note_ids, topics=topics)
         benchmark('begin add 1 attachment' if len(attachments) == 1 else f'begin add {len(attachments)} attachments')
-        _add_attachments_to_notes(
+        _add_attachments_and_template_attachments(
             attachments=attachments,
             author_uid=author_uid,
             note_ids=note_ids,
@@ -367,11 +367,12 @@ class Note(Base):
             contact_type=None,
             is_private=False,
             set_date=None,
+            template_attachment_ids=(),
             topics=(),
     ):
         note = cls.find_by_id(note_id=note_id)
         if note:
-            validate_sid(is_draft=note.is_draft, note_id=note.id, sid=sid)
+            _validate_sid(is_draft=note.is_draft, note_id=note.id, sid=sid)
             note.body = body
             note.contact_type = contact_type
             note.is_draft = is_draft
@@ -380,6 +381,12 @@ class Note(Base):
             note.set_date = set_date
             note.subject = subject
             cls._update_note_topics(note, topics)
+            for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
+                _add_attachments(
+                    author_uid=note.author_uid,
+                    note_ids=[note.id],
+                    s3_path=template_attachment.path_to_attachment,
+                )
             std_commit()
             db.session.refresh(note)
             return note
@@ -594,36 +601,49 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
             db.session.execute(query, {'json_dumps': json.dumps(data)})
 
 
-def _add_attachments_to_notes(attachments, author_uid, note_ids, template_attachment_ids):
+def _add_attachments_and_template_attachments(attachments, author_uid, note_ids, template_attachment_ids):
     now = utc_now().strftime('%Y-%m-%d %H:%M:%S')
-
-    def _add_attachment(_s3_path):
-        count_per_chunk = 10000
-        for chunk in range(0, len(note_ids), count_per_chunk):
-            query = """
-                INSERT INTO note_attachments (created_at, note_id, path_to_attachment, uploaded_by_uid)
-                SELECT created_at, note_id, path_to_attachment, uploaded_by_uid
-                FROM json_populate_recordset(null::note_attachments, :json_dumps);
-            """
-            note_ids_subset = note_ids[chunk:chunk + count_per_chunk]
-            data = [
-                {
-                    'created_at': now,
-                    'note_id': note_id,
-                    'path_to_attachment': _s3_path,
-                    'uploaded_by_uid': author_uid,
-                } for note_id in note_ids_subset
-            ]
-            db.session.execute(query, {'json_dumps': json.dumps(data)})
-
-    for byte_stream_bundle in attachments:
-        s3_path = put_attachment_to_s3(name=byte_stream_bundle['name'], byte_stream=byte_stream_bundle['byte_stream'])
-        _add_attachment(s3_path)
+    for attachment in attachments:
+        s3_path = attachment.path_to_attachment if hasattr(attachment, 'path_to_attachment') else put_attachment_to_s3(
+            byte_stream=attachment['byte_stream'],
+            name=attachment['name'],
+        )
+        _add_attachments(
+            author_uid=author_uid,
+            note_ids=note_ids,
+            now=now,
+            s3_path=s3_path,
+        )
     if template_attachment_ids:
         for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
-            _add_attachment(template_attachment.path_to_attachment)
+            _add_attachments(
+                author_uid=author_uid,
+                note_ids=note_ids,
+                now=now,
+                s3_path=template_attachment.path_to_attachment,
+            )
 
 
-def validate_sid(is_draft, note_id, sid):
+def _add_attachments(author_uid, note_ids, s3_path, now=None):
+    count_per_chunk = 10000
+    for chunk in range(0, len(note_ids), count_per_chunk):
+        query = """
+            INSERT INTO note_attachments (created_at, note_id, path_to_attachment, uploaded_by_uid)
+            SELECT created_at, note_id, path_to_attachment, uploaded_by_uid
+            FROM json_populate_recordset(null::note_attachments, :json_dumps);
+        """
+        note_ids_subset = note_ids[chunk:chunk + count_per_chunk]
+        data = [
+            {
+                'created_at': now or utc_now().strftime('%Y-%m-%d %H:%M:%S'),
+                'note_id': note_id,
+                'path_to_attachment': s3_path,
+                'uploaded_by_uid': author_uid,
+            } for note_id in note_ids_subset
+        ]
+        db.session.execute(query, {'json_dumps': json.dumps(data)})
+
+
+def _validate_sid(is_draft, note_id, sid):
     if not sid and not is_draft:
         raise ValueError(f"Missing SID for {f'note {note_id}' if note_id else 'unsaved note'}")

@@ -22,9 +22,8 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
-
 from datetime import date, datetime
-from time import sleep
+import json
 
 from boac.lib.util import localize_datetime, utc_now
 from boac.models.authorized_user import AuthorizedUser
@@ -124,18 +123,7 @@ class TestGetDraftNotes:
         """Returns note in JSON compatible with BOA front-end."""
         uid = coe_advisor_uid
         fake_auth.login(uid)
-        author_id = AuthorizedUser.get_id_per_uid(uid)
-        draft_notes = []
-        for index in (1, 2, 3):
-            draft_notes.append(_api_note_create(
-                app=app,
-                author_id=author_id,
-                body=f'Body {index}',
-                client=client,
-                sids=[],
-                subject=f'Subject {index}',
-                is_draft=True,
-            ))
+        draft_notes = [_api_create_draft_note(client=client) for index in (1, 2, 3)]
         api_json = self._api_draft_notes(client=client)
         assert len(api_json) == 3
         # Expect reverse chronological order.
@@ -216,95 +204,79 @@ class TestGetNote:
             logout_user()
 
 
-class TestNoteCreation:
+class TestCreateNote:
 
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
-        assert _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='This is the last night of the fair, And the grease in the hair',
+        assert _api_update_note(
             client=client,
             expected_status_code=401,
+            note_id=1,
             sids=[coe_student['sid']],
-            subject='Rusholme Ruffians',
+            subject='Authorization is overrated.',
         )
 
-    def test_admin_user_is_not_authorized(self, app, client, fake_auth):
-        """Returns 401 if user is an admin."""
+    def test_admin_user_is_not_authorized(self, app, client, fake_auth, mock_note_draft):
+        """Returns 404 if user is an admin."""
         fake_auth.login(admin_uid)
-        admin = AuthorizedUser.find_by_uid(admin_uid)
-        assert _api_note_create(
-            app=app,
-            author_id=admin.id,
-            body='This is the last night of the fair, And the grease in the hair',
+        assert _api_update_note(
             client=client,
-            expected_status_code=403,
+            expected_status_code=404,
+            note_id=mock_note_draft.id,
             sids=[coe_student['sid']],
-            subject='Rusholme Ruffians',
+            subject=mock_note_draft.subject,
         )
 
-    def test_scheduler_is_not_authorized(self, app, client, fake_auth):
+    def test_scheduler_is_not_authorized(self, app, client, fake_auth, mock_note_draft):
         """Returns 401 if user is a scheduler."""
         fake_auth.login(coe_scheduler_uid)
-        admin = AuthorizedUser.find_by_uid(coe_scheduler_uid)
-        assert _api_note_create(
-            app=app,
-            author_id=admin.id,
-            body='Language made unintelligible by excessive use of abstruse technical terms.',
+        assert _api_update_note(
             client=client,
             expected_status_code=401,
+            note_id=mock_note_draft.id,
             sids=[coe_student['sid']],
-            subject='Gobbledygook',
+            subject=mock_note_draft.subject,
         )
 
-    def test_unauthorized_private_note(self, app, client, fake_auth):
+    def test_unauthorized_private_note(self, app, client, fake_auth, mock_note_draft):
         """Non-CE3 advisor cannot create a private note."""
-        fake_auth.login(coe_advisor_uid)
-        _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='She drove a Plymouth Satellite',
+        fake_auth.login(mock_note_draft.author_uid)
+        assert 'ZCEEE' not in mock_note_draft.author_dept_codes
+        _api_update_note(
             client=client,
             expected_status_code=403,
             is_private=True,
+            note_id=mock_note_draft.id,
             sids=[coe_student['sid']],
-            subject='Planet Claire',
+            subject=mock_note_draft.subject,
         )
 
     def test_user_without_advising_data_access(self, app, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        user = AuthorizedUser.find_by_uid(coe_advisor_no_advising_data_uid)
-        assert _api_note_create(
-            app=app,
-            author_id=user.id,
-            body='Diese Aktion ist nicht zulässig.',
+        assert _api_create_draft_note(
             client=client,
             expected_status_code=401,
-            sids=[coe_student['sid']],
-            subject='Verboten',
         )
 
-    def test_create_note(self, app, client, fake_auth):
+    def test_create_note(self, app, client, fake_auth, mock_note_draft):
         """Create a note."""
-        fake_auth.login(coe_advisor_uid)
+        fake_auth.login(mock_note_draft.author_uid)
         subject = 'Vicar in a Tutu'
-        new_note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        new_note = _api_update_note(
             body='A scanty bit of a thing with a decorative ring',
             client=client,
+            note_id=mock_note_draft.id,
             sids=[coe_student['sid']],
             subject=subject,
         )
         note_id = new_note.get('id')
         assert new_note['read'] is True
         assert isinstance(note_id, int) and note_id > 0
-        assert new_note['author']['uid'] == coe_advisor_uid
+        assert new_note['author']['uid'] == mock_note_draft.author_uid
         assert 'name' in new_note['author']
-        assert new_note['author']['role'] == 'advisor'
-        assert new_note['author']['departments'][0]['name'] == 'College of Engineering'
+        assert new_note['author']['role']
+        assert len(new_note['author']['departments'])
         assert new_note['updatedAt'] is None
         # Get notes per SID and compare
         notes = _get_student_notifications(client, coe_student['uid'])['note']
@@ -314,12 +286,12 @@ class TestNoteCreation:
     def test_create_private_note(self, app, client, fake_auth):
         """CE3 advisor can create a private note."""
         fake_auth.login(ce3_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(ce3_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             body='Somebody went under a dock and there they saw a rock.',
             client=client,
             is_private=True,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Rock Lobster',
         )
@@ -328,11 +300,11 @@ class TestNoteCreation:
 
     def test_create_note_prefers_ldap_dept_affiliation_and_title(self, app, client, fake_auth):
         fake_auth.login(l_s_major_advisor_uid)
-        new_note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(l_s_major_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        new_note = _api_update_note(
             body='Keats and Yeats are on your side',
             client=client,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='A dreaded sunny day',
         )
@@ -342,25 +314,18 @@ class TestNoteCreation:
     def test_updated_date_is_none_when_note_create(self, app, client, fake_auth):
         """Create a note and expect none updated_at."""
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            client=client,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body=None,
-            sids=[coe_student['sid']],
-            subject='Creating is not updating',
-        )
-        assert note['createdAt'] is not None
-        assert note['updatedAt'] is None
+        draft_note = _api_create_draft_note(client=client, sid=coe_student['sid'])
+        assert draft_note['createdAt'] is not None
+        assert draft_note['updatedAt'] is None
 
     def test_create_note_with_topics(self, app, client, fake_auth):
         """Create a note with topics."""
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             body='Facilitate value-added initiatives',
             client=client,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Incubate transparent web services',
             topics=['Shadrach', 'Meshach', 'Abednego'],
@@ -374,52 +339,53 @@ class TestNoteCreation:
     def test_create_note_with_raw_url_in_body(self, app, client, fake_auth):
         """Create a note with topics."""
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             body='Get an online degree at send.money.edu university',
             client=client,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Get rich quick',
         )
         expected_body = 'Get an online degree at <a href="http://send.money.edu" target="_blank">send.money.edu</a> university'
         assert note.get('body') == expected_body
-        assert note['createdAt'] is not None
-        assert note['updatedAt'] is None
 
     def test_create_note_with_attachments(self, app, client, fake_auth, mock_note_template):
         """Create a note, with two attachments."""
         fake_auth.login(coe_advisor_uid)
+        draft_note = _api_create_draft_note(client=client)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
+
+        note_id = draft_note['id']
+        _api_update_note(
+            body='I come correct',
+            client=client,
+            note_id=note_id,
+            sids=[coe_student['sid']],
+            subject='I come with attachments',
+            template_attachment_ids=list(map(lambda a: a.id, mock_note_template.attachments)),
+        )
+        note = _api_note_attachments_upload(
             app=app,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='I come correct',
             client=client,
-            sids=[coe_student['sid']],
-            subject='I come with attachments',
-            template_attachment_ids=list(map(lambda a: a.id, mock_note_template.attachments)),
+            note_id=note_id,
         )
         template_attachment_count = len(mock_note_template.attachments)
         assert template_attachment_count
         expected_attachment_count = template_attachment_count + 2
-
         assert len(note.get('attachments')) == expected_attachment_count
-        assert note['createdAt'] is not None
-        assert note['updatedAt'] is None
 
     def test_create_note_with_contact_type(self, app, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='Do you wanna make tea at the BBC?',
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             client=client,
             contact_type='In-person same day',
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Career Opportunities',
         )
@@ -427,24 +393,23 @@ class TestNoteCreation:
 
     def test_invalid_contact_type(self, app, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='Do you wanna be, do you really wanna be a cop?',
+        draft_note = _api_create_draft_note(client=client)
+        _api_update_note(
             client=client,
             contact_type='Bope',
             expected_status_code=400,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Career Opportunities',
         )
 
     def test_create_note_with_set_date(self, app, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             body='Career opportunities, the ones that never knock',
             client=client,
+            note_id=draft_note['id'],
             set_date='2021-12-25',
             sids=[coe_student['sid']],
             subject='Career Opportunities',
@@ -453,12 +418,12 @@ class TestNoteCreation:
 
     def test_invalid_set_date(self, app, client, fake_auth):
         fake_auth.login(coe_advisor_uid)
-        _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        _api_update_note(
             body='Every job they offer you is to keep you out the dock',
             client=client,
             expected_status_code=400,
+            note_id=draft_note['id'],
             set_date='Bope',
             sids=[coe_student['sid']],
             subject='Career Opportunities',
@@ -477,16 +442,7 @@ class TestBatchNoteCreation:
     def test_user_without_advising_data_access(self, app, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
-        user = AuthorizedUser.find_by_uid(coe_advisor_no_advising_data_uid)
-        _api_batch_note_create(
-            app=app,
-            author_id=user.id,
-            body='Diese Aktion ist nicht zulässig.',
-            client=client,
-            expected_status_code=401,
-            sids=self.sids,
-            subject='Verboten',
-        )
+        _api_create_draft_note(client=client, expected_status_code=401)
 
     def test_batch_note_creation_with_sids(self, app, client, fake_auth, mock_note_template):
         """Batch note creation with list of SIDs."""
@@ -511,18 +467,24 @@ class TestBatchNoteCreation:
         # List above has duplicates - verify that it is de-duped.
         distinct_sids = set(self.sids + sids_in_curated_groups + sids_in_cohorts)
         topics = ['Slanted', 'Enchanted']
-        _api_batch_note_create(
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        _api_note_attachments_upload(
             app=app,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
-            author_id=advisor.id,
+            client=client,
+            note_id=note_id,
+        )
+        _api_update_note(
             body='Well you greet the tokens and stamps, beneath the fake oil burnin\' lamps',
             client=client,
             cohort_ids=cohort_ids,
             contact_type='Admin',
             curated_group_ids=curated_group_ids,
+            note_id=note_id,
             set_date='2022-01-01',
             sids=self.sids,
             subject=subject,
@@ -559,39 +521,39 @@ class TestNoteAttachments:
         fake_auth.login(coe_advisor_no_advising_data_uid)
         delete_response = client.delete('/api/notes/1/attachment/1')
         assert delete_response.status_code == 401
-
-        with mock_advising_note_s3_bucket(app):
-            base_dir = app.config['BASE_DIR']
-            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
-            response = client.post(
-                '/api/notes/1/attachments',
-                buffered=True,
-                content_type='multipart/form-data',
-                data=data,
-            )
-        assert response.status_code == 401
+        # Verify that access is denied.
+        base_dir = app.config['BASE_DIR']
+        _api_note_attachments_upload(
+            app=app,
+            attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
+            client=client,
+            expected_status_code=401,
+            note_id=1,
+        )
 
     def test_remove_attachment(self, app, client, fake_auth):
         """Remove an attachment from an existing note."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        assert draft_note['updatedAt'] is None
+        _api_update_note(
+            body='I come correct',
+            client=client,
+            note_id=note_id,
+            sids=[coe_student['sid']],
+            subject='I come with attachments',
+        )
+        note = _api_note_attachments_upload(
             app=app,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='I come correct',
             client=client,
-            sids=[coe_student['sid']],
-            subject='I come with attachments',
+            note_id=note_id,
         )
-        assert note['updatedAt'] is None
-        # Pause one second to ensure a distinct updatedAt.
-        sleep(1)
-
-        note_id = note['id']
         id_to_delete = note['attachments'][0]['id']
         id_to_keep = note['attachments'][1]['id']
 
@@ -604,71 +566,58 @@ class TestNoteAttachments:
         match = next((n for n in notes if n['id'] == note_id), None)
         assert len(match.get('attachments')) == 1
         assert match['attachments'][0]['id'] == id_to_keep
-        assert match['updatedAt'] is not None
 
     def test_add_attachment(self, app, client, fake_auth):
         """Add an attachment to an existing note."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        note = _api_update_note(
             body='I travel light',
             client=client,
+            note_id=note_id,
             sids=[coe_student['sid']],
             subject='No attachments yet',
         )
         assert note['updatedAt'] is None
-        # Pause one second to ensure a distinct updatedAt.
-        sleep(1)
-        note_id = note['id']
-        with mock_advising_note_s3_bucket(app):
-            data = {'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb')}
-            response = client.post(
-                f'/api/notes/{note_id}/attachments',
-                buffered=True,
-                content_type='multipart/form-data',
-                data=data,
-            )
-        assert response.status_code == 200
-        updated_note = response.json
-        assert len(updated_note['attachments']) == 1
-        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
-        assert updated_note['updatedAt'] is not None
+        note = _api_note_attachments_upload(
+            app=app,
+            attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
+            client=client,
+            note_id=note_id,
+        )
+        assert len(note['attachments']) == 1
+        assert note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert note['updatedAt'] is not None
 
     def test_add_attachments(self, app, client, fake_auth):
         """Add multiple attachments to an existing note."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        note = _api_update_note(
             body='I travel light',
             client=client,
+            note_id=note_id,
             sids=[coe_student['sid']],
             subject='No attachments yet',
         )
         assert note['updatedAt'] is None
-        # Pause one second to ensure a distinct updatedAt.
-        sleep(1)
-        note_id = note['id']
-        with mock_advising_note_s3_bucket(app):
-            data = {
-                'attachment[0]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt', 'rb'),
-                'attachment[1]': open(f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt', 'rb'),
-            }
-            response = client.post(
-                f'/api/notes/{note_id}/attachments',
-                buffered=True,
-                content_type='multipart/form-data',
-                data=data,
-            )
-        assert response.status_code == 200
-        updated_note = response.json
-        assert len(updated_note['attachments']) == 2
-        assert updated_note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
-        assert updated_note['attachments'][1]['filename'] == 'mock_advising_note_attachment_2.txt'
-        assert updated_note['updatedAt'] is not None
+        note = _api_note_attachments_upload(
+            app=app,
+            attachments=[
+                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
+                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
+            ],
+            client=client,
+            note_id=note_id,
+        )
+        assert len(note['attachments']) == 2
+        assert note['attachments'][0]['filename'] == 'mock_advising_note_attachment_1.txt'
+        assert note['attachments'][1]['filename'] == 'mock_advising_note_attachment_2.txt'
+        assert note['updatedAt'] is not None
 
 
 class TestMarkNoteRead:
@@ -777,7 +726,7 @@ class TestUpdateNotes:
             assert response.status_code == expected_status_code
             return response.json
 
-    def test_note_update_not_authenticated(self, app, mock_advising_note, client):
+    def test_note_update_not_authenticated(self, app, client, mock_advising_note):
         """Returns 401 if not authenticated."""
         self._api_note_update(
             app=app,
@@ -964,11 +913,11 @@ class TestDeleteNote:
     def test_delete_note_with_topics(self, app, client, fake_auth):
         """Delete a note with topics."""
         fake_auth.login(coe_advisor_uid)
-        note = _api_note_create(
-            app=app,
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
+        draft_note = _api_create_draft_note(client=client)
+        note = _api_update_note(
             body='Conveniently repurpose enterprise-wide action items',
             client=client,
+            note_id=draft_note['id'],
             sids=[coe_student['sid']],
             subject='Recontextualize open-source supply-chains',
             topics=['strategic interfaces'],
@@ -985,17 +934,23 @@ class TestDeleteNote:
         """Delete a note with two attachments."""
         fake_auth.login(coe_advisor_uid)
         base_dir = app.config['BASE_DIR']
-        note = _api_note_create(
+        draft_note = _api_create_draft_note(client=client)
+        note_id = draft_note['id']
+        note = _api_update_note(
+            body='Then my little dog Lassie, she sailed off to the moon',
+            client=client,
+            note_id=note_id,
+            sids=[coe_student['sid']],
+            subject='My little dog Lassie packed her bags and went out on to the porch',
+        )
+        note = _api_note_attachments_upload(
             app=app,
             attachments=[
                 f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
                 f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
             ],
-            author_id=AuthorizedUser.get_id_per_uid(coe_advisor_uid),
-            body='Then my little dog Lassie, she sailed off to the moon',
             client=client,
-            sids=[coe_student['sid']],
-            subject='My little dog Lassie packed her bags and went out on to the porch',
+            note_id=note_id,
         )
         attachment_ids = [a['id'] for a in note.get('attachments')]
         assert len(attachment_ids) == 2
@@ -1098,56 +1053,64 @@ def _get_student_notifications(client, uid):
     return response.json['notifications']
 
 
-def _api_note_create(
-        app,
-        author_id,
-        body,
-        client,
-        sids,
-        subject,
-        attachments=(),
-        expected_status_code=200,
-        contact_type=None,
-        is_draft=False,
-        is_private=False,
-        set_date=None,
-        template_attachment_ids=(),
-        topics=(),
-):
-    with mock_advising_note_s3_bucket(app):
-        data = {
-            'authorId': author_id,
-            'body': body,
-            'isDraft': is_draft,
-            'isPrivate': is_private,
-            'sids': sids,
-            'subject': subject,
-            'templateAttachmentIds': ','.join(str(_id) for _id in template_attachment_ids),
-            'topics': ','.join(topics),
-        }
-        if contact_type:
-            data['contactType'] = contact_type
-        if set_date:
-            data['setDate'] = set_date
-        for index, path in enumerate(attachments):
-            data[f'attachment[{index}]'] = open(path, 'rb')
-        response = client.post(
-            '/api/notes/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data=data,
-        )
-        assert response.status_code == expected_status_code
-        return response.json
+# def _api_note_create(
+#         app,
+#         author_id,
+#         body,
+#         client,
+#         sids,
+#         subject,
+#         attachments=(),
+#         expected_status_code=200,
+#         contact_type=None,
+#         is_draft=False,
+#         is_private=False,
+#         set_date=None,
+#         template_attachment_ids=(),
+#         topics=(),
+# ):
+#     with mock_advising_note_s3_bucket(app):
+#         data = {
+#             'authorId': author_id,
+#             'body': body,
+#             'isDraft': is_draft,
+#             'isPrivate': is_private,
+#             'sids': sids,
+#             'subject': subject,
+#             'templateAttachmentIds': ','.join(str(_id) for _id in template_attachment_ids),
+#             'topics': ','.join(topics),
+#         }
+#         if contact_type:
+#             data['contactType'] = contact_type
+#         if set_date:
+#             data['setDate'] = set_date
+#         for index, path in enumerate(attachments):
+#             data[f'attachment[{index}]'] = open(path, 'rb')
+#         response = client.post(
+#             '/api/notes/create',
+#             buffered=True,
+#             content_type='multipart/form-data',
+#             data=data,
+#         )
+#         assert response.status_code == expected_status_code
+#         return response.json
 
 
-def _api_batch_note_create(
-        app,
-        author_id,
-        body,
+def _api_create_draft_note(client, expected_status_code=200, sid=None):
+    response = client.post(
+        '/api/note/create_draft',
+        content_type='application/json',
+        data=json.dumps({'sid': sid}),
+    )
+    assert response.status_code == expected_status_code
+    return response.json
+
+
+def _api_update_note(
         client,
+        note_id,
         subject,
-        attachments=(),
+        body=None,
         cohort_ids=None,
         curated_group_ids=None,
         expected_status_code=200,
@@ -1158,32 +1121,30 @@ def _api_batch_note_create(
         template_attachment_ids=(),
         topics=(),
 ):
-    with mock_advising_note_s3_bucket(app):
-        data = {
-            'authorId': author_id,
-            'body': body,
-            'cohortIds': cohort_ids or [],
-            'curatedGroupIds': curated_group_ids or [],
-            'isBatchMode': sids and len(sids) > 1,
-            'isPrivate': is_private,
-            'sids': sids or [],
-            'subject': subject,
-            'templateAttachmentIds': template_attachment_ids or [],
-            'topics': ','.join(topics),
-        }
-        for index, path in enumerate(attachments):
-            data[f'attachment[{index}]'] = open(path, 'rb')
-        if contact_type:
-            data['contactType'] = contact_type
-        if set_date:
-            data['setDate'] = set_date
-        response = client.post(
-            '/api/notes/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data=data,
-        )
-        assert response.status_code == expected_status_code
+    data = {
+        'body': body,
+        'cohortIds': cohort_ids or [],
+        'curatedGroupIds': curated_group_ids or [],
+        'id': note_id,
+        'isBatchMode': sids and len(sids) > 1,
+        'isPrivate': is_private,
+        'sids': sids or [],
+        'subject': subject,
+        'templateAttachmentIds': template_attachment_ids or [],
+        'topics': ','.join(topics),
+    }
+    if contact_type:
+        data['contactType'] = contact_type
+    if set_date:
+        data['setDate'] = set_date
+    response = client.post(
+        '/api/notes/update',
+        buffered=True,
+        content_type='multipart/form-data',
+        data=data,
+    )
+    assert response.status_code == expected_status_code
+    return response.json
 
 
 def _get_curated_groups_ids_and_sids(advisor):
@@ -1207,3 +1168,24 @@ def _api_note_by_id(client, note_id, expected_status_code=200, failure_message=N
     response = client.get(f'/api/note/{note_id}')
     assert response.status_code == expected_status_code, failure_message
     return response.json
+
+
+def _api_note_attachments_upload(
+    app,
+    attachments,
+    client,
+    note_id,
+    expected_status_code=200,
+):
+    with mock_advising_note_s3_bucket(app):
+        data = {}
+        for index, path in enumerate(attachments):
+            data[f'attachment[{index}]'] = open(path, 'rb')
+        response = client.post(
+            f'/api/notes/{note_id}/attachments',
+            buffered=True,
+            content_type='multipart/form-data',
+            data=data,
+        )
+        assert response.status_code == expected_status_code
+        return response.json

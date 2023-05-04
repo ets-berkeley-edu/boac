@@ -27,41 +27,10 @@ export function markNoteRead(noteId) {
     }, () => null)
 }
 
-export function createNotes(
-    attachments: any[],
-    body: string,
-    cohortIds: number[],
-    contactType: string,
-    curatedGroupIds: number[],
-    isDraft: boolean,
-    isPrivate: boolean,
-    setDate: string,
-    sids: any,
-    subject: string,
-    templateAttachmentIds: [],
-    topics: string[]
-) {
-  const data = {
-    body,
-    cohortIds,
-    contactType,
-    curatedGroupIds,
-    isDraft,
-    isPrivate,
-    setDate,
-    sids,
-    subject,
-    templateAttachmentIds,
-    topics
-  }
-  _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
-  const action = sids.length > 1 ? 'batch' : 'create'
-  $_track(isPrivate ? `${action} private` : action)
-  return utils.postMultipartFormData('/api/notes/create', data).then(data => {
-    if (isDraft) {
-      Vue.prototype.$currentUser.myDraftNoteCount++
-    }
-    Vue.prototype.$eventHub.emit(sids.length > 1 ? 'notes-created' : 'note-created', data)
+export function createDraftNote(sid: string) {
+  return axios.post('/api/note/create_draft', {sid}).then(data => {
+    Vue.prototype.$currentUser.myDraftNoteCount++
+    Vue.prototype.$eventHub.emit('note-created', data)
     return data
   })
 }
