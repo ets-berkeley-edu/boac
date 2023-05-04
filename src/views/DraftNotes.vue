@@ -141,7 +141,7 @@ export default {
   created() {
     this.fields = [
       {
-        class: 'w-15',
+        class: 'w-25',
         key: 'student',
         label: 'Student'
       },

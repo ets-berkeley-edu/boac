@@ -28,7 +28,7 @@ export function markNoteRead(noteId) {
 }
 
 export function createDraftNote(sid: string) {
-  return axios.post('/api/note/create_draft', {sid}).then(data => {
+  return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(data => {
     Vue.prototype.$currentUser.myDraftNoteCount++
     Vue.prototype.$eventHub.emit('note-created', data)
     return data
@@ -46,6 +46,7 @@ export function updateNote(
     setDate?: string,
     sids?: string[],
     subject?: string,
+    templateAttachmentIds?: number[],
     topics?: string[]
 ) {
   const data = {
@@ -59,6 +60,7 @@ export function updateNote(
     setDate,
     sids,
     subject,
+    templateAttachmentIds,
     topics
   }
   return utils.postMultipartFormData('/api/notes/update', data).then(data => {
