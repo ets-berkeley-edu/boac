@@ -372,6 +372,9 @@ select.form-control {
 .w-15 {
   width: 15% !important;
 }
+.w-25 {
+  width: 25% !important;
+}
 .w-5 {
   width: 5% !important;
 }

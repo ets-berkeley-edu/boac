@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import {deleteNote, updateNote} from '@/api/notes'
+import {addAttachments, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
 
@@ -41,6 +41,8 @@ function $_getDefaultModel():Model {
     deleteAttachmentIds: []
   }
 }
+
+const $_isAutoSaveMode = mode => ['createBatch', 'createNote', 'editDraft'].includes(mode)
 
 const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
   return new Promise(resolve => {
@@ -214,7 +216,14 @@ const mutations = {
 }
 
 const actions = {
-  addAttachment: ({commit}, attachment: any) => commit('addAttachment', attachment),
+  addAttachment: ({commit, state}, attachment: any) => {
+    commit('addAttachment', attachment)
+    if ($_isAutoSaveMode(state.mode)) {
+      addAttachments(state.model.id, [attachment]).then(() => {
+        Vue.prototype.$announcer.assertive('Attachment added')
+      })
+    }
+  },
   addCohort: ({commit, state}, cohort: any) => {
     const cohorts = state.addedCohorts.concat(cohort)
     $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
@@ -274,7 +283,15 @@ const actions = {
   onDeleteTemplate: ({commit}, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({commit}, template: any) => commit('onUpdateTemplate', template),
   removeAllStudents: ({commit}) => commit('removeAllStudents'),
-  removeAttachment: ({commit}, index: number) => commit('removeAttachment', index),
+  removeAttachment: ({commit, state}, index: number) => {
+    const attachmentId = state.model.attachments[index].id
+    commit('removeAttachment', index)
+    if ($_isAutoSaveMode(state.mode)) {
+      removeAttachment(state.model.id, attachmentId).then(() => {
+        Vue.prototype.$announcer.assertive('Attachment removed')
+      })
+    }
+  },
   removeCohort: ({commit, state}, cohort: any) => {
     const cohorts = _.reject(state.addedCohorts, ['id', cohort.id])
     $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
