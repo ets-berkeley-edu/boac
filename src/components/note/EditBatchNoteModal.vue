@@ -157,7 +157,7 @@ import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import {createNotes, getNote} from '@/api/notes'
+import {createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
 
@@ -337,27 +337,11 @@ export default {
         if (this.noteId) {
           getNote(this.noteId).then(resolve)
         } else {
-          // Create a draft note.
-          const isDraft = true
-          const sids = this.sid ? [this.sid] : []
           this.$eventHub.emit('begin-note-creation', {
-            completeSidSet: sids,
+            completeSidSet: [this.sid],
             subject: 'note-creation-is-starting'
           })
-          createNotes(
-            [],
-            null,
-            [],
-            null,
-            [],
-            isDraft,
-            false,
-            null,
-            sids,
-            '',
-            [],
-            []
-          ).then(resolve)
+          createDraftNote(this.sid).then(resolve)
         }
       })
     },

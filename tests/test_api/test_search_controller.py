@@ -400,15 +400,18 @@ class TestNoteSearch:
     def test_search_note_with_null_body(self, asc_advisor, client):
         """Finds newly created BOA note when note body is null."""
         response = client.post(
-            '/api/notes/create',
-            data={
-                'authorId': AuthorizedUser.get_id_per_uid(asc_advisor_uid),
-                'sids': ['9000000000'],
-                'subject': 'Patience is a conquering virtue',
-            },
+            '/api/note/create_draft',
+            content_type='application/json',
+            data=json.dumps({}),
         )
         assert response.status_code == 200
         note = response.json
+        Note.update(
+            is_draft=False,
+            note_id=note['id'],
+            sid='9000000000',
+            subject='Patience is a conquering virtue',
+        )
         Note.refresh_search_index()
         api_json = _api_search(client, 'a conquering virtue', notes=True)
         self._assert(api_json, note_count=1, note_ids=[note['id']])

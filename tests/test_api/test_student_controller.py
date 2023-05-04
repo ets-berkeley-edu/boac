@@ -664,16 +664,9 @@ class TestStudent:
         fake_auth.login(coe_advisor_uid)
         # COE advisor creates draft_note
         response = client.post(
-            '/api/notes/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data={
-                'authorId': coe_advisor_uid,
-                'isDraft': True,
-                'sids': [self.coe_student['sid']],
-                'subject': 'Rows and flows of angel hair, and ice cream castles in the air',
-                'topics': ','.join(['Slanted', 'Enchanted']),
-            },
+            '/api/note/create_draft',
+            content_type='application/json',
+            data=json.dumps({'sid': self.coe_student['sid']}),
         )
         assert response.status_code == 200
         note_id = response.json['id']
