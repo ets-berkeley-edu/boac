@@ -77,6 +77,7 @@ const $_updateAdvisingNote = ({commit, state}) => {
       setDate,
       sids,
       state.model.subject,
+      [],
       state.model.topics
     ).then(resolve)
   })

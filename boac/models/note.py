@@ -381,12 +381,13 @@ class Note(Base):
             note.set_date = set_date
             note.subject = subject
             cls._update_note_topics(note, topics)
-            for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
-                _add_attachments(
-                    author_uid=note.author_uid,
-                    note_ids=[note.id],
-                    s3_path=template_attachment.path_to_attachment,
-                )
+            if template_attachment_ids:
+                for template_attachment in NoteTemplateAttachment.get_attachments(template_attachment_ids):
+                    _add_attachments(
+                        author_uid=note.author_uid,
+                        note_ids=[note.id],
+                        s3_path=template_attachment.path_to_attachment,
+                    )
             std_commit()
             db.session.refresh(note)
             return note

@@ -1,7 +1,7 @@
 <template>
   <div class="p-3">
     <Spinner />
-    <h1 class="page-section-header pl-2 pt-3">
+    <h1 class="page-section-header pl-2 pt-2">
       {{ $currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>
     <div v-if="!loading" class="pr-3">
@@ -40,20 +40,26 @@
           </span>
         </template>
         <template v-slot:cell(subject)="row">
-          <div>
-            <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-              {{ row.item.subject }}
+          <div class="align-items-center d-flex justify-content-between">
+            <div>
+              <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+                {{ row.item.subject }}
+              </div>
+              <b-btn
+                v-if="row.item.author.uid === $currentUser.uid"
+                :id="`open-draft-note-${row.item.id}`"
+                class="border-0 p-0 text-left"
+                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                variant="link"
+                @click="() => openEditModal(row.item)"
+              >
+                {{ row.item.subject }}
+              </b-btn>
             </div>
-            <b-btn
-              v-if="row.item.author.uid === $currentUser.uid"
-              :id="`open-draft-note-${row.item.id}`"
-              class="border-0 p-0 text-left"
-              :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-              variant="link"
-              @click="() => openEditModal(row.item)"
-            >
-              {{ row.item.subject }}
-            </b-btn>
+            <div v-if="$_.size(row.item.attachments)">
+              <span class="sr-only">Has attachment(s)</span>
+              <font-awesome icon="paperclip" />
+            </div>
           </div>
         </template>
         <template
