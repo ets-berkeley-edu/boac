@@ -171,7 +171,7 @@ CREATE TABLE boac_advising_eop.advising_notes (
     overview VARCHAR,
     note TEXT,
     contact_method VARCHAR,
-    attachment_url VARCHAR,
+    attachment VARCHAR,
     privacy_permissions VARCHAR,
     searchable_topics VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL
@@ -702,9 +702,10 @@ VALUES
 ('eop_advising_note_100', '11667051', 'Instagrammable Restaurants');
 
 INSERT INTO boac_advising_eop.advising_notes
-(id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, overview, note, contact_method, attachment_url, privacy_permissions, searchable_topics, created_at)
+(id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, overview, note, contact_method, attachment, privacy_permissions, searchable_topics, created_at)
 VALUES
-('eop_advising_note_100', '11667051', 'Deborah', 'Davies', '3/7/2023', '211159', 'ROLAND', 'BESTWESTERN', 'TBB Check In', 'An EOP note', 'Online scheduled', NULL, 'Note available only to CE3', '["Post-Graduation", "Cool Podcasts", "Instagrammable Restaurants"]', '2023-03-06 16:00:00+00');
+('eop_advising_note_100', '11667051', 'Deborah', 'Davies', '3/7/2023', '211159', 'ROLAND', 'BESTWESTERN', 'TBB Check In', 'An EOP note', 'Online scheduled', NULL, NULL, '["Post-Graduation", "Cool Podcasts", "Instagrammable Restaurants"]', '2023-03-06 16:00:00+00'),
+('eop_advising_note_101', '890127492', 'Siegfried', 'Schlemiel', '3/16/2023', '211159', 'ROLAND', 'BESTWESTERN', NULL, NULL, NULL, 'i am attached.txt', 'Note available only to CE3', '[]', '2023-03-16 12:00:00+00');
 
 CREATE MATERIALIZED VIEW boac_advising_eop.advising_notes_search_index AS
   SELECT n.id, to_tsvector('english', COALESCE(n.searchable_topics || ' ', '') || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview || ' ' || n.note) AS fts_index

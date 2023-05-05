@@ -561,6 +561,25 @@ def get_e_i_advising_notes(sid):
     return safe_execute_rds(sql, sid=sid)
 
 
+def get_eop_advising_note_attachment(note_id, include_private=False):
+    sql = f"""SELECT attachment AS display_name
+        FROM {eop_advising_schema()}.advising_notes
+        WHERE id=%(note_id)s AND attachment IS NOT NULL"""
+    if not include_private:
+        sql += """
+        AND privacy_permissions IS NULL"""
+    rows = safe_execute_rds(sql, note_id=note_id)
+    return None if not rows or (len(rows) == 0) else rows[0]
+
+
+def get_eop_advising_note_topics(sid):
+    sql = f"""SELECT id, topic
+        FROM {eop_advising_schema()}.advising_note_topics
+        WHERE sid=%(sid)s
+        ORDER BY id"""
+    return safe_execute_rds(sql, sid=sid)
+
+
 def get_eop_advising_notes(sid):
     sql = f"""
         SELECT
@@ -577,6 +596,7 @@ def get_eop_advising_notes(sid):
                 WHEN n.privacy_permissions IS NOT NULL THEN TRUE
                 ELSE FALSE
             END AS is_private,
+            n.attachment,
             n.advisor_uid AS created_by,
             n.created_at
         FROM {eop_advising_schema()}.advising_notes n
@@ -614,14 +634,6 @@ def get_e_and_i_advising_note_count():
 def get_e_i_advising_note_topics(sid):
     sql = f"""SELECT id, topic
         FROM {e_i_schema()}.advising_note_topics
-        WHERE sid=%(sid)s
-        ORDER BY id"""
-    return safe_execute_rds(sql, sid=sid)
-
-
-def get_eop_advising_note_topics(sid):
-    sql = f"""SELECT id, topic
-        FROM {eop_advising_schema()}.advising_note_topics
         WHERE sid=%(sid)s
         ORDER BY id"""
     return safe_execute_rds(sql, sid=sid)

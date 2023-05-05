@@ -176,12 +176,37 @@ def get_eop_advising_notes(sid):
     for note in data_loch.get_eop_advising_notes(sid):
         note['dept_code'] = ['ZCEEE']
         note_id = note['id']
+        attachments = None
+        if note['attachment']:
+            display_name = note['attachment']
+            s3_name = f'{note_id}_{display_name}'
+            attachments = [
+                {
+                    'id': note_id,
+                    'displayName': display_name,
+                    'fileName': s3_name,
+                },
+            ]
         notes_by_id[note_id] = note_to_compatible_json(
             note=note,
             topics=topics.get(note_id),
+            attachments=attachments,
         )
         notes_by_id[note_id]['legacySource'] = 'EOP'
     return notes_by_id
+
+
+def get_eop_attachment_stream(note_id):
+    # Ensure the attachment ID is valid
+    attachment = data_loch.get_eop_advising_note_attachment(note_id, include_private=current_user.can_access_private_notes)
+    if not attachment:
+        return None
+    s3_key = '_'.join([note_id, attachment['display_name']])
+    s3_key = '/'.join([app.config['DATA_LOCH_S3_EOP_NOTE_ATTACHMENTS_PATH'], s3_key])
+    return {
+        'filename': attachment['display_name'],
+        'stream': s3.stream_object(app.config['DATA_LOCH_S3_EOP_ADVISING_NOTE_BUCKET'], s3_key),
+    }
 
 
 def get_history_dept_advising_notes(sid):

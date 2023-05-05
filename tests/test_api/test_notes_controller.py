@@ -24,6 +24,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 from datetime import date, datetime
 import json
+from urllib.parse import quote
 
 from boac.lib.util import localize_datetime, utc_now
 from boac.models.authorized_user import AuthorizedUser
@@ -35,7 +36,7 @@ from boac.models.note_read import NoteRead
 from flask_login import logout_user
 import pytest
 from tests.test_api.api_test_utils import all_cohorts_owned_by
-from tests.util import mock_advising_note_s3_bucket, mock_legacy_note_attachment
+from tests.util import mock_advising_note_s3_bucket, mock_eop_note_attachment, mock_sis_note_attachment
 
 asc_advisor_uid = '6446'
 ce3_advisor_uid = '2525'
@@ -973,7 +974,7 @@ class TestStreamNoteAttachments:
 
     def test_user_without_advising_data_access(self, app, client, fake_auth):
         """Denies access to a user who cannot access notes and appointments."""
-        with mock_legacy_note_attachment(app):
+        with mock_sis_note_attachment(app):
             fake_auth.login(coe_advisor_no_advising_data_uid)
             assert client.get('/api/notes/attachment/9000000000_00002_1.pdf').status_code == 401
 
@@ -991,8 +992,29 @@ class TestStreamNoteAttachments:
         assert attachments
         assert client.get(f'/api/notes/attachment/{attachments[0].id}').status_code == 200
 
-    def test_stream_attachment(self, app, client, fake_auth):
-        with mock_legacy_note_attachment(app):
+    def test_eop_note_sans_attachment(self, app, client, fake_auth):
+        with mock_eop_note_attachment(app):
+            fake_auth.login(ce3_advisor_uid)
+            response = client.get('/api/notes/attachment/eop_advising_note_100')
+            assert response.status_code == 404
+
+    def test_stream_private_eop_note_attachment_unauthorized(self, app, client, fake_auth):
+        with mock_eop_note_attachment(app):
+            fake_auth.login(coe_advisor_uid)
+            response = client.get('/api/notes/attachment/eop_advising_note_101')
+            assert response.status_code == 404
+
+    def test_stream_private_eop_note_attachment(self, app, client, fake_auth):
+        with mock_eop_note_attachment(app):
+            fake_auth.login(ce3_advisor_uid)
+            response = client.get('/api/notes/attachment/eop_advising_note_101')
+            assert response.status_code == 200
+            assert response.headers['Content-Type'] == 'application/octet-stream'
+            assert response.headers['Content-Disposition'] == f"attachment; filename*=UTF-8''{quote('i am attached.txt')}"
+            assert response.data == b"A wizard's job is to vex chumps quickly in fog."
+
+    def test_stream_sis_attachment(self, app, client, fake_auth):
+        with mock_sis_note_attachment(app):
             fake_auth.login(coe_advisor_uid)
             response = client.get('/api/notes/attachment/9000000000_00002_1.pdf')
             assert response.status_code == 200
@@ -1001,7 +1023,7 @@ class TestStreamNoteAttachments:
             assert response.data == b'When in the course of human events, it becomes necessarf arf woof woof woof'
 
     def test_stream_attachment_reports_missing_files_not_found(self, app, client, fake_auth):
-        with mock_legacy_note_attachment(app):
+        with mock_sis_note_attachment(app):
             fake_auth.login(asc_advisor_uid)
             response = client.get('/api/notes/attachment/h0ax.lol')
             assert response.status_code == 404
@@ -1031,7 +1053,7 @@ class TestStreamNotesZip:
 
     def _assert_zip_download(self, app, client):
         today = localize_datetime(utc_now()).strftime('%Y%m%d')
-        with mock_legacy_note_attachment(app):
+        with mock_sis_note_attachment(app):
             response = client.get('/api/notes/9000000000/download')
             assert response.status_code == 200
             assert response.headers['Content-Type'] == 'application/zip'
