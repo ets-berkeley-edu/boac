@@ -31,10 +31,11 @@ from boac.merged.advising_note import get_advising_notes, get_zip_stream, search
 from boac.models.note import Note
 from dateutil.parser import parse
 import pytz
-from tests.util import mock_legacy_note_attachment
+from tests.util import mock_eop_note_attachment, mock_sis_note_attachment
 
 
 asc_advisor = '6446'
+ce3_advisor_uid = '2525'
 coe_advisor = '1133399'
 
 
@@ -125,7 +126,7 @@ class TestMergedAdvisingNote:
         # Legacy EOP note
         assert notes[9]['id'] == 'eop_advising_note_100'
         assert notes[9]['sid'] == '11667051'
-        assert notes[9]['body'] is None
+        assert notes[9]['body'] == 'An EOP note'
         assert notes[9]['subject'] == 'TBB Check In'
         assert notes[9]['author']['uid'] == '211159'
         assert notes[9]['author']['name'] == 'Roland Bestwestern'
@@ -135,7 +136,7 @@ class TestMergedAdvisingNote:
         assert notes[9]['updatedAt'] is None
         assert notes[9]['contactType'] == 'Online scheduled'
         assert notes[9]['read'] is False
-        assert notes[9]['isPrivate'] is True
+        assert notes[9]['isPrivate'] is False
         assert notes[9]['legacySource'] == 'EOP'
 
         # Non-legacy note
@@ -183,6 +184,27 @@ class TestMergedAdvisingNote:
         boa_created_note = next((n for n in notes if n['id'] == mock_advising_note.id), None)
         assert boa_created_note
         assert boa_created_note['attachments'][0]['uploadedBy'] == mock_advising_note.author_uid
+
+    def test_private_eop_note_attachment(self, app, fake_auth):
+        with mock_eop_note_attachment(app):
+            fake_auth.login(ce3_advisor_uid)
+            notes = get_advising_notes('890127492')
+            assert notes[0]['isPrivate'] is True
+            assert notes[0]['attachments'] == [
+                {
+                    'id': 'eop_advising_note_101',
+                    'displayName': 'i am attached.txt',
+                    'fileName': 'eop_advising_note_101_i am attached.txt',
+                },
+            ]
+
+    def test_private_eop_note_attachment_unauthorized(self, app, fake_auth):
+        with mock_eop_note_attachment(app):
+            fake_auth.login(coe_advisor)
+            notes = get_advising_notes('890127492')
+            assert notes[0]['isPrivate'] is True
+            assert notes[0]['attachments'] is None
+            assert notes[0]['body'] is None
 
     def test_get_advising_notes_timestamp_format(self, app, fake_auth):
         fake_auth.login(coe_advisor)
@@ -458,7 +480,7 @@ class TestMergedAdvisingNote:
         assert len(search_advising_notes(search_phrase='Bryant', datetime_from=yesterday, datetime_to=tomorrow)) == 1
 
     def test_stream_zipped_bundle(self, app):
-        with mock_legacy_note_attachment(app):
+        with mock_sis_note_attachment(app):
             for download_type in ('eForm', 'note'):
                 sid = '9000000000'
                 filename = 'advising_notes'

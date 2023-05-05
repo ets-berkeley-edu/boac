@@ -30,6 +30,17 @@ import moto
 
 
 @contextmanager
+def mock_eop_note_attachment(app):
+    with moto.mock_s3():
+        bucket = app.config['DATA_LOCH_S3_EOP_ADVISING_NOTE_BUCKET']
+        s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])
+        s3.create_bucket(Bucket=bucket, CreateBucketConfiguration={'LocationConstraint': app.config['DATA_LOCH_S3_REGION']})
+        key = f"{app.config['DATA_LOCH_S3_EOP_NOTE_ATTACHMENTS_PATH']}/eop_advising_note_101_i am attached.txt"
+        s3.Object(bucket, key).put(Body="A wizard's job is to vex chumps quickly in fog.")
+        yield s3
+
+
+@contextmanager
 def mock_legacy_appointment_attachment(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
@@ -41,7 +52,7 @@ def mock_legacy_appointment_attachment(app):
 
 
 @contextmanager
-def mock_legacy_note_attachment(app):
+def mock_sis_note_attachment(app):
     with moto.mock_s3():
         bucket = app.config['DATA_LOCH_S3_ADVISING_NOTE_BUCKET']
         s3 = boto3.resource('s3', app.config['DATA_LOCH_S3_REGION'])

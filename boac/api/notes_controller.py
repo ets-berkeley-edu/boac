@@ -37,7 +37,7 @@ from boac.api.util import (
 from boac.externals import data_loch
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
-from boac.lib.sis_advising import get_legacy_attachment_stream
+from boac.lib.sis_advising import get_legacy_attachment_stream as get_sis_attachment_stream
 from boac.lib.util import (
     get as get_param,
     is_int,
@@ -51,6 +51,7 @@ from boac.merged.advising_note import (
     can_current_user_edit_note,
     get_advising_notes,
     get_boa_attachment_stream,
+    get_eop_attachment_stream,
     get_zip_stream,
     note_to_compatible_json,
 )
@@ -255,7 +256,7 @@ def download_attachment(attachment_id):
     is_legacy = not is_int(attachment_id)
     id_ = attachment_id if is_legacy else int(attachment_id)
     if is_legacy:
-        stream_data = get_legacy_attachment_stream(id_)
+        stream_data = _get_legacy_attachment_stream(id_)
     else:
         attachment = NoteAttachment.find_by_id(id_)
         note = attachment and attachment.note
@@ -358,6 +359,12 @@ def _get_author_profile():
         'author_role': role,
         'author_dept_codes': dept_codes,
     }
+
+
+def _get_legacy_attachment_stream(attachment_id):
+    if attachment_id.startswith('eop_advising_note'):
+        return get_eop_attachment_stream(attachment_id)
+    return get_sis_attachment_stream(attachment_id)
 
 
 def _validate_contact_type(params):
