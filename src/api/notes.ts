@@ -28,10 +28,10 @@ export function markNoteRead(noteId) {
 }
 
 export function createDraftNote(sid: string) {
-  return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(data => {
+  return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
     Vue.prototype.$currentUser.myDraftNoteCount++
-    Vue.prototype.$eventHub.emit('note-created', data)
-    return data
+    Vue.prototype.$eventHub.emit('note-created', response.data)
+    return response.data
   })
 }
 
