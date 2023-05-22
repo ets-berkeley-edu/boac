@@ -70,13 +70,7 @@
         </template>
         <template v-slot:cell(updatedAt)="row">
           <TimelineDate
-            :date="row.item.updatedAt"
-            sr-prefix="Draft note saved on"
-          />
-        </template>
-        <template v-slot:cell(setDate)="row">
-          <TimelineDate
-            :date="row.item.setDate || row.item.updatedAt || row.item.createdAt"
+            :date="row.item.updatedAt || row.item.createdAt"
             sr-prefix="Draft note saved on"
           />
         </template>
@@ -174,7 +168,7 @@ export default {
     this.fields.push(
       {
         class: 'text-nowrap w-5',
-        key: 'setDate',
+        key: 'updatedAt',
         label: 'Date'
       },
       {
