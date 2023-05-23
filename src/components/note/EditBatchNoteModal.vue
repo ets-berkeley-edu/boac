@@ -208,6 +208,8 @@ export default {
     showErrorPopover: false
   }),
   created() {
+    // remove scrollbar for content behind the modal
+    document.body.classList.add('modal-open')
     store.dispatch('noteEditSession/loadNoteTemplates')
     this.resetModel()
     this.init().then(note => {
@@ -218,6 +220,9 @@ export default {
         this.onBoaSessionExpires()
       })
     })
+  },
+  beforeDestroy() {
+    document.body.classList.remove('modal-open')
   },
   methods: {
     cancelRequested() {
