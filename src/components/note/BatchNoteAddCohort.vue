@@ -9,10 +9,12 @@
     <b-dropdown
       :id="`batch-note-${type}`"
       :disabled="disabled"
+      dropright
       :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
       :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
       class="mb-2 ml-0 transparent"
+      menu-class="batch-note-cohorts-dropdown"
     >
       <b-dropdown-item
         v-for="object in objects"
@@ -101,3 +103,10 @@ export default {
   }
 }
 </script>
+
+<style>
+.batch-note-cohorts-dropdown {
+  max-height: 400px !important;
+  overflow-y: scroll !important;
+}
+</style>
