@@ -35,131 +35,6 @@ ACADEMIC_STANDING_DESCRIPTIONS = {
     'SUB': 'Subject to Dismissal',
 }
 
-# This is not a complete mapping:
-#  - Not all SIS-defined academic plans map to a single Degree Programs page.
-#  - Not all Degree Programs pages map to a single SIS-defined academic plan.
-#  - An unknown number of obsolete academic plan descriptions are still active
-#    from before the CS era.
-ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE = {
-    'African American Studies': 'african-american-studies',
-    'American Studies': 'american-studies',
-    'Anthropology': 'anthropology',
-    'Applied Mathematics': 'applied-mathematics',
-    'Architecture': 'architecture',
-    'Art': 'art-practice',
-    'Asian Am & Asian Diasp': 'asian-american-diaspora-studies',
-    'Asian Studies': 'asian-studies-multi-area',
-    'Astrophysics': 'astrophysics',
-    'BioE\/MSE Joint Major': 'bioengineering-materials-science-engineering-joint-major',
-    'Bioengineering': 'bioengineering',
-    'Buddhist Studies': 'buddhism',
-    'Business Administration': 'business-administration',
-    'Celtic Studies': 'celtic-studies',
-    'Chem Eng\/MSE Joint Major': 'chemical-engineering-materials-science-joint-major',
-    'Chem Eng\/NE Joint Major': 'chemical-engineering-nuclear-joint-major',
-    'Chemical Biology': 'chemical-biology',
-    'Chemical Engineering': 'chemical-engineering',
-    'Chemistry': 'chemistry',
-    'Chicano Studies': 'chicano-latino-studies',
-    'Chinese Language': 'chinese-language',
-    'City & Regional Planning': 'city-planning',
-    'Civil & Environmental Eng': 'environmental-engineering',
-    'Civil Engineering': 'civil-engineering',
-    'Classical Civilizations': 'classical-civilizations',
-    'Classical Languages': 'classical-languages',
-    'Cognitive Science': 'cognitive-science',
-    'Comparative Literature': 'comparative-literature',
-    'Computer Science': 'computer-science',
-    'Conserv & Resource Stds': 'conservation-resource-studies',
-    'Dance & Perf Studies': 'dance-performance-studies',
-    'Demography': 'demography',
-    'Development Studies': 'development-studies',
-    'Dutch Studies': 'dutch-studies',
-    'Earth & Planetary Science': 'earth-planetary-science',
-    'Economics': 'economics',
-    'Education': 'education',
-    'Electrical Eng & Comp Sci': 'electrical-engineering-computer-sciences',
-    'Energy & Resources': 'energy-resources',
-    'Energy Engineering': 'energy-engineering',
-    'Eng Math & Statistics': 'engineering-math-statistics',
-    'Engineering Physics': 'engineering-physics',
-    'English': 'english',
-    'Environ Econ & Policy': 'environmental-economics-policy',
-    'Environmental Eng Science': 'environmental-engineering-science',
-    'Environmental Sciences': 'environmental-sciences',
-    'Ethnic Studies': 'ethnic-studies',
-    'Film': 'film',
-    'Forestry & Natural Res': 'forestry-natural-resources',
-    'French': 'french',
-    'Gender & Womens Studies': 'gender-womens-studies',
-    'Genetics & Plant Biology': 'genetics-plant-biology',
-    'Geography': 'geography',
-    'Geology': 'geology',
-    'Geophysics': 'geophysics',
-    'German': 'german',
-    'Global Studies': 'global-studies',
-    'Greek': 'greek',
-    'Hispanic Lang': 'hispanic-languages-linguistics-bilingualism',
-    'History of Art': 'art-history',
-    'History': 'history',
-    'Industrial Eng & Ops Rsch': 'industrial-engineering-operations-research',
-    'Integrative Biology': 'integrative-biology',
-    'Interdisciplinary Studies': 'interdisciplinary-studies',
-    'Italian': 'italian-studies',
-    'Japanese Language': 'japanese-language',
-    'Jewish Studies': 'jewish-studies',
-    'Journalism': 'journalism',
-    'Landscape Architecture': 'landscape-architecture',
-    'Latin American Studies': 'latin-american-studies',
-    'Latin': 'latin',
-    'Legal Studies': 'legal-studies',
-    'Linguistics': 'linguistics',
-    'Materials Science & Eng': 'materials-science-engineering',
-    'Mathematics': 'mathematics',
-    'MCB-Biochem & Mol Biol': 'molecular-cell-biology-biochemistry',
-    'MCB-Cell & Dev Biology': 'molecular-cell-biology-developmental',
-    'MCB-Neurobiology': 'molecular-cell-biology-neurobiology',
-    'ME\/NE Joint Major': 'mechanical-engineering-nuclear',
-    'Mechanical Engineering': 'mechanical-engineering',
-    'Media Studies': 'media-studies',
-    'Medieval Studies': 'medieval-studies',
-    'Microbial Biology': 'microbial-biology',
-    'Middle Eastern Studies': 'middle-eastern-studies',
-    'Molecular Environ Biology': 'molecular-environmental-biology',
-    'MSE\/ME Joint Major': 'materials-science-engineering-mechanical-joint-major',
-    'MSE\/NE Joint Major': 'materials-science-engineering-nuclear-joint-major',
-    'Music': 'music',
-    'Native American Studies': 'native-american-studies',
-    'Near Eastern Studies': 'near-eastern-civilizations',
-    'Nuclear Engineering': 'nuclear-engineering',
-    'Nut Sci-Physio & Metabol': 'nutritional-science',
-    'Nutritional Sci-Toxicology': 'nutritional-science',
-    'Nutritional Science': 'nutritional-science',
-    'Peace & Conflict Studies': 'peace-conflict-studies',
-    'Philosophy': 'philosophy',
-    'Physics': 'physics',
-    'Political Economy': 'political-economy',
-    'Political Science': 'political-science',
-    'Psychology': 'psychology',
-    'Public Health': 'public-health',
-    'Public Policy': 'public-policy',
-    'Religious Studies': 'religious-studies',
-    'Rhetoric': 'rhetoric',
-    'Scandinavian': 'scandinavian',
-    'Science & Math Education': 'science-math-education',
-    'Slavic Lang & Lit': 'czech-polish-bosnian-croatian-serbian-language-literature',
-    'Social Welfare': 'socialwelfare',
-    'Society and Environment': 'society-environment',
-    'Sociology': 'sociology',
-    'South & SE Asian Studies': 'south-southeast-asian-studies',
-    'Span-Spanish Lang & Lit': 'languages-literatures-cultures-spanish-speaking-world',
-    'Spanish': 'languages-literatures-cultures-spanish-speaking-world',
-    'Statistics': 'statistics',
-    'Sustainable Environ Dsgn': 'sustainable-environmental-design',
-    'Theater & Perf Studies': 'theater-performance-studies',
-    'Urban Studies': 'urban-studies',
-}
-
 COE_ETHNICITIES_PER_CODE = {
     'A': 'African-American / Black',
     'B': 'Japanese / Japanese American',
@@ -197,6 +72,7 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'CALTEACH': 'CalTeach Program',
     'CCHEM': 'Department of Chemistry',
     'CDCDN': 'College of Chemistry',
+    'CDSS': 'College of Computing, Data Science, and Society',
     'CEEEG': 'Department of Chemical and Biomolecular Engineering',
     'CELTIC': 'Celtic Studies',
     'CFPPR': 'Goldman School of Public Policy',
@@ -367,8 +243,6 @@ BERKELEY_DEPT_CODE_TO_NAME = {
     'ZZZZZ': 'Other',
 }
 
-BERKELEY_DEPT_NAME_TO_CODE = {value: key for key, value in BERKELEY_DEPT_CODE_TO_NAME.items()}
-
 
 BERKELEY_DEPT_CODE_TO_PROGRAM_AFFILIATIONS = {
     'BAHSB': {
@@ -452,17 +326,6 @@ def term_name_for_sis_id(sis_id=None):
         }
         year = f'19{sis_id[1:3]}' if sis_id.startswith('1') else f'20{sis_id[1:3]}'
         return f'{season_codes[sis_id[3:4]]} {year}'
-
-
-def degree_program_url_for_major(plan_description):
-    matched = next(
-        (k for k in ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE.keys() if re.match(r'^' + re.escape(k) + r' (BA|BS)', plan_description)),
-        None,
-    )
-    if matched:
-        return f'http://guide.berkeley.edu/undergraduate/degree-programs/{ACADEMIC_PLAN_TO_DEGREE_PROGRAM_PAGE[matched]}/'
-    else:
-        return None
 
 
 def get_dept_codes(user):
