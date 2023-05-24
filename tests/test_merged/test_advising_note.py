@@ -231,6 +231,11 @@ class TestMergedAdvisingNote:
         assert parse(notes[0]['createdAt']) == parse('2017-11-05T12:00:00+00')
         assert notes[0]['updatedAt'] is None
 
+    def test_search_for_private_advising_notes(self, fake_auth, mock_private_advising_note):
+        fake_auth.login(ce3_advisor_uid)
+        notes = search_advising_notes(search_phrase='neon', author_uid=ce3_advisor_uid)
+        assert notes == []
+
     def test_search_advising_notes_by_category(self, app, fake_auth):
         """Matches legacy category/subcategory for SIS advising notes only if body is blank."""
         fake_auth.login(coe_advisor)

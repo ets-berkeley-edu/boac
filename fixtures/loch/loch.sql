@@ -705,7 +705,8 @@ INSERT INTO boac_advising_eop.advising_notes
 (id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, overview, note, contact_method, attachment, privacy_permissions, searchable_topics, created_at)
 VALUES
 ('eop_advising_note_100', '11667051', 'Deborah', 'Davies', '3/7/2023', '211159', 'ROLAND', 'BESTWESTERN', 'TBB Check In', 'An EOP note', 'Online scheduled', NULL, NULL, '["Post-Graduation", "Cool Podcasts", "Instagrammable Restaurants"]', '2023-03-06 16:00:00+00'),
-('eop_advising_note_101', '890127492', 'Siegfried', 'Schlemiel', '3/16/2023', '211159', 'ROLAND', 'BESTWESTERN', NULL, NULL, NULL, 'i am attached.txt', 'Note available only to CE3', '[]', '2023-03-16 12:00:00+00');
+('eop_advising_note_101', '890127492', 'Siegfried', 'Schlemiel', '3/16/2023', '211159', 'ROLAND', 'BESTWESTERN', NULL, NULL, NULL, 'i am attached.txt', 'Note available only to CE3', '[]', '2023-03-16 12:00:00+00'),
+('eop_advising_note_102', '890127492', 'Siegfried', 'Schlemiel', '2/7/2023', '2525', 'MARIAN', 'LIBRARY', 'On the neon, neon side of town', NULL, 'In Person', NULL, 'Note available only to CE3', '[]', '2023-03-06 16:00:00+00');
 
 CREATE MATERIALIZED VIEW boac_advising_eop.advising_notes_search_index AS
   SELECT n.id, to_tsvector('english', COALESCE(n.searchable_topics || ' ', '') || n.advisor_first_name || ' ' || n.advisor_last_name || ' ' || n.overview || ' ' || n.note) AS fts_index
@@ -927,28 +928,34 @@ VALUES
 CREATE TABLE boac_advising_notes.advising_notes AS (
 SELECT sis.sid, sis.id, sis.note_body, sis.advisor_sid,
        NULL::varchar AS advisor_uid, NULL::varchar AS advisor_first_name, NULL::varchar AS advisor_last_name,
-       sis.note_category, sis.note_subcategory, sis.created_by, sis.created_at, sis.updated_at
+       sis.note_category, sis.note_subcategory, FALSE AS is_private, sis.created_by, sis.created_at, sis.updated_at
 FROM sis_advising_notes.advising_notes sis
 UNION
 SELECT ascn.sid, ascn.id, NULL AS note_body, NULL AS advisor_sid, ascn.advisor_uid, ascn.advisor_first_name, ascn.advisor_last_name,
-       NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ascn.created_at, ascn.updated_at
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by, ascn.created_at, ascn.updated_at
 FROM boac_advising_asc.advising_notes ascn
 UNION
 SELECT dsn.sid, dsn.id, dsn.body AS note_body, dsna.sid AS advisor_sid, dsna.uid AS advisor_uid, dsna.first_name AS advisor_first_name,
-       dsna.last_name AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, dsn.created_at, NULL AS updated_at
+       dsna.last_name AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by,
+       dsn.created_at, NULL AS updated_at
 FROM boac_advising_data_science.advising_notes dsn
 JOIN boac_advising_notes.advising_note_authors dsna ON dsn.advisor_email = dsna.campus_email
 UNION
 SELECT ein.sid, ein.id, NULL AS note_body, NULL AS advisor_sid, ein.advisor_uid, ein.advisor_first_name, ein.advisor_last_name,
-       NULL AS note_category, NULL AS note_subcategory, NULL AS created_by, ein.created_at, ein.updated_at
+       NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by, ein.created_at, ein.updated_at
 FROM boac_advising_e_i.advising_notes ein
 UNION
 SELECT eop.sid, eop.id, note AS note_body, NULL AS advisor_sid, eop.advisor_uid, eop.advisor_first_name, eop.advisor_last_name,
-       NULL AS note_category, NULL AS note_subcategory, eop.advisor_uid AS created_by, eop.created_at, eop.created_at AS updated_at
+       NULL AS note_category, NULL AS note_subcategory,
+       CASE
+          WHEN eop.privacy_permissions IS NOT NULL THEN TRUE
+          ELSE FALSE
+       END AS is_private, eop.advisor_uid AS created_by, eop.created_at,
+       eop.created_at AS updated_at
 FROM boac_advising_eop.advising_notes eop
 UNION
 SELECT hdn.sid, hdn.id, hdn.note AS note_body, NULL AS advisor_sid, NULL AS advisor_uid, NULL AS advisor_first_name,
-       NULL AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, NULL AS created_by,
+       NULL AS advisor_last_name, NULL AS note_category, NULL AS note_subcategory, FALSE AS is_private, NULL AS created_by,
        NULL AS created_at, NULL AS updated_at
 FROM boac_advising_history_dept.advising_notes hdn
 );

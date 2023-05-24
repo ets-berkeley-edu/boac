@@ -816,6 +816,7 @@ def search_advising_notes(
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
+        exclude_private=True,
         offset=offset,
         limit=limit,
     )
@@ -832,6 +833,7 @@ def search_sis_advising(
     topic=None,
     datetime_from=None,
     datetime_to=None,
+    exclude_private=False,
     offset=None,
     limit=None,
 ):
@@ -862,6 +864,10 @@ def search_sis_advising(
         date_filter += """ AND ((an.created_by = 'UCBCONVERSION' AND an.created_at < %(datetime_to)s)
             OR ((an.created_by != 'UCBCONVERSION' OR an.created_by IS NULL) AND an.updated_at < %(datetime_to)s))"""
 
+    privacy_filter = ''
+    if exclude_private:
+        privacy_filter += """AND NOT is_private"""
+
     if search_phrase:
         query_columns += ", ts_rank(idx.fts_index, plainto_tsquery('english', %(search_phrase)s)) AS rank"
     else:
@@ -873,6 +879,7 @@ def search_sis_advising(
         {advisor_filter}
         {sid_filter}
         {date_filter}
+        {privacy_filter}
         ORDER BY rank DESC, an.id"""
 
     if offset is not None and offset > 0:
