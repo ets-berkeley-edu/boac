@@ -251,6 +251,9 @@ export default {
   computed: {
     isEditable() {
       return !this.note.legacySource
+    },
+    noteAttachments() {
+      return this.note.attachments
     }
   },
   watch: {
@@ -288,6 +291,9 @@ export default {
     note() {
       this.resetAttachments()
       this.loadAuthorDetails()
+    },
+    noteAttachments() {
+      this.resetAttachments()
     }
   },
   created() {
