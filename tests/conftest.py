@@ -317,6 +317,22 @@ def mock_note_template(app, db):
             return note_template
 
 
+@pytest.fixture()
+def mock_private_advising_note(app, db):
+    """Create a private advising note with attachment (mock s3)."""
+    note = _create_mock_note(
+        app=app,
+        attachment='fixtures/mock_advising_note_attachment_1.txt',
+        author_dept_codes=['ZCEEE'],
+        author_uid='2525',
+        db=db,
+        is_private=True,
+    )
+    yield note
+    Note.delete(note_id=note.id)
+    std_commit(allow_test_environment=True)
+
+
 @pytest.fixture(scope='session')
 def admin_user_uid(app, db):
     from boac.models.cohort_filter import CohortFilter
@@ -382,6 +398,7 @@ def _create_mock_note(
         author_uid,
         db,
         is_draft=False,
+        is_private=False,
 ):
     with mock_advising_note_s3_bucket(app):
         base_dir = app.config['BASE_DIR']
@@ -403,6 +420,7 @@ def _create_mock_note(
                     Rock 'n Roll rang sweet as victory, under neon signs
                 """,
                 is_draft=is_draft,
+                is_private=is_private,
                 sid='11667051',
                 subject='In France they kiss on main street',
             )
