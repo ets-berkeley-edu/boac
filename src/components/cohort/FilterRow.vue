@@ -43,7 +43,65 @@
           :v-model-object="selectedOption"
         />
       </div>
-      <div v-if="isUX('range')" class="d-flex pr-1">
+      <div v-if="isUX('range') && filter.validation === 'date'" class="d-flex pr-1">
+        <v-date-picker v-model="range" :model-config="{type: 'string', mask: 'YYYY-MM-DD'}" is-range>
+          <template v-slot="{ inputValue, inputEvents }">
+            <div class="d-flex pr-1">
+              <label
+                :for="`filter-range-min-${position}`"
+                class="pb-2"
+                :class="rangeMinLabel() ? 'filter-range-label-min' : ''"
+              >
+                {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
+              </label>
+              <div>
+                <input
+                  :id="`filter-range-min-${position}`"
+                  :value="inputValue.start"
+                  class="filter-range-input"
+                  maxlength="10"
+                  :placeholder="placeholder()"
+                  size="12"
+                  v-on="inputEvents.start"
+                />
+              </div>
+              <label
+                :for="`filter-range-max-${position}`"
+                class="filter-range-label-max pb-2"
+              >
+                {{ rangeMaxLabel() }}<span class="sr-only"> (end of range)</span>
+              </label>
+              <div>
+                <input
+                  :id="`filter-range-max-${position}`"
+                  :value="inputValue.end"
+                  class="filter-range-input"
+                  maxlength="10"
+                  :placeholder="placeholder()"
+                  size="12"
+                  v-on="inputEvents.end"
+                />
+              </div>
+              <div
+                v-if="$_.size(errorPerRangeInput)"
+                class="sr-only"
+                aria-live="polite"
+              >
+                Error: {{ errorPerRangeInput }}
+              </div>
+              <b-popover
+                v-if="$_.size(errorPerRangeInput)"
+                :show="true"
+                :target="`filter-range-max-${position}`"
+                placement="top"
+              >
+                <span class="has-error">{{ errorPerRangeInput }}</span>
+              </b-popover>
+            </div>
+          </template>
+        </v-date-picker>
+      </div>
+      <div v-if="isUX('range') && filter.validation !== 'date'" class="d-flex pr-1">
         <label
           :for="`filter-range-min-${position}`"
           class="pb-2"
@@ -192,7 +250,9 @@ export default {
     isModifyingFilter: undefined,
     range: {
       min: undefined,
-      max: undefined
+      max: undefined,
+      start: undefined,
+      end: undefined
     },
     selectedFilter: undefined,
     selectedOption: undefined,
@@ -233,8 +293,15 @@ export default {
         this.disableUpdateButton = false
         this.errorPerRangeInput = undefined
         const trimToNil = v => this.$_.isUndefined(v) ? v : this.$_.trim(v) || undefined
-        let min = trimToNil(this.$_.get(rangeObject, 'min'))
-        let max = trimToNil(this.$_.get(rangeObject, 'max'))
+        // Convert v-calendar's non-customizable attribute names
+        if (!rangeObject.min && rangeObject.start) {
+          rangeObject.min = rangeObject.start
+        }
+        if (!rangeObject.max && rangeObject.end) {
+          rangeObject.max = rangeObject.end
+        }
+        let min = trimToNil(rangeObject.min)
+        let max = trimToNil(rangeObject.max)
         const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v)
         if (this.filter.validation === 'dependents') {
           const isInt = v => /^\d+$/.test(v)
@@ -264,14 +331,13 @@ export default {
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation === 'date') {
-          const formattedMin = this.formatUsaDate(min)
-          const formattedMax = this.formatUsaDate(max)
-          const isBadData = (min && !formattedMin) || (max && !formattedMax)
-          if (isBadData || (formattedMin && formattedMax && formattedMin > formattedMax)) {
+          const startDate = this.$moment(min)
+          const endDate = this.$moment(max)
+          if (!(startDate && endDate && startDate.isSameOrBefore(endDate, 'day'))) {
             // Invalid data or values are descending.
-            this.errorPerRangeInput = 'Requires ending date after start date.'
+            this.errorPerRangeInput = 'Requires end date after start date.'
           }
-          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
+          this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max)
         } else if (this.filter.validation) {
           this.disableUpdateButton = true
           this.errorPerRangeInput = `Unrecognized range type: ${this.filter.validation}`
@@ -323,6 +389,8 @@ export default {
         this.range.min = this.range.max = undefined
         break
       }
+      this.$_.unset(this.filter, 'value.start')
+      this.$_.unset(this.filter, 'value.end')
       this.addFilter(this.filter)
       this.reset()
       this.putFocusNewFilterDropdown()
@@ -343,13 +411,8 @@ export default {
         this.filter.options = options
         this.selectedOption = Array.isArray(options) ? find(options, this.filter.value) : find(flatten(options), this.filter.value)
       } else if (this.isUX('range')) {
-        if (this.filter.validation === 'date') {
-          this.range.min = this.formatIsoDate(this.filter.value.min)
-          this.range.max = this.formatIsoDate(this.filter.value.max)
-        } else {
-          this.range.min = this.filter.value.min
-          this.range.max = this.filter.value.max
-        }
+        this.range.min = this.range.start = this.filter.value.min
+        this.range.max = this.range.end = this.filter.value.max
       }
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
@@ -479,9 +542,6 @@ export default {
       if (this.filter.validation === 'gpa') {
         this.filter.value.min = this.formatGPA(this.filter.value.min)
         this.filter.value.max = this.formatGPA(this.filter.value.max)
-      } else if (this.filter.validation === 'date') {
-        this.filter.value.min = this.formatUsaDate(this.filter.value.min)
-        this.filter.value.max = this.formatUsaDate(this.filter.value.max)
       }
     }
   }
