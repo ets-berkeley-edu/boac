@@ -398,7 +398,7 @@ def get_template_attachment_ids_from_http_post():
 
 
 def get_note_topics_from_http_post():
-    topics = request.form.get('topics', ())
+    topics = request.form.get('topics', [])
     return topics if isinstance(topics, list) else list(filter(None, str(topics).split(',')))
 
 

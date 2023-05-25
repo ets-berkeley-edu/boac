@@ -238,6 +238,7 @@ export default {
             setDate,
             this.sids,
             trimmedSubject,
+            [],
             this.model.topics
           ).then(updatedNote => {
             if (isPublishing) {
