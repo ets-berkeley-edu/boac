@@ -218,11 +218,13 @@ const mutations = {
 
 const actions = {
   addAttachment: ({commit, state}, attachment: any) => {
-    commit('addAttachment', attachment)
     if ($_isAutoSaveMode(state.mode)) {
-      addAttachments(state.model.id, [attachment]).then(() => {
+      addAttachments(state.model.id, [attachment]).then((response) => {
+        commit('addAttachment', response.attachments[0])
         Vue.prototype.$announcer.assertive('Attachment added')
       })
+    } else {
+      commit('addAttachment', attachment)
     }
   },
   addCohort: ({commit, state}, cohort: any) => {
