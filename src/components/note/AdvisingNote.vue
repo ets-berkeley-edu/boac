@@ -355,11 +355,13 @@ export default {
     confirmedRemoveAttachment() {
       this.showConfirmDeleteAttachment = false
       const attachment = this.existingAttachments[this.deleteAttachmentIndex]
-      this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
-      return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
-        this.$announcer.polite(`Attachment '${attachment.displayName}' removed`)
-        this.afterSaved(updatedNote)
-      })
+      if (attachment && attachment.id) {
+        this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
+        return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
+          this.$announcer.polite(`Attachment '${attachment.displayName}' removed`)
+          this.afterSaved(updatedNote)
+        })
+      }
     },
     displayName(attachments, index) {
       return this.$_.size(attachments) <= index ? '' : attachments[index].displayName
