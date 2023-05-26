@@ -295,7 +295,7 @@ export default {
             attachments: template.attachments,
             body: template.body,
             deleteAttachmentIds: [],
-            id: undefined,
+            id: this.model.id,
             isPrivate: this.model.isPrivate,
             subject: template.subject,
             topics: template.topics
@@ -414,7 +414,7 @@ export default {
           attachments: template.attachments,
           body: template.body,
           deleteAttachmentIds: [],
-          id: undefined,
+          id: this.model.id,
           isPrivate: this.model.isPrivate,
           subject: template.subject,
           topics: template.topics
