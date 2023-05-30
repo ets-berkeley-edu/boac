@@ -25,7 +25,8 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db, std_commit
+from boac import db
+from sqlalchemy import text
 
 
 class NoteRead(db.Model):
@@ -48,12 +49,15 @@ class NoteRead(db.Model):
     @classmethod
     def find_or_create(cls, viewer_id, note_id):
         note_id = str(note_id)
-        note_read = cls.query.filter(cls.viewer_id == viewer_id, cls.note_id == note_id).first()
-        if not note_read:
-            note_read = cls(viewer_id, note_id)
-            db.session.add(note_read)
-            std_commit()
-        return note_read
+        sql = """
+            INSERT INTO notes_read (created_at, note_id, viewer_id) VALUES (now(), :note_id, :viewer_id)
+            ON CONFLICT DO NOTHING;
+        """
+        db.session.execute(text(sql), {
+            'note_id': note_id,
+            'viewer_id': viewer_id,
+        })
+        return cls.query.filter(cls.viewer_id == viewer_id, cls.note_id == note_id).first()
 
     @classmethod
     def get_notes_read_by_user(cls, viewer_id, note_ids):
