@@ -68,11 +68,11 @@ def can_current_user_access_note(note):
     else:
         is_draft = note.is_draft
     return current_user.is_admin or \
-        (current_user.can_access_advising_data and (not is_draft or _get_author_uid(note) == current_user.uid))
+        (current_user.can_access_advising_data and (not is_draft or get_author_uid(note) == current_user.uid))
 
 
 def can_current_user_edit_note(note):
-    return current_user.can_access_advising_data and _get_author_uid(note) == current_user.uid
+    return current_user.can_access_advising_data and get_author_uid(note) == current_user.uid
 
 
 def get_advising_notes(sid, exclude_draft_notes=False):
@@ -141,6 +141,10 @@ def get_asc_advising_notes(sid):
         )
         notes_by_id[note_id]['legacySource'] = 'ASC'
     return notes_by_id
+
+
+def get_author_uid(note):
+    return note.get('author_uid') or note['author']['uid'] if isinstance(note, dict) else note.author_uid
 
 
 def get_data_science_advising_notes(sid):
@@ -591,10 +595,6 @@ def _get_asc_advising_note_topics(sid):
     for advising_note_id, topics in groupby(topics, key=itemgetter('id')):
         topics_by_id[advising_note_id] = [topic['topic'] for topic in topics]
     return topics_by_id
-
-
-def _get_author_uid(note):
-    return note.get('author_uid') or note['author']['uid'] if isinstance(note, dict) else note.author_uid
 
 
 def _get_e_i_advising_note_topics(sid):

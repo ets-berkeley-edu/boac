@@ -50,6 +50,7 @@ from boac.merged.advising_note import (
     can_current_user_access_note,
     can_current_user_edit_note,
     get_advising_notes,
+    get_author_uid,
     get_boa_attachment_stream,
     get_eop_attachment_stream,
     get_zip_stream,
@@ -256,15 +257,18 @@ def download_attachment(attachment_id):
     is_legacy = not is_int(attachment_id)
     id_ = attachment_id if is_legacy else int(attachment_id)
     if is_legacy:
+        can_access_note = current_user.is_admin or current_user.can_access_advising_data
         stream_data = _get_legacy_attachment_stream(id_)
     else:
         attachment = NoteAttachment.find_by_id(id_)
         note = attachment and attachment.note
-        if note and note.is_private and not current_user.can_access_private_notes:
+        if not note:
             raise ResourceNotFoundError('Note not found')
+        can_access_note = (current_user.is_admin or current_user.can_access_advising_data) \
+            and (not note.is_draft or get_author_uid(note) == current_user.uid) \
+            and (not note.is_private or current_user.can_access_private_notes)
         stream_data = get_boa_attachment_stream(attachment)
-
-    if not stream_data or not stream_data['stream']:
+    if not can_access_note or not stream_data or not stream_data['stream']:
         return Response('Sorry, attachment not available.', mimetype='text/html', status=404)
     r = Response(stream_data['stream'])
     r.headers['Content-Type'] = 'application/octet-stream'
