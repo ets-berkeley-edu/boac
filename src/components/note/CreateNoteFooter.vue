@@ -26,7 +26,7 @@
           <b-btn
             id="btn-update-template"
             :disabled="isSaving || !model.subject"
-            class="btn-primary-color-override"
+            class="btn-primary-color-override mr-1"
             variant="primary"
             @click.prevent="updateTemplate"
           >

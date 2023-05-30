@@ -103,7 +103,7 @@
         <li
           v-for="(attachment, index) in model.attachments"
           :id="`note-${model.id}-attachment-${index}`"
-          :key="attachment.id"
+          :key="`${attachment.id}-${index}`"
           class="mt-2"
           @click.stop
           @keyup.stop
