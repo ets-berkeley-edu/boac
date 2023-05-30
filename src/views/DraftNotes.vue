@@ -226,11 +226,15 @@ export default {
   },
   methods: {
     afterEditDraft(data) {
-      const existing = this.$_.find(this.myDraftNotes, ['id', this.selectedDraftNote.id])
-      Object.assign(existing, data)
-      this.reloadDraftNotes().then(() => {
+      const existing = this.$_.find(this.myDraftNotes, ['id', data.id])
+      if (existing) {
+        Object.assign(existing, data)
+        this.reloadDraftNotes().then(() => {
+          this.deselectDraftNote()
+        })
+      } else {
         this.deselectDraftNote()
-      })
+      }
     },
     deleteDraftNote() {
       return new Promise(resolve => {

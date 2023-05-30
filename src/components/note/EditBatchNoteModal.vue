@@ -316,13 +316,8 @@ export default {
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
-      this.resetModel(false)
-      this.setMode(this.initialMode)
       this.$announcer.polite('Canceled create template.')
-      this.$putFocusNextTick('create-note-subject')
-      this.$nextTick(() => {
-        this.setFocusLockDisabled(false)
-      })
+      this.exit(true)
     },
     dismissAlert(seconds) {
       this.dismissAlertSeconds = seconds
@@ -410,17 +405,8 @@ export default {
         this.model.topics,
       ).then(template => {
         this.setIsSaving(false)
-        this.setModel({
-          attachments: template.attachments,
-          body: template.body,
-          deleteAttachmentIds: [],
-          id: this.model.id,
-          isPrivate: this.model.isPrivate,
-          subject: template.subject,
-          topics: template.topics
-        })
-        this.setMode(this.initialMode)
-        this.showAlert(`Template '${template.title}' updated`)
+        this.$announcer.polite(`Template '${template.title}' updated`)
+        this.exit(false)
       })
     }
   }
