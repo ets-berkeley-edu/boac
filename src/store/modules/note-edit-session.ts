@@ -62,7 +62,7 @@ const $_updateAdvisingNote = ({commit, state}) => {
     const setDate = state.model.setDate ? state.model.setDate.format('YYYY-MM-DD') : null
     const sids: string[] = Array.from(state.completeSidSet)
     const isDraft = state.model.isDraft
-    const isPublishing = state.mode === 'editDraft' && !isDraft
+    const isPublishing = $_isAutoSaveMode(state.mode) && !isDraft
     if (isPublishing) {
       Vue.prototype.$currentUser.myDraftNoteCount = Vue.prototype.$currentUser.myDraftNoteCount - 1
     }
