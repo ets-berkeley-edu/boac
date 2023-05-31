@@ -50,7 +50,7 @@
           :attributes="[{key: 'today', dot: true, dates: new Date()}]"
           is-range
           :model-config="{type: 'string', mask: 'YYYY-MM-DD'}"
-          @onPopoverShown="onPopoverShown"
+          @popoverDidShow="onPopoverShown"
         >
           <template v-slot="{ inputValue, inputEvents }">
             <div class="d-flex pr-1">
@@ -501,10 +501,13 @@ export default {
       popoverContent.role = 'dialog'
       if (helpContainer) {
         const helpText = helpContainer.getAttribute('data-helptext')
-        const helpEl = document.createTextNode(helpText)
+        const helpEl = document.createElement('span')
         helpEl.className = 'sr-only'
         helpEl.ariaLive = 'polite'
         helpContainer.prepend(helpEl)
+        setTimeout(() => {
+          helpEl.innerText = helpText
+        }, 200)
       }
       if (nextMonthBtn) {
         nextMonthBtn.ariaLabel = 'previous month'
