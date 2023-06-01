@@ -1075,49 +1075,6 @@ def _get_student_notifications(client, uid):
     return response.json['notifications']
 
 
-# def _api_note_create(
-#         app,
-#         author_id,
-#         body,
-#         client,
-#         sids,
-#         subject,
-#         attachments=(),
-#         expected_status_code=200,
-#         contact_type=None,
-#         is_draft=False,
-#         is_private=False,
-#         set_date=None,
-#         template_attachment_ids=(),
-#         topics=(),
-# ):
-#     with mock_advising_note_s3_bucket(app):
-#         data = {
-#             'authorId': author_id,
-#             'body': body,
-#             'isDraft': is_draft,
-#             'isPrivate': is_private,
-#             'sids': sids,
-#             'subject': subject,
-#             'templateAttachmentIds': ','.join(str(_id) for _id in template_attachment_ids),
-#             'topics': ','.join(topics),
-#         }
-#         if contact_type:
-#             data['contactType'] = contact_type
-#         if set_date:
-#             data['setDate'] = set_date
-#         for index, path in enumerate(attachments):
-#             data[f'attachment[{index}]'] = open(path, 'rb')
-#         response = client.post(
-#             '/api/notes/create',
-#             buffered=True,
-#             content_type='multipart/form-data',
-#             data=data,
-#         )
-#         assert response.status_code == expected_status_code
-#         return response.json
-
-
 def _api_create_draft_note(client, expected_status_code=200, sid=None):
     response = client.post(
         '/api/note/create_draft',

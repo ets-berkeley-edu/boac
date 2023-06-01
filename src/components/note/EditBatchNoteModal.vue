@@ -91,12 +91,14 @@
               :disabled="isSaving || boaSessionExpired"
             />
           </div>
-          <div class="mt-2 mr-3 mb-3 ml-3">
-            <ContactMethod :disabled="isSaving || boaSessionExpired" />
-          </div>
-          <div class="mt-2 mb-3 ml-3">
-            <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
-          </div>
+          <transition-group v-if="mode !== 'editTemplate'" name="batch-transition">
+            <div key="0" class="mt-2 mr-3 mb-3 ml-3">
+              <ContactMethod :disabled="isSaving || boaSessionExpired" />
+            </div>
+            <div key="1" class="mt-2 mb-3 ml-3">
+              <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
+            </div>
+          </transition-group>
           <div class="mt-2 mr-3 mb-1 ml-3">
             <AdvisingNoteAttachments
               :add-attachment="addAttachment"
@@ -281,14 +283,7 @@ export default {
         this.setFocusLockDisabled(false)
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
-        createNoteTemplate(
-          this.model.attachments,
-          this.model.body,
-          this.model.isPrivate,
-          this.model.subject,
-          title,
-          this.model.topics,
-        ).then(template => {
+        createNoteTemplate(this.model.id, title).then(template => {
           this.showAlert(`Template '${title}' created.`)
           this.setIsSaving(false)
           this.setModel({

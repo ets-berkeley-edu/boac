@@ -40,7 +40,7 @@
             Template name cannot exceed 255 characters.
           </div>
         </div>
-        <div class="modal-footer pl-0 mr-2">
+        <div class="modal-footer pl-0">
           <b-btn
             id="create-template-confirm"
             :disabled="!title.length"

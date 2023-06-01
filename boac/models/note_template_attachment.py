@@ -25,7 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from datetime import datetime
 
-from boac import db
+from boac import db, std_commit
 from boac.lib.util import get_attachment_filename, note_attachment_to_api_json, put_attachment_to_s3
 from sqlalchemy import and_
 
@@ -66,11 +66,14 @@ class NoteTemplateAttachment(db.Model):
 
     @classmethod
     def create(cls, note_template_id, name, byte_stream, uploaded_by):
-        return NoteTemplateAttachment(
+        attachment = NoteTemplateAttachment(
             note_template_id=note_template_id,
             path_to_attachment=put_attachment_to_s3(name=name, byte_stream=byte_stream),
             uploaded_by_uid=uploaded_by,
         )
+        db.session.add(attachment)
+        std_commit()
+        return attachment
 
     def to_api_json(self):
         return note_attachment_to_api_json(self)

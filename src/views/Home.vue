@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-3 mt-3">
+  <div class="ml-4 mt-4">
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
@@ -22,7 +22,7 @@
       </div>
       <div v-if="$_.filter(curatedGroups, ['domain', 'default']).length">
         <div id="curated-groups-header-row">
-          <h2 class="mb-0 page-section-header">Curated Groups</h2>
+          <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <div
           v-for="curatedGroup in $_.filter(curatedGroups, ['domain', 'default'])"
