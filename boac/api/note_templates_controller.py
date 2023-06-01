@@ -28,6 +28,7 @@ from boac.api.util import advising_data_access_required, get_note_attachments_fr
 from boac.lib.berkeley import dept_codes_where_advising
 from boac.lib.http import tolerant_jsonify
 from boac.lib.util import process_input_from_rich_text_editor, to_bool_or_none
+from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
 from flask import current_app as app, request
 from flask_login import current_user
@@ -36,27 +37,24 @@ from flask_login import current_user
 @app.route('/api/note_template/create', methods=['POST'])
 @advising_data_access_required
 def create_note_template():
-    params = request.form
+    params = request.get_json()
+    note_id = params.get('noteId', None)
     title = params.get('title', None)
-    subject = params.get('subject', None)
-    body = params.get('body', None)
-    topics = get_note_topics_from_http_post()
-    if not title or not subject:
-        raise BadRequestError('Note creation requires \'subject\' and \'title\'')
+    if not note_id or not title:
+        raise BadRequestError('Invalid or missing parameters')
     user_dept_codes = dept_codes_where_advising(current_user)
     if current_user.is_admin or not len(user_dept_codes):
         raise ForbiddenRequestError('Sorry, only advisors can create advising note templates')
 
-    attachments = get_note_attachments_from_http_post(tolerate_none=True)
-
+    note = Note.find_by_id(note_id)
     note_template = NoteTemplate.create(
-        attachments=attachments,
-        body=process_input_from_rich_text_editor(body),
+        attachments=note.attachments,
+        body=note.body,
         creator_id=current_user.get_id(),
-        is_private=to_bool_or_none(params.get('isPrivate', False)),
-        subject=subject,
+        is_private=note.is_private,
+        subject=note.subject,
         title=title,
-        topics=topics,
+        topics=[topic.topic for topic in note.topics],
     )
     return tolerant_jsonify(note_template.to_api_json())
 

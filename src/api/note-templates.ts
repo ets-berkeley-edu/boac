@@ -12,18 +12,9 @@ export function getMyNoteTemplates() {
     .then(response => response.data, () => null)
 }
 
-export function createNoteTemplate(
-    attachments: any[],
-    body: string,
-    isPrivate: boolean,
-    subject: string,
-    title: string,
-    topics: string[]
-) {
-  const data = {body, isPrivate, subject, title, topics}
-  _.each(attachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
-  return utils.postMultipartFormData('/api/note_template/create', data).then(template => {
-    store.dispatch('noteEditSession/onCreateTemplate', template)
+export function createNoteTemplate(noteId: number, title: string) {
+  return axios.post(`${utils.apiBaseUrl()}/api/note_template/create`, {noteId, title}).then(template => {
+    store.dispatch('noteEditSession/loadNoteTemplates')
     $_track('create')
     return template
   })
@@ -32,7 +23,7 @@ export function createNoteTemplate(
 export function deleteNoteTemplate(templateId: number) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`)
-    .then(() => store.dispatch('noteEditSession/onDeleteTemplate', templateId))
+    .then(() => store.dispatch('noteEditSession/loadNoteTemplates', templateId))
 }
 
 export function renameNoteTemplate(noteTemplateId: number, title: string) {
