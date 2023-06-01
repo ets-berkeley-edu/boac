@@ -43,8 +43,15 @@
           :v-model-object="selectedOption"
         />
       </div>
-      <div v-if="isUX('range') && filter.validation === 'date'" class="d-flex pr-1">
-        <v-date-picker v-model="range" :model-config="{type: 'string', mask: 'YYYY-MM-DD'}" is-range>
+      <div v-if="isUX('range') && filter.validation === 'date'" :id="`filter-range-date-picker-${position}`" class="d-flex pr-1">
+        <v-date-picker
+          ref="datePicker"
+          v-model="range"
+          :attributes="[{key: 'today', dot: true, dates: new Date()}]"
+          is-range
+          :model-config="{type: 'string', mask: 'YYYY-MM-DD'}"
+          @popoverDidShow="onPopoverShown"
+        >
           <template v-slot="{ inputValue, inputEvents }">
             <div class="d-flex pr-1">
               <label
@@ -52,35 +59,47 @@
                 class="pb-2"
                 :class="rangeMinLabel() ? 'filter-range-label-min' : ''"
               >
-                {{ rangeMinLabel() }}<span class="sr-only"> beginning of range</span>
+                {{ rangeMinLabel() }}
               </label>
               <div>
                 <input
                   :id="`filter-range-min-${position}`"
                   :value="inputValue.start"
+                  aria-label="beginning of range"
+                  :aria-describedby="`filter-range-min-placeholder-${position}`"
                   class="filter-range-input"
                   maxlength="10"
                   :placeholder="placeholder()"
                   size="12"
                   v-on="inputEvents.start"
+                  @focus="appendPopover"
+                  @mouseover="appendPopover"
                 />
+                <div class="filter-range-popover-container" />
+                <span :id="`filter-range-min-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
               <label
                 :for="`filter-range-max-${position}`"
                 class="filter-range-label-max pb-2"
               >
-                {{ rangeMaxLabel() }}<span class="sr-only"> (end of range)</span>
+                {{ rangeMaxLabel() }}
               </label>
               <div>
                 <input
                   :id="`filter-range-max-${position}`"
                   :value="inputValue.end"
+                  aria-label="end of range"
+                  :aria-describedby="`filter-range-max-placeholder-${position}`"
                   class="filter-range-input"
                   maxlength="10"
                   :placeholder="placeholder()"
                   size="12"
                   v-on="inputEvents.end"
+                  @focus="appendPopover"
+                  @mouseover="appendPopover"
                 />
+                <div class="filter-range-popover-container" />
+                <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
               <div
                 v-if="$_.size(errorPerRangeInput)"
@@ -352,6 +371,17 @@ export default {
     this.valueOriginal = this.filter && this.$_.cloneDeep(this.filter.value)
   },
   methods: {
+    appendPopover(e) {
+      // Place v-calendar date picker popover where it belongs in the tab order
+      const el = document.getElementById(`filter-range-date-picker-${this.position}`)
+      const container = e.target.parentElement.querySelector('.filter-range-popover-container')
+      this.$nextTick(() => {
+        const popover = el ? el.querySelector('.vc-popover-content-wrapper') : null
+        if (container && popover) {
+          container.replaceChildren(popover)
+        }
+      })
+    },
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
       const gpa = '0' + this.$_.trim(value)
@@ -410,13 +440,14 @@ export default {
         const options = this.$_.find(flatten(this.filterOptionGroups), ['key', this.filter.key]).options
         this.filter.options = options
         this.selectedOption = Array.isArray(options) ? find(options, this.filter.value) : find(flatten(options), this.filter.value)
+        this.putFocusSecondaryDropdown()
       } else if (this.isUX('range')) {
         this.range.min = this.range.start = this.filter.value.min
         this.range.max = this.range.end = this.filter.value.max
+        this.putFocusRange()
       }
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
-      this.putFocusSecondaryDropdown()
       this.$announcer.polite(`Begin edit of ${this.filter.label.primary} filter`)
     },
     onClickUpdateButton() {
@@ -456,6 +487,46 @@ export default {
         this.$announcer.polite(`${this.selectedOption.name} selected`)
       }
     },
+    onPopoverShown(popoverContent) {
+      // Fill accessibility gaps in v-calendar date picker popover
+      const helpContainer = popoverContent.querySelector('[data-helptext]')
+      const nextMonthBtn = popoverContent.querySelector('.is-right')
+      const prevMonthBtn = popoverContent.querySelector('.is-left')
+      const title = popoverContent.querySelector('.vc-title')
+      const weeks = popoverContent.querySelector('.vc-weeks')
+      const weekdayLabels = popoverContent.querySelectorAll('.vc-weekday')
+      const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      popoverContent.ariaLabel = 'choose date'
+      popoverContent.ariaModal = true
+      popoverContent.role = 'dialog'
+      if (helpContainer) {
+        const helpText = helpContainer.getAttribute('data-helptext')
+        const helpEl = document.createElement('span')
+        helpEl.className = 'sr-only'
+        helpEl.ariaLive = 'polite'
+        helpContainer.prepend(helpEl)
+        setTimeout(() => {
+          helpEl.innerText = helpText
+        }, 200)
+      }
+      if (nextMonthBtn) {
+        nextMonthBtn.ariaLabel = 'previous month'
+      }
+      if (prevMonthBtn) {
+        prevMonthBtn.ariaLabel = 'previous month'
+      }
+      if (title) {
+        title.ariaLive = 'polite'
+        title.id = `filter-range-popover-title-${this.position}`
+      }
+      if (weeks) {
+        weeks.setAttribute('aria-labelledby', `filter-range-popover-title-${this.position}`)
+        weeks.role = 'grid'
+      }
+      this.$_.each(weekdayLabels, (label, index) => {
+        label.abbr = weekdays[index]
+      })
+    },
     placeholder() {
       if (this.filter.validation === 'date') {
         return 'MM/DD/YYYY'
@@ -470,6 +541,9 @@ export default {
     },
     putFocusNewFilterDropdown() {
       this.$putFocusNextTick('filter-select-primary-new')
+    },
+    putFocusRange() {
+      this.$putFocusNextTick(`filter-range-min-${this.position}`)
     },
     putFocusSecondaryDropdown() {
       this.$putFocusNextTick(`filter-select-secondary-${this.position}`)
@@ -547,6 +621,12 @@ export default {
   }
 }
 </script>
+
+<style>
+.vc-day-content:focus {
+  background-color: rgba(110, 110, 110, 0.4) !important;
+}
+</style>
 
 <style scoped>
 .btn-cohort-added-filter {
