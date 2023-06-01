@@ -105,10 +105,9 @@ class TestCreateNoteTemplate:
     def test_not_authenticated(self, app, client):
         """Returns 401 if not authenticated."""
         _api_create_note_template(
-            app=app,
             client=client,
             expected_status_code=401,
-            subject='...but you can\'t come in',
+            note_id=1,
             title='Keep a knockin\'',
         )
 
@@ -116,51 +115,39 @@ class TestCreateNoteTemplate:
         """Returns 403 if user is an admin."""
         fake_auth.login(admin_uid)
         _api_create_note_template(
-            app=app,
             client=client,
             expected_status_code=403,
-            subject='Sorry \'bout it',
+            note_id=1,
             title='Ain\'t gonna happen',
         )
 
-    def test_user_without_advising_data_access(self, app, client, fake_auth):
+    def test_user_without_advising_data_access(self, app, client, fake_auth, mock_note_draft):
         """Denies access to a user who cannot access notes and appointments."""
         fake_auth.login(coe_advisor_no_advising_data_uid)
         _api_create_note_template(
-            app=app,
             client=client,
             expected_status_code=401,
-            subject='Nooooooope',
+            note_id=mock_note_draft.id,
             title='Nope',
         )
 
-    def test_create_note_template(self, app, client, fake_auth):
+    def test_create_note_template(self, app, client, fake_auth, mock_advising_note):
         """Create a note template."""
         fake_auth.login(coe_advisor_uid)
         title = 'I get it, I got it'
-        subject = 'I know it\'s good'
-        base_dir = app.config['BASE_DIR']
         api_json = _api_create_note_template(
-            app=app,
-            attachments=[
-                f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt',
-                f'{base_dir}/fixtures/mock_advising_note_attachment_2.txt',
-            ],
-            body='The templates I write, you wish you would',
-            is_private=True,
             client=client,
-            subject=subject,
+            note_id=mock_advising_note.id,
             title=title,
-            topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
         )
         note_template_id = api_json.get('id')
         note_template = NoteTemplate.find_by_id(note_template_id)
         assert note_template_id == note_template.id
-        assert note_template.is_private is True
-        assert subject == note_template.subject
-        assert title == note_template.title
+        assert note_template.is_private is False
+        assert note_template.subject == mock_advising_note.subject
+        assert note_template.title == title
         assert len(note_template.topics) == 3
-        assert len(note_template.attachments) == 2
+        assert len(note_template.attachments) == 1
 
 
 class TestUpdateNoteTemplate:
@@ -394,15 +381,12 @@ class TestDeleteNoteTemplate:
         assert response.status_code == 403
         assert NoteTemplate.find_by_id(mock_note_template.id)
 
-    def test_delete_note_template_with_attachments(self, app, client, fake_auth):
+    def test_delete_note_template_with_attachments(self, app, client, fake_auth, mock_note_draft):
         """Delete note template that has an attachment."""
         fake_auth.login(l_s_major_advisor_uid)
-        base_dir = app.config['BASE_DIR']
         note_template = _api_create_note_template(
-            app=app,
-            attachments=[f'{base_dir}/fixtures/mock_advising_note_attachment_1.txt'],
             client=client,
-            subject='I want to be free',
+            note_id=mock_note_draft.id,
             title='Delete me!',
         )
         assert len(note_template.get('attachments')) == 1
@@ -415,32 +399,11 @@ class TestDeleteNoteTemplate:
         assert not NoteTemplateAttachment.find_by_id(attachment_id)
 
 
-def _api_create_note_template(
-        app,
-        client,
-        subject,
-        title,
-        attachments=(),
-        body=None,
-        expected_status_code=200,
-        is_private=False,
-        topics=(),
-):
-    with mock_advising_note_s3_bucket(app):
-        data = {
-            'body': body,
-            'isPrivate': is_private,
-            'subject': subject,
-            'title': title,
-            'topics': ','.join(topics),
-        }
-        for index, path in enumerate(attachments):
-            data[f'attachment[{index}]'] = open(path, 'rb')
-        response = client.post(
-            '/api/note_template/create',
-            buffered=True,
-            content_type='multipart/form-data',
-            data=data,
-        )
-        assert response.status_code == expected_status_code
-        return response.json
+def _api_create_note_template(client, note_id, title, expected_status_code=200):
+    response = client.post(
+        '/api/note_template/create',
+        content_type='application/json',
+        data=json.dumps({'noteId': note_id, 'title': title}),
+    )
+    assert response.status_code == expected_status_code
+    return response.json

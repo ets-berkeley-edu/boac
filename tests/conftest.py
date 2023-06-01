@@ -36,6 +36,7 @@ import boac.factory
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from boac.models.note_template import NoteTemplate
+from boac.models.note_template_attachment import NoteTemplateAttachment
 from flask_login import logout_user
 from moto import mock_sts
 import pytest
@@ -267,6 +268,7 @@ def mock_advising_note(app, db):
         author_dept_codes=['UWASC'],
         author_uid='90412',
         db=db,
+        topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
     )
     yield note
     Note.delete(note_id=note.id)
@@ -283,6 +285,7 @@ def mock_note_draft(app, db):
         author_uid='90412',
         db=db,
         is_draft=True,
+        topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
     )
     yield note
     Note.delete(note_id=note.id)
@@ -297,8 +300,9 @@ def mock_note_template(app, db):
         path_to_file = f'{base_dir}/fixtures/mock_note_template_attachment_1.txt'
         timestamp = datetime.now().timestamp()
         with open(path_to_file, 'r') as file:
+            uid = '242881'
             note_template = NoteTemplate.create(
-                creator_id=AuthorizedUser.get_id_per_uid('242881'),
+                creator_id=AuthorizedUser.get_id_per_uid(uid),
                 title=f'Potholes in my lawn ({timestamp})',
                 subject=f'It\'s unwise to leave my garden untended ({timestamp})',
                 body="""
@@ -306,15 +310,18 @@ def mock_note_template(app, db):
                     What to do when suckers are preyin'
                 """,
                 topics=['Three Feet High', 'Rising'],
-                attachments=[
-                    {
-                        'name': path_to_file.rsplit('/', 1)[-1],
-                        'byte_stream': file.read(),
-                    },
-                ],
+            )
+            NoteTemplateAttachment.create(
+                note_template_id=note_template.id,
+                name=path_to_file.rsplit('/', 1)[-1],
+                byte_stream=file.read(),
+                uploaded_by=uid,
             )
             std_commit(allow_test_environment=True)
-            return note_template
+
+            yield NoteTemplate.find_by_id(note_template.id)
+
+            NoteTemplate.delete(note_template_id=note_template.id)
 
 
 @pytest.fixture()
@@ -399,6 +406,7 @@ def _create_mock_note(
         db,
         is_draft=False,
         is_private=False,
+        topics=(),
 ):
     with mock_advising_note_s3_bucket(app):
         base_dir = app.config['BASE_DIR']
@@ -423,6 +431,7 @@ def _create_mock_note(
                 is_private=is_private,
                 sid='11667051',
                 subject='In France they kiss on main street',
+                topics=topics,
             )
             db.session.add(note)
             std_commit(allow_test_environment=True)
