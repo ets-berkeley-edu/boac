@@ -79,13 +79,12 @@ class NoteTemplate(Base):
                 note_template.topics.append(
                     NoteTemplateTopic.create(note_template.id, titleize(vacuum_whitespace(topic))),
                 )
-            for byte_stream_bundle in attachments:
+            for attachment in attachments:
                 note_template.attachments.append(
-                    NoteTemplateAttachment.create(
+                    NoteTemplateAttachment(
                         note_template_id=note_template.id,
-                        name=byte_stream_bundle['name'],
-                        byte_stream=byte_stream_bundle['byte_stream'],
-                        uploaded_by=creator.uid,
+                        path_to_attachment=attachment.path_to_attachment,
+                        uploaded_by_uid=creator.uid,
                     ),
                 )
             db.session.add(note_template)

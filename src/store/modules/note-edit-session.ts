@@ -151,11 +151,6 @@ const mutations = {
   },
   isAutoSavingDraftNote: (state: any, value: boolean) => state.isAutoSavingDraftNote = value,
   onBoaSessionExpires: (state: any) => state.boaSessionExpired = true,
-  onCreateTemplate: (state: any, template) => state.noteTemplates = _.orderBy(state.noteTemplates.concat([template]), ['title'], ['asc']),
-  onDeleteTemplate: (state: any, templateId: any) => {
-    const indexOf = state.noteTemplates.findIndex(template => template.id === templateId)
-    state.noteTemplates.splice(indexOf, 1)
-  },
   onUpdateTemplate: (state: any, template: any) => {
     const indexOf = state.noteTemplates.findIndex(t => t.id === template.id)
     Object.assign(state.noteTemplates[indexOf], template)
@@ -282,8 +277,6 @@ const actions = {
     }
   },
   onBoaSessionExpires: ({commit}) => commit('onBoaSessionExpires'),
-  onCreateTemplate: ({commit}, template: any) => commit('onCreateTemplate', template),
-  onDeleteTemplate: ({commit}, templateId: number) => commit('onDeleteTemplate', templateId),
   onUpdateTemplate: ({commit}, template: any) => commit('onUpdateTemplate', template),
   removeAllStudents: ({commit}) => commit('removeAllStudents'),
   removeAttachment: ({commit, state}, index: number) => {
