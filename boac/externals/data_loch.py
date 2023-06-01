@@ -324,8 +324,13 @@ def get_student_by_uid(uid):
     sql = f"""SELECT spi.*
         FROM {student_schema()}.student_profile_index spi
         WHERE spi.uid = %(uid)s"""
-    rows = safe_execute_rds(sql, uid=uid)
-    return None if not rows or (len(rows) == 0) else rows[0]
+    rows = safe_execute_rds(sql, uid=uid) or []
+    student = None
+    if len(rows):
+        student = next((row for row in rows if row['academic_career_status']), None)
+        if not student:
+            student = rows[0]
+    return student
 
 
 def get_sid_by_uid(uid):
