@@ -283,20 +283,16 @@ export default {
         this.setFocusLockDisabled(false)
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
-        createNoteTemplate(this.model.id, title).then(template => {
-          this.showAlert(`Template '${title}' created.`)
-          this.setIsSaving(false)
-          this.setModel({
-            attachments: template.attachments,
-            body: template.body,
-            deleteAttachmentIds: [],
-            id: this.model.id,
-            isPrivate: this.model.isPrivate,
-            subject: template.subject,
-            topics: template.topics
+        // Save draft before creating template.
+        this.updateAdvisingNote().then(() => {
+          createNoteTemplate(this.model.id, title).then(() => {
+            this.showAlert(`Template '${title}' created.`)
+            setTimeout(() => {
+              // Creating a template was the user's purpose so we delete any incidental draft note.
+              this.setMode('createNote')
+              this.exit(true)
+            }, 2000)
           })
-          this.setMode(this.initialMode)
-          this.$putFocusNextTick('create-note-subject')
         })
       }
       this.invokeIfAuthenticated(ifAuthenticated, () => {
