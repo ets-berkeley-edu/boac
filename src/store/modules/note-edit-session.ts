@@ -119,7 +119,10 @@ const getters = {
 }
 
 const mutations = {
-  addAttachment: (state: any, attachment: any) => (state.model.attachments.push(attachment)),
+  addAttachments: (state: any, attachments: any[]) => {
+    const allAttachments = state.model.attachments.concat(attachments)
+    state.model.attachments = _.sortBy(allAttachments, ['name', 'id'])
+  },
   addCohort: (state: any, cohort: any) => state.addedCohorts.push(cohort),
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
   addSid: (state: any, sid: string) => state.sids.push(sid),
@@ -212,14 +215,16 @@ const mutations = {
 }
 
 const actions = {
-  addAttachment: ({commit, state}, attachment: any) => {
+  addAttachments: ({commit, state}, attachments: any[]) => {
     if ($_isAutoSaveMode(state.mode)) {
-      addAttachments(state.model.id, [attachment]).then((response) => {
-        commit('addAttachment', response.attachments[0])
+      commit('setIsSaving', true)
+      addAttachments(state.model.id, attachments).then(response => {
+        commit('addAttachments', response.attachments)
         Vue.prototype.$announcer.assertive('Attachment added')
+        commit('setIsSaving', false)
       })
     } else {
-      commit('addAttachment', attachment)
+      commit('addAttachments', attachments)
     }
   },
   addCohort: ({commit, state}, cohort: any) => {

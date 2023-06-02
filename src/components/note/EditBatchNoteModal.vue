@@ -101,14 +101,14 @@
           </transition-group>
           <div class="mt-2 mr-3 mb-1 ml-3">
             <AdvisingNoteAttachments
-              :add-attachment="addAttachment"
+              :add-attachments="addAttachments"
               :disabled="isSaving || boaSessionExpired"
               :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment"
             />
           </div>
         </div>
-        <hr />
+        <hr class="my-2" />
         <div>
           <CreateNoteFooter
             :cancel="cancelRequested"

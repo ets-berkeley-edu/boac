@@ -32,7 +32,7 @@ export default {
   },
   methods: {
     ...mapActions('noteEditSession', [
-      'addAttachment',
+      'addAttachments',
       'addCohort',
       'addCuratedGroup',
       'addSid',

@@ -24,10 +24,10 @@
           v-model="attachments"
           aria-label="Select file for attachment"
           :disabled="disabled || $_.size(existingAttachments) === $config.maxAttachmentsPerNote"
-          :state="Boolean(attachments && attachments.length)"
           :multiple="true"
           :plain="true"
-        ></b-form-file>
+          :state="Boolean(attachments && attachments.length)"
+        />
       </div>
     </div>
     <div v-if="$_.size(existingAttachments) === $config.maxAttachmentsPerNote" class="w-100">
@@ -38,7 +38,7 @@
         <li
           v-for="(attachment, index) in existingAttachments"
           :id="`new-note-attachment-${index}`"
-          :key="attachment.name"
+          :key="index"
           class="mt-2"
         >
           <span class="pill pill-attachment text-nowrap">
@@ -70,7 +70,7 @@ export default {
   name: 'AdvisingNoteAttachments',
   mixins: [Attachments, Context, Util],
   props: {
-    addAttachment: {
+    addAttachments: {
       required: true,
       type: Function
     },
@@ -96,11 +96,13 @@ export default {
       if (files) {
         this.attachmentError = this.validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
+          const attachments = []
           this.$_.each(files, attachment => {
             attachment.displayName = attachment.name
-            this.addAttachment(attachment)
-            this.$announcer.polite(`Attachment '${attachment.displayName}' added`)
+            attachments.push(attachment)
           })
+          this.addAttachments(attachments)
+          this.$announcer.polite('Attachments added')
         }
       }
     }
