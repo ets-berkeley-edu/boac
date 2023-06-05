@@ -3,6 +3,11 @@ import axios from 'axios'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
+const $_refreshMyDraftNoteCount = () => {
+  axios
+    .get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`)
+    .then(response => Vue.prototype.$currentUser.myDraftNoteCount = response.data, () => null)
+}
 const $_track = action => Vue.prototype.$ga.note(action)
 
 export function getNote(noteId) {
@@ -29,8 +34,8 @@ export function markNoteRead(noteId) {
 
 export function createDraftNote(sid: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
-    Vue.prototype.$currentUser.myDraftNoteCount++
     Vue.prototype.$eventHub.emit('note-created', response.data)
+    $_refreshMyDraftNoteCount()
     return response.data
   })
 }
@@ -67,6 +72,7 @@ export function updateNote(
     const eventName = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
     Vue.prototype.$eventHub.emit(eventName, data)
     $_track('update')
+    $_refreshMyDraftNoteCount()
     return data
   })
 }
@@ -77,9 +83,7 @@ export function deleteNote(note: any) {
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
     .then(response => {
       Vue.prototype.$eventHub.emit('note-deleted', note.id)
-      if (note.isDraft) {
-        Vue.prototype.$currentUser.myDraftNoteCount = Vue.prototype.$currentUser.myDraftNoteCount - 1
-      }
+      $_refreshMyDraftNoteCount()
       return response.data
     })
 }
