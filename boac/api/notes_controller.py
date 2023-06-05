@@ -208,6 +208,12 @@ def get_my_note_drafts():
     return tolerant_jsonify(api_json)
 
 
+@app.route('/api/notes/my_draft_note_count')
+@advising_data_access_required
+def my_draft_note_count():
+    return tolerant_jsonify(Note.get_draft_note_count(None if current_user.is_admin else current_user.uid))
+
+
 @app.route('/api/notes/<note_id>/attachments', methods=['POST'])
 @advising_data_access_required
 def add_attachments(note_id):
