@@ -130,6 +130,7 @@
       :show-modal="showCreateTemplateModal"
       :cancel="cancelCreateTemplate"
       :create="createTemplate"
+      :on-hidden="() => setIsSaving(false)"
       :toggle-show="toggleShowCreateTemplateModal"
     />
     <AreYouSureModal
@@ -288,8 +289,8 @@ export default {
           createNoteTemplate(this.model.id, title).then(() => {
             this.showAlert(`Template '${title}' created.`)
             setTimeout(() => {
-              // Creating a template was the user's purpose so we delete any incidental draft note.
-              this.setMode('createNote')
+              // Creating a note-template was the user's purpose so we delete any incidental draft note.
+              this.setMode(this.initialMode)
               this.exit(true)
             }, 2000)
           })
