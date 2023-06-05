@@ -5,6 +5,7 @@
     body-class="pl-0 pr-0"
     hide-footer
     hide-header
+    @hidden="onHidden"
     @shown="$putFocusNextTick('modal-header')"
   >
     <div>
@@ -52,6 +53,7 @@
           </b-btn>
           <b-btn
             id="cancel-template-create"
+            class="pl-1"
             variant="link"
             @click="cancelModal"
           >
@@ -69,7 +71,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import Validator from '@/mixins/Validator'
 
 export default {
-  name: 'TemplateModalCreate',
+  name: 'CreateTemplateModal',
   mixins: [Util, Validator],
   components: {ModalHeader},
   props: {
@@ -78,6 +80,10 @@ export default {
       required: true
     },
     create: {
+      type: Function,
+      required: true
+    },
+    onHidden: {
       type: Function,
       required: true
     },
