@@ -226,7 +226,6 @@ export default {
         const trimmedSubject = this.$_.trim(this.model.subject)
         const setDate = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
         if (trimmedSubject) {
-          const isPublishing = this.model.isDraft && !isDraft
           updateNote(
             this.model.id,
             this.$_.trim(this.model.body),
@@ -241,9 +240,6 @@ export default {
             [],
             this.model.topics
           ).then(updatedNote => {
-            if (isPublishing) {
-              this.$currentUser.myDraftNoteCount = this.$currentUser.myDraftNoteCount - 1
-            }
             this.afterSaved(updatedNote)
             this.$announcer.polite('Changes to note have been saved')
             this.exit(false)
