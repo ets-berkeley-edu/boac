@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 import urllib.parse
 
+from boac import std_commit
 from boac.api.errors import BadRequestError, ForbiddenRequestError, ResourceNotFoundError
 from boac.api.util import (
     advising_data_access_required,
@@ -62,6 +63,7 @@ from boac.models.curated_group import CuratedGroup
 from boac.models.note import Note, note_contact_type_enum
 from boac.models.note_attachment import NoteAttachment
 from boac.models.note_read import NoteRead
+from boac.models.note_template import NoteTemplate
 from flask import current_app as app, request, Response, stream_with_context
 from flask_login import current_user
 
@@ -171,6 +173,43 @@ def update_note():
         note_read = NoteRead.find_or_create(current_user.get_id(), note_id)
         api_json = _boa_note_to_compatible_json(note=note, note_read=note_read)
     return tolerant_jsonify(api_json)
+
+
+@app.route('/api/note/apply_template', methods=['POST'])
+@advising_data_access_required
+def apply_template():
+    params = request.get_json()
+    note_id = params.get('noteId', None)
+    template_id = params.get('templateId', None)
+    note = Note.find_by_id(note_id=note_id) if note_id else None
+    if not note or not can_current_user_edit_note(note):
+        raise ResourceNotFoundError('Note not found')
+    note_template = NoteTemplate.find_by_id(note_template_id=template_id)
+    if not note_template or note_template.deleted_at or note_template.creator_id != current_user.get_id():
+        raise ResourceNotFoundError('Note template not found')
+    note = Note.update(
+        body=note_template.body,
+        contact_type=note.contact_type,
+        is_draft=note.is_draft,
+        is_private=note_template.is_private,
+        note_id=note.id,
+        set_date=note.set_date,
+        sid=note.sid,
+        subject=note_template.subject,
+        topics=[topic.topic for topic in note_template.topics],
+    )
+    for attachment in note.attachments:
+        Note.delete_attachment(attachment_id=attachment.id, note_id=note_id)
+    for attachment in note_template.attachments:
+        note.attachments.append(
+            NoteAttachment(
+                note_id=note_id,
+                path_to_attachment=attachment.path_to_attachment,
+                uploaded_by_uid=current_user.uid,
+            ),
+        )
+        std_commit()
+    return tolerant_jsonify(_boa_note_to_compatible_json(note=Note.find_by_id(note_id), note_read=True))
 
 
 @app.route('/api/notes/delete/<note_id>', methods=['DELETE'])

@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import Vue from 'vue'
-import {addAttachments, deleteNote, removeAttachment, updateNote} from '@/api/notes'
+import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
 
@@ -124,18 +124,6 @@ const mutations = {
   addSid: (state: any, sid: string) => state.sids.push(sid),
   addSidList: (state: any, sidList: string[]) => (state.sids = state.sids.concat(sidList)),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
-  applyTemplate: (state: any, template: any) => {
-    _.assignIn(state.model, {
-      attachments: template.attachments || [],
-      body: template.body,
-      contactType: template.contactType || null,
-      deleteAttachmentIds: [],
-      isPrivate: template.isPrivate,
-      setDate: template.setDate ? Vue.prototype.$moment(template.setDate) : null,
-      subject: template.subject,
-      topics: template.topics || [],
-    })
-  },
   exitSession: (state: any) => {
     clearTimeout(state.autoSaveJob)
     state.autoSaveJob = null
@@ -246,7 +234,9 @@ const actions = {
     }).finally(() => commit('setIsRecalculating', false))
   },
   addTopic: ({commit}, topic: string) => commit('addTopic', topic),
-  applyTemplate: ({commit}, template) => commit('applyTemplate', template),
+  applyTemplate: ({commit, state}, template) => {
+    applyNoteTemplate(state.model.id, template.id).then(note => commit('setModel', note))
+  },
   clearAutoSaveJob: ({commit, state}) => {
     clearTimeout(state.autoSaveJob)
     commit('setAutoSaveJob', null)

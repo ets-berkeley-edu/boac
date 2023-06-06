@@ -55,14 +55,6 @@ class NoteAttachment(db.Model):
         )
 
     @classmethod
-    def create_using_template_attachment(cls, note_id, template_attachment, uploaded_by):
-        return NoteAttachment(
-            note_id=note_id,
-            path_to_attachment=template_attachment.path_to_attachment,
-            uploaded_by_uid=uploaded_by,
-        )
-
-    @classmethod
     def find_by_id(cls, attachment_id):
         return cls.query.filter(and_(cls.id == attachment_id, cls.deleted_at == None)).first()  # noqa: E711
 
