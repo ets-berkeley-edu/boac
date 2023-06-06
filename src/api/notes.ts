@@ -77,6 +77,16 @@ export function updateNote(
   })
 }
 
+export function applyNoteTemplate(noteId: number, templateId: number) {
+  return axios.post(`${utils.apiBaseUrl()}/api/note/apply_template`, {noteId, templateId}).then(response => {
+    const note = response.data
+    Vue.prototype.$eventHub.emit('note-updated', note)
+    $_track('update')
+    $_refreshMyDraftNoteCount()
+    return note
+  })
+}
+
 export function deleteNote(note: any) {
   $_track('delete')
   return axios
