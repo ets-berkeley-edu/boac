@@ -7,18 +7,18 @@ Flask-SQLAlchemy==3.0.3
 Flask==2.3.2
 ldap3==2.7
 names==0.3.0
-nltk==3.8
+nltk==3.8.1
 pandas==1.4.4
 pprintpp==0.4.0
 psycopg2-binary==2.9.6
 python-dateutil==2.8.2
 pytz==2023.3
-requests==2.29.0
+requests==2.31.0
 simplejson==3.19.1
 smart-open==1.8.3
 SQLAlchemy==1.4.45
 titlecase==2.4
-Werkzeug==2.3.3
+Werkzeug==2.3.4
 xmltodict==0.13.0
 zipstream-new==1.1.8
 https://github.com/python-cas/python-cas/archive/master.zip
@@ -29,4 +29,4 @@ moto==3.1.16
 pytest==7.3.1
 pytest-flask==1.2.0
 responses==0.23.1
-tox==4.5.1
+tox==4.6.0
