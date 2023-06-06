@@ -866,6 +866,69 @@ class TestUpdateNotes:
         assert api_json['setDate'] == '2021-10-31'
 
 
+class TestApplyTemplate:
+
+    @classmethod
+    def _api_apply_template(
+            cls,
+            client,
+            note_id,
+            template_id,
+            expected_status_code=200,
+    ):
+        data = {
+            'noteId': note_id,
+            'templateId': template_id,
+        }
+        response = client.post(
+            '/api/note/apply_template',
+            content_type='application/json',
+            data=json.dumps(data),
+        )
+        assert response.status_code == expected_status_code
+        return response.json
+
+    def test_not_authenticated(self, app, client):
+        """Returns 401 if not authenticated."""
+        self._api_apply_template(
+            client=client,
+            expected_status_code=401,
+            note_id=1,
+            template_id=1,
+        )
+
+    def test_unauthorized(self, app, client, fake_auth, mock_coe_advising_note):
+        """Deny user's attempt to edit someone else's note."""
+        fake_auth.login(asc_advisor_uid)
+        assert self._api_apply_template(
+            client=client,
+            expected_status_code=404,
+            note_id=mock_coe_advising_note.id,
+            template_id=1,
+        )
+
+    def test_apply_template(self, app, client, fake_auth, mock_note_template):
+        """Update note set date."""
+        advisor = AuthorizedUser.find_by_id(mock_note_template.creator_id)
+        fake_auth.login(advisor.uid)
+        draft_note = _api_create_draft_note(client)
+        assert len(draft_note['attachments']) == 0
+        # Apply the template
+        api_json = self._api_apply_template(
+            client=client,
+            note_id=draft_note['id'],
+            template_id=mock_note_template.id,
+        )
+        assert api_json['id'] == draft_note['id']
+        assert api_json['isDraft'] is True
+        assert api_json['subject'] == mock_note_template.subject
+        assert api_json['body'] == mock_note_template.body
+        # Assert non-zero attachments
+        attachment_count = len(mock_note_template.attachments)
+        assert attachment_count > 0
+        assert len(api_json['attachments']) == attachment_count
+
+
 class TestDeleteNote:
     """Delete note API."""
 
