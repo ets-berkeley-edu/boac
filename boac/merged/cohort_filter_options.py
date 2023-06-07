@@ -99,7 +99,7 @@ class CohortFilterOptions:
                 _filter('graduatePrograms', 'Graduate Plan', options=graduate_programs()),
                 _boolean_filter('studentHolds', 'Holds'),
                 _filter('incomplete', 'Incomplete Grade', options=incomplete_types()),
-                _range_filter('incompleteDateRanges', 'Incomplete Scheduled Grades', labels_range=['From', 'to'], validation='date'),
+                _range_filter('incompleteDateRanges', 'Incomplete Pending Grades', labels_range=['From', 'to'], validation='date'),
                 _filter('intendedMajors', 'Intended Major', options=intended_majors()),
                 _filter('levels', 'Level', options=level_options()),
                 _filter('majors', 'Major', options=majors()),
