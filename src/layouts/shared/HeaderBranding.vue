@@ -8,7 +8,7 @@
       Skip to main content
     </a>
     <div
-      class="font-size-16 header-text pl-2 text-white"
+      class="font-size-16 header-text text-white"
       role="banner"
     >
       <div v-if="$_.startsWith($route.path, '/home')" class="text-nowrap">

@@ -43,7 +43,7 @@
           <div class="align-items-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-                {{ row.item.subject }}
+                {{ $_.trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
               </div>
               <b-btn
                 v-if="row.item.author.uid === $currentUser.uid"
@@ -53,7 +53,7 @@
                 variant="link"
                 @click="() => openEditModal(row.item)"
               >
-                {{ row.item.subject }}
+                {{ $_.trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
               </b-btn>
             </div>
             <div v-if="$_.size(row.item.attachments)">
