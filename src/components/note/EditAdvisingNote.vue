@@ -62,7 +62,7 @@
           <b-btn
             id="save-note-button"
             class="btn-primary-color-override"
-            :disabled="!sids.length"
+            :disabled="!sids.length || !$_.trim(model.subject)"
             variant="primary"
             @click="() => save(false)"
           >
@@ -225,7 +225,7 @@ export default {
       const ifAuthenticated = () => {
         const trimmedSubject = this.$_.trim(this.model.subject)
         const setDate = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
-        if (trimmedSubject) {
+        if (trimmedSubject || this.model.isDraft) {
           updateNote(
             this.model.id,
             this.$_.trim(this.model.body),

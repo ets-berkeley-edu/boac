@@ -67,7 +67,7 @@ from boac.models.note_template import NoteTemplate
 from flask import current_app as app, request, Response, stream_with_context
 from flask_login import current_user
 
-DEFAULT_DRAFT_NOTE_SUBJECT = '[DRAFT NOTE]'
+DEFAULT_DRAFT_NOTE_SUBJECT = ''
 
 
 @app.route('/api/note/<note_id>')

@@ -219,6 +219,10 @@ export default {
   components: {AreYouSureModal},
   mixins: [Attachments, Berkeley, Context, Util],
   props: {
+    advisingNote: {
+      required: true,
+      type: Object
+    },
     afterSaved: {
       required: true,
       type: Function
@@ -231,11 +235,7 @@ export default {
       required: true,
       type: Function
     },
-    isOpen: Boolean,
-    note: {
-      required: true,
-      type: Object
-    }
+    isOpen: Boolean
   },
   data: () => ({
     allUsers: undefined,
@@ -245,6 +245,7 @@ export default {
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
     existingAttachments: undefined,
+    note: undefined,
     showConfirmDeleteAttachment: false,
     uploadingAttachment: false
   }),
@@ -253,7 +254,7 @@ export default {
       return !this.note.legacySource
     },
     noteAttachments() {
-      return this.note.attachments
+      return this.note ? this.note.attachments : []
     }
   },
   watch: {
@@ -298,6 +299,10 @@ export default {
   },
   created() {
     this.author = this.$_.get(this.note, 'author')
+    this.note = this.$_.cloneDeep(this.advisingNote)
+    if (this.note.isDraft && !this.note.subject) {
+      this.note.subject = this.$_.trim(this.note.subject) || this.$config.draftNoteSubjectPlaceholder
+    }
     this.loadAuthorDetails()
     this.resetAttachments()
   },
