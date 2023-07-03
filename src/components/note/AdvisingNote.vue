@@ -254,7 +254,7 @@ export default {
       return !this.note.legacySource
     },
     noteAttachments() {
-      return this.note ? this.note.attachments : []
+      return this.advisingNote.attachments
     }
   },
   watch: {
@@ -375,7 +375,7 @@ export default {
       return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
     resetAttachments() {
-      this.existingAttachments = this.$_.cloneDeep(this.note.attachments)
+      this.existingAttachments = this.$_.cloneDeep(this.advisingNote.attachments)
     },
     resetFileInput() {
       const inputElement = this.$refs['attachment-file-input']
