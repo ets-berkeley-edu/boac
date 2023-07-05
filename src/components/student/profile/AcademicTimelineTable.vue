@@ -27,7 +27,7 @@
           Search {{ filter === 'eForm' ? 'eForm' : $_.capitalize(filter) }}s:
         </label>
       </div>
-      <div>
+      <div class="pr-1">
         <b-input
           :id="`timeline-${filter}s-query-input`"
           v-model="timelineQuery"
@@ -36,6 +36,29 @@
           trim
           type="search"
         />
+      </div>
+      |
+      <div v-if="showMyNotesToggle">
+        <button
+          id="toggle-my-notes-button"
+          type="button"
+          class="btn btn-link pt-0 pb-0 pl-1 pr-1 toggle-button"
+          @click="toggleMyNotes"
+          @keyup.down="toggleMyNotes"
+        >
+          <div class="toggle-label">
+            <span :class="{'toggle-label-active': !showMyNotesOnly}">
+              All {{ filter }}s
+            </span>
+            <span class="px-1">
+              <font-awesome v-if="showMyNotesOnly" icon="toggle-on" class="toggle toggle-on"></font-awesome>
+              <font-awesome v-if="!showMyNotesOnly" icon="toggle-off" class="toggle toggle-off"></font-awesome>
+            </span>
+            <span :class="{'toggle-label-active': showMyNotesOnly}">
+              My {{ filter }}s
+            </span>
+          </div>
+        </button>
       </div>
     </div>
 
@@ -399,6 +422,7 @@ export default {
     openMessages: [],
     searchIndex: undefined,
     searchResults: undefined,
+    showMyNotesOnly: false,
     timelineQuery: ''
   }),
   computed: {
@@ -431,6 +455,9 @@ export default {
       return ['eForm', 'note'].includes(this.filter)
         && (this.$currentUser.isAdmin || this.isDirector(this.$currentUser))
         && hasNonDrafts()
+    },
+    showMyNotesToggle() {
+      return ['appointment', 'note'].includes(this.filter)
     }
   },
   watch: {
@@ -598,7 +625,16 @@ export default {
       }
     },
     messagesPerType(type) {
-      return type ? this.$_.filter(this.messages, ['type', type]) : this.messages
+      if (!type) {
+        return this.messages
+      } else if (this.showMyNotesToggle && this.showMyNotesOnly) {
+        return this.$_.filter(this.messages, m => {
+          let uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
+          return m.type === type && uid === this.$currentUser.uid
+        })
+      } else {
+        return this.$_.filter(this.messages, ['type', type])
+      }
     },
     onAppointmentStatusChange(appointmentId) {
       return new Promise(resolve => {
@@ -680,6 +716,10 @@ export default {
         this.$_.each(this.messagesPerType(this.filter), this.close)
         this.$announcer.polite(`All ${this.filter}s collapsed`)
       }
+    },
+    toggleMyNotes() {
+      this.showMyNotesOnly = !this.showMyNotesOnly
+      this.$announcer.polite(`Showing ${this.showMyNotesOnly ? 'only my' : 'all'} ${this.filter}s`)
     }
   }
 }
@@ -777,7 +817,30 @@ export default {
   align-items: center;
   display: flex;
 }
+.toggle {
+ font-size: 20px;
+}
+.toggle-btn-column {
+  min-height: 28px;
+  min-width: 36px;
+}
 .toggle-expand-all-caret {
   width: 15px;
+}
+.toggle-label {
+  color: #999999;
+  display: flex;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.toggle-label-active {
+  color: #000000;
+  font-weight: 600;
+}
+.toggle-off {
+   color: #999999;
+}
+.toggle-on {
+   color: #00c13a;
 }
 </style>
