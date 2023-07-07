@@ -298,8 +298,8 @@ export default {
     }
   },
   created() {
-    this.author = this.$_.get(this.note, 'author')
     this.note = this.$_.cloneDeep(this.advisingNote)
+    this.author = this.$_.get(this.note, 'author')
     if (this.note.isDraft && !this.note.subject) {
       this.note.subject = this.$_.trim(this.note.subject) || this.$config.draftNoteSubjectPlaceholder
     }

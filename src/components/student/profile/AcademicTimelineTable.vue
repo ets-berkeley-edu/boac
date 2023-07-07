@@ -492,7 +492,7 @@ export default {
     if (this.$currentUser.canAccessAdvisingData) {
       this.$eventHub.on('note-creation-is-starting', this.onNoteCreateStartEvent)
       this.$eventHub.on('note-created', this.afterNoteCreated)
-      this.$eventHub.on('note-updated', this.refreshNote)
+      this.$eventHub.on('note-updated', this.afterNoteEdit)
       this.$eventHub.on('notes-created', this.afterNotesCreated)
     }
     this.sortMessages()
@@ -523,7 +523,7 @@ export default {
   destroyed() {
     this.$eventHub.off('note-creation-is-starting', this.onNoteCreateStartEvent)
     this.$eventHub.off('note-created', this.afterNoteCreated)
-    this.$eventHub.off('note-updated', this.refreshNote)
+    this.$eventHub.off('note-updated', this.afterNoteEdit)
     this.$eventHub.off('notes-created', this.afterNotesCreated)
   },
   methods: {
