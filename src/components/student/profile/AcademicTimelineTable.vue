@@ -187,11 +187,11 @@
               <span v-if="!$_.includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
-                :advising-note="message"
                 :after-saved="afterNoteEdit"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
                 :is-open="$_.includes(openMessages, message.transientId)"
+                :note="message"
               />
               <EditAdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"

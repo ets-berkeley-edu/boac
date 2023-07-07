@@ -1,17 +1,22 @@
 <template>
   <div :id="`note-${note.id}-outer`" class="advising-note-outer">
     <div :id="`note-${note.id}-is-closed`" :class="{'truncate-with-ellipsis': !isOpen}" aria-label="Advising note">
-      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`" class="pr-2">
-        <b-badge pill variant="danger">Draft</b-badge>
+      <span v-if="note.isDraft" :id="`note-${note.id}-is-draft`">
+        <span class="pr-2">
+          <b-badge pill variant="danger">Draft</b-badge>
+        </span>
+        <span :id="`note-${note.id}-subject`">{{ note.subject || $config.draftNoteSubjectPlaceholder }}</span>
       </span>
-      <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
-      <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
-      <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
-        advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
-      </span>
-      <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
-        eForm: {{ note.eForm.action }} &mdash; {{ note.eForm.status }}
+      <span v-if="!note.isDraft">
+        <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
+        <span v-if="!note.subject && $_.size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
+        <span v-if="!note.subject && !$_.size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
+        <span v-if="!note.subject && !$_.size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !$_.isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
+          advisor {{ author.name }}<span v-if="note.topics && $_.size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+        </span>
+        <span v-if="!note.subject && !$_.size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
+          eForm: {{ note.eForm.action }} &mdash; {{ note.eForm.status }}
+        </span>
       </span>
     </div>
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
@@ -219,10 +224,6 @@ export default {
   components: {AreYouSureModal},
   mixins: [Attachments, Berkeley, Context, Util],
   props: {
-    advisingNote: {
-      required: true,
-      type: Object
-    },
     afterSaved: {
       required: true,
       type: Function
@@ -235,7 +236,14 @@ export default {
       required: true,
       type: Function
     },
-    isOpen: Boolean
+    isOpen: {
+      required: true,
+      type: Boolean
+    },
+    note: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     allUsers: undefined,
@@ -245,7 +253,6 @@ export default {
     deleteAttachmentIndex: undefined,
     deleteAttachmentIds: [],
     existingAttachments: undefined,
-    note: undefined,
     showConfirmDeleteAttachment: false,
     uploadingAttachment: false
   }),
@@ -254,7 +261,7 @@ export default {
       return !this.note.legacySource
     },
     noteAttachments() {
-      return this.advisingNote.attachments
+      return this.note.attachments
     }
   },
   watch: {
@@ -298,11 +305,7 @@ export default {
     }
   },
   created() {
-    this.note = this.$_.cloneDeep(this.advisingNote)
     this.author = this.$_.get(this.note, 'author')
-    if (this.note.isDraft && !this.note.subject) {
-      this.note.subject = this.$_.trim(this.note.subject) || this.$config.draftNoteSubjectPlaceholder
-    }
     this.loadAuthorDetails()
     this.resetAttachments()
   },
@@ -375,7 +378,7 @@ export default {
       return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
     resetAttachments() {
-      this.existingAttachments = this.$_.cloneDeep(this.advisingNote.attachments)
+      this.existingAttachments = this.$_.cloneDeep(this.note.attachments)
     },
     resetFileInput() {
       const inputElement = this.$refs['attachment-file-input']
