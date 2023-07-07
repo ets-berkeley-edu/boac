@@ -247,8 +247,7 @@ export default {
           || this.stripHtmlAndTrim(this.model.body)
           || this.$_.size(this.model.topics)
           || this.$_.size(this.model.attachments)
-          || this.addedCohorts.length
-          || this.addedCuratedGroups.length
+          || this.completeSidSet.length
         if (unsavedChanges) {
           this.showDiscardNoteModal = true
           this.setFocusLockDisabled(true)
