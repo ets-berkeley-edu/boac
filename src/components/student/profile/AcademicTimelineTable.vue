@@ -197,7 +197,7 @@
                 v-if="['eForm', 'note'].includes(message.type) && message.id === editModeNoteId"
                 :note-id="message.id"
                 :after-cancel="afterNoteEditCancel"
-                :after-saved="afterNoteEdit"
+                :after-saved="afterEditAdvisingNote"
               />
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
@@ -527,6 +527,10 @@ export default {
     this.$eventHub.off('notes-created', this.afterNotesCreated)
   },
   methods: {
+    afterEditAdvisingNote(updatedNote) {
+      this.editModeNoteId = null
+      this.refreshNote(updatedNote)
+    },
     afterNoteCreated(note) {
       this.creatingNoteEvent = null
       this.onCreateNewNote(note)
@@ -540,7 +544,6 @@ export default {
       this.refreshSearchIndex()
     },
     afterNoteEdit(updatedNote) {
-      this.editModeNoteId = null
       this.refreshNote(updatedNote)
     },
     afterNoteEditCancel() {
