@@ -120,7 +120,7 @@ class TestDataLoch:
         assert notes[0]['updated_at']
         assert notes[1]['author_name'] == 'Ginger Baker'
         assert notes[1]['subject'] == 'Ginger Baker\'s Air Force'
-        assert notes[1]['body'] == 'Bands led by drummers tend to leave a lot of space for drum solos'
+        assert notes[1]['body'] == '<p>Bands led by drummers</p><p>tend to leave a lot of space for drum solos</p>'
 
     def test_get_data_science_advising_notes(self):
         notes = data_loch.get_data_science_advising_notes('11667051')

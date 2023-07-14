@@ -519,7 +519,7 @@ def get_asc_advising_notes(sid):
         SELECT
             id, sid, advisor_uid AS author_uid,
             advisor_first_name || ' ' || advisor_last_name AS author_name,
-            subject, body,
+            subject, '<p>' || replace(body, E'\n', '</p><p>') || '</p>' AS body,
             created_at, updated_at
         FROM {asc_schema()}.advising_notes
         WHERE sid=%(sid)s
