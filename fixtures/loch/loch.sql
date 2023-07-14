@@ -596,7 +596,7 @@ INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, subject, body, created_at, updated_at)
 VALUES
 ('11667051-139362', '139362', '11667051', 'Deborah', 'Davies', '2014-01-03', '1133399', 'Lemmy', 'Kilmister', NULL, NULL, '2014-01-03 20:30:00+00', '2014-01-03 20:30:00+00'),
-('11667051-139379', '139379', '11667051', 'Deborah', 'Davies', '2014-01-16', '90412', 'Ginger', 'Baker', 'Ginger Baker''s Air Force', 'Bands led by drummers tend to leave a lot of space for drum solos', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
+('11667051-139379', '139379', '11667051', 'Deborah', 'Davies', '2014-01-16', '90412', 'Ginger', 'Baker', 'Ginger Baker''s Air Force', E'Bands led by drummers\ntend to leave a lot of space for drum solos', '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
 ('8901234567-139379', '139379', '8901234567', 'John David', 'Crossman', '2014-01-16', '90412', 'Ginger', 'Baker', NULL, NULL, '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00'),
 ('2345678901-139379', '139379', '2345678901', 'Dave', 'Doolittle', '2014-01-16', '90412', 'Ginger', 'Baker', NULL, NULL, '2014-01-16 16:52:00+00', '2014-01-16 16:52:00+00');
 

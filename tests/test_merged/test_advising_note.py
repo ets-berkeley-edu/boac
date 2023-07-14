@@ -93,7 +93,7 @@ class TestMergedAdvisingNote:
         assert notes[5]['id'] == '11667051-139379'
         assert notes[5]['sid'] == '11667051'
         assert notes[5]['subject'] == 'Ginger Baker\'s Air Force'
-        assert notes[5]['body'] == 'Bands led by drummers tend to leave a lot of space for drum solos'
+        assert notes[5]['body'] == '<p>Bands led by drummers</p><p>tend to leave a lot of space for drum solos</p>'
         assert notes[5]['author']['uid'] == '90412'
         assert notes[5]['author']['name'] == 'Ginger Baker'
         assert notes[5]['topics'] is None
