@@ -1326,7 +1326,7 @@ def _filter_from_academic_career_status(academic_career_status, degree_terms, de
     return _filter
 
 
-def get_students_ordering(current_term_id, order_by=None, group_codes=None, majors=None, scope=None):
+def get_students_ordering(term_id, order_by=None, group_codes=None, majors=None, scope=None):
     o_direction = 'asc'
     if order_by and order_by.endswith('desc'):
         order_by, o_direction = order_by.rsplit(' ', 1)
@@ -1369,7 +1369,7 @@ def get_students_ordering(current_term_id, order_by=None, group_codes=None, majo
     elif order_by == 'enrolled_units':
         supplemental_query_tables = f"""
             LEFT JOIN {student_schema()}.student_enrollment_terms set
-            ON set.sid = spi.sid AND set.term_id = '{current_term_id}'"""
+            ON set.sid = spi.sid AND set.term_id = '{term_id}'"""
         o = 'set.enrolled_units'
     elif order_by and order_by.startswith('term_gpa_'):
         gpa_term_id = order_by.replace('term_gpa_', '')

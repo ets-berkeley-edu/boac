@@ -450,7 +450,7 @@ def query_students(
     }
     if not sids_only:
         o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
-            current_term_id=current_term_id(),
+            term_id=(term_id or current_term_id()),
             order_by=order_by,
             group_codes=group_codes,
             majors=majors,
@@ -498,7 +498,7 @@ def search_for_students(
             'totalStudentCount': 0,
         }
     o, o_secondary, o_tertiary, o_direction, supplemental_query_tables = data_loch.get_students_ordering(
-        current_term_id=current_term_id(),
+        term_id=current_term_id(),
         order_by=order_by,
     )
     if supplemental_query_tables:
