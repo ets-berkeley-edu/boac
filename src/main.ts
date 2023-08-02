@@ -3,7 +3,6 @@ import App from './App.vue'
 import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import CKEditor from '@ckeditor/ckeditor5-vue2'
-import core from './core'
 import Highcharts from 'highcharts'
 import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
@@ -26,6 +25,7 @@ import {far} from '@fortawesome/free-regular-svg-icons'
 import {fas} from '@fortawesome/free-solid-svg-icons'
 import {faSpinner} from '@fortawesome/free-solid-svg-icons/faSpinner'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
+import {initGoogleAnalytics} from '@/core'
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
@@ -117,37 +117,33 @@ axios.interceptors.response.use(
 
 axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
   Vue.prototype.$currentUser = Vue.observable(response.data)
-
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     Vue.prototype.$config = response.data
     Vue.prototype.$config.apiBaseUrl = apiBaseUrl
     const ebEnvironment = Vue.prototype.$config.ebEnvironment
     Vue.prototype.$config.isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
     Vue.prototype.$config.isVueAppDebugMode = isVueAppDebugMode
-    // Mount BOA
-    new Vue({
-      router,
-      store,
-      render: h => h(App)
-    }).$mount('#app')
 
-    if (Vue.prototype.$config.pingFrequency) {
-      // Keep session alive with periodic requests
-      setInterval(() => {
-        axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
-          if (!response.data.isAuthenticated) {
-            Vue.prototype.$eventHub.emit('user-session-expired')
-          }
-        })
-      }, Vue.prototype.$config.pingFrequency)
-    }
-    // The 'core' functions strictly manage state changes in $currentUser and other "prototype" objects.
-    // For example, core functions might be invoked after a successful dev-auth login.
-    Vue.prototype.$core = core
-    Vue.prototype.$core.mountGoogleAnalytics(router)
-    Vue.prototype.$core.initializeCurrentUser()
-    // The following non-core function(s) do not involve "prototype" objects.
-    store.dispatch('context/loadServiceAnnouncement')
+    initGoogleAnalytics().then(() => {
+      store.dispatch('context/loadServiceAnnouncement')
+      // Mount BOA
+      new Vue({
+        router,
+        store,
+        render: h => h(App)
+      }).$mount('#app')
+
+      if (Vue.prototype.$config.pingFrequency) {
+        // Keep session alive with periodic requests
+        setInterval(() => {
+          axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
+            if (!response.data.isAuthenticated) {
+              Vue.prototype.$eventHub.emit('user-session-expired')
+            }
+          })
+        }, Vue.prototype.$config.pingFrequency)
+      }
+    })
   })
 })
 
