@@ -6,9 +6,9 @@
       no-caret
       right
     >
-      <template slot="button-content">
-        <div class="d-flex align-items-center">
-          <div class="b-link-text">{{ $currentUser.firstName || `UID:${$currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
+      <template #button-content>
+        <div class="align-items-center d-flex">
+          <div class="b-link-text pr-1">{{ $currentUser.firstName || `UID:${$currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
         </div>
       </template>
       <b-dropdown-item

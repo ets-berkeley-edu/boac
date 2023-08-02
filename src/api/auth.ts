@@ -3,6 +3,7 @@ import axios from 'axios'
 import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
+import {initGoogleAnalytics} from '@/core'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
@@ -12,9 +13,9 @@ export function devAuthLogIn(uid: string, password: string) {
     })
     .then(response => {
       Vue.prototype.$currentUser = Vue.observable(response.data)
-      Vue.prototype.$core.initializeCurrentUser().then(_.noop)
-      store.dispatch('context/loadServiceAnnouncement').then(_.noop)
-      return Vue.prototype.$currentUser
+      initGoogleAnalytics().then(() => {
+        store.dispatch('context/loadServiceAnnouncement').then(_.noop)
+      })
     }, error => error)
 }
 

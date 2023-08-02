@@ -3,7 +3,7 @@ boto3==1.20.24
 decorator==5.1.1
 Flask-Caching==2.0.2
 Flask-Login==0.6.2
-Flask-SQLAlchemy==3.0.3
+Flask-SQLAlchemy==3.0.5
 Flask==2.3.2
 ldap3==2.7
 names==0.3.0
@@ -18,7 +18,7 @@ simplejson==3.19.1
 smart-open==1.8.3
 SQLAlchemy==1.4.45
 titlecase==2.4
-Werkzeug==2.3.4
+Werkzeug==2.3.6
 xmltodict==0.13.0
 zipstream-new==1.1.8
 https://github.com/python-cas/python-cas/archive/master.zip
@@ -26,7 +26,7 @@ https://github.com/python-cas/python-cas/archive/master.zip
 # For testing
 
 moto==3.1.16
-pytest==7.3.1
+pytest==7.4.0
 pytest-flask==1.2.0
-responses==0.23.1
-tox==4.6.0
+responses==0.23.3
+tox==4.6.4
