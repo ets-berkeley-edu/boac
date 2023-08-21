@@ -13,6 +13,7 @@
     "removeComments": true,
     "baseUrl": ".",
     "types": [
+      "gtag.js",
       "webpack-env"
     ],
     "paths": {
