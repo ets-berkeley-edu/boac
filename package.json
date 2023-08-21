@@ -32,7 +32,6 @@
     "vue": "2.7.14",
     "vue-class-component": "7.2.6",
     "vue-focus-lock": "1.4.1",
-    "vue-gtag": "1.16.1",
     "vue-highcharts": "0.2.0",
     "vue-linkify": "1.0.1",
     "vue-lodash": "2.1.2",
@@ -46,6 +45,7 @@
   "devDependencies": {
     "@babel/core": "^7.22.9",
     "@jridgewell/source-map": "^0.3.5",
+    "@types/gtag.js": "^0.0.13",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/eslint-plugin-tslint": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",

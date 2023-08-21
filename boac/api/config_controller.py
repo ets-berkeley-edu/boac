@@ -66,7 +66,6 @@ def app_config():
         'featureFlagAdmittedStudents': app.config['FEATURE_FLAG_ADMITTED_STUDENTS'],
         'fixedWarningOnAllPages': app.config['FIXED_WARNING_ON_ALL_PAGES'],
         'futureTermId': int(future_term_id()),
-        'googleAnalyticsId': app.config['GOOGLE_ANALYTICS_ID'],
         'isDemoModeAvailable': app.config['DEMO_MODE_AVAILABLE'],
         'maxAttachmentsPerNote': app.config['NOTES_ATTACHMENTS_MAX_PER_NOTE'],
         'notesDraftAutoSaveInterval': app.config['NOTES_DRAFT_AUTO_SAVE_INTERVAL'],
