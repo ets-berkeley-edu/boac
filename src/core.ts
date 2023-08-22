@@ -2,10 +2,11 @@ import Vue from 'vue'
 
 export function initGoogleAnalytics() {
   return new Promise<void>(resolve => {
+    const googleAnalyticsId = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
     const user = Vue.prototype.$currentUser
-    if (user.isAuthenticated && !user.isAdmin) {
-      window.gtag('config', process.env.VUE_APP_GOOGLE_ANALYTICS_4_ID, {
-        user_id: Vue.prototype.$currentUser.uid
+    if (googleAnalyticsId && user.uid && !user.isAdmin) {
+      window.gtag('config', googleAnalyticsId, {
+        user_id: user.uid
       })
       const track = (action, category, label?, id?) => {
         window.gtag('event', action, {

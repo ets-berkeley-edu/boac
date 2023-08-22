@@ -8,12 +8,13 @@
     <!-- BOAC CSS -->
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title>Welcome | BOA</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= VUE_APP_GOOGLE_ANALYTICS_4_ID %>"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<%= VUE_APP_GOOGLE_ANALYTICS_ID %>"></script>
     <script>
       window.dataLayer = window.dataLayer || []
       function gtag(){dataLayer.push(arguments)}
       gtag('js', new Date())
-      gtag('config', '<%= VUE_APP_GOOGLE_ANALYTICS_4_ID %>')
+      const googleAnalyticsId = '<%= VUE_APP_GOOGLE_ANALYTICS_ID %>'
+      gtag('config', googleAnalyticsId || null)
     </script>
   </head>
   <body>
