@@ -6,4 +6,4 @@ chmod 400 config/production-local.py
 
 # The following update of .env.local is necessary because Google Analytics is loaded in our index.html file, beyond
 # the scope of the Vue.js initialization context.
-grep GOOGLE_ANALYTICS_4_ID 'config/production-local.py'  | sed 's/ //g' >> .env.local
+grep GOOGLE_ANALYTICS_ID 'config/production-local.py'  | sed 's/ //g' >> .env.local
