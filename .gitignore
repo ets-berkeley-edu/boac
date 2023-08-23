@@ -15,7 +15,7 @@ node_modules
 config/*.json
 config/*-local.py
 config/*-local.conf
-.env.*.local
+.env*.local
 
 # Local dev
 venv
