@@ -8,6 +8,10 @@ phases:
     commands:
       - npm install --legacy-peer-deps
 
+  pre_build:
+    commands:
+      - ./scripts/code_pipeline/pre_build_phase.sh
+
   build:
     commands:
       - npm run build-vue
@@ -15,7 +19,7 @@ phases:
   post_build:
     commands:
       - chmod 755 ./scripts/*.sh
-      - ./scripts/create-build-summary.sh
+      - ./scripts/code_pipeline/post_build_phase.sh
 
 artifacts:
   files:
