@@ -712,8 +712,9 @@ def _merge_asc_student_profile_data(profiles_by_sid, scope):
         athletics_profile = json.loads(athletics_profile['profile'])
         if 'UWASC' in scope or 'ADMIN' in scope:
             profile['athleticsProfile'] = athletics_profile
-        else:
-            # Non-ASC advisors have access to team memberships but not other ASC data such as intensive or inactive status.
+        elif athletics_profile.get('isActiveAsc'):
+            # Non-ASC advisors have access to team memberships for ASC-active students only, not including other ASC
+            # data such as intensive status.
             profile['athleticsProfile'] = {'athletics': athletics_profile.get('athletics')}
 
 
