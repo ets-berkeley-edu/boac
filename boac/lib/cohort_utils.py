@@ -194,6 +194,10 @@ def level_options():
         {'name': 'Sophomore (30-59 Units)', 'value': 'Sophomore'},
         {'name': 'Junior (60-89 Units)', 'value': 'Junior'},
         {'name': 'Senior (90+ Units)', 'value': 'Senior'},
+        {'name': 'Masters and/or Professional', 'value': 'Masters/Professional'},
+        {'name': 'Doctoral Students Not Advanced to Candidacy', 'value': 'Doctoral Pre-Candidacy'},
+        {'name': 'Doctoral Advanced to Candidacy <= 6 Terms', 'value': 'Doctoral Candidate <= 6'},
+        {'name': 'Doctoral Advanced to Candidacy > 6 Terms', 'value': 'Doctoral Candidate > 6'},
     ]
 
 
