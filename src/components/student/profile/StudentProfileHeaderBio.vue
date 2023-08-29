@@ -77,7 +77,7 @@
         {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
       </div>
       <div
-        v-if="student.sisProfile.expectedGraduationTerm && $_.get(student.sisProfile, 'level.code') !== 'GR'"
+        v-if="student.sisProfile.expectedGraduationTerm && !['5', '6', '7', '8', 'GR'].includes($_.get(student.sisProfile, 'level.code'))"
         id="student-bio-expected-graduation"
       >
         Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}

@@ -1484,7 +1484,10 @@ def _level_to_code(level):
         'Sophomore': '20',
         'Junior': '30',
         'Senior': '40',
-        'Graduate': 'GR',
+        'Masters/Professional': '5',
+        'Doctoral Pre-Candidacy': '6',
+        'Doctoral Candidate <= 6': '7',
+        'Doctoral Candidate > 6': '8',
     }
     return codes.get(level, level)
 

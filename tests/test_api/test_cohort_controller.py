@@ -1734,6 +1734,10 @@ class TestCohortFilterOptions:
                 'existingFilters':
                     [
                         {'key': 'cohortOwnerAcademicPlans', 'value': '*'},
+                        {'key': 'levels', 'value': 'Doctoral Candidate > 6'},
+                        {'key': 'levels', 'value': 'Doctoral Candidate <= 6'},
+                        {'key': 'levels', 'value': 'Doctoral Pre-Candidacy'},
+                        {'key': 'levels', 'value': 'Masters/Professional'},
                         {'key': 'levels', 'value': 'Senior'},
                         {'key': 'levels', 'value': 'Junior'},
                         {'key': 'levels', 'value': 'Sophomore'},
