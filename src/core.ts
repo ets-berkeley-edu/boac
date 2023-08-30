@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import Vue from 'vue'
 
 export function initGoogleAnalytics() {
@@ -6,7 +7,11 @@ export function initGoogleAnalytics() {
     const user = Vue.prototype.$currentUser
     if (googleAnalyticsId) {
       window.gtag('config', googleAnalyticsId, {
-        user_id: user.uid
+        user_id: user.uid,
+        user_properties: {
+          dept_code: _.map(user.departments || [], 'code'),
+          title: user.title
+        }
       })
     }
     const track = (action, category, label?, id?) => {
