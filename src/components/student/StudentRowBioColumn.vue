@@ -140,6 +140,7 @@
         class="student-text"
       >
         <span :id="`row-${rowIndex}-student-team-${index}`">{{ team.groupName }}</span>
+        <span v-if="!student.athleticsProfile.isActiveAsc">(Inactive)</span>
       </div>
     </div>
   </div>

@@ -85,6 +85,7 @@
       <div v-if="student.athleticsProfile" id="student-bio-athletics">
         <div v-for="membership in student.athleticsProfile.athletics" :key="membership.groupName">
           {{ membership.groupName }}
+          <span v-if="!student.athleticsProfile.isActiveAsc">(Inactive)</span>
         </div>
       </div>
     </div>
