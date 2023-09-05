@@ -106,6 +106,7 @@
         <div v-if="row.item.athleticsProfile" :id="`student-${row.item.uid}-teams`" class="student-teams-container">
           <div v-for="membership in row.item.athleticsProfile.athletics" :key="membership.groupName" class="student-text">
             {{ membership.groupName }}
+            <span v-if="!row.item.athleticsProfile.isActiveAsc">(Inactive)</span>
           </div>
         </div>
       </div>
