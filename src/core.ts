@@ -5,18 +5,20 @@ export function initGoogleAnalytics() {
   return new Promise<void>(resolve => {
     const googleAnalyticsId = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
     const user = Vue.prototype.$currentUser
+    const uid = user.uid
     if (googleAnalyticsId) {
       window.gtag('config', googleAnalyticsId, {
-        user_id: user.uid,
+        user_id: uid,
         user_properties: {
           dept_code: _.map(user.departments || [], 'code'),
-          title: user.title
+          title: user.title,
+          uid
         }
       })
     }
     const track = (action, category, label?, id?) => {
       // Report this event to Google Analytics if and only if certain conditions are true.
-      if (googleAnalyticsId && user.uid && !user.isAdmin) {
+      if (googleAnalyticsId && uid && !user.isAdmin) {
         window.gtag('event', action, {
           event_category: category,
           event_label: label,
