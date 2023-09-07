@@ -10,6 +10,7 @@ phases:
 
   pre_build:
     commands:
+      - chmod 755 ./scripts/*.sh
       - ./scripts/code_pipeline/pre_build_phase.sh
 
   build:
@@ -18,7 +19,6 @@ phases:
 
   post_build:
     commands:
-      - chmod 755 ./scripts/*.sh
       - ./scripts/code_pipeline/post_build_phase.sh
 
 artifacts:

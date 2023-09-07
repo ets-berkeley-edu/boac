@@ -132,9 +132,6 @@ FIXED_WARNING_ON_ALL_PAGES = None
 # Directory to search for mock fixtures, if running in "test" or "demo" mode.
 FIXTURES_PATH = None
 
-# IMPORTANT: The Google Analytics ID is injected into front-end code by the 01_download_local_configs.sh script.
-GOOGLE_ANALYTICS_ID = ''
-
 # Minutes of inactivity before session cookie is destroyed
 INACTIVE_SESSION_LIFETIME = 20
 

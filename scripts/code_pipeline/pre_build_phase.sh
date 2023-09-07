@@ -9,7 +9,6 @@ cat << EOF > "${PWD}/.env.local"
 VUE_APP_GOOGLE_ANALYTICS_ID='${GOOGLE_ANALYTICS_ID}'
 EOF
 
-#chown webapp .env.local
 chmod 400 .env.local
 
 exit 0
