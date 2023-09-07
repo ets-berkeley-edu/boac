@@ -57,7 +57,6 @@ class TestConfigController:
         response = client.get('/api/config')
         assert response.status_code == 200
         assert 'boacEnv' in response.json
-        # In tests, certain configs are omitted or disabled (e.g., Google Analytics)
         data = response.json
         assert data['currentEnrollmentTermId'] == 2178
         assert data['ebEnvironment'] is None
