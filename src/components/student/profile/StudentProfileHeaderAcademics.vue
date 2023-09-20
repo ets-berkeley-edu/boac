@@ -12,8 +12,8 @@
         />
       </div>
       <div v-if="plansMinorPartitionedByStatus[0].length" id="student-bio-minors" class="mb-3">
-        <h3 v-if="plansMinorPartitionedByStatus.length > 1" class="student-profile-h3">Minors</h3>
-        <h3 v-if="plansMinorPartitionedByStatus.length === 1" class="student-profile-h3">Minor</h3>
+        <h3 v-if="plansMinorPartitionedByStatus[0].length > 1" class="student-profile-h3">Minors</h3>
+        <h3 v-if="plansMinorPartitionedByStatus[0].length === 1" class="student-profile-h3">Minor</h3>
         <StudentProfilePlan
           v-for="plan in plansMinorPartitionedByStatus[0]"
           :key="plan.description"
@@ -21,11 +21,11 @@
           :active="true"
         />
       </div>
-      <div v-if="!$_.isEmpty(student.sisProfile.subplans)" id="student-bio-subplans" class="mb-3">
-        <h3 class="student-profile-h3">{{ pluralize('Subplan', student.sisProfile.subplans.length) }}</h3>
+      <div v-if="$_.size(activeSubplans)" id="student-bio-subplans" class="mb-3">
+        <h3 class="student-profile-h3">{{ pluralize('Subplan', activeSubplans.length) }}</h3>
         <div
-          v-for="subplan in student.sisProfile.subplans"
-          :key="subplan"
+          v-for="(subplan, index) in activeSubplans"
+          :key="index"
           class="font-weight-bolder mb-2"
         >
           {{ subplan }}
@@ -55,6 +55,16 @@
             :plan="plan"
             :active="false"
           />
+        </div>
+      </div>
+      <div v-if="!plansPartitionedByStatus[0].length && $_.size(discontinuedSubplans)" id="student-bio-subplans" class="mb-3">
+        <h3 class="student-profile-h3">{{ pluralize('Discontinued Subplan', discontinuedSubplans.length) }}</h3>
+        <div
+          v-for="(subplan, index) in discontinuedSubplans"
+          :key="index"
+          class="font-weight-bolder mb-2"
+        >
+          {{ subplan }}
         </div>
       </div>
     </div>
@@ -102,9 +112,24 @@ export default {
       required: false,
       type: Boolean
     },
+    discontinuedSubplans: {
+      default: () => [],
+      required: false,
+      type: Array
+    },
     linkToStudentProfile: {
       required: false,
       type: Boolean
+    },
+    plansMinorPartitionedByStatus: {
+      default: () => [],
+      required: false,
+      type: Array
+    },
+    plansPartitionedByStatus: {
+      default: () => [],
+      required: false,
+      type: Array
     },
     student: {
       required: true,
@@ -113,8 +138,7 @@ export default {
   },
   data: () => ({
     academicCareerStatus: undefined,
-    plansMinorPartitionedByStatus: undefined,
-    plansPartitionedByStatus: undefined,
+    activeSubplans: undefined,
     planTypes: ['MAJ', 'SS', 'SP', 'SH', 'CRT']
   }),
   created() {
@@ -123,8 +147,7 @@ export default {
       degree.minorPlans = degree.plans.filter(plan => plan.type === 'MIN').map(minor => minor.plan).map(part => part.replace('Minor in ', ''))
     })
     this.academicCareerStatus = this.$_.get(this.student, 'sisProfile.academicCareerStatus')
-    this.plansMinorPartitionedByStatus = this.$_.partition(this.student.sisProfile.plansMinor, p => p.status === 'Active')
-    this.plansPartitionedByStatus = this.$_.partition(this.student.sisProfile.plans, p => p.status === 'Active')
+    this.activeSubplans = this.$_.compact(this.$_.map(this.plansPartitionedByStatus[0], 'subplan'))
   }
 }
 </script>
