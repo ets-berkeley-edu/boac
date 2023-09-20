@@ -139,6 +139,16 @@
               />
             </div>
           </div>
+          <div v-if="inactiveSubplans.length" id="student-bio-subplans" class="mb-3">
+            <h3 class="student-profile-h3">Discontinued Subplan(s)</h3>
+            <div
+              v-for="(subplan, index) in inactiveSubplans"
+              :key="index"
+              class="font-weight-bolder mb-2"
+            >
+              {{ subplan }}
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -163,6 +173,10 @@ export default {
       type: Array
     },
     inactiveMinors: {
+      required: true,
+      type: Array
+    },
+    inactiveSubplans: {
       required: true,
       type: Array
     },

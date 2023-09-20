@@ -5,7 +5,7 @@
     "lint-vue": "vue-cli-service lint --config .eslintrc.js --no-fix",
     "lint-vue-fix": "vue-cli-service lint --config .eslintrc.js",
     "preinstall": "npx npm-force-resolutions",
-    "serve-vue": "vue-cli-service serve --open"
+    "serve-vue": "vue-cli-service serve --open --host localhost"
   },
   "dependencies": {
     "@ckeditor/ckeditor5-build-classic": "19.0.2",

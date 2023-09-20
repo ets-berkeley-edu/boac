@@ -498,7 +498,9 @@ def _response_with_students_csv_download(sids, fieldnames, benchmark, term_id):
         'minors': lambda profile: ';'.join(
             [plan.get('description') for plan in profile.get('sisProfile', {}).get('plansMinor', []) if plan.get('status') == 'Active'],
         ),
-        'subplans': lambda profile: ';'.join([subplan for subplan in profile.get('sisProfile', {}).get('subplans', [])]),
+        'subplans': lambda profile: ';'.join(
+            [plan['subplan'] for plan in profile.get('sisProfile', {}).get('plans', []) if plan.get('subplan') and plan.get('status') == 'Active'],
+        ),
         'terms_in_attendance': lambda profile: profile.get('sisProfile', {}).get('termsInAttendance'),
         'expected_graduation_term': lambda profile: profile.get('sisProfile', {}).get('expectedGraduationTerm', {}).get('name'),
         'units_completed': lambda profile: profile.get('sisProfile', {}).get('cumulativeUnits'),

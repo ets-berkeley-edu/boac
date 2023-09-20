@@ -20,7 +20,12 @@
         </div>
       </div>
       <div class="mr-5">
-        <StudentProfileHeaderAcademics :student="student" />
+        <StudentProfileHeaderAcademics
+          :discontinued-subplans="discontinuedSubplans"
+          :plans-minor-partitioned-by-status="plansMinorPartitionedByStatus"
+          :plans-partitioned-by-status="plansPartitionedByStatus"
+          :student="student"
+        />
       </div>
     </div>
     <div v-if="!compact">
@@ -41,7 +46,8 @@
       <div>
         <StudentPersonalDetails
           :inactive-majors="plansPartitionedByStatus[0].length ? plansPartitionedByStatus[1] : []"
-          :inactive-minors="plansPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
+          :inactive-minors="plansMinorPartitionedByStatus[0].length ? plansMinorPartitionedByStatus[1] : []"
+          :inactive-subplans="plansPartitionedByStatus[0].length ? discontinuedSubplans : []"
           :is-open="isShowingPersonalDetails"
           :student="student"
         />
@@ -84,6 +90,7 @@ export default {
     }
   },
   data: () => ({
+    discontinuedSubplans: undefined,
     isShowingPersonalDetails: false,
     plansMinorPartitionedByStatus: undefined,
     plansPartitionedByStatus: undefined
@@ -91,6 +98,7 @@ export default {
   created() {
     this.plansMinorPartitionedByStatus = this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
     this.plansPartitionedByStatus = this.$_.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
+    this.discontinuedSubplans = this.$_.compact(this.$_.map(this.plansPartitionedByStatus[1], 'subplan'))
   },
   mounted() {
     this.$putFocusNextTick('student-name-header')
