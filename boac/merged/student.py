@@ -321,6 +321,7 @@ def get_term_units_by_sid(term, sids):
 
 
 def query_students(
+    academic_career=None,
     academic_career_status=None,
     academic_division=None,
     academic_standings=None,
@@ -391,6 +392,7 @@ def query_students(
     scope = scope_for_criteria(**criteria)
 
     query_tables, query_filter, query_bindings = data_loch.get_students_query(
+        academic_career=academic_career,
         academic_career_status=academic_career_status,
         academic_division=academic_division,
         academic_standings=academic_standings,

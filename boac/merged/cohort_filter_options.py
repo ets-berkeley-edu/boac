@@ -27,8 +27,8 @@ from copy import copy, deepcopy
 from datetime import datetime
 
 from boac.lib.berkeley import sis_term_id_for_name
-from boac.lib.cohort_utils import academic_career_status_options, academic_division_options, \
-    academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
+from boac.lib.cohort_utils import academic_career_options, academic_career_status_options, \
+    academic_division_options, academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
     coe_gender_options, coe_prep_status_options, colleges, curated_group_options, \
     degree_terms, degrees, entering_terms, ethnicities, genders, get_coe_profiles, \
     grad_terms, grading_terms, graduate_programs, incomplete_types, intended_majors, \
@@ -81,6 +81,7 @@ class CohortFilterOptions:
         academic_standing_min_term = f'Fall {datetime.now().year - academic_standing_years_cutoff}'
         return {
             'Academic': [
+                _filter('academicCareers', 'Academic Career', options=academic_career_options()),
                 _filter('academicDivisions', 'Academic Division', options=academic_division_options()),
                 _filter(
                     'academicStandings',
