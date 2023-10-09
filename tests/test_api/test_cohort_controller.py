@@ -1084,6 +1084,50 @@ class TestCohortPerFilters:
         assert is_active_asc(students[2]) is True
         assert is_active_asc(students[3]) is True
 
+    def test_filter_careers_graduate(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicCareers', 'value': 'graduate'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students)
+        for s in students:
+            assert s['majors'][0].endswith('PhD')
+
+    def test_filter_careers_undergraduate(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicCareers', 'value': 'undergraduate'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students)
+        for s in students:
+            assert s['majors'][0][-2:] in ('BA', 'BS', 'UG')
+
+    def test_filter_careers_all(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicCareers', 'value': 'graduate'},
+                    {'key': 'academicCareers', 'value': 'undergraduate'},
+                ],
+            },
+        )
+        students = api_json['students']
+        assert len(students)
+        for s in students:
+            assert next(s for s in students if s['majors'][0].endswith('BA'))
+            assert next(s for s in students if s['majors'][0].endswith('PhD'))
+
     def test_filter_colleges(self, client, coe_advisor_login):
         api_json = self._api_get_students_per_filters(
             client,

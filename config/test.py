@@ -23,6 +23,12 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import os
+
+
+_db_port = os.environ.get('PGPORT') or '5432'
+
+
 ALERT_INFREQUENT_ACTIVITY_ENABLED = False
 ALERT_WITHDRAWAL_ENABLED = False
 
@@ -32,12 +38,12 @@ BACKGROUND_TASKS = False
 
 COHORT_FILTER_ACADEMIC_STANDING_YEARS_CUTOFF = 100
 
-DATA_LOCH_RDS_URI = 'postgresql://boac:boac@localhost:5432/boac_loch_test'
+DATA_LOCH_RDS_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_loch_test'
 
 INDEX_HTML = 'tests/static/test-index.html'
 
 LOGGING_LOCATION = 'STDOUT'
 
-SQLALCHEMY_DATABASE_URI = 'postgresql://boac:boac@localhost:5432/boac_test'
+SQLALCHEMY_DATABASE_URI = f'postgresql://boac:boac@localhost:{_db_port}/boac_test'
 
 TESTING = True

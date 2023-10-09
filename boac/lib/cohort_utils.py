@@ -69,6 +69,13 @@ def academic_plans_for_cohort_owner(owner_uid):
     return plans
 
 
+def academic_career_options():
+    return [
+        {'name': 'Undergraduate', 'value': 'undergraduate'},
+        {'name': 'Graduate', 'value': 'graduate'},
+    ]
+
+
 def academic_career_status_options():
     return [
         {'name': 'Active', 'value': 'active'},

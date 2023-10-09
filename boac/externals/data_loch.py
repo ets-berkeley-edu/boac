@@ -1037,6 +1037,7 @@ def get_other_visa_types():
 
 
 def get_students_query(     # noqa
+    academic_career=None,
     academic_career_status=None,
     academic_division=None,
     academic_standings=None,
@@ -1173,6 +1174,13 @@ def get_students_query(     # noqa
     if degrees:
         query_filter += ' AND sd.plan = ANY(%(degrees)s)'
         query_bindings.update({'degrees': degrees})
+    if academic_career:
+        career_filters = []
+        if 'undergraduate' in academic_career:
+            career_filters.append("(starts_with(maj.college, 'Undergrad') OR maj.college = 'Rausser Clg Natural Resources')")
+        if 'graduate' in academic_career:
+            career_filters.append("starts_with(maj.college, 'Graduate')")
+        query_filter += ' AND (' + ' OR '.join(career_filters) + ')'
     if academic_division:
         query_filter += ' AND maj.division = ANY(%(academic_division)s)'
         query_bindings.update({'academic_division': academic_division})
@@ -1220,7 +1228,7 @@ def get_students_query(     # noqa
             major_filters.append('maj.major = ANY(%(majors)s)')
         query_filter += ' AND (' + ' OR '.join(major_filters) + ')'
         query_bindings.update({'majors': _majors})
-    if majors or minors or colleges or academic_division:
+    if majors or minors or colleges or academic_career or academic_division:
         query_tables += f' LEFT JOIN {student_schema()}.student_majors maj ON maj.sid = spi.sid'
     if midpoint_deficient_grade is True:
         query_tables += f""" JOIN {student_schema()}.student_enrollment_terms ser

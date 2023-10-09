@@ -392,6 +392,7 @@ def _query_students(
     benchmark('begin students query')
 
     results = query_students(
+        academic_career=criteria.get('academicCareers'),
         academic_career_status=criteria.get('academicCareerStatus'),
         academic_division=criteria.get('academicDivisions'),
         academic_standings=criteria.get('academicStandings'),
