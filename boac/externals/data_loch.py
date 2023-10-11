@@ -975,7 +975,7 @@ def get_distinct_divisions():
 
 
 def get_distinct_genders():
-    return safe_execute_rds(f'SELECT DISTINCT gender FROM {student_schema()}.demographics ORDER BY gender')
+    return safe_execute_rds(f"SELECT DISTINCT gender FROM {student_schema()}.demographics WHERE NULLIF(gender, '') IS NOT NULL ORDER BY gender")
 
 
 def get_distinct_ethnicities():
