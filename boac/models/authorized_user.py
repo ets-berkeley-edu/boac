@@ -207,13 +207,13 @@ class AuthorizedUser(Base):
         if not include_deleted:
             sql += ' AND deleted_at IS NULL'
         query = text(sql)
-        result = db.session.execute(query, {'uid': uid}).first()
+        result = db.session.execute(query, {'uid': uid}).mappings().first()
         return result and result['id']
 
     @classmethod
     def get_uid_per_id(cls, user_id):
         query = text('SELECT uid FROM authorized_users WHERE id = :user_id AND deleted_at IS NULL')
-        result = db.session.execute(query, {'user_id': user_id}).first()
+        result = db.session.execute(query, {'user_id': user_id}).mappings().first()
         return result and result['uid']
 
     @classmethod
@@ -248,7 +248,7 @@ class AuthorizedUser(Base):
     def add_to_search_history(cls, user_id, search_phrase):
         search_phrase = vacuum_whitespace(search_phrase)
         query = text('SELECT search_history FROM authorized_users WHERE id = :user_id')
-        result = db.session.execute(query, {'user_id': user_id}).first()
+        result = db.session.execute(query, {'user_id': user_id}).mappings().first()
         if result:
             search_history = result['search_history'] or []
             if len(search_phrase) > cls.SEARCH_HISTORY_ITEM_MAX_LENGTH:
@@ -276,7 +276,7 @@ class AuthorizedUser(Base):
     @classmethod
     def get_search_history(cls, user_id):
         query = text('SELECT search_history FROM authorized_users WHERE id = :id')
-        result = db.session.execute(query, {'id': user_id}).first()
+        result = db.session.execute(query, {'id': user_id}).mappings().first()
         return result and result['search_history']
 
     @classmethod
@@ -299,7 +299,7 @@ class AuthorizedUser(Base):
             {query_filter}
         """)
         results = db.session.execute(query, query_bindings)
-        user_ids = [row['id'] for row in results]
+        user_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(user_ids)).all(), len(user_ids)
 
     @classmethod
@@ -317,8 +317,8 @@ class AuthorizedUser(Base):
                 d.dept_code = ANY(:scope)
                 AND u.deleted_at IS NULL
             """
-        results = db.session.execute(sql, {'scope': scope})
-        return [row['uid'] for row in results]
+        results = db.session.execute(text(sql), {'scope': scope})
+        return [row['uid'] for row in results.mappings()]
 
     @classmethod
     def update_user(

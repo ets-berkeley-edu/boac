@@ -25,6 +25,7 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import db, std_commit
 from boac.models.base import Base
+from sqlalchemy import text
 from sqlalchemy.ext.declarative import declared_attr
 
 
@@ -69,7 +70,7 @@ class AuthorizedUserExtension(Base):
                     ON m.university_dept_id = d.id
                     WHERE d.dept_code = a.dept_code
                 );"""
-        db.session.execute(sql)
+        db.session.execute(text(sql))
         std_commit()
 
 

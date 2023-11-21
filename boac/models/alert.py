@@ -164,9 +164,9 @@ class Alert(Base):
 
         # If we're only interested in the alert count, skip the student data fetch below.
         if count_only:
-            return [{'sid': row['sid'], 'alertCount': row['alert_count']} for row in results]
+            return [{'sid': row['sid'], 'alertCount': row['alert_count']} for row in results.mappings()]
 
-        alert_counts_by_sid = {row['sid']: row['alert_count'] for row in results}
+        alert_counts_by_sid = {row['sid']: row['alert_count'] for row in results.mappings()}
         sids = list(alert_counts_by_sid.keys())
 
         def result_to_dict(result):
@@ -200,7 +200,7 @@ class Alert(Base):
 
         def result_to_dict(result):
             return {camelize(key): result[key] for key in ['id', 'alert_type', 'key', 'message']}
-        for result in results:
+        for result in results.mappings():
             dismissed_at = result['dismissed_at']
             alert = {
                 **result_to_dict(result),

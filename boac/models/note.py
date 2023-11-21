@@ -121,7 +121,7 @@ class Note(Base):
               deleted_at IS NULL AND is_draft IS TRUE
               { f"AND author_uid = '{author_uid}'" if author_uid else ''}
         """)
-        return db.session.execute(query).first()['count']
+        return db.session.execute(query).mappings().first()['count']
 
     @classmethod
     def get_draft_notes(cls, author_uid=None):
@@ -263,7 +263,7 @@ class Note(Base):
         """
         tz_utc = tzutc()
         api_json = []
-        for row in db.session.execute(query):
+        for row in db.session.execute(text(query)).mappings():
             sid = row['sid']
             api_json.append({
                 'author_uid': row['author_uid'],
@@ -475,8 +475,8 @@ class Note(Base):
                 AND sid = :sid
                 {'AND is_draft IS FALSE' if exclude_draft_notes else ''}
         """
-        results = db.session.execute(sql, {'sid': sid})
-        note_ids = [row['id'] for row in results]
+        results = db.session.execute(text(sql), {'sid': sid})
+        note_ids = [row['id'] for row in results.mappings()]
         return cls.query.filter(cls.id.in_(note_ids)).order_by(cls.updated_at, cls.id).all()
 
     @classmethod
@@ -561,7 +561,7 @@ def _create_notes(
             } for sid in sids_subset
         ]
         results_of_chunk_query = {}
-        for row in db.session.execute(query, {'json_dumps': json.dumps(data)}):
+        for row in db.session.execute(text(query), {'json_dumps': json.dumps(data)}).mappings():
             sid = row['sid']
             results_of_chunk_query[sid] = row['id']
         # Yes, the note author has read the note.
@@ -577,7 +577,7 @@ def _create_notes(
                 'created_at': now,
             } for note_id in results_of_chunk_query.values()
         ]
-        db.session.execute(notes_read_query, {'json_dumps': json.dumps(notes_read_data)})
+        db.session.execute(text(notes_read_query), {'json_dumps': json.dumps(notes_read_data)})
         ids_by_sid.update(results_of_chunk_query)
     return ids_by_sid
 
@@ -599,7 +599,7 @@ def _add_topics_to_notes(author_uid, note_ids, topics):
                     'topic': topic,
                 } for note_id in note_ids_subset
             ]
-            db.session.execute(query, {'json_dumps': json.dumps(data)})
+            db.session.execute(text(query), {'json_dumps': json.dumps(data)})
 
 
 def _add_attachments_and_template_attachments(attachments, author_uid, note_ids, template_attachment_ids):
@@ -642,7 +642,7 @@ def _add_attachments(author_uid, note_ids, s3_path, now=None):
                 'uploaded_by_uid': author_uid,
             } for note_id in note_ids_subset
         ]
-        db.session.execute(query, {'json_dumps': json.dumps(data)})
+        db.session.execute(text(query), {'json_dumps': json.dumps(data)})
 
 
 def _validate_sid(is_draft, note_id, sid):

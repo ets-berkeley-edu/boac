@@ -135,7 +135,7 @@ class DegreeProgressTemplate(Base):
         """)
         # Most recently updated record is considered 'current'.
         api_json = []
-        for index, row in enumerate(db.session.execute(sql)):
+        for index, row in enumerate(db.session.execute(sql).mappings()):
             has_parent = row['parent_template_deleted_at'] is None
             api_json.append({
                 **_row_to_simple_json(row),
@@ -154,7 +154,7 @@ class DegreeProgressTemplate(Base):
             WHERE student_sid IS NULL AND deleted_at IS NULL
             ORDER BY degree_name, created_at
         """)
-        return [_row_to_simple_json(row) for row in db.session.execute(sql)]
+        return [_row_to_simple_json(row) for row in db.session.execute(sql).mappings()]
 
     @classmethod
     def get_student_degree_checks_by_parent_template_id(cls, parent_template_id, student_sids):

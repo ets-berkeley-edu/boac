@@ -110,7 +110,7 @@ class Topic(db.Model):
             """)
             key = f'{usage_type}s'
             statistics[key] = {}
-            for row in db.session.execute(query):
+            for row in db.session.execute(query).mappings():
                 topic_id = row['topic_id']
                 statistics[key][topic_id] = row['count']
         return statistics
