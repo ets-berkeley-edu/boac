@@ -60,7 +60,7 @@ class UniversityDept(Base):
     def get_all(cls, exclude_empty=False):
         if exclude_empty:
             results = db.session.execute(text('select distinct university_dept_id from university_dept_members'))
-            dept_ids = [row['university_dept_id'] for row in results]
+            dept_ids = [row['university_dept_id'] for row in results.mappings()]
             return cls.query.filter(cls.id.in_(dept_ids)).order_by(cls.dept_name).all()
         else:
             return cls.query.order_by(cls.dept_name).all()
