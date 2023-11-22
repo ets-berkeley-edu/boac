@@ -41,7 +41,7 @@
               <b-btn
                 :id="`column-${position}-unit-requirement-remove-${index}`"
                 :disabled="disable"
-                class="px-0 py-0"
+                class="pill-list-btn px-0 py-0"
                 variant="link"
                 @click="removeUnitRequirement(unitRequirement)"
               >
@@ -106,6 +106,10 @@ export default {
 </script>
 
 <style scoped>
+.pill-list-btn {
+  position: relative;
+  top: 1px;
+}
 .pill-unit-requirement {
   background-color: #fff;
   border: 1px solid #999;

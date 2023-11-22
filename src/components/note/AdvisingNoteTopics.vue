@@ -42,6 +42,7 @@
             v-for="(addedTopic, index) in topics"
             :id="`${notePrefix}-topic-${index}`"
             :key="index"
+            class="mt-1"
           >
             <span class="pill pill-attachment text-uppercase text-nowrap">
               {{ addedTopic }}
@@ -49,10 +50,10 @@
                 :id="`remove-${notePrefix}-topic-${index}`"
                 :disabled="disabled"
                 variant="link"
-                class="px-0 pt-1"
+                class="p-0"
                 @click.prevent="remove(addedTopic)"
               >
-                <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
                 <span class="sr-only">Remove</span>
               </b-btn>
             </span>
