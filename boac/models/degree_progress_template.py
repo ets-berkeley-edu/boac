@@ -152,7 +152,7 @@ class DegreeProgressTemplate(Base):
             SELECT id, created_at, degree_name, created_by, parent_template_id, student_sid, updated_at, updated_by
             FROM degree_progress_templates
             WHERE student_sid IS NULL AND deleted_at IS NULL
-            ORDER BY degree_name, created_at
+            ORDER BY created_at DESC
         """)
         return [_row_to_simple_json(row) for row in db.session.execute(sql).mappings()]
 
