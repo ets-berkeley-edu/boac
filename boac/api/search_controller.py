@@ -42,6 +42,7 @@ from boac.models.alert import Alert
 from boac.models.authorized_user import AuthorizedUser
 from flask import current_app as app, request
 from flask_login import current_user, login_required
+from sqlalchemy import text
 
 
 @app.route('/api/search', methods=['POST'])
@@ -154,7 +155,7 @@ def _advisors_by_name(tokens, limit=None):
     if limit:
         sql += f' LIMIT {limit}'
     benchmark('execute query')
-    results = db.session.execute(sql, params)
+    results = db.session.execute(text(sql), params)
     benchmark('end')
     keys = results.keys()
     return [dict(zip(keys, row)) for row in results.fetchall()]

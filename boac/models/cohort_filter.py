@@ -110,14 +110,14 @@ class CohortFilter(Base):
 
     @classmethod
     def get_sids(cls, cohort_id):
-        query = db.session.query(cls).options(undefer('sids'))
+        query = db.session.query(cls).options(undefer(cls.sids))
         cohort = query.filter_by(id=cohort_id).first()
         return cohort and cohort.sids
 
     @classmethod
     def get_domain_of_cohort(cls, cohort_id):
         query = text('SELECT domain FROM cohort_filters WHERE id = :id')
-        result = db.session.execute(query, {'id': cohort_id}).first()
+        result = db.session.execute(query, {'id': cohort_id}).mappings().first()
         return result and result['domain']
 
     def clear_sids_and_student_count(self):
@@ -165,7 +165,7 @@ class CohortFilter(Base):
                 'alertCount': row['alert_count'],
                 'totalStudentCount': row['student_count'],
             }
-        return [transform(row) for row in results]
+        return [transform(row) for row in results.mappings()]
 
     @classmethod
     def get_cohorts_owned_by_uids(cls, include_admitted_students, uids):
@@ -190,7 +190,7 @@ class CohortFilter(Base):
                 'alertCount': row['alert_count'],
                 'totalStudentCount': row['student_count'],
             }
-        return [transform(row) for row in results]
+        return [transform(row) for row in results.mappings()]
 
     @classmethod
     def is_cohort_owned_by(cls, cohort_id, user_id):
@@ -204,7 +204,7 @@ class CohortFilter(Base):
                 'user_id': user_id,
             },
         )
-        return results.first()['count']
+        return results.mappings().first()['count']
 
     @classmethod
     def refresh_alert_counts_for_owner(cls, owner_id):
