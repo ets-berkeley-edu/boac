@@ -30,7 +30,7 @@
         />
       </div>
     </div>
-    <div v-if="$_.size(existingAttachments) === $config.maxAttachmentsPerNote" class="w-100">
+    <div v-if="$_.size(existingAttachments) >= $config.maxAttachmentsPerNote" class="w-100">
       A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
     </div>
     <div>
@@ -39,7 +39,7 @@
           v-for="(attachment, index) in existingAttachments"
           :id="`new-note-attachment-${index}`"
           :key="index"
-          class="mt-2"
+          class="mt-1"
         >
           <span class="pill pill-attachment text-nowrap">
             <font-awesome icon="paperclip" />
@@ -51,7 +51,7 @@
               class="p-0"
               @click.prevent="removeAttachmentByIndex(index)"
             >
-              <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+              <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
           </span>

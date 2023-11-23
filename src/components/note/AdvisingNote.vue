@@ -164,7 +164,7 @@
               class="p-0"
               @click.prevent="removeAttachment(index)"
             >
-              <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+              <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </b-btn>
           </span>

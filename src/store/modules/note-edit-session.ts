@@ -116,8 +116,7 @@ const getters = {
 
 const mutations = {
   addAttachments: (state: any, attachments: any[]) => {
-    const allAttachments = state.model.attachments.concat(attachments)
-    state.model.attachments = _.sortBy(allAttachments, ['name', 'id'])
+    state.model.attachments = _.sortBy(attachments, ['name', 'id'])
   },
   addCohort: (state: any, cohort: any) => state.addedCohorts.push(cohort),
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),

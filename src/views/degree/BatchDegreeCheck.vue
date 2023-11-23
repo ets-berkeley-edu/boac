@@ -63,7 +63,7 @@
           </b-btn>
         </div>
         <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
-          <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
+          <span class="font-weight-bolder truncate pill pill-attachment text-uppercase text-nowrap pl-2">
             <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
             <b-btn
               :id="`remove-student-from-batch-${index}`"
@@ -72,7 +72,7 @@
               :disabled="isSaving"
               @click.prevent="removeStudent(addedStudent)"
             >
-              <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+              <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
             </b-btn>
           </span>

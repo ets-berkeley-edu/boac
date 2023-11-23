@@ -236,8 +236,12 @@
   width: auto;
 }
 .pill-attachment {
-  height: 26px;
-  padding: 6px;
+  display: inline-block;
+  height: 26px !important;
+  padding: 0 6px;
+}
+.pill-attachment button {
+  margin-top: .02rem;
 }
 .pill-list {
   list-style-type: none;

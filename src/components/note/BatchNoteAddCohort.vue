@@ -37,7 +37,7 @@
             class="p-0"
             @click.prevent="remove(addedObject)"
           >
-            <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+            <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
             <span class="sr-only">Remove</span>
           </b-btn>
         </span>

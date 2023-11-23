@@ -81,7 +81,7 @@ const axiosErrorHandler = error => {
     })
   } else if (errorStatus === 404) {
     router.push({path: '/404'})
-  } else {
+  } else if (!axios.isCancel(error)) {
     const skipRedirect = ['/api/user/create_or_update']
     const url = _.get(error, 'response.config.url')
     if (!_.find(skipRedirect, path => _.includes(url, path))) {
