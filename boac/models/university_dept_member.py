@@ -26,7 +26,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 from boac import db, std_commit
 from boac.models.base import Base
 from boac.models.university_dept import UniversityDept
-from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import ENUM
 
 
@@ -126,7 +125,7 @@ class UniversityDeptMember(Base):
             sql += ' AND d.id IN (SELECT DISTINCT university_dept_id FROM university_depts)'
         if role is not None:
             sql += f" AND m.role = '{role}'"
-        return [row['dept_code'] for row in db.session.execute(text(sql), {'authorized_user_id': authorized_user_id}).mappings()]
+        return [row['dept_code'] for row in db.session.execute(sql, {'authorized_user_id': authorized_user_id})]
 
     @classmethod
     def delete_membership(cls, university_dept_id, authorized_user_id):

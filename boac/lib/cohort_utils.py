@@ -115,7 +115,7 @@ def curated_group_options(user_id):
         text("SELECT id, name FROM student_groups WHERE domain='default' AND owner_id = :user_id"),
         {'user_id': user_id},
     )
-    return [{'name': row['name'], 'value': row['id']} for row in results.mappings()]
+    return [{'name': row['name'], 'value': row['id']} for row in results]
 
 
 @stow('cohort_filter_options_colleges')

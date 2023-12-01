@@ -282,14 +282,10 @@ def _change_grade_in_data_loch(app, grade, section_id, sid, term_id):
     for section in [item for s in sections for item in s]:
         if section['ccn'] == section_id:
             section['grade'] = grade
-            db_engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
-            with db_engine.begin() as connection:
-                sql = f"""
-                    UPDATE student.student_enrollment_terms
-                    SET enrollment_term = '{json.dumps(enrollment_term)}' {where_clause}
-                """
-                connection.execute(text(sql))
-                break
+            data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
+            sql = f"UPDATE student.student_enrollment_terms SET enrollment_term = '{json.dumps(enrollment_term)}' {where_clause}"
+            data_loch_db.execute(text(sql))
+            break
 
 
 class TestBatchStudentDegreeChecks:

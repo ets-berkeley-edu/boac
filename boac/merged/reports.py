@@ -31,7 +31,6 @@ from boac.externals.data_loch import get_student_degrees_report
 from boac.merged.sis_terms import current_term_id
 from boac.models.note import Note
 from flask import current_app as app
-from sqlalchemy import text
 
 
 def low_assignment_scores(term_id=None):
@@ -96,16 +95,16 @@ def get_note_author_count(dept_code=None):
     query = 'SELECT COUNT(DISTINCT author_uid) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
-    results = db.session.execute(text(query))
-    return [row['count'] for row in results.mappings()][0]
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
 
 
 def get_note_count(dept_code=None):
     query = 'SELECT COUNT(id) FROM notes WHERE deleted_at IS NULL AND is_draft IS FALSE'
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
-    results = db.session.execute(text(query))
-    return [row['count'] for row in results.mappings()][0]
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
 
 
 def get_note_count_per_batch(dept_code=None):
@@ -117,17 +116,17 @@ def get_note_count_per_batch(dept_code=None):
     if dept_code:
         query += f" AND '{dept_code}' = ANY(author_dept_codes)"
     query += ' GROUP BY created_at HAVING COUNT(*) > 1'
-    results = db.session.execute(text(query))
-    return [row['count'] for row in results.mappings()]
+    results = db.session.execute(query)
+    return [row['count'] for row in results]
 
 
 def get_private_note_count():
-    results = db.session.execute(text("""
+    results = db.session.execute("""
         SELECT COUNT(*)
         FROM notes
         WHERE deleted_at IS NULL AND is_private IS TRUE AND is_draft IS FALSE
-    """))
-    return [row['count'] for row in results.mappings()][0]
+    """)
+    return [row['count'] for row in results][0]
 
 
 def get_note_count_per_user(dept_code):
@@ -141,7 +140,7 @@ def get_note_count_per_user(dept_code):
         GROUP BY author_uid
     """
     results = {}
-    for row in db.session.execute(text(query)).mappings():
+    for row in db.session.execute(query):
         results[row['uid']] = row['count']
     return results
 
@@ -155,8 +154,8 @@ def get_note_with_attachments_count(dept_code=None):
     """
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
-    results = db.session.execute(text(query))
-    return [row['count'] for row in results.mappings()][0]
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
 
 
 def get_note_with_topics_count(dept_code=None):
@@ -168,8 +167,8 @@ def get_note_with_topics_count(dept_code=None):
     """
     if dept_code:
         query += f" AND '{dept_code}' = ANY(n.author_dept_codes)"
-    results = db.session.execute(text(query))
-    return [row['count'] for row in results.mappings()][0]
+    results = db.session.execute(query)
+    return [row['count'] for row in results][0]
 
 
 def get_summary_of_boa_notes():
@@ -202,7 +201,7 @@ def get_boa_note_count_by_month():
         GROUP BY DATE_TRUNC('month', created_at)
     """
     report = []
-    for row in db.session.execute(text(query)).mappings():
+    for row in db.session.execute(query):
         month_date = row['created_at_month']
         year = next((r for r in report if r['year'] == month_date.year), None)
         if not year:
@@ -217,12 +216,12 @@ def get_boa_note_count_by_month():
 
 def _get_cohorts_by_sid():
     sids = set()
-    for row in db.session.execute(text('SELECT sids FROM cohort_filters')).mappings():
+    for row in db.session.execute('SELECT sids FROM cohort_filters'):
         sid_list = row['sids']
         if sid_list:
             sids.update(sid_list)
     cohorts_by_sid = dict((sid, []) for sid in sids)
-    for row in db.session.execute(text('SELECT id, name, sids FROM cohort_filters ORDER BY id')).mappings():
+    for row in db.session.execute('SELECT id, name, sids FROM cohort_filters ORDER BY id'):
         cohort = {'id': row['id'], 'name': row['name']}
         sids = row['sids'] or []
         for sid in sids:
@@ -232,13 +231,13 @@ def _get_cohorts_by_sid():
 
 def _get_curated_groups_by_sid():
     query = 'SELECT DISTINCT sid FROM student_group_members'
-    curated_groups_by_sid = dict((row['sid'], []) for row in db.session.execute(text(query)).mappings())
+    curated_groups_by_sid = dict((row['sid'], []) for row in db.session.execute(query))
     query = """
         SELECT g.id, g.name, m.sid FROM student_groups g
         JOIN student_group_members m ON m.student_group_id = g.id
         ORDER BY g.id
     """
-    for row in db.session.execute(text(query)).mappings():
+    for row in db.session.execute(query):
         sid = row['sid']
         curated_groups_by_sid[sid].append({'id': row['id'], 'name': row['name']})
     return curated_groups_by_sid
