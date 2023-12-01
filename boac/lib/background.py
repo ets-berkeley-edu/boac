@@ -101,7 +101,7 @@ def _bg_executor(app, method):
         app.logger.debug('Started background thread.')
         # Only one background session at a time, please.
         db_engine = get_engine(app)
-        with db_engine.begin() as lock_connection:
+        with db_engine.connect() as lock_connection:
             # Detaching will protect the server-session PID from action in the yield block.
             # Because detached connections are permanently removed from the pool, it also
             # ensures that the lock will be released when the connection is closed.

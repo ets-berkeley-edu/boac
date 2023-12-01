@@ -94,7 +94,7 @@ class CuratedGroup(Base):
                 'totalStudentCount': row['student_count'],
                 'ownerUid': row['owner_uid'],
             }
-        return [transform(row) for row in results.mappings()]
+        return [transform(row) for row in results]
 
     @classmethod
     def curated_group_ids_per_sid(cls, domain, sid, user_id):
@@ -108,7 +108,7 @@ class CuratedGroup(Base):
             'sid': sid,
             'user_id': user_id,
         })
-        return [row['id'] for row in results.mappings()]
+        return [row['id'] for row in results]
 
     @classmethod
     def create(cls, owner_id, name, domain='default'):
@@ -167,7 +167,7 @@ class CuratedGroup(Base):
             WHERE filter_criteria->>'curatedGroupIds' IS NOT NULL AND owner_id = :user_id""")
         results = db.session.execute(query, {'user_id': self.owner_id})
         cohort_filter_ids = []
-        for row in results.mappings():
+        for row in results:
             if self.id in row['filter_criteria'].get('curatedGroupIds', []):
                 cohort_filter_ids.append(row['id'])
         return cohort_filter_ids

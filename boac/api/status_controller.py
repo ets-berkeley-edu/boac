@@ -27,14 +27,13 @@ from boac import db
 from boac.externals import data_loch
 from boac.lib.http import tolerant_jsonify
 from flask import current_app as app
-from sqlalchemy import text
 
 
 @app.route('/api/ping')
 def app_status():
     def db_status():
         try:
-            db.session.execute(text('SELECT 1'))
+            db.session.execute('SELECT 1')
             return True
         except Exception:
             app.logger.exception('Database connection error')

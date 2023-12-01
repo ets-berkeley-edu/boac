@@ -181,9 +181,7 @@ class AppointmentAvailability(Base):
                 AND (a.date_override = t.date_override OR (a.date_override IS NULL AND t.date_override IS NULL))
                 JOIN authorized_users u on a.authorized_user_id = u.id
                 ORDER BY uid, start_time"""
-        params = {'date_': str(date_), 'weekday': date_.strftime('%a'), 'dept_code': dept_code}
-        results = db.session.execute(text(sql), params)
-        return results.mappings()
+        return db.session.execute(text(sql), {'date_': str(date_), 'weekday': date_.strftime('%a'), 'dept_code': dept_code})
 
     @classmethod
     def to_api_json(cls, id_, start_time, end_time):
