@@ -35,18 +35,17 @@ from flask import current_app as app
 import psycopg2
 import psycopg2.extras
 from psycopg2.pool import ThreadedConnectionPool
-from sqlalchemy import text
 
 
 connection_pool = None
 
 
-def safe_execute_rds(sql, **kwargs):
+def safe_execute_rds(string, **kwargs):
     global connection_pool
     if connection_pool is None:
         connection_pool = ThreadedConnectionPool(1, app.config['DATA_LOCH_MAX_CONNECTIONS'], app.config['DATA_LOCH_RDS_URI'])
     with cursor_from_pool() as cursor:
-        return _safe_execute(sql, cursor, **kwargs)
+        return _safe_execute(string, cursor, **kwargs)
 
 
 @contextmanager
@@ -1138,11 +1137,11 @@ def get_students_query(     # noqa
         query_bindings.update({'sids': sids})
     if curated_group_ids:
         results = db.session.execute(
-            text('SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)'),
+            'SELECT DISTINCT(sid) FROM student_group_members WHERE student_group_id = ANY(:curated_group_ids)',
             {'curated_group_ids': curated_group_ids},
         )
         query_filter += ' AND spi.sid = ANY(%(sids_of_curated_groups)s)'
-        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results.mappings()]})
+        query_bindings.update({'sids_of_curated_groups': [row['sid'] for row in results]})
 
     # Generic SIS criteria
     if academic_standings:

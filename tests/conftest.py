@@ -213,9 +213,8 @@ def fake_loch(app):
         key = fixture.replace(f'{fixture_path}/loch/student_', '').replace('.json', '')
         with open(fixture, 'r') as f:
             params[key] = f.read()
-    db_engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
-    with db_engine.begin() as connection:
-        connection.execute(text(ddltext), params)
+    data_loch_db = create_engine(app.config['DATA_LOCH_RDS_URI'])
+    data_loch_db.execute(text(ddltext), params)
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -487,9 +486,7 @@ def _create_user(
                     {_to_sql_value(advisor_role['cs_permissions'])}
                 );
             """  # noqa: E501
-        db_engine = create_engine(app.config['DATA_LOCH_RDS_URI'])
-        with db_engine.begin() as connection:
-            connection.execute(text(sql))
+        create_engine(app.config['DATA_LOCH_RDS_URI']).execute(text(sql))
 
     if has_calnet_record:
         insert_in_json_cache(
