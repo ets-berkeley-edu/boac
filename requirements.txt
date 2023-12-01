@@ -3,8 +3,8 @@ boto3==1.20.24
 decorator==5.1.1
 Flask-Caching==2.1.0
 Flask-Login==0.6.3
-Flask-SQLAlchemy==3.1.1
-Flask==3.0.0
+Flask-SQLAlchemy==3.0.5
+Flask==2.3.3
 ldap3==2.7
 names==0.3.0
 nltk==3.8.1
@@ -16,9 +16,9 @@ pytz==2023.3.post1
 requests==2.31.0
 simplejson==3.19.2
 smart-open==1.8.3
-SQLAlchemy==2.0.23
+SQLAlchemy==1.4.45
 titlecase==2.4.1
-Werkzeug==3.0.1
+Werkzeug==2.3.8
 xmltodict==0.13.0
 zipstream-new==1.1.8
 https://github.com/python-cas/python-cas/archive/master.zip
