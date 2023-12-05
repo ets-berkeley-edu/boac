@@ -7,6 +7,7 @@
   >
     <b-card-header header-bg-variant="transparent" header-class="student-term-header">
       <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
+      <span v-if="isConcurrent" class="font-size-14 text-muted ml-1 mr-3">UCBX</span>
       <StudentAcademicStanding
         v-if="term.academicStanding"
         :standing="term.academicStanding"
@@ -114,6 +115,7 @@ export default {
     }
   },
   data: () => ({
+    isConcurrent: false,
     showMaxUnits: undefined,
     showMinUnits: undefined,
   }),
@@ -122,6 +124,7 @@ export default {
     const minUnits = this.term.minTermUnitsAllowed
     this.showMaxUnits = !this.$_.isNil(maxUnits) && maxUnits !== this.$config.defaultTermUnitsAllowed.max
     this.showMinUnits = !this.$_.isNil(minUnits) && minUnits !== this.$config.defaultTermUnitsAllowed.min
+    this.isConcurrent = this.$_.some(this.term.enrollments, {'academicCareer': 'UCBX'})
   }
 }
 </script>
