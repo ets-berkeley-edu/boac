@@ -16,6 +16,7 @@ config/*.json
 config/*-local.py
 config/*-local.conf
 .env*.local
+.npmrc
 
 # Local dev
 venv
