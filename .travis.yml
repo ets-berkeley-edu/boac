@@ -30,6 +30,7 @@ before_install:
   - sudo service postgresql@13-main restart
 
 install:
+  - echo -e '@neverendingsupport:registry=https://registry.nes.herodevs.com/npm/pkg/\n//registry.nes.herodevs.com/npm/pkg/:_authToken="'${NES_AUTH_TOKEN}'"' > .npmrc
   - npm install --legacy-peer-deps
   - pip3 install tox
 
