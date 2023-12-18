@@ -126,10 +126,6 @@
                   </b-col>
                 </b-row>
                 <b-row>
-                  <b-col class="table-cell">Gender Identity</b-col>
-                  <b-col id="admit-gender-identity" class="table-cell font-italic">{{ admit.genderIdentity }}</b-col>
-                </b-row>
-                <b-row>
                   <b-col class="table-cell">XEthnic</b-col>
                   <b-col id="admit-x-ethnic" class="table-cell font-italic">{{ admit.xethnic }}</b-col>
                 </b-row>

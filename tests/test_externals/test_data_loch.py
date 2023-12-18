@@ -84,7 +84,6 @@ class TestDataLoch:
         student = student_profiles[0]
         assert student['sid'] == sid
         profile = json.loads(student['profile'])
-        assert profile['demographics']['gender'] == 'Different Identity'
         assert profile['demographics']['underrepresented'] is False
         assert profile['sisProfile']['academicCareer'] == 'UGRD'
 

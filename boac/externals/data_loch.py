@@ -655,7 +655,7 @@ def get_admitted_students_by_sids(offset, sids, limit=None, order_by='last_name'
         SELECT a.applyuc_cpid, a.cs_empl_id AS sid, a.uid, s.uid AS student_uid,
         a.residency_category, a.freshman_or_transfer, a.admit_term, a.admit_status, a.current_sir, college, a.first_name, a.middle_name,
         a.last_name, a.birthdate, a.daytime_phone, a.mobile, a.email, a.campus_email_1, a.permanent_street_1, permanent_street_2,
-        a.permanent_city, a.permanent_region, a.permanent_postal, a.permanent_country, sex, a.gender_identity, a.xethnic, a.hispanic,
+        a.permanent_city, a.permanent_region, a.permanent_postal, a.permanent_country, a.xethnic, a.hispanic,
         a.urem, a.first_generation_college, a.parent_1_education_level, parent_2_education_level,
         a.highest_parent_education_level, a.hs_unweighted_gpa, a.hs_weighted_gpa, a.transfer_gpa, a.act_composite, a.act_math, a.act_english,
         a.act_reading, a.act_writing, a.sat_total, a.sat_r_evidence_based_rw_section, a.sat_r_math_section, a.sat_r_essay_reading,
@@ -974,10 +974,6 @@ def get_distinct_divisions():
     return safe_execute_rds(f'SELECT DISTINCT division FROM {student_schema()}.student_majors ORDER BY division ASC')
 
 
-def get_distinct_genders():
-    return safe_execute_rds(f"SELECT DISTINCT gender FROM {student_schema()}.demographics WHERE NULLIF(gender, '') IS NOT NULL ORDER BY gender")
-
-
 def get_distinct_ethnicities():
     return safe_execute_rds(f'SELECT DISTINCT ethnicity FROM {student_schema()}.ethnicities ORDER BY ethnicity')
 
@@ -1044,7 +1040,6 @@ def get_students_query(     # noqa
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
     coe_ethnicities=None,
-    coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
@@ -1057,7 +1052,6 @@ def get_students_query(     # noqa
     entering_terms=None,
     epn_cpn_grading_terms=None,
     expected_grad_terms=None,
-    genders=None,
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
@@ -1128,7 +1122,7 @@ def get_students_query(     # noqa
         query_tables += f""" JOIN {student_schema()}.student_degrees sd ON sd.sid = spi.sid"""
     if ethnicities:
         query_tables += f""" JOIN {student_schema()}.ethnicities e ON e.sid = spi.sid"""
-    if genders or underrepresented is not None:
+    if underrepresented is not None:
         query_tables += f""" JOIN {student_schema()}.demographics d ON d.sid = spi.sid"""
     if visa_types:
         query_tables += f""" JOIN {student_schema()}.visas v ON v.sid = spi.sid"""
@@ -1201,9 +1195,6 @@ def get_students_query(     # noqa
     if underrepresented is not None:
         query_filter += ' AND d.minority IS %(underrepresented)s'
         query_bindings.update({'underrepresented': underrepresented})
-    if genders:
-        query_filter += ' AND d.gender = ANY(%(genders)s)'
-        query_bindings.update({'genders': genders})
     if levels:
         query_filter += ' AND spi.level = ANY(%(levels)s)'
         query_bindings.update({'levels': [_level_to_code(level) for level in levels]})
@@ -1287,9 +1278,6 @@ def get_students_query(     # noqa
     if coe_ethnicities:
         query_filter += ' AND s.ethnicity = ANY(%(coe_ethnicities)s)'
         query_bindings.update({'coe_ethnicities': coe_ethnicities})
-    if coe_genders:
-        query_filter += ' AND s.gender = ANY(%(coe_genders)s)'
-        query_bindings.update({'coe_genders': coe_genders})
     if coe_prep_statuses:
         query_filter += ' AND (' + ' OR '.join([f's.{cps} IS TRUE' for cps in coe_prep_statuses]) + ')'
     if coe_probation is not None:
@@ -1299,7 +1287,7 @@ def get_students_query(     # noqa
 
     # COE criteria in a cohort filter will default to COE-active students only.
     if is_active_coe is None and (
-        coe_advisor_ldap_uids or coe_ethnicities or coe_genders or coe_prep_statuses or coe_probation or coe_underrepresented
+        coe_advisor_ldap_uids or coe_ethnicities or coe_prep_statuses or coe_probation or coe_underrepresented
     ):
         is_active_coe = True
     if is_active_coe is False:
@@ -1602,7 +1590,6 @@ def _student_query_tables_for_scope(scope):
             columns_for_codes = {
                 'COENG': [
                     'advisor_ldap_uid',
-                    'gender',
                     'ethnicity',
                     'minority',
                     'did_prep',

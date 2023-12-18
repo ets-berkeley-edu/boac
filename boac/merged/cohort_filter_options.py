@@ -29,8 +29,8 @@ from datetime import datetime
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.cohort_utils import academic_career_options, academic_career_status_options, \
     academic_division_options, academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
-    coe_gender_options, coe_prep_status_options, colleges, curated_group_options, \
-    degree_terms, degrees, entering_terms, ethnicities, genders, get_coe_profiles, \
+    coe_prep_status_options, colleges, curated_group_options, \
+    degree_terms, degrees, entering_terms, ethnicities, get_coe_profiles, \
     grad_terms, grading_terms, graduate_programs, incomplete_types, intended_majors, \
     level_options, majors, minors, student_admit_college_options, \
     student_admit_ethnicity_options, student_admit_freshman_or_transfer_options, \
@@ -111,7 +111,6 @@ class CohortFilterOptions:
             ],
             'Demographics': [
                 _filter('ethnicities', 'Ethnicity', options=ethnicities()),
-                _filter('genders', 'Gender', options=genders()),
                 _range_filter(
                     'lastNameRanges',
                     'Last Name',
@@ -134,7 +133,6 @@ class CohortFilterOptions:
             'Departmental (COE)': [
                 _filter('coeAdvisorLdapUids', 'Advisor (COE)', options=get_coe_profiles(), available_to=['COENG']),
                 _filter('coeEthnicities', 'Ethnicity (COE)', options=coe_ethnicities(), available_to=['COENG']),
-                _filter('coeGenders', 'Gender (COE)', options=coe_gender_options(), available_to=['COENG']),
                 _filter('coePrepStatuses', 'PREP (COE)', options=coe_prep_status_options(), available_to=['COENG']),
                 _boolean_filter_coe('coeProbation', 'Probation (COE)'),
                 _boolean_filter_coe('isInactiveCoe', 'Inactive (COE)', default_value=False if 'COENG' in self.scope else None),

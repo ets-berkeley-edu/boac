@@ -43,7 +43,6 @@ class TestMergedStudent:
         profiles = get_distilled_student_profiles(['11667051', '2718281828'])
         assert len(profiles) == 2
         assert profiles[0]['firstName'] == 'Deborah'
-        assert profiles[0]['gender'] == 'Different Identity'
         assert profiles[0]['lastName'] == 'Davies'
         assert profiles[0]['name'] == 'Deborah Davies'
         assert 'https://photo-bucket.s3.amazonaws.com/photo-path' in profiles[0]['photoUrl']
@@ -53,7 +52,6 @@ class TestMergedStudent:
         assert profiles[0]['athleticsProfile']
 
         assert profiles[1]['firstName'] == 'Ernest'
-        assert profiles[1]['gender'] is None
         assert profiles[1]['lastName'] == 'Pontifex'
         assert profiles[1]['name'] == 'Ernest Pontifex'
         assert 'https://photo-bucket.s3.amazonaws.com/photo-path' in profiles[1]['photoUrl']

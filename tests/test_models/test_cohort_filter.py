@@ -121,7 +121,6 @@ class TestCohortFilter:
                 uid=asc_advisor_uid,
                 name='Cohort with undefined filter criteria',
                 filter_criteria={
-                    'genders': [],
                     'inIntensiveCohort': None,
                 },
             )
