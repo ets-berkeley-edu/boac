@@ -46,8 +46,6 @@ export default {
         {text: 'Region', value: 'permanent_region'},
         {text: 'Postal Code', value: 'permanent_postal'},
         {text: 'Country', value: 'permanent_country'},
-        {text: 'Sex', value: 'sex'},
-        {text: 'Gender Identity', value: 'gender_identity'},
         {text: 'XEthnic', value: 'xethnic'},
         {text: 'Hispanic', value: 'hispanic'},
         {text: 'UREM', value: 'urem'},

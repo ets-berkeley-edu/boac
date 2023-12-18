@@ -552,7 +552,6 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['demographics']['gender'] == 'Different Identity'
             assert student['demographics']['underrepresented'] is False
 
             assert 'coeProfile' not in student
@@ -575,7 +574,6 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['demographics']['gender'] == 'Female'
             assert student['demographics']['underrepresented'] is True
 
             assert 'inIntensiveCohort' not in student['athleticsProfile']
@@ -586,7 +584,6 @@ class TestStudent:
                 'didPrep': False,
                 'didTprep': False,
                 'ethnicity': 'B',
-                'gender': 'F',
                 'gradTerm': 'sp',
                 'gradYear': '2020',
                 'inMet': False,
@@ -611,7 +608,6 @@ class TestStudent:
         student_by_sid = self._api_student_by_sid(client=client, sid=sid)
         student_by_uid = self._api_student_by_uid(client=client, uid=uid)
         for student in [student_by_sid, student_by_uid]:
-            assert student['demographics']['gender'] == 'Different Identity'
             assert student['demographics']['underrepresented'] is False
 
             athletics_profile = student['athleticsProfile']

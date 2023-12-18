@@ -103,13 +103,6 @@ def academic_standing_options(min_term_id=0):
     return option_groups
 
 
-def coe_gender_options():
-    return [
-        {'name': 'Female', 'value': 'F'},
-        {'name': 'Male', 'value': 'M'},
-    ]
-
-
 def curated_group_options(user_id):
     results = db.session.execute(
         text("SELECT id, name FROM student_groups WHERE domain='default' AND owner_id = :user_id"),
@@ -144,11 +137,6 @@ def entering_terms():
 @stow('cohort_filter_options_ethnicities')
 def ethnicities():
     return [{'name': row['ethnicity'], 'value': row['ethnicity']} for row in data_loch.get_distinct_ethnicities()]
-
-
-@stow('cohort_filter_options_genders')
-def genders():
-    return [{'name': row['gender'], 'value': row['gender']} for row in data_loch.get_distinct_genders()]
 
 
 @stow('cohort_filter_options_grad_terms')

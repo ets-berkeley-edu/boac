@@ -61,7 +61,6 @@ def get_distilled_student_profiles(sids):
             ]
         }
         distilled['academicCareerStatus'] = sis_profile.get('academicCareerStatus')
-        distilled['gender'] = demographics.get('gender')
         distilled['termsInAttendance'] = sis_profile.get('termsInAttendance')
         distilled['underrepresented'] = demographics.get('underrepresented')
         if profile.get('athleticsProfile'):
@@ -328,7 +327,6 @@ def query_students(
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
     coe_ethnicities=None,
-    coe_genders=None,
     coe_prep_statuses=None,
     coe_probation=None,
     coe_underrepresented=None,
@@ -340,7 +338,6 @@ def query_students(
     epn_cpn_grading_terms=None,
     ethnicities=None,
     expected_grad_terms=None,
-    genders=None,
     gpa_ranges=None,
     group_codes=None,
     in_intensive_cohort=None,
@@ -373,13 +370,11 @@ def query_students(
         'advisor_plan_mappings': advisor_plan_mappings,
         'coe_advisor_ldap_uids': coe_advisor_ldap_uids,
         'coe_ethnicities': coe_ethnicities,
-        'coe_genders': coe_genders,
         'coe_prep_statuses': coe_prep_statuses,
         'coe_probation': coe_probation,
         'coe_underrepresented': coe_underrepresented,
         'epn_cpn_grading_terms': epn_cpn_grading_terms,
         'ethnicities': ethnicities,
-        'genders': genders,
         'group_codes': group_codes,
         'in_intensive_cohort': in_intensive_cohort,
         'is_active_asc': is_active_asc,
@@ -399,7 +394,6 @@ def query_students(
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
         coe_ethnicities=coe_ethnicities,
-        coe_genders=coe_genders,
         coe_prep_statuses=coe_prep_statuses,
         coe_probation=coe_probation,
         coe_underrepresented=coe_underrepresented,
@@ -412,7 +406,6 @@ def query_students(
         epn_cpn_grading_terms=epn_cpn_grading_terms,
         ethnicities=ethnicities,
         expected_grad_terms=expected_grad_terms,
-        genders=genders,
         gpa_ranges=gpa_ranges,
         group_codes=group_codes,
         in_intensive_cohort=in_intensive_cohort,
@@ -606,7 +599,6 @@ def scope_for_criteria(**kwargs):
             'is_active_coe',
             'coe_advisor_ldap_uids',
             'coe_ethnicities',
-            'coe_genders',
             'coe_prep_statuses',
             'coe_probation',
             'coe_underrepresented',

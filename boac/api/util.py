@@ -440,7 +440,6 @@ def is_unauthorized_search(filter_keys, order_by=None):
     coe_keys = {
         'coeAdvisorLdapUids',
         'coeEthnicities',
-        'coeGenders',
         'coePrepStatuses',
         'coeProbation',
         'coeUnderrepresented',

@@ -528,7 +528,6 @@ class TestCohortCreate:
                 {'key': 'majors', 'value': 'Letters & Sci Undeclared UG'},
                 {'key': 'groupCodes', 'value': 'MTE'},
                 {'key': 'majors', 'value': 'English BA'},
-                {'key': 'genders', 'value': 'Male'},
             ],
         }
 
@@ -543,7 +542,6 @@ class TestCohortCreate:
             # Students
             students = cohort.get('students')
             assert len(students) == 1
-            assert students[0]['gender'] == 'Male'
             assert students[0]['underrepresented'] is False
 
         data = api_cohort_create(client, data)
@@ -573,21 +571,6 @@ class TestCohortCreate:
         }
         api_cohort_create(client, data, expected_status_code=403)
 
-    def test_admin_create_of_coe_uid_cohort(self, admin_login, client, fake_auth):
-        """Allows Admin to access COE data."""
-        data = {
-            'name': 'Admin wants to see students of COE advisor',
-            'filters': [
-                {'key': 'coeGenders', 'value': 'M'},
-                {'key': 'genders', 'value': 'Different Identity'},
-            ],
-        }
-        cohort = api_cohort_create(client, data)
-        assert len(cohort['students']) == 2
-        for student in cohort['students']:
-            assert student['gender'] == 'Different Identity'
-            assert student['coeProfile']['gender'] == 'M'
-
     def test_create_complex_cohort(self, client, coe_advisor_login):
         """Creates custom cohort, with many non-empty filter_criteria."""
         gpa_range_1 = {'min': 2, 'max': 2.499}
@@ -598,8 +581,6 @@ class TestCohortCreate:
                 {'key': 'majors', 'value': 'Gender and Women''s Studies'},
                 {'key': 'gpaRanges', 'value': gpa_range_1},
                 {'key': 'levels', 'value': 'Junior'},
-                {'key': 'coeGenders', 'value': 'M'},
-                {'key': 'genders', 'value': 'Genderqueer/Gender Non-Conform'},
                 {'key': 'gpaRanges', 'value': gpa_range_2},
                 {'key': 'majors', 'value': 'Environmental Economics & Policy'},
                 {'key': 'intendedMajors', 'value': 'Public Health BA'},
@@ -612,10 +593,6 @@ class TestCohortCreate:
         api_json = api_cohort_get(client, cohort_id)
         assert api_json['alertCount'] is not None
         criteria = api_json.get('criteria')
-        # Genders
-        assert criteria.get('genders') == ['Genderqueer/Gender Non-Conform']
-        # COE genders
-        assert criteria.get('coeGenders') == ['M']
         # GPA
         gpa_ranges = criteria.get('gpaRanges')
         assert len(gpa_ranges) == 2
@@ -664,7 +641,7 @@ class TestCohortCreate:
         'name': 'Mixmaster BOA',
         'filters': [
             {'key': 'groupCodes', 'value': 'MBB'},
-            {'key': 'coeGenders', 'value': 'F'},
+            {'key': 'levels', 'value': 'Senior'},
         ],
     }
 
@@ -1548,8 +1525,6 @@ class TestDownloadCsvPerFilters:
         'permanent_region',
         'permanent_postal',
         'permanent_country',
-        'sex',
-        'gender_identity',
         'xethnic',
         'hispanic',
         'urem',
@@ -1619,16 +1594,17 @@ class TestDownloadCsvPerFilters:
             assert 'csv' in response.content_type
             csv = str(response.data)
             assert ','.join(self.admit_keys) in csv
+            print(csv)
             assert (
                 '19938035,00005852,RES,Transfer,Spring,No,No,College of Letters and Science,'
                 'Ralph,,Burgess,1984-09-04,984.110.7693x347,681-857-8070,9590 Chang Extensions,'
-                'Suite 478,East Jacobton,NY,55531,United States,F,Other,International,F,No,Yes,MasterDegree,'
+                'Suite 478,East Jacobton,NY,55531,United States,International,F,No,Yes,MasterDegree,'
                 '3 - High School Graduate,,0.86,0.51,2.47,7,18,29,18,3,603,707,241,3,2,4,FeeWaiver,Y,,,05,02,41852,942,Y,'
                 'ReserveOfficersTrainingProgram,No,,,,,Citizen,,United States,,,,123'
             ) in csv
             assert (
                 '98002344,00029117,INT,Freshman,Spring,No,No,College of Engineering,Daniel,J,Mcknight,1993-07-06,859-319-8215x8689,'
-                '231.865.8093,87758 Brown Throughway,Suite 657,West Andrea,M,25101,United States,,Other,White,T,,'
+                '231.865.8093,87758 Brown Throughway,Suite 657,West Andrea,M,25101,United States,White,T,,'
                 'Yes,,5 - College Attended,,2.51,2.7,3.23,25,19,2,15,9,1445,639,724,7,5,5,,,,Y,0,02,23915,426,Y,,,Committed,,1,'
                 'Destination College,Citizen,,United States,,,,'
             ) in csv
@@ -1950,8 +1926,8 @@ class TestTranslateToFilterOptions:
             client,
             {
                 'criteria': {
-                    'genders': ['Female', 'Decline to State'],
                     'levels': ['Freshman', 'Sophomore'],
+                    'majors': ['Chemistry BS', 'Nuclear Engineering BS'],
                 },
             },
         )
@@ -1961,11 +1937,11 @@ class TestTranslateToFilterOptions:
         assert api_json[0]['key'] == api_json[1]['key'] == 'levels'
         assert api_json[0]['value'] == 'Freshman'
         assert api_json[1]['value'] == 'Sophomore'
-        # Genders
-        assert api_json[2]['label']['primary'] == api_json[3]['label']['primary'] == 'Gender'
-        assert api_json[2]['key'] == api_json[3]['key'] == 'genders'
-        assert api_json[2]['value'] == 'Female'
-        assert api_json[3]['value'] == 'Decline to State'
+        # Majors
+        assert api_json[2]['label']['primary'] == api_json[3]['label']['primary'] == 'Major'
+        assert api_json[2]['key'] == api_json[3]['key'] == 'majors'
+        assert api_json[2]['value'] == 'Chemistry BS'
+        assert api_json[3]['value'] == 'Nuclear Engineering BS'
 
     def test_handle_last_name_ranges(self, client, coe_advisor_login):
         """Filter-criteria with last_name range is properly translated."""
