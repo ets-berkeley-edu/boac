@@ -1019,9 +1019,10 @@ def get_majors():
 
 
 def get_minors():
-    sql = f"""SELECT DISTINCT min.minor AS minor
+    sql = f"""SELECT min.minor AS minor
         FROM {student_schema()}.student_profile_index spi
         JOIN {student_schema()}.minors min ON min.sid = spi.sid AND spi.academic_career_status = 'active'
+        UNION SELECT plan_name AS minor from {sis_schema()}.academic_plan_hierarchy where plan_type_code = 'MIN' and career_code = 'UGRD'
         ORDER BY minor"""
     return safe_execute_rds(sql)
 
