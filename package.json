@@ -8,8 +8,8 @@
     "serve-vue": "vue-cli-service serve --open --host localhost"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "19.0.2",
-    "@ckeditor/ckeditor5-vue2": "1.0.5",
+    "@ckeditor/ckeditor5-build-classic": "41.0.0",
+    "@ckeditor/ckeditor5-vue2": "3.0.1",
     "@fortawesome/fontawesome-svg-core": "6.4.2",
     "@fortawesome/free-regular-svg-icons": "6.4.2",
     "@fortawesome/free-solid-svg-icons": "6.4.2",
