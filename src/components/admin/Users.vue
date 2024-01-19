@@ -247,7 +247,10 @@
         <span :id="`user-status-${row.item.uid}`">{{ oxfordJoin(getUserStatuses(row.item)) }}</span>
       </template>
       <template v-slot:cell(lastLogin)="row">
-        <span v-if="row.item.lastLogin" :id="`user-last-login-${row.item.uid}`">{{ row.item.lastLogin | moment('MMM D, YYYY') }}</span>
+        <span :id="`user-last-login-${row.item.uid}`">
+          <span v-if="row.item.lastLogin">{{ $moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
+          <span v-if="!row.item.lastLogin">&mdash;</span>
+        </span>
       </template>
       <template v-slot:cell(email)="row">
         <span :id="`user-email-${row.item.uid}`">

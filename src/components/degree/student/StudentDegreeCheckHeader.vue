@@ -132,7 +132,7 @@
                 {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
-                  on <span id="degree-note-updated-at">{{ noteUpdatedAt | moment('MMM D, YYYY') }}.</span>
+                  on <span id="degree-note-updated-at">{{ $moment(noteUpdatedAt).format('MMM D, YYYY') }}.</span>
                 </span>
               </span>
             </div>
@@ -229,8 +229,9 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import {getCalnetProfileByUserId} from '@/api/user'
+import moment from 'moment-timezone'
 import Util from '@/mixins/Util'
+import {getCalnetProfileByUserId} from '@/api/user'
 
 export default {
   name: 'StudentDegreeCheckHeader',
@@ -294,6 +295,9 @@ export default {
         this.noteBody = this.$_.get(this.degreeNote, 'body')
       }
       this.isSaving = false
+    },
+    isToday: date => {
+      return moment().diff(date, 'days') === 0
     },
     onToggleNotesWhenPrint(flag) {
       this.setIncludeNotesWhenPrint(flag)

@@ -1,8 +1,8 @@
 <template>
   <div v-if="datePerTimezone && dateFormat">
-    <span class="sr-only">{{ srPrefix }} </span>{{ datePerTimezone | moment(dateFormat) }}
+    <span class="sr-only">{{ srPrefix }} </span>{{ $moment(datePerTimezone).format(dateFormat) }}
     <div v-if="includeTimeOfDay">
-      {{ datePerTimezone | moment('h:mma') }}
+      {{ $moment(datePerTimezone).format('h:mma') }}
     </div>
   </div>
 </template>

@@ -36,7 +36,7 @@
             </div>
             <div>
               <span id="appointment-created-at">
-                {{ new Date(appointment.createdAt) | moment('LT') }}
+                {{ $moment(new Date(appointment.createdAt)).format('LT') }}
               </span>
             </div>
           </div>

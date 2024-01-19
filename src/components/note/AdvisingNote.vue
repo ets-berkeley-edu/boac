@@ -67,7 +67,7 @@
           </div>
           <div>
             <dt>Date Initiated</dt>
-            <dd>{{ note.createdAt | moment('MM/DD/YYYY') }}</dd>
+            <dd>{{ $moment(note.createdAt, 'MM/DD/YYYY') }}</dd>
           </div>
           <div>
             <dt>Form Status </dt>
@@ -75,7 +75,7 @@
           </div>
           <div>
             <dt>Final Date &amp; Time Stamp</dt>
-            <dd>{{ note.updatedAt | moment('MM/DD/YYYY h:mm:ssa') }}</dd>
+            <dd>{{ $moment(note.updatedAt, 'MM/DD/YYYY h:mm:ssa') }}</dd>
           </div>
         </dl>
       </div>

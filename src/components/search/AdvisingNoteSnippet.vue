@@ -32,7 +32,7 @@
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
-      <span v-if="lastModified">{{ lastModified | moment('MMM D, YYYY') }}</span>
+      <span v-if="lastModified">{{ $moment(lastModified).format('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>

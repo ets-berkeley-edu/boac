@@ -5,7 +5,7 @@
       :key="dateAwarded"
       class="student-text"
     >
-      Graduated {{ dateAwarded | moment('MMM DD, YYYY') }} ({{ $_.join(plans, '; ') }})
+      Graduated {{ $moment(dateAwarded).format('MMM DD, YYYY') }} ({{ $_.join(plans, '; ') }})
     </div>
   </div>
 </template>

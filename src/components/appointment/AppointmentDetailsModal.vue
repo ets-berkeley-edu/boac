@@ -20,7 +20,7 @@
               Arrival Time
             </label>
             <div id="appointment-created-at">
-              {{ new Date(appointment.createdAt) | moment('LT') }}
+              {{ $moment(appointment.createdAt).format('LT') }}
             </div>
           </div>
           <div class="mt-2">
