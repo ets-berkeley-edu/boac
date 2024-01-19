@@ -27,7 +27,7 @@
         <span class="text-secondary ml-1">
           Arrived @
           <span :id="`appointment-${appointment.id}-created-at`">
-            {{ datePerTimezone(appointment.createdAt) | moment('h:mma') }}
+            {{ $moment(datePerTimezone(appointment.createdAt)).format('h:mma') }}
           </span>
         </span>
       </div>
@@ -55,7 +55,7 @@
           <span class="text-secondary ml-1">
             Check In
             <span v-if="appointment.statusDate">
-              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ datePerTimezone(appointment.statusDate) | moment('h:mma') }}</span>
+              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ $moment(datePerTimezone(appointment.statusDate)).format('h:mma') }}</span>
             </span>
           </span>
         </div>

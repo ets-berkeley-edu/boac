@@ -54,7 +54,7 @@
             <span v-if="row.item.isCurrent" class="ml-2">(current)</span>
           </template>
           <template #cell(updatedAt)="row">
-            {{ row.item.updatedAt | moment('MMM D, YYYY') }}
+            {{ $moment(row.item.updatedAt).format('MMM D, YYYY') }}
           </template>
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">
@@ -68,7 +68,7 @@
               class="boac-exclamation mr-1"
               :title="`Revisions to the original degree template have been made since the creation of this degree check.`"
             />
-            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ row.item.parentTemplateUpdatedAt | moment('MMM D, YYYY') }}</span>
+            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ $moment(row.item.parentTemplateUpdatedAt).format('MMM D, YYYY') }}</span>
             <span v-if="!row.item.parentTemplateUpdatedAt">&mdash;</span>
             <div class="sr-only">
               Note: Revisions to the original degree template have been made since the creation of this degree check.

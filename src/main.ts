@@ -8,7 +8,7 @@ import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
 import linkify from 'vue-linkify'
 import mitt from 'mitt'
-import moment from 'moment-timezone'
+import moment from 'moment'
 import router from './router'
 import store from './store'
 import VCalendar from 'v-calendar'
@@ -16,7 +16,6 @@ import Vue from 'vue'
 import VueAnnouncer from '@vue-a11y/announcer'
 import VueHighcharts from 'vue-highcharts'
 import VueHotkey from 'v-hotkey'
-import VueMoment from 'vue-moment'
 import {routerHistory, writeHistory} from 'vue-router-back-button'
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {far} from '@fortawesome/free-regular-svg-icons'
@@ -43,7 +42,6 @@ Vue.use(CKEditor)
 Vue.use(VCalendar)
 Vue.use(VueAnnouncer)
 Vue.use(VueHotkey)
-Vue.use(VueMoment, {moment})
 
 HighchartsMore(Highcharts)
 Vue.use(VueHighcharts, {Highcharts})
@@ -55,11 +53,10 @@ Vue.directive('accessibleGrade', {
 })
 Vue.directive('linkified', linkify)
 
-// Emit and listen for events
+// Global utilities
 Vue.prototype.$eventHub = mitt()
-
-// Lodash
 Vue.prototype.$_ = _
+Vue.prototype.$moment = moment
 
 Vue.use(routerHistory)
 router.afterEach(writeHistory)

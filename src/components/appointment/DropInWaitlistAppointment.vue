@@ -5,7 +5,7 @@
     no-gutters
   >
     <b-col sm="2" class="pb-2 text-nowrap">
-      <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ new Date(appointment.createdAt) | moment('LT') }}</span>
+      <span class="sr-only">Created at </span><span :id="`appointment-${appointment.id}-created-at`">{{ $moment(appointment.createdAt).format('LT') }}</span>
     </b-col>
     <b-col sm="6">
       <div class="d-flex">

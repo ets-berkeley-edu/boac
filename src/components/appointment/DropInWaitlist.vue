@@ -19,7 +19,7 @@
     <div v-if="isHomepage" class="pb-2">
       <div class="align-items-center d-flex homepage-header-border justify-content-between mb-2">
         <div aria-live="polite" role="alert">
-          <h2 class="page-section-header">Drop-in Waitlist - {{ $moment() | moment('MMM D') }}</h2>
+          <h2 class="page-section-header">Drop-in Waitlist - {{ $moment().format('MMM D') }}</h2>
         </div>
         <div v-if="!$currentUser.isAdmin">
           <b-btn
@@ -104,7 +104,7 @@
           </h1>
         </div>
         <div>
-          <h2 id="waitlist-today-date" class="font-size-18 font-weight-bold text-nowrap">{{ $moment() | moment('ddd, MMM D') }}</h2>
+          <h2 id="waitlist-today-date" class="font-size-18 font-weight-bold text-nowrap">{{ $moment().format('ddd, MMM D') }}</h2>
         </div>
       </div>
     </div>

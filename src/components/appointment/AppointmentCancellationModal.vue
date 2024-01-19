@@ -22,7 +22,7 @@
               </b-col>
               <b-col>
                 <span id="appointment-created-at-date">
-                  {{ new Date(appointment.createdAt) | moment('ddd, MMMM D') }}
+                  {{ $moment(appointment.createdAt).format('ddd, MMMM D') }}
                 </span>
               </b-col>
             </b-row>
@@ -34,7 +34,7 @@
               </b-col>
               <b-col>
                 <span id="appointment-created-at-time">
-                  {{ new Date(appointment.createdAt) | moment('LT') }}
+                  {{ $moment(appointment.createdAt).format('LT') }}
                 </span>
               </b-col>
             </b-row>

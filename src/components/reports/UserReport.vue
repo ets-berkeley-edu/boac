@@ -45,7 +45,7 @@
       </template>
       <template v-slot:cell(lastLogin)="row">
         <div :id="`user-last-login-${row.item.uid}`">
-          <span v-if="row.item.lastLogin">{{ row.item.lastLogin | moment('MMM D, YYYY') }}</span>
+          <span v-if="row.item.lastLogin">{{ $moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
           <span v-if="!row.item.lastLogin">&#8212;</span>
         </div>
       </template>
