@@ -115,8 +115,8 @@
     <template v-slot:cell(courseSites)="row">
       <div class="course-sites flex-col font-size-14 pl-2">
         <div
-          v-for="canvasSite in row.item.enrollment.canvasSites"
-          :key="canvasSite.courseCode"
+          v-for="(canvasSite, index) in row.item.enrollment.canvasSites"
+          :key="index"
         >
           <strong>{{ canvasSite.courseCode }}</strong>
         </div>
