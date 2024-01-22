@@ -29,6 +29,13 @@
         <span class="sr-only">Preferred name</span>
         <span v-html="student.sisProfile.preferredName"></span>
       </div>
+      <div
+        v-if="$_.get(student, 'sisProfile.pronouns.description')"
+        id="student-pronouns"
+        class="student-text font-size-14 mb-1"
+      >
+        Pronouns: {{ student.sisProfile.pronouns.description }}
+      </div>
       <div id="student-bio-sid" class="font-size-14 font-weight-bold mb-1">
         SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
         <span
