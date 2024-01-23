@@ -2,7 +2,7 @@
   <div class="m-3">
     <Spinner />
     <SearchResultsHeader :results="results" />
-    <div v-if="!loading && $_.size(results.admits)">
+    <div v-if="!loading && _size(results.admits)">
       <hr class="section-divider" />
       <AdmittedStudentResults
         :results="results"
@@ -20,16 +20,16 @@
       <hr class="section-divider" />
       <SortableCourses
         :courses="results.courses"
-        :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !$_.size(results.notes) ? 'page-section-header' : 'font-size-18'"
+        :header-class-name="!results.totalStudentCount && !!results.totalCourseCount && !_size(results.notes) ? 'page-section-header' : 'font-size-18'"
         :search-phrase="searchPhraseSubmitted"
         :total-course-count="results.totalCourseCount"
       />
     </div>
-    <div v-if="!loading && $_.size(results.notes)" class="pt-4">
+    <div v-if="!loading && _size(results.notes)" class="pt-4">
       <hr class="section-divider" />
       <h2 id="note-results-page-header" class="font-size-18">
-        {{ $_.size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
-        {{ $_.size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
+        {{ _size(results.notes) }}{{ completeNoteResults ? '' : '+' }}
+        {{ _size(results.notes) === 1 ? 'advising note' : 'advising notes' }}
         <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
       </h2>
       <AdvisingNoteSnippet
@@ -49,11 +49,11 @@
         <SectionSpinner :loading="loadingAdditionalNotes" />
       </div>
     </div>
-    <div v-if="!loading && $_.size(results.appointments)" class="pt-4">
+    <div v-if="!loading && _size(results.appointments)" class="pt-4">
       <hr class="section-divider" />
       <h2 id="appointment-results-page-header" class="font-size-18">
-        {{ $_.size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
-        {{ $_.size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
+        {{ _size(results.appointments) }}{{ completeAppointmentResults ? '' : '+' }}
+        {{ _size(results.appointments) === 1 ? 'advising appointment' : 'advising appointments' }}
         <span v-if="searchPhraseSubmitted"> with '{{ searchPhraseSubmitted }}'</span>
       </h2>
       <AppointmentSnippet
@@ -136,10 +136,10 @@ export default {
   }),
   computed: {
     completeAppointmentResults() {
-      return this.$_.size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
+      return this._size(this.results.appointments) < this.appointmentOptions.limit + this.appointmentOptions.offset
     },
     completeNoteResults() {
-      return this.$_.size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
+      return this._size(this.results.notes) < this.noteOptions.limit + this.noteOptions.offset
     }
   },
   mounted() {
@@ -171,17 +171,17 @@ export default {
             this.includeCourses,
             this.includeNotesAndAppointments,
             this.includeStudents,
-            this.$_.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
-            this.$_.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
+            this._extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+            this._extend({}, this.noteAndAppointmentOptions, this.noteOptions)
           )
         )
       }
-      if (this.includeAdmits && this.$_.trim(this.queryText)) {
+      if (this.includeAdmits && this._trim(this.queryText)) {
         queries.push(searchAdmittedStudents(this.queryText))
       }
       Promise.all(queries).then(responses => {
-        this.$_.each(responses, (response) => this.$_.merge(this.results, response))
-        this.$_.each(this.results.students, student => {
+        this._each(responses, (response) => this._merge(this.results, response))
+        this._each(this.results.students, student => {
           student.alertCount = student.alertCount || 0
           student.term = student.term || {}
           student.term.enrolledUnits = student.term.enrolledUnits || 0
@@ -196,7 +196,7 @@ export default {
           this.isSearching = false
         })
     } else {
-      this.$router.push({path: '/'}, this.$_.noop)
+      this.$router.push({path: '/'}, this._noop)
     }
   },
   methods: {
@@ -205,8 +205,8 @@ export default {
       let alert = `Search results include ${describe('Admits', this.results.totalAdmitCount)}`
       alert += describe('student', this.results.totalStudentCount)
       alert += describe('course', this.results.totalCourseCount)
-      alert += describe('note', this.$_.size(this.results.notes))
-      alert += describe('appointment', this.$_.size(this.results.appointments))
+      alert += describe('note', this._size(this.results.notes))
+      alert += describe('appointment', this._size(this.results.appointments))
       return alert
     },
     fetchMoreAppointments() {
@@ -219,11 +219,11 @@ export default {
         false,
         false,
         false,
-        this.$_.extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
+        this._extend({}, this.noteAndAppointmentOptions, this.appointmentOptions),
         null
       )
         .then(data => {
-          this.results.appointments = this.$_.concat(this.results.appointments, data.appointments)
+          this.results.appointments = this._concat(this.results.appointments, data.appointments)
           this.loadingAdditionalAppointments = false
         })
     },
@@ -238,10 +238,10 @@ export default {
         true,
         false,
         null,
-        this.$_.extend({}, this.noteAndAppointmentOptions, this.noteOptions)
+        this._extend({}, this.noteAndAppointmentOptions, this.noteOptions)
       )
         .then(data => {
-          this.results.notes = this.$_.concat(this.results.notes, data.notes)
+          this.results.notes = this._concat(this.results.notes, data.notes)
           this.loadingAdditionalNotes = false
         })
     }

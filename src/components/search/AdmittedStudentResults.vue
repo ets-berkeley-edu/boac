@@ -4,10 +4,10 @@
       {{ pluralize('admitted student', results.totalAdmitCount) }}<span v-if="searchPhrase">  matching '{{ searchPhrase }}'</span>
     </h2>
     <div class="mb-2 ml-1">
-      <AdmitDataWarning :updated-at="$_.get(results.admits, '[0].updatedAt')" />
+      <AdmitDataWarning :updated-at="_get(results.admits, '[0].updatedAt')" />
     </div>
-    <div v-if="$_.size(results.admits) < results.totalAdmitCount" class="mb-2">
-      Showing the first {{ $_.size(results.admits) }} admitted students.
+    <div v-if="_size(results.admits) < results.totalAdmitCount" class="mb-2">
+      Showing the first {{ _size(results.admits) }} admitted students.
     </div>
     <CuratedGroupSelector
       context-description="Search"

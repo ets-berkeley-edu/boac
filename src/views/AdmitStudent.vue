@@ -30,7 +30,7 @@
           />
         </div>
       </div>
-      <AdmitDataWarning :updated-at="$_.get(admit, 'updatedAt')" />
+      <AdmitDataWarning :updated-at="_get(admit, 'updatedAt')" />
 
       <b-container fluid>
         <b-row class="mt-3 py-2">
@@ -314,19 +314,19 @@ export default {
       return birthDate.format('MMM D, YYYY')
     },
     fullName() {
-      return this.$_.join(this.$_.remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ')
+      return this._join(this._remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ')
     }
   },
   created() {
     this.now = this.$moment()
-    let sid = this.$_.get(this.$route, 'params.sid')
+    let sid = this._get(this.$route, 'params.sid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       sid = window.atob(sid)
     }
     getAdmitBySid(sid).then(admit => {
       if (admit) {
-        this.$_.assign(this.admit, admit)
+        this._assign(this.admit, admit)
         let pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
         this.loaded(`${pageTitle} has loaded`)

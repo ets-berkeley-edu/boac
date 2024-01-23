@@ -28,7 +28,7 @@
         <b-btn
           id="start-degree-btn"
           class="btn-primary-color-override h-100 mr-0 mt-3"
-          :disabled="isBusy || !!error || !$_.trim(templateName)"
+          :disabled="isBusy || !!error || !_trim(templateName)"
           variant="primary"
           @click.prevent="create"
         >
@@ -42,11 +42,12 @@
 
 <script>
 import Loading from '@/mixins/Loading'
+import Util from '@/mixins/Util'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'CreateDegreeTemplate',
-  mixins: [Loading],
+  mixins: [Loading, Util],
   data: () => ({
     error: undefined,
     isBusy: false,
@@ -65,7 +66,7 @@ export default {
       this.isBusy = true
       getDegreeTemplates().then(data => {
         const lower = this.templateName.trim().toLowerCase()
-        if (this.$_.map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+        if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
           this.$announcer.polite('Creating template')
           createDegreeTemplate(this.templateName).then(data => {
             this.$router.push(`/degree/${data.id}`)

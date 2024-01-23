@@ -17,14 +17,14 @@
       </div>
     </div>
     <div
-      v-for="(group, index) in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
+      v-for="(group, index) in _filter($currentUser.myCuratedGroups, ['domain', domain])"
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
           :id="`sidebar-${idFragment}-${index}`"
-          :aria-label="`${$_.capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
+          :aria-label="`${_capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
           :path="`/curated/${group.id}`"
         >
           {{ group.name }}

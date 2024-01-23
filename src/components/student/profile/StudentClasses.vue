@@ -124,8 +124,8 @@ export default {
   },
   computed: {
     enrollmentTermsByYear() {
-      const enrollmentTermsByYear = this.$_.map(
-        this.$_.groupBy(this.student.enrollmentTerms, 'academicYear'),
+      const enrollmentTermsByYear = this._map(
+        this._groupBy(this.student.enrollmentTerms, 'academicYear'),
         (terms, label) => {
           return {
             label: label,
@@ -133,15 +133,15 @@ export default {
           }
         }
       )
-      return this.$_.orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
+      return this._orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
     },
   },
   methods: {
     includesCurrentTerm(year) {
-      return this.$_.includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
+      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
     },
     getDegreeCheckPath() {
-      const currentDegreeCheck = this.$_.find(this.student.degreeChecks, 'isCurrent')
+      const currentDegreeCheck = this._find(this.student.degreeChecks, 'isCurrent')
       if (currentDegreeCheck) {
         return `/student/degree/${currentDegreeCheck.id}`
       } else if (this.$currentUser.canEditDegreeProgress) {
@@ -151,7 +151,7 @@ export default {
       }
     },
     getTerm(termName, year) {
-      const term = this.$_.find(year.terms, {'termName': termName})
+      const term = this._find(year.terms, {'termName': termName})
       if (!term) {
         return {
           termId: this.sisIdForTermName(termName),
@@ -161,15 +161,15 @@ export default {
       return term
     },
     totalUnits(year) {
-      return this.$_.sumBy(year.terms, 'enrolledUnits')
+      return this._sumBy(year.terms, 'enrolledUnits')
     },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
       this.$announcer.polite(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
     updateCollapseStates() {
-      this.collapsed = this.$_.filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
-      this.uncollapsed = this.$_.filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
+      this.collapsed = this._filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
+      this.uncollapsed = this._filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
       this.expanded = !this.expanded
       this.$announcer.polite(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
     }

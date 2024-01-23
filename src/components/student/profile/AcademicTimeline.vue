@@ -27,11 +27,12 @@
 import AcademicTimelineHeader from '@/components/student/profile/AcademicTimelineHeader'
 import AcademicTimelineTable from '@/components/student/profile/AcademicTimelineTable'
 import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 import {getNote} from '@/api/notes'
 
 export default {
   name: 'AcademicTimeline',
-  mixins: [Context],
+  mixins: [Context, Util],
   components: {
     AcademicTimelineTable,
     AcademicTimelineHeader
@@ -61,10 +62,10 @@ export default {
       this.filterTypes.note = {name: 'Advising Note', tab: 'Notes'}
       this.filterTypes.appointment = {name: 'Appointment', tab: 'Appointments'}
     }
-    this.$_.each(this.$_.keys(this.filterTypes), (type, typeIndex) => {
+    this._each(this._keys(this.filterTypes), (type, typeIndex) => {
       let notifications = this.student.notifications[type]
-      this.countsPerType[type] = this.$_.size(notifications)
-      this.$_.each(notifications, (message, index) => {
+      this.countsPerType[type] = this._size(notifications)
+      this._each(notifications, (message, index) => {
         this.messages.push(message)
         // If object is not a BOA advising note then generate a transient and non-zero primary key.
         message.transientId = (typeIndex + 1) * 1000 + index
@@ -81,8 +82,8 @@ export default {
   methods: {
     onCreateNewNote(note) {
       if (note.sid === this.student.sid) {
-        const currentNoteIds = this.$_.map(this.$_.filter(this.messages, ['type', 'note']), 'id')
-        const isNotInView = !this.$_.includes(currentNoteIds, note.id)
+        const currentNoteIds = this._map(this._filter(this.messages, ['type', 'note']), 'id')
+        const isNotInView = !this._includes(currentNoteIds, note.id)
         if (isNotInView) {
           note.transientId = note.id
           this.messages.push(note)
@@ -93,14 +94,14 @@ export default {
       }
     },
     onDeleteNoteEvent(noteId) {
-      const removed = this.$_.remove(this.messages, m => m.type === 'note' && m.id === noteId)
+      const removed = this._remove(this.messages, m => m.type === 'note' && m.id === noteId)
       if (removed) {
         this.updateCountsPerType('note', this.countsPerType.note - 1)
         this.sortMessages()
       }
     },
     onPublishBatchNotes(noteIdsBySid) {
-      const noteId = this.$_.get(noteIdsBySid, this.student.sid)
+      const noteId = this._get(noteIdsBySid, this.student.sid)
       if (noteId) {
         getNote(noteId).then(note => {
           this.onCreateNewNote(note)

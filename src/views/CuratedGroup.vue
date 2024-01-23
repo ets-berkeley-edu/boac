@@ -5,7 +5,7 @@
       <CuratedGroupHeader />
       <AdmitDataWarning
         v-if="domain === 'admitted_students' && students && mode !== 'bulkAdd'"
-        :updated-at="$_.get(students, '[0].updatedAt')"
+        :updated-at="_get(students, '[0].updatedAt')"
       />
       <div v-show="mode !== 'bulkAdd'">
         <hr v-if="!error && totalStudentCount > itemsPerPage" class="filters-section-separator" />
@@ -27,7 +27,7 @@
               :total-rows="totalStudentCount"
             />
           </div>
-          <div v-if="$_.size(students)" class="mt-2">
+          <div v-if="_size(students)" class="mt-2">
             <div id="curated-cohort-students">
               <div v-if="domain === 'default'">
                 <StudentRow
@@ -170,7 +170,7 @@ export default {
   methods: {
     bulkAddSids(sids) {
       this.setMode(undefined)
-      if (this.$_.size(sids)) {
+      if (this._size(sids)) {
         this.$announcer.polite(`Adding ${sids.length} students`)
         this.$currentUser.preferences.sortBy = 'last_name'
         this.loadingStart()
@@ -185,7 +185,7 @@ export default {
       }
     },
     getLoadedAlert() {
-      const label = `${this.$_.capitalize(this.describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
+      const label = `${this._capitalize(this.describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
       const sortedBy = this.translateSortByOption(this.$currentUser.preferences.sortBy)
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },

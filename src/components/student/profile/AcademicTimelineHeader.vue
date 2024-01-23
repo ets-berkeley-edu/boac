@@ -18,7 +18,7 @@
               All
             </b-btn>
           </div>
-          <div v-for="type in $_.keys(filterTypes)" :key="type" role="tablist">
+          <div v-for="type in _keys(filterTypes)" :key="type" role="tablist">
             <b-btn
               :id="`timeline-tab-${type}`"
               :class="{
@@ -99,7 +99,7 @@ export default {
   methods: {
     onModalClose(note) {
       this.isEditingNote = false
-      this.$putFocusNextTick(note && this.$_.includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
+      this.$putFocusNextTick(note && this._includes(['all', 'note'], this.activeTab) ? `timeline-tab-${this.activeTab}-message-0` : 'new-note-button')
     }
   }
 }

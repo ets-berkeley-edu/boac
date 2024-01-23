@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <CohortPageHeader :show-history="showHistory" :toggle-show-history="toggleShowHistory" />
       <div v-if="domain === 'admitted_students' && students" class="pb-2">
-        <AdmitDataWarning :updated-at="$_.get(students, '[0].updatedAt')" />
+        <AdmitDataWarning :updated-at="_get(students, '[0].updatedAt')" />
       </div>
       <b-collapse
         id="show-hide-filters"
@@ -143,7 +143,7 @@ export default {
   computed: {
     anchor: () => location.hash,
     showStudentsSection() {
-      return this.$_.size(this.students) && this.editMode !== 'apply'
+      return this._size(this.students) && this.editMode !== 'apply'
     }
   },
   watch: {
@@ -155,9 +155,9 @@ export default {
     }
   },
   mounted() {
-    const forwardPath = this.$routerHistory.hasForward() && this.$_.get(this.$routerHistory.next(), 'path')
+    const forwardPath = this.$routerHistory.hasForward() && this._get(this.$routerHistory.next(), 'path')
     const continueExistingSession =
-      (this.$_.startsWith(forwardPath, '/student') || this.$_.startsWith(forwardPath, '/admit/student')) && this.$_.size(this.filters)
+      (this._startsWith(forwardPath, '/student') || this._startsWith(forwardPath, '/admit/student')) && this._size(this.filters)
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
@@ -165,9 +165,9 @@ export default {
       this.loaded(this.getLoadedAlert())
     } else {
       const domain = this.$route.query.domain || 'default'
-      const id = this.toInt(this.$_.get(this.$route, 'params.id'))
-      const orderBy = this.$_.get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
-      const termId = this.$_.get(this.$currentUser.preferences, 'termId')
+      const id = this.toInt(this._get(this.$route, 'params.id'))
+      const orderBy = this._get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+      const termId = this._get(this.$currentUser.preferences, 'termId')
       this.init({domain, id, orderBy, termId}).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage

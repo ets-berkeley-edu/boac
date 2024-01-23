@@ -25,7 +25,7 @@
         </h1>
       </div>
       <div v-if="!showHistory" class="d-flex align-self-baseline mr-3">
-        <div v-if="cohortId && $_.size(filters)">
+        <div v-if="cohortId && _size(filters)">
           <b-btn
             id="show-hide-details-button"
             class="no-wrap pr-1 p-0"
@@ -35,7 +35,7 @@
             {{ isCompactView ? 'Show' : 'Hide' }} Filters
           </b-btn>
         </div>
-        <div v-if="cohortId && isOwnedByCurrentUser && $_.size(filters)" class="faint-text">|</div>
+        <div v-if="cohortId && isOwnedByCurrentUser && _size(filters)" class="faint-text">|</div>
         <div v-if="cohortId && isOwnedByCurrentUser">
           <b-btn
             id="rename-button"
@@ -71,7 +71,7 @@
             />
           </b-modal>
         </div>
-        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && $_.size(filters))" class="faint-text">|</div>
+        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && _size(filters))" class="faint-text">|</div>
         <div v-if="cohortId || totalStudentCount !== undefined">
           <b-btn
             v-if="domain === 'default'"

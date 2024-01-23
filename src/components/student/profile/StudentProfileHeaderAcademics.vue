@@ -21,7 +21,7 @@
           :active="true"
         />
       </div>
-      <div v-if="$_.size(activeSubplans)" id="student-bio-subplans" class="mb-3">
+      <div v-if="_size(activeSubplans)" id="student-bio-subplans" class="mb-3">
         <h3 class="student-profile-h3">{{ pluralize('Subplan', activeSubplans.length) }}</h3>
         <div
           v-for="(subplan, index) in activeSubplans"
@@ -57,7 +57,7 @@
           />
         </div>
       </div>
-      <div v-if="!plansPartitionedByStatus[0].length && $_.size(discontinuedSubplans)" id="student-bio-subplans" class="mb-3">
+      <div v-if="!plansPartitionedByStatus[0].length && _size(discontinuedSubplans)" id="student-bio-subplans" class="mb-3">
         <h3 class="student-profile-h3">{{ pluralize('Discontinued Subplan', discontinuedSubplans.length) }}</h3>
         <div
           v-for="(subplan, index) in discontinuedSubplans"
@@ -68,11 +68,11 @@
         </div>
       </div>
     </div>
-    <div v-if="academicCareerStatus === 'Completed' && $_.size(student.sisProfile.degrees)" class="mb-3">
-      <h3 class="student-profile-h3">Degree{{ $_.size(student.sisProfile.degrees) === 1 ? '' : 's' }}</h3>
+    <div v-if="academicCareerStatus === 'Completed' && _size(student.sisProfile.degrees)" class="mb-3">
+      <h3 class="student-profile-h3">Degree{{ _size(student.sisProfile.degrees) === 1 ? '' : 's' }}</h3>
       <div v-for="(degree, index) in student.sisProfile.degrees" :key="degree.plan">
         <div :id="`student-bio-degree-type-${index}`" class="font-weight-bolder" :class="{'mt-2': index > 0}">
-          <span v-if="!$_.includes(degree.planOwners, 'Graduate Division')">
+          <span v-if="!_includes(degree.planOwners, 'Graduate Division')">
             {{ degree.description }} in
           </span>
           {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
@@ -142,12 +142,12 @@ export default {
     planTypes: ['MAJ', 'SS', 'SP', 'SH', 'CRT']
   }),
   created() {
-    this.$_.each(this.student.sisProfile.degrees, degree => {
-      degree.planOwners = this.$_.uniq(this.$_.map(degree.plans, 'group'))
+    this._each(this.student.sisProfile.degrees, degree => {
+      degree.planOwners = this._uniq(this._map(degree.plans, 'group'))
       degree.minorPlans = degree.plans.filter(plan => plan.type === 'MIN').map(minor => minor.plan).map(part => part.replace('Minor in ', ''))
     })
-    this.academicCareerStatus = this.$_.get(this.student, 'sisProfile.academicCareerStatus')
-    this.activeSubplans = this.$_.compact(this.$_.map(this.plansPartitionedByStatus[0], 'subplan'))
+    this.academicCareerStatus = this._get(this.student, 'sisProfile.academicCareerStatus')
+    this.activeSubplans = this._compact(this._map(this.plansPartitionedByStatus[0], 'subplan'))
   }
 }
 </script>

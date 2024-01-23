@@ -95,7 +95,7 @@ export default {
     templates: undefined
   }),
   created() {
-    let uid = this.$_.get(this.$route, 'params.uid')
+    let uid = this._get(this.$route, 'params.uid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose UID in browser location bar.
       uid = window.atob(uid)

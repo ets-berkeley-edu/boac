@@ -143,7 +143,7 @@
               >
                 <b-list-group>
                   <b-list-group-item
-                    v-for="row in $_.reverse($_.sortBy(annual.months, 'month'))"
+                    v-for="row in _reverse(_sortBy(annual.months, 'month'))"
                     :key="row.month"
                     class="d-flex justify-content-between align-items-center"
                   >
@@ -184,7 +184,7 @@ export default {
     getNotesReport(this.department.code).then(report => {
       this.report = report
       getBoaNoteCountByMonth().then(data => {
-        this.boaNoteCountsByMonth = this.$_.reverse(this.$_.sortBy(data, 'year'))
+        this.boaNoteCountsByMonth = this._reverse(this._sortBy(data, 'year'))
         this.isLoading = false
       })
     })

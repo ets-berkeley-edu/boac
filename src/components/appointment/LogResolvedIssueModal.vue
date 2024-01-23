@@ -72,7 +72,7 @@
         <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="log-resolved-issue-confirm"
-            :disabled="!student || isStudentInWaitlist || !topics.length || !$_.trim(details).length"
+            :disabled="!student || isStudentInWaitlist || !topics.length || !_trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="log"
@@ -136,7 +136,7 @@ export default {
   }),
   computed: {
     isStudentInWaitlist() {
-      return this.student && !!this.$_.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
+      return this.student && !!this._find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
     }
   },
   watch: {
@@ -181,7 +181,7 @@ export default {
       this.student = undefined
     },
     removeTopic(topic) {
-      const index = this.$_.indexOf(this.topics, topic)
+      const index = this._indexOf(this.topics, topic)
       if (index !== -1) {
         this.topics.splice(index, 1)
       }

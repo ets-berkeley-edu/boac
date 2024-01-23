@@ -339,7 +339,7 @@ export default {
       this.refreshUsers()
     },
     autocompleteUsers(q) {
-      return userAutocomplete(q).then(results => this.$_.orderBy(results, 'label'))
+      return userAutocomplete(q).then(results => this._orderBy(results, 'label'))
     },
     become(uid) {
       becomeUser(uid).then(() => window.location.href = '/')
@@ -347,7 +347,7 @@ export default {
     canBecome(user) {
       const isNotMe = user.uid !== this.$currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
-      const hasAnyRole = user.isAdmin || this.$_.find(user.departments, (dept) => !this.$_.isNil(dept.role))
+      const hasAnyRole = user.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {
@@ -390,8 +390,8 @@ export default {
         break
       case 'filter':
         promise = getUsers(
-          this.$_.isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
-          this.$_.isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
+          this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'blocked',
+          this._isNil(this.filterBy.status) ? null : this.filterBy.status === 'deleted',
           this.filterBy.deptCode,
           this.filterBy.role,
           this.sortBy,

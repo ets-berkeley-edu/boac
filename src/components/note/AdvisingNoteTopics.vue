@@ -109,12 +109,12 @@ export default {
   },
   created() {
     getTopicsForNotes(false).then(rows => {
-      this.$_.each(rows, row => {
+      this._each(rows, row => {
         const topic = row['topic']
         this.topicOptions.push({
           text: topic,
           value: topic,
-          disabled: this.$_.includes(this.topics, topic)
+          disabled: this._includes(this.topics, topic)
         })
       })
     })
@@ -137,8 +137,8 @@ export default {
       this.$putFocusNextTick('add-topic-select-list')
     },
     setDisabled(topic, disable) {
-      const option = this.$_.find(this.topicOptions, ['value', topic])
-      this.$_.set(option, 'disabled', disable)
+      const option = this._find(this.topicOptions, ['value', topic])
+      this._set(option, 'disabled', disable)
     }
   }
 }

@@ -27,7 +27,7 @@
           class="sr-only"
           aria-live="polite"
         >
-          {{ $_.capitalize(domainLabel(false)) }} name cannot exceed 255 characters.
+          {{ _capitalize(domainLabel(false)) }} name cannot exceed 255 characters.
         </div>
       </div>
       <div class="modal-footer mb-0 pb-0 pl-0 mr-2">

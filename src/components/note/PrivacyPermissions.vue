@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!$_.isUndefined(isPrivate)">
+  <div v-if="!_isUndefined(isPrivate)">
     <div id="privacy-permissions-label" class="font-weight-bold mb-1">
       Privacy Permissions
     </div>
@@ -31,10 +31,11 @@
 
 <script>
 import NoteEditSession from '@/mixins/NoteEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'PrivacyPermissions',
-  mixins: [NoteEditSession],
+  mixins: [NoteEditSession, Util],
   props: {
     disabled: {
       required: false,

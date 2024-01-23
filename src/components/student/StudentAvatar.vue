@@ -25,10 +25,11 @@
 
 <script>
 import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentAvatar',
-  mixins: [Context],
+  mixins: [Context, Util],
   props: {
     size: {
       required: true,
@@ -52,7 +53,7 @@ export default {
   }),
   created() {
     this.ariaLabel = `Photo of ${this.student.firstName} ${this.student.lastName}`
-    if (!this.$_.isNil(this.alertCount)) {
+    if (!this._isNil(this.alertCount)) {
       this.ariaLabel += this.alertCount === 1 ? ' (one alert)' : ` (${this.alertCount} alerts)`
     }
     this.avatarUrl = this.student.photoUrl

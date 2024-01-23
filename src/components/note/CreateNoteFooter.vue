@@ -14,7 +14,7 @@
         <b-btn
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
-          :disabled="isSaving || !$_.trim(model.subject) || !!model.setDate || !!model.contactType"
+          :disabled="isSaving || !_trim(model.subject) || !!model.setDate || !!model.contactType"
           variant="link"
           @click="saveAsTemplate"
         >
@@ -37,7 +37,7 @@
           <b-btn
             id="save-as-draft-button"
             class="mr-1"
-            :disabled="isSaving || (!$_.trim(model.subject) && !$_.trim(model.body))"
+            :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
             variant="link"
             @click.prevent="updateNote"
           >
@@ -47,7 +47,7 @@
         <div v-if="!['editTemplate'].includes(mode)">
           <b-btn
             id="create-note-button"
-            :disabled="isSaving || !completeSidSet.length || !$_.trim(model.subject)"
+            :disabled="isSaving || !completeSidSet.length || !_trim(model.subject)"
             class="btn-primary-color-override"
             :class="{'mr-2': mode !== 'editDraft'}"
             variant="primary"

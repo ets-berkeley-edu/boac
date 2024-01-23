@@ -94,20 +94,20 @@
                   </div>
                   <div
                     :class="{
-                      'accent-color-purple': $_.get(bundle.category, 'isSatisfiedByTransferCourse'),
+                      'accent-color-purple': _get(bundle.category, 'isSatisfiedByTransferCourse'),
                       'font-weight-500': isEditing(bundle),
-                      'pr-2': $_.get(bundle.course, 'isCopy')
+                      'pr-2': _get(bundle.course, 'isCopy')
                     }"
                   >
                     <span
                       class="pl-1"
-                      :class="{'text-strikethrough': $_.get(bundle.category, 'isIgnored')}"
+                      :class="{'text-strikethrough': _get(bundle.category, 'isIgnored')}"
                     >
                       <!-- Spaces surrounding 'name' make life easier for QA. Do not trim. -->
                       {{ bundle.name }}
                     </span>
                   </div>
-                  <div v-if="$_.get(bundle.course, 'isCopy')" class="pr-1">
+                  <div v-if="_get(bundle.course, 'isCopy')" class="pr-1">
                     <font-awesome
                       icon="copy"
                       size="sm"
@@ -138,7 +138,7 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
-                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ $_.isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
+                <span :class="{'font-size-12': printable, 'font-size-14': !printable}">{{ _isNil(bundle.units) ? '&mdash;' : bundle.units }}</span>
                 <span v-if="unitsWereEdited(bundle.course)" class="sr-only"> (updated from {{ pluralize('unit', bundle.course.sis.units) }})</span>
               </td>
               <td v-if="sid && !isCampusRequirements" class="td-grade">
@@ -206,15 +206,15 @@
                   'font-size-12': printable,
                   'font-size-14': !printable
                 }"
-                :title="oxfordJoin($_.map(bundle.unitRequirements, 'name'), 'None')"
+                :title="oxfordJoin(_map(bundle.unitRequirements, 'name'), 'None')"
               >
                 <div class="align-items-start d-flex justify-content-between">
                   <div class="ellipsis-if-overflow">
                     <span>
-                      {{ oxfordJoin($_.map(bundle.unitRequirements, 'name'), '&mdash;') }}
+                      {{ oxfordJoin(_map(bundle.unitRequirements, 'name'), '&mdash;') }}
                     </span>
                   </div>
-                  <div v-if="$_.size(bundle.unitRequirements) > 1" class="unit-requirement-count">
+                  <div v-if="_size(bundle.unitRequirements) > 1" class="unit-requirement-count">
                     <span class="sr-only">(Has </span>{{ bundle.unitRequirements.length }}<span class="sr-only"> requirements.)</span>
                   </div>
                 </div>
@@ -223,7 +223,7 @@
                 <div class="d-flex justify-content-end text-nowrap">
                   <div class="btn-container">
                     <b-btn
-                      v-if="!isUserDragging($_.get(bundle.course, 'id'))"
+                      v-if="!isUserDragging(_get(bundle.course, 'id'))"
                       :id="`column-${position}-edit-${bundle.key}-btn`"
                       class="pl-0 pr-1 py-0"
                       :disabled="disableButtons"
@@ -237,7 +237,7 @@
                   </div>
                   <div class="btn-container">
                     <b-btn
-                      v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !isUserDragging($_.get(bundle.course, 'id'))"
+                      v-if="!sid || (bundle.course && (bundle.course.isCopy || bundle.course.manuallyCreatedBy)) && !isUserDragging(_get(bundle.course, 'id'))"
                       :id="`column-${position}-delete-${bundle.key}-btn`"
                       class="pl-0 pr-1 py-0"
                       :disabled="disableButtons"
@@ -388,12 +388,12 @@ export default {
   }),
   computed: {
     allCourses() {
-      const bundles = this.$_.filter(this.categoryCourseBundles, b => !!b.course)
-      return this.$_.map(bundles, b => b.course)
+      const bundles = this._filter(this.categoryCourseBundles, b => !!b.course)
+      return this._map(bundles, b => b.course)
     },
     categoryCourseBundles() {
       const transformed = []
-      this.$_.each(this.items, item => {
+      this._each(this.items, item => {
         let category
         let course
         if (item.categoryType) {
@@ -416,13 +416,13 @@ export default {
       return transformed
     },
     hasAnyNotes() {
-      return !!this.$_.find(this.categoryCourseBundles, bundle => this.getNote(bundle))
+      return !!this._find(this.categoryCourseBundles, bundle => this.getNote(bundle))
     },
     hasAssignedCourses() {
-      return !!this.$_.find(this.categoryCourseBundles, bundle => bundle.course)
+      return !!this._find(this.categoryCourseBundles, bundle => bundle.course)
     },
     isCampusRequirements() {
-      return !this.$_.isEmpty(this.items) && this.$_.every(this.items, this.isCampusRequirement)
+      return !this._isEmpty(this.items) && this._every(this.items, this.isCampusRequirement)
     }
   },
   created() {
@@ -484,7 +484,7 @@ export default {
     getBundleName(course, category) {
       let name = (course || category).name
       if (course && this.printable) {
-        this.$_.each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
+        this._each(['COL', 'DIS', 'FLD', 'GRP', 'IND', 'LAB', 'LEC', 'SEM'], format => {
           const trimmed = name.replace(new RegExp(` ${format} [0-9]+$`), '')
           if (trimmed !== name) {
             name = trimmed
@@ -495,21 +495,21 @@ export default {
       return name
     },
     getCourseFulfillments(bundle) {
-      return bundle.course ? this.$_.map(bundle.course.unitRequirements, 'name') : []
+      return bundle.course ? this._map(bundle.course.unitRequirements, 'name') : []
     },
     getGrade(bundle) {
-      return this.$_.get(bundle.course || bundle.category, 'grade')
+      return this._get(bundle.course || bundle.category, 'grade')
     },
     getNote: bundle => bundle.course ? bundle.course.note : bundle.category.note,
     hideNote(bundle, srAlert=true) {
-      this.notesVisible = this.$_.remove(this.notesVisible, key => bundle.key !== key)
+      this.notesVisible = this._remove(this.notesVisible, key => bundle.key !== key)
       if (srAlert) {
         this.$announcer.polite('Note hidden')
       }
     },
     isCourseFulfillmentsEdited(bundle) {
       if (bundle.category && bundle.course) {
-        const edited = this.$_.xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
+        const edited = this._xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
         return edited && edited.length
       } else {
         return false
@@ -533,23 +533,23 @@ export default {
       if (droppable) {
         const course = this.draggingContext.course
         const assignedCourses = this.getAssignedCourses(this.parentCategory, course.id)
-        const courseKeys = this.$_.map(assignedCourses, this.getCourseKey)
-        droppable = course.categoryId === category.parentCategoryId || !this.$_.includes(courseKeys, this.getCourseKey(course))
+        const courseKeys = this._map(assignedCourses, this.getCourseKey)
+        droppable = course.categoryId === category.parentCategoryId || !this._includes(courseKeys, this.getCourseKey(course))
       }
       return droppable
     },
     isEditing(bundle) {
       const isMatch = key => {
-        const id = this.$_.get(bundle, `${key}.id`)
-        return id && (id === this.$_.get(this.bundleForEdit, `${key}.id`))
+        const id = this._get(bundle, `${key}.id`)
+        return id && (id === this._get(this.bundleForEdit, `${key}.id`))
       }
       return bundle.course ? isMatch('course') : isMatch('category')
     },
     isNoteVisible(bundle) {
-      return this.$_.includes(this.notesVisible, bundle.key)
+      return this._includes(this.notesVisible, bundle.key)
     },
     isSatisfied(bundle) {
-      return bundle.course || this.$_.get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
+      return bundle.course || this._get(bundle.category, 'categoryType') === 'Campus Requirement, Satisfied'
     },
     onDelete(bundle) {
       this.hoverCourseId = null
@@ -567,7 +567,7 @@ export default {
       case 'over':
         event.stopPropagation()
         event.preventDefault()
-        this.setDraggingTarget(bundle ? this.$_.get(bundle.category, 'id') : this.emptyCategoryId)
+        this.setDraggingTarget(bundle ? this._get(bundle.category, 'id') : this.emptyCategoryId)
         break
       case 'leave':
         this.setDraggingTarget(null)
@@ -599,7 +599,7 @@ export default {
         switch(stage) {
         case 'enter':
           if (this.isDraggable(bundle)) {
-            this.hoverCourseId = this.$_.get(bundle.course, 'id')
+            this.hoverCourseId = this._get(bundle.course, 'id')
           }
           break
         case 'leave':

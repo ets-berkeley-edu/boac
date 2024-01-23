@@ -47,8 +47,8 @@ export default {
   }),
   created() {
     getUsersWithCohorts().then(data => {
-      this.rows = this.$_.filter(data, row => row.cohorts.length)
-      this.includesAdmittedStudents = this.$_.find(this.$_.flatten(this.$_.map(this.rows, 'cohorts')), g => g.domain === 'admitted_students')
+      this.rows = this._filter(data, row => row.cohorts.length)
+      this.includesAdmittedStudents = this._find(this._flatten(this._map(this.rows, 'cohorts')), g => g.domain === 'admitted_students')
       this.loaded('Everyone\'s Cohorts page has loaded')
     })
   }

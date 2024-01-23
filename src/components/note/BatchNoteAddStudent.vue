@@ -90,7 +90,7 @@ export default {
   mounted() {
     if (this.sids.length) {
       getStudentsBySids(this.sids).then(students => {
-        this.$_.each(students, student => {
+        this._each(students, student => {
           this.addStudent(student)
         })
       })
@@ -112,20 +112,20 @@ export default {
       this.showWarning = false
     },
     handleListInput(query) {
-      const trimmed = this.$_.trim(query, ' ,\n\t')
+      const trimmed = this._trim(query, ' ,\n\t')
       if (trimmed) {
-        const sids = this.$_.split(query, this.sidDelimiter)
+        const sids = this._split(query, this.sidDelimiter)
         return getStudentsBySids(sids).then(data => {
           this.setIsRecalculating(true)
           const sidList = []
-          this.$_.each(data, student => {
+          this._each(data, student => {
             this.addedStudents.push(student)
             sidList.push(student.sid)
-            this.$_.remove(sids, s => s === student.sid)
+            this._remove(sids, s => s === student.sid)
           })
           this.addSidList(sidList)
           this.$announcer.polite(`${sidList.length} students added to batch note`)
-          this.sidsNotFound = this.$_.uniq(sids)
+          this.sidsNotFound = this._uniq(sids)
           if (this.sidsNotFound.length) {
             this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
           } else {
@@ -138,7 +138,7 @@ export default {
       }
     },
     isList(query) {
-      return query && this.sidDelimiter.test(this.$_.trim(query, ' ,\n\t'))
+      return query && this.sidDelimiter.test(this._trim(query, ' ,\n\t'))
     },
     isPresent(query) {
       return query && query.length > 1
@@ -148,7 +148,7 @@ export default {
     },
     remove(student) {
       if (student) {
-        this.addedStudents = this.$_.filter(this.addedStudents, a => a.sid !== student.sid)
+        this.addedStudents = this._filter(this.addedStudents, a => a.sid !== student.sid)
         if (this.sids.includes(student.sid)) {
           this.setIsRecalculating(true)
           this.removeStudent(student.sid)
@@ -163,10 +163,10 @@ export default {
       this.$announcer.polite(message)
     },
     studentsByNameOrSid(query, limit) {
-      const sids = this.$_.map(this.addedStudents, 'sid')
+      const sids = this._map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this.$_.filter(students, s => !this.$_.includes(sids, s.sid)))
+          resolve(this._filter(students, s => !this._includes(sids, s.sid)))
         })
       })
     }

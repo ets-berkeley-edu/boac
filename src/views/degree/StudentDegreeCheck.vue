@@ -112,7 +112,7 @@ export default {
     window.addEventListener('resize', this.onResize)
     window.addEventListener('scroll', this.onResize)
 
-    const degreeId = this.$_.get(this.$route, 'params.id')
+    const degreeId = this._get(this.$route, 'params.id')
     this.init(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
         this.student = data
@@ -158,7 +158,7 @@ export default {
         this.setDraggingTarget(context)
         break
       case 'leave':
-        if (this.$_.get(event.target, 'id') === `drop-zone-${context}-courses`) {
+        if (this._get(event.target, 'id') === `drop-zone-${context}-courses`) {
           this.setDraggingTarget(null)
         }
         break

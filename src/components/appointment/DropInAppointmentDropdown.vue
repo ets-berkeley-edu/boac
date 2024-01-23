@@ -36,7 +36,7 @@
       :close="closeUpdateModal"
       :show-modal="showUpdateModal"
     />
-    <div v-if="!loading && $_.includes(['reserved', 'waiting'], appointment.status)">
+    <div v-if="!loading && _includes(['reserved', 'waiting'], appointment.status)">
       <div v-if="$currentUser.isAdmin">
         <b-dropdown
           :id="`appointment-${appointment.id}-dropdown`"
@@ -214,7 +214,7 @@ export default {
     },
     handleBadRequestError(error) {
       if (error.response && error.response.status === 400) {
-        const appointmentUpdate = this.$_.get(error, 'response.data.message')
+        const appointmentUpdate = this._get(error, 'response.data.message')
         if (appointmentUpdate) {
           this.appointmentUpdate = appointmentUpdate
           this.showUpdateModal = true

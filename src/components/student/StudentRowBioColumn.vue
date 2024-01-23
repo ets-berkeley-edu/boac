@@ -154,7 +154,7 @@ import Util from '@/mixins/Util.vue'
 
 export default {
   name: 'StudentRowBioColumn',
-  mixins: [Util, StudentMetadata],
+  mixins: [StudentMetadata, Util],
   components: {
     DegreesAwarded,
     StudentAcademicStanding
@@ -175,9 +175,9 @@ export default {
   },
   computed: {
     degreePlanOwners() {
-      const plans = this.$_.get(this.student, 'degree.plans')
+      const plans = this._get(this.student, 'degree.plans')
       if (plans) {
-        return this.$_.uniq(this.$_.map(plans, 'group'))
+        return this._uniq(this._map(plans, 'group'))
       } else {
         return []
       }

@@ -1,18 +1,21 @@
 <template>
-  <div v-if="$_.size(degreesAwarded)">
+  <div v-if="_size(degreesAwarded)">
     <div
       v-for="(plans, dateAwarded) in degreesAwarded"
       :key="dateAwarded"
       class="student-text"
     >
-      Graduated {{ $moment(dateAwarded).format('MMM DD, YYYY') }} ({{ $_.join(plans, '; ') }})
+      Graduated {{ $moment(dateAwarded).format('MMM DD, YYYY') }} ({{ _join(plans, '; ') }})
     </div>
   </div>
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
   name: 'DegreesAwarded',
+  mixins: [Util],
   props: {
     student: {
       required: true,
@@ -25,14 +28,14 @@ export default {
   }),
   created() {
     this.degreesAwarded = {}
-    this.$_.each(this.student.degrees || [], degree => {
+    this._each(this.student.degrees || [], degree => {
       const key = degree.dateAwarded
       if (key) {
-        const plans = this.$_.filter(degree.plans || [], plan => {
-          return this.$_.includes(this.acceptedPlanTypes, plan.type)
+        const plans = this._filter(degree.plans || [], plan => {
+          return this._includes(this.acceptedPlanTypes, plan.type)
         })
         if (plans.length) {
-          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(this.$_.map(plans, 'plan'))
+          this.degreesAwarded[key] = (this.degreesAwarded[key] || []).concat(this._map(plans, 'plan'))
         }
       }
     })

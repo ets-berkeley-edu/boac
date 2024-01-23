@@ -82,7 +82,7 @@
           <span class="sr-only">Waiver</span>
           <span :id="`row-${index}-application-fee-waiver-flag`">
             <span v-if="isNilOrBlank(student.applicationFeeWaiverFlag)">&mdash;<span class="sr-only">No data</span></span>
-            <span v-if="!$_.isNil(student.applicationFeeWaiverFlag)">{{ student.applicationFeeWaiverFlag }}</span>
+            <span v-if="!_isNil(student.applicationFeeWaiverFlag)">{{ student.applicationFeeWaiverFlag }}</span>
           </span>
         </td>
         <td>
@@ -136,9 +136,9 @@ export default {
       const lastName = student.lastName
       let fullName
       if (this.$currentUser.preferences.admitSortBy === 'first_name') {
-        fullName = this.$_.join(this.$_.remove([firstName, middleName, lastName]), ' ')
+        fullName = this._join(this._remove([firstName, middleName, lastName]), ' ')
       } else {
-        fullName = this.$_.join(this.$_.remove([lastName ? `${lastName},` : null, firstName, middleName]), ' ')
+        fullName = this._join(this._remove([lastName ? `${lastName},` : null, firstName, middleName]), ' ')
       }
       return fullName
     },

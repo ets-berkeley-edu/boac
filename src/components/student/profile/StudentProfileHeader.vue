@@ -96,9 +96,9 @@ export default {
     plansPartitionedByStatus: undefined
   }),
   created() {
-    this.plansMinorPartitionedByStatus = this.$_.partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
-    this.plansPartitionedByStatus = this.$_.partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
-    this.discontinuedSubplans = this.$_.compact(this.$_.map(this.plansPartitionedByStatus[1], 'subplan'))
+    this.plansMinorPartitionedByStatus = this._partition(this.student.sisProfile.plansMinor, (p) => p.status === 'Active')
+    this.plansPartitionedByStatus = this._partition(this.student.sisProfile.plans, (p) => p.status === 'Active')
+    this.discontinuedSubplans = this._compact(this._map(this.plansPartitionedByStatus[1], 'subplan'))
   },
   mounted() {
     this.$putFocusNextTick('student-name-header')

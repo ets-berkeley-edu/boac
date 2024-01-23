@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!$_.isNil(isAvailable)" class="availability-status-outer flex-row">
+    <div v-if="!_isNil(isAvailable)" class="availability-status-outer flex-row">
       <div v-if="isHomepage" class="mr-2 availability-status">
         My availability:
       </div>

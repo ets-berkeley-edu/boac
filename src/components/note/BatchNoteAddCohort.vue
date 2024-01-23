@@ -21,16 +21,16 @@
         :id="`batch-note-${type}-option-${object.id}`"
         :key="object.id"
         :aria-label="`Add ${type} ${object.name}`"
-        :disabled="$_.includes(addedIds, object.id)"
+        :disabled="_includes(addedIds, object.id)"
         @click="addItem(object)"
       >
-        {{ $_.truncate(object.name) }}
+        {{ _truncate(object.name) }}
       </b-dropdown-item>
     </b-dropdown>
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          <span :id="`batch-note-${type}-${index}`">{{ $_.truncate(addedObject.name) }}</span>
+          <span :id="`batch-note-${type}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${type}-from-batch-${index}`"
             variant="link"
@@ -82,7 +82,7 @@ export default {
   }),
   computed: {
     addedIds() {
-      return this.$_.map(this.added, 'id')
+      return this._map(this.added, 'id')
     }
   },
   created() {
@@ -96,7 +96,7 @@ export default {
       this.$announcer.polite(`${this.header} ${object.name} added to batch note`)
     },
     remove(object) {
-      this.added = this.$_.filter(this.added, a => a.id !== object.id)
+      this.added = this._filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
       this.$announcer.polite(`${this.header} ${object.name} removed from batch note`)
     }

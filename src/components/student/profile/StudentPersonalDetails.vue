@@ -6,7 +6,7 @@
           <h3 class="student-profile-h3">
             Advisor(s)
           </h3>
-          <div v-if="$_.size(student.advisors)" id="student-profile-advisors">
+          <div v-if="_size(student.advisors)" id="student-profile-advisors">
             <div
               v-for="(advisor, index) in advisorsSorted"
               :id="`student-profile-advisor-${index}`"
@@ -27,7 +27,7 @@
               </div>
             </div>
           </div>
-          <div v-if="!$_.size(student.advisors)" id="student-profile-advisors-none">
+          <div v-if="!_size(student.advisors)" id="student-profile-advisors-none">
             None assigned.
           </div>
         </div>
@@ -194,10 +194,10 @@ export default {
   }),
   computed: {
     advisorsSorted() {
-      return this.$_.orderBy(this.student.advisors, this.getAdvisorSortOrder)
+      return this._orderBy(this.student.advisors, this.getAdvisorSortOrder)
     },
     visaDescription() {
-      if (this.$_.get(this.student, 'demographics.visa.status') !== 'G') {
+      if (this._get(this.student, 'demographics.visa.status') !== 'G') {
         return null
       }
       switch (this.student.demographics.visa.type) {
@@ -213,21 +213,21 @@ export default {
     }
   },
   created() {
-    this.hasCalCentralProfile = this.enrolledInPastTwoYears() || this.$_.includes(this.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
+    this.hasCalCentralProfile = this.enrolledInPastTwoYears() || this._includes(this.student.sisProfile.calnetAffiliations, 'SIS-EXTENDED')
   },
   methods: {
     advisorName(advisor) {
-      return this.$_.join(this.$_.remove([advisor.firstName, advisor.lastName]), ' ')
+      return this._join(this._remove([advisor.firstName, advisor.lastName]), ' ')
     },
     enrolledInPastTwoYears() {
       // In the odd scheme of SIS termIds, a diff of 20 is equivalent to a diff of two years.
       const hasCompletedSection = enrollmentTerm => {
         const enrollments = enrollmentTerm.enrollments
-        return enrollments.length && this.$_.find(enrollments, e => {
-          return this.$_.size(e.sections) && this.$_.find(e.sections, section => section.enrollmentStatus === 'E')
+        return enrollments.length && this._find(enrollments, e => {
+          return this._size(e.sections) && this._find(e.sections, section => section.enrollmentStatus === 'E')
         })
       }
-      const mostRecent = this.$_.find(this.student.enrollmentTerms, e => hasCompletedSection(e))
+      const mostRecent = this._find(this.student.enrollmentTerms, e => hasCompletedSection(e))
       return mostRecent && (this.$config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
     }
   }

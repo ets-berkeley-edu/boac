@@ -1,6 +1,6 @@
 <template>
   <b-modal
-    v-if="!$_.isNil(dropInAdvisors)"
+    v-if="!_isNil(dropInAdvisors)"
     v-model="showAppointmentAssignModal"
     :no-close-on-backdrop="true"
     body-class="pl-0 pr-0"
@@ -107,14 +107,14 @@ export default {
   created() {
     this.showAppointmentAssignModal = this.showModal
     getDropInAdvisorsForDept(this.appointment.deptCode).then(dropInAdvisors => {
-      this.dropInAdvisors = this.$_.filter(dropInAdvisors, a => {
+      this.dropInAdvisors = this._filter(dropInAdvisors, a => {
         return a.available || a.uid === this.$currentUser.uid
       })
     })
   },
   methods: {
     assign() {
-      const advisor = this.$_.find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
+      const advisor = this._find(this.dropInAdvisors, {'uid': this.selectedAdvisorUid})
       if (advisor) {
         this.appointmentAssign(advisor)
       }

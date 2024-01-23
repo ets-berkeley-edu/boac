@@ -77,15 +77,15 @@ export default {
     this.confirmExitAndEndSession(next)
   },
   created() {
-    let uid = this.$_.get(this.$route, 'params.uid')
+    let uid = this._get(this.$route, 'params.uid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       uid = window.atob(uid)
     }
     getStudentByUid(uid).then(student => {
       this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
-      this.$_.assign(this.student, student)
-      this.$_.each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
+      this._assign(this.student, student)
+      this._each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
       this.loaded(`${this.student.name} loaded`, this.anchor)
     })
   },
@@ -114,18 +114,18 @@ export default {
       }
     },
     parseEnrollmentTerm(term) {
-      this.$_.each(term.enrollments, this.parseCourse)
-      if (this.$_.get(term, 'termGpa.unitsTakenForGpa')) {
+      this._each(term.enrollments, this.parseCourse)
+      if (this._get(term, 'termGpa.unitsTakenForGpa')) {
         this.student.termGpa.push({
-          name: this.$_.get(term, 'termName'),
-          gpa: this.$_.get(term, 'termGpa.gpa')
+          name: this._get(term, 'termName'),
+          gpa: this._get(term, 'termGpa.gpa')
         })
       }
     },
     parseCourse(course) {
       const canAccessCanvasData = this.$currentUser.canAccessCanvasData
       this.setWaitlistedStatus(course)
-      this.$_.each(course.sections, function(section) {
+      this._each(course.sections, function(section) {
         course.isOpen = false
         section.displayName = section.component + ' ' + section.sectionNumber
         section.isViewableOnCoursePage = section.primary && canAccessCanvasData

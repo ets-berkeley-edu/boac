@@ -28,12 +28,12 @@
       />
     </div>
     <div
-      v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+      v-for="category in _filter(categories, c => c.position === position && _isNil(c.parentCategoryId))"
       :id="`column-${position}-category-${category.id}`"
       :key="category.id"
     >
       <Category
-        v-if="category.id !== $_.get(categoryForEdit, 'id')"
+        v-if="category.id !== _get(categoryForEdit, 'id')"
         :category="category"
         :on-click-edit="edit"
         :position="position"
@@ -45,7 +45,7 @@
         to report the problem.
       </div>
       <EditCategory
-        v-if="category.id === $_.get(categoryForEdit, 'id')"
+        v-if="category.id === _get(categoryForEdit, 'id')"
         :after-cancel="onExitEditCategory"
         :after-save="onExitEditCategory"
         :existing-category="category"
@@ -66,13 +66,13 @@
           :key="subcategory.id"
         >
           <Category
-            v-if="subcategory.id !== $_.get(categoryForEdit, 'id')"
+            v-if="subcategory.id !== _get(categoryForEdit, 'id')"
             :category="subcategory"
             :on-click-edit="edit"
             :position="position"
           />
           <EditCategory
-            v-if="subcategory.id === $_.get(categoryForEdit, 'id')"
+            v-if="subcategory.id === _get(categoryForEdit, 'id')"
             :after-cancel="onExitEditCategory"
             :after-save="onExitEditCategory"
             :existing-category="subcategory"
@@ -90,7 +90,7 @@
       </div>
     </div>
     <div
-      v-if="!isAddingCategory && !$_.filter(categories, c => c.position === position).length"
+      v-if="!isAddingCategory && !_filter(categories, c => c.position === position).length"
       class="no-data-text pb-3"
     >
       None

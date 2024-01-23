@@ -101,7 +101,7 @@ export default {
     student: undefined
   }),
   created() {
-    let uid = this.$_.get(this.$route, 'params.uid')
+    let uid = this._get(this.$route, 'params.uid')
     if (this.$currentUser.inDemoMode) {
       // In demo-mode we do not want to expose UID in browser location bar.
       uid = window.atob(uid)
@@ -110,7 +110,7 @@ export default {
       this.student = data
       getDegreeChecks(uid).then(data => {
         this.degreeChecks = data
-        this.$_.each(this.degreeChecks, degreeCheck => {
+        this._each(this.degreeChecks, degreeCheck => {
           if (degreeCheck.parentTemplateUpdatedAt) {
             degreeCheck.showRevisionIndicator = this.$moment(new Date(degreeCheck.createdAt)).isBefore(new Date(degreeCheck.parentTemplateUpdatedAt))
           } else {

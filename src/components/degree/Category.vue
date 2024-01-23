@@ -4,7 +4,7 @@
       id="drop-zone-category"
       class="w-100"
       :class="{
-        'drop-zone-container': !$_.size(category.subcategories) && !printable,
+        'drop-zone-container': !_size(category.subcategories) && !printable,
         'drop-zone-container-on': isDroppable() && draggingContext.target === category.id
       }"
       @dragend="onDrag($event, 'end')"
@@ -114,11 +114,11 @@ export default {
   }),
   computed: {
     isCampusRequirements() {
-      return !this.$_.isEmpty(this.category.courseRequirements) && this.$_.every(this.category.courseRequirements, this.isCampusRequirement)
+      return !this._isEmpty(this.category.courseRequirements) && this._every(this.category.courseRequirements, this.isCampusRequirement)
     },
     parents() {
-      return this.$_.filter(this.categories, c => {
-        return c.position === this.position && this.$_.isNil(c.parentCategoryId)
+      return this._filter(this.categories, c => {
+        return c.position === this.position && this._isNil(c.parentCategoryId)
       })
     }
   },
@@ -152,7 +152,7 @@ export default {
     isDroppable() {
       return this.category.id === this.draggingContext.target
         && !this.isCampusRequirements
-        && !this.$_.size(this.category.subcategories)
+        && !this._size(this.category.subcategories)
         && !this.categoryHasCourse(this.category, this.draggingContext.course)
     },
     onDrag(event, stage) {
@@ -168,7 +168,7 @@ export default {
         this.setDraggingTarget(this.category.id)
         break
       case 'leave':
-        if (this.$_.get(event.target, 'id') === 'drop-zone-category') {
+        if (this._get(event.target, 'id') === 'drop-zone-category') {
           this.setDraggingTarget(null)
         }
         break

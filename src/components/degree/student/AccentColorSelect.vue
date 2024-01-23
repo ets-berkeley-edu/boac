@@ -41,7 +41,7 @@
           <span class="text-secondary">-- None --</span>
         </b-dropdown-item>
         <b-dropdown-item
-          v-for="(hexCode, colorName) in $_.omit($config.degreeProgressColorCodes, [selected])"
+          v-for="(hexCode, colorName) in _omit($config.degreeProgressColorCodes, [selected])"
           :id="`color-code-${colorName.toLowerCase()}-option`"
           :key="hexCode"
           @click="setSelected(colorName)"
@@ -61,8 +61,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
   name: 'AccentColorSelect',
+  mixins: [Util],
   props: {
     accentColor: {
       default: undefined,

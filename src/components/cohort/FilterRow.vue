@@ -102,14 +102,14 @@
                 <span :id="`filter-range-max-placeholder-${position}`" class="sr-only">MM/DD/YYYY</span>
               </div>
               <div
-                v-if="$_.size(errorPerRangeInput)"
+                v-if="_size(errorPerRangeInput)"
                 class="sr-only"
                 aria-live="polite"
               >
                 Error: {{ errorPerRangeInput }}
               </div>
               <b-popover
-                v-if="$_.size(errorPerRangeInput)"
+                v-if="_size(errorPerRangeInput)"
                 :show="true"
                 :target="`filter-range-max-${position}`"
                 placement="top"
@@ -155,14 +155,14 @@
           />
         </div>
         <div
-          v-if="$_.size(errorPerRangeInput)"
+          v-if="_size(errorPerRangeInput)"
           class="sr-only"
           aria-live="polite"
         >
           Error: {{ errorPerRangeInput }}
         </div>
         <b-popover
-          v-if="$_.size(errorPerRangeInput)"
+          v-if="_size(errorPerRangeInput)"
           :show="true"
           :target="`filter-range-max-${position}`"
           placement="top"
@@ -183,7 +183,7 @@
       </b-btn>
     </div>
     <div
-      v-if="isModifyingFilter && $_.get(filter, 'type.ux') && !isExistingFilter"
+      v-if="isModifyingFilter && _get(filter, 'type.ux') && !isExistingFilter"
       class="filter-row-column-04"
     >
       <b-btn
@@ -282,7 +282,7 @@ export default {
   watch: {
     editMode(newEditMode) {
       // Reset the current filter-row if an edit session is initiated elsewhere.
-      if (this.$_.isNil(newEditMode)) {
+      if (this._isNil(newEditMode)) {
         // Nothing is being edited. Let's make sure this row is in default state.
         this.reset()
         this.showRow = true
@@ -311,7 +311,7 @@ export default {
       handler(rangeObject) {
         this.disableUpdateButton = false
         this.errorPerRangeInput = undefined
-        const trimToNil = v => this.$_.isUndefined(v) ? v : this.$_.trim(v) || undefined
+        const trimToNil = v => this._isUndefined(v) ? v : this._trim(v) || undefined
         // Convert v-calendar's non-customizable attribute names
         if (!rangeObject.min && rangeObject.start) {
           rangeObject.min = rangeObject.start
@@ -321,10 +321,10 @@ export default {
         }
         let min = trimToNil(rangeObject.min)
         let max = trimToNil(rangeObject.max)
-        const isNilOrNan = v => this.$_.isNil(v) || this.$_.isNaN(v)
+        const isNilOrNan = v => this._isNil(v) || this._isNaN(v)
         if (this.filter.validation === 'dependents') {
           const isInt = v => /^\d+$/.test(v)
-          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this.$_.isNaN(v)
+          const isDefinedAndInvalid = v => (isInt(v) && parseInt(v, 10) < 0) || !isInt(v) || this._isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'Dependents must be an integer greater than or equal to 0.'
           } else if (parseInt(min, 10) > parseInt(max, 10)) {
@@ -334,10 +334,10 @@ export default {
         } else if (this.filter.validation === 'gpa') {
           min = min && parseFloat(min)
           max = max && parseFloat(max)
-          const isDefinedAndInvalid = v => (this.$_.isNumber(v) && v < 0 || v > 4) || this.$_.isNaN(v)
+          const isDefinedAndInvalid = v => (this._isNumber(v) && v < 0 || v > 4) || this._isNaN(v)
           if (isDefinedAndInvalid(min) || isDefinedAndInvalid(max)) {
             this.errorPerRangeInput = 'GPA must be a number in the range 0 to 4.'
-          } else if (this.$_.isNumber(min) && this.$_.isNumber(max) && min > max) {
+          } else if (this._isNumber(min) && this._isNumber(max) && min > max) {
             this.errorPerRangeInput = 'GPA inputs must be in ascending order.'
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
@@ -368,7 +368,7 @@ export default {
   },
   created() {
     this.reset()
-    this.valueOriginal = this.filter && this.$_.cloneDeep(this.filter.value)
+    this.valueOriginal = this.filter && this._cloneDeep(this.filter.value)
   },
   methods: {
     appendPopover(e) {
@@ -384,28 +384,28 @@ export default {
     },
     formatGPA(value) {
       // Prepend zero in case input is, for example, '.2'. No harm done if input has a leading zero.
-      const gpa = '0' + this.$_.trim(value)
+      const gpa = '0' + this._trim(value)
       return parseFloat(gpa).toFixed(3)
     },
     getDropdownSelectedLabel() {
       if (Array.isArray(this.filter.options)) {
-        const option = this.$_.find(this.filter.options, ['value', this.filter.value])
-        return this.$_.get(option, 'name')
+        const option = this._find(this.filter.options, ['value', this.filter.value])
+        return this._get(option, 'name')
       } else {
         let label = ''
-        this.$_.each(this.filter.options, (options, group) => {
-          const option = this.$_.find(options, ['value', this.filter.value])
-          label = option && `${this.$_.get(option, 'name')} (${group})`
+        this._each(this.filter.options, (options, group) => {
+          const option = this._find(options, ['value', this.filter.value])
+          label = option && `${this._get(option, 'name')} (${group})`
           return !option
         })
         return label
       }
     },
     isUX(type) {
-      return this.$_.get(this.filter, 'type.ux') === type
+      return this._get(this.filter, 'type.ux') === type
     },
     onClickAddButton() {
-      switch (this.$_.get(this.filter, 'type.ux')) {
+      switch (this._get(this.filter, 'type.ux')) {
       case 'dropdown':
         this.$announcer.polite(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
         break
@@ -419,8 +419,8 @@ export default {
         this.range.min = this.range.max = undefined
         break
       }
-      this.$_.unset(this.filter, 'value.start')
-      this.$_.unset(this.filter, 'value.end')
+      this._unset(this.filter, 'value.start')
+      this._unset(this.filter, 'value.end')
       this.addFilter(this.filter)
       this.reset()
       this.putFocusNewFilterDropdown()
@@ -435,9 +435,9 @@ export default {
       this.disableUpdateButton = false
       if (this.isUX('dropdown')) {
         // Populate select options, with selected option based on current filter.value.
-        const flatten = optGroup => this.$_.flatten(this.$_.values(optGroup))
-        const find = (options, value) => this.$_.find(options, ['value', value])
-        const options = this.$_.find(flatten(this.filterOptionGroups), ['key', this.filter.key]).options
+        const flatten = optGroup => this._flatten(this._values(optGroup))
+        const find = (options, value) => this._find(options, ['value', value])
+        const options = this._find(flatten(this.filterOptionGroups), ['key', this.filter.key]).options
         this.filter.options = options
         this.selectedOption = Array.isArray(options) ? find(options, this.filter.value) : find(flatten(options), this.filter.value)
         this.putFocusSecondaryDropdown()
@@ -462,8 +462,8 @@ export default {
     },
     onSelectFilter() {
       this.selectedOption = undefined
-      this.filter = this.$_.cloneDeep(this.selectedFilter)
-      this.showAdd = this.$_.get(this.filter, 'type.ux') === 'boolean'
+      this.filter = this._cloneDeep(this.selectedFilter)
+      this.showAdd = this._get(this.filter, 'type.ux') === 'boolean'
       if (this.filter) {
         this.$announcer.polite(`${this.filter.label.primary} selected`)
         switch (this.filter.type.ux) {
@@ -480,7 +480,7 @@ export default {
       }
     },
     onSelectFilterOption() {
-      this.filter.value = this.$_.get(this.selectedOption, 'value')
+      this.filter.value = this._get(this.selectedOption, 'value')
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
         this.$putFocusNextTick('unsaved-filter-add')
@@ -523,7 +523,7 @@ export default {
         weeks.setAttribute('aria-labelledby', `filter-range-popover-title-${this.position}`)
         weeks.role = 'grid'
       }
-      this.$_.each(weekdayLabels, (label, index) => {
+      this._each(weekdayLabels, (label, index) => {
         label.abbr = weekdays[index]
       })
     },
@@ -536,8 +536,8 @@ export default {
     },
     prepareFilterOptionGroups() {
       // If we have only one option-group then flatten the object to an array of options.
-      const flatten = this.$_.size(this.filterOptionGroups) === 1
-      return flatten ? this.$_.values(this.filterOptionGroups)[0] : this.filterOptionGroups
+      const flatten = this._size(this.filterOptionGroups) === 1
+      return flatten ? this._values(this.filterOptionGroups)[0] : this.filterOptionGroups
     },
     putFocusNewFilterDropdown() {
       this.$putFocusNextTick('filter-select-primary-new')
@@ -562,19 +562,19 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[1]
       } else {
-        let max = this.$_.get(this.filter, 'value.max')
+        let max = this._get(this.filter, 'value.max')
         if (max && this.filter.validation === 'date') {
           max = this.$moment(max).format('MMM DD, YYYY')
         }
-        const labels = this.$_.get(this.filter.label, 'range')
+        const labels = this._get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
       }
       return snippet
     },
     rangeMinEqualsMax(filter) {
       const normalize = key => {
-        let value = this.$_.get(filter, key)
-        return this.$_.isString(value) ? value.toUpperCase() : value
+        let value = this._get(filter, key)
+        return this._isString(value) ? value.toUpperCase() : value
       }
       return normalize('value.min') === normalize('value.max')
     },
@@ -583,12 +583,12 @@ export default {
       if (this.isModifyingFilter) {
         snippet = this.filter.label.range[0]
       } else {
-        let min = this.$_.get(this.filter, 'value.min')
+        let min = this._get(this.filter, 'value.min')
         if (min && this.filter.validation === 'date') {
           min = this.$moment(min).format('MMM DD, YYYY')
         }
-        const labels = this.$_.get(this.filter.label, 'range')
-        snippet = this.rangeMinEqualsMax(this.filter) ? this.$_.get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
+        const labels = this._get(this.filter.label, 'range')
+        snippet = this.rangeMinEqualsMax(this.filter) ? this._get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`
       }
       return snippet
     },
@@ -602,9 +602,9 @@ export default {
       this.selectedFilter = this.selectedOption = undefined
       this.disableUpdateButton = false
       this.showAdd = false
-      this.range = this.$_.mapValues(this.range, () => undefined)
+      this.range = this._mapValues(this.range, () => undefined)
       this.isExistingFilter = this.position !== 'new'
-      this.filter = this.isExistingFilter ? this.$_.cloneDeep(this.filters[this.position]) : {}
+      this.filter = this.isExistingFilter ? this._cloneDeep(this.filters[this.position]) : {}
       this.isModifyingFilter = !this.isExistingFilter
       this.putFocusNewFilterDropdown()
     },

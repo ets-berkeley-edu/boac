@@ -103,14 +103,14 @@ export default {
       return this.isSaving || !this.name || !!this.unitsErrorMessage || !!this.nameErrorMessage
     },
     unitsErrorMessage() {
-      const isEmpty = this.$_.isEmpty(this.$_.trim(this.minUnits))
+      const isEmpty = this._isEmpty(this._trim(this.minUnits))
       return isEmpty ? 'Required' : this.validateUnitRange(this.minUnits, undefined, 100).message
     },
     nameErrorMessage() {
       let message = undefined
       if (this.name) {
         const lowerCase = this.name.toLowerCase()
-        const existingNames = this.$_.map(this.otherUnitRequirements, u => u.name.toLowerCase())
+        const existingNames = this._map(this.otherUnitRequirements, u => u.name.toLowerCase())
         if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
           message = 'Name cannot match the name of an existing Unit Requirement.'
           this.$announcer.polite(message)
@@ -123,7 +123,7 @@ export default {
     if (this.unitRequirement) {
       this.name = this.unitRequirement.name
       this.minUnits = this.unitRequirement.minUnits
-      this.otherUnitRequirements = this.$_.filter(this.unitRequirements, u => {
+      this.otherUnitRequirements = this._filter(this.unitRequirements, u => {
         return u.id !== this.unitRequirement.id
       })
       this.$announcer.polite(`Edit unit requirement ${this.name}`)

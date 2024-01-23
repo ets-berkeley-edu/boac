@@ -57,7 +57,7 @@
         </div>
       </div>
       <div v-if="admits" class="pb-2">
-        <AdmitDataWarning :updated-at="$_.get(admits, '[0].updatedAt')" />
+        <AdmitDataWarning :updated-at="_get(admits, '[0].updatedAt')" />
       </div>
       <SectionSpinner :loading="sorting" />
       <div v-if="!sorting">
@@ -166,7 +166,7 @@ export default {
     },
     exportCohort() {
       const name = 'CE3 Admissions'
-      const fields = this.$_.map(this.getAdmitCsvExportColumns(), 'value')
+      const fields = this._map(this.getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
       this.$announcer.polite(`Exporting cohort ${name}`)
@@ -198,8 +198,8 @@ export default {
           : (this.pagination.currentPage - 1) * limit
       getAllAdmits(this.$currentUser.preferences.admitSortBy, limit, offset).then(response => {
         if (response) {
-          this.admits = this.$_.get(response, 'students')
-          this.totalAdmitCount = this.$_.get(response, 'totalStudentCount')
+          this.admits = this._get(response, 'students')
+          this.totalAdmitCount = this._get(response, 'totalStudentCount')
           this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
           this.$putFocusNextTick('cohort-name')
         } else {

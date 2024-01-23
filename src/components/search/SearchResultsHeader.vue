@@ -60,16 +60,16 @@ export default {
       push('admit', this.results.totalAdmitCount || 0, this.includeAdmits)
       push('student', this.results.totalStudentCount || 0, this.includeStudents)
       push('course', this.results.totalCourseCount || 0, this.includeCourses)
-      push('note', this.$_.size(this.results.notes), this.includeNotes)
-      push('appointment', this.$_.size(this.results.appointments), this.includeNotes)
+      push('note', this._size(this.results.notes), this.includeNotes)
+      push('appointment', this._size(this.results.appointments), this.includeNotes)
       return total ? `Results include ${this.oxfordJoin(phrases)}` : 'No matching records found.'
     },
     hasSearchResults() {
       return this.results.totalStudentCount
         || this.results.totalCourseCount
         || this.results.totalAdmitCount
-        || this.$_.size(this.results.notes)
-        || this.$_.size(this.results.appointments)
+        || this._size(this.results.notes)
+        || this._size(this.results.appointments)
     }
   },
   methods: {

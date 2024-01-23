@@ -53,7 +53,6 @@ Vue.directive('accessibleGrade', {
 Vue.directive('linkified', linkify)
 
 // Global utilities
-Vue.prototype.$_ = _
 Vue.prototype.$moment = moment
 
 Vue.use(routerHistory)

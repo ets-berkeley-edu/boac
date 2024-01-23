@@ -17,7 +17,7 @@
     </div>
     <div>
       <b-dropdown
-        v-if="!!$_.size(sids)"
+        v-if="!!_size(sids)"
         :id="dropdownId"
         :variant="isSaving ? 'success' : 'primary'"
         :disabled="isSaving"
@@ -130,7 +130,7 @@ export default {
   }),
   computed: {
     myCuratedGroups() {
-      return this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', this.domain])
+      return this._filter(this.$currentUser.myCuratedGroups, ['domain', this.domain])
     }
   },
   created() {
@@ -145,7 +145,7 @@ export default {
     })
     this.setEventHandler('curated-group-checkbox-unchecked', args => {
       if (this.domain === args.domain) {
-        this.sids = this.$_.remove(this.sids, s => s !== args.sid)
+        this.sids = this._remove(this.sids, s => s !== args.sid)
         this.refresh()
       }
     })
@@ -184,8 +184,8 @@ export default {
       return this.describeCuratedGroupDomain(this.domain, capitalize)
     },
     refresh() {
-      this.indeterminate = this.$_.inRange(this.$_.size(this.sids), 1, this.$_.size(this.students))
-      this.isSelectAllChecked = this.$_.size(this.sids) === this.$_.size(this.students)
+      this.indeterminate = this._inRange(this._size(this.sids), 1, this._size(this.students))
+      this.isSelectAllChecked = this._size(this.sids) === this._size(this.students)
     },
     modalCancel() {
       this.showModal = false
@@ -205,7 +205,7 @@ export default {
     toggle(checked) {
       this.sids = []
       if (checked) {
-        this.$_.each(this.students, student => {
+        this._each(this.students, student => {
           this.sids.push(student.sid || student.csEmplId)
         })
         this.broadcast('curated-group-select-all', this.domain)

@@ -42,7 +42,7 @@
             id="unit-requirements-table"
             borderless
             :fields="fields"
-            :items="$_.filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
+            :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
             small
             :tbody-tr-attr="getTableRowAttributes"
             thead-class="sortable-table-header text-nowrap border-bottom"
@@ -117,7 +117,7 @@
       v-if="isDeleting"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="`Are you sure you want to delete <strong>${$_.get(selected, 'name')}</strong>?`"
+      :modal-body="`Are you sure you want to delete <strong>${_get(selected, 'name')}</strong>?`"
       :show-modal="isDeleting"
       button-label-confirm="Delete"
       modal-header="Delete Unit Requirement"
@@ -192,12 +192,12 @@ export default {
   methods: {
     deleteCanceled() {
       this.isDeleting = false
-      this.$putFocusNextTick(`unit-requirement-${this.$_.get(this.selected, 'id')}-delete-btn`)
+      this.$putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
-      const name = this.$_.get(this.selected, 'name')
+      const name = this._get(this.selected, 'name')
       return this.deleteUnitRequirement(this.selected.id).then(() => {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
@@ -213,10 +213,10 @@ export default {
     },
     getUnitsCompleted(unitRequirement) {
       let count = 0
-      this.$_.each(this.courses, courses => {
-        this.$_.each(courses, course => {
+      this._each(this.courses, courses => {
+        this._each(courses, course => {
           if (course.categoryId) {
-            this.$_.each(course.unitRequirements, u => {
+            this._each(course.unitRequirements, u => {
               if (u.id === unitRequirement.id) {
                 count += course.units
               }
@@ -242,9 +242,9 @@ export default {
       this.isEditing = true
     },
     refresh() {
-      const expandedIds = this.$_.map((this.$_.filter(this.items, 'isExpanded')), 'id')
+      const expandedIds = this._map((this._filter(this.items, 'isExpanded')), 'id')
       const items = []
-      this.$_.each(this.unitRequirements, u => {
+      this._each(this.unitRequirements, u => {
         const isExpanded = expandedIds.includes(u.id)
         const unitRequirement = {
           id: u.id,
@@ -257,11 +257,11 @@ export default {
         }
         items.push(unitRequirement)
         if (this.sid) {
-          let courses = this.$_.filter(this.courses.assigned, course => {
-            return !!this.$_.find(course.unitRequirements, ['id', u.id])
+          let courses = this._filter(this.courses.assigned, course => {
+            return !!this._find(course.unitRequirements, ['id', u.id])
           })
-          courses = this.$_.sortBy(courses, ['name', 'id'])
-          this.$_.each(courses, course => {
+          courses = this._sortBy(courses, ['name', 'id'])
+          this._each(courses, course => {
             const child = {
               id: course.id,
               completed: course.units,
@@ -287,7 +287,7 @@ export default {
     toggleExpanded(item) {
       const value = !item.isExpanded
       item.isExpanded = value
-      this.$_.each(item.children, child => child.isExpanded = value)
+      this._each(item.children, child => child.isExpanded = value)
     }
   }
 }

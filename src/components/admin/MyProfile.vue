@@ -26,7 +26,7 @@
           :key="department.code"
           class="flex-row pb-3"
         >
-          <div id="my-dept-roles">{{ $_.upperFirst(department.role) }} in {{ department.name }}</div>
+          <div id="my-dept-roles">{{ _upperFirst(department.role) }} in {{ department.name }}</div>
           <div v-if="$currentUser.canAccessAdvisingData && canToggleDropInAdvising(department)" class="ml-5">
             Drop-in advising:
             <DropInAdvisingToggle
@@ -63,14 +63,14 @@ export default {
       Email: this.$currentUser.email
     }
     const memberships = []
-    this.$_.each(this.$currentUser.departments, d => {
+    this._each(this.$currentUser.departments, d => {
       if (d.role) {
         memberships.push({code: d.code, role: d.role})
       }
     })
     const permission = this.$currentUser.degreeProgressPermission
     if (this.isCoe({departments: memberships}) || permission) {
-      const permission = permission && this.$_.capitalize(permission.replace('_', '/'))
+      const permission = permission && this._capitalize(permission.replace('_', '/'))
       const automated = this.$currentUser.automateDegreeProgressPermission
       this.profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
     }

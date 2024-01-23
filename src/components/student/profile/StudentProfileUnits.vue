@@ -65,15 +65,15 @@ export default {
     currentEnrolledUnits: undefined
   }),
   created() {
-    this.cumulativeUnits = this.$_.get(this.student, 'sisProfile.cumulativeUnits')
-    const currentEnrollmentTerm = this.$_.find(
-      this.$_.get(this.student, 'enrollmentTerms'),
+    this.cumulativeUnits = this._get(this.student, 'sisProfile.cumulativeUnits')
+    const currentEnrollmentTerm = this._find(
+      this._get(this.student, 'enrollmentTerms'),
       {
-        termId: this.$_.toString(this.$config.currentEnrollmentTermId)
+        termId: this._toString(this.$config.currentEnrollmentTermId)
       }
     )
     if (currentEnrollmentTerm) {
-      this.currentEnrolledUnits = this.$_.get(currentEnrollmentTerm, 'enrolledUnits')
+      this.currentEnrolledUnits = this._get(currentEnrollmentTerm, 'enrolledUnits')
     }
   }
 }

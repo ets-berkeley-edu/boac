@@ -52,7 +52,7 @@
             </span>
             {{ lastActivityDays(canvasSite.analytics) }}
           </div>
-          <div v-if="!$_.get(enrollment, 'canvasSites').length">
+          <div v-if="!_get(enrollment, 'canvasSites').length">
             <span class="sr-only">No data </span>&mdash;
           </div>
         </b-td>
@@ -111,10 +111,11 @@ import Berkeley from '@/mixins/Berkeley'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentMetadata from '@/mixins/StudentMetadata'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentRowCourseActivity',
-  mixins: [Berkeley, StudentAnalytics, StudentMetadata],
+  mixins: [Berkeley, StudentAnalytics, StudentMetadata, Util],
   components: {IncompleteGradeAlertIcon},
   props: {
     rowIndex: {
@@ -134,8 +135,8 @@ export default {
     termEnrollments: []
   }),
   created() {
-    const termEnrollments = this.$_.get(this.student.term, 'enrollments', [])
-    this.$_.each(termEnrollments, this.setWaitlistedStatus)
+    const termEnrollments = this._get(this.student.term, 'enrollments', [])
+    this._each(termEnrollments, this.setWaitlistedStatus)
     this.termEnrollments = termEnrollments
   }
 }

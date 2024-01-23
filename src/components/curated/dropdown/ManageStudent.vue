@@ -31,12 +31,12 @@
           </span>
         </div>
       </template>
-      <b-dropdown-item v-if="!$_.filter($currentUser.myCuratedGroups, ['domain', domain]).length">
+      <b-dropdown-item v-if="!_filter($currentUser.myCuratedGroups, ['domain', domain]).length">
         <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
       </b-dropdown-item>
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
-          v-for="group in $_.filter($currentUser.myCuratedGroups, ['domain', domain])"
+          v-for="group in _filter($currentUser.myCuratedGroups, ['domain', domain])"
           :id="`${idFragment}-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
@@ -46,7 +46,7 @@
           <b-form-checkbox
             :id="`${idFragment}-${group.id}-checkbox`"
             v-model="checkedGroups"
-            :aria-label="$_.includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
+            :aria-label="_includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
             :value="group.id"
           >
             <span class="sr-only">{{ domainLabel(true) }} </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
@@ -161,10 +161,10 @@ export default {
       return this.describeCuratedGroupDomain(this.domain, capitalize)
     },
     groupCheckboxClick(group) {
-      if (this.$_.includes(this.checkedGroups, group.id)) {
+      if (this._includes(this.checkedGroups, group.id)) {
         this.isRemoving = true
         const done = () => {
-          this.checkedGroups = this.$_.without(this.checkedGroups, group.id)
+          this.checkedGroups = this._without(this.checkedGroups, group.id)
           this.isRemoving = false
           this.$putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
@@ -203,9 +203,9 @@ export default {
     },
     refresh() {
       const containsSid = group => {
-        return this.$_.includes(group.sids, this.student.sid)
+        return this._includes(group.sids, this.student.sid)
       }
-      this.checkedGroups = this.$_.map(this.$_.filter(this.$currentUser.myCuratedGroups, containsSid), 'id')
+      this.checkedGroups = this._map(this._filter(this.$currentUser.myCuratedGroups, containsSid), 'id')
       this.groupsLoading = false
     }
   }

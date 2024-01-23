@@ -62,7 +62,7 @@
           <b-btn
             id="save-note-button"
             class="btn-primary-color-override"
-            :disabled="!sids.length || !$_.trim(model.subject)"
+            :disabled="!sids.length || !_trim(model.subject)"
             variant="primary"
             @click="() => save(false)"
           >
@@ -97,8 +97,8 @@
       :show-modal="showAreYouSureModal"
       modal-header="Discard unsaved changes?"
     />
-    <div v-if="$_.size(model.attachments)">
-      <div class="pill-list-header mt-3 mb-1">{{ $_.size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
+    <div v-if="_size(model.attachments)">
+      <div class="pill-list-header mt-3 mb-1">{{ _size(model.attachments) === 1 ? 'Attachment' : 'Attachments' }}</div>
       <ul class="pill-list pl-0">
         <li
           v-for="(attachment, index) in model.attachments"
@@ -194,7 +194,7 @@ export default {
     cancelRequested() {
       this.clearErrors()
       getNote(this.noteId).then(note => {
-        const isPristine = this.$_.trim(this.model.subject) === note.subject
+        const isPristine = this._trim(this.model.subject) === note.subject
           && this.stripHtmlAndTrim(this.model.body) === this.stripHtmlAndTrim(note.body)
         if (isPristine) {
           this.cancelConfirmed()
@@ -223,12 +223,12 @@ export default {
     },
     save(isDraft) {
       const ifAuthenticated = () => {
-        const trimmedSubject = this.$_.trim(this.model.subject)
+        const trimmedSubject = this._trim(this.model.subject)
         const setDate = this.model.setDate ? this.$moment(this.model.setDate).format('YYYY-MM-DD') : null
         if (trimmedSubject || this.model.isDraft) {
           updateNote(
             this.model.id,
-            this.$_.trim(this.model.body),
+            this._trim(this.model.body),
             [],
             this.model.contactType,
             [],

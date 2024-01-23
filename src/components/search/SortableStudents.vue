@@ -87,7 +87,7 @@
 
       <template v-if="!options.compact" v-slot:cell(term.enrolledUnits)="row">
         <span class="sr-only">Term units</span>
-        <div>{{ $_.get(row.item.term, 'enrolledUnits', 0) }}</div>
+        <div>{{ _get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
       <template v-if="!options.compact" v-slot:cell(cumulativeUnits)="row">
@@ -98,8 +98,8 @@
 
       <template v-if="!options.compact" v-slot:cell(cumulativeGPA)="row">
         <span class="sr-only">GPA</span>
-        <div v-if="$_.isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-        <div v-if="!$_.isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
+        <div v-if="_isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+        <div v-if="!_isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
       </template>
 
       <template v-slot:cell(alertCount)="row">
@@ -207,24 +207,24 @@ export default {
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
     normalizeForSort(value) {
-      return this.$_.isString(value) ? value.toLowerCase() : value
+      return this._isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this.$_.find(this.fields, ['key', this.sortBy])
+      const field = this._find(this.fields, ['key', this.sortBy])
       this.$announcer.polite(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.$_.get(a, sortBy)
-      let bValue = this.$_.get(b, sortBy)
+      let aValue = this._get(a, sortBy)
+      let bValue = this._get(b, sortBy)
       // If column type is number then nil is treated as zero.
-      aValue = this.$_.isNil(aValue) && this.$_.isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
-      bValue = this.$_.isNil(bValue) && this.$_.isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
+      aValue = this._isNil(aValue) && this._isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
+      bValue = this._isNil(bValue) && this._isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
       let result = this.sortComparator(aValue, bValue)
       if (result === 0) {
-        this.$_.each(['lastName', 'firstName', 'sid'], field => {
+        this._each(['lastName', 'firstName', 'sid'], field => {
           result = this.sortComparator(
-            this.normalizeForSort(this.$_.get(a, field)),
-            this.normalizeForSort(this.$_.get(b, field))
+            this.normalizeForSort(this._get(a, field)),
+            this.normalizeForSort(this._get(b, field))
           )
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1

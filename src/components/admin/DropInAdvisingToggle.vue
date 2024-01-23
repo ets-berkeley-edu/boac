@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="d-flex">
-      <div v-if="!$_.isNil(isEnabled)" class="advising-status-outer flex-row">
+      <div v-if="!_isNil(isEnabled)" class="advising-status-outer flex-row">
         <div
           :class="isEnabled ? 'advising-status-disabled' : 'advising-status-enabled'"
           class="aria-hidden advising-status"
@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     dropInStatus: function() {
-      return this.$_.find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode])
+      return this._find(this.$currentUser.dropInAdvisorStatus, ['deptCode', this.deptCode])
     },
     toggle: function() {
       this.isToggling = true

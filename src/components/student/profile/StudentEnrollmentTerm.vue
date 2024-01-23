@@ -30,7 +30,7 @@
         </div>
       </div>
       <div role="rowgroup" class="pt-2">
-        <div v-if="$_.isEmpty(term.enrollments)" role="row">
+        <div v-if="_isEmpty(term.enrollments)" role="row">
           <div :id="`term-${term.termId}-no-enrollments`" role="cell" class="student-term-empty">{{ `No ${term.termName} enrollments` }}</div>
         </div>
         <StudentCourse
@@ -61,13 +61,13 @@
       <div class="d-flex justify-content-between">
         <div :id="`term-${term.termId}-gpa`">
           <span class="student-course-label mr-1">Term GPA: </span>
-          <span v-if="round($_.get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round($_.get(term, 'termGpa.gpa', 0), 3) }}</span>
+          <span v-if="round(_get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(_get(term, 'termGpa.gpa', 0), 3) }}</span>
           <span v-else>&mdash;</span>
         </div>
         <div :id="`term-${term.termId}-units`" class="align-items-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Total Units: </div>
           <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
-            <span v-if="$_.get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
+            <span v-if="_get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
             <span v-else>&mdash;</span>
           </div>
         </div>
@@ -122,9 +122,9 @@ export default {
   created() {
     const maxUnits = this.term.maxTermUnitsAllowed
     const minUnits = this.term.minTermUnitsAllowed
-    this.showMaxUnits = !this.$_.isNil(maxUnits) && maxUnits !== this.$config.defaultTermUnitsAllowed.max
-    this.showMinUnits = !this.$_.isNil(minUnits) && minUnits !== this.$config.defaultTermUnitsAllowed.min
-    this.isConcurrent = this.$_.some(this.term.enrollments, {'academicCareer': 'UCBX'})
+    this.showMaxUnits = !this._isNil(maxUnits) && maxUnits !== this.$config.defaultTermUnitsAllowed.max
+    this.showMinUnits = !this._isNil(minUnits) && minUnits !== this.$config.defaultTermUnitsAllowed.min
+    this.isConcurrent = this._some(this.term.enrollments, {'academicCareer': 'UCBX'})
   }
 }
 </script>

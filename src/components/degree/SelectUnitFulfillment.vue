@@ -11,7 +11,7 @@
         v-for="(option, index) in unitRequirements"
         :id="`column-${position}-unit-requirement-option-${index}`"
         :key="index"
-        :disabled="$_.includes($_.map(selected, 'id'), option.id)"
+        :disabled="_includes(_map(selected, 'id'), option.id)"
         :value="option"
       >
         {{ option.name }}
@@ -58,10 +58,11 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'SelectUnitFulfillment',
-  mixins: [DegreeEditSession],
+  mixins: [DegreeEditSession, Util],
   props: {
     disable: {
       required: false,
@@ -85,7 +86,7 @@ export default {
     model: null
   }),
   created() {
-    this.selected = this.$_.cloneDeep(this.initialUnitRequirements)
+    this.selected = this._cloneDeep(this.initialUnitRequirements)
   },
   methods: {
     onChangeUnitRequirement(option) {
@@ -98,7 +99,7 @@ export default {
     },
     removeUnitRequirement(item) {
       this.$announcer.polite(`${item.name} removed`)
-      this.selected = this.$_.remove(this.selected, selected => selected.id !== item.id)
+      this.selected = this._remove(this.selected, selected => selected.id !== item.id)
       this.onUnitRequirementsChange(this.selected)
     }
   }

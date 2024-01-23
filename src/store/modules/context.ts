@@ -19,10 +19,7 @@ const getters = {
 }
 
 const mutations = {
-  broadcast: (state: any, {eventType, data}: any) => {
-    console.log(`broadcast: ${eventType}`)
-    state.eventHub.emit(eventType, data)
-  },
+  broadcast: (state: any, {eventType, data}: any) => state.eventHub.emit(eventType, data),
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
   loadingComplete: (state: any, focusTarget?: string) => {

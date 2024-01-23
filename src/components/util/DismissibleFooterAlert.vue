@@ -1,12 +1,12 @@
 <template>
   <transition name="drawer">
-    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext && !$_.get($route.meta, 'printable')" id="fixed_bottom">
+    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext && !_get($route.meta, 'printable')" id="fixed_bottom">
       <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
         <div class="flex-grow-1">
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div v-if="$config.isVueAppDebugMode">
-          {{ $_.get($announcer, 'data.content') }}
+          {{ _get($announcer, 'data.content') }}
         </div>
         <div v-if="!$config.isVueAppDebugMode">
           <span aria-live="polite" role="alert">{{ $config.fixedWarningOnAllPages }}</span>
@@ -30,10 +30,11 @@
 <script>
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'DismissibleFooterAlert',
-  mixins: [Context, DegreeEditSession],
+  mixins: [Context, DegreeEditSession, Util],
   methods: {
     dismissTheWarning() {
       this.dismissFooterAlert()

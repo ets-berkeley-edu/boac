@@ -69,10 +69,11 @@
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CourseAssignmentMenu',
-  mixins: [DegreeEditSession],
+  mixins: [DegreeEditSession, Util],
   props: {
     course: {
       required: true,
@@ -101,12 +102,12 @@ export default {
         }
       }
       const options = []
-      this.$_.each(this.$_.cloneDeep(this.categories), category => {
+      this._each(this._cloneDeep(this.categories), category => {
         put(category)
-        this.$_.each(category.courseRequirements, courseRequirement => put(courseRequirement, category))
-        this.$_.each(category.subcategories, subcategory => {
+        this._each(category.courseRequirements, courseRequirement => put(courseRequirement, category))
+        this._each(category.subcategories, subcategory => {
           put(subcategory, category)
-          this.$_.each(subcategory.courseRequirements, course => put(course, subcategory, category))
+          this._each(subcategory.courseRequirements, course => put(course, subcategory, category))
         })
       })
       return options
@@ -115,10 +116,10 @@ export default {
   methods: {
     isCampusRequirements(option) {
       return this.isCampusRequirement(option)
-        || (!this.$_.isEmpty(option.courseRequirements) && this.$_.every(option.courseRequirements, this.isCampusRequirement))
+        || (!this._isEmpty(option.courseRequirements) && this._every(option.courseRequirements, this.isCampusRequirement))
     },
     isCourseRequirement(option) {
-      return this.$_.includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
+      return this._includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)
     },
     onSelect(category, ignore) {
       this.setDisableButtons(true)

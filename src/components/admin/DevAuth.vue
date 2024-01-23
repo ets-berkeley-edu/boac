@@ -64,13 +64,13 @@ export default {
   },
   methods: {
     logIn() {
-      let uid = this.$_.trim(this.uid)
-      let password = this.$_.trim(this.password)
+      let uid = this._trim(this.uid)
+      let password = this._trim(this.password)
       if (uid && password) {
         devAuthLogIn(uid, password).then(() => {
           if (this.$currentUser.isAuthenticated) {
-            const redirect = this.$_.get(this.$router, 'currentRoute.query.redirect')
-            this.$router.push({path: redirect || '/'}, this.$_.noop)
+            const redirect = this._get(this.$router, 'currentRoute.query.redirect')
+            this.$router.push({path: redirect || '/'}, this._noop)
           } else {
             this.reportError('Sorry, user is not authorized to use BOA.')
           }

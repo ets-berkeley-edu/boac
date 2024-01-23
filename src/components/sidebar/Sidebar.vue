@@ -95,10 +95,10 @@ export default {
   }),
   computed: {
     myAdmitCohorts() {
-      return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
+      return this._filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
     },
     myCohorts() {
-      return this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
+      return this._filter(this.$currentUser.myCohorts, ['domain', 'default'])
     }
   },
   methods: {

@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <div class="mb-4">
         <h1 class="page-section-header">Everyone's Groups</h1>
-        <div v-if="$_.find($_.flatten($_.map(rows, 'groups')), g => g.domain === 'admitted_students')" class="pl-1">
+        <div v-if="_find(_flatten(_map(rows, 'groups')), g => g.domain === 'admitted_students')" class="pl-1">
           <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
           denotes a group of admitted students.
         </div>
@@ -46,7 +46,7 @@ export default {
   }),
   created() {
     getUsersWithGroups().then(data => {
-      this.rows = this.$_.filter(data, row => row.groups.length)
+      this.rows = this._filter(data, row => row.groups.length)
       this.loaded('Everyone\'s Groups has loaded')
     })
   }

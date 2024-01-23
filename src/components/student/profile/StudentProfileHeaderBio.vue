@@ -30,7 +30,7 @@
         <span v-html="student.sisProfile.preferredName"></span>
       </div>
       <div
-        v-if="$_.get(student, 'sisProfile.pronouns.description')"
+        v-if="_get(student, 'sisProfile.pronouns.description')"
         id="student-pronouns"
         class="student-text font-size-14 mb-1"
       >
@@ -55,7 +55,7 @@
           <font-awesome icon="graduation-cap" />
         </span>
       </div>
-      <StudentAcademicStanding v-if="$_.get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
+      <StudentAcademicStanding v-if="_get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
       <div v-if="!compact">
         <div v-if="student.sisProfile.emailAddress" class="mt-2">
           <a
@@ -77,14 +77,14 @@
     </div>
     <div id="student-bio-level" :class="{'mt-2': !compact}">
       <h3 class="sr-only">Level</h3>
-      <div class="font-weight-bolder">{{ $_.get(student, 'sisProfile.level.description') }}</div>
+      <div class="font-weight-bolder">{{ _get(student, 'sisProfile.level.description') }}</div>
     </div>
     <div class="text-muted">
       <div v-if="student.sisProfile.termsInAttendance" id="student-bio-terms-in-attendance">
         {{ pluralize('Term', student.sisProfile.termsInAttendance) }} in Attendance
       </div>
       <div
-        v-if="student.sisProfile.expectedGraduationTerm && !['5', '6', '7', '8', 'GR'].includes($_.get(student.sisProfile, 'level.code'))"
+        v-if="student.sisProfile.expectedGraduationTerm && !['5', '6', '7', '8', 'GR'].includes(_get(student.sisProfile, 'level.code'))"
         id="student-bio-expected-graduation"
       >
         Expected graduation {{ student.sisProfile.expectedGraduationTerm.name }}
@@ -128,7 +128,7 @@ export default {
     isCoeInactive: undefined
   }),
   created() {
-    this.academicCareerStatus = this.$_.get(this.student, 'sisProfile.academicCareerStatus')
+    this.academicCareerStatus = this._get(this.student, 'sisProfile.academicCareerStatus')
     this.isAscInactive = this.displayAsAscInactive(this.student)
     this.isCoeInactive = this.displayAsCoeInactive(this.student)
   }

@@ -8,7 +8,7 @@
         id="new-note-modal-container"
         class="mt-3"
         :class="{
-          'd-none': $_.isNil(mode),
+          'd-none': _isNil(mode),
           'modal-content': ['createBatch', 'createNote', 'editDraft', 'editTemplate'].includes(mode),
           'mt-4': ['createBatch', 'editDraft'].includes(mode)
         }"
@@ -232,10 +232,10 @@ export default {
       if (this.mode === 'editTemplate') {
         const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id)
         const template = this.noteTemplates[indexOf]
-        const noDiff = this.$_.trim(this.model.subject) === template.subject
+        const noDiff = this._trim(this.model.subject) === template.subject
           && this.model.body === template.body
-          && !this.$_.size(this.$_.xor(this.model.topics, template.topics))
-          && !this.$_.size(this.$_.xorBy(this.model.attachments, template.attachments, 'displayName'))
+          && !this._size(this._xor(this.model.topics, template.topics))
+          && !this._size(this._xorBy(this.model.attachments, template.attachments, 'displayName'))
         if (noDiff) {
           this.discardTemplate()
         } else {
@@ -243,10 +243,10 @@ export default {
           this.setFocusLockDisabled(true)
         }
       } else {
-        const unsavedChanges = this.$_.trim(this.model.subject)
+        const unsavedChanges = this._trim(this.model.subject)
           || this.stripHtmlAndTrim(this.model.body)
-          || this.$_.size(this.model.topics)
-          || this.$_.size(this.model.attachments)
+          || this._size(this.model.topics)
+          || this._size(this.model.attachments)
           || this.completeSidSet.length
         if (unsavedChanges) {
           this.showDiscardNoteModal = true
@@ -381,7 +381,7 @@ export default {
     },
     updateTemplate() {
       this.setIsSaving(true)
-      const newAttachments = this.$_.filter(this.model.attachments, a => !a.id)
+      const newAttachments = this._filter(this.model.attachments, a => !a.id)
       if (newAttachments.length) {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Updating template...', 60)

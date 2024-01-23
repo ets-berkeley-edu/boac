@@ -33,7 +33,7 @@
         <b-btn
           id="btn-curated-group-bulk-add-sids"
           class="px-3"
-          :disabled="!$_.trim(textarea) || isValidating || isSaving"
+          :disabled="!_trim(textarea) || isValidating || isSaving"
           variant="primary"
           @click="submit"
         >
@@ -107,7 +107,7 @@ export default {
       this.warning = undefined
     },
     scrub() {
-      this.sids = this.$_.uniq(this.sids)
+      this.sids = this._uniq(this.sids)
       this.textarea = this.sids.length ? this.sids.join(', ') : ''
       this.$announcer.polite(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
       this.sidsNotFound = []
@@ -123,17 +123,17 @@ export default {
       this.sidsNotFound = []
       this.clearWarning()
 
-      const trimmed = this.$_.trim(this.textarea, ' ,\n\t')
+      const trimmed = this._trim(this.textarea, ' ,\n\t')
       if (trimmed) {
-        const split = this.$_.split(trimmed, /[,\r\n\t ]+/)
-        const notNumeric = this.$_.partition(split, sid => /^\d+$/.test(this.$_.trim(sid)))[1]
+        const split = this._split(trimmed, /[,\r\n\t ]+/)
+        const notNumeric = this._partition(split, sid => /^\d+$/.test(this._trim(sid)))[1]
         if (notNumeric.length) {
           this.setWarning('SIDs must be numeric and separated by commas, line breaks, or tabs.')
           this.$putFocusNextTick('curated-group-bulk-add-sids')
         } else {
           this.isValidating = true
           validateSids(this.domain, split).then(data => {
-            this.$_.each(data, entry => {
+            this._each(data, entry => {
               switch(entry.status) {
               case 200:
               case 401:
@@ -143,7 +143,7 @@ export default {
                 this.sidsNotFound.push(entry.sid)
               }
             })
-            this.sidsNotFound = this.$_.uniq(this.sidsNotFound)
+            this.sidsNotFound = this._uniq(this.sidsNotFound)
             this.isValidating = false
             if (this.sidsNotFound.length) {
               const label = this.domain === 'admitted_students' ? 'admit' : 'student'
@@ -153,7 +153,7 @@ export default {
                 this.setWarning(`No matching ${label}${this.sidsNotFound.length === 1 ? '' : 's'} found.`)
               }
             } else {
-              this.bulkAddSids(this.$_.uniq(this.sids))
+              this.bulkAddSids(this._uniq(this.sids))
               this.sids = []
             }
           })

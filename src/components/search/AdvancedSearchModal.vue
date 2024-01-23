@@ -257,7 +257,7 @@
             <b-btn
               id="advanced-search"
               class="btn-primary-color-override"
-              :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !$_.trim(queryText))"
+              :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
               variant="primary"
               @click.prevent="search"
             >
@@ -342,7 +342,7 @@ export default {
     findStudentsByNameOrSid,
     onChangeAutocomplete(input) {
       this.queryText = input
-      const q = this.$_.trim(input && input.toLowerCase())
+      const q = this._trim(input && input.toLowerCase())
       return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     },
     onHidden() {
@@ -356,7 +356,7 @@ export default {
       }
     },
     search() {
-      const q = this.$_.trim(this.queryText)
+      const q = this._trim(this.queryText)
       if (q || !this.searchInputRequired) {
         const query = {
           _: this.counter++,
