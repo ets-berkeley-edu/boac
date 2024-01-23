@@ -1,3 +1,4 @@
+import mitt from 'mitt'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
 
@@ -5,6 +6,7 @@ const state = {
   announcement: undefined,
   dismissedFooterAlert: false,
   dismissedServiceAnnouncement: false,
+  eventHub: mitt(),
   loading: undefined,
   loadingStartTime: undefined
 }
@@ -17,6 +19,10 @@ const getters = {
 }
 
 const mutations = {
+  broadcast: (state: any, {eventType, data}: any) => {
+    console.log(`broadcast: ${eventType}`)
+    state.eventHub.emit(eventType, data)
+  },
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
   loadingComplete: (state: any, focusTarget?: string) => {
@@ -45,6 +51,10 @@ const mutations = {
     state.loading = true
     state.loadingStartTime = new Date().getTime()
   },
+  setEventHandler: (state: any, {type, handler}: any) => {
+    state.eventHub.on(type, handler)
+  },
+  removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
   setAnnouncement: (state: any, data: any) => (state.announcement = data),
 }

@@ -150,7 +150,7 @@ export default {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.dropdownId = `${this.idFragment}-dropdown-${this.student.sid}`
     this.refresh()
-    this.$eventHub.on('my-curated-groups-updated', domain => {
+    this.setEventHandler('my-curated-groups-updated', domain => {
       if (domain === this.domain) {
         this.refresh()
       }

@@ -252,7 +252,7 @@ export default {
     this.linkToStudentProfiles = this.$currentUser.isAdmin || !this.$_.isEmpty(this.currentUserDropInStatus)
     this.now = this.$moment()
     if (this.isHomepage) {
-      this.$eventHub.on('drop-in-status-change', newAttributes => {
+      this.setEventHandler('drop-in-status-change', newAttributes => {
         this.updateDropInAttributes(newAttributes)
       })
       this.updateDropInAttributes(this.$_.find(currentUserDropInStatus, {'deptCode': this.deptCode.toUpperCase()}))

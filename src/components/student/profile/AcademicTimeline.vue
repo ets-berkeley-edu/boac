@@ -71,12 +71,12 @@ export default {
       })
     })
     this.isTimelineLoading = false
-    this.$eventHub.on('note-deleted', this.onDeleteNoteEvent)
-    this.$eventHub.on('notes-batch-published', this.onPublishBatchNotes)
+    this.setEventHandler('note-deleted', this.onDeleteNoteEvent)
+    this.setEventHandler('notes-batch-published', this.onPublishBatchNotes)
   },
   destroyed() {
-    this.$eventHub.off('note-deleted', this.onDeleteNoteEvent)
-    this.$eventHub.off('notes-batch-published', this.onPublishBatchNotes)
+    this.removeEventHandler('note-deleted', this.onDeleteNoteEvent)
+    this.removeEventHandler('notes-batch-published', this.onPublishBatchNotes)
   },
   methods: {
     onCreateNewNote(note) {

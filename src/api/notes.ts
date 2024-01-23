@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import axios from 'axios'
+import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
@@ -34,7 +35,7 @@ export function markNoteRead(noteId) {
 
 export function createDraftNote(sid: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
-    Vue.prototype.$eventHub.emit('note-created', response.data)
+    store.commit('context/broadcast', {eventType: 'note-created', data: response.data})
     $_refreshMyDraftNoteCount()
     return response.data
   })
@@ -69,8 +70,8 @@ export function updateNote(
     topics
   }
   return utils.postMultipartFormData('/api/notes/update', data).then(data => {
-    const eventName = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    Vue.prototype.$eventHub.emit(eventName, data)
+    const eventType = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
+    store.commit('context/broadcast', {eventType, data})
     $_track('update')
     $_refreshMyDraftNoteCount()
     return data
@@ -79,11 +80,11 @@ export function updateNote(
 
 export function applyNoteTemplate(noteId: number, templateId: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/apply_template`, {noteId, templateId}).then(response => {
-    const note = response.data
-    Vue.prototype.$eventHub.emit('note-updated', note)
+    const data = response.data
+    store.commit('context/broadcast', {eventType: 'note-updated', data})
     $_track('update')
     $_refreshMyDraftNoteCount()
-    return note
+    return data
   })
 }
 
@@ -92,7 +93,7 @@ export function deleteNote(note: any) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
     .then(response => {
-      Vue.prototype.$eventHub.emit('note-deleted', note.id)
+      store.commit('context/broadcast', {eventType: 'note-deleted', obj: note.id})
       $_refreshMyDraftNoteCount()
       return response.data
     })

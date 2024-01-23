@@ -490,10 +490,10 @@ export default {
   created() {
     this.refreshSearchIndex()
     if (this.$currentUser.canAccessAdvisingData) {
-      this.$eventHub.on('note-creation-is-starting', this.onNoteCreateStartEvent)
-      this.$eventHub.on('note-created', this.afterNoteCreated)
-      this.$eventHub.on('note-updated', this.afterNoteEdit)
-      this.$eventHub.on('notes-created', this.afterNotesCreated)
+      this.setEventHandler('note-creation-is-starting', this.onNoteCreateStartEvent)
+      this.setEventHandler('note-created', this.afterNoteCreated)
+      this.setEventHandler('note-updated', this.afterNoteEdit)
+      this.setEventHandler('notes-created', this.afterNotesCreated)
     }
     this.sortMessages()
     this.$announcer.polite(`${this.student.name} profile loaded.`)
@@ -521,10 +521,10 @@ export default {
     }
   },
   destroyed() {
-    this.$eventHub.off('note-creation-is-starting', this.onNoteCreateStartEvent)
-    this.$eventHub.off('note-created', this.afterNoteCreated)
-    this.$eventHub.off('note-updated', this.afterNoteEdit)
-    this.$eventHub.off('notes-created', this.afterNotesCreated)
+    this.removeEventHandler('note-creation-is-starting', this.onNoteCreateStartEvent)
+    this.removeEventHandler('note-created', this.afterNoteCreated)
+    this.removeEventHandler('note-updated', this.afterNoteEdit)
+    this.removeEventHandler('notes-created', this.afterNotesCreated)
   },
   methods: {
     afterEditAdvisingNote(updatedNote) {

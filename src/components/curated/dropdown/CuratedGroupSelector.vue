@@ -137,13 +137,13 @@ export default {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.checkboxId = `add-all-to-${this.idFragment}`
     this.dropdownId = `${this.idFragment}-dropdown-select`
-    this.$eventHub.on('curated-group-checkbox-checked', args => {
+    this.setEventHandler('curated-group-checkbox-checked', args => {
       if (this.domain === args.domain) {
         this.sids.push(args.sid)
         this.refresh()
       }
     })
-    this.$eventHub.on('curated-group-checkbox-unchecked', args => {
+    this.setEventHandler('curated-group-checkbox-unchecked', args => {
       if (this.domain === args.domain) {
         this.sids = this.$_.remove(this.sids, s => s !== args.sid)
         this.refresh()
@@ -155,7 +155,7 @@ export default {
       this.$announcer.polite(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
-      this.$eventHub.emit('curated-group-deselect-all', this.domain)
+      this.broadcast('curated-group-deselect-all', this.domain)
     },
     afterCreateGroup() {
       this.sids = []
@@ -208,11 +208,11 @@ export default {
         this.$_.each(this.students, student => {
           this.sids.push(student.sid || student.csEmplId)
         })
-        this.$eventHub.emit('curated-group-select-all', this.domain)
+        this.broadcast('curated-group-select-all', this.domain)
         this.$putFocusNextTick(this.dropdownId, 'button')
         this.$announcer.polite('All students on this page selected.')
       } else {
-        this.$eventHub.emit('curated-group-deselect-all', this.domain)
+        this.broadcast('curated-group-deselect-all', this.domain)
         this.$announcer.polite('All students on this page deselected.')
       }
     }

@@ -7,7 +7,6 @@ import Highcharts from 'highcharts'
 import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
 import linkify from 'vue-linkify'
-import mitt from 'mitt'
 import moment from 'moment'
 import router from './router'
 import store from './store'
@@ -54,7 +53,6 @@ Vue.directive('accessibleGrade', {
 Vue.directive('linkified', linkify)
 
 // Global utilities
-Vue.prototype.$eventHub = mitt()
 Vue.prototype.$_ = _
 Vue.prototype.$moment = moment
 
@@ -132,7 +130,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
         setInterval(() => {
           axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
             if (!response.data.isAuthenticated) {
-              Vue.prototype.$eventHub.emit('user-session-expired')
+              store.commit('context/broadcast', 'user-session-expired')
             }
           })
         }, Vue.prototype.$config.pingFrequency)

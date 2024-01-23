@@ -155,7 +155,7 @@ export default {
     onSelect(sortBy) {
       const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
       this.$currentUser.preferences[sortByKey] = sortBy
-      this.$eventHub.emit(`${sortByKey}-user-preference-change`, sortBy)
+      this.broadcast(`${sortByKey}-user-preference-change`, sortBy)
       this.dropdownLabel = this.getSortByOptionLabel(sortBy)
       this.$announcer.polite(`${this.dropdownLabel} selected`)
     }

@@ -181,10 +181,10 @@ export default {
   created() {
     const domain = this.$route.query.domain || 'default'
     this.setUserPreferenceListener(domain)
-    this.$eventHub.on('cohort-apply-filters', () => {
+    this.setEventHandler('cohort-apply-filters', () => {
       this.setPagination(1)
     })
-    this.$eventHub.on('termId-user-preference-change', () => {
+    this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
         this.goToPage(this.pageNumber)
       }
@@ -209,7 +209,7 @@ export default {
     },
     setUserPreferenceListener(domain) {
       const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      this.$eventHub.on(`${key}-user-preference-change`, () => {
+      this.setEventHandler(`${key}-user-preference-change`, () => {
         if (!this.loading) {
           this.goToPage(1)
         }
