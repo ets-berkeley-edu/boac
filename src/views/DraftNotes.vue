@@ -119,6 +119,7 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
+import Context from '@/mixins/Context.vue'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable.vue'
@@ -129,12 +130,12 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {
   name: 'DraftNotes',
-  mixins: [Loading, Scrollable, Util],
+  mixins: [Context, Loading, Scrollable, Util],
   components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
   data: () => ({
+    activeOperation: undefined,
     fields: undefined,
     isDeleting: false,
-    mode: undefined,
     myDraftNotes: undefined,
     selectedDraftNote: undefined
   }),
@@ -178,15 +179,15 @@ export default {
       }
     )
     this.reloadDraftNotes('Draft notes list is ready.')
-    this.$eventHub.on('note-created', () => {
+    this.setEventHandler('note-created', () => {
       this.reloadDraftNotes()
     })
-    this.$eventHub.on('note-deleted', noteId => {
+    this.setEventHandler('note-deleted', noteId => {
       if (this.$_.find(this.myDraftNotes, ['id', noteId])) {
         this.reloadDraftNotes()
       }
     })
-    this.$eventHub.on('note-updated', note => {
+    this.setEventHandler('note-updated', note => {
       if (this.$_.find(this.myDraftNotes, ['id', note.id])) {
         this.reloadDraftNotes()
       }
@@ -205,7 +206,7 @@ export default {
     },
     showEditModal: {
       get() {
-        return !!this.selectedDraftNote && this.mode === 'edit'
+        return !!this.selectedDraftNote && this.activeOperation === 'edit'
       },
       set(value) {
         if (!value) {
@@ -215,7 +216,7 @@ export default {
     },
     showDeleteModal: {
       get() {
-        return !!this.selectedDraftNote && this.mode === 'delete'
+        return !!this.selectedDraftNote && this.activeOperation === 'delete'
       },
       set(value) {
         if (!value) {
@@ -250,7 +251,7 @@ export default {
     },
     deselectDraftNote() {
       this.selectedDraftNote = null
-      this.mode = null
+      this.activeOperation = null
     },
     reloadDraftNotes(srAlert) {
       return getMyDraftNotes().then(data => {
@@ -261,12 +262,12 @@ export default {
       })
     },
     openDeleteModal(draftNote) {
-      this.mode = 'delete'
+      this.activeOperation = 'delete'
       this.selectedDraftNote = draftNote
       this.$announcer.polite('Please confirm draft note deletion.')
     },
     openEditModal(noteDraft) {
-      this.mode = 'edit'
+      this.activeOperation = 'edit'
       this.selectedDraftNote = noteDraft
     }
   }

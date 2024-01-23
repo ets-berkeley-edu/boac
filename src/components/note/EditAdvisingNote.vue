@@ -186,7 +186,7 @@ export default {
       this.$putFocusNextTick('edit-note-subject')
       this.$announcer.polite('Edit note form is open.')
     })
-    this.$eventHub.on('user-session-expired', () => {
+    this.setEventHandler('user-session-expired', () => {
       this.onBoaSessionExpires()
     })
   },

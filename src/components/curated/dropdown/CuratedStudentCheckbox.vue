@@ -44,12 +44,12 @@ export default {
     this.sid = this.student.sid || this.student.csEmplId
     this.checkboxId = `${this.domain === 'admitted_students' ? 'admit' : 'student'}-${this.sid}-${idFragment}-checkbox`
     this.studentName = `${this.student.firstName} ${this.student.lastName}`
-    this.$eventHub.on('curated-group-select-all', domain => {
+    this.setEventHandler('curated-group-select-all', domain => {
       if (this.domain === domain) {
         this.status = true
       }
     })
-    this.$eventHub.on('curated-group-deselect-all', domain => {
+    this.setEventHandler('curated-group-deselect-all', domain => {
       if (this.domain === domain) {
         this.status = false
       }
@@ -58,7 +58,7 @@ export default {
   methods: {
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
-      this.$eventHub.emit(eventName, {domain: this.domain, sid: this.sid})
+      this.broadcast(eventName, {domain: this.domain, sid: this.sid})
       this.$announcer.polite(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
     }
   }

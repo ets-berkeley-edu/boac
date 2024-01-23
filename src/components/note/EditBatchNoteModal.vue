@@ -219,7 +219,7 @@ export default {
       this.setModel(note)
       this.setMode(this.initialMode)
       this.$announcer.polite(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-      this.$eventHub.on('user-session-expired', () => {
+      this.setEventHandler('user-session-expired', () => {
         this.onBoaSessionExpires()
       })
     })
@@ -328,7 +328,7 @@ export default {
         if (this.noteId) {
           getNote(this.noteId).then(resolve)
         } else {
-          this.$eventHub.emit('begin-note-creation', {
+          this.broadcast('begin-note-creation', {
             completeSidSet: [this.sid],
             subject: 'note-creation-is-starting'
           })

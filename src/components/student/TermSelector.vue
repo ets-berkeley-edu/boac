@@ -64,7 +64,7 @@ export default {
   }),
   created() {
     this.selectTermOptions = this.getSelectTermOptions()
-    this.$eventHub.on(`${this.sortByKey}-user-preference-change`, v => this.selectedTermId = v)
+    this.setEventHandler(`${this.sortByKey}-user-preference-change`, v => this.selectedTermId = v)
     const selectedTermOption = this.termOptionForId(this.$_.get(this.$currentUser.preferences, 'termId'))
     this.selectedTermId = selectedTermOption.value
     this.selectedTermLabel = selectedTermOption.label
@@ -88,7 +88,7 @@ export default {
         this.selectedTermLabel = this.termNameForSisId(value)
         this.$announcer.polite(`${this.selectedTermLabel} selected`)
         this.$currentUser.preferences.termId = this.selectedTermId
-        this.$eventHub.emit('termId-user-preference-change', value)
+        this.broadcast('termId-user-preference-change', value)
       }
     },
     termOptionForId(termId) {

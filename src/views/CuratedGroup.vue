@@ -138,7 +138,7 @@ export default {
       }
     })
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.$eventHub.on(`${sortByKey}-user-preference-change`, sortBy => {
+    this.setEventHandler(`${sortByKey}-user-preference-change`, sortBy => {
       if (!this.loading) {
         this.loadingStart()
         this.$announcer.polite(`Sorting students by ${sortBy}`)
@@ -147,7 +147,7 @@ export default {
         })
       }
     })
-    this.$eventHub.on('termId-user-preference-change', () => {
+    this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
         this.loadingStart()
         this.goToPage(this.pageNumber).then(() => {

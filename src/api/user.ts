@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import axios from 'axios'
+import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
@@ -9,7 +10,7 @@ const $_setDropInStatus = (available, deptCode, status) => {
   if (dropInAdvisorStatus) {
     dropInAdvisorStatus.available = available
     dropInAdvisorStatus.status = status
-    Vue.prototype.$eventHub.emit('drop-in-status-change', dropInAdvisorStatus)
+    store.commit('context/broadcast', {eventType: 'drop-in-status-change', data: dropInAdvisorStatus})
   }
 }
 
@@ -35,7 +36,7 @@ export function getUserProfile() {
     .then(response => {
       const user = response.data
       if (!user.isAuthenticated) {
-        Vue.prototype.$eventHub.emit('user-session-expired')
+        store.commit('context/broadcast', {eventType: 'user-session-expired'})
       }
       return user
     }, () => null)

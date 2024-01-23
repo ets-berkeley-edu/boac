@@ -76,7 +76,7 @@ export default {
   },
   methods: {
     apply() {
-      this.$eventHub.emit('cohort-apply-filters')
+      this.broadcast('cohort-apply-filters')
       this.isPerforming = 'search'
       this.$announcer.polite('Searching for students')
       this.applyFilters({
