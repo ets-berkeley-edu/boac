@@ -40,7 +40,7 @@
               <h2 class="sr-only">Schedule</h2>
               <div class="course-term-name">{{ section.termName }}</div>
               <div v-for="(meeting, meetingIndex) in meetings" :key="meetingIndex">
-                <div v-if="!$_.isEmpty(meeting.instructors)" class="mt-2">
+                <div v-if="!_isEmpty(meeting.instructors)" class="mt-2">
                   <span :id="'instructors-' + meetingIndex" class="course-schedule-header">
                     {{ meeting.instructors.length > 1 ? 'Instructors:' : 'Instructor:' }}
                   </span>
@@ -74,7 +74,7 @@
         <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">
           <div>
             <CuratedGroupSelector
-              v-if="!$_.isEmpty(section.students) && (tab === 'list')"
+              v-if="!_isEmpty(section.students) && (tab === 'list')"
               :context-description="`Course ${section.displayName}`"
               domain="default"
               :students="section.students"
@@ -209,7 +209,7 @@ export default {
   created() {
     this.sectionId = this.$route.params.sectionId
     this.termId = this.$route.params.termId
-    this.tab = this.$_.includes(['list', 'matrix'], this.$route.query.tab) ? this.$route.query.tab : this.tab
+    this.tab = this._includes(['list', 'matrix'], this.$route.query.tab) ? this.$route.query.tab : this.tab
     this.initPagination()
     this.toggleView(this.tab, 'course-header')
   },
@@ -218,14 +218,14 @@ export default {
   },
   methods: {
     featureSearchedStudent(data) {
-      const section = this.$_.clone(data)
-      const subject = this.$_.remove(section.students, student => {
+      const section = this._clone(data)
+      const subject = this._remove(section.students, student => {
         return student.uid === this.featured
       })
-      const students = this.$_.union(subject, section.students)
+      const students = this._union(subject, section.students)
       // Discrepancies in our loch-hosted SIS data dumps may occasionally result in students without enrollment
       // objects. A placeholder object keeps the front end from breaking.
-      this.$_.each(students, student => {
+      this._each(students, student => {
         if (!student.enrollment) {
           student.enrollment = {canvasSites: []}
         }
@@ -245,7 +245,7 @@ export default {
       }
       if (this.$route.query.s && !isNaN(this.$route.query.s)) {
         const itemsPerPage = parseInt(this.$route.query.s, 10)
-        if (this.$_.includes(this.pagination.options, itemsPerPage)) {
+        if (this._includes(this.pagination.options, itemsPerPage)) {
           this.pagination.itemsPerPage = itemsPerPage
         } else {
           this.$router.push({
@@ -282,8 +282,8 @@ export default {
       const done = data => {
         this.setPageTitle(data.displayName)
         this.section = this.featureSearchedStudent(data)
-        this.meetings = this.$_.orderBy(this.section.meetings, ['startDate'], ['asc'])
-        let totalStudentCount = this.$_.get(this.section, 'totalStudentCount')
+        this.meetings = this._orderBy(this.section.meetings, ['startDate'], ['asc'])
+        let totalStudentCount = this._get(this.section, 'totalStudentCount')
         if (this.exceedsMatrixThreshold(totalStudentCount)) {
           this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`
         } else {

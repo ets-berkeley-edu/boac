@@ -206,7 +206,7 @@ export default {
   },
   methods: {
     afterSaveTopic(topic) {
-      const match = this.$_.find(this.topics, ['id', topic.id])
+      const match = this._find(this.topics, ['id', topic.id])
       const focusTarget = `topic-${topic.id}`
       if (match) {
         Object.assign(match, topic)
@@ -239,7 +239,7 @@ export default {
       })
     },
     edit(topic) {
-      this.topicEdit = this.$_.clone(topic)
+      this.topicEdit = this._clone(topic)
       this.isEditTopicModalOpen = true
       this.$announcer.polite(`Begin to edit topic '${topic.topic}'`)
     },
@@ -267,7 +267,7 @@ export default {
       getAllTopics(true).then(data => {
         this.topics = data
         getUsageStatistics().then(statistics => {
-          this.$_.each(this.topics, topic => {
+          this._each(this.topics, topic => {
             topic.countAppointments = statistics.appointments[topic.id] || 0
             topic.countNotes = statistics.notes[topic.id] || 0
           })

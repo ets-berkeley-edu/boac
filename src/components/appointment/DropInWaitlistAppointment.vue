@@ -81,13 +81,13 @@
     </b-col>
     <b-col sm="4">
       <DropInAppointmentDropdown
-        v-if="$_.includes(['reserved', 'waiting'], appointment.status)"
+        v-if="_includes(['reserved', 'waiting'], appointment.status)"
         :appointment="appointment"
         :dept-code="deptCode"
         :self-check-in="isHomepage"
         :on-appointment-status-change="onAppointmentStatusChange"
       />
-      <div v-if="$_.includes(['checked_in', 'cancelled'], appointment.status)" class="d-flex justify-content-end">
+      <div v-if="_includes(['checked_in', 'cancelled'], appointment.status)" class="d-flex justify-content-end">
         <div>
           <button
             v-if="!reopening"
@@ -164,7 +164,7 @@ export default {
     showCreateAppointmentModal: false
   }),
   created() {
-    this.linkToStudentProfiles = this.$currentUser.isAdmin || this.$_.get(this.$currentUser, 'dropInAdvisorStatus.length')
+    this.linkToStudentProfiles = this.$currentUser.isAdmin || this._get(this.$currentUser, 'dropInAdvisorStatus.length')
     this.now = this.$moment()
   },
   methods: {

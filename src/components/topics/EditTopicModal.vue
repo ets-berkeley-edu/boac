@@ -30,7 +30,7 @@
           ></b-form-input>
           <b-form-invalid-feedback id="topic-label-error" class="font-size-14 mt-0 pl-2 pt-2">
             <span v-if="!isValidLabel">Label must be {{ minLabelLength }} or more characters.</span>
-            <span v-if="isLabelReserved">Sorry, the label '{{ $_.trim(topic.topic) }}' is assigned to an existing topic.</span>
+            <span v-if="isLabelReserved">Sorry, the label '{{ _trim(topic.topic) }}' is assigned to an existing topic.</span>
           </b-form-invalid-feedback>
           <div class="faint-text font-size-14 pl-2 pt-2">
             <span v-if="!isLabelReserved && isValidLabel" id="input-live-help">
@@ -124,13 +124,13 @@ export default {
       return !this.isValidLabel || this.isSaving || (!this.topic.availableInAppointments && !this.topic.availableInNotes) || this.isLabelReserved
     },
     isLabelReserved() {
-      return !!this.$_.find(this.allTopics, t => {
-        const trimmed = this.$_.trim(this.topic.topic)
+      return !!this._find(this.allTopics, t => {
+        const trimmed = this._trim(this.topic.topic)
         return t.id !== this.topic.id && (t.topic.toLowerCase() === trimmed.toLowerCase())
       })
     },
     isValidLabel() {
-      return this.$_.trim(this.topic.topic).length >= this.minLabelLength
+      return this._trim(this.topic.topic).length >= this.minLabelLength
     }
   },
   created() {
@@ -144,7 +144,7 @@ export default {
     save() {
       this.isSaving = true
       // TODO: do not mutate prop
-      this.topic.topic = this.$_.trim(this.topic.topic) // eslint-disable-line vue/no-mutating-props
+      this.topic.topic = this._trim(this.topic.topic) // eslint-disable-line vue/no-mutating-props
       if (this.topic.id) {
         updateTopic(
           this.topic.id,

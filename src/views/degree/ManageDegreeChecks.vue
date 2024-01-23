@@ -32,9 +32,9 @@
           </div>
         </div>
       </router-link>
-      <span v-if="$_.size(degreeTemplates)" class="p-2">|</span>
+      <span v-if="_size(degreeTemplates)" class="p-2">|</span>
       <router-link
-        v-if="$_.size(degreeTemplates)"
+        v-if="_size(degreeTemplates)"
         id="degree-check-batch-link"
         class="w-25"
         to="/degree/batch"
@@ -65,7 +65,7 @@
         >
           <template #cell(name)="row">
             <div
-              v-if="row.item.id === $_.get(templateForEdit, 'id')"
+              v-if="row.item.id === _get(templateForEdit, 'id')"
               class="align-items-center d-flex flex-wrap justify-content-between mt-2 rename-template"
             >
               <div class="flex-grow-1 mr-2">
@@ -121,7 +121,7 @@
                 <span v-html="errorDuringEdit"></span>
               </div>
             </div>
-            <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
+            <div v-if="row.item.id !== _get(templateForEdit, 'id')">
               <router-link
                 :id="`degree-check-${row.item.id}-link`"
                 :disabled="isBusy"
@@ -131,13 +131,13 @@
             </div>
           </template>
           <template #cell(createdAt)="row">
-            <div v-if="row.item.id !== $_.get(templateForEdit, 'id')">
+            <div v-if="row.item.id !== _get(templateForEdit, 'id')">
               {{ $moment(row.item.createdAt).format('MMM D, YYYY') }}
             </div>
           </template>
           <template #cell(actions)="row">
             <div class="align-right w-100">
-              <div v-if="row.item.id !== $_.get(templateForEdit, 'id')" class="align-items-center d-flex flex-wrap">
+              <div v-if="row.item.id !== _get(templateForEdit, 'id')" class="align-items-center d-flex flex-wrap">
                 <div>
                   <router-link
                     :id="`degree-check-${row.item.id}-print-link`"
@@ -289,14 +289,14 @@ export default {
     },
     edit(template) {
       this.$announcer.polite(`Rename ${template.name}`)
-      this.templateForEdit = this.$_.clone(template)
+      this.templateForEdit = this._clone(template)
       this.isBusy = true
       this.$putFocusNextTick('rename-template-input')
     },
     isNameAvailable(name, ignoreTemplateId=null) {
       const lower = name.trim().toLowerCase()
-      const templates = ignoreTemplateId ? this.$_.filter(this.degreeTemplates, t => t.id !== ignoreTemplateId) : this.degreeTemplates
-      return this.$_.map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
+      const templates = ignoreTemplateId ? this._filter(this.degreeTemplates, t => t.id !== ignoreTemplateId) : this.degreeTemplates
+      return this._map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
     },
     openCreateCloneModal(template) {
       this.$announcer.polite('Create a copy.')

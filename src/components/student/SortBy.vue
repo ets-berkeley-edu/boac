@@ -72,14 +72,14 @@ export default {
   created() {
     this.optionGroups = this.getSortByOptionGroups(this.domain)
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    const sortBy = this.$_.get(this.$currentUser.preferences, sortByKey)
+    const sortBy = this._get(this.$currentUser.preferences, sortByKey)
     this.dropdownLabel = this.getSortByOptionLabel(sortBy)
     this.isReady = true
   },
   methods: {
     getSortBy() {
       const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      return this.$_.get(this.$currentUser.preferences, sortByKey)
+      return this._get(this.$currentUser.preferences, sortByKey)
     },
     getSortByOptionGroups(domain) {
       const optionGroups = []
@@ -104,7 +104,7 @@ export default {
             {label: 'Major', value: 'major'}
           ]
         })
-        if (this.$currentUser.isAdmin || this.$_.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
+        if (this.$currentUser.isAdmin || this._includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
           optionGroups[0].options.push({label: 'Team', value: 'group_name'})
         }
         optionGroups.push({
@@ -141,8 +141,8 @@ export default {
     },
     getSortByOptionLabel(sortBy) {
       let label = undefined
-      this.$_.each(this.optionGroups, group => {
-        this.$_.each(group.options, option => {
+      this._each(this.optionGroups, group => {
+        this._each(group.options, option => {
           if (sortBy === option.value) {
             label = option.label
           }

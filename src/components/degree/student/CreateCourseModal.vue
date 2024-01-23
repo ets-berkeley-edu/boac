@@ -99,7 +99,7 @@
           </div>
         </div>
         <div class="modal-footer pb-0">
-          <form @submit.prevent="$_.noop">
+          <form @submit.prevent="_noop">
             <b-btn
               id="create-course-save-btn"
               class="btn-primary-color-override"
@@ -129,10 +129,11 @@ import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
+import Util from '@/mixins/Util'
 
 export default {
   name: 'CreateCourseModal',
-  mixins: [DegreeEditSession],
+  mixins: [DegreeEditSession, Util],
   components: {AccentColorSelect, ModalHeader, UnitsInput},
   props: {
     parentCategory: {
@@ -152,10 +153,10 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return this.isSaving || !!this.unitsErrorMessage || !this.$_.trim(this.name)
+      return this.isSaving || !!this.unitsErrorMessage || !this._trim(this.name)
     },
     unitsErrorMessage() {
-      const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
+      const isEmpty = this._isEmpty(this._trim(this.units))
       return isEmpty ? null : this.validateUnitRange(this.units, undefined, 10).message
     }
   },
@@ -189,11 +190,11 @@ export default {
         this.isSaving = true
         this.createCourse({
           accentColor: this.accentColor,
-          grade: this.$_.trim(this.grade),
-          name: this.$_.trim(this.name),
-          note: this.$_.trim(this.note),
+          grade: this._trim(this.grade),
+          name: this._trim(this.name),
+          note: this._trim(this.note),
           parentCategoryId: this.parentCategory.id,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+          unitRequirementIds: this._map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(course => {
           this.closeModal()

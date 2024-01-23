@@ -116,7 +116,7 @@ export default {
       this.isSaving = true
       getDegreeTemplates().then(data => {
         const lower = this.name.trim().toLowerCase()
-        if (this.$_.map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
+        if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
           this.$announcer.polite('Cloning template')
           cloneDegreeTemplate(this.templateToClone.id, this.name).then(data => {
             this.afterCreate(data)

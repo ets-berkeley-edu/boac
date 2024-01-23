@@ -11,7 +11,7 @@
         />
       </div>
       <div class="pl-2 pt-2">
-        <div v-if="!$_.isNil($currentUser.inDemoMode)">
+        <div v-if="!_isNil($currentUser.inDemoMode)">
           <b-form-checkbox
             v-if="!isToggling"
             id="toggle-demo-mode"

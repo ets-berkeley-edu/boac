@@ -24,7 +24,7 @@
           :for="`timeline-${filter}s-query-input`"
           class="mb-0 ml-2 mr-1 text-nowrap"
         >
-          Search {{ filter === 'eForm' ? 'eForm' : $_.capitalize(filter) }}s:
+          Search {{ filter === 'eForm' ? 'eForm' : _capitalize(filter) }}s:
         </label>
       </div>
       <div class="pr-1">
@@ -78,7 +78,7 @@
     </div>
 
     <div v-if="countPerActiveTab">
-      <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${$_.capitalize(activeTab)}s` }}</h3>
+      <h3 class="sr-only">{{ activeTab === 'all' ? 'All Messages' : `${_capitalize(activeTab)}s` }}</h3>
       <table id="timeline-messages" class="w-100">
         <tr class="sr-only">
           <th>Type</th>
@@ -113,7 +113,7 @@
           </td>
         </tr>
         <tr
-          v-for="(message, index) in (searchResults || (isShowingAll ? messagesPerType(filter) : $_.slice(messagesPerType(filter), 0, defaultShowPerTab)))"
+          v-for="(message, index) in (searchResults || (isShowingAll ? messagesPerType(filter) : _slice(messagesPerType(filter), 0, defaultShowPerTab)))"
           :id="`permalink-${message.type}-${message.id}`"
           :key="index"
           :class="{'message-row-read': message.read}"
@@ -125,14 +125,14 @@
               :class="`pill-${message.type}`"
               class="pill text-center text-uppercase text-white"
               :role="message.type === 'requirement' ? 'cell' : 'button'"
-              :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
+              :tabindex="_includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)"
             >
               <span class="sr-only">Message of type </span>{{ filterTypes[message.type].name }}
             </div>
             <div
-              v-if="isEditable(message) && !editModeNoteId && $_.includes(openMessages, message.transientId)"
+              v-if="isEditable(message) && !editModeNoteId && _includes(openMessages, message.transientId)"
               class="mt-2"
             >
               <div v-if="$currentUser.uid === message.author.uid && (!message.isPrivate || $currentUser.canAccessPrivateNotes)">
@@ -169,14 +169,14 @@
           >
             <div
               :id="`timeline-tab-${activeTab}-message-${index}`"
-              :aria-pressed="$_.includes(openMessages, message.transientId)"
+              :aria-pressed="_includes(openMessages, message.transientId)"
               :class="{
-                'align-top message-open': $_.includes(openMessages, message.transientId) && message.type !== 'requirement' ,
-                'truncate': !$_.includes(openMessages, message.transientId),
+                'align-top message-open': _includes(openMessages, message.transientId) && message.type !== 'requirement' ,
+                'truncate': !_includes(openMessages, message.transientId),
                 'img-blur': $currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
-              :tabindex="$_.includes(openMessages, message.transientId) ? -1 : 0"
+              :tabindex="_includes(openMessages, message.transientId) ? -1 : 0"
               @keyup.enter="open(message, true)"
               @click="open(message, true)"
             >
@@ -184,13 +184,13 @@
               <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
               <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
               <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
-              <span v-if="!$_.includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
+              <span v-if="!_includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
                 :after-saved="afterNoteEdit"
                 :delete-note="deleteNote"
                 :edit-note="editNote"
-                :is-open="$_.includes(openMessages, message.transientId)"
+                :is-open="_includes(openMessages, message.transientId)"
                 :note="message"
               />
               <EditAdvisingNote
@@ -202,11 +202,11 @@
               <AdvisingAppointment
                 v-if="message.type === 'appointment'"
                 :appointment="message"
-                :is-open="$_.includes(openMessages, message.transientId)"
+                :is-open="_includes(openMessages, message.transientId)"
                 :on-appointment-status-change="onAppointmentStatusChange"
                 :student="student"
               />
-              <div v-if="$_.includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
+              <div v-if="_includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
                 <b-btn
                   :id="`${activeTab}-close-message-${message.id}`"
                   variant="link"
@@ -226,7 +226,7 @@
             </div>
           </td>
           <td class="column-right align-top pt-1 pr-1">
-            <div v-if="!$_.includes(openMessages, message.transientId) && message.type === 'appointment'">
+            <div v-if="!_includes(openMessages, message.transientId) && message.type === 'appointment'">
               <div
                 v-if="message.appointmentType === 'Drop-in' && message.status === 'cancelled'"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
@@ -265,8 +265,8 @@
               </div>
             </div>
             <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
-              <font-awesome v-if="$_.size(message.attachments)" icon="paperclip" class="mt-2" />
-              <span class="sr-only">{{ $_.size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
+              <font-awesome v-if="_size(message.attachments)" icon="paperclip" class="mt-2" />
+              <span class="sr-only">{{ _size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
             </div>
           </td>
           <td class="column-right align-top">
@@ -274,7 +274,7 @@
               :id="`timeline-tab-${activeTab}-date-${index}`"
               class="pt-2 pr-2 text-nowrap"
             >
-              <div v-if="!$_.includes(openMessages, message.transientId) || !$_.includes(['appointment', 'eForm', 'note'], message.type)">
+              <div v-if="!_includes(openMessages, message.transientId) || !_includes(['appointment', 'eForm', 'note'], message.type)">
                 <TimelineDate
                   :id="`collapsed-${message.type}-${message.id}-created-at`"
                   :date="message.setDate || message.updatedAt || message.createdAt"
@@ -282,7 +282,7 @@
                   :sr-prefix="message.type === 'appointment' ? 'Appointment date' : 'Last updated on'"
                 />
               </div>
-              <div v-if="$_.includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
+              <div v-if="_includes(openMessages, message.transientId) && ['appointment', 'eForm', 'note'].includes(message.type)">
                 <div v-if="message.createdAt" :class="{'mb-2': !displayUpdatedAt(message)}">
                   <div class="text-muted">{{ message.type === 'appointment' ? 'Appt Date' : 'Created' }}:</div>
                   <TimelineDate
@@ -433,7 +433,7 @@ export default {
       return location.hash
     },
     countPerActiveTab() {
-      return this.filter ? this.countsPerType[this.filter] : this.$_.size(this.messages)
+      return this.filter ? this.countsPerType[this.filter] : this._size(this.messages)
     },
     deleteConfirmModalBody() {
       return this.messageForDelete ? `Are you sure you want to delete the "<b>${this.messageForDelete.subject}</b>" note?` : ''
@@ -450,7 +450,7 @@ export default {
     showDownloadNotesLink() {
       const hasNonDrafts = () => {
         const notes = this.messagesPerType('note')
-        return this.$_.find(notes, n => !n.isDraft)
+        return this._find(notes, n => !n.isDraft)
       }
       return ['eForm', 'note'].includes(this.filter)
         && (this.$currentUser.isAdmin || this.isDirector(this.$currentUser))
@@ -476,7 +476,7 @@ export default {
       if (this.timelineQuery) {
         const query = this.timelineQuery.replace(/\s/g, '').toLowerCase()
         const results = []
-        this.$_.each(this.searchIndex, entry => {
+        this._each(this.searchIndex, entry => {
           if (entry.idx.indexOf(query) > -1) {
             results.push(entry.message)
           }
@@ -504,7 +504,7 @@ export default {
       if (match && match.length > 2) {
         const messageType = match[1].toLowerCase()
         const messageId = match[2]
-        const obj = this.$_.find(this.messages, function(m) {
+        const obj = this._find(this.messages, function(m) {
           // Legacy advising notes have string IDs; BOA-created advising notes have integer IDs.
           if (m.id && m.id.toString() === messageId && m.type.toLowerCase() === messageType) {
             return true
@@ -558,8 +558,8 @@ export default {
       if (this.editModeNoteId) {
         return false
       }
-      if (this.$_.includes(this.openMessages, message.transientId)) {
-        this.openMessages = this.$_.remove(
+      if (this._includes(this.openMessages, message.transientId)) {
+        this.openMessages = this._remove(
           this.openMessages,
           id => id !== message.transientId
         )
@@ -568,7 +568,7 @@ export default {
         this.allExpanded = false
       }
       if (notifyScreenReader) {
-        this.$announcer.polite(`${this.$_.capitalize(message.type)} closed`)
+        this.$announcer.polite(`${this._capitalize(message.type)} closed`)
       }
     },
     deleteNote(message) {
@@ -579,9 +579,9 @@ export default {
     deleteConfirmed() {
       const transientId = this.messageForDelete.transientId
       const predicate = ['transientId', transientId]
-      const note = this.$_.find(this.messages, predicate)
-      this.$_.remove(this.messages, predicate)
-      this.$_.remove(this.openMessages, value => transientId === value)
+      const note = this._find(this.messages, predicate)
+      this._remove(this.messages, predicate)
+      this._remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
       return deleteNote(note).then(() => {
         this.$announcer.polite('Note deleted')
@@ -618,7 +618,7 @@ export default {
     markRead(message) {
       if (!message.read) {
         message.read = true
-        if (this.$_.includes(['alert', 'hold'], message.type)) {
+        if (this._includes(['alert', 'hold'], message.type)) {
           dismissStudentAlert(message.id)
         } else if (['eForm', 'note'].includes(message.type)) {
           markNoteRead(message.id)
@@ -631,12 +631,12 @@ export default {
       if (!type) {
         return this.messages
       } else if (this.showMyNotesToggle && this.showMyNotesOnly) {
-        return this.$_.filter(this.messages, m => {
+        return this._filter(this.messages, m => {
           let uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
           return m.type === type && uid === this.$currentUser.uid
         })
       } else {
-        return this.$_.filter(this.messages, ['type', type])
+        return this._filter(this.messages, ['type', type])
       }
     },
     onAppointmentStatusChange(appointmentId) {
@@ -649,7 +649,7 @@ export default {
       })
     },
     onNoteCreateStartEvent(event) {
-      if (this.$_.includes(event.completeSidSet, this.student.sid)) {
+      if (this._includes(event.completeSidSet, this.student.sid)) {
         this.creatingNoteEvent = event
       }
     },
@@ -657,7 +657,7 @@ export default {
       if (['eForm', 'note'].includes(message.type) && message.id === this.editModeNoteId || message.type === 'requirement') {
         return false
       }
-      if (!this.$_.includes(this.openMessages, message.transientId)) {
+      if (!this._includes(this.openMessages, message.transientId)) {
         this.openMessages.push(message.transientId)
       }
       this.markRead(message)
@@ -665,11 +665,11 @@ export default {
         this.allExpanded = true
       }
       if (notifyScreenReader) {
-        this.$announcer.polite(`${this.$_.capitalize(message.type)} opened`)
+        this.$announcer.polite(`${this._capitalize(message.type)} opened`)
       }
     },
     refreshNote(updatedNote) {
-      const note = this.$_.find(this.messages, ['id', updatedNote.id])
+      const note = this._find(this.messages, ['id', updatedNote.id])
       if (note) {
         note.attachments = updatedNote.attachments
         note.body = note.message = updatedNote.body
@@ -686,11 +686,11 @@ export default {
     refreshSearchIndex() {
       this.searchIndex = []
       const messages = ['appointment', 'eForm', 'note'].includes(this.filter) ? this.messagesPerType(this.filter) : []
-      this.$_.each(messages, m => {
+      this._each(messages, m => {
         const advisor = m.author || m.advisor
         const idx = [
           advisor.name,
-          (this.$_.map(advisor.departments || [], 'name')).join(),
+          (this._map(advisor.departments || [], 'name')).join(),
           advisor.email,
           m.body,
           m.category,
@@ -713,10 +713,10 @@ export default {
       this.isShowingAll = true
       this.allExpanded = !this.allExpanded
       if (this.allExpanded) {
-        this.$_.each(this.messagesPerType(this.filter), this.open)
+        this._each(this.messagesPerType(this.filter), this.open)
         this.$announcer.polite(`All ${this.filter}s expanded`)
       } else {
-        this.$_.each(this.messagesPerType(this.filter), this.close)
+        this._each(this.messagesPerType(this.filter), this.close)
         this.$announcer.polite(`All ${this.filter}s collapsed`)
       }
     },

@@ -2,6 +2,7 @@
 import _ from 'lodash'
 import auth from '@/auth'
 import Vue from 'vue'
+import {map} from 'lodash'
 
 const getSectionsWithIncompleteStatus = sections => _.filter(sections, 'incompleteStatusCode')
 
@@ -95,7 +96,7 @@ export default {
       return domain === 'default' ? this.getDefaultCsvExportColumns() : this.getAdmitCsvExportColumns()
     },
     getCsvExportColumnsSelected(domain) {
-      return domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : this.$_.map(this.getCsvExportColumns(), 'value')
+      return domain === 'default' ? ['first_name', 'last_name', 'sid', 'email', 'phone'] : map(this.getCsvExportColumns(), 'value')
     },
     getDefaultCsvExportColumns() {
       const lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)

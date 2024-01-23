@@ -241,7 +241,7 @@
             </tr>
           </table>
         </div>
-        <div v-if="$_.isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">
+        <div v-if="_isEmpty(course.canvasSites)" :id="`term-${termId}-course-${index}-no-sites`" class="font-italic text-muted">
           No additional information
         </div>
       </div>

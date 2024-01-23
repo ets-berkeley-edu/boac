@@ -64,7 +64,7 @@
         </div>
       </div>
       <div v-if="plottable" id="scatterplot" class="matrix"></div>
-      <div v-if="!$_.isEmpty(studentsWithoutData)" id="cohort-missing-student-data" class="cohort-missing-student-data">
+      <div v-if="!_isEmpty(studentsWithoutData)" id="cohort-missing-student-data" class="cohort-missing-student-data">
         <h2 class="matrix-header">Missing Student Data</h2>
         <div>For the following students, some results may only provide partial data or information is currently unavailable:</div>
         <table class="missing-student-data-table">
@@ -640,7 +640,7 @@ export default {
       if (_.has(obj, prop)) {
         const isGPA = prop.toLowerCase().includes('gpa')
         const value = _.get(obj, prop)
-        return isGPA ? parseFloat('0' + this.$_.trim(value)).toFixed(3) : value
+        return isGPA ? parseFloat('0' + this._trim(value)).toFixed(3) : value
       }
       return 'No data'
     },

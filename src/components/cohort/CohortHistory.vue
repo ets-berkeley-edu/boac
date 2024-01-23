@@ -14,7 +14,7 @@
       <hr class="filters-section-separator " />
     </div>
     <b-table-simple
-      v-if="!loading && !$_.isEmpty(events)"
+      v-if="!loading && !_isEmpty(events)"
       id="cohort-history-table"
       class="cohort-history-table mt-3"
       :borderless="true"
@@ -76,7 +76,7 @@
         :total-rows="totalEventsCount"
       />
     </div>
-    <div v-if="!loading && $_.isEmpty(events)" id="cohort-history-no-events" class="mt-3">
+    <div v-if="!loading && _isEmpty(events)" id="cohort-history-no-events" class="mt-3">
       This cohort has no history available.
     </div>
   </div>

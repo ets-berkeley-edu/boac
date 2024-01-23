@@ -49,7 +49,7 @@ export default {
   },
   mixins: [Context, DegreeEditSession, Loading, Util],
   mounted() {
-    const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+    const id = this.toInt(this._get(this.$route, 'params.id'))
     this.init(id).then(() => {
       if (this.sid) {
         this.$router.push(`/student/degree/${id}`)

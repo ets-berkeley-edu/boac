@@ -8,8 +8,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
   name: 'StudentGpaChart',
+  mixins: [Util],
   props: {
     chartDescription: {
       required: true,
@@ -35,7 +38,7 @@ export default {
     generateGpaDataSeries() {
       const series = []
       let i = 0
-      this.$_.eachRight(this.student.termGpa, term => {
+      this._eachRight(this.student.termGpa, term => {
         series.push({
           accessibility: {
             description: `${term.gpa} GPA`

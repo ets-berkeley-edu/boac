@@ -1,7 +1,7 @@
 <template>
   <div>
     <b-container class="border-bottom border-warning my-2 mx-0 px-0" fluid>
-      <b-row v-if="!$_.includes(dismissedAlerts, templateId) && showRevisionIndicator">
+      <b-row v-if="!_includes(dismissedAlerts, templateId) && showRevisionIndicator">
         <b-col>
           <div class="align-items-start d-flex mb-3 p-3 warning-message-container">
             <div class="d-inline-block pr-2 w-100">
@@ -170,7 +170,7 @@
                   <b-btn
                     id="save-degree-note-btn"
                     class="btn-primary-color-override"
-                    :disabled="noteBody === $_.get(degreeNote, 'body') || isSaving"
+                    :disabled="noteBody === _get(degreeNote, 'body') || isSaving"
                     variant="primary"
                     @click="saveNote"
                   >
@@ -269,7 +269,7 @@ export default {
   methods: {
     cancel() {
       this.isEditingNote = false
-      this.noteBody = this.$_.get(this.degreeNote, 'body')
+      this.noteBody = this._get(this.degreeNote, 'body')
       this.$announcer.polite('Canceled')
       this.setDisableButtons(false)
       this.$putFocusNextTick('create-degree-note-btn')
@@ -282,7 +282,7 @@ export default {
     },
     getInProgressCourses() {
       const courses = []
-      this.$_.each(this.courses.inProgress, course => {
+      this._each(this.courses.inProgress, course => {
         courses.push({...course, primaryKey: `${course.termId}-${course.ccn}`})
       })
       return courses
@@ -292,7 +292,7 @@ export default {
         getCalnetProfileByUserId(this.degreeNote.updatedBy).then(data => {
           this.noteUpdatedBy = data.name || `${data.uid} (UID)`
         })
-        this.noteBody = this.$_.get(this.degreeNote, 'body')
+        this.noteBody = this._get(this.degreeNote, 'body')
       }
       this.isSaving = false
     },

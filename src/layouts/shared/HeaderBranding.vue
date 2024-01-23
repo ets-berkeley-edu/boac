@@ -11,12 +11,12 @@
       class="font-size-16 header-text text-white"
       role="banner"
     >
-      <div v-if="$_.startsWith($route.path, '/home')" class="text-nowrap">
+      <div v-if="_startsWith($route.path, '/home')" class="text-nowrap">
         <span class="font-weight-bolder">UC Berkeley</span>
         Online Advising
       </div>
       <router-link
-        v-if="!$_.startsWith($route.path, '/home')"
+        v-if="!_startsWith($route.path, '/home')"
         id="home-header"
         class="text-nowrap"
         to="/"
@@ -29,8 +29,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
-  name: 'HeaderBranding'
+  name: 'HeaderBranding',
+  mixins: [Util]
 }
 </script>
 

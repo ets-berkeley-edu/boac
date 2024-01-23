@@ -65,7 +65,7 @@ export default {
   created() {
     this.selectTermOptions = this.getSelectTermOptions()
     this.setEventHandler(`${this.sortByKey}-user-preference-change`, v => this.selectedTermId = v)
-    const selectedTermOption = this.termOptionForId(this.$_.get(this.$currentUser.preferences, 'termId'))
+    const selectedTermOption = this.termOptionForId(this._get(this.$currentUser.preferences, 'termId'))
     this.selectedTermId = selectedTermOption.value
     this.selectedTermLabel = selectedTermOption.label
     this.isReady = true
@@ -80,10 +80,10 @@ export default {
         this.previousSisTermId(currentTermId),
         this.previousSisTermId(this.previousSisTermId(currentTermId))
       ]
-      return this.$_.map(termIds, this.termOptionForId)
+      return this._map(termIds, this.termOptionForId)
     },
     onSelectTerm(value) {
-      if (value !== this.$_.get(this.$currentUser.preferences, 'termId')) {
+      if (value !== this._get(this.$currentUser.preferences, 'termId')) {
         this.selectedTermId = value
         this.selectedTermLabel = this.termNameForSisId(value)
         this.$announcer.polite(`${this.selectedTermLabel} selected`)

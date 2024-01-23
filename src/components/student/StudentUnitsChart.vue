@@ -9,8 +9,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
   name: 'StudentUnitsChart',
+  mixins: [Util],
   props: {
     cumulativeUnits: {
       required: true,
@@ -34,7 +37,7 @@ export default {
   methods: {
     getOptions() {
       const description = `${this.student.firstName} ${this.student.lastName} is currently enrolled in ${this.currentEnrolledUnits || 'zero'} units and has completed ${this.cumulativeUnits || '0'} units.`
-      const yMax = this.$_.max([120, this.currentEnrolledUnits + this.cumulativeUnits])
+      const yMax = this._max([120, this.currentEnrolledUnits + this.cumulativeUnits])
       return {
         accessibility: {
           description,

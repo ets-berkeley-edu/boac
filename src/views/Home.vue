@@ -20,12 +20,12 @@
           <SortableGroup :group="cohort" :is-cohort="true" />
         </div>
       </div>
-      <div v-if="$_.filter(curatedGroups, ['domain', 'default']).length">
+      <div v-if="_filter(curatedGroups, ['domain', 'default']).length">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
         <div
-          v-for="curatedGroup in $_.filter(curatedGroups, ['domain', 'default'])"
+          v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"
           :key="curatedGroup.id"
         >
           <SortableGroup :group="curatedGroup" :is-cohort="false" />
@@ -55,8 +55,8 @@ export default {
   }),
   mounted() {
     this.loaded('Home loaded')
-    this.cohorts = this.$_.filter(this.$currentUser.myCohorts, ['domain', 'default'])
-    this.curatedGroups = this.$_.filter(this.$currentUser.myCuratedGroups, ['domain', 'default'])
+    this.cohorts = this._filter(this.$currentUser.myCohorts, ['domain', 'default'])
+    this.curatedGroups = this._filter(this.$currentUser.myCuratedGroups, ['domain', 'default'])
     this.scrollToTop()
   }
 }

@@ -3,9 +3,9 @@
     <div class="d-flex flex-wrap h-100">
       <div class="gpa text-center py-2">
         <div id="cumulative-gpa" class="data-number">
-          <span v-if="!$_.isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
-          <span v-if="$_.isNil(cumulativeGPA)">--</span>
-          <span v-if="$_.isNil(cumulativeGPA)" class="sr-only">No data</span>
+          <span v-if="!_isNil(cumulativeGPA)">{{ round(cumulativeGPA, 3) }}</span>
+          <span v-if="_isNil(cumulativeGPA)">--</span>
+          <span v-if="_isNil(cumulativeGPA)" class="sr-only">No data</span>
         </div>
         <div class="gpa-label text-uppercase">Cumulative GPA</div>
       </div>
@@ -14,7 +14,7 @@
           <div class="align-items-end d-flex justify-content-between">
             <h4 class="font-weight-bold gpa-trends-label mb-1 text-uppercase">GPA Trends</h4>
             <b-btn
-              v-if="!$_.isEmpty(student.termGpa)"
+              v-if="!_isEmpty(student.termGpa)"
               id="show-hide-term-gpa-button"
               aria-controls="term-gpa-collapse"
               class="gpa-trends-more-button col-auto"
@@ -25,15 +25,15 @@
             </b-btn>
           </div>
           <StudentGpaChart
-            v-if="$_.get(student, 'termGpa.length') > 1"
+            v-if="_get(student, 'termGpa.length') > 1"
             :chart-description="`Chart of GPA over time. ${student.name}'s `"
             class="gpa-trends-chart"
             :student="student"
           />
-          <div v-if="$_.isEmpty(student.termGpa)" class="gpa-trends-label">
+          <div v-if="_isEmpty(student.termGpa)" class="gpa-trends-label">
             GPA Not Yet Available
           </div>
-          <div v-if="!$_.isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
+          <div v-if="!_isEmpty(student.termGpa)" id="current-term-gpa" class="current-term-gpa">
             <span class="gpa-label text-uppercase">{{ student.termGpa[0].name }} GPA:</span>
             <span
               :class="{'gpa-last-term': student.termGpa[0].gpa >= 2, 'gpa-alert': student.termGpa[0].gpa < 2}"
@@ -76,7 +76,7 @@
               </td>
             </tr>
             <tr
-              v-if="$_.isEmpty(student.termGpa)"
+              v-if="_isEmpty(student.termGpa)"
               id="student-gpa-no-terms"
             >
               <td>No previous terms</td>
@@ -108,7 +108,7 @@ export default {
     showTermGpa: false
   }),
   created() {
-    this.cumulativeGPA = this.$_.get(this.student, 'sisProfile.cumulativeGPA')
+    this.cumulativeGPA = this._get(this.student, 'sisProfile.cumulativeGPA')
   },
   methods: {
     showHideTermGpa() {

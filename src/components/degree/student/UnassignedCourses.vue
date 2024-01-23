@@ -83,7 +83,7 @@
                   class="fulfillments-icon mr-1 pl-0"
                   icon="check-circle"
                   size="sm"
-                  :title="`Counts towards ${oxfordJoin($_.map(course.unitRequirements, 'name'))}`"
+                  :title="`Counts towards ${oxfordJoin(_map(course.unitRequirements, 'name'))}`"
                 />
                 <font-awesome
                   v-if="unitsWereEdited(course)"
@@ -93,7 +93,7 @@
                   size="sm"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
-                <span class="font-size-14">{{ $_.isNil(course.units) ? '&mdash;' : course.units }}</span>
+                <span class="font-size-14">{{ _isNil(course.units) ? '&mdash;' : course.units }}</span>
                 <span v-if="unitsWereEdited(course)" class="sr-only"> (updated from {{ pluralize('unit', course.sis.units) }})</span>
               </td>
               <td class="td-grade">
@@ -232,7 +232,7 @@ export default {
   }),
   computed: {
     hasAnyNotes() {
-      return !!this.$_.find(this.courses[this.key], course => course.note)
+      return !!this._find(this.courses[this.key], course => course.note)
     },
   },
   created() {
@@ -277,16 +277,16 @@ export default {
       })
     },
     hideNote(course, srAlert=true) {
-      this.notesVisible = this.$_.remove(this.notesVisible, id => course.id !== id)
+      this.notesVisible = this._remove(this.notesVisible, id => course.id !== id)
       if (srAlert) {
         this.$announcer.polite('Note hidden')
       }
     },
     isEditing(course) {
-      return course.sectionId === this.$_.get(this.courseForEdit, 'sectionId')
+      return course.sectionId === this._get(this.courseForEdit, 'sectionId')
     },
     isNoteVisible(course) {
-      return this.$_.includes(this.notesVisible, course.id)
+      return this._includes(this.notesVisible, course.id)
     },
     onDelete(course) {
       this.setDisableButtons(true)

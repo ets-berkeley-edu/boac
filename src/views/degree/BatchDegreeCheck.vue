@@ -12,14 +12,14 @@
     <div v-if="!loading">
       <div aria-live="polite" class="font-italic font-size-14 student-count-alerts" role="alert">
         <span
-          v-if="!$_.isEmpty(sidsToInclude)"
+          v-if="!_isEmpty(sidsToInclude)"
           id="target-student-count-alert"
           :class="{'has-error': sidsToInclude.length >= 250, 'font-weight-bolder': sidsToInclude.length >= 500}"
         >
           Degree check will be added to {{ pluralize('student record', sidsToInclude.length) }}.
           <span v-if="sidsToInclude.length >= 500">Are you sure?</span>
         </span>
-        <span v-if="$_.isEmpty(sidsToInclude) && (addedCohortsEmpty || addedGroupsEmpty)">
+        <span v-if="_isEmpty(sidsToInclude) && (addedCohortsEmpty || addedGroupsEmpty)">
           <span v-if="addedCohortsEmpty && !addedGroupsEmpty" id="no-students-per-cohorts-alert">
             There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.
           </span>
@@ -54,7 +54,7 @@
           <b-btn
             id="degree-check-add-sids-btn"
             class="btn-primary-color-override"
-            :disabled="!$_.trim(textarea) || isBusy"
+            :disabled="!_trim(textarea) || isBusy"
             variant="primary"
             @click="addSids"
           >
@@ -103,7 +103,7 @@
           class="w-75"
           :disabled="isSaving"
           header="Curated Group"
-          :objects="$_.filter($currentUser.myCuratedGroups, ['domain', 'default'])"
+          :objects="_filter($currentUser.myCuratedGroups, ['domain', 'default'])"
           object-type="curated"
           :remove-object="removeCuratedGroup"
         />
@@ -116,7 +116,7 @@
         />
       </div>
       <div
-        v-if="!isRecalculating && !isValidating && !$_.isEmpty(excludedStudents)"
+        v-if="!isRecalculating && !isValidating && !_isEmpty(excludedStudents)"
         class="alert-box warning-message-container p-3 mt-2 mb-3 w-75"
         role="alert"
       >
@@ -131,7 +131,7 @@
         <b-btn
           id="batch-degree-check-save"
           class="btn-primary-color-override"
-          :disabled="isBusy || !selectedTemplate || $_.isEmpty(sidsToInclude)"
+          :disabled="isBusy || !selectedTemplate || _isEmpty(sidsToInclude)"
           variant="primary"
           @click="save"
         >
@@ -187,20 +187,20 @@ export default {
   }),
   computed: {
     addedCohortsEmpty() {
-      return this.addedCohorts.length && this.$_.every(this.addedCohorts, {'totalStudentCount': 0})
+      return this.addedCohorts.length && this._every(this.addedCohorts, {'totalStudentCount': 0})
     },
     addedGroupsEmpty() {
-      return this.addedCuratedGroups.length && this.$_.every(this.addedCuratedGroups, {'totalStudentCount': 0})
+      return this.addedCuratedGroups.length && this._every(this.addedCuratedGroups, {'totalStudentCount': 0})
     },
     addedSids() {
-      return this.$_.map(this.addedStudents, 'sid')
+      return this._map(this.addedStudents, 'sid')
     },
     isBusy() {
       return this.isSaving || this.isValidating || this.isRecalculating
     },
     sidsToInclude() {
-      const sidsToExclude = this.$_.map(this.excludedStudents, 'sid')
-      return this.$_.difference(this.distinctSids, sidsToExclude)
+      const sidsToExclude = this._map(this.excludedStudents, 'sid')
+      return this._difference(this.distinctSids, sidsToExclude)
     }
   },
   watch: {
@@ -230,15 +230,15 @@ export default {
         this.isValidating = true
         const sids = this.validateSids(this.textarea)
         if (sids) {
-          const uniqueSids = this.$_.uniq(sids)
+          const uniqueSids = this._uniq(sids)
           getStudentsBySids(uniqueSids).then(students => {
             this.addStudents(students)
-            const notFound = this.$_.difference(uniqueSids, this.$_.map(students, 'sid'))
+            const notFound = this._difference(uniqueSids, this._map(students, 'sid'))
             if (notFound.length === 1) {
               this.warning = `Student ${notFound[0]} not found.`
               this.$announcer.polite(this.warning)
             } else if (notFound.length > 1) {
-              this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this.$_.join(notFound, '</li><li>')}</li></ul>`
+              this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this._join(notFound, '</li><li>')}</li></ul>`
               this.$announcer.polite(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
             }
             this.isValidating = false
@@ -275,7 +275,7 @@ export default {
       this.$router.push('/degrees')
     },
     findStudentsWithDegreeCheck(selectedTemplate, sids) {
-      if (this.$_.get(selectedTemplate, 'id') && !this.$_.isEmpty(sids)) {
+      if (this._get(selectedTemplate, 'id') && !this._isEmpty(sids)) {
         this.isValidating = true
         getStudents(selectedTemplate.id, sids).then(students => {
           this.excludedStudents = students
@@ -286,21 +286,21 @@ export default {
       }
     },
     removeCohort(cohort) {
-      const index = this.$_.indexOf(this.addedCohorts, cohort)
+      const index = this._indexOf(this.addedCohorts, cohort)
       if (index !== -1) {
         this.addedCohorts.splice(index, 1)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
       }
     },
     removeCuratedGroup(curatedGroup) {
-      const index = this.$_.indexOf(this.addedCuratedGroups, curatedGroup)
+      const index = this._indexOf(this.addedCuratedGroups, curatedGroup)
       if (index !== -1) {
         this.addedCuratedGroups.splice(index, 1)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups)
       }
     },
     removeStudent(student) {
-      const index = this.$_.indexOf(this.addedStudents, student)
+      const index = this._indexOf(this.addedStudents, student)
       if (index !== -1) {
         this.addedStudents.splice(index, 1)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.$announcer.polite(`${student.label} removed`))
@@ -309,7 +309,7 @@ export default {
     save() {
       this.isSaving = true
       this.$announcer.polite('Saving.')
-      createBatchDegreeCheck(this.sidsToInclude, this.$_.get(this.selectedTemplate, 'id')).then(() => {
+      createBatchDegreeCheck(this.sidsToInclude, this._get(this.selectedTemplate, 'id')).then(() => {
         this.$nextTick(() => {
           this.$router.push({
             path: '/degrees',

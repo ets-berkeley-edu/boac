@@ -92,10 +92,10 @@ export default {
   },
   computed: {
     nonAdmitCohorts() {
-      return this.$_.reject(this.$currentUser.myCohorts, {'domain': 'admitted_students'})
+      return this._reject(this.$currentUser.myCohorts, {'domain': 'admitted_students'})
     },
     nonAdmitCuratedGroups() {
-      return this.$_.reject(this.$currentUser.myCuratedGroups, {'domain': 'admitted_students'})
+      return this._reject(this.$currentUser.myCuratedGroups, {'domain': 'admitted_students'})
     }
   },
   methods: {
@@ -117,7 +117,7 @@ export default {
     removeCuratedGroupFromBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
-      this.$announcer.polite(`${this.$_.capitalize(this.describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
+      this.$announcer.polite(`${this._capitalize(this.describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
     }
   }
 }

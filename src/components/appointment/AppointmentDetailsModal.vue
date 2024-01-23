@@ -50,7 +50,7 @@
           id="btn-appointment-details-update"
           class="pl-2"
           variant="primary"
-          :disabled="!topics.length || !$_.trim(details).length"
+          :disabled="!topics.length || !_trim(details).length"
           @click.stop="update"
         >
           Update
@@ -114,7 +114,7 @@ export default {
   },
   created() {
     this.details = this.appointment.details
-    this.topics = this.$_.clone(this.appointment.topics)
+    this.topics = this._clone(this.appointment.topics)
     this.showDetailsModal = this.showModal
     this.$putFocusNextTick('modal-header')
     this.$announcer.polite('Appointment details form is open')
@@ -124,7 +124,7 @@ export default {
       this.topics.push(topic)
     },
     removeTopic(topic) {
-      const index = this.$_.indexOf(this.topics, topic)
+      const index = this._indexOf(this.topics, topic)
       if (index !== -1) {
         this.topics.splice(index, 1)
       }

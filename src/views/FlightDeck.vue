@@ -105,7 +105,7 @@ export default {
   }),
   mounted() {
     this.configs = []
-    this.$_.each(this.$config, (value, key) => {
+    this._each(this.$config, (value, key) => {
       this.configs.push({key, value})
     })
     getDropInSchedulers().then(departments => {

@@ -102,7 +102,7 @@
         <div class="modal-footer pl-0 mt-2">
           <b-btn
             id="create-appointment-confirm"
-            :disabled="!student || isStudentInWaitlist || !topics.length || !$_.trim(details).length"
+            :disabled="!student || isStudentInWaitlist || !topics.length || !_trim(details).length"
             class="btn-primary-color-override"
             variant="primary"
             @click.prevent="create"
@@ -176,7 +176,7 @@ export default {
   }),
   computed: {
     isStudentInWaitlist() {
-      return this.student && !!this.$_.find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
+      return this.student && !!this._find(this.waitlistUnresolved, (s) => s.student.uid === this.student.uid)
     }
   },
   watch: {
@@ -225,7 +225,7 @@ export default {
       this.student = undefined
     },
     removeTopic(topic) {
-      const index = this.$_.indexOf(this.topics, topic)
+      const index = this._indexOf(this.topics, topic)
       if (index !== -1) {
         this.topics.splice(index, 1)
       }
@@ -238,7 +238,7 @@ export default {
       return new Promise(resolve => findStudentsByNameOrSid(query, limit).then(students => resolve(students)))
     },
     updateAvailableAdvisors() {
-      this.availableAdvisors = this.$_.filter(this.advisors, a => {
+      this.availableAdvisors = this._filter(this.advisors, a => {
         return a.available || a.uid === this.$currentUser.uid
       })
     }

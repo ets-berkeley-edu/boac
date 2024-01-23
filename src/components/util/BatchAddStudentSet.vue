@@ -24,7 +24,7 @@
         :key="object.id"
         class="truncate-with-ellipsis"
         :aria-label="`Add ${objectType} ${object.name}`"
-        :disabled="$_.includes(addedIds, object.id)"
+        :disabled="_includes(addedIds, object.id)"
         @click="add(object)"
       >
         {{ object.name }}
@@ -33,7 +33,7 @@
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-nowrap">
-          <span :id="`batch-degree-check-${objectType}-${index}`">{{ $_.truncate(addedObject.name) }}</span>
+          <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${objectType}-from-batch-${index}`"
             variant="link"
@@ -88,7 +88,7 @@ export default {
   }),
   computed: {
     addedIds() {
-      return this.$_.map(this.added, 'id')
+      return this._map(this.added, 'id')
     }
   },
   methods: {
@@ -98,7 +98,7 @@ export default {
       this.$announcer.polite(`${this.header} '${object.name}' added to batch`)
     },
     remove(object) {
-      this.added = this.$_.filter(this.added, a => a.id !== object.id)
+      this.added = this._filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
       this.$announcer.polite(`${this.header} '${object.name}' removed`)
       this.$putFocusNextTick(`batch-degree-check-${this.objectType}`, 'button')

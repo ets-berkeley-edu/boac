@@ -128,24 +128,24 @@ export default {
     },
     fullName(admit) {
       const lastName = admit.lastName ? `${admit.lastName},` : null
-      return this.$_.join(this.$_.remove([lastName, admit.firstName, admit.middleName]), ' ')
+      return this._join(this._remove([lastName, admit.firstName, admit.middleName]), ' ')
     },
     normalizeForSort(value) {
-      return this.$_.isString(value) ? value.toLowerCase() : value
+      return this._isString(value) ? value.toLowerCase() : value
     },
     onChangeSortBy() {
-      const field = this.$_.find(this.fields, ['key', this.sortBy])
+      const field = this._find(this.fields, ['key', this.sortBy])
       this.$announcer.polite(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this.normalizeForSort(this.$_.get(a, sortBy))
-      let bValue = this.normalizeForSort(this.$_.get(b, sortBy))
+      let aValue = this.normalizeForSort(this._get(a, sortBy))
+      let bValue = this.normalizeForSort(this._get(b, sortBy))
       let result = this.sortComparator(aValue, bValue)
       if (result === 0) {
-        this.$_.each(['lastName', 'firstName', 'csEmplId'], field => {
+        this._each(['lastName', 'firstName', 'csEmplId'], field => {
           result = this.sortComparator(
-            this.normalizeForSort(this.$_.get(a, field)),
-            this.normalizeForSort(this.$_.get(b, field))
+            this.normalizeForSort(this._get(a, field)),
+            this.normalizeForSort(this._get(b, field))
           )
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1

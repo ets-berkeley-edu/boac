@@ -9,16 +9,16 @@
             <div class="font-weight-500">
               SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
               <div>
-                {{ $_.get(student, 'sisProfile.level.description') || 'Level not available' }}
+                {{ _get(student, 'sisProfile.level.description') || 'Level not available' }}
               </div>
               <div>
-                <div v-if="$_.get(student, 'sisProfile.termsInAttendance')">
+                <div v-if="_get(student, 'sisProfile.termsInAttendance')">
                   {{ student.sisProfile.termsInAttendance }} Terms in Attendance
                 </div>
-                <div v-if="!$_.get(student, 'sisProfile.termsInAttendance')">
+                <div v-if="!_get(student, 'sisProfile.termsInAttendance')">
                   Terms in Attendance not available
                 </div>
-                <div>Expected graduation {{ $_.get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
+                <div>Expected graduation {{ _get(student, 'sisProfile.expectedGraduationTerm.name') || 'not available' }}</div>
               </div>
             </div>
             <div v-if="student.sisProfile.plans.length" class="pt-2">
@@ -64,7 +64,7 @@
           :class="{'pr-2': position > 1}"
         >
           <div
-            v-for="category in $_.filter(categories, c => c.position === position && $_.isNil(c.parentCategoryId))"
+            v-for="category in _filter(categories, c => c.position === position && _isNil(c.parentCategoryId))"
             :key="category.id"
           >
             <Category
@@ -82,7 +82,7 @@
                 :printable="true"
               />
             </div>
-            <div v-if="$_.size(category.subcategories)">
+            <div v-if="_size(category.subcategories)">
               <div v-for="subcategory in category.subcategories" :key="subcategory.id" class="pt-2">
                 <Category
                   v-if="subcategory.id"
@@ -138,7 +138,7 @@ export default {
     student: undefined
   }),
   created() {
-    const id = this.toInt(this.$_.get(this.$route, 'params.id'))
+    const id = this.toInt(this._get(this.$route, 'params.id'))
     this.includeNote = this.toBoolean(this.$route.query.includeNote)
     this.init(id).then(() => {
       if (this.sid) {

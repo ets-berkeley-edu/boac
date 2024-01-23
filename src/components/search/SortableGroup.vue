@@ -62,8 +62,8 @@
       :aria-expanded="openAndLoaded"
       class="mr-3"
     >
-      <div v-if="$_.size(studentsWithAlerts)">
-        <div v-if="!compact && $_.size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
+      <div v-if="_size(studentsWithAlerts)">
+        <div v-if="!compact && _size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
           Showing 50 students with a high number of alerts.
           <router-link
             :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
@@ -90,7 +90,7 @@
             in {{ groupTypeName }} "{{ group.name }}"
           </span>
           <div v-if="!group.totalStudentCount" class="pt-3">
-            {{ $_.capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
+            {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
           </div>
         </router-link>
       </div>
@@ -155,7 +155,7 @@ export default {
   methods: {
     fetchStudents() {
       this.isOpen = !this.isOpen
-      if (this.$_.isNil(this.studentsWithAlerts)) {
+      if (this._isNil(this.studentsWithAlerts)) {
         this.isFetching = true
         const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
         apiCall(this.group.id).then(students => {

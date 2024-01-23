@@ -5,8 +5,11 @@
 </template>
 
 <script>
+import Util from '@/mixins/Util'
+
 export default {
   name: 'StudentBoxplot',
+  mixins: [Util],
   props: {
     chartDescription: {
       required: true,
@@ -26,7 +29,7 @@ export default {
     options: undefined
   }),
   mounted() {
-    this.courseDeciles = this.$_.get(this.dataset, 'courseDeciles')
+    this.courseDeciles = this._get(this.dataset, 'courseDeciles')
     this.options = this.getOptions()
   },
   methods: {
@@ -120,7 +123,7 @@ export default {
           headerFormat: `
             <div class="align-items-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-content-between px-3 py-2">
               <div>User Score</div>
-              <div class="ml-3 pl-5">${this.$_.get(this.dataset.student, 'raw') || '&mdash;'}</div>
+              <div class="ml-3 pl-5">${this._get(this.dataset.student, 'raw') || '&mdash;'}</div>
             </div>
           `,
           hideDelay: 0,

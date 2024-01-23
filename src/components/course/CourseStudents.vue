@@ -294,9 +294,9 @@ export default {
   },
   methods: {
     degreePlanOwners(student) {
-      const plans = this.$_.get(student, 'degree.plans')
+      const plans = this._get(student, 'degree.plans')
       if (plans) {
-        return this.$_.uniq(this.$_.map(plans, 'group'))
+        return this._uniq(this._map(plans, 'group'))
       } else {
         return []
       }

@@ -32,7 +32,7 @@
         Course name cannot exceed 255 characters.
       </div>
     </div>
-    <div v-if="course.categoryId || $_.size(selectedUnitRequirements)">
+    <div v-if="course.categoryId || _size(selectedUnitRequirements)">
       <label :for="`column-${position}-unit-requirement-select`" class="font-weight-500">
         Counts Towards Unit Fulfillment
       </label>
@@ -162,10 +162,10 @@ export default {
   }),
   computed: {
     disableSaveButton() {
-      return !!(this.isSaving || this.unitsErrorMessage || (this.course.manuallyCreatedBy && !this.$_.trim(this.name)))
+      return !!(this.isSaving || this.unitsErrorMessage || (this.course.manuallyCreatedBy && !this._trim(this.name)))
     },
     unitsErrorMessage() {
-      const isEmpty = this.$_.isEmpty(this.$_.trim(this.units))
+      const isEmpty = this._isEmpty(this._trim(this.units))
       if (isEmpty && this.course.manuallyCreatedBy) {
         return null
       }
@@ -178,7 +178,7 @@ export default {
     this.name = this.course.name
     this.note = this.course.note
     this.units = this.course.units
-    this.selectedUnitRequirements = this.$_.clone(this.course.unitRequirements)
+    this.selectedUnitRequirements = this._clone(this.course.unitRequirements)
     this.$putFocusNextTick(this.course.manuallyCreatedBy ? 'course-name-input' : 'course-units-input')
   },
   methods: {
@@ -201,7 +201,7 @@ export default {
           grade: this.grade,
           name: this.name,
           note: this.note,
-          unitRequirementIds: this.$_.map(this.selectedUnitRequirements, 'id'),
+          unitRequirementIds: this._map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(data => {
           this.$announcer.polite('Course updated')

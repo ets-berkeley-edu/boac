@@ -101,7 +101,7 @@
           />
         </div>
       </div>
-      <div v-if="!$_.includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="pb-1">
+      <div v-if="!_includes(['Category', 'Campus Requirements'], selectedCategoryType)" class="pb-1">
         <div class="font-weight-500 pb-1">
           Requirement Location (required)
         </div>
@@ -200,21 +200,21 @@ export default {
       return this.isSaving
         || !this.selectedCategoryType
         || (!this.isCampusRequirements(this.existingCategory) && !this.name.trim())
-        || (!this.$_.includes(['Category', 'Campus Requirements'], this.selectedCategoryType) && !this.selectedParentCategory)
+        || (!this._includes(['Category', 'Campus Requirements'], this.selectedCategoryType) && !this.selectedParentCategory)
         || !!this.unitsErrorMessage
     },
     hasCampusRequirements() {
-      return this.$_.some(this.findCategoriesByTypes(['Category']), this.isCampusRequirements)
+      return this._some(this.findCategoriesByTypes(['Category']), this.isCampusRequirements)
     },
     unitsErrorMessage() {
       const validate = this.selectedCategoryType === 'Course Requirement' && (!!this.unitsLower || !!this.unitsUpper)
       return validate ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
     },
     withTypeCategory() {
-      return this.$_.reject(this.findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
+      return this._reject(this.findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
     },
     withTypeCategoryOrSubcategory() {
-      return this.$_.reject(this.findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
+      return this._reject(this.findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
     }
   },
   data: () => ({
@@ -235,7 +235,7 @@ export default {
       this.name = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
       this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
-      this.selectedUnitRequirements = this.$_.clone(this.existingCategory.unitRequirements)
+      this.selectedUnitRequirements = this._clone(this.existingCategory.unitRequirements)
       this.unitsLower = this.existingCategory.unitsLower
       this.unitsUpper = this.existingCategory.unitsUpper
       this.$putFocusNextTick(`column-${this.position}-name-input`)
@@ -252,7 +252,7 @@ export default {
     },
     disableCategoryOption(option) {
       return (option === 'Campus Requirements' && this.hasCampusRequirements)
-        || (!this.withTypeCategory.length && !this.$_.includes(['Category', 'Campus Requirements'], option))
+        || (!this.withTypeCategory.length && !this._includes(['Category', 'Campus Requirements'], option))
     },
     disableLocationOption(option) {
       const optionType = option.categoryType
@@ -263,7 +263,7 @@ export default {
     },
     isCampusRequirements(category) {
       return this.selectedCategoryType === 'Campus Requirements'
-        || (category && !this.$_.isEmpty(category.courseRequirements) && this.$_.every(category.courseRequirements, this.isCampusRequirement))
+        || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, this.isCampusRequirement))
     },
     onChangeCategorySelect(option) {
       this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
@@ -282,23 +282,23 @@ export default {
     onChangeParentCategory(option) {
       this.$announcer.polite(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
       const existingUnitRequirements = this.selectedUnitRequirements
-      const parentUnitRequirements = this.$_.get(this.selectedParentCategory, 'unitRequirements')
+      const parentUnitRequirements = this._get(this.selectedParentCategory, 'unitRequirements')
 
       if (option) {
-        const inheritedUnitRequirements = this.$_.differenceBy(parentUnitRequirements, existingUnitRequirements, 'id')
-        this.$_.each(inheritedUnitRequirements, unitRequirement => {
+        const inheritedUnitRequirements = this._differenceBy(parentUnitRequirements, existingUnitRequirements, 'id')
+        this._each(inheritedUnitRequirements, unitRequirement => {
           this.$refs[`column-${option.position}-unit-requirement-select`].onChangeUnitRequirement(unitRequirement)
         })
         this.$putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       } else {
-        this.$_.each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
+        this._each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
       }
     },
     onSubmit() {
       if (!this.disableSaveButton) {
         this.isSaving = true
         const parentCategoryId = this.selectedParentCategory && this.selectedParentCategory.id
-        const unitRequirementIds = this.$_.map(this.selectedUnitRequirements, 'id')
+        const unitRequirementIds = this._map(this.selectedUnitRequirements, 'id')
         const done = () => {
           this.$announcer.polite(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
           this.afterSave()

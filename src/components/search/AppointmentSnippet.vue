@@ -59,7 +59,7 @@ export default {
     createdAt: undefined
   }),
   created() {
-    const timestamp = this.$_.get(this.appointment, 'createdAt')
+    const timestamp = this._get(this.appointment, 'createdAt')
     if (timestamp) {
       this.createdAt = this.$moment(timestamp).tz(this.$config.timezone)
     }

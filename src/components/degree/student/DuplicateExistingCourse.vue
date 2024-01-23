@@ -93,7 +93,7 @@ export default {
   computed: {
     options() {
       const courses = this.courses.assigned.concat(this.courses.unassigned)
-      return this.$_.filter(this.$_.sortBy(courses, [c => c.name.toLowerCase()], ['name', 'id']), c => !c.isCopy)
+      return this._filter(this._sortBy(courses, [c => c.name.toLowerCase()], ['name', 'id']), c => !c.isCopy)
     }
   },
   methods: {

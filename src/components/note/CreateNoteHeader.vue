@@ -34,7 +34,7 @@
         @show="onShowTemplatesMenu"
         @hide="$announcer.polite('Templates menu closed.')"
       >
-        <b-dropdown-header v-if="!$_.size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
+        <b-dropdown-header v-if="!_size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
           <div class="templates-dropdown-instructions">
             You have no saved templates.
@@ -107,7 +107,7 @@
       v-if="showDeleteTemplateModal"
       :function-cancel="cancel"
       :function-confirm="deleteTemplateConfirmed"
-      :modal-body="`Are you sure you want to delete the <b>'${$_.get(targetTemplate, 'title')}'</b> template?`"
+      :modal-body="`Are you sure you want to delete the <b>'${_get(targetTemplate, 'title')}'</b> template?`"
       :show-modal="showDeleteTemplateModal"
       button-label-confirm="Delete"
       modal-header="Delete Template"
@@ -207,7 +207,7 @@ export default {
       this.$announcer.polite(`Template ${template.title} loaded.`)
     },
     onShowTemplatesMenu() {
-      let count = this.$_.size(this.noteTemplates)
+      let count = this._size(this.noteTemplates)
       const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
       this.$announcer.polite(`Template menu open. You have ${suffix}.`)
     },

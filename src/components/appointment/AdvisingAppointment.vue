@@ -32,7 +32,7 @@
         </span>
       </div>
       <div class="d-flex align-items-center mt-1 mb-3">
-        <div v-if="isUserDropInAdvisor(appointment.deptCode) && $_.includes(['waiting', 'reserved'], appointment.status)">
+        <div v-if="isUserDropInAdvisor(appointment.deptCode) && _includes(['waiting', 'reserved'], appointment.status)">
           <DropInAppointmentDropdown
             :appointment="appointment"
             :dept-code="appointment.deptCode"
@@ -92,7 +92,7 @@
           (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>
-      <div v-if="$_.size(advisor.departments)" class="text-secondary">
+      <div v-if="_size(advisor.departments)" class="text-secondary">
         <span v-for="(dept, index) in advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>
@@ -100,8 +100,8 @@
       <div v-if="appointment.appointmentType" :id="`appointment-${appointment.id}-type`" class="mt-3">
         {{ appointment.appointmentType }}
       </div>
-      <div v-if="appointment.topics && $_.size(appointment.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ $_.size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
+      <div v-if="appointment.topics && _size(appointment.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ _size(appointment.topics) === 1 ? 'Topic' : 'Topics' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in appointment.topics"
@@ -193,14 +193,14 @@ export default {
       }
     },
     isUserDropInAdvisor(deptCode) {
-      const deptCodes = this.$_.map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
-      return this.$_.includes(deptCodes, this.$_.upperCase(deptCode))
+      const deptCodes = this._map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
+      return this._includes(deptCodes, this._upperCase(deptCode))
     },
     setAdvisor() {
-      this.advisor = this.$_.get(this.appointment, 'advisor')
-      const requiresLazyLoad = this.isOpen && (!this.$_.get(this.advisor, 'name') || !this.$_.get(this.advisor, 'title'))
+      this.advisor = this._get(this.appointment, 'advisor')
+      const requiresLazyLoad = this.isOpen && (!this._get(this.advisor, 'name') || !this._get(this.advisor, 'title'))
       if (requiresLazyLoad) {
-        if (this.$_.get(this.advisor, 'uid')) {
+        if (this._get(this.advisor, 'uid')) {
           if (this.advisor.uid === this.$currentUser.uid) {
             this.advisor = this.$currentUser
           } else {
@@ -208,12 +208,12 @@ export default {
               this.advisor = data
             })
           }
-        } else if (this.$_.get(this.advisor, 'sid')) {
+        } else if (this._get(this.advisor, 'sid')) {
           getCalnetProfileByCsid(this.advisor.sid).then(data => {
             this.advisor = data
           })
         } else {
-          this.advisor = this.$_.get(this.appointment, 'advisor')
+          this.advisor = this._get(this.appointment, 'advisor')
         }
       }
     },

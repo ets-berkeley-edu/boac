@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="$_.get(standing, 'status') && standing.status !== 'GST'"
+    v-if="_get(standing, 'status') && standing.status !== 'GST'"
     class="student-academic-standing"
   >
     <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`" class="red-flag-status">

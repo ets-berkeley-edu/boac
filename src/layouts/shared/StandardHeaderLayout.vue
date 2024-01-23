@@ -142,7 +142,7 @@ export default {
     },
     onChangeAutocomplete(input) {
       this.queryText = input
-      const q = this.$_.trim(input && input.toLowerCase())
+      const q = this._trim(input && input.toLowerCase())
       return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     },
     onFocusInSearch() {
@@ -161,7 +161,7 @@ export default {
       this.$announcer.polite('Advanced search is open')
     },
     search() {
-      const q = this.$_.trim(this.queryText)
+      const q = this._trim(this.queryText)
       if (q) {
         this.$router.push(
           {
@@ -174,7 +174,7 @@ export default {
               q
             }
           },
-          this.$_.noop
+          this._noop
         )
         this.updateSearchHistory(q)
       } else {

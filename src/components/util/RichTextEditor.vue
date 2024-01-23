@@ -94,7 +94,7 @@ export default {
         const ckEditorTool = 'ck ck-reset_all ck-body ck-rounded-corners'
         const elements = document.getElementsByClassName(ckEditorTool)
         if (elements.length > 0) {
-          this.$_.each(elements, element => {
+          this._each(elements, element => {
             document.getElementById(this.ckElementId).appendChild(element)
           })
           clearInterval(this.domFixer)
@@ -111,7 +111,7 @@ export default {
       this.domFixer = setInterval(this.correctTheDOM, 500)
     },
     onUpdate(event) {
-      this.onValueUpdate(this.$_.isString(event) ? event : event.target.value)
+      this.onValueUpdate(this._isString(event) ? event : event.target.value)
     }
   }
 }

@@ -43,7 +43,7 @@
           <div class="align-items-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
-                {{ $_.trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
+                {{ _trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
               </div>
               <b-btn
                 v-if="row.item.author.uid === $currentUser.uid"
@@ -53,10 +53,10 @@
                 variant="link"
                 @click="() => openEditModal(row.item)"
               >
-                {{ $_.trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
+                {{ _trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
               </b-btn>
             </div>
-            <div v-if="$_.size(row.item.attachments)">
+            <div v-if="_size(row.item.attachments)">
               <span class="sr-only">Has attachment(s)</span>
               <font-awesome icon="paperclip" />
             </div>
@@ -183,12 +183,12 @@ export default {
       this.reloadDraftNotes()
     })
     this.setEventHandler('note-deleted', noteId => {
-      if (this.$_.find(this.myDraftNotes, ['id', noteId])) {
+      if (this._find(this.myDraftNotes, ['id', noteId])) {
         this.reloadDraftNotes()
       }
     })
     this.setEventHandler('note-updated', note => {
-      if (this.$_.find(this.myDraftNotes, ['id', note.id])) {
+      if (this._find(this.myDraftNotes, ['id', note.id])) {
         this.reloadDraftNotes()
       }
     })
@@ -227,7 +227,7 @@ export default {
   },
   methods: {
     afterEditDraft(data) {
-      const existing = this.$_.find(this.myDraftNotes, ['id', data.id])
+      const existing = this._find(this.myDraftNotes, ['id', data.id])
       if (existing) {
         Object.assign(existing, data)
         this.reloadDraftNotes().then(() => {

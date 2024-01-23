@@ -4,7 +4,7 @@
       <div v-if="mode !== 'rename'">
         <h1 id="curated-group-name" class="page-section-header mb-0 mt-0">
           {{ curatedGroupName || domainLabel(true) }}
-          <span v-if="!$_.isNil(totalStudentCount)" class="faint-text">
+          <span v-if="!_isNil(totalStudentCount)" class="faint-text">
             ({{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount, {1: '1'}) }})
           </span>
         </h1>
@@ -27,10 +27,10 @@
           </form>
         </div>
         <div v-if="renameError" class="has-error mb-2">{{ renameError }}</div>
-        <div class="faint-text m-2">255 character limit <span v-if="$_.size(renameInput)">({{ 255 - $_.size(renameInput) }} left)</span></div>
+        <div class="faint-text m-2">255 character limit <span v-if="_size(renameInput)">({{ 255 - _size(renameInput) }} left)</span></div>
         <div class="sr-only" aria-live="polite">{{ renameError }}</div>
         <div
-          v-if="$_.size(renameInput) === 255"
+          v-if="_size(renameInput) === 255"
           class="sr-only"
           aria-live="polite"
         >
@@ -40,7 +40,7 @@
       <div v-if="mode === 'rename'" class="d-flex align-self-baseline mr-2">
         <b-btn
           id="rename-confirm"
-          :disabled="!$_.size(renameInput)"
+          :disabled="!_size(renameInput)"
           class="btn-primary-color-override rename-btn"
           size="sm"
           variant="primary"
@@ -267,11 +267,11 @@ export default {
   },
   mounted() {
     if (this.referencingCohortIds.length) {
-      this.$_.each(this.referencingCohortIds, cohortId => {
-        const cohort = this.$_.find(this.$currentUser.myCohorts, ['id', cohortId])
+      this._each(this.referencingCohortIds, cohortId => {
+        const cohort = this._find(this.$currentUser.myCohorts, ['id', cohortId])
         this.referencingCohorts.push(cohort)
       })
-      this.referencingCohorts = this.$_.sortBy(this.referencingCohorts, ['name'])
+      this.referencingCohorts = this._sortBy(this.referencingCohorts, ['name'])
     }
     this.$putFocusNextTick('curated-group-name')
   },
@@ -305,7 +305,7 @@ export default {
       deleteCuratedGroup(this.domain, this.curatedGroupId).then(
         () => {
           this.isDeleteModalOpen = false
-          this.$router.push({path: '/'}, this.$_.noop)
+          this.$router.push({path: '/'}, this._noop)
         })
         .catch(error => {
           this.error = error
