@@ -1,10 +1,12 @@
 import _ from 'lodash'
 import mitt from 'mitt'
+import store from '@/store'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
 
 const state = {
   announcement: undefined,
+  config: undefined,
   currentUser: undefined,
   dismissedFooterAlert: false,
   dismissedServiceAnnouncement: false,
@@ -15,6 +17,7 @@ const state = {
 
 const getters = {
   announcement: (state: any): string => state.announcement,
+  config: (state: any): any => state.config,
   currentUser: (state: any): any => state.currentUser,
   dismissedFooterAlert: (): boolean => state.dismissedFooterAlert,
   dismissedServiceAnnouncement: (): boolean => state.dismissedServiceAnnouncement,
@@ -31,7 +34,7 @@ const mutations = {
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
   loadingComplete: (state: any, focusTarget?: string) => {
-    if (!Vue.prototype.$config.isProduction) {
+    if (!store.getters['context/config'].isProduction) {
       console.log(`Page loaded in ${(new Date().getTime() - state.loadingStartTime) / 1000} seconds`)
     }
     state.loading = false
@@ -68,7 +71,8 @@ const mutations = {
   setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
   removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
-  setAnnouncement: (state: any, data: any) => (state.announcement = data),
+  setAnnouncement: (state: any, data: any) => state.announcement = data,
+  setConfig: (state: any, data: any) => state.config = data,
   setDemoMode: (state: any, inDemoMode: any): void => state.currentUser.inDemoMode = inDemoMode,
   setMyDraftNoteCount: (state: any, count: number) => state.currentUser.myDraftNoteCount = count,
   updateCurrentUserPreference: (state: any, {key, value}: any) => state.currentUser.preferences[key] = value,

@@ -34,7 +34,7 @@ export default {
       if (!this.date) {
         return null
       }
-      return this.$moment(this.date).tz(this.$config.timezone)
+      return this.$moment(this.date).tz(this.config.timezone)
     }
   }
 }

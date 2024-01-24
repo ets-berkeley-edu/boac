@@ -7,6 +7,7 @@ export default {
   computed: {
     ...mapGetters('context', [
       'announcement',
+      'config',
       'currentUser',
       'dismissedFooterAlert',
       'dismissedServiceAnnouncement'

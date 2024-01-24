@@ -13,7 +13,7 @@
         >
           <b-select-option :id="`column-${position}-select-option-null`" :value="null">Choose...</b-select-option>
           <b-select-option
-            v-for="option in $config.degreeCategoryTypeOptions"
+            v-for="option in config.degreeCategoryTypeOptions"
             :id="`column-${position}-select-option-${option}`"
             :key="option"
             :disabled="disableCategoryOption(option)"
@@ -167,6 +167,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -174,7 +175,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCategory',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   components: {UnitsInput, SelectUnitFulfillment},
   props: {
     afterCancel: {

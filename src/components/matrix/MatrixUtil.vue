@@ -9,7 +9,7 @@ export default {
     exceedsMatrixThreshold(studentCount) {
       return (
         parseInt(studentCount, 10) >
-        parseInt(this.$config.disableMatrixViewThreshold, 10)
+        parseInt(this.config.disableMatrixViewThreshold, 10)
       )
     },
     getPlottableProperty(obj, prop) {

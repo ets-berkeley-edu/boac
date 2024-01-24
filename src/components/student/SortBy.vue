@@ -94,7 +94,7 @@ export default {
           ]
         })
       } else {
-        const previousTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)
+        const previousTermId = this.previousSisTermId(this.config.currentEnrollmentTermId)
         const previousPreviousTermId = this.previousSisTermId(previousTermId)
         optionGroups.push({
           label: 'Profile',

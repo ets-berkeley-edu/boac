@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import store from '@/store'
 import Vue from 'vue'
 import {
   addUnitRequirement,
@@ -31,7 +32,7 @@ const $_allowCourseDrop = (category, course, context) => {
   }
 }
 
-const $_debug = message => Vue.prototype.$config.isVueAppDebugMode && console.log(message)
+const $_debug = message => store.getters['context/config'].isVueAppDebugMode && console.log(message)
 
 const $_dropToAssign = (categoryId, commit, course, ignore, state) => {
   commit('setDisableButtons', true)

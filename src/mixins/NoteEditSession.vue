@@ -84,7 +84,7 @@ export default {
       }
     },
     scheduleAutoSaveJob() {
-      const jobId = setTimeout(this.autoSaveDraftNote, this.$config.notesDraftAutoSaveInterval)
+      const jobId = setTimeout(this.autoSaveDraftNote, store.getters['context/config'].notesDraftAutoSaveInterval)
       this.setAutoSaveJob(jobId)
     },
     setSubjectPerEvent(event) {

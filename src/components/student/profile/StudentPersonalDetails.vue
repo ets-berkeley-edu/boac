@@ -227,7 +227,7 @@ export default {
         })
       }
       const mostRecent = this._find(this.student.enrollmentTerms, e => hasCompletedSection(e))
-      return mostRecent && (this.$config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
+      return mostRecent && (this.config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
     }
   }
 }

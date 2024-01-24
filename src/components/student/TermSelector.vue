@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     getSelectTermOptions() {
-      const currentTermId = `${this.$config.currentEnrollmentTermId}`
+      const currentTermId = `${this.config.currentEnrollmentTermId}`
       const termIds = [
         this.nextSisTermId(this.nextSisTermId(currentTermId)),
         this.nextSisTermId(currentTermId),
@@ -94,7 +94,7 @@ export default {
     },
     termOptionForId(termId) {
       let label = this.termNameForSisId(termId)
-      if (termId === `${this.$config.currentEnrollmentTermId}`) {
+      if (termId === `${this.config.currentEnrollmentTermId}`) {
         label += ' (current)'
       }
       return {

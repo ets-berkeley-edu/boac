@@ -41,7 +41,7 @@
       <div v-if="category.categoryType !== 'Category'" class="pl-1">
         <span class="font-weight-500 has-error">Warning:</span> <span class="font-weight-500">"{{ category.name }}"</span>
         is a <span class="font-weight-500">{{ category.categoryType }}</span>, which is not allowed as a top-level
-        category. Email <a :href="`mailto:${$config.supportEmailAddress}`" target="_blank">{{ $config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
+        category. Email <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">{{ config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
         to report the problem.
       </div>
       <EditCategory

@@ -53,7 +53,7 @@ export default {
   created() {
     const timestamp = this._get(this.note, 'updatedAt') || this._get(this.note, 'createdAt')
     if (timestamp) {
-      this.lastModified = this.$moment(timestamp).tz(this.$config.timezone)
+      this.lastModified = this.$moment(timestamp).tz(this.config.timezone)
     }
   }
 }
