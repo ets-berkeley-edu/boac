@@ -291,6 +291,7 @@
 
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
+import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import Scrollable from '@/mixins/Scrollable'
@@ -301,7 +302,7 @@ import {getAdmitBySid} from '@/api/admit'
 export default {
   name: 'AdmitStudent',
   components: {AdmitDataWarning, ManageStudent, Spinner},
-  mixins: [Loading, Scrollable, Util],
+  mixins: [Context, Loading, Scrollable, Util],
   data: () => ({
     admit: {}
   }),

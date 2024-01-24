@@ -4,10 +4,10 @@ import numeral from 'numeral'
 import {oxfordJoin} from '@/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
-  extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber, isString,
-  isUndefined, join, keys, map, mapValues, max, merge, noop, omit, orderBy, partition, reject, remove, set, size, slice,
-  some, sortBy, split, startsWith, sumBy, toString, trim, truncate, union, uniq, unset, upperCase, upperFirst, values,
-  without, xor, xorBy
+  extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
+  isString, isUndefined, join, keys, map, mapValues, max, merge, noop, omit, orderBy, partition, reject, remove,
+  reverse, set, size, slice, some, sortBy, split, startsWith, sumBy, toString, trim, truncate, union, uniq, unset,
+  upperCase, upperFirst, values, without, xor, xorBy
 } from 'lodash'
 
 const decodeHtml = (snippet) => {
@@ -70,6 +70,7 @@ export default {
     _partition: partition,
     _reject: reject,
     _remove: remove,
+    _reverse: reverse,
     _set: set,
     _size: size,
     _slice: slice,

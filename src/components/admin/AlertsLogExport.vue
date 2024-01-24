@@ -87,8 +87,8 @@ export default {
     onSubmit() {
       this.isDownloading = true
       downloadAlertsCSV(
-        this.$options.filters.moment(this.fromDate, this.dateInputFormat),
-        this.$options.filters.moment(this.toDate, this.dateInputFormat)
+        this.$moment(this.fromDate).format(this.dateInputFormat),
+        this.$moment(this.toDate).format(this.dateInputFormat)
       ).then(() => {
         this.$announcer.polite('Alerts CSV file downloaded')
         this.isDownloading = false
