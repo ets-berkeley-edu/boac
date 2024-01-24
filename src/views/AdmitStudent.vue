@@ -327,7 +327,7 @@ export default {
     getAdmitBySid(sid).then(admit => {
       if (admit) {
         this._assign(this.admit, admit)
-        let pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
+        const pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
         this.loaded(`${pageTitle} has loaded`)
       } else {

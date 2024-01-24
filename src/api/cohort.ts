@@ -1,24 +1,23 @@
 import axios from 'axios'
 import moment from 'moment-timezone'
+import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 
 const $_track = (action, label?) => Vue.prototype.$ga.cohort(action, label)
 
 const $_onCreate = cohort => {
-  Vue.prototype.$currentUser.myCohorts.push(cohort)
+  store.commit('context/addMyCohort', cohort)
   $_track('create')
 }
 
 const $_onDelete = cohortId => {
-  const indexOf = Vue.prototype.$currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
-  Vue.prototype.$currentUser.myCohorts.splice(indexOf, 1)
+  store.commit('context/removeMyCohort', cohortId)
   $_track('delete')
 }
 
 const $_onUpdate = updatedCohort => {
-  const cohort = Vue.prototype.$currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)
-  Object.assign(cohort, updatedCohort)
+  store.commit('context/updateMyCohort', updatedCohort)
   $_track('update')
 }
 
@@ -54,7 +53,7 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = Vue.prototype.$currentUser.preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
 
   $_track('download', filename)
   return axios
@@ -70,7 +69,7 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = Vue.prototype.$currentUser.preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
   $_track('download', filename)
 
   return axios.post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {

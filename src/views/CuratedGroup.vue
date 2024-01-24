@@ -88,16 +88,17 @@ import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
+import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import Scrollable from '@/mixins/Scrollable'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
-import TermSelector from '@/components/student/TermSelector'
+import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
+import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
 
 export default {
@@ -172,7 +173,7 @@ export default {
       this.setMode(undefined)
       if (this._size(sids)) {
         this.$announcer.polite(`Adding ${sids.length} students`)
-        this.$currentUser.preferences.sortBy = 'last_name'
+        store.commit('context/updateCurrentUserPreference', {key: 'sortBy', value: 'last_name'})
         this.loadingStart()
         this.addStudents(sids).then(() => {
           this.loaded(this.getLoadedAlert())

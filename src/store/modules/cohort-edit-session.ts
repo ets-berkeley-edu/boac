@@ -11,7 +11,6 @@ import {
 } from '@/api/cohort'
 import router from '@/router'
 import store from '@/store'
-import Vue from 'vue'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
@@ -156,8 +155,8 @@ const actions = {
       commit('setModifiedSinceLastSearch', undefined)
 
       const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      Vue.prototype.$currentUser.preferences[key] = orderBy
-      Vue.prototype.$currentUser.preferences.termId = termId
+      store.getters['context/currentUser'].preferences[key] = orderBy
+      store.getters['context/currentUser'].preferences.termId = termId
 
       if (id) {
         store.dispatch('cohortEditSession/loadCohort', {
@@ -187,7 +186,7 @@ const actions = {
     })
   },
   onPageNumberChange: ({commit, state}) => {
-    const preferences = Vue.prototype.$currentUser.preferences
+    const preferences = store.getters['context/currentUser'].preferences
     return $_applyFilters(
       {commit, state},
       _.get(preferences, state.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),

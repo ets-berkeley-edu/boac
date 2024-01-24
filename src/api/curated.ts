@@ -8,24 +8,19 @@ import Vue from 'vue'
 const $_track = action => Vue.prototype.$ga.curated(action)
 
 const $_onCreate = group => {
-  Vue.prototype.$currentUser.myCuratedGroups.push(group)
-  Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(Vue.prototype.$currentUser.myCuratedGroups, 'name')
+  store.commit('context/addMyCuratedGroup', group)
   store.commit('context/broadcast', 'my-curated-groups-updated', group.domain)
   $_track('create')
 }
 
 const $_onDelete = (domain, groupId) => {
-  const indexOf = Vue.prototype.$currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === groupId)
-  Vue.prototype.$currentUser.myCuratedGroups.splice(indexOf, 1)
+  store.commit('context/removeMyCuratedGroup', groupId)
   store.commit('context/broadcast', {eventType: 'my-curated-groups-updated', data: domain})
   $_track('delete')
 }
 
 const $_onUpdate = updatedGroup => {
-  const groups = Vue.prototype.$currentUser.myCuratedGroups
-  const group = groups.find(group => group.id === +updatedGroup.id)
-  Object.assign(group, updatedGroup)
-  Vue.prototype.$currentUser.myCuratedGroups = _.sortBy(groups, 'name')
+  store.commit('context/updateMyCuratedGroup', updatedGroup)
   store.commit('context/broadcast', {eventType: 'my-curated-groups-updated', data: updatedGroup.domain})
   $_track('update')
 }
@@ -72,7 +67,7 @@ export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSele
   $_track('download')
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
-  const termId = Vue.prototype.$currentUser.preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
   const url = `${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`
   return axios.post(url, {csvColumnsSelected, termId})
     .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null)

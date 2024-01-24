@@ -1,9 +1,12 @@
+import _ from 'lodash'
 import mitt from 'mitt'
+import store from '@/store'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
 
 const state = {
   announcement: undefined,
+  currentUser: undefined,
   dismissedFooterAlert: false,
   dismissedServiceAnnouncement: false,
   eventHub: mitt(),
@@ -13,12 +16,18 @@ const state = {
 
 const getters = {
   announcement: (state: any): string => state.announcement,
+  currentUser: (state: any): any => state.currentUser,
   dismissedFooterAlert: (): boolean => state.dismissedFooterAlert,
   dismissedServiceAnnouncement: (): boolean => state.dismissedServiceAnnouncement,
   loading: (state: any): boolean => state.loading
 }
 
 const mutations = {
+  addMyCohort: (state: any, cohort: any) => state.currentUser.myCohorts.push(cohort),
+  addMyCuratedGroup: (state: any, curatedGroup: any) => {
+    state.currentUser.push(curatedGroup)
+    state.currentUser.myCuratedGroups = _.sortBy(state.currentUser.myCuratedGroups, 'name')
+  },
   broadcast: (state: any, {eventType, data}: any) => state.eventHub.emit(eventType, data),
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
@@ -48,12 +57,44 @@ const mutations = {
     state.loading = true
     state.loadingStartTime = new Date().getTime()
   },
-  setEventHandler: (state: any, {type, handler}: any) => {
-    state.eventHub.on(type, handler)
+  removeDropInStatus: (state: any, deptCode: any) => _.remove(state.currentUser.dropInAdvisorStatus, {'deptCode': deptCode}),
+  removeMyCohort: (state: any, cohortId: number) => {
+    const indexOf = state.currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
+    state.currentUser.myCohorts.splice(indexOf, 1)
   },
+  removeMyCuratedGroup: (state: any, curatedGroupId: number) => {
+    const indexOf = state.currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === curatedGroupId)
+    state.currentUser.myCuratedGroups.splice(indexOf, 1)
+  },
+  setCurrentUser: (state: any, currentUser: any) => {
+    // TODO: Stop using Vue.prototype
+    Vue.prototype.$currentUser = currentUser
+    state.currentUser = currentUser
+  },
+  setDropInStatus: (state: any, {available, deptCode, status}: any): void => {
+    const dropInAdvisorStatus = _.find(state.currentUser.dropInAdvisorStatus, {'deptCode': deptCode.toUpperCase()})
+    if (dropInAdvisorStatus) {
+      dropInAdvisorStatus.available = available
+      dropInAdvisorStatus.status = status
+      store.commit('context/broadcast', {eventType: 'drop-in-status-change', data: dropInAdvisorStatus})
+    }
+  },
+  setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
   removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
   setAnnouncement: (state: any, data: any) => (state.announcement = data),
+  setDemoMode: (state: any, inDemoMode: any): void => state.currentUser.inDemoMode = inDemoMode,
+  setDropInAdvisorStatus: (state: any, status: any): void => state.currentUser.dropInAdvisorStatus = _.concat(state.currentUser.dropInAdvisorStatus, status),
+  setMyDraftNoteCount: (state: any, count: number) => state.currentUser.myDraftNoteCount = count,
+  updateCurrentUserPreference: (state: any, {key, value}: any) => state.currentUser.preferences[key] = value,
+  updateMyCohort: (state: any, updatedCohort: any) => {
+    const cohort = state.currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)
+    Object.assign(cohort, updatedCohort)
+  },
+  updateMyCuratedGroup: (state: any, updatedCuratedGroup: any) => {
+    const group = state.currentUser.myCuratedGroups.find(group => group.id === +updatedCuratedGroup.id)
+    Object.assign(group, updatedCuratedGroup)
+  }
 }
 
 const actions = {

@@ -52,7 +52,7 @@ Vue.directive('accessibleGrade', {
 })
 Vue.directive('linkified', linkify)
 
-// Global utilities
+// TODO: Stop using Vue.prototype
 Vue.prototype.$moment = moment
 
 Vue.use(routerHistory)
@@ -61,7 +61,7 @@ router.afterEach(writeHistory)
 const apiBaseUrl = process.env.VUE_APP_API_BASE_URL
 
 const axiosErrorHandler = error => {
-  const user = Vue.prototype.$currentUser
+  const user = store.getters['context/currentUser']
   const errorStatus = _.get(error, 'response.status')
   if (!_.get(user, 'isAuthenticated')) {
     router.push({
@@ -95,7 +95,7 @@ axios.interceptors.response.use(
     if (_.includes([401, 403], errorStatus)) {
       // Refresh user in case his/her session expired.
       return axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
-        Vue.prototype.$currentUser = Vue.observable(response.data)
+        store.commit('context/setCurrentUser', Vue.observable(response.data))
         axiosErrorHandler(error)
         return Promise.reject(error)
       })
@@ -107,7 +107,7 @@ axios.interceptors.response.use(
 )
 
 axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
-  Vue.prototype.$currentUser = Vue.observable(response.data)
+  store.commit('context/setCurrentUser', Vue.observable(response.data))
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
     Vue.prototype.$config = response.data
     Vue.prototype.$config.apiBaseUrl = apiBaseUrl

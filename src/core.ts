@@ -1,10 +1,11 @@
 import _ from 'lodash'
+import store from './store'
 import Vue from 'vue'
 
 export function initGoogleAnalytics() {
   return new Promise<void>(resolve => {
     const googleAnalyticsId = process.env.VUE_APP_GOOGLE_ANALYTICS_ID
-    const user = Vue.prototype.$currentUser
+    const user = store.getters['context/currentUser']
     const uid = user.uid
     if (googleAnalyticsId) {
       window.gtag('config', googleAnalyticsId, {
