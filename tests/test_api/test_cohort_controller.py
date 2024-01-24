@@ -36,7 +36,6 @@ from tests.util import override_config
 
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
-coe_scheduler_uid = '6972201'
 asc_and_coe_advisor_uid = '90412'
 ce3_advisor_uid = '2525'
 
@@ -549,17 +548,6 @@ class TestCohortCreate:
         cohort_id = data.get('id')
         assert cohort_id
         _verify(api_cohort_get(client, cohort_id))
-
-    def test_scheduler_role_is_forbidden(self, client, fake_auth):
-        """Rejects COE scheduler user."""
-        fake_auth.login(coe_scheduler_uid)
-        data = {
-            'name': 'COE scheduler cannot create cohorts',
-            'filters': [
-                {'key': 'coeEthnicities', 'value': 'Vietnamese'},
-            ],
-        }
-        api_cohort_create(client, data, expected_status_code=401)
 
     def test_asc_advisor_is_forbidden(self, asc_advisor_login, client, fake_auth):
         """Denies ASC advisor access to COE data."""

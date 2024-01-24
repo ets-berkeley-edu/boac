@@ -38,7 +38,6 @@ from boac.merged.advising_note import get_advising_notes
 from boac.merged.sis_terms import current_term_id
 from boac.merged.student import get_term_gpas_by_sid, get_term_units_by_sid
 from boac.models.alert import Alert
-from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.degree_progress_course import ACCENT_COLOR_CODES
@@ -173,49 +172,10 @@ def director_advising_data_access_required(func):
     return _director_advising_data_access_required
 
 
-def drop_in_required(func):
-    @wraps(func)
-    def _drop_in_required(*args, **kw):
-        is_authorized = (
-            current_user.is_authenticated
-            and current_user.can_access_advising_data
-            and (
-                current_user.is_admin or _is_drop_in_enabled(current_user)
-            )
-        )
-        if is_authorized or _api_key_ok():
-            return func(*args, **kw)
-        else:
-            app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
-    return _drop_in_required
-
-
 def normalize_accent_color(color):
     if color:
         capitalized = color.capitalize()
         return capitalized if capitalized in list(ACCENT_COLOR_CODES.keys()) else None
-
-
-def scheduler_required(func):
-    @wraps(func)
-    def _scheduler_required(*args, **kw):
-        is_authorized = (
-            current_user.is_authenticated
-            and current_user.can_access_advising_data
-            and (
-                current_user.is_admin
-                or _is_drop_in_advisor(current_user)
-                or _is_drop_in_scheduler(current_user)
-                or _is_same_day_scheduler(current_user)
-            )
-        )
-        if is_authorized or _api_key_ok():
-            return func(*args, **kw)
-        else:
-            app.logger.warning(f'Unauthorized request to {request.path}')
-            return app.login_manager.unauthorized()
-    return _scheduler_required
 
 
 def add_alert_counts(alert_counts, students):
@@ -261,26 +221,11 @@ def authorized_users_api_feed(users, sort_by=None, sort_descending=False):
                 'role': m.role,
                 'automateMembership': m.automate_membership,
             })
-        profile['dropInAdvisorStatus'] = [d.to_api_json() for d in user.drop_in_departments]
-        profile['sameDayAdvisorStatus'] = [d.to_api_json() for d in user.same_day_departments]
         user_login = UserLogin.last_login(user.uid)
         profile['lastLogin'] = _isoformat(user_login.created_at) if user_login else None
         profiles.append(profile)
     sort_by = sort_by or 'lastName'
     return sorted(profiles, key=lambda p: (p.get(sort_by) is None, p.get(sort_by)), reverse=sort_descending)
-
-
-def drop_in_advisors_for_dept_code(dept_code):
-    dept_code = dept_code.upper()
-    advisor_assignments = DropInAdvisor.advisors_for_dept_code(dept_code)
-    advisors = []
-    for a in advisor_assignments:
-        advisor = authorized_users_api_feed([a.authorized_user])[0]
-        if advisor['canAccessAdvisingData']:
-            advisor['available'] = a.is_available
-            advisor['status'] = a.status
-            advisors.append(advisor)
-    return sorted(advisors, key=lambda u: ((u.get('firstName') or '').upper(), (u.get('lastName') or '').upper(), u.get('id')))
 
 
 def put_notifications(student):
@@ -577,32 +522,6 @@ def _has_role_in_any_department(user, role):
 
 def _is_advisor_in_department(user, dept):
     return next((d for d in user.departments if d['code'] == dept and d['role'] in ('advisor', 'director')), False)
-
-
-def _is_drop_in_advisor(user):
-    return next((d for d in user.drop_in_advisor_departments if d['deptCode'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']), False)
-
-
-def _is_drop_in_enabled(user):
-    return next((d for d in user.departments if d['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']), False)
-
-
-def _is_drop_in_scheduler(user):
-    scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
-    return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
-
-
-def _is_same_day_advisor(user):
-    return next((d for d in user.same_day_advisor_departments if d['deptCode'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']), False)
-
-
-def _is_same_day_enabled(user):
-    return next((d for d in user.departments if d['code'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']), False)
-
-
-def _is_same_day_scheduler(user):
-    scheduler_dept = _has_role_in_any_department(current_user, 'scheduler')
-    return scheduler_dept and scheduler_dept['code'] in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']
 
 
 def _api_key_ok():

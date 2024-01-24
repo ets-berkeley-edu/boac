@@ -28,12 +28,9 @@ import random
 import string
 
 from boac import db, std_commit
-from boac.api.appointments_controller import _advisor_attrs_for_uid
 from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.util import utc_now
-from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.authorized_user_extension import DropInAdvisor
 from boac.models.cohort_filter import CohortFilter
 from boac.models.curated_group import CuratedGroup
 from boac.models.json_cache import insert_row as insert_in_json_cache
@@ -94,7 +91,7 @@ _test_users = [
         'csid': None,
         'isAdmin': False,
         'inDemoMode': False,
-        'canAccessAdvisingData': True,
+        'canAccessAdvisingData': False,
         'canAccessCanvasData': True,
     },
     {
@@ -267,31 +264,26 @@ _university_depts = {
             {
                 'uid': '1022796',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': True,
             },
             {
                 'uid': '6972201',
-                'role': 'scheduler',
-                'isDropInAdvisor': False,
+                'role': 'advisor',
                 'automate_membership': False,
             },
             {
                 'uid': '90412',
                 'role': 'advisor',
-                'isDropInAdvisor': True,
                 'automate_membership': True,
             },
             {
                 'uid': '1133399',
                 'role': 'advisor',
-                'isDropInAdvisor': True,
                 'automate_membership': True,
             },
             {
                 'uid': '211159',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': True,
             },
         ],
@@ -301,25 +293,21 @@ _university_depts = {
             {
                 'uid': '53791',
                 'role': 'director',
-                'isDropInAdvisor': True,
                 'automate_membership': False,
             },
             {
                 'uid': '188242',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': False,
             },
             {
                 'uid': '19735',
-                'role': 'scheduler',
-                'isDropInAdvisor': False,
+                'role': 'advisor',
                 'automate_membership': False,
             },
             {
                 'uid': '1022796',
                 'role': 'director',
-                'isDropInAdvisor': False,
                 'automate_membership': True,
             },
         ],
@@ -329,19 +317,16 @@ _university_depts = {
             {
                 'uid': '53791',
                 'role': 'director',
-                'isDropInAdvisor': True,
                 'automate_membership': False,
             },
             {
                 'uid': '242881',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': True,
             },
             {
                 'uid': '1133397',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': True,
             },
         ],
@@ -351,19 +336,16 @@ _university_depts = {
             {
                 'uid': '1081940',
                 'role': 'advisor',
-                'isDropInAdvisor': True,
                 'automate_membership': False,
             },
             {
                 'uid': '90412',
                 'role': 'director',
-                'isDropInAdvisor': False,
                 'automate_membership': False,
             },
             {
                 'uid': '6446',
                 'role': 'director',
-                'isDropInAdvisor': False,
                 'automate_membership': False,
             },
         ],
@@ -373,13 +355,11 @@ _university_depts = {
             {
                 'uid': '2525',
                 'role': 'advisor',
-                'isDropInAdvisor': False,
                 'automate_membership': False,
             },
             {
                 'uid': '3535',
-                'role': 'scheduler',
-                'isDropInAdvisor': False,
+                'role': 'advisor',
                 'automate_membership': False,
             },
         ],
@@ -399,7 +379,6 @@ def load(load_test_data=False):
     _load_users_and_departments()
     if load_test_data:
         _create_topics()
-        _create_appointments()
         _create_curated_groups()
         _create_cohorts()
     return db
@@ -481,178 +460,14 @@ def _create_department_memberships():
                 role=user['role'],
                 automate_membership=user['automate_membership'],
             )
-            if user['isDropInAdvisor']:
-                DropInAdvisor.create_or_update_membership(
-                    dept_code=dept_code,
-                    authorized_user_id=authorized_user.id,
-                    is_available=True,
-                )
-
-
-def _create_appointments():
-    _create_cancelled_appointments()
-    _create_checked_in_appointments()
-    _create_reserved_appointments()
-    _create_waiting_appointments()
-
-
-def _create_cancelled_appointments():
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
-    scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
-    cancel_me = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_advisor_user_id,
-        dept_code='COENG',
-        details='We will cancel this appointment.',
-        student_sid='7890123456',
-        topics=['Whoops'],
-    )
-    Appointment.cancel(
-        appointment_id=cancel_me.id,
-        cancelled_by=scheduler_user_id,
-        cancel_reason='Just because',
-        cancel_reason_explained='I felt like it.',
-    )
-
-
-def _create_checked_in_appointments():
-    coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
-    coe_advisor_uid = '90412'
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid(coe_advisor_uid)
-    l_s_director_uid = '53791'
-    l_s_director_user_id = AuthorizedUser.get_id_per_uid(l_s_director_uid)
-
-    check_me_in = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_scheduler_user_id,
-        dept_code='COENG',
-        details='Pick me, pick me!',
-        student_sid='3456789012',
-        topics=['Topic for appointments, 2'],
-    )
-    Appointment.check_in(
-        appointment_id=check_me_in.id,
-        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
-        checked_in_by=coe_advisor_user_id,
-    )
-    check_me_in = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_advisor_user_id,
-        dept_code='COENG',
-        details='Making appointments is da bomb.',
-        student_sid='5678901234',
-        topics=['Good Show'],
-    )
-    Appointment.check_in(
-        appointment_id=check_me_in.id,
-        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
-        checked_in_by=coe_advisor_user_id,
-    )
-    check_me_in = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_scheduler_user_id,
-        dept_code='COENG',
-        details='We will check in this inactive student.',
-        student_sid='3141592653',
-        topics=['Please check me in.'],
-    )
-    Appointment.check_in(
-        appointment_id=check_me_in.id,
-        checked_in_by=coe_advisor_user_id,
-        advisor_attrs=_advisor_attrs_for_uid(coe_advisor_uid),
-    )
-    # L&S College Advising
-    check_me_in = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=l_s_director_user_id,
-        dept_code='QCADV',
-        details='It is not the length of life, but depth of life.',
-        student_sid='11667051',
-        topics=['Topic for appointments, 1'],
-    )
-    Appointment.check_in(
-        appointment_id=check_me_in.id,
-        advisor_attrs=_advisor_attrs_for_uid(l_s_director_uid),
-        checked_in_by=l_s_director_user_id,
-    )
-
-
-def _create_reserved_appointments():
-    coe_advisor_attrs = _advisor_attrs_for_uid('90412')
-    reserve_me = Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_advisor_attrs['id'],
-        dept_code='COENG',
-        details='I will reserve this appointment.',
-        student_sid='7890123456',
-        topics=['Whoops'],
-    )
-    Appointment.reserve(appointment_id=reserve_me.id, reserved_by=coe_advisor_attrs['id'], advisor_attrs=coe_advisor_attrs)
-
-
-def _create_waiting_appointments():
-    coe_advisor_user_id = AuthorizedUser.get_id_per_uid('90412')
-    coe_scheduler_user_id = AuthorizedUser.get_id_per_uid('6972201')
-    l_s_director_user_id = AuthorizedUser.get_id_per_uid('53791')
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_scheduler_user_id,
-        dept_code='COENG',
-        details='Meet me at the crossroads.',
-        student_sid='3456789012',
-        topics=['Topic for appointments, 2'],
-    )
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=coe_advisor_user_id,
-        dept_code='COENG',
-        details='Life is what happens while you\'re making appointments.',
-        student_sid='5678901234',
-        topics=['Good Show'],
-    )
-    # L&S College Advising
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=l_s_director_user_id,
-        dept_code='QCADV',
-        details='C-c-catch the wave!',
-        student_sid='5678901234',
-        topics=['Topic for appointments, 1', 'Good Show'],
-    )
-    Appointment.create(
-        appointment_type='Drop-in',
-        created_by=l_s_director_user_id,
-        dept_code='QCADV',
-        details='You be you.',
-        student_sid='11667051',
-        topics=['Topic for appointments, 1'],
-    )
 
 
 def _create_topics():
-    Topic.create_topic(
-        'Other / Reason not listed',
-        available_in_notes=True,
-        available_in_appointments=True,
-    )
+    Topic.create_topic('Other / Reason not listed')
     for index in range(10):
-        true_for_both = index in [1, 5, 7]
-        available_in_appointments = true_for_both or index % 2 == 0
-        available_in_notes = true_for_both or index % 3 == 0
-        if true_for_both:
-            topic = f'Topic for all, {index}'
-        elif available_in_appointments:
-            topic = f'Topic for appointments, {index}'
-        else:
-            topic = f'Topic for notes, {index}'
-        Topic.create_topic(
-            topic=topic,
-            available_in_appointments=available_in_appointments,
-            available_in_notes=available_in_notes,
-        )
-    Topic.delete(Topic.create_topic('Topic for all, deleted', available_in_appointments=True).id)
-    Topic.delete(Topic.create_topic('Topic for appointments, deleted', available_in_appointments=True).id)
-    Topic.delete(Topic.create_topic('Topic for notes, deleted', available_in_notes=True).id)
+        topic = f'Topic for notes, {index}'
+        Topic.create_topic(topic=topic)
+    Topic.delete(Topic.create_topic('Topic for notes, deleted').id)
     std_commit(allow_test_environment=True)
 
 

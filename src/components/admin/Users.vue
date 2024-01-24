@@ -56,9 +56,7 @@
                   {text: 'Advisors', value: 'advisor'},
                   {text: 'No Canvas Data', value: 'noCanvasDataAccess'},
                   {text: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
-                  {text: 'Directors', value: 'director'},
-                  {text: 'Drop-In Advisors', value: 'dropInAdvisor'},
-                  {text: 'Schedulers', value: 'scheduler'}
+                  {text: 'Directors', value: 'director'}
                 ]"
                 @change="refreshUsers"
               ></b-form-select>

@@ -29,7 +29,8 @@ from itertools import islice
 from boac import db
 from boac.api.errors import BadRequestError, ForbiddenRequestError
 from boac.api.util import add_alert_counts, advising_data_access_required, advisor_required, ce3_required, is_unauthorized_search
-from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, match_advising_note_authors_by_name
+from boac.externals.data_loch import get_enrolled_primary_sections, get_enrolled_primary_sections_for_parsed_code, \
+    match_advising_note_authors_by_name, match_appointment_advisors_by_name
 from boac.lib import util
 from boac.lib.http import tolerant_jsonify
 from boac.merged.admitted_student import search_for_admitted_students
@@ -128,7 +129,8 @@ def find_advisors_by_name():
     query_fragments = list(filter(None, set(query.upper().split(' '))))
     advisors = _advisors_by_name(query_fragments, limit=limit)
     legacy_note_authors = match_advising_note_authors_by_name(query_fragments, limit=limit)
-    advisors_feed = _local_advisors_feed(advisors) + _loch_authors_feed(legacy_note_authors)
+    appointment_advisors = match_appointment_advisors_by_name(query_fragments, limit=limit)
+    advisors_feed = _local_advisors_feed(advisors) + _loch_authors_feed(legacy_note_authors + appointment_advisors)
     advisors_by_uid = {a.get('uid'): a for a in advisors_feed}
     return tolerant_jsonify(list(advisors_by_uid.values()))
 

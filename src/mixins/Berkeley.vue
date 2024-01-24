@@ -6,8 +6,6 @@ import {map} from 'lodash'
 
 const getSectionsWithIncompleteStatus = sections => _.filter(sections, 'incompleteStatusCode')
 
-const isUserAny = roles => !!myDeptCodes(roles).length
-
 const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
 
 export default {
@@ -18,12 +16,8 @@ export default {
     },
     getBoaUserRoles(user, department) {
       const roles = []
-      const dropInAdvisorStatus = _.find(user.dropInAdvisorStatus, ['deptCode', department.code])
       if (department.role) {
         roles.push(_.upperFirst(department.role))
-      }
-      if (dropInAdvisorStatus) {
-        roles.push('Drop-in Advisor')
       }
       return roles
     },
@@ -172,7 +166,6 @@ export default {
     getSectionsWithIncompleteStatus,
     isCoe: auth.isCoe,
     isDirector: user => !!_.size(_.filter(user.departments, d => d.role === 'director')),
-    isSimplyScheduler: user => isUserAny(['scheduler']) && !user.isAdmin && !isUserAny(['advisor', 'director']),
     myDeptCodes,
     nextSisTermId(termId) {
       let nextTermId = ''

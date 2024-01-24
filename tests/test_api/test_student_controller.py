@@ -28,11 +28,9 @@ from boac.models.curated_group import CuratedGroup
 from flask_login import logout_user
 import pytest
 import simplejson as json
-from tests.util import override_config
 
 asc_advisor_uid = '1081940'
 coe_advisor_uid = '1133399'
-coe_scheduler_uid = '6972201'
 
 
 @pytest.fixture()
@@ -48,11 +46,6 @@ def asc_advisor_login(fake_auth):
 @pytest.fixture()
 def coe_advisor_login(fake_auth):
     fake_auth.login(coe_advisor_uid)
-
-
-@pytest.fixture()
-def coe_scheduler_login(fake_auth):
-    fake_auth.login(coe_scheduler_uid)
 
 
 @pytest.mark.usefixtures('db_session')
@@ -102,10 +95,6 @@ class TestStudent:
         """Returns 401 if not authenticated."""
         self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
         self._api_student_by_uid(client=client, uid=self.asc_student['uid'], expected_status_code=401)
-
-    def test_deny_scheduler(self, client, coe_scheduler_login):
-        """Returns 401 if user is scheduler."""
-        self._api_student_by_sid(client=client, sid=self.asc_student['sid'], expected_status_code=401)
 
     def test_user_with_no_enrollments_in_current_term(self, asc_advisor_login, client):
         """Flags student with no enrollments in current term and appends the current term."""
@@ -618,42 +607,23 @@ class TestStudent:
         """Includes advising appointments."""
         student = self._api_student_by_sid(client=client, sid='11667051')
         appointments = student['notifications']['appointment']
-        assert len(appointments) == 5
+        assert len(appointments) == 3
 
-    def test_appointment_marked_read(self, app, client, fake_auth):
+    def test_appointment_marked_read(self, app, client, asc_advisor_login):
         """Includes flag indicating whether user has seen each appointment."""
-        with override_config(app, 'DEPARTMENTS_SUPPORTING_DROP_INS', ['COENG']):
-            student_sid = '11667051'
-            fake_auth.login(coe_scheduler_uid)
-            response = client.post(
-                '/api/appointments/create',
-                data=json.dumps({
-                    'deptCode': 'COENG',
-                    'sid': student_sid,
-                    'appointmentType': 'Drop-in',
-                    'topics': ['Topic for appointments, 4'],
-                }),
-                content_type='application/json',
-            )
-            assert response.status_code == 200
-            boa_appointment_id = response.json['id']
+        student_sid = '11667051'
 
-            def _is_appointment_read(appointment_id):
-                student = self._api_student_by_sid(client=client, sid=student_sid)
-                appointments = student['notifications']['appointment']
-                appointment = next((a for a in appointments if a['id'] == appointment_id), None)
-                assert appointment is not None
-                return appointment.get('read') is True
+        def _is_appointment_read(appointment_id):
+            student = self._api_student_by_sid(client=client, sid=student_sid)
+            appointments = student['notifications']['appointment']
+            appointment = next((a for a in appointments if a['id'] == appointment_id), None)
+            assert appointment is not None
+            return appointment.get('read') is True
 
-            fake_auth.login(asc_advisor_uid)
-            assert _is_appointment_read(boa_appointment_id) is False
-            client.post(f'/api/appointments/{boa_appointment_id}/mark_read')
-            assert _is_appointment_read(boa_appointment_id) is True
-
-            legacy_appointment_id = '11667051-00010'
-            assert _is_appointment_read(legacy_appointment_id) is False
-            client.post(f'/api/appointments/{legacy_appointment_id}/mark_read')
-            assert _is_appointment_read(legacy_appointment_id) is True
+        legacy_appointment_id = '11667051-00010'
+        assert _is_appointment_read(legacy_appointment_id) is False
+        client.post(f'/api/appointments/{legacy_appointment_id}/mark_read')
+        assert _is_appointment_read(legacy_appointment_id) is True
 
     def test_draft_notes(self, admin_user_uid, client, fake_auth):
         """Draft notes are excluded when written for 2 or more students."""
@@ -745,11 +715,6 @@ class TestPrefixSearch:
         assert "Wolfgang Pauli-O'Rourke (9000000000)" in labels
         assert 'Nora Stanton Barney (9100000000)' in labels
         assert 'Paul Tarsus (9191919191)' in labels
-
-    def test_allow_scheduler(self, client, coe_scheduler_login):
-        response = client.get('/api/students/find_by_name_or_sid?q=Paul')
-        assert response.status_code == 200
-        assert len(response.json) == 3
 
 
 class TestNotes:
@@ -931,10 +896,6 @@ class TestValidateSids:
 
     def test_validate_sids_not_authenticated(self, client):
         """Requires authentication."""
-        self._api_validate_sids(client, expected_status_code=401)
-
-    def test_scheduler_cannot_validate_sids(self, client, coe_scheduler_login):
-        """Scheduler cannot validate SIDs."""
         self._api_validate_sids(client, expected_status_code=401)
 
     def test_validate_sids_with_invalid_sid(self, client, coe_advisor_login):

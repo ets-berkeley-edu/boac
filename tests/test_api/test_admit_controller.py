@@ -30,7 +30,6 @@ from tests.util import override_config
 admin_uid = '2040'
 asc_advisor_id = '1081940'
 ce3_advisor_id = '2525'
-ce3_scheduler_id = '3535'
 
 
 @pytest.fixture()
@@ -46,11 +45,6 @@ def asc_advisor_login(fake_auth):
 @pytest.fixture()
 def ce3_advisor_login(fake_auth):
     fake_auth.login(ce3_advisor_id)
-
-
-@pytest.fixture()
-def ce3_scheduler_login(fake_auth):
-    fake_auth.login(ce3_scheduler_id)
 
 
 @pytest.mark.usefixtures('db_session')
@@ -73,11 +67,6 @@ class TestAdmitBySid:
     def test_admit_by_sid_feature_flag(self, client, ce3_advisor_login):
         """Returns 404 if feature flag is false."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
-            self._api_admit_by_sid(client=client, sid=self.admit_sid, expected_status_code=401)
-
-    def test_admit_by_sid_ce3_scheduler(self, client, ce3_scheduler_login):
-        """Returns 401 if user is a CE3 scheduler."""
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             self._api_admit_by_sid(client=client, sid=self.admit_sid, expected_status_code=401)
 
     def test_admit_by_sid_non_ce3_advisor(self, client, asc_advisor_login):
@@ -110,11 +99,6 @@ class TestAllAdmits:
     def test_all_admits_feature_flag(self, client, ce3_advisor_login):
         """Returns 404 if feature flag is false."""
         with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', False):
-            self._api_all_admits(client=client, expected_status_code=401)
-
-    def test_all_admits_ce3_scheduler(self, client, ce3_scheduler_login):
-        """Returns 401 if user is a CE3 scheduler."""
-        with override_config(app, 'FEATURE_FLAG_ADMITTED_STUDENTS', True):
             self._api_all_admits(client=client, expected_status_code=401)
 
     def test_all_admits_non_ce3_advisor(self, client, asc_advisor_login):

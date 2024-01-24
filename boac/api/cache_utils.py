@@ -161,7 +161,6 @@ def refresh_current_term_index():
 
 def refresh_department_memberships():
     from boac.models.authorized_user import AuthorizedUser
-    from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor, Scheduler
     from boac.models.university_dept import UniversityDept
     from boac.models.university_dept_member import UniversityDeptMember
 
@@ -197,9 +196,6 @@ def refresh_department_memberships():
                     authorized_user_id=user.id,
                     role='advisor',
                 )
-    DropInAdvisor.delete_orphans()
-    SameDayAdvisor.delete_orphans()
-    Scheduler.delete_orphans()
 
 
 def load_filtered_cohort_counts():

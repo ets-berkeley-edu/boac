@@ -203,7 +203,6 @@
                 v-if="message.type === 'appointment'"
                 :appointment="message"
                 :is-open="_includes(openMessages, message.transientId)"
-                :on-appointment-status-change="onAppointmentStatusChange"
                 :student="student"
               />
               <div v-if="_includes(openMessages, message.transientId) && message.id !== editModeNoteId" class="text-center close-message">
@@ -228,40 +227,12 @@
           <td class="column-right align-top pt-1 pr-1">
             <div v-if="!_includes(openMessages, message.transientId) && message.type === 'appointment'">
               <div
-                v-if="message.appointmentType === 'Drop-in' && message.status === 'cancelled'"
-                :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
-                class="pill-appointment-status pill-cancelled pl-2 pr-2 mr-2 text-nowrap"
-              >
-                Canceled
-              </div>
-              <div
                 v-if="message.createdBy === 'YCBM' && message.status === 'cancelled'"
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
                 class="collapsed-cancelled-icon"
               >
                 <font-awesome icon="calendar-minus" class="status-cancelled-icon " />
                 Canceled
-              </div>
-              <div
-                v-if="message.appointmentType === 'Drop-in' && message.status === 'checked_in'"
-                :id="`collapsed-${message.type}-${message.id}-status-checked-in`"
-                class="pill-appointment-status pill-checked-in pl-2 pr-2 mr-2 text-nowrap"
-              >
-                Checked In
-              </div>
-              <div
-                v-if="message.appointmentType === 'Drop-in' && message.status === 'reserved'"
-                :id="`collapsed-${message.type}-${message.id}-status-waiting`"
-                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap"
-              >
-                Assigned
-              </div>
-              <div
-                v-if="message.appointmentType === 'Drop-in' && message.status === 'waiting'"
-                :id="`collapsed-${message.type}-${message.id}-status-waiting`"
-                class="pill-appointment-status pill-waiting pl-2 pr-2 mr-2 text-nowrap"
-              >
-                Waiting
               </div>
             </div>
             <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
@@ -370,7 +341,7 @@ import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
-import {getAppointment, markAppointmentRead} from '@/api/appointments'
+import {markAppointmentRead} from '@/api/appointments'
 
 export default {
   name: 'AcademicTimelineTable',
@@ -638,15 +609,6 @@ export default {
       } else {
         return this._filter(this.messages, ['type', type])
       }
-    },
-    onAppointmentStatusChange(appointmentId) {
-      return new Promise(resolve => {
-        getAppointment(appointmentId).then(appointment => {
-          let timelineAppointment = this.messagesPerType('appointment').find(a => a.id === +appointment.id)
-          Object.assign(timelineAppointment, appointment)
-          resolve()
-        })
-      })
     },
     onNoteCreateStartEvent(event) {
       if (this._includes(event.completeSidSet, this.student.sid)) {

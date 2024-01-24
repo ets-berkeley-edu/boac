@@ -32,7 +32,6 @@ from sqlalchemy.dialects.postgresql import ENUM
 university_dept_member_role_type = ENUM(
     'advisor',
     'director',
-    'scheduler',
     name='university_dept_member_role_types',
     create_type=False,
 )

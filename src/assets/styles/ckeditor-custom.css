@@ -6,12 +6,6 @@
   height: 180px;
   width: 100%;
 }
-#appointment-details .ck-editor__editable {
-  height: 180px;
-}
-#log-resolved-issue-details .ck-editor__editable {
-  height: 180px;
-}
 :root {
   /* Overrides the border radius setting in the theme. */
   --ck-border-radius: 4px;

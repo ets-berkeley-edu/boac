@@ -62,21 +62,6 @@ class AuthorizedUser(Base):
         back_populates='authorized_user',
         lazy='joined',
     )
-    drop_in_departments = db.relationship(
-        'DropInAdvisor',
-        back_populates='authorized_user',
-        lazy='joined',
-    )
-    same_day_departments = db.relationship(
-        'SameDayAdvisor',
-        back_populates='authorized_user',
-        lazy='joined',
-    )
-    scheduler_departments = db.relationship(
-        'Scheduler',
-        back_populates='authorized_user',
-        lazy='joined',
-    )
     cohort_filters = db.relationship(
         'CohortFilter',
         back_populates='owner',
@@ -355,34 +340,22 @@ def _users_sql(
     query_bindings = {}
 
     if dept_code and role:
-        if role == 'dropInAdvisor':
-            query_tables += """
-                JOIN drop_in_advisors a ON
-                    a.dept_code = :dept_code
-                    AND a.authorized_user_id = u.id
-            """
-        else:
-            query_tables += """
-                JOIN university_depts d ON
-                    d.dept_code = :dept_code
-                JOIN university_dept_members m ON
-                    m.university_dept_id = d.id
-                    AND m.authorized_user_id = u.id
-            """
-            if role == 'noCanvasDataAccess':
-                query_filter += 'AND u.can_access_canvas_data IS FALSE '
-            elif role == 'noAdvisingDataAccess':
-                query_filter += 'AND u.can_access_advising_data IS FALSE '
-            elif role in ['advisor', 'director', 'scheduler']:
-                query_tables += f"AND m.role = '{role}'"
+        query_tables += """
+            JOIN university_depts d ON
+                d.dept_code = :dept_code
+            JOIN university_dept_members m ON
+                m.university_dept_id = d.id
+                AND m.authorized_user_id = u.id
+        """
+        if role == 'noCanvasDataAccess':
+            query_filter += 'AND u.can_access_canvas_data IS FALSE '
+        elif role == 'noAdvisingDataAccess':
+            query_filter += 'AND u.can_access_advising_data IS FALSE '
+        elif role in ['advisor', 'director']:
+            query_tables += f"AND m.role = '{role}'"
         query_bindings['dept_code'] = dept_code
     elif not dept_code and role:
-        if role == 'dropInAdvisor':
-            query_tables += """
-                JOIN drop_in_advisors a ON
-                    a.authorized_user_id = u.id
-            """
-        elif role == 'noCanvasDataAccess':
+        if role == 'noCanvasDataAccess':
             query_filter += 'AND u.can_access_canvas_data IS FALSE '
         elif role == 'noAdvisingDataAccess':
             query_filter += 'AND u.can_access_advising_data IS FALSE '

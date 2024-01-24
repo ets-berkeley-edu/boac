@@ -47,7 +47,7 @@
         v-if="!$currentUser.isAdmin"
         id="header-menu-profile"
         class="nav-link-color text-decoration-none"
-        :to="isSimplyScheduler($currentUser) ? '/scheduler/profile' : '/profile'"
+        to="/profile"
       >
         Profile
       </b-dropdown-item>

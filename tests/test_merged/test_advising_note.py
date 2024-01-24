@@ -156,7 +156,7 @@ class TestMergedAdvisingNote:
         assert boa_created_note['updatedBy'] is None
         assert boa_created_note['updatedAt'] is None
         assert boa_created_note['read'] is False
-        assert len(boa_created_note['topics']) == 3
+        assert len(boa_created_note['topics']) == 4
         assert len(boa_created_note['attachments']) == 1
         assert 'legacySource' not in boa_created_note
 
