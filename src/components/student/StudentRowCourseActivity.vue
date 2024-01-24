@@ -9,7 +9,7 @@
       <b-tr>
         <b-th class="col-course">Class</b-th>
         <b-th class="col-units">Units</b-th>
-        <b-th v-if="$currentUser.canAccessCanvasData" class="col-bcourses">
+        <b-th v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span aria-hidden="true">bCourses Activity</span>
           <span class="sr-only">Most recent B Courses activity</span>
         </b-th>
@@ -39,7 +39,7 @@
         <b-td class="col-units pl-2">
           {{ enrollment.units || '&mdash;' }}
         </b-td>
-        <b-td v-if="$currentUser.canAccessCanvasData" class="col-bcourses pl-1">
+        <b-td v-if="currentUser.canAccessCanvasData" class="col-bcourses pl-1">
           <div
             v-for="(canvasSite, cIndex) in enrollment.canvasSites"
             :key="cIndex"
@@ -92,7 +92,7 @@
         <b-td class="col-units">
           <span class="sr-only">No data</span>&mdash;
         </b-td>
-        <b-td v-if="$currentUser.canAccessCanvasData" class="col-bcourses">
+        <b-td v-if="currentUser.canAccessCanvasData" class="col-bcourses">
           <span class="sr-only">No data</span>&mdash;
         </b-td>
         <b-td class="col-midterm">
@@ -108,6 +108,7 @@
 
 <script>
 import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentMetadata from '@/mixins/StudentMetadata'
@@ -115,7 +116,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentRowCourseActivity',
-  mixins: [Berkeley, StudentAnalytics, StudentMetadata, Util],
+  mixins: [Berkeley, Context, StudentAnalytics, StudentMetadata, Util],
   components: {IncompleteGradeAlertIcon},
   props: {
     rowIndex: {

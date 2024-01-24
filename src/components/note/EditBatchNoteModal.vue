@@ -87,7 +87,7 @@
           </div>
           <div class="mt-2 mr-3 mb-3 ml-3">
             <PrivacyPermissions
-              v-if="$currentUser.canAccessPrivateNotes"
+              v-if="currentUser.canAccessPrivateNotes"
               :disabled="isSaving || boaSessionExpired"
             />
           </div>

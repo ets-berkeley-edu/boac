@@ -337,10 +337,11 @@
 </template>
 
 <script>
-import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CampusRequirementCheckbox from '@/components/degree/student/CampusRequirementCheckbox'
+import Context from '@/mixins/Context'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
+import CreateCourseModal from '@/components/degree/student/CreateCourseModal'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
@@ -350,7 +351,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
-  mixins: [DegreeEditSession, StudentMetadata, Util],
+  mixins: [Context, DegreeEditSession, StudentMetadata, Util],
   components: {
     AreYouSureModal,
     CampusRequirementCheckbox,
@@ -426,7 +427,7 @@ export default {
     }
   },
   created() {
-    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
+    this.canEdit = this.currentUser.canEditDegreeProgress && !this.printable
     this.emptyCategoryId = `empty-category-${this.parentCategory.id}`
   },
   methods: {

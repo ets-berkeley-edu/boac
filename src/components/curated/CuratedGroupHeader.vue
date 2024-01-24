@@ -257,7 +257,7 @@ export default {
   }),
   computed: {
     isOwnedByCurrentUser() {
-      return this.ownerId === this.$currentUser.id
+      return this.ownerId === this.currentUser.id
     }
   },
   watch: {
@@ -268,7 +268,7 @@ export default {
   mounted() {
     if (this.referencingCohortIds.length) {
       this._each(this.referencingCohortIds, cohortId => {
-        const cohort = this._find(this.$currentUser.myCohorts, ['id', cohortId])
+        const cohort = this._find(this.currentUser.myCohorts, ['id', cohortId])
         this.referencingCohorts.push(cohort)
       })
       this.referencingCohorts = this._sortBy(this.referencingCohorts, ['name'])

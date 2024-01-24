@@ -58,7 +58,7 @@
       <AdvancedSearchCheckboxes class="mb-2 ml-2" />
       <transition class="pt-2" name="drawer">
         <div
-          v-if="$currentUser.canAccessAdvisingData && includeNotes"
+          v-if="currentUser.canAccessAdvisingData && includeNotes"
           class="border border-info mb-3 mx-2 p-3 rounded"
         >
           <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
@@ -118,7 +118,7 @@
                 v-model="author"
                 :disabled="isSearching || postedBy === 'you'"
                 input-labelled-by="notes-search-author-input-label"
-                :placeholder="postedBy === 'you' ? $currentUser.name : 'Enter name...'"
+                :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
                 :source="findAdvisorsByName"
               />
             </b-form-group>
@@ -374,7 +374,7 @@ export default {
         }
         if (this.includeNotes) {
           if (this.postedBy === 'you') {
-            query.advisorCsid = this.$currentUser.csid
+            query.advisorCsid = this.currentUser.csid
           } else if (this.author) {
             query.advisorCsid = this.author.sid
             query.advisorUid = this.author.uid

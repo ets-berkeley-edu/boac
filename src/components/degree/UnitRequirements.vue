@@ -9,7 +9,7 @@
           >
             Unit Requirements
           </h3>
-          <div v-if="$currentUser.canEditDegreeProgress && !sid && !printable">
+          <div v-if="currentUser.canEditDegreeProgress && !sid && !printable">
             <b-btn
               id="unit-requirement-create-link"
               class="pr-0 py-0"
@@ -78,7 +78,7 @@
                 No courses
               </div>
             </template>
-            <template v-if="$currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
+            <template v-if="currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
               <div class="align-items-center d-flex">
                 <b-btn
                   :id="`unit-requirement-${row.item.id}-edit-btn`"
@@ -178,7 +178,7 @@ export default {
         tdClass: `${tdFontSize} d-flex justify-content-end`,
         thClass: 'font-size-12 px-0 text-right text-uppercase'
       })
-    } else if (this.$currentUser.canEditDegreeProgress) {
+    } else if (this.currentUser.canEditDegreeProgress) {
       this.fields.push({
         key: 'actions',
         label: '',

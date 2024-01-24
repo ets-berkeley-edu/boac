@@ -60,7 +60,7 @@
     <div v-if="!isMenuOpen">
       <span v-if="!options.length" aria-live="polite" class="sr-only">No courses available to copy.</span>
       <b-btn
-        v-if="$currentUser.canEditDegreeProgress"
+        v-if="currentUser.canEditDegreeProgress"
         id="duplicate-existing-course"
         class="align-items-center d-flex flex-row-reverse p-0"
         :disabled="disableButtons || !options.length"

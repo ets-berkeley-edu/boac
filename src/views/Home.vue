@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading.vue'
 import Scrollable from '@/mixins/Scrollable'
 import SortableGroup from '@/components/search/SortableGroup.vue'
@@ -44,7 +45,7 @@ import Util from '@/mixins/Util.vue'
 
 export default {
   name: 'Home',
-  mixins: [Loading, Scrollable, Util],
+  mixins: [Context, Loading, Scrollable, Util],
   components: {
     SortableGroup,
     Spinner
@@ -55,8 +56,8 @@ export default {
   }),
   mounted() {
     this.loaded('Home loaded')
-    this.cohorts = this._filter(this.$currentUser.myCohorts, ['domain', 'default'])
-    this.curatedGroups = this._filter(this.$currentUser.myCuratedGroups, ['domain', 'default'])
+    this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
+    this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
     this.scrollToTop()
   }
 }

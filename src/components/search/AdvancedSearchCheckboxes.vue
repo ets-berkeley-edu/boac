@@ -52,7 +52,7 @@
           Classes
         </label>
       </div>
-      <div v-if="$currentUser.canAccessAdvisingData" class="align-items-center d-flex mr-3">
+      <div v-if="currentUser.canAccessAdvisingData" class="align-items-center d-flex mr-3">
         <b-checkbox
           id="search-include-notes-checkbox"
           v-model="includeNotes"
@@ -72,11 +72,12 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import SearchSession from '@/mixins/SearchSession'
 
 export default {
   name: 'AdvancedSearchCheckboxes',
-  mixins: [SearchSession],
+  mixins: [Context, SearchSession],
   methods: {
     onChangeIncludeNotes(include) {
       if (!include) {

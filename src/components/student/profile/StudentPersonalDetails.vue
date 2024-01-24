@@ -40,7 +40,7 @@
               <div>
                 <strong>Other Email (preferred)</strong>
               </div>
-              <div id="student-profile-other-email" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+              <div id="student-profile-other-email" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                 {{ student.sisProfile.emailAddressAlternate }}
               </div>
             </div>
@@ -49,7 +49,7 @@
               <a
                 id="student-phone-number"
                 :aria-label="`Link to student phone number ${student.sisProfile.phoneNumber}`"
-                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 :href="`tel:${student.sisProfile.phoneNumber}`"
               >
                 {{ student.sisProfile.phoneNumber }}</a>
@@ -157,16 +157,15 @@
 
 <script>
 import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'StudentPersonalDetails',
-  components: {
-    StudentProfilePlan
-  },
-  mixins: [Berkeley, StudentMetadata, Util],
+  components: {StudentProfilePlan},
+  mixins: [Berkeley, Context, StudentMetadata, Util],
   props: {
     inactiveMajors: {
       required: true,

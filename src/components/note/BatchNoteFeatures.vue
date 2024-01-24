@@ -92,10 +92,10 @@ export default {
   },
   computed: {
     nonAdmitCohorts() {
-      return this._reject(this.$currentUser.myCohorts, {'domain': 'admitted_students'})
+      return this._reject(this.currentUser.myCohorts, {'domain': 'admitted_students'})
     },
     nonAdmitCuratedGroups() {
-      return this._reject(this.$currentUser.myCuratedGroups, {'domain': 'admitted_students'})
+      return this._reject(this.currentUser.myCuratedGroups, {'domain': 'admitted_students'})
     }
   },
   methods: {

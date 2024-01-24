@@ -6,9 +6,9 @@
         <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
       </div>
       <div class="m-3 pt-2">
-        <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>
+        <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>
         <div>
-          Choose a new degree check for <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span> from the list of options in the menu below.
+          Choose a new degree check for <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> from the list of options in the menu below.
         </div>
         <div class="mt-3">
           <h3 class="font-size-18 font-weight-bold">Add Degree Check</h3>
@@ -96,13 +96,13 @@ export default {
   }),
   created() {
     let uid = this._get(this.$route, 'params.uid')
-    if (this.$currentUser.inDemoMode) {
+    if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose UID in browser location bar.
       uid = window.atob(uid)
     }
     getStudentByUid(uid, true).then(data => {
       this.student = data
-      this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : this.student.name)
+      this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : this.student.name)
       getDegreeTemplates().then(data => {
         this.templates = data
         this.loaded(`Add Degree Check for ${this.student.name}`)
@@ -112,7 +112,7 @@ export default {
   methods: {
     cancel() {
       this.$announcer.polite('Canceled')
-      this.$router.push(`${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}`)
+      this.$router.push(`${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}`)
     },
     onChangeSelect(option) {
       if (option) {

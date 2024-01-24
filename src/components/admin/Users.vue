@@ -343,7 +343,7 @@ export default {
       becomeUser(uid).then(() => window.location.href = '/')
     },
     canBecome(user) {
-      const isNotMe = user.uid !== this.$currentUser.uid
+      const isNotMe = user.uid !== this.currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
       const hasAnyRole = user.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
       return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole

@@ -91,8 +91,8 @@
                 <div class="student-name">
                   <router-link
                     :id="`link-to-student-${student.uid}`"
-                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-                    :to="studentRoutePath(student.uid, $currentUser.inDemoMode)"
+                    :class="{'demo-mode-blur': currentUser.inDemoMode}"
+                    :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
                   >
                     {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                   </router-link>
@@ -100,14 +100,14 @@
                     v-if="!student.uid"
                     :id="`student-${student.sid}-has-no-uid`"
                     class="font-weight-500"
-                    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                    :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   >
                     {{ student.lastName + (student.firstName ? ', ' + student.firstName : '') }}
                   </span>
                 </div>
                 <div
                   v-if="student.sid"
-                  :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                  :class="{'demo-mode-blur': currentUser.inDemoMode}"
                   class="student-sid"
                 >
                   SID: {{ student.sid }}
@@ -363,7 +363,7 @@ export default {
         if (d.isClassMean) {
           photoUri = require('@/assets/class-mean-avatar.svg')
         } else {
-          photoUri = this.$currentUser.inDemoMode
+          photoUri = this.currentUser.inDemoMode
             ? avatarBackgroundPath
             : d.photoUrl
         }
@@ -476,7 +476,7 @@ export default {
 
       dot.on('click', d => {
         if (!d.isClassMean && d.uid) {
-          this.$router.push(this.studentRoutePath(d.uid, this.$currentUser.inDemoMode))
+          this.$router.push(this.studentRoutePath(d.uid, this.currentUser.inDemoMode))
         }
       })
 
@@ -563,7 +563,7 @@ export default {
           .append('h4')
           .attr(
             'class',
-            this.$currentUser.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
+            this.currentUser.inDemoMode ? 'demo-mode-blur' : 'matrix-tooltip-header'
           )
           .text(fullName)
         _.each(d.majors, major =>

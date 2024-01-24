@@ -4,7 +4,7 @@
     <div v-if="!loading" class="m-3">
       <h1
         id="admit-name-header"
-        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
         class="student-section-header"
       >
         {{ fullName }}
@@ -14,9 +14,9 @@
           <div v-if="admit.studentUid" class="pt-2 pb-3">
             <router-link
               :id="`link-to-student-${admit.studentUid}`"
-              :to="studentRoutePath(admit.studentUid, $currentUser.inDemoMode)"
+              :to="studentRoutePath(admit.studentUid, currentUser.inDemoMode)"
             >
-              View <span :class="{'demo-mode-blur': $currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
+              View <span :class="{'demo-mode-blur': currentUser.inDemoMode}" v-html="fullName"></span>'s profile page
             </router-link>
           </div>
         </div>
@@ -45,15 +45,15 @@
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">ApplyUC CPID</b-col>
-                  <b-col id="admit-apply-uc-cpid" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.applyucCpid }}</b-col>
+                  <b-col id="admit-apply-uc-cpid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.applyucCpid }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">CS Empl ID</b-col>
-                  <b-col id="admit-sid" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.sid }}</b-col>
+                  <b-col id="admit-sid" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.sid }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Birthdate</b-col>
-                  <b-col id="admit-birthdate" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ birthDate }}</b-col>
+                  <b-col id="admit-birthdate" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ birthDate }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Freshman or Transfer</b-col>
@@ -237,23 +237,23 @@
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Email</b-col>
-                  <b-col id="admit-email" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.email }}</b-col>
+                  <b-col id="admit-email" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.email }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Campus Email</b-col>
-                  <b-col id="admit-campus-email" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.campusEmail1 }}</b-col>
+                  <b-col id="admit-campus-email" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.campusEmail1 }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Daytime Phone</b-col>
-                  <b-col id="admit-daytime-phone" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.daytimePhone }}</b-col>
+                  <b-col id="admit-daytime-phone" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.daytimePhone }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Mobile</b-col>
-                  <b-col id="admit-mobile" :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.mobile }}</b-col>
+                  <b-col id="admit-mobile" :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">{{ admit.mobile }}</b-col>
                 </b-row>
                 <b-row>
                   <b-col class="table-cell">Address</b-col>
-                  <b-col :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="table-cell font-italic">
+                  <b-col :class="{'demo-mode-blur': currentUser.inDemoMode}" class="table-cell font-italic">
                     <div id="admit-permanent-street-1">{{ admit.permanentStreet1 }}</div>
                     <div id="admit-permanent-street-2">{{ admit.permanentStreet2 }}</div>
                     <div id="admit-permanent-city-region-postal">{{ admit.permanentCity }}, {{ admit.permanentRegion }}  {{ admit.permanentPostal }}</div>
@@ -320,14 +320,14 @@ export default {
   created() {
     this.now = this.$moment()
     let sid = this._get(this.$route, 'params.sid')
-    if (this.$currentUser.inDemoMode) {
+    if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       sid = window.atob(sid)
     }
     getAdmitBySid(sid).then(admit => {
       if (admit) {
         this._assign(this.admit, admit)
-        const pageTitle = this.$currentUser.inDemoMode ? 'Admitted Student' : this.fullName
+        const pageTitle = this.currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
         this.loaded(`${pageTitle} has loaded`)
       } else {

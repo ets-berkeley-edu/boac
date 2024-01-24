@@ -38,7 +38,7 @@
           </div>
         </div>
       </div>
-      <div v-if="!$currentUser.isAdmin && $currentUser.canAccessAdvisingData" class="my-2">
+      <div v-if="!currentUser.isAdmin && currentUser.canAccessAdvisingData" class="my-2">
         <b-btn
           id="new-note-button"
           :disabled="!!mode"

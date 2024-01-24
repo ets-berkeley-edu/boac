@@ -31,12 +31,12 @@
           </span>
         </div>
       </template>
-      <b-dropdown-item v-if="!_filter($currentUser.myCuratedGroups, ['domain', domain]).length">
+      <b-dropdown-item v-if="!_filter(currentUser.myCuratedGroups, ['domain', domain]).length">
         <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
       </b-dropdown-item>
       <div v-if="!groupsLoading" class="pt-1">
         <b-dropdown-item
-          v-for="group in _filter($currentUser.myCuratedGroups, ['domain', domain])"
+          v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
           :id="`${idFragment}-${group.id}-menu-item`"
           :key="group.id"
           class="b-dd-item-override"
@@ -205,7 +205,7 @@ export default {
       const containsSid = group => {
         return this._includes(group.sids, this.student.sid)
       }
-      this.checkedGroups = this._map(this._filter(this.$currentUser.myCuratedGroups, containsSid), 'id')
+      this.checkedGroups = this._map(this._filter(this.currentUser.myCuratedGroups, containsSid), 'id')
       this.groupsLoading = false
     }
   }

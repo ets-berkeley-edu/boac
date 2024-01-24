@@ -64,7 +64,7 @@
         </div>
         <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
           <span class="font-weight-bolder truncate pill pill-attachment text-uppercase text-nowrap pl-2">
-            <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
+            <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
             <b-btn
               :id="`remove-student-from-batch-${index}`"
               variant="link"
@@ -86,24 +86,24 @@
       />
       <div class="mb-2">
         <BatchAddStudentSet
-          v-if="$currentUser.myCohorts.length"
+          v-if="currentUser.myCohorts.length"
           :add-object="addCohort"
           class="w-75"
           :disabled="isSaving"
           header="Cohort"
-          :objects="$currentUser.myCohorts"
+          :objects="currentUser.myCohorts"
           object-type="cohort"
           :remove-object="removeCohort"
         />
       </div>
       <div class="mb-2">
         <BatchAddStudentSet
-          v-if="$currentUser.myCuratedGroups.length"
+          v-if="currentUser.myCuratedGroups.length"
           :add-object="addCuratedGroup"
           class="w-75"
           :disabled="isSaving"
           header="Curated Group"
-          :objects="_filter($currentUser.myCuratedGroups, ['domain', 'default'])"
+          :objects="_filter(currentUser.myCuratedGroups, ['domain', 'default'])"
           object-type="curated"
           :remove-object="removeCuratedGroup"
         />

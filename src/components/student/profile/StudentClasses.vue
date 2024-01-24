@@ -34,7 +34,7 @@
           </span>
         </b-button>
       </div>
-      <div v-if="$currentUser.canReadDegreeProgress" class="flex-shrink-1">
+      <div v-if="currentUser.canReadDegreeProgress" class="flex-shrink-1">
         <router-link
           id="view-degree-checks-link"
           target="_blank"
@@ -144,10 +144,10 @@ export default {
       const currentDegreeCheck = this._find(this.student.degreeChecks, 'isCurrent')
       if (currentDegreeCheck) {
         return `/student/degree/${currentDegreeCheck.id}`
-      } else if (this.$currentUser.canEditDegreeProgress) {
-        return `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/create`
+      } else if (this.currentUser.canEditDegreeProgress) {
+        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/create`
       } else {
-        return `${this.studentRoutePath(this.student.uid, this.$currentUser.inDemoMode)}/degree/history`
+        return `${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}/degree/history`
       }
     },
     getTerm(termName, year) {

@@ -59,8 +59,8 @@
             :key="student.sid"
             :row-index="index"
             :student="student"
-            :sorted-by="$currentUser.preferences.sortBy"
-            :term-id="$currentUser.preferences.termId"
+            :sorted-by="currentUser.preferences.sortBy"
+            :term-id="currentUser.preferences.termId"
             :class="{'list-group-item-info': anchor === `#${student.uid}`}"
             list-type="cohort"
             class="border-right-0 list-group-item border-left-0 pl-0"
@@ -166,8 +166,8 @@ export default {
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this._get(this.$route, 'params.id'))
-      const orderBy = this._get(this.$currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
-      const termId = this._get(this.$currentUser.preferences, 'termId')
+      const orderBy = this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+      const termId = this._get(this.currentUser.preferences, 'termId')
       this.init({domain, id, orderBy, termId}).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage
@@ -196,7 +196,7 @@ export default {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
       } else {
-        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.$currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     goToPage(page) {

@@ -58,7 +58,7 @@ export default {
     }
     this.avatarUrl = this.student.photoUrl
     this.avatarStyle = `student-avatar-${this.size} ${
-      this.$currentUser.inDemoMode ? 'img-blur' : ''
+      this.currentUser.inDemoMode ? 'img-blur' : ''
     }`
   },
   methods: {

@@ -12,20 +12,21 @@
       <span
         id="draft-note-count"
         class="sidebar-pill"
-      >{{ $currentUser.myDraftNoteCount }}<span class="sr-only"> {{ pluralize('draft', $currentUser.myDraftNoteCount) }}</span>
+      >{{ currentUser.myDraftNoteCount }}<span class="sr-only"> {{ pluralize('draft', currentUser.myDraftNoteCount) }}</span>
       </span>
     </div>
   </div>
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import NavLink from '@/components/util/NavLink.vue'
 import Util from '@/mixins/Util.vue'
 
 export default {
   name: 'LinkToDraftNotes',
   components: {NavLink},
-  mixins: [Util]
+  mixins: [Context, Util]
 }
 </script>
 

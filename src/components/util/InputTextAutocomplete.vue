@@ -13,7 +13,7 @@
         :maxlength="maxlength"
         name="autocomplete-name"
         :placeholder="placeholder"
-        :type="demoModeBlur && $currentUser.inDemoMode ? 'password' : formInputType"
+        :type="demoModeBlur && currentUser.inDemoMode ? 'password' : formInputType"
         @focusin="makeSuggestions"
         @input="onTextInput"
         @keypress.enter.prevent="onEnter"
@@ -66,7 +66,7 @@
           <a
             :id="`${id}-suggestion-${index}`"
             :aria-label="getAriaLabelForSuggestion(index)"
-            :class="{'demo-mode-blur': demoModeBlur && $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': demoModeBlur && currentUser.inDemoMode}"
             role="menuitem"
             class="dropdown-item"
             tabindex="0"

@@ -13,7 +13,7 @@
       >
         <b-thead class="border-bottom">
           <b-tr class="sortable-table-header text-nowrap">
-            <b-th v-if="$currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
+            <b-th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to assign course</span>
             </b-th>
             <b-th class="pl-0 th-name">Course</b-th>
@@ -28,7 +28,7 @@
             >
               Note
             </b-th>
-            <b-th v-if="$currentUser.canEditDegreeProgress"></b-th>
+            <b-th v-if="currentUser.canEditDegreeProgress"></b-th>
           </b-tr>
         </b-thead>
         <b-tbody>
@@ -57,7 +57,7 @@
               @mouseenter="onMouse('enter', course)"
               @mouseleave="onMouse('leave', course)"
             >
-              <td v-if="$currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
+              <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
                   <CourseAssignmentMenu :after-course-assignment="() => $putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
@@ -120,7 +120,7 @@
                 </div>
                 <div v-if="!course.note" :id="`course-${course.id}-note`">&mdash;</div>
               </td>
-              <td v-if="$currentUser.canEditDegreeProgress" class="td-course-edit-button">
+              <td v-if="currentUser.canEditDegreeProgress" class="td-course-edit-button">
                 <div class="d-flex justify-content-end">
                   <div v-if="course.manuallyCreatedBy" class="btn-container">
                     <b-btn
@@ -260,7 +260,7 @@ export default {
       this.$putFocusNextTick('name-input')
     },
     canDrag() {
-      return !this.disableButtons && this.$currentUser.canEditDegreeProgress
+      return !this.disableButtons && this.currentUser.canEditDegreeProgress
     },
     deleteCanceled() {
       this.$putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
