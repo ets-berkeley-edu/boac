@@ -3,6 +3,17 @@ BEGIN;
 DELETE FROM topics WHERE available_in_notes = FALSE;
 ALTER TABLE IF EXISTS ONLY topics DROP COLUMN available_in_appointments, DROP COLUMN available_in_notes;
 
+DROP INDEX IF EXISTS idx_advisor_author_index;
+DROP MATERIALIZED VIEW IF EXISTS advisor_author_index;
+
+CREATE MATERIALIZED VIEW advisor_author_index AS (
+  SELECT DISTINCT author_name AS advisor_name, author_uid AS advisor_uid
+  FROM notes
+  ORDER BY advisor_name
+);
+
+CREATE INDEX idx_advisor_author_index ON advisor_author_index USING btree(advisor_name);
+
 ALTER TABLE IF EXISTS ONLY appointments DROP CONSTRAINT IF EXISTS appointments_created_by_fkey;
 ALTER TABLE IF EXISTS ONLY appointments DROP CONSTRAINT IF EXISTS appointments_deleted_by_fkey;
 ALTER TABLE IF EXISTS ONLY appointments DROP CONSTRAINT IF EXISTS appointments_updated_by_fkey;
