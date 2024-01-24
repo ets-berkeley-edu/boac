@@ -99,12 +99,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmitStudentsTable',
-  mixins: [Util],
+  mixins: [Context, Util],
   components: {CuratedStudentCheckbox},
   props: {
     includeCuratedCheckbox: {
