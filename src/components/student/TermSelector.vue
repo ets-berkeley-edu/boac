@@ -45,6 +45,7 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
@@ -87,7 +88,7 @@ export default {
         this.selectedTermId = value
         this.selectedTermLabel = this.termNameForSisId(value)
         this.$announcer.polite(`${this.selectedTermLabel} selected`)
-        this.$currentUser.preferences.termId = this.selectedTermId
+        store.commit('context/updateCurrentUserPreference', {key: 'termId', value: this.selectedTermId})
         this.broadcast('termId-user-preference-change', value)
       }
     },

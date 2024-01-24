@@ -7,7 +7,10 @@ import Vue from 'vue'
 const $_refreshMyDraftNoteCount = () => {
   axios
     .get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`)
-    .then(response => Vue.prototype.$currentUser.myDraftNoteCount = response.data, () => null)
+    .then(
+      response => store.commit('context/setMyDraftNoteCount', response.data),
+      () => null
+    )
 }
 const $_track = action => Vue.prototype.$ga.note(action)
 

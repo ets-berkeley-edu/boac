@@ -32,6 +32,7 @@ const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.v
 import _ from 'lodash'
 import auth from './auth'
 import Router from 'vue-router'
+import store from './store'
 import Vue from 'vue'
 
 Vue.use(Router)
@@ -47,7 +48,7 @@ const router = new Router({
       path: '/login',
       component: Login,
       beforeEnter: (to: any, from: any, next: any) => {
-        const currentUser = Vue.prototype.$currentUser
+        const currentUser = store.getters['context/currentUser']
         if (currentUser.isAuthenticated) {
           if (_.trim(to.query.redirect)) {
             next(to.query.redirect)
@@ -270,7 +271,7 @@ const router = new Router({
       children: [
         {
           beforeEnter: (to: any, from: any, next: any) => {
-            const currentUser = Vue.prototype.$currentUser
+            const currentUser = store.getters['context/currentUser']
             const deptCodes = auth.getSchedulerDeptCodes(currentUser)
             if (_.size(deptCodes) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
               const deptCode = deptCodes[0].toLowerCase()
@@ -301,7 +302,7 @@ const router = new Router({
         },
         {
           beforeEnter: (to: any, from: any, next: any) => {
-            const currentUser = Vue.prototype.$currentUser
+            const currentUser = store.getters['context/currentUser']
             if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
               next({path: '/scheduler/404'})
             } else {

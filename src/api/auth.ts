@@ -12,10 +12,8 @@ export function devAuthLogIn(uid: string, password: string) {
       password: password
     })
     .then(response => {
-      Vue.prototype.$currentUser = Vue.observable(response.data)
-      initGoogleAnalytics().then(() => {
-        store.dispatch('context/loadServiceAnnouncement').then(_.noop)
-      })
+      store.commit('context/setCurrentUser', Vue.observable(response.data))
+      initGoogleAnalytics().then(() => store.dispatch('context/loadServiceAnnouncement').then(_.noop))
     }, error => error)
 }
 

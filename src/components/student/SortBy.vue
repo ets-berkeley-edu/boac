@@ -53,6 +53,7 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
+import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
@@ -154,7 +155,7 @@ export default {
     },
     onSelect(sortBy) {
       const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      this.$currentUser.preferences[sortByKey] = sortBy
+      store.commit('context/updateCurrentUserPreference', {key: sortByKey, value: sortBy})
       this.broadcast(`${sortByKey}-user-preference-change`, sortBy)
       this.dropdownLabel = this.getSortByOptionLabel(sortBy)
       this.$announcer.polite(`${this.dropdownLabel} selected`)

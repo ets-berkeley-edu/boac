@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import Vue from 'vue'
+import store from '@/store'
 
 const $_goToLogin = (to: any, next: any) => {
   next({
@@ -45,7 +45,7 @@ export default {
   isCoe,
   isDirector,
   requiresAdmin: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
         next()
@@ -57,7 +57,7 @@ export default {
     }
   },
   requiresAdvisor: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
         next()
@@ -69,14 +69,14 @@ export default {
     }
   },
   requiresAuthenticated: (to: any, from: any, next: any) => {
-    if (Vue.prototype.$currentUser.isAuthenticated) {
+    if (store.getters['context/currentUser'].isAuthenticated) {
       next()
     } else {
       $_goToLogin(to, next)
     }
   },
   requiresCE3: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin || isCE3(currentUser)) {
         next()
@@ -88,7 +88,7 @@ export default {
     }
   },
   requiresDegreeProgressPerm: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.canReadDegreeProgress) {
       next()
     } else if (currentUser.isAuthenticated) {
@@ -98,7 +98,7 @@ export default {
     }
   },
   requiresDirector: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (isDirector(currentUser) || currentUser.isAdmin) {
         next()
@@ -110,7 +110,7 @@ export default {
     }
   },
   requiresDropInAdvisor: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
         next()
@@ -122,12 +122,12 @@ export default {
     }
   },
   requiresScheduler: (to: any, from: any, next: any) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     if (currentUser.isAuthenticated) {
       if (currentUser.isAdmin) {
         next()
       } else {
-        $_requiresScheduler(to, next, getSchedulerDeptCodes(Vue.prototype.$currentUser))
+        $_requiresScheduler(to, next, getSchedulerDeptCodes(store.getters['context/currentUser']))
       }
     } else {
       $_goToLogin(to, next)

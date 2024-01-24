@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import Vue from 'vue'
+import store from '@/store'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {getAllTopics} from '@/api/topics'
 
@@ -34,7 +34,7 @@ const getters = {
   includeNotes: (state: any): boolean => state.includeNotes,
   includeStudents: (state: any): boolean => state.includeStudents,
   isDirty: (state: any): boolean => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     return (currentUser.canAccessCanvasData && !state.includeCourses)
       || (currentUser.canAccessCanvasData && !state.includeNotes)
       || (currentUser.canAccessAdmittedStudents && !state.includeAdmits)
@@ -55,7 +55,7 @@ const getters = {
 
 const mutations = {
   resetAdvancedSearch: (state: any, queryText?: string) => {
-    const currentUser = Vue.prototype.$currentUser
+    const currentUser = store.getters['context/currentUser']
     const domain = ['students']
     if (currentUser.canAccessCanvasData) {
       domain.push('courses')
@@ -107,7 +107,7 @@ const mutations = {
 const actions = {
   init: ({commit}, queryText?: string) => {
     return new Promise<void>(resolve => {
-      const currentUser = Vue.prototype.$currentUser
+      const currentUser = store.getters['context/currentUser']
       commit('resetAdvancedSearch', queryText)
       getMySearchHistory().then(history => {
         commit('setSearchHistory', history)
