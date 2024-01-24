@@ -5,7 +5,7 @@
     body-class="pl-0 pr-0"
     hide-footer
     hide-header
-    @shown="$putFocusNextTick('modal-header')"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader text="Rename Your Template" />

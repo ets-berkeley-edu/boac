@@ -183,7 +183,7 @@ export default {
         this.addSid(note.sid)
       }
       this.setMode('editNote')
-      this.$putFocusNextTick('edit-note-subject')
+      this.putFocusNextTick('edit-note-subject')
       this.$announcer.polite('Edit note form is open.')
     })
     this.setEventHandler('user-session-expired', () => {
@@ -211,7 +211,7 @@ export default {
     cancelTheCancel() {
       this.$announcer.polite('Continue editing note.')
       this.showAreYouSureModal = false
-      this.$putFocusNextTick('edit-note-subject')
+      this.putFocusNextTick('edit-note-subject')
     },
     clearErrors() {
       this.error = null
@@ -248,7 +248,7 @@ export default {
           this.error = 'Subject is required'
           this.showErrorPopover = true
           this.$announcer.polite(`Validation failed: ${this.error}`)
-          this.$putFocusNextTick('edit-note-subject')
+          this.putFocusNextTick('edit-note-subject')
         }
       }
       getUserProfile().then(data => {

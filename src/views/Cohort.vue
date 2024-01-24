@@ -174,7 +174,7 @@ export default {
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
         this.loaded(this.getLoadedAlert())
-        this.$putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
+        this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
     }
   },

@@ -59,7 +59,7 @@
             >
               <td v-if="currentUser.canEditDegreeProgress" class="pl-0 td-course-assignment-menu">
                 <div v-if="!isUserDragging(course.id)">
-                  <CourseAssignmentMenu :after-course-assignment="() => $putFocusNextTick(`${key}-header`)" :course="course" />
+                  <CourseAssignmentMenu :after-course-assignment="() => putFocusNextTick(`${key}-header`)" :course="course" />
                 </div>
               </td>
               <td class="td-name">
@@ -244,26 +244,26 @@ export default {
       this.$announcer.polite('Canceled')
       this.courseForEdit = null
       this.setDisableButtons(false)
-      this.$putFocusNextTick(putFocus)
+      this.putFocusNextTick(putFocus)
     },
     afterSave(course) {
       this.courseForEdit = null
       this.$announcer.polite(`Updated ${this.key} course ${course.name}`)
       this.setDisableButtons(false)
-      this.$putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
+      this.putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
     },
     edit(course) {
       this.hideNote(course, false)
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${this.key} ${course.name}`)
       this.courseForEdit = course
-      this.$putFocusNextTick('name-input')
+      this.putFocusNextTick('name-input')
     },
     canDrag() {
       return !this.disableButtons && this.currentUser.canEditDegreeProgress
     },
     deleteCanceled() {
-      this.$putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
+      this.putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
       this.courseForDelete = null
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
@@ -273,7 +273,7 @@ export default {
         this.$announcer.polite(`${this.courseForDelete.name} deleted.`)
         this.courseForDelete = null
         this.setDisableButtons(false)
-        this.$putFocusNextTick('create-course-button')
+        this.putFocusNextTick('create-course-button')
       })
     },
     hideNote(course, srAlert=true) {

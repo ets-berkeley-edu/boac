@@ -101,7 +101,7 @@ export default {
       this.added = this._filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
       this.$announcer.polite(`${this.header} '${object.name}' removed`)
-      this.$putFocusNextTick(`batch-degree-check-${this.objectType}`, 'button')
+      this.putFocusNextTick(`batch-degree-check-${this.objectType}`, 'button')
     }
   }
 }

@@ -47,7 +47,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <FerpaReminderModal
               :cancel="cancelExportModal"
@@ -201,7 +201,7 @@ export default {
           this.admits = this._get(response, 'students')
           this.totalAdmitCount = this._get(response, 'totalStudentCount')
           this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
-          this.$putFocusNextTick('cohort-name')
+          this.putFocusNextTick('cohort-name')
         } else {
           this.$router.push({path: '/404'})
         }

@@ -68,7 +68,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="$putFocusNextTick('modal-header')"
+      @shown="putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal
         :cancel="onModalCancel"
@@ -166,7 +166,7 @@ export default {
         const done = () => {
           this.checkedGroups = this._without(this.checkedGroups, group.id)
           this.isRemoving = false
-          this.$putFocusNextTick(this.dropdownId, 'button')
+          this.putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
@@ -177,7 +177,7 @@ export default {
         const done = () => {
           this.checkedGroups.push(group.id)
           this.isAdding = false
-          this.$putFocusNextTick(this.dropdownId, 'button')
+          this.putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
         }
         addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
@@ -187,7 +187,7 @@ export default {
       this.isAdding = true
       this.showModal = false
       const done = () => {
-        this.$putFocusNextTick(this.dropdownId, 'button')
+        this.putFocusNextTick(this.dropdownId, 'button')
         this.isAdding = false
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
@@ -199,7 +199,7 @@ export default {
     onModalCancel() {
       this.showModal = false
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick(this.dropdownId, 'button')
+      this.putFocusNextTick(this.dropdownId, 'button')
     },
     refresh() {
       const containsSid = group => {

@@ -375,7 +375,7 @@ export default {
       // Place v-calendar date picker popover where it belongs in the tab order
       const el = document.getElementById(`filter-range-date-picker-${this.position}`)
       const container = e.target.parentElement.querySelector('.filter-range-popover-container')
-      this.$nextTick(() => {
+      this.nextTick(() => {
         const popover = el ? el.querySelector('.vc-popover-content-wrapper') : null
         if (container && popover) {
           container.replaceChildren(popover)
@@ -471,10 +471,10 @@ export default {
           this.putFocusSecondaryDropdown()
           break
         case 'boolean':
-          this.$putFocusNextTick('unsaved-filter-add')
+          this.putFocusNextTick('unsaved-filter-add')
           break
         case 'range':
-          this.$putFocusNextTick(`filter-range-min-${this.position}`)
+          this.putFocusNextTick(`filter-range-min-${this.position}`)
           break
         }
       }
@@ -483,7 +483,7 @@ export default {
       this.filter.value = this._get(this.selectedOption, 'value')
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
-        this.$putFocusNextTick('unsaved-filter-add')
+        this.putFocusNextTick('unsaved-filter-add')
         this.$announcer.polite(`${this.selectedOption.name} selected`)
       }
     },
@@ -540,13 +540,13 @@ export default {
       return flatten ? this._values(this.filterOptionGroups)[0] : this.filterOptionGroups
     },
     putFocusNewFilterDropdown() {
-      this.$putFocusNextTick('filter-select-primary-new')
+      this.putFocusNextTick('filter-select-primary-new')
     },
     putFocusRange() {
-      this.$putFocusNextTick(`filter-range-min-${this.position}`)
+      this.putFocusNextTick(`filter-range-min-${this.position}`)
     },
     putFocusSecondaryDropdown() {
-      this.$putFocusNextTick(`filter-select-secondary-${this.position}`)
+      this.putFocusNextTick(`filter-select-secondary-${this.position}`)
     },
     rangeInputSize() {
       let maxLength = undefined

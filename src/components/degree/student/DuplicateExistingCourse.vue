@@ -101,7 +101,7 @@ export default {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick('duplicate-existing-course')
+      this.putFocusNextTick('duplicate-existing-course')
     },
     onClickSave() {
       this.isSaving = true
@@ -111,7 +111,7 @@ export default {
         this.selected = null
         this.setDisableButtons(false)
         this.$announcer.polite('Course duplicated and put in the list of Unassigned.')
-        this.$putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
+        this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
       })
     },
     onSelect() {
@@ -121,7 +121,7 @@ export default {
       this.setDisableButtons(true)
       this.isMenuOpen = true
       this.$announcer.polite('The \'Duplicate Course\' menu is open.')
-      this.$putFocusNextTick('add-course-select')
+      this.putFocusNextTick('add-course-select')
     }
   }
 }

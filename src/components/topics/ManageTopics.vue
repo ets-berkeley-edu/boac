@@ -159,7 +159,7 @@ export default {
       if (match) {
         Object.assign(match, topic)
         this.$announcer.polite(`Topic '${topic.topic}' updated.`)
-        this.$putFocusNextTick(focusTarget)
+        this.putFocusNextTick(focusTarget)
       } else {
         this.refresh(focusTarget)
         this.$announcer.polite(`Topic '${topic.topic}' created.`)
@@ -172,21 +172,21 @@ export default {
       this.isDeleteTopicModalOpen = false
       this.topicDelete = undefined
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick('filter-topics')
+      this.putFocusNextTick('filter-topics')
     },
     deleteConfirm() {
       return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
         this.topicDelete.deletedAt = this.$moment()
         this.$announcer.polite(`Topic '${this.topicDelete.topic}' deleted.`)
-        this.$putFocusNextTick(`topic-${this.topicDelete.id}`)
+        this.putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined
       })
     },
     onCancelEdit() {
       this.isEditTopicModalOpen = false
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick('filter-topics')
+      this.putFocusNextTick('filter-topics')
       this.topicEdit = null
     },
     openCreateTopicModal() {
@@ -209,7 +209,7 @@ export default {
             topic.countNotes = statistics.notes[topic.id] || 0
           })
           this.hasLoadedTopics = true
-          this.$putFocusNextTick(focusTarget)
+          this.putFocusNextTick(focusTarget)
         })
       })
     },
@@ -217,7 +217,7 @@ export default {
       undeleteTopic(topic.id).then(() => {
         topic.deletedAt = null
         this.$announcer.polite(`Topic ${topic.topic} un-deleted.`)
-        this.$putFocusNextTick(`topic-${topic.id}`)
+        this.putFocusNextTick(`topic-${topic.id}`)
       })
     }
   }

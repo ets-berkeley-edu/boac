@@ -133,7 +133,7 @@ export default {
       if (group) {
         this.loaded(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
-        this.$putFocusNextTick('curated-group-name')
+        this.putFocusNextTick('curated-group-name')
       } else {
         this.$router.push({path: '/404'})
       }
@@ -158,7 +158,7 @@ export default {
     })
   },
   mounted() {
-    this.$nextTick(function() {
+    this.nextTick(function() {
       if (!this.anchor) {
         return false
       }
@@ -177,12 +177,12 @@ export default {
         this.loadingStart()
         this.addStudents(sids).then(() => {
           this.loaded(this.getLoadedAlert())
-          this.$putFocusNextTick('curated-group-name')
+          this.putFocusNextTick('curated-group-name')
           this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
         })
       } else {
         this.$announcer.polite('Canceled bulk add of students')
-        this.$putFocusNextTick('curated-group-name')
+        this.putFocusNextTick('curated-group-name')
       }
     },
     getLoadedAlert() {

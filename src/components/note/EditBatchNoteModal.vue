@@ -259,7 +259,7 @@ export default {
     cancelCreateTemplate() {
       this.setIsSaving(false)
       this.showCreateTemplateModal = false
-      this.$nextTick(() => {
+      this.nextTick(() => {
         this.setFocusLockDisabled(false)
       })
     },
@@ -267,12 +267,12 @@ export default {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
       this.$announcer.polite('Continue editing note.')
-      this.$putFocusNextTick('create-note-subject')
+      this.putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false
-      this.$putFocusNextTick('create-note-subject')
-      this.$nextTick(() => {
+      this.putFocusNextTick('create-note-subject')
+      this.nextTick(() => {
         this.setFocusLockDisabled(false)
       })
     },

@@ -179,8 +179,8 @@ export default {
       this.showRenameTemplateModal = false
       this.targetTemplate = null
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick('create-note-subject')
-      this.$nextTick(() => {
+      this.putFocusNextTick('create-note-subject')
+      this.nextTick(() => {
         this.setFocusLockDisabled(false)
       })
     },
@@ -189,8 +189,8 @@ export default {
         this.showDeleteTemplateModal = false
         this.targetTemplate = null
         this.$announcer.polite('Template deleted.')
-        this.$putFocusNextTick('create-note-subject')
-        this.$nextTick(() => {
+        this.putFocusNextTick('create-note-subject')
+        this.nextTick(() => {
           this.setFocusLockDisabled(false)
         })
       })
@@ -198,12 +198,12 @@ export default {
     editTemplate(template) {
       this.setModel(template)
       this.setMode('editTemplate')
-      this.$putFocusNextTick('create-note-subject')
+      this.putFocusNextTick('create-note-subject')
       this.$announcer.polite(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
       this.applyTemplate(template)
-      this.$putFocusNextTick('create-note-subject')
+      this.putFocusNextTick('create-note-subject')
       this.$announcer.polite(`Template ${template.title} loaded.`)
     },
     onShowTemplatesMenu() {
@@ -228,7 +228,7 @@ export default {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
         this.$announcer.polite(`Template renamed '${title}'.`)
-        this.$nextTick(() => {
+        this.nextTick(() => {
           this.setFocusLockDisabled(false)
         })
       })

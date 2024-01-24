@@ -130,14 +130,14 @@ export default {
       this.categoryForEdit = category
       this.setDisableButtons(true)
       this.$announcer.polite(`Edit ${category.categoryType} "${category.name}"`)
-      this.$putFocusNextTick(`column-${this.position}-name-input`)
+      this.putFocusNextTick(`column-${this.position}-name-input`)
     },
     onExitEditCategory() {
       const putFocus = this.categoryForEdit ? `column-${this.position}-edit-category-${this.categoryForEdit.id}-btn` : `column-${this.position}-create-btn`
       this.categoryForEdit = null
       this.isAddingCategory = false
       this.setDisableButtons(false)
-      this.$putFocusNextTick(putFocus)
+      this.putFocusNextTick(putFocus)
     }
   }
 }

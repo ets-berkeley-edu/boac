@@ -117,7 +117,7 @@ export default {
     onChangeSelect(option) {
       if (option) {
         this.$announcer.polite(`${this.selectedOption.name} selected`)
-        this.$putFocusNextTick('save-degree-check-btn')
+        this.putFocusNextTick('save-degree-check-btn')
       }
     },
     onClickSave() {

@@ -329,7 +329,7 @@ export default {
   watch: {
     showAdvancedSearch(value) {
       if (value) {
-        this.$putFocusNextTick('advanced-search-header')
+        this.putFocusNextTick('advanced-search-header')
       }
     }
   },
@@ -408,7 +408,7 @@ export default {
         }
       } else {
         this.$announcer.polite('Search input is required')
-        this.$putFocusNextTick('search-students-input')
+        this.putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
     },

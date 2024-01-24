@@ -101,7 +101,7 @@ export default {
     this.discontinuedSubplans = this._compact(this._map(this.plansPartitionedByStatus[1], 'subplan'))
   },
   mounted() {
-    this.$putFocusNextTick('student-name-header')
+    this.putFocusNextTick('student-name-header')
   },
   methods: {
     toggleShowDetails() {

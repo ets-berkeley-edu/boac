@@ -3,6 +3,7 @@ import mitt from 'mitt'
 import store from '@/store'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
+import {putFocusNextTick} from '@/utils'
 
 const state = {
   announcement: undefined,
@@ -39,7 +40,7 @@ const mutations = {
     }
     state.loading = false
     if (focusTarget) {
-      Vue.prototype.$putFocusNextTick(focusTarget)
+      putFocusNextTick(focusTarget)
     } else {
       const callable = () => {
         const elements = document.getElementsByTagName('h1')
@@ -49,7 +50,7 @@ const mutations = {
         }
         return elements.length > 0
       }
-      Vue.prototype.$nextTick(() => {
+      Vue.nextTick(() => {
         let counter = 0
         const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
       })

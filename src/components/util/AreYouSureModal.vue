@@ -7,7 +7,7 @@
     hide-header
     @cancel.prevent="functionCancel"
     @hide.prevent="functionCancel"
-    @shown="$putFocusNextTick('modal-header')"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader clazz="px-3" :text="modalHeader" />

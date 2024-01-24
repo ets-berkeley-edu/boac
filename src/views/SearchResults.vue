@@ -191,7 +191,7 @@ export default {
           this.loaded(this.describeResults())
           const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
-          this.$putFocusNextTick(focusId)
+          this.putFocusNextTick(focusId)
         }).finally(() => {
           this.isSearching = false
         })

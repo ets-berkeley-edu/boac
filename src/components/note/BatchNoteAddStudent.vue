@@ -131,7 +131,7 @@ export default {
           } else {
             this.clearWarning()
           }
-          this.$putFocusNextTick('create-note-add-student-input')
+          this.putFocusNextTick('create-note-add-student-input')
         })
       } else {
         return Promise.resolve()
@@ -152,7 +152,7 @@ export default {
         if (this.sids.includes(student.sid)) {
           this.setIsRecalculating(true)
           this.removeStudent(student.sid)
-          this.$putFocusNextTick('create-note-add-student-input')
+          this.putFocusNextTick('create-note-add-student-input')
         }
         this.$announcer.polite(`${student.label} removed from batch note`)
       }

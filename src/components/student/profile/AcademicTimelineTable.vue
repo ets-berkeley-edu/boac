@@ -483,7 +483,7 @@ export default {
         })
         if (obj) {
           this.isShowingAll = true
-          this.$nextTick(function() {
+          this.nextTick(function() {
             this.open(obj, true)
             this.scrollToPermalink(messageType, messageId)
           })
@@ -522,7 +522,7 @@ export default {
     },
     cancelTheDelete() {
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
+      this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
     close(message, notifyScreenReader) {
@@ -572,7 +572,7 @@ export default {
     },
     editNote(note) {
       this.editModeNoteId = note.id
-      this.$putFocusNextTick('edit-note-subject')
+      this.putFocusNextTick('edit-note-subject')
     },
     getSameDayDate(message) {
       let startsAt = this.$moment(message.createdAt).tz(this.config.timezone).format('h:mma')
@@ -669,7 +669,7 @@ export default {
     },
     scrollToPermalink(messageType, messageId) {
       this.scrollTo(`#permalink-${messageType}-${messageId}`)
-      this.$putFocusNextTick(`message-row-${messageId}`)
+      this.putFocusNextTick(`message-row-${messageId}`)
     },
     toggleExpandAll() {
       this.isShowingAll = true
