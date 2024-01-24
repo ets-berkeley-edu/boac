@@ -196,7 +196,7 @@ export default {
         this.pagination.currentPage === 0
           ? 0
           : (this.pagination.currentPage - 1) * limit
-      getAllAdmits(this.$currentUser.preferences.admitSortBy, limit, offset).then(response => {
+      getAllAdmits(this.currentUser.preferences.admitSortBy, limit, offset).then(response => {
         if (response) {
           this.admits = this._get(response, 'students')
           this.totalAdmitCount = this._get(response, 'totalStudentCount')

@@ -1,15 +1,15 @@
 <template>
   <div
     :id="`advising-note-search-result-${note.id}`"
-    :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+    :class="{'demo-mode-blur': currentUser.inDemoMode}"
     class="advising-note-search-result"
   >
     <h3 class="advising-note-search-result-header">
       <router-link
         v-if="note.studentUid"
         :id="`link-to-student-${note.studentUid}`"
-        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-        :to="`${studentRoutePath(note.studentUid, $currentUser.inDemoMode)}#note-${note.id}`"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        :to="`${studentRoutePath(note.studentUid, currentUser.inDemoMode)}#note-${note.id}`"
         class="advising-note-search-result-header-link"
         v-html="note.studentName"
       />
@@ -17,7 +17,7 @@
         v-if="!note.studentUid"
         :id="`student-${note.studentSid}-has-no-uid`"
         class="font-weight-500"
-        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
         v-html="note.studentName"
       />
       ({{ note.studentSid }})
@@ -28,7 +28,7 @@
       v-html="note.noteSnippet"
     >
     </div>
-    <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="advising-note-search-result-footer">
+    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="advising-note-search-result-footer">
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>

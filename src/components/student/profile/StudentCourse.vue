@@ -117,7 +117,7 @@
           <font-awesome :icon="['far', 'star']" class="text-warning" /> {{ requirement }}
         </div>
       </div>
-      <div v-if="$currentUser.canAccessCanvasData">
+      <div v-if="currentUser.canAccessCanvasData">
         <div
           v-for="(canvasSite, canvasSiteIdx) in course.canvasSites"
           :key="canvasSiteIdx"
@@ -230,10 +230,10 @@
               </th>
               <td colspan="2">
                 <div v-if="!canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
-                  <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
+                  <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> has never visited this course site.
                 </div>
                 <div v-if="canvasSite.analytics.lastActivity.student.raw" :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}-activity`">
-                  <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
+                  <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
                   last visited the course site {{ lastActivityDays(canvasSite.analytics).toLowerCase() }}.
                   {{ lastActivityInContext(canvasSite.analytics) }}
                 </div>
@@ -264,6 +264,7 @@
 </template>
 <script>
 import Berkeley from '@/mixins/Berkeley'
+import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
@@ -278,6 +279,7 @@ export default {
   },
   mixins: [
     Berkeley,
+    Context,
     StudentAnalytics,
     StudentMetadata,
     Util

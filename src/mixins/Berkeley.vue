@@ -1,12 +1,16 @@
 <script>
 import _ from 'lodash'
 import auth from '@/auth'
+import store from '@/store'
 import Vue from 'vue'
 import {map} from 'lodash'
 
 const getSectionsWithIncompleteStatus = sections => _.filter(sections, 'incompleteStatusCode')
 
-const myDeptCodes = roles => _.map(_.filter(Vue.prototype.$currentUser.departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
+const myDeptCodes = roles => {
+  const departments = store.getters['context/currentUser'].departments
+  return _.map(_.filter(departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
+}
 
 export default {
   name: 'Berkeley',

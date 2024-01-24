@@ -5,7 +5,7 @@
         <router-link :to="`/student/${student.uid}`">
           <h1
             :class="{
-              'demo-mode-blur': $currentUser.inDemoMode,
+              'demo-mode-blur': currentUser.inDemoMode,
               'font-size-20 font-weight-bolder mb-1': compact,
               'student-section-header': !compact
             }"
@@ -16,7 +16,7 @@
       <h1
         v-if="!linkToStudentProfile"
         id="student-name-header"
-        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
         class="student-section-header"
         v-html="student.name"
       ></h1>
@@ -24,7 +24,7 @@
       <div
         v-if="student.sisProfile.preferredName !== student.name"
         id="student-preferred-name"
-        :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
       >
         <span class="sr-only">Preferred name</span>
         <span v-html="student.sisProfile.preferredName"></span>
@@ -37,7 +37,7 @@
         Pronouns: {{ student.sisProfile.pronouns.description }}
       </div>
       <div id="student-bio-sid" class="font-size-14 font-weight-bold mb-1">
-        SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
+        SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
         <span
           v-if="academicCareerStatus === 'Inactive'"
           id="student-bio-inactive"
@@ -61,7 +61,7 @@
           <a
             id="student-mailto"
             :href="`mailto:${student.sisProfile.emailAddress}`"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             target="_blank"
           >
             <span class="sr-only">Email student at </span> {{ student.sisProfile.emailAddress }}<span class="sr-only"> (will open new browser tab)</span>
@@ -100,6 +100,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
@@ -107,7 +108,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentProfileHeaderBio',
   components: {StudentAcademicStanding},
-  mixins: [StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   props: {
     compact: {
       required: false,

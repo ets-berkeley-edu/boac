@@ -17,7 +17,7 @@
       </div>
     </div>
     <div
-      v-for="(group, index) in _filter($currentUser.myCuratedGroups, ['domain', domain])"
+      v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', domain])"
       :key="group.id"
       class="d-flex justify-content-between sidebar-row-link"
     >
@@ -42,13 +42,14 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import NavLink from '@/components/util/NavLink'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CuratedGroups',
   components: {NavLink},
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     domain: {
       type: String,

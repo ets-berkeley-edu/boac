@@ -36,12 +36,12 @@
                   :key="student.sid"
                   class="border-bottom border-top pb-2 pt-3"
                   :class="{'list-group-item-info': anchor === `#${student.uid}`}"
-                  :list-type="ownerId === $currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
+                  :list-type="ownerId === currentUser.id ? 'curatedGroupForOwner' : 'curatedGroup'"
                   :remove-student="removeStudent"
                   :row-index="index"
-                  :sorted-by="$currentUser.preferences.sortBy"
+                  :sorted-by="currentUser.preferences.sortBy"
                   :student="student"
-                  :term-id="$currentUser.preferences.termId"
+                  :term-id="currentUser.preferences.termId"
                 />
               </div>
               <div v-if="domain === 'admitted_students'">
@@ -187,7 +187,7 @@ export default {
     },
     getLoadedAlert() {
       const label = `${this._capitalize(this.describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
-      const sortedBy = this.translateSortByOption(this.$currentUser.preferences.sortBy)
+      const sortedBy = this.translateSortByOption(this.currentUser.preferences.sortBy)
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {

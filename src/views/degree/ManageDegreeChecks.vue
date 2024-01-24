@@ -17,7 +17,7 @@
     <h1 id="page-header" class="page-section-header">
       Degree Checks
     </h1>
-    <div v-if="$currentUser.canEditDegreeProgress" class="pb-3 w-10">
+    <div v-if="currentUser.canEditDegreeProgress" class="pb-3 w-10">
       <router-link
         id="degree-check-create-link"
         class="w-25"
@@ -150,7 +150,7 @@
                     <span class="sr-only">{{ row.item.name }} (will open new browser tab)</span>
                   </router-link>
                 </div>
-                <div v-if="$currentUser.canEditDegreeProgress">
+                <div v-if="currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
                   <b-btn
                     :id="`degree-check-${row.index}-rename-btn`"
@@ -162,7 +162,7 @@
                     Rename<span class="sr-only"> {{ row.item.name }}</span>
                   </b-btn>
                 </div>
-                <div v-if="$currentUser.canEditDegreeProgress">
+                <div v-if="currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
                   <b-btn
                     :id="`degree-check-${row.index}-copy-btn`"
@@ -174,7 +174,7 @@
                     Copy<span class="sr-only"> {{ row.item.name }}</span>
                   </b-btn>
                 </div>
-                <div v-if="$currentUser.canEditDegreeProgress">
+                <div v-if="currentUser.canEditDegreeProgress">
                   <span class="separator">|</span>
                   <b-btn
                     :id="`degree-check-${row.index}-delete-btn`"

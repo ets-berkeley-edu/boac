@@ -23,7 +23,7 @@
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${row.item.csEmplId}`"
-          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
           :to="admitRoutePath(row.item.csEmplId)"
           v-html="fullName(row.item)"
         ></router-link>
@@ -31,7 +31,7 @@
 
       <template v-slot:cell(csEmplId)="row">
         <span class="sr-only">C S I D </span>
-        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ row.item.csEmplId }}</span>
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.csEmplId }}</span>
       </template>
 
       <template v-slot:cell(currentSir)="row">
@@ -124,7 +124,7 @@ export default {
   },
   methods: {
     admitRoutePath(csEmplId) {
-      return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
+      return this.currentUser.inDemoMode ? `/admit/student/${window.btoa(csEmplId)}` : `/admit/student/${csEmplId}`
     },
     fullName(admit) {
       const lastName = admit.lastName ? `${admit.lastName},` : null

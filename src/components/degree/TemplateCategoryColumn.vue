@@ -3,7 +3,7 @@
     <div v-if="!sid" class="d-flex justify-content-between pb-3">
       <div class="pill bg-grey no-wrap px-2 text-uppercase text-white">Column {{ position }}</div>
       <b-btn
-        v-if="$currentUser.canEditDegreeProgress"
+        v-if="currentUser.canEditDegreeProgress"
         :id="`column-${position}-create-btn`"
         class="p-0"
         :disabled="disableButtons"
@@ -100,6 +100,7 @@
 
 <script>
 import Category from '@/components/degree/Category'
+import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
@@ -107,7 +108,7 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'TemplateCategoryColumn',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   components: {Category, CoursesTable, EditCategory},
   props: {
     position: {

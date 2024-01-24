@@ -46,7 +46,7 @@ export default {
     isSatisfied: undefined
   }),
   created() {
-    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
+    this.canEdit = this.currentUser.canEditDegreeProgress && !this.printable
     this.isSatisfied = this.campusRequirement.category.categoryType === 'Campus Requirement, Satisfied'
   },
   methods: {

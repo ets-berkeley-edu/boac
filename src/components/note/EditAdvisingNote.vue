@@ -38,7 +38,7 @@
         :topics="model.topics"
       />
     </div>
-    <div v-if="$currentUser.canAccessPrivateNotes" class="pb-3">
+    <div v-if="currentUser.canAccessPrivateNotes" class="pb-3">
       <PrivacyPermissions :disabled="isSaving || boaSessionExpired" />
     </div>
     <div class="pb-3">

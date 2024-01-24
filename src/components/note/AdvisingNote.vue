@@ -22,7 +22,7 @@
     <div v-if="isOpen" :id="`note-${note.id}-is-open`">
       <div v-if="isEditable">
         <b-btn
-          v-if="$currentUser.isAdmin"
+          v-if="currentUser.isAdmin"
           :id="`btn-delete-note-${note.id}`"
           class="sr-only"
           @click.stop="deleteNote(note)"
@@ -30,7 +30,7 @@
           Delete Note
         </b-btn>
         <b-btn
-          v-if="$currentUser.uid === author.uid"
+          v-if="currentUser.uid === author.uid"
           :id="`btn-edit-note-${note.id}`"
           class="sr-only"
           @click.stop="editNote(note)"
@@ -158,7 +158,7 @@
               {{ attachment.displayName }}
             </a>
             <b-btn
-              v-if="isEditable && ($currentUser.isAdmin || $currentUser.uid === author.uid)"
+              v-if="isEditable && (currentUser.isAdmin || currentUser.uid === author.uid)"
               :id="`note-${note.id}-remove-note-attachment-${index}`"
               variant="link"
               class="p-0"
@@ -170,7 +170,7 @@
           </span>
         </li>
       </ul>
-      <div v-if="isEditable && $currentUser.uid === author.uid">
+      <div v-if="isEditable && currentUser.uid === author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
           <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
@@ -332,8 +332,8 @@ export default {
             }
           }
           if (author_uid) {
-            if (author_uid === this.$currentUser.uid) {
-              callback(this.$currentUser)
+            if (author_uid === this.currentUser.uid) {
+              callback(this.currentUser)
             } else {
               getCalnetProfileByUid(author_uid).then(callback)
             }

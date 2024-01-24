@@ -47,7 +47,7 @@
                 @drop="dropToUnassign($event, 'unassigned')"
               >
                 <h3 id="unassigned-header" class="font-size-20 font-weight-bold pb-0 text-nowrap" tabindex="-1">Unassigned Courses</h3>
-                <div v-if="$currentUser.canEditDegreeProgress" class="pb-2">
+                <div v-if="currentUser.canEditDegreeProgress" class="pb-2">
                   <DuplicateExistingCourse />
                 </div>
                 <UnassignedCourses />
@@ -116,7 +116,7 @@ export default {
     this.init(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
         this.student = data
-        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
         this.loaded(`${this.degreeName} for ${this.student.name}`)
       })

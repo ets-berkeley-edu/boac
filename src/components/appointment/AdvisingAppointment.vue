@@ -153,8 +153,8 @@ export default {
       const requiresLazyLoad = this.isOpen && (!this._get(this.advisor, 'name') || !this._get(this.advisor, 'title'))
       if (requiresLazyLoad) {
         if (this._get(this.advisor, 'uid')) {
-          if (this.advisor.uid === this.$currentUser.uid) {
-            this.advisor = this.$currentUser
+          if (this.advisor.uid === this.currentUser.uid) {
+            this.advisor = this.currentUser
           } else {
             getCalnetProfileByUid(this.advisor.uid).then(data => {
               this.advisor = data

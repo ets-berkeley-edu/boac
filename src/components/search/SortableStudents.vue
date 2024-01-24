@@ -32,15 +32,15 @@
         <router-link
           v-if="row.item.uid"
           :id="`link-to-student-${row.item.uid}`"
-          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
-          :to="studentRoutePath(row.item.uid, $currentUser.inDemoMode)"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          :to="studentRoutePath(row.item.uid, currentUser.inDemoMode)"
           v-html="lastNameFirst(row.item)"
         />
         <span
           v-if="!row.item.uid"
           :id="`student-${row.item.sid}-has-no-uid`"
           class="font-weight-500"
-          :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
           v-html="lastNameFirst(row.item)"
         />
         <span
@@ -65,7 +65,7 @@
 
       <template v-slot:cell(sid)="row">
         <span class="sr-only">S I D </span>
-        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ row.item.sid }}</span>
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
       <template v-if="!options.compact" v-slot:cell(majors[0])="row">

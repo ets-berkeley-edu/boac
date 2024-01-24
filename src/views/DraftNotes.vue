@@ -2,10 +2,10 @@
   <div class="p-3">
     <Spinner />
     <h1 class="page-section-header pl-2 pt-2">
-      {{ $currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
+      {{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>
     <div v-if="!loading" class="pr-3">
-      <div v-if="!$currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 pl-2 text-secondary">
+      <div v-if="!currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 pl-2 text-secondary">
         A draft note is only visible to its author.
       </div>
       <b-table
@@ -23,9 +23,9 @@
           <span v-if="row.item.student">
             <router-link
               :id="`link-to-student-${row.item.student.uid}`"
-              :to="studentRoutePath(row.item.student.uid, $currentUser.inDemoMode)"
+              :to="studentRoutePath(row.item.student.uid, currentUser.inDemoMode)"
             >
-              <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+              <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
                 {{ row.item.student.firstName }} {{ row.item.student.lastName }}
               </span>
             </router-link>
@@ -35,21 +35,21 @@
           </span>
         </template>
         <template v-slot:cell(sid)="row">
-          <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+          <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
             {{ row.item.sid || '&mdash;' }}
           </span>
         </template>
         <template v-slot:cell(subject)="row">
           <div class="align-items-center d-flex justify-content-between">
             <div>
-              <div v-if="row.item.author.uid !== $currentUser.uid" :class="{'demo-mode-blur': $currentUser.inDemoMode}">
+              <div v-if="row.item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                 {{ _trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
               </div>
               <b-btn
-                v-if="row.item.author.uid === $currentUser.uid"
+                v-if="row.item.author.uid === currentUser.uid"
                 :id="`open-draft-note-${row.item.id}`"
                 class="border-0 p-0 text-left"
-                :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
                 variant="link"
                 @click="() => openEditModal(row.item)"
               >
@@ -63,7 +63,7 @@
           </div>
         </template>
         <template
-          v-if="$currentUser.isAdmin"
+          v-if="currentUser.isAdmin"
           v-slot:cell(author)="row"
         >
           {{ row.item.author.name }}
@@ -94,7 +94,7 @@
         </template>
       </b-table>
       <div v-if="!myDraftNotes.length" class="pl-2 pt-2">
-        {{ $currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
+        {{ currentUser.isAdmin ? 'No' : 'You have no' }} saved drafts.
       </div>
       <AreYouSureModal
         v-if="showDeleteModal"
@@ -157,7 +157,7 @@ export default {
         label: 'Subject'
       }
     ]
-    if (this.$currentUser.isAdmin) {
+    if (this.currentUser.isAdmin) {
       this.fields.push(
         {
           class: 'w-15',
@@ -198,7 +198,7 @@ export default {
       let message
       if (this.selectedDraftNote) {
         const student = this.selectedDraftNote.student
-        const style = this.$currentUser.inDemoMode ? 'demo-mode-blur' : ''
+        const style = this.currentUser.inDemoMode ? 'demo-mode-blur' : ''
         message = 'Please confirm the deletion of the draft note '
         message += student ? `for <b class="${style}">${student.firstName} ${student.lastName}</b>.` : `with subject ${this.selectedDraftNote.subject}.`
       }

@@ -72,7 +72,7 @@
     <div v-if="searchResults" class="ml-3 my-2">
       <h3 id="search-results-header" class="messages-none">
         {{ pluralize(`advising ${filter}`, searchResults.length) }} for&nbsp;
-        <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</span>
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span>
         with '{{ timelineQuery }}'
       </h3>
     </div>
@@ -135,7 +135,7 @@
               v-if="isEditable(message) && !editModeNoteId && _includes(openMessages, message.transientId)"
               class="mt-2"
             >
-              <div v-if="$currentUser.uid === message.author.uid && (!message.isPrivate || $currentUser.canAccessPrivateNotes)">
+              <div v-if="currentUser.uid === message.author.uid && (!message.isPrivate || currentUser.canAccessPrivateNotes)">
                 <b-btn
                   :id="`edit-note-${message.id}-button`"
                   :disabled="disableNewNoteButton"
@@ -148,7 +148,7 @@
                 </b-btn>
               </div>
               <div
-                v-if="$currentUser.isAdmin || (message.isDraft && message.author.uid === $currentUser.uid)"
+                v-if="currentUser.isAdmin || (message.isDraft && message.author.uid === currentUser.uid)"
               >
                 <b-btn
                   :id="`delete-note-button-${message.id}`"
@@ -173,7 +173,7 @@
               :class="{
                 'align-top message-open': _includes(openMessages, message.transientId) && message.type !== 'requirement' ,
                 'truncate': !_includes(openMessages, message.transientId),
-                'img-blur': $currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
+                'img-blur': currentUser.inDemoMode && ['appointment', 'eForm', 'note'].includes(message.type)
               }"
               :role="message.type === 'requirement' ? '' : 'button'"
               :tabindex="_includes(openMessages, message.transientId) ? -1 : 0"
@@ -424,7 +424,7 @@ export default {
         return this._find(notes, n => !n.isDraft)
       }
       return ['eForm', 'note'].includes(this.filter)
-        && (this.$currentUser.isAdmin || this.isDirector(this.$currentUser))
+        && (this.currentUser.isAdmin || this.isDirector(this.currentUser))
         && hasNonDrafts()
     },
     showMyNotesToggle() {
@@ -460,7 +460,7 @@ export default {
   },
   created() {
     this.refreshSearchIndex()
-    if (this.$currentUser.canAccessAdvisingData) {
+    if (this.currentUser.canAccessAdvisingData) {
       this.setEventHandler('note-creation-is-starting', this.onNoteCreateStartEvent)
       this.setEventHandler('note-created', this.afterNoteCreated)
       this.setEventHandler('note-updated', this.afterNoteEdit)
@@ -604,7 +604,7 @@ export default {
       } else if (this.showMyNotesToggle && this.showMyNotesOnly) {
         return this._filter(this.messages, m => {
           let uid = (m.author && m.author.uid) || (m.advisor && m.advisor.uid)
-          return m.type === type && uid === this.$currentUser.uid
+          return m.type === type && uid === this.currentUser.uid
         })
       } else {
         return this._filter(this.messages, ['type', type])

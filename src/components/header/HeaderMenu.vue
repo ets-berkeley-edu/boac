@@ -8,11 +8,11 @@
     >
       <template #button-content>
         <div class="align-items-center d-flex">
-          <div class="b-link-text pr-1">{{ $currentUser.firstName || `UID:${$currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
+          <div class="b-link-text pr-1">{{ currentUser.firstName || `UID:${currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
         </div>
       </template>
       <b-dropdown-item
-        v-if="$currentUser.canReadDegreeProgress"
+        v-if="currentUser.canReadDegreeProgress"
         id="header-menu-degree-check"
         class="nav-link-color text-decoration-none"
         to="/degrees"
@@ -20,15 +20,15 @@
         Degree Checks
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="$currentUser.isAdmin || myDirectorDepartment"
+        v-if="currentUser.isAdmin || myDirectorDepartment"
         id="header-menu-analytics"
-        :to="$currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
+        :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
         class="nav-link-color text-decoration-none"
       >
         Flight Data Recorder
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="$currentUser.isAdmin"
+        v-if="currentUser.isAdmin"
         id="header-menu-flight-deck"
         class="nav-link-color text-decoration-none"
         to="/admin"
@@ -36,7 +36,7 @@
         Flight Deck
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="$currentUser.isAdmin"
+        v-if="currentUser.isAdmin"
         id="header-menu-passengers"
         to="/admin/passengers"
         class="nav-link-color text-decoration-none"
@@ -44,7 +44,7 @@
         Passenger Manifest
       </b-dropdown-item>
       <b-dropdown-item
-        v-if="!$currentUser.isAdmin"
+        v-if="!currentUser.isAdmin"
         id="header-menu-profile"
         class="nav-link-color text-decoration-none"
         to="/profile"

@@ -68,7 +68,7 @@ export default {
       let password = this._trim(this.password)
       if (uid && password) {
         devAuthLogIn(uid, password).then(() => {
-          if (this.$currentUser.isAuthenticated) {
+          if (this.currentUser.isAuthenticated) {
             const redirect = this._get(this.$router, 'currentRoute.query.redirect')
             this.$router.push({path: redirect || '/'}, this._noop)
           } else {

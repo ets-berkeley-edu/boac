@@ -14,7 +14,7 @@
                 original degree template <font-awesome icon="external-link-alt" class="pr-1" />
                 <span class="sr-only"> (will open new browser tab)</span>
               </router-link>
-              have been made since the creation of <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}'s</span>
+              have been made since the creation of <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}'s</span>
               degree check. Please update below if necessary.
             </div>
             <div class="align-self-center pr-1">
@@ -59,18 +59,18 @@
             <div class="pr-2">
               <router-link
                 id="view-degree-history"
-                :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/history`"
+                :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/history`"
               >
                 History
               </router-link>
             </div>
-            <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
+            <div v-if="currentUser.canEditDegreeProgress" class="pr-2">
               |
             </div>
-            <div v-if="$currentUser.canEditDegreeProgress" class="pr-2">
+            <div v-if="currentUser.canEditDegreeProgress" class="pr-2">
               <router-link
                 id="create-new-degree"
-                :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
+                :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`"
               >
                 Create New Degree
               </router-link>
@@ -107,7 +107,7 @@
             </div>
           </div>
           <b-btn
-            v-if="$currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
+            v-if="currentUser.canEditDegreeProgress && !isEditingNote && !noteBody"
             id="create-degree-note-btn"
             class="pl-0 pt-0"
             :disabled="disableButtons"
@@ -146,7 +146,7 @@
                 v-html="noteBody"
               />
               <b-btn
-                v-if="$currentUser.canEditDegreeProgress"
+                v-if="currentUser.canEditDegreeProgress"
                 id="edit-degree-note-btn"
                 class="pl-0"
                 :disabled="disableButtons"

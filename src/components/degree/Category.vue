@@ -83,12 +83,13 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Category',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   components: {AreYouSureModal},
   props: {
     category: {
@@ -123,7 +124,7 @@ export default {
     }
   },
   created() {
-    this.canEdit = this.$currentUser.canEditDegreeProgress && !this.printable
+    this.canEdit = this.currentUser.canEditDegreeProgress && !this.printable
   },
   methods: {
     deleteCanceled() {

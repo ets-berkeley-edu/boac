@@ -4,8 +4,6 @@ import Vue from 'vue'
 import {mapActions, mapGetters} from 'vuex'
 import {oxfordJoin} from '@/utils'
 
-const p = Vue.prototype
-
 export default {
   name: 'SearchSession',
   computed: {
@@ -28,11 +26,12 @@ export default {
       set: v => store.commit('search/setFromDate', v)
     },
     labelForSearchInput: () => {
+      const currentUser = store.getters['context/currentUser']
       const scopes = ['students']
-      if (p.$currentUser.canAccessCanvasData) {
+      if (currentUser.canAccessCanvasData) {
         scopes.push('courses')
       }
-      if (p.$currentUser.canAccessAdvisingData) {
+      if (currentUser.canAccessAdvisingData) {
         scopes.push('notes')
       }
       const history = store.getters['search/searchHistory']
@@ -44,28 +43,28 @@ export default {
       },
       set: v => {
         store.commit('search/setIncludeAdmits', v)
-        p.$announcer.polite(`Search ${v ? 'will' : 'will not'} include admits.`)
+        Vue.prototype.$announcer.polite(`Search ${v ? 'will' : 'will not'} include admits.`)
       }
     },
     includeCourses: {
       get: () => store.getters['search/includeCourses'],
       set: v => {
         store.commit('search/setIncludeCourses', v)
-        p.$announcer.polite(`Search ${v ? 'will' : 'will not'} include courses.`)
+        Vue.prototype.$announcer.polite(`Search ${v ? 'will' : 'will not'} include courses.`)
       }
     },
     includeNotes: {
       get: () => store.getters['search/includeNotes'],
       set: v => {
         store.commit('search/setIncludeNotes', v)
-        p.$announcer.polite(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
+        Vue.prototype.$announcer.polite(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
       }
     },
     includeStudents: {
       get: () => store.getters['search/includeStudents'],
       set: v => {
         store.commit('search/setIncludeStudents', v)
-        p.$announcer.polite(`Search ${v ? 'will' : 'will not'} include students.`)
+        Vue.prototype.$announcer.polite(`Search ${v ? 'will' : 'will not'} include students.`)
       }
     },
     isSearching: {

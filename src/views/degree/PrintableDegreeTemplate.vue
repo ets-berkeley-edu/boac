@@ -4,10 +4,10 @@
     <b-container v-if="!loading" fluid>
       <b-row class="pb-2">
         <b-col v-if="student">
-          <h1 class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.name }}</h1>
+          <h1 class="font-size-18 font-weight-bold mb-0" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</h1>
           <div class="font-size-14">
             <div class="font-weight-500">
-              SID <span :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ student.sid }}</span>
+              SID <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.sid }}</span>
               <div>
                 {{ _get(student, 'sisProfile.level.description') || 'Level not available' }}
               </div>
@@ -44,7 +44,7 @@
         <b-col>
           <div class="unofficial-label-pill">
             <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
-            <div>Printed by {{ $currentUser.name }} on {{ $moment().format('MMMM D, YYYY') }}</div>
+            <div>Printed by {{ currentUser.name }} on {{ $moment().format('MMMM D, YYYY') }}</div>
           </div>
           <h2 class="font-size-14">{{ degreeName }}</h2>
           <div :class="{'unit-requirements-of-template': !student}">
@@ -144,7 +144,7 @@ export default {
       if (this.sid) {
         getStudentBySid(this.sid).then(data => {
           this.student = data
-          const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+          const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
           this.setPageTitle(`${studentName} - ${this.degreeName}`)
           this.loaded(`${this.degreeName} for ${this.student.name}`)
         })

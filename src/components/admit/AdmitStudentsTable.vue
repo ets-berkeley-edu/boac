@@ -43,14 +43,14 @@
           <router-link
             :id="`link-to-admit-${student.csEmplId}`"
             :aria-label="`Go to admitted student profile page of ${fullName(student)}`"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             :to="admitRoutePath(student)"
             v-html="fullName(student)"
           />
         </td>
         <td>
           <span class="sr-only">C S I D </span>
-          <span :id="`row-${index}-cs-empl-id`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ getSid(student) }}</span>
+          <span :id="`row-${index}-cs-empl-id`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ getSid(student) }}</span>
         </td>
         <td>
           <span class="sr-only">S I R</span>
@@ -124,7 +124,7 @@ export default {
   methods: {
     admitRoutePath(student) {
       const sid = this.getSid(student)
-      return this.$currentUser.inDemoMode ? `/admit/student/${window.btoa(sid)}` : `/admit/student/${sid}`
+      return this.currentUser.inDemoMode ? `/admit/student/${window.btoa(sid)}` : `/admit/student/${sid}`
     },
     curatedGroupRemoveStudent(student) {
       this.removeStudent(this.getSid(student))
@@ -135,7 +135,7 @@ export default {
       const middleName = student.middleName
       const lastName = student.lastName
       let fullName
-      if (this.$currentUser.preferences.admitSortBy === 'first_name') {
+      if (this.currentUser.preferences.admitSortBy === 'first_name') {
         fullName = this._join(this._remove([firstName, middleName, lastName]), ' ')
       } else {
         fullName = this._join(this._remove([lastName ? `${lastName},` : null, firstName, middleName]), ' ')

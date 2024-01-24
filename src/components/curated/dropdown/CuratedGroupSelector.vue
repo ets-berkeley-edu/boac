@@ -130,7 +130,7 @@ export default {
   }),
   computed: {
     myCuratedGroups() {
-      return this._filter(this.$currentUser.myCuratedGroups, ['domain', this.domain])
+      return this._filter(this.currentUser.myCuratedGroups, ['domain', this.domain])
     }
   },
   created() {

@@ -2,7 +2,6 @@
 import _ from 'lodash'
 import Berkeley from '@/mixins/Berkeley'
 import store from '@/store'
-import Vue from 'vue'
 
 export default {
   name: 'Validator',
@@ -30,9 +29,10 @@ export default {
       } else if (isReservedName(name)) {
         msg = `Sorry, '${name}' is a reserved name. Please choose a different name.`
       } else {
+        const currentUser = store.getters['context/currentUser']
         const all = {
-          'curated group': Vue.prototype.$currentUser.myCuratedGroups,
-          cohort: Vue.prototype.$currentUser.myCohorts
+          'curated group': currentUser.myCuratedGroups,
+          cohort: currentUser.myCohorts
         }
         _.each(all, (cohorts, cohortType) => {
           _.each(cohorts, existing => {

@@ -16,11 +16,11 @@
               <h1 id="page-header" class="page-section-header">Degree Check History</h1>
             </b-col>
             <b-col>
-              <div v-if="$currentUser.canEditDegreeProgress" class="d-flex justify-content-end">
+              <div v-if="currentUser.canEditDegreeProgress" class="d-flex justify-content-end">
                 <div class="pr-2">
                   <router-link
                     id="create-new-degree"
-                    :to="`${studentRoutePath(student.uid, $currentUser.inDemoMode)}/degree/create`"
+                    :to="`${studentRoutePath(student.uid, currentUser.inDemoMode)}/degree/create`"
                   >
                     Create New Degree
                   </router-link>
@@ -102,7 +102,7 @@ export default {
   }),
   created() {
     let uid = this._get(this.$route, 'params.uid')
-    if (this.$currentUser.inDemoMode) {
+    if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose UID in browser location bar.
       uid = window.atob(uid)
     }
@@ -117,7 +117,7 @@ export default {
             degreeCheck.showRevisionIndicator = false
           }
         })
-        const studentName = this.$currentUser.inDemoMode ? 'Student' : this.student.name
+        const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.loaded(`${studentName} Degree History`)
       })
     })

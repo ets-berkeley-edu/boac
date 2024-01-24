@@ -38,7 +38,7 @@
     <div>
       <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
         <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
-          <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': $currentUser.inDemoMode}">{{ addedStudent.label }}</span>
+          <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
           <b-btn
             :id="`remove-student-from-batch-${index}`"
             variant="link"

@@ -5,11 +5,11 @@
         <Cohorts :cohorts="myCohorts" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="$currentUser.myCuratedGroups">
+      <div v-if="currentUser.myCuratedGroups">
         <CuratedGroups domain="default" />
         <hr class="ml-2 mr-2 section-divider" />
       </div>
-      <div v-if="$currentUser.canAccessAdmittedStudents">
+      <div v-if="currentUser.canAccessAdmittedStudents">
         <div class="ml-2 sidebar-header">
           Admitted Students
         </div>
@@ -17,7 +17,7 @@
           <div v-if="myAdmitCohorts" class="py-2">
             <MyAdmitCohorts :cohorts="myAdmitCohorts" />
           </div>
-          <div v-if="$currentUser.myCuratedGroups">
+          <div v-if="currentUser.myCuratedGroups">
             <div class="pt-2">
               <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
             </div>
@@ -37,15 +37,15 @@
       </div>
     </div>
     <div
-      v-if="$currentUser.canAccessAdvisingData"
+      v-if="currentUser.canAccessAdvisingData"
       class="batch-note-button fixed-bottom-sidebar"
       :class="{'z-index-0': !loading}"
     >
-      <div class="sidebar" :class="{'mb-3': $currentUser.isAdmin}">
+      <div class="sidebar" :class="{'mb-3': currentUser.isAdmin}">
         <LinkToDraftNotes />
       </div>
       <div
-        v-if="!$currentUser.isAdmin"
+        v-if="!currentUser.isAdmin"
         class="d-flex justify-content-center mb-3 pl-3 sidebar"
       >
         <b-btn
@@ -95,10 +95,10 @@ export default {
   }),
   computed: {
     myAdmitCohorts() {
-      return this._filter(this.$currentUser.myCohorts, ['domain', 'admitted_students'])
+      return this._filter(this.currentUser.myCohorts, ['domain', 'admitted_students'])
     },
     myCohorts() {
-      return this._filter(this.$currentUser.myCohorts, ['domain', 'default'])
+      return this._filter(this.currentUser.myCohorts, ['domain', 'default'])
     }
   },
   methods: {

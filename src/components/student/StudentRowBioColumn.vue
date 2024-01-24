@@ -5,19 +5,19 @@
         <router-link
           v-if="student.uid"
           :id="`link-to-student-${student.uid}`"
-          :to="studentRoutePath(student.uid, $currentUser.inDemoMode)"
+          :to="studentRoutePath(student.uid, currentUser.inDemoMode)"
         >
           <h3
             v-if="sortedBy !== 'first_name'"
             :id="`row-${rowIndex}-student-name`"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             class="student-name"
             v-html="lastNameFirst(student)"
           />
           <h3
             v-if="sortedBy === 'first_name'"
             :id="`row-${rowIndex}-student-name`"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             class="student-name"
           >
             {{ student.firstName }} {{ student.lastName }}
@@ -28,21 +28,21 @@
             v-if="sortedBy === 'first_name'"
             :id="`student-${student.sid}-has-no-uid`"
             class="font-weight-500 student-name"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             v-html="lastNameFirst(student)"
           />
           <span
             v-if="sortedBy !== 'first_name'"
             :id="`student-${student.sid}-has-no-uid`"
             class="font-size-16 m-0"
-            :class="{'demo-mode-blur': $currentUser.inDemoMode}"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
             {{ student.firstName }} {{ student.lastName }}
           </span>
         </span>
       </div>
     </div>
-    <div :class="{'demo-mode-blur': $currentUser.inDemoMode}" class="d-flex student-sid">
+    <div :class="{'demo-mode-blur': currentUser.inDemoMode}" class="d-flex student-sid">
       <div :id="`row-${rowIndex}-student-sid`">{{ student.sid }}</div>
       <div
         v-if="student.academicCareerStatus === 'Inactive'"
@@ -147,6 +147,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentMetadata from '@/mixins/StudentMetadata'
@@ -154,7 +155,7 @@ import Util from '@/mixins/Util.vue'
 
 export default {
   name: 'StudentRowBioColumn',
-  mixins: [StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   components: {
     DegreesAwarded,
     StudentAcademicStanding

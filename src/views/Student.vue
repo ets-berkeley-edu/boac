@@ -78,12 +78,12 @@ export default {
   },
   created() {
     let uid = this._get(this.$route, 'params.uid')
-    if (this.$currentUser.inDemoMode) {
+    if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.
       uid = window.atob(uid)
     }
     getStudentByUid(uid).then(student => {
-      this.setPageTitle(this.$currentUser.inDemoMode ? 'Student' : student.name)
+      this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : student.name)
       this._assign(this.student, student)
       this._each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
       this.loaded(`${this.student.name} loaded`, this.anchor)
@@ -123,7 +123,7 @@ export default {
       }
     },
     parseCourse(course) {
-      const canAccessCanvasData = this.$currentUser.canAccessCanvasData
+      const canAccessCanvasData = this.currentUser.canAccessCanvasData
       this.setWaitlistedStatus(course)
       this._each(course.sections, function(section) {
         course.isOpen = false
