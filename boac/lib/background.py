@@ -32,22 +32,16 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 
 def initialize_scheduler_loop(app):
-    from boac.models.appointment import Appointment
     from boac.models.note import Note
 
     if app.config['BACKGROUND_TASKS']:
         app_scheduler = sched.scheduler(time.time, time.sleep)
-
-        for i, method in enumerate([
-            Note.refresh_search_index,
-            Appointment.refresh_search_index,
-        ]):
-            app_scheduler.enter(
-                app.config['BACKGROUND_TASK_LOOP_INTERVAL'] + (i * app.config['BACKGROUND_TASK_LOOP_SPACING']),
-                1,
-                execute_scheduled,
-                (method, app_scheduler, app),
-            )
+        app_scheduler.enter(
+            app.config['BACKGROUND_TASK_LOOP_INTERVAL'],
+            1,
+            execute_scheduled,
+            (Note.refresh_search_index, app_scheduler, app),
+        )
 
         Thread(target=app_scheduler.run, daemon=True).start()
 

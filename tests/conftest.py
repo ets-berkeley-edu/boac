@@ -268,7 +268,7 @@ def mock_advising_note(app, db):
         author_dept_codes=['UWASC'],
         author_uid='90412',
         db=db,
-        topics=['collaborative synergies', 'integrated architectures', 'vertical solutions'],
+        topics=['collaborative synergies', 'integrated architectures', 'vertical solutions', 'Other / Reason not listed'],
     )
     yield note
     Note.delete(note_id=note.id)

@@ -328,27 +328,3 @@ class TestRefreshDepartmentMemberships:
         assert updated_user.deleted_at is None
         assert updated_user.created_by == '0'
         assert updated_user.department_memberships[0].university_dept_id == dept_ucls.id
-
-    def test_deletes_drop_in_advisor_orphans(self):
-        """Cleans up drop-in advisor record for a department membership that no longer exists."""
-        from boac.models.authorized_user_extension import DropInAdvisor
-        dept_ucls = UniversityDept.query.filter_by(dept_code='QCADVMAJ').first()
-        bad_user = AuthorizedUser.create_or_restore(uid='666', created_by='2040')
-        UniversityDeptMember.create_or_update_membership(
-            dept_ucls.id,
-            bad_user.id,
-            role='advisor',
-        )
-        DropInAdvisor.create_or_update_membership(dept_ucls.dept_code, bad_user.id)
-        std_commit(allow_test_environment=True)
-
-        ucls_drop_in_advisors = DropInAdvisor.advisors_for_dept_code(dept_ucls.dept_code)
-        assert len(ucls_drop_in_advisors) == 2
-        assert bad_user.id in [d.authorized_user_id for d in ucls_drop_in_advisors]
-
-        from boac.api.cache_utils import refresh_department_memberships
-        refresh_department_memberships()
-        std_commit(allow_test_environment=True)
-
-        ucls_drop_in_advisors = DropInAdvisor.advisors_for_dept_code(dept_ucls.dept_code)
-        assert len(ucls_drop_in_advisors) == 1

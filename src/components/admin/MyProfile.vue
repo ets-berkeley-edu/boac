@@ -27,13 +27,6 @@
           class="flex-row pb-3"
         >
           <div id="my-dept-roles">{{ _upperFirst(department.role) }} in {{ department.name }}</div>
-          <div v-if="$currentUser.canAccessAdvisingData && canToggleDropInAdvising(department)" class="ml-5">
-            Drop-in advising:
-            <DropInAdvisingToggle
-              :dept-code="department.code"
-              class="drop-in-advising-toggle"
-            />
-          </div>
         </div>
       </b-col>
     </b-row>
@@ -43,14 +36,10 @@
 <script>
 import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
-import DropInAdvisingToggle from '@/components/admin/DropInAdvisingToggle'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'MyProfile',
-  components: {
-    DropInAdvisingToggle,
-  },
   mixins: [Berkeley, Context, Util],
   data: () => ({
     profile: undefined
@@ -74,9 +63,6 @@ export default {
       const automated = this.$currentUser.automateDegreeProgressPermission
       this.profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
     }
-  },
-  methods: {
-    canToggleDropInAdvising: dept => dept.isDropInEnabled && (dept.role === 'advisor' || dept.role === 'director')
   }
 }
 </script>

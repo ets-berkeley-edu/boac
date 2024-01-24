@@ -38,21 +38,13 @@ class Topic(db.Model):
     topic = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now)
     deleted_at = db.Column(db.DateTime, nullable=True)
-    available_in_notes = db.Column(db.Boolean, nullable=False)
-    available_in_appointments = db.Column(db.Boolean, nullable=False)
 
-    def __init__(self, topic, available_in_notes, available_in_appointments):
+    def __init__(self, topic):
         self.topic = topic
-        self.available_in_notes = available_in_notes
-        self.available_in_appointments = available_in_appointments
 
     @classmethod
-    def get_all(cls, available_in_notes=None, available_in_appointments=None, include_deleted=False):
+    def get_all(cls, include_deleted=False):
         kwargs = {}
-        if available_in_appointments is not None:
-            kwargs['available_in_appointments'] = available_in_appointments
-        if available_in_notes is not None:
-            kwargs['available_in_notes'] = available_in_notes
         if not include_deleted:
             kwargs['deleted_at'] = None
 
@@ -74,24 +66,11 @@ class Topic(db.Model):
             std_commit()
 
     @classmethod
-    def create_topic(cls, topic, available_in_appointments=False, available_in_notes=False):
-        topic = cls(
-            topic=topic,
-            available_in_notes=available_in_notes,
-            available_in_appointments=available_in_appointments,
-        )
+    def create_topic(cls, topic):
+        topic = cls(topic=topic)
         db.session.add(topic)
         std_commit()
         return topic
-
-    @classmethod
-    def update_topic(cls, topic_id, topic, available_in_appointments=False, available_in_notes=False):
-        existing = cls.find_by_id(topic_id=topic_id)
-        existing.topic = topic
-        existing.available_in_appointments = available_in_appointments
-        existing.available_in_notes = available_in_notes
-        std_commit()
-        return existing
 
     @classmethod
     def find_by_id(cls, topic_id):
@@ -99,27 +78,24 @@ class Topic(db.Model):
 
     @classmethod
     def get_usage_statistics(cls):
-        statistics = {}
-        for usage_type in ('appointment', 'note'):
-            query = text(f"""
-                SELECT t.id AS topic_id, COUNT(n.id)
-                FROM {usage_type}_topics n
-                JOIN topics t ON t.topic = n.topic
-                WHERE n.deleted_at IS NULL
-                GROUP BY t.id, n.topic
-            """)
-            key = f'{usage_type}s'
-            statistics[key] = {}
-            for row in db.session.execute(query):
-                topic_id = row['topic_id']
-                statistics[key][topic_id] = row['count']
+        statistics = {
+            'notes': {},
+        }
+        query = text("""
+            SELECT t.id AS topic_id, COUNT(n.id) AS count
+            FROM note_topics n
+            JOIN topics t ON t.topic = n.topic
+            WHERE n.deleted_at IS NULL
+            GROUP BY t.id, n.topic
+        """)
+        for row in db.session.execute(query):
+            topic_id = row['topic_id']
+            statistics['notes'][topic_id] = row['count']
         return statistics
 
     def to_api_json(self):
         return {
             'id': self.id,
-            'availableInAppointments': self.available_in_appointments,
-            'availableInNotes': self.available_in_notes,
             'topic': self.topic,
             'createdAt': _isoformat(self.created_at),
             'deletedAt': _isoformat(self.deleted_at),

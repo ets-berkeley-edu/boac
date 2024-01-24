@@ -31,7 +31,6 @@ from boac.lib.berkeley import BERKELEY_DEPT_CODE_TO_NAME
 from boac.lib.sis_advising import get_sis_advising_attachments, get_sis_advising_topics, resolve_sis_created_at, resolve_sis_updated_at
 from boac.lib.util import get_benchmarker, join_if_present, search_result_text_snippet, TEXT_SEARCH_PATTERN
 from boac.merged.calnet import get_calnet_users_for_csids, get_uid_for_csid
-from boac.models.appointment import Appointment, appointment_event_to_json
 from boac.models.appointment_read import AppointmentRead
 from boac.models.authorized_user import AuthorizedUser
 from dateutil.tz import tzutc
@@ -47,8 +46,6 @@ def get_advising_appointments(sid):
     appointments_by_id = {}
     benchmark('begin SIS advising appointments query')
     appointments_by_id.update(get_sis_advising_appointments(sid))
-    benchmark('begin non legacy advising appointments query')
-    appointments_by_id.update(get_non_legacy_advising_appointments(sid))
     benchmark('begin YCBM advising appointments query')
     appointments_by_id.update(get_ycbm_advising_appointments(sid))
     if not appointments_by_id.values():
@@ -78,20 +75,6 @@ def get_sis_advising_appointments(sid):
             attachments=legacy_attachments.get(appointment_id),
         )
         appointments_by_id[appointment_id]['legacySource'] = 'SIS'
-    return appointments_by_id
-
-
-def get_non_legacy_advising_appointments(sid):
-    appointments_by_id = {}
-    for row in Appointment.get_appointments_per_sid(sid):
-        appointment = row.__dict__
-        appointment_id = appointment['id']
-        event = appointment_event_to_json(appointment_id, row.status)
-        appointments_by_id[str(appointment_id)] = appointment_to_compatible_json(
-            appointment=appointment,
-            topics=[t.to_api_json() for t in row.topics if not t.deleted_at],
-            event=event,
-        )
     return appointments_by_id
 
 
@@ -128,23 +111,6 @@ def search_advising_appointments(
 
     advisor_uid = get_uid_for_csid(app, advisor_csid) if (not advisor_uid and advisor_csid) else advisor_uid
 
-    benchmark('begin local appointments query')
-    appointments_feed = Appointment.search(
-        search_phrase=search_phrase,
-        advisor_uid=advisor_uid,
-        student_csid=student_csid,
-        topic=topic,
-        datetime_from=datetime_from,
-        datetime_to=datetime_to,
-        limit=limit,
-        offset=offset,
-    )
-    benchmark('end local appointments query')
-
-    local_appointments_count = len(appointments_feed)
-    if local_appointments_count == limit:
-        return appointments_feed
-
     benchmark('begin loch appointments query')
     loch_results = data_loch.search_advising_appointments(
         search_phrase=search_phrase,
@@ -154,13 +120,13 @@ def search_advising_appointments(
         topic=topic,
         datetime_from=datetime_from,
         datetime_to=datetime_to,
-        offset=max(0, offset - local_appointments_count),
-        limit=(limit - local_appointments_count),
+        offset=offset,
+        limit=limit,
     )
     benchmark('end loch appointments query')
 
-    benchmark('begin loch appointments parsing')
-    appointments_feed += _get_loch_appointments_search_results(loch_results, search_terms)
+    benchmark('begin  loch appointments parsing')
+    appointments_feed = _get_loch_appointments_search_results(loch_results, search_terms)
     benchmark('end loch appointments parsing')
 
     return appointments_feed

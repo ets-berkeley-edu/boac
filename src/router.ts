@@ -2,7 +2,6 @@ const AdmitStudent = () => import('@/views/AdmitStudent.vue')
 const AdmitStudents = () => import('@/views/AdmitStudents.vue')
 const AllCohorts = () => import('@/views/AllCohorts.vue')
 const AllGroups = () => import('@/views/AllGroups.vue')
-const AppointmentDropIn = () => import('@/layouts/AppointmentDropIn.vue')
 const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
 const Cohort = () => import('@/views/Cohort.vue')
 const Course = () => import('@/views/Course.vue')
@@ -11,8 +10,6 @@ const CreateDegreeTemplate = () => import('@/views/degree/CreateDegreeTemplate.v
 const CuratedGroup = () => import('@/views/CuratedGroup.vue')
 const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
 const DraftNotes = () => import('@/views/DraftNotes.vue')
-const DropInAdvisorHome = () => import('@/views/DropInAdvisorHome.vue')
-const DropInDesk = () => import('@/views/DropInDesk.vue')
 const Error = () => import('@/views/Error.vue')
 const FlightDataRecorder = () => import('@/views/FlightDataRecorder.vue')
 const FlightDeck = () => import('@/views/FlightDeck.vue')
@@ -55,15 +52,7 @@ const router = new Router({
           } else if (auth.isAdvisor(currentUser) || auth.isDirector(currentUser) || currentUser.isAdmin) {
             next('/home')
           } else {
-            const deptCodes = auth.getSchedulerDeptCodes(currentUser)
-            if (_.size(deptCodes)) {
-              // The multi-department scheduler is NOT a use case we support, yet. Therefore,
-              // we grab first deptCode from his/her profile.
-              const deptCode = deptCodes[0].toLowerCase()
-              next({path: `/appt/desk/${deptCode}`})
-            } else {
-              next({path: '/404'})
-            }
+            next({path: '/404'})
           }
         } else {
           next()
@@ -72,28 +61,6 @@ const router = new Router({
       meta: {
         title: 'Welcome'
       }
-    },
-    {
-      path: '/',
-      component: AppointmentDropIn,
-      beforeEnter: auth.requiresScheduler,
-      children: [
-        {
-          path: '/appt/desk/:deptCode',
-          component: DropInDesk,
-          name: 'Drop-in Appointments Desk'
-        },
-        {
-          path: '/scheduler/profile',
-          component: Profile,
-          name: 'Scheduler Profile'
-        },
-        {
-          path: '/scheduler/404',
-          component: NotFound,
-          name: 'Page Not Found'
-        }
-      ]
     },
     {
       path: '/',
@@ -164,18 +131,6 @@ const router = new Router({
           path: '/admin/passengers',
           component: PassengerManifest,
           name: 'Passenger Manifest'
-        }
-      ]
-    },
-    {
-      path: '/',
-      component: StandardLayout,
-      beforeEnter: auth.requiresDropInAdvisor,
-      children: [
-        {
-          path: '/home/:deptCode',
-          component: DropInAdvisorHome,
-          name: 'Drop-In Advisor Home'
         }
       ]
     },
@@ -270,22 +225,6 @@ const router = new Router({
       beforeEnter: auth.requiresAuthenticated,
       children: [
         {
-          beforeEnter: (to: any, from: any, next: any) => {
-            const currentUser = store.getters['context/currentUser']
-            const deptCodes = auth.getSchedulerDeptCodes(currentUser)
-            if (_.size(deptCodes) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
-              const deptCode = deptCodes[0].toLowerCase()
-              next({path: `/appt/desk/${deptCode}`})
-            } else {
-              if (_.size(currentUser.dropInAdvisorStatus)) {
-                // We assume drop-in advisor status for one department only.
-                const deptCode = currentUser.dropInAdvisorStatus[0].deptCode.toLowerCase()
-                next({path: `/home/${deptCode}`})
-              } else {
-                next()
-              }
-            }
-          },
           path: '/home',
           component: Home,
           name: 'Home'
@@ -301,14 +240,6 @@ const router = new Router({
           name: 'Error'
         },
         {
-          beforeEnter: (to: any, from: any, next: any) => {
-            const currentUser = store.getters['context/currentUser']
-            if (_.size(auth.getSchedulerDeptCodes(currentUser)) && !(auth.isAdvisor(currentUser) || auth.isDirector(currentUser)) && !currentUser.isAdmin) {
-              next({path: '/scheduler/404'})
-            } else {
-              next()
-            }
-          },
           path: '/404',
           component: NotFound,
           name: '404'

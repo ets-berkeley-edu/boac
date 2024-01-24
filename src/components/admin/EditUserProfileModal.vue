@@ -138,8 +138,7 @@
                   v-model="dept.role"
                   :options="[
                     {text: 'Advisor', value: 'advisor'},
-                    {text: 'Director', value: 'director'},
-                    {text: 'Scheduler', value: 'scheduler'}
+                    {text: 'Director', value: 'director'}
                   ]"
                   :aria-label="`User's role in department ${dept.name}`"
                   class="w-260px"

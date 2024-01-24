@@ -82,10 +82,6 @@ class UserSession(UserMixin):
     def departments(self):
         return self.api_json['departments']
 
-    @property
-    def drop_in_advisor_departments(self):
-        return self.api_json['dropInAdvisorStatus']
-
     @classmethod
     def flush_cache_for_id(cls, user_id):
         clear(f'boa_user_session_{user_id}')
@@ -117,20 +113,6 @@ class UserSession(UserMixin):
     def is_authenticated(self):
         return self.api_json['isAuthenticated']
 
-    @property
-    def is_drop_in_advisor(self):
-        if self.api_json['dropInAdvisorStatus']:
-            return True
-        else:
-            return False
-
-    @property
-    def is_same_day_advisor(self):
-        if self.api_json['sameDayAdvisorStatus']:
-            return True
-        else:
-            return False
-
     @classmethod
     @stow('boa_user_session_{user_id}')
     def load_user(cls, user_id):
@@ -159,13 +141,9 @@ class UserSession(UserMixin):
                 departments.append(
                     {
                         'code': dept_code,
-                        'isDropInEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS'],
-                        'isSameDayEnabled': dept_code in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS'],
                         'name': BERKELEY_DEPT_CODE_TO_NAME.get(dept_code, dept_code),
                         'role': m.role,
                     })
-        drop_in_advisor_status = []
-        same_day_advisor_status = []
         is_active = False
         if user:
             if not calnet_profile:
@@ -177,12 +155,6 @@ class UserSession(UserMixin):
                     is_active = True if m.role else False
                     if is_active:
                         break
-            drop_in_advisor_status = [
-                d.to_api_json() for d in user.drop_in_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_DROP_INS']
-            ]
-            same_day_advisor_status = [
-                d.to_api_json() for d in user.same_day_departments if d.dept_code in app.config['DEPARTMENTS_SUPPORTING_SAME_DAY_APPTS']
-            ]
 
         is_admin = user and user.is_admin
         degree_progress_permission = 'read_write' if is_admin else (user and user.degree_progress_permission)
@@ -201,13 +173,11 @@ class UserSession(UserMixin):
                 'canReadDegreeProgress': degree_progress_permission in ['read', 'read_write'],
                 'degreeProgressPermission': degree_progress_permission,
                 'departments': departments,
-                'dropInAdvisorStatus': drop_in_advisor_status,
                 'inDemoMode': user and user.in_demo_mode,
                 'isActive': is_active,
                 'isAdmin': is_admin,
                 'isAnonymous': not is_active,
                 'isAuthenticated': is_active,
-                'sameDayAdvisorStatus': same_day_advisor_status,
                 'uid': user and user.uid,
             },
         }

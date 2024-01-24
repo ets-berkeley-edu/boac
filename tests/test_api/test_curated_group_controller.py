@@ -36,7 +36,6 @@ asc_advisor_uid = '6446'
 authorized_advisor_uid = '90412'
 ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
-coe_scheduler_uid = '6972201'
 
 
 @pytest.fixture()
@@ -52,11 +51,6 @@ def authorized_advisor(fake_auth):
 @pytest.fixture()
 def coe_advisor(fake_auth):
     fake_auth.login(coe_advisor_uid)
-
-
-@pytest.fixture()
-def coe_scheduler(fake_auth):
-    fake_auth.login(coe_scheduler_uid)
 
 
 @pytest.fixture()

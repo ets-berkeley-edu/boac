@@ -25,8 +25,6 @@ ENHANCEMENTS, OR MODIFICATIONS.
 
 from boac import std_commit
 from boac.externals import data_loch
-from boac.lib import util
-from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
 from boac.models.note import Note
 from flask import current_app as app
@@ -58,11 +56,6 @@ def coe_advisor_no_advising_data(fake_auth):
 
 
 @pytest.fixture()
-def coe_scheduler(fake_auth):
-    fake_auth.login('6972201')
-
-
-@pytest.fixture()
 def ce3_advisor(fake_auth):
     fake_auth.login('2525')
 
@@ -81,10 +74,6 @@ class TestStudentSearch:
 
     def test_search_not_authenticated(self, client):
         """Search is not available to the world."""
-        _api_search(client, 'Hack it!', expected_status_code=401)
-
-    def test_scheduler_cannot_search(self, client, coe_scheduler):
-        """Search is not available to scheduler."""
         _api_search(client, 'Hack it!', expected_status_code=401)
 
     def test_search_with_missing_input(self, admin_user_uid, client, fake_auth):
@@ -571,40 +560,19 @@ class TestAppointmentSearch:
         _api_search(client, ' \t  ', appointments=True, expected_status_code=400)
 
     def test_search_appointments(self, coe_advisor, client):
-        """Search results include both legacy and BOA-generated appointments."""
+        """Search results include legacy appointments."""
         api_json = _api_search(client, 'life', appointments=True)
-        self._assert(api_json, appointment_count=3)
-
-    def test_search_by_appointment_cancel_reason(self, coe_advisor, client):
-        """Appointments can be searched for by cancel reason and cancel reason explained."""
-        appointment = Appointment.find_by_id(1)
-        Appointment.cancel(
-            appointment_id=appointment.id,
-            cancelled_by=AuthorizedUser.get_id_per_uid('6972201'),
-            cancel_reason='Sick cat',
-            cancel_reason_explained='Student needed to attend to ailing feline.',
-        )
-
-        api_json = _api_search(client, 'cat', appointments=True)
         self._assert(api_json, appointment_count=1)
 
-        api_json = _api_search(client, 'feline', appointments=True)
-        self._assert(api_json, appointment_count=1)
-
-    def test_search_respects_date_filters(self, app, coe_advisor, client):
+    def test_search_respects_date_filters(self, coe_advisor, client):
         """Search results include appointments created within provided date range."""
-        from boac import std_commit
-        appointment = Appointment.find_by_id(2)
-        appointment.created_at = util.localized_timestamp_to_utc('2017-10-31T00:00:00')
-        std_commit(allow_test_environment=True)
-
         api_json = _api_search(
             client,
-            'pick me',
+            'art',
             appointments=True,
             appointment_options={
-                'dateFrom': '2017-10-31',
-                'dateTo': '2017-11-01',
+                'dateFrom': '2017-11-01',
+                'dateTo': '2017-11-02',
             },
         )
         self._assert(api_json, appointment_count=1)
@@ -637,17 +605,11 @@ class TestAppointmentSearch:
 
     def test_appointment_search_with_no_input_and_date(self, coe_advisor, client):
         """Appointments search needs no input when date options are set."""
-        from boac import db, std_commit
-        appointment = Appointment.find_by_id(2)
-        appointment.created_at = util.localized_timestamp_to_utc('2017-11-01T00:00:00')
-        std_commit()
-        db.session.refresh(appointment)
-
         api_json = _api_search(
             client,
             '',
             appointments=True,
-            appointment_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-02'},
+            appointment_options={'dateFrom': '2017-11-01', 'dateTo': '2017-11-06'},
         )
         self._assert(api_json, appointment_count=3)
 
@@ -656,33 +618,13 @@ class TestAppointmentSearch:
         api_json = _api_search(client, 'life', courses=True, students=True, notes=True)
         assert 'appointments' not in api_json
 
-    def test_search_appointments_by_topic(self, coe_advisor, client):
-        """Searches appointments by topic if topics option is selected."""
-        api_json = _api_search(
-            client,
-            'making',
-            appointments=True,
-            appointment_options={'topic': 'Good Show'},
-        )
-        self._assert(api_json, appointment_count=2)
-
-    def test_search_appointments_with_no_input_and_topic(self, coe_advisor, client):
-        """Appointments search needs no input when topic set."""
-        api_json = _api_search(
-            client,
-            '',
-            appointments=True,
-            appointment_options={'topic': 'Good Show'},
-        )
-        self._assert(api_json, appointment_count=3)
-
     def test_search_by_appointment_scheduler(self, coe_advisor, client):
         """Searches appointments by advisor UID if posted by option is selected."""
         api_json = _api_search(
             client,
-            'making',
+            'union',
             appointments=True,
-            appointment_options={'advisorUid': '90412'},
+            appointment_options={'advisorUid': '1081940'},
         )
         self._assert(api_json, appointment_count=1)
 
@@ -692,15 +634,15 @@ class TestAppointmentSearch:
             client,
             '',
             appointments=True,
-            appointment_options={'advisorUid': '90412'},
+            appointment_options={'advisorUid': '1081940'},
         )
-        self._assert(api_json, appointment_count=4)
+        self._assert(api_json, appointment_count=2)
 
     def test_search_appointments_by_student(self, coe_advisor, client):
         """Searches appointments by student CSID."""
         api_json = _api_search(
             client,
-            'life',
+            'wingspan',
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
@@ -714,15 +656,15 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=5)
+        self._assert(api_json, appointment_count=3)
 
     def test_appointments_search_limit(self, coe_advisor, client):
         """Limits search to the first n appointments."""
         api_json = _api_search(
             client,
-            'life',
+            '',
             appointments=True,
-            appointment_options={'limit': '1'},
+            appointment_options={'limit': '1', 'studentCsid': '11667051'},
         )
         self._assert(api_json, appointment_count=1)
 
@@ -730,9 +672,9 @@ class TestAppointmentSearch:
         """Returns appointment results beginning from the offset."""
         api_json = _api_search(
             client,
-            'life',
+            '',
             appointments=True,
-            appointment_options={'offset': '1'},
+            appointment_options={'offset': '1', 'studentCsid': '11667051'},
         )
         self._assert(api_json, appointment_count=2)
 
@@ -746,7 +688,7 @@ class TestAppointmentSearch:
             appointments=True,
             appointment_options={'studentCsid': '11667051'},
         )
-        self._assert(api_json, appointment_count=5)
+        self._assert(api_json, appointment_count=3)
 
     def test_search_appointments_includes_inactive_students(self, coe_advisor, client):
         api_json = _api_search(client, 'pez', appointments=True)
@@ -879,7 +821,7 @@ class TestSearchHistory:
         self._api_add_to_my_search_history(client, 'Moe')
         assert self._api_my_search_history(client=client) == expected_history
 
-    def test_search_history_truncate(self, client, coe_scheduler):
+    def test_search_history_truncate(self, client, coe_advisor):
         # The string expected in search history will be shorter than MAX_LENGTH
         expected_length = AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH - 20
         expected_search_history_string = 's' * expected_length
@@ -897,7 +839,7 @@ class TestSearchHistory:
             assert snippet in actual_search_history_string
         assert '  ' not in actual_search_history_string
 
-    def test_search_history_truncate_when_no_whitespace(self, client, coe_scheduler):
+    def test_search_history_truncate_when_no_whitespace(self, client, coe_advisor):
         expected_search_history_string = 's' * AuthorizedUser.SEARCH_HISTORY_ITEM_MAX_LENGTH
         no_whitespace_in_search_string = f'{expected_search_history_string}truncate_me'
         self._api_add_to_my_search_history(client, f'  {no_whitespace_in_search_string}   ')
@@ -965,11 +907,10 @@ class TestFindAdvisorsByName:
 
     def test_find_advisors_by_name(self, client, coe_advisor):
         """Finds matches including appointment advisors."""
-        Appointment.refresh_search_index()
-        response = self._api_search_advisors(client, 'Vis')
+        response = self._api_search_advisors(client, 'Lor')
         assert len(response) == 1
         labels = [s['label'] for s in response]
-        assert 'COE Add Visor' in labels
+        assert 'Loramps Glub' in labels
 
     def test_find_note_authors_by_name(self, client, coe_advisor, mock_advising_note):
         """Finds matches including authors of legacy and non-legacy notes."""
@@ -994,9 +935,6 @@ def _api_search(
         limit=None,
         expected_status_code=200,
 ):
-    if appointments:
-        Appointment.refresh_search_index()
-
     response = client.post(
         '/api/search',
         content_type='application/json',

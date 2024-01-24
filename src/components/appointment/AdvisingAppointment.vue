@@ -22,43 +22,8 @@
       <div class="mt-2">
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
-      <div v-if="!(appointment.status === 'checked_in' && advisor.title === 'Intake Desk') && !appointment.legacySource && appointment.createdBy !== 'YCBM'" class="mt-3">
-        <font-awesome icon="clock" class="status-arrived-icon" />
-        <span class="text-secondary ml-1">
-          Arrived @
-          <span :id="`appointment-${appointment.id}-created-at`">
-            {{ $moment(datePerTimezone(appointment.createdAt)).format('h:mma') }}
-          </span>
-        </span>
-      </div>
+
       <div class="d-flex align-items-center mt-1 mb-3">
-        <div v-if="isUserDropInAdvisor(appointment.deptCode) && _includes(['waiting', 'reserved'], appointment.status)">
-          <DropInAppointmentDropdown
-            :appointment="appointment"
-            :dept-code="appointment.deptCode"
-            :include-details-option="false"
-            :on-appointment-status-change="onAppointmentStatusChange"
-            :self-check-in="true"
-            class="mr-3"
-          />
-        </div>
-        <div v-if="appointment.status === 'reserved' && ($currentUser.isAdmin || isUserDropInAdvisor(appointment.deptCode))">
-          <span class="text-secondary">
-            Assigned
-            <span v-if="advisor.id" :id="`appointment-${appointment.id}-assigned-to`">
-              to {{ advisor.id === $currentUser.id ? 'you' : advisor.name }}
-            </span>
-          </span>
-        </div>
-        <div v-if="appointment.status === 'checked_in'">
-          <font-awesome icon="calendar-check" class="status-checked-in-icon" />
-          <span class="text-secondary ml-1">
-            Check In
-            <span v-if="appointment.statusDate">
-              @ <span :id="`appointment-${appointment.id}-checked-in-at`">{{ $moment(datePerTimezone(appointment.statusDate)).format('h:mma') }}</span>
-            </span>
-          </span>
-        </div>
         <div v-if="appointment.status === 'cancelled'" class="mt-2">
           <div>
             <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
@@ -66,15 +31,12 @@
               Canceled
             </span>
           </div>
-          <div class="mt-1">
-            <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason || 'Canceled' }}</span>
-          </div>
-          <div v-if="appointment.cancelReasonExplained" class="mt-1">
-            <span :id="`appointment-${appointment.id}-cancel-explained`">{{ appointment.cancelReasonExplained }}</span>
+          <div v-if="appointment.cancelReason" class="mt-1">
+            <span :id="`appointment-${appointment.id}-cancel-reason`">{{ appointment.cancelReason }}</span>
           </div>
         </div>
       </div>
-      <div v-if="advisor.name && (appointment.status === 'checked_in' || appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
+      <div v-if="advisor.name && (appointment.legacySource || appointment.createdBy === 'YCBM')" class="mt-2">
         <a
           v-if="advisor.uid"
           :id="`appointment-${appointment.id}-advisor-name`"
@@ -138,14 +100,12 @@
 </template>
 
 <script>
-import DropInAppointmentDropdown from '@/components/appointment/DropInAppointmentDropdown'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 
 export default {
   name: 'AdvisingAppointment',
-  components: {DropInAppointmentDropdown},
   mixins: [Context, Util],
   props: {
     isOpen: {
@@ -155,10 +115,6 @@ export default {
     appointment: {
       required: true,
       type: Object
-    },
-    onAppointmentStatusChange: {
-      required: true,
-      type: Function
     },
     student: {
       required: true,
@@ -191,10 +147,6 @@ export default {
       } else {
         return this.summaryHeading(appointment)
       }
-    },
-    isUserDropInAdvisor(deptCode) {
-      const deptCodes = this._map(this.$currentUser.dropInAdvisorStatus || [], 'deptCode')
-      return this._includes(deptCodes, this._upperCase(deptCode))
     },
     setAdvisor() {
       this.advisor = this._get(this.appointment, 'advisor')
@@ -233,16 +185,8 @@ export default {
 .advising-appointment-outer {
   flex-basis: 100%;
 }
-.status-arrived-icon {
-  color: #f0ad4e;
-  width: 18px;
-}
 .status-cancelled-icon {
   color: #f0ad4e;
-  width: 18px;
-}
-.status-checked-in-icon {
-  color: #00c13a;
   width: 18px;
 }
 </style>

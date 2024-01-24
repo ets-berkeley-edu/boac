@@ -83,59 +83,6 @@ export function becomeUser(uid: string) {
     .then(response => response.data, () => null)
 }
 
-export function getDropInAdvisorsForDept(deptCode: string) {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/users/drop_in_advisors/${deptCode}`)
-    .then(response => response.data, () => null)
-}
-
-export function setDropInAvailability(deptCode: string, uid: string, available: boolean) {
-  const availability = available ? 'available' : 'unavailable'
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/${uid}/drop_in_advising/${deptCode}/${availability}`)
-    .then(response => {
-      if (uid === store.getters['context/currentUser'].uid) {
-        store.commit('context/setDropInStatus', {
-          available: _.get(response.data, 'available'),
-          deptCode,
-          status: _.get(response.data, 'status')
-        })
-      } else {
-        return response.data
-      }
-    }, () => null)
-}
-
-export function setDropInStatus(deptCode: string, status?: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/status`, {status: status || ''})
-    .then(response => {
-      store.commit('context/setDropInStatus', {
-        available: _.get(response.data, 'available'),
-        deptCode,
-        status: _.get(response.data, 'status')
-      })
-    }, () => null)
-}
-
-export function getDropInSchedulers() {
-  return axios
-    .get(`${utils.apiBaseUrl()}/api/users/appointment_schedulers`)
-    .then(response => response.data, () => null)
-}
-
-export function addDropInScheduler(deptCode: string, uid: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/add`, {uid: uid})
-    .then(response => response.data, () => null)
-}
-
-export function removeDropInScheduler(deptCode: string, uid: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/users/appointment_schedulers/${deptCode}/remove`, {uid: uid})
-    .then(response => response.data, () => null)
-}
-
 export function setDemoMode(demoMode: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {demoMode: demoMode})
@@ -150,18 +97,4 @@ export function createOrUpdateUser(profile: any, memberships: any[], deleteActio
       memberships
     })
     .then(response => response.data)
-}
-
-export function disableDropInAdvising(deptCode: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/disable`)
-    .then(() => store.commit('context/removeDropInStatus', deptCode.toUpperCase()))
-    .catch(error => error)
-  }
-
-export function enableDropInAdvising(deptCode: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/user/drop_in_advising/${deptCode}/enable`)
-    .then(response => store.commit('context/setDropInAdvisorStatus', response.data))
-    .catch(error => error)
 }

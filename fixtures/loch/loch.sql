@@ -610,9 +610,9 @@ CREATE TABLE terms.term_definitions
 INSERT INTO boac_advising_appointments.ycbm_advising_appointments
 (id, student_uid, student_sid, title, starts_at, ends_at, cancelled, cancellation_reason, advisor_name, appointment_type, details)
 VALUES
-('34789-925470-48723', '139362', '294875', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'Github', 'Failure is the name of the game'),
-('78342-847236-73423', '139362', '294875', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'),
-('83920-809233-32433', '139362', '294875', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
+('34789-925470-48723', '191919', '9191919191', 'Need help getting Travis to pass', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Crossman', 'Github', 'Failure is the name of the game'),
+('78342-847236-73423', '191919', '9191919191', 'YCBM', '2021-08-13 11:00:00+00', '2021-08-13 1:00:00+00', FALSE, NULL, 'Villalobos', 'Github', 'Need an A to pass'),
+('83920-809233-32433', '191919', '9191919191', 'Did you know when you eat pineapples, they eat you back?', '2015-08-13 11:00:00+00', '2015-08-13 1:00:00+00', TRUE, 'Dont eat too many pineapples', 'Cesar', 'Hangout', 'It is because of an enzyme that breaks down proteins in your tongue, thats why it feels tingly');
 
 INSERT INTO boac_advising_asc.advising_notes
 (id, asc_id, sid, student_first_name, student_last_name, meeting_date, advisor_uid, advisor_first_name, advisor_last_name, subject, body, created_at, updated_at)
@@ -879,14 +879,17 @@ VALUES
 ('1133398', 'CHARLIE'),
 ('1133398', 'CHRISTIAN'),
 ('53791', 'MILICENT'),
-('53791', 'BALTHAZAR');
+('53791', 'BALTHAZAR'),
+('1133397', 'Robert'),
+('1133397', 'Johnson');
 
 INSERT INTO sis_advising_notes.advising_appointment_advisors
 (uid, sid, first_name, last_name)
 VALUES
 ('1081940', '100200300', 'Loramps', 'Glub'),
 ('1133398', '700600500', 'Charlie', 'Christian'),
-('53791', '53791', 'Milicent', 'Balthazar');
+('53791', '53791', 'Milicent', 'Balthazar'),
+('1133397', '600500400', 'Robert', 'Johnson');
 
 INSERT INTO sis_advising_notes.advising_notes
 (id, sid, student_note_nr, advisor_sid, appointment_id, note_category, note_subcategory, note_body, created_by, updated_by, created_at, updated_at)
@@ -919,6 +922,7 @@ VALUES
 ('11667051-00002', '11667051', 'Earg Scéaw'),
 ('11667051-00003', '11667051', 'Scéaw Tima'),
 ('11667051-00002', '11667051', 'Ofscéaw'),
+('11667051-00010', '11667051', 'Ofscéaw'),
 ('9000000000-00001', '9000000000', 'Ne Scéaw');
 
 INSERT INTO sis_advising_notes.advising_note_topic_mappings

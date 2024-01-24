@@ -27,7 +27,6 @@ from boac.api import cache_utils
 from boac.api.util import admin_required
 from boac.lib.http import tolerant_jsonify
 from boac.merged.sis_terms import current_term_id
-from boac.models.appointment import Appointment
 from boac.models.job_progress import JobProgress
 from boac.models.note import Note
 from flask import current_app as app, request
@@ -67,13 +66,6 @@ def start_continuation_of_interrupted_job():
 def start_refresh():
     response = cache_utils.refresh_request_handler(term())
     return tolerant_jsonify(response, status=500 if 'error' in response else 200)
-
-
-@app.route('/api/admin/reindex/appointments')
-@admin_required
-def reindex_appointments():
-    Appointment.refresh_search_index()
-    return tolerant_jsonify({'started': True})
 
 
 @app.route('/api/admin/reindex/notes')

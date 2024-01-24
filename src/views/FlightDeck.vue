@@ -10,13 +10,6 @@
           <h1 class="page-section-header">BOA v{{ boa.version }} Flight Deck</h1>
         </div>
       </div>
-      <div v-if="dropInSchedulingDepartments.length">
-        <DropInSchedulerManagement
-          v-for="dept in dropInSchedulingDepartments"
-          :key="dept.code"
-          :dept="dept"
-        />
-      </div>
       <div v-if="$config.isDemoModeAvailable">
         <div class="pt-3">
           <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
@@ -77,20 +70,17 @@
 import AlertsLogExport from '@/components/admin/AlertsLogExport'
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
-import DropInSchedulerManagement from '@/components/admin/DropInSchedulerManagement'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import Loading from '@/mixins/Loading'
 import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
-import {getDropInSchedulers} from '@/api/user'
 
 export default {
   name: 'Admin',
   components: {
     AlertsLogExport,
-    DropInSchedulerManagement,
     DemoModeToggle,
     EditServiceAnnouncement,
     ManageTopics,
@@ -100,7 +90,6 @@ export default {
   data: () => ({
     boa: undefined,
     configs: undefined,
-    dropInSchedulingDepartments: [],
     showConfigs: false
   }),
   mounted() {
@@ -108,12 +97,9 @@ export default {
     this._each(this.$config, (value, key) => {
       this.configs.push({key, value})
     })
-    getDropInSchedulers().then(departments => {
-      this.dropInSchedulingDepartments = departments
-      getVersion().then(data => {
-        this.boa = data
-        this.loaded('Flight Deck has loaded')
-      })
+    getVersion().then(data => {
+      this.boa = data
+      this.loaded('Flight Deck has loaded')
     })
   }
 }

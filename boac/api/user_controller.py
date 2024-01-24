@@ -28,13 +28,9 @@ import re
 from boac.api import errors
 from boac.api.util import (
     admin_required,
-    advising_data_access_required,
     advisor_required,
     authorized_users_api_feed,
-    drop_in_advisors_for_dept_code,
-    drop_in_required,
     get_current_user_profile,
-    scheduler_required,
 )
 from boac.lib import util
 from boac.lib.berkeley import dept_codes_where_advising
@@ -42,9 +38,7 @@ from boac.lib.http import response_with_csv_download, tolerant_jsonify
 from boac.lib.util import to_bool_or_none
 from boac.merged import calnet
 from boac.merged.user_session import UserSession
-from boac.models.appointment import Appointment
 from boac.models.authorized_user import AuthorizedUser
-from boac.models.authorized_user_extension import DropInAdvisor, SameDayAdvisor, Scheduler
 from boac.models.university_dept import UniversityDept
 from boac.models.university_dept_member import UniversityDeptMember
 from flask import current_app as app, request
@@ -143,81 +137,10 @@ def delete_university_dept_membership(university_dept_id, authorized_user_id):
     )
 
 
-@app.route('/api/user/drop_in_advising/<dept_code>/enable', methods=['POST'])
-@drop_in_required
-def enable_drop_in_advising(dept_code):
-    drop_in_membership = DropInAdvisor.create_or_update_membership(
-        dept_code,
-        current_user.user_id,
-        is_available=False,
-    )
-    UserSession.flush_cache_for_id(current_user.user_id)
-    return tolerant_jsonify(drop_in_membership.to_api_json())
-
-
-@app.route('/api/user/drop_in_advising/<dept_code>/disable', methods=['POST'])
-@scheduler_required
-def disable_drop_in_advising(dept_code):
-    user = AuthorizedUser.find_by_id(current_user.get_id())
-    _delete_drop_in_advisor_status(user, dept_code)
-    UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify({'message': 'Drop-in advisor status has been disabled'}, status=200)
-
-
-@app.route('/api/user/same_day_advising/<dept_code>/enable', methods=['POST'])
-@drop_in_required
-def enable_same_day_advising(dept_code):
-    same_day_membership = SameDayAdvisor.create_or_update_membership(
-        dept_code,
-        current_user.user_id,
-        is_available=True,
-    )
-    UserSession.flush_cache_for_id(current_user.user_id)
-    return tolerant_jsonify(same_day_membership.to_api_json())
-
-
-@app.route('/api/user/same_day_advising/<dept_code>/disable', methods=['POST'])
-@scheduler_required
-def disable_same_day_advising(dept_code):
-    user = AuthorizedUser.find_by_id(current_user.get_id())
-    SameDayAdvisor.delete(authorized_user_id=user.id, dept_code=dept_code)
-    UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify({'message': 'Same-day advisor status has been disabled'}, status=200)
-
-
 @app.route('/api/user/session_keep_alive')
 @login_required
 def session_keep_alive():
     return tolerant_jsonify(current_user.to_api_json())
-
-
-@app.route('/api/user/<uid>/drop_in_advising/<dept_code>/available', methods=['POST'])
-@scheduler_required
-def set_drop_in_advising_available(uid, dept_code):
-    return _update_drop_in_availability(uid, dept_code, True)
-
-
-@app.route('/api/user/<uid>/drop_in_advising/<dept_code>/unavailable', methods=['POST'])
-@scheduler_required
-def set_drop_in_advising_unavailable(uid, dept_code):
-    return _update_drop_in_availability(uid, dept_code, False)
-
-
-@app.route('/api/user/drop_in_advising/<dept_code>/status', methods=['POST'])
-@drop_in_required
-def set_drop_in_advising_status(dept_code):
-    user = AuthorizedUser.find_by_id(current_user.get_id())
-    drop_in_membership = next((d for d in user.drop_in_departments if d.dept_code == dept_code.upper()), None)
-    if not drop_in_membership:
-        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={current_user.uid}, dept_code={dept_code})')
-    params = request.get_json()
-    if 'status' not in params:
-        raise errors.BadRequestError('Missing status')
-    if params['status'] and len(params['status']) > 255:
-        raise errors.BadRequestError('Invalid status')
-    drop_in_membership.update_status(params['status'])
-    UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify(drop_in_membership.to_api_json())
 
 
 @app.route('/api/users', methods=['POST'])
@@ -278,12 +201,6 @@ def user_search():
         name = user['name']
         return f"{name} ({user['uid']})" if name else user['uid']
     return tolerant_jsonify([{'label': _label(u), 'uid': u['uid']} for u in users])
-
-
-@app.route('/api/users/drop_in_advisors/<dept_code>')
-@scheduler_required
-def drop_in_advisors_for_dept(dept_code):
-    return tolerant_jsonify(drop_in_advisors_for_dept_code(dept_code))
 
 
 @app.route('/api/user/create_or_update', methods=['POST'])
@@ -356,69 +273,6 @@ def get_departments():
     return tolerant_jsonify(api_json)
 
 
-@app.route('/api/users/appointment_schedulers')
-@advising_data_access_required
-def get_appointment_schedulers_for_my_depts():
-    return tolerant_jsonify(_get_appointment_scheduler_list(current_user))
-
-
-@app.route('/api/users/appointment_schedulers/<dept_code>/add', methods=['POST'])
-@advising_data_access_required
-def add_appointment_scheduler_to_dept(dept_code):
-    _verify_membership_and_appointments_enabled(current_user, dept_code)
-    params = request.get_json() or {}
-    scheduler_uid = params.get('uid', None)
-    if not scheduler_uid:
-        raise errors.BadRequestError('Scheduler UID missing')
-    calnet_user = calnet.get_calnet_user_for_uid(app, scheduler_uid, skip_expired_users=True)
-    if not calnet_user or not calnet_user.get('csid'):
-        raise errors.BadRequestError('Invalid scheduler UID')
-    user = AuthorizedUser.create_or_restore(
-        scheduler_uid,
-        created_by=current_user.uid,
-        is_admin=False,
-        is_blocked=False,
-        can_access_canvas_data=False,
-    )
-    Scheduler.create_or_update_membership(
-        dept_code,
-        user.id,
-        drop_in=True,
-        same_day=True,
-    )
-    _create_department_memberships(user, [{'code': dept_code, 'role': 'scheduler', 'automateMembership': False}])
-    UserSession.flush_cache_for_id(user.id)
-    return tolerant_jsonify(_get_appointment_scheduler_list(current_user, dept_code))
-
-
-@app.route('/api/users/appointment_schedulers/<dept_code>/remove', methods=['POST'])
-@advising_data_access_required
-def remove_appointment_scheduler_from_dept(dept_code):
-    _verify_membership_and_appointments_enabled(current_user, dept_code)
-    params = request.get_json() or {}
-    uid = params.get('uid')
-    user = uid and AuthorizedUser.find_by_uid(uid)
-    if not user:
-        raise errors.BadRequestError(f'UID {uid} missing or invalid')
-    scheduler_membership = next((d for d in user.department_memberships if d.university_dept.dept_code == dept_code and d.role == 'scheduler'), None)
-    if not scheduler_membership:
-        raise errors.BadRequestError(f'UID {uid} is not a scheduler for department {dept_code}')
-    UniversityDeptMember.delete_membership(
-        university_dept_id=scheduler_membership.university_dept_id,
-        authorized_user_id=user.id,
-    )
-    Scheduler.delete(authorized_user_id=user.id, dept_code=dept_code)
-    if not len(user.department_memberships):
-        AuthorizedUser.delete(uid)
-    return tolerant_jsonify(_get_appointment_scheduler_list(current_user, dept_code))
-
-
-def _verify_membership_and_appointments_enabled(user, dept_code):
-    membership = next((d for d in user.departments if d['code'] == dept_code and _is_appointment_enabled(d)), None)
-    if not membership:
-        raise errors.ForbiddenRequestError('No department membership found or drop-in scheduling not enabled')
-
-
 def _get_boa_users():
     users = []
 
@@ -430,7 +284,6 @@ def _get_boa_users():
             'title': _user.get('title'),
             'email': _user.get('campusEmail') or _user.get('email'),
             'department': _describe_dept_roles(_dept),
-            'appointment_roles': _describe_appointment_roles(_dept, _user.get('dropInAdvisorStatus'), _user.get('sameDayAdvisorStatus')),
             'can_access_advising_data': _user.get('canAccessAdvisingData'),
             'can_access_canvas_data': _user.get('canAccessCanvasData'),
             'is_blocked': _user.get('isBlocked'),
@@ -447,60 +300,6 @@ def _get_boa_users():
         for dept in user.get('departments'):
             _put(dept, user)
     return users
-
-
-def _get_appointment_scheduler_list(advisor, dept_code=None):
-
-    def _distill_scheduler_data(element):
-        return {k: element[k] for k in ['uid', 'csid', 'firstName', 'lastName']}
-
-    def _department_data(d):
-        scheduler_response = AuthorizedUser.get_users(
-            deleted=False,
-            dept_code=d['code'],
-            role='scheduler',
-        )
-        scheduler_data = [_distill_scheduler_data(s) for s in authorized_users_api_feed(scheduler_response[0], sort_by='lastName')]
-
-        return {
-            'code': d['code'],
-            'name': d['name'],
-            'schedulers': scheduler_data,
-        }
-
-    appointment_enabled_depts = [d for d in advisor.departments if _is_appointment_enabled(d)]
-
-    if dept_code:
-        dept_data = next((_department_data(d) for d in appointment_enabled_depts if d['code'] == dept_code), None)
-        if not dept_data:
-            return {'code': dept_code, 'schedulers': []}
-        return dept_data
-    else:
-        return [_department_data(d) for d in appointment_enabled_depts]
-
-
-def _is_appointment_enabled(membership):
-    return (membership['isDropInEnabled'] or membership['isSameDayEnabled']) and membership['role'] in ('advisor', 'director')
-
-
-def _update_drop_in_availability(uid, dept_code, new_availability):
-    dept_code = dept_code.upper()
-    if uid != current_user.uid:
-        authorized_to_toggle = current_user.is_admin or dept_code in [d['code'] for d in current_user.departments if d.get('role') == 'scheduler']
-        if not authorized_to_toggle:
-            raise errors.ForbiddenRequestError(f'Unauthorized to toggle drop-in availability for department {dept_code}')
-    drop_in_membership = None
-    user = AuthorizedUser.find_by_uid(uid)
-    if user:
-        drop_in_membership = next((d for d in user.drop_in_departments if d.dept_code == dept_code), None)
-    if drop_in_membership:
-        if drop_in_membership.is_available is True and new_availability is False:
-            Appointment.unreserve_all_for_advisor(uid, current_user.get_id())
-        drop_in_membership.update_availability(new_availability)
-        UserSession.flush_cache_for_id(user.id)
-        return tolerant_jsonify(drop_in_membership.to_api_json())
-    else:
-        raise errors.ResourceNotFoundError(f'No drop-in advisor membership found: (uid={uid}, dept_code={dept_code})')
 
 
 def _update_or_create_authorized_user(memberships, profile, include_deleted=False):
@@ -558,13 +357,8 @@ def _delete_existing_memberships(authorized_user):
         )
 
 
-def _delete_drop_in_advisor_status(authorized_user, dept_code):
-    DropInAdvisor.delete(authorized_user_id=authorized_user.id, dept_code=dept_code)
-    Appointment.unreserve_all_for_advisor(authorized_user.uid, current_user.get_id())
-
-
 def _create_department_memberships(authorized_user, memberships):
-    for membership in [m for m in memberships if m['role'] in ('advisor', 'director', 'scheduler')]:
+    for membership in [m for m in memberships if m['role'] in ('advisor', 'director')]:
         university_dept = UniversityDept.find_by_dept_code(membership['code'])
         role = membership['role']
         UniversityDeptMember.create_or_update_membership(
@@ -573,8 +367,6 @@ def _create_department_memberships(authorized_user, memberships):
             role=role,
             automate_membership=to_bool_or_none(membership['automateMembership']),
         )
-        if role == 'scheduler':
-            _delete_drop_in_advisor_status(authorized_user, university_dept.dept_code)
         UserSession.flush_cache_for_id(authorized_user.id)
 
 
@@ -582,20 +374,6 @@ def _describe_dept_roles(dept):
     s = ''
     if dept.get('role'):
         s += f"{{ {dept.get('code')}: {dept['role']} (automated={dept.get('automateMembership')}) }}"
-    return s
-
-
-def _describe_appointment_roles(dept, drop_in_advisor_statuses, same_day_advisor_statuses):
-    s = ''
-    if dept:
-        s += '{ '
-        if dept.get('role') == 'scheduler':
-            s += f"{dept.get('code')}: Scheduler (automated={dept.get('automateMembership')}) "
-        if next((d for d in drop_in_advisor_statuses if d.get('deptCode') == dept.get('code')), None):
-            s += f"{dept.get('code')}: Drop-in Advisor "
-        if next((d for d in same_day_advisor_statuses if d.get('deptCode') == dept.get('code')), None):
-            s += f"{dept.get('code')}: Same-day Advisor "
-        s += '}'
     return s
 
 

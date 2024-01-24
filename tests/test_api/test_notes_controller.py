@@ -42,7 +42,6 @@ asc_advisor_uid = '6446'
 ce3_advisor_uid = '2525'
 coe_advisor_uid = '1133399'
 coe_advisor_no_advising_data_uid = '1022796'
-coe_scheduler_uid = '6972201'
 l_s_director_uid = '53791'
 l_s_major_advisor_uid = '242881'
 l_s_director_no_advising_data_uid = '1022796'
@@ -223,17 +222,6 @@ class TestCreateNote:
         assert _api_update_note(
             client=client,
             expected_status_code=404,
-            note_id=mock_note_draft.id,
-            sids=[coe_student['sid']],
-            subject=mock_note_draft.subject,
-        )
-
-    def test_scheduler_is_not_authorized(self, app, client, fake_auth, mock_note_draft):
-        """Returns 401 if user is a scheduler."""
-        fake_auth.login(coe_scheduler_uid)
-        assert _api_update_note(
-            client=client,
-            expected_status_code=401,
             note_id=mock_note_draft.id,
             sids=[coe_student['sid']],
             subject=mock_note_draft.subject,

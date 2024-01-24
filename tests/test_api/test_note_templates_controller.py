@@ -146,7 +146,7 @@ class TestCreateNoteTemplate:
         assert note_template.is_private is False
         assert note_template.subject == mock_advising_note.subject
         assert note_template.title == title
-        assert len(note_template.topics) == 3
+        assert len(note_template.topics) == 4
         assert len(note_template.attachments) == 1
 
 
