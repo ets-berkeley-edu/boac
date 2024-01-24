@@ -281,7 +281,7 @@ export default {
       {key: 'assignmentsSubmitted', label: 'Assignments Submitted'},
       {key: 'assignmentGrades', label: 'Assignment Grades'}
     ]
-    if (this.$config.currentEnrollmentTermId === parseInt(this.section.termId)) {
+    if (this.config.currentEnrollmentTermId === parseInt(this.section.termId)) {
       cols.push(
         {key: 'bCourses', label: 'bCourses Activity'}
       )

@@ -68,7 +68,7 @@
             </b-col>
           </b-row>
         </b-container>
-        <DebugTemplate v-if="$config.isVueAppDebugMode" />
+        <DebugTemplate v-if="config.isVueAppDebugMode" />
       </div>
     </div>
   </div>

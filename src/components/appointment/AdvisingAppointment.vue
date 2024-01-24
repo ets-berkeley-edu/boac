@@ -134,10 +134,10 @@ export default {
   },
   methods: {
     datePerTimezone(date) {
-      return this.$moment(date).tz(this.$config.timezone)
+      return this.$moment(date).tz(this.config.timezone)
     },
     downloadUrl(attachment) {
-      return `${this.$config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
+      return `${this.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`
     },
     fallbackHeading(appointment) {
       if (appointment.appointmentTitle && appointment.appointmentTitle.trim().length) {

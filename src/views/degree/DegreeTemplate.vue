@@ -22,7 +22,7 @@
           </b-col>
         </b-row>
       </b-container>
-      <div v-if="$config.isVueAppDebugMode" class="h-100 pt-5">
+      <div v-if="config.isVueAppDebugMode" class="h-100 pt-5">
         <DebugTemplate />
       </div>
     </div>

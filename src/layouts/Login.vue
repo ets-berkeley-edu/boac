@@ -32,11 +32,11 @@
         <div class="contact-us">
           Questions or feedback? Contact us at
           <a
-            :href="`mailto:${$config.supportEmailAddress}`"
+            :href="`mailto:${config.supportEmailAddress}`"
             target="_blank"
-          >{{ $config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
+          >{{ config.supportEmailAddress }}<span class="sr-only"> (link will open new browser tab)</span></a>
         </div>
-        <DevAuth v-if="$config.devAuthEnabled" :report-error="reportError" />
+        <DevAuth v-if="config.devAuthEnabled" :report-error="reportError" />
       </div>
       <div class="box-container" role="banner">
         <div class="header">

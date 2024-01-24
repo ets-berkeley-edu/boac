@@ -224,7 +224,7 @@
                 </div>
               </td>
             </tr>
-            <tr v-if="$config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex flex-column d-sm-table-row py-2">
+            <tr v-if="config.currentEnrollmentTermId === parseInt(termId, 10)" class="d-flex flex-column d-sm-table-row py-2">
               <th class="student-bcourses-legend" scope="row">
                 Last bCourses Activity
               </th>

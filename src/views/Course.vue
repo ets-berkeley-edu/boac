@@ -285,7 +285,7 @@ export default {
         this.meetings = this._orderBy(this.section.meetings, ['startDate'], ['asc'])
         let totalStudentCount = this._get(this.section, 'totalStudentCount')
         if (this.exceedsMatrixThreshold(totalStudentCount)) {
-          this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.$config.disableMatrixViewThreshold}. Please narrow your search.`
+          this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.config.disableMatrixViewThreshold}. Please narrow your search.`
         } else {
           if (this.partitionPlottableStudents()[0].length === 0) {
             this.matrixDisabledMessage = 'No student data is available to display.'

@@ -6,8 +6,11 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
+
 export default {
   name: 'AdmitDataWarning',
+  mixins: [Context],
   props: {
     updatedAt: {
       type: String,
@@ -21,7 +24,7 @@ export default {
   created() {
     const now = this.$moment()
     if (this.updatedAt) {
-      this.localUpdatedAt = this.$moment(this.updatedAt).tz(this.$config.timezone)
+      this.localUpdatedAt = this.$moment(this.updatedAt).tz(this.config.timezone)
       this.show = this.$moment.duration(now.diff(this.localUpdatedAt)).as('hours') >= 24
     }
   }

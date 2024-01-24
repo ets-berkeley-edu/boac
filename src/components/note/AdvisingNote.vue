@@ -5,7 +5,7 @@
         <span class="pr-2">
           <b-badge pill variant="danger">Draft</b-badge>
         </span>
-        <span :id="`note-${note.id}-subject`">{{ note.subject || $config.draftNoteSubjectPlaceholder }}</span>
+        <span :id="`note-${note.id}-subject`">{{ note.subject || config.draftNoteSubjectPlaceholder }}</span>
       </span>
       <span v-if="!note.isDraft">
         <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
@@ -178,7 +178,7 @@
         <div v-if="uploadingAttachment" class="w-100">
           <font-awesome icon="sync" spin /> Uploading {{ _size(attachments) === 1 ? 'attachment' : 'attachments' }}...
         </div>
-        <div v-if="_size(existingAttachments) < $config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
+        <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
             Add attachment:
@@ -195,15 +195,15 @@
             <b-form-file
               ref="attachment-file-input"
               v-model="attachments"
-              :disabled="_size(existingAttachments) === $config.maxAttachmentsPerNote"
+              :disabled="_size(existingAttachments) === config.maxAttachmentsPerNote"
               :state="Boolean(attachments && attachments.length)"
               :multiple="true"
               :plain="true"
             ></b-form-file>
           </div>
         </div>
-        <div v-if="_size(existingAttachments) === $config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
-          A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
+        <div v-if="_size(existingAttachments) === config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
+          A note can have no more than {{ config.maxAttachmentsPerNote }} attachments.
         </div>
       </div>
     </div>
@@ -375,7 +375,7 @@ export default {
       return this._size(attachments) <= index ? '' : attachments[index].displayName
     },
     downloadUrl(attachment) {
-      return `${this.$config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
+      return `${this.config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
     resetAttachments() {
       this.existingAttachments = this._cloneDeep(this.note.attachments)

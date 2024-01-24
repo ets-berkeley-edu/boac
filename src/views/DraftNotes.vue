@@ -43,7 +43,7 @@
           <div class="align-items-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
-                {{ _trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
+                {{ _trim(row.item.subject) || config.draftNoteSubjectPlaceholder }}
               </div>
               <b-btn
                 v-if="row.item.author.uid === currentUser.uid"
@@ -53,7 +53,7 @@
                 variant="link"
                 @click="() => openEditModal(row.item)"
               >
-                {{ _trim(row.item.subject) || $config.draftNoteSubjectPlaceholder }}
+                {{ _trim(row.item.subject) || config.draftNoteSubjectPlaceholder }}
               </b-btn>
             </div>
             <div v-if="_size(row.item.attachments)">
@@ -118,14 +118,14 @@
 </template>
 
 <script>
-import AreYouSureModal from '@/components/util/AreYouSureModal.vue'
-import Context from '@/mixins/Context.vue'
-import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
-import Loading from '@/mixins/Loading.vue'
-import Scrollable from '@/mixins/Scrollable.vue'
-import Spinner from '@/components/util/Spinner.vue'
-import TimelineDate from '@/components/student/profile/TimelineDate.vue'
-import Util from '@/mixins/Util.vue'
+import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
+import Loading from '@/mixins/Loading'
+import Scrollable from '@/mixins/Scrollable'
+import Spinner from '@/components/util/Spinner'
+import TimelineDate from '@/components/student/profile/TimelineDate'
+import Util from '@/mixins/Util'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {

@@ -109,12 +109,17 @@ axios.interceptors.response.use(
 axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
   store.commit('context/setCurrentUser', Vue.observable(response.data))
   axios.get(`${apiBaseUrl}/api/config`).then(response => {
-    Vue.prototype.$config = response.data
-    Vue.prototype.$config.apiBaseUrl = apiBaseUrl
-    const ebEnvironment = Vue.prototype.$config.ebEnvironment
-    Vue.prototype.$config.isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
-    Vue.prototype.$config.isVueAppDebugMode = isVueAppDebugMode
-
+    const ebEnvironment = response.data.ebEnvironment
+    const isProduction = ebEnvironment && ebEnvironment.toLowerCase().includes('prod')
+    const config = {
+      ...response.data,
+      ...{
+        apiBaseUrl,
+        isProduction,
+        isVueAppDebugMode
+      }
+    }
+    store.commit('context/setConfig', config)
     initGoogleAnalytics().then(() => {
       store.dispatch('context/loadServiceAnnouncement')
       // Mount BOA
@@ -124,7 +129,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
         render: h => h(App)
       }).$mount('#app')
 
-      if (Vue.prototype.$config.pingFrequency) {
+      if (config.pingFrequency) {
         // Keep session alive with periodic requests
         setInterval(() => {
           axios.get(`${apiBaseUrl}/api/user/session_keep_alive`).then(response => {
@@ -132,7 +137,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
               store.commit('context/broadcast', 'user-session-expired')
             }
           })
-        }, Vue.prototype.$config.pingFrequency)
+        }, config.pingFrequency)
       }
     })
   })

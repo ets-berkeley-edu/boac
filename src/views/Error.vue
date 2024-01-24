@@ -10,7 +10,7 @@
         role="alert"
       >
         <div v-html="message" />
-        <div v-if="!$config.isProduction && errorStatus" class="mt-3">
+        <div v-if="!config.isProduction && errorStatus" class="mt-3">
           HTTP error status: {{ errorStatus }}
         </div>
       </div>
@@ -19,13 +19,14 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Error',
-  mixins: [Loading, Util],
+  mixins: [Context, Loading, Util],
   components: {Spinner},
   data: () => ({
     errorStatus: undefined,

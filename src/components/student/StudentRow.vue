@@ -96,13 +96,13 @@
           <div class="student-text">{{ isCurrentTerm ? 'Units in Progress' : 'Units Enrolled' }}</div>
         </div>
         <div
-          v-if="!_isNil(_get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== $config.defaultTermUnitsAllowed.min"
+          v-if="!_isNil(_get(student.term, 'minTermUnitsAllowed')) && student.term.minTermUnitsAllowed !== config.defaultTermUnitsAllowed.min"
           class="d-flex flex-wrap"
         >
           <div :id="`row-${rowIndex}-student-min-units`" class="mr-1 student-gpa">{{ student.term.minTermUnitsAllowed }}</div>
           <div class="no-wrap student-text">Min&nbsp;Approved</div>
         </div>
-        <div v-if="!_isNil(_get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== $config.defaultTermUnitsAllowed.max">
+        <div v-if="!_isNil(_get(student.term, 'maxTermUnitsAllowed')) && student.term.maxTermUnitsAllowed !== config.defaultTermUnitsAllowed.max">
           <span :id="`row-${rowIndex}-student-max-units`" class="mr-1 student-gpa">{{ student.term.maxTermUnitsAllowed }}</span>
           <span class="no-wrap student-text">Max&nbsp;Approved</span>
         </div>
@@ -189,7 +189,7 @@ export default {
   }),
   computed: {
     isCurrentTerm() {
-      return this.termId === `${this.$config.currentEnrollmentTermId}`
+      return this.termId === `${this.config.currentEnrollmentTermId}`
     }
   },
   methods: {

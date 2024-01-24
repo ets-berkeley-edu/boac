@@ -3,7 +3,7 @@
     no-body
     border-variant="white"
     class="student-term"
-    :class="{'background-light student-term-current': $config.currentEnrollmentTermId === parseInt(term.termId)}"
+    :class="{'background-light student-term-current': config.currentEnrollmentTermId === parseInt(term.termId)}"
   >
     <b-card-header header-bg-variant="transparent" header-class="student-term-header">
       <h3 :id="`term-${term.termId}-header`" class="font-size-18 mb-0 mr-2">{{ term.termName }}</h3>
@@ -91,6 +91,7 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import StudentCourse from '@/components/student/profile/StudentCourse'
 import StudentWithdrawalCancel from '@/components/student/profile/StudentWithdrawalCancel'
@@ -103,7 +104,7 @@ export default {
     StudentCourse,
     StudentWithdrawalCancel
   },
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     student: {
       required: true,
@@ -122,8 +123,8 @@ export default {
   created() {
     const maxUnits = this.term.maxTermUnitsAllowed
     const minUnits = this.term.minTermUnitsAllowed
-    this.showMaxUnits = !this._isNil(maxUnits) && maxUnits !== this.$config.defaultTermUnitsAllowed.max
-    this.showMinUnits = !this._isNil(minUnits) && minUnits !== this.$config.defaultTermUnitsAllowed.min
+    this.showMaxUnits = !this._isNil(maxUnits) && maxUnits !== this.config.defaultTermUnitsAllowed.max
+    this.showMinUnits = !this._isNil(minUnits) && minUnits !== this.config.defaultTermUnitsAllowed.min
     this.isConcurrent = this._some(this.term.enrollments, {'academicCareer': 'UCBX'})
   }
 }

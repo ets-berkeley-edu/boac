@@ -33,7 +33,7 @@
           </h3>
         </div>
         <div class="font-size-14 pb-2 text-black-50">
-          (<a id="download-boa_notes-metadata" :href="`${$config.apiBaseUrl}/api/reports/boa_notes/metadata`">download</a>)
+          (<a id="download-boa_notes-metadata" :href="`${config.apiBaseUrl}/api/reports/boa_notes/metadata`">download</a>)
         </div>
       </div>
       <b-collapse v-model="isShowingReport" class="mt-0">
@@ -161,12 +161,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getBoaNoteCountByMonth, getNotesReport} from '@/api/reports'
 
 export default {
   name: 'NotesReport',
-  mixins: [Util],
+  mixins: [Context, Util],
   props: {
     department: {
       required: true,

@@ -138,7 +138,7 @@ export default {
   },
   methods: {
     includesCurrentTerm(year) {
-      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.$config.currentEnrollmentTerm)
+      return this._includes([`Fall ${year.label - 1}`, `Spring ${year.label}`, `Summer ${year.label}`], this.config.currentEnrollmentTerm)
     },
     getDegreeCheckPath() {
       const currentDegreeCheck = this._find(this.student.degreeChecks, 'isCurrent')

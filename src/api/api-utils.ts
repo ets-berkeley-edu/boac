@@ -1,9 +1,9 @@
 import _ from 'lodash'
 import axios from 'axios'
-import Vue from 'vue'
+import store from '@/store'
 
 export default {
-  apiBaseUrl: () => Vue.prototype.$config.apiBaseUrl,
+  apiBaseUrl: () => store.getters['context/config'].apiBaseUrl,
   postMultipartFormData: (
     path: string,
     data: object
@@ -14,7 +14,7 @@ export default {
         formData.append(key, value)
       }
     })
-    const apiBaseUrl = Vue.prototype.$config.apiBaseUrl
+    const apiBaseUrl = store.getters['context/config'].apiBaseUrl
     return axios
         .post(
             `${apiBaseUrl}${path}`,

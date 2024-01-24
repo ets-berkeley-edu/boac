@@ -53,7 +53,7 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || store.getters['context/config'].currentEnrollmentTermId
 
   $_track('download', filename)
   return axios
@@ -69,7 +69,7 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || store.getters['context/config'].currentEnrollmentTermId
   $_track('download', filename)
 
   return axios.post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {

@@ -1,15 +1,15 @@
 <template>
   <transition name="drawer">
-    <div v-if="$config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext && !_get($route.meta, 'printable')" id="fixed_bottom">
+    <div v-if="config.fixedWarningOnAllPages && !dismissedFooterAlert && !draggingContext.dragContext && !_get($route.meta, 'printable')" id="fixed_bottom">
       <div id="fixed-warning-on-all-pages" class="d-flex fixed-bottom fixed-warning">
         <div class="flex-grow-1">
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
-        <div v-if="$config.isVueAppDebugMode">
+        <div v-if="config.isVueAppDebugMode">
           {{ _get($announcer, 'data.content') }}
         </div>
-        <div v-if="!$config.isVueAppDebugMode">
-          <span aria-live="polite" role="alert">{{ $config.fixedWarningOnAllPages }}</span>
+        <div v-if="!config.isVueAppDebugMode">
+          <span aria-live="polite" role="alert">{{ config.fixedWarningOnAllPages }}</span>
         </div>
         <div class="btn-wrapper ml-0 align-top">
           <b-btn
@@ -41,7 +41,7 @@ export default {
       this.$announcer.polite('Warning message dismissed')
     },
     getBoaEnvLabel() {
-      return this.$config.ebEnvironment ? this.$config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test'
+      return this.config.ebEnvironment ? this.config.ebEnvironment.replace('boac-', '').toUpperCase() : 'Test'
     }
   }
 }

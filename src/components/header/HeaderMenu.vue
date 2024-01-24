@@ -52,7 +52,7 @@
         Profile
       </b-dropdown-item>
       <b-dropdown-item
-        :href="`mailto:${$config.supportEmailAddress}`"
+        :href="`mailto:${config.supportEmailAddress}`"
         target="_blank"
         aria-label="Send email to the BOA team"
       >

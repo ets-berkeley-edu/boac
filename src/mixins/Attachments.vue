@@ -1,5 +1,6 @@
 <script>
 import _ from 'lodash'
+import store from '@/store'
 
 export default {
   name: 'Attachments',
@@ -26,8 +27,9 @@ export default {
       if (!(attachments && attachments.length)) {
         return 'No attachment provided.'
       }
-      if (_.size(attachments) + _.size(existingAttachments) > parseInt(this.$config.maxAttachmentsPerNote)) {
-        return `A note can have no more than ${this.$config.maxAttachmentsPerNote} attachments.`
+      const config = store.getters['context/config']
+      if (_.size(attachments) + _.size(existingAttachments) > parseInt(config.maxAttachmentsPerNote)) {
+        return `A note can have no more than ${config.maxAttachmentsPerNote} attachments.`
       }
       let error = null
       for (const attachment of attachments) {

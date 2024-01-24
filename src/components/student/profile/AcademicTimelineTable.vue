@@ -15,7 +15,7 @@
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
       </b-btn>
       <div v-if="showDownloadNotesLink">
-        | <a id="download-notes-link" class="p-2" :href="`${$config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
+        | <a id="download-notes-link" class="p-2" :href="`${config.apiBaseUrl}/api/notes/${student.sid}/download?type=${filter}`">Download {{ filter }}s</a>
       </div>
       |
       <div>
@@ -575,8 +575,8 @@ export default {
       this.$putFocusNextTick('edit-note-subject')
     },
     getSameDayDate(message) {
-      let startsAt = this.$moment(message.createdAt).tz(this.$config.timezone).format('h:mma')
-      let endsAt = this.$moment(message.endsAt).tz(this.$config.timezone).format('h:mma')
+      let startsAt = this.$moment(message.createdAt).tz(this.config.timezone).format('h:mma')
+      let endsAt = this.$moment(message.endsAt).tz(this.config.timezone).format('h:mma')
 
       return `${startsAt}-${endsAt}`
     },

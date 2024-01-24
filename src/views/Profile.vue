@@ -13,7 +13,7 @@
       <div>
         <MyProfile />
       </div>
-      <div v-if="$config.isDemoModeAvailable">
+      <div v-if="config.isDemoModeAvailable">
         <div class="pt-4">
           <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
         </div>

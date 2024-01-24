@@ -10,7 +10,7 @@
           <h1 class="page-section-header">BOA v{{ boa.version }} Flight Deck</h1>
         </div>
       </div>
-      <div v-if="$config.isDemoModeAvailable">
+      <div v-if="config.isDemoModeAvailable">
         <div class="pt-3">
           <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
         </div>
@@ -94,7 +94,7 @@ export default {
   }),
   mounted() {
     this.configs = []
-    this._each(this.$config, (value, key) => {
+    this._each(this.config, (value, key) => {
       this.configs.push({key, value})
     })
     getVersion().then(data => {

@@ -4,7 +4,7 @@
       <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>
-    <div v-if="_size(existingAttachments) < $config.maxAttachmentsPerNote" class="w-100">
+    <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote" class="w-100">
       <div class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
         Add attachment:
         <b-btn
@@ -23,15 +23,15 @@
           ref="attachment-file-input"
           v-model="attachments"
           aria-label="Select file for attachment"
-          :disabled="disabled || _size(existingAttachments) === $config.maxAttachmentsPerNote"
+          :disabled="disabled || _size(existingAttachments) === config.maxAttachmentsPerNote"
           :multiple="true"
           :plain="true"
           :state="Boolean(attachments && attachments.length)"
         />
       </div>
     </div>
-    <div v-if="_size(existingAttachments) >= $config.maxAttachmentsPerNote" class="w-100">
-      A note can have no more than {{ $config.maxAttachmentsPerNote }} attachments.
+    <div v-if="_size(existingAttachments) >= config.maxAttachmentsPerNote" class="w-100">
+      A note can have no more than {{ config.maxAttachmentsPerNote }} attachments.
     </div>
     <div>
       <ul class="pill-list pl-0 mt-3">

@@ -671,7 +671,7 @@ export default {
         'analytics.lastActivity',
         'cumulativeGPA'
       ]
-      var lastTermId = this.previousSisTermId(this.$config.currentEnrollmentTermId)
+      var lastTermId = this.previousSisTermId(this.config.currentEnrollmentTermId)
       var previousTermId = this.previousSisTermId(lastTermId)
       metrics.push('termGpa.' + previousTermId)
       metrics.push('termGpa.' + lastTermId)

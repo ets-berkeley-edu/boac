@@ -346,7 +346,7 @@ export default {
       const isNotMe = user.uid !== this.currentUser.uid
       const expiredOrInactive = user.isExpiredPerLdap || user.deletedAt || user.isBlocked
       const hasAnyRole = user.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
-      return this.$config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
+      return this.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
     getUserStatuses(user) {
       const statuses = user.deletedAt ? ['Deleted'] : ['Active']

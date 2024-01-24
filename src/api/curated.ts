@@ -67,7 +67,7 @@ export function downloadCuratedGroupCsv(id: number, name: string, csvColumnsSele
   $_track('download')
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
-  const termId = store.getters['context/currentUser'].preferences.termId || Vue.prototype.$config.currentEnrollmentTermId
+  const termId = store.getters['context/currentUser'].preferences.termId || store.getters['context/config'].currentEnrollmentTermId
   const url = `${utils.apiBaseUrl()}/api/curated_group/${id}/download_csv`
   return axios.post(url, {csvColumnsSelected, termId})
     .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null)

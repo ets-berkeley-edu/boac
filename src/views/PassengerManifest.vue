@@ -14,7 +14,7 @@
               </h1>
             </div>
             <div class="pt-0">
-              <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${$config.apiBaseUrl}/api/users/csv`">download</a>)</span>
+              <span class="font-size-14 text-black-50">(<a id="download-boa-users-csv" :href="`${config.apiBaseUrl}/api/users/csv`">download</a>)</span>
             </div>
           </div>
           <div class="flex-grow-1 text-right">
