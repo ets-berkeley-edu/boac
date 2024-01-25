@@ -350,8 +350,8 @@ export default {
           }
           this.disableUpdateButton = !!this.errorPerRangeInput || isNilOrNan(min) || isNilOrNan(max) || min > max
         } else if (this.filter.validation === 'date') {
-          const startDate = this.$moment(min)
-          const endDate = this.$moment(max)
+          const startDate = this.moment(min)
+          const endDate = this.moment(max)
           if (!(startDate && endDate && startDate.isSameOrBefore(endDate, 'day'))) {
             // Invalid data or values are descending.
             this.errorPerRangeInput = 'Requires end date after start date.'
@@ -564,7 +564,7 @@ export default {
       } else {
         let max = this._get(this.filter, 'value.max')
         if (max && this.filter.validation === 'date') {
-          max = this.$moment(max).format('MMM DD, YYYY')
+          max = this.moment(max).format('MMM DD, YYYY')
         }
         const labels = this._get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? '' : `${labels[1]} ${max}`
@@ -585,7 +585,7 @@ export default {
       } else {
         let min = this._get(this.filter, 'value.min')
         if (min && this.filter.validation === 'date') {
-          min = this.$moment(min).format('MMM DD, YYYY')
+          min = this.moment(min).format('MMM DD, YYYY')
         }
         const labels = this._get(this.filter.label, 'range')
         snippet = this.rangeMinEqualsMax(this.filter) ? this._get(this.filter.label, 'rangeMinEqualsMax') + ' ' + min : `${labels[0]} ${min}`

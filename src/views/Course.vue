@@ -50,7 +50,7 @@
                   <div>
                     {{ meeting.days }}
                     <span v-if="meetings.length > 1">
-                      ({{ $moment(meeting.startDate).format('MMM D') }} to {{ $moment(meeting.endDate).format('MMM D') }})
+                      ({{ moment(meeting.startDate).format('MMM D') }} to {{ moment(meeting.endDate).format('MMM D') }})
                     </span>
                   </div>
                   <div>{{ meeting.time }}</div>

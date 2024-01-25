@@ -308,7 +308,7 @@ export default {
   }),
   computed: {
     birthDate() {
-      let birthDate = this.$moment(this.admit.birthdate, ['YYYY-MM-DD', 'M/D/YY'])
+      let birthDate = this.moment(this.admit.birthdate, ['YYYY-MM-DD', 'M/D/YY'])
       if (birthDate.isAfter(this.now)) {
         birthDate.subtract(100, 'years')
       }
@@ -319,7 +319,7 @@ export default {
     }
   },
   created() {
-    this.now = this.$moment()
+    this.now = this.moment()
     let sid = this._get(this.$route, 'params.sid')
     if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.

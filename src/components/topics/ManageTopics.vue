@@ -177,7 +177,7 @@ export default {
     deleteConfirm() {
       return deleteTopic(this.topicDelete.id).then(() => {
         this.isDeleteTopicModalOpen = false
-        this.topicDelete.deletedAt = this.$moment()
+        this.topicDelete.deletedAt = this.moment()
         this.$announcer.polite(`Topic '${this.topicDelete.topic}' deleted.`)
         this.putFocusNextTick(`topic-${this.topicDelete.id}`)
         this.topicDelete = undefined

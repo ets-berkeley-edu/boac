@@ -70,11 +70,12 @@
 
 <script>
 import Context from '@/mixins/Context'
+import Util from '@/mixins/Util'
 import {downloadAlertsCSV} from '@/api/reports'
 
 export default {
   name: 'AlertsLogExport',
-  mixins: [Context],
+  mixins: [Context, Util],
   data: () => ({
     dateInputFormat: 'MM/DD/YYYY',
     fromDate: undefined,
@@ -87,8 +88,8 @@ export default {
     onSubmit() {
       this.isDownloading = true
       downloadAlertsCSV(
-        this.$moment(this.fromDate).format(this.dateInputFormat),
-        this.$moment(this.toDate).format(this.dateInputFormat)
+        this.moment(this.fromDate).format(this.dateInputFormat),
+        this.moment(this.toDate).format(this.dateInputFormat)
       ).then(() => {
         this.$announcer.polite('Alerts CSV file downloaded')
         this.isDownloading = false

@@ -44,7 +44,7 @@
         <b-col>
           <div class="unofficial-label-pill">
             <div>UNOFFICIAL DEGREE PROGRESS REPORT</div>
-            <div>Printed by {{ currentUser.name }} on {{ $moment().format('MMMM D, YYYY') }}</div>
+            <div>Printed by {{ currentUser.name }} on {{ moment().format('MMMM D, YYYY') }}</div>
           </div>
           <h2 class="font-size-14">{{ degreeName }}</h2>
           <div :class="{'unit-requirements-of-template': !student}">

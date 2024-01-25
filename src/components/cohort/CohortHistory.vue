@@ -39,7 +39,7 @@
             </div>
           </b-td>
           <b-td class="p-1">
-            <div :id="`event-${index}-date`">{{ $moment(event.createdAt).format('MMM D, YYYY') }}</div>
+            <div :id="`event-${index}-date`">{{ moment(event.createdAt).format('MMM D, YYYY') }}</div>
           </b-td>
           <b-td class="p-1">
             <router-link

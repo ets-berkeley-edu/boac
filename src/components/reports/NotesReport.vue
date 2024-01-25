@@ -147,7 +147,7 @@
                     :key="row.month"
                     class="d-flex justify-content-between align-items-center"
                   >
-                    {{ $moment(new Date(annual.year, row.month - 1, 1)).format('MMMM') }}
+                    {{ moment(new Date(annual.year, row.month - 1, 1)).format('MMMM') }}
                     <b-badge class="btn-primary-color-override" variant="primary" pill>{{ row.count }}</b-badge>
                   </b-list-group-item>
                 </b-list-group>

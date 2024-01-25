@@ -76,7 +76,7 @@
     </div>
     <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
       <span class="red-flag-small">
-        {{ student.withdrawalCancel.description }} {{ $moment(student.withdrawalCancel.date).format('MMM DD, YYYY') }}
+        {{ student.withdrawalCancel.description }} {{ moment(student.withdrawalCancel.date).format('MMM DD, YYYY') }}
       </span>
     </div>
     <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding" :row-index="`row-${rowIndex}`" />
