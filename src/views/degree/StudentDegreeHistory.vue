@@ -85,8 +85,8 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
 import {getDegreeChecks} from '@/api/degree'
@@ -94,8 +94,8 @@ import {getStudentByUid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeHistory',
+  mixins: [Context, Util],
   components: {Spinner, StudentProfileHeader},
-  mixins: [Context, Loading, Util],
   data: () => ({
     degreeChecks: undefined,
     student: undefined
@@ -118,7 +118,8 @@ export default {
           }
         })
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
-        this.loaded(`${studentName} Degree History`)
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(`${studentName} Degree History`)
       })
     })
   }

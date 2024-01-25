@@ -332,10 +332,15 @@ const router = new Router({
   ]
 })
 
-router.afterEach((to: any) => {
-  const pageTitle = _.get(to, 'name')
-  document.title = `${pageTitle || _.capitalize(to.name) || 'Welcome'} | BOA`
-  Vue.prototype.$announcer.assertive(`${pageTitle || 'Page'} is loading`)
+router.afterEach((to: any, from: any) => {
+  // TODO
+  const sameRoute = to.name === from.name && to.hash
+  if (!sameRoute) {
+    store.commit('context/loadingStart')
+    const pageTitle = _.get(to, 'name')
+    document.title = `${pageTitle || _.capitalize(to.name) || 'Welcome'} | BOA`
+    Vue.prototype.$announcer.assertive(`${pageTitle || 'Page'} is loading`)
+  }
 })
 
 export default router

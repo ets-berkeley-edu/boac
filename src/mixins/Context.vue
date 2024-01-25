@@ -10,7 +10,8 @@ export default {
       'config',
       'currentUser',
       'dismissedFooterAlert',
-      'dismissedServiceAnnouncement'
+      'dismissedServiceAnnouncement',
+      'loading'
     ]),
     ...mapGetters('noteEditSession', [
       'disableNewNoteButton',

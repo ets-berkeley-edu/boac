@@ -41,13 +41,14 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading'
+import Context from '@/mixins/Context'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'CreateDegreeTemplate',
-  mixins: [Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     error: undefined,
     isBusy: false,
@@ -59,7 +60,8 @@ export default {
     }
   },
   mounted() {
-    this.loaded('Create degree template')
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite('Create degree template')
   },
   methods: {
     create() {

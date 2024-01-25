@@ -26,21 +26,22 @@
 <script>
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
-import Loading from '@/mixins/Loading'
 import MyProfile from '@/components/admin/MyProfile'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Profile',
+  mixins: [Context, Util],
   components: {
     DemoModeToggle,
     MyProfile,
     Spinner
   },
-  mixins: [Context, Loading, Util],
   mounted() {
-    this.loaded('Profile page has loaded')
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite('Profile page has loaded')
   }
 }
 </script>

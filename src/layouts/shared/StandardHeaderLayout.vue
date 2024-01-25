@@ -120,6 +120,7 @@ import HeaderBranding from '@/layouts/shared/HeaderBranding'
 import HeaderMenu from '@/components/header/HeaderMenu'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
+import {scrollToTop} from '@/utils'
 
 export default {
   name: 'StandardHeaderLayout',
@@ -181,7 +182,7 @@ export default {
         this.$announcer.polite('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
-      this.scrollToTop()
+      scrollToTop()
     }
   }
 }

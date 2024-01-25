@@ -16,14 +16,13 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading'
+import store from '@/store'
 
 export default {
   name: 'NotFound',
-  mixins: [Loading],
   created() {
-    // All top-level view components must identify themselves as "loaded".
-    this.loaded('404')
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite('Page not found')
   }
 }
 </script>

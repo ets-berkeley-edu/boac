@@ -157,8 +157,8 @@ import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
@@ -167,12 +167,12 @@ import {getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchDegreeCheck',
+  mixins: [Context, DegreeEditSession, StudentAggregator, Util, Validator],
   components: {
     BatchAddStudentSet,
     DegreeTemplatesMenu,
     Spinner
   },
-  mixins: [Context, DegreeEditSession, Loading, StudentAggregator, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
@@ -212,7 +212,8 @@ export default {
     }
   },
   mounted() {
-    this.loaded('Batch degree checks loaded')
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite('Batch degree checks loaded')
   },
   methods: {
     addCohort(cohort) {
@@ -321,6 +322,26 @@ export default {
       }).finally(() => {
         this.isSaving = false
       })
+    },
+    validateSids: function(sids) {
+      this.clearErrors()
+      const trimmed = this._trim(sids, ' ,\n\t')
+      if (trimmed) {
+        const split = this._split(trimmed, /[,\r\n\t ]+/)
+        if (split.length && split[0].length > 10) {
+          this.error = 'SIDs must be separated by commas, line breaks, or tabs.'
+          return false
+        }
+        const notNumeric = this._partition(split, sid => /^\d+$/.test(this._trim(sid)))[1]
+        if (notNumeric.length) {
+          this.error = 'Each SID must be numeric.'
+        } else {
+          return split
+        }
+      } else {
+        this.warning = 'Please provide one or more SIDs.'
+      }
+      return false
     }
   }
 }

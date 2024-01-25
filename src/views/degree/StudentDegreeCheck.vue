@@ -79,8 +79,8 @@ import Context from '@/mixins/Context'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
@@ -91,7 +91,7 @@ import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeCheck',
-  mixins: [Context, DegreeEditSession, Loading, Util],
+  mixins: [Context, DegreeEditSession, Util],
   components: {
     DuplicateExistingCourse,
     DebugTemplate,
@@ -118,7 +118,8 @@ export default {
         this.student = data
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
-        this.loaded(`${this.degreeName} for ${this.student.name}`)
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(`${this.degreeName} for ${this.student.name}`)
       })
     })
   },

@@ -20,13 +20,13 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'Error',
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   components: {Spinner},
   data: () => ({
     errorStatus: undefined,
@@ -37,7 +37,8 @@ export default {
     this.errorStatus = this.$route.query.s
     this.message = this.$route.query.m || 'Uh oh, there was a problem.'
     this.title = this.$route.query.t ? `Error: ${this._capitalize(this.$route.query.t)}` : 'Error'
-    this.loaded(this.title)
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite(this.title)
   }
 }
 </script>

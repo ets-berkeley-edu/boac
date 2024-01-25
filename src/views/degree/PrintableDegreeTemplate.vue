@@ -118,21 +118,21 @@ import Category from '@/components/degree/Category.vue'
 import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'PrintableDegreeTemplate',
+  mixins: [Context, DegreeEditSession, Util],
   components: {
     Category,
     CoursesTable,
     Spinner,
     UnitRequirements
   },
-  mixins: [Context, DegreeEditSession, Loading, Util],
   data: () => ({
     includeNote: undefined,
     student: undefined
@@ -146,11 +146,13 @@ export default {
           this.student = data
           const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
           this.setPageTitle(`${studentName} - ${this.degreeName}`)
-          this.loaded(`${this.degreeName} for ${this.student.name}`)
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(`${this.degreeName} for ${this.student.name}`)
         })
       } else {
         this.setPageTitle(this.degreeName)
-        this.loaded(`${this.degreeName} is ready to print.`)
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(`${this.degreeName} is ready to print.`)
       }
     })
   }

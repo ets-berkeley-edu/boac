@@ -99,11 +99,11 @@ import CohortPageHeader from '@/components/cohort/CohortPageHeader'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FilterRow from '@/components/cohort/FilterRow'
-import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
@@ -127,12 +127,7 @@ export default {
     StudentRow,
     TermSelector
   },
-  mixins: [
-    CohortEditSession,
-    Context,
-    Loading,
-    Util
-  ],
+  mixins: [CohortEditSession, Context, Util],
   data: () => ({
     pageNumber: undefined,
     showFilters: undefined,
@@ -160,7 +155,8 @@ export default {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
-      this.loaded(this.getLoadedAlert())
+      store.dispatch('context/loadingComplete')
+      this.$announcer.polite(this.getLoadedAlert())
     } else {
       const domain = this.$route.query.domain || 'default'
       const id = this.toInt(this._get(this.$route, 'params.id'))
@@ -171,7 +167,8 @@ export default {
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
-        this.loaded(this.getLoadedAlert())
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(this.getLoadedAlert())
         this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
     }

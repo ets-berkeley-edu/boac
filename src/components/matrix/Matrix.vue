@@ -114,18 +114,18 @@
                 </div>
               </td>
               <td class="student-column">
-                <span v-if="hasPlottableProperty(student, selectedAxes.x)">
+                <span v-if="hasMatrixPlottableProperty(student, selectedAxes.x)">
                   {{ getDisplayProperty(student, selectedAxes.x) }}
                 </span>
-                <span v-if="!hasPlottableProperty(student, selectedAxes.x)" class="sr-only">
+                <span v-if="!hasMatrixPlottableProperty(student, selectedAxes.x)" class="sr-only">
                   No data
                 </span>
               </td>
               <td class="student-column">
-                <span v-if="hasPlottableProperty(student, selectedAxes.y)">
+                <span v-if="hasMatrixPlottableProperty(student, selectedAxes.y)">
                   {{ getDisplayProperty(student, selectedAxes.y) }}
                 </span>
-                <span v-if="!hasPlottableProperty(student, selectedAxes.y)" class="sr-only">
+                <span v-if="!hasMatrixPlottableProperty(student, selectedAxes.y)" class="sr-only">
                   No data
                 </span>
               </td>
@@ -142,17 +142,16 @@
 import * as d3 from 'd3'
 import _ from 'lodash'
 import Context from '@/mixins/Context'
-import MatrixUtil from '@/components/matrix/MatrixUtil'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
-import {previousSisTermId, termNameForSisId} from '@/berkeley'
+import {getMatrixPlottableProperty, hasMatrixPlottableProperty, previousSisTermId, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'Matrix',
   components: {
     StudentAvatar
   },
-  mixins: [Context, MatrixUtil, Util],
+  mixins: [Context, Util],
   props: {
     featured: String,
     section: Object
@@ -180,8 +179,8 @@ export default {
       var xAxisMeasure = this.selectedAxes.x
       var yAxisMeasure = this.selectedAxes.y
 
-      var x = d => this.getPlottableProperty(d, xAxisMeasure)
-      var y = d => this.getPlottableProperty(d, yAxisMeasure)
+      var x = d => getMatrixPlottableProperty(d, xAxisMeasure)
+      var y = d => getMatrixPlottableProperty(d, yAxisMeasure)
       var key = d => d.uid
 
       var classMean = students[0]
@@ -609,7 +608,7 @@ export default {
       dot.on('mouseover', onDotSelected)
       dot.on('mouseout', onDotDeselected)
 
-      var featuredStudent = getFeaturedStudent()
+      const featuredStudent = getFeaturedStudent()
       if (featuredStudent[0]) {
         onDotSelected(featuredStudent[0], featuredStudent[1], true)
       }
@@ -665,6 +664,7 @@ export default {
     getTickFormat(prop) {
       return this.isGpaProp(prop) ? d3.format('.2f') : ''
     },
+    hasMatrixPlottableProperty,
     initAxisLabels() {
       let metrics = [
         'analytics.currentScore',
@@ -678,6 +678,16 @@ export default {
       _.each(metrics, metric => {
         this.axisLabels[metric] = this.formatForDisplay(metric)
       })
+    },
+    partitionPlottableStudents() {
+      const xAxisMeasure = _.get(this, 'selectedAxes.x') || 'analytics.currentScore'
+      const yAxisMeasure = _.get(this, 'selectedAxes.y') || 'cumulativeGPA'
+      return _.partition(
+        this.section.students,
+        student =>
+          hasMatrixPlottableProperty(student, xAxisMeasure) &&
+          hasMatrixPlottableProperty(student, yAxisMeasure)
+      )
     },
     refreshMatrix() {
       const partitions = this.partitionPlottableStudents()

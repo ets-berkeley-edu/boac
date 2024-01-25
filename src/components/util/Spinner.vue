@@ -5,11 +5,11 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading.vue'
+import Context from '@/mixins/Context'
 
 export default {
   name: 'Spinner',
-  mixins: [Loading],
+  mixins: [Context],
 }
 </script>
 
