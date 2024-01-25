@@ -136,7 +136,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
@@ -156,7 +155,7 @@ export default {
     StudentRowBioColumn,
     StudentRowCourseActivity
   },
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   props: {
     listType: {
       required: true,

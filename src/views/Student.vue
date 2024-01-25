@@ -36,10 +36,8 @@
 <script>
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Loading from '@/mixins/Loading'
-import Scrollable from '@/mixins/Scrollable'
 import Spinner from '@/components/util/Spinner'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import NoteEditSession from '@/mixins/NoteEditSession'
@@ -48,6 +46,8 @@ import StudentProfileHeader from '@/components/student/profile/StudentProfileHea
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
 import Util from '@/mixins/Util'
 import {getStudentByUid} from '@/api/student'
+import {setWaitlistedStatus} from '@/berkeley'
+import {scrollToTop} from '@/utils'
 
 export default {
   name: 'Student',
@@ -60,7 +60,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Berkeley, Context, Loading, Scrollable, NoteEditSession, Util],
+  mixins: [Context, Loading, NoteEditSession, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -91,7 +91,7 @@ export default {
   },
   mounted() {
     if (!this.anchor) {
-      this.scrollToTop()
+      scrollToTop()
     }
   },
   methods: {
@@ -124,7 +124,7 @@ export default {
     },
     parseCourse(course) {
       const canAccessCanvasData = this.currentUser.canAccessCanvasData
-      this.setWaitlistedStatus(course)
+      setWaitlistedStatus(course)
       this._each(course.sections, function(section) {
         course.isOpen = false
         section.displayName = section.component + ' ' + section.sectionNumber

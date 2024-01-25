@@ -1,23 +1,22 @@
 <script>
 import _ from 'lodash'
-import Berkeley from '@/mixins/Berkeley'
+import {myDeptCodes} from '@/berkeley'
 
 export default {
   name: 'StudentMetadata',
-  mixins: [Berkeley],
   // Grades deserving alerts: D(+/-), F, I, NP, RD.
   alertGrades: /^[DFINR]/,
   methods: {
     displayAsAscInactive(student) {
       return (
-        _.includes(this.myDeptCodes(['advisor', 'director']), 'UWASC') &&
+        _.includes(myDeptCodes(['advisor', 'director']), 'UWASC') &&
         _.get(student, 'athleticsProfile') &&
         !_.get(student, 'athleticsProfile.isActiveAsc')
       )
     },
     displayAsCoeInactive(student) {
       return (
-        _.includes(this.myDeptCodes(['advisor', 'director']), 'COENG') &&
+        _.includes(myDeptCodes(['advisor', 'director']), 'COENG') &&
         _.get(student, 'coeProfile') &&
         !_.get(student, 'coeProfile.isActiveCoe')
       )

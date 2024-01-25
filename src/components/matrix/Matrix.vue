@@ -85,7 +85,7 @@
               class="cohort-missing-student-data-row"
             >
               <td class="student-avatar-container">
-                <StudentAvatar :size="medium" :student="student" />
+                <StudentAvatar size="medium" :student="student" />
               </td>
               <td class="cohort-student-bio-container">
                 <div class="student-name">
@@ -141,18 +141,18 @@
 <script>
 import * as d3 from 'd3'
 import _ from 'lodash'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import MatrixUtil from '@/components/matrix/MatrixUtil'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
+import {previousSisTermId, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'Matrix',
   components: {
     StudentAvatar
   },
-  mixins: [Berkeley, Context, MatrixUtil, Util],
+  mixins: [Context, MatrixUtil, Util],
   props: {
     featured: String,
     section: Object
@@ -625,8 +625,8 @@ export default {
         return 'Cumulative GPA'
       }
       if (prop.startsWith('termGpa')) {
-        var termId = prop.slice(-4)
-        return this.termNameForSisId(termId) + ' GPA'
+        const termId = prop.slice(-4)
+        return termNameForSisId(termId) + ' GPA'
       }
       return ''
     },
@@ -671,8 +671,8 @@ export default {
         'analytics.lastActivity',
         'cumulativeGPA'
       ]
-      var lastTermId = this.previousSisTermId(this.config.currentEnrollmentTermId)
-      var previousTermId = this.previousSisTermId(lastTermId)
+      const lastTermId = previousSisTermId(this.config.currentEnrollmentTermId)
+      const previousTermId = previousSisTermId(lastTermId)
       metrics.push('termGpa.' + previousTermId)
       metrics.push('termGpa.' + lastTermId)
       _.each(metrics, metric => {
@@ -680,8 +680,8 @@ export default {
       })
     },
     refreshMatrix() {
-      var partitions = this.partitionPlottableStudents()
-      var plottableStudents = partitions[0]
+      const partitions = this.partitionPlottableStudents()
+      const plottableStudents = partitions[0]
       this.plottable = plottableStudents.length > 0
       this.studentsWithoutData = _.orderBy(partitions[1], [
         'last_name',

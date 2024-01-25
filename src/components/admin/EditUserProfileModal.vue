@@ -204,15 +204,15 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import {createOrUpdateUser} from '@/api/user'
+import {isCoe} from '@/berkeley'
 
 export default {
   name: 'EditUserProfileModal',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   components: {ModalHeader},
   props: {
     afterUpdateUser: {
@@ -273,6 +273,7 @@ export default {
       this.memberships = undefined
       this.showEditUserModal = false
     },
+    isCoe,
     openEditUserModal() {
       this.userProfile = {
         id: this.profile.id,

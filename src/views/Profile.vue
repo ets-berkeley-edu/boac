@@ -24,7 +24,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import Loading from '@/mixins/Loading'
@@ -39,7 +38,7 @@ export default {
     MyProfile,
     Spinner
   },
-  mixins: [Berkeley, Context, Loading, Util],
+  mixins: [Context, Loading, Util],
   mounted() {
     this.loaded('Profile page has loaded')
   }

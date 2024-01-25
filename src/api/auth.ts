@@ -3,7 +3,7 @@ import axios from 'axios'
 import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
-import {initGoogleAnalytics} from '@/core'
+import {initGoogleAnalytics} from '@/berkeley'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
@@ -20,12 +20,6 @@ export function devAuthLogIn(uid: string, password: string) {
 export function getCasLoginURL() {
   return axios
     .get(`${utils.apiBaseUrl()}/cas/login_url`)
-    .then(response => response.data, () => null)
-}
-
-export function becomeUser(uid: string) {
-  return axios
-    .post(`${utils.apiBaseUrl()}/api/auth/become_user`, {uid: uid})
     .then(response => response.data, () => null)
 }
 

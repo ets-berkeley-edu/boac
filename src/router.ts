@@ -27,12 +27,35 @@ const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
 const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import _ from 'lodash'
-import auth from './auth'
 import Router from 'vue-router'
 import store from './store'
 import Vue from 'vue'
+import {isAdvisor, isDirector} from '@/berkeley'
 
 Vue.use(Router)
+
+const $_goToLogin = (to: any, next: any) => {
+  next({
+    path: '/login',
+    query: {
+      error: to.query.error,
+      redirect: to.name === 'Home' ? undefined : to.fullPath
+    }
+  })
+}
+
+const $_isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE' && _.includes(['advisor', 'director'], d.role)))
+
+const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
+  const currentUser = store.getters['context/currentUser']
+  if (currentUser.canReadDegreeProgress) {
+    next()
+  } else if (currentUser.isAuthenticated) {
+    next({path: '/404'})
+  } else {
+    $_goToLogin(to, next)
+  }
+}
 
 const router = new Router({
   mode: 'history',
@@ -49,7 +72,7 @@ const router = new Router({
         if (currentUser.isAuthenticated) {
           if (_.trim(to.query.redirect)) {
             next(to.query.redirect)
-          } else if (auth.isAdvisor(currentUser) || auth.isDirector(currentUser) || currentUser.isAdmin) {
+          } else if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
             next('/home')
           } else {
             next({path: '/404'})
@@ -65,7 +88,19 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresAdvisor,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires Advisor
+        const currentUser = store.getters['context/currentUser']
+        if (currentUser.isAuthenticated) {
+          if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
       children: [
         {
           path: '/cohorts/all',
@@ -120,7 +155,19 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresAdmin,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires Admin
+        const currentUser = store.getters['context/currentUser']
+        if (currentUser.isAuthenticated) {
+          if (currentUser.isAdmin) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
       children: [
         {
           path: '/admin',
@@ -137,7 +184,19 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresDirector,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires Director
+        const currentUser = store.getters['context/currentUser']
+        if (currentUser.isAuthenticated) {
+          if (isDirector(currentUser) || currentUser.isAdmin) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
       children: [
         {
           path: '/analytics/:deptCode',
@@ -149,7 +208,19 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresCE3,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires CE3
+        const currentUser = store.getters['context/currentUser']
+        if (currentUser.isAuthenticated) {
+          if (currentUser.isAdmin || $_isCE3(currentUser)) {
+            next()
+          } else {
+            next({path: '/404'})
+          }
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
       children: [
         {
           path: '/admit/student/:sid',
@@ -166,7 +237,7 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresDegreeProgressPerm,
+      beforeEnter: $_requiresDegreeProgress,
       children: [
         {
           path: '/degrees',
@@ -207,7 +278,7 @@ const router = new Router({
     },
     {
       path: '/',
-      beforeEnter: auth.requiresDegreeProgressPerm,
+      beforeEnter: $_requiresDegreeProgress,
       component: PrintableDegreeTemplate,
       children: [
         {
@@ -222,7 +293,14 @@ const router = new Router({
     {
       path: '/',
       component: StandardLayout,
-      beforeEnter: auth.requiresAuthenticated,
+      beforeEnter: (to: any, from: any, next: any) => {
+        // Requires Authenticated
+        if (store.getters['context/currentUser'].isAuthenticated) {
+          next()
+        } else {
+          $_goToLogin(to, next)
+        }
+      },
       children: [
         {
           path: '/home',

@@ -231,7 +231,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
@@ -240,10 +239,11 @@ import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
 import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
+import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [Berkeley, Context, CuratedEditSession, Util, Validator],
+  mixins: [Context, CuratedEditSession, Util, Validator],
   components: {ExportListModal, FerpaReminderModal, ModalHeader},
   data: () => ({
     exportEnabled: true,
@@ -312,8 +312,10 @@ export default {
         })
     },
     domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
+      return describeCuratedGroupDomain(this.domain, capitalize)
     },
+    getCsvExportColumns,
+    getCsvExportColumnsSelected,
     rename() {
       this.renameError = this.validateCohortName({
         name: this.renameInput

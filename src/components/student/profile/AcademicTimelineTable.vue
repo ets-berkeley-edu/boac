@@ -333,19 +333,19 @@
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'
 import AdvisingNote from '@/components/note/AdvisingNote'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import EditAdvisingNote from '@/components/note/EditAdvisingNote'
-import Scrollable from '@/mixins/Scrollable'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
 import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {markAppointmentRead} from '@/api/appointments'
+import {isDirector} from '@/berkeley'
+import {scrollTo} from '@/utils'
 
 export default {
   name: 'AcademicTimelineTable',
-  mixins: [Berkeley, Context, Scrollable, Util],
+  mixins: [Context, Util],
   components: {
     AdvisingAppointment,
     AdvisingNote,
@@ -424,7 +424,7 @@ export default {
         return this._find(notes, n => !n.isDraft)
       }
       return ['eForm', 'note'].includes(this.filter)
-        && (this.currentUser.isAdmin || this.isDirector(this.currentUser))
+        && (this.currentUser.isAdmin || isDirector(this.currentUser))
         && hasNonDrafts()
     },
     showMyNotesToggle() {
@@ -668,7 +668,7 @@ export default {
       })
     },
     scrollToPermalink(messageType, messageId) {
-      this.scrollTo(`#permalink-${messageType}-${messageId}`)
+      scrollTo(`#permalink-${messageType}-${messageId}`)
       this.putFocusNextTick(`message-row-${messageId}`)
     },
     toggleExpandAll() {

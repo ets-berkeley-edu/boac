@@ -45,6 +45,7 @@
 import Context from '@/mixins/Context'
 import NavLink from '@/components/util/NavLink'
 import Util from '@/mixins/Util'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CuratedGroups',
@@ -69,7 +70,7 @@ export default {
   },
   methods: {
     domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
+      return describeCuratedGroupDomain(this.domain, capitalize)
     }
   }
 }

@@ -51,14 +51,14 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import store from '@/store'
 import Util from '@/mixins/Util'
+import {myDeptCodes, previousSisTermId, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'SortBy',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   props: {
     domain: {
       type: String,
@@ -94,8 +94,8 @@ export default {
           ]
         })
       } else {
-        const previousTermId = this.previousSisTermId(this.config.currentEnrollmentTermId)
-        const previousPreviousTermId = this.previousSisTermId(previousTermId)
+        const previousTermId = previousSisTermId(this.config.currentEnrollmentTermId)
+        const previousPreviousTermId = previousSisTermId(previousTermId)
         optionGroups.push({
           label: 'Profile',
           options: [
@@ -105,7 +105,7 @@ export default {
             {label: 'Major', value: 'major'}
           ]
         })
-        if (this.currentUser.isAdmin || this._includes(this.myDeptCodes(['advisor', 'director']), 'UWASC')) {
+        if (this.currentUser.isAdmin || this._includes(myDeptCodes(['advisor', 'director']), 'UWASC')) {
           optionGroups[0].options.push({label: 'Team', value: 'group_name'})
         }
         optionGroups.push({
@@ -120,10 +120,10 @@ export default {
         optionGroups.push({
           label: 'GPA',
           options: [
-            {label: `${this.termNameForSisId(previousPreviousTermId)}, ascending`, value: `term_gpa_${previousPreviousTermId}`},
-            {label: `${this.termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} desc`},
-            {label: `${this.termNameForSisId(previousTermId)}, ascending`, value: `term_gpa_${previousTermId}`},
-            {label: `${this.termNameForSisId(previousTermId)}, descending`, value: `term_gpa_${previousTermId} desc`},
+            {label: `${termNameForSisId(previousPreviousTermId)}, ascending`, value: `term_gpa_${previousPreviousTermId}`},
+            {label: `${termNameForSisId(previousPreviousTermId)}, descending`, value: `term_gpa_${previousPreviousTermId} desc`},
+            {label: `${termNameForSisId(previousTermId)}, ascending`, value: `term_gpa_${previousTermId}`},
+            {label: `${termNameForSisId(previousTermId)}, descending`, value: `term_gpa_${previousTermId} desc`},
             {label: 'Cumulative, ascending', value: 'gpa'},
             {label: 'Cumulative, descending', value: 'gpa desc'}
           ]

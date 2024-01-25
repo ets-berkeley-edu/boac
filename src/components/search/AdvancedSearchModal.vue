@@ -291,11 +291,11 @@ import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckbox
 import Autocomplete from '@trevoreyre/autocomplete-vue'
 import Context from '@/mixins/Context'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
-import Scrollable from '@/mixins/Scrollable'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {findStudentsByNameOrSid} from '@/api/student'
+import {scrollToTop} from '@/utils'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -304,7 +304,7 @@ export default {
     Autocomplete,
     InputTextAutocomplete
   },
-  mixins: [Context, Scrollable, SearchSession, Util],
+  mixins: [Context, SearchSession, Util],
   data: () => ({
     counter: 0
   }),
@@ -410,7 +410,7 @@ export default {
         this.$announcer.polite('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
-      this.scrollToTop()
+      scrollToTop()
     },
     setQueryText(value) {
       this.queryText = value

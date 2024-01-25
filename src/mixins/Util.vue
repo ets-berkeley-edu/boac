@@ -3,7 +3,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import numeral from 'numeral'
 import Vue from 'vue'
-import {oxfordJoin, putFocusNextTick} from '@/utils'
+import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
   extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
@@ -21,13 +21,6 @@ const decodeHtml = (snippet) => {
     return snippet
   }
 }
-
-const toInt = (value, defaultValue = null) => {
-  const parsed = parseInt(value, 10)
-  return Number.isInteger(parsed) ? parsed : defaultValue
-}
-
-const toBoolean = value => value && value !== 'false'
 
 export default {
   name: 'Util',
@@ -81,7 +74,6 @@ export default {
     _split: split,
     _startsWith: startsWith,
     _sumBy: sumBy,
-    _toInt: toInt,
     _toString: toString,
     _trim: trim,
     _truncate: truncate,
@@ -94,10 +86,6 @@ export default {
     _without: without,
     _xor: xor,
     _xorBy: xorBy,
-    describeCuratedGroupDomain(domain, capitalize) {
-      const format = s => capitalize ? _.capitalize(s) : s
-      return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
-    },
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
@@ -111,35 +99,10 @@ export default {
     putFocusNextTick,
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
-    sortComparator: (a, b, nullFirst=true) => {
-      if (_.isNil(a) || _.isNil(b)) {
-        if (nullFirst) {
-          return _.isNil(a) ? (_.isNil(b) ? 0 : -1) : 1
-        } else {
-          return _.isNil(b) ? (_.isNil(a) ? 0 : -1) : 1
-        }
-      } else if (_.isNumber(a) && _.isNumber(b)) {
-        return a < b ? -1 : a > b ? 1 : 0
-      } else {
-        const aInt = toInt(a)
-        const bInt = toInt(b)
-        if (aInt && bInt) {
-          return aInt < bInt ? -1 : aInt > bInt ? 1 : 0
-        } else {
-          return a.toString().localeCompare(b.toString(), undefined, {
-            numeric: true
-          })
-        }
-      }
-    },
     stripAnchorRef: fullPath => _.split(fullPath, '#', 1)[0],
-    stripHtmlAndTrim: html => {
-      let text = html && html.replace(/<([^>]+)>/ig,'')
-      text = text && text.replace(/&nbsp;/g, '')
-      return _.trim(text)
-    },
+    stripHtmlAndTrim,
     studentRoutePath: (uid, inDemoMode) => inDemoMode ? `/student/${window.btoa(uid)}` : `/student/${uid}`,
-    toBoolean,
+    toBoolean: value => value && value !== 'false',
     toInt
   }
 }

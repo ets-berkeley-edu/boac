@@ -81,6 +81,7 @@
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
+import {sortComparator} from '@/utils'
 
 export default {
   name: 'SortableAdmits',
@@ -140,10 +141,10 @@ export default {
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this.normalizeForSort(this._get(a, sortBy))
       let bValue = this.normalizeForSort(this._get(b, sortBy))
-      let result = this.sortComparator(aValue, bValue)
+      let result = sortComparator(aValue, bValue)
       if (result === 0) {
         this._each(['lastName', 'firstName', 'csEmplId'], field => {
-          result = this.sortComparator(
+          result = sortComparator(
             this.normalizeForSort(this._get(a, field)),
             this.normalizeForSort(this._get(b, field))
           )

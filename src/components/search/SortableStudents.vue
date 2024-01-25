@@ -132,6 +132,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {sortComparator} from '@/utils'
 
 export default {
   name: 'SortableStudents',
@@ -219,10 +220,10 @@ export default {
       // If column type is number then nil is treated as zero.
       aValue = this._isNil(aValue) && this._isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
       bValue = this._isNil(bValue) && this._isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
-      let result = this.sortComparator(aValue, bValue)
+      let result = sortComparator(aValue, bValue)
       if (result === 0) {
         this._each(['lastName', 'firstName', 'sid'], field => {
-          result = this.sortComparator(
+          result = sortComparator(
             this.normalizeForSort(this._get(a, field)),
             this.normalizeForSort(this._get(b, field))
           )

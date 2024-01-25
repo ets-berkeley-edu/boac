@@ -107,16 +107,16 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {getSectionsWithIncompleteStatus, setWaitlistedStatus, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'StudentRowCourseActivity',
-  mixins: [Berkeley, Context, StudentAnalytics, StudentMetadata, Util],
+  mixins: [Context, StudentAnalytics, StudentMetadata, Util],
   components: {IncompleteGradeAlertIcon},
   props: {
     rowIndex: {
@@ -137,8 +137,12 @@ export default {
   }),
   created() {
     const termEnrollments = this._get(this.student.term, 'enrollments', [])
-    this._each(termEnrollments, this.setWaitlistedStatus)
+    this._each(termEnrollments, setWaitlistedStatus)
     this.termEnrollments = termEnrollments
+  },
+  methods: {
+    getSectionsWithIncompleteStatus,
+    termNameForSisId
   }
 }
 </script>

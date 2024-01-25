@@ -10,13 +10,13 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {sisIdForTermName, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'StudentAcademicStanding',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   props: {
     standing: {
       type: Object
@@ -25,10 +25,10 @@ export default {
   },
   computed: {
     termId() {
-      return this.standing.termId || this.sisIdForTermName(this.standing.termName)
+      return this.standing.termId || sisIdForTermName(this.standing.termName)
     },
     termName() {
-      return this.standing.termName || this.termNameForSisId(this.standing.termId)
+      return this.standing.termName || termNameForSisId(this.standing.termId)
     }
   }
 }

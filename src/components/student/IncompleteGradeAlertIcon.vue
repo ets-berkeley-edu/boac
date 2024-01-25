@@ -10,11 +10,10 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
+import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
 
 export default {
   name: 'IncompleteGradeAlertIcon',
-  mixins: [Berkeley],
   props: {
     course: {
       required: true,
@@ -34,8 +33,8 @@ export default {
     sectionsWithIncompleteStatus: undefined
   }),
   created() {
-    this.sectionsWithIncompleteStatus = this.getSectionsWithIncompleteStatus(this.course.sections)
-    this.ariaLabel = this.getIncompleteGradeDescription(this.course.displayName, this.sectionsWithIncompleteStatus)
+    this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
+    this.ariaLabel = getIncompleteGradeDescription(this.course.displayName, this.sectionsWithIncompleteStatus)
   }
 }
 </script>

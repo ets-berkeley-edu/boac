@@ -86,10 +86,10 @@
 import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import Pagination from '@/components/util/Pagination'
-import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Util from '@/mixins/Util'
 import {getCohortEvents} from '@/api/cohort'
+import {scrollToTop} from '@/utils'
 
 export default {
   name: 'CohortHistory',
@@ -97,7 +97,7 @@ export default {
     Pagination,
     SectionSpinner
   },
-  mixins: [CohortEditSession, Context, Scrollable, Util],
+  mixins: [CohortEditSession, Context, Util],
   data: () => ({
     currentPage: 1,
     events: [],
@@ -118,7 +118,7 @@ export default {
     loadEvents() {
       this.loading = true
       this.$announcer.polite('Cohort history is loading')
-      this.scrollToTop(10)
+      scrollToTop(10)
       getCohortEvents(this.cohortId, this.offset, this.itemsPerPage).then((response) => {
         this.totalEventsCount = response.count
         this.events = response.events

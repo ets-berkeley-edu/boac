@@ -76,6 +76,7 @@ import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
 import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'BatchNoteFeatures',
@@ -107,7 +108,7 @@ export default {
     addCuratedGroupToBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.addCuratedGroup(curatedGroup)
-      this.$announcer.polite(`Added ${this.describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+      this.$announcer.polite(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
     },
     removeCohortFromBatch(cohort) {
       this.setIsRecalculating(true)
@@ -117,7 +118,7 @@ export default {
     removeCuratedGroupFromBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
-      this.$announcer.polite(`${this._capitalize(this.describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
+      this.$announcer.polite(`${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
     }
   }
 }

@@ -118,14 +118,13 @@ import Autocomplete from '@trevoreyre/autocomplete-vue'
 import Context from '@/mixins/Context'
 import HeaderBranding from '@/layouts/shared/HeaderBranding'
 import HeaderMenu from '@/components/header/HeaderMenu'
-import Scrollable from '@/mixins/Scrollable'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'StandardHeaderLayout',
   components: {AdvancedSearchModal, Autocomplete, HeaderBranding, HeaderMenu},
-  mixins: [Context, Scrollable, SearchSession, Util],
+  mixins: [Context, SearchSession, Util],
   data: () => ({
     isFocusAdvSearchButton: false,
     showErrorPopover: false

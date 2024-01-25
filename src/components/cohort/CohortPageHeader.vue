@@ -203,7 +203,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal'
@@ -213,11 +212,12 @@ import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 import {deleteCohort} from '@/api/cohort'
+import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 
 export default {
   name: 'CohortPageHeader',
   components: {DeleteCohortModal, ExportListModal, FerpaReminderModal},
-  mixins: [Berkeley, CohortEditSession, Context, Util, Validator],
+  mixins: [CohortEditSession, Context, Util, Validator],
   props: {
     showHistory: {
       type: Boolean,
@@ -286,6 +286,8 @@ export default {
         this.$announcer.polite('Export is done.')
       })
     },
+    getCsvExportColumns,
+    getCsvExportColumnsSelected,
     submitRename() {
       this.renameError = this.validateCohortName({
         id: this.cohortId,

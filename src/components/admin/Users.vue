@@ -280,17 +280,17 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import Util from '@/mixins/Util'
 import {becomeUser, getAdminUsers, getUserByUid, getUsers, userAutocomplete} from '@/api/user'
+import {getBoaUserRoles} from '@/berkeley'
 
 export default {
   name: 'Users',
   components: {EditUserProfileModal, InputTextAutocomplete},
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   props: {
     departments: {
       required: true,
@@ -348,6 +348,7 @@ export default {
       const hasAnyRole = user.isAdmin || this._find(user.departments, (dept) => !this._isNil(dept.role))
       return this.config.devAuthEnabled && isNotMe && !expiredOrInactive && hasAnyRole
     },
+    getBoaUserRoles,
     getUserStatuses(user) {
       const statuses = user.deletedAt ? ['Deleted'] : ['Active']
       if (user.isBlocked) {
