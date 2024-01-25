@@ -40,9 +40,9 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import NotesReport from '@/components/reports/NotesReport'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import UserReport from '@/components/reports/UserReport'
 import Util from '@/mixins/Util'
 import {getAvailableDepartmentReports} from '@/api/reports'
@@ -54,7 +54,7 @@ export default {
     Spinner,
     UserReport
   },
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     availableDepartments: undefined,
     department: undefined,
@@ -65,7 +65,8 @@ export default {
       if (this._includes(this._map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
-        this.loaded('Reports loaded')
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite('Reports loaded')
       } else {
         this.$router.push({path: '/404'})
       }

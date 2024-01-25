@@ -76,7 +76,6 @@ import Context from '@/mixins/Context'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
-import Loading from '@/mixins/Loading.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
 
@@ -89,7 +88,7 @@ export default {
     LinkToDraftNotes,
     MyAdmitCohorts
   },
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     isCreateNoteModalOpen: false
   }),

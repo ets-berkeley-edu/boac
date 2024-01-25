@@ -33,13 +33,13 @@
 </template>
 
 <script>
-import Loading from '@/mixins/Loading'
+import Context from '@/mixins/Context'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SearchResultsHeader',
-  mixins: [Loading, SearchSession, Util],
+  mixins: [Context, SearchSession, Util],
   props: {
     results: {
       required: true,

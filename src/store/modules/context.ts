@@ -3,7 +3,6 @@ import mitt from 'mitt'
 import store from '@/store'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
-import {putFocusNextTick} from '@/utils'
 
 const state = {
   announcement: undefined,
@@ -34,27 +33,23 @@ const mutations = {
   broadcast: (state: any, {eventType, data}: any) => state.eventHub.emit(eventType, data),
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
-  loadingComplete: (state: any, focusTarget?: string) => {
+  loadingComplete: (state: any) => {
     if (!store.getters['context/config'].isProduction) {
       console.log(`Page loaded in ${(new Date().getTime() - state.loadingStartTime) / 1000} seconds`)
     }
     state.loading = false
-    if (focusTarget) {
-      putFocusNextTick(focusTarget)
-    } else {
-      const callable = () => {
-        const elements = document.getElementsByTagName('h1')
-        if (elements.length > 0) {
-          elements[0].setAttribute('tabindex', '-1')
-          elements[0].focus()
-        }
-        return elements.length > 0
+    const callable = () => {
+      const elements = document.getElementsByTagName('h1')
+      if (elements.length > 0) {
+        elements[0].setAttribute('tabindex', '-1')
+        elements[0].focus()
       }
-      Vue.nextTick(() => {
-        let counter = 0
-        const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
-      })
+      return elements.length > 0
     }
+    Vue.nextTick(() => {
+      let counter = 0
+      const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
+    })
   },
   loadingStart: (state: any) => {
     state.loading = true
@@ -90,9 +85,10 @@ const mutations = {
 const actions = {
   dismissFooterAlert: ({commit}) => commit('dismissFooterAlert'),
   dismissServiceAnnouncement: ({commit}) => commit('dismissServiceAnnouncement'),
+  loadingComplete: ({commit}) => commit('loadingComplete'),
+  loadingStart: ({commit}) => commit('loadingStart'),
   loadServiceAnnouncement: ({commit}) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
-  restoreServiceAnnouncement: ({commit}) => commit('restoreServiceAnnouncement'),
-  loadingStart: ({commit}) => commit('loadingStart')
+  restoreServiceAnnouncement: ({commit}) => commit('restoreServiceAnnouncement')
 }
 
 export default {

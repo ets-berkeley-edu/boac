@@ -47,26 +47,6 @@ export default {
       }
       return msg
     },
-    validateSids: function(sids) {
-      this.clearErrors()
-      const trimmed = _.trim(sids, ' ,\n\t')
-      if (trimmed) {
-        const split = _.split(trimmed, /[,\r\n\t ]+/)
-        if (split.length && split[0].length > 10) {
-          this.error = 'SIDs must be separated by commas, line breaks, or tabs.'
-          return false
-        }
-        const notNumeric = _.partition(split, sid => /^\d+$/.test(_.trim(sid)))[1]
-        if (notNumeric.length) {
-          this.error = 'Each SID must be numeric.'
-        } else {
-          return split
-        }
-      } else {
-        this.warning = 'Please provide one or more SIDs.'
-      }
-      return false
-    },
     validateTemplateTitle: template => {
       const title = _.trim(template.title)
       let msg = null

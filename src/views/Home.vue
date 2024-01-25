@@ -37,15 +37,15 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading.vue'
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import Spinner from '@/components/util/Spinner.vue'
+import store from '@/store'
 import Util from '@/mixins/Util.vue'
 import {scrollToTop} from '@/utils'
 
 export default {
   name: 'Home',
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   components: {
     SortableGroup,
     Spinner
@@ -55,9 +55,10 @@ export default {
     curatedGroups: undefined
   }),
   mounted() {
-    this.loaded('Home loaded')
     this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
     this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
+    store.dispatch('context/loadingComplete')
+    this.$announcer.polite('Home loaded')
     scrollToTop()
   }
 }

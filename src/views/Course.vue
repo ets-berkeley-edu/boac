@@ -159,15 +159,15 @@
 <script>
 import Context from '@/mixins/Context'
 import CourseStudents from '@/components/course/CourseStudents'
-import Loading from '@/mixins/Loading'
+import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import Matrix from '@/components/matrix/Matrix'
-import MatrixUtil from '@/components/matrix/MatrixUtil'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
-import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {getSection} from '@/api/course'
+import {hasMatrixPlottableProperty} from '@/berkeley'
 import {scrollToTop} from '@/utils'
 
 export default {
@@ -180,12 +180,7 @@ export default {
     CuratedGroupSelector,
     Spinner
   },
-  mixins: [
-    Context,
-    Loading,
-    MatrixUtil,
-    Util
-  ],
+  mixins: [Context, Util],
   data: () => ({
     error: null,
     featured: null,
@@ -216,6 +211,12 @@ export default {
     scrollToTop()
   },
   methods: {
+    exceedsMatrixThreshold(studentCount) {
+      return (
+        parseInt(studentCount, 10) >
+        parseInt(this.config.disableMatrixViewThreshold, 10)
+      )
+    },
     featureSearchedStudent(data) {
       const section = this._clone(data)
       const subject = this._remove(section.students, student => {
@@ -266,6 +267,16 @@ export default {
       this.$ga.course('matrix', this.section.displayName)
       return getSection(this.termId, this.sectionId)
     },
+    partitionPlottableStudents() {
+      const xAxisMeasure = this._get(this, 'selectedAxes.x') || 'analytics.currentScore'
+      const yAxisMeasure = this._get(this, 'selectedAxes.y') || 'cumulativeGPA'
+      return this._partition(
+        this.section.students,
+        student =>
+          hasMatrixPlottableProperty(student, xAxisMeasure) &&
+          hasMatrixPlottableProperty(student, yAxisMeasure)
+      )
+    },
     resizePage(itemsPerPage) {
       this.isToggling = true
       const previousItemsPerPage = this.pagination.itemsPerPage
@@ -299,7 +310,8 @@ export default {
         } else {
           message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
         }
-        this.loaded(message)
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(message)
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView

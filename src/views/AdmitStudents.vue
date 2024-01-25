@@ -99,12 +99,12 @@ import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import Loading from '@/mixins/Loading'
 import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {getAllAdmits} from '@/api/admit'
 import {downloadCsv} from '@/api/cohort'
@@ -123,11 +123,7 @@ export default {
     SortBy,
     Spinner
   },
-  mixins: [
-    Context,
-    Loading,
-    Util
-  ],
+  mixins: [Context, Util],
   data: () => ({
     admits: undefined,
     counter: null,
@@ -151,8 +147,7 @@ export default {
       this.loadAdmits()
       if (!this.loading) {
         this.goToPage(1)
-        const action = `Sort admitted students by ${sortBy}`
-        this.$announcer.polite(action)
+        this.$announcer.polite(`Sort admitted students by ${sortBy}`)
       }
     })
   },
@@ -197,7 +192,8 @@ export default {
         if (response) {
           this.admits = this._get(response, 'students')
           this.totalAdmitCount = this._get(response, 'totalStudentCount')
-          this.loaded(`${this.totalAdmitCount} CE3 admits loaded`)
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {
           this.$router.push({path: '/404'})

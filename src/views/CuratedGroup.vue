@@ -90,7 +90,6 @@ import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
-import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
@@ -114,7 +113,7 @@ export default {
     StudentRow,
     TermSelector
   },
-  mixins: [Context, CuratedEditSession, Loading, Util],
+  mixins: [Context, CuratedEditSession, Util],
   props: {
     id: {
       required: true,
@@ -131,7 +130,8 @@ export default {
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        this.loaded(this.getLoadedAlert())
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
         this.putFocusNextTick('curated-group-name')
       } else {
@@ -141,25 +141,27 @@ export default {
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     this.setEventHandler(`${sortByKey}-user-preference-change`, sortBy => {
       if (!this.loading) {
-        this.loadingStart()
+        store.dispatch('context/loadingStart')
         this.$announcer.polite(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
-          this.loaded(this.getLoadedAlert())
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(this.getLoadedAlert())
         })
       }
     })
     this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
-        this.loadingStart()
+        store.dispatch('context/loadingStart')
         this.goToPage(this.pageNumber).then(() => {
-          this.loaded(this.getLoadedAlert())
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(this.getLoadedAlert())
         })
       }
     })
   },
   mounted() {
     this.nextTick(function() {
-      if (!this.anchor) {
+      if (!location.hash) {
         return false
       }
       let anchor = this.anchor.replace(/(#)([0-9])/g, function(a, m1, m2) {
@@ -174,9 +176,10 @@ export default {
       if (this._size(sids)) {
         this.$announcer.polite(`Adding ${sids.length} students`)
         store.commit('context/updateCurrentUserPreference', {key: 'sortBy', value: 'last_name'})
-        this.loadingStart()
+        store.dispatch('context/loadingStart')
         this.addStudents(sids).then(() => {
-          this.loaded(this.getLoadedAlert())
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(this.getLoadedAlert())
           this.putFocusNextTick('curated-group-name')
           this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
         })
@@ -191,9 +194,10 @@ export default {
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
-      this.loadingStart()
+      store.dispatch('context/loadingStart')
       this.goToPage(pageNumber).then(() => {
-        this.loaded(this.getLoadedAlert())
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(this.getLoadedAlert())
       })
     }
   }

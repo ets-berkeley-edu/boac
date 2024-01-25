@@ -216,15 +216,15 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
 
 export default {
   name: 'ManageDegreeChecks',
+  mixins: [Context, DegreeEditSession, Util],
   components: {AreYouSureModal, CloneTemplateModal, Spinner},
-  mixins: [Context, DegreeEditSession, Loading, Util],
   data: () => ({
     deleteModalBody: undefined,
     degreeTemplates: undefined,
@@ -247,7 +247,8 @@ export default {
     getDegreeTemplates().then(data => {
       this.degreeTemplates = data
       this.successMessage = this.$route.query.m
-      this.loaded('Managing Degree Checks loaded')
+      store.dispatch('context/loadingComplete')
+      this.$announcer.polite('Managing Degree Checks loaded')
     })
   },
   methods: {

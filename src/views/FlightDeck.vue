@@ -71,9 +71,9 @@ import AlertsLogExport from '@/components/admin/AlertsLogExport'
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
-import Loading from '@/mixins/Loading'
 import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
 
@@ -86,7 +86,7 @@ export default {
     ManageTopics,
     Spinner
   },
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     boa: undefined,
     configs: undefined,
@@ -99,7 +99,8 @@ export default {
     })
     getVersion().then(data => {
       this.boa = data
-      this.loaded('Flight Deck has loaded')
+      store.dispatch('context/loadingComplete')
+      this.$announcer.polite('Flight Deck has loaded')
     })
   }
 }

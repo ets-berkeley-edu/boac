@@ -37,10 +37,10 @@
 import AcademicTimeline from '@/components/student/profile/AcademicTimeline'
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import NoteEditSession from '@/mixins/NoteEditSession'
+import store from '@/store'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
@@ -60,7 +60,7 @@ export default {
     StudentProfileHeader,
     StudentProfileUnits
   },
-  mixins: [Context, Loading, NoteEditSession, Util],
+  mixins: [Context, NoteEditSession, Util],
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -86,7 +86,8 @@ export default {
       this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : student.name)
       this._assign(this.student, student)
       this._each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-      this.loaded(`${this.student.name} loaded`, this.anchor)
+      store.commit('context/loadingComplete')
+      this.$announcer.polite(`${this.student.name} loaded`)
     })
   },
   mounted() {

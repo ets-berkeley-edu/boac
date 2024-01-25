@@ -33,16 +33,16 @@
 <script>
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
-import Loading from '@/mixins/Loading'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import Users from '@/components/admin/Users'
 import Util from '@/mixins/Util'
 import {getDepartments} from '@/api/user'
 
 export default {
   name: 'PassengerManifest',
+  mixins: [Context, Util],
   components: {EditUserProfileModal, Spinner, Users},
-  mixins: [Context, Loading, Util],
   data: () => ({
     departments: undefined,
     refreshUsers: false
@@ -50,7 +50,8 @@ export default {
   created() {
     getDepartments(true).then(departments => {
       this.departments = departments
-      this.loaded('Passenger Manifest has loaded')
+      store.dispatch('context/loadingComplete')
+      this.$announcer.polite('Passenger Manifest has loaded')
     })
   },
   methods: {

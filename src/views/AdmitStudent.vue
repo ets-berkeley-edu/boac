@@ -292,17 +292,17 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAdmitBySid} from '@/api/admit'
 import {scrollToTop} from '@/utils'
+import store from '@/store'
 
 export default {
   name: 'AdmitStudent',
   components: {AdmitDataWarning, ManageStudent, Spinner},
-  mixins: [Context, Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     admit: {}
   }),
@@ -330,7 +330,8 @@ export default {
         this._assign(this.admit, admit)
         const pageTitle = this.currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
-        this.loaded(`${pageTitle} has loaded`)
+        store.dispatch('context/loadingComplete')
+        this.$announcer.polite(`${pageTitle} has loaded`)
       } else {
         this.$router.push({path: '/404'})
       }

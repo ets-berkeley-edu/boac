@@ -32,15 +32,16 @@
 </template>
 
 <script>
-import {getUsersWithCohorts} from '@/api/cohort'
+import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
-import Loading from '@/mixins/Loading'
+import store from '@/store'
 import Util from '@/mixins/Util'
+import {getUsersWithCohorts} from '@/api/cohort'
 
 export default {
   name: 'AllCohorts',
   components: {Spinner},
-  mixins: [Loading, Util],
+  mixins: [Context, Util],
   data: () => ({
     rows: [],
     includesAdmittedStudents: undefined,
@@ -49,7 +50,8 @@ export default {
     getUsersWithCohorts().then(data => {
       this.rows = this._filter(data, row => row.cohorts.length)
       this.includesAdmittedStudents = this._find(this._flatten(this._map(this.rows, 'cohorts')), g => g.domain === 'admitted_students')
-      this.loaded('Everyone\'s Cohorts page has loaded')
+      store.dispatch('context/loadingComplete')
+      this.$announcer.polite('Everyone\'s Cohorts page has loaded')
     })
   }
 }

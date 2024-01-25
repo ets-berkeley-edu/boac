@@ -80,13 +80,13 @@
 import AdvisingNoteSnippet from '@/components/search/AdvisingNoteSnippet'
 import AppointmentSnippet from '@/components/search/AppointmentSnippet'
 import Context from '@/mixins/Context'
-import Loading from '@/mixins/Loading'
 import AdmittedStudentResults from '@/components/search/AdmittedStudentResults'
 import SearchResultsHeader from '@/components/search/SearchResultsHeader'
 import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableCourses from '@/components/search/SortableCourses'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
 import {search, searchAdmittedStudents} from '@/api/search'
@@ -103,7 +103,7 @@ export default {
     Spinner,
     StudentResults
   },
-  mixins: [Context, Loading, SearchSession, Util],
+  mixins: [Context, SearchSession, Util],
   data: () => ({
     appointmentOptions: {
       limit: 20,
@@ -188,7 +188,8 @@ export default {
         })
       })
         .then(() => {
-          this.loaded(this.describeResults())
+          store.dispatch('context/loadingComplete')
+          this.$announcer.polite(this.describeResults())
           const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
           this.putFocusNextTick(focusId)
