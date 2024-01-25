@@ -244,14 +244,14 @@ import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
-import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDays} from '@/berkeley'
 
 export default {
   name: 'CourseStudents',
+  mixins: [Context, Util],
   components: {
     CuratedStudentCheckbox,
     DegreesAwarded,
@@ -259,12 +259,6 @@ export default {
     StudentAvatar,
     StudentBoxplot
   },
-  mixins: [
-    Context,
-    StudentAnalytics,
-    StudentMetadata,
-    Util
-  ],
   props: {
     featured: String,
     section: Object
@@ -301,6 +295,10 @@ export default {
         return []
       }
     },
+    displayAsAscInactive,
+    displayAsCoeInactive,
+    isAlertGrade,
+    lastActivityDays,
     rowClass(item) {
       return this.featured === item.uid ? 'list-group-item-info pb-3 pt-3' : 'border-bottom pb-3 pt-3'
     },

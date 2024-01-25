@@ -99,13 +99,13 @@
 </template>
 
 <script>
-import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
+import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentProfileHeaderAcademics',
-  mixins: [StudentMetadata, Util],
+  mixins: [Util],
   components: {StudentProfilePlan},
   props: {
     compact: {
@@ -148,6 +148,9 @@ export default {
     })
     this.academicCareerStatus = this._get(this.student, 'sisProfile.academicCareerStatus')
     this.activeSubplans = this._compact(this._map(this.plansPartitionedByStatus[0], 'subplan'))
+  },
+  methods: {
+    isGraduate
   }
 }
 </script>

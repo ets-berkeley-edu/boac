@@ -346,12 +346,11 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
-  mixins: [Context, DegreeEditSession, StudentMetadata, Util],
+  mixins: [Context, DegreeEditSession, Util],
   components: {
     AreYouSureModal,
     CampusRequirementCheckbox,

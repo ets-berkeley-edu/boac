@@ -98,17 +98,14 @@
 
 <script>
 import Context from '@/mixins/Context'
-import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
 import {sisIdForTermName} from '@/berkeley'
 
 export default {
   name: 'StudentClasses',
-  components: {
-    StudentEnrollmentTerm
-  },
-  mixins: [Context, StudentAnalytics, Util],
+  mixins: [Context, Util],
+  components: {StudentEnrollmentTerm},
   props: {
     student: Object
   },

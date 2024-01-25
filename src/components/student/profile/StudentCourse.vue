@@ -265,24 +265,19 @@
 <script>
 import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
-import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
-import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
+import {
+  getIncompleteGradeDescription,
+  getSectionsWithIncompleteStatus,
+  isAlertGrade,
+  lastActivityDays
+} from '@/berkeley'
 
 export default {
   name: 'StudentCourse',
-  components: {
-    IncompleteGradeAlertIcon,
-    StudentBoxplot
-  },
-  mixins: [
-    Context,
-    StudentAnalytics,
-    StudentMetadata,
-    Util
-  ],
+  mixins: [Context, Util],
+  components: {IncompleteGradeAlertIcon, StudentBoxplot},
   props: {
     course: {
       required: true,
@@ -328,6 +323,17 @@ export default {
   },
   methods: {
     getIncompleteGradeDescription,
+    isAlertGrade,
+    lastActivityDays,
+    lastActivityInContext(analytics) {
+      let describe = ''
+      if (analytics.courseEnrollmentCount) {
+        const total = analytics.courseEnrollmentCount
+        const percentAbove = (100 - analytics.lastActivity.student.roundedUpPercentile) / 100
+        describe += `${Math.round(percentAbove * total)} out of ${total} enrolled students have done so more recently.`
+      }
+      return describe
+    },
     onHide() {
       this.$root.$emit(`year-${this.year}-course-${this.index}-hide`)
     },

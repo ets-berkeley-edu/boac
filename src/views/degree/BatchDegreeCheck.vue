@@ -159,15 +159,14 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Spinner from '@/components/util/Spinner'
 import store from '@/store'
-import StudentAggregator from '@/mixins/StudentAggregator'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
-import {getStudentsBySids} from '@/api/student'
+import {getDistinctSids, getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchDegreeCheck',
-  mixins: [Context, DegreeEditSession, StudentAggregator, Util, Validator],
+  mixins: [Context, DegreeEditSession, Util, Validator],
   components: {
     BatchAddStudentSet,
     DegreeTemplatesMenu,
@@ -177,8 +176,10 @@ export default {
     addedCohorts: [],
     addedCuratedGroups: [],
     addedStudents: [],
+    distinctSids: [],
     error: undefined,
     excludedStudents: [],
+    isRecalculating: false,
     isSaving: false,
     isValidating: false,
     selectedTemplate: undefined,
@@ -285,6 +286,25 @@ export default {
       } else {
         this.excludedStudents = []
       }
+    },
+    recalculateStudentCount(sids, cohorts, curatedGroups) {
+      this.isRecalculating = true
+      return new Promise(resolve => {
+        const cohortIds = this._map(cohorts, 'id')
+        const curatedGroupIds = this._map(curatedGroups, 'id')
+        if (cohortIds.length || curatedGroupIds.length) {
+          getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => {
+            this.distinctSids = data.sids
+          }).finally(() => {
+            this.isRecalculating = false
+            resolve()
+          })
+        } else {
+          this.distinctSids = this._uniq(sids)
+          this.isRecalculating = false
+          resolve()
+        }
+      })
     },
     removeCohort(cohort) {
       const index = this._indexOf(this.addedCohorts, cohort)

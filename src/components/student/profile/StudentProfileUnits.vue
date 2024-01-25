@@ -44,16 +44,14 @@
 
 <script>
 import Context from '@/mixins/Context'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentUnitsChart from '@/components/student/StudentUnitsChart'
 import Util from '@/mixins/Util'
+import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentProfileUnits',
-  components: {
-    StudentUnitsChart
-  },
-  mixins: [Context, StudentMetadata, Util],
+  mixins: [Context, Util],
+  components: {StudentUnitsChart},
   props: {
     student: {
       required: true,
@@ -75,6 +73,9 @@ export default {
     if (currentEnrollmentTerm) {
       this.currentEnrolledUnits = this._get(currentEnrollmentTerm, 'enrolledUnits')
     }
+  },
+  methods: {
+    isGraduate
   }
 }
 </script>

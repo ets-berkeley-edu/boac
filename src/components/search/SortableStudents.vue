@@ -130,18 +130,18 @@ import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 import {sortComparator} from '@/utils'
 
 export default {
   name: 'SortableStudents',
+  mixins: [Context, Util],
   components: {
     CuratedStudentCheckbox,
     ManageStudent,
     StudentAvatar
   },
-  mixins: [Context, StudentMetadata, Util],
   props: {
     domain: {
       required: true,
@@ -207,6 +207,8 @@ export default {
         .replace('20', ' \'')
         .replace('Spring', 'Spr')
         .replace('Summer', 'Sum'),
+    displayAsAscInactive,
+    displayAsCoeInactive,
     normalizeForSort(value) {
       return this._isString(value) ? value.toLowerCase() : value
     },

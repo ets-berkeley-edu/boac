@@ -210,12 +210,12 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {isAlertGrade} from '@/berkeley'
 
 export default {
   name: 'UnassignedCourses',
-  mixins: [DegreeEditSession, StudentMetadata, Util],
+  mixins: [DegreeEditSession, Util],
   components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
   props: {
     ignored: {
@@ -282,6 +282,7 @@ export default {
         this.$announcer.polite('Note hidden')
       }
     },
+    isAlertGrade,
     isEditing(course) {
       return course.sectionId === this._get(this.courseForEdit, 'sectionId')
     },
