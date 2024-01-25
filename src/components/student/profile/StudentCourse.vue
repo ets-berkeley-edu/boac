@@ -263,13 +263,13 @@
   </div>
 </template>
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentBoxplot from '@/components/student/StudentBoxplot'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'
 
 export default {
   name: 'StudentCourse',
@@ -278,7 +278,6 @@ export default {
     StudentBoxplot
   },
   mixins: [
-    Berkeley,
     Context,
     StudentAnalytics,
     StudentMetadata,
@@ -325,9 +324,10 @@ export default {
     showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
   },
   created() {
-    this.sectionsWithIncompleteStatus = this.getSectionsWithIncompleteStatus(this.course.sections)
+    this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
   },
   methods: {
+    getIncompleteGradeDescription,
     onHide() {
       this.$root.$emit(`year-${this.year}-course-${this.index}-hide`)
     },

@@ -13,6 +13,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CuratedStudentCheckbox',
@@ -35,12 +36,12 @@ export default {
   }),
   computed: {
     ariaLabel() {
-      const domainLabel = this.describeCuratedGroupDomain(this.domain, true)
+      const domainLabel = describeCuratedGroupDomain(this.domain, true)
       return this.status ? `${this.studentName} selected, ready to add to ${domainLabel}` : `Select ${this.studentName} to add to ${domainLabel}`
     }
   },
   created() {
-    const idFragment = this.describeCuratedGroupDomain(this.domain, false).replace(' ', '-')
+    const idFragment = describeCuratedGroupDomain(this.domain, false).replace(' ', '-')
     this.sid = this.student.sid || this.student.csEmplId
     this.checkboxId = `${this.domain === 'admitted_students' ? 'admit' : 'student'}-${this.sid}-${idFragment}-checkbox`
     this.studentName = `${this.student.firstName} ${this.student.lastName}`

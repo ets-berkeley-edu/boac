@@ -97,18 +97,18 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import StudentAnalytics from '@/mixins/StudentAnalytics'
 import StudentEnrollmentTerm from '@/components/student/profile/StudentEnrollmentTerm'
 import Util from '@/mixins/Util'
+import {sisIdForTermName} from '@/berkeley'
 
 export default {
   name: 'StudentClasses',
   components: {
     StudentEnrollmentTerm
   },
-  mixins: [Berkeley, Context, StudentAnalytics, Util],
+  mixins: [Context, StudentAnalytics, Util],
   props: {
     student: Object
   },
@@ -154,7 +154,7 @@ export default {
       const term = this._find(year.terms, {'termName': termName})
       if (!term) {
         return {
-          termId: this.sisIdForTermName(termName),
+          termId: sisIdForTermName(termName),
           termName: termName
         }
       }

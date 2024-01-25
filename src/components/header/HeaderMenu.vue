@@ -64,19 +64,19 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getCasLogoutUrl} from '@/api/auth'
+import {myDeptCodes} from '@/berkeley'
 
 export default {
   name: 'HeaderMenu',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   data: () => ({
     myDirectorDepartment: undefined
   }),
   created() {
-    const deptCodes = this.myDeptCodes(['director'])
+    const deptCodes = myDeptCodes(['director'])
     this.myDirectorDepartment = deptCodes && deptCodes[0]
   },
   methods: {

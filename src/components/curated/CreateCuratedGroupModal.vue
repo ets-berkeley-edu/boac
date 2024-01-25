@@ -57,6 +57,7 @@ import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CreateCuratedGroupModal',
@@ -98,7 +99,7 @@ export default {
       }
     },
     domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
+      return describeCuratedGroupDomain(this.domain, capitalize)
     },
     reset() {
       this.name = ''

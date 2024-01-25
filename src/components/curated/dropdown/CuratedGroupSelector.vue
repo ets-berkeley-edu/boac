@@ -94,6 +94,7 @@ import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModa
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addStudents, createCuratedGroup} from '@/api/curated'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CuratedGroupSelector',
@@ -181,7 +182,7 @@ export default {
         }).finally(() => setTimeout(done, 2000))
     },
     domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
+      return describeCuratedGroupDomain(this.domain, capitalize)
     },
     refresh() {
       this.indeterminate = this._inRange(this._size(this.sids), 1, this._size(this.students))

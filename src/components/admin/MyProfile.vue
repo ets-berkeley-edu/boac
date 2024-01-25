@@ -34,13 +34,13 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {isCoe} from '@/berkeley'
 
 export default {
   name: 'MyProfile',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   data: () => ({
     profile: undefined
   }),
@@ -58,7 +58,7 @@ export default {
       }
     })
     const permission = this.currentUser.degreeProgressPermission
-    if (this.isCoe({departments: memberships}) || permission) {
+    if (isCoe({departments: memberships}) || permission) {
       const permission = permission && this._capitalize(permission.replace('_', '/'))
       const automated = this.currentUser.automateDegreeProgressPermission
       this.profile['Degree Progress'] = permission ? `${permission} permission${automated ? ', per SIS profile data' : ' (managed by BOA service lead)'}` : '&mdash;'
@@ -66,10 +66,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-  .drop-in-advising-toggle {
-    display: inline-block;
-    padding-left: 5px;
-  }
-</style>

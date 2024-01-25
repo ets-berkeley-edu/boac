@@ -82,20 +82,20 @@
 <script>
 import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
-import Scrollable from '@/mixins/Scrollable'
 import Util from '@/mixins/Util'
 import {
   addStudents,
   createCuratedGroup,
   removeFromCuratedGroup
 } from '@/api/curated'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'ManageStudent',
   components: {
     CreateCuratedGroupModal
   },
-  mixins: [Context, Scrollable, Util],
+  mixins: [Context, Util],
   props: {
     alignDropdownRight: {
       required: false,
@@ -158,7 +158,7 @@ export default {
   },
   methods: {
     domainLabel(capitalize) {
-      return this.describeCuratedGroupDomain(this.domain, capitalize)
+      return describeCuratedGroupDomain(this.domain, capitalize)
     },
     groupCheckboxClick(group) {
       if (this._includes(this.checkedGroups, group.id)) {

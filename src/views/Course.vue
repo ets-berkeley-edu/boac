@@ -163,12 +163,12 @@ import Loading from '@/mixins/Loading'
 import Matrix from '@/components/matrix/Matrix'
 import MatrixUtil from '@/components/matrix/MatrixUtil'
 import Pagination from '@/components/util/Pagination'
-import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import Util from '@/mixins/Util'
 import {getSection} from '@/api/course'
+import {scrollToTop} from '@/utils'
 
 export default {
   name: 'Course',
@@ -184,7 +184,6 @@ export default {
     Context,
     Loading,
     MatrixUtil,
-    Scrollable,
     Util
   ],
   data: () => ({
@@ -214,7 +213,7 @@ export default {
     this.toggleView(this.tab, 'course-header')
   },
   mounted() {
-    this.scrollToTop()
+    scrollToTop()
   },
   methods: {
     featureSearchedStudent(data) {

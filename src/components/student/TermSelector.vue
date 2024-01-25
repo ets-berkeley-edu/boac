@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import store from '@/store'
 import Util from '@/mixins/Util'
+import {previousSisTermId, termNameForSisId} from '@/berkeley'
 
 export default {
   name: 'TermSelector',
-  mixins: [Berkeley, Context, Util],
+  mixins: [Context, Util],
   props: {
     domain: {
       type: String,
@@ -78,22 +78,41 @@ export default {
         this.nextSisTermId(this.nextSisTermId(currentTermId)),
         this.nextSisTermId(currentTermId),
         currentTermId,
-        this.previousSisTermId(currentTermId),
-        this.previousSisTermId(this.previousSisTermId(currentTermId))
+        previousSisTermId(currentTermId),
+        previousSisTermId(previousSisTermId(currentTermId))
       ]
       return this._map(termIds, this.termOptionForId)
+    },
+    nextSisTermId(termId) {
+      let nextTermId = ''
+      let strTermId = termId.toString()
+      switch (strTermId.slice(3)) {
+      case '2':
+        nextTermId = strTermId.slice(0, 3) + '5'
+        break
+      case '5':
+        nextTermId = strTermId.slice(0, 3) + '8'
+        break
+      case '8':
+        nextTermId =
+          (parseInt(strTermId.slice(0, 3), 10) + 1).toString() + '2'
+        break
+      default:
+        break
+      }
+      return nextTermId
     },
     onSelectTerm(value) {
       if (value !== this._get(this.currentUser.preferences, 'termId')) {
         this.selectedTermId = value
-        this.selectedTermLabel = this.termNameForSisId(value)
+        this.selectedTermLabel = termNameForSisId(value)
         this.$announcer.polite(`${this.selectedTermLabel} selected`)
         store.commit('context/updateCurrentUserPreference', {key: 'termId', value: this.selectedTermId})
         this.broadcast('termId-user-preference-change', value)
       }
     },
     termOptionForId(termId) {
-      let label = this.termNameForSisId(termId)
+      let label = termNameForSisId(termId)
       if (termId === `${this.config.currentEnrollmentTermId}`) {
         label += ' (current)'
       }

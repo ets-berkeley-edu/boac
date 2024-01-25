@@ -86,20 +86,20 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedEditSession from '@/mixins/CuratedEditSession'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import CuratedGroupHeader from '@/components/curated/CuratedGroupHeader'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
-import Scrollable from '@/mixins/Scrollable'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
+import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
+import {scrollTo} from '@/utils'
 
 export default {
   name: 'CuratedGroup',
@@ -114,7 +114,7 @@ export default {
     StudentRow,
     TermSelector
   },
-  mixins: [Berkeley, Context, CuratedEditSession, Loading, Scrollable, Util],
+  mixins: [Context, CuratedEditSession, Loading, Util],
   props: {
     id: {
       required: true,
@@ -165,7 +165,7 @@ export default {
       let anchor = this.anchor.replace(/(#)([0-9])/g, function(a, m1, m2) {
         return `${m1}student-${m2}`
       })
-      this.scrollTo(anchor)
+      scrollTo(anchor)
     })
   },
   methods: {
@@ -186,8 +186,8 @@ export default {
       }
     },
     getLoadedAlert() {
-      const label = `${this._capitalize(this.describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
-      const sortedBy = this.translateSortByOption(this.currentUser.preferences.sortBy)
+      const label = `${this._capitalize(describeCuratedGroupDomain(this.domain))} ${this.curatedGroupName || ''}`
+      const sortedBy = translateSortByOption(this.currentUser.preferences.sortBy)
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {

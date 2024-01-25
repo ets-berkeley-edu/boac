@@ -31,6 +31,7 @@ import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModa
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
 import Util from '@/mixins/Util'
 import {createCuratedGroup} from '@/api/curated'
+import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CreateCuratedGroup',
@@ -54,7 +55,7 @@ export default {
     cancel() {
       this.showCreateModal = false
       this.isSaving = false
-      this.$announcer.polite(`You have canceled the operation to create a new ${this.describeCuratedGroupDomain(this.domain)}.`)
+      this.$announcer.polite(`You have canceled the operation to create a new ${describeCuratedGroupDomain(this.domain)}.`)
       this.putFocusNextTick('curated-group-bulk-add-sids')
     },
     create(name) {

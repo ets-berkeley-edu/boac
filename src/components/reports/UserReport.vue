@@ -68,13 +68,13 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Util from '@/mixins/Util'
 import {getUsersReport} from '@/api/reports'
+import {getBoaUserRoles} from '@/berkeley'
 
 export default {
   name: 'UserReport',
-  mixins: [Berkeley, Util],
+  mixins: [Util],
   props: {
     department: {
       required: true,
@@ -90,6 +90,7 @@ export default {
     }
   },
   methods: {
+    getBoaUserRoles,
     usersProvider() {
       return getUsersReport(this.department.code).then(report => {
         this.totalUserCount = report.totalUserCount

@@ -7,11 +7,11 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import moment from 'moment'
 
 export default {
   name: 'AdmitDataWarning',
-  mixins: [Context, Util],
+  mixins: [Context],
   props: {
     updatedAt: {
       type: String,
@@ -25,9 +25,12 @@ export default {
   created() {
     const now = this.moment()
     if (this.updatedAt) {
-      this.localUpdatedAt = this.moment(this.updatedAt).tz(this.config.timezone)
-      this.show = this.moment.duration(now.diff(this.localUpdatedAt)).as('hours') >= 24
+      this.localUpdatedAt = moment(this.updatedAt).tz(this.config.timezone)
+      this.show = moment.duration(now.diff(this.localUpdatedAt)).as('hours') >= 24
     }
+  },
+  methods: {
+    moment
   }
 }
 </script>

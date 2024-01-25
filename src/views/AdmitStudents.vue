@@ -96,20 +96,19 @@
 <script>
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import Loading from '@/mixins/Loading'
 import NavLink from '@/components/util/NavLink'
 import Pagination from '@/components/util/Pagination'
-import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAllAdmits} from '@/api/admit'
 import {downloadCsv} from '@/api/cohort'
+import {getAdmitCsvExportColumns} from '@/berkeley'
 
 export default {
   name: 'AdmitStudents',
@@ -125,10 +124,8 @@ export default {
     Spinner
   },
   mixins: [
-    Berkeley,
     Context,
     Loading,
-    Scrollable,
     Util
   ],
   data: () => ({
@@ -166,7 +163,7 @@ export default {
     },
     exportCohort() {
       const name = 'CE3 Admissions'
-      const fields = this._map(this.getAdmitCsvExportColumns(), 'value')
+      const fields = this._map(getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
       this.$announcer.polite(`Exporting cohort ${name}`)

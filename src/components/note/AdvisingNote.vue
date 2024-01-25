@@ -213,16 +213,17 @@
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Attachments from '@/mixins/Attachments'
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addAttachments, removeAttachment} from '@/api/notes'
+import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
+import {oxfordJoin} from '@/utils'
 
 export default {
   name: 'AdvisingNote',
   components: {AreYouSureModal},
-  mixins: [Attachments, Berkeley, Context, Util],
+  mixins: [Attachments, Context, Util],
   props: {
     afterSaved: {
       required: true,
@@ -328,7 +329,7 @@ export default {
             this.author = data
             this.author.role = this.author.role || this.author.title
             if (!this.author.role && this.author.departments.length) {
-              this.author.role = this.oxfordJoin(this.getBoaUserRoles(this.author, this.author.departments[0]))
+              this.author.role = oxfordJoin(getBoaUserRoles(this.author, this.author.departments[0]))
             }
           }
           if (author_uid) {
@@ -385,8 +386,9 @@ export default {
       if (inputElement) {
         inputElement.reset()
       }
-    }
-  },
+    },
+    termNameForSisId
+  }
 }
 </script>
 

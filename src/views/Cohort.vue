@@ -93,7 +93,6 @@
 import AdmitDataWarning from '@/components/admit/AdmitDataWarning'
 import AdmitStudentsTable from '@/components/admit/AdmitStudentsTable'
 import ApplyAndSaveButtons from '@/components/cohort/ApplyAndSaveButtons'
-import Berkeley from '@/mixins/Berkeley'
 import CohortEditSession from '@/mixins/CohortEditSession'
 import CohortHistory from '@/components/cohort/CohortHistory'
 import CohortPageHeader from '@/components/cohort/CohortPageHeader'
@@ -102,13 +101,14 @@ import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSele
 import FilterRow from '@/components/cohort/FilterRow'
 import Loading from '@/mixins/Loading'
 import Pagination from '@/components/util/Pagination'
-import Scrollable from '@/mixins/Scrollable'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
+import {scrollToTop} from '@/utils'
+import {translateSortByOption} from '@/berkeley'
 
 export default {
   name: 'Cohort',
@@ -128,11 +128,9 @@ export default {
     TermSelector
   },
   mixins: [
-    Berkeley,
     CohortEditSession,
     Context,
     Loading,
-    Scrollable,
     Util
   ],
   data: () => ({
@@ -196,12 +194,12 @@ export default {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
       } else {
-        return `Cohort ${this.cohortName || ''}, sorted by ${this.translateSortByOption(this.currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        return `Cohort ${this.cohortName || ''}, sorted by ${translateSortByOption(this.currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     goToPage(page) {
       this.setPagination(page)
-      this.onPageNumberChange().then(this.scrollToTop)
+      this.onPageNumberChange().then(scrollToTop)
     },
     setPagination(page) {
       this.pageNumber = page
@@ -221,7 +219,7 @@ export default {
         this.toggleCompactView()
       }
       if (!value) {
-        this.onPageNumberChange().then(this.scrollToTop)
+        this.onPageNumberChange().then(scrollToTop)
       }
     }
   }

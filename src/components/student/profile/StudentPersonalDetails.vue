@@ -156,7 +156,6 @@
 </template>
 
 <script>
-import Berkeley from '@/mixins/Berkeley'
 import Context from '@/mixins/Context'
 import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
@@ -165,7 +164,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StudentPersonalDetails',
   components: {StudentProfilePlan},
-  mixins: [Berkeley, Context, StudentMetadata, Util],
+  mixins: [Context, StudentMetadata, Util],
   props: {
     inactiveMajors: {
       required: true,
@@ -194,6 +193,9 @@ export default {
   computed: {
     advisorsSorted() {
       return this._orderBy(this.student.advisors, this.getAdvisorSortOrder)
+    },
+    getAdvisorSortOrder(advisor) {
+      return advisor.title && advisor.title.toLowerCase().includes('director') ? 1 : 0
     },
     visaDescription() {
       if (this._get(this.student, 'demographics.visa.status') !== 'G') {

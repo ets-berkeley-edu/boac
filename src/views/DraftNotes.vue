@@ -122,7 +122,6 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Loading from '@/mixins/Loading'
-import Scrollable from '@/mixins/Scrollable'
 import Spinner from '@/components/util/Spinner'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
@@ -130,7 +129,7 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {
   name: 'DraftNotes',
-  mixins: [Context, Loading, Scrollable, Util],
+  mixins: [Context, Loading, Util],
   components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
   data: () => ({
     activeOperation: undefined,

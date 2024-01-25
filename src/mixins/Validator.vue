@@ -1,11 +1,10 @@
 <script>
 import _ from 'lodash'
-import Berkeley from '@/mixins/Berkeley'
 import store from '@/store'
+import {myDeptCodes} from '@/berkeley'
 
 export default {
   name: 'Validator',
-  mixins: [Berkeley],
   data: () => ({
     error: undefined,
     warning: undefined
@@ -17,7 +16,7 @@ export default {
     },
     validateCohortName: function(cohort) {
       const name = _.trim(cohort.name)
-      const deptCodes = this.myDeptCodes(['advisor', 'director'])
+      const deptCodes = myDeptCodes(['advisor', 'director'])
       const isReservedName = name =>
         _.includes(deptCodes, 'UWASC') &&
         _.includes(['intensive students', 'inactive students'], name.toLowerCase())
