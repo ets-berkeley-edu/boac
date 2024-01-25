@@ -102,13 +102,13 @@
 <script>
 import Context from '@/mixins/Context'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 
 export default {
   name: 'StudentProfileHeaderBio',
   components: {StudentAcademicStanding},
-  mixins: [Context, StudentMetadata, Util],
+  mixins: [Context, Util],
   props: {
     compact: {
       required: false,
@@ -130,8 +130,8 @@ export default {
   }),
   created() {
     this.academicCareerStatus = this._get(this.student, 'sisProfile.academicCareerStatus')
-    this.isAscInactive = this.displayAsAscInactive(this.student)
-    this.isCoeInactive = this.displayAsCoeInactive(this.student)
+    this.isAscInactive = displayAsAscInactive(this.student)
+    this.isCoeInactive = displayAsCoeInactive(this.student)
   }
 }
 </script>

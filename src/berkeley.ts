@@ -8,6 +8,22 @@ export function describeCuratedGroupDomain(domain, capitalize) {
   return format(domain === 'admitted_students' ? 'admissions ' : 'curated ') + format('group')
 }
 
+export function displayAsAscInactive(student) {
+  return (
+    _.includes(myDeptCodes(['advisor', 'director']), 'UWASC') &&
+    _.get(student, 'athleticsProfile') &&
+    !_.get(student, 'athleticsProfile.isActiveAsc')
+  )
+}
+
+export function displayAsCoeInactive(student) {
+  return (
+    _.includes(myDeptCodes(['advisor', 'director']), 'COENG') &&
+    _.get(student, 'coeProfile') &&
+    !_.get(student, 'coeProfile.isActiveCoe')
+  )
+}
+
 export function getAdmitCsvExportColumns() {
   return [
     {text: 'First name', value: 'first_name'},
@@ -170,16 +186,16 @@ export function getMatrixPlottableProperty(obj, prop) {
   return _.get(obj, prop)
 }
 
+export function getSectionsWithIncompleteStatus(sections) {
+  return _.filter(sections, 'incompleteStatusCode')
+}
+
 export function hasMatrixPlottableProperty(obj, prop) {
   // In the case of cumulative GPA, zero indicates missing data rather than a real zero.
   if (prop === 'cumulativeGPA') {
     return !!getMatrixPlottableProperty(obj, prop)
   }
   return _.isFinite(getMatrixPlottableProperty(obj, prop))
-}
-
-export function getSectionsWithIncompleteStatus(sections) {
-  return _.filter(sections, 'incompleteStatusCode')
 }
 
 export function initGoogleAnalytics() {
@@ -227,6 +243,11 @@ export function isAdvisor(user) {
   return !!_.size(_.filter(user.departments, d => d.role === 'advisor'))
 }
 
+export function isAlertGrade(grade) {
+  // Grades deserving alerts: D(+/-), F, I, NP, RD.
+  return grade && /^[DFINR]/.test(grade)
+}
+
 export function isCoe(user) {
   return !!_.size(_.filter(user.departments, d => d.code === 'COENG' && _.includes(['advisor', 'director'], d.role)))
 }
@@ -235,9 +256,34 @@ export function isDirector(user) {
   return !!_.size(_.filter(user.departments, d => d.role === 'director'))
 }
 
+export function lastActivityDays(analytics) {
+  const timestamp = parseInt(_.get(analytics, 'lastActivity.student.raw'), 10)
+  if (!timestamp || isNaN(timestamp)) {
+    return 'Never'
+  }
+  // Days tick over at midnight according to the user's browser.
+  const daysSince = Math.round(
+    (new Date().setHours(0, 0, 0, 0) -
+      new Date(timestamp * 1000).setHours(0, 0, 0, 0)) /
+      86400000
+  )
+  switch (daysSince) {
+  case 0:
+    return 'Today'
+  case 1:
+    return 'Yesterday'
+  default:
+    return daysSince + ' days ago'
+  }
+}
+
 export function myDeptCodes(roles) {
   const departments = store.getters['context/currentUser'].departments
   return _.map(_.filter(departments, d => _.findIndex(roles, role => d.role === role) > -1), 'code')
+}
+
+export function isGraduate(student) {
+  return _.get(student, 'sisProfile.level.description') === 'Graduate'
 }
 
 export function previousSisTermId(termId) {

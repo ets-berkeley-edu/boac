@@ -109,14 +109,18 @@
 <script>
 import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'
-import StudentAnalytics from '@/mixins/StudentAnalytics'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util'
-import {getSectionsWithIncompleteStatus, setWaitlistedStatus, termNameForSisId} from '@/berkeley'
+import {
+  getSectionsWithIncompleteStatus,
+  isAlertGrade,
+  lastActivityDays,
+  setWaitlistedStatus,
+  termNameForSisId
+} from '@/berkeley'
 
 export default {
   name: 'StudentRowCourseActivity',
-  mixins: [Context, StudentAnalytics, StudentMetadata, Util],
+  mixins: [Context, Util],
   components: {IncompleteGradeAlertIcon},
   props: {
     rowIndex: {
@@ -142,6 +146,8 @@ export default {
   },
   methods: {
     getSectionsWithIncompleteStatus,
+    isAlertGrade,
+    lastActivityDays,
     termNameForSisId
   }
 }

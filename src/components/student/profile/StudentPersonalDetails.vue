@@ -157,14 +157,14 @@
 
 <script>
 import Context from '@/mixins/Context'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import StudentProfilePlan from '@/components/student/profile/StudentProfilePlan'
 import Util from '@/mixins/Util'
+import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentPersonalDetails',
   components: {StudentProfilePlan},
-  mixins: [Context, StudentMetadata, Util],
+  mixins: [Context, Util],
   props: {
     inactiveMajors: {
       required: true,
@@ -230,7 +230,8 @@ export default {
       }
       const mostRecent = this._find(this.student.enrollmentTerms, e => hasCompletedSection(e))
       return mostRecent && (this.config.currentEnrollmentTermId - this.toInt(mostRecent.termId) <= 20)
-    }
+    },
+    isGraduate
   }
 }
 </script>

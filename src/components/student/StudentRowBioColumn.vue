@@ -150,16 +150,13 @@
 import Context from '@/mixins/Context'
 import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
-import StudentMetadata from '@/mixins/StudentMetadata'
 import Util from '@/mixins/Util.vue'
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 
 export default {
   name: 'StudentRowBioColumn',
-  mixins: [Context, StudentMetadata, Util],
-  components: {
-    DegreesAwarded,
-    StudentAcademicStanding
-  },
+  mixins: [Context, Util],
+  components: {DegreesAwarded, StudentAcademicStanding},
   props: {
     rowIndex: {
       required: true,
@@ -183,6 +180,10 @@ export default {
         return []
       }
     }
+  },
+  methods: {
+    displayAsAscInactive,
+    displayAsCoeInactive
   }
 }
 </script>
