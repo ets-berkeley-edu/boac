@@ -7,7 +7,6 @@ import Highcharts from 'highcharts'
 import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
 import linkify from 'vue-linkify'
-import moment from 'moment'
 import router from './router'
 import store from './store'
 import VCalendar from 'v-calendar'
@@ -51,9 +50,6 @@ Vue.directive('accessibleGrade', {
   unbind: el => el.innerHTML = ''
 })
 Vue.directive('linkified', linkify)
-
-// TODO: Stop using Vue.prototype
-Vue.prototype.$moment = moment
 
 Vue.use(routerHistory)
 router.afterEach(writeHistory)

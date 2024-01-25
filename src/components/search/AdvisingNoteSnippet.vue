@@ -32,7 +32,7 @@
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
-      <span v-if="lastModified">{{ $moment(lastModified).format('MMM D, YYYY') }}</span>
+      <span v-if="lastModified">{{ moment(lastModified).format('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>
@@ -53,7 +53,7 @@ export default {
   created() {
     const timestamp = this._get(this.note, 'updatedAt') || this._get(this.note, 'createdAt')
     if (timestamp) {
-      this.lastModified = this.$moment(timestamp).tz(this.config.timezone)
+      this.lastModified = this.moment(timestamp).tz(this.config.timezone)
     }
   }
 }

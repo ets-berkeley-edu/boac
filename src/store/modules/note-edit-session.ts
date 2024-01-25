@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import moment from 'moment'
 import Vue from 'vue'
 import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
@@ -181,7 +182,7 @@ const mutations = {
         id: model.id,
         isDraft: model.isDraft,
         isPrivate: model.isPrivate,
-        setDate: model.setDate ? Vue.prototype.$moment(model.setDate) : null,
+        setDate: model.setDate ? moment(model.setDate) : null,
         subject: model.subject,
         topics: model.topics || [],
       }
@@ -193,7 +194,7 @@ const mutations = {
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
   setIsDraft: (state: any, isDraft: boolean) => (state.model.isDraft = isDraft),
   setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
-  setSetDate: (state: any, setDate: any) => (state.model.setDate = setDate ? Vue.prototype.$moment(setDate) : null),
+  setSetDate: (state: any, setDate: any) => (state.model.setDate = setDate ? moment(setDate) : null),
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }
 

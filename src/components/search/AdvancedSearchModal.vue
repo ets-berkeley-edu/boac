@@ -386,10 +386,10 @@ export default {
             query.noteTopic = this.topic
           }
           if (this.fromDate) {
-            query.noteDateFrom = this.$moment(this.fromDate).format('YYYY-MM-DD')
+            query.noteDateFrom = this.moment(this.fromDate).format('YYYY-MM-DD')
           }
           if (this.toDate) {
-            query.noteDateTo = this.$moment(this.toDate).format('YYYY-MM-DD')
+            query.noteDateTo = this.moment(this.toDate).format('YYYY-MM-DD')
           }
         }
         this.$router.push(

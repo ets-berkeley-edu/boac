@@ -134,7 +134,7 @@ export default {
   },
   methods: {
     datePerTimezone(date) {
-      return this.$moment(date).tz(this.config.timezone)
+      return this.moment(date).tz(this.config.timezone)
     },
     downloadUrl(attachment) {
       return `${this.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`

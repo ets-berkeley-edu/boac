@@ -78,7 +78,7 @@
           {{ degree.plans.filter(plan => planTypes.includes(plan.type)).map(degree => degree.plan).join(', ') }}
         </div>
         <div id="student-bio-degree-date">
-          <span class="student-text">Awarded {{ $moment(degree.dateAwarded).format('MMM DD, YYYY') }}</span>
+          <span class="student-text">Awarded {{ moment(degree.dateAwarded).format('MMM DD, YYYY') }}</span>
         </div>
         <div v-for="owner in degree.planOwners" :key="owner" class="student-text">
           <span class="student-text">{{ owner }}</span>
@@ -91,7 +91,7 @@
               {{ minorPlan + " UG" }}
             </div>
           </div>
-          <span class="student-text">Awarded {{ $moment(degree.dateAwarded).format('MMM DD, YYYY') }}</span>
+          <span class="student-text">Awarded {{ moment(degree.dateAwarded).format('MMM DD, YYYY') }}</span>
         </div>
       </div>
     </div>

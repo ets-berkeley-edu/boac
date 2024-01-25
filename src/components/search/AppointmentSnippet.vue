@@ -40,7 +40,7 @@
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
         {{ appointment.advisorName }} -
       </span>
-      <span v-if="createdAt">{{ $moment(createdAt).format('MMM D, YYYY') }}</span>
+      <span v-if="createdAt">{{ moment(createdAt).format('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>
@@ -61,7 +61,7 @@ export default {
   created() {
     const timestamp = this._get(this.appointment, 'createdAt')
     if (timestamp) {
-      this.createdAt = this.$moment(timestamp).tz(this.config.timezone)
+      this.createdAt = this.moment(timestamp).tz(this.config.timezone)
     }
   }
 }

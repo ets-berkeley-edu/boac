@@ -132,7 +132,7 @@
                 {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
-                  on <span id="degree-note-updated-at">{{ $moment(noteUpdatedAt).format('MMM D, YYYY') }}.</span>
+                  on <span id="degree-note-updated-at">{{ moment(noteUpdatedAt).format('MMM D, YYYY') }}.</span>
                 </span>
               </span>
             </div>
@@ -252,17 +252,17 @@ export default {
   }),
   computed: {
     noteUpdatedAt() {
-      return this.degreeNote && this.$moment(new Date(this.degreeNote.updatedAt))
+      return this.degreeNote && this.moment(new Date(this.degreeNote.updatedAt))
     }
   },
   created() {
-    this.showRevisionIndicator = this.$moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
+    this.showRevisionIndicator = this.moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
     const updatedAtDate = new Date(this.updatedAt)
     const isFresh = new Date(this.createdAt) === updatedAtDate
     const userId = isFresh ? this.createdBy : this.updatedBy
     getCalnetProfileByUserId(userId).then(data => {
       const name = data.name || `${data.uid} (UID)`
-      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.$moment(updatedAtDate).format('MMM D, YYYY')}`
+      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.moment(updatedAtDate).format('MMM D, YYYY')}`
     })
     this.initNote()
   },

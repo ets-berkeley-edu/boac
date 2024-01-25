@@ -132,7 +132,7 @@
           </template>
           <template #cell(createdAt)="row">
             <div v-if="row.item.id !== _get(templateForEdit, 'id')">
-              {{ $moment(row.item.createdAt).format('MMM D, YYYY') }}
+              {{ moment(row.item.createdAt).format('MMM D, YYYY') }}
             </div>
           </template>
           <template #cell(actions)="row">

@@ -575,8 +575,8 @@ export default {
       this.putFocusNextTick('edit-note-subject')
     },
     getSameDayDate(message) {
-      let startsAt = this.$moment(message.createdAt).tz(this.config.timezone).format('h:mma')
-      let endsAt = this.$moment(message.endsAt).tz(this.config.timezone).format('h:mma')
+      let startsAt = this.moment(message.createdAt).tz(this.config.timezone).format('h:mma')
+      let endsAt = this.moment(message.endsAt).tz(this.config.timezone).format('h:mma')
 
       return `${startsAt}-${endsAt}`
     },
