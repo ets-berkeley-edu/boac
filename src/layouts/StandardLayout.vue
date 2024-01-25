@@ -45,7 +45,7 @@ export default {
   },
   mixins: [Context, Loading, Util],
   created() {
-    this.$putFocusNextTick('home-header')
+    this.putFocusNextTick('home-header')
   }
 }
 </script>

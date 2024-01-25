@@ -409,7 +409,7 @@ export default {
         } else {
           promise = new Promise(resolve => resolve([]))
         }
-        this.$putFocusNextTick('search-user-input')
+        this.putFocusNextTick('search-user-input')
         break
       default:
         promise = new Promise(resolve => resolve([]))

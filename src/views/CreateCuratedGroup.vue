@@ -14,7 +14,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="$putFocusNextTick('modal-header')"
+      @shown="putFocusNextTick('modal-header')"
     >
       <CreateCuratedGroupModal
         :cancel="cancel"
@@ -55,7 +55,7 @@ export default {
       this.showCreateModal = false
       this.isSaving = false
       this.$announcer.polite(`You have canceled the operation to create a new ${this.describeCuratedGroupDomain(this.domain)}.`)
-      this.$putFocusNextTick('curated-group-bulk-add-sids')
+      this.putFocusNextTick('curated-group-bulk-add-sids')
     },
     create(name) {
       this.showCreateModal = false

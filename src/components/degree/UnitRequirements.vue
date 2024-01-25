@@ -192,7 +192,7 @@ export default {
   methods: {
     deleteCanceled() {
       this.isDeleting = false
-      this.$putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
+      this.putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
@@ -202,7 +202,7 @@ export default {
         this.$announcer.polite(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
-        this.$putFocusNextTick('unit-requirement-create-link')
+        this.putFocusNextTick('unit-requirement-create-link')
       })
     },
     getTableRowAttributes(item) {
@@ -282,7 +282,7 @@ export default {
       this.selected = null
       this.isEditing = false
       const focusId = this.selected ? `unit-requirement-${this.selected.id}-edit-btn` : 'unit-requirement-create-link'
-      this.$putFocusNextTick(focusId)
+      this.putFocusNextTick(focusId)
     },
     toggleExpanded(item) {
       const value = !item.isExpanded

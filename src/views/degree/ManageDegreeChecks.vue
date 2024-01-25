@@ -257,23 +257,23 @@ export default {
         this.degreeTemplates = data
         this.isBusy = false
         this.$announcer.polite('Degree copy is complete.')
-        this.$putFocusNextTick(`degree-check-${clone.id}-link`)
+        this.putFocusNextTick(`degree-check-${clone.id}-link`)
       })
     },
     cancelEdit() {
-      this.$putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
+      this.putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
       this.templateForEdit = null
       this.isBusy = false
       this.$announcer.polite('Canceled')
     },
     cloneCanceled() {
-      this.$putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
+      this.putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
       this.templateToClone = null
       this.isBusy = false
       this.$announcer.polite('Copy canceled.')
     },
     deleteCanceled() {
-      this.$putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
+      this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
       this.deleteModalBody = this.templateForDelete = null
       this.isBusy = false
       this.$announcer.polite('Canceled. Nothing deleted.')
@@ -282,7 +282,7 @@ export default {
       return deleteDegreeTemplate(this.templateForDelete.id).then(getDegreeTemplates).then(data => {
         this.degreeTemplates = data
         this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
-        this.$putFocusNextTick('page-header')
+        this.putFocusNextTick('page-header')
         this.deleteModalBody = this.templateForDelete = null
         this.isBusy = false
       })
@@ -291,7 +291,7 @@ export default {
       this.$announcer.polite(`Rename ${template.name}`)
       this.templateForEdit = this._clone(template)
       this.isBusy = true
-      this.$putFocusNextTick('rename-template-input')
+      this.putFocusNextTick('rename-template-input')
     },
     isNameAvailable(name, ignoreTemplateId=null) {
       const lower = name.trim().toLowerCase()
@@ -311,7 +311,7 @@ export default {
           this.degreeTemplates = data
           this.$announcer.polite('Template updated')
           this.isBusy = false
-          this.$putFocusNextTick(`degree-check-${templateId}-link`)
+          this.putFocusNextTick(`degree-check-${templateId}-link`)
         })
       })
     },

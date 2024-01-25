@@ -16,7 +16,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="$putFocusNextTick('modal-header')"
+      @shown="putFocusNextTick('modal-header')"
       @hidden="closeModal"
     >
       <div>
@@ -199,7 +199,7 @@ export default {
         }).then(course => {
           this.closeModal()
           this.$announcer.polite(`Course ${course.name} created`)
-          this.$putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
+          this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
         })
       }
     },

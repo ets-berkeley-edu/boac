@@ -94,7 +94,7 @@
             id="confirm-delete-modal"
             v-model="isDeleteModalOpen"
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ModalHeader :text="`Delete ${domainLabel(true)}`" />
             <div class="modal-body">
@@ -122,7 +122,7 @@
             id="cohort-warning-modal"
             v-model="isCohortWarningModalOpen"
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ModalHeader text="This group is in use as a cohort filter" />
             <div
@@ -181,7 +181,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <FerpaReminderModal
               :cancel="cancelExportModal"
@@ -194,7 +194,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ExportListModal
               :cancel="cancelExportModal"
@@ -273,7 +273,7 @@ export default {
       })
       this.referencingCohorts = this._sortBy(this.referencingCohorts, ['name'])
     }
-    this.$putFocusNextTick('curated-group-name')
+    this.putFocusNextTick('curated-group-name')
   },
   methods: {
     cancelExportModal() {
@@ -286,12 +286,12 @@ export default {
     enterRenameMode() {
       this.renameInput = this.curatedGroupName
       this.setMode('rename')
-      this.$putFocusNextTick('rename-input')
+      this.putFocusNextTick('rename-input')
     },
     exitRenameMode() {
       this.renameInput = undefined
       this.setMode(undefined)
-      this.$putFocusNextTick('curated-group-name')
+      this.putFocusNextTick('curated-group-name')
     },
     exportGroup(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
@@ -319,12 +319,12 @@ export default {
         name: this.renameInput
       })
       if (this.renameError) {
-        this.$putFocusNextTick('rename-input')
+        this.putFocusNextTick('rename-input')
       } else {
         this.renameCuratedGroup(this.renameInput).then(() => {
           this.setPageTitle(this.renameInput)
           this.exitRenameMode()
-          this.$putFocusNextTick('curated-group-name')
+          this.putFocusNextTick('curated-group-name')
         })
       }
     }

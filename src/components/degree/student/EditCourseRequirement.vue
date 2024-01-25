@@ -145,7 +145,7 @@ export default {
     this.note = this.category.note
     this.unitsLower = this.category.unitsLower
     this.unitsUpper = this.category.unitsUpper
-    this.$putFocusNextTick('recommended-course-checkbox')
+    this.putFocusNextTick('recommended-course-checkbox')
   },
   methods: {
     cancel() {

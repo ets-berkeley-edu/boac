@@ -272,12 +272,12 @@ export default {
       this.noteBody = this._get(this.degreeNote, 'body')
       this.$announcer.polite('Canceled')
       this.setDisableButtons(false)
-      this.$putFocusNextTick('create-degree-note-btn')
+      this.putFocusNextTick('create-degree-note-btn')
     },
     editNote() {
       this.setDisableButtons(true)
       this.isEditingNote = true
-      this.$putFocusNextTick('degree-note-input')
+      this.putFocusNextTick('degree-note-input')
       this.$announcer.polite('Enter note in textarea')
     },
     getInProgressCourses() {
@@ -310,7 +310,7 @@ export default {
         this.initNote()
         this.setDisableButtons(false)
         this.$announcer.polite('Note saved')
-        this.$putFocusNextTick('create-degree-note-btn')
+        this.putFocusNextTick('create-degree-note-btn')
       })
     }
   }

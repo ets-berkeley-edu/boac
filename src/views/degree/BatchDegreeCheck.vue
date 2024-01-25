@@ -251,7 +251,7 @@ export default {
           } else if (this.warning) {
             this.$announcer.polite(`Warning: ${this.warning}`)
           }
-          this.$nextTick(() => this.isValidating = false)
+          this.nextTick(() => this.isValidating = false)
           reject()
         }
       })
@@ -264,7 +264,7 @@ export default {
           this.$announcer.polite(`${obj} added to degree check`)
         })
       }
-      this.$putFocusNextTick('degree-check-add-student-input')
+      this.putFocusNextTick('degree-check-add-student-input')
     },
     addTemplate(template) {
       this.selectedTemplate = template
@@ -310,7 +310,7 @@ export default {
       this.isSaving = true
       this.$announcer.polite('Saving.')
       createBatchDegreeCheck(this.sidsToInclude, this._get(this.selectedTemplate, 'id')).then(() => {
-        this.$nextTick(() => {
+        this.nextTick(() => {
           this.$router.push({
             path: '/degrees',
             query: {

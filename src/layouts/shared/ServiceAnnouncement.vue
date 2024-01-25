@@ -39,11 +39,11 @@ export default {
       if (this.dismissedServiceAnnouncement) {
         this.restoreServiceAnnouncement()
         this.$announcer.polite('Alert restored')
-        this.$putFocusNextTick('service-announcement-banner')
+        this.putFocusNextTick('service-announcement-banner')
       } else {
         this.dismissServiceAnnouncement()
         this.$announcer.polite('Dismissed')
-        this.$putFocusNextTick('toggle-service-announcement')
+        this.putFocusNextTick('toggle-service-announcement')
       }
     },
 

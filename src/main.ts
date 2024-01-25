@@ -142,18 +142,3 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     })
   })
 })
-
-Vue.prototype.$putFocusNextTick = (id: string, cssSelector?: string) => {
-  Vue.prototype.$nextTick(() => {
-    let counter = 0
-    const putFocus = setInterval(() => {
-      let el = document.getElementById(id)
-      el = el && cssSelector ? el.querySelector(cssSelector) : el
-      el && el.focus()
-      if (el || ++counter > 5) {
-        // Abort after success or three attempts
-        clearInterval(putFocus)
-      }
-    }, 500)
-  })
-}

@@ -699,7 +699,7 @@ export default {
             termGpa: this.section.meanMetrics.gpa
           })
         }
-        this.$nextTick(() => {
+        this.nextTick(() => {
           this.drawScatterplot(plottableStudents)
         })
       }

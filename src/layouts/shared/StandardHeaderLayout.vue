@@ -1,6 +1,6 @@
 <template>
   <b-container
-    v-hotkey="{'/': () => $putFocusNextTick('search-students-input')}"
+    v-hotkey="{'/': () => putFocusNextTick('search-students-input')}"
     class="my-2"
     fluid
   >
@@ -180,7 +180,7 @@ export default {
       } else {
         this.showErrorPopover = true
         this.$announcer.polite('Search input is required')
-        this.$putFocusNextTick('search-students-input')
+        this.putFocusNextTick('search-students-input')
       }
       this.scrollToTop()
     }

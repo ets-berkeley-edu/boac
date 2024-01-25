@@ -77,7 +77,7 @@
         body-class="pl-0 pr-0"
         hide-footer
         hide-header
-        @shown="$putFocusNextTick('modal-header')"
+        @shown="putFocusNextTick('modal-header')"
       >
         <CreateCuratedGroupModal
           :cancel="modalCancel"
@@ -161,14 +161,14 @@ export default {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.$putFocusNextTick(this.checkboxId)
+      this.putFocusNextTick(this.checkboxId)
       this.onCreateCuratedGroup()
     },
     afterCreateGroupModalCancel() {
       this.sids = []
       this.refresh()
       this.toggle(false)
-      this.$putFocusNextTick(this.checkboxId)
+      this.putFocusNextTick(this.checkboxId)
     },
     curatedGroupCheckboxClick(group) {
       this.isSaving = true
@@ -209,7 +209,7 @@ export default {
           this.sids.push(student.sid || student.csEmplId)
         })
         this.broadcast('curated-group-select-all', this.domain)
-        this.$putFocusNextTick(this.dropdownId, 'button')
+        this.putFocusNextTick(this.dropdownId, 'button')
         this.$announcer.polite('All students on this page selected.')
       } else {
         this.broadcast('curated-group-deselect-all', this.domain)

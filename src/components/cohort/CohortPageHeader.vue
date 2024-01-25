@@ -62,7 +62,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <DeleteCohortModal
               :cohort-name="cohortName"
@@ -99,7 +99,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <FerpaReminderModal
               :cancel="cancelExportModal"
@@ -112,7 +112,7 @@
             body-class="pl-0 pr-0"
             hide-footer
             hide-header
-            @shown="$putFocusNextTick('modal-header')"
+            @shown="putFocusNextTick('modal-header')"
           >
             <ExportListModal
               :cancel="cancelExportModal"
@@ -256,7 +256,7 @@ export default {
       this.name = this.cohortName
       this.setEditMode('rename')
       this.$announcer.polite(`Renaming cohort '${this.name}'`)
-      this.$putFocusNextTick('rename-cohort-input')
+      this.putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
       this.showDeleteModal = false
@@ -292,12 +292,12 @@ export default {
         name: this.name
       })
       if (this.renameError) {
-        this.$putFocusNextTick('rename-cohort-input')
+        this.putFocusNextTick('rename-cohort-input')
       } else {
         this.renameCohort(this.name).then(() => {
           this.$announcer.polite(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
-          this.$putFocusNextTick('cohort-name')
+          this.putFocusNextTick('cohort-name')
         })
         this.setEditMode(null)
       }

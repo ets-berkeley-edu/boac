@@ -6,7 +6,7 @@
     hide-footer
     hide-header
     @hidden="onHidden"
-    @shown="$putFocusNextTick('modal-header')"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader text="Name Your Template" />

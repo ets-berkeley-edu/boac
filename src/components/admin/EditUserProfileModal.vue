@@ -31,7 +31,7 @@
       body-class="pl-0 pr-0"
       hide-footer
       hide-header
-      @shown="$putFocusNextTick('modal-header')"
+      @shown="putFocusNextTick('modal-header')"
     >
       <ModalHeader :text="isExistingUser ? profile.name : 'Create User'" />
       <div class="modal-body m-0 p-0">

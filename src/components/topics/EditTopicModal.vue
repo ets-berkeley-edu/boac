@@ -8,7 +8,7 @@
     :ok-disabled="isSaving"
     @cancel.prevent="cancel"
     @hide.prevent="cancel"
-    @shown="$putFocusNextTick('modal-header')"
+    @shown="putFocusNextTick('modal-header')"
   >
     <div>
       <ModalHeader>

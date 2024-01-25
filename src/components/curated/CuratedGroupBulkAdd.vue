@@ -92,7 +92,7 @@ export default {
     warning: undefined
   }),
   created() {
-    this.$putFocusNextTick('curated-group-bulk-add-sids')
+    this.putFocusNextTick('curated-group-bulk-add-sids')
   },
   methods: {
     cancel() {
@@ -129,7 +129,7 @@ export default {
         const notNumeric = this._partition(split, sid => /^\d+$/.test(this._trim(sid)))[1]
         if (notNumeric.length) {
           this.setWarning('SIDs must be numeric and separated by commas, line breaks, or tabs.')
-          this.$putFocusNextTick('curated-group-bulk-add-sids')
+          this.putFocusNextTick('curated-group-bulk-add-sids')
         } else {
           this.isValidating = true
           validateSids(this.domain, split).then(data => {
@@ -160,7 +160,7 @@ export default {
         }
       } else {
         this.setWarning('Please provide one or more SIDs.')
-        this.$putFocusNextTick('curated-group-bulk-add-sids')
+        this.putFocusNextTick('curated-group-bulk-add-sids')
       }
     }
   }

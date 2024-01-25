@@ -239,9 +239,9 @@ export default {
       this.selectedUnitRequirements = this._clone(this.existingCategory.unitRequirements)
       this.unitsLower = this.existingCategory.unitsLower
       this.unitsUpper = this.existingCategory.unitsUpper
-      this.$putFocusNextTick(`column-${this.position}-name-input`)
+      this.putFocusNextTick(`column-${this.position}-name-input`)
     } else {
-      this.$putFocusNextTick(`column-${this.position}-add-category-select`)
+      this.putFocusNextTick(`column-${this.position}-add-category-select`)
     }
   },
   methods: {
@@ -272,11 +272,11 @@ export default {
         if (this.selectedCategoryType === 'Campus Requirements') {
           this.name = 'Campus Requirements'
           this.descriptionText = 'American History, American Institutions, and American Cultures courses can also count as H/SS courses.'
-          this.$putFocusNextTick(`column-${this.position}-description-input`)
+          this.putFocusNextTick(`column-${this.position}-description-input`)
         } else {
           this.descriptionText = null
           this.name = ''
-          this.$putFocusNextTick(`column-${this.position}-name-input`)
+          this.putFocusNextTick(`column-${this.position}-name-input`)
         }
       }
     },
@@ -290,7 +290,7 @@ export default {
         this._each(inheritedUnitRequirements, unitRequirement => {
           this.$refs[`column-${option.position}-unit-requirement-select`].onChangeUnitRequirement(unitRequirement)
         })
-        this.$putFocusNextTick(`column-${this.position}-create-requirement-btn`)
+        this.putFocusNextTick(`column-${this.position}-create-requirement-btn`)
       } else {
         this._each(parentUnitRequirements, unitRequirement => this.removeUnitRequirement(unitRequirement))
       }

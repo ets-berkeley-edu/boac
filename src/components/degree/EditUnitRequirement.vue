@@ -131,7 +131,7 @@ export default {
       this.otherUnitRequirements = this.unitRequirements
       this.$announcer.polite('Create unit requirement')
     }
-    this.$putFocusNextTick('unit-requirement-name-input')
+    this.putFocusNextTick('unit-requirement-name-input')
   },
   methods: {
     cancel() {
@@ -155,7 +155,7 @@ export default {
       }
     },
     putFocusRequiredField() {
-      this.$putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
+      this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
       this.$announcer.polite(`${this.name ? 'Units value' : 'Name'} required.`)
     },
     setMinUnits(units) {

@@ -209,7 +209,7 @@ export default {
         this.$announcer.polite('Closing auto-suggest dropdown')
       }
       this.isOpen = false
-      this.$nextTick(() => {
+      this.nextTick(() => {
         if (!this.value) {
           this.query = null
         }
@@ -257,7 +257,7 @@ export default {
       handler(this.selectedSuggestion || this.query).then(() => {
         this.closeSuggestions()
       }).catch(() => {
-        this.$nextTick(() => this.isOpen = false)
+        this.nextTick(() => this.isOpen = false)
       }).finally(() => {
         this.addButtonLoading = false
       })
@@ -317,7 +317,7 @@ export default {
       this.isLoading = false
       this.isOpen = true
       this.suggestionFocusIndex = null
-      this.$nextTick(() => {
+      this.nextTick(() => {
         const el = this.$refs.autocompleteSuggestions
         this.suggestionElements = el ? el.querySelectorAll('.dropdown-item') : []
       })

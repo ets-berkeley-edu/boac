@@ -1,7 +1,8 @@
 <script>
 import _ from 'lodash'
 import numeral from 'numeral'
-import {oxfordJoin} from '@/utils'
+import Vue from 'vue'
+import {oxfordJoin, putFocusNextTick} from '@/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
   extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
@@ -99,11 +100,13 @@ export default {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
+    nextTick: Vue.nextTick,
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin,
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {
       return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
     },
+    putFocusNextTick,
     round: (value, decimals) => (Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals)).toFixed(decimals),
     setPageTitle: phrase => (document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`),
     sortComparator: (a, b, nullFirst=true) => {

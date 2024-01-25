@@ -57,7 +57,7 @@ export default {
         isSatisfied: this.isSatisfied
       }).then(() => {
         this.$announcer.polite(`${this.campusRequirement.name} requirement ${this.isSatisfied ? 'satisfied' : 'unsatisfied'}`)
-        this.$putFocusNextTick(`column-${this.position}-${this.campusRequirement.key}-satisfy-checkbox`)
+        this.putFocusNextTick(`column-${this.position}-${this.campusRequirement.key}-satisfy-checkbox`)
         this.setDisableButtons(false)
       })
     }

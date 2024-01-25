@@ -69,7 +69,7 @@
                 >
                   <CourseAssignmentMenu
                     v-if="bundle.course.categoryId"
-                    :after-course-assignment="course => $putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')"
+                    :after-course-assignment="course => putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')"
                     :course="bundle.course"
                   />
                 </div>
@@ -433,18 +433,18 @@ export default {
   methods: {
     afterCancel() {
       this.$announcer.polite('Canceled')
-      this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
+      this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
       this.$announcer.polite(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
-      this.$putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
+      this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     deleteCanceled() {
-      this.$putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
+      this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
       this.bundleForDelete = null
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
@@ -456,7 +456,7 @@ export default {
         const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
         this.bundleForDelete = null
         this.setDisableButtons(false)
-        this.$putFocusNextTick(putFocus)
+        this.putFocusNextTick(putFocus)
       }
       let promise = undefined
       if (this.sid) {

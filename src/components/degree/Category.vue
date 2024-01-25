@@ -131,14 +131,14 @@ export default {
       this.isDeleting = false
       this.$announcer.polite('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
-      this.$putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
+      this.putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
     },
     deleteConfirmed() {
       return this.deleteCategory(this.category.id).then(() => {
         this.$announcer.polite(`${this.category.name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
-        this.$putFocusNextTick(`column-${this.position}-create-btn`)
+        this.putFocusNextTick(`column-${this.position}-create-btn`)
       })
     },
     deleteDegreeCategory() {
