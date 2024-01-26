@@ -1,10 +1,10 @@
 import _ from 'lodash'
 import axios from 'axios'
+import ga from '@/ga'
 import utils from '@/api/api-utils'
 import store from '@/store'
-import Vue from 'vue'
 
-const $_track = action => Vue.prototype.$ga.noteTemplate(action)
+const $_track = action => ga.noteTemplate(action)
 
 export function getMyNoteTemplates() {
   return axios

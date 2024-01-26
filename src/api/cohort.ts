@@ -1,10 +1,10 @@
 import axios from 'axios'
+import ga from '@/ga'
 import moment from 'moment-timezone'
 import store from '@/store'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
-const $_track = (action, label?) => Vue.prototype.$ga.cohort(action, label)
+const $_track = (action, label?) => ga.cohort(action, label)
 
 const $_onCreate = cohort => {
   store.commit('context/addMyCohort', cohort)

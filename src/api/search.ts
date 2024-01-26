@@ -1,10 +1,10 @@
 import axios from 'axios'
+import ga from '@/ga'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
 let $_findAdvisorsByNameCancel = axios.CancelToken.source()
 
-const $_track = action => Vue.prototype.$ga.search(action)
+const $_track = action => ga.search(action)
 
 export function findAdvisorsByName(query: string, limit: number) {
   if ($_findAdvisorsByNameCancel) {

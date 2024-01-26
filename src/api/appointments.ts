@@ -1,8 +1,8 @@
 import axios from 'axios'
+import ga from '@/ga'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
-const $_track = action => Vue.prototype.$ga.appointment(action)
+const $_track = action => ga.appointment(action)
 
 export function markAppointmentRead(appointmentId) {
   return axios

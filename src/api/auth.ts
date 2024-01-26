@@ -3,7 +3,7 @@ import axios from 'axios'
 import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
-import {initGoogleAnalytics} from '@/berkeley'
+import {initGoogleAnalytics} from '@/ga'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
