@@ -1,11 +1,11 @@
 import _ from 'lodash'
 import axios from 'axios'
+import ga from '@/ga'
 import moment from 'moment-timezone'
 import store from '@/store'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
-const $_track = action => Vue.prototype.$ga.curated(action)
+const $_track = action => ga.curated(action)
 
 const $_onCreate = group => {
   store.commit('context/addMyCuratedGroup', group)

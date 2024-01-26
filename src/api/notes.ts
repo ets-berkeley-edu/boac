@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import axios from 'axios'
+import ga from '@/ga'
 import store from '@/store'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
 const $_refreshMyDraftNoteCount = () => {
   axios
@@ -12,7 +12,7 @@ const $_refreshMyDraftNoteCount = () => {
       () => null
     )
 }
-const $_track = action => Vue.prototype.$ga.note(action)
+const $_track = action => ga.note(action)
 
 export function getNote(noteId) {
   $_track('view')

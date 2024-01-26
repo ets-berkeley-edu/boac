@@ -1,8 +1,8 @@
 import axios from 'axios'
+import ga from '@/ga'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
-const $_track = (action, label?) => Vue.prototype.$ga.degreeProgress(action, label)
+const $_track = (action, label?) => ga.degreeProgress(action, label)
 
 export function addUnitRequirement(templateId: number, name: string, minUnits: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/${templateId}/unit_requirement`, {name, minUnits}).then(response => response.data, () => null)

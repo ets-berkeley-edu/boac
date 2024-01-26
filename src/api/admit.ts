@@ -1,8 +1,8 @@
 import axios from 'axios'
+import ga from '@/ga'
 import utils from '@/api/api-utils'
-import Vue from 'vue'
 
-const $_track = (action, label?) => Vue.prototype.$ga.student(action, label)
+const $_track = (action, label?) => ga.student(action, label)
 
 export function getAdmitBySid(sid: string) {
   $_track('admit')

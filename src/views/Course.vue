@@ -160,6 +160,7 @@
 import Context from '@/mixins/Context'
 import CourseStudents from '@/components/course/CourseStudents'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
+import ga from '@/ga'
 import Matrix from '@/components/matrix/Matrix'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
@@ -260,11 +261,11 @@ export default {
     loadListView() {
       const limit = this.pagination.itemsPerPage
       const offset = this.pagination.currentPage === 0 ? 0 : (this.pagination.currentPage - 1) * limit
-      this.$ga.course('view', this.section.displayName)
+      ga.course('view', this.section.displayName)
       return getSection(this.termId, this.sectionId, offset, limit, this.featured)
     },
     loadMatrixView() {
-      this.$ga.course('matrix', this.section.displayName)
+      ga.course('matrix', this.section.displayName)
       return getSection(this.termId, this.sectionId)
     },
     partitionPlottableStudents() {
