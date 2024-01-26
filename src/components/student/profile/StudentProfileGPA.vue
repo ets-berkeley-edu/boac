@@ -101,7 +101,10 @@ export default {
   },
   mixins: [Context, Util],
   props: {
-    student: Object
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     cumulativeGPA: undefined,

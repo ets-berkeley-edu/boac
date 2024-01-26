@@ -83,11 +83,8 @@ import {createDegreeCheck, getDegreeTemplates} from '@/api/degree'
 
 export default {
   name: 'StudentDegreeCreate',
+  components: {Spinner, StudentProfileHeader},
   mixins: [Context, Util],
-  components: {
-    Spinner,
-    StudentProfileHeader
-  },
   data: () => ({
     isSaving: false,
     selectedOption: null,

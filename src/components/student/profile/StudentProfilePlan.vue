@@ -23,8 +23,14 @@
 export default {
   name: 'StudentProfilePlan',
   props: {
-    active: Boolean,
-    plan: Object
+    active: {
+      required: true,
+      type: Boolean
+    },
+    plan: {
+      required: true,
+      type: Object
+    }
   }
 }
 </script>

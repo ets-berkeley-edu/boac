@@ -18,7 +18,7 @@
         @hidden="$announcer.polite('Term select menu closed')"
         @shown="$announcer.polite('Term select menu opened')"
       >
-        <template slot="button-content">
+        <template #button-content>
           <div class="d-flex dropdown-width justify-content-between text-dark">
             <div v-if="selectedTermLabel">
               <span class="sr-only">Showing enrollments for </span>{{ selectedTermLabel }}<span class="sr-only">. Hit enter to open menu</span>
@@ -53,8 +53,9 @@ export default {
   mixins: [Context, Util],
   props: {
     domain: {
-      type: String,
-      required: false
+      default: undefined,
+      required: false,
+      type: String
     }
   },
   data: () => ({

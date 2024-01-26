@@ -41,13 +41,13 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'DegreeTemplate',
-  mixins: [Context, DegreeEditSession, Util],
   components: {
     DebugTemplate,
     Spinner,
     TemplateCategoryColumn,
     UnitRequirements
   },
+  mixins: [Context, DegreeEditSession, Util],
   mounted() {
     const id = this.toInt(this._get(this.$route, 'params.id'))
     this.init(id).then(() => {

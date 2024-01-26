@@ -61,8 +61,14 @@ export default {
   components: {ModalHeader},
   mixins: [Validator],
   props: {
-    cancel: Function,
-    create: Function
+    cancel: {
+      required: true,
+      type: Function
+    },
+    create: {
+      required: true,
+      type: Function
+    }
   },
   data: () => ({
     name: '',

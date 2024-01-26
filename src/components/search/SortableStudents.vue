@@ -12,7 +12,7 @@
       stacked="md"
       thead-class="sortable-table-header text-nowrap"
     >
-      <template v-slot:cell(curated)="row">
+      <template #cell(curated)="row">
         <CuratedStudentCheckbox
           v-if="options.includeCuratedCheckbox"
           :domain="domain"
@@ -20,14 +20,14 @@
         />
       </template>
 
-      <template v-slot:cell(avatar)="row">
+      <template #cell(avatar)="row">
         <StudentAvatar :key="row.item.sid" size="small" :student="row.item" />
         <div v-if="options.includeCuratedCheckbox" class="sr-only">
           <ManageStudent domain="default" :is-button-variant-link="true" :student="row.item" />
         </div>
       </template>
 
-      <template v-slot:cell(lastName)="row">
+      <template #cell(lastName)="row">
         <span class="sr-only">Student name</span>
         <router-link
           v-if="row.item.uid"
@@ -63,12 +63,12 @@
         </span>
       </template>
 
-      <template v-slot:cell(sid)="row">
+      <template #cell(sid)="row">
         <span class="sr-only">S I D </span>
         <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.sid }}</span>
       </template>
 
-      <template v-if="!options.compact" v-slot:cell(majors[0])="row">
+      <template v-if="!options.compact" #cell(majors[0])="row">
         <span class="sr-only">Major</span>
         <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
@@ -79,30 +79,30 @@
         </div>
       </template>
 
-      <template v-if="!options.compact" v-slot:cell(expectedGraduationTerm.id)="row">
+      <template v-if="!options.compact" #cell(expectedGraduationTerm.id)="row">
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
         <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
       </template>
 
-      <template v-if="!options.compact" v-slot:cell(term.enrolledUnits)="row">
+      <template v-if="!options.compact" #cell(term.enrolledUnits)="row">
         <span class="sr-only">Term units</span>
         <div>{{ _get(row.item.term, 'enrolledUnits', 0) }}</div>
       </template>
 
-      <template v-if="!options.compact" v-slot:cell(cumulativeUnits)="row">
+      <template v-if="!options.compact" #cell(cumulativeUnits)="row">
         <span class="sr-only">Units completed</span>
         <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
         <div v-if="row.item.cumulativeUnits">{{ numFormat(row.item.cumulativeUnits, '0.00') }}</div>
       </template>
 
-      <template v-if="!options.compact" v-slot:cell(cumulativeGPA)="row">
+      <template v-if="!options.compact" #cell(cumulativeGPA)="row">
         <span class="sr-only">GPA</span>
         <div v-if="_isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
         <div v-if="!_isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
       </template>
 
-      <template v-slot:cell(alertCount)="row">
+      <template #cell(alertCount)="row">
         <span class="sr-only">Issue count</span>
         <div class="float-right mr-2">
           <div
@@ -136,12 +136,12 @@ import {sortComparator} from '@/utils'
 
 export default {
   name: 'SortableStudents',
-  mixins: [Context, Util],
   components: {
     CuratedStudentCheckbox,
     ManageStudent,
     StudentAvatar
   },
+  mixins: [Context, Util],
   props: {
     domain: {
       required: true,

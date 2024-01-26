@@ -153,8 +153,14 @@ export default {
   },
   mixins: [Context, Util],
   props: {
-    featured: String,
-    section: Object
+    featured: {
+      required: true,
+      type: String
+    },
+    section: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     axisLabels: {},

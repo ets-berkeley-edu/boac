@@ -69,6 +69,7 @@ export default {
       type: Boolean
     },
     initialUnitRequirements: {
+      default: undefined,
       required: false,
       type: Array
     },

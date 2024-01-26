@@ -88,9 +88,6 @@ export default {
 </script>
 
 <style scoped>
-button {
-  background-color: #3b80bf;
-}
 .btn-dev-auth {
   height: 26px;
   padding: 0 !important;

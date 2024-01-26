@@ -39,14 +39,14 @@
         sticky-header
         thead-class="sortable-table-header border-bottom"
       >
-        <template v-slot:thead-top="{}">
+        <template #thead-top="{}">
           <b-tr>
             <b-th class="border-top-0"><span class="sr-only">Topic</span></b-th>
             <b-th class="border-top-0"><span class="sr-only">Deleted?</span></b-th>
             <b-th class="border-top-0"></b-th>
           </b-tr>
         </template>
-        <template v-slot:cell(actions)="row">
+        <template #cell(actions)="row">
           <div class="d-flex justify-content-end">
             <b-button
               v-if="row.item.deletedAt"

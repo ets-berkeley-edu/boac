@@ -61,8 +61,8 @@ import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
   name: 'CreateCuratedGroupModal',
-  mixins: [Context, Util, Validator],
   components: {ModalHeader},
+  mixins: [Context, Util, Validator],
   props: {
     cancel: {
       required: true,

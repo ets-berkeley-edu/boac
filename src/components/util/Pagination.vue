@@ -25,15 +25,31 @@
 export default {
   name: 'Pagination',
   props: {
-    clickHandler: Function,
+    clickHandler: {
+      required: true,
+      type: Function
+    },
     initPageNumber: {
       type: Number,
       default: 1
     },
-    limit: Number,
-    perPage: Number,
-    size: String,
-    totalRows: Number
+    limit: {
+      required: true,
+      type: Number
+    },
+    perPage: {
+      required: true,
+      type: Number
+    },
+    size: {
+      default: undefined,
+      required: false,
+      type: String
+    },
+    totalRows: {
+      required: true,
+      type: Number
+    }
   },
   data: () => ({
     currentPage: undefined

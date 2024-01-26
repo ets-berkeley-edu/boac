@@ -94,8 +94,8 @@ import {getStudentByUid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeHistory',
-  mixins: [Context, Util],
   components: {Spinner, StudentProfileHeader},
+  mixins: [Context, Util],
   data: () => ({
     degreeChecks: undefined,
     student: undefined

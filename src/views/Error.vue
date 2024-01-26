@@ -26,8 +26,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'Error',
-  mixins: [Context, Util],
   components: {Spinner},
+  mixins: [Context, Util],
   data: () => ({
     errorStatus: undefined,
     message: undefined,

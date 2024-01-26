@@ -33,12 +33,12 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'Profile',
-  mixins: [Context, Util],
   components: {
     DemoModeToggle,
     MyProfile,
     Spinner
   },
+  mixins: [Context, Util],
   mounted() {
     store.dispatch('context/loadingComplete')
     this.$announcer.polite('Profile page has loaded')

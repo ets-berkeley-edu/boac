@@ -50,8 +50,8 @@ import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentProfileUnits',
-  mixins: [Context, Util],
   components: {StudentUnitsChart},
+  mixins: [Context, Util],
   props: {
     student: {
       required: true,

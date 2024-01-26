@@ -120,8 +120,8 @@ import {
 
 export default {
   name: 'StudentRowCourseActivity',
-  mixins: [Context, Util],
   components: {IncompleteGradeAlertIcon},
+  mixins: [Context, Util],
   props: {
     rowIndex: {
       required: true,

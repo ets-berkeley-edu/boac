@@ -12,7 +12,7 @@
       :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow btn-primary-color-override'"
       :variant="dropdownVariant"
     >
-      <template slot="button-content">
+      <template #button-content>
         <div :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)">
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div :class="labelClass">

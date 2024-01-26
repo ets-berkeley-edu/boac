@@ -41,8 +41,8 @@ import {getDepartments} from '@/api/user'
 
 export default {
   name: 'PassengerManifest',
-  mixins: [Context, Util],
   components: {EditUserProfileModal, Spinner, Users},
+  mixins: [Context, Util],
   data: () => ({
     departments: undefined,
     refreshUsers: false

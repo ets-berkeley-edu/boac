@@ -166,12 +166,12 @@ import {getDistinctSids, getStudentsBySids} from '@/api/student'
 
 export default {
   name: 'BatchDegreeCheck',
-  mixins: [Context, DegreeEditSession, Util, Validator],
   components: {
     BatchAddStudentSet,
     DegreeTemplatesMenu,
     Spinner
   },
+  mixins: [Context, DegreeEditSession, Util, Validator],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],

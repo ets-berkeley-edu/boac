@@ -15,9 +15,20 @@ export default {
   name: 'TimelineDate',
   mixins: [Context, Util],
   props: {
-    date: [Date, String],
-    includeTimeOfDay: Boolean,
-    srPrefix: String
+    date: {
+      default: undefined,
+      required: false,
+      type: [Date, String]
+    },
+    includeTimeOfDay: {
+      required: false,
+      type: Boolean
+    },
+    srPrefix: {
+      default: undefined,
+      required: false,
+      type: String
+    }
   },
   data() {
     return {

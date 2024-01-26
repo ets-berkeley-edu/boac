@@ -102,8 +102,8 @@ import UnitsInput from '@/components/degree/UnitsInput'
 
 export default {
   name: 'EditCourseRequirement',
-  mixins: [DegreeEditSession],
   components: {AccentColorSelect, UnitsInput},
+  mixins: [DegreeEditSession],
   props: {
     afterCancel: {
       required: true,

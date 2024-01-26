@@ -108,8 +108,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'TemplateCategoryColumn',
-  mixins: [Context, DegreeEditSession, Util],
   components: {Category, CoursesTable, EditCategory},
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     position: {
       required: true,

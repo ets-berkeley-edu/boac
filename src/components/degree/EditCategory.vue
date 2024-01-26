@@ -175,8 +175,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCategory',
-  mixins: [Context, DegreeEditSession, Util],
   components: {UnitsInput, SelectUnitFulfillment},
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     afterCancel: {
       required: true,
@@ -196,6 +196,17 @@ export default {
       type: Number
     }
   },
+  data: () => ({
+    descriptionText: undefined,
+    isSatisfiedByTransferCourse: undefined,
+    isSaving: false,
+    name: '',
+    selectedCategoryType: null,
+    selectedParentCategory: null,
+    selectedUnitRequirements: [],
+    unitsLower: undefined,
+    unitsUpper: undefined
+  }),
   computed: {
     disableSaveButton() {
       return this.isSaving
@@ -218,17 +229,6 @@ export default {
       return this._reject(this.findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
     }
   },
-  data: () => ({
-    descriptionText: undefined,
-    isSatisfiedByTransferCourse: undefined,
-    isSaving: false,
-    name: '',
-    selectedCategoryType: null,
-    selectedParentCategory: null,
-    selectedUnitRequirements: [],
-    unitsLower: undefined,
-    unitsUpper: undefined
-  }),
   created() {
     if (this.existingCategory) {
       this.descriptionText = this.existingCategory.description

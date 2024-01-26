@@ -14,8 +14,9 @@ export default {
   mixins: [Context],
   props: {
     updatedAt: {
-      type: String,
-      required: false
+      default: undefined,
+      required: false,
+      type: String
     }
   },
   data: () => ({

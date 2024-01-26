@@ -7,8 +7,8 @@
       <div class="ml-1 mr-2">
         <NavLink
           id="cohort-create"
-          class="sidebar-create-link"
           aria-label="Create cohort"
+          class="sidebar-create-link"
           path="/cohort/new"
         >
           <font-awesome icon="plus" class="sidebar-header" />

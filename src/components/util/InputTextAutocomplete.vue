@@ -108,6 +108,7 @@ export default {
       type: String
     },
     fallback: {
+      default: () => {},
       required: false,
       type: Function
     },
@@ -173,6 +174,8 @@ export default {
       type: Function
     },
     value: {
+      default: undefined,
+      required: false,
       type: Object
     }
   },

@@ -20,7 +20,20 @@
     <b-row class="row-footer" no-gutters>
       <b-col class="sidebar z-index-sub-zero" sm="2"></b-col>
       <b-col sm="10" role="contentinfo">
-        <Footer v-if="!loading" class="mb-3 ml-3 mt-5" />
+        <b-container v-if="!loading" fluid class="mb-3 ml-3 mt-5 p-0 w-auto">
+          <b-row class="w-100">
+            <b-col sm="7" class="mb-3 mr-auto">
+              <img alt="UC Berkeley logo" src="@/assets/uc-berkeley-logo.svg" />
+            </b-col>
+            <b-col sm="5" class="pr-0">
+              <div>
+                Problem? Question? Suggestion?
+                Email <a :href="`mailto:${config.supportEmailAddress}`" target="_blank">{{ config.supportEmailAddress }}<span class="sr-only"> (new browser tab will open)</span></a>
+              </div>
+              &copy; {{ new Date().getFullYear() }} The Regents of the University of California
+            </b-col>
+          </b-row>
+        </b-container>
       </b-col>
     </b-row>
   </b-container>
@@ -28,7 +41,6 @@
 
 <script>
 import Context from '@/mixins/Context'
-import Footer from '@/components/Footer'
 import ServiceAnnouncement from '@/layouts/shared/ServiceAnnouncement'
 import Sidebar from '@/components/sidebar/Sidebar'
 import StandardHeaderLayout from '@/layouts/shared/StandardHeaderLayout'
@@ -37,7 +49,6 @@ import Util from '@/mixins/Util'
 export default {
   name: 'StandardLayout',
   components: {
-    Footer,
     ServiceAnnouncement,
     Sidebar,
     StandardHeaderLayout

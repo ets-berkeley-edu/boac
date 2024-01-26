@@ -276,8 +276,8 @@ import {
 
 export default {
   name: 'StudentCourse',
-  mixins: [Context, Util],
   components: {IncompleteGradeAlertIcon, StudentBoxplot},
+  mixins: [Context, Util],
   props: {
     course: {
       required: true,
@@ -305,6 +305,9 @@ export default {
     sectionsWithIncompleteStatus: undefined,
     spacerHeight: 0
   }),
+  computed: {
+    showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
+  },
   mounted() {
     this.$root.$on(`year-${this.year}-course-${this.index}-show`, () => this.spacerHeight = 120)
     this.$root.$on(`year-${this.year}-course-${this.index}-shown`, offsetHeight => this.spacerHeight = offsetHeight)
@@ -314,9 +317,6 @@ export default {
     this.$root.$off(`year-${this.year}-course-${this.index}-show`)
     this.$root.$off(`year-${this.year}-course-${this.index}-shown`)
     this.$root.$off(`year-${this.year}-course-${this.index}-hide`)
-  },
-  computed: {
-    showSpacer: vm => !vm.detailsVisible && !!vm.spacerHeight
   },
   created() {
     this.sectionsWithIncompleteStatus = getSectionsWithIncompleteStatus(this.course.sections)
