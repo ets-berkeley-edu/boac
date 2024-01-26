@@ -86,6 +86,11 @@ export default {
       type: Object
     }
   },
+  data: () => ({
+    error: undefined,
+    isSaving: false,
+    name: ''
+  }),
   computed: {
     showModal: {
       get() {
@@ -98,11 +103,6 @@ export default {
       }
     }
   },
-  data: () => ({
-    error: undefined,
-    isSaving: false,
-    name: ''
-  }),
   watch: {
     name() {
       this.error = null

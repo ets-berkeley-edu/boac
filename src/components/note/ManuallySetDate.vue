@@ -9,7 +9,7 @@
         :max-date="maxDate"
         popover-visibility="focus"
       >
-        <template v-slot="{inputValue, inputEvents}">
+        <template #default="{inputValue, inputEvents}">
           <input
             id="manually-set-date-input"
             aria-labelledby="manually-set-date-label"

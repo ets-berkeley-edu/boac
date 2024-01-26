@@ -52,7 +52,7 @@
           :model-config="{type: 'string', mask: 'YYYY-MM-DD'}"
           @popoverDidShow="onPopoverShown"
         >
-          <template v-slot="{ inputValue, inputEvents }">
+          <template #default="{ inputValue, inputEvents }">
             <div class="d-flex pr-1">
               <label
                 :for="`filter-range-min-${position}`"
@@ -251,8 +251,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'FilterRow',
-  mixins: [CohortEditSession, Context, Util],
   components: {FilterSelect},
+  mixins: [CohortEditSession, Context, Util],
   props: {
     position: {
       default: 'new',

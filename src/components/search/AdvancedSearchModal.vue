@@ -72,7 +72,7 @@
               size="md"
               :options="topicOptions"
             >
-              <template v-slot:first>
+              <template #first>
                 <option :value="null">Any topic</option>
               </template>
             </b-form-select>
@@ -157,7 +157,7 @@
                     :value="fromDate"
                     @input="v => setFromDate(v)"
                   >
-                    <template v-slot="{inputValue, inputEvents}">
+                    <template #default="{inputValue, inputEvents}">
                       <input
                         id="search-options-note-filters-last-updated-from"
                         aria-labelledby="note-filters-date-from-label"
@@ -204,7 +204,7 @@
                     :min-date="fromDate || new Date('01/01/1900')"
                     popover-visibility="focus"
                   >
-                    <template v-slot="{inputValue, inputEvents}">
+                    <template #default="{inputValue, inputEvents}">
                       <input
                         id="search-options-note-filters-last-updated-to"
                         aria-labelledby="note-filters-date-to-label"

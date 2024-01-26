@@ -10,7 +10,7 @@
     @row-hovered="rowHovered"
     @row-unhovered="rowUnhovered"
   >
-    <template v-slot:cell(avatar)="row">
+    <template #cell(avatar)="row">
       <div class="align-items-center d-flex">
         <div class="px-2">
           <CuratedStudentCheckbox domain="default" :student="row.item" />
@@ -26,7 +26,7 @@
         </div>
       </div>
     </template>
-    <template v-slot:cell(profile)="row">
+    <template #cell(profile)="row">
       <div>
         <router-link
           v-if="row.item.uid"
@@ -112,7 +112,7 @@
       </div>
     </template>
 
-    <template v-slot:cell(courseSites)="row">
+    <template #cell(courseSites)="row">
       <div class="course-sites flex-col font-size-14 pl-2">
         <div
           v-for="(canvasSite, index) in row.item.enrollment.canvasSites"
@@ -126,7 +126,7 @@
       </div>
     </template>
 
-    <template v-slot:cell(assignmentsSubmitted)="row">
+    <template #cell(assignmentsSubmitted)="row">
       <div v-if="row.item.enrollment.canvasSites.length" class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -167,7 +167,7 @@
       ><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
-    <template v-slot:cell(assignmentGrades)="row">
+    <template #cell(assignmentGrades)="row">
       <div class="flex-col">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -207,7 +207,7 @@
       </div>
     </template>
 
-    <template v-slot:cell(bCourses)="row">
+    <template #cell(bCourses)="row">
       <div class="flex-col font-size-14">
         <div
           v-for="canvasSite in row.item.enrollment.canvasSites"
@@ -223,13 +223,13 @@
       </div>
     </template>
 
-    <template v-slot:cell(midtermGrade)="row">
+    <template #cell(midtermGrade)="row">
       <span v-if="row.item.enrollment.midtermGrade" v-accessible-grade="row.item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
       <font-awesome v-if="isAlertGrade(row.item.enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
-    <template v-slot:cell(finalGrade)="row">
+    <template #cell(finalGrade)="row">
       <span v-if="row.item.enrollment.grade" v-accessible-grade="row.item.enrollment.grade" class="font-weight-bold font-size-14"></span>
       <font-awesome v-if="isAlertGrade(row.item.enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.grade" class="cohort-grading-basis">
@@ -251,7 +251,6 @@ import {displayAsAscInactive, displayAsCoeInactive, isAlertGrade, lastActivityDa
 
 export default {
   name: 'CourseStudents',
-  mixins: [Context, Util],
   components: {
     CuratedStudentCheckbox,
     DegreesAwarded,
@@ -259,9 +258,16 @@ export default {
     StudentAvatar,
     StudentBoxplot
   },
+  mixins: [Context, Util],
   props: {
-    featured: String,
-    section: Object
+    featured: {
+      required: true,
+      type: String
+    },
+    section: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     fields: undefined,

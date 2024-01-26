@@ -28,12 +28,12 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmittedStudentResults',
-  mixins: [Util],
   components: {
     AdmitDataWarning,
     CuratedGroupSelector,
     SortableAdmits,
   },
+  mixins: [Util],
   props: {
     results: {
       required: true,

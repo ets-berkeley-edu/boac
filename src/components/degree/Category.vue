@@ -89,8 +89,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'Category',
-  mixins: [Context, DegreeEditSession, Util],
   components: {AreYouSureModal},
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     category: {
       required: true,
@@ -101,6 +101,7 @@ export default {
       type: Number
     },
     onClickEdit: {
+      default: () => {},
       required: false,
       type: Function
     },
@@ -116,11 +117,6 @@ export default {
   computed: {
     isCampusRequirements() {
       return !this._isEmpty(this.category.courseRequirements) && this._every(this.category.courseRequirements, this.isCampusRequirement)
-    },
-    parents() {
-      return this._filter(this.categories, c => {
-        return c.position === this.position && this._isNil(c.parentCategoryId)
-      })
     }
   },
   created() {

@@ -18,10 +18,15 @@ export default {
   name: 'StudentAcademicStanding',
   mixins: [Context, Util],
   props: {
-    standing: {
-      type: Object
+    rowIndex: {
+      default: undefined,
+      required: false,
+      type: String
     },
-    rowIndex: String
+    standing: {
+      required: true,
+      type: Object
+    }
   },
   computed: {
     termId() {

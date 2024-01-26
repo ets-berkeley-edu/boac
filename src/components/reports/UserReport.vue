@@ -16,7 +16,7 @@
       striped
       thead-class="text-nowrap"
     >
-      <template v-slot:cell(name)="row">
+      <template #cell(name)="row">
         <div class="d-flex">
           <div v-if="row.item.name" class="text-nowrap">
             <span class="sr-only">Name</span>
@@ -35,7 +35,7 @@
           </div>
         </div>
       </template>
-      <template v-slot:cell(depts)="row">
+      <template #cell(depts)="row">
         <div v-for="dept in row.item.departments" :key="dept.code" class="pb-1">
           <span :id="`dept-${dept.code}-${row.item.uid}`">
             <span class="dept-name">{{ dept.name }}</span> ({{ oxfordJoin(getBoaUserRoles(row.item, dept)) }})
@@ -43,13 +43,13 @@
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
       </template>
-      <template v-slot:cell(lastLogin)="row">
+      <template #cell(lastLogin)="row">
         <div :id="`user-last-login-${row.item.uid}`">
           <span v-if="row.item.lastLogin">{{ moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
           <span v-if="!row.item.lastLogin">&#8212;</span>
         </div>
       </template>
-      <template v-slot:cell(email)="row">
+      <template #cell(email)="row">
         <span :id="`user-email-${row.item.uid}`">
           <a
             :aria-label="`Send email to ${row.item.name}`"
@@ -58,7 +58,7 @@
           ><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
       </template>
-      <template v-slot:row-details="row">
+      <template #row-details="row">
         <b-card>
           <pre :id="`user-details-${row.item.uid}`">{{ row.item }}</pre>
         </b-card>

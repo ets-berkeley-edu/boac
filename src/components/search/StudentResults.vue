@@ -30,11 +30,11 @@ import SortableStudents from '@/components/search/SortableStudents'
 
 export default {
   name: 'StudentResults',
-  mixins: [Util],
   components: {
     CuratedGroupSelector,
     SortableStudents,
   },
+  mixins: [Util],
   props: {
     results: {
       required: true,

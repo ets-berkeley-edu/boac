@@ -133,8 +133,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'CreateCourseModal',
-  mixins: [DegreeEditSession, Util],
   components: {AccentColorSelect, ModalHeader, UnitsInput},
+  mixins: [DegreeEditSession, Util],
   props: {
     parentCategory: {
       required: true,

@@ -18,8 +18,9 @@ export default {
       required: true
     },
     queryArgs: {
-      type: Object,
-      required: false
+      default: undefined,
+      required: false,
+      type: Object
     }
   },
   data: () => ({
@@ -27,9 +28,10 @@ export default {
   }),
   computed: {
     query() {
+      const args = this.queryArgs || {}
       return {
         ...{'_': this.counter},
-        ...this.queryArgs
+        ...args
       }
     }
   },

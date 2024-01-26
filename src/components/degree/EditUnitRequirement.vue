@@ -80,14 +80,15 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'EditUnitRequirement',
-  mixins: [Context, DegreeEditSession, Util],
   components: {UnitsInput},
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     onExit: {
       required: true,
       type: Function
     },
     unitRequirement: {
+      default: undefined,
       required: false,
       type: Object
     }

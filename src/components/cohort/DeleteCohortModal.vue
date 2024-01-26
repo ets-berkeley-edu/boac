@@ -34,9 +34,18 @@ export default {
   name: 'DeleteCohortModal',
   components: {ModalHeader},
   props: {
-    cancelDeleteModal: Function,
-    cohortName: String,
-    deleteCohort: Function
+    cancelDeleteModal: {
+      required: true,
+      type: Function
+    },
+    cohortName: {
+      required: true,
+      type: String
+    },
+    deleteCohort: {
+      required: true,
+      type: Function
+    }
   }
 }
 </script>

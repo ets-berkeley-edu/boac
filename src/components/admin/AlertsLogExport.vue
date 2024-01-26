@@ -15,7 +15,7 @@
               :min-date="minDate"
               popover-visibility="focus"
             >
-              <template v-slot="{inputValue, inputEvents}">
+              <template #default="{inputValue, inputEvents}">
                 <input
                   id="alerts-log-export-from-date"
                   class="date-input form-control"
@@ -38,7 +38,7 @@
               :min-date="fromDate || minDate"
               popover-visibility="focus"
             >
-              <template v-slot="{inputValue, inputEvents}">
+              <template #default="{inputValue, inputEvents}">
                 <input
                   id="alerts-log-export-to-date"
                   class="date-input form-control"

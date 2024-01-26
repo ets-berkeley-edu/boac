@@ -100,7 +100,7 @@
             <div class="modal-body">
               Are you sure you want to delete "<strong>{{ curatedGroupName }}</strong>"?
             </div>
-            <div slot="modal-footer">
+            <template #modal-footer>
               <b-btn
                 id="delete-confirm"
                 class="btn-primary-color-override"
@@ -116,7 +116,7 @@
               >
                 Cancel
               </b-btn>
-            </div>
+            </template>
           </b-modal>
           <b-modal
             id="cohort-warning-modal"
@@ -141,7 +141,7 @@
                 </li>
               </ul>
             </div>
-            <div slot="modal-footer">
+            <template #modal-footer>
               <b-btn
                 id="cohort-warning-modal-close"
                 class="mb-1 mr-3"
@@ -150,7 +150,7 @@
               >
                 Close
               </b-btn>
-            </div>
+            </template>
           </b-modal>
         </div>
         <div v-if="isOwnedByCurrentUser" class="faint-text">|</div>
@@ -243,8 +243,8 @@ import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSele
 
 export default {
   name: 'CuratedGroupHeader',
-  mixins: [Context, CuratedEditSession, Util, Validator],
   components: {ExportListModal, FerpaReminderModal, ModalHeader},
+  mixins: [Context, CuratedEditSession, Util, Validator],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,

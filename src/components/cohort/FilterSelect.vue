@@ -81,6 +81,7 @@ export default {
       type: Function
     },
     options: {
+      default: undefined,
       required: false,
       type: [Object, Array, undefined]
     },
@@ -94,6 +95,8 @@ export default {
       type: Function
     },
     vModelObject: {
+      default: undefined,
+      required: false,
       type: Object
     }
   },

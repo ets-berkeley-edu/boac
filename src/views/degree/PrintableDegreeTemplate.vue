@@ -126,13 +126,13 @@ import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'PrintableDegreeTemplate',
-  mixins: [Context, DegreeEditSession, Util],
   components: {
     Category,
     CoursesTable,
     Spinner,
     UnitRequirements
   },
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     includeNote: undefined,
     student: undefined

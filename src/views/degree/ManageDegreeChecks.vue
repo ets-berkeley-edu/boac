@@ -223,8 +223,8 @@ import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/
 
 export default {
   name: 'ManageDegreeChecks',
-  mixins: [Context, DegreeEditSession, Util],
   components: {AreYouSureModal, CloneTemplateModal, Spinner},
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     deleteModalBody: undefined,
     degreeTemplates: undefined,

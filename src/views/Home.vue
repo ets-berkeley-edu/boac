@@ -45,11 +45,8 @@ import {scrollToTop} from '@/utils'
 
 export default {
   name: 'Home',
+  components: {SortableGroup, Spinner},
   mixins: [Context, Util],
-  components: {
-    SortableGroup,
-    Spinner
-  },
   data: () => ({
     cohorts: undefined,
     curatedGroups: undefined

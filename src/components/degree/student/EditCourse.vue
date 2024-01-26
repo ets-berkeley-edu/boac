@@ -130,8 +130,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'EditCourse',
-  mixins: [DegreeEditSession, Util],
   components: {AccentColorSelect, SelectUnitFulfillment, UnitsInput},
+  mixins: [DegreeEditSession, Util],
   props: {
     afterCancel: {
       required: true,

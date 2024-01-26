@@ -18,7 +18,7 @@
         @hidden="$announcer.polite('Sort-by menu closed')"
         @shown="$announcer.polite('Sort-by menu opened')"
       >
-        <template slot="button-content">
+        <template #button-content>
           <div class="d-flex dropdown-width justify-content-between text-dark">
             <div v-if="dropdownLabel">
               <span class="sr-only">Students sorted by </span>{{ dropdownLabel }}<span class="sr-only">. Hit enter to open menu</span>
@@ -61,8 +61,9 @@ export default {
   mixins: [Context, Util],
   props: {
     domain: {
-      type: String,
-      required: false
+      default: undefined,
+      required: false,
+      type: String
     }
   },
   data: () => ({

@@ -155,8 +155,8 @@ import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
 
 export default {
   name: 'StudentRowBioColumn',
-  mixins: [Context, Util],
   components: {DegreesAwarded, StudentAcademicStanding},
+  mixins: [Context, Util],
   props: {
     rowIndex: {
       required: true,

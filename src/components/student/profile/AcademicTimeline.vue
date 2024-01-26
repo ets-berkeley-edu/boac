@@ -32,11 +32,11 @@ import {getNote} from '@/api/notes'
 
 export default {
   name: 'AcademicTimeline',
-  mixins: [Context, Util],
   components: {
     AcademicTimelineTable,
     AcademicTimelineHeader
   },
+  mixins: [Context, Util],
   props: {
     student: {
       required: true,

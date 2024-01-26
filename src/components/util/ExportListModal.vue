@@ -58,6 +58,7 @@ export default {
       type: Array
     },
     csvColumnsSelected: {
+      required: true,
       type: Array
     },
     export: {

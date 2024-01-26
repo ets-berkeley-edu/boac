@@ -19,7 +19,7 @@
         thead-class="text-nowrap text-secondary text-uppercase"
         :tbody-tr-attr="item => ({id: `draft-note-${item.id}`})"
       >
-        <template v-slot:cell(student)="row">
+        <template #cell(student)="row">
           <span v-if="row.item.student">
             <router-link
               :id="`link-to-student-${row.item.student.uid}`"
@@ -34,12 +34,12 @@
             &mdash;
           </span>
         </template>
-        <template v-slot:cell(sid)="row">
+        <template #cell(sid)="row">
           <span :class="{'demo-mode-blur': currentUser.inDemoMode}">
             {{ row.item.sid || '&mdash;' }}
           </span>
         </template>
-        <template v-slot:cell(subject)="row">
+        <template #cell(subject)="row">
           <div class="align-items-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
@@ -64,17 +64,17 @@
         </template>
         <template
           v-if="currentUser.isAdmin"
-          v-slot:cell(author)="row"
+          #cell(author)="row"
         >
           {{ row.item.author.name }}
         </template>
-        <template v-slot:cell(updatedAt)="row">
+        <template #cell(updatedAt)="row">
           <TimelineDate
             :date="row.item.updatedAt || row.item.createdAt"
             sr-prefix="Draft note saved on"
           />
         </template>
-        <template v-slot:cell(delete)="row">
+        <template #cell(delete)="row">
           <div class="min-width-100 pl-2 pr-1">
             <b-button
               v-if="!row.item.deletedAt"
@@ -129,8 +129,8 @@ import {deleteNote, getMyDraftNotes} from '@/api/notes'
 
 export default {
   name: 'DraftNotes',
-  mixins: [Context, Util],
   components: {AreYouSureModal, EditBatchNoteModal, Spinner, TimelineDate},
+  mixins: [Context, Util],
   data: () => ({
     activeOperation: undefined,
     fields: undefined,
@@ -138,6 +138,38 @@ export default {
     myDraftNotes: undefined,
     selectedDraftNote: undefined
   }),
+  computed: {
+    deleteModalBodyText() {
+      let message
+      if (this.selectedDraftNote) {
+        const student = this.selectedDraftNote.student
+        const style = this.currentUser.inDemoMode ? 'demo-mode-blur' : ''
+        message = 'Please confirm the deletion of the draft note '
+        message += student ? `for <b class="${style}">${student.firstName} ${student.lastName}</b>.` : `with subject ${this.selectedDraftNote.subject}.`
+      }
+      return message
+    },
+    showEditModal: {
+      get() {
+        return !!this.selectedDraftNote && this.activeOperation === 'edit'
+      },
+      set(value) {
+        if (!value) {
+          this.deselectDraftNote()
+        }
+      }
+    },
+    showDeleteModal: {
+      get() {
+        return !!this.selectedDraftNote && this.activeOperation === 'delete'
+      },
+      set(value) {
+        if (!value) {
+          this.deselectDraftNote()
+        }
+      }
+    }
+  },
   created() {
     this.fields = [
       {
@@ -191,38 +223,6 @@ export default {
         this.reloadDraftNotes()
       }
     })
-  },
-  computed: {
-    deleteModalBodyText() {
-      let message
-      if (this.selectedDraftNote) {
-        const student = this.selectedDraftNote.student
-        const style = this.currentUser.inDemoMode ? 'demo-mode-blur' : ''
-        message = 'Please confirm the deletion of the draft note '
-        message += student ? `for <b class="${style}">${student.firstName} ${student.lastName}</b>.` : `with subject ${this.selectedDraftNote.subject}.`
-      }
-      return message
-    },
-    showEditModal: {
-      get() {
-        return !!this.selectedDraftNote && this.activeOperation === 'edit'
-      },
-      set(value) {
-        if (!value) {
-          this.deselectDraftNote()
-        }
-      }
-    },
-    showDeleteModal: {
-      get() {
-        return !!this.selectedDraftNote && this.activeOperation === 'delete'
-      },
-      set(value) {
-        if (!value) {
-          this.deselectDraftNote()
-        }
-      }
-    }
   },
   methods: {
     afterEditDraft(data) {

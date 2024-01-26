@@ -45,7 +45,10 @@ export default {
   name: 'AdvisingNoteSnippet',
   mixins: [Context, Util],
   props: {
-    note: Object,
+    note: {
+      required: true,
+      type: Object
+    },
   },
   data: () => ({
     lastModified: undefined

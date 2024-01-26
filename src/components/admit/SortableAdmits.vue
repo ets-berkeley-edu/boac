@@ -12,14 +12,14 @@
       stacked="md"
       thead-class="sortable-table-header text-nowrap"
     >
-      <template v-slot:cell(curated)="row">
+      <template #cell(curated)="row">
         <CuratedStudentCheckbox
           domain="admitted_students"
           :student="row.item"
         />
       </template>
 
-      <template v-slot:cell(lastName)="row">
+      <template #cell(lastName)="row">
         <span class="sr-only">Admitted student name</span>
         <router-link
           :id="`link-to-admit-${row.item.csEmplId}`"
@@ -29,47 +29,47 @@
         ></router-link>
       </template>
 
-      <template v-slot:cell(csEmplId)="row">
+      <template #cell(csEmplId)="row">
         <span class="sr-only">C S I D </span>
         <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.csEmplId }}</span>
       </template>
 
-      <template v-slot:cell(currentSir)="row">
+      <template #cell(currentSir)="row">
         <span class="sr-only">S I R</span>
         {{ row.item.currentSir }}
       </template>
 
-      <template v-slot:cell(specialProgramCep)="row">
+      <template #cell(specialProgramCep)="row">
         <span class="sr-only">C E P</span>
         {{ row.item.specialProgramCep }}
       </template>
 
-      <template v-slot:cell(reentryStatus)="row">
+      <template #cell(reentryStatus)="row">
         <span class="sr-only">Re-entry</span>
         {{ row.item.reentryStatus }}
       </template>
 
-      <template v-slot:cell(firstGenerationCollege)="row">
+      <template #cell(firstGenerationCollege)="row">
         <span class="sr-only">First generation</span>
         {{ row.item.firstGenerationCollege }}
       </template>
 
-      <template v-slot:cell(urem)="row">
+      <template #cell(urem)="row">
         <span class="sr-only">U R E M</span>
         {{ row.item.urem }}
       </template>
 
-      <template v-slot:cell(applicationFeeWaiverFlag)="row">
+      <template #cell(applicationFeeWaiverFlag)="row">
         <span class="sr-only">Waiver</span>
         {{ row.item.applicationFeeWaiverFlag }}
       </template>
 
-      <template v-slot:cell(residencyCategory)="row">
+      <template #cell(residencyCategory)="row">
         <span class="sr-only">Residency</span>
         {{ row.item.residencyCategory }}
       </template>
 
-      <template v-slot:cell(freshmanOrTransfer)="row">
+      <template #cell(freshmanOrTransfer)="row">
         <span class="sr-only">Freshman or Transfer</span>
         {{ row.item.freshmanOrTransfer }}
       </template>
@@ -85,8 +85,8 @@ import {sortComparator} from '@/utils'
 
 export default {
   name: 'SortableAdmits',
-  mixins: [Context, Util],
   components: {CuratedStudentCheckbox},
+  mixins: [Context, Util],
   props: {
     admittedStudents: {
       required: true,

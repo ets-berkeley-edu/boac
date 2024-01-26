@@ -5,14 +5,6 @@ import {mapActions, mapGetters} from 'vuex'
 
 export default {
   name: 'NoteEditSession',
-  created() {
-    this.scheduleAutoSaveJob()
-    document.addEventListener('visibilitychange', this.onVisibilityChange)
-  },
-  destroyed() {
-    this.clearAutoSaveJob()
-    document.removeEventListener('visibilitychange', this.onVisibilityChange)
-  },
   computed: {
     ...mapGetters('noteEditSession', [
       'addedCohorts',
@@ -29,6 +21,14 @@ export default {
       'noteTemplates',
       'sids'
     ])
+  },
+  created() {
+    this.scheduleAutoSaveJob()
+    document.addEventListener('visibilitychange', this.onVisibilityChange)
+  },
+  destroyed() {
+    this.clearAutoSaveJob()
+    document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },
   methods: {
     ...mapActions('noteEditSession', [

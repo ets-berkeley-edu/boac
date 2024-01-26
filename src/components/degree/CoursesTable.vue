@@ -350,7 +350,6 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'CoursesTable',
-  mixins: [Context, DegreeEditSession, Util],
   components: {
     AreYouSureModal,
     CampusRequirementCheckbox,
@@ -360,6 +359,7 @@ export default {
     EditCourse,
     EditCourseRequirement
   },
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     items: {
       required: true,

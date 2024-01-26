@@ -147,7 +147,7 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
           lapseDate = moment(new Date(section.incompleteLapseGradeDate)).format('ll')
         }
         switch(statusCode) {
-        case 'I':
+        case 'I': {
           const gradingBasis = _.toUpper(section.gradingBasis)
           let outcome = 'a failing grade'
           if (['GRD', 'LETTER'].includes(gradingBasis)) {
@@ -160,6 +160,7 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
           const prefix = `Incomplete grade scheduled to become ${outcome}`
           description = lapseDate ? `${prefix} on ${lapseDate}.` : `${prefix}.`
           break
+        }
         case 'L':
           description = 'Formerly an incomplete grade' + (lapseDate ? ` on ${lapseDate}.` : '.')
           break

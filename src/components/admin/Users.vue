@@ -41,7 +41,7 @@
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department."
                 @change="refreshUsers"
               >
-                <template v-slot:first>
+                <template #first>
                   <option :value="null">All</option>
                 </template>
               </b-form-select>
@@ -155,7 +155,7 @@
       striped
       thead-class="sortable-table-header text-nowrap"
     >
-      <template v-slot:cell(toggleDetails)="row">
+      <template #cell(toggleDetails)="row">
         <b-btn
           :id="`user-${row.item.uid}-details-toggle`"
           class="column-toggle-details-button"
@@ -168,18 +168,18 @@
           <span v-if="row.detailsShowing" class="sr-only">Hide user details</span>
         </b-btn>
       </template>
-      <template v-slot:cell(uid)="row">
+      <template #cell(uid)="row">
         <span class="sr-only">U I D </span>
         <span :id="`uid-${row.item.uid}`">{{ row.item.uid }}</span>
       </template>
-      <template v-slot:cell(edit)="row">
+      <template #cell(edit)="row">
         <EditUserProfileModal
           :after-update-user="afterUpdateUser"
           :departments="departments"
           :profile="row.item"
         />
       </template>
-      <template v-slot:cell(lastName)="row">
+      <template #cell(lastName)="row">
         <div class="d-flex">
           <div v-if="!row.item.canAccessCanvasData" class="text-secondary pr-2 position-relative">
             <span>C</span>
@@ -219,7 +219,7 @@
           </div>
         </div>
       </template>
-      <template v-slot:cell(depts)="row">
+      <template #cell(depts)="row">
         <div v-for="department in row.item.departments" :key="department.code" class="pb-1">
           <font-awesome
             v-if="!department.automateMembership"
@@ -241,16 +241,16 @@
         </div>
         <div v-if="row.item.isAdmin" class="dept-name">BOA Admin</div>
       </template>
-      <template v-slot:cell(status)="row">
+      <template #cell(status)="row">
         <span :id="`user-status-${row.item.uid}`">{{ oxfordJoin(getUserStatuses(row.item)) }}</span>
       </template>
-      <template v-slot:cell(lastLogin)="row">
+      <template #cell(lastLogin)="row">
         <span :id="`user-last-login-${row.item.uid}`">
           <span v-if="row.item.lastLogin">{{ moment(row.item.lastLogin).format('MMM D, YYYY') }}</span>
           <span v-if="!row.item.lastLogin">&mdash;</span>
         </span>
       </template>
-      <template v-slot:cell(email)="row">
+      <template #cell(email)="row">
         <span :id="`user-email-${row.item.uid}`">
           <a
             :aria-label="`Send email to ${row.item.name}`"
@@ -259,12 +259,12 @@
           ><font-awesome icon="envelope" /><span class="sr-only"> (will open new browser tab)</span></a>
         </span>
       </template>
-      <template v-slot:row-details="row">
+      <template #row-details="row">
         <b-card>
           <pre :id="`user-details-${row.item.uid}`">{{ row.item }}</pre>
         </b-card>
       </template>
-      <template v-slot:cell(actions)="row">
+      <template #cell(actions)="row">
         <b-btn
           v-if="canBecome(row.item)"
           :id="'become-' + row.item.uid"

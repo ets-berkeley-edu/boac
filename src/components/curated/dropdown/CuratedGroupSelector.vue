@@ -26,7 +26,7 @@
         size="sm"
         no-caret
       >
-        <template slot="button-content">
+        <template #button-content>
           <div
             :id="isSaving ? `add-to-${idFragment}-confirmation` : `add-to-${idFragment}`"
             class="px-1"

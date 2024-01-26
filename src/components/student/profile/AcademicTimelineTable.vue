@@ -345,7 +345,6 @@ import {scrollTo} from '@/utils'
 
 export default {
   name: 'AcademicTimelineTable',
-  mixins: [Context, Util],
   components: {
     AdvisingAppointment,
     AdvisingNote,
@@ -353,12 +352,14 @@ export default {
     EditAdvisingNote,
     TimelineDate
   },
+  mixins: [Context, Util],
   props: {
     countsPerType: {
       required: true,
       type: Object
     },
     filter: {
+      default: undefined,
       required: false,
       type: String
     },

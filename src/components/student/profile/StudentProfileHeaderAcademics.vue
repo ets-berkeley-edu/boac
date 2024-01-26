@@ -105,8 +105,8 @@ import {isGraduate} from '@/berkeley'
 
 export default {
   name: 'StudentProfileHeaderAcademics',
-  mixins: [Util],
   components: {StudentProfilePlan},
+  mixins: [Util],
   props: {
     compact: {
       required: false,

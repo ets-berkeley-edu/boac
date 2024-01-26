@@ -215,8 +215,8 @@ import {isAlertGrade} from '@/berkeley'
 
 export default {
   name: 'UnassignedCourses',
-  mixins: [DegreeEditSession, Util],
   components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
+  mixins: [DegreeEditSession, Util],
   props: {
     ignored: {
       required: false,

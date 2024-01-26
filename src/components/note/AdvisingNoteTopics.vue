@@ -18,7 +18,7 @@
             aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
             @input="add"
           >
-            <template v-slot:first>
+            <template #first>
               <option :value="null" disabled>Select...</option>
             </template>
             <option

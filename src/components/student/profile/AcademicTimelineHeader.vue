@@ -69,14 +69,15 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'AcademicTimelineHeader',
-  mixins: [Context, Util],
   components: {EditBatchNoteModal},
+  mixins: [Context, Util],
   props: {
     countsPerType: {
       required: true,
       type: Object
     },
     filter: {
+      default: undefined,
       required: false,
       type: String
     },

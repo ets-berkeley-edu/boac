@@ -61,6 +61,9 @@ export default {
     StudentProfileUnits
   },
   mixins: [Context, NoteEditSession, Util],
+  beforeRouteLeave(to, from, next) {
+    this.confirmExitAndEndSession(next)
+  },
   data: () => ({
     cancelTheCancel: undefined,
     cancelConfirmed: undefined,
@@ -72,9 +75,6 @@ export default {
   }),
   computed: {
     anchor: () => location.hash
-  },
-  beforeRouteLeave(to, from, next) {
-    this.confirmExitAndEndSession(next)
   },
   created() {
     let uid = this._get(this.$route, 'params.uid')

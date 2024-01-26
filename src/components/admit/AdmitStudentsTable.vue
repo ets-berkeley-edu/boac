@@ -105,8 +105,8 @@ import Util from '@/mixins/Util'
 
 export default {
   name: 'AdmitStudentsTable',
-  mixins: [Context, Util],
   components: {CuratedStudentCheckbox},
+  mixins: [Context, Util],
   props: {
     includeCuratedCheckbox: {
       required: false,

@@ -143,7 +143,7 @@
                   :aria-label="`User's role in department ${dept.name}`"
                   class="w-260px"
                 >
-                  <template v-slot:first>
+                  <template #first>
                     <option :value="undefined">Select...</option>
                   </template>
                 </b-form-select>
@@ -170,7 +170,7 @@
               aria-label="Use up and down arrows to review departments. Hit enter to select a department."
               @change="addDepartment"
             >
-              <template v-slot:first>
+              <template #first>
                 <option :value="undefined">Add department...</option>
               </template>
             </b-form-select>
@@ -212,8 +212,8 @@ import {isCoe} from '@/berkeley'
 
 export default {
   name: 'EditUserProfileModal',
-  mixins: [Context, Util],
   components: {ModalHeader},
+  mixins: [Context, Util],
   props: {
     afterUpdateUser: {
       required: true,

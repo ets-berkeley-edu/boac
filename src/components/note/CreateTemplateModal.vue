@@ -72,8 +72,8 @@ import Validator from '@/mixins/Validator'
 
 export default {
   name: 'CreateTemplateModal',
-  mixins: [Util, Validator],
   components: {ModalHeader},
+  mixins: [Util, Validator],
   props: {
     cancel: {
       type: Function,

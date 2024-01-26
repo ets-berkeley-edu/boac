@@ -53,7 +53,10 @@ export default {
   name: 'AppointmentSnippet',
   mixins: [Context, Util],
   props: {
-    appointment: Object,
+    appointment: {
+      required: true,
+      type: Object
+    },
   },
   data: () => ({
     createdAt: undefined

@@ -104,10 +104,13 @@ import {sisIdForTermName} from '@/berkeley'
 
 export default {
   name: 'StudentClasses',
-  mixins: [Context, Util],
   components: {StudentEnrollmentTerm},
+  mixins: [Context, Util],
   props: {
-    student: Object
+    student: {
+      required: true,
+      type: Object
+    }
   },
   data: () => ({
     currentOrder: undefined,
@@ -115,10 +118,6 @@ export default {
     collapsed: [],
     uncollapsed: []
   }),
-  created() {
-    this.currentOrder = 'desc'
-    this.expanded = false
-  },
   computed: {
     enrollmentTermsByYear() {
       const enrollmentTermsByYear = this._map(
@@ -132,6 +131,10 @@ export default {
       )
       return this._orderBy(enrollmentTermsByYear, 'label', this.currentOrder)
     },
+  },
+  created() {
+    this.currentOrder = 'desc'
+    this.expanded = false
   },
   methods: {
     includesCurrentTerm(year) {

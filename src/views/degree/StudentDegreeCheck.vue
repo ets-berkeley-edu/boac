@@ -91,7 +91,6 @@ import {getStudentBySid} from '@/api/student'
 
 export default {
   name: 'StudentDegreeCheck',
-  mixins: [Context, DegreeEditSession, Util],
   components: {
     DuplicateExistingCourse,
     DebugTemplate,
@@ -102,6 +101,7 @@ export default {
     UnassignedCourses,
     UnitRequirements
   },
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     previousClientY: 0,
     scrollHeight: undefined,
