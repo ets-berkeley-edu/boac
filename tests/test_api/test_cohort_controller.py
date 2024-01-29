@@ -1274,6 +1274,18 @@ class TestCohortPerFilters:
         sids = sorted([s['sid'] for s in api_json['students']])
         assert sids == ['11667051']
 
+    def test_program_status_filter(self, client, coe_advisor_login):
+        api_json = self._api_get_students_per_filters(
+            client,
+            {
+                'filters': [
+                    {'key': 'academicProgramStatus', 'value': 'Discontinued'},
+                ],
+            },
+        )
+        sids = sorted([s['sid'] for s in api_json['students']])
+        assert sids == ['3141592653']
+
     def test_last_term_gpa_filter(self, client, coe_advisor_login):
         summer_success = self._api_get_students_per_filters(
             client,

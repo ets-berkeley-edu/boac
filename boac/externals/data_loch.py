@@ -962,6 +962,14 @@ def get_colleges():
     return safe_execute_rds(sql)
 
 
+def get_distinct_academic_program_statuses():
+    sql = f"""SELECT DISTINCT sap.academic_program_status AS status
+        FROM {student_schema()}.student_profile_index spi
+        JOIN {student_schema()}.student_academic_programs sap ON sap.sid = spi.sid
+        ORDER BY sap.academic_program_status"""
+    return safe_execute_rds(sql)
+
+
 def get_distinct_degree_term_ids():
     return safe_execute_rds(f'SELECT DISTINCT term_id FROM {student_schema()}.student_degrees ORDER BY term_id DESC')
 
@@ -1037,6 +1045,7 @@ def get_students_query(     # noqa
     academic_career=None,
     academic_career_status=None,
     academic_division=None,
+    academic_program_status=None,
     academic_standings=None,
     advisor_plan_mappings=None,
     coe_advisor_ldap_uids=None,
@@ -1084,7 +1093,7 @@ def get_students_query(     # noqa
     if not query_tables:
         return None, None, None
 
-    query_filter = _filter_from_academic_career_status(academic_career_status, degree_terms, degrees)
+    query_filter = _filter_from_academic_career_status(academic_career_status, degree_terms, degrees, academic_program_status)
 
     query_bindings = {}
 
@@ -1117,6 +1126,8 @@ def get_students_query(     # noqa
                 word = ''.join(re.split('\W', word))
                 query_bindings.update({f'name_phrase_{i}': f'{word}%'})
 
+    if academic_program_status:
+        query_tables += f""" JOIN {student_schema()}.student_academic_programs aps ON aps.sid = spi.sid"""
     if academic_standings:
         query_tables += f""" JOIN {student_schema()}.academic_standing ass ON ass.sid = spi.sid"""
     if degree_terms or degrees:
@@ -1179,6 +1190,9 @@ def get_students_query(     # noqa
     if academic_division:
         query_filter += ' AND maj.division = ANY(%(academic_division)s)'
         query_bindings.update({'academic_division': academic_division})
+    if academic_program_status:
+        query_filter += ' AND aps.academic_program_status = ANY(%(academic_program_status)s)'
+        query_bindings.update({'academic_program_status': academic_program_status})
     if entering_terms:
         query_filter += ' AND spi.entering_term = ANY(%(entering_terms)s)'
         query_bindings.update({'entering_terms': entering_terms})
@@ -1299,10 +1313,10 @@ def get_students_query(     # noqa
     return query_tables, query_filter, query_bindings
 
 
-def _filter_from_academic_career_status(academic_career_status, degree_terms, degrees):
-    # Academic career status defaults to active-only unless the query includes degree criteria.
+def _filter_from_academic_career_status(academic_career_status, degree_terms, degrees, academic_program_status):
+    # Academic career status defaults to active-only unless the query includes degree criteria or program status criteria.
     if not academic_career_status:
-        if degree_terms or degrees:
+        if degree_terms or degrees or academic_program_status:
             academic_career_status = ('all',)
         else:
             academic_career_status = ('active',)

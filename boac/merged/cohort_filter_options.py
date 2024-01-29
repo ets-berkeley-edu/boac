@@ -28,8 +28,8 @@ from datetime import datetime
 
 from boac.lib.berkeley import sis_term_id_for_name
 from boac.lib.cohort_utils import academic_career_options, academic_career_status_options, \
-    academic_division_options, academic_plans_for_cohort_owner, academic_standing_options, coe_ethnicities, \
-    coe_prep_status_options, colleges, curated_group_options, \
+    academic_division_options, academic_plans_for_cohort_owner, academic_program_statuses, academic_standing_options, \
+    coe_ethnicities, coe_prep_status_options, colleges, curated_group_options, \
     degree_terms, degrees, entering_terms, ethnicities, get_coe_profiles, \
     grad_terms, grading_terms, graduate_programs, incomplete_types, intended_majors, \
     level_options, majors, minors, student_admit_college_options, \
@@ -106,6 +106,7 @@ class CohortFilterOptions:
                 _filter('majors', 'Major', options=majors()),
                 _boolean_filter('midpointDeficient', 'Midpoint Deficient Grade'),
                 _filter('minors', 'Minor', options=minors()),
+                _filter('academicProgramStatus', 'Program Status', options=academic_program_statuses()),
                 _boolean_filter('transfer', 'Transfer Student'),
                 _filter('unitRanges', 'Units Completed', options=unit_range_options()),
             ],
