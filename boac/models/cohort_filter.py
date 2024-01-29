@@ -395,6 +395,7 @@ def _query_students(
         academic_career=criteria.get('academicCareers'),
         academic_career_status=criteria.get('academicCareerStatus'),
         academic_division=criteria.get('academicDivisions'),
+        academic_program_status=criteria.get('academicProgramStatus'),
         academic_standings=criteria.get('academicStandings'),
         advisor_plan_mappings=advisor_plan_mappings,
         coe_advisor_ldap_uids=coe_advisor_ldap_uids,
