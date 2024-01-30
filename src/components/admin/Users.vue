@@ -3,17 +3,17 @@
     <b-container fluid class="mb-2">
       <b-row align-v="center" no-gutters>
         <b-col cols="2" class="pr-2">
-          <b-form-select
+          <select
             id="user-filter-options"
             v-model="filterType"
             :disabled="isBusy"
-            :options="[
-              {text: 'BOA Admins', value: 'admins'},
-              {text: 'Search', value: 'search'},
-              {text: 'Filter', value: 'filter'}
-            ]"
+            style="font-size: 16px;"
             @change="refreshUsers"
-          ></b-form-select>
+          >
+            <option value="search" selected>Search</option>
+            <option value="admins">BOA Admins</option>
+            <option value="filter">Filter</option>
+          </select>
         </b-col>
         <b-col v-if="filterType === 'search'" cols="10">
           <span id="user-search-input" class="sr-only">Search for user. Expect auto-suggest as you type name or UID.</span>
@@ -31,49 +31,52 @@
         <b-col v-if="filterType === 'filter'">
           <div class="d-flex">
             <div class="pr-2">
-              <b-form-select
+              <select
                 id="department-select-list"
                 v-model="filterBy.deptCode"
-                :disabled="isBusy"
-                :options="departments"
-                value-field="code"
-                text-field="name"
                 aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+                :disabled="isBusy"
+                style="font-size: 16px;"
                 @change="refreshUsers"
               >
-                <template #first>
-                  <option :value="null">All</option>
-                </template>
-              </b-form-select>
+                <option :value="null">All</option>
+                <option
+                  v-for="department in departments"
+                  :key="department.code"
+                  :value="department.code"
+                >
+                  {{ department.name }}
+                </option>
+              </select>
             </div>
             <div class="pr-2">
-              <b-form-select
+              <select
                 id="user-permission-options"
                 v-model="filterBy.role"
                 :disabled="isBusy"
-                :options="[
-                  {text: 'All', value: null},
-                  {text: 'Advisors', value: 'advisor'},
-                  {text: 'No Canvas Data', value: 'noCanvasDataAccess'},
-                  {text: 'No Notes or Appointments', value: 'noAdvisingDataAccess'},
-                  {text: 'Directors', value: 'director'}
-                ]"
+                style="font-size: 16px;"
                 @change="refreshUsers"
-              ></b-form-select>
+              >
+                <option :value="null">All</option>
+                <option value="advisor">Advisors</option>
+                <option value="noCanvasDataAccess">No Canvas Data</option>
+                <option value="noAdvisingDataAccess">No Notes or Appointments</option>
+                <option value="director">Directors</option>
+              </select>
             </div>
             <div class="pr-2">
-              <b-form-select
+              <select
                 id="user-status-options"
                 v-model="filterBy.status"
                 :disabled="isBusy"
-                :options="[
-                  {text: 'All', value: null},
-                  {text: 'Active', value: 'active'},
-                  {text: 'Deleted', value: 'deleted'},
-                  {text: 'Blocked', value: 'blocked'}
-                ]"
+                style="font-size: 16px;"
                 @change="refreshUsers"
-              ></b-form-select>
+              >
+                <option :value="null">All</option>
+                <option value="active">Active</option>
+                <option value="deleted">Deleted</option>
+                <option value="blocked">Blocked</option>
+              </select>
             </div>
           </div>
         </b-col>

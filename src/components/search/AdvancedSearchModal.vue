@@ -64,18 +64,22 @@
           <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
           <label class="font-size-16 font-weight-700" for="search-option-note-filters-topic">Topic</label>
           <div>
-            <b-form-select
+            <select
               id="search-option-note-filters-topic"
               v-model="topic"
               class="w-75"
               :disabled="isSearching"
-              size="md"
-              :options="topicOptions"
+              style="font-size: 16px;"
             >
-              <template #first>
-                <option :value="null">Any topic</option>
-              </template>
-            </b-form-select>
+              <option :value="null">Any topic</option>
+              <option
+                v-for="option in topicOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.text }}
+              </option>
+            </select>
           </div>
           <div class="pt-3">
             <b-form-group class="mb-0" label="Posted By">

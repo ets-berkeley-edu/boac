@@ -79,9 +79,9 @@
           <div class="mt-2 mr-3 mb-1 ml-3">
             <AdvisingNoteTopics
               :key="mode"
+              :add-topic="addTopic"
               :disabled="isSaving || boaSessionExpired"
-              :function-add="addTopic"
-              :function-remove="removeTopic"
+              :remove-topic="removeTopic"
               :topics="model.topics"
             />
           </div>
