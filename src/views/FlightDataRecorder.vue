@@ -20,16 +20,21 @@
         <div v-if="availableDepartments.length > 1" class="align-items-center d-flex">
           <label class="sr-only" for="available-department-reports">Departments:</label>
           <div>
-            <b-form-select
+            <select
               id="available-department-reports"
               v-model="deptCode"
-              :options="availableDepartments"
               class="form-control font-size-16 pb-1 pl-2 pr-5 pt-1 w-auto"
-              text-field="name"
-              value-field="code"
+              style="font-size: 16px;"
               @change="render"
             >
-            </b-form-select>
+              <option
+                v-for="department in availableDepartments"
+                :key="department.code"
+                :value="department.code"
+              >
+                {{ department.name }}
+              </option>
+            </select>
           </div>
         </div>
       </div>

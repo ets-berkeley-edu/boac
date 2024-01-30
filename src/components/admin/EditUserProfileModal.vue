@@ -133,20 +133,17 @@
                 <div class="font-weight-500 pr-2 pt-1">
                   <label :for="`select-department-${dept.code}-role`">Role:</label>
                 </div>
-                <b-form-select
+                <select
                   :id="`select-department-${dept.code}-role`"
                   v-model="dept.role"
-                  :options="[
-                    {text: 'Advisor', value: 'advisor'},
-                    {text: 'Director', value: 'director'}
-                  ]"
                   :aria-label="`User's role in department ${dept.name}`"
                   class="w-260px"
+                  style="font-size: 16px;"
                 >
-                  <template #first>
-                    <option :value="undefined">Select...</option>
-                  </template>
-                </b-form-select>
+                  <option :value="undefined">Select...</option>
+                  <option value="advisor">Advisor</option>
+                  <option value="director">Director</option>
+                </select>
               </div>
               <div class="d-flex pt-2">
                 <div class="font-weight-500">
@@ -162,18 +159,24 @@
             <span class="text-info"><font-awesome icon="check" /> Three departments is enough!</span>
           </div>
           <div v-if="memberships.length < 3" class="mb-3 ml-0 mr-2 p-2">
-            <b-form-select
+            <select
               id="department-select-list"
               v-model="deptCode"
-              :options="departmentOptions"
-              class="w-auto"
               aria-label="Use up and down arrows to review departments. Hit enter to select a department."
+              class="w-auto"
+              style="font-size: 16px;"
               @change="addDepartment"
             >
-              <template #first>
-                <option :value="undefined">Add department...</option>
-              </template>
-            </b-form-select>
+              <option :value="undefined">Add department...</option>
+              <option
+                v-for="department in departmentOptions"
+                :key="department.value"
+                :disabled="department.disabled"
+                :value="department.value"
+              >
+                {{ department.text }}
+              </option>
+            </select>
           </div>
         </div>
       </div>

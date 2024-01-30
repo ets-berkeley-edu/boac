@@ -1,3 +1,14 @@
+select {
+  appearance: auto !important;
+  border: 1px solid #d1d1d1 !important;
+  border-radius: 4px;
+  color: #333;
+  height: 36px;
+  line-height: 20px !important;
+  padding: 4px;
+  width: 100%;
+  vertical-align: middle;
+}
 .accent-color-blue {
   color: #005c91;
 }

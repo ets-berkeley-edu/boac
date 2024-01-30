@@ -32,9 +32,9 @@
     <div>
       <AdvisingNoteTopics
         :disabled="boaSessionExpired"
-        :function-add="addTopic"
-        :function-remove="removeTopic"
+        :add-topic="addTopic"
         :note-id="model.id"
+        :remove-topic="removeTopic"
         :topics="model.topics"
       />
     </div>

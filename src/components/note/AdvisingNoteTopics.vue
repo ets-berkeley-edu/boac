@@ -8,19 +8,16 @@
     <b-container class="pl-0 ml-0">
       <b-form-row class="pb-1">
         <b-col cols="9">
-          <b-form-select
+          <select
             v-if="topicOptions.length"
             id="add-topic-select-list"
             :key="topics.length"
             v-model="selected"
-            :disabled="disabled"
-            role="listbox"
             aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            @input="add"
+            :disabled="disabled"
+            style="font-size: 16px;"
           >
-            <template #first>
-              <option :value="null" disabled>Select...</option>
-            </template>
+            <option :value="null" disabled>Select...</option>
             <option
               v-for="option in topicOptions"
               :key="option.value"
@@ -29,7 +26,7 @@
             >
               {{ option.text }}
             </option>
-          </b-form-select>
+          </select>
         </b-col>
       </b-form-row>
       <div>
@@ -51,7 +48,7 @@
                 :disabled="disabled"
                 variant="link"
                 class="p-0"
-                @click.prevent="remove(addedTopic)"
+                @click.prevent="removeTopic(addedTopic)"
               >
                 <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
                 <span class="sr-only">Remove</span>
@@ -76,22 +73,22 @@ export default {
   name: 'AdvisingNoteTopics',
   mixins: [Context, Util],
   props: {
+    addTopic: {
+      type: Function,
+      required: true
+    },
     disabled: {
       required: false,
       type: Boolean
-    },
-    functionAdd: {
-      type: Function,
-      required: true
-    },
-    functionRemove: {
-      type: Function,
-      required: true
     },
     noteId: {
       default: undefined,
       type: Number,
       required: false
+    },
+    removeTopic: {
+      type: Function,
+      required: true
     },
     topics: {
       type: Array,
@@ -105,6 +102,11 @@ export default {
   computed: {
     notePrefix() {
       return this.noteId ? `note-${this.noteId}` : 'note'
+    }
+  },
+  watch: {
+    selected(option) {
+      this.addTopic(option)
     }
   },
   created() {
@@ -125,14 +127,14 @@ export default {
       this.selected = null
       if (topic) {
         this.setDisabled(topic, true)
-        this.functionAdd(topic)
+        this.addTopic(topic)
         this.putFocusNextTick('add-topic-select-list')
         this.$announcer.polite(`Topic ${topic} added.`)
       }
     },
     remove(topic) {
       this.setDisabled(topic, false)
-      this.functionRemove(topic)
+      this.removeTopic(topic)
       this.$announcer.polite(`Removed topic ${topic}.`)
       this.putFocusNextTick('add-topic-select-list')
     },
