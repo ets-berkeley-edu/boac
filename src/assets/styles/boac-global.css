@@ -191,8 +191,8 @@
   color: #cf1715;
 }
 .img-blur {
-  -webkit-filter: blur(10px);
-  filter: blur(10px);
+  -webkit-filter: blur(15px);
+  filter: blur(15px);
 }
 .inactive-info-icon {
   color: #d0021b;
