@@ -1,7 +1,4 @@
-import _ from 'lodash'
 import store from '@/store'
-import {addToSearchHistory, getMySearchHistory} from '@/api/search'
-import {getAllTopics} from '@/api/topics'
 
 const state = {
   author: null,
@@ -85,7 +82,6 @@ const mutations = {
     state.includeStudents = domain.includes('students')
   },
   resetAutocompleteInput: (state: any) => state.autocompleteInputResetKey++,
-  setDomain: (state: any, domain: string) => state.domain = domain,
   setAuthor: (state: any, value: string) => state.author = value,
   setFromDate: (state: any, value: string) => state.fromDate = value,
   setPostedBy: (state: any, value: string) => state.postedBy = value,
@@ -104,50 +100,9 @@ const mutations = {
   setQueryText: (state: any, queryText: string) => state.queryText = queryText
 }
 
-const actions = {
-  init: ({commit}, queryText?: string) => {
-    return new Promise<void>(resolve => {
-      const currentUser = store.getters['context/currentUser']
-      commit('resetAdvancedSearch', queryText)
-      getMySearchHistory().then(history => {
-        commit('setSearchHistory', history)
-        if (currentUser.canAccessAdvisingData) {
-          getAllTopics(true).then(rows => {
-            const topicOptions: any[] = []
-            _.each(rows, row => {
-              const topic = row['topic']
-              topicOptions.push({
-                text: topic,
-                value: topic
-              })
-            })
-            commit('setTopicOptions', topicOptions)
-            return resolve()
-          })
-        } else {
-          return resolve()
-        }
-      })
-
-    })
-  },
-  resetAdvancedSearch: ({commit}) => commit('resetAdvancedSearch'),
-  resetAutocompleteInput: ({commit}) => commit('resetAutocompleteInput'),
-  setAuthor: ({commit}, value: string) => commit('setAuthor', value),
-  setFromDate: ({commit}, value: string) => commit('setFromDate', value),
-  setIsFocusOnSearch: ({commit}, value: boolean) => commit('setIsFocusOnSearch', value),
-  updateSearchHistory: ({commit}, query: string) => {
-    query = _.trim(query)
-    if (query) {
-      addToSearchHistory(query).then(history => commit('setSearchHistory', history))
-    }
-  }
-}
-
 export default {
-  namespaced: true,
-  state,
   getters,
-  actions,
-  mutations
+  mutations,
+  namespaced: true,
+  state
 }

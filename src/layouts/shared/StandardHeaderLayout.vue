@@ -119,7 +119,10 @@ import Context from '@/mixins/Context'
 import HeaderBranding from '@/layouts/shared/HeaderBranding'
 import HeaderMenu from '@/components/header/HeaderMenu'
 import SearchSession from '@/mixins/SearchSession'
+import store from '@/store'
 import Util from '@/mixins/Util'
+import {getAllTopics} from '@/api/topics'
+import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {scrollToTop} from '@/utils'
 
 export default {
@@ -131,7 +134,22 @@ export default {
     showErrorPopover: false
   }),
   created() {
-    this.init(this.$route.query.q).then(() => {
+    store.commit('search/resetAdvancedSearch', this.$route.query.q)
+    getMySearchHistory().then(history => {
+      store.commit('search/setSearchHistory', history)
+      if (this.currentUser.canAccessAdvisingData) {
+        getAllTopics(true).then(rows => {
+          const topicOptions = []
+          this._each(rows, row => {
+            const topic = row['topic']
+            topicOptions.push({
+              text: topic,
+              value: topic
+            })
+          })
+          store.commit('search/setTopicOptions', topicOptions)
+        })
+      }
       document.addEventListener('keydown', this.hideError)
       document.addEventListener('click', this.hideError)
     })
@@ -176,7 +194,7 @@ export default {
           },
           this._noop
         )
-        this.updateSearchHistory(q)
+        addToSearchHistory(q).then(history => store.commit('search/setSearchHistory', history))
       } else {
         this.showErrorPopover = true
         this.$announcer.polite('Search input is required')
