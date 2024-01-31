@@ -34,7 +34,6 @@
 <script>
 import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {getUsersWithGroups} from '@/api/curated'
 
@@ -48,7 +47,7 @@ export default {
   created() {
     getUsersWithGroups().then(data => {
       this.rows = this._filter(data, row => row.groups.length)
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite('Everyone\'s Groups has loaded')
     })
   }

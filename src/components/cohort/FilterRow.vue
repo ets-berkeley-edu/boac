@@ -50,7 +50,7 @@
           :attributes="[{key: 'today', dot: true, dates: new Date()}]"
           is-range
           :model-config="{type: 'string', mask: 'YYYY-MM-DD'}"
-          @popoverDidShow="onPopoverShown"
+          @popover-did-show="onPopoverShown"
         >
           <template #default="{ inputValue, inputEvents }">
             <div class="d-flex pr-1">

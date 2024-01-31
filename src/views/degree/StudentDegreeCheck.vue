@@ -80,7 +80,6 @@ import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DuplicateExistingCourse from '@/components/degree/student/DuplicateExistingCourse'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import StudentDegreeCheckHeader from '@/components/degree/student/StudentDegreeCheckHeader'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
@@ -118,7 +117,7 @@ export default {
         this.student = data
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(`${this.degreeName} for ${this.student.name}`)
       })
     })

@@ -75,7 +75,6 @@
 <script>
 import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import Util from '@/mixins/Util'
 import {getStudentByUid} from '@/api/student'
@@ -102,7 +101,7 @@ export default {
       this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : this.student.name)
       getDegreeTemplates().then(data => {
         this.templates = data
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(`Add Degree Check for ${this.student.name}`)
       })
     })

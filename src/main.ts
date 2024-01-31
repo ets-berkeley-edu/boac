@@ -25,6 +25,7 @@ import {initGoogleAnalytics} from '@/ga'
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import {getServiceAnnouncement} from '@/api/config'
 
 const isVueAppDebugMode = _.trim(process.env.VUE_APP_DEBUG).toLowerCase() === 'true'
 
@@ -117,7 +118,7 @@ axios.get(`${apiBaseUrl}/api/profile/my`).then(response => {
     }
     store.commit('context/setConfig', config)
     initGoogleAnalytics().then(() => {
-      store.dispatch('context/loadServiceAnnouncement')
+      getServiceAnnouncement().then(data => store.commit('context/setServiceAnnouncement', data))
       // Mount BOA
       new Vue({
         router,

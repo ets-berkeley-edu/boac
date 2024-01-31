@@ -22,6 +22,8 @@ const decodeHtml = (snippet) => {
   }
 }
 
+const nextTick = Vue.nextTick
+
 export default {
   name: 'Util',
   methods: {
@@ -90,7 +92,7 @@ export default {
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
     moment,
-    nextTick: Vue.nextTick,
+    nextTick,
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin,
     pluralize: (noun, count, substitutions = {}, pluralSuffix = 's') => {

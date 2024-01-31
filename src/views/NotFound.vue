@@ -16,12 +16,13 @@
 </template>
 
 <script>
-import store from '@/store'
+import Context from '@/mixins/Context'
 
 export default {
   name: 'NotFound',
+  mixins: [Context],
   created() {
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
     this.$announcer.polite('Page not found')
   }
 }

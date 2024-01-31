@@ -25,7 +25,7 @@ export function publishAnnouncement(publish) {
     .post(`${utils.apiBaseUrl()}/api/service_announcement/publish`, {publish: publish})
     .then(response => {
       const data = response.data
-      store.commit('context/setAnnouncement', data)
+      store.commit('context/setServiceAnnouncement', data)
       return data
     })
     .catch(error => error)
@@ -36,7 +36,7 @@ export function updateAnnouncement(text) {
     .post(`${utils.apiBaseUrl()}/api/service_announcement/update`, {text: text})
     .then(response => {
       const data = response.data
-      store.commit('context/setAnnouncement', data)
+      store.commit('context/setServiceAnnouncement', data)
       return data
     })
     .catch(error => error)

@@ -47,7 +47,6 @@
 import Context from '@/mixins/Context'
 import NotesReport from '@/components/reports/NotesReport'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import UserReport from '@/components/reports/UserReport'
 import Util from '@/mixins/Util'
 import {getAvailableDepartmentReports} from '@/api/reports'
@@ -70,7 +69,7 @@ export default {
       if (this._includes(this._map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite('Reports loaded')
       } else {
         this.$router.push({path: '/404'})

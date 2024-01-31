@@ -297,7 +297,6 @@ import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAdmitBySid} from '@/api/admit'
 import {scrollToTop} from '@/utils'
-import store from '@/store'
 
 export default {
   name: 'AdmitStudent',
@@ -330,7 +329,7 @@ export default {
         this._assign(this.admit, admit)
         const pageTitle = this.currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(`${pageTitle} has loaded`)
       } else {
         this.$router.push({path: '/404'})

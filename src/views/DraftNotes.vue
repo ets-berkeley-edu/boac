@@ -122,7 +122,6 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import TimelineDate from '@/components/student/profile/TimelineDate'
 import Util from '@/mixins/Util'
 import {deleteNote, getMyDraftNotes} from '@/api/notes'
@@ -256,7 +255,7 @@ export default {
       return getMyDraftNotes().then(data => {
         this.myDraftNotes = data
         if (srAlert) {
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(srAlert)
         }
       })

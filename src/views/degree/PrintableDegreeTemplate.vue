@@ -119,7 +119,6 @@ import Context from '@/mixins/Context'
 import CoursesTable from '@/components/degree/CoursesTable.vue'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentBySid} from '@/api/student'
@@ -146,12 +145,12 @@ export default {
           this.student = data
           const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
           this.setPageTitle(`${studentName} - ${this.degreeName}`)
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(`${this.degreeName} for ${this.student.name}`)
         })
       } else {
         this.setPageTitle(this.degreeName)
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(`${this.degreeName} is ready to print.`)
       }
     })

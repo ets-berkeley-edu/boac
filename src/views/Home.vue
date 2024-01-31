@@ -39,7 +39,6 @@
 import Context from '@/mixins/Context'
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import Spinner from '@/components/util/Spinner.vue'
-import store from '@/store'
 import Util from '@/mixins/Util.vue'
 import {scrollToTop} from '@/utils'
 
@@ -54,7 +53,7 @@ export default {
   mounted() {
     this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
     this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
     this.$announcer.polite('Home loaded')
     scrollToTop()
   }

@@ -34,7 +34,6 @@ import Context from '@/mixins/Context'
 import DebugTemplate from '@/components/degree/DebugTemplate'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
@@ -55,7 +54,7 @@ export default {
         this.$router.push(`/student/degree/${id}`)
       } else {
         this.setPageTitle(this.degreeName)
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
         this.putFocusNextTick('add-unit-requirement')
       }

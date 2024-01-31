@@ -47,8 +47,9 @@
               :id="`event-${index}-student-name`"
               :class="{'demo-mode-blur': currentUser.inDemoMode}"
               :to="studentRoutePath(event.uid, currentUser.inDemoMode)"
-              v-html="lastNameFirst(event)"
-            ></router-link>
+            >
+              <span v-html="lastNameFirst(event)" />
+            </router-link>
             <div
               v-if="!event.uid"
               :id="`event-${index}-student-name-not-available`"

@@ -158,7 +158,6 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
@@ -213,7 +212,7 @@ export default {
     }
   },
   mounted() {
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
     this.$announcer.polite('Batch degree checks loaded')
   },
   methods: {
