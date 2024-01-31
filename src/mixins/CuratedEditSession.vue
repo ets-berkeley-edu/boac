@@ -1,10 +1,10 @@
 <script>
-import {mapActions, mapGetters} from 'vuex'
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'CuratedEditSession',
   computed: {
-    ...mapGetters('curatedEditSession', [
+    ...mapGetters('curatedGroup', [
       'curatedGroupId',
       'curatedGroupName',
       'domain',
@@ -15,16 +15,6 @@ export default {
       'referencingCohortIds',
       'students',
       'totalStudentCount'
-    ])
-  },
-  methods: {
-    ...mapActions('curatedEditSession', [
-      'addStudents',
-      'goToPage',
-      'init',
-      'removeStudent',
-      'renameCuratedGroup',
-      'setMode'
     ])
   }
 }

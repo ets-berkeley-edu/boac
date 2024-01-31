@@ -97,7 +97,9 @@ import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
+import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
+import {goToCuratedGroup} from '@/sessions/curated-group'
 import {scrollTo} from '@/utils'
 
 export default {
@@ -127,8 +129,9 @@ export default {
     anchor: () => location.hash
   },
   created() {
-    this.setMode(undefined)
-    this.init(parseInt(this.id)).then(group => {
+    store.commit('curatedGroup/resetMode')
+    store.commit('curatedGroup/setCuratedGroupId', parseInt(this.id))
+    goToCuratedGroup(this.curatedGroupId, 1).then(group => {
       if (group) {
         this.loadingComplete()
         this.$announcer.polite(this.getLoadedAlert())
@@ -143,7 +146,7 @@ export default {
       if (!this.loading) {
         this.loadingStart()
         this.$announcer.polite(`Sorting students by ${sortBy}`)
-        this.goToPage(1).then(() => {
+        goToCuratedGroup(this.curatedGroupId, 1).then(() => {
           this.loadingComplete()
           this.$announcer.polite(this.getLoadedAlert())
         })
@@ -152,7 +155,7 @@ export default {
     this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
         this.loadingStart()
-        this.goToPage(this.pageNumber).then(() => {
+        goToCuratedGroup(this.curatedGroupId, this.pageNumber).then(() => {
           this.loadingComplete()
           this.$announcer.polite(this.getLoadedAlert())
         })
@@ -172,16 +175,17 @@ export default {
   },
   methods: {
     bulkAddSids(sids) {
-      this.setMode(undefined)
+      store.commit('curatedGroup/resetMode')
       if (this._size(sids)) {
         this.$announcer.polite(`Adding ${sids.length} students`)
         store.commit('context/updateCurrentUserPreference', {key: 'sortBy', value: 'last_name'})
         this.loadingStart()
-        this.addStudents(sids).then(() => {
-          this.loadingComplete()
-          this.$announcer.polite(this.getLoadedAlert())
-          this.putFocusNextTick('curated-group-name')
-          this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
+        addStudentsToCuratedGroup(this.curatedGroupId, sids, true).then(() => {
+          goToCuratedGroup(this.curatedGroupId, 1).then(() => {
+            this.loadingComplete()
+            this.putFocusNextTick('curated-group-name')
+            this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
+          })
         })
       } else {
         this.$announcer.polite('Canceled bulk add of students')
@@ -195,9 +199,15 @@ export default {
     },
     onClickPagination(pageNumber) {
       this.loadingStart()
-      this.goToPage(pageNumber).then(() => {
+      goToCuratedGroup(this.curatedGroupId, pageNumber).then(() => {
         this.loadingComplete()
         this.$announcer.polite(this.getLoadedAlert())
+      })
+    },
+    removeStudent(sid) {
+      store.commit('curatedGroup/removeStudent', sid)
+      return removeFromCuratedGroup(this.curatedGroupId, sid).then(group => {
+        store.commit('curatedGroup/setTotalStudentCount', group.totalStudentCount)
       })
     }
   }
