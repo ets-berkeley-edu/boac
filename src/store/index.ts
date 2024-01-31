@@ -1,6 +1,6 @@
 import cohortEditSession from '@/store/modules/cohort-edit-session'
 import context from '@/store/modules/context'
-import curatedEditSession from '@/store/modules/curated-edit-session'
+import curatedGroup from '@/store/modules/curated-group'
 import degreeEditSession from '@/store/modules/degree-edit-session'
 import noteEditSession from '@/store/modules/note-edit-session'
 import search from '@/store/modules/search'
@@ -13,7 +13,7 @@ export default new Vuex.Store({
   modules: {
     cohortEditSession,
     context,
-    curatedEditSession,
+    curatedGroup,
     degreeEditSession,
     noteEditSession,
     search

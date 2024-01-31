@@ -236,9 +236,10 @@ import CuratedEditSession from '@/mixins/CuratedEditSession'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import ModalHeader from '@/components/util/ModalHeader'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator.vue'
-import {deleteCuratedGroup, downloadCuratedGroupCsv} from '@/api/curated'
+import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 
 export default {
@@ -281,16 +282,16 @@ export default {
       this.$announcer.polite(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
-      this.setMode('bulkAdd')
+      store.commit('curatedGroup/setMode', 'bulkAdd')
     },
     enterRenameMode() {
       this.renameInput = this.curatedGroupName
-      this.setMode('rename')
+      store.commit('curatedGroup/setMode', 'rename')
       this.putFocusNextTick('rename-input')
     },
     exitRenameMode() {
       this.renameInput = undefined
-      this.setMode(undefined)
+      store.commit('curatedGroup/resetMode')
       this.putFocusNextTick('curated-group-name')
     },
     exportGroup(csvColumnsSelected) {
@@ -323,8 +324,9 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-input')
       } else {
-        this.renameCuratedGroup(this.renameInput).then(() => {
-          this.setPageTitle(this.renameInput)
+        renameCuratedGroup(this.curatedGroupId, this.renameInput).then(curatedGroup => {
+          store.commit('curatedGroup/setCuratedGroupName', curatedGroup.name)
+          this.setPageTitle(curatedGroup.name)
           this.exitRenameMode()
           this.putFocusNextTick('curated-group-name')
         })
