@@ -24,10 +24,8 @@ export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
         store.commit('curatedGroup/setReferencingCohortIds', group.referencingCohortIds)
         store.commit('curatedGroup/setStudents', group.students)
         store.commit('curatedGroup/setTotalStudentCount', group.totalStudentCount)
-        return resolve(group)
-      } else {
-        return resolve(null)
       }
+      resolve(group)
     })
   })
 }

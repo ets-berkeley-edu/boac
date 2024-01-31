@@ -1,7 +1,7 @@
 <script>
 import store from '@/store'
 import Vue from 'vue'
-import {mapActions, mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 import {oxfordJoin} from '@/utils'
 
 export default {
@@ -101,14 +101,12 @@ export default {
     }
   },
   methods: {
-    ...mapActions('search', [
-      'init',
+    ...mapMutations('search', [
       'resetAdvancedSearch',
       'resetAutocompleteInput',
       'setAuthor',
       'setFromDate',
-      'setIsFocusOnSearch',
-      'updateSearchHistory'
+      'setIsFocusOnSearch'
     ])
   }
 }
