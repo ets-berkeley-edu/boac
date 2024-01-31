@@ -84,7 +84,7 @@ import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import Util from '@/mixins/Util'
 import {
-  addStudents,
+  addStudentsToCuratedGroup,
   createCuratedGroup,
   removeFromCuratedGroup
 } from '@/api/curated'
@@ -180,7 +180,7 @@ export default {
           this.putFocusNextTick(this.dropdownId, 'button')
           this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
         }
-        addStudents(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
+        addStudentsToCuratedGroup(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
     },
     onCreateCuratedGroup(name) {
