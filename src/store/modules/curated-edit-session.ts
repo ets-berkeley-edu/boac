@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import {addStudents, getCuratedGroup, removeFromCuratedGroup, renameCuratedGroup} from '@/api/curated'
+import {addStudentsToCuratedGroup, getCuratedGroup, removeFromCuratedGroup, renameCuratedGroup} from '@/api/curated'
 import store from '@/store'
 
 const $_goToPage = ({commit, state}, pageNumber: number) => {
@@ -87,7 +87,7 @@ const mutations = {
 const actions = {
   addStudents: ({commit, state}, sids: string[]) => {
     return new Promise(resolve => {
-      addStudents(state.curatedGroupId, sids, true).then(() => {
+      addStudentsToCuratedGroup(state.curatedGroupId, sids, true).then(() => {
         return $_goToPage({commit, state}, 1).then(resolve)
       })
     })

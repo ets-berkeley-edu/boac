@@ -93,7 +93,7 @@
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import {addStudents, createCuratedGroup} from '@/api/curated'
+import {addStudentsToCuratedGroup, createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
 
 export default {
@@ -176,7 +176,7 @@ export default {
       const done = () => {
         this.isSaving = false
       }
-      addStudents(group.id, this.sids)
+      addStudentsToCuratedGroup(group.id, this.sids)
         .then(() => {
           this.afterAddStudents(group)
         }).finally(() => setTimeout(done, 2000))

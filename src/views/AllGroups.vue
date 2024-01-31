@@ -35,7 +35,7 @@
 import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import {getUsersWithGroups} from '@/api/curated'
+import {getUsersWithCuratedGroups} from '@/api/curated'
 
 export default {
   name: 'AllGroups',
@@ -45,7 +45,7 @@ export default {
     rows: []
   }),
   created() {
-    getUsersWithGroups().then(data => {
+    getUsersWithCuratedGroups().then(data => {
       this.rows = this._filter(data, row => row.groups.length)
       this.loadingComplete()
       this.$announcer.polite('Everyone\'s Groups has loaded')
