@@ -42,7 +42,6 @@
 
 <script>
 import Context from '@/mixins/Context'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {createDegreeTemplate, getDegreeTemplates} from '@/api/degree'
 
@@ -60,7 +59,7 @@ export default {
     }
   },
   mounted() {
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
     this.$announcer.polite('Create degree template')
   },
   methods: {

@@ -1,6 +1,6 @@
 <script>
 import store from '@/store'
-import {mapActions, mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'Context',
@@ -19,9 +19,11 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('context', [
+    ...mapMutations('context', [
       'dismissFooterAlert',
       'dismissServiceAnnouncement',
+      'loadingComplete',
+      'loadingStart',
       'restoreServiceAnnouncement'
     ]),
     broadcast: (eventType, data) => store.commit('context/broadcast', {eventType, data}),

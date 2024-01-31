@@ -2,7 +2,6 @@ import _ from 'lodash'
 import mitt from 'mitt'
 import store from '@/store'
 import Vue from 'vue'
-import {getServiceAnnouncement} from '@/api/config'
 
 const state = {
   announcement: undefined,
@@ -65,9 +64,9 @@ const mutations = {
   },
   setCurrentUser: (state: any, currentUser: any) => state.currentUser = currentUser,
   setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
+  setServiceAnnouncement: (state: any, data: any) => state.announcement = data,
   removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
-  setAnnouncement: (state: any, data: any) => state.announcement = data,
   setConfig: (state: any, data: any) => state.config = data,
   setDemoMode: (state: any, inDemoMode: any): void => state.currentUser.inDemoMode = inDemoMode,
   setMyDraftNoteCount: (state: any, count: number) => state.currentUser.myDraftNoteCount = count,
@@ -82,19 +81,9 @@ const mutations = {
   }
 }
 
-const actions = {
-  dismissFooterAlert: ({commit}) => commit('dismissFooterAlert'),
-  dismissServiceAnnouncement: ({commit}) => commit('dismissServiceAnnouncement'),
-  loadingComplete: ({commit}) => commit('loadingComplete'),
-  loadingStart: ({commit}) => commit('loadingStart'),
-  loadServiceAnnouncement: ({commit}) => getServiceAnnouncement().then(data => commit('setAnnouncement', data)),
-  restoreServiceAnnouncement: ({commit}) => commit('restoreServiceAnnouncement')
-}
-
 export default {
   namespaced: true,
   state,
   getters,
-  actions,
   mutations
 }

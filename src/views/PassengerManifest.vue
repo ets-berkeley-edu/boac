@@ -34,7 +34,6 @@
 import Context from '@/mixins/Context'
 import EditUserProfileModal from '@/components/admin/EditUserProfileModal'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Users from '@/components/admin/Users'
 import Util from '@/mixins/Util'
 import {getDepartments} from '@/api/user'
@@ -50,7 +49,7 @@ export default {
   created() {
     getDepartments(true).then(departments => {
       this.departments = departments
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite('Passenger Manifest has loaded')
     })
   },

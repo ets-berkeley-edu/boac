@@ -40,7 +40,6 @@ import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import NoteEditSession from '@/mixins/NoteEditSession'
-import store from '@/store'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
@@ -86,7 +85,7 @@ export default {
       this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : student.name)
       this._assign(this.student, student)
       this._each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-      store.commit('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite(`${this.student.name} loaded`)
     })
   },

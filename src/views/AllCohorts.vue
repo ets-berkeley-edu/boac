@@ -34,7 +34,6 @@
 <script>
 import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {getUsersWithCohorts} from '@/api/cohort'
 
@@ -50,7 +49,7 @@ export default {
     getUsersWithCohorts().then(data => {
       this.rows = this._filter(data, row => row.cohorts.length)
       this.includesAdmittedStudents = this._find(this._flatten(this._map(this.rows, 'cohorts')), g => g.domain === 'admitted_students')
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite('Everyone\'s Cohorts page has loaded')
     })
   }

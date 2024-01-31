@@ -28,7 +28,6 @@ import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import MyProfile from '@/components/admin/MyProfile'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 
 export default {
@@ -40,7 +39,7 @@ export default {
   },
   mixins: [Context, Util],
   mounted() {
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
     this.$announcer.polite('Profile page has loaded')
   }
 }

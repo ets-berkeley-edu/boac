@@ -165,7 +165,6 @@ import Matrix from '@/components/matrix/Matrix'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {getSection} from '@/api/course'
 import {hasMatrixPlottableProperty} from '@/berkeley'
@@ -311,7 +310,7 @@ export default {
         } else {
           message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
         }
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(message)
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }

@@ -86,7 +86,6 @@ import SearchSession from '@/mixins/SearchSession'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortableCourses from '@/components/search/SortableCourses'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import StudentResults from '@/components/search/StudentResults'
 import Util from '@/mixins/Util'
 import {search, searchAdmittedStudents} from '@/api/search'
@@ -188,7 +187,7 @@ export default {
         })
       })
         .then(() => {
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(this.describeResults())
           const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'

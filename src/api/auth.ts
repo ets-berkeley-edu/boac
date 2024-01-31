@@ -1,8 +1,8 @@
-import _ from 'lodash'
 import axios from 'axios'
 import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
+import {getServiceAnnouncement} from '@/api/config'
 import {initGoogleAnalytics} from '@/ga'
 
 export function devAuthLogIn(uid: string, password: string) {
@@ -13,7 +13,11 @@ export function devAuthLogIn(uid: string, password: string) {
     })
     .then(response => {
       store.commit('context/setCurrentUser', Vue.observable(response.data))
-      initGoogleAnalytics().then(() => store.dispatch('context/loadServiceAnnouncement').then(_.noop))
+      initGoogleAnalytics().then(() => {
+        getServiceAnnouncement().then(data => {
+          store.commit('context/setServiceAnnouncement', data)
+        })
+      })
     }, error => error)
 }
 

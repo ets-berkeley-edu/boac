@@ -130,7 +130,7 @@ export default {
     this.setMode(undefined)
     this.init(parseInt(this.id)).then(group => {
       if (group) {
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
         this.putFocusNextTick('curated-group-name')
@@ -141,19 +141,19 @@ export default {
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     this.setEventHandler(`${sortByKey}-user-preference-change`, sortBy => {
       if (!this.loading) {
-        store.dispatch('context/loadingStart')
+        this.loadingStart()
         this.$announcer.polite(`Sorting students by ${sortBy}`)
         this.goToPage(1).then(() => {
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(this.getLoadedAlert())
         })
       }
     })
     this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
-        store.dispatch('context/loadingStart')
+        this.loadingStart()
         this.goToPage(this.pageNumber).then(() => {
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(this.getLoadedAlert())
         })
       }
@@ -176,9 +176,9 @@ export default {
       if (this._size(sids)) {
         this.$announcer.polite(`Adding ${sids.length} students`)
         store.commit('context/updateCurrentUserPreference', {key: 'sortBy', value: 'last_name'})
-        store.dispatch('context/loadingStart')
+        this.loadingStart()
         this.addStudents(sids).then(() => {
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(this.getLoadedAlert())
           this.putFocusNextTick('curated-group-name')
           this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
@@ -194,19 +194,12 @@ export default {
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
-      store.dispatch('context/loadingStart')
+      this.loadingStart()
       this.goToPage(pageNumber).then(() => {
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(this.getLoadedAlert())
       })
     }
   }
 }
 </script>
-
-<style scoped>
-h3 {
-  color: #666;
-  font-size: 18px;
-}
-</style>

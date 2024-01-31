@@ -73,7 +73,6 @@ import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
 import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
 
@@ -99,7 +98,7 @@ export default {
     })
     getVersion().then(data => {
       this.boa = data
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite('Flight Deck has loaded')
     })
   }

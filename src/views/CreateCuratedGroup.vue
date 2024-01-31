@@ -29,7 +29,6 @@
 import Context from '@/mixins/Context'
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
 import CuratedGroupBulkAdd from '@/components/curated/CuratedGroupBulkAdd.vue'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {createCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain} from '@/berkeley'
@@ -46,7 +45,7 @@ export default {
   }),
   created() {
     this.domain = this.$route.query.domain || 'default'
-    store.dispatch('context/loadingComplete')
+    this.loadingComplete()
   },
   methods: {
     bulkAddSids(sids) {

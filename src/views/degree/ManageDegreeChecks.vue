@@ -217,7 +217,6 @@ import CloneTemplateModal from '@/components/degree/CloneTemplateModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
 
@@ -247,7 +246,7 @@ export default {
     getDegreeTemplates().then(data => {
       this.degreeTemplates = data
       this.successMessage = this.$route.query.m
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite('Managing Degree Checks loaded')
     })
   },

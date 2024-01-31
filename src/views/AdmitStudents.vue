@@ -104,7 +104,6 @@ import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import Util from '@/mixins/Util'
 import {getAllAdmits} from '@/api/admit'
 import {downloadCsv} from '@/api/cohort'
@@ -192,7 +191,7 @@ export default {
         if (response) {
           this.admits = this._get(response, 'students')
           this.totalAdmitCount = this._get(response, 'totalStudentCount')
-          store.dispatch('context/loadingComplete')
+          this.loadingComplete()
           this.$announcer.polite(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {

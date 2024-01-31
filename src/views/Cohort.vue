@@ -103,7 +103,6 @@ import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
-import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
@@ -155,7 +154,7 @@ export default {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
-      store.dispatch('context/loadingComplete')
+      this.loadingComplete()
       this.$announcer.polite(this.getLoadedAlert())
     } else {
       const domain = this.$route.query.domain || 'default'
@@ -167,7 +166,7 @@ export default {
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
-        store.dispatch('context/loadingComplete')
+        this.loadingComplete()
         this.$announcer.polite(this.getLoadedAlert())
         this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
