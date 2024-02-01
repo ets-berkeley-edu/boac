@@ -60,6 +60,7 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import Util from '@/mixins/Util'
+import {applyFilters} from '@/store/utils/cohort'
 
 export default {
   name: 'ApplyAndSaveButtons',
@@ -79,10 +80,13 @@ export default {
       this.broadcast('cohort-apply-filters')
       this.isPerforming = 'search'
       this.$announcer.polite('Searching for students')
-      this.applyFilters({
-        orderBy: this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
-        termId: this._get(this.currentUser.preferences, 'termId')
-      }).then(() => {
+      this.setModifiedSinceLastSearch(false)
+      const orderBy = this._get(
+        this.currentUser.preferences,
+        this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      )
+      const termId = this._get(this.currentUser.preferences, 'termId')
+      applyFilters(orderBy, termId).then(() => {
         this.putFocusNextTick('cohort-results-header')
         this.$announcer.polite(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.isPerforming = null

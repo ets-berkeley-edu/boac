@@ -99,7 +99,7 @@ import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
-import {goToCuratedGroup} from '@/sessions/curated-group'
+import {goToCuratedGroup} from '@/store/utils/curated-group'
 import {scrollTo} from '@/utils'
 
 export default {

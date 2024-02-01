@@ -103,9 +103,11 @@ import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import SortBy from '@/components/student/SortBy'
 import Spinner from '@/components/util/Spinner'
+import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
+import {applyFilters, updateFilterOptions} from '@/store/utils/cohort'
 import {scrollToTop} from '@/utils'
 import {translateSortByOption} from '@/berkeley'
 
@@ -157,11 +159,11 @@ export default {
       this.loadingComplete()
       this.$announcer.polite(this.getLoadedAlert())
     } else {
+      const cohortId = this.toInt(this._get(this.$route, 'params.id'))
       const domain = this.$route.query.domain || 'default'
-      const id = this.toInt(this._get(this.$route, 'params.id'))
       const orderBy = this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
       const termId = this._get(this.currentUser.preferences, 'termId')
-      this.init({domain, id, orderBy, termId}).then(() => {
+      this.init(cohortId, domain, orderBy, termId).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
@@ -193,9 +195,42 @@ export default {
         return `Cohort ${this.cohortName || ''}, sorted by ${translateSortByOption(this.currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
+    init(cohortId, domain, orderBy, termId) {
+      return new Promise(resolve => {
+        this.resetSession()
+        this.setCompactView(!!cohortId)
+        this.setModifiedSinceLastSearch(undefined)
+        store.commit('context/updateCurrentUserPreference', {
+          key: domain === 'admitted_students' ? 'admitSortBy' : 'sortBy',
+          value: orderBy
+        })
+        store.commit('context/updateCurrentUserPreference', {key: 'termId', value: termId})
+
+        if (cohortId) {
+          store.dispatch('cohort/loadCohort', {id: cohortId, orderBy, termId}).then(resolve)
+        } else {
+          if (domain) {
+            this.setDomain(domain)
+          } else {
+            throw new TypeError('\'domain\' is required when creating a new cohort.')
+          }
+          updateFilterOptions(this.domain, this.cohortOwner, []).then(() => {
+            this.resetSession()
+            this.stashOriginalFilters()
+            resolve()
+          })
+        }
+      })
+    },
     goToPage(page) {
       this.setPagination(page)
       this.onPageNumberChange().then(scrollToTop)
+    },
+    onPageNumberChange() {
+      return applyFilters(
+        this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        this._get(this.currentUser.preferences, 'termId')
+      )
     },
     setPagination(page) {
       this.pageNumber = page
