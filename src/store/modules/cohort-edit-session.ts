@@ -1,8 +1,4 @@
 import {cloneDeep, find, isNil, size} from 'lodash'
-import {
-  saveCohort,
-} from '@/api/cohort'
-import {loadCohort, updateFilterOptions} from '@/store/utils/cohort'
 
 const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
@@ -85,10 +81,7 @@ const mutations = {
   stashOriginalFilters: (state: any) => state.originalFilters = cloneDeep(state.filters),
   toggleCompactView: (state: any) => state.isCompactView = !state.isCompactView,
   updateFilterOptions: (state: any, filterOptionGroups: any[]) => state.filterOptionGroups = filterOptionGroups,
-  updateExistingFilter: (state: any, {index, updatedFilter}) => {
-    state.filters[index] = updatedFilter
-    state.isModifiedSinceLastSearch = true
-  },
+  updateExistingFilter: (state: any, {index, updatedFilter}) => state.filters[index] = updatedFilter,
   updateSession: (state: any, {cohort, filters, students, totalStudentCount}) => {
     state.editMode = null
     state.cohortId = cohort && cohort.id
@@ -110,68 +103,9 @@ const mutations = {
   }
 }
 
-const actions = {
-  renameCohort: ({commit, state}, name: string) => {
-    return new Promise(resolve => {
-      commit('renameCohort', name)
-      saveCohort(
-        state.cohortId,
-        state.cohortName,
-        state.filters
-      ).then(resolve)
-    })
-  },
-  removeFilter: ({commit, state}, index: number) => {
-    return new Promise(resolve => {
-      commit('removeFilter', index)
-      commit('setModifiedSinceLastSearch', true)
-      updateFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(resolve)
-    })
-  },
-  resetFiltersToLastApply: ({commit, state}) => {
-    return new Promise(resolve => {
-      commit('restoreOriginalFilters')
-      commit('setEditMode', null)
-      commit('setModifiedSinceLastSearch', false)
-      updateFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(resolve)
-    })
-  },
-  resetFiltersToSaved: ({commit, state}, cohortId) => {
-    commit('setCurrentPage', 0)
-    commit('setModifiedSinceLastSearch', null)
-    commit('setEditMode', 'apply')
-    return new Promise<void>(resolve => {
-      loadCohort(cohortId, state.orderBy, state.termId).then(() => {
-        commit('setEditMode', null)
-        resolve()
-      })
-    })
-  },
-  saveExistingCohort: ({commit, state}) => {
-    return new Promise<void>(resolve => {
-      saveCohort(
-        state.cohortId,
-        state.cohortName,
-        state.filters
-      ).then(() => {
-        commit('setModifiedSinceLastSearch', null)
-        resolve()
-      })
-    })
-  },
-  updateExistingFilter: ({commit, state}, {index, updatedFilter}: any) => {
-    return new Promise(resolve => {
-      commit('updateExistingFilter', {index, updatedFilter})
-      commit('setModifiedSinceLastSearch', true)
-      updateFilterOptions(state.domain, getters.cohortOwner(state), state.filters).then(resolve)
-    })
-  }
-}
-
 export default {
-  namespaced: true,
-  state,
   getters,
   mutations,
-  actions
+  namespaced: true,
+  state
 }
