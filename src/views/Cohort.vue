@@ -107,7 +107,7 @@ import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
-import {applyFilters, updateFilterOptions} from '@/store/utils/cohort'
+import {applyFilters, loadCohort, updateFilterOptions} from '@/store/utils/cohort'
 import {scrollToTop} from '@/utils'
 import {translateSortByOption} from '@/berkeley'
 
@@ -207,7 +207,7 @@ export default {
         store.commit('context/updateCurrentUserPreference', {key: 'termId', value: termId})
 
         if (cohortId) {
-          store.dispatch('cohort/loadCohort', {id: cohortId, orderBy, termId}).then(resolve)
+          loadCohort(cohortId, orderBy, termId).then(resolve)
         } else {
           if (domain) {
             this.setDomain(domain)

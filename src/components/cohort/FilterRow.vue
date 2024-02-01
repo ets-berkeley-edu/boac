@@ -422,8 +422,8 @@ export default {
       this._unset(this.filter, 'value.start')
       this._unset(this.filter, 'value.end')
       this.addFilter(this.filter)
+      this.setModifiedSinceLastSearch(true)
       this.reset()
-      this.putFocusNewFilterDropdown()
     },
     onClickCancelEdit() {
       this.$announcer.polite('Canceled')
