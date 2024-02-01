@@ -211,7 +211,7 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
+import {deleteCohort, downloadCohortCsv, downloadCsv, saveCohort} from '@/api/cohort'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 
 export default {
@@ -306,7 +306,8 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-cohort-input')
       } else {
-        this.renameCohort(this.name).then(() => {
+        this.renameCohort(name)
+        saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
           this.$announcer.polite(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
           this.putFocusNextTick('cohort-name')

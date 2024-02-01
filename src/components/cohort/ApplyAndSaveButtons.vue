@@ -61,8 +61,8 @@ import Context from '@/mixins/Context'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import {applyFilters} from '@/store/utils/cohort'
-import {createCohort} from '@/api/cohort'
+import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/store/utils/cohort'
+import {createCohort, saveCohort} from '@/api/cohort'
 
 export default {
   name: 'ApplyAndSaveButtons',
@@ -119,11 +119,15 @@ export default {
     },
     resetToLastApply() {
       this.$announcer.polite('Resetting filters')
-      this.resetFiltersToLastApply()
+      resetFiltersToLastApply()
     },
     resetToSaved() {
       this.isPerforming = 'search'
-      this.resetFiltersToSaved(this.cohortId).then(() => {
+      this.setCurrentPage(0)
+      this.setModifiedSinceLastSearch(null)
+      this.setEditMode('apply')
+      loadCohort(this.cohortId, this.orderBy, this.termId).then(() => {
+        this.setEditMode(null)
         this.$announcer.polite('Filters reset')
         this.isPerforming = null
       })
@@ -132,7 +136,8 @@ export default {
       if (this.cohortId) {
         this.$announcer.polite(`Saving changes to cohort ${this.cohortName}`)
         this.isPerforming = 'save'
-        this.saveExistingCohort().then(() => {
+        saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
+          this.setModifiedSinceLastSearch(null)
           this.savedCohortCallback(`Cohort "${this.cohortName}" saved`)
         })
       } else {

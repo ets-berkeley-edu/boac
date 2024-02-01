@@ -248,6 +248,7 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import Util from '@/mixins/Util'
+import {updateFilterOptions} from '@/store/utils/cohort'
 
 export default {
   name: 'FilterRow',
@@ -454,7 +455,9 @@ export default {
       if (this.isUX('range')) {
         this.updateRangeFilter()
       }
-      this.updateExistingFilter({index: this.position, updatedFilter: this.filter}).then(() => {
+      this.updateExistingFilter({index: this.position, updatedFilter: this.filter})
+      this.setModifiedSinceLastSearch(true)
+      updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
         this.$announcer.polite(`${this.filter.label.primary} filter updated`)
@@ -594,6 +597,7 @@ export default {
     },
     remove() {
       this.removeFilter(this.position)
+      updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(this._noop)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
       this.$announcer.polite(`${this.filter.label.primary} filter removed`)

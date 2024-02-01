@@ -75,3 +75,16 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
     })
   })
 }
+
+export function resetFiltersToLastApply() {
+  return new Promise(resolve => {
+    store.commit('cohort/restoreOriginalFilters')
+    store.commit('cohort/setEditMode', null)
+    store.commit('cohort/setModifiedSinceLastSearch', false)
+
+    const cohortOwner = store.getters['cohort/cohortOwner']
+    const domain = store.getters['cohort/domain']
+    const filters = store.getters['cohort/filters']
+    updateFilterOptions(domain, cohortOwner, filters).then(resolve)
+  })
+}

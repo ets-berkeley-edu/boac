@@ -107,7 +107,7 @@ import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
-import {applyFilters, loadCohort, updateFilterOptions} from '@/store/utils/cohort'
+import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/store/utils/cohort'
 import {scrollToTop} from '@/utils'
 import {translateSortByOption} from '@/berkeley'
 
@@ -232,6 +232,7 @@ export default {
         this._get(this.currentUser.preferences, 'termId')
       )
     },
+    resetFiltersToLastApply,
     setPagination(page) {
       this.pageNumber = page
       this.setCurrentPage(this.pageNumber)

@@ -1,5 +1,5 @@
 <script>
-import {mapActions, mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'CohortEditSession',
@@ -24,17 +24,12 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('cohort', [
-      'removeFilter',
-      'renameCohort',
-      'resetFiltersToLastApply',
-      'resetFiltersToSaved',
-      'saveExistingCohort',
-      'updateExistingFilter'
-    ]),
     ...mapMutations('cohort', [
       'addFilter',
+      'removeFilter',
+      'renameCohort',
       'resetSession',
+      'restoreOriginalFilters',
       'setCompactView',
       'setCurrentPage',
       'setDomain',
@@ -42,6 +37,7 @@ export default {
       'setModifiedSinceLastSearch',
       'stashOriginalFilters',
       'toggleCompactView',
+      'updateExistingFilter'
     ])
   }
 }
