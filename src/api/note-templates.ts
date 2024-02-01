@@ -14,7 +14,7 @@ export function getMyNoteTemplates() {
 
 export function createNoteTemplate(noteId: number, title: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note_template/create`, {noteId, title}).then(template => {
-    store.dispatch('noteEditSession/loadNoteTemplates')
+    store.dispatch('note/loadNoteTemplates')
     $_track('create')
     return template
   })
@@ -23,14 +23,14 @@ export function createNoteTemplate(noteId: number, title: string) {
 export function deleteNoteTemplate(templateId: number) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`)
-    .then(() => store.dispatch('noteEditSession/loadNoteTemplates', templateId))
+    .then(() => store.dispatch('note/loadNoteTemplates', templateId))
 }
 
 export function renameNoteTemplate(noteTemplateId: number, title: string) {
   const data = {id: noteTemplateId, title: title}
   return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(response => {
     const template = response.data
-    store.dispatch('noteEditSession/onUpdateTemplate', template)
+    store.dispatch('note/onUpdateTemplate', template)
     $_track('update')
     return template
   })
@@ -55,7 +55,7 @@ export function updateNoteTemplate(
   }
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/update', data).then(template => {
-    store.dispatch('noteEditSession/onUpdateTemplate', template)
+    store.dispatch('note/onUpdateTemplate', template)
     $_track('update')
     return template
   })

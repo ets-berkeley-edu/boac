@@ -1,12 +1,13 @@
 <script>
 import _ from 'lodash'
 import store from '@/store'
-import {mapActions, mapGetters} from 'vuex'
+import {mapActions, mapGetters, mapMutations} from 'vuex'
+import {updateAdvisingNote} from '@/store/utils/note'
 
 export default {
   name: 'NoteEditSession',
   computed: {
-    ...mapGetters('noteEditSession', [
+    ...mapGetters('note', [
       'addedCohorts',
       'addedCuratedGroups',
       'autoSaveJob',
@@ -31,11 +32,10 @@ export default {
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },
   methods: {
-    ...mapActions('noteEditSession', [
+    ...mapActions('note', [
       'addAttachments',
       'addCohort',
       'addCuratedGroup',
-      'addSid',
       'addSidList',
       'addTopic',
       'applyTemplate',
@@ -50,7 +50,6 @@ export default {
       'removeTopic',
       'resetModel',
       'setAutoSaveJob',
-      'setBody',
       'setContactType',
       'setFocusLockDisabled',
       'setIsDraft',
@@ -60,16 +59,19 @@ export default {
       'setMode',
       'setModel',
       'setSetDate',
-      'setSubject',
-      'updateAdvisingNote'
+      'setSubject'
+    ]),
+    ...mapMutations('note', [
+      'addSid',
+      'setBody',
     ]),
     autoSaveDraftNote() {
       this.clearAutoSaveJob()
       if (this.model.isDraft) {
-        store.commit('noteEditSession/isAutoSavingDraftNote', true)
-        this.updateAdvisingNote().then(note => {
-          store.commit('noteEditSession/setModelId', note.id)
-          setTimeout(() => store.commit('noteEditSession/isAutoSavingDraftNote', false), 2000)
+        store.commit('note/isAutoSavingDraftNote', true)
+        updateAdvisingNote().then(note => {
+          store.commit('note/setModelId', note.id)
+          setTimeout(() => store.commit('note/isAutoSavingDraftNote', false), 2000)
           this.scheduleAutoSaveJob()
         })
       }
@@ -88,7 +90,7 @@ export default {
       this.setAutoSaveJob(jobId)
     },
     setSubjectPerEvent(event) {
-      store.dispatch('noteEditSession/setSubject', _.isString(event) ? event : event.target.value)
+      store.dispatch('note/setSubject', _.isString(event) ? event : event.target.value)
     }
   }
 }
