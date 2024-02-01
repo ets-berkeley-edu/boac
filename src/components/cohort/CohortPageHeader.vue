@@ -211,7 +211,7 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import router from '@/router'
 import Util from '@/mixins/Util'
 import Validator from '@/mixins/Validator'
-import {deleteCohort} from '@/api/cohort'
+import {deleteCohort, downloadCohortCsv, downloadCsv} from '@/api/cohort'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 
 export default {
@@ -276,6 +276,16 @@ export default {
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false
         router.push({path: '/'})
+      })
+    },
+    downloadCsvPerFilters(csvColumnsSelected) {
+      return new Promise(resolve => {
+        const isReadOnly = this.cohortId && !this.isOwnedByCurrentUser
+        if (isReadOnly) {
+          downloadCohortCsv(this.cohortId, this.cohortName, csvColumnsSelected).then(resolve)
+        } else {
+          downloadCsv(this.domain, this.cohortName, this.filters, csvColumnsSelected).then(resolve)
+        }
       })
     },
     exportStudents(csvColumnsSelected) {

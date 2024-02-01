@@ -59,8 +59,10 @@
 import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
+import store from '@/store'
 import Util from '@/mixins/Util'
 import {applyFilters} from '@/store/utils/cohort'
+import {createCohort} from '@/api/cohort'
 
 export default {
   name: 'ApplyAndSaveButtons',
@@ -100,7 +102,15 @@ export default {
       this.showCreateModal = false
       this.isPerforming = 'save'
       this.$announcer.polite('Creating cohort')
-      this.createCohort(name).then(() => {
+      createCohort(this.domain, name, this.filters).then(cohort => {
+        store.commit('cohort/updateSession', {
+          cohort,
+          filters: this.filters,
+          students: this.students,
+          totalStudentCount: cohort.totalStudentCount
+        })
+        store.commit('cohort/stashOriginalFilters')
+        store.commit('cohort/setModifiedSinceLastSearch', null)
         this.savedCohortCallback(`Cohort "${name}" created`)
         this.setPageTitle(this.cohortName)
         history.pushState({}, null, `/cohort/${this.cohortId}`)

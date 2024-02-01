@@ -25,9 +25,6 @@ export default {
   },
   methods: {
     ...mapActions('cohort', [
-      'addFilter',
-      'createCohort',
-      'downloadCsvPerFilters',
       'removeFilter',
       'renameCohort',
       'resetFiltersToLastApply',
@@ -36,6 +33,7 @@ export default {
       'updateExistingFilter'
     ]),
     ...mapMutations('cohort', [
+      'addFilter',
       'resetSession',
       'setCompactView',
       'setCurrentPage',
