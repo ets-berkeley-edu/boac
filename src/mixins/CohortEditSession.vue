@@ -1,10 +1,10 @@
 <script>
-import {mapActions, mapGetters} from 'vuex'
+import {mapActions, mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'CohortEditSession',
   computed: {
-    ...mapGetters('cohortEditSession', [
+    ...mapGetters('cohort', [
       'cohortId',
       'cohortName',
       'cohortOwner',
@@ -24,22 +24,26 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('cohortEditSession', [
+    ...mapActions('cohort', [
       'addFilter',
-      'applyFilters',
       'createCohort',
       'downloadCsvPerFilters',
-      'init',
-      'onPageNumberChange',
       'removeFilter',
       'renameCohort',
       'resetFiltersToLastApply',
       'resetFiltersToSaved',
       'saveExistingCohort',
-      'setCurrentPage',
-      'setEditMode',
-      'toggleCompactView',
       'updateExistingFilter'
+    ]),
+    ...mapMutations('cohort', [
+      'resetSession',
+      'setCompactView',
+      'setCurrentPage',
+      'setDomain',
+      'setEditMode',
+      'setModifiedSinceLastSearch',
+      'stashOriginalFilters',
+      'toggleCompactView',
     ])
   }
 }

@@ -54,6 +54,7 @@ const mutations = {
     state.loading = true
     state.loadingStartTime = new Date().getTime()
   },
+  removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   removeMyCohort: (state: any, cohortId: number) => {
     const indexOf = state.currentUser.myCohorts.findIndex(cohort => cohort.id === cohortId)
     state.currentUser.myCohorts.splice(indexOf, 1)
@@ -62,14 +63,13 @@ const mutations = {
     const indexOf = state.currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === curatedGroupId)
     state.currentUser.myCuratedGroups.splice(indexOf, 1)
   },
-  setCurrentUser: (state: any, currentUser: any) => state.currentUser = currentUser,
-  setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
-  setServiceAnnouncement: (state: any, data: any) => state.announcement = data,
-  removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   restoreServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = false,
   setConfig: (state: any, data: any) => state.config = data,
+  setCurrentUser: (state: any, currentUser: any) => state.currentUser = currentUser,
   setDemoMode: (state: any, inDemoMode: any): void => state.currentUser.inDemoMode = inDemoMode,
+  setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
   setMyDraftNoteCount: (state: any, count: number) => state.currentUser.myDraftNoteCount = count,
+  setServiceAnnouncement: (state: any, data: any) => state.announcement = data,
   updateCurrentUserPreference: (state: any, {key, value}: any) => state.currentUser.preferences[key] = value,
   updateMyCohort: (state: any, updatedCohort: any) => {
     const cohort = state.currentUser.myCohorts.find(cohort => cohort.id === +updatedCohort.id)

@@ -1,4 +1,4 @@
-import cohortEditSession from '@/store/modules/cohort-edit-session'
+import cohort from '@/store/modules/cohort-edit-session'
 import context from '@/store/modules/context'
 import curatedGroup from '@/store/modules/curated-group'
 import degreeEditSession from '@/store/modules/degree-edit-session'
@@ -11,7 +11,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
   modules: {
-    cohortEditSession,
+    cohort,
     context,
     curatedGroup,
     degreeEditSession,
