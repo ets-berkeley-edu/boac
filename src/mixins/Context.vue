@@ -13,7 +13,7 @@ export default {
       'dismissedServiceAnnouncement',
       'loading'
     ]),
-    ...mapGetters('noteEditSession', [
+    ...mapGetters('note', [
       'disableNewNoteButton',
       'mode'
     ])
