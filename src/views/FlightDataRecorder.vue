@@ -69,8 +69,7 @@ export default {
       if (this._includes(this._map(departments, 'code'), this.deptCode)) {
         this.availableDepartments = departments
         this.render()
-        this.loadingComplete()
-        this.$announcer.polite('Reports loaded')
+        this.loadingComplete('Reports loaded')
       } else {
         this.$router.push({path: '/404'})
       }

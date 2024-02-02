@@ -287,7 +287,7 @@ export default {
     toggleView(tabName, focusAfter) {
       this.isToggling = true
       this.tab = tabName
-      this.$announcer.polite(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
+      this.alertScreenReader(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
 
       const done = data => {
         this.setPageTitle(data.displayName)
@@ -310,8 +310,7 @@ export default {
         } else {
           message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
         }
-        this.loadingComplete()
-        this.$announcer.polite(message)
+        this.loadingComplete(message)
         this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
       }
       const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView

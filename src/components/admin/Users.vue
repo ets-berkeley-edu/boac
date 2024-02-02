@@ -333,7 +333,7 @@ export default {
   },
   methods: {
     afterUpdateUser(profile) {
-      this.$announcer.polite(`${profile.name} profile updated.`)
+      this.alertScreenReader(`${profile.name} profile updated.`)
       if (this.filterType === 'search') {
         this.userSelection = profile
       }

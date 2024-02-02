@@ -408,14 +408,14 @@ export default {
     onClickAddButton() {
       switch (this._get(this.filter, 'type.ux')) {
       case 'dropdown':
-        this.$announcer.polite(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter with value ${this.getDropdownSelectedLabel()}`)
         break
       case 'boolean':
-        this.$announcer.polite(`Added ${this.filter.label.primary}`)
+        this.alertScreenReader(`Added ${this.filter.label.primary}`)
         this.filter.value = true
         break
       case 'range':
-        this.$announcer.polite(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
+        this.alertScreenReader(`Added ${this.filter.label.primary} filter, ${this.range.min} to ${this.range.max}`)
         this.updateRangeFilter()
         this.range.min = this.range.max = undefined
         break
@@ -427,7 +427,7 @@ export default {
       this.reset()
     },
     onClickCancelEdit() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.isModifyingFilter = false
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
@@ -449,7 +449,7 @@ export default {
       }
       this.isModifyingFilter = true
       this.setEditMode(`edit-${this.position}`)
-      this.$announcer.polite(`Begin edit of ${this.filter.label.primary} filter`)
+      this.alertScreenReader(`Begin edit of ${this.filter.label.primary} filter`)
     },
     onClickUpdateButton() {
       if (this.isUX('range')) {
@@ -460,7 +460,7 @@ export default {
       updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
-        this.$announcer.polite(`${this.filter.label.primary} filter updated`)
+        this.alertScreenReader(`${this.filter.label.primary} filter updated`)
       })
     },
     onSelectFilter() {
@@ -468,7 +468,7 @@ export default {
       this.filter = this._cloneDeep(this.selectedFilter)
       this.showAdd = this._get(this.filter, 'type.ux') === 'boolean'
       if (this.filter) {
-        this.$announcer.polite(`${this.filter.label.primary} selected`)
+        this.alertScreenReader(`${this.filter.label.primary} selected`)
         switch (this.filter.type.ux) {
         case 'dropdown':
           this.putFocusSecondaryDropdown()
@@ -487,7 +487,7 @@ export default {
       this.showAdd = !!this.selectedOption
       if (this.selectedOption) {
         this.putFocusNextTick('unsaved-filter-add')
-        this.$announcer.polite(`${this.selectedOption.name} selected`)
+        this.alertScreenReader(`${this.selectedOption.name} selected`)
       }
     },
     onPopoverShown(popoverContent) {
@@ -600,7 +600,7 @@ export default {
       updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(this._noop)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
-      this.$announcer.polite(`${this.filter.label.primary} filter removed`)
+      this.alertScreenReader(`${this.filter.label.primary} filter removed`)
     },
     reset() {
       this.selectedFilter = this.selectedOption = undefined

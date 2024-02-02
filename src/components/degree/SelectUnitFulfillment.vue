@@ -57,12 +57,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'SelectUnitFulfillment',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     disable: {
       required: false,
@@ -91,7 +92,7 @@ export default {
   },
   methods: {
     onChangeUnitRequirement(option) {
-      this.$announcer.polite(option ? `${option.name} selected` : 'Unselected')
+      this.alertScreenReader(option ? `${option.name} selected` : 'Unselected')
       if (option) {
         this.selected.push(option)
         this.onUnitRequirementsChange(this.selected)
@@ -99,7 +100,7 @@ export default {
       }
     },
     removeUnitRequirement(item) {
-      this.$announcer.polite(`${item.name} removed`)
+      this.alertScreenReader(`${item.name} removed`)
       this.selected = this._remove(this.selected, selected => selected.id !== item.id)
       this.onUnitRequirementsChange(this.selected)
     }

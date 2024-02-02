@@ -165,13 +165,13 @@ export default {
     },
     setOrder() {
       this.currentOrder = this.currentOrder === 'asc' ? 'desc' : 'asc'
-      this.$announcer.polite(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
+      this.alertScreenReader(`The sort order of the academic years has changed to ${this.currentOrder}ending`)
     },
     updateCollapseStates() {
       this.collapsed = this._filter(this.$refs, year => !year[0].$data.show).map(year => year[0].id)
       this.uncollapsed = this._filter(this.$refs, year => year[0].$data.show).map(year => year[0].id)
       this.expanded = !this.expanded
-      this.$announcer.polite(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
+      this.alertScreenReader(`All of the academic years have been ${this.expanded ? 'collapsed' : 'expanded'}`)
     }
   }
 }

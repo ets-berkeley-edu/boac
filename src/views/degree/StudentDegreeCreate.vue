@@ -102,24 +102,24 @@ export default {
       getDegreeTemplates().then(data => {
         this.templates = data
         this.loadingComplete()
-        this.$announcer.polite(`Add Degree Check for ${this.student.name}`)
+        this.alertScreenReader(`Add Degree Check for ${this.student.name}`)
       })
     })
   },
   methods: {
     cancel() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.$router.push(`${this.studentRoutePath(this.student.uid, this.currentUser.inDemoMode)}`)
     },
     onChangeSelect(option) {
       if (option) {
-        this.$announcer.polite(`${this.selectedOption.name} selected`)
+        this.alertScreenReader(`${this.selectedOption.name} selected`)
         this.putFocusNextTick('save-degree-check-btn')
       }
     },
     onClickSave() {
       this.isSaving = true
-      this.$announcer.polite('Saving')
+      this.alertScreenReader('Saving')
       createDegreeCheck(this.student.sid, this.selectedOption.id).then(data => {
         this.isSaving = false
         this.$router.push(`/student/degree/${data.id}`)

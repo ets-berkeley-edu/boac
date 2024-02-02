@@ -123,6 +123,7 @@
 
 <script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -131,7 +132,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'EditCourse',
   components: {AccentColorSelect, SelectUnitFulfillment, UnitsInput},
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     afterCancel: {
       required: true,
@@ -183,7 +184,7 @@ export default {
   },
   methods: {
     cancel() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.afterCancel()
     },
     onUnitRequirementsChange(unitRequirements) {
@@ -204,7 +205,7 @@ export default {
           unitRequirementIds: this._map(this.selectedUnitRequirements, 'id'),
           units: this.units
         }).then(data => {
-          this.$announcer.polite('Course updated')
+          this.alertScreenReader('Course updated')
           this.afterSave(data)
         })
       }

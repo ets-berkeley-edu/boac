@@ -267,7 +267,7 @@ export default {
         || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, this.isCampusRequirement))
     },
     onChangeCategorySelect(option) {
-      this.$announcer.polite(option ? `${this.selectedCategoryType} selected` : 'Unselected')
+      this.alertScreenReader(option ? `${this.selectedCategoryType} selected` : 'Unselected')
       if (option) {
         if (this.selectedCategoryType === 'Campus Requirements') {
           this.name = 'Campus Requirements'
@@ -281,7 +281,7 @@ export default {
       }
     },
     onChangeParentCategory(option) {
-      this.$announcer.polite(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
+      this.alertScreenReader(option ? `${this.selectedParentCategory.name} selected` : 'Unselected')
       const existingUnitRequirements = this.selectedUnitRequirements
       const parentUnitRequirements = this._get(this.selectedParentCategory, 'unitRequirements')
 
@@ -301,7 +301,7 @@ export default {
         const parentCategoryId = this.selectedParentCategory && this.selectedParentCategory.id
         const unitRequirementIds = this._map(this.selectedUnitRequirements, 'id')
         const done = () => {
-          this.$announcer.polite(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
+          this.alertScreenReader(`${this.selectedCategoryType} ${this.existingCategory ? 'updated' : 'created'}`)
           this.afterSave()
         }
         if (this.existingCategory) {

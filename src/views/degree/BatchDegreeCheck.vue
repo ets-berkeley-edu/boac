@@ -213,7 +213,7 @@ export default {
   },
   mounted() {
     this.loadingComplete()
-    this.$announcer.polite('Batch degree checks loaded')
+    this.alertScreenReader('Batch degree checks loaded')
   },
   methods: {
     addCohort(cohort) {
@@ -237,10 +237,10 @@ export default {
             const notFound = this._difference(uniqueSids, this._map(students, 'sid'))
             if (notFound.length === 1) {
               this.warning = `Student ${notFound[0]} not found.`
-              this.$announcer.polite(this.warning)
+              this.alertScreenReader(this.warning)
             } else if (notFound.length > 1) {
               this.warning = `${notFound.length} students not found: <ul class="mt-1 mb-0"><li>${this._join(notFound, '</li><li>')}</li></ul>`
-              this.$announcer.polite(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
+              this.alertScreenReader(`${notFound.length} student IDs not found: ${this.oxfordJoin(notFound)}`)
             }
             this.isValidating = false
             this.textarea = undefined
@@ -248,9 +248,9 @@ export default {
           })
         } else {
           if (this.error) {
-            this.$announcer.polite(`Error: ${this.error}`)
+            this.alertScreenReader(`Error: ${this.error}`)
           } else if (this.warning) {
-            this.$announcer.polite(`Warning: ${this.warning}`)
+            this.alertScreenReader(`Warning: ${this.warning}`)
           }
           this.nextTick(() => this.isValidating = false)
           reject()
@@ -262,7 +262,7 @@ export default {
         this.addedStudents.push(...students)
         this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then( () => {
           const obj = students.length === 1 ? `${students[0].label}` : this.pluralize('student', students.length)
-          this.$announcer.polite(`${obj} added to degree check`)
+          this.alertScreenReader(`${obj} added to degree check`)
         })
       }
       this.putFocusNextTick('degree-check-add-student-input')
@@ -272,7 +272,7 @@ export default {
       this.findStudentsWithDegreeCheck()
     },
     cancel() {
-      this.$announcer.polite('Canceled. Nothing saved.')
+      this.alertScreenReader('Canceled. Nothing saved.')
       this.$router.push('/degrees')
     },
     findStudentsWithDegreeCheck(selectedTemplate, sids) {
@@ -323,12 +323,12 @@ export default {
       const index = this._indexOf(this.addedStudents, student)
       if (index !== -1) {
         this.addedStudents.splice(index, 1)
-        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.$announcer.polite(`${student.label} removed`))
+        this.recalculateStudentCount(this.addedSids, this.addedCohorts, this.addedCuratedGroups).then(() => this.alertScreenReader(`${student.label} removed`))
       }
     },
     save() {
       this.isSaving = true
-      this.$announcer.polite('Saving.')
+      this.alertScreenReader('Saving.')
       createBatchDegreeCheck(this.sidsToInclude, this._get(this.selectedTemplate, 'id')).then(() => {
         this.nextTick(() => {
           this.$router.push({

@@ -255,24 +255,24 @@ export default {
     beginRename() {
       this.name = this.cohortName
       this.setEditMode('rename')
-      this.$announcer.polite(`Renaming cohort '${this.name}'`)
+      this.alertScreenReader(`Renaming cohort '${this.name}'`)
       this.putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
       this.showDeleteModal = false
-      this.$announcer.polite(`Cancel deletion of cohort '${this.name}'`)
+      this.alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
     },
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      this.$announcer.polite(`Cancel export of cohort '${this.name}'`)
+      this.alertScreenReader(`Cancel export of cohort '${this.name}'`)
     },
     cancelRename() {
       this.name = this.cohortName
       this.setEditMode(null)
-      this.$announcer.polite(`Cancel renaming of cohort '${this.name}'`)
+      this.alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
     },
     cohortDelete() {
-      this.$announcer.polite(`Deleting cohort '${this.name}'`)
+      this.alertScreenReader(`Deleting cohort '${this.name}'`)
       deleteCohort(this.cohortId).then(() => {
         this.showDeleteModal = false
         router.push({path: '/'})
@@ -290,10 +290,10 @@ export default {
     },
     exportStudents(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-      this.$announcer.polite(`Exporting cohort '${this.name}'`)
+      this.alertScreenReader(`Exporting cohort '${this.name}'`)
       this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
-        this.$announcer.polite('Export is done.')
+        this.alertScreenReader('Export is done.')
       })
     },
     getCsvExportColumns,
@@ -306,9 +306,9 @@ export default {
       if (this.renameError) {
         this.putFocusNextTick('rename-cohort-input')
       } else {
-        this.renameCohort(name)
+        this.renameCohort(this.name)
         saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
-          this.$announcer.polite(`Cohort renamed to '${this.name}'`)
+          this.alertScreenReader(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
           this.putFocusNextTick('cohort-name')
         })
@@ -317,7 +317,7 @@ export default {
     },
     toggleShowHideDetails() {
       this.toggleCompactView()
-      this.$announcer.polite(this.isCompactView ? 'Filters are hidden' : 'Filters are visible')
+      this.alertScreenReader(this.isCompactView ? 'Filters are hidden' : 'Filters are visible')
     }
   }
 }

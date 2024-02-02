@@ -79,12 +79,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'DuplicateExistingCourse',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     isMenuOpen: false,
     isSaving: false,
@@ -100,27 +101,27 @@ export default {
     cancel() {
       this.isMenuOpen = this.isSaving = false
       this.setDisableButtons(false)
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.putFocusNextTick('duplicate-existing-course')
     },
     onClickSave() {
       this.isSaving = true
-      this.$announcer.polite('Saving')
+      this.alertScreenReader('Saving')
       this.copyCourse(this.selected.id).then(course => {
         this.isMenuOpen = this.isSaving = false
         this.selected = null
         this.setDisableButtons(false)
-        this.$announcer.polite('Course duplicated and put in the list of Unassigned.')
+        this.alertScreenReader('Course duplicated and put in the list of Unassigned.')
         this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
       })
     },
     onSelect() {
-      this.$announcer.polite(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
+      this.alertScreenReader(this.selected ? `${this.selected.name} selected` : 'Selection set to null.')
     },
     openMenu() {
       this.setDisableButtons(true)
       this.isMenuOpen = true
-      this.$announcer.polite('The \'Duplicate Course\' menu is open.')
+      this.alertScreenReader('The \'Duplicate Course\' menu is open.')
       this.putFocusNextTick('add-course-select')
     }
   }

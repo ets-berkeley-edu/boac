@@ -81,7 +81,7 @@ export default {
         publishAnnouncement(this.isPublished).then(data => {
           this.isPublished = data.isPublished
           this.isTogglingPublish = false
-          this.$announcer.polite(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
+          this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
         })
       }
     },
@@ -96,7 +96,7 @@ export default {
           this.originalText = this.text = data.text
           this.isPublished = data.isPublished
           this.isSaving = false
-          this.$announcer.polite('The service announcement has been updated.')
+          this.alertScreenReader('The service announcement has been updated.')
         })
       }
     }

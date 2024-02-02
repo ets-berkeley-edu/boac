@@ -275,17 +275,17 @@ export default {
           this.clearErrors()
           this._each(files, attachment => {
             attachment.displayName = attachment.name
-            this.$announcer.polite(`Uploading attachment '${attachment.displayName}'`)
+            this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
           })
           this.uploadingAttachment = true
           addAttachments(this.note.id, files).then(updatedNote => {
-            this.$announcer.polite(`${this._size(files)} ${this._size(files) === 1 ? 'attachment' : 'attachments'} added.`)
+            this.alertScreenReader(`${this._size(files)} ${this._size(files) === 1 ? 'attachment' : 'attachments'} added.`)
             this.afterSaved(updatedNote)
             this.resetAttachments()
             this.uploadingAttachment = false
           })
             .catch(error => {
-              this.$announcer.polite()
+              this.alertScreenReader()
               this.attachmentError = this._get(error, 'message')
               this.uploadingAttachment = false
               this.resetFileInput()
@@ -367,7 +367,7 @@ export default {
       if (attachment && attachment.id) {
         this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
         return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
-          this.$announcer.polite(`Attachment '${attachment.displayName}' removed`)
+          this.alertScreenReader(`Attachment '${attachment.displayName}' removed`)
           this.afterSaved(updatedNote)
         })
       }

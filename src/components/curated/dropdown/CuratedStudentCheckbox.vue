@@ -60,7 +60,7 @@ export default {
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
       this.broadcast(eventName, {domain: this.domain, sid: this.sid})
-      this.$announcer.polite(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
+      this.alertScreenReader(`${this.studentName} ${checked ? 'selected' : 'deselected'}`)
     }
   }
 }

@@ -133,8 +133,7 @@ export default {
     store.commit('curatedGroup/setCuratedGroupId', parseInt(this.id))
     goToCuratedGroup(this.curatedGroupId, 1).then(group => {
       if (group) {
-        this.loadingComplete()
-        this.$announcer.polite(this.getLoadedAlert())
+        this.loadingComplete(this.getLoadedAlert())
         this.setPageTitle(this.curatedGroupName)
         this.putFocusNextTick('curated-group-name')
       } else {
@@ -144,20 +143,16 @@ export default {
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     this.setEventHandler(`${sortByKey}-user-preference-change`, sortBy => {
       if (!this.loading) {
-        this.loadingStart()
-        this.$announcer.polite(`Sorting students by ${sortBy}`)
+        this.alertScreenReader(`Sorting students by ${sortBy}`)
         goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-          this.loadingComplete()
-          this.$announcer.polite(this.getLoadedAlert())
+          this.loadingComplete(this.getLoadedAlert())
         })
       }
     })
     this.setEventHandler('termId-user-preference-change', () => {
       if (!this.loading) {
-        this.loadingStart()
         goToCuratedGroup(this.curatedGroupId, this.pageNumber).then(() => {
-          this.loadingComplete()
-          this.$announcer.polite(this.getLoadedAlert())
+          this.loadingComplete(this.getLoadedAlert())
         })
       }
     })
@@ -177,18 +172,16 @@ export default {
     bulkAddSids(sids) {
       store.commit('curatedGroup/resetMode')
       if (this._size(sids)) {
-        this.$announcer.polite(`Adding ${sids.length} students`)
+        this.alertScreenReader(`Adding ${sids.length} students`)
         store.commit('context/updateCurrentUserPreference', {key: 'sortBy', value: 'last_name'})
-        this.loadingStart()
         addStudentsToCuratedGroup(this.curatedGroupId, sids, true).then(() => {
           goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-            this.loadingComplete()
+            this.loadingComplete(`${sids.length} students added to group '${this.name}'`)
             this.putFocusNextTick('curated-group-name')
-            this.$announcer.polite(`${sids.length} students added to group '${this.name}'`)
           })
         })
       } else {
-        this.$announcer.polite('Canceled bulk add of students')
+        this.alertScreenReader('Canceled bulk add of students')
         this.putFocusNextTick('curated-group-name')
       }
     },
@@ -198,10 +191,8 @@ export default {
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
     onClickPagination(pageNumber) {
-      this.loadingStart()
       goToCuratedGroup(this.curatedGroupId, pageNumber).then(() => {
-        this.loadingComplete()
-        this.$announcer.polite(this.getLoadedAlert())
+        this.loadingComplete(this.getLoadedAlert())
       })
     },
     removeStudent(sid) {

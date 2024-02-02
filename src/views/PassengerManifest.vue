@@ -50,13 +50,12 @@ export default {
     getDepartments(true).then(departments => {
       this.departments = departments
       this.loadingComplete()
-      this.$announcer.polite('Passenger Manifest has loaded')
     })
   },
   methods: {
     afterCreateUser(name) {
       this.refreshUsers = true
-      this.$announcer.polite(`${name} has been added to BOA.`)
+      this.alertScreenReader(`${name} has been added to BOA.`)
     }
   }
 }

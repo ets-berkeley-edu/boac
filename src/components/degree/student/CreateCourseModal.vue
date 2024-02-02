@@ -126,6 +126,7 @@
 
 <script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
@@ -134,7 +135,7 @@ import Util from '@/mixins/Util'
 export default {
   name: 'CreateCourseModal',
   components: {AccentColorSelect, ModalHeader, UnitsInput},
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     parentCategory: {
       required: true,
@@ -166,7 +167,7 @@ export default {
   methods: {
     cancel() {
       this.closeModal()
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
     },
     closeModal() {
       this.accentColor = undefined,
@@ -183,7 +184,7 @@ export default {
     openModal() {
       this.showModal = true
       this.setDisableButtons(true)
-      this.$announcer.polite('Create course dialog opened')
+      this.alertScreenReader('Create course dialog opened')
     },
     save() {
       if (!this.disableSaveButton) {
@@ -198,7 +199,7 @@ export default {
           units: this.units
         }).then(course => {
           this.closeModal()
-          this.$announcer.polite(`Course ${course.name} created`)
+          this.alertScreenReader(`Course ${course.name} created`)
           this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
         })
       }

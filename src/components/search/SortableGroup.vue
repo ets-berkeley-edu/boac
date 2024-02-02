@@ -161,7 +161,7 @@ export default {
         apiCall(this.group.id).then(students => {
           this.studentsWithAlerts = students
           this.isFetching = false
-          this.$announcer.polite(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
+          this.alertScreenReader(`Loaded students with alerts who are in ${this.groupTypeName} ${this.group.name}`)
         })
       }
     },

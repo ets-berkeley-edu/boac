@@ -91,7 +91,7 @@ export default {
         this.moment(this.fromDate).format(this.dateInputFormat),
         this.moment(this.toDate).format(this.dateInputFormat)
       ).then(() => {
-        this.$announcer.polite('Alerts CSV file downloaded')
+        this.alertScreenReader('Alerts CSV file downloaded')
         this.isDownloading = false
       })
     }

@@ -87,7 +87,7 @@ export default {
     setSelected(value) {
       this.selected = value
       this.onChange(this.selected)
-      this.$announcer.polite(`${this.selected} selected`)
+      this.alertScreenReader(`${this.selected} selected`)
     }
   }
 }

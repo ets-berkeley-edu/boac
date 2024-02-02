@@ -6,7 +6,7 @@
           <b>BOA {{ getBoaEnvLabel() }} Environment</b>
         </div>
         <div v-if="config.isVueAppDebugMode">
-          {{ _get($announcer, 'data.content') }}
+          {{ _get(screenReaderAlert, 'message') }}
         </div>
         <div v-if="!config.isVueAppDebugMode">
           <span aria-live="polite" role="alert">{{ config.fixedWarningOnAllPages }}</span>

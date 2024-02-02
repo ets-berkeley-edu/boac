@@ -103,22 +103,22 @@ export default {
     addCohortToBatch(cohort) {
       this.setIsRecalculating(true)
       this.addCohort(cohort)
-      this.$announcer.polite(`Added cohort '${cohort.name}'`)
+      this.alertScreenReader(`Added cohort '${cohort.name}'`)
     },
     addCuratedGroupToBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.addCuratedGroup(curatedGroup)
-      this.$announcer.polite(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+      this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
     },
     removeCohortFromBatch(cohort) {
       this.setIsRecalculating(true)
       this.removeCohort(cohort)
-      this.$announcer.polite(`Cohort '${cohort.name}' removed`)
+      this.alertScreenReader(`Cohort '${cohort.name}' removed`)
     },
     removeCuratedGroupFromBatch(curatedGroup) {
       this.setIsRecalculating(true)
       this.removeCuratedGroup(curatedGroup)
-      this.$announcer.polite(`${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
+      this.alertScreenReader(`${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
     }
   }
 }

@@ -330,7 +330,6 @@ export default {
         const pageTitle = this.currentUser.inDemoMode ? 'Admitted Student' : this.fullName
         this.setPageTitle(pageTitle)
         this.loadingComplete()
-        this.$announcer.polite(`${pageTitle} has loaded`)
       } else {
         this.$router.push({path: '/404'})
       }

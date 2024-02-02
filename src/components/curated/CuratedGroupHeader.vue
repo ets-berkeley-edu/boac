@@ -279,7 +279,7 @@ export default {
   methods: {
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      this.$announcer.polite(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
+      this.alertScreenReader(`Cancel export of ${this.name} ${this.domainLabel(false)}`)
     },
     enterBulkAddMode() {
       store.commit('curatedGroup/setMode', 'bulkAdd')
@@ -296,10 +296,10 @@ export default {
     },
     exportGroup(csvColumnsSelected) {
       this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-      this.$announcer.polite(`Exporting ${this.name} ${this.domainLabel(false)}`)
+      this.alertScreenReader(`Exporting ${this.name} ${this.domainLabel(false)}`)
       downloadCuratedGroupCsv(this.curatedGroupId, this.curatedGroupName, csvColumnsSelected).then(() => {
         this.exportEnabled = true
-        this.$announcer.polite('Export is done.')
+        this.alertScreenReader('Export is done.')
       })
     },
     deleteGroup() {

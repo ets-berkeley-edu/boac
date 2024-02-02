@@ -114,7 +114,7 @@ export default {
         const existingNames = this._map(this.otherUnitRequirements, u => u.name.toLowerCase())
         if (existingNames.findIndex(existingName => lowerCase === existingName) > -1) {
           message = 'Name cannot match the name of an existing Unit Requirement.'
-          this.$announcer.polite(message)
+          this.alertScreenReader(message)
         }
       }
       return message
@@ -127,16 +127,16 @@ export default {
       this.otherUnitRequirements = this._filter(this.unitRequirements, u => {
         return u.id !== this.unitRequirement.id
       })
-      this.$announcer.polite(`Edit unit requirement ${this.name}`)
+      this.alertScreenReader(`Edit unit requirement ${this.name}`)
     } else {
       this.otherUnitRequirements = this.unitRequirements
-      this.$announcer.polite('Create unit requirement')
+      this.alertScreenReader('Create unit requirement')
     }
     this.putFocusNextTick('unit-requirement-name-input')
   },
   methods: {
     cancel() {
-      this.$announcer.polite('Canceled.')
+      this.alertScreenReader('Canceled.')
       this.isSaving = false
       this.onExit()
     },
@@ -144,20 +144,20 @@ export default {
       if (this.disableSaveButton) {
         this.putFocusRequiredField()
       } else {
-        this.$announcer.polite('Saving')
+        this.alertScreenReader('Saving')
         this.isSaving = true
         this.createUnitRequirement({
           name: this.name,
           minUnits: this.minUnits
         }).then(() => {
-          this.$announcer.polite(`Created ${this.name}.`)
+          this.alertScreenReader(`Created ${this.name}.`)
           this.onExit()
         })
       }
     },
     putFocusRequiredField() {
       this.putFocusNextTick(this.name ? 'unit-requirement-min-units-input' : 'unit-requirement-name-input')
-      this.$announcer.polite(`${this.name ? 'Units value' : 'Name'} required.`)
+      this.alertScreenReader(`${this.name ? 'Units value' : 'Name'} required.`)
     },
     setMinUnits(units) {
       this.minUnits = units
@@ -166,7 +166,7 @@ export default {
       if (this.disableSaveButton) {
         this.putFocusRequiredField()
       } else {
-        this.$announcer.polite('Saving')
+        this.alertScreenReader('Saving')
         this.isSaving = true
         this.updateUnitRequirement({
           name: this.name,
@@ -174,7 +174,7 @@ export default {
           unitRequirementId: this.unitRequirement.id
         }).then(() => {
           this.isSaving = false
-          this.$announcer.polite(`Updated ${this.name}.`)
+          this.alertScreenReader(`Updated ${this.name}.`)
           this.onExit()
         })
       }

@@ -7,7 +7,7 @@
       v-model="isPrivate"
       aria-describedby="privacy-permissions-label"
       :disabled="disabled"
-      @change="$announcer.polite(isPrivate ? 'Available only to CE3' : 'Available to all advisors')"
+      @change="alertScreenReader(isPrivate ? 'Available only to CE3' : 'Available to all advisors')"
     >
       <div>
         <b-form-radio
@@ -30,12 +30,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'PrivacyPermissions',
-  mixins: [NoteEditSession, Util],
+  mixins: [Context, NoteEditSession, Util],
   props: {
     disabled: {
       required: false,

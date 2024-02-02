@@ -60,7 +60,7 @@ export default {
   },
   mounted() {
     this.loadingComplete()
-    this.$announcer.polite('Create degree template')
+    this.alertScreenReader('Create degree template')
   },
   methods: {
     create() {
@@ -68,14 +68,14 @@ export default {
       getDegreeTemplates().then(data => {
         const lower = this.templateName.trim().toLowerCase()
         if (this._map(data, 'name').findIndex(s => s.toLowerCase() === lower) === -1) {
-          this.$announcer.polite('Creating template')
+          this.alertScreenReader('Creating template')
           createDegreeTemplate(this.templateName).then(data => {
             this.$router.push(`/degree/${data.id}`)
             this.isBusy = false
           })
         } else {
           this.error = `A degree named <span class="font-weight-500">${this.templateName}</span> already exists. Please choose a different name.`
-          this.$announcer.polite(this.error)
+          this.alertScreenReader(this.error)
           this.isBusy = false
         }
       })

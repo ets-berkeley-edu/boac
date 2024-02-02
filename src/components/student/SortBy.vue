@@ -15,8 +15,8 @@
         no-caret
         toggle-class="dd-override"
         variant="link"
-        @hidden="$announcer.polite('Sort-by menu closed')"
-        @shown="$announcer.polite('Sort-by menu opened')"
+        @hidden="alertScreenReader('Sort-by menu closed')"
+        @shown="alertScreenReader('Sort-by menu opened')"
       >
         <template #button-content>
           <div class="d-flex dropdown-width justify-content-between text-dark">
@@ -159,7 +159,7 @@ export default {
       store.commit('context/updateCurrentUserPreference', {key: sortByKey, value: sortBy})
       this.broadcast(`${sortByKey}-user-preference-change`, sortBy)
       this.dropdownLabel = this.getSortByOptionLabel(sortBy)
-      this.$announcer.polite(`${this.dropdownLabel} selected`)
+      this.alertScreenReader(`${this.dropdownLabel} selected`)
     }
   }
 }

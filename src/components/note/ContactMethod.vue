@@ -8,7 +8,7 @@
       v-model="contactType"
       aria-describedby="contact-type-label"
       :disabled="disabled"
-      @change="$announcer.polite(contactType)"
+      @change="alertScreenReader(contactType)"
     >
       <b-form-radio id="contact-option-none-radio-button" :value="null">
         None
@@ -26,11 +26,12 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 
 export default {
   name: 'ContactMethod',
-  mixins: [NoteEditSession],
+  mixins: [Context, NoteEditSession],
   props: {
     disabled: {
       required: false,

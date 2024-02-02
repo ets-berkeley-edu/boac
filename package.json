@@ -16,7 +16,6 @@
     "@fortawesome/vue-fontawesome": "2.0.10",
     "@trevoreyre/autocomplete-vue": "2.4.1",
     "@types/gtag.js": "^0.0.18",
-    "@vue-a11y/announcer": "2.1.0",
     "axios": "1.6.7",
     "bootstrap-vue": "npm:@neverendingsupport/bootstrap-vue2@2.23.2",
     "d3": "5.16.0",

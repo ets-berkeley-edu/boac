@@ -38,11 +38,11 @@ export default {
     toggle() {
       if (this.dismissedServiceAnnouncement) {
         this.restoreServiceAnnouncement()
-        this.$announcer.polite('Alert restored')
+        this.alertScreenReader('Alert restored')
         this.putFocusNextTick('service-announcement-banner')
       } else {
         this.dismissServiceAnnouncement()
-        this.$announcer.polite('Dismissed')
+        this.alertScreenReader('Dismissed')
         this.putFocusNextTick('toggle-service-announcement')
       }
     },

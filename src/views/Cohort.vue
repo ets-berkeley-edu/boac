@@ -156,8 +156,7 @@ export default {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
-      this.loadingComplete()
-      this.$announcer.polite(this.getLoadedAlert())
+      this.loadingComplete(this.getLoadedAlert())
     } else {
       const cohortId = this.toInt(this._get(this.$route, 'params.id'))
       const domain = this.$route.query.domain || 'default'
@@ -168,8 +167,7 @@ export default {
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
         this.setPageTitle(pageTitle)
-        this.loadingComplete()
-        this.$announcer.polite(this.getLoadedAlert())
+        this.loadingComplete(this.getLoadedAlert())
         this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
     }

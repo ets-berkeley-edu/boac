@@ -431,13 +431,13 @@ export default {
   },
   methods: {
     afterCancel() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
     },
     afterSave() {
-      this.$announcer.polite(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
+      this.alertScreenReader(`Updated ${this.bundleForEdit.type} ${this.bundleForEdit.name}`)
       this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
@@ -445,13 +445,13 @@ export default {
     deleteCanceled() {
       this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
       this.bundleForDelete = null
-      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
       const name = this.bundleForDelete.name
       const done = () => {
-        this.$announcer.polite(`${name} deleted.`)
+        this.alertScreenReader(`${name} deleted.`)
         const putFocus = this.sid ? `column-${this.position}-add-course-to-category-${this.parentCategory.id}` : 'page-header'
         this.bundleForDelete = null
         this.setDisableButtons(false)
@@ -477,7 +477,7 @@ export default {
       this.hideNote(bundle, false)
       this.hoverCourseId = null
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${bundle.name}`)
+      this.alertScreenReader(`Edit ${bundle.name}`)
       this.bundleForEdit = bundle
     },
     getAccentColor: bundle => bundle.course ? bundle.course.accentColor : bundle.category.accentColor,
@@ -504,7 +504,7 @@ export default {
     hideNote(bundle, srAlert=true) {
       this.notesVisible = this._remove(this.notesVisible, key => bundle.key !== key)
       if (srAlert) {
-        this.$announcer.polite('Note hidden')
+        this.alertScreenReader('Note hidden')
       }
     },
     isCourseFulfillmentsEdited(bundle) {
@@ -555,7 +555,7 @@ export default {
       this.hoverCourseId = null
       this.setDisableButtons(true)
       this.bundleForDelete = bundle
-      this.$announcer.polite(`Delete ${bundle.name}`)
+      this.alertScreenReader(`Delete ${bundle.name}`)
     },
     onDrag(event, stage, bundle) {
       switch (stage) {
@@ -612,7 +612,7 @@ export default {
     },
     showNote(bundle) {
       this.notesVisible.push(bundle.key)
-      this.$announcer.polite(`Showing note of ${bundle.name}`)
+      this.alertScreenReader(`Showing note of ${bundle.name}`)
     }
   }
 }

@@ -75,7 +75,7 @@ export default {
   methods: {
     openAdvancedSearch() {
       this.showAdvancedSearch = true
-      this.$announcer.polite('Advanced search is open')
+      this.alertScreenReader('Advanced search is open')
     }
   }
 }

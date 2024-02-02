@@ -98,8 +98,7 @@ export default {
     })
     getVersion().then(data => {
       this.boa = data
-      this.loadingComplete()
-      this.$announcer.polite('Flight Deck has loaded')
+      this.loadingComplete('Flight Deck has loaded')
     })
   }
 }

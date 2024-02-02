@@ -336,10 +336,9 @@ router.afterEach((to: any, from: any) => {
   // TODO
   const sameRoute = to.name === from.name && to.hash
   if (!sameRoute) {
-    store.commit('context/loadingStart')
+    store.commit('context/loadingStart', to)
     const pageTitle = _.get(to, 'name')
-    document.title = `${pageTitle || _.capitalize(to.name) || 'Welcome'} | BOA`
-    Vue.prototype.$announcer.assertive(`${pageTitle || 'Page'} is loading`)
+    document.title = `${_.capitalize(pageTitle) || 'Welcome'} | BOA`
   }
 })
 

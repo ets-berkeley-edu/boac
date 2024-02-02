@@ -1,6 +1,5 @@
 import _ from 'lodash'
 import store from '@/store'
-import Vue from 'vue'
 import {
   addUnitRequirement,
   assignCourse,
@@ -249,7 +248,7 @@ const actions = {
       const actionByUser = `${dragContext} to ${context}`
 
       const done = (srAlert: string, noActionTaken?: boolean) => {
-        Vue.prototype.$announcer.polite(srAlert)
+        store.commit('context/alertScreenReader', srAlert)
         if (noActionTaken) {
           $_debug(srAlert)
         } else {

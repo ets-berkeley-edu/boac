@@ -93,12 +93,12 @@ export default {
     addItem(object) {
       this.added.push(object)
       this.addObject(object)
-      this.$announcer.polite(`${this.header} ${object.name} added to batch note`)
+      this.alertScreenReader(`${this.header} ${object.name} added to batch note`)
     },
     remove(object) {
       this.added = this._filter(this.added, a => a.id !== object.id)
       this.removeObject(object)
-      this.$announcer.polite(`${this.header} ${object.name} removed from batch note`)
+      this.alertScreenReader(`${this.header} ${object.name} removed from batch note`)
     }
   }
 }

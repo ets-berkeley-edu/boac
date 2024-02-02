@@ -160,7 +160,7 @@ export default {
     }
     if (this.queryText || this.includeNotesAndAppointments) {
       this.isSearching = true
-      this.$announcer.polite(`Searching for '${this.queryText}'`)
+      this.alertScreenReader(`Searching for '${this.queryText}'`)
       let queries = []
       if (this.includeCourses || this.includeNotesAndAppointments || this.includeStudents) {
         queries.push(
@@ -187,8 +187,7 @@ export default {
         })
       })
         .then(() => {
-          this.loadingComplete()
-          this.$announcer.polite(this.describeResults())
+          this.loadingComplete(this.describeResults())
           const totalCount = this.toInt(this.results.totalCourseCount, 0) + this.toInt(this.results.totalStudentCount, 0)
           const focusId = totalCount ? 'page-header' : 'page-header-no-results'
           this.putFocusNextTick(focusId)

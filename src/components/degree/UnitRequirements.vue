@@ -193,13 +193,13 @@ export default {
     deleteCanceled() {
       this.isDeleting = false
       this.putFocusNextTick(`unit-requirement-${this._get(this.selected, 'id')}-delete-btn`)
-      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
       const name = this._get(this.selected, 'name')
       return this.deleteUnitRequirement(this.selected.id).then(() => {
-        this.$announcer.polite(`${name} deleted.`)
+        this.alertScreenReader(`${name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
         this.putFocusNextTick('unit-requirement-create-link')
