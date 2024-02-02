@@ -32,7 +32,7 @@
         toggle-class="btn-primary-color-override"
         variant="primary"
         @show="onShowTemplatesMenu"
-        @hide="$announcer.polite('Templates menu closed.')"
+        @hide="alertScreenReader('Templates menu closed.')"
       >
         <b-dropdown-header v-if="!_size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
           <div class="font-weight-bolder">Templates</div>
@@ -178,7 +178,7 @@ export default {
       this.showDeleteTemplateModal = false
       this.showRenameTemplateModal = false
       this.targetTemplate = null
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.putFocusNextTick('create-note-subject')
       this.nextTick(() => {
         this.setFocusLockDisabled(false)
@@ -188,7 +188,7 @@ export default {
       return deleteNoteTemplate(this.targetTemplate.id).then(() => {
         this.showDeleteTemplateModal = false
         this.targetTemplate = null
-        this.$announcer.polite('Template deleted.')
+        this.alertScreenReader('Template deleted.')
         this.putFocusNextTick('create-note-subject')
         this.nextTick(() => {
           this.setFocusLockDisabled(false)
@@ -199,35 +199,35 @@ export default {
       this.setModel(template)
       this.setMode('editTemplate')
       this.putFocusNextTick('create-note-subject')
-      this.$announcer.polite(`Edit template ${template.title}.`)
+      this.alertScreenReader(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
       this.applyTemplate(template)
       this.putFocusNextTick('create-note-subject')
-      this.$announcer.polite(`Template ${template.title} loaded.`)
+      this.alertScreenReader(`Template ${template.title} loaded.`)
     },
     onShowTemplatesMenu() {
       let count = this._size(this.noteTemplates)
       const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
-      this.$announcer.polite(`Template menu open. You have ${suffix}.`)
+      this.alertScreenReader(`Template menu open. You have ${suffix}.`)
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
       this.setFocusLockDisabled(true)
       this.showDeleteTemplateModal = true
-      this.$announcer.polite('Delete template modal opened.')
+      this.alertScreenReader('Delete template modal opened.')
     },
     openRenameTemplateModal(template) {
       this.targetTemplate = template
       this.setFocusLockDisabled(true)
       this.showRenameTemplateModal = true
-      this.$announcer.polite('Rename template modal opened.')
+      this.alertScreenReader('Rename template modal opened.')
     },
     renameTemplate(title) {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
-        this.$announcer.polite(`Template renamed '${title}'.`)
+        this.alertScreenReader(`Template renamed '${title}'.`)
         this.nextTick(() => {
           this.setFocusLockDisabled(false)
         })
@@ -236,7 +236,7 @@ export default {
     toggleShowRenameTemplateModal(show) {
       this.showRenameTemplateModal = show
       this.setFocusLockDisabled(show)
-      this.$announcer.polite(`Dialog ${show ? 'opened' : 'closed'}.`)
+      this.alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
     }
   }
 }

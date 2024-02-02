@@ -109,14 +109,14 @@ export default {
     scrub() {
       this.sids = this._uniq(this.sids)
       this.textarea = this.sids.length ? this.sids.join(', ') : ''
-      this.$announcer.polite(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
+      this.alertScreenReader(`${this.sidsNotFound.length} invalid SIDs removed from textarea.`)
       this.sidsNotFound = []
       this.clearWarning()
     },
     setWarning(message) {
       this.warning = message
       this.showWarning = true
-      this.$announcer.polite(message)
+      this.alertScreenReader(message)
     },
     submit() {
       this.sids = []

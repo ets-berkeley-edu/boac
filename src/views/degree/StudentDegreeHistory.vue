@@ -118,7 +118,7 @@ export default {
         })
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.loadingComplete()
-        this.$announcer.polite(`${studentName} Degree History`)
+        this.alertScreenReader(`${studentName} Degree History`)
       })
     })
   }

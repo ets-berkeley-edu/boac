@@ -40,7 +40,6 @@ export default {
   mixins: [Context, Util],
   mounted() {
     this.loadingComplete()
-    this.$announcer.polite('Profile page has loaded')
   }
 }
 </script>

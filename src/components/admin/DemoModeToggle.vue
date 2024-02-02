@@ -55,7 +55,7 @@ export default {
       this.isToggling = true
       setDemoMode(this.inDemoMode).then(() => {
         this.isToggling = false
-        this.$announcer.polite(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
+        this.alertScreenReader(`Switching demo mode ${this.inDemoMode ? 'off' : 'on' }`)
       })
     }
   }

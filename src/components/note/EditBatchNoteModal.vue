@@ -219,7 +219,7 @@ export default {
     this.init().then(note => {
       this.setModel(note)
       this.setMode(this.initialMode)
-      this.$announcer.polite(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
+      this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
       this.setEventHandler('user-session-expired', () => {
         this.onBoaSessionExpires()
       })
@@ -267,7 +267,7 @@ export default {
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
       this.setFocusLockDisabled(false)
-      this.$announcer.polite('Continue editing note.')
+      this.alertScreenReader('Continue editing note.')
       this.putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
@@ -303,12 +303,12 @@ export default {
     },
     discardNote() {
       this.setFocusLockDisabled(false)
-      this.$announcer.polite('Canceled create new note')
+      this.alertScreenReader('Canceled create new note')
       this.exit(true)
     },
     discardTemplate() {
       this.showDiscardTemplateModal = false
-      this.$announcer.polite('Canceled create template.')
+      this.alertScreenReader('Canceled create template.')
       this.exit(true)
     },
     dismissAlert(seconds) {
@@ -371,7 +371,7 @@ export default {
           this.showAlert('Creating note...', 60)
           updateAdvisingNote().then(() => {
             this.setIsSaving(false)
-            this.$announcer.polite(this.mode.includes('create') ? 'Note created' : 'Note saved')
+            this.alertScreenReader(this.mode.includes('create') ? 'Note created' : 'Note saved')
             this.exit(false)
           })
         }
@@ -397,7 +397,7 @@ export default {
         this.model.topics,
       ).then(template => {
         this.setIsSaving(false)
-        this.$announcer.polite(`Template '${template.title}' updated`)
+        this.alertScreenReader(`Template '${template.title}' updated`)
         this.exit(false)
       })
     }

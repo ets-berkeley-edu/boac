@@ -255,15 +255,14 @@ export default {
       return getMyDraftNotes().then(data => {
         this.myDraftNotes = data
         if (srAlert) {
-          this.loadingComplete()
-          this.$announcer.polite(srAlert)
+          this.loadingComplete(srAlert)
         }
       })
     },
     openDeleteModal(draftNote) {
       this.activeOperation = 'delete'
       this.selectedDraftNote = draftNote
-      this.$announcer.polite('Please confirm draft note deletion.')
+      this.alertScreenReader('Please confirm draft note deletion.')
     },
     openEditModal(noteDraft) {
       this.activeOperation = 'edit'

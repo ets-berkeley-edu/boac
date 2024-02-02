@@ -54,7 +54,6 @@ export default {
     this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
     this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
     this.loadingComplete()
-    this.$announcer.polite('Home loaded')
     scrollToTop()
   }
 }

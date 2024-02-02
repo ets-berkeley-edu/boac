@@ -15,8 +15,8 @@
           id="skip-to-pagination-widget"
           class="sr-only"
           href="#pagination-widget"
-          @click="$announcer.polite('Go to another page of search results')"
-          @keyup.enter="$announcer.polite('Go to another page of search results')"
+          @click="alertScreenReader('Go to another page of search results')"
+          @keyup.enter="alertScreenReader('Go to another page of search results')"
         >
           Skip to bottom, other pages of search results
         </a>
@@ -146,21 +146,21 @@ export default {
       this.loadAdmits()
       if (!this.loading) {
         this.goToPage(1)
-        this.$announcer.polite(`Sort admitted students by ${sortBy}`)
+        this.alertScreenReader(`Sort admitted students by ${sortBy}`)
       }
     })
   },
   methods: {
     cancelExportModal() {
       this.showExportListModal = false
-      this.$announcer.polite('Export canceled')
+      this.alertScreenReader('Export canceled')
     },
     exportCohort() {
       const name = 'CE3 Admissions'
       const fields = this._map(getAdmitCsvExportColumns(), 'value')
       this.showExportListModal = false
       this.exportEnabled = false
-      this.$announcer.polite(`Exporting cohort ${name}`)
+      this.alertScreenReader(`Exporting cohort ${name}`)
       downloadCsv('admitted_students', name, [], fields).then(() => {
         this.exportEnabled = true
       })
@@ -168,7 +168,7 @@ export default {
     goToPage(page) {
       if (page !== this.pagination.currentPage) {
         if (this.pagination.currentPage) {
-          this.$announcer.polite(`Loading page ${page} of this cohort's students`)
+          this.alertScreenReader(`Loading page ${page} of this cohort's students`)
         }
         this.pagination.currentPage = page
         this.$router.push({
@@ -191,8 +191,7 @@ export default {
         if (response) {
           this.admits = this._get(response, 'students')
           this.totalAdmitCount = this._get(response, 'totalStudentCount')
-          this.loadingComplete()
-          this.$announcer.polite(`${this.totalAdmitCount} CE3 admits loaded`)
+          this.loadingComplete(`${this.totalAdmitCount} CE3 admits loaded`)
           this.putFocusNextTick('cohort-name')
         } else {
           this.$router.push({path: '/404'})

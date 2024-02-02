@@ -438,11 +438,11 @@ export default {
       this.openMessages = []
       this.searchResults = null
       this.timelineQuery = ''
-      this.$announcer.polite(this.describeTheActiveTab())
+      this.alertScreenReader(this.describeTheActiveTab())
       this.refreshSearchIndex()
     },
     isShowingAll() {
-      this.$announcer.polite(this.describeTheActiveTab())
+      this.alertScreenReader(this.describeTheActiveTab())
     },
     timelineQuery() {
       if (this.timelineQuery) {
@@ -468,7 +468,7 @@ export default {
       this.setEventHandler('notes-created', this.afterNotesCreated)
     }
     this.sortMessages()
-    this.$announcer.polite(`${this.student.name} profile loaded.`)
+    this.alertScreenReader(`${this.student.name} profile loaded.`)
   },
   mounted() {
     if (this.anchor) {
@@ -522,7 +522,7 @@ export default {
       this.editModeNoteId = null
     },
     cancelTheDelete() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.putFocusNextTick(`delete-note-button-${this.messageForDelete.id}`)
       this.messageForDelete = undefined
     },
@@ -540,12 +540,12 @@ export default {
         this.allExpanded = false
       }
       if (notifyScreenReader) {
-        this.$announcer.polite(`${this._capitalize(message.type)} closed`)
+        this.alertScreenReader(`${this._capitalize(message.type)} closed`)
       }
     },
     deleteNote(message) {
       // The following opens the "Are you sure?" modal
-      this.$announcer.polite('Please confirm delete')
+      this.alertScreenReader('Please confirm delete')
       this.messageForDelete = message
     },
     deleteConfirmed() {
@@ -556,7 +556,7 @@ export default {
       this._remove(this.openMessages, value => transientId === value)
       this.messageForDelete = undefined
       return deleteNote(note).then(() => {
-        this.$announcer.polite('Note deleted')
+        this.alertScreenReader('Note deleted')
         this.refreshSearchIndex()
       })
     },
@@ -628,7 +628,7 @@ export default {
         this.allExpanded = true
       }
       if (notifyScreenReader) {
-        this.$announcer.polite(`${this._capitalize(message.type)} opened`)
+        this.alertScreenReader(`${this._capitalize(message.type)} opened`)
       }
     },
     refreshNote(updatedNote) {
@@ -677,15 +677,15 @@ export default {
       this.allExpanded = !this.allExpanded
       if (this.allExpanded) {
         this._each(this.messagesPerType(this.filter), this.open)
-        this.$announcer.polite(`All ${this.filter}s expanded`)
+        this.alertScreenReader(`All ${this.filter}s expanded`)
       } else {
         this._each(this.messagesPerType(this.filter), this.close)
-        this.$announcer.polite(`All ${this.filter}s collapsed`)
+        this.alertScreenReader(`All ${this.filter}s collapsed`)
       }
     },
     toggleMyNotes() {
       this.showMyNotesOnly = !this.showMyNotesOnly
-      this.$announcer.polite(`Showing ${this.showMyNotesOnly ? 'only my' : 'all'} ${this.filter}s`)
+      this.alertScreenReader(`Showing ${this.showMyNotesOnly ? 'only my' : 'all'} ${this.filter}s`)
     }
   }
 }

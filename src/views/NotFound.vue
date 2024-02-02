@@ -22,8 +22,7 @@ export default {
   name: 'NotFound',
   mixins: [Context],
   created() {
-    this.loadingComplete()
-    this.$announcer.polite('Page not found')
+    this.loadingComplete('Page not found')
   }
 }
 </script>

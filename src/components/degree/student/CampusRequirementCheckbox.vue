@@ -56,7 +56,7 @@ export default {
         categoryId: this.campusRequirement.category.id,
         isSatisfied: this.isSatisfied
       }).then(() => {
-        this.$announcer.polite(`${this.campusRequirement.name} requirement ${this.isSatisfied ? 'satisfied' : 'unsatisfied'}`)
+        this.alertScreenReader(`${this.campusRequirement.name} requirement ${this.isSatisfied ? 'satisfied' : 'unsatisfied'}`)
         this.putFocusNextTick(`column-${this.position}-${this.campusRequirement.key}-satisfy-checkbox`)
         this.setDisableButtons(false)
       })

@@ -11,7 +11,6 @@ import router from './router'
 import store from './store'
 import VCalendar from 'v-calendar'
 import Vue from 'vue'
-import VueAnnouncer from '@vue-a11y/announcer'
 import VueHighcharts from 'vue-highcharts'
 import VueHotkey from 'v-hotkey'
 import {routerHistory, writeHistory} from 'vue-router-back-button'
@@ -39,7 +38,6 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(CKEditor)
 Vue.use(VCalendar)
-Vue.use(VueAnnouncer)
 Vue.use(VueHotkey)
 
 HighchartsMore(Highcharts)

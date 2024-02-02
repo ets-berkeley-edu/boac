@@ -165,7 +165,7 @@ export default {
     },
     onFocusInSearch() {
       this.setIsFocusOnSearch(true)
-      this.$announcer.polite('Search has focus')
+      this.alertScreenReader('Search has focus')
     },
     onFocusOutSearch() {
       this.setIsFocusOnSearch(false)
@@ -176,7 +176,7 @@ export default {
     },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
-      this.$announcer.polite('Advanced search is open')
+      this.alertScreenReader('Advanced search is open')
     },
     search() {
       const q = this._trim(this.queryText)
@@ -197,7 +197,7 @@ export default {
         addToSearchHistory(q).then(history => store.commit('search/setSearchHistory', history))
       } else {
         this.showErrorPopover = true
-        this.$announcer.polite('Search input is required')
+        this.alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
       scrollToTop()

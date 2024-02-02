@@ -102,14 +102,14 @@ export default {
             attachments.push(attachment)
           })
           this.addAttachments(attachments)
-          this.$announcer.polite('Attachments added')
+          this.alertScreenReader('Attachments added')
         }
       }
     }
   },
   methods: {
     removeAttachmentByIndex(index) {
-      this.$announcer.polite(`Attachment '${this.existingAttachments[index].name}' removed`)
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
       this.removeAttachment(index)
     }
   }

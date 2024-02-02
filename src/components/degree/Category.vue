@@ -125,13 +125,13 @@ export default {
   methods: {
     deleteCanceled() {
       this.isDeleting = false
-      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
       this.putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
     },
     deleteConfirmed() {
       return this.deleteCategory(this.category.id).then(() => {
-        this.$announcer.polite(`${this.category.name} deleted.`)
+        this.alertScreenReader(`${this.category.name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)
         this.putFocusNextTick(`column-${this.position}-create-btn`)
@@ -140,10 +140,10 @@ export default {
     deleteDegreeCategory() {
       this.setDisableButtons(true)
       this.isDeleting = true
-      this.$announcer.polite(`Delete ${this.category.name}`)
+      this.alertScreenReader(`Delete ${this.category.name}`)
     },
     edit() {
-      this.$announcer.polite(`Edit ${this.category.name}`)
+      this.alertScreenReader(`Edit ${this.category.name}`)
       this.onClickEdit(this.category)
     },
     isDroppable() {

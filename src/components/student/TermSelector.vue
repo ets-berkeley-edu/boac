@@ -15,8 +15,8 @@
         no-caret
         toggle-class="dd-override"
         variant="link"
-        @hidden="$announcer.polite('Term select menu closed')"
-        @shown="$announcer.polite('Term select menu opened')"
+        @hidden="alertScreenReader('Term select menu closed')"
+        @shown="alertScreenReader('Term select menu opened')"
       >
         <template #button-content>
           <div class="d-flex dropdown-width justify-content-between text-dark">
@@ -107,7 +107,7 @@ export default {
       if (value !== this._get(this.currentUser.preferences, 'termId')) {
         this.selectedTermId = value
         this.selectedTermLabel = termNameForSisId(value)
-        this.$announcer.polite(`${this.selectedTermLabel} selected`)
+        this.alertScreenReader(`${this.selectedTermLabel} selected`)
         store.commit('context/updateCurrentUserPreference', {key: 'termId', value: this.selectedTermId})
         this.broadcast('termId-user-preference-change', value)
       }

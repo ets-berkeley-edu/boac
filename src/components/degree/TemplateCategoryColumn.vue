@@ -122,14 +122,14 @@ export default {
   }),
   methods: {
     add() {
-      this.$announcer.polite('Add category')
+      this.alertScreenReader('Add category')
       this.isAddingCategory = true
       this.setDisableButtons(true)
     },
     edit(category) {
       this.categoryForEdit = category
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${category.categoryType} "${category.name}"`)
+      this.alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
     onExitEditCategory() {

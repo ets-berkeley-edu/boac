@@ -130,7 +130,7 @@ export default {
     },
     curatedGroupRemoveStudent(student) {
       this.removeStudent(this.getSid(student))
-      this.$announcer.set(`Removed ${this.fullName(student)} from group`, 'polite')
+      this.alertScreenReader(`Removed ${this.fullName(student)} from group`)
     },
     fullName(student) {
       const firstName = student.firstName

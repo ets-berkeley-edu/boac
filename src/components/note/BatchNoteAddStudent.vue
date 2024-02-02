@@ -103,7 +103,7 @@ export default {
         this.addedStudents.push(student)
         this.addSid(student.sid)
         this.resetAutoCompleteKey = new Date().getTime()
-        this.$announcer.polite(`${student.label} added to batch note`)
+        this.alertScreenReader(`${student.label} added to batch note`)
         this.clearWarning()
       }
     },
@@ -124,7 +124,7 @@ export default {
             this._remove(sids, s => s === student.sid)
           })
           this.addSidList(sidList)
-          this.$announcer.polite(`${sidList.length} students added to batch note`)
+          this.alertScreenReader(`${sidList.length} students added to batch note`)
           this.sidsNotFound = this._uniq(sids)
           if (this.sidsNotFound.length) {
             this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
@@ -154,13 +154,13 @@ export default {
           this.removeStudent(student.sid)
           this.putFocusNextTick('create-note-add-student-input')
         }
-        this.$announcer.polite(`${student.label} removed from batch note`)
+        this.alertScreenReader(`${student.label} removed from batch note`)
       }
     },
     setWarning(message) {
       this.warning = message
       this.showWarning = true
-      this.$announcer.polite(message)
+      this.alertScreenReader(message)
     },
     studentsByNameOrSid(query, limit) {
       const sids = this._map(this.addedStudents, 'sid')

@@ -47,8 +47,7 @@ export default {
   created() {
     getUsersWithCuratedGroups().then(data => {
       this.rows = this._filter(data, row => row.groups.length)
-      this.loadingComplete()
-      this.$announcer.polite('Everyone\'s Groups has loaded')
+      this.loadingComplete('Everyone\'s Groups has loaded')
     })
   }
 }

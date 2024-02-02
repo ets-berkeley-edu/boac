@@ -1,8 +1,8 @@
 import _ from 'lodash'
 import moment from 'moment'
-import Vue from 'vue'
 import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment} from '@/api/notes'
 import {getMyNoteTemplates} from '@/api/note-templates'
+import store from '@/store'
 import {isAutoSaveMode, recalculateStudentCount, updateAdvisingNote} from '@/store/utils/note'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
@@ -159,7 +159,7 @@ const actions = {
       commit('setIsSaving', true)
       addAttachments(state.model.id, attachments).then(response => {
         commit('addAttachments', response.attachments)
-        Vue.prototype.$announcer.assertive('Attachment added')
+        store.commit('context/alertScreenReader', {message: 'Attachment added', politeness: 'assertive'})
         commit('setIsSaving', false)
       })
     } else {
@@ -229,7 +229,7 @@ const actions = {
     commit('removeAttachment', index)
     if (isAutoSaveMode(state.mode)) {
       removeAttachment(state.model.id, attachmentId).then(() => {
-        Vue.prototype.$announcer.assertive('Attachment removed')
+        store.commit('context/alertScreenReader', {message: 'Attachment removed', politeness: 'assertive'})
       })
     }
   },

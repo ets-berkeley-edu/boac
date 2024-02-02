@@ -36,8 +36,7 @@ export default {
     this.errorStatus = this.$route.query.s
     this.message = this.$route.query.m || 'Uh oh, there was a problem.'
     this.title = this.$route.query.t ? `Error: ${this._capitalize(this.$route.query.t)}` : 'Error'
-    this.loadingComplete()
-    this.$announcer.polite(this.title)
+    this.loadingComplete(this.title)
   }
 }
 </script>

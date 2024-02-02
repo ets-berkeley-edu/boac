@@ -118,7 +118,7 @@ export default {
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name
         this.setPageTitle(`${studentName} - ${this.degreeName}`)
         this.loadingComplete()
-        this.$announcer.polite(`${this.degreeName} for ${this.student.name}`)
+        this.alertScreenReader(`${this.degreeName} for ${this.student.name}`)
       })
     })
   },

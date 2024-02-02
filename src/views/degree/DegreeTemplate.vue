@@ -55,7 +55,7 @@ export default {
       } else {
         this.setPageTitle(this.degreeName)
         this.loadingComplete()
-        this.$announcer.polite(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
+        this.alertScreenReader(this.templateId ? `Degree ${this.degreeName} has loaded` : 'Create degree page has loaded')
         this.putFocusNextTick('add-unit-requirement')
       }
     })

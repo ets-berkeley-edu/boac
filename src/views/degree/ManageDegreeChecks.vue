@@ -247,7 +247,7 @@ export default {
       this.degreeTemplates = data
       this.successMessage = this.$route.query.m
       this.loadingComplete()
-      this.$announcer.polite('Managing Degree Checks loaded')
+      this.alertScreenReader('Managing Degree Checks loaded')
     })
   },
   methods: {
@@ -256,7 +256,7 @@ export default {
       getDegreeTemplates().then(data => {
         this.degreeTemplates = data
         this.isBusy = false
-        this.$announcer.polite('Degree copy is complete.')
+        this.alertScreenReader('Degree copy is complete.')
         this.putFocusNextTick(`degree-check-${clone.id}-link`)
       })
     },
@@ -264,31 +264,31 @@ export default {
       this.putFocusNextTick(`degree-check-${this.templateForEdit.id}-link`)
       this.templateForEdit = null
       this.isBusy = false
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
     },
     cloneCanceled() {
       this.putFocusNextTick(`degree-check-${this.templateToClone.id}-link`)
       this.templateToClone = null
       this.isBusy = false
-      this.$announcer.polite('Copy canceled.')
+      this.alertScreenReader('Copy canceled.')
     },
     deleteCanceled() {
       this.putFocusNextTick(`degree-check-${this.templateForDelete.id}-link`)
       this.deleteModalBody = this.templateForDelete = null
       this.isBusy = false
-      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.alertScreenReader('Canceled. Nothing deleted.')
     },
     deleteConfirmed() {
       return deleteDegreeTemplate(this.templateForDelete.id).then(getDegreeTemplates).then(data => {
         this.degreeTemplates = data
-        this.$announcer.polite(`${this.templateForDelete.name} deleted.`)
+        this.alertScreenReader(`${this.templateForDelete.name} deleted.`)
         this.putFocusNextTick('page-header')
         this.deleteModalBody = this.templateForDelete = null
         this.isBusy = false
       })
     },
     edit(template) {
-      this.$announcer.polite(`Rename ${template.name}`)
+      this.alertScreenReader(`Rename ${template.name}`)
       this.templateForEdit = this._clone(template)
       this.isBusy = true
       this.putFocusNextTick('rename-template-input')
@@ -299,7 +299,7 @@ export default {
       return this._map(templates, 'name').findIndex(t => t.toLowerCase() === lower) === -1
     },
     openCreateCloneModal(template) {
-      this.$announcer.polite('Create a copy.')
+      this.alertScreenReader('Create a copy.')
       this.templateToClone = template
       this.isBusy = true
     },
@@ -309,7 +309,7 @@ export default {
         this.templateForEdit = null
         getDegreeTemplates().then(data => {
           this.degreeTemplates = data
-          this.$announcer.polite('Template updated')
+          this.alertScreenReader('Template updated')
           this.isBusy = false
           this.putFocusNextTick(`degree-check-${templateId}-link`)
         })
@@ -317,7 +317,7 @@ export default {
     },
     showDeleteModal(template) {
       this.deleteModalBody = `Are you sure you want to delete <b>"${template.name}"</b>?`
-      this.$announcer.polite('Please confirm delete.')
+      this.alertScreenReader('Please confirm delete.')
       this.templateForDelete = template
       this.isBusy = true
     }

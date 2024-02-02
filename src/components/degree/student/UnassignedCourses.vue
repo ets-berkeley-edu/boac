@@ -207,6 +207,7 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
+import Context from '@/mixins/Context'
 import CourseAssignmentMenu from '@/components/degree/student/CourseAssignmentMenu'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
@@ -216,7 +217,7 @@ import {isAlertGrade} from '@/berkeley'
 export default {
   name: 'UnassignedCourses',
   components: {AreYouSureModal, CourseAssignmentMenu, EditCourse},
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     ignored: {
       required: false,
@@ -241,21 +242,21 @@ export default {
   methods: {
     afterCancel() {
       const putFocus = `edit-${this.key}-course-${this.courseForEdit.id}-btn`
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.courseForEdit = null
       this.setDisableButtons(false)
       this.putFocusNextTick(putFocus)
     },
     afterSave(course) {
       this.courseForEdit = null
-      this.$announcer.polite(`Updated ${this.key} course ${course.name}`)
+      this.alertScreenReader(`Updated ${this.key} course ${course.name}`)
       this.setDisableButtons(false)
       this.putFocusNextTick(`edit-${this.key}-course-${course.id}-btn`)
     },
     edit(course) {
       this.hideNote(course, false)
       this.setDisableButtons(true)
-      this.$announcer.polite(`Edit ${this.key} ${course.name}`)
+      this.alertScreenReader(`Edit ${this.key} ${course.name}`)
       this.courseForEdit = course
       this.putFocusNextTick('name-input')
     },
@@ -265,12 +266,12 @@ export default {
     deleteCanceled() {
       this.putFocusNextTick(`delete-${this.courseForDelete.id}-btn`)
       this.courseForDelete = null
-      this.$announcer.polite('Canceled. Nothing deleted.')
+      this.alertScreenReader('Canceled. Nothing deleted.')
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
       return this.deleteCourse(this.courseForDelete.id).then(() => {
-        this.$announcer.polite(`${this.courseForDelete.name} deleted.`)
+        this.alertScreenReader(`${this.courseForDelete.name} deleted.`)
         this.courseForDelete = null
         this.setDisableButtons(false)
         this.putFocusNextTick('create-course-button')
@@ -279,7 +280,7 @@ export default {
     hideNote(course, srAlert=true) {
       this.notesVisible = this._remove(this.notesVisible, id => course.id !== id)
       if (srAlert) {
-        this.$announcer.polite('Note hidden')
+        this.alertScreenReader('Note hidden')
       }
     },
     isAlertGrade,
@@ -292,7 +293,7 @@ export default {
     onDelete(course) {
       this.setDisableButtons(true)
       this.courseForDelete = course
-      this.$announcer.polite(`Delete ${course.name}`)
+      this.alertScreenReader(`Delete ${course.name}`)
     },
     onDrag(event, stage, course) {
       switch (stage) {
@@ -333,7 +334,7 @@ export default {
     },
     showNote(course) {
       this.notesVisible.push(course.id)
-      this.$announcer.polite(`Showing note of ${course.name}`)
+      this.alertScreenReader(`Showing note of ${course.name}`)
     }
   }
 }

@@ -85,8 +85,7 @@ export default {
       this.setPageTitle(this.currentUser.inDemoMode ? 'Student' : student.name)
       this._assign(this.student, student)
       this._each(this.student.enrollmentTerms, this.parseEnrollmentTerm)
-      this.loadingComplete()
-      this.$announcer.polite(`${this.student.name} loaded`)
+      this.loadingComplete(`${this.student.name} loaded`)
     })
   },
   mounted() {
@@ -97,13 +96,13 @@ export default {
   methods: {
     confirmExitAndEndSession(next) {
       if (this.noteMode) {
-        this.$announcer.polite('Are you sure you want to discard unsaved changes?')
+        this.alertScreenReader('Are you sure you want to discard unsaved changes?')
         this.cancelConfirmed = () => {
           this.exitSession(true)
           return next()
         }
         this.cancelTheCancel = () => {
-          this.$announcer.polite('Please save changes before exiting the page.')
+          this.alertScreenReader('Please save changes before exiting the page.')
           this.showAreYouSureModal = false
           next(false)
         }

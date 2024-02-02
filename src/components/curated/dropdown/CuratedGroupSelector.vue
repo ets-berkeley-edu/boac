@@ -153,7 +153,7 @@ export default {
   },
   methods: {
     afterAddStudents(group) {
-      this.$announcer.polite(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
+      this.alertScreenReader(`${this.sids.length} student${this.sids.length === 1 ? '' : 's'} added to ${this.domainLabel(true)} "${group.name}".`)
       this.sids = []
       this.isSelectAllChecked = this.indeterminate = false
       this.broadcast('curated-group-deselect-all', this.domain)
@@ -190,14 +190,14 @@ export default {
     },
     modalCancel() {
       this.showModal = false
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
     },
     modalCreateCuratedGroup(name) {
       this.isSaving = true
       this.showModal = false
       let done = () => {
         this.isSaving = false
-        this.$announcer.polite(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
+        this.alertScreenReader(`Student${this.sids.length === 1 ? 's' : ''} added to ${this.domainLabel(false)} ${name}`)
         this.afterCreateGroup()
       }
       createCuratedGroup(this.domain, name, this.sids)
@@ -211,10 +211,10 @@ export default {
         })
         this.broadcast('curated-group-select-all', this.domain)
         this.putFocusNextTick(this.dropdownId, 'button')
-        this.$announcer.polite('All students on this page selected.')
+        this.alertScreenReader('All students on this page selected.')
       } else {
         this.broadcast('curated-group-deselect-all', this.domain)
-        this.$announcer.polite('All students on this page deselected.')
+        this.alertScreenReader('All students on this page deselected.')
       }
     }
   }

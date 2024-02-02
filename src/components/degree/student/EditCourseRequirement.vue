@@ -97,13 +97,14 @@
 
 <script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 
 export default {
   name: 'EditCourseRequirement',
   components: {AccentColorSelect, UnitsInput},
-  mixins: [DegreeEditSession],
+  mixins: [Context, DegreeEditSession],
   props: {
     afterCancel: {
       required: true,
@@ -157,7 +158,7 @@ export default {
       if (!this.disableSaveButton) {
         this.isSaving = true
         const done = () => {
-          this.$announcer.polite('Requirement updated')
+          this.alertScreenReader('Requirement updated')
           this.isSaving = false
           this.afterSave()
         }

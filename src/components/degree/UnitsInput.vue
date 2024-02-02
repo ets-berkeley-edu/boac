@@ -61,12 +61,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'UnitsInput',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     disable: {
       required: false,
@@ -150,7 +151,7 @@ export default {
         this.setUnitsUpper(undefined)
       }
       this.putFocusNextTick(this.showUnitsUpperInput && this.unitsLower ? `upper-${this.inputId}` : this.inputId)
-      this.$announcer.polite(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
+      this.alertScreenReader(`Enter ${this.showUnitsUpperInput ? 'end' : 'start'} value of range.`)
     }
   }
 }

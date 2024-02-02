@@ -411,7 +411,7 @@ export default {
           })
         }
       } else {
-        this.$announcer.polite('Search input is required')
+        this.alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
       scrollToTop()

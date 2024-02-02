@@ -81,7 +81,7 @@ export default {
     apply() {
       this.broadcast('cohort-apply-filters')
       this.isPerforming = 'search'
-      this.$announcer.polite('Searching for students')
+      this.alertScreenReader('Searching for students')
       this.setModifiedSinceLastSearch(false)
       const orderBy = this._get(
         this.currentUser.preferences,
@@ -90,18 +90,18 @@ export default {
       const termId = this._get(this.currentUser.preferences, 'termId')
       applyFilters(orderBy, termId).then(() => {
         this.putFocusNextTick('cohort-results-header')
-        this.$announcer.polite(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
+        this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
         this.isPerforming = null
       })
     },
     cancelCreateModal() {
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.showCreateModal = false
     },
     create(name) {
       this.showCreateModal = false
       this.isPerforming = 'save'
-      this.$announcer.polite('Creating cohort')
+      this.alertScreenReader('Creating cohort')
       createCohort(this.domain, name, this.filters).then(cohort => {
         store.commit('cohort/updateSession', {
           cohort,
@@ -118,7 +118,7 @@ export default {
       })
     },
     resetToLastApply() {
-      this.$announcer.polite('Resetting filters')
+      this.alertScreenReader('Resetting filters')
       resetFiltersToLastApply()
     },
     resetToSaved() {
@@ -128,13 +128,13 @@ export default {
       this.setEditMode('apply')
       loadCohort(this.cohortId, this.orderBy, this.termId).then(() => {
         this.setEditMode(null)
-        this.$announcer.polite('Filters reset')
+        this.alertScreenReader('Filters reset')
         this.isPerforming = null
       })
     },
     save() {
       if (this.cohortId) {
-        this.$announcer.polite(`Saving changes to cohort ${this.cohortName}`)
+        this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`)
         this.isPerforming = 'save'
         saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
           this.setModifiedSinceLastSearch(null)
@@ -142,11 +142,11 @@ export default {
         })
       } else {
         this.showCreateModal = true
-        this.$announcer.polite('Create cohort form is open')
+        this.alertScreenReader('Create cohort form is open')
       }
     },
     savedCohortCallback(updateStatus) {
-      this.$announcer.polite(updateStatus)
+      this.alertScreenReader(updateStatus)
       this.isPerforming = 'acknowledgeSave'
       setTimeout(() => (this.isPerforming = null), 2000)
     }

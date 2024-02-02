@@ -11,7 +11,8 @@ export default {
       'currentUser',
       'dismissedFooterAlert',
       'dismissedServiceAnnouncement',
-      'loading'
+      'loading',
+      'screenReaderAlert'
     ]),
     ...mapGetters('note', [
       'disableNewNoteButton',
@@ -20,6 +21,7 @@ export default {
   },
   methods: {
     ...mapMutations('context', [
+      'alertScreenReader',
       'dismissFooterAlert',
       'dismissServiceAnnouncement',
       'loadingComplete',

@@ -167,7 +167,7 @@ export default {
           this.checkedGroups = this._without(this.checkedGroups, group.id)
           this.isRemoving = false
           this.putFocusNextTick(this.dropdownId, 'button')
-          this.$announcer.polite(`${this.student.name} removed from "${group.name}"`)
+          this.alertScreenReader(`${this.student.name} removed from "${group.name}"`)
         }
         removeFromCuratedGroup(group.id, this.student.sid).finally(() =>
           setTimeout(done, this.confirmationTimeout)
@@ -178,7 +178,7 @@ export default {
           this.checkedGroups.push(group.id)
           this.isAdding = false
           this.putFocusNextTick(this.dropdownId, 'button')
-          this.$announcer.polite(`${this.student.name} added to "${group.name}"`)
+          this.alertScreenReader(`${this.student.name} added to "${group.name}"`)
         }
         addStudentsToCuratedGroup(group.id, [this.student.sid]).finally(() => setTimeout(done, this.confirmationTimeout))
       }
@@ -192,13 +192,13 @@ export default {
       }
       createCuratedGroup(this.domain, name, [this.student.sid]).then(group => {
         this.checkedGroups.push(group.id)
-        this.$announcer.polite(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
+        this.alertScreenReader(`${this.student.name} added to new ${this.domainLabel(false)}, "${name}".`)
         setTimeout(done, this.confirmationTimeout)
       })
     },
     onModalCancel() {
       this.showModal = false
-      this.$announcer.polite('Canceled')
+      this.alertScreenReader('Canceled')
       this.putFocusNextTick(this.dropdownId, 'button')
     },
     refresh() {

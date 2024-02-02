@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import mitt from 'mitt'
+import router from '@/router'
 import store from '@/store'
 import Vue from 'vue'
 
@@ -11,7 +12,11 @@ const state = {
   dismissedServiceAnnouncement: false,
   eventHub: mitt(),
   loading: undefined,
-  loadingStartTime: undefined
+  loadingStartTime: undefined,
+  screenReaderAlert: {
+    message: '',
+    politeness: 'polite'
+  }
 }
 
 const getters = {
@@ -20,7 +25,8 @@ const getters = {
   currentUser: (state: any): any => state.currentUser,
   dismissedFooterAlert: (): boolean => state.dismissedFooterAlert,
   dismissedServiceAnnouncement: (): boolean => state.dismissedServiceAnnouncement,
-  loading: (state: any): boolean => state.loading
+  loading: (state: any): boolean => state.loading,
+  screenReaderAlert: (state: any): any => state.screenReaderAlert
 }
 
 const mutations = {
@@ -29,14 +35,25 @@ const mutations = {
     state.currentUser.myCuratedGroups.push(curatedGroup)
     state.currentUser.myCuratedGroups = _.sortBy(state.currentUser.myCuratedGroups, 'name')
   },
+  alertScreenReader(state: any, {message, politeness}: any) {
+    state.screenReaderAlert.message = ''
+      Vue.nextTick(() => {
+        state.screenReaderAlert = {
+          message: message,
+          politeness: politeness || 'polite'
+        }
+      })
+  },
   broadcast: (state: any, {eventType, data}: any) => state.eventHub.emit(eventType, data),
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
-  loadingComplete: (state: any) => {
+  loadingComplete: (state: any, srAlert?: any) => {
     if (!store.getters['context/config'].isProduction) {
       console.log(`Page loaded in ${(new Date().getTime() - state.loadingStartTime) / 1000} seconds`)
     }
     state.loading = false
+    store.commit('context/alertScreenReader', {message: srAlert || `${String(_.get(router.currentRoute, 'name', ''))} page loaded.`})
+
     const callable = () => {
       const elements = document.getElementsByTagName('h1')
       if (elements.length > 0) {
@@ -50,9 +67,10 @@ const mutations = {
       const job = setInterval(() => (callable() || ++counter > 3) && clearInterval(job), 500)
     })
   },
-  loadingStart: (state: any) => {
+  loadingStart: (state: any, route?: string|Object) => {
     state.loading = true
     state.loadingStartTime = new Date().getTime()
+    store.commit('context/alertScreenReader', {message: `${String(_.get(route, 'name', ''))} page is loading`})
   },
   removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   removeMyCohort: (state: any, cohortId: number) => {

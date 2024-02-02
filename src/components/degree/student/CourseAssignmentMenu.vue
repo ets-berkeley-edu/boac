@@ -68,12 +68,13 @@
 </template>
 
 <script>
+import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'CourseAssignmentMenu',
-  mixins: [DegreeEditSession, Util],
+  mixins: [Context, DegreeEditSession, Util],
   props: {
     course: {
       required: true,
@@ -126,9 +127,9 @@ export default {
       this.assignCourseToCategory({course: this.course, category, ignore}).then(courseAssigned => {
         this.setDisableButtons(false)
         if (category) {
-          this.$announcer.polite(`${category.name} selected for ${this.course.name}`)
+          this.alertScreenReader(`${category.name} selected for ${this.course.name}`)
         } else {
-          this.$announcer.polite(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
+          this.alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
         }
         this.afterCourseAssignment(courseAssigned)
       })

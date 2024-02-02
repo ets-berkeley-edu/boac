@@ -214,7 +214,7 @@ export default {
     },
     onChangeSortBy() {
       const field = this._find(this.fields, ['key', this.sortBy])
-      this.$announcer.polite(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
+      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this._get(a, sortBy)
