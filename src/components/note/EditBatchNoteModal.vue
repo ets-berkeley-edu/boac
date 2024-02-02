@@ -163,7 +163,6 @@ import Util from '@/mixins/Util'
 import {createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
-import {updateAdvisingNote} from '@/store/utils/note'
 
 export default {
   name: 'EditBatchNoteModal',
@@ -285,7 +284,7 @@ export default {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
         // Save draft before creating template.
-        updateAdvisingNote().then(() => {
+        this.updateAdvisingNote().then(() => {
           createNoteTemplate(this.model.id, title).then(() => {
             this.showAlert(`Template '${title}' created.`)
             setTimeout(() => {
@@ -369,7 +368,7 @@ export default {
         if (this.model.isDraft || (this.model.subject && this.completeSidSet.length)) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
-          updateAdvisingNote().then(() => {
+          this.updateAdvisingNote().then(() => {
             this.setIsSaving(false)
             this.alertScreenReader(this.mode.includes('create') ? 'Note created' : 'Note saved')
             this.exit(false)

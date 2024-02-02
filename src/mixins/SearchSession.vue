@@ -1,6 +1,7 @@
 <script>
 import store from '@/store'
 import {mapGetters, mapMutations} from 'vuex'
+import {alertScreenReader} from '@/store/modules/context'
 import {oxfordJoin} from '@/utils'
 
 export default {
@@ -42,28 +43,28 @@ export default {
       },
       set: v => {
         store.commit('search/setIncludeAdmits', v)
-        store.commit('context/alertScreenReader', `Search ${v ? 'will' : 'will not'} include admits.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include admits.`)
       }
     },
     includeCourses: {
       get: () => store.getters['search/includeCourses'],
       set: v => {
         store.commit('search/setIncludeCourses', v)
-        store.commit('context/alertScreenReader', `Search ${v ? 'will' : 'will not'} include courses.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include courses.`)
       }
     },
     includeNotes: {
       get: () => store.getters['search/includeNotes'],
       set: v => {
         store.commit('search/setIncludeNotes', v)
-        store.commit('context/alertScreenReader', `Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
+        alertScreenReader(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
       }
     },
     includeStudents: {
       get: () => store.getters['search/includeStudents'],
       set: v => {
         store.commit('search/setIncludeStudents', v)
-        store.commit('context/alertScreenReader', `Search ${v ? 'will' : 'will not'} include students.`)
+        alertScreenReader(`Search ${v ? 'will' : 'will not'} include students.`)
       }
     },
     isSearching: {

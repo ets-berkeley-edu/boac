@@ -1,6 +1,6 @@
 <script>
 import _ from 'lodash'
-import moment from 'moment'
+import moment from 'moment-timezone'
 import numeral from 'numeral'
 import Vue from 'vue'
 import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/utils'

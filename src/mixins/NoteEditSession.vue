@@ -2,10 +2,9 @@
 import _ from 'lodash'
 import store from '@/store'
 import {mapActions, mapGetters, mapMutations} from 'vuex'
-import {updateAdvisingNote} from '@/store/utils/note'
 
 export default {
-  name: 'NoteEditSession',
+  name: 'note',
   computed: {
     ...mapGetters('note', [
       'addedCohorts',
@@ -36,20 +35,26 @@ export default {
       'addAttachments',
       'addCohort',
       'addCuratedGroup',
+      'addSid',
       'addSidList',
-      'addTopic',
       'applyTemplate',
       'clearAutoSaveJob',
       'exitSession',
-      'onBoaSessionExpires',
-      'removeAllStudents',
       'removeAttachment',
       'removeCohort',
       'removeCuratedGroup',
       'removeStudent',
-      'removeTopic',
       'resetModel',
       'setAutoSaveJob',
+      'setModel',
+      'updateAdvisingNote'
+    ]),
+    ...mapMutations('note', [
+      'addTopic',
+      'onBoaSessionExpires',
+      'removeAllStudents',
+      'removeTopic',
+      'setBody',
       'setContactType',
       'setFocusLockDisabled',
       'setIsDraft',
@@ -57,19 +62,14 @@ export default {
       'setIsRecalculating',
       'setIsSaving',
       'setMode',
-      'setModel',
       'setSetDate',
-      'setSubject'
-    ]),
-    ...mapMutations('note', [
-      'addSid',
-      'setBody',
+      'setSubject',
     ]),
     autoSaveDraftNote() {
       this.clearAutoSaveJob()
       if (this.model.isDraft) {
         store.commit('note/isAutoSavingDraftNote', true)
-        updateAdvisingNote().then(note => {
+        this.updateAdvisingNote().then(note => {
           store.commit('note/setModelId', note.id)
           setTimeout(() => store.commit('note/isAutoSavingDraftNote', false), 2000)
           this.scheduleAutoSaveJob()
@@ -90,7 +90,7 @@ export default {
       this.setAutoSaveJob(jobId)
     },
     setSubjectPerEvent(event) {
-      store.dispatch('note/setSubject', _.isString(event) ? event : event.target.value)
+      store.commit('note/setSubject', _.isString(event) ? event : event.target.value)
     }
   }
 }
