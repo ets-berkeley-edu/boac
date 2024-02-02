@@ -4,6 +4,13 @@ import router from '@/router'
 import store from '@/store'
 import Vue from 'vue'
 
+export function alertScreenReader(message: string, politeness?: string) {
+  store.commit('context/setScreenReaderAlert', {message: ''})
+  Vue.nextTick(() => {
+    store.commit('context/setScreenReaderAlert', {message, politeness})
+  })
+}
+
 const state = {
   announcement: undefined,
   config: undefined,
@@ -35,15 +42,6 @@ const mutations = {
     state.currentUser.myCuratedGroups.push(curatedGroup)
     state.currentUser.myCuratedGroups = _.sortBy(state.currentUser.myCuratedGroups, 'name')
   },
-  alertScreenReader(state: any, {message, politeness}: any) {
-    state.screenReaderAlert.message = ''
-      Vue.nextTick(() => {
-        state.screenReaderAlert = {
-          message: message,
-          politeness: politeness || 'polite'
-        }
-      })
-  },
   broadcast: (state: any, {eventType, data}: any) => state.eventHub.emit(eventType, data),
   dismissFooterAlert: (state: any) => state.dismissedFooterAlert = true,
   dismissServiceAnnouncement: (state: any) => state.dismissedServiceAnnouncement = true,
@@ -52,7 +50,7 @@ const mutations = {
       console.log(`Page loaded in ${(new Date().getTime() - state.loadingStartTime) / 1000} seconds`)
     }
     state.loading = false
-    store.commit('context/alertScreenReader', {message: srAlert || `${String(_.get(router.currentRoute, 'name', ''))} page loaded.`})
+    alertScreenReader(srAlert || `${String(_.get(router.currentRoute, 'name', ''))} page loaded.`)
 
     const callable = () => {
       const elements = document.getElementsByTagName('h1')
@@ -70,7 +68,7 @@ const mutations = {
   loadingStart: (state: any, route?: string|Object) => {
     state.loading = true
     state.loadingStartTime = new Date().getTime()
-    store.commit('context/alertScreenReader', {message: `${String(_.get(route, 'name', ''))} page is loading`})
+    alertScreenReader(`${String(_.get(route, 'name', ''))} page is loading`)
   },
   removeEventHandler: (state: any, {type, handler}: any) => state.eventHub.off(type, handler),
   removeMyCohort: (state: any, cohortId: number) => {
@@ -87,6 +85,12 @@ const mutations = {
   setDemoMode: (state: any, inDemoMode: any): void => state.currentUser.inDemoMode = inDemoMode,
   setEventHandler: (state: any, {type, handler}: any) => state.eventHub.on(type, handler),
   setMyDraftNoteCount: (state: any, count: number) => state.currentUser.myDraftNoteCount = count,
+  setScreenReaderAlert: (state: any, screenReaderAlert: any) => {
+    state.screenReaderAlert = {
+      message: screenReaderAlert.message,
+      politeness: screenReaderAlert.politeness || 'polite'
+    }
+  },
   setServiceAnnouncement: (state: any, data: any) => state.announcement = data,
   updateCurrentUserPreference: (state: any, {key, value}: any) => state.currentUser.preferences[key] = value,
   updateMyCohort: (state: any, updatedCohort: any) => {

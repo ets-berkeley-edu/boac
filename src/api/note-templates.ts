@@ -30,7 +30,7 @@ export function renameNoteTemplate(noteTemplateId: number, title: string) {
   const data = {id: noteTemplateId, title: title}
   return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(response => {
     const template = response.data
-    store.dispatch('note/onUpdateTemplate', template)
+    store.commit('note/onUpdateTemplate', template)
     $_track('update')
     return template
   })
@@ -55,7 +55,7 @@ export function updateNoteTemplate(
   }
   _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/update', data).then(template => {
-    store.dispatch('note/onUpdateTemplate', template)
+    store.commit('note/onUpdateTemplate', template)
     $_track('update')
     return template
   })
