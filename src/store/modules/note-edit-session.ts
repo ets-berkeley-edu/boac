@@ -1,9 +1,10 @@
 import _ from 'lodash'
 import moment from 'moment'
-import store from '@/store'
-import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
+import {alertScreenReader} from '@/store/modules/context'
+import {applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
+import {isAutoSaveMode} from '@/store/utils/note'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
@@ -42,8 +43,6 @@ function $_getDefaultModel():Model {
     deleteAttachmentIds: []
   }
 }
-
-const $_isAutoSaveMode = mode => ['createBatch', 'createNote', 'editDraft'].includes(mode)
 
 const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
   return new Promise(resolve => {
@@ -116,9 +115,7 @@ const getters = {
 }
 
 const mutations = {
-  addAttachments: (state: any, attachments: any[]) => {
-    state.model.attachments = _.sortBy(attachments, ['name', 'id'])
-  },
+  addAttachments: (state: any, attachments: any[]) => state.model.attachments = _.sortBy(attachments, ['name', 'id']),
   addCohort: (state: any, cohort: any) => state.addedCohorts.push(cohort),
   addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
   addSid: (state: any, sid: string) => state.sids.push(sid),
@@ -199,18 +196,6 @@ const mutations = {
 }
 
 const actions = {
-  addAttachments: ({commit, state}, attachments: any[]) => {
-    if ($_isAutoSaveMode(state.mode)) {
-      commit('setIsSaving', true)
-      addAttachments(state.model.id, attachments).then(response => {
-        commit('addAttachments', response.attachments)
-        store.commit('context/alertScreenReader', {message: 'Attachment added', politeness: 'assertive'})
-        commit('setIsSaving', false)
-      })
-    } else {
-      commit('addAttachments', attachments)
-    }
-  },
   addCohort: ({commit, state}, cohort: any) => {
     const cohorts = state.addedCohorts.concat(cohort)
     $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
@@ -269,9 +254,9 @@ const actions = {
   removeAttachment: ({commit, state}, index: number) => {
     const attachmentId = state.model.attachments[index].id
     commit('removeAttachment', index)
-    if ($_isAutoSaveMode(state.mode)) {
+    if (isAutoSaveMode(state.mode)) {
       removeAttachment(state.model.id, attachmentId).then(() => {
-        store.commit('context/alertScreenReader', {message: 'Attachment removed', politeness: 'assertive'})
+        alertScreenReader('Attachment removed', 'assertive')
       })
     }
   },

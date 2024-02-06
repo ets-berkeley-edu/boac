@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import store from '@/store'
+import {alertScreenReader} from '@/store/modules/context'
 import {
   addUnitRequirement,
   assignCourse,
@@ -248,7 +249,7 @@ const actions = {
       const actionByUser = `${dragContext} to ${context}`
 
       const done = (srAlert: string, noActionTaken?: boolean) => {
-        store.commit('context/alertScreenReader', srAlert)
+        alertScreenReader(srAlert)
         if (noActionTaken) {
           $_debug(srAlert)
         } else {

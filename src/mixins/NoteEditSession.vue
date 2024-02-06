@@ -2,6 +2,9 @@
 import _ from 'lodash'
 import store from '@/store'
 import {mapActions, mapGetters, mapMutations} from 'vuex'
+import {addAttachments} from '@/api/notes'
+import {alertScreenReader} from '@/store/modules/context'
+import {isAutoSaveMode} from '@/store/utils/note'
 
 export default {
   name: 'note',
@@ -32,7 +35,6 @@ export default {
   },
   methods: {
     ...mapActions('note', [
-      'addAttachments',
       'addCohort',
       'addCuratedGroup',
       'addSid',
@@ -50,6 +52,7 @@ export default {
       'updateAdvisingNote'
     ]),
     ...mapMutations('note', [
+      'addAttachments',
       'addTopic',
       'onBoaSessionExpires',
       'removeAllStudents',
@@ -65,6 +68,18 @@ export default {
       'setSetDate',
       'setSubject',
     ]),
+    addAttachments(attachments) {
+      if (isAutoSaveMode(this.mode)) {
+        this.setIsSaving(true)
+        addAttachments(this.model.id, attachments).then(response => {
+          store.commit('note/addAttachments', response.attachments)
+          alertScreenReader('Attachment added', 'assertive')
+          this.setIsSaving(false)
+        })
+      } else {
+        this.addAttachments(attachments)
+      }
+    },
     autoSaveDraftNote() {
       this.clearAutoSaveJob()
       if (this.model.isDraft) {
