@@ -88,8 +88,8 @@ export default {
     warning: undefined
   }),
   mounted() {
-    if (this.sids.length) {
-      getStudentsBySids(this.sids).then(students => {
+    if (this.recipients.sids.length) {
+      getStudentsBySids(this.recipients.sids).then(students => {
         this._each(students, student => {
           this.addStudent(student)
         })
@@ -101,10 +101,11 @@ export default {
       if (student) {
         this.setIsRecalculating(true)
         this.addedStudents.push(student)
-        this.addSid(student.sid)
-        this.resetAutoCompleteKey = new Date().getTime()
-        this.alertScreenReader(`${student.label} added to batch note`)
-        this.clearWarning()
+        this.setRecipient(student.sid).then(() => {
+          this.resetAutoCompleteKey = new Date().getTime()
+          this.alertScreenReader(`${student.label} added to batch note`)
+          this.clearWarning()
+        })
       }
     },
     clearWarning() {
@@ -123,15 +124,20 @@ export default {
             sidList.push(student.sid)
             this._remove(sids, s => s === student.sid)
           })
-          this.addSidList(sidList)
-          this.alertScreenReader(`${sidList.length} students added to batch note`)
-          this.sidsNotFound = this._uniq(sids)
-          if (this.sidsNotFound.length) {
-            this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
-          } else {
-            this.clearWarning()
-          }
-          this.putFocusNextTick('create-note-add-student-input')
+          this.setRecipients(
+            this.cohorts,
+            this.curatedGroups,
+            this._uniq(this.recipients.sids.concat(sidList))
+          ).then(() => {
+            this.alertScreenReader(`${sidList.length} students added to batch note`)
+            this.sidsNotFound = this._uniq(sids)
+            if (this.sidsNotFound.length) {
+              this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
+            } else {
+              this.clearWarning()
+            }
+            this.putFocusNextTick('create-note-add-student-input')
+          })
         })
       } else {
         return Promise.resolve()
@@ -149,10 +155,15 @@ export default {
     remove(student) {
       if (student) {
         this.addedStudents = this._filter(this.addedStudents, a => a.sid !== student.sid)
-        if (this.sids.includes(student.sid)) {
+        if (this.recipients.sids.includes(student.sid)) {
           this.setIsRecalculating(true)
-          this.removeStudent(student.sid)
-          this.putFocusNextTick('create-note-add-student-input')
+          this.setRecipients(
+            this.recipients.cohorts,
+            this.recipients.curatedGroups,
+            this._without(this.recipients.sids, student.sid)
+          ).then(() => {
+            this.putFocusNextTick('create-note-add-student-input')
+          })
         }
         this.alertScreenReader(`${student.label} removed from batch note`)
       }

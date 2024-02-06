@@ -23,20 +23,20 @@
           </span>
         </div>
       </div>
-      <span v-if="!completeSidSet.length && (addedCohorts.length || addedCuratedGroups.length)" class="font-italic">
+      <span v-if="!completeSidSet.length && (recipients.cohorts.length || recipients.curatedGroups.length)" class="font-italic">
         <span
-          v-if="addedCohorts.length && !addedCuratedGroups.length"
+          v-if="recipients.cohorts.length && !recipients.curatedGroups.length"
           id="no-students-per-cohorts-alert"
-        >There are no students in the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }}.</span>
+        >There are no students in the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }}.</span>
         <span
-          v-if="addedCuratedGroups.length && !addedCohorts.length"
+          v-if="recipients.curatedGroups.length && !recipients.cohorts.length"
           id="no-students-per-curated-groups-alert"
-        >There are no students in the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }}.</span>
+        >There are no students in the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }}.</span>
         <span
-          v-if="addedCohorts.length && addedCuratedGroups.length"
+          v-if="recipients.cohorts.length && recipients.curatedGroups.length"
           id="no-students-alert"
         >
-          Neither the {{ pluralize('cohort', addedCohorts.length, {1: ' '}) }} nor the {{ pluralize('group', addedCuratedGroups.length, {1: ' '}) }} have students.
+          Neither the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }} nor the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }} have students.
         </span>
       </span>
     </div>
@@ -50,21 +50,21 @@
     <div>
       <BatchNoteAddCohort
         v-if="nonAdmitCohorts.length"
-        :add-object="addCohortToBatch"
+        :add-object="addCohort"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="false"
         :objects="nonAdmitCohorts"
-        :remove-object="removeCohortFromBatch"
+        :remove-object="removeCohort"
       />
     </div>
     <div>
       <BatchNoteAddCohort
         v-if="nonAdmitCuratedGroups.length"
-        :add-object="addCuratedGroupToBatch"
+        :add-object="addCuratedGroup"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
         :objects="nonAdmitCuratedGroups"
-        :remove-object="removeCuratedGroupFromBatch"
+        :remove-object="removeCuratedGroup"
       />
     </div>
   </div>
@@ -100,25 +100,41 @@ export default {
     }
   },
   methods: {
-    addCohortToBatch(cohort) {
-      this.setIsRecalculating(true)
-      this.addCohort(cohort)
-      this.alertScreenReader(`Added cohort '${cohort.name}'`)
+    addCohort(cohort) {
+      this.setRecipients(
+        this.recipients.cohorts.concat(cohort),
+        this.recipients.curatedGroups,
+        this.recipients.sids
+      ).then(() => {
+        this.alertScreenReader(`Added cohort '${cohort.name}'`)
+      })
     },
-    addCuratedGroupToBatch(curatedGroup) {
-      this.setIsRecalculating(true)
-      this.addCuratedGroup(curatedGroup)
-      this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+    addCuratedGroup(curatedGroup) {
+      this.setRecipients(
+        this.recipients.cohorts,
+        this.recipients.curatedGroups.concat(curatedGroup),
+        this.recipients.sids
+      ).then(() => {
+        this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+      })
     },
-    removeCohortFromBatch(cohort) {
-      this.setIsRecalculating(true)
-      this.removeCohort(cohort)
-      this.alertScreenReader(`Cohort '${cohort.name}' removed`)
+    removeCohort(cohort) {
+      this.setRecipients(
+        this._reject(this.recipients.cohorts, ['id', cohort.id]),
+        this.recipients.curatedGroups,
+        this.recipients.sids
+      ).then(() => {
+        this.alertScreenReader(`Cohort '${cohort.name}' removed`)
+      })
     },
-    removeCuratedGroupFromBatch(curatedGroup) {
-      this.setIsRecalculating(true)
-      this.removeCuratedGroup(curatedGroup)
-      this.alertScreenReader(`${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
+    removeCuratedGroup(curatedGroup) {
+      this.setRecipients(
+        this.recipients.cohorts,
+        this._reject(this.recipients.curatedGroups, ['id', curatedGroup.id]),
+        this.recipients.sids
+      ).then(() => {
+        this.alertScreenReader(`${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}' removed`)
+      })
     }
   }
 }

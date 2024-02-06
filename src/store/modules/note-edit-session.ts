@@ -1,61 +1,54 @@
 import _ from 'lodash'
-import moment from 'moment'
+import moment, {Moment} from 'moment'
 import store from '@/store'
 import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
-import {getDistinctSids} from '@/api/student'
 import {getMyNoteTemplates} from '@/api/note-templates'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
 type Model = {
   id: number;
-  subject?: string;
+  attachments?: string[];
   body?: string;
   contactType?: string;
+  deleteAttachmentIds?: number[];
   isDraft?: boolean;
   isPrivate?: boolean;
   setDate?: any;
+  subject?: string;
   topics?: string[];
-  attachments?: string[];
-  deleteAttachmentIds?: number[];
 }
 
-const $_addSid = ({commit, state}, sid: string) => {
-  const sids = state.sids.concat(sid)
-  $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
-    commit('addSid', sid)
-    commit('setCompleteSidSet', sids)
-  }).finally(() => commit('setIsRecalculating', false))
+type Recipients = {
+  cohorts: any[],
+  curatedGroups: any[],
+  sids: string[]
 }
 
-function $_getDefaultModel():Model {
+function $_getDefaultModel(): Model {
   return {
     id: NaN,
-    subject: undefined,
+    attachments: [],
     body: undefined,
     contactType: undefined,
+    deleteAttachmentIds: [],
     isDraft: undefined,
     isPrivate: undefined,
     setDate: undefined,
-    topics: [],
-    attachments: [],
-    deleteAttachmentIds: []
+    subject: undefined,
+    topics: []
+  }
+}
+
+function $_getDefaultRecipients(): Recipients {
+  return {
+    cohorts: [],
+    curatedGroups: [],
+    sids: []
   }
 }
 
 const $_isAutoSaveMode = mode => ['createBatch', 'createNote', 'editDraft'].includes(mode)
-
-const $_recalculateStudentCount = (sids, cohorts, curatedGroups) => {
-  return new Promise(resolve => {
-    const cohortIds = _.map(cohorts, 'id')
-    const curatedGroupIds = _.map(curatedGroups, 'id')
-    if (cohortIds.length || curatedGroupIds.length) {
-      getDistinctSids(sids, cohortIds, curatedGroupIds).then(data => resolve(data.sids))
-    } else {
-      resolve(sids)
-    }
-  })
-}
 
 const $_updateAdvisingNote = ({commit, state}) => {
   return new Promise(resolve => {
@@ -66,9 +59,9 @@ const $_updateAdvisingNote = ({commit, state}) => {
     updateNote(
       state.model.id,
       state.model.body,
-      _.map(state.addedCohorts, 'id'),
+      _.map(state.recipients.cohorts, 'id'),
       state.model.contactType,
-      _.map(state.addedCuratedGroups, 'id'),
+      _.map(state.recipients.curatedGroups, 'id'),
       isDraft,
       state.model.isPrivate,
       setDate,
@@ -81,8 +74,6 @@ const $_updateAdvisingNote = ({commit, state}) => {
 }
 
 const state = {
-  addedCohorts: [],
-  addedCuratedGroups: [],
   autoSaveJob: undefined,
   boaSessionExpired: false,
   completeSidSet: new Set(),
@@ -94,14 +85,13 @@ const state = {
   model: $_getDefaultModel(),
   noteTemplates: undefined,
   originalModel: undefined,
-  sids: []
+  recipients: $_getDefaultRecipients()
 }
 
 const getters = {
-  addedCohorts: (state: any): any[] => state.addedCohorts,
-  addedCuratedGroups: (state: any): any[] => state.addedCuratedGroups,
   autoSaveJob: (state: any): any => state.autoSaveJob,
   boaSessionExpired: (state: any): any[] => state.boaSessionExpired,
+  completeSidSet: (state: any): number[] => Array.from(state.completeSidSet),
   disableNewNoteButton: (state: any): boolean => !!state.mode,
   isAutoSavingDraftNote: (state: any): boolean => state.isAutoSavingDraftNote,
   isFocusLockDisabled: (state: any): boolean => state.isFocusLockDisabled,
@@ -110,8 +100,7 @@ const getters = {
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
   noteTemplates: (state: any): any[] => state.noteTemplates,
-  sids: (state: any): string[] => state.sids,
-  completeSidSet: (state: any): number[] => Array.from(state.completeSidSet),
+  recipients: (state: any): Recipients => state.recipients,
   template: (state: any): any => state.template
 }
 
@@ -119,16 +108,11 @@ const mutations = {
   addAttachments: (state: any, attachments: any[]) => {
     state.model.attachments = _.sortBy(attachments, ['name', 'id'])
   },
-  addCohort: (state: any, cohort: any) => state.addedCohorts.push(cohort),
-  addCuratedGroup: (state: any, curatedGroup: any) => state.addedCuratedGroups.push(curatedGroup),
-  addSid: (state: any, sid: string) => state.sids.push(sid),
-  addSidList: (state: any, sidList: string[]) => (state.sids = state.sids.concat(sidList)),
   addTopic: (state: any, topic: string) => (state.model.topics.push(topic)),
   exitSession: (state: any) => {
     clearTimeout(state.autoSaveJob)
     state.autoSaveJob = null
-    state.addedCohorts = []
-    state.addedCuratedGroups = []
+    state.recipients = $_getDefaultRecipients()
     state.completeSidSet = new Set()
     state.isSaving = false
     state.mode = undefined
@@ -142,7 +126,7 @@ const mutations = {
     const indexOf = state.noteTemplates.findIndex(t => t.id === template.id)
     Object.assign(state.noteTemplates[indexOf], template)
   },
-  removeAllStudents: (state: any) => state.sids = [],
+  removeAllStudents: (state: any) => state.recipients.sids = [],
   removeAttachment: (state: any, index: number) => {
     const attachment = state.model.attachments[index]
     if (attachment.id) {
@@ -150,17 +134,17 @@ const mutations = {
     }
     state.model.attachments.splice(index, 1)
   },
-  removeCohort: (state:any, cohort: any) => state.addedCohorts = _.filter(state.addedCohorts, c => c.id !== cohort.id),
-  removeCuratedGroup: (state:any, curatedGroup: any) => (state.addedCuratedGroups = _.filter(state.addedCuratedGroups, c => c.id !== curatedGroup.id)),
-  removeStudent: (state:any, sid: string) => (state.sids = _.filter(state.sids, existingSid => existingSid !== sid)),
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
+  resetModel: (state: any) => state.model = $_getDefaultModel(),
   setAutoSaveJob: (state: any, jobId: number) => state.autoSaveJob = jobId,
   setBody: (state: any, body: string) => (state.model.body = body),
   setCompleteSidSet: (state: any, completeSidSet: number[]) => state.completeSidSet = new Set(completeSidSet),
   setContactType: (state: any, contactType: string) => (state.model.contactType = contactType),
   setFocusLockDisabled: (state: any, isDisabled: boolean) => (state.isFocusLockDisabled = isDisabled),
-  setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
+  setIsDraft: (state: any, isDraft: boolean) => (state.model.isDraft = isDraft),
+  setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
   setIsRecalculating: (state: any, isRecalculating: boolean) => (state.isRecalculating = isRecalculating),
+  setIsSaving: (state: any, isSaving: boolean) => (state.isSaving = isSaving),
   setMode: (state: any, mode: string) => {
     if (_.isNil(mode)) {
       state.mode = undefined
@@ -192,9 +176,8 @@ const mutations = {
     state.originalModel = _.cloneDeep(state.model)
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
-  setIsDraft: (state: any, isDraft: boolean) => (state.model.isDraft = isDraft),
-  setIsPrivate: (state: any, isPrivate: boolean) => (state.model.isPrivate = isPrivate),
-  setSetDate: (state: any, setDate: any) => (state.model.setDate = setDate ? moment(setDate) : null),
+  setRecipients: (state: any, recipients: Recipients) => state.recipients = recipients,
+  setSetDate: (state: any, setDate: any): Moment | null => state.model.setDate = setDate ? moment(setDate) : null,
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }
 
@@ -210,28 +193,6 @@ const actions = {
     } else {
       commit('addAttachments', attachments)
     }
-  },
-  addCohort: ({commit, state}, cohort: any) => {
-    const cohorts = state.addedCohorts.concat(cohort)
-    $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
-      commit('addCohort', cohort)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
-  addCuratedGroup: ({commit, state}, curatedGroup: any) => {
-    const curatedGroups = state.addedCuratedGroups.concat(curatedGroup)
-    $_recalculateStudentCount(state.sids, state.addedCohorts, curatedGroups).then(sids => {
-      commit('addCuratedGroup', curatedGroup)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
-  addSid: $_addSid,
-  addSidList: ({commit, state}, sidList: string[]) => {
-    const sids = _.uniq(state.sids.concat(sidList))
-    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
-      commit('addSidList', sidList)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
   },
   applyTemplate: ({commit, state}, template) => {
     applyNoteTemplate(state.model.id, template.id).then(note => commit('setModel', note))
@@ -275,42 +236,9 @@ const actions = {
       })
     }
   },
-  removeCohort: ({commit, state}, cohort: any) => {
-    const cohorts = _.reject(state.addedCohorts, ['id', cohort.id])
-    $_recalculateStudentCount(state.sids, cohorts, state.addedCuratedGroups).then(sids => {
-      commit('removeCohort', cohort)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
-  removeCuratedGroup: ({commit, state}, curatedGroup: any) => {
-    const curatedGroups = _.reject(state.addedCuratedGroups, ['id', curatedGroup.id])
-    $_recalculateStudentCount(state.sids, state.addedCohorts, curatedGroups).then(sids => {
-      commit('removeCuratedGroup', curatedGroup)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
-  removeStudent: ({commit, state}, sid: string) => {
-    const sids = _.without(state.sids, sid)
-    $_recalculateStudentCount(sids, state.addedCohorts, state.addedCuratedGroups).then(sids => {
-      commit('removeStudent', sid)
-      commit('setCompleteSidSet', sids)
-    }).finally(() => commit('setIsRecalculating', false))
-  },
-  resetModel: ({commit}, isPrivate?: any) => {
-    const model = $_getDefaultModel()
-    model.isPrivate = isPrivate
-    commit('setModel', model)
-  },
   setAutoSaveJob: ({commit, state}, jobId: number) => {
     clearTimeout(state.autoSaveJob)
     commit('setAutoSaveJob', jobId)
-  },
-  setIsRecalculating: ({commit}, isRecalculating: boolean) => commit('setIsRecalculating', isRecalculating),
-  setModel: ({commit, state}, model?: any) => {
-    commit('setModel', model)
-    if (model.sid) {
-      $_addSid({commit, state}, model.sid)
-    }
   },
   updateAdvisingNote: $_updateAdvisingNote
 }

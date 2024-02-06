@@ -216,12 +216,19 @@ export default {
     store.dispatch('note/loadNoteTemplates')
     this.resetModel()
     this.init().then(note => {
+      const onFinish = () => {
+        this.setMode(this.initialMode)
+        this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
+        this.setEventHandler('user-session-expired', () => {
+          this.onBoaSessionExpires()
+        })
+      }
       this.setModel(note)
-      this.setMode(this.initialMode)
-      this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-      this.setEventHandler('user-session-expired', () => {
-        this.onBoaSessionExpires()
-      })
+      if (note.sid) {
+        this.setRecipient(note.sid).then(onFinish)
+      } else {
+        onFinish()
+      }
     })
   },
   beforeDestroy() {

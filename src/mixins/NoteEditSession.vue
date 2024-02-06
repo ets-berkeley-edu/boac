@@ -1,14 +1,13 @@
 <script>
 import _ from 'lodash'
 import store from '@/store'
+import {getDistinctSids} from '@/api/student'
 import {mapActions, mapGetters, mapMutations} from 'vuex'
 
 export default {
-  name: 'note',
+  name: 'NoteEditSession',
   computed: {
     ...mapGetters('note', [
-      'addedCohorts',
-      'addedCuratedGroups',
       'autoSaveJob',
       'boaSessionExpired',
       'completeSidSet',
@@ -19,34 +18,25 @@ export default {
       'mode',
       'model',
       'noteTemplates',
-      'sids'
+      'recipients'
     ])
   },
   created() {
     this.scheduleAutoSaveJob()
     document.addEventListener('visibilitychange', this.onVisibilityChange)
   },
-  destroyed() {
+  unmounted() {
     this.clearAutoSaveJob()
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },
   methods: {
     ...mapActions('note', [
       'addAttachments',
-      'addCohort',
-      'addCuratedGroup',
-      'addSid',
-      'addSidList',
       'applyTemplate',
       'clearAutoSaveJob',
       'exitSession',
       'removeAttachment',
-      'removeCohort',
-      'removeCuratedGroup',
-      'removeStudent',
-      'resetModel',
       'setAutoSaveJob',
-      'setModel',
       'updateAdvisingNote'
     ]),
     ...mapMutations('note', [
@@ -54,6 +44,7 @@ export default {
       'onBoaSessionExpires',
       'removeAllStudents',
       'removeTopic',
+      'resetModel',
       'setBody',
       'setContactType',
       'setFocusLockDisabled',
@@ -62,6 +53,7 @@ export default {
       'setIsRecalculating',
       'setIsSaving',
       'setMode',
+      'setModel',
       'setSetDate',
       'setSubject',
     ]),
@@ -84,6 +76,31 @@ export default {
           this.scheduleAutoSaveJob()
         }
       }
+    },
+    setRecipient(sid) {
+      return this.setRecipients(
+        this.recipients.cohorts,
+        this.recipients.curatedGroups,
+        this.recipients.sids.concat(sid)
+      )
+    },
+    setRecipients(cohorts, curatedGroups, sids) {
+      return new Promise(resolve => {
+        store.commit('note/setIsRecalculating', true)
+        store.commit('note/setRecipients', {cohorts, curatedGroups, sids})
+        const cohortIds = _.map(cohorts, 'id')
+        const curatedGroupIds = _.map(curatedGroups, 'id')
+        const onFinish = sids => {
+          store.commit('note/setCompleteSidSet', sids)
+          store.commit('note/setIsRecalculating', false)
+          resolve()
+        }
+        if (cohortIds.length || curatedGroupIds.length) {
+          getDistinctSids(this.recipients.sids, cohortIds, curatedGroupIds).then(data => onFinish(data.sids))
+        } else {
+          onFinish(this.recipients.sids)
+        }
+      })
     },
     scheduleAutoSaveJob() {
       const jobId = setTimeout(this.autoSaveDraftNote, store.getters['context/config'].notesDraftAutoSaveInterval)
