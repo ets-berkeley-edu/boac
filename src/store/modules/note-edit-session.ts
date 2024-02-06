@@ -3,6 +3,7 @@ import moment, {Moment} from 'moment'
 import store from '@/store'
 import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getMyNoteTemplates} from '@/api/note-templates'
+import {isAutoSaveMode} from '@/store/utils/note'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
@@ -230,9 +231,9 @@ const actions = {
   removeAttachment: ({commit, state}, index: number) => {
     const attachmentId = state.model.attachments[index].id
     commit('removeAttachment', index)
-    if ($_isAutoSaveMode(state.mode)) {
+    if (isAutoSaveMode(state.mode)) {
       removeAttachment(state.model.id, attachmentId).then(() => {
-        store.commit('context/alertScreenReader', {message: 'Attachment removed', politeness: 'assertive'})
+        alertScreenReader('Attachment removed', 'assertive')
       })
     }
   },
