@@ -62,7 +62,7 @@
           <b-btn
             id="save-note-button"
             class="btn-primary-color-override"
-            :disabled="!sids.length || !_trim(model.subject)"
+            :disabled="!recipients.sids.length || !_trim(model.subject)"
             variant="primary"
             @click="() => save(false)"
           >
@@ -176,15 +176,19 @@ export default {
   }),
   created() {
     getNote(this.noteId).then(note => {
+      const onFinish = () => {
+        this.setMode('editNote')
+        this.putFocusNextTick('edit-note-subject')
+        this.alertScreenReader('Edit note form is open.')
+      }
       this.resetModel()
       this.setModel(note)
-      // A draft-note may have a null SID value.
       if (note.sid) {
-        this.addSid(note.sid)
+        this.setRecipient(note.sid).then(onFinish())
+      } else {
+        // A draft-note may have a null SID value.
+        onFinish()
       }
-      this.setMode('editNote')
-      this.putFocusNextTick('edit-note-subject')
-      this.alertScreenReader('Edit note form is open.')
     })
     this.setEventHandler('user-session-expired', () => {
       this.onBoaSessionExpires()
@@ -235,7 +239,7 @@ export default {
             isDraft,
             this.model.isPrivate,
             setDate,
-            this.sids,
+            this.recipients.sids,
             trimmedSubject,
             [],
             this.model.topics
