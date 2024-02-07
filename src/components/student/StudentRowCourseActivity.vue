@@ -25,7 +25,9 @@
     <b-tbody>
       <b-tr v-for="(enrollment, index) in termEnrollments" :key="index">
         <b-td class="col-course">
-          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`">{{ enrollment.displayName }}</span>
+          <span :id="`row-${rowIndex}-student-enrollment-name-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">
+            {{ enrollment.displayName }}
+          </span>
           <span
             v-if="enrollment.waitlisted"
             :id="`student-${student.uid}-waitlisted-for-${enrollment.sections.length ? enrollment.sections[0].ccn : enrollment.displayName}`"

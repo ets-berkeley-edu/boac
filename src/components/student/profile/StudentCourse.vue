@@ -15,7 +15,11 @@
           :aria-expanded="detailsVisible ? 'true' : 'false'"
           :aria-controls="`term-${termId}-course-${index}-details`"
         >
-          <div :id="`term-${termId}-course-${index}-name`" class="text-left truncate-with-ellipsis ml-2 student-course-name">
+          <div
+            :id="`term-${termId}-course-${index}-name`"
+            class="text-left truncate-with-ellipsis ml-2 student-course-name"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          >
             {{ course.displayName }}
           </div>
           <font-awesome icon="caret-right" class="caret when-course-closed" />
@@ -92,18 +96,25 @@
       @hide="onHide"
       @hidden="onHidden"
     >
-      <div :id="`term-${termId}-course-${index}-details-name`" class="student-course-details-name">{{ course.displayName }}</div>
+      <div
+        :id="`term-${termId}-course-${index}-details-name`"
+        class="student-course-details-name"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+      >
+        {{ course.displayName }}
+      </div>
       <div class="student-course-sections">
         <span
           v-for="(section, sectionIndex) in course.sections"
           :key="sectionIndex"
         >
-          <span v-if="section.displayName">
+          <span v-if="section.displayName" :class="{'demo-mode-blur': currentUser.inDemoMode}">
             <span v-if="sectionIndex === 0"></span><!--
               --><router-link
               v-if="section.isViewableOnCoursePage"
               :id="`term-${termId}-section-${section.ccn}`"
               :to="`/course/${termId}/${section.ccn}?u=${student.uid}`"
+              :class="{'demo-mode-blur': currentUser.inDemoMode}"
             ><span class="sr-only">Link to {{ course.displayName }}, </span>{{ section.displayName }}</router-link><!--
               --><span v-if="!section.isViewableOnCoursePage">{{ section.displayName }}</span><!--
               --><span v-if="sectionIndex < course.sections.length - 1"> | </span><!--
@@ -111,7 +122,7 @@
           </span>
         </span>
       </div>
-      <div :id="`term-${termId}-course-${index}-title`">{{ course.title }}</div>
+      <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
       <div v-if="course.courseRequirements">
         <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
           <font-awesome :icon="['far', 'star']" class="text-warning" /> {{ requirement }}
@@ -123,7 +134,11 @@
           :key="canvasSiteIdx"
           class="student-bcourses-wrapper"
         >
-          <h5 :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}`" class="student-bcourses-site-code">
+          <h5
+            :id="`term-${termId}-course-${index}-site-${canvasSiteIdx}`"
+            class="student-bcourses-site-code"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          >
             <span class="sr-only">Course Site</span>
             {{ canvasSite.courseCode }}
           </h5>
