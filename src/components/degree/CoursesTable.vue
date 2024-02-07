@@ -346,6 +346,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
+import {isAlertGrade} from '@/berkeley'
 import Util from '@/mixins/Util'
 
 export default {
@@ -413,7 +414,7 @@ export default {
           unitRequirements: (course || category).unitRequirements
         })
       })
-      return transformed
+      return this._sortBy(transformed, ['name'])
     },
     hasAnyNotes() {
       return !!this._find(this.categoryCourseBundles, bundle => this.getNote(bundle))
@@ -507,6 +508,7 @@ export default {
         this.alertScreenReader('Note hidden')
       }
     },
+    isAlertGrade,
     isCourseFulfillmentsEdited(bundle) {
       if (bundle.category && bundle.course) {
         const edited = this._xorBy(bundle.category.unitRequirements, bundle.course.unitRequirements, 'id')
