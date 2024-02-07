@@ -101,7 +101,7 @@
           </transition-group>
           <div class="mt-2 mr-3 mb-1 ml-3">
             <AdvisingNoteAttachments
-              :add-attachments="addAttachments"
+              :add-attachments="addNoteAttachments"
               :disabled="isSaving || boaSessionExpired"
               :existing-attachments="model.attachments"
               :remove-attachment="removeAttachment"
@@ -160,9 +160,16 @@ import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
+import {alertScreenReader} from '@/store/modules/context'
 import {createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
+import {
+  isAutoSaveMode,
+  setNoteRecipient,
+  setSubjectPerEvent,
+  updateAdvisingNote
+} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'EditBatchNoteModal',
@@ -225,7 +232,7 @@ export default {
       }
       this.setModel(note)
       if (note.sid) {
-        this.setRecipient(note.sid).then(onFinish)
+        setNoteRecipient(note.sid).then(onFinish)
       } else {
         onFinish()
       }
@@ -235,6 +242,18 @@ export default {
     document.body.classList.remove('modal-open')
   },
   methods: {
+    addNoteAttachments(attachments) {
+      if (isAutoSaveMode(this.mode)) {
+        this.setIsSaving(true)
+        this.setAttachments(attachments).then(response => {
+          store.commit('note/addAttachments', response.attachments)
+          alertScreenReader('Attachment added', 'assertive')
+          this.setIsSaving(false)
+        })
+      } else {
+        this.addAttachments(attachments)
+      }
+    },
     cancelRequested() {
       if (this.mode === 'editTemplate') {
         const indexOf = this.noteTemplates.findIndex(t => t.id === this.model.id)
@@ -291,7 +310,7 @@ export default {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
         // Save draft before creating template.
-        this.updateAdvisingNote().then(() => {
+        updateAdvisingNote().then(() => {
           createNoteTemplate(this.model.id, title).then(() => {
             this.showAlert(`Template '${title}' created.`)
             setTimeout(() => {
@@ -361,6 +380,7 @@ export default {
       }
       this.invokeIfAuthenticated(ifAuthenticated)
     },
+    setSubjectPerEvent,
     showAlert(alert, seconds=3) {
       this.alert = alert
       this.dismissAlertSeconds = seconds
@@ -375,7 +395,7 @@ export default {
         if (this.model.isDraft || (this.model.subject && this.completeSidSet.length)) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
-          this.updateAdvisingNote().then(() => {
+          updateAdvisingNote().then(() => {
             this.setIsSaving(false)
             this.alertScreenReader(this.mode.includes('create') ? 'Note created' : 'Note saved')
             this.exit(false)
