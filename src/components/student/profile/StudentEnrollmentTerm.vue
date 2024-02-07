@@ -47,6 +47,7 @@
             v-for="(droppedSection, droppedIndex) in term.droppedSections"
             :key="droppedIndex"
             class="student-course-dropped"
+            :class="{'demo-mode-blur': currentUser.inDemoMode}"
             role="row"
           >
             <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
