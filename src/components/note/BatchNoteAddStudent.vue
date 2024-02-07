@@ -60,6 +60,7 @@ import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
+import {setNoteRecipient, setNoteRecipients} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'BatchNoteAddStudent',
@@ -101,7 +102,7 @@ export default {
       if (student) {
         this.setIsRecalculating(true)
         this.addedStudents.push(student)
-        this.setRecipient(student.sid).then(() => {
+        setNoteRecipient(student.sid).then(() => {
           this.resetAutoCompleteKey = new Date().getTime()
           this.alertScreenReader(`${student.label} added to batch note`)
           this.clearWarning()
@@ -124,7 +125,7 @@ export default {
             sidList.push(student.sid)
             this._remove(sids, s => s === student.sid)
           })
-          this.setRecipients(
+          setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
             this._uniq(this.recipients.sids.concat(sidList))
@@ -156,7 +157,7 @@ export default {
       if (student) {
         this.addedStudents = this._filter(this.addedStudents, a => a.sid !== student.sid)
         if (this.recipients.sids.includes(student.sid)) {
-          this.setRecipients(
+          setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
             this._without(this.recipients.sids, student.sid)

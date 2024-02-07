@@ -141,6 +141,7 @@ import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
+import {setNoteRecipient, setSubjectPerEvent} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'EditAdvisingNote',
@@ -184,7 +185,7 @@ export default {
       this.resetModel()
       this.setModel(note)
       if (note.sid) {
-        this.setRecipient(note.sid).then(onFinish())
+        setNoteRecipient(note.sid).then(onFinish())
       } else {
         // A draft-note may have a null SID value.
         onFinish()
@@ -262,7 +263,8 @@ export default {
           this.onBoaSessionExpires()
         }
       })
-    }
+    },
+    setSubjectPerEvent
   }
 }
 </script>

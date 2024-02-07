@@ -78,6 +78,7 @@ import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {setNoteRecipients} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'BatchNoteFeatures',
@@ -102,7 +103,7 @@ export default {
   },
   methods: {
     addCohort(cohort) {
-      this.setRecipients(
+      setNoteRecipients(
         this.recipients.cohorts.concat(cohort),
         this.recipients.curatedGroups,
         this.recipients.sids
@@ -111,7 +112,7 @@ export default {
       })
     },
     addCuratedGroup(curatedGroup) {
-      this.setRecipients(
+      setNoteRecipients(
         this.recipients.cohorts,
         this.recipients.curatedGroups.concat(curatedGroup),
         this.recipients.sids
@@ -120,7 +121,7 @@ export default {
       })
     },
     removeCohort(cohort) {
-      this.setRecipients(
+      setNoteRecipients(
         this._reject(this.recipients.cohorts, ['id', cohort.id]),
         this.recipients.curatedGroups,
         this.recipients.sids
@@ -129,7 +130,7 @@ export default {
       })
     },
     removeCuratedGroup(curatedGroup) {
-      this.setRecipients(
+      setNoteRecipients(
         this.recipients.cohorts,
         this._reject(this.recipients.curatedGroups, ['id', curatedGroup.id]),
         this.recipients.sids
