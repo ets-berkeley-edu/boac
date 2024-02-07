@@ -3,11 +3,11 @@ import moment, {Moment} from 'moment'
 import store from '@/store'
 import {addAttachments, applyNoteTemplate, deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getMyNoteTemplates} from '@/api/note-templates'
-import {isAutoSaveMode} from '@/store/utils/note'
+import {isAutoSaveMode} from '@/store/modules/note-edit-session/utils'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
-type Model = {
+type NoteEditSessionModel = {
   id: number;
   attachments?: string[];
   body?: string;
@@ -20,13 +20,13 @@ type Model = {
   topics?: string[];
 }
 
-type Recipients = {
+type NoteRecipients = {
   cohorts: any[],
   curatedGroups: any[],
   sids: string[]
 }
 
-function $_getDefaultModel(): Model {
+function $_getDefaultModel(): NoteEditSessionModel {
   return {
     id: NaN,
     attachments: [],
@@ -41,7 +41,7 @@ function $_getDefaultModel(): Model {
   }
 }
 
-function $_getDefaultRecipients(): Recipients {
+function $_getDefaultRecipients(): NoteRecipients {
   return {
     cohorts: [],
     curatedGroups: [],
@@ -99,7 +99,7 @@ const getters = {
   mode: (state: any): string => state.mode,
   model: (state: any): any => state.model,
   noteTemplates: (state: any): any[] => state.noteTemplates,
-  recipients: (state: any): Recipients => state.recipients,
+  recipients: (state: any): NoteRecipients => state.recipients,
   template: (state: any): any => state.template
 }
 
@@ -175,7 +175,7 @@ const mutations = {
     state.originalModel = _.cloneDeep(state.model)
   },
   setNoteTemplates: (state: any, templates: any[]) => state.noteTemplates = templates,
-  setRecipients: (state: any, recipients: Recipients) => state.recipients = recipients,
+  setRecipients: (state: any, recipients: NoteRecipients) => state.recipients = recipients,
   setSetDate: (state: any, setDate: any): Moment | null => state.model.setDate = setDate ? moment(setDate) : null,
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }

@@ -5,7 +5,7 @@ import {getDistinctSids} from '@/api/student'
 import {mapActions, mapGetters, mapMutations} from 'vuex'
 import {addAttachments} from '@/api/notes'
 import {alertScreenReader} from '@/store/modules/context'
-import {isAutoSaveMode} from '@/store/utils/note'
+import {isAutoSaveMode} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'NoteEditSession',
@@ -28,7 +28,7 @@ export default {
     this.scheduleAutoSaveJob()
     document.addEventListener('visibilitychange', this.onVisibilityChange)
   },
-  unmounted() {
+  destroyed() {
     this.clearAutoSaveJob()
     document.removeEventListener('visibilitychange', this.onVisibilityChange)
   },

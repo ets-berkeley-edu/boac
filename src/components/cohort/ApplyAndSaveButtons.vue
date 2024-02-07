@@ -61,7 +61,7 @@ import Context from '@/mixins/Context'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/store/utils/cohort'
+import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/store/modules/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
 
 export default {

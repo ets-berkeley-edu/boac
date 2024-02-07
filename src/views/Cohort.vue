@@ -107,7 +107,7 @@ import store from '@/store'
 import StudentRow from '@/components/student/StudentRow'
 import TermSelector from '@/components/student/TermSelector'
 import Util from '@/mixins/Util'
-import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/store/utils/cohort'
+import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} from '@/store/modules/cohort-edit-session/utils'
 import {scrollToTop} from '@/utils'
 import {translateSortByOption} from '@/berkeley'
 
