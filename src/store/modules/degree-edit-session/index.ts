@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import store from '@/store'
 import {alertScreenReader} from '@/store/modules/context'
 import {
   addUnitRequirement,
@@ -18,6 +17,7 @@ import {
   updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
+import {log} from '@/store/modules/degree-edit-session/utils'
 
 const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
 
@@ -31,8 +31,6 @@ const $_allowCourseDrop = (category, course, context) => {
     return _.includes(['ignored', 'unassigned'], context)
   }
 }
-
-const $_debug = message => store.getters['context/config'].isVueAppDebugMode && console.log(message)
 
 const $_dropToAssign = (categoryId, commit, course, ignore, state) => {
   commit('setDisableButtons', true)
@@ -251,12 +249,12 @@ const actions = {
       const done = (srAlert: string, noActionTaken?: boolean) => {
         alertScreenReader(srAlert)
         if (noActionTaken) {
-          $_debug(srAlert)
+          log(srAlert)
         } else {
           if (_.includes(['ignored', 'unassigned'], context)) {
-            $_debug(`Course ${_.get(course, 'id')} (${dragContext}) dragged to ${context} section.`)
+            log(`Course ${_.get(course, 'id')} (${dragContext}) dragged to ${context} section.`)
           } else {
-            $_debug(`From ${actionByUser}: course ${_.get(course, 'id')} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
+            log(`From ${actionByUser}: course ${_.get(course, 'id')} (${dragContext}) dragged to category ${_.get(category, 'id')} (${context})`)
           }
         }
         resolve()

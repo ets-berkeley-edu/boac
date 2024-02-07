@@ -248,7 +248,7 @@ import CohortEditSession from '@/mixins/CohortEditSession'
 import Context from '@/mixins/Context'
 import FilterSelect from '@/components/cohort/FilterSelect'
 import Util from '@/mixins/Util'
-import {updateFilterOptions} from '@/store/utils/cohort'
+import {updateFilterOptions} from '@/store/modules/cohort-edit-session/utils'
 
 export default {
   name: 'FilterRow',
