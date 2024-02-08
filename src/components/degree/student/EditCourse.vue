@@ -128,6 +128,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {validateUnitRange} from '@/lib/degree-progress'
 
 export default {
   name: 'EditCourse',
@@ -170,7 +171,7 @@ export default {
       if (isEmpty && this.course.manuallyCreatedBy) {
         return null
       }
-      return isEmpty ? 'Required' : this.validateUnitRange(this.units, undefined, 10).message
+      return isEmpty ? 'Required' : validateUnitRange(this.units, undefined, 10).message
     }
   },
   created() {

@@ -172,6 +172,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {findCategoriesByTypes, findCategoryById, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 
 export default {
   name: 'EditCategory',
@@ -216,17 +217,17 @@ export default {
         || !!this.unitsErrorMessage
     },
     hasCampusRequirements() {
-      return this._some(this.findCategoriesByTypes(['Category']), this.isCampusRequirements)
+      return this._some(findCategoriesByTypes(['Category']), this.isCampusRequirements)
     },
     unitsErrorMessage() {
       const validate = this.selectedCategoryType === 'Course Requirement' && (!!this.unitsLower || !!this.unitsUpper)
-      return validate ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
+      return validate ? validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
     },
     withTypeCategory() {
-      return this._reject(this.findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
+      return this._reject(findCategoriesByTypes(['Category'], this.position), this.isCampusRequirements)
     },
     withTypeCategoryOrSubcategory() {
-      return this._reject(this.findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
+      return this._reject(findCategoriesByTypes(['Category', 'Subcategory'], this.position), this.isCampusRequirements)
     }
   },
   created() {
@@ -235,7 +236,7 @@ export default {
       this.isSatisfiedByTransferCourse = this.existingCategory.isSatisfiedByTransferCourse
       this.name = this.existingCategory.name
       this.selectedCategoryType = this.existingCategory.categoryType
-      this.selectedParentCategory = this.findCategoryById(this.existingCategory.parentCategoryId)
+      this.selectedParentCategory = findCategoryById(this.existingCategory.parentCategoryId)
       this.selectedUnitRequirements = this._clone(this.existingCategory.unitRequirements)
       this.unitsLower = this.existingCategory.unitsLower
       this.unitsUpper = this.existingCategory.unitsUpper
@@ -264,7 +265,7 @@ export default {
     },
     isCampusRequirements(category) {
       return this.selectedCategoryType === 'Campus Requirements'
-        || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, this.isCampusRequirement))
+        || (category && !this._isEmpty(category.courseRequirements) && this._every(category.courseRequirements, isCampusRequirement))
     },
     onChangeCategorySelect(option) {
       this.alertScreenReader(option ? `${this.selectedCategoryType} selected` : 'Unselected')

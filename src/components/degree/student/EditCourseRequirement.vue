@@ -100,6 +100,7 @@ import AccentColorSelect from '@/components/degree/student/AccentColorSelect'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
+import {isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
 
 export default {
   name: 'EditCourseRequirement',
@@ -135,7 +136,7 @@ export default {
     },
     unitsErrorMessage() {
       const validate = !!this.unitsLower || !!this.unitsUpper
-      return validate ? this.validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
+      return validate ? validateUnitRange(this.unitsLower, this.unitsUpper, 10).message : null
     }
   },
   created() {
@@ -154,6 +155,7 @@ export default {
       this.isRecommended = undefined
       this.afterCancel()
     },
+    isCampusRequirement,
     onSubmit() {
       if (!this.disableSaveButton) {
         this.isSaving = true

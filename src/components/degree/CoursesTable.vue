@@ -346,8 +346,15 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
-import {isAlertGrade} from '@/berkeley'
 import Util from '@/mixins/Util'
+import {
+  findCategoryById,
+  getAssignedCourses,
+  getCourseKey,
+  isCampusRequirement,
+  unitsWereEdited
+} from '@/lib/degree-progress'
+import {isAlertGrade} from '@/berkeley'
 
 export default {
   name: 'CoursesTable',
@@ -402,7 +409,7 @@ export default {
           course = category.courses.length ? this.getCourse(category.courses[0].id) : null
         } else {
           course = item
-          category = this.findCategoryById(course.categoryId)
+          category = findCategoryById(course.categoryId)
         }
         transformed.push({
           category,
@@ -423,7 +430,7 @@ export default {
       return !!this._find(this.categoryCourseBundles, bundle => bundle.course)
     },
     isCampusRequirements() {
-      return !this._isEmpty(this.items) && this._every(this.items, this.isCampusRequirement)
+      return !this._isEmpty(this.items) && this._every(this.items, isCampusRequirement)
     }
   },
   created() {
@@ -442,6 +449,9 @@ export default {
       this.putFocusNextTick(`column-${this.position}-edit-${this.bundleForEdit.key}-btn`)
       this.bundleForEdit = null
       this.setDisableButtons(false)
+    },
+    getCourse(courseId) {
+      return this._find(this.courses.assigned.concat(this.courses.unassigned), ['id', courseId])
     },
     deleteCanceled() {
       this.putFocusNextTick(`column-${this.position}-delete-${this.bundleForDelete.key}-btn`)
@@ -534,9 +544,9 @@ export default {
         && category.id === this.draggingContext.target
       if (droppable) {
         const course = this.draggingContext.course
-        const assignedCourses = this.getAssignedCourses(this.parentCategory, course.id)
-        const courseKeys = this._map(assignedCourses, this.getCourseKey)
-        droppable = course.categoryId === category.parentCategoryId || !this._includes(courseKeys, this.getCourseKey(course))
+        const assignedCourses = getAssignedCourses(this.parentCategory, course.id)
+        const courseKeys = this._map(assignedCourses, getCourseKey)
+        droppable = course.categoryId === category.parentCategoryId || !this._includes(courseKeys, getCourseKey(course))
       }
       return droppable
     },
@@ -615,7 +625,8 @@ export default {
     showNote(bundle) {
       this.notesVisible.push(bundle.key)
       this.alertScreenReader(`Showing note of ${bundle.name}`)
-    }
+    },
+    unitsWereEdited
   }
 }
 </script>

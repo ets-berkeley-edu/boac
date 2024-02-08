@@ -212,10 +212,10 @@
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Attachments from '@/mixins/Attachments'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addAttachments, removeAttachment} from '@/api/notes'
+import {addFileDropEventListeners} from '@/lib/note'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {oxfordJoin} from '@/lib/utils'
@@ -223,7 +223,7 @@ import {oxfordJoin} from '@/lib/utils'
 export default {
   name: 'AdvisingNote',
   components: {AreYouSureModal},
-  mixins: [Attachments, Context, Util],
+  mixins: [Context, Util],
   props: {
     afterSaved: {
       required: true,
@@ -305,12 +305,18 @@ export default {
       this.resetAttachments()
     }
   },
+  beforeCreate() {
+    addFileDropEventListeners()
+  },
   created() {
     this.author = this._get(this.note, 'author')
     this.loadAuthorDetails()
     this.resetAttachments()
   },
   methods: {
+    clickBrowseForAttachment() {
+      this.$refs['attachment-file-input'].$el.click()
+    },
     loadAuthorDetails() {
       const requiresLazyLoad = (
         this.isOpen &&

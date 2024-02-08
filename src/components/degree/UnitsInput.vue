@@ -64,6 +64,7 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {isValidUnits} from '@/lib/degree-progress'
 
 export default {
   name: 'UnitsInput',
@@ -145,6 +146,7 @@ export default {
     }
   },
   methods: {
+    isValidUnits,
     toggle() {
       this.showUnitsUpperInput = !this.showUnitsUpperInput
       if (!this.showUnitsUpperInput) {

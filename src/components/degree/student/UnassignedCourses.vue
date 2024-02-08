@@ -213,6 +213,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
 import Util from '@/mixins/Util'
 import {isAlertGrade} from '@/berkeley'
+import {unitsWereEdited} from '@/lib/degree-progress'
 
 export default {
   name: 'UnassignedCourses',
@@ -335,7 +336,8 @@ export default {
     showNote(course) {
       this.notesVisible.push(course.id)
       this.alertScreenReader(`Showing note of ${course.name}`)
-    }
+    },
+    unitsWereEdited
   }
 }
 </script>

@@ -77,6 +77,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {validateUnitRange} from '@/lib/degree-progress'
 
 export default {
   name: 'EditUnitRequirement',
@@ -105,7 +106,7 @@ export default {
     },
     unitsErrorMessage() {
       const isEmpty = this._isEmpty(this._trim(this.minUnits))
-      return isEmpty ? 'Required' : this.validateUnitRange(this.minUnits, undefined, 100).message
+      return isEmpty ? 'Required' : validateUnitRange(this.minUnits, undefined, 100).message
     },
     nameErrorMessage() {
       let message = undefined

@@ -86,6 +86,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 
 export default {
   name: 'Category',
@@ -116,7 +117,7 @@ export default {
   }),
   computed: {
     isCampusRequirements() {
-      return !this._isEmpty(this.category.courseRequirements) && this._every(this.category.courseRequirements, this.isCampusRequirement)
+      return !this._isEmpty(this.category.courseRequirements) && this._every(this.category.courseRequirements, isCampusRequirement)
     }
   },
   created() {
@@ -150,7 +151,7 @@ export default {
       return this.category.id === this.draggingContext.target
         && !this.isCampusRequirements
         && !this._size(this.category.subcategories)
-        && !this.categoryHasCourse(this.category, this.draggingContext.course)
+        && !categoryHasCourse(this.category, this.draggingContext.course)
     },
     onDrag(event, stage) {
       switch (stage) {

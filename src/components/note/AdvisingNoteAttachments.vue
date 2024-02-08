@@ -62,14 +62,14 @@
 </template>
 
 <script>
-import Attachments from '@/mixins/Attachments'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {removeAttachmentByIndex} from '@/store/modules/note-edit-session/utils'
+import {addFileDropEventListeners} from '@/lib/note'
 
 export default {
   name: 'AdvisingNoteAttachments',
-  mixins: [Attachments, Context, Util],
+  mixins: [Context, Util],
   props: {
     addAttachments: {
       required: true,
@@ -104,7 +104,13 @@ export default {
       }
     }
   },
+  beforeCreate() {
+    addFileDropEventListeners()
+  },
   methods: {
+    clickBrowseForAttachment() {
+      this.$refs['attachment-file-input'].$el.click()
+    },
     deleteAttachmentByIndex(index) {
       this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
       removeAttachmentByIndex(index)
