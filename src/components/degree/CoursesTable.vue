@@ -347,6 +347,8 @@ import EditCategory from '@/components/degree/EditCategory'
 import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
 import Util from '@/mixins/Util'
+import {isAlertGrade} from '@/berkeley'
+import {deleteCategory, deleteCourse} from '@/store/modules/degree-edit-session/utils'
 import {
   findCategoryById,
   getAssignedCourses,
@@ -354,7 +356,6 @@ import {
   isCampusRequirement,
   unitsWereEdited
 } from '@/lib/degree-progress'
-import {isAlertGrade} from '@/berkeley'
 
 export default {
   name: 'CoursesTable',
@@ -470,9 +471,9 @@ export default {
       }
       let promise = undefined
       if (this.sid) {
-        promise = this.deleteCourse(this.bundleForDelete.course.id).then(done)
+        promise = deleteCourse(this.bundleForDelete.course.id).then(done)
       } else {
-        promise = this.deleteCategory(this.bundleForDelete.category.id).then(done)
+        promise = deleteCategory(this.bundleForDelete.category.id).then(done)
       }
       return promise
     },

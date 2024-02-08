@@ -87,6 +87,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
+import {deleteCategory} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'Category',
@@ -131,7 +132,7 @@ export default {
       this.putFocusNextTick(`column-${this.position}-delete-category-${this.category.id}-btn`)
     },
     deleteConfirmed() {
-      return this.deleteCategory(this.category.id).then(() => {
+      return deleteCategory(this.category.id).then(() => {
         this.alertScreenReader(`${this.category.name} deleted.`)
         this.isDeleting = false
         this.setDisableButtons(false)

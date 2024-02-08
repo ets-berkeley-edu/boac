@@ -4,7 +4,7 @@ import {mapActions, mapGetters} from 'vuex'
 export default {
   name: 'DegreeEditSession',
   computed: {
-    ...mapGetters('degreeEditSession', [
+    ...mapGetters('degree', [
       'addCourseMenuOptions',
       'categories',
       'courses',
@@ -29,13 +29,7 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('degreeEditSession', [
-      'copyCourse',
-      'createCategory',
-      'createCourse',
-      'createUnitRequirement',
-      'deleteCategory',
-      'deleteCourse',
+    ...mapActions('degree', [
       'deleteUnitRequirement',
       'dismissAlert',
       'onDrop',

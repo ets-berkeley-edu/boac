@@ -131,6 +131,8 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {createCourse} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
 
 export default {
@@ -190,18 +192,22 @@ export default {
     save() {
       if (!this.disableSaveButton) {
         this.isSaving = true
-        this.createCourse({
-          accentColor: this.accentColor,
-          grade: this._trim(this.grade),
-          name: this._trim(this.name),
-          note: this._trim(this.note),
-          parentCategoryId: this.parentCategory.id,
-          unitRequirementIds: this._map(this.selectedUnitRequirements, 'id'),
-          units: this.units
-        }).then(course => {
-          this.closeModal()
-          this.alertScreenReader(`Course ${course.name} created`)
-          this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
+        createCourse(
+          this.accentColor,
+          this.templateId,
+          this._trim(this.grade),
+          this._trim(this.name),
+          this._trim(this.note),
+          this.parentCategory.id,
+          this.parentCategory.id,
+          this._map(this.selectedUnitRequirements, 'id'),
+          this.units
+        ).then(course => {
+          refreshDegreeTemplate(this.templateId).then(() => {
+            this.closeModal()
+            this.alertScreenReader(`Course ${course.name} created`)
+            this.putFocusNextTick(`assign-course-${course.id}-dropdown`, 'button')
+          })
         })
       }
     },
