@@ -2,7 +2,7 @@
 import store from '@/store'
 import {mapGetters, mapMutations} from 'vuex'
 import {alertScreenReader} from '@/store/modules/context'
-import {oxfordJoin} from '@/utils'
+import {oxfordJoin} from '@/lib/utils'
 
 export default {
   name: 'SearchSession',

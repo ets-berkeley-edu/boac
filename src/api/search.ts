@@ -1,5 +1,5 @@
 import axios from 'axios'
-import ga from '@/ga'
+import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
 
 let $_findAdvisorsByNameCancel = axios.CancelToken.source()

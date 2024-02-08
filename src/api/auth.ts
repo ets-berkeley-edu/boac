@@ -3,7 +3,7 @@ import store from '@/store'
 import utils from '@/api/api-utils'
 import Vue from 'vue'
 import {getServiceAnnouncement} from '@/api/config'
-import {initGoogleAnalytics} from '@/ga'
+import {initGoogleAnalytics} from '@/lib/ga'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios

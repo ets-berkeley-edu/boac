@@ -123,7 +123,7 @@ import store from '@/store'
 import Util from '@/mixins/Util'
 import {getAllTopics} from '@/api/topics'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'StandardHeaderLayout',

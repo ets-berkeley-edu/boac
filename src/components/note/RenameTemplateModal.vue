@@ -66,12 +66,12 @@
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
-import Validator from '@/mixins/Validator'
+import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'RenameTemplateModal',
   components: {ModalHeader},
-  mixins: [Util, Validator],
+  mixins: [Util],
   props: {
     cancel: {
       type: Function,
@@ -122,7 +122,7 @@ export default {
       this.cancel()
     },
     renameTemplate: function() {
-      this.error = this.validateTemplateTitle({id: this.template.id, title: this.title})
+      this.error = validateTemplateTitle({id: this.template.id, title: this.title})
       if (!this.error) {
         this.rename(this.title)
       }

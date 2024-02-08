@@ -299,7 +299,7 @@ import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'AdvancedSearchModal',

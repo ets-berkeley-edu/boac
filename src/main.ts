@@ -19,7 +19,7 @@ import {far} from '@fortawesome/free-regular-svg-icons'
 import {fas} from '@fortawesome/free-solid-svg-icons'
 import {faSpinner} from '@fortawesome/free-solid-svg-icons/faSpinner'
 import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome'
-import {initGoogleAnalytics} from '@/ga'
+import {initGoogleAnalytics} from '@/lib/ga'
 
 // Import Bootstrap an BootstrapVue CSS files (order is important)
 import 'bootstrap/dist/css/bootstrap.css'

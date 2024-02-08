@@ -238,14 +238,14 @@ import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import ModalHeader from '@/components/util/ModalHeader'
 import store from '@/store'
 import Util from '@/mixins/Util'
-import Validator from '@/mixins/Validator.vue'
 import {deleteCuratedGroup, downloadCuratedGroupCsv, renameCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CuratedGroupHeader',
   components: {ExportListModal, FerpaReminderModal, ModalHeader},
-  mixins: [Context, CuratedEditSession, Util, Validator],
+  mixins: [Context, CuratedEditSession, Util],
   data: () => ({
     exportEnabled: true,
     isCohortWarningModalOpen: false,
@@ -318,7 +318,7 @@ export default {
     getCsvExportColumns,
     getCsvExportColumnsSelected,
     rename() {
-      this.renameError = this.validateCohortName({
+      this.renameError = validateCohortName({
         name: this.renameInput
       })
       if (this.renameError) {

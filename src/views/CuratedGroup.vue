@@ -100,7 +100,7 @@ import Util from '@/mixins/Util'
 import {addStudentsToCuratedGroup, removeFromCuratedGroup} from '@/api/curated'
 import {describeCuratedGroupDomain, translateSortByOption} from '@/berkeley'
 import {goToCuratedGroup} from '@/store/modules/curated-group/utils'
-import {scrollTo} from '@/utils'
+import {scrollTo} from '@/lib/utils'
 
 export default {
   name: 'CuratedGroup',

@@ -90,7 +90,7 @@ import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Util from '@/mixins/Util'
 import {getCohortEvents} from '@/api/cohort'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'CohortHistory',

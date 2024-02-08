@@ -3,7 +3,7 @@ import _ from 'lodash'
 import moment from 'moment-timezone'
 import numeral from 'numeral'
 import Vue from 'vue'
-import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/utils'
+import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/lib/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
   extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,

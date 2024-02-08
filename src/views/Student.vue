@@ -48,7 +48,7 @@ import Util from '@/mixins/Util'
 import {exitSession} from '@/store/modules/note-edit-session/utils'
 import {getStudentByUid} from '@/api/student'
 import {setWaitlistedStatus} from '@/berkeley'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'Student',

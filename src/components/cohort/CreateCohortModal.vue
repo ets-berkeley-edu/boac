@@ -54,12 +54,11 @@
 
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
-import Validator from '@/mixins/Validator'
+import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CreateCohortModal',
   components: {ModalHeader},
-  mixins: [Validator],
   props: {
     cancel: {
       required: true,
@@ -89,7 +88,7 @@ export default {
       this.reset()
     },
     createCohort: function() {
-      this.error = this.validateCohortName({name: this.name})
+      this.error = validateCohortName({name: this.name})
       if (!this.error) {
         this.create(this.name)
         this.reset()

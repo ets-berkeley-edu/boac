@@ -218,7 +218,7 @@ import Util from '@/mixins/Util'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {oxfordJoin} from '@/utils'
+import {oxfordJoin} from '@/lib/utils'
 
 export default {
   name: 'AdvisingNote',

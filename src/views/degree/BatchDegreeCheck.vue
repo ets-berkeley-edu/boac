@@ -159,7 +159,6 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import DegreeTemplatesMenu from '@/components/degree/DegreeTemplatesMenu'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import Validator from '@/mixins/Validator'
 import {createBatchDegreeCheck, getStudents} from '@/api/degree'
 import {getDistinctSids, getStudentsBySids} from '@/api/student'
 
@@ -170,7 +169,7 @@ export default {
     DegreeTemplatesMenu,
     Spinner
   },
-  mixins: [Context, DegreeEditSession, Util, Validator],
+  mixins: [Context, DegreeEditSession, Util],
   data: () => ({
     addedCohorts: [],
     addedCuratedGroups: [],
@@ -274,6 +273,10 @@ export default {
     cancel() {
       this.alertScreenReader('Canceled. Nothing saved.')
       this.$router.push('/degrees')
+    },
+    clearErrors() {
+      this.error = null
+      this.warning = null
     },
     findStudentsWithDegreeCheck(selectedTemplate, sids) {
       if (this._get(selectedTemplate, 'id') && !this._isEmpty(sids)) {

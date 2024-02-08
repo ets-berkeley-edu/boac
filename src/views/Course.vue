@@ -160,7 +160,7 @@
 import Context from '@/mixins/Context'
 import CourseStudents from '@/components/course/CourseStudents'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import ga from '@/ga'
+import ga from '@/lib/ga'
 import Matrix from '@/components/matrix/Matrix'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
@@ -168,7 +168,7 @@ import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getSection} from '@/api/course'
 import {hasMatrixPlottableProperty} from '@/berkeley'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'Course',

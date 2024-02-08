@@ -68,12 +68,12 @@
 <script>
 import Util from '@/mixins/Util'
 import ModalHeader from '@/components/util/ModalHeader'
-import Validator from '@/mixins/Validator'
+import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'CreateTemplateModal',
   components: {ModalHeader},
-  mixins: [Util, Validator],
+  mixins: [Util],
   props: {
     cancel: {
       type: Function,
@@ -125,7 +125,7 @@ export default {
       this.reset()
     },
     createTemplate: function() {
-      this.error = this.validateTemplateTitle({title: this.title})
+      this.error = validateTemplateTitle({title: this.title})
       if (!this.error) {
         this.create(this.title)
         this.reset()
