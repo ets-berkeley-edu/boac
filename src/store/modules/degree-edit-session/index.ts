@@ -19,6 +19,11 @@ import {
 } from '@/api/degree'
 import {log} from '@/store/modules/degree-edit-session/utils'
 
+export type DegreeProgressCourses = {
+  assigned: any[],
+  unassigned: any[]
+}
+
 const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
 
 const $_allowCourseDrop = (category, course, context) => {
@@ -86,7 +91,7 @@ const state = {
 const getters = {
   addCourseMenuOptions: (state: any): any[] => state.addCourseMenuOptions,
   categories: (state: any): any[] => state.categories,
-  courses: (state: any): any[] => state.courses,
+  courses: (state: any): DegreeProgressCourses => state.courses,
   createdAt: (state: any): any[] => state.createdAt,
   createdBy: (state: any): any[] => state.createdBy,
   degreeEditSessionToString: (state: any): any => ({

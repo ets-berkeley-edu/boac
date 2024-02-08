@@ -71,6 +71,7 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {isCampusRequirement} from '@/lib/degree-progress'
 
 export default {
   name: 'CourseAssignmentMenu',
@@ -115,9 +116,10 @@ export default {
     }
   },
   methods: {
+    isCampusRequirement,
     isCampusRequirements(option) {
-      return this.isCampusRequirement(option)
-        || (!this._isEmpty(option.courseRequirements) && this._every(option.courseRequirements, this.isCampusRequirement))
+      return isCampusRequirement(option)
+        || (!this._isEmpty(option.courseRequirements) && this._every(option.courseRequirements, isCampusRequirement))
     },
     isCourseRequirement(option) {
       return this._includes(['Course Requirement', 'Placeholder: Course Copy'], option.categoryType)

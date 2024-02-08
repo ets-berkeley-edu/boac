@@ -131,6 +131,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import ModalHeader from '@/components/util/ModalHeader'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {validateUnitRange} from '@/lib/degree-progress'
 
 export default {
   name: 'CreateCourseModal',
@@ -158,7 +159,7 @@ export default {
     },
     unitsErrorMessage() {
       const isEmpty = this._isEmpty(this._trim(this.units))
-      return isEmpty ? null : this.validateUnitRange(this.units, undefined, 10).message
+      return isEmpty ? null : validateUnitRange(this.units, undefined, 10).message
     }
   },
   destroyed() {
