@@ -37,6 +37,7 @@ import Spinner from '@/components/util/Spinner'
 import TemplateCategoryColumn from '@/components/degree/TemplateCategoryColumn'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'DegreeTemplate',
@@ -49,7 +50,7 @@ export default {
   mixins: [Context, DegreeEditSession, Util],
   mounted() {
     const id = this.toInt(this._get(this.$route, 'params.id'))
-    this.init(id).then(() => {
+    refreshDegreeTemplate(id).then(() => {
       if (this.sid) {
         this.$router.push(`/student/degree/${id}`)
       } else {

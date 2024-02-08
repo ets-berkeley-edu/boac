@@ -122,6 +122,7 @@ import Spinner from '@/components/util/Spinner'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentBySid} from '@/api/student'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'PrintableDegreeTemplate',
@@ -139,7 +140,7 @@ export default {
   created() {
     const id = this.toInt(this._get(this.$route, 'params.id'))
     this.includeNote = this.toBoolean(this.$route.query.includeNote)
-    this.init(id).then(() => {
+    refreshDegreeTemplate(id).then(() => {
       if (this.sid) {
         getStudentBySid(this.sid).then(data => {
           this.student = data

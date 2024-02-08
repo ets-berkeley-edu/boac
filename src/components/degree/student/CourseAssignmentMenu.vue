@@ -71,7 +71,9 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {assignCourse} from '@/api/degree'
 import {isCampusRequirement} from '@/lib/degree-progress'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'CourseAssignmentMenu',
@@ -126,14 +128,17 @@ export default {
     },
     onSelect(category, ignore) {
       this.setDisableButtons(true)
-      this.assignCourseToCategory({course: this.course, category, ignore}).then(courseAssigned => {
-        this.setDisableButtons(false)
-        if (category) {
-          this.alertScreenReader(`${category.name} selected for ${this.course.name}`)
-        } else {
-          this.alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
-        }
-        this.afterCourseAssignment(courseAssigned)
+      const categoryId = category && category.id
+      assignCourse(this.course.id, categoryId, ignore).then(() => {
+        refreshDegreeTemplate(this.templateId).then(courseAssigned => {
+          this.setDisableButtons(false)
+          if (category) {
+            this.alertScreenReader(`${category.name} selected for ${this.course.name}`)
+          } else {
+            this.alertScreenReader(`Moved to ${ignore ? this.junkDrawerName : 'Unassigned'}`)
+          }
+          this.afterCourseAssignment(courseAssigned)
+        })
       })
     }
   }

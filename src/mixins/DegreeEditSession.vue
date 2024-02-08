@@ -30,7 +30,6 @@ export default {
   },
   methods: {
     ...mapActions('degreeEditSession', [
-      'assignCourseToCategory',
       'copyCourse',
       'createCategory',
       'createCourse',
@@ -39,14 +38,12 @@ export default {
       'deleteCourse',
       'deleteUnitRequirement',
       'dismissAlert',
-      'init',
       'onDrop',
       'onDragEnd',
       'onDragStart',
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
-      'toggleCampusRequirement',
       'updateCategory',
       'updateCourse',
       'updateCourseRequirement',
