@@ -87,6 +87,7 @@ import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentBySid} from '@/api/student'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'StudentDegreeCheck',
@@ -112,7 +113,7 @@ export default {
     window.addEventListener('scroll', this.onResize)
 
     const degreeId = this._get(this.$route, 'params.id')
-    this.init(degreeId).then(() => {
+    refreshDegreeTemplate(degreeId).then(() => {
       getStudentBySid(this.sid, true).then(data => {
         this.student = data
         const studentName = this.currentUser.inDemoMode ? 'Student' : this.student.name

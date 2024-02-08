@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import {alertScreenReader} from '@/store/modules/context'
+import {log, refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 import {
   addUnitRequirement,
   assignCourse,
@@ -9,15 +10,12 @@ import {
   deleteDegreeCategory,
   deleteDegreeCourse,
   deleteUnitRequirement,
-  getDegreeTemplate,
-  toggleCampusRequirement,
   updateCategory,
   updateCourse,
   updateCourseRequirement,
   updateDegreeNote,
   updateUnitRequirement
 } from '@/api/degree'
-import {log} from '@/store/modules/degree-edit-session/utils'
 
 export type DegreeProgressCourses = {
   assigned: any[],
@@ -40,7 +38,7 @@ const $_allowCourseDrop = (category, course, context) => {
 const $_dropToAssign = (categoryId, commit, course, ignore, state) => {
   commit('setDisableButtons', true)
   return assignCourse(course.id, categoryId, ignore).then(() => {
-    $_refresh(commit, state.templateId).then(() => {
+    refreshDegreeTemplate(state.templateId).then(() => {
       commit('draggingContextReset')
       commit('setDisableButtons', false)
     })
@@ -51,15 +49,6 @@ const $_resetDraggingContext = state => state.draggingContext = {
   course: undefined,
   dragContext: undefined,
   target: undefined
-}
-
-const $_refresh = (commit, templateId) => {
-  return new Promise<void>(resolve => {
-    getDegreeTemplate(templateId).then((template: any) => {
-      commit('resetSession', template)
-      return resolve()
-    })
-  })
 }
 
 const state = {
@@ -82,7 +71,7 @@ const state = {
   parentTemplateId: undefined,
   parentTemplateUpdatedAt: undefined,
   sid: undefined,
-  templateId: undefined,
+  templateId: NaN,
   unitRequirements: undefined,
   updatedAt: undefined,
   updatedBy: undefined
@@ -154,20 +143,12 @@ const mutations = {
 }
 
 const actions = {
-  assignCourseToCategory: ({commit, state}, {course, category, ignore}) => {
+  copyCourse: ({state}, courseId) => {
     return new Promise(resolve => {
-      const categoryId = category && category.id
-      assignCourse(course.id, categoryId, ignore).then(courseAssigned => {
-        $_refresh(commit, state.templateId).then(() => resolve(courseAssigned))
-      })
+      copyCourse(courseId).then(course => refreshDegreeTemplate(state.templateId).then(() => resolve(course)))
     })
   },
-  copyCourse: ({commit, state}, courseId) => {
-    return new Promise(resolve => {
-      copyCourse(courseId).then(course => $_refresh(commit, state.templateId).then(() => resolve(course)))
-    })
-  },
-  createCategory: ({commit, state}, {
+  createCategory: ({state}, {
     categoryType,
     description,
     isSatisfiedByTransferCourse,
@@ -191,11 +172,11 @@ const actions = {
         unitsLower,
         unitsUpper
       ).then(category => {
-        $_refresh(commit, state.templateId).then(() => resolve(category))
+        refreshDegreeTemplate(state.templateId).then(() => resolve(category))
       })
     })
   },
-  createCourse: ({commit, state}, {
+  createCourse: ({state}, {
     accentColor,
     grade,
     name,
@@ -216,33 +197,32 @@ const actions = {
         unitRequirementIds,
         units
       ).then(course => {
-        $_refresh(commit, state.templateId).then(() => resolve(course))
+        refreshDegreeTemplate(state.templateId).then(() => resolve(course))
       })
     })
   },
-  createUnitRequirement: ({commit, state}, {name, minUnits}) => {
+  createUnitRequirement: ({state}, {name, minUnits}) => {
     return new Promise<void>(resolve => {
-      addUnitRequirement(state.templateId, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      addUnitRequirement(state.templateId, name, minUnits).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
-  deleteCategory: ({commit, state}, categoryId: number) => {
+  deleteCategory: ({state}, categoryId: number) => {
     return new Promise(resolve => {
-      deleteDegreeCategory(categoryId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      deleteDegreeCategory(categoryId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
-  deleteCourse: ({commit, state}, courseId: number) => {
+  deleteCourse: ({state}, courseId: number) => {
     return new Promise(resolve => {
-      deleteDegreeCourse(courseId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      deleteDegreeCourse(courseId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
-  deleteUnitRequirement: ({commit, state}, unitRequirementId: number) => {
+  deleteUnitRequirement: ({state}, unitRequirementId: number) => {
     return new Promise<void>(resolve => {
-      deleteUnitRequirement(unitRequirementId).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      deleteUnitRequirement(unitRequirementId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
   dismissAlert: ({commit}, templateId: number) => commit('dismissAlert', templateId),
   setDraggingTarget: ({commit}, target: any) => commit('setDraggingTarget', target),
-  init: ({commit}, templateId: number) => new Promise<void>(resolve => $_refresh(commit, templateId).then(resolve)),
   onDragEnd: ({commit}) => commit('draggingContextReset'),
   onDragStart: ({commit}, {course, dragContext}) => commit('dragStart', {course, dragContext}),
   onDrop: ({commit}, {category, context}) => {
@@ -311,12 +291,7 @@ const actions = {
   },
   setDisableButtons: ({commit}, disable: boolean) => commit('setDisableButtons', disable),
   setIncludeNotesWhenPrint: ({commit}, include: boolean) => commit('setIncludeNotesWhenPrint', include),
-  toggleCampusRequirement: ({commit}, {categoryId, isSatisfied}) => {
-    return new Promise(resolve => {
-      toggleCampusRequirement(categoryId, isSatisfied).then(() => $_refresh(commit, state.templateId)).then(resolve)
-    })
-  },
-  updateCategory: ({commit, state}, {
+  updateCategory: ({state}, {
     categoryId,
     description,
     isSatisfiedByTransferCourse,
@@ -336,10 +311,10 @@ const actions = {
         unitRequirementIds,
         unitsLower,
         unitsUpper
-      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      ).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
-  updateCourse: ({commit, state}, {
+  updateCourse: ({state}, {
     accentColor,
     grade,
     courseId,
@@ -358,11 +333,11 @@ const actions = {
         unitRequirementIds,
         units
       ).then(data => {
-        $_refresh(commit, state.templateId).then(() => resolve(data))
+        refreshDegreeTemplate(state.templateId).then(() => resolve(data))
       })
     })
   },
-  updateCourseRequirement: ({commit, state}, {
+  updateCourseRequirement: ({state}, {
     accentColor,
     categoryId,
     grade,
@@ -382,19 +357,19 @@ const actions = {
         note,
         unitsLower,
         unitsUpper
-      ).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      ).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   },
-  updateNote: ({commit, state}, noteBody: string) => {
+  updateNote: ({state}, noteBody: string) => {
     return new Promise<void>(resolve => {
       updateDegreeNote(state.templateId, noteBody).then((note: any) => {
-        $_refresh(commit, state.templateId).then(() => resolve(note))
+        refreshDegreeTemplate(state.templateId).then(() => resolve(note))
       })
     })
   },
-  updateUnitRequirement: ({commit, state}, {name, minUnits, unitRequirementId}) => {
+  updateUnitRequirement: ({state}, {name, minUnits, unitRequirementId}) => {
     return new Promise<void>(resolve => {
-      updateUnitRequirement(unitRequirementId, name, minUnits).then(() => $_refresh(commit, state.templateId)).then(resolve)
+      updateUnitRequirement(unitRequirementId, name, minUnits).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
     })
   }
 }
