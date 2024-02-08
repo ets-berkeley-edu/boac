@@ -132,7 +132,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {sortComparator} from '@/utils'
+import {sortComparator} from '@/lib/utils'
 
 export default {
   name: 'SortableStudents',

@@ -341,7 +341,7 @@ import {deleteNote, getNote, markNoteRead} from '@/api/notes'
 import {dismissStudentAlert} from '@/api/student'
 import {markAppointmentRead} from '@/api/appointments'
 import {isDirector} from '@/berkeley'
-import {scrollTo} from '@/utils'
+import {scrollTo} from '@/lib/utils'
 
 export default {
   name: 'AcademicTimelineTable',

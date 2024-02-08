@@ -210,14 +210,14 @@ import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
 import router from '@/router'
 import Util from '@/mixins/Util'
-import Validator from '@/mixins/Validator'
 import {deleteCohort, downloadCohortCsv, downloadCsv, saveCohort} from '@/api/cohort'
 import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CohortPageHeader',
   components: {DeleteCohortModal, ExportListModal, FerpaReminderModal},
-  mixins: [CohortEditSession, Context, Util, Validator],
+  mixins: [CohortEditSession, Context, Util],
   props: {
     showHistory: {
       type: Boolean,
@@ -299,7 +299,7 @@ export default {
     getCsvExportColumns,
     getCsvExportColumnsSelected,
     submitRename() {
-      this.renameError = this.validateCohortName({
+      this.renameError = validateCohortName({
         id: this.cohortId,
         name: this.name
       })

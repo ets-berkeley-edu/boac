@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import axios from 'axios'
-import ga from '@/ga'
+import ga from '@/lib/ga'
 import moment from 'moment-timezone'
 import store from '@/store'
 import utils from '@/api/api-utils'

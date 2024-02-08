@@ -56,13 +56,13 @@
 import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
 import Util from '@/mixins/Util'
-import Validator from '@/mixins/Validator'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CreateCuratedGroupModal',
   components: {ModalHeader},
-  mixins: [Context, Util, Validator],
+  mixins: [Context, Util],
   props: {
     cancel: {
       required: true,
@@ -92,7 +92,7 @@ export default {
       this.reset()
     },
     createCuratedGroup: function() {
-      this.error = this.validateCohortName({name: this.name})
+      this.error = validateCohortName({name: this.name})
       if (!this.error) {
         this.create(this.name)
         this.reset()

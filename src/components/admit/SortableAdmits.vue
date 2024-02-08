@@ -81,7 +81,7 @@
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import Util from '@/mixins/Util'
-import {sortComparator} from '@/utils'
+import {sortComparator} from '@/lib/utils'
 
 export default {
   name: 'SortableAdmits',

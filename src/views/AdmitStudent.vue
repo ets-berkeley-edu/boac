@@ -296,7 +296,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAdmitBySid} from '@/api/admit'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'AdmitStudent',

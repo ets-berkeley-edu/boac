@@ -40,7 +40,7 @@ import Context from '@/mixins/Context'
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import Spinner from '@/components/util/Spinner.vue'
 import Util from '@/mixins/Util.vue'
-import {scrollToTop} from '@/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'Home',
