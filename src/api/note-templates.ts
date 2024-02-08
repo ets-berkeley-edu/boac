@@ -4,6 +4,10 @@ import ga from '@/ga'
 import utils from '@/api/api-utils'
 import store from '@/store'
 
+const $_refreshNoteEditSession = () => {
+  getMyNoteTemplates().then(templates => store.commit('note/setNoteTemplates', templates))
+}
+
 const $_track = action => ga.noteTemplate(action)
 
 export function getMyNoteTemplates() {
@@ -14,7 +18,7 @@ export function getMyNoteTemplates() {
 
 export function createNoteTemplate(noteId: number, title: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note_template/create`, {noteId, title}).then(template => {
-    store.dispatch('note/loadNoteTemplates')
+    $_refreshNoteEditSession()
     $_track('create')
     return template
   })
@@ -23,7 +27,7 @@ export function createNoteTemplate(noteId: number, title: string) {
 export function deleteNoteTemplate(templateId: number) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/note_template/delete/${templateId}`)
-    .then(() => store.dispatch('note/loadNoteTemplates', templateId))
+    .then($_refreshNoteEditSession)
 }
 
 export function renameNoteTemplate(noteTemplateId: number, title: string) {

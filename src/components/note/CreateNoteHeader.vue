@@ -122,6 +122,7 @@ import ModalHeader from '@/components/util/ModalHeader'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import RenameTemplateModal from '@/components/note/RenameTemplateModal'
 import Util from '@/mixins/Util'
+import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
 
 export default {
@@ -202,9 +203,11 @@ export default {
       this.alertScreenReader(`Edit template ${template.title}.`)
     },
     loadTemplate(template) {
-      this.applyTemplate(template)
-      this.putFocusNextTick('create-note-subject')
-      this.alertScreenReader(`Template ${template.title} loaded.`)
+      applyNoteTemplate(this.model.id, template.id).then(note => {
+        this.setModel(note)
+        this.putFocusNextTick('create-note-subject')
+        this.alertScreenReader(`Template ${template.title} loaded.`)
+      })
     },
     onShowTemplatesMenu() {
       let count = this._size(this.noteTemplates)

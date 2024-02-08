@@ -1,13 +1,38 @@
 import {isString, map, trim} from 'lodash'
 import store from '@/store'
+import {alertScreenReader} from '@/store/modules/context'
+import {deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
 import {NoteEditSessionModel, NoteRecipients} from '@/store/modules/note-edit-session/index'
-import {updateNote} from '@/api/notes'
 
 export function clearAutoSaveJob(): void {
   const jobId: number = store.getters['note/autoSaveJob']
   clearTimeout(jobId)
   store.commit('note/setAutoSaveJob', null)
+}
+
+export function exitSession(revert: boolean): Promise<NoteEditSessionModel | undefined> {
+  return new Promise<NoteEditSessionModel | undefined>(resolve => {
+    const mode: string = store.getters['note/mode']
+    const model: NoteEditSessionModel = store.getters['note/model']
+    const originalModel: NoteEditSessionModel = store.getters['note/originalModel']
+    const done = (note?: NoteEditSessionModel) => {
+      store.commit('note/exitSession')
+      resolve(note)
+    }
+    if (revert) {
+      if (model.id && ['createBatch', 'createNote'].includes(mode)) {
+        deleteNote(model).then(() => done())
+      } else if (mode === 'editNote' && model.isDraft) {
+        store.commit('note/setModel', originalModel)
+        updateAdvisingNote().then(done)
+      } else {
+        done(model)
+      }
+    } else {
+      done(model)
+    }
+  })
 }
 
 export function isAutoSaveMode(mode: string): boolean {
@@ -100,4 +125,18 @@ export function updateAdvisingNote(): Promise<any> {
       model.topics
     ).then(resolve)
   })
+}
+
+export function removeAttachmentByIndex(index: number) {
+  const mode: string = store.getters['note/mode']
+  const model: NoteEditSessionModel = store.getters['note/model']
+  if (model.attachments && index < model.attachments.length) {
+    const attachmentId: number = model.attachments[index].id
+    store.commit('note/removeAttachmentByIndex', index)
+    if (isAutoSaveMode(mode)) {
+      removeAttachment(model.id, attachmentId).then(() => {
+        alertScreenReader('Attachment removed', 'assertive')
+      })
+    }
+  }
 }

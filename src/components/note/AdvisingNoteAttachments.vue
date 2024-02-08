@@ -49,7 +49,7 @@
               :disabled="disabled"
               variant="link"
               class="p-0"
-              @click.prevent="removeAttachmentByIndex(index)"
+              @click.prevent="() => deleteAttachmentByIndex(index)"
             >
               <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
@@ -65,6 +65,7 @@
 import Attachments from '@/mixins/Attachments'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {removeAttachmentByIndex} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'AdvisingNoteAttachments',
@@ -81,10 +82,6 @@ export default {
     existingAttachments: {
       required: true,
       type: Array
-    },
-    removeAttachment: {
-      required: true,
-      type: Function
     }
   },
   data: () => ({
@@ -108,9 +105,9 @@ export default {
     }
   },
   methods: {
-    removeAttachmentByIndex(index) {
+    deleteAttachmentByIndex(index) {
       this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
-      this.removeAttachment(index)
+      removeAttachmentByIndex(index)
     }
   }
 }

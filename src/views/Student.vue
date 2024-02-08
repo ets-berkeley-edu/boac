@@ -40,10 +40,12 @@ import Context from '@/mixins/Context'
 import Spinner from '@/components/util/Spinner'
 import StudentClasses from '@/components/student/profile/StudentClasses'
 import NoteEditSession from '@/mixins/NoteEditSession'
+import store from '@/store'
 import StudentProfileGPA from '@/components/student/profile/StudentProfileGPA'
 import StudentProfileHeader from '@/components/student/profile/StudentProfileHeader'
 import StudentProfileUnits from '@/components/student/profile/StudentProfileUnits'
 import Util from '@/mixins/Util'
+import {exitSession} from '@/store/modules/note-edit-session/utils'
 import {getStudentByUid} from '@/api/student'
 import {setWaitlistedStatus} from '@/berkeley'
 import {scrollToTop} from '@/utils'
@@ -95,10 +97,10 @@ export default {
   },
   methods: {
     confirmExitAndEndSession(next) {
-      if (this.noteMode) {
+      if (store.getters['note/mode']) {
         this.alertScreenReader('Are you sure you want to discard unsaved changes?')
         this.cancelConfirmed = () => {
-          this.exitSession(true)
+          exitSession(true)
           return next()
         }
         this.cancelTheCancel = () => {
@@ -108,7 +110,7 @@ export default {
         }
         this.showAreYouSureModal = true
       } else {
-        this.exitSession(true)
+        exitSession(true)
         next()
       }
     },

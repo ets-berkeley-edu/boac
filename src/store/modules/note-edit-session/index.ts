@@ -1,15 +1,11 @@
 import moment, {Moment} from 'moment'
-import store from '@/store'
-import {applyNoteTemplate, deleteNote, removeAttachment} from '@/api/notes'
-import {cloneDeep, find, isNil, isUndefined, sortBy, toString} from 'lodash'
-import {getMyNoteTemplates} from '@/api/note-templates'
-import {isAutoSaveMode, updateAdvisingNote} from '@/store/modules/note-edit-session/utils'
+import {cloneDeep, find, isNil, sortBy} from 'lodash'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
 export type NoteEditSessionModel = {
   id: number;
-  attachments?: string[];
+  attachments?: any[];
   body?: string;
   contactType?: string;
   deleteAttachmentIds?: number[];
@@ -100,7 +96,7 @@ const mutations = {
     Object.assign(state.noteTemplates[indexOf], template)
   },
   removeAllStudents: (state: any) => state.recipients.sids = [],
-  removeAttachment: (state: any, index: number) => {
+  removeAttachmentByIndex: (state: any, index: number) => {
     const attachment = state.model.attachments[index]
     if (attachment.id) {
       state.model.deleteAttachmentIds.push(attachment.id)
@@ -110,7 +106,10 @@ const mutations = {
   removeTopic: (state: any, topic: string) => (state.model.topics.splice(state.model.topics.indexOf(topic), 1)),
   resetModel: (state: any) => state.model = $_getDefaultModel(),
   setAttachments: (state: any, attachments: any[]) => state.model.attachments = sortBy(attachments, ['name', 'id']),
-  setAutoSaveJob: (state: any, jobId: number) => state.autoSaveJob = jobId,
+  setAutoSaveJob: (state: any, jobId: number) => {
+    clearTimeout(state.autoSaveJob)
+    state.autoSaveJob = jobId
+  },
   setBody: (state: any, body: string) => (state.model.body = body),
   setCompleteSidSet: (state: any, completeSidSet: number[]) => state.completeSidSet = new Set(completeSidSet),
   setContactType: (state: any, contactType: string) => (state.model.contactType = contactType),
@@ -155,58 +154,9 @@ const mutations = {
   setSubject: (state: any, subject: string) => (state.model.subject = subject)
 }
 
-const actions = {
-  applyTemplate: ({commit, state}, template) => {
-    applyNoteTemplate(state.model.id, template.id).then(note => commit('setModel', note))
-  },
-  exitSession: ({commit, state}, revert: boolean) => {
-    return new Promise(resolve => {
-      const mode = toString(state.mode)
-      const done = note => {
-        commit('exitSession')
-        resolve(note)
-      }
-      if (revert) {
-        if (state.model.id && ['createBatch', 'createNote'].includes(mode)) {
-          deleteNote(state.model).then(() => done(null))
-        } else if (mode === 'editNote' && state.model.isDraft) {
-          commit('setModel', state.originalModel)
-          updateAdvisingNote().then(done)
-        } else {
-          done(state.model)
-        }
-      } else {
-        done(state.model)
-      }
-    })
-  },
-  async loadNoteTemplates({commit, state}) {
-    if (isUndefined(state.myNoteTemplates)) {
-      getMyNoteTemplates().then(templates => commit('setNoteTemplates', templates))
-    }
-  },
-  removeAttachment: ({commit, state}, index: number) => {
-    const attachmentId = state.model.attachments[index].id
-    commit('removeAttachment', index)
-    if (isAutoSaveMode(state.mode)) {
-      removeAttachment(state.model.id, attachmentId).then(() => {
-        store.commit('context/alertScreenReader', {
-          message: 'Attachment removed',
-          politeness: 'assertive'
-        })
-      })
-    }
-  },
-  setAutoSaveJob: ({commit, state}, jobId: number) => {
-    clearTimeout(state.autoSaveJob)
-    commit('setAutoSaveJob', jobId)
-  }
-}
-
 export default {
-  namespaced: true,
-  state,
   getters,
-  actions,
-  mutations
+  mutations,
+  namespaced: true,
+  state
 }

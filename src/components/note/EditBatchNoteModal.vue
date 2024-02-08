@@ -104,7 +104,6 @@
               :add-attachments="addNoteAttachments"
               :disabled="isSaving || boaSessionExpired"
               :existing-attachments="model.attachments"
-              :remove-attachment="removeAttachment"
             />
           </div>
         </div>
@@ -161,10 +160,11 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import store from '@/store'
 import Util from '@/mixins/Util'
 import {alertScreenReader} from '@/store/modules/context'
-import {createDraftNote, getNote} from '@/api/notes'
-import {createNoteTemplate, updateNoteTemplate} from '@/api/note-templates'
+import {addAttachments, createDraftNote, getNote} from '@/api/notes'
+import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
 import {getUserProfile} from '@/api/user'
 import {
+  exitSession,
   isAutoSaveMode,
   setNoteRecipient,
   setSubjectPerEvent,
@@ -220,7 +220,7 @@ export default {
   created() {
     // remove scrollbar for content behind the modal
     document.body.classList.add('modal-open')
-    store.dispatch('note/loadNoteTemplates')
+    getMyNoteTemplates().then(this.setNoteTemplates)
     this.resetModel()
     this.init().then(note => {
       const onFinish = () => {
@@ -245,13 +245,13 @@ export default {
     addNoteAttachments(attachments) {
       if (isAutoSaveMode(this.mode)) {
         this.setIsSaving(true)
-        this.setAttachments(attachments).then(response => {
-          store.commit('note/addAttachments', response.attachments)
+        addAttachments(this.model.id, attachments).then(response => {
+          store.commit('note/setAttachments', response.attachments)
           alertScreenReader('Attachment added', 'assertive')
           this.setIsSaving(false)
         })
       } else {
-        this.addAttachments(attachments)
+        this.setAttachments(attachments)
       }
     },
     cancelRequested() {
@@ -345,7 +345,7 @@ export default {
     exit(revert) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
-      this.exitSession(revert).then(note => {
+      exitSession(revert).then(note => {
         this.onClose(note)
       })
     },
