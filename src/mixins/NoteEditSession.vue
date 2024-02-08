@@ -1,6 +1,6 @@
 <script>
 import {clearAutoSaveJob, onVisibilityChange, scheduleAutoSaveJob} from '@/store/modules/note-edit-session/utils'
-import {mapActions, mapGetters, mapMutations} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
 
 export default {
   name: 'NoteEditSession',
@@ -28,12 +28,6 @@ export default {
     document.removeEventListener('visibilitychange', onVisibilityChange)
   },
   methods: {
-    ...mapActions('note', [
-      'applyTemplate',
-      'exitSession',
-      'removeAttachment',
-      'setAutoSaveJob'
-    ]),
     ...mapMutations('note', [
       'addTopic',
       'onBoaSessionExpires',
@@ -50,6 +44,7 @@ export default {
       'setIsSaving',
       'setMode',
       'setModel',
+      'setNoteTemplates',
       'setSetDate',
       'setSubject',
     ])

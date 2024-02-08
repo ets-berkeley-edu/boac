@@ -139,9 +139,9 @@ import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import SessionExpired from '@/components/note/SessionExpired'
 import Util from '@/mixins/Util'
+import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/store/modules/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
-import {setNoteRecipient, setSubjectPerEvent} from '@/store/modules/note-edit-session/utils'
 
 export default {
   name: 'EditAdvisingNote',
@@ -224,7 +224,7 @@ export default {
     },
     exit(revert) {
       this.clearErrors()
-      this.exitSession(revert)
+      exitSession(revert)
     },
     save(isDraft) {
       const ifAuthenticated = () => {
