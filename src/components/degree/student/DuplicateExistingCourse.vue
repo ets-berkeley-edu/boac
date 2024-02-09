@@ -82,6 +82,8 @@
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
+import {copyCourse} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'DuplicateExistingCourse',
@@ -107,12 +109,14 @@ export default {
     onClickSave() {
       this.isSaving = true
       this.alertScreenReader('Saving')
-      this.copyCourse(this.selected.id).then(course => {
-        this.isMenuOpen = this.isSaving = false
-        this.selected = null
-        this.setDisableButtons(false)
-        this.alertScreenReader('Course duplicated and put in the list of Unassigned.')
-        this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
+      copyCourse(this.selected.id).then(course => {
+        refreshDegreeTemplate(this.templateId).then(() => {
+          this.isMenuOpen = this.isSaving = false
+          this.selected = null
+          this.setDisableButtons(false)
+          this.alertScreenReader('Course duplicated and put in the list of Unassigned.')
+          this.putFocusNextTick(`assign-course-${course.id}-menu-container`, 'button')
+        })
       })
     },
     onSelect() {

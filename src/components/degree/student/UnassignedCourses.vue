@@ -213,6 +213,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCourse from '@/components/degree/student/EditCourse'
 import Util from '@/mixins/Util'
 import {isAlertGrade} from '@/berkeley'
+import {deleteCourse} from '@/store/modules/degree-edit-session/utils'
 import {unitsWereEdited} from '@/lib/degree-progress'
 
 export default {
@@ -271,7 +272,7 @@ export default {
       this.setDisableButtons(false)
     },
     deleteConfirmed() {
-      return this.deleteCourse(this.courseForDelete.id).then(() => {
+      return deleteCourse(this.courseForDelete.id).then(() => {
         this.alertScreenReader(`${this.courseForDelete.name} deleted.`)
         this.courseForDelete = null
         this.setDisableButtons(false)

@@ -28,12 +28,12 @@ export function categoryHasCourse(category, course): any[] {
 }
 
 export function findCategoriesByTypes(types, position) {
-  const categories: any[] = store.getters['degreeEditSession/categories']
+  const categories: any[] = store.getters['degree/categories']
   return filter($_flatten(categories), c => (!position || c.position === position) && includes(types, c.categoryType))
 }
 
 export function findCategoryById(categoryId) {
-  const categories: any[] = store.getters['degreeEditSession/categories']
+  const categories: any[] = store.getters['degree/categories']
   return categoryId ? find($_flatten(categories), ['id', categoryId]) : null
 }
 
@@ -54,7 +54,7 @@ export function getCourseKey(course: any) {
 }
 
 export function getItemsForCoursesTable(category) {
-  const courses: DegreeProgressCourses = store.getters['degreeEditSession/courses']
+  const courses: DegreeProgressCourses = store.getters['degree/courses']
   if (courses) {
     const categoryCourseIds: number[] = map(category.courses, 'id')
     const predicate = c => includes(categoryCourseIds, c.id)

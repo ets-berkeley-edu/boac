@@ -172,7 +172,9 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {createDegreeCategory} from '@/api/degree'
 import {findCategoriesByTypes, findCategoryById, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'EditCategory',
@@ -317,17 +319,20 @@ export default {
             unitsUpper: this.unitsUpper
           }).then(done)
         } else {
-          this.createCategory({
-            categoryType: this.selectedCategoryType,
-            description: this.descriptionText,
-            isSatisfiedByTransferCourse: this.isSatisfiedByTransferCourse,
-            name: this.name,
-            position: this.position,
-            parentCategoryId: parentCategoryId,
-            unitRequirementIds: unitRequirementIds,
-            unitsLower: this.unitsLower,
-            unitsUpper: this.unitsUpper
-          }).then(done)
+          createDegreeCategory(
+            this.selectedCategoryType,
+            this.descriptionText,
+            this.isSatisfiedByTransferCourse,
+            this.name,
+            parentCategoryId,
+            this.position,
+            this.templateId,
+            unitRequirementIds,
+            this.unitsLower,
+            this.unitsUpper
+          ).then(() => {
+            refreshDegreeTemplate(this.templateId).then(done)
+          })
         }
       }
     },

@@ -2,13 +2,7 @@ import _ from 'lodash'
 import {alertScreenReader} from '@/store/modules/context'
 import {log, refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 import {
-  addUnitRequirement,
   assignCourse,
-  copyCourse,
-  createCourse,
-  createDegreeCategory,
-  deleteDegreeCategory,
-  deleteDegreeCourse,
   deleteUnitRequirement,
   updateCategory,
   updateCourse,
@@ -22,7 +16,7 @@ export type DegreeProgressCourses = {
   unassigned: any[]
 }
 
-const VALID_DRAG_DROP_CONTEXTS = ['assigned', 'ignored', 'requirement', 'unassigned']
+const VALID_DRAG_DROP_CONTEXTS: string[] = ['assigned', 'ignored', 'requirement', 'unassigned']
 
 const $_allowCourseDrop = (category, course, context) => {
   if (category) {
@@ -45,10 +39,18 @@ const $_dropToAssign = (categoryId, commit, course, ignore, state) => {
   })
 }
 
-const $_resetDraggingContext = state => state.draggingContext = {
-  course: undefined,
-  dragContext: undefined,
-  target: undefined
+type DraggingContext = {
+  course: any,
+  dragContext: any,
+  target: any
+}
+
+function $_getDefaultDraggingContext(): DraggingContext {
+  return {
+    course: undefined,
+    dragContext: undefined,
+    target: undefined
+  }
 }
 
 const state = {
@@ -110,12 +112,12 @@ const getters = {
 }
 
 const mutations = {
-  draggingContextReset: (state: any) => $_resetDraggingContext(state),
+  draggingContextReset: (state: any) => state.draggingContext = $_getDefaultDraggingContext(),
   dragStart: (state: any, {course, dragContext}) => state.draggingContext = {course, dragContext, target: undefined},
   dismissAlert: (state: any, templateId: number) => state.dismissedAlerts.push(templateId),
   resetSession: (state: any, template: any) => {
     state.disableButtons = false
-    $_resetDraggingContext(state)
+    state.draggingContext = $_getDefaultDraggingContext()
     if (template) {
       state.categories = template.categories
       state.courses = template.courses
@@ -143,79 +145,6 @@ const mutations = {
 }
 
 const actions = {
-  copyCourse: ({state}, courseId) => {
-    return new Promise(resolve => {
-      copyCourse(courseId).then(course => refreshDegreeTemplate(state.templateId).then(() => resolve(course)))
-    })
-  },
-  createCategory: ({state}, {
-    categoryType,
-    description,
-    isSatisfiedByTransferCourse,
-    name,
-    parentCategoryId,
-    position,
-    unitRequirementIds,
-    unitsLower,
-    unitsUpper
-  }) => {
-    return new Promise(resolve => {
-      createDegreeCategory(
-        categoryType,
-        description,
-        isSatisfiedByTransferCourse,
-        name,
-        parentCategoryId,
-        position,
-        state.templateId,
-        unitRequirementIds,
-        unitsLower,
-        unitsUpper
-      ).then(category => {
-        refreshDegreeTemplate(state.templateId).then(() => resolve(category))
-      })
-    })
-  },
-  createCourse: ({state}, {
-    accentColor,
-    grade,
-    name,
-    note,
-    parentCategoryId,
-    unitRequirementIds,
-    units
-  }) => {
-    return new Promise(resolve => {
-      createCourse(
-        accentColor,
-        state.templateId,
-        grade,
-        name,
-        note,
-        parentCategoryId,
-        state.sid,
-        unitRequirementIds,
-        units
-      ).then(course => {
-        refreshDegreeTemplate(state.templateId).then(() => resolve(course))
-      })
-    })
-  },
-  createUnitRequirement: ({state}, {name, minUnits}) => {
-    return new Promise<void>(resolve => {
-      addUnitRequirement(state.templateId, name, minUnits).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
-    })
-  },
-  deleteCategory: ({state}, categoryId: number) => {
-    return new Promise(resolve => {
-      deleteDegreeCategory(categoryId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
-    })
-  },
-  deleteCourse: ({state}, courseId: number) => {
-    return new Promise(resolve => {
-      deleteDegreeCourse(courseId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
-    })
-  },
   deleteUnitRequirement: ({state}, unitRequirementId: number) => {
     return new Promise<void>(resolve => {
       deleteUnitRequirement(unitRequirementId).then(() => refreshDegreeTemplate(state.templateId)).then(resolve)
