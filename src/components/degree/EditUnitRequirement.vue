@@ -77,7 +77,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
-import {addUnitRequirement} from '@/api/degree'
+import {addUnitRequirement, updateUnitRequirement} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 import {validateUnitRange} from '@/lib/degree-progress'
 
@@ -170,14 +170,12 @@ export default {
       } else {
         this.alertScreenReader('Saving')
         this.isSaving = true
-        this.updateUnitRequirement({
-          name: this.name,
-          minUnits: this.minUnits,
-          unitRequirementId: this.unitRequirement.id
-        }).then(() => {
-          this.isSaving = false
-          this.alertScreenReader(`Updated ${this.name}.`)
-          this.onExit()
+        updateUnitRequirement(this.unitRequirement.id, this.name, this.minUnits).then(() => {
+          refreshDegreeTemplate(this.templateId).then(() => {
+            this.isSaving = false
+            this.alertScreenReader(`Updated ${this.name}.`)
+            this.onExit()
+          })
         })
       }
     }

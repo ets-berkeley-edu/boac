@@ -128,6 +128,8 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
+import {updateCourse} from '@/api/degree'
 import {validateUnitRange} from '@/lib/degree-progress'
 
 export default {
@@ -197,17 +199,19 @@ export default {
     update() {
       if (!this.disableSaveButton) {
         this.isSaving = true
-        this.updateCourse({
-          accentColor: this.accentColor,
-          courseId: this.course.id,
-          grade: this.grade,
-          name: this.name,
-          note: this.note,
-          unitRequirementIds: this._map(this.selectedUnitRequirements, 'id'),
-          units: this.units
-        }).then(data => {
-          this.alertScreenReader('Course updated')
-          this.afterSave(data)
+        updateCourse(
+          this.accentColor,
+          this.course.id,
+          this.grade,
+          this.name,
+          this.note,
+          this._map(this.selectedUnitRequirements, 'id'),
+          this.units
+        ).then(data => {
+          refreshDegreeTemplate(this.templateId).then(() => {
+            this.alertScreenReader('Course updated')
+            this.afterSave(data)
+          })
         })
       }
     }

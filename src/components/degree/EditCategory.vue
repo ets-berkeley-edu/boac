@@ -172,8 +172,14 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import SelectUnitFulfillment from '@/components/degree/SelectUnitFulfillment'
 import UnitsInput from '@/components/degree/UnitsInput'
 import Util from '@/mixins/Util'
-import {createDegreeCategory} from '@/api/degree'
-import {findCategoriesByTypes, findCategoryById, isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
+import {createDegreeCategory, updateCategory} from '@/api/degree'
+import {
+  findCategoriesByTypes,
+  findCategoryById,
+  getItemsForCoursesTable,
+  isCampusRequirement,
+  validateUnitRange
+} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
@@ -262,7 +268,7 @@ export default {
       const optionType = option.categoryType
       const selectedType = this.selectedCategoryType
       return (selectedType === 'Subcategory' && optionType === 'Subcategory')
-        || (selectedType === 'Subcategory' && optionType === 'Category' && this.getItemsForCoursesTable(option).length > 0)
+        || (selectedType === 'Subcategory' && optionType === 'Category' && getItemsForCoursesTable(option).length > 0)
         || (selectedType === 'Course Requirement' && optionType === 'Category' && !!option.subcategories.length)
     },
     isCampusRequirements(category) {
@@ -308,16 +314,18 @@ export default {
           this.afterSave()
         }
         if (this.existingCategory) {
-          this.updateCategory({
-            categoryId: this.existingCategory.id,
-            description: this.descriptionText,
-            isSatisfiedByTransferCourse: this.isSatisfiedByTransferCourse,
-            name: this.name,
-            parentCategoryId: parentCategoryId,
-            unitRequirementIds: unitRequirementIds,
-            unitsLower: this.unitsLower,
-            unitsUpper: this.unitsUpper
-          }).then(done)
+          updateCategory(
+            this.existingCategory.id,
+            this.descriptionText,
+            this.isSatisfiedByTransferCourse,
+            this.name,
+            parentCategoryId,
+            unitRequirementIds,
+            this.unitsLower,
+            this.unitsUpper
+          ).then(() => {
+            refreshDegreeTemplate(this.templateId).then(done)
+          })
         } else {
           createDegreeCategory(
             this.selectedCategoryType,

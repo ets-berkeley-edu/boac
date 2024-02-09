@@ -101,6 +101,8 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
+import {updateCourseRequirement} from '@/api/degree'
 
 export default {
   name: 'EditCourseRequirement',
@@ -164,16 +166,16 @@ export default {
           this.isSaving = false
           this.afterSave()
         }
-        this.updateCourseRequirement({
-          accentColor: this.accentColor,
-          categoryId: this.category.id,
-          grade: this.grade,
-          isIgnored: this.isIgnored,
-          isRecommended: this.isRecommended,
-          note: this.note,
-          unitsLower: this.unitsLower,
-          unitsUpper: this.unitsUpper
-        }).then(done)
+        updateCourseRequirement(
+          this.accentColor,
+          this.category.id,
+          this.grade,
+          this.isIgnored,
+          this.isRecommended,
+          this.note,
+          this.unitsLower,
+          this.unitsUpper
+        ).then(() => refreshDegreeTemplate(this.templateId)).then(done)
       }
     },
     setUnitsLower(units) {

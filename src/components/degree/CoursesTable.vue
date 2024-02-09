@@ -348,7 +348,7 @@ import EditCourse from '@/components/degree/student/EditCourse'
 import EditCourseRequirement from '@/components/degree/student/EditCourseRequirement'
 import Util from '@/mixins/Util'
 import {isAlertGrade} from '@/berkeley'
-import {deleteCategory, deleteCourse} from '@/store/modules/degree-edit-session/utils'
+import {deleteCategory, deleteCourse, onDrop} from '@/store/modules/degree-edit-session/utils'
 import {
   findCategoryById,
   getAssignedCourses,
@@ -574,7 +574,7 @@ export default {
       switch (stage) {
       case 'end':
         this.hoverCourseId = null
-        this.onDragEnd()
+        this.draggingContextReset()
         break
       case 'enter':
       case 'over':
@@ -590,7 +590,7 @@ export default {
           // Required for Safari
           event.target.style.opacity = 0.9
         }
-        this.onDragStart({course: bundle.course, dragContext: 'assigned'})
+        this.onDragStart(bundle.course, 'assigned')
         break
       case 'exit':
       default:
@@ -602,7 +602,7 @@ export default {
       event.preventDefault()
       this.hoverCourseId = null
       if (this.isDroppable(category)) {
-        this.onDrop({category, context})
+        onDrop(category, context)
       }
       this.setDraggingTarget(null)
       return false

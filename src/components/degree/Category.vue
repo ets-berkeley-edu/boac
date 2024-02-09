@@ -87,7 +87,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
-import {deleteCategory} from '@/store/modules/degree-edit-session/utils'
+import {deleteCategory, onDrop} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'Category',
@@ -158,7 +158,7 @@ export default {
       switch (stage) {
       case 'end':
         this.setDraggingTarget(null)
-        this.onDragEnd()
+        this.draggingContextReset()
         break
       case 'enter':
       case 'over':
@@ -180,7 +180,7 @@ export default {
       event.stopPropagation()
       event.preventDefault()
       if (this.isDroppable()) {
-        this.onDrop({category: this.category, context: 'requirement'})
+        onDrop(this.category, 'requirement')
       }
       this.setDraggingTarget(null)
       return false

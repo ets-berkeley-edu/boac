@@ -303,14 +303,14 @@ export default {
         if (event.target) {
           event.target.style.opacity = 1
         }
-        this.onDragEnd()
+        this.draggingContextReset()
         break
       case 'start':
         if (event.target) {
           // Required for Safari
           event.target.style.opacity = 0.9
         }
-        this.onDragStart({course, dragContext: this.key})
+        this.onDragStart(course, this.key)
         break
       case 'enter':
       case 'exit':

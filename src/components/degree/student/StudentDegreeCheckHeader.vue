@@ -233,6 +233,8 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import moment from 'moment-timezone'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByUserId} from '@/api/user'
+import {updateDegreeNote} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'StudentDegreeCheckHeader',
@@ -306,12 +308,14 @@ export default {
     },
     saveNote() {
       this.isSaving = true
-      this.updateNote(this.noteBody).then(() => {
-        this.isEditingNote = false
-        this.initNote()
-        this.setDisableButtons(false)
-        this.alertScreenReader('Note saved')
-        this.putFocusNextTick('create-degree-note-btn')
+      updateDegreeNote(this.templateId, this.noteBody).then(() => {
+        refreshDegreeTemplate(this.templateId).then(() => {
+          this.isEditingNote = false
+          this.initNote()
+          this.setDisableButtons(false)
+          this.alertScreenReader('Note saved')
+          this.putFocusNextTick('create-degree-note-btn')
+        })
       })
     }
   }
