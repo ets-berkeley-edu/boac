@@ -215,7 +215,7 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addAttachments, removeAttachment} from '@/api/notes'
-import {addFileDropEventListeners} from '@/lib/note'
+import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {oxfordJoin} from '@/lib/utils'
@@ -268,7 +268,7 @@ export default {
   watch: {
     attachments(files) {
       if (this._size(files)) {
-        this.attachmentError = this.validateAttachment(files, this.existingAttachments)
+        this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (this.attachmentError) {
           this.resetFileInput()
         } else {

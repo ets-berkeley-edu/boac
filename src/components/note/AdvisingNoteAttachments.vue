@@ -65,7 +65,7 @@
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {removeAttachmentByIndex} from '@/store/modules/note-edit-session/utils'
-import {addFileDropEventListeners} from '@/lib/note'
+import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 
 export default {
   name: 'AdvisingNoteAttachments',
@@ -91,7 +91,7 @@ export default {
   watch: {
     attachments(files) {
       if (files) {
-        this.attachmentError = this.validateAttachment(files, this.existingAttachments)
+        this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           const attachments = []
           this._each(files, attachment => {
