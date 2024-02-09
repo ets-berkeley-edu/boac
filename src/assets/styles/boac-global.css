@@ -249,7 +249,7 @@ select {
 .pill-attachment {
   display: inline-block;
   height: 26px !important;
-  padding: 0 6px;
+  padding: 0 8px 1px 8px;
 }
 .pill-attachment button {
   margin-top: .02rem;

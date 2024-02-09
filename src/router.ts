@@ -26,7 +26,7 @@ const Student = () => import('@/views/Student.vue')
 const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
 const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
-import _ from 'lodash'
+import {filter, get, includes, size, trim} from 'lodash'
 import Router from 'vue-router'
 import store from './store'
 import Vue from 'vue'
@@ -44,7 +44,7 @@ const $_goToLogin = (to: any, next: any) => {
   })
 }
 
-const $_isCE3 = user => !!_.size(_.filter(user.departments, d => d.code === 'ZCEEE' && _.includes(['advisor', 'director'], d.role)))
+const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
 
 const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
   const currentUser = store.getters['context/currentUser']
@@ -70,7 +70,7 @@ const router = new Router({
       beforeEnter: (to: any, from: any, next: any) => {
         const currentUser = store.getters['context/currentUser']
         if (currentUser.isAuthenticated) {
-          if (_.trim(to.query.redirect)) {
+          if (trim(to.query.redirect)) {
             next(to.query.redirect)
           } else if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
             next('/home')
@@ -337,8 +337,8 @@ router.afterEach((to: any, from: any) => {
   const sameRoute = to.name === from.name && to.hash
   if (!sameRoute) {
     store.commit('context/loadingStart', to)
-    const pageTitle = _.get(to, 'name')
-    document.title = `${_.capitalize(pageTitle) || 'Welcome'} | BOA`
+    const pageTitle = get(to, 'name')
+    document.title = `${pageTitle || 'Welcome'} | BOA`
   }
 })
 
