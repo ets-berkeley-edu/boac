@@ -121,6 +121,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
+import {getItemsForCoursesTable} from '@/lib/degree-progress'
 import {getStudentBySid} from '@/api/student'
 import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
@@ -155,6 +156,9 @@ export default {
         this.alertScreenReader(`${this.degreeName} is ready to print.`)
       }
     })
+  },
+  methods: {
+    getItemsForCoursesTable
   }
 }
 </script>

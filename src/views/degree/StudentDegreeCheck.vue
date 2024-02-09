@@ -87,7 +87,7 @@ import UnassignedCourses from '@/components/degree/student/UnassignedCourses'
 import UnitRequirements from '@/components/degree/UnitRequirements'
 import Util from '@/mixins/Util'
 import {getStudentBySid} from '@/api/student'
-import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
+import {onDrop, refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'StudentDegreeCheck',
@@ -131,7 +131,7 @@ export default {
     dropToUnassign(event, context) {
       event.stopPropagation()
       event.preventDefault()
-      this.onDrop({category: null, context})
+      onDrop(null, context)
       this.setDraggingTarget(null)
     },
     isDroppable(target) {
@@ -150,7 +150,7 @@ export default {
       switch (stage) {
       case 'end':
         this.setDraggingTarget(null)
-        this.onDragEnd()
+        this.draggingContextReset()
         break
       case 'enter':
       case 'over':

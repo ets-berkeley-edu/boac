@@ -105,6 +105,7 @@ import CoursesTable from '@/components/degree/CoursesTable'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditCategory from '@/components/degree/EditCategory'
 import Util from '@/mixins/Util'
+import {getItemsForCoursesTable} from '@/lib/degree-progress'
 
 export default {
   name: 'TemplateCategoryColumn',
@@ -132,6 +133,7 @@ export default {
       this.alertScreenReader(`Edit ${category.categoryType} "${category.name}"`)
       this.putFocusNextTick(`column-${this.position}-name-input`)
     },
+    getItemsForCoursesTable,
     onExitEditCategory() {
       const putFocus = this.categoryForEdit ? `column-${this.position}-edit-category-${this.categoryForEdit.id}-btn` : `column-${this.position}-create-btn`
       this.categoryForEdit = null

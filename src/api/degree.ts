@@ -13,7 +13,7 @@ export function copyCourse(courseId: number, parentCategoryId?: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/copy`, data).then(response => response.data, () => null)
 }
 
-export function assignCourse(courseId: number, categoryId?: number, ignore?: boolean) {
+export function assignCourse(courseId: number, categoryId?: number | null, ignore?: boolean) {
   const data = {categoryId, ignore}
   return axios.post(`${utils.apiBaseUrl()}/api/degree/course/${courseId}/assign`, data).then(response => response.data, () => null)
 }

@@ -72,7 +72,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Util from '@/mixins/Util'
 import {assignCourse} from '@/api/degree'
-import {isCampusRequirement} from '@/lib/degree-progress'
+import {categoryHasCourse, isCampusRequirement} from '@/lib/degree-progress'
 import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
@@ -99,7 +99,7 @@ export default {
       const put = (option, parent, grandparent) => {
         option.disabled = (this.isCourseRequirement(option) && !!option.courses.length)
           || (option.categoryType === 'Category' && !!option.subcategories.length)
-          || this.categoryHasCourse(option, this.course)
+          || categoryHasCourse(option, this.course)
         option.lineage = grandparent ? `${grandparent.name} ${parent.name}` : (parent ? parent.name : '')
         if ((!option.disabled || !this.isCourseRequirement(option)) && !this.isCampusRequirements(option)) {
           options.push(option)

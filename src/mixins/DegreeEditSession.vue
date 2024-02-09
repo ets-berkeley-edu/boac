@@ -1,5 +1,6 @@
 <script>
-import {mapActions, mapGetters} from 'vuex'
+import {mapGetters, mapMutations} from 'vuex'
+import store from '@/store'
 
 export default {
   name: 'DegreeEditSession',
@@ -29,21 +30,14 @@ export default {
     ])
   },
   methods: {
-    ...mapActions('degree', [
-      'deleteUnitRequirement',
+    ...mapMutations('degree', [
       'dismissAlert',
-      'onDrop',
-      'onDragEnd',
-      'onDragStart',
+      'draggingContextReset',
       'setDisableButtons',
       'setDraggingTarget',
       'setIncludeNotesWhenPrint',
-      'updateCategory',
-      'updateCourse',
-      'updateCourseRequirement',
-      'updateNote',
-      'updateUnitRequirement'
-    ])
+    ]),
+    onDragStart: (course, dragContext) => store.commit('degree/dragStart', {course, dragContext})
   }
 }
 </script>

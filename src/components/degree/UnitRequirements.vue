@@ -130,7 +130,10 @@ import AreYouSureModal from '@/components/util/AreYouSureModal'
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import EditUnitRequirement from '@/components/degree/EditUnitRequirement'
+import store from '@/store'
 import Util from '@/mixins/Util'
+import {deleteUnitRequirement} from '@/api/degree'
+import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 
 export default {
   name: 'UnitRequirements',
@@ -198,11 +201,14 @@ export default {
     },
     deleteConfirmed() {
       const name = this._get(this.selected, 'name')
-      return this.deleteUnitRequirement(this.selected.id).then(() => {
-        this.alertScreenReader(`${name} deleted.`)
-        this.isDeleting = false
-        this.setDisableButtons(false)
-        this.putFocusNextTick('unit-requirement-create-link')
+      const templateId = store.getters['degree/templateId']
+      deleteUnitRequirement(this.selected.id).then(() => {
+        refreshDegreeTemplate(templateId).then(() => {
+          this.alertScreenReader(`${name} deleted.`)
+          this.isDeleting = false
+          this.setDisableButtons(false)
+          this.putFocusNextTick('unit-requirement-create-link')
+        })
       })
     },
     getTableRowAttributes(item) {
