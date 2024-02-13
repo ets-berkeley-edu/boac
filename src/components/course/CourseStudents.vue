@@ -262,7 +262,8 @@ export default {
   mixins: [Context, Util],
   props: {
     featured: {
-      required: true,
+      default: undefined,
+      required: false,
       type: String
     },
     section: {
