@@ -19,7 +19,11 @@
         <div>
           <div class="d-flex">
             <div class="course-column-description">
-              <h1 id="course-header" class="course-header">
+              <h1
+                id="course-header"
+                class="course-header"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              >
                 {{ section.displayName }}
               </h1>
               <div class="font-size-14">
@@ -28,15 +32,19 @@
                 {{ section.sectionNum }}
                 <span v-if="section.instructionFormat">&mdash;</span>
                 <span v-if="section.units === null">Unknown Units</span>
-                <span v-if="section.units !== null">
+                <span v-if="section.units">
                   {{ pluralize('Unit', section.units) }}
                 </span>
               </div>
-              <div v-if="section.title" class="course-section-title">
+              <div
+                v-if="section.title"
+                class="course-section-title"
+                :class="{'demo-mode-blur': currentUser.inDemoMode}"
+              >
                 {{ section.title }}
               </div>
             </div>
-            <div class="course-column-schedule">
+            <div class="course-column-schedule" :class="{'demo-mode-blur': currentUser.inDemoMode}">
               <h2 class="sr-only">Schedule</h2>
               <div class="course-term-name">{{ section.termName }}</div>
               <div v-for="(meeting, meetingIndex) in meetings" :key="meetingIndex">
