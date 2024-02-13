@@ -135,7 +135,7 @@ export default {
             keyboardNavigation: {
               enabled: true
             },
-            pointDescriptionFormatter: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
+            valueDescriptionFormat: point => `${point.index + 1}. ${point.name} (y value: ${point.y})`
           },
           line: {
             states: {
