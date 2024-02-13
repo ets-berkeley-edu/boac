@@ -117,6 +117,7 @@
         <div
           v-for="(canvasSite, index) in row.item.enrollment.canvasSites"
           :key="index"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           <strong>{{ canvasSite.courseCode }}</strong>
         </div>
