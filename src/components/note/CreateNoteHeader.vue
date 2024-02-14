@@ -181,9 +181,7 @@ export default {
       this.targetTemplate = null
       this.alertScreenReader('Canceled')
       this.putFocusNextTick('create-note-subject')
-      this.nextTick(() => {
-        this.setFocusLockDisabled(false)
-      })
+      this.enableFocusLock()
     },
     deleteTemplateConfirmed() {
       return deleteNoteTemplate(this.targetTemplate.id).then(() => {
@@ -191,9 +189,7 @@ export default {
         this.targetTemplate = null
         this.alertScreenReader('Template deleted.')
         this.putFocusNextTick('create-note-subject')
-        this.nextTick(() => {
-          this.setFocusLockDisabled(false)
-        })
+        this.enableFocusLock()
       })
     },
     editTemplate(template) {
@@ -216,13 +212,13 @@ export default {
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
-      this.setFocusLockDisabled(true)
+      this.disableFocusLock()
       this.showDeleteTemplateModal = true
       this.alertScreenReader('Delete template modal opened.')
     },
     openRenameTemplateModal(template) {
       this.targetTemplate = template
-      this.setFocusLockDisabled(true)
+      this.disableFocusLock()
       this.showRenameTemplateModal = true
       this.alertScreenReader('Rename template modal opened.')
     },
@@ -231,14 +227,13 @@ export default {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
         this.alertScreenReader(`Template renamed '${title}'.`)
-        this.nextTick(() => {
-          this.setFocusLockDisabled(false)
-        })
+        this.enableFocusLock()
       })
     },
     toggleShowRenameTemplateModal(show) {
       this.showRenameTemplateModal = show
-      this.setFocusLockDisabled(show)
+      const toggle = show ? this.disableFocusLock : this.enableFocusLock
+      toggle()
       this.alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
     }
   }
