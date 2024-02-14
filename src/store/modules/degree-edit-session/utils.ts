@@ -114,11 +114,11 @@ export function onDrop(category: any, context: any) {
   })
 }
 
-export function refreshDegreeTemplate(templateId: number): Promise<void> {
-  return new Promise<void>(resolve => {
+export function refreshDegreeTemplate(templateId: number): Promise<any> {
+  return new Promise<any>(resolve => {
     getDegreeTemplate(templateId).then((template: any) => {
       store.commit('degree/resetSession', template)
-      return resolve()
+      return resolve(template)
     })
   })
 }

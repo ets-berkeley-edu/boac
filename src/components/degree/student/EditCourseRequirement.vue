@@ -101,6 +101,7 @@ import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
 import UnitsInput from '@/components/degree/UnitsInput'
 import {isCampusRequirement, validateUnitRange} from '@/lib/degree-progress'
+import {putFocusNextTick} from '@/lib/utils'
 import {refreshDegreeTemplate} from '@/store/modules/degree-edit-session/utils'
 import {updateCourseRequirement} from '@/api/degree'
 
@@ -149,7 +150,7 @@ export default {
     this.note = this.category.note
     this.unitsLower = this.category.unitsLower
     this.unitsUpper = this.category.unitsUpper
-    this.putFocusNextTick('recommended-course-checkbox')
+    putFocusNextTick('recommended-course-checkbox')
   },
   methods: {
     cancel() {
