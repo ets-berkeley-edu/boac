@@ -266,7 +266,7 @@ export default {
           this.discardTemplate()
         } else {
           this.showDiscardTemplateModal = true
-          this.setFocusLockDisabled(true)
+          this.disableFocusLock()
         }
       } else {
         const unsavedChanges = this._trim(this.model.subject)
@@ -276,7 +276,7 @@ export default {
           || this.completeSidSet.length
         if (unsavedChanges) {
           this.showDiscardNoteModal = true
-          this.setFocusLockDisabled(true)
+          this.disableFocusLock()
         } else {
           this.discardNote()
         }
@@ -285,28 +285,24 @@ export default {
     cancelCreateTemplate() {
       this.setIsSaving(false)
       this.showCreateTemplateModal = false
-      this.nextTick(() => {
-        this.setFocusLockDisabled(false)
-      })
+      this.enableFocusLock()
     },
     cancelDiscardNote() {
       this.showDiscardNoteModal = false
-      this.setFocusLockDisabled(false)
+      this.enableFocusLock()
       this.alertScreenReader('Continue editing note.')
       this.putFocusNextTick('create-note-subject')
     },
     cancelDiscardTemplate() {
       this.showDiscardTemplateModal = false
       this.putFocusNextTick('create-note-subject')
-      this.nextTick(() => {
-        this.setFocusLockDisabled(false)
-      })
+      this.enableFocusLock()
     },
     createTemplate(title) {
       this.setIsSaving(true)
       const ifAuthenticated = () => {
         this.showCreateTemplateModal = false
-        this.setFocusLockDisabled(false)
+        this.enableFocusLock()
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
         // Save draft before creating template.
@@ -327,7 +323,7 @@ export default {
       })
     },
     discardNote() {
-      this.setFocusLockDisabled(false)
+      this.enableFocusLock()
       this.alertScreenReader('Canceled create new note')
       this.exit(true)
     },
@@ -376,7 +372,7 @@ export default {
       this.setIsSaving(true)
       const ifAuthenticated = () => {
         this.showCreateTemplateModal = true
-        this.setFocusLockDisabled(true)
+        this.disableFocusLock()
       }
       this.invokeIfAuthenticated(ifAuthenticated)
     },
@@ -387,7 +383,8 @@ export default {
     },
     toggleShowCreateTemplateModal(show) {
       this.showCreateTemplateModal = show
-      this.setFocusLockDisabled(show)
+      const toggle = show ? this.disableFocusLock : this.enableFocusLock
+      toggle()
     },
     updateNote() {
       this.setIsSaving(true)

@@ -1,6 +1,15 @@
 <script>
+import store from '@/store'
+import Vue from 'vue'
 import {clearAutoSaveJob, onVisibilityChange, scheduleAutoSaveJob} from '@/store/modules/note-edit-session/utils'
 import {mapGetters, mapMutations} from 'vuex'
+
+const $_disableFocusLock = disable => {
+  const onNextTick = () => {
+    store.commit('note/setFocusLockDisabled', disable)
+  }
+  Vue.nextTick(onNextTick)
+}
 
 export default {
   name: 'NoteEditSession',
@@ -37,7 +46,6 @@ export default {
       'setAttachments',
       'setBody',
       'setContactType',
-      'setFocusLockDisabled',
       'setIsDraft',
       'setIsPrivate',
       'setIsRecalculating',
@@ -47,7 +55,9 @@ export default {
       'setNoteTemplates',
       'setSetDate',
       'setSubject',
-    ])
+    ]),
+    disableFocusLock: () => $_disableFocusLock(true),
+    enableFocusLock: () => $_disableFocusLock(false)
   }
 }
 </script>

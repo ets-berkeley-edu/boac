@@ -484,10 +484,11 @@ export default {
         })
         if (obj) {
           this.isShowingAll = true
-          this.nextTick(function() {
+          const onNextTick = () => {
             this.open(obj, true)
             this.scrollToPermalink(messageType, messageId)
-          })
+          }
+          this.nextTick(onNextTick)
         }
       }
     }
