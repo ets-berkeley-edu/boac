@@ -33,3 +33,7 @@ tmp/
 *.log
 .cache
 .pytest_cache/
+
+# BEA
+geckodriver.log
+bea/downloads/*
