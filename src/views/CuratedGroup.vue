@@ -128,6 +128,12 @@ export default {
   computed: {
     anchor: () => location.hash
   },
+  watch: {
+    domain(newVal, oldVal) {
+      this.removeEventHandler(`${oldVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
+      this.setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
+    }
+  },
   created() {
     store.commit('curatedGroup/resetMode')
     store.commit('curatedGroup/setCuratedGroupId', parseInt(this.id))
@@ -141,21 +147,13 @@ export default {
       }
     })
     const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.setEventHandler(`${sortByKey}-user-preference-change`, sortBy => {
-      if (!this.loading) {
-        this.alertScreenReader(`Sorting students by ${sortBy}`)
-        goToCuratedGroup(this.curatedGroupId, 1).then(() => {
-          this.loadingComplete(this.getLoadedAlert())
-        })
-      }
-    })
-    this.setEventHandler('termId-user-preference-change', () => {
-      if (!this.loading) {
-        goToCuratedGroup(this.curatedGroupId, this.pageNumber).then(() => {
-          this.loadingComplete(this.getLoadedAlert())
-        })
-      }
-    })
+    this.setEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.setEventHandler('termId-user-preference-change', this.onChangeTerm)
+  },
+  destroyed() {
+    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    this.removeEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   mounted() {
     this.nextTick(function() {
@@ -190,7 +188,24 @@ export default {
       const sortedBy = translateSortByOption(this.currentUser.preferences.sortBy)
       return `${label}, sorted by ${sortedBy}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
     },
+    onChangeSortBy() {
+      if (!this.loading) {
+        this.loadingStart()
+        goToCuratedGroup(this.curatedGroupId, 1).then(() => {
+          this.loadingComplete(this.getLoadedAlert())
+        })
+      }
+    },
+    onChangeTerm() {
+      if (!this.loading) {
+        this.loadingStart()
+        goToCuratedGroup(this.curatedGroupId, this.pageNumber).then(() => {
+          this.loadingComplete(this.getLoadedAlert())
+        })
+      }
+    },
     onClickPagination(pageNumber) {
+      this.loadingStart()
       goToCuratedGroup(this.curatedGroupId, pageNumber).then(() => {
         this.loadingComplete(this.getLoadedAlert())
       })

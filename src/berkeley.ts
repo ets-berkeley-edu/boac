@@ -330,6 +330,6 @@ export function translateSortByOption(option) {
     const ordering = option.endsWith('desc') ? 'descending' : 'ascending'
     return `${termName} GPA, ${ordering}`
   } else {
-    return option
+    return option.replaceAll('_', ' ')
   }
 }

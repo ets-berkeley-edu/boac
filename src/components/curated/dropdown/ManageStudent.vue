@@ -150,11 +150,10 @@ export default {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.dropdownId = `${this.idFragment}-dropdown-${this.student.sid}`
     this.refresh()
-    this.setEventHandler('my-curated-groups-updated', domain => {
-      if (domain === this.domain) {
-        this.refresh()
-      }
-    })
+    this.setEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
+  },
+  destroyed() {
+    this.removeEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
   },
   methods: {
     domainLabel(capitalize) {
@@ -200,6 +199,11 @@ export default {
       this.showModal = false
       this.alertScreenReader('Canceled')
       this.putFocusNextTick(this.dropdownId, 'button')
+    },
+    onUpdateMyCuratedGroups(domain) {
+      if (domain === this.domain) {
+        this.refresh()
+      }
     },
     refresh() {
       const containsSid = group => {
