@@ -191,9 +191,10 @@ export default {
         onFinish()
       }
     })
-    this.setEventHandler('user-session-expired', () => {
-      this.onBoaSessionExpires()
-    })
+    this.setEventHandler('user-session-expired', this.onBoaSessionExpires)
+  },
+  beforeDestroy() {
+    this.removeEventHandler('user-session-expired', this.onBoaSessionExpires)
   },
   methods: {
     cancelRequested() {

@@ -226,9 +226,7 @@ export default {
       const onFinish = () => {
         this.setMode(this.initialMode)
         this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-        this.setEventHandler('user-session-expired', () => {
-          this.onBoaSessionExpires()
-        })
+        this.setEventHandler('user-session-expired', this.onBoaSessionExpires)
       }
       this.setModel(note)
       if (note.sid) {
@@ -240,6 +238,7 @@ export default {
   },
   beforeDestroy() {
     document.body.classList.remove('modal-open')
+    this.removeEventHandler('user-session-expired', this.onBoaSessionExpires)
   },
   methods: {
     addNoteAttachments(attachments) {
@@ -341,9 +340,7 @@ export default {
     exit(revert) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
-      exitSession(revert).then(note => {
-        this.onClose(note)
-      })
+      exitSession(revert).then(this.onClose)
     },
     init() {
       return new Promise(resolve => {

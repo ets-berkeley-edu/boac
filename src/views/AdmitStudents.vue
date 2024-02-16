@@ -141,14 +141,10 @@ export default {
     this.loadAdmits()
   },
   created() {
-    this.setEventHandler('admitSortBy-user-preference-change', sortBy => {
-      this.sorting = true
-      this.loadAdmits()
-      if (!this.loading) {
-        this.goToPage(1)
-        this.alertScreenReader(`Sort admitted students by ${sortBy}`)
-      }
-    })
+    this.setEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
+  },
+  beforeDestroy() {
+    this.removeEventHandler('admitSortBy-user-preference-change', this.onAdmitSortByUserPreferenceChange)
   },
   methods: {
     cancelExportModal() {
@@ -198,6 +194,14 @@ export default {
         }
         this.sorting = false
       })
+    },
+    onAdmitSortByUserPreferenceChange(sortBy) {
+      this.sorting = true
+      this.loadAdmits()
+      if (!this.loading) {
+        this.goToPage(1)
+        this.alertScreenReader(`Sort admitted students by ${sortBy}`)
+      }
     }
   }
 }

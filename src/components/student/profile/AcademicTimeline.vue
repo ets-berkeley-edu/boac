@@ -45,6 +45,7 @@ export default {
   },
   data: () => ({
     countsPerType: {},
+    eventHandlers: undefined,
     filter: undefined,
     filterTypes: undefined,
     isTimelineLoading: true,
@@ -72,12 +73,18 @@ export default {
       })
     })
     this.isTimelineLoading = false
-    this.setEventHandler('note-deleted', this.onDeleteNoteEvent)
-    this.setEventHandler('notes-batch-published', this.onPublishBatchNotes)
+    this.eventHandlers = {
+      'note-deleted': this.onDeleteNoteEvent,
+      'notes-batch-published': this.onPublishBatchNotes
+    }
+    this._each(this.eventHandlers, (handler, eventType) => {
+      this.setEventHandler(eventType, handler)
+    })
   },
   destroyed() {
-    this.removeEventHandler('note-deleted', this.onDeleteNoteEvent)
-    this.removeEventHandler('notes-batch-published', this.onPublishBatchNotes)
+    this._each(this.eventHandlers || {}, (handler, eventType) => {
+      this.removeEventHandler(eventType, handler)
+    })
   },
   methods: {
     onCreateNewNote(note) {

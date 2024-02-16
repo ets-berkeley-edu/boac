@@ -389,6 +389,7 @@ export default {
     creatingNoteEvent: undefined,
     defaultShowPerTab: 5,
     editModeNoteId: undefined,
+    eventHandlers: undefined,
     isShowingAll: false,
     messageForDelete: undefined,
     openMessages: [],
@@ -462,10 +463,15 @@ export default {
   created() {
     this.refreshSearchIndex()
     if (this.currentUser.canAccessAdvisingData) {
-      this.setEventHandler('note-creation-is-starting', this.onNoteCreateStartEvent)
-      this.setEventHandler('note-created', this.afterNoteCreated)
-      this.setEventHandler('note-updated', this.afterNoteEdit)
-      this.setEventHandler('notes-created', this.afterNotesCreated)
+      this.eventHandlers = {
+        'note-creation-is-starting': this.onNoteCreateStartEvent,
+        'note-created': this.afterNoteCreated,
+        'note-updated': this.afterNoteEdit,
+        'notes-created': this.afterNotesCreated
+      }
+      this._each(this.eventHandlers, (handler, eventType) => {
+        this.setEventHandler(eventType, handler)
+      })
     }
     this.sortMessages()
     this.alertScreenReader(`${this.student.name} profile loaded.`)
@@ -494,10 +500,9 @@ export default {
     }
   },
   destroyed() {
-    this.removeEventHandler('note-creation-is-starting', this.onNoteCreateStartEvent)
-    this.removeEventHandler('note-created', this.afterNoteCreated)
-    this.removeEventHandler('note-updated', this.afterNoteEdit)
-    this.removeEventHandler('notes-created', this.afterNotesCreated)
+    this._each(this.eventHandlers || {}, (handler, eventType) => {
+      this.removeEventHandler(eventType, handler)
+    })
   },
   methods: {
     afterEditAdvisingNote(updatedNote) {
