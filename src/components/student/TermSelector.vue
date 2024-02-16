@@ -66,7 +66,6 @@ export default {
   }),
   created() {
     this.selectTermOptions = this.getSelectTermOptions()
-    this.setEventHandler(`${this.sortByKey}-user-preference-change`, v => this.selectedTermId = v)
     const selectedTermOption = this.termOptionForId(this._get(this.currentUser.preferences, 'termId'))
     this.selectedTermId = selectedTermOption.value
     this.selectedTermLabel = selectedTermOption.label

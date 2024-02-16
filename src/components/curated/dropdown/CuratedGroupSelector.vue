@@ -138,18 +138,12 @@ export default {
     this.idFragment = this.domainLabel(false).replace(' ', '-')
     this.checkboxId = `add-all-to-${this.idFragment}`
     this.dropdownId = `${this.idFragment}-dropdown-select`
-    this.setEventHandler('curated-group-checkbox-checked', args => {
-      if (this.domain === args.domain) {
-        this.sids.push(args.sid)
-        this.refresh()
-      }
-    })
-    this.setEventHandler('curated-group-checkbox-unchecked', args => {
-      if (this.domain === args.domain) {
-        this.sids = this._remove(this.sids, s => s !== args.sid)
-        this.refresh()
-      }
-    })
+    this.setEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
+    this.setEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
+  },
+  destroyed() {
+    this.removeEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
+    this.removeEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
   },
   methods: {
     afterAddStudents(group) {
@@ -202,6 +196,18 @@ export default {
       }
       createCuratedGroup(this.domain, name, this.sids)
         .finally(() => setTimeout(() => done(), 2000))
+    },
+    onCheckboxChecked(args) {
+      if (this.domain === args.domain) {
+        this.sids.push(args.sid)
+        this.refresh()
+      }
+    },
+    onCheckboxUnchecked(args) {
+      if (this.domain === args.domain) {
+        this.sids = this._remove(this.sids, s => s !== args.sid)
+        this.refresh()
+      }
     },
     toggle(checked) {
       this.sids = []

@@ -45,18 +45,24 @@ export default {
     this.sid = this.student.sid || this.student.csEmplId
     this.checkboxId = `${this.domain === 'admitted_students' ? 'admit' : 'student'}-${this.sid}-${idFragment}-checkbox`
     this.studentName = `${this.student.firstName} ${this.student.lastName}`
-    this.setEventHandler('curated-group-select-all', domain => {
-      if (this.domain === domain) {
-        this.status = true
-      }
-    })
-    this.setEventHandler('curated-group-deselect-all', domain => {
+    this.setEventHandler('curated-group-select-all', this.onSelectAll)
+    this.setEventHandler('curated-group-deselect-all', this.onDeselectAll)
+  },
+  destroyed() {
+    this.removeEventHandler('curated-group-select-all', this.onSelectAll)
+    this.removeEventHandler('curated-group-deselect-all', this.onDeselectAll)
+  },
+  methods: {
+    onDeselectAll(domain) {
       if (this.domain === domain) {
         this.status = false
       }
-    })
-  },
-  methods: {
+    },
+    onSelectAll(domain) {
+      if (this.domain === domain) {
+        this.status = true
+      }
+    },
     toggle(checked) {
       const eventName = checked ? 'curated-group-checkbox-checked' : 'curated-group-checkbox-unchecked'
       this.broadcast(eventName, {domain: this.domain, sid: this.sid})

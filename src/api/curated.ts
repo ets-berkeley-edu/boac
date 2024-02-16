@@ -81,7 +81,7 @@ export function getCuratedGroup(
   termId: string
 ) {
   $_track('view')
-  const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit${limit}`
+  const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}?orderBy=${orderBy}&termId=${termId}&offset=${offset}&limit=${limit}`
   return axios.get(url).then(response => response.data, () => null)
 }
 

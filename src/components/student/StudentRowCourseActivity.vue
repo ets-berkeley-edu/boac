@@ -138,13 +138,12 @@ export default {
       type: String
     }
   },
-  data: () => ({
-    termEnrollments: []
-  }),
-  created() {
-    const termEnrollments = this._get(this.student.term, 'enrollments', [])
-    this._each(termEnrollments, setWaitlistedStatus)
-    this.termEnrollments = termEnrollments
+  computed: {
+    termEnrollments() {
+      const termEnrollments = this._get(this.student.term, 'enrollments', [])
+      this._each(termEnrollments, setWaitlistedStatus)
+      return termEnrollments
+    }
   },
   methods: {
     getSectionsWithIncompleteStatus,

@@ -141,8 +141,9 @@ export default {
     }
   },
   watch: {
-    domain() {
-      this.setUserPreferenceListener(this.domain)
+    domain(newVal, oldVal) {
+      this.removeEventHandler(`${oldVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
+      this.setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
     },
     isCompactView() {
       this.showFilters = !this.isCompactView
@@ -173,16 +174,16 @@ export default {
     }
   },
   created() {
-    const domain = this.$route.query.domain || 'default'
-    this.setUserPreferenceListener(domain)
-    this.setEventHandler('cohort-apply-filters', () => {
-      this.setPagination(1)
-    })
-    this.setEventHandler('termId-user-preference-change', () => {
-      if (!this.loading) {
-        this.goToPage(this.pageNumber)
-      }
-    })
+    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    this.setEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.setEventHandler('cohort-apply-filters', this.resetPagination)
+    this.setEventHandler('termId-user-preference-change', this.onChangeTerm)
+  },
+  destroyed() {
+    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+    this.removeEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.removeEventHandler('cohort-apply-filters', this.resetPagination)
+    this.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   methods: {
     filterRowUniqueKey: (filter, index) => `${filter.key}-${filter.value}-${index}`,
@@ -222,7 +223,20 @@ export default {
     },
     goToPage(page) {
       this.setPagination(page)
-      this.onPageNumberChange().then(scrollToTop)
+      this.onPageNumberChange().then(() => {
+        scrollToTop()
+        this.loadingComplete(this.getLoadedAlert())
+      })
+    },
+    onChangeSortBy() {
+      if (!this.loading) {
+        this.goToPage(1)
+      }
+    },
+    onChangeTerm() {
+      if (!this.loading) {
+        this.goToPage(this.pageNumber)
+      }
     },
     onPageNumberChange() {
       return applyFilters(
@@ -231,17 +245,12 @@ export default {
       )
     },
     resetFiltersToLastApply,
+    resetPagination() {
+      this.setPagination(1)
+    },
     setPagination(page) {
       this.pageNumber = page
       this.setCurrentPage(this.pageNumber)
-    },
-    setUserPreferenceListener(domain) {
-      const key = domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-      this.setEventHandler(`${key}-user-preference-change`, () => {
-        if (!this.loading) {
-          this.goToPage(1)
-        }
-      })
     },
     toggleShowHistory(value) {
       this.showHistory = value
