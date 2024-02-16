@@ -39,13 +39,14 @@ def create_app():
     load_configs(app)
     initialize_logger(app)
     db.init_app(app)
-    cache.init_app(app, app.config)
+    if app.config['BOAC_ENV'] != 'bea':
+        cache.init_app(app, app.config)
 
-    with app.app_context():
-        register_routes(app)
+        with app.app_context():
+            register_routes(app)
 
-        # See https://stackoverflow.com/questions/9449101/how-to-stop-flask-from-initialising-twice-in-debug-mode
-        if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
-            initialize_scheduler_loop(app)
+            # See https://stackoverflow.com/questions/9449101/how-to-stop-flask-from-initialising-twice-in-debug-mode
+            if not app.debug or os.environ.get('WERKZEUG_RUN_MAIN') == 'true':
+                initialize_scheduler_loop(app)
 
     return app
