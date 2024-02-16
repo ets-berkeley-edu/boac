@@ -132,6 +132,7 @@ export default {
   mixins: [Context, Util],
   data: () => ({
     activeOperation: undefined,
+    eventHandlers: undefined,
     fields: undefined,
     isDeleting: false,
     myDraftNotes: undefined,
@@ -209,18 +210,18 @@ export default {
       }
     )
     this.reloadDraftNotes('Draft notes list is ready.')
-    this.setEventHandler('note-created', () => {
-      this.reloadDraftNotes()
+    this.eventHandlers = {
+      'note-created': this.reloadDraftNotes,
+      'note-deleted': this.onDeleteNote,
+      'note-updated': this.onUpdateNote
+    }
+    this._each(this.eventHandlers, (handler, eventType) => {
+      this.setEventHandler(eventType, handler)
     })
-    this.setEventHandler('note-deleted', noteId => {
-      if (this._find(this.myDraftNotes, ['id', noteId])) {
-        this.reloadDraftNotes()
-      }
-    })
-    this.setEventHandler('note-updated', note => {
-      if (this._find(this.myDraftNotes, ['id', note.id])) {
-        this.reloadDraftNotes()
-      }
+  },
+  destroyed() {
+    this._each(this.eventHandlers || {}, (handler, eventType) => {
+      this.removeEventHandler(eventType, handler)
     })
   },
   methods: {
@@ -251,13 +252,15 @@ export default {
       this.selectedDraftNote = null
       this.activeOperation = null
     },
-    reloadDraftNotes(srAlert) {
-      return getMyDraftNotes().then(data => {
-        this.myDraftNotes = data
-        if (srAlert) {
-          this.loadingComplete(srAlert)
-        }
-      })
+    onDeleteNote(noteId) {
+      if (this._find(this.myDraftNotes, ['id', noteId])) {
+        this.reloadDraftNotes()
+      }
+    },
+    onUpdateNote(note) {
+      if (this._find(this.myDraftNotes, ['id', note.id])) {
+        this.reloadDraftNotes()
+      }
     },
     openDeleteModal(draftNote) {
       this.activeOperation = 'delete'
@@ -267,6 +270,14 @@ export default {
     openEditModal(noteDraft) {
       this.activeOperation = 'edit'
       this.selectedDraftNote = noteDraft
+    },
+    reloadDraftNotes(srAlert) {
+      return getMyDraftNotes().then(data => {
+        this.myDraftNotes = data
+        if (srAlert) {
+          this.loadingComplete(srAlert)
+        }
+      })
     }
   }
 }
