@@ -506,17 +506,6 @@ CREATE TABLE student.minors
     minor VARCHAR NOT NULL
 );
 
-CREATE TABLE student.student_academic_programs
-(
-    sid VARCHAR NOT NULL,
-    academic_career_code VARCHAR,
-    academic_program_status_code VARCHAR,
-    academic_program_status VARCHAR,
-    academic_program_code VARCHAR,
-    academic_program_name VARCHAR,
-    effective_date DATE
-);
-
 CREATE TABLE student.student_degrees
 (
     sid VARCHAR NOT NULL,
@@ -2408,23 +2397,6 @@ INSERT INTO student.minors
 VALUES
 ('11667051', 'Computer Science UG'),
 ('11667051', 'Physics UG');
-
-INSERT INTO student.student_academic_programs
-(sid, academic_career_code, academic_program_status_code, academic_program_status, academic_program_code, academic_program_name, effective_date)
-VALUES
-('11667051', 'UGRD', 'AC', 'Active in Program', 'UCLS', 'Undergrad Letters & Science', '2016-01-12'),
-('11667051', 'UGRD', 'AC', 'Active in Program', 'UCOE', 'Undergrad Engineering', '2016-01-12'),
-('890127492', 'GRAD', 'AC', 'Active in Program', 'GACAD', 'Graduate Academic Programs', '2018-08-15'),
-('2345678901', 'UGRD', 'AC', 'Active in Program', 'UCCH', 'Undergrad Chemistry', '2016-01-12'),
-('2718281828', 'GRAD', 'CM', 'Completed Program', 'GACAD', 'Graduate Academic Programs', '2016-01-12'),
-('3141592653', 'UGRD', 'DC', 'Discontinued', 'UCLS', 'Undergrad Letters & Science', '2016-01-12'),
-('3141592653', 'UGRD', 'DC', 'Discontinued', 'UNODG', 'Undergrad Non-Degree/NonFinAid', '2016-01-12'),
-('3456789012', 'UGRD', 'AC', 'Active in Program', 'UCLS', 'Undergrad Letters & Science', '2015-08-19'),
-('5678901234', 'UGRD', 'AC', 'Active in Program', 'UCLS', 'Undergrad Letters & Science', '2015-08-19'),
-('7890123456', 'UGRD', 'AC', 'Active in Program', 'UCOE', 'Undergrad Engineering', '2015-08-19'),
-('8901234567', 'UGRD', 'AC', 'Active in Program', 'UCLS', 'Undergrad Letters & Science', '2015-08-19'),
-('9000000000', 'UGRD', 'AC', 'Active in Program', 'UCOE', 'Undergrad Engineering', '2015-08-19'),
-('9100000000', 'UGRD', 'AC', 'Active in Program', 'UCOE', 'Undergrad Engineering', '2015-08-19');
 
 INSERT INTO student.student_degrees
 (sid, plan, date_awarded, term_id)
