@@ -7,6 +7,14 @@
         class="font-size-16 font-weight-bolder mt-3 mb-1"
       >
         {{ label }}
+        <span v-if="showAdvisingNoteBestPractices" class="font-size-14 font-weight-500">
+          (<a
+            id="link-to-advising-note-best-practices"
+            href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
+            target="_blank"
+            aria-label="Open in new window"
+          >Shared advising note best practices<font-awesome icon="external-link-alt" class="pl-1" /></a>)
+        </span>
       </label>
     </div>
     <div
@@ -66,6 +74,10 @@ export default {
     onValueUpdate: {
       required: true,
       type: Function
+    },
+    showAdvisingNoteBestPractices: {
+      required: false,
+      type: Boolean
     }
   },
   data: () => ({

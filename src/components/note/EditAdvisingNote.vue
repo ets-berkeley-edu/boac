@@ -26,6 +26,7 @@
           :initial-value="model.body || ''"
           label="Note Details"
           :on-value-update="setBody"
+          :show-advising-note-best-practices="true"
         />
       </span>
     </div>
