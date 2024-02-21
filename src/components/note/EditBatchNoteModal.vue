@@ -67,11 +67,12 @@
           </div>
           <div id="note-details">
             <RichTextEditor
-              :initial-value="model.body || ''"
               :disabled="isSaving || boaSessionExpired"
+              :initial-value="model.body || ''"
               :is-in-modal="true"
               label="Note Details"
               :on-value-update="setBody"
+              :show-advising-note-best-practices="true"
             />
           </div>
         </div>
