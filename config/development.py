@@ -28,6 +28,6 @@ DEBUG = True
 
 DEMO_MODE_AVAILABLE = True
 
-INDEX_HTML = 'public/index.html'
+INDEX_HTML = 'index.html'
 
 VUE_LOCALHOST_BASE_URL = 'http://localhost:8080'
