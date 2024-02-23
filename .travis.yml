@@ -30,11 +30,11 @@ before_install:
   - sudo service postgresql@13-main restart
 
 install:
-  - echo -e '@neverendingsupport:registry=https://registry.nes.herodevs.com/npm/pkg/\n//registry.nes.herodevs.com/npm/pkg/:_authToken="'${NES_AUTH_TOKEN}'"' > .npmrc
-  - npm install --legacy-peer-deps
+  - npm install
   - pip3 install tox
 
 script:
+  - ${TRAVIS_BUILD_DIR}/scripts/verify-read-only-src-vue2.sh || travis_terminate 1
   - sudo psql -c 'create database boac_test;' -p 5433 -U postgres
   - sudo psql -c 'create database boac_loch_test;' -p 5433 -U postgres
   - sudo psql boac_test -c 'create extension pg_trgm;' -p 5433 -U postgres

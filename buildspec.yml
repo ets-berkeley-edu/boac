@@ -6,8 +6,7 @@ phases:
       nodejs: 16
       python: 3.9
     commands:
-      - echo -e '@neverendingsupport:registry=https://registry.nes.herodevs.com/npm/pkg/\n//registry.nes.herodevs.com/npm/pkg/:_authToken="'${NES_AUTH_TOKEN}'"' > .npmrc
-      - npm install --legacy-peer-deps
+      - npm install
 
   pre_build:
     commands:
