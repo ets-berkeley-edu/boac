@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build-vue": "vite build --outDir='dist/static'",
-    "lint-vue": "eslint . --ignore-path .eslint-ignore",
+    "lint-vue": "./scripts/verify-read-only-src-vue2.sh && eslint . --ignore-path .eslint-ignore",
     "lint-vue-fix": "eslint . --fix --ignore-path .eslint-ignore",
     "preview": "vite preview",
     "serve-vue": "vite --host --strictPort"
