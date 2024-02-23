@@ -1,6 +1,6 @@
-import store from '@/store'
 import {concat, each, filter, find, get, includes, isEmpty, isNil, map, startsWith} from 'lodash'
 import {DegreeProgressCourses} from '@/store/modules/degree-edit-session'
+import {useDegreeProgressStore} from '@/stores/degree-edit-session'
 
 const $_flatten = categories => {
   let flattened: any[] = []
@@ -28,12 +28,12 @@ export function categoryHasCourse(category, course): any[] {
 }
 
 export function findCategoriesByTypes(types, position) {
-  const categories: any[] = store.getters['degree/categories']
+  const categories: any[] = useDegreeProgressStore().categories
   return filter($_flatten(categories), c => (!position || c.position === position) && includes(types, c.categoryType))
 }
 
 export function findCategoryById(categoryId) {
-  const categories: any[] = store.getters['degree/categories']
+  const categories: any[] = useDegreeProgressStore().categories
   return categoryId ? find($_flatten(categories), ['id', categoryId]) : null
 }
 
@@ -54,7 +54,7 @@ export function getCourseKey(course: any) {
 }
 
 export function getItemsForCoursesTable(category) {
-  const courses: DegreeProgressCourses = store.getters['degree/courses']
+  const courses: DegreeProgressCourses = useDegreeProgressStore().courses
   if (courses) {
     const categoryCourseIds: number[] = map(category.courses, 'id')
     const predicate = c => includes(categoryCourseIds, c.id)
