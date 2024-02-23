@@ -1,16 +1,20 @@
 <template>
   <div>
     Hello World
+    <DevAuth v-if="config.devAuthEnabled" :report-error="reportError" />
   </div>
 </template>
 
 <script>
+import Context from '@/mixins/Context'
+import DevAuth from '@/components/admin/DevAuth'
 import Util from '@/mixins/Util'
 import {getCasLoginURL} from '@/api/auth'
 
 export default {
   name: 'Login',
-  mixins: [Util],
+  components: {DevAuth},
+  mixins: [Context, Util],
   data: () => ({
     error: undefined,
     showError: false
