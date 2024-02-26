@@ -10,10 +10,6 @@ module.exports = {
     'plugin:vue/vue3-essential',
     'plugin:vue/vue3-recommended'
   ],
-  ignorePatterns: [
-    'public/canvas-customization/canvas-customization.js',
-    'public/canvas-customization/index.js'
-  ],
   rules: {
     '@typescript-eslint/no-unused-vars': 2,
     'array-bracket-spacing': 2,
