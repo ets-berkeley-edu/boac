@@ -67,7 +67,7 @@ export function downloadCuratedGroupCsv(curatedGroupId: number, name: string, cs
   $_track('download')
   const fileDownload = require('js-file-download')
   const now = moment().format('YYYY-MM-DD_HH-mm-ss')
-  const termId = useContextStore().currentUser.preferences.termId || useContextStore().config.currentEnrollmentTermId
+  const termId = _.get(useContextStore().currentUser, 'preferences.termId') || _.get(useContextStore().config, 'currentEnrollmentTermId')
   const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/download_csv`
   return axios.post(url, {csvColumnsSelected, termId})
     .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null)
@@ -96,7 +96,7 @@ export function removeFromCuratedGroup(curatedGroupId: number, sid: any) {
       const group = response.data
       $_onUpdate(group)
       if (group.students) {
-        group.students = _.remove(group.students, student => sid === (student.sid || student.csEmplId))
+        group.students = _.remove(group.students, (student: any) => sid === (student.sid || student.csEmplId))
       }
       return group
     })

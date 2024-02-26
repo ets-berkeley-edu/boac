@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import axios from 'axios'
 import ga from '@/lib/ga'
-import {useContextStore} from '@stores/context'
+import {useContextStore} from '@/stores/context'
 import utils from '@/api/api-utils'
 
 const $_refreshMyDraftNoteCount = () => {
@@ -38,7 +38,7 @@ export function markNoteRead(noteId) {
 
 export function createDraftNote(sid: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
-    useContextStore().broadcast({eventType: 'note-created', data: response.data})
+    useContextStore().broadcast('note-created',response.data)
     $_refreshMyDraftNoteCount()
     return response.data
   })
@@ -74,7 +74,7 @@ export function updateNote(
   }
   return utils.postMultipartFormData('/api/notes/update', data).then(data => {
     const eventType = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    useContextStore().broadcast({eventType, data})
+    useContextStore().broadcast(eventType, data)
     $_track('update')
     $_refreshMyDraftNoteCount()
     return data
@@ -84,7 +84,7 @@ export function updateNote(
 export function applyNoteTemplate(noteId: number, templateId: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/apply_template`, {noteId, templateId}).then(response => {
     const data = response.data
-    useContextStore().broadcast({eventType: 'note-updated', data})
+    useContextStore().broadcast('note-updated', data)
     $_track('update')
     $_refreshMyDraftNoteCount()
     return data
@@ -96,7 +96,7 @@ export function deleteNote(note: any) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
     .then(response => {
-      useContextStore().broadcast({eventType: 'note-deleted', obj: note.id})
+      useContextStore().broadcast('note-deleted', note.id)
       $_refreshMyDraftNoteCount()
       return response.data
     })

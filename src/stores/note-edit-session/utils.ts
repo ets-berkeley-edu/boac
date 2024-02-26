@@ -1,7 +1,7 @@
 import {get, isString, map, trim} from 'lodash'
 import {deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
-import {NoteEditSessionModel, NoteRecipients} from '@/store/note-edit-session/index'
+import {NoteEditSessionModel, NoteRecipients} from '@/stores/note-edit-session/index'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 

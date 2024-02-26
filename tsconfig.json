@@ -30,6 +30,7 @@
     "target": "esnext",
     "types": [
       "gtag.js",
+      "node",
       "webpack-env"
     ],
     "useDefineForClassFields": true
