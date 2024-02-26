@@ -7,13 +7,21 @@ import {nextTick} from 'vue'
 export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,
-    config: undefined,
-    currentUser: undefined,
+    config: {
+      isProduction: false
+    },
+    currentUser: {
+      inDemoMode: false,
+      myCohorts: [] as Array<any>,
+      myCuratedGroups: [] as Array<any>,
+      myDraftNoteCount: undefined as number | undefined,
+      preferences: {}
+    },
     dismissedFooterAlert: false,
     dismissedServiceAnnouncement: false,
     eventHub: mitt(),
-    loading: undefined,
-    loadingStartTime: undefined,
+    loading: false,
+    loadingStartTime: undefined as number | undefined,
     screenReaderAlert: {
       message: '',
       politeness: 'polite'
@@ -27,10 +35,10 @@ export const useContextStore = defineStore('context', {
       this.currentUser.myCuratedGroups.push(curatedGroup)
       this.currentUser.myCuratedGroups = _.sortBy(this.currentUser.myCuratedGroups, 'name')
     },
-    alertScreenReader(message: string, politeness?: string) {
-      this.setScreenReaderAlert = {message: ''}
+    alertScreenReader(message: string, politeness='polite') {
+      this.screenReaderAlert.message = ''
       nextTick(() => {
-        this.setScreenReaderAlert = {message, politeness}
+        this.screenReaderAlert = {message, politeness}
       }).then(_.noop)
     },
     broadcast(eventType, data) {
@@ -44,7 +52,7 @@ export const useContextStore = defineStore('context', {
     },
     loadingComplete(srAlert?: any) {
       if (!this.config.isProduction) {
-        console.log(`Page loaded in ${(new Date().getTime() - this.loadingStartTime) / 1000} seconds`)
+        console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
       this.alertScreenReader(srAlert || `${String(_.get(router.currentRoute, 'name', ''))} page loaded.`)
