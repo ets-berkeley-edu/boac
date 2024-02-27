@@ -4,12 +4,15 @@ import router from '@/router'
 import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
 
+export type BoaConfig = {
+  isProduction: boolean,
+  maxAttachmentsPerNote: number
+}
+
 export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,
-    config: {
-      isProduction: false
-    },
+    config: undefined as BoaConfig | undefined,
     currentUser: {
       inDemoMode: false,
       myCohorts: [] as Array<any>,
