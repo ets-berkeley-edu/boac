@@ -6,6 +6,7 @@
       :alt="ariaLabel"
       :src="avatarUrl"
       class="avatar"
+      :style="{backgroundImage: `url(${avatarUrl})`, backgroundRepeat: 'repeat'}"
       @error="avatarError"
     />
     <div
@@ -71,7 +72,6 @@ export default {
 
 <style scoped>
 .avatar {
-  background-image: url('~@/assets/avatar-50.png');
   background-size: cover;
   border: 5px solid #ccc;
   border-radius: 30px;

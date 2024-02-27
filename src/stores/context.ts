@@ -44,7 +44,7 @@ export const useContextStore = defineStore('context', {
         this.screenReaderAlert = {message, politeness}
       }).then(_.noop)
     },
-    broadcast(eventType, data) {
+    broadcast(eventType, data?) {
       this.eventHub.emit(eventType, data)
     },
     dismissFooterAlert() {
