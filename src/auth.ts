@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const goToLogin = (to: any, next: any) => {
@@ -12,7 +13,7 @@ const goToLogin = (to: any, next: any) => {
 
 export default {
   requiresAuthenticated: (to: any, from: any, next: any) => {
-    if (useContextStore().currentUser.isAuthenticated) {
+    if (_.get(useContextStore().currentUser, 'isAuthenticated')) {
       next()
     } else {
       goToLogin(to, next)
