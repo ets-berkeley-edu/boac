@@ -16,11 +16,11 @@ export function devAuthLogIn(uid: string, password: string) {
 export function getCasLoginURL() {
   return axios
     .get(`${utils.apiBaseUrl()}/cas/login_url`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function getCasLogoutUrl() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/auth/logout`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }

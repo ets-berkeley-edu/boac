@@ -1,41 +1,38 @@
 <template>
   <form @submit.prevent="logIn">
-    <div class="d-flex dev-auth">
-      <div>
-        <input
-          id="dev-auth-uid"
-          v-model="uid"
-          class="form-input"
-          placeholder="UID"
-          type="text"
-          aria-required="true"
-          aria-label="Input UID of an authorized user"
-          size="8"
-        >
-      </div>
-      <div class="ml-1">
-        <input
-          id="dev-auth-password"
-          v-model="password"
-          :aria-invalid="!!password"
-          class="form-input"
-          placeholder="Password"
-          type="password"
-          aria-required="true"
-          aria-label="Password"
-          autocomplete="off"
-          size="8"
-        >
-      </div>
-      <div class="ml-1">
-        <v-btn
-          id="dev-auth-submit"
-          class="btn-dev-auth btn-primary-color-override"
-          type="submit"
-        >
-          DevAuth!
-        </v-btn>
-      </div>
+    <div class="d-flex dev-auth px-7">
+      <v-text-field
+        id="dev-auth-uid"
+        v-model="uid"
+        aria-label="Input UID of an authorized user"
+        aria-required="true"
+        class="form-input"
+        density="compact"
+        hide-details
+        placeholder="UID"
+        variant="outlined"
+      ></v-text-field>
+      <v-text-field
+        id="dev-auth-password"
+        v-model="password"
+        :aria-invalid="!!password"
+        aria-label="Password"
+        aria-required="true"
+        class="form-input"
+        density="compact"
+        hide-details
+        placeholder="Password"
+        type="password"
+        variant="outlined"
+      ></v-text-field>
+      <v-btn
+        id="dev-auth-submit"
+        class="btn-dev-auth"
+        color="primary"
+        type="submit"
+      >
+        DevAuth!
+      </v-btn>
     </div>
   </form>
 </template>
@@ -86,11 +83,11 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .btn-dev-auth {
-  height: 26px;
-  padding: 0 !important;
-  width: 80px;
+  height: 28px;
+  padding: 0 5px;
+  text-transform: capitalize;
 }
 .dev-auth {
   justify-content: center;
@@ -99,5 +96,17 @@ export default {
 }
 .form-input {
   padding-right: 5px;
+}
+</style>
+
+<style lang="scss">
+.dev-auth {
+  .form-input {
+    input {
+      height: 28px;
+      min-height: unset;
+      padding: 8px;
+    }
+  }
 }
 </style>

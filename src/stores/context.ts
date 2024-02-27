@@ -4,6 +4,12 @@ import router from '@/router'
 import {defineStore} from 'pinia'
 import {nextTick} from 'vue'
 
+const $_getDefaultApplicationState = () => ({
+  message: undefined,
+  stacktrace: undefined,
+  status: 200
+})
+
 export type BoaConfig = {
   isProduction: boolean,
   maxAttachmentsPerNote: number
@@ -12,6 +18,7 @@ export type BoaConfig = {
 export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,
+    applicationState: $_getDefaultApplicationState(),
     config: undefined as BoaConfig | undefined,
     currentUser: {
       inDemoMode: false,
@@ -54,7 +61,7 @@ export const useContextStore = defineStore('context', {
       this.dismissedServiceAnnouncement = true
     },
     loadingComplete(srAlert?: any) {
-      if (!this.config.isProduction) {
+      if (!_.get(this.config, 'isProduction')) {
         console.log(`Page loaded in ${(new Date().getTime() - (this.loadingStartTime || 0)) / 1000} seconds`)
       }
       this.loading = false
@@ -91,6 +98,9 @@ export const useContextStore = defineStore('context', {
     },
     restoreServiceAnnouncement() {
       this.dismissedServiceAnnouncement = false
+    },
+    setApplicationState(status: number, message?: any, stacktrace?: any) {
+      this.applicationState = {message, stacktrace, status}
     },
     setConfig(data: any) {
       this.config = data
