@@ -3,7 +3,7 @@ import axios from 'axios'
 import {useContextStore} from '@/stores/context'
 
 export default {
-  apiBaseUrl: () => useContextStore().apiBaseUrl,
+  apiBaseUrl: () => _.get(useContextStore().config, 'apiBaseUrl'),
   postMultipartFormData: (
     path: string,
     data: object
@@ -14,7 +14,7 @@ export default {
         formData.append(key, value)
       }
     })
-    const apiBaseUrl = useContextStore().apiBaseUrl
+    const apiBaseUrl = _.get(useContextStore().config, 'apiBaseUrl')
     return axios
         .post(
             `${apiBaseUrl}${path}`,
