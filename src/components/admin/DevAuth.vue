@@ -28,13 +28,13 @@
         >
       </div>
       <div class="ml-1">
-        <button
+        <v-btn
           id="dev-auth-submit"
           class="btn-dev-auth btn-primary-color-override"
           type="submit"
         >
           DevAuth!
-        </button>
+        </v-btn>
       </div>
     </div>
   </form>
