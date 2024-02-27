@@ -2,7 +2,7 @@ import axios from 'axios'
 import ga from '@/lib/ga'
 import moment from 'moment-timezone'
 import utils from '@/api/api-utils'
-import {useContextStore} from '@stores/context'
+import {useContextStore} from '@/stores/context'
 
 const $_track = (action, label?) => ga.cohort(action, label)
 

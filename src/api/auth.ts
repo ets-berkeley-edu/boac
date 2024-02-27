@@ -1,7 +1,6 @@
 import axios from 'axios'
 import {useContextStore} from '@/stores/context'
 import utils from '@/api/api-utils'
-import {ref} from 'vue'
 
 export function devAuthLogIn(uid: string, password: string) {
   return axios
@@ -9,8 +8,8 @@ export function devAuthLogIn(uid: string, password: string) {
       uid: uid,
       password: password
     })
-    .then(response => {
-      useContextStore().setCurrentUser(ref(response.data).value)
+    .then(data => {
+      useContextStore().setCurrentUser(data)
     }, error => error)
 }
 
