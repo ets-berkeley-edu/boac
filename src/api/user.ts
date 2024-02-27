@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import axios from 'axios'
 import utils from '@/api/api-utils'
+import {useContextStore} from '@/stores/context'
 
 export function getDepartments(excludeEmpty?: boolean) {
   return axios
@@ -24,7 +25,7 @@ export function getUserProfile() {
     .then(response => {
       const user = response.data
       if (!user.isAuthenticated) {
-        // TODO: store.commit('context/broadcast', {eventType: 'user-session-expired'})
+        useContextStore().broadcast('user-session-expired')
       }
       return user
     }, () => null)
@@ -86,7 +87,7 @@ export function setDemoMode(demoMode: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/user/demo_mode`, {demoMode: demoMode})
     .then(() => {
-      // TODO: store.commit('context/setDemoMode', demoMode)
+      useContextStore().setDemoMode(demoMode)
     })
 }
 

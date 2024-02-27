@@ -122,6 +122,7 @@ import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {getAllTopics} from '@/api/topics'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
+import {useSearchStore} from '@/stores/search'
 // TODO: import {scrollToTop} from '@/lib/utils'
 
 export default {
@@ -133,9 +134,9 @@ export default {
     showErrorPopover: false
   }),
   created() {
-    // TODO: store.commit('search/resetAdvancedSearch', this.$route.query.q)
+    useSearchStore().resetAdvancedSearch(this.$route.query.q)
     getMySearchHistory().then(history => {
-      // TODO: store.commit('search/setSearchHistory', history)
+      useSearchStore().setSearchHistory(history)
       if (this.currentUser.canAccessAdvisingData) {
         getAllTopics(true).then(rows => {
           const topicOptions = []
@@ -146,8 +147,7 @@ export default {
               value: topic
             })
           })
-          console.log(history)
-          // TODO: store.commit('search/setTopicOptions', topicOptions)
+          useSearchStore().setTopicOptions(topicOptions)
         })
       }
       document.addEventListener('keydown', this.hideError)
@@ -195,8 +195,7 @@ export default {
           this._noop
         )
         addToSearchHistory(q).then(history => {
-          console.log(history)
-          // TODO: store.commit('search/setSearchHistory', history)
+          useSearchStore().setSearchHistory(history)
         })
       } else {
         this.showErrorPopover = true
