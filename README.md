@@ -47,7 +47,7 @@ export BOAC_LOCAL_CONFIGS=/Volumes/XYZ/boac_config
 
 We use [Tox](https://tox.readthedocs.io) for continuous integration. Under the hood, you'll find [PyTest](https://docs.pytest.org), [Flake8](http://flake8.pycqa.org) and [ESLint](https://eslint.org/).
 ```
-# Run all tests and linters with Tox's parallel mode:
+# Run tests and linters with Tox's parallel mode:
 tox -p
 
 # Pytest

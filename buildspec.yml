@@ -4,7 +4,7 @@ phases:
   install:
     runtime-versions:
       nodejs: 18
-      python: 3.9
+      python: 3.11
     commands:
       - npm install
 
