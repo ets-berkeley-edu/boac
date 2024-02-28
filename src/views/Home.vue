@@ -40,7 +40,7 @@ import Context from '@/mixins/Context'
 import SortableGroup from '@/components/search/SortableGroup.vue'
 import Spinner from '@/components/util/Spinner.vue'
 import Util from '@/mixins/Util.vue'
-// TODO: import {scrollToTop} from '@/lib/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'Home',
@@ -54,7 +54,7 @@ export default {
     this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
     this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
     this.loadingComplete()
-    // TODO: scrollToTop()
+    scrollToTop()
   }
 }
 </script>

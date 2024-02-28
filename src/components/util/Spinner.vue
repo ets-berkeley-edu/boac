@@ -1,6 +1,11 @@
 <template>
   <div v-if="loading" id="spinner-when-loading" class="spinner">
-    <font-awesome icon="sync" size="5x" spin />
+    <v-progress-circular
+      class="spinner"
+      :size="50"
+      color="primary"
+      indeterminate
+    />
   </div>
 </template>
 
@@ -15,14 +20,14 @@ export default {
 
 <style scoped>
 .spinner {
-  position: fixed;
-  top: 0;
-  right: 0;
   bottom: 0;
-  left: 0;
   height: 2em;
+  left: 0;
   margin: auto;
-  overflow: show;
+  overflow: visible;
+  position: fixed;
+  right: 0;
+  top: 0;
   width: 2em;
   z-index: 999;
 }

@@ -1,7 +1,7 @@
 <template>
   <b-card
     :id="`sortable-${keyword}-${group.id}`"
-    body-class="p-0"
+    body-class="pa-0"
     :border-variant="isFetching || openAndLoaded ? 'primary' : 'light'"
     class="mr-3 sortable-group"
     :class="{
@@ -9,8 +9,8 @@
       'border-0': !isFetching && !openAndLoaded
     }"
   >
-    <b-card-header class="bg-transparent border-0 pl-1" :class="{'p-0': compact}">
-      <b-button
+    <b-card-header class="bg-transparent border-0 pl-1" :class="{'pa-0': compact}">
+      <v-btn
         :id="`sortable-${keyword}-${group.id}-toggle`"
         v-b-toggle="`sortable-${keyword}-${group.id}`"
         block
@@ -25,8 +25,12 @@
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
             <div class="caret pale-blue pr-4">
-              <font-awesome v-if="isFetching" icon="spinner" spin />
-              <font-awesome v-if="!isFetching" :icon="isOpen ? 'caret-down' : 'caret-right'" />
+              <v-progress-circular
+                v-if="isFetching"
+                indeterminate
+                size="small"
+              />
+              <v-icon v-if="!isFetching" :icon="isOpen ? mdiMenuDown : mdiMenuRight" />
             </div>
             <h3 class="page-section-header-sub text-wrap">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
@@ -55,7 +59,7 @@
             </div>
           </div>
         </div>
-      </b-button>
+      </v-btn>
     </b-card-header>
     <b-collapse
       :id="`sortable-${keyword}-${group.id}`"
@@ -97,6 +101,10 @@
     </b-collapse>
   </b-card>
 </template>
+
+<script setup>
+import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

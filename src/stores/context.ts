@@ -96,6 +96,9 @@ export const useContextStore = defineStore('context', {
       const indexOf = this.currentUser.myCuratedGroups.findIndex(curatedGroup => curatedGroup.id === curatedGroupId)
       this.currentUser.myCuratedGroups.splice(indexOf, 1)
     },
+    resetApplicationState() {
+      this.applicationState = $_getDefaultApplicationState()
+    },
     restoreServiceAnnouncement() {
       this.dismissedServiceAnnouncement = false
     },

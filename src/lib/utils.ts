@@ -25,6 +25,10 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
   })
 }
 
+export function scrollToTop() {
+  window.scrollTo(0, 0)
+}
+
 export function sortComparator(a, b, nullFirst=true) {
   if (_.isNil(a) || _.isNil(b)) {
     if (nullFirst) {

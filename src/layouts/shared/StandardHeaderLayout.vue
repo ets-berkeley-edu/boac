@@ -11,7 +11,7 @@
         </div>
       </v-col>
       <v-col>
-        <div class="align-items-center d-flex">
+        <div class="justify-center d-flex">
           <div>
             <label for="search-students-input" class="sr-only">
               {{ labelForSearchInput }}
@@ -68,7 +68,10 @@
               >
                 <div class="d-flex">
                   <div v-if="isSearching" class="pr-1">
-                    <b-spinner small />
+                    <v-progress-circular
+                      indeterminate
+                      size="small"
+                    />
                   </div>
                   <div>
                     <span class="text-nowrap">Search<span v-if="isSearching">ing</span></span>
@@ -120,10 +123,10 @@ import HeaderBranding from '@/layouts/shared/HeaderBranding'
 import HeaderMenu from '@/components/header/HeaderMenu'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
-import {getAllTopics} from '@/api/topics'
 import {addToSearchHistory, getMySearchHistory} from '@/api/search'
+import {getAllTopics} from '@/api/topics'
+import {scrollToTop} from '@/lib/utils'
 import {useSearchStore} from '@/stores/search'
-// TODO: import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'StandardHeaderLayout',
@@ -202,7 +205,7 @@ export default {
         this.alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
-      // TODO: scrollToTop()
+      scrollToTop()
     }
   }
 }
