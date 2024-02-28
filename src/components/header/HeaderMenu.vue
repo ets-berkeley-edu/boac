@@ -1,67 +1,102 @@
 <template>
   <div>
-    <b-dropdown
+    <v-menu
       id="header-dropdown-under-name"
       variant="link"
       no-caret
       right
     >
-      <template #button-content>
-        <div class="align-items-center d-flex">
-          <div class="b-link-text pr-1">{{ currentUser.firstName || `UID:${currentUser.uid}` }}</div><font-awesome icon="caret-down" class="ml-1 b-link-text" />
-        </div>
+      <template #activator="{ props }">
+        <v-btn
+          :append-icon="mdiMenuDown"
+          color="white"
+          v-bind="props"
+          variant="text"
+        >
+          {{ currentUser.firstName || `UID:${currentUser.uid}` }}
+        </v-btn>
       </template>
-      <b-dropdown-item
-        v-if="currentUser.canReadDegreeProgress"
-        id="header-menu-degree-check"
-        class="nav-link-color text-decoration-none"
-        to="/degrees"
-      >
-        Degree Checks
-      </b-dropdown-item>
-      <b-dropdown-item
-        v-if="currentUser.isAdmin || myDirectorDepartment"
-        id="header-menu-analytics"
-        :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
-        class="nav-link-color text-decoration-none"
-      >
-        Flight Data Recorder
-      </b-dropdown-item>
-      <b-dropdown-item
-        v-if="currentUser.isAdmin"
-        id="header-menu-flight-deck"
-        class="nav-link-color text-decoration-none"
-        to="/admin"
-      >
-        Flight Deck
-      </b-dropdown-item>
-      <b-dropdown-item
-        v-if="currentUser.isAdmin"
-        id="header-menu-passengers"
-        to="/admin/passengers"
-        class="nav-link-color text-decoration-none"
-      >
-        Passenger Manifest
-      </b-dropdown-item>
-      <b-dropdown-item
-        v-if="!currentUser.isAdmin"
-        id="header-menu-profile"
-        class="nav-link-color text-decoration-none"
-        to="/profile"
-      >
-        Profile
-      </b-dropdown-item>
-      <b-dropdown-item
-        :href="`mailto:${config.supportEmailAddress}`"
-        target="_blank"
-        aria-label="Send email to the BOA team"
-      >
-        Feedback/Help<span class="sr-only"> (new browser tab will open)</span>
-      </b-dropdown-item>
-      <b-dropdown-item href="#" @click="logOut">Log Out</b-dropdown-item>
-    </b-dropdown>
+      <v-list class="pt-3">
+        <v-list-item-action v-if="currentUser.canReadDegreeProgress">
+          <v-btn
+            id="header-menu-degree-check"
+            class="nav-link-color text-decoration-none"
+            to="/degrees"
+            variant="text"
+          >
+            Degree Checks
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action v-if="currentUser.isAdmin || myDirectorDepartment">
+          <v-btn
+            id="header-menu-analytics"
+            :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
+            class="nav-link-color text-decoration-none"
+            variant="text"
+          >
+            Flight Data Recorder
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action v-if="currentUser.isAdmin">
+          <v-btn
+            id="header-menu-flight-deck"
+            class="nav-link-color text-decoration-none"
+            to="/admin"
+            variant="text"
+          >
+            Flight Deck
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action v-if="currentUser.isAdmin">
+          <v-btn
+            id="header-menu-passengers"
+            class="nav-link-color text-decoration-none"
+            to="/admin/passengers"
+            variant="text"
+          >
+            Passenger Manifest
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action
+          v-if="!currentUser.isAdmin"
+        >
+          <v-btn
+            id="header-menu-profile"
+            class="nav-link-color text-decoration-none"
+            to="/profile"
+            variant="text"
+          >
+            Profile
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action>
+          <v-btn
+            aria-label="Send email to the BOA team"
+            :href="`mailto:${config.supportEmailAddress}`"
+            target="_blank"
+            variant="text"
+          >
+            Feedback/Help<span class="sr-only"> (new browser tab will open)</span>
+          </v-btn>
+        </v-list-item-action>
+        <v-list-item-action>
+          <v-btn
+            id="header-menu-log-out"
+            href="#"
+            variant="text"
+            @click="logOut"
+          >
+            Log Out
+          </v-btn>
+        </v-list-item-action>
+      </v-list>
+    </v-menu>
   </div>
 </template>
+
+<script setup>
+import {mdiMenuDown} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'
@@ -86,9 +121,6 @@ export default {
 </script>
 
 <style scoped>
-.b-link-text {
-  color: #fff;
-}
 .nav-link-color {
   color: #212529;
 }

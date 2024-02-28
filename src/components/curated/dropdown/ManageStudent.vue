@@ -3,7 +3,7 @@
     <b-dropdown
       :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
-      :class="{'p-0': isButtonVariantLink}"
+      :class="{'pa-0': isButtonVariantLink}"
       :disabled="disableSelector"
       :menu-class="isButtonVariantLink ? '' : 'groups-menu-class'"
       no-caret
@@ -19,8 +19,12 @@
               {{ label }}
             </div>
             <div v-if="!isButtonVariantLink" class="pr-2">
-              <font-awesome v-if="disableSelector || groupsLoading" icon="spinner" spin />
-              <font-awesome v-if="!disableSelector && !groupsLoading" icon="caret-down" />
+              <v-progress-circular
+                v-if="disableSelector || groupsLoading"
+                indeterminate
+                size="small"
+              />
+              <v-icon v-if="!disableSelector && !groupsLoading" :icon="mdiMenuDown" />
             </div>
           </div>
           <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">
@@ -78,6 +82,10 @@
     </b-modal>
   </div>
 </template>
+
+<script setup>
+import {mdiMenuDown} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

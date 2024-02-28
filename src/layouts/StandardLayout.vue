@@ -1,5 +1,5 @@
 <template>
-  <v-container class="h-100 p-0" fluid>
+  <v-container class="h-100 pa-0" fluid>
     <v-row class="header" no-gutters>
       <StandardHeaderLayout role="banner" />
     </v-row>
@@ -20,7 +20,7 @@
     <v-row class="row-footer" no-gutters>
       <v-col class="sidebar z-index-sub-zero" sm="2"></v-col>
       <v-col sm="10" role="contentinfo">
-        <v-container v-if="!loading" fluid class="mb-3 ml-3 mt-5 p-0 w-auto">
+        <v-container v-if="!loading" fluid class="mb-3 ml-3 mt-5 pa-0 w-auto">
           <v-row class="w-100">
             <v-col sm="7" class="mb-3 mr-auto">
               <img alt="UC Berkeley logo" src="@/assets/uc-berkeley-logo.svg" />

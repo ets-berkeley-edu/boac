@@ -266,7 +266,11 @@
               @click.prevent="search"
             >
               <span v-if="isSearching" class="px-1">
-                <b-spinner small class="mr-2"></b-spinner>
+                <v-progress-circular
+                  class="mr-2"
+                  indeterminate
+                  size="small"
+                />
                 <span>Searching...</span>
               </span>
               <span v-if="!isSearching">
@@ -299,7 +303,7 @@ import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {findStudentsByNameOrSid} from '@/api/student'
-// TODO: import {scrollToTop} from '@/lib/utils'
+import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -414,7 +418,7 @@ export default {
         this.alertScreenReader('Search input is required')
         this.putFocusNextTick('search-students-input')
       }
-      // TODO scrollToTop()
+      scrollToTop()
     },
     setQueryText(value) {
       this.queryText = value

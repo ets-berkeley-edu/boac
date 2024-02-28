@@ -34,8 +34,12 @@
             <div v-if="!isSaving" class="d-flex justify-content-between">
               <div class="pr-2">Add to {{ domainLabel(true) }}</div>
               <div>
-                <font-awesome v-if="isSaving" icon="spinner" spin />
-                <font-awesome v-if="!isSaving" icon="caret-down" />
+                <v-progress-circular
+                  v-if="isSaving"
+                  indeterminate
+                  size="small"
+                />
+                <v-icon v-if="!isSaving" :icon="mdiMenuDown" />
               </div>
             </div>
             <div v-if="isSaving">
@@ -88,6 +92,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiMenuDown} from '@mdi/js'
+</script>
 
 <script>
 import CreateCuratedGroupModal from '@/components/curated/CreateCuratedGroupModal'
