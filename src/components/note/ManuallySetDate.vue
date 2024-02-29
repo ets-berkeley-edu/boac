@@ -4,28 +4,36 @@
       Manually Set Date
     </div>
     <div class="d-flex w-100">
-      <v-date-picker
-        v-model="manuallySetDate"
-        :max-date="maxDate"
-        popover-visibility="focus"
-      >
-        <template #default="{inputValue, inputEvents}">
-          <input
-            id="manually-set-date-input"
-            aria-labelledby="manually-set-date-label"
-            class="search-input-date form-control"
-            name="manually-set-date-input"
-            placeholder="MM/DD/YYYY"
-            type="text"
-            :value="inputValue"
-            v-on="inputEvents"
-          />
-        </template>
-      </v-date-picker>
-      <div v-if="manuallySetDate">
+      <div class="w-50">
+        <DatePicker
+          v-model="manuallySetDate"
+          :max-date="maxDate"
+          popover-visibility="focus"
+        >
+          <template #default="{inputValue, inputEvents}">
+            <v-text-field
+              id="manually-set-date-input"
+              aria-labelledby="manually-set-date-label"
+              class="search-input-date"
+              density="compact"
+              hide-details
+              :model-value="inputValue"
+              name="manually-set-date-input"
+              placeholder="MM/DD/YYYY"
+              type="text"
+              variant="outlined"
+              v-on="inputEvents"
+            ></v-text-field>
+          </template>
+        </DatePicker>
+      </div>
+      <div>
         <v-btn
+          v-if="manuallySetDate"
           id="manually-set-date-clear"
-          class="search-input-date"
+          class="clear-btn px-0"
+          color="btn-secondary"
+          variant="flat"
           @click="manuallySetDate = null"
         >
           <v-icon :icon="mdiClose" />
@@ -37,6 +45,7 @@
 </template>
 
 <script setup>
+import {DatePicker} from 'v-calendar'
 import {mdiClose} from '@mdi/js'
 </script>
 
@@ -45,6 +54,7 @@ import NoteEditSession from '@/mixins/NoteEditSession'
 
 export default {
   name: 'ManuallySetDate',
+  components: {DatePicker},
   mixins: [NoteEditSession],
   props: {
     disabled: {
@@ -69,7 +79,9 @@ export default {
 </script>
 
 <style scoped>
-.search-input-date {
-  margin-bottom: 10px;
+.clear-btn {
+  height: 40px;
+  min-width: 40px;
+  width: 40px;
 }
 </style>

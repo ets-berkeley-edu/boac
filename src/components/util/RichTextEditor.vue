@@ -105,7 +105,7 @@ export default {
       } else if (this.isInModal) {
         // When embedded in a modal, the CKEditor toolbar elements are unreachable because they are attached to
         // the end of the DOM and outside the modal. We must move these "ck" elements. The user should not notice.
-        const ckEditorTool = 'ck ck-reset_all ck-body ck-rounded-corners'
+        const ckEditorTool = 'ck ck-reset ck-editor ck-rounded-corners'
         const elements = document.getElementsByClassName(ckEditorTool)
         if (elements.length > 0) {
           this._each(elements, element => {

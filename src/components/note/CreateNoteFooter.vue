@@ -57,8 +57,7 @@
         <div v-if="mode !== 'editDraft'">
           <v-btn
             id="create-note-cancel"
-            class="has-error"
-            color="alert"
+            color="error"
             :disabled="isSaving"
             variant="outlined"
             @click.prevent="cancel"

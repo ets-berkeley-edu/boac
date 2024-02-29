@@ -7,20 +7,26 @@
       id="contact-type-options"
       v-model="contactType"
       aria-describedby="contact-type-label"
+      density="comfortable"
       :disabled="disabled"
+      :ripple="false"
       @change="alertScreenReader(contactType)"
     >
-      <v-radio id="contact-option-none-radio-button" :value="null">
-        None
-      </v-radio>
-      <div v-for="(contactOption, index) in contactOptions" :key="contactOption">
+      <v-radio
+        id="contact-option-none-radio-button"
+        label="None"
+        :ripple="false"
+        :value="null"
+      ></v-radio>
+      <template v-for="(contactOption, index) in contactOptions" :key="contactOption">
         <v-radio
           :id="`contact-option-${index}-radio-button`"
+          :label="contactOption"
+          :ripple="false"
           :value="contactOption"
         >
-          {{ contactOption }}
         </v-radio>
-      </div>
+      </template>
     </v-radio-group>
   </div>
 </template>

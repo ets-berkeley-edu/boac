@@ -8,7 +8,7 @@ const $_refreshMyDraftNoteCount = () => {
   axios
     .get(`${utils.apiBaseUrl()}/api/notes/my_draft_note_count`)
     .then(
-      response => useContextStore().setMyDraftNoteCount(response.data),
+      response => useContextStore().setMyDraftNoteCount(_.toNumber(response)),
       () => null
     )
 }
@@ -18,13 +18,13 @@ export function getNote(noteId) {
   $_track('view')
   return axios
     .get(`${utils.apiBaseUrl()}/api/note/${noteId}`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function getMyDraftNotes() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/notes/my_drafts`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function markNoteRead(noteId) {
@@ -32,15 +32,15 @@ export function markNoteRead(noteId) {
     .post(`${utils.apiBaseUrl()}/api/notes/${noteId}/mark_read`)
     .then(response => {
       $_track('read')
-      return response.data
+      return response
     }, () => null)
 }
 
 export function createDraftNote(sid: string) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/create_draft`, {sid}).then(response => {
-    useContextStore().broadcast('note-created',response.data)
+    useContextStore().broadcast('note-created',response)
     $_refreshMyDraftNoteCount()
-    return response.data
+    return response
   })
 }
 
@@ -72,12 +72,12 @@ export function updateNote(
     templateAttachmentIds,
     topics
   }
-  return utils.postMultipartFormData('/api/notes/update', data).then(data => {
+  return utils.postMultipartFormData('/api/notes/update', data).then(response => {
     const eventType = _.size(sids) > 1 ? 'notes-batch-published' : 'note-updated'
-    useContextStore().broadcast(eventType, data)
+    useContextStore().broadcast(eventType, response)
     $_track('update')
     $_refreshMyDraftNoteCount()
-    return data
+    return response
   })
 }
 

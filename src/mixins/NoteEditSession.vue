@@ -2,6 +2,7 @@
 import {mapActions, mapState} from 'pinia'
 import {nextTick} from 'vue'
 import {useNoteStore} from '@/stores/note-edit-session'
+import {onVisibilityChange, scheduleAutoSaveJob} from '@/stores/note-edit-session/utils'
 
 const $_disableFocusLock = disable => {
   const onNextTick = () => {
@@ -28,12 +29,12 @@ export default {
     ])
   },
   created() {
-    useNoteStore().scheduleAutoSaveJob()
-    document.addEventListener('visibilitychange', useNoteStore().onVisibilityChange)
+    scheduleAutoSaveJob()
+    document.addEventListener('visibilitychange', onVisibilityChange)
   },
   unmounted() {
     useNoteStore().clearAutoSaveJob()
-    document.removeEventListener('visibilitychange', useNoteStore().onVisibilityChange)
+    document.removeEventListener('visibilitychange', onVisibilityChange)
   },
   methods: {
     ...mapActions(useNoteStore, [

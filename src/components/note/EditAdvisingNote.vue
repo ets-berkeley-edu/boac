@@ -4,21 +4,17 @@
       <font-awesome icon="exclamation-triangle" class="pr-1" />
       You are editing a draft note.
     </div>
-    <div>
-      <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
-    </div>
-    <div>
-      <input
-        id="edit-note-subject"
-        :value="model.subject"
-        aria-labelledby="edit-note-subject-label"
-        class="cohort-create-input-name"
-        type="text"
-        maxlength="255"
-        @input="setSubjectPerEvent"
-        @keydown.esc="cancelRequested"
-      >
-    </div>
+    <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
+    <v-text-field
+      id="edit-note-subject"
+      :v-model="model.subject"
+      aria-labelledby="edit-note-subject-label"
+      class="cohort-create-input-name"
+      type="text"
+      maxlength="255"
+      @input="setSubjectPerEvent"
+      @keydown.esc="cancelRequested"
+    ></v-text-field>
     <div>
       <span id="edit-note-details" class="bg-transparent note-details-editor">
         <RichTextEditor
