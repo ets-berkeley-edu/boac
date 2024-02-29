@@ -57,40 +57,40 @@
             </v-btn>
             <div class="align-items-center d-flex ml-3">
               <div class="pl-2">
-                <b-btn
+                <v-btn
                   :id="`btn-rename-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
                   @click="openRenameTemplateModal(template)"
                 >
                   Rename<span class="sr-only"> template {{ template.title }}</span>
-                </b-btn>
+                </v-btn>
               </div>
               <div class="pl-1 pr-1">
                 |
               </div>
               <div>
-                <b-btn
+                <v-btn
                   :id="`btn-edit-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
                   @click="editTemplate(template)"
                 >
                   Edit<span class="sr-only"> template {{ template.title }}</span>
-                </b-btn>
+                </v-btn>
               </div>
               <div class="pl-1 pr-1">
                 |
               </div>
               <div>
-                <b-btn
+                <v-btn
                   :id="`btn-delete-note-template-${template.id}`"
                   variant="link"
                   class="p-0"
                   @click="openDeleteTemplateModal(template)"
                 >
                   Delete<span class="sr-only"> template {{ template.title }}</span>
-                </b-btn>
+                </v-btn>
               </div>
             </div>
           </div>

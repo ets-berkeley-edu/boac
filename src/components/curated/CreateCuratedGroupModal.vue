@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="modal-footer mb-0 pb-0 pl-0 mr-2">
-        <b-btn
+        <v-btn
           id="create-confirm"
           :disabled="!name.length"
           class="btn-primary-color-override"
@@ -39,14 +39,14 @@
           @click.prevent="createCuratedGroup"
         >
           Save
-        </b-btn>
-        <b-btn
+        </v-btn>
+        <v-btn
           id="create-cancel"
           variant="link"
           @click="cancelModal"
         >
           Cancel
-        </b-btn>
+        </v-btn>
       </div>
     </form>
   </div>

@@ -18,7 +18,7 @@
           variant="link"
           @click="toggle"
         >
-          <font-awesome icon="times" />
+          <v-icon :icon="mdiClose" />
           <span class="sr-only">Dismiss alert</span>
         </v-btn>
       </div>
@@ -26,6 +26,10 @@
     <v-btn v-if="dismissedServiceAnnouncement" id="restore-service-announcement" class="sr-only">Restore alert</v-btn>
   </div>
 </template>
+
+<script setup>
+import {mdiClose} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

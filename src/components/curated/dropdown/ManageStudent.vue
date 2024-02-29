@@ -160,7 +160,7 @@ export default {
     this.refresh()
     this.setEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
   },
-  destroyed() {
+  unmounted() {
     this.removeEventHandler('my-curated-groups-updated', this.onUpdateMyCuratedGroups)
   },
   methods: {

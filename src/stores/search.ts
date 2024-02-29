@@ -92,7 +92,7 @@ export const useSearchStore = defineStore('search', {
     setIsFocusOnSearch(value: boolean) {this.isFocusOnSearch = value},
     setIsSearching(value: boolean) {this.isSearching = value},
     setSearchHistory(history: string[]) {
-      this.searchHistory = history
+      this.searchHistory = history || []
     },
     setShowAdvancedSearch(show: boolean) {
       this.showAdvancedSearch = show

@@ -5,6 +5,7 @@ import CKEditor from '@ckeditor/ckeditor5-vue'
 import {createPinia} from 'pinia'
 import {FocusTrap} from 'focus-trap-vue'
 import vuetify from './vuetify'
+import defaultExport from 'vue3-shortkey'
 import '@trevoreyre/autocomplete-vue/dist/style.css'
 
 export function registerPlugins (app: App) {
@@ -15,4 +16,5 @@ export function registerPlugins (app: App) {
     .use(createPinia())
     .component('FocusTrap', FocusTrap)
     .use(vuetify)
+    .use(defaultExport)
 }

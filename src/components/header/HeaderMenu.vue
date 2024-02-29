@@ -3,17 +3,16 @@
     <v-menu
       id="header-dropdown-under-name"
       variant="link"
-      no-caret
-      right
     >
       <template #activator="{ props }">
         <v-btn
-          :append-icon="mdiMenuDown"
+          class="font-size-16 font-weight-bold"
           color="white"
           v-bind="props"
           variant="text"
         >
           {{ currentUser.firstName || `UID:${currentUser.uid}` }}
+          <v-icon :icon="mdiMenuDown" size="24" />
         </v-btn>
       </template>
       <v-list class="pt-3">

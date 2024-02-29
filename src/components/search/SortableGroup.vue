@@ -1,5 +1,5 @@
 <template>
-  <b-card
+  <v-card
     :id="`sortable-${keyword}-${group.id}`"
     body-class="pa-0"
     :border-variant="isFetching || openAndLoaded ? 'primary' : 'light'"
@@ -9,15 +9,14 @@
       'border-0': !isFetching && !openAndLoaded
     }"
   >
-    <b-card-header class="bg-transparent border-0 pl-1" :class="{'pa-0': compact}">
+    <v-card-title class="bg-transparent border-0 pl-1" :class="{'pa-0': compact}">
       <v-btn
         :id="`sortable-${keyword}-${group.id}-toggle`"
-        v-b-toggle="`sortable-${keyword}-${group.id}`"
         block
         class="border-0"
         :class="{'shadow-none': !isOpen && !buttonHasFocus}"
         :pressed="null"
-        variant="link"
+        variant="text"
         @click.prevent="fetchStudents"
         @focus="buttonHasFocus = true"
         @blur="buttonHasFocus = false"
@@ -60,46 +59,51 @@
           </div>
         </div>
       </v-btn>
-    </b-card-header>
-    <b-collapse
-      :id="`sortable-${keyword}-${group.id}`"
-      :aria-expanded="openAndLoaded"
-      class="mr-3"
-    >
-      <div v-if="_size(studentsWithAlerts)">
-        <div v-if="!compact && _size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
-          Showing 50 students with a high number of alerts.
-          <router-link
-            :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
-            :to="getRoutePath(group)"
-          >
-            View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
-          </router-link>
-        </div>
-        <div class="pt-4">
-          <SortableStudents
-            domain="default"
-            :students="studentsWithAlerts"
-            :options="sortableGroupOptions"
-          />
-        </div>
-      </div>
-      <div v-if="openAndLoaded" class="mb-3 ml-3">
-        <router-link
-          :id="`sortable-${keyword}-${group.id}-view-all`"
-          :to="getRoutePath(group)"
-        >
-          <span v-if="group.totalStudentCount">
-            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
-            in {{ groupTypeName }} "{{ group.name }}"
-          </span>
-          <div v-if="!group.totalStudentCount" class="pt-3">
-            {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
+    </v-card-title>
+    <v-expansion-panels v-model="isOpen">
+      <v-expansion-panel
+        :id="`sortable-${keyword}-${group.id}`"
+        :aria-expanded="openAndLoaded"
+        class="mr-3"
+        :value="true"
+      >
+        <v-expansion-panel-text>
+          <div v-if="_size(studentsWithAlerts)">
+            <div v-if="!compact && _size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
+              Showing 50 students with a high number of alerts.
+              <router-link
+                :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
+                :to="getRoutePath(group)"
+              >
+                View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
+              </router-link>
+            </div>
+            <div class="pt-4">
+              <SortableStudents
+                domain="default"
+                :students="studentsWithAlerts"
+                :options="sortableGroupOptions"
+              />
+            </div>
           </div>
-        </router-link>
-      </div>
-    </b-collapse>
-  </b-card>
+          <div v-if="openAndLoaded" class="mb-3 ml-3">
+            <router-link
+              :id="`sortable-${keyword}-${group.id}-view-all`"
+              :to="getRoutePath(group)"
+            >
+              <span v-if="group.totalStudentCount">
+                View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
+                in {{ groupTypeName }} "{{ group.name }}"
+              </span>
+              <div v-if="!group.totalStudentCount" class="pt-3">
+                {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
+              </div>
+            </router-link>
+          </div>
+        </v-expansion-panel-text>
+      </v-expansion-panel>
+    </v-expansion-panels>
+  </v-card>
 </template>
 
 <script setup>

@@ -1,11 +1,11 @@
-import store from '@/store'
 import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFilterOptions} from '@/api/cohort'
 import {get, size} from 'lodash'
+import {useCohortStore} from '@/stores/cohort-edit-session/index'
 
 export function updateFilterOptions(domain: string, owner: string, existingFilters: any[]) {
   return new Promise<void>(resolve => {
     getCohortFilterOptions(domain, owner, existingFilters).then(data => {
-      store.commit('cohort/updateFilterOptions', data)
+      useCohortStore().updateFilterOptions(data)
       resolve()
     })
   })
@@ -13,29 +13,26 @@ export function updateFilterOptions(domain: string, owner: string, existingFilte
 
 export function applyFilters(orderBy: string, termId: string) {
   return new Promise<void>(resolve => {
-    const filters = store.getters['cohort/filters']
+    const filters = useCohortStore().filters
     if (size(filters)) {
-      store.commit('cohort/setEditMode', 'apply')
-      const cohortId: number = store.getters['cohort/cohortId']
-      const isOwnedByCurrentUser: boolean = store.getters['cohort/isOwnedByCurrentUser']
-      const pagination: any = store.getters['cohort/pagination']
+      useCohortStore().setEditMode('apply')
+      const cohortId: number = useCohortStore().cohortId
+      const isOwnedByCurrentUser: boolean = useCohortStore().isOwnedByCurrentUser
+      const pagination: any = useCohortStore().pagination
       const limit: number = pagination.itemsPerPage
       const offset: number = (pagination.currentPage - 1) * limit
       const isReadOnly: boolean = !!cohortId && !isOwnedByCurrentUser
 
       const done = data => {
-        store.commit('cohort/updateStudents', {
-          students: data.students,
-          totalStudentCount: data.totalStudentCount
-        })
-        store.commit('cohort/stashOriginalFilters')
-        store.commit('cohort/setEditMode', null)
+        useCohortStore().updateStudents(data.students, data.totalStudentCount)
+        useCohortStore().stashOriginalFilters()
+        useCohortStore().setEditMode(null)
         resolve()
       }
       if (isReadOnly) {
         getCohort(cohortId, true, limit, offset, orderBy, termId).then(done)
       } else {
-        const domain = store.getters['cohort/domain']
+        const domain = useCohortStore().domain
         getStudentsPerFilters(domain, filters, orderBy, termId, offset, limit).then(done)
       }
     } else {
@@ -46,8 +43,8 @@ export function applyFilters(orderBy: string, termId: string) {
 
 export function loadCohort(cohortId: number, orderBy: string, termId: string) {
   return new Promise<void>(resolve => {
-    const domain: string = store.getters['cohort/domain']
-    const pagination: any = store.getters['cohort/pagination']
+    const domain: string = useCohortStore().domain
+    const pagination: any = useCohortStore().pagination
     getCohort(
       cohortId,
       true,
@@ -57,16 +54,11 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
       termId
     ).then(cohort => {
       if (cohort) {
-        store.commit('cohort/setDomain', cohort.domain)
+        useCohortStore().setDomain(cohort.domain)
         const owner = cohort.isOwnedByCurrentUser ? 'me' : get(cohort, 'owner.uid')
         translateToFilterOptions(domain, owner, cohort.criteria).then(filters => {
-          store.commit('cohort/updateSession', {
-            cohort,
-            filters: filters,
-            students: cohort.students,
-            totalStudentCount: cohort.totalStudentCount
-          })
-          store.commit('cohort/stashOriginalFilters')
+          useCohortStore().updateSession(cohort, filters, cohort.students, cohort.totalStudentCount)
+          useCohortStore().stashOriginalFilters()
           updateFilterOptions(domain, owner, filters).then(resolve)
         })
       } else {
@@ -78,13 +70,13 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
 
 export function resetFiltersToLastApply() {
   return new Promise(resolve => {
-    store.commit('cohort/restoreOriginalFilters')
-    store.commit('cohort/setEditMode', null)
-    store.commit('cohort/setModifiedSinceLastSearch', false)
+    useCohortStore().restoreOriginalFilters()
+    useCohortStore().setEditMode(null)
+    useCohortStore().setModifiedSinceLastSearch(false)
 
-    const cohortOwner = store.getters['cohort/cohortOwner']
-    const domain = store.getters['cohort/domain']
-    const filters = store.getters['cohort/filters']
+    const cohortOwner = useCohortStore().cohortOwner
+    const domain = useCohortStore().domain
+    const filters = useCohortStore().filters
     updateFilterOptions(domain, cohortOwner, filters).then(resolve)
   })
 }
