@@ -1,6 +1,6 @@
 <template>
   <div>
-    <b-table
+    <v-table
       :borderless="true"
       :fields="fields"
       :items="students"
@@ -121,7 +121,7 @@
           </div>
         </div>
       </template>
-    </b-table>
+    </v-table>
   </div>
 </template>
 

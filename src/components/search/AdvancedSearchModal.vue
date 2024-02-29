@@ -19,7 +19,7 @@
           </h2>
         </div>
         <div class="faint-text mr-1">
-          <b-btn
+          <v-btn
             id="advanced-search-close"
             class="pt-0"
             variant="link"
@@ -28,7 +28,7 @@
           >
             <span class="sr-only">Close</span>
             <font-awesome class="font-size-14" icon="times" />
-          </b-btn>
+          </v-btn>
         </div>
       </div>
       <div class="mb-3 mx-2">
@@ -177,7 +177,7 @@
                   </v-date-picker>
                 </div>
                 <div class="sr-only">
-                  <b-btn
+                  <v-btn
                     id="search-options-note-filters-last-updated-from-clear"
                     :disabled="!fromDate"
                     variant="link"
@@ -189,7 +189,7 @@
                       icon="times"
                       size="sm"
                     />
-                  </b-btn>
+                  </v-btn>
                 </div>
                 <div>
                   <label
@@ -224,7 +224,7 @@
                   </v-date-picker>
                 </div>
                 <div class="sr-only">
-                  <b-btn
+                  <v-btn
                     id="search-options-note-filters-last-updated-to-clear"
                     :disabled="!toDate"
                     variant="link"
@@ -236,7 +236,7 @@
                       icon="times"
                       size="sm"
                     />
-                  </b-btn>
+                  </v-btn>
                 </div>
               </div>
             </b-form-group>
@@ -246,7 +246,7 @@
       <div class="my-2 pr-2">
         <div class="align-items-center d-flex">
           <div v-if="includeNotes" class="flex-grow-1">
-            <b-btn
+            <v-btn
               v-if="isDirty"
               id="reset-advanced-search-form-btn"
               :disabled="isSearching"
@@ -255,10 +255,10 @@
               @click="() => reset(true)"
             >
               Reset
-            </b-btn>
+            </v-btn>
           </div>
           <div class="pr-2">
-            <b-btn
+            <v-btn
               id="advanced-search"
               class="btn-primary-color-override"
               :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
@@ -276,17 +276,17 @@
               <span v-if="!isSearching">
                 Search
               </span>
-            </b-btn>
+            </v-btn>
           </div>
           <div>
-            <b-btn
+            <v-btn
               id="advanced-search-cancel"
               class="pl-2"
               variant="link"
               @click="cancel"
             >
               Cancel
-            </b-btn>
+            </v-btn>
           </div>
         </div>
       </div>

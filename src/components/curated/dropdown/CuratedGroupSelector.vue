@@ -149,7 +149,7 @@ export default {
     this.setEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
     this.setEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
   },
-  destroyed() {
+  unmounted() {
     this.removeEventHandler('curated-group-checkbox-checked', this.onCheckboxChecked)
     this.removeEventHandler('curated-group-checkbox-unchecked', this.onCheckboxUnchecked)
   },

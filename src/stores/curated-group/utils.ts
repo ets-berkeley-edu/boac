@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import {getCuratedGroup} from '@/api/curated'
 import {useContextStore} from '@/stores/context'
-import {useCuratedGroupStore} from '@stores/curated-group/index'
+import {useCuratedGroupStore} from '@/stores/curated-group/index'
 
 export function goToCuratedGroup(curatedGroupId: number, pageNumber: number) {
   return new Promise(resolve => {

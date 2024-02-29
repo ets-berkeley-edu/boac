@@ -1,5 +1,5 @@
 import {concat, each, filter, find, get, includes, isEmpty, isNil, map, startsWith} from 'lodash'
-import {DegreeProgressCourses} from '@/store/modules/degree-edit-session'
+import {DegreeProgressCourses} from '@/stores/degree-edit-session'
 import {useDegreeProgressStore} from '@/stores/degree-edit-session'
 
 const $_flatten = categories => {

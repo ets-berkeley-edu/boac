@@ -4,6 +4,7 @@ import {createVuetify} from 'vuetify'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VBtn} from 'vuetify/components/VBtn'
+import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VIcon} from 'vuetify/components/VIcon'
@@ -15,6 +16,7 @@ import {VOverlay} from 'vuetify/components/VOverlay'
 import {VProgressCircular} from 'vuetify/components/VProgressCircular'
 import {VRadio} from 'vuetify/components/VRadio'
 import {VRadioGroup} from 'vuetify/components/VRadioGroup'
+import {VTable} from 'vuetify/components/VTable'
 import {VTextarea} from 'vuetify/components/VTextarea'
 import {VTextField} from 'vuetify/components/VTextField'
 import {VTooltip} from 'vuetify/components/VTooltip'
@@ -28,6 +30,11 @@ export default createVuetify({
     VAppBar,
     VAppBarTitle,
     VBtn,
+    VCard,
+    VCardActions,
+    VCardSubtitle,
+    VCardText,
+    VCardTitle,
     VCol,
     VContainer,
     VExpansionPanel,
@@ -49,9 +56,15 @@ export default createVuetify({
     VRadioGroup,
     VRow,
     VSpacer,
+    VTable,
     VTextarea,
     VTextField,
     VTooltip
+  },
+  defaults: {
+    VBtn: {
+      style: 'text-transform: none;',
+    }
   },
   icons: {
     defaultSet: 'mdi',

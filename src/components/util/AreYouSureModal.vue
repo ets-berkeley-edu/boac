@@ -18,7 +18,7 @@
       </div>
       <div class="modal-footer mb-0 pb-0 pt-3">
         <form @submit.prevent="confirm">
-          <b-btn
+          <v-btn
             id="are-you-sure-confirm"
             class="btn-primary-color-override"
             :disabled="isProcessing"
@@ -31,8 +31,8 @@
               spin
             />
             {{ buttonLabelConfirm }}
-          </b-btn>
-          <b-btn
+          </v-btn>
+          <v-btn
             id="are-you-sure-cancel"
             class="pl-2"
             :disabled="isProcessing"
@@ -40,7 +40,7 @@
             @click.stop="functionCancel"
           >
             {{ buttonLabelCancel }}
-          </b-btn>
+          </v-btn>
         </form>
       </div>
     </div>

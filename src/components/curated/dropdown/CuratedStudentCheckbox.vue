@@ -48,7 +48,7 @@ export default {
     this.setEventHandler('curated-group-select-all', this.onSelectAll)
     this.setEventHandler('curated-group-deselect-all', this.onDeselectAll)
   },
-  destroyed() {
+  unmounted() {
     this.removeEventHandler('curated-group-select-all', this.onSelectAll)
     this.removeEventHandler('curated-group-deselect-all', this.onDeselectAll)
   },

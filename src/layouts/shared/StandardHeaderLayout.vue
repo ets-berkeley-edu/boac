@@ -1,8 +1,9 @@
 <template>
   <v-container
-    v-hotkey="{'/': () => putFocusNextTick('search-students-input')}"
+    v-shortkey="['ctrl', 'alt', 'o']"
     class="my-2"
     fluid
+    @shortkey="() => putFocusNextTick('search-students-input')"
   >
     <v-row>
       <v-col align-self="center" cols="auto" md="4">
@@ -44,25 +45,25 @@
                 </li>
               </template>
             </Autocomplete>
-            <b-popover
+            <v-tooltip
               v-if="showErrorPopover"
               :show.sync="showErrorPopover"
               aria-live="polite"
+              attach="search-students-input"
               placement="top"
               role="alert"
-              target="search-students-input"
             >
               <span id="popover-error-message" class="has-error">
-                <font-awesome icon="exclamation-triangle" class="text-warning pr-1" /> Search input is required
+                <v-icon :icon="mdiAlert" class="text-warning pr-1" /> Search input is required
               </span>
-            </b-popover>
+            </v-tooltip>
           </div>
           <div v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" class="d-flex">
             <div class="pl-2">
               <v-btn
                 id="go-search"
                 class="h-100"
-                variant="outline-light"
+                variant="outlined"
                 @keydown.enter="search"
                 @click.stop="search"
               >
@@ -84,25 +85,20 @@
                 id="search-options-panel-toggle"
                 class="px-2"
                 :class="{'border-0': !isFocusAdvSearchButton}"
-                variant="outline-light"
+                variant="outlined"
                 @click.prevent="openAdvancedSearch"
                 @focusin="() => isFocusAdvSearchButton = true"
                 @focusout="() => isFocusAdvSearchButton = false"
               >
                 <span class="sr-only">Open advanced search</span>
-                <font-awesome
-                  icon="sliders-h"
-                  size="lg"
-                />
+                <v-icon :icon="mdiMenu" size="large" />
               </v-btn>
-              <b-popover
-                placement="bottom"
-                target="search-options-panel-toggle"
-                triggers="hover"
-                variant="primary"
-              >
-                Advanced search options
-              </b-popover>
+              <v-tooltip
+                location="bottom"
+                :open-on-hover="true"
+                text="Advanced search options"
+              />
+              <!-- TODO? target="search-options-panel-toggle"-->
             </div>
           </div>
         </div>
@@ -114,6 +110,10 @@
     </v-row>
   </v-container>
 </template>
+
+<script setup>
+import {mdiAlert, mdiMenu} from '@mdi/js'
+</script>
 
 <script>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'

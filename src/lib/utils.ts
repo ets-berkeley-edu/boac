@@ -25,6 +25,16 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
   })
 }
 
+export function scroll(anchor) {
+  // TODO: Implement anchor
+  console.log(`TODO: Scroll to ${anchor}`)
+  window.scrollTo(0, 0)
+}
+
+export function scrollTo(anchor) {
+  scroll(anchor)
+}
+
 export function scrollToTop() {
   window.scrollTo(0, 0)
 }
