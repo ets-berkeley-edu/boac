@@ -3,9 +3,12 @@ import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
+import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
+import {VDatePicker} from 'vuetify/components/VDatePicker'
+import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VIcon} from 'vuetify/components/VIcon'
 import {VImg} from 'vuetify/components/VImg'
@@ -29,6 +32,7 @@ export default createVuetify({
     VApp,
     VAppBar,
     VAppBarTitle,
+    VAutocomplete,
     VBtn,
     VCard,
     VCardActions,
@@ -37,6 +41,8 @@ export default createVuetify({
     VCardTitle,
     VCol,
     VContainer,
+    VDatePicker,
+    VDialog,
     VExpansionPanel,
     VExpansionPanels,
     VExpansionPanelText,

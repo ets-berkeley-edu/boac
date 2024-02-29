@@ -7,7 +7,7 @@ import {oxfordJoin} from '@/lib/utils'
 export default {
   name: 'SearchSession',
   computed: {
-    ...mapState('search', [
+    ...mapState(useSearchStore, [
       'autocompleteInputResetKey',
       'domain',
       'isDirty',

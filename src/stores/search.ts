@@ -65,7 +65,7 @@ export const useSearchStore = defineStore('search', {
     resetAutocompleteInput() {
       this.autocompleteInputResetKey++
     },
-    setAuthor(value: string) {
+    setAuthor(value: string | null) {
       this.author = value
     },
     setFromDate(value: string) {

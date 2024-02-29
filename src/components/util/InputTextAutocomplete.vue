@@ -1,7 +1,7 @@
 <template>
   <div :id="id">
     <b-input-group>
-      <b-form-input
+      <v-text-field
         :id="`${id}-input`"
         ref="autocompleteInput"
         v-model="query"
@@ -22,7 +22,7 @@
       />
       <slot name="append"></slot>
       <b-input-group-append v-if="showAddButton">
-        <b-button
+        <v-btn
           :id="`${id}-add-button`"
           class="btn btn-primary-color-override"
           :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !(fallback && fallbackWhen(query)))"
@@ -35,7 +35,7 @@
           <div v-if="addButtonLoading">
             <font-awesome icon="spinner" spin />
           </div>
-        </b-button>
+        </v-btn>
       </b-input-group-append>
     </b-input-group>
     <div v-if="restrict || suggestions.length" class="dropdown">

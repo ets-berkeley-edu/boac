@@ -76,7 +76,7 @@
         </template>
         <template #cell(delete)="row">
           <div class="min-width-100 pl-2 pr-1">
-            <b-button
+            <v-btn
               v-if="!row.item.deletedAt"
               class="mr-2 py-0"
               :disabled="isDeleting"
@@ -89,7 +89,7 @@
                 :class="isDeleting ? 'text-secondary' : 'has-error'"
                 title="Delete"
               />
-            </b-button>
+            </v-btn>
           </div>
         </template>
       </b-table>
