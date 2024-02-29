@@ -35,7 +35,7 @@ export default {
         scopes.push('notes')
       }
       const history = useSearchStore().searchHistory
-      return `Search for ${oxfordJoin(scopes)}.${history.length ? ' Expect auto-suggest of previous searches.' : ''}`
+      return `Search for ${oxfordJoin(scopes)}.${history && history.length ? ' Expect auto-suggest of previous searches.' : ''}`
     },
     includeAdmits: {
       get: function() {

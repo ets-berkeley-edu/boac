@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="d-flex justify-content-between mb-1 sidebar-row-link">
+    <div class="d-flex justify-space-between mb-1 sidebar-row-link">
       <div class="ml-1" :class="headerClass">
         {{ domain === 'admitted_students' ? 'CE3 Groups' : 'Curated Groups' }}
       </div>
@@ -12,14 +12,14 @@
           path="/curate"
           :query-args="{'domain': domain}"
         >
-          <font-awesome icon="plus" :class="headerClass" />
+          <v-icon :icon="mdiPlus" :class="headerClass" />
         </NavLink>
       </div>
     </div>
     <div
       v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', domain])"
       :key="group.id"
-      class="d-flex justify-content-between sidebar-row-link"
+      class="d-flex justify-space-between sidebar-row-link"
     >
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
@@ -40,6 +40,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

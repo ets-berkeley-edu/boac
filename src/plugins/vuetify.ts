@@ -5,12 +5,16 @@ import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
+import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VIcon} from 'vuetify/components/VIcon'
 import {VImg} from 'vuetify/components/VImg'
 import {VList, VListItem, VListItemAction, VListItemSubtitle, VListItemTitle} from 'vuetify/components/VList'
 import {VMain} from 'vuetify/components/VMain'
 import {VMenu} from 'vuetify/components/VMenu'
+import {VOverlay} from 'vuetify/components/VOverlay'
 import {VProgressCircular} from 'vuetify/components/VProgressCircular'
+import {VRadio} from 'vuetify/components/VRadio'
+import {VRadioGroup} from 'vuetify/components/VRadioGroup'
 import {VTextarea} from 'vuetify/components/VTextarea'
 import {VTextField} from 'vuetify/components/VTextField'
 import {VTooltip} from 'vuetify/components/VTooltip'
@@ -26,6 +30,10 @@ export default createVuetify({
     VBtn,
     VCol,
     VContainer,
+    VExpansionPanel,
+    VExpansionPanels,
+    VExpansionPanelText,
+    VExpansionPanelTitle,
     VIcon,
     VImg,
     VList,
@@ -35,7 +43,10 @@ export default createVuetify({
     VListItemTitle,
     VMain,
     VMenu,
+    VOverlay,
     VProgressCircular,
+    VRadio,
+    VRadioGroup,
     VRow,
     VSpacer,
     VTextarea,
