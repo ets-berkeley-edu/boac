@@ -48,27 +48,36 @@
         v-if="!currentUser.isAdmin"
         class="d-flex justify-content-center mb-3 pl-3 sidebar"
       >
-        <b-btn
+        <v-btn
           id="batch-note-button"
           :disabled="!!mode"
           class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
-          variant="primary"
           @click="isCreateNoteModalOpen = true"
         >
           <span class="m-1">
-            <font-awesome class="mr-2" icon="file-alt" />
+            <v-icon class="mr-2" :icon="mdiFileDocument" />
             New Note
           </span>
-        </b-btn>
+        </v-btn>
       </div>
     </div>
+    <EditBatchNoteModal
+      v-if="isCreateNoteModalOpen"
+      initial-mode="createBatch"
+      :on-close="onCreateNoteModalClose"
+    />
   </div>
 </template>
+
+<script setup>
+import {mdiFileDocument} from '@mdi/js'
+</script>
 
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue'
 import Context from '@/mixins/Context'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
+import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
 import Util from '@/mixins/Util.vue'
@@ -78,6 +87,7 @@ export default {
   components: {
     Cohorts,
     CuratedGroups,
+    EditBatchNoteModal,
     LinkToDraftNotes,
     MyAdmitCohorts
   },

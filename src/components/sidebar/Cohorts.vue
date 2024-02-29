@@ -1,6 +1,6 @@
 <template>
   <div v-if="cohorts">
-    <div class="d-flex justify-content-between mb-1 sidebar-row-link">
+    <div class="d-flex justify-space-between mb-1 sidebar-row-link">
       <div class="ml-1 sidebar-header">
         Cohorts
       </div>
@@ -11,14 +11,14 @@
           class="sidebar-create-link"
           path="/cohort/new"
         >
-          <font-awesome icon="plus" class="sidebar-header" />
+          <v-icon :icon="mdiPlus" class="sidebar-header" />
         </NavLink>
       </div>
     </div>
     <div
       v-for="cohort in cohorts"
       :key="cohort.id"
-      class="d-flex justify-content-between sidebar-row-link"
+      class="d-flex justify-space-between sidebar-row-link"
     >
       <div class="ml-1 truncate-with-ellipsis">
         <NavLink
@@ -39,6 +39,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import NavLink from '@/components/util/NavLink'

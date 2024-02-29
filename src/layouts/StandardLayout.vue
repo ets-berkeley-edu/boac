@@ -73,6 +73,9 @@ export default {
 .row-footer {
   min-height: 18%;
 }
+.sidebar {
+  background-color: #125074;
+}
 .z-index-sub-zero {
   z-index: -1;
 }
