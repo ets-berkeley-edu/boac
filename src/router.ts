@@ -1,21 +1,30 @@
+const AdmitStudent = () => import('@/views/AdmitStudent.vue')
+const AdmitStudents = () => import('@/views/AdmitStudents.vue')
 const AllCohorts = () => import('@/views/AllCohorts.vue')
 const AllGroups = () => import('@/views/AllGroups.vue')
+const BatchDegreeCheck = () => import('@/views/degree/BatchDegreeCheck.vue')
 const Cohort = () => import('@/views/Cohort.vue')
 const Course = () => import('@/views/Course.vue')
 const CreateCuratedGroup = () => import('@/views/CreateCuratedGroup.vue')
+const CreateDegreeTemplate = () => import('@/views/degree/CreateDegreeTemplate.vue')
 const CuratedGroup = () => import('@/views/CuratedGroup.vue')
+const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
 const DraftNotes = () => import('@/views/DraftNotes.vue')
 const Error = () => import('@/views/Error.vue')
-const Login = () => import('./layouts/Login.vue')
 const Home = () => import('@/views/Home.vue')
+const Login = () => import('./layouts/Login.vue')
+const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 const Profile = () => import('@/views/Profile.vue')
 const SearchResults = () => import('@/views/SearchResults.vue')
 const Student = () => import('@/views/Student.vue')
 const StandardLayout = () => import('@/layouts/StandardLayout.vue')
+const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
+const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
+const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
 import {isAdvisor, isDirector} from '@/berkeley'
-import {trim} from 'lodash'
+import {filter, includes, size, trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const $_goToLogin = (to: any, next: any) => {
@@ -26,6 +35,19 @@ const $_goToLogin = (to: any, next: any) => {
       redirect: to.name === 'Home' ? undefined : to.fullPath
     }
   })
+}
+
+const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' && includes(['advisor', 'director'], d.role)))
+
+const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
+  const currentUser = useContextStore().currentUser
+  if (currentUser.canReadDegreeProgress) {
+    next()
+  } else if (currentUser.isAuthenticated) {
+    next({path: '/404'})
+  } else {
+    $_goToLogin(to, next)
+  }
 }
 
 const routes:RouteRecordRaw[] = [
@@ -129,7 +151,77 @@ const routes:RouteRecordRaw[] = [
     path: '/',
     component: StandardLayout,
     beforeEnter: (to: any, from: any, next: any) => {
-      // Requires Authenticated
+      // Requires CE3
+      const currentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (currentUser.isAdmin || $_isCE3(currentUser)) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
+    children: [
+      {
+        path: '/admit/student/:sid',
+        component: AdmitStudent,
+        name: 'Admitted Student'
+      },
+      {
+        path: '/admit/students',
+        component: AdmitStudents,
+        name: 'All Admitted Students'
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: StandardLayout,
+    beforeEnter: $_requiresDegreeProgress,
+    children: [
+      {
+        path: '/degrees',
+        component: ManageDegreeChecks,
+        name: 'Manage Degree Checks'
+      },
+      {
+        path: '/degree/batch',
+        component: BatchDegreeCheck,
+        name: 'Create Batch Degree Check'
+      },
+      {
+        path: '/degree/new',
+        component: CreateDegreeTemplate,
+        name: 'Create New Degree Template',
+      },
+      {
+        path: '/degree/:id',
+        component: DegreeTemplate,
+        name: 'Degree Template',
+      },
+      {
+        path: '/student/:uid/degree/create',
+        component: StudentDegreeCreate,
+        name: 'Create Degree Check'
+      },
+      {
+        path: '/student/:uid/degree/history',
+        component: StudentDegreeHistory,
+        name: 'Student Degree History',
+      },
+      {
+        path: '/student/degree/:id',
+        component: StudentDegreeCheck,
+        name: 'Student Degree Check',
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: StandardLayout,
+    beforeEnter: (to: any, from: any, next: any) => {
       if (useContextStore().currentUser.isAuthenticated) {
         next()
       } else {

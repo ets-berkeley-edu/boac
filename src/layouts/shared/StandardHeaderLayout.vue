@@ -1,6 +1,6 @@
 <template>
   <v-container
-    v-shortkey="['ctrl', 'alt', 'o']"
+    v-shortkey="['ctrl', 'alt', 's']"
     class="my-2"
     fluid
     @shortkey="() => putFocusNextTick('search-students-input')"
@@ -12,12 +12,13 @@
         </div>
       </v-col>
       <v-col>
-        <div class="justify-center d-flex">
+        <div class="align-items-center d-flex">
           <div>
             <label for="search-students-input" class="sr-only">
               {{ labelForSearchInput }}
               (Type / to put focus in the search input field.)
             </label>
+            <!--
             <Autocomplete
               id="search-students-input"
               :key="autocompleteInputResetKey"
@@ -45,16 +46,23 @@
                 </li>
               </template>
             </Autocomplete>
+            -->
+            <v-text-field
+              id="search-students-input"
+              placeholder="Type here..."
+            />
             <v-tooltip
-              v-if="showErrorPopover"
-              :show.sync="showErrorPopover"
-              aria-live="polite"
+              v-model="showErrorPopover"
               attach="search-students-input"
-              placement="top"
-              role="alert"
+              location="top"
             >
-              <span id="popover-error-message" class="has-error">
-                <v-icon :icon="mdiAlert" class="text-warning pr-1" /> Search input is required
+              <span
+                id="popover-error-message"
+                aria-live="polite"
+                class="has-error"
+                role="alert"
+              >
+                <v-icon :icon="mdiAlertCircle" class="text-warning pr-1" /> Search input is required
               </span>
             </v-tooltip>
           </div>
@@ -69,10 +77,7 @@
               >
                 <div class="d-flex">
                   <div v-if="isSearching" class="pr-1">
-                    <v-progress-circular
-                      indeterminate
-                      size="small"
-                    />
+                    <v-progress-circular size="small" />
                   </div>
                   <div>
                     <span class="text-nowrap">Search<span v-if="isSearching">ing</span></span>
@@ -81,24 +86,22 @@
               </v-btn>
             </div>
             <div>
-              <v-btn
-                id="search-options-panel-toggle"
-                class="px-2"
-                :class="{'border-0': !isFocusAdvSearchButton}"
-                variant="outlined"
-                @click.prevent="openAdvancedSearch"
-                @focusin="() => isFocusAdvSearchButton = true"
-                @focusout="() => isFocusAdvSearchButton = false"
-              >
-                <span class="sr-only">Open advanced search</span>
-                <v-icon :icon="mdiMenu" size="large" />
-              </v-btn>
-              <v-tooltip
-                location="bottom"
-                :open-on-hover="true"
-                text="Advanced search options"
-              />
-              <!-- TODO? target="search-options-panel-toggle"-->
+              <v-tooltip location="bottom" text="Advanced search options">
+                <template #activator="{}">
+                  <v-btn
+                    id="search-options-panel-toggle"
+                    class="px-2"
+                    :class="{'border-0': !isFocusAdvSearchButton}"
+                    variant="text"
+                    @click.prevent="openAdvancedSearch"
+                    @focusin="() => isFocusAdvSearchButton = true"
+                    @focusout="() => isFocusAdvSearchButton = false"
+                  >
+                    <span class="sr-only">Open advanced search</span>
+                    <v-icon :icon="mdiTuneVariant" size="lg" />
+                  </v-btn>
+                </template>
+              </v-tooltip>
             </div>
           </div>
         </div>
@@ -112,12 +115,11 @@
 </template>
 
 <script setup>
-import {mdiAlert, mdiMenu} from '@mdi/js'
+import {mdiAlertCircle, mdiTuneVariant} from '@mdi/js'
 </script>
 
 <script>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
-import Autocomplete from '@trevoreyre/autocomplete-vue'
 import Context from '@/mixins/Context'
 import HeaderBranding from '@/layouts/shared/HeaderBranding'
 import HeaderMenu from '@/components/header/HeaderMenu'
@@ -130,7 +132,7 @@ import {useSearchStore} from '@/stores/search'
 
 export default {
   name: 'StandardHeaderLayout',
-  components: {AdvancedSearchModal, Autocomplete, HeaderBranding, HeaderMenu},
+  components: {AdvancedSearchModal, HeaderBranding, HeaderMenu},
   mixins: [Context, SearchSession, Util],
   data: () => ({
     isFocusAdvSearchButton: false,
@@ -197,9 +199,7 @@ export default {
           },
           this._noop
         )
-        addToSearchHistory(q).then(history => {
-          useSearchStore().setSearchHistory(history)
-        })
+        addToSearchHistory(q).then(history => useSearchStore().setSearchHistory(history))
       } else {
         this.showErrorPopover = true
         this.alertScreenReader('Search input is required')

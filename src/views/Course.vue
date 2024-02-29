@@ -90,11 +90,11 @@
             />
           </div>
           <div v-if="!matrixDisabledMessage" class="d-flex mb-2 text-nowrap">
-            <b-button-group
+            <v-btn-group
               id="tabs-button-group"
               :aria-label="`You are in ${tab} view. Click button to enter ${tab === 'list' ? 'matrix' : 'list'} view.`"
             >
-              <b-button
+              <v-btn
                 id="btn-tab-list"
                 class="tab-button"
                 :class="{'tab-button-selected': tab === 'list'}"
@@ -104,8 +104,8 @@
                 @keyup.enter="toggleView('list')"
               >
                 <font-awesome icon="list" /> List
-              </b-button>
-              <b-button
+              </v-btn>
+              <v-btn
                 id="btn-tab-matrix"
                 class="tab-button"
                 :class="{'tab-button-selected': tab === 'matrix'}"
@@ -115,16 +115,16 @@
                 @keyup.enter="toggleView('matrix')"
               >
                 <font-awesome icon="table" /> Matrix
-              </b-button>
-            </b-button-group>
+              </v-btn>
+            </v-btn-group>
           </div>
           <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-items-center d-flex ml-auto mr-3">
             <div id="view-per-page-label" class="pr-1">
               {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
             </div>
-            <b-button-group aria-labelledby="view-per-page-label">
+            <v-btn-group aria-labelledby="view-per-page-label">
               <div v-for="(option, index) in pagination.options" :key="index">
-                <b-button
+                <v-btn
                   :id="`view-per-page-${option}`"
                   class="px-1"
                   :class="{'font-size-16 font-weight-bold text-dark': option === pagination.itemsPerPage}"
@@ -134,12 +134,12 @@
                   @keyup.enter="resizePage(option)"
                 >
                   {{ option }}
-                </b-button>
+                </v-btn>
                 <span v-if="index + 1 < pagination.options.length">
                   |
                 </span>
               </div>
-            </b-button-group>
+            </v-btn-group>
           </div>
         </div>
         <div v-if="tab === 'list' && section.totalStudentCount" class="ml-2 mr-2">

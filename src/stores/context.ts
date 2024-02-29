@@ -15,6 +15,13 @@ export type BoaConfig = {
   maxAttachmentsPerNote: number
 }
 
+export function alertScreenReader(message: string, politeness?: string) {
+  useContextStore().setScreenReaderAlert({message: ''})
+  nextTick(() => {
+    useContextStore().setScreenReaderAlert({message, politeness})
+  }).then(_.noop)
+}
+
 export const useContextStore = defineStore('context', {
   state: () => ({
     announcement: undefined,

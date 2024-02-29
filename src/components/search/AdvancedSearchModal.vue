@@ -1,10 +1,7 @@
 <template>
-  <b-modal
+  <v-dialog
     v-model="showAdvancedSearch"
-    centered
-    hide-footer
-    hide-header
-    size="lg"
+    max-width="600"
     @hidden="onHidden"
   >
     <div>
@@ -22,17 +19,19 @@
           <v-btn
             id="advanced-search-close"
             class="pt-0"
-            variant="link"
+            variant="text"
             @click="cancel"
             @keydown.enter="cancel"
           >
             <span class="sr-only">Close</span>
-            <font-awesome class="font-size-14" icon="times" />
+            <v-icon class="font-size-14" :icon="mdiClose" />
           </v-btn>
         </div>
       </div>
       <div class="mb-3 mx-2">
         <label id="search-input-label" class="sr-only">{{ labelForSearchInput }}</label>
+        <!--
+        TODO:
         <Autocomplete
           id="advanced-search-students-input"
           :key="autocompleteInputResetKey"
@@ -54,6 +53,7 @@
             </li>
           </template>
         </Autocomplete>
+        -->
       </div>
       <AdvancedSearchCheckboxes class="mb-2 ml-2" />
       <transition class="pt-2" name="drawer">
@@ -82,40 +82,39 @@
             </select>
           </div>
           <div class="pt-3">
-            <b-form-group class="mb-0" label="Posted By">
-              <b-form-radio-group v-model="postedBy">
-                <div class="d-flex">
-                  <div class="mr-2">
-                    <b-form-radio
-                      id="search-options-note-filters-posted-by-anyone"
-                      class="z-index-0"
-                      :ischecked="postedBy === 'anyone'"
-                      :disabled="isSearching"
-                      name="note-filters-posted-by"
-                      value="anyone"
-                    >
-                      Anyone
-                    </b-form-radio>
-                  </div>
-                  <div>
-                    <b-form-radio
-                      id="search-options-note-filters-posted-by-you"
-                      class="z-index-0"
-                      :ischecked="postedBy === 'you'"
-                      :disabled="isSearching"
-                      name="note-filters-posted-by"
-                      value="you"
-                      @change.native="() => setAuthor(null)"
-                    >
-                      You
-                    </b-form-radio>
-                  </div>
+            <v-radio-group v-model="postedBy" class="mb-0" label="Posted By">
+              <div class="d-flex">
+                <div class="mr-2">
+                  <v-radio
+                    id="search-options-note-filters-posted-by-anyone"
+                    class="z-index-0"
+                    :ischecked="postedBy === 'anyone'"
+                    :disabled="isSearching"
+                    name="note-filters-posted-by"
+                    value="anyone"
+                  >
+                    Anyone
+                  </v-radio>
                 </div>
-              </b-form-radio-group>
-            </b-form-group>
+                <div>
+                  <v-radio
+                    id="search-options-note-filters-posted-by-you"
+                    class="z-index-0"
+                    :ischecked="postedBy === 'you'"
+                    :disabled="isSearching"
+                    name="note-filters-posted-by"
+                    value="you"
+                    @change="() => setAuthor(null)"
+                  >
+                    You
+                  </v-radio>
+                </div>
+              </div>
+            </v-radio-group>
           </div>
           <div class="pt-3">
-            <b-form-group class="mb-0 w-50" label="Advisor">
+            <div class="mb-0 w-50">
+              <label for="search-options-note-filters-author">Advisor</label>
               <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
               <InputTextAutocomplete
                 id="search-options-note-filters-author"
@@ -125,10 +124,11 @@
                 :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
                 :source="findAdvisorsByName"
               />
-            </b-form-group>
+            </div>
           </div>
           <div class="pt-3">
-            <b-form-group class="mb-0 w-50" label="Student (name or SID)">
+            <div class="mb-0 w-50">
+              <label for="search-options-note-filters-student">Student (name or SID)</label>
               <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
               <InputTextAutocomplete
                 id="search-options-note-filters-student"
@@ -139,10 +139,11 @@
                 placeholder="Enter name or SID..."
                 :source="findStudentsByNameOrSid"
               />
-            </b-form-group>
+            </div>
           </div>
           <div class="pt-3">
-            <b-form-group class="mb-0" label="Date Range">
+            <div class="mb-0">
+              <label for="search-options-note-filters-last-updated-from">Date Range</label>
               <div class="align-items-center d-flex">
                 <div>
                   <label
@@ -184,9 +185,9 @@
                     @click="() => setFromDate(null)"
                   >
                     <span class="sr-only">Clear the 'from' date.</span>
-                    <font-awesome
+                    <v-icon
                       class="font-size-14"
-                      icon="times"
+                      :icon="mdiClose"
                       size="sm"
                     />
                   </v-btn>
@@ -231,15 +232,15 @@
                     @click="toDate = null"
                   >
                     <span class="sr-only">Clear the 'to' date.</span>
-                    <font-awesome
+                    <v-icon
                       class="font-size-14"
-                      icon="times"
+                      :icon="mdiClose"
                       size="sm"
                     />
                   </v-btn>
                 </div>
               </div>
-            </b-form-group>
+            </div>
           </div>
         </div>
       </transition>
@@ -291,12 +292,15 @@
         </div>
       </div>
     </div>
-  </b-modal>
+  </v-dialog>
 </template>
+
+<script setup>
+import {mdiClose} from '@mdi/js'
+</script>
 
 <script>
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
-import Autocomplete from '@trevoreyre/autocomplete-vue'
 import Context from '@/mixins/Context'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import SearchSession from '@/mixins/SearchSession'
@@ -309,7 +313,6 @@ export default {
   name: 'AdvancedSearchModal',
   components: {
     AdvancedSearchCheckboxes,
-    Autocomplete,
     InputTextAutocomplete
   },
   mixins: [Context, SearchSession, Util],

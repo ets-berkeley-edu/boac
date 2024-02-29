@@ -5,7 +5,7 @@
         <h2 class="student-section-header mr-2">Classes</h2>
       </div>
       <div>
-        <b-button
+        <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="toggle-collapse-all-years"
           v-b-toggle="expanded ? collapsed : uncollapsed"
@@ -15,11 +15,11 @@
           <font-awesome v-if="expanded" icon="caret-down" />
           <font-awesome v-if="!expanded" icon="caret-right" />
           {{ expanded ? 'Collapse' : 'Expand' }} all years
-        </b-button>
+        </v-btn>
       </div>
       <div v-if="enrollmentTermsByYear.length > 1">|</div>
       <div class="flex-grow-1">
-        <b-button
+        <v-btn
           v-if="enrollmentTermsByYear.length > 1"
           id="sort-academic-year"
           variant="link"
@@ -32,7 +32,7 @@
           <span v-if="currentOrder === 'asc' ">
             <font-awesome icon="long-arrow-alt-up" />
           </span>
-        </b-button>
+        </v-btn>
       </div>
       <div v-if="currentUser.canReadDegreeProgress" class="flex-shrink-1">
         <router-link
@@ -49,7 +49,7 @@
       :id="`academic-year-${year.label}-container`"
       :key="year.label"
     >
-      <b-button
+      <v-btn
         :id="`academic-year-${year.label}-toggle`"
         v-b-toggle="`academic-year-${year.label}`"
         block
@@ -69,7 +69,7 @@
             <span class="color-black">{{ totalUnits(year) || 0 }} Units</span>
           </div>
         </div>
-      </b-button>
+      </v-btn>
       <b-collapse
         :id="`academic-year-${year.label}`"
         :ref="`academic-year-${year.label}`"
