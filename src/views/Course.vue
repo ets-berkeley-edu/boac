@@ -76,7 +76,7 @@
       <div v-if="!loading && !isToggling">
         <h2 class="sr-only">Students</h2>
         <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
-          <span class="has-error"><font-awesome icon="exclamation-triangle" /></span>
+          <span class="has-error"><v-icon :icon="mdiAlertRhombus" /></span>
           <span class="container-error">No students advised by your department are enrolled in this section.</span>
         </div>
         <div v-if="section.totalStudentCount" class="align-items-start d-flex mb-2 ml-3 mt-3">
@@ -103,7 +103,7 @@
                 @click="toggleView('list')"
                 @keyup.enter="toggleView('list')"
               >
-                <font-awesome icon="list" /> List
+                <v-icon :icon="mdiFormatListBulleted" /> List
               </v-btn>
               <v-btn
                 id="btn-tab-matrix"
@@ -114,7 +114,7 @@
                 @click="toggleView('matrix')"
                 @keyup.enter="toggleView('matrix')"
               >
-                <font-awesome icon="table" /> Matrix
+                <v-icon :icon="mdiTable" /> Matrix
               </v-btn>
             </v-btn-group>
           </div>
@@ -163,6 +163,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiFormatListBulleted, mdiTable} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

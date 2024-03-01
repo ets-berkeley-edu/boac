@@ -58,7 +58,7 @@
             </div>
             <div v-if="_size(row.item.attachments)">
               <span class="sr-only">Has attachment(s)</span>
-              <font-awesome icon="paperclip" />
+              <v-icon :icon="mdiPaperclip" />
             </div>
           </div>
         </template>
@@ -83,10 +83,10 @@
               variant="link"
               @click="openDeleteModal(row.item)"
             >
-              <font-awesome
-                icon="trash-alt"
+              <v-icon
                 aria-label="Delete"
                 :class="isDeleting ? 'text-secondary' : 'has-error'"
+                :icon="mdiTrashCanOutline"
                 title="Delete"
               />
             </v-btn>
@@ -116,6 +116,10 @@
     />
   </div>
 </template>
+
+<script setup>
+import {mdiPaperclip, mdiTrashCanOutline} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

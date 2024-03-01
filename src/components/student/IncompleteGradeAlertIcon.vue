@@ -1,13 +1,17 @@
 <template>
-  <font-awesome
+  <v-icon
     v-if="sectionsWithIncompleteStatus.length"
     :id="`term-${termId}-course-${index}-has-incomplete-status`"
     :aria-label="ariaLabel"
     class="has-error ml-1"
-    icon="info-circle"
+    :icon="mdiInformationOutline"
     :title="ariaLabel"
   />
 </template>
+
+<script setup>
+import {mdiInformationOutline} from '@mdi/js'
+</script>
 
 <script>
 import {getIncompleteGradeDescription, getSectionsWithIncompleteStatus} from '@/berkeley'

@@ -10,7 +10,7 @@
   >
     <template #button-content>
       <span class="sr-only">{{ course.name }} category options</span>
-      <font-awesome
+      <v-icon
         class="font-size-16"
         :class="{
           'accent-color-blue': course.accentColor === 'Blue',
@@ -21,7 +21,7 @@
           'faint-text': !course.accentColor,
           'text-white': isUserDragging(course.id)
         }"
-        icon="grip-vertical"
+        :icon="mdiDrag"
       />
     </template>
     <b-dropdown-item
@@ -66,6 +66,10 @@
     </b-dropdown-item>
   </b-dropdown>
 </template>
+
+<script setup>
+import {mdiDrag} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

@@ -26,7 +26,7 @@
       <div class="d-flex align-items-center mt-1 mb-3">
         <div v-if="appointment.status === 'cancelled'" class="mt-2">
           <div>
-            <font-awesome icon="calendar-minus" class="status-cancelled-icon" />
+            <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
             <span class="text-secondary ml-1">
               Canceled
             </span>
@@ -88,7 +88,7 @@
                 :id="`appointment-${appointment.id}-attachment-${index}`"
                 :href="downloadUrl(attachment)"
               >
-                <font-awesome icon="paperclip" />
+                <v-icon :icon="mdiPaperclip" />
                 {{ attachment.displayName }}
               </a>
             </span>

@@ -28,10 +28,10 @@
             </div>
           </div>
           <span v-if="isRemoving" :class="{'text-danger': isButtonVariantLink, 'text-white': !isButtonVariantLink}">
-            <font-awesome icon="times" /> Removed
+            <v-icon :icon="mdiClose" /> Removed
           </span>
           <span v-if="isAdding" :class="{'text-success': isButtonVariantLink}">
-            <font-awesome icon="check" /> Added
+            <v-icon :icon="mdiCheckBold" /> Added
           </span>
         </div>
       </template>
@@ -64,7 +64,7 @@
         class="create-new-button mb-0 pl-0 text-dark"
         @click="showModal = true"
       >
-        <font-awesome icon="plus" /> Create New {{ domainLabel(true) }}
+        <v-icon :icon="mdiPlus" /> Create New {{ domainLabel(true) }}
       </b-dropdown-item>
     </b-dropdown>
     <b-modal
@@ -84,7 +84,7 @@
 </template>
 
 <script setup>
-import {mdiMenuDown} from '@mdi/js'
+import {mdiCheckBold, mdiClose, mdiMenuDown, mdiPlus} from '@mdi/js'
 </script>
 
 <script>

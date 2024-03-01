@@ -154,7 +154,7 @@
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)"
             >
-              <font-awesome icon="paperclip" />
+              <v-icon :icon="mdiPaperclip" />
               {{ attachment.displayName }}
             </a>
             <v-btn
@@ -164,7 +164,7 @@
               class="p-0"
               @click.prevent="removeAttachment(index)"
             >
-              <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
+              <v-icon :icon="mdiCloseCircleOutline" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
             </v-btn>
           </span>
@@ -172,11 +172,11 @@
       </ul>
       <div v-if="isEditable && currentUser.uid === author.uid">
         <div v-if="attachmentError" class="mt-3 mb-3 w-100">
-          <font-awesome icon="exclamation-triangle" class="text-danger pr-1" />
+          <v-icon :icon="mdiAlertRhombus" class="text-danger pr-1" />
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
         <div v-if="uploadingAttachment" class="w-100">
-          <font-awesome icon="sync" spin /> Uploading {{ _size(attachments) === 1 ? 'attachment' : 'attachments' }}...
+          <v-icon :icon="mdiSync" spin /> Uploading {{ _size(attachments) === 1 ? 'attachment' : 'attachments' }}...
         </div>
         <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
@@ -209,6 +209,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiCloseCircleOutline, mdiPaperclip, mdiSync} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

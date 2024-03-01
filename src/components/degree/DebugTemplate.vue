@@ -7,7 +7,7 @@
         target="_blank"
         :to="`/degree/${parentTemplateId}`"
       >
-        <font-awesome icon="external-link-alt" />
+        <v-icon :icon="mdiOpenInNew" />
         Created from template <span class="sr-only"> (will open new browser tab)</span>
       </router-link>
     </div>
@@ -18,16 +18,16 @@
         variant="link"
         @click="setDisableButtons(false)"
       >
-        <font-awesome
+        <v-icon
           :class="disableButtons ? 'text-primary' : 'text-black-50'"
-          icon="play-circle"
+          :icon="mdiPlayCircleOutline"
         />
         Force buttons to enable
       </b-btn>
     </div>
     <div class="align-items-center d-flex">
       <div class="pr-1">
-        <font-awesome icon="bug" />
+        <v-icon :icon="mdiBug" />
       </div>
       <div class="pr-2">
         Debug
@@ -39,6 +39,10 @@
     </transition>
   </div>
 </template>
+
+<script setup>
+import {mdiBug, mdiOpenInNew, mdiPlayCircleOutline} from '@mdi/js'
+</script>
 
 <script>
 import DegreeEditSession from '@/mixins/DegreeEditSession'

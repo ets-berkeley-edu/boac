@@ -1,7 +1,7 @@
 <template>
   <form class="edit-note-form" @submit.prevent="save">
     <div v-if="model.isDraft" class="font-size-18 has-error p-2">
-      <font-awesome icon="exclamation-triangle" class="pr-1" />
+      <v-icon :icon="mdiAlertRhombus" class="pr-1" />
       You are editing a draft note.
     </div>
     <label id="edit-note-subject-label" class="font-weight-bold" for="edit-note-subject">Subject</label>
@@ -106,7 +106,7 @@
           @keyup.stop
         >
           <span class="pill pill-attachment text-nowrap">
-            <font-awesome icon="paperclip" class="pr-1 pl-1" />
+            <v-icon :icon="mdiPaperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}
           </span>
         </li>
@@ -124,6 +124,10 @@
     </b-popover>
   </form>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiPaperclip} from '@mdi/js'
+</script>
 
 <script>
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'

@@ -15,7 +15,7 @@
             Add column {{ position }} requirement
           </div>
           <div>
-            <font-awesome icon="plus" />
+            <v-icon :icon="mdiPlus" />
           </div>
         </div>
       </b-btn>
@@ -97,6 +97,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import Category from '@/components/degree/Category'

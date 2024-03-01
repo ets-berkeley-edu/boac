@@ -16,8 +16,14 @@ Font Awesome to MDI
 | caret-right                                     | mdiMenuRight                               |
 | caret-up                                        | mdiMenuUp                                  |
 | check                                           | mdiCheckBold                               |
-| copy                                            | mdiontentCopy                              |
+| check-square                                    | mdiCheckboxMarkedOutline                   |
+| check-circle                                    | mdiCheckCircleOutline                      |
+| grip-vertical                                   | mdiDrag                                    |
+| circle                                          | mdiCircleOutline                           |
+| clock                                           | mdiClockOutline                            |
+| copy                                            | mdiContentCopy                             |
 | edit                                            | mdiNoteEditOutline                         |
+| exclamation                                     | mdiExclamation                             |
 | exclamation-triangle                            | mdiAlertRhombus                            |
 | external-link-alt                               | mdiOpenInNew                               |
 | file-alt                                        | mdiFileOutline                             |
@@ -27,7 +33,9 @@ Font Awesome to MDI
 | list                                            | mdiFormatListBulleted                      |
 | long-arrow-alt-down                             | mdiArrowDownThin                           |
 | long-arrow-alt-up                               | mdiArrowUpThin                             |
+| minus                                           | mdiMinusThick                              |
 | paperclip                                       | mdiPaperclip                               |
+| play-circle                                     | mdiPlayCircleOutline                       |
 | plus                                            | mdiPlus                                    |
 | print                                           | mdiPrinterOutline                          |
 | spinner                                         | v-progress-circular                        |

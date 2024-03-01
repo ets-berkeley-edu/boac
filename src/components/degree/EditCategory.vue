@@ -144,7 +144,7 @@
           @click="onSubmit"
         >
           <span v-if="isSaving">
-            <font-awesome class="mr-1" icon="spinner" spin /> Saving
+            <v-progress-circular class="mr-1" size="small" /> Saving
           </span>
           <span v-if="existingCategory && !isSaving">Save</span>
           <span v-if="!existingCategory && !isSaving">Create Requirement</span>

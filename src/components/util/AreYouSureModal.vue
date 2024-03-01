@@ -24,11 +24,10 @@
             :disabled="isProcessing"
             @click.prevent="confirm"
           >
-            <font-awesome
+            <v-progress-circular
               v-if="isProcessing"
               class="mr-1"
-              icon="spinner"
-              spin
+              size="small"
             />
             {{ buttonLabelConfirm }}
           </v-btn>

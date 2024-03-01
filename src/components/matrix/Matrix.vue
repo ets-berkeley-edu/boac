@@ -47,7 +47,7 @@
             @click="zoomIn"
             @keyup.enter="zoomIn"
           >
-            <font-awesome icon="plus" />
+            <v-icon :icon="mdiPlus" />
             <span class="sr-only">Zoom in</span>
           </button>
           <button
@@ -58,7 +58,7 @@
             @click="zoomOut"
             @keyup.enter="zoomOut"
           >
-            <font-awesome :class="{'matrix-zoom-disabled': zoom.scale === 1}" icon="minus" />
+            <v-icon :class="{'matrix-zoom-disabled': zoom.scale === 1}" :icon="mdiMinusThick" />
             <span class="sr-only">Zoom out</span>
           </button>
         </div>
@@ -137,6 +137,10 @@
     <div class="matrix-container"></div>
   </div>
 </template>
+
+<script setup>
+import {mdiMinusThick, mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import * as d3 from 'd3'

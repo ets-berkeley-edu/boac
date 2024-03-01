@@ -81,7 +81,7 @@
                   :href="`https://calcentral.berkeley.edu/user/overview/${student.uid}`"
                   target="_blank"
                   aria-label="Open CalCentral in new window"
-                >Student profile in CalCentral <font-awesome icon="external-link-alt" class="pl-1" /></a>
+                >Student profile in CalCentral <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
               </div>
               <div>
                 <a
@@ -89,7 +89,7 @@
                   :href="`https://imagine-content.berkeley.edu/#documents/view/321Z05B_01EFZBH4W0004XD?simplemode=true&constraint=[field1] = '${student.sid}'`"
                   target="_blank"
                   aria-label="Open Perceptive Content (Image Now) documents in new window"
-                >Perceptive Content (Image Now) documents <font-awesome icon="external-link-alt" class="pl-1" /></a>
+                >Perceptive Content (Image Now) documents <v-icon :icon="mdiOpenInNew" class="pl-1" /></a>
               </div>
             </div>
           </div>
@@ -154,6 +154,10 @@
     </div>
   </transition>
 </template>
+
+<script setup>
+import {mdiOpenInNew} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

@@ -60,7 +60,7 @@
         </b-td>
         <b-td class="col-midterm">
           <span v-if="enrollment.midtermGrade" v-accessible-grade="enrollment.midtermGrade" class="font-weight-bold"></span>
-          <font-awesome v-if="isAlertGrade(enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
+          <v-icon v-if="isAlertGrade(enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
           <span v-if="!enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
         </b-td>
         <b-td class="col-final">
@@ -69,9 +69,9 @@
             v-accessible-grade="enrollment.grade"
             class="font-weight-bold"
           ></span>
-          <font-awesome
+          <v-icon
             v-if="isAlertGrade(enrollment.grade)"
-            icon="exclamation-triangle"
+            :icon="mdiAlertRhombus"
             class="boac-exclamation ml-1"
           />
           <IncompleteGradeAlertIcon
@@ -107,6 +107,10 @@
     </b-tbody>
   </b-table-simple>
 </template>
+
+<script setup>
+import {mdiAlertRhombus} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

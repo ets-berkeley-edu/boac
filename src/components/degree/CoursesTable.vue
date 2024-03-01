@@ -83,10 +83,10 @@
               >
                 <div class="align-items-center d-flex pt-1">
                   <div v-if="!bundle.course && bundle.category.isRecommended" class="pr-1">
-                    <font-awesome
+                    <v-icon
                       :id="`category-${bundle.category.id}-is-recommended`"
                       class="accent-color-orange"
-                      icon="circle"
+                      :icon="mdiCircleOutline"
                       title="Recommended"
                     />
                     <span class="sr-only">This is a recommended course requirement</span>
@@ -107,8 +107,8 @@
                     </span>
                   </div>
                   <div v-if="_get(bundle.course, 'isCopy')" class="pr-1">
-                    <font-awesome
-                      icon="copy"
+                    <v-icon
+                      :icon="mdiContentCopy"
                       size="sm"
                       title="Course satisfies multiple requirements."
                     />
@@ -122,18 +122,18 @@
                   'faint-text font-italic': !bundle.course && !getAccentColor(bundle)
                 }"
               >
-                <font-awesome
+                <v-icon
                   v-if="isCourseFulfillmentsEdited(bundle)"
                   class="fulfillments-icon mr-1"
-                  icon="check-circle"
+                  :icon="mdiCheckCircleOutline"
                   size="sm"
                   :title="bundle.course.unitRequirements.length ? `Counts towards ${oxfordJoin(getCourseFulfillments(bundle))}.` : 'Fulfills no unit requirements'"
                 />
-                <font-awesome
+                <v-icon
                   v-if="unitsWereEdited(bundle.course)"
                   :id="`units-were-edited-${bundle.course.id}`"
                   class="changed-units-icon"
-                  icon="info-circle"
+                  :icon="mdiInformationOutline"
                   size="sm"
                   :title="`Updated from ${pluralize('unit', bundle.course.sis.units)}`"
                 />
@@ -150,10 +150,10 @@
                 >
                   {{ getGrade(bundle) }}
                 </span>
-                <font-awesome
+                <v-icon
                   v-if="isAlertGrade(getGrade(bundle))"
                   aria-label="Non-passing grade"
-                  icon="exclamation-triangle"
+                  :icon="mdiAlertRhombus"
                   class="boac-exclamation ml-1"
                 />
               </td>
@@ -230,7 +230,7 @@
                       variant="link"
                       @click="edit(bundle)"
                     >
-                      <font-awesome icon="edit" />
+                      <v-icon :icon="mdiNoteEditOutline" />
                       <span class="sr-only">Edit {{ bundle.name }}</span>
                     </b-btn>
                   </div>
@@ -244,7 +244,7 @@
                       variant="link"
                       @click="onDelete(bundle)"
                     >
-                      <font-awesome icon="trash-alt" />
+                      <v-icon :icon="mdiTrashCanOutline" />
                       <span class="sr-only">Delete {{ bundle.name }}</span>
                     </b-btn>
                   </div>
@@ -334,6 +334,17 @@
     />
   </div>
 </template>
+
+<script setup>
+import {
+  mdiAlertRhombus,
+  mdiCheckCircleOutline,
+  mdiCircleOutline,
+  mdiContentCopy,
+  mdiInformationOutline,
+  mdiNoteEditOutline, mdiTrashCanOutline
+} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

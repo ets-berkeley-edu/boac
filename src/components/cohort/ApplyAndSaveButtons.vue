@@ -29,7 +29,7 @@
         @click="save"
       >
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
-        <span v-if="isPerforming === 'save'"><font-awesome icon="spinner" spin /> Saving</span>
+        <span v-if="isPerforming === 'save'"><v-progress-circular size="small" /> Saving</span>
         <span v-if="!isPerforming && cohortId">Save Cohort</span>
         <span v-if="!isPerforming && !cohortId">Save</span>
       </v-btn>

@@ -25,7 +25,7 @@
             </div>
             <div v-if="!dropdownLabel">Select...</div>
             <div class="ml-2">
-              <font-awesome icon="angle-down" class="menu-caret" />
+              <v-icon :icon="mdiTriangleSmallDown" class="menu-caret" />
             </div>
           </div>
         </template>
@@ -49,6 +49,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiTriangleSmallDown} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

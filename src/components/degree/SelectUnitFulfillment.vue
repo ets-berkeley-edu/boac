@@ -45,7 +45,7 @@
                 variant="link"
                 @click="removeUnitRequirement(unitRequirement)"
               >
-                <font-awesome icon="times-circle" class="font-size-24 has-error pl-2" />
+                <v-icon :icon="mdiCloseCircleOutline" class="font-size-24 has-error pl-2" />
                 <span class="sr-only">Remove</span>
               </b-btn>
             </div>
@@ -55,6 +55,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiCloseCircleOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

@@ -4,7 +4,7 @@
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
         <div class="pr-2">
-          <font-awesome :style="{color: '#3b7ea5'}" icon="user-circle" size="2x" />
+          <v-icon :style="{color: '#3b7ea5'}" :icon="mdiAccountCircle" :size="24" />
         </div>
         <div class="pt-2">
           <h1 class="page-section-header">Profile</h1>
@@ -22,6 +22,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiAccountCircle} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

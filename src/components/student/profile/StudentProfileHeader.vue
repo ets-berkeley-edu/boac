@@ -38,7 +38,7 @@
             variant="link"
             @click="toggleShowDetails"
           >
-            <font-awesome :icon="isShowingPersonalDetails ? 'caret-down' : 'caret-right'" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
+            <v-icon :icon="isShowingPersonalDetails ? mdiMenuDown : mdiMenuRight" :class="isShowingPersonalDetails ? 'mr-1' : 'ml-1 mr-1'" />
             {{ isShowingPersonalDetails ? 'Hide' : 'Show' }} Personal Details
           </v-btn>
         </div>
@@ -55,6 +55,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

@@ -72,23 +72,23 @@
                     {{ course.name }}
                   </div>
                   <div v-if="course.isCopy" class="pr-1">
-                    <font-awesome icon="copy" size="sm" />
+                    <v-icon :icon="mdiContentCopy" size="sm" />
                   </div>
                 </div>
               </td>
               <td class="td-units">
-                <font-awesome
+                <v-icon
                   v-if="course.unitRequirements.length"
                   class="fulfillments-icon mr-1 pl-0"
-                  icon="check-circle"
+                  :icon="mdiCheckCircleOutline"
                   size="sm"
                   :title="`Counts towards ${oxfordJoin(_map(course.unitRequirements, 'name'))}`"
                 />
-                <font-awesome
+                <v-icon
                   v-if="unitsWereEdited(course)"
                   :id="course.manuallyCreatedBy ? `${key}-course-${course.id}-manually-created-units-edited` : `${key}-course-${course.termId}-${course.sectionId}-units-edited`"
                   class="changed-units-icon"
-                  icon="info-circle"
+                  :icon="mdiInformationOutline"
                   size="sm"
                   :title="`Updated from ${pluralize('unit', course.sis.units)}`"
                 />
@@ -97,10 +97,10 @@
               </td>
               <td class="td-grade">
                 <span class="font-size-14">{{ course.grade || '&mdash;' }}</span>
-                <font-awesome
+                <v-icon
                   v-if="isAlertGrade(course.grade)"
                   aria-label="Non-passing grade"
-                  icon="exclamation-triangle"
+                  :icon="mdiAlertRhombus"
                   class="boac-exclamation ml-1"
                 />
               </td>
@@ -131,7 +131,7 @@
                       variant="link"
                       @click="onDelete(course)"
                     >
-                      <font-awesome icon="trash-alt" />
+                      <v-icon :icon="mdiTrashCanOutline" />
                       <span class="sr-only">Delete {{ course.name }}</span>
                     </b-btn>
                   </div>
@@ -145,7 +145,7 @@
                       variant="link"
                       @click="edit(course)"
                     >
-                      <font-awesome icon="edit" />
+                      <v-icon :icon="mdiNoteEditOutline" />
                       <span class="sr-only">Edit {{ course.name }}</span>
                     </b-btn>
                   </div>
@@ -203,6 +203,16 @@
     />
   </div>
 </template>
+
+<script setup>
+import {
+  mdiAlertRhombus,
+  mdiCheckCircleOutline,
+  mdiContentCopy,
+  mdiInformationOutline, mdiNoteEditOutline,
+  mdiTrashCanOutline
+} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

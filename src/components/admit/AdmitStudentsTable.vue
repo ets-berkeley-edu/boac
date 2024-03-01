@@ -34,7 +34,7 @@
             @click="curatedGroupRemoveStudent(student)"
             @keyup.enter="curatedGroupRemoveStudent(student)"
           >
-            <font-awesome icon="times-circle" class="font-size-18" />
+            <v-icon :icon="mdiCloseCircleOutline" class="font-size-18" />
             <span class="sr-only">Remove {{ fullName(student) }}</span>
           </button>
         </td>
@@ -98,6 +98,10 @@
     </tbody>
   </table>
 </template>
+
+<script setup>
+import {mdiCloseCircleOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

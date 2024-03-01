@@ -67,7 +67,7 @@
             >
               <td class="text-nowrap">{{ term.name }}</td>
               <td class="text-nowrap text-right">
-                <font-awesome v-if="term.gpa < 2" icon="exclamation-triangle" class="text-danger pr-2" />
+                <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span
                   :id="`student-gpa-term-${term.name}`"
@@ -88,6 +88,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiAlertRhombus} from '@mdi/js'
+</script>
 
 <script>
 import StudentGpaChart from '@/components/student/StudentGpaChart'

@@ -69,7 +69,7 @@
           uib-tooltip="Graduated"
           tooltip-placement="bottom"
         >
-          <font-awesome icon="graduation-cap" />
+          <v-icon :icon="mdiSchool" />
         </span>
       </div>
       <div
@@ -226,19 +226,23 @@
 
     <template #cell(midtermGrade)="row">
       <span v-if="row.item.enrollment.midtermGrade" v-accessible-grade="row.item.enrollment.midtermGrade" class="font-weight-bold font-size-14"></span>
-      <font-awesome v-if="isAlertGrade(row.item.enrollment.midtermGrade)" icon="exclamation-triangle" class="boac-exclamation" />
+      <v-icon v-if="isAlertGrade(row.item.enrollment.midtermGrade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.midtermGrade"><span class="sr-only">No data</span>&mdash;</span>
     </template>
 
     <template #cell(finalGrade)="row">
       <span v-if="row.item.enrollment.grade" v-accessible-grade="row.item.enrollment.grade" class="font-weight-bold font-size-14"></span>
-      <font-awesome v-if="isAlertGrade(row.item.enrollment.grade)" icon="exclamation-triangle" class="boac-exclamation" />
+      <v-icon v-if="isAlertGrade(row.item.enrollment.grade)" :icon="mdiAlertRhombus" class="boac-exclamation" />
       <span v-if="!row.item.enrollment.grade" class="cohort-grading-basis">
         {{ row.item.enrollment.gradingBasis }}
       </span>
     </template>
   </b-table>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiSchool} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

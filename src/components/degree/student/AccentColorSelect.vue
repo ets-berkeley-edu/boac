@@ -25,7 +25,7 @@
             :class="`accent-color-${selected.toLowerCase()}`"
           >
             <div class="pr-2">
-              <font-awesome icon="square" />
+              <v-icon :icon="mdiSquareOutline" />
             </div>
             <div>
               {{ selected }}
@@ -48,7 +48,7 @@
         >
           <div class="align-items-center d-flex" :class="`accent-color-${colorName.toLowerCase()}`">
             <div class="pr-2">
-              <font-awesome icon="square" />
+              <v-icon :icon="mdiSquareOutline" />
             </div>
             <div>
               {{ colorName }}
@@ -59,6 +59,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiSquareOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

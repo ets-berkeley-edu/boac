@@ -1,19 +1,18 @@
 <template>
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
-    <b-alert
+    <v-alert
       id="alert-batch-created"
+      v-model="successMessage"
       aria-live="polite"
       class="align-items-center w-100"
-      dismissible
+      closable
       fade
       role="alert"
-      :show="!!successMessage"
-      variant="success"
-      @dismissed="() => successMessage = null"
+      variant="outlined"
     >
       <span class="font-weight-bolder">Success!</span> {{ successMessage }}
-    </b-alert>
+    </v-alert>
     <h1 id="page-header" class="page-section-header">
       Degree Checks
     </h1>
@@ -28,7 +27,7 @@
             Create new degree check
           </div>
           <div class="order-1 pr-2">
-            <font-awesome icon="plus" />
+            <v-icon :icon="mdiPlus" />
           </div>
         </div>
       </router-link>
@@ -210,6 +209,10 @@
     />
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

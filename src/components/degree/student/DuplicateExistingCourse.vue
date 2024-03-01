@@ -40,7 +40,7 @@
             @click="onClickSave"
           >
             <span v-if="isSaving">
-              <font-awesome class="mr-1" icon="spinner" spin /> Saving
+              <v-progress-circular class="mr-1" size="small" /> Saving
             </span>
             <span v-if="!isSaving">Save</span>
           </b-btn>
@@ -71,12 +71,16 @@
           Duplicate Course
         </div>
         <div class="font-size-14 pr-1">
-          <font-awesome icon="plus" />
+          <v-icon :icon="mdiPlus" />
         </div>
       </b-btn>
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

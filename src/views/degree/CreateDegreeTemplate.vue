@@ -32,7 +32,7 @@
           variant="primary"
           @click.prevent="create"
         >
-          <span v-if="isBusy"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="isBusy"><v-progress-circular class="mr-1" size="small" /> Saving</span>
           <span v-if="!isBusy">Start Degree</span>
         </b-btn>
       </div>

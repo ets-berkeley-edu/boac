@@ -58,7 +58,7 @@
             variant="primary"
             @click="addSids"
           >
-            <span v-if="isValidating"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
+            <span v-if="isValidating"><v-progress-circular size="small" /> <span class="pl-1">Adding</span></span>
             <span v-if="!isValidating">Add</span>
           </b-btn>
         </div>
@@ -72,7 +72,7 @@
               :disabled="isSaving"
               @click.prevent="removeStudent(addedStudent)"
             >
-              <font-awesome icon="times-circle" class="font-size-20 has-error pl-2" />
+              <v-icon :icon="mdiCloseCircleOutline" class="font-size-20 has-error pl-2" />
               <span class="sr-only">Remove {{ addedStudent.label }} from degree check</span>
             </b-btn>
           </span>
@@ -135,7 +135,7 @@
           variant="primary"
           @click="save"
         >
-          <span v-if="isSaving"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="isSaving"><v-progress-circular class="mr-1" size="small" /> Saving</span>
           <span v-if="!isSaving">Save Degree Check</span>
         </b-btn>
         <b-btn
@@ -151,6 +151,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiCloseCircleOutline} from '@mdi/js'
+</script>
 
 <script>
 import BatchAddStudentSet from '@/components/util/BatchAddStudentSet'

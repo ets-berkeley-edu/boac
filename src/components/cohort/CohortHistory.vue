@@ -146,7 +146,7 @@ export default {
   padding-top: 6px;
   text-align: center;
   text-transform: uppercase;
-  whitespace: nowrap;
+  white-space: nowrap;
 }
 .pill-added {
   background-color: #c0ecff;

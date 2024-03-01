@@ -45,7 +45,7 @@
                 @click="onClickSave"
               >
                 <span v-if="isSaving">
-                  <font-awesome class="mr-1" icon="spinner" spin /> Saving
+                  <v-progress-circular class="mr-1" /> Saving
                 </span>
                 <span v-if="!isSaving">Save Degree Check</span>
               </b-btn>
