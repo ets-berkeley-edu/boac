@@ -30,10 +30,10 @@
           @keyup.enter="onAddButton"
         >
           <div v-if="!addButtonLoading">
-            <font-awesome icon="plus" /> Add
+            <v-icon :icon="mdiPlus" /> Add
           </div>
           <div v-if="addButtonLoading">
-            <font-awesome icon="spinner" spin />
+            <v-progress-circular size="small" />
           </div>
         </v-btn>
       </b-input-group-append>
@@ -53,7 +53,7 @@
           v-if="isLoading"
           class="dropdown-item"
         >
-          <font-awesome icon="spinner" spin />
+          <v-progress-circular size="small" />
         </li>
         <li
           v-if="restrict && !isLoading && !suggestions.length"
@@ -80,6 +80,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

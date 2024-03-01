@@ -57,7 +57,7 @@
         uib-tooltip="Graduated"
         tooltip-placement="bottom"
       >
-        <font-awesome icon="graduation-cap" />
+        <v-icon :icon="mdiSchool" />
       </div>
     </div>
     <div
@@ -145,6 +145,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiSchool} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

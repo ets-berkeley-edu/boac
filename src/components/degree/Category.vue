@@ -38,7 +38,7 @@
             variant="link"
             @click.prevent="edit"
           >
-            <font-awesome icon="edit" />
+            <v-icon :icon="mdiNoteEditOutline" />
             <span class="sr-only">Edit {{ category.name }}</span>
           </b-btn>
           <b-btn
@@ -49,7 +49,7 @@
             variant="link"
             @click="deleteDegreeCategory"
           >
-            <font-awesome icon="trash-alt" />
+            <v-icon :icon="mdiTrashCanOutline" />
             <span class="sr-only">Delete {{ category.name }}</span>
           </b-btn>
         </div>
@@ -80,6 +80,10 @@
     />
   </div>
 </template>
+
+<script setup>
+import {mdiNoteEditOutline, mdiTrashCanOutline} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

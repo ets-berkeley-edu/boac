@@ -8,8 +8,8 @@
         variant="link"
         @click.prevent="toggleExpandAll"
       >
-        <font-awesome
-          :icon="allExpanded ? 'caret-down' : 'caret-right'"
+        <v-icon
+          :icon="allExpanded ? mdiMenuDown : mdiMenuRight"
           class="toggle-expand-all-caret"
         />
         <span class="no-wrap pl-1">{{ allExpanded ? 'Collapse' : 'Expand' }} all {{ filter }}s</span>
@@ -51,8 +51,8 @@
               All {{ filter }}s
             </span>
             <span class="px-1">
-              <font-awesome v-if="showMyNotesOnly" icon="toggle-on" class="toggle toggle-on"></font-awesome>
-              <font-awesome v-if="!showMyNotesOnly" icon="toggle-off" class="toggle toggle-off"></font-awesome>
+              <v-icon v-if="showMyNotesOnly" :icon="mdiToggleSwitch" class="toggle toggle-on" />
+              <v-icon v-if="!showMyNotesOnly" :icon="mdiToggleSwitchOffOutline" class="toggle toggle-off" />
             </span>
             <span :class="{'toggle-label-active': showMyNotesOnly}">
               My {{ filter }}s
@@ -95,7 +95,7 @@
           <td class="column-message">
             <div class="d-flex">
               <div class="mr-2">
-                <font-awesome icon="sync" spin />
+                <v-icon :icon="mdiSync" spin />
               </div>
               <div class="text-muted">
                 {{ creatingNoteEvent.subject }}
@@ -181,9 +181,9 @@
               @click="open(message, true)"
             >
               <span v-if="['appointment', 'eForm', 'note'].includes(message.type) && message.id !== editModeNoteId" class="when-message-closed sr-only">Open message</span>
-              <font-awesome v-if="message.status === 'Satisfied'" icon="check" class="requirements-icon text-success" />
-              <font-awesome v-if="message.status === 'Not Satisfied'" icon="exclamation" class="requirements-icon text-icon-exclamation" />
-              <font-awesome v-if="message.status === 'In Progress'" icon="clock" class="requirements-icon text-icon-clock" />
+              <v-icon v-if="message.status === 'Satisfied'" :icon="mdiCheckBold" class="requirements-icon text-success" />
+              <v-icon v-if="message.status === 'Not Satisfied'" :icon="mdiExclamationThick" class="requirements-icon text-icon-exclamation" />
+              <v-icon v-if="message.status === 'In Progress'" :icon="mdiClockOutline" class="requirements-icon text-icon-clock" />
               <span v-if="!_includes(['appointment', 'eForm', 'note'] , message.type)">{{ message.message }}</span>
               <AdvisingNote
                 v-if="['eForm', 'note'].includes(message.type) && message.id !== editModeNoteId"
@@ -214,7 +214,7 @@
                 >
                   <div class="d-flex">
                     <div class="mr-1">
-                      <font-awesome icon="times-circle" class="font-size-24" />
+                      <v-icon :icon="mdiCloseCircleOutline" class="font-size-24" />
                     </div>
                     <div class="no-wrap">
                       Close Message
@@ -231,12 +231,12 @@
                 :id="`collapsed-${message.type}-${message.id}-status-cancelled`"
                 class="collapsed-cancelled-icon"
               >
-                <font-awesome icon="calendar-minus" class="status-cancelled-icon " />
+                <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon " />
                 Canceled
               </div>
             </div>
             <div v-if="['appointment', 'eForm', 'note'].includes(message.type)">
-              <font-awesome v-if="_size(message.attachments)" icon="paperclip" class="mt-2" />
+              <v-icon v-if="_size(message.attachments)" :icon="mdiPaperclip" class="mt-2" />
               <span class="sr-only">{{ _size(message.attachments) ? 'Has attachments' : 'No attachments' }}</span>
             </div>
           </td>
@@ -294,7 +294,7 @@
                     :to="`#${message.type}-${message.id}`"
                     @click.native="scrollToPermalink(message.type, message.id)"
                   >
-                    Permalink <font-awesome icon="link" />
+                    Permalink <v-icon :icon="mdiLinkVariant" />
                   </router-link>
                 </div>
               </div>
@@ -312,7 +312,7 @@
           variant="link"
           @click="isShowingAll = !isShowingAll"
         >
-          <font-awesome :icon="isShowingAll ? 'caret-up' : 'caret-right'" />
+          <v-icon :icon="isShowingAll ? mdiMenuUp : mdiMenuRight" />
           {{ isShowingAll ? 'Hide' : 'Show' }} Previous Messages
         </v-btn>
       </div>
@@ -328,6 +328,19 @@
     />
   </div>
 </template>
+
+<script setup>
+import {
+  mdiCalendarMinus,
+  mdiCheckBold, mdiClockOutline, mdiCloseCircleOutline,
+  mdiExclamationThick, mdiLinkVariant,
+  mdiMenuDown,
+  mdiMenuRight, mdiMenuUp, mdiPaperclip,
+  mdiSync,
+  mdiToggleSwitch,
+  mdiToggleSwitchOffOutline
+} from '@mdi/js'
+</script>
 
 <script>
 import AdvisingAppointment from '@/components/appointment/AdvisingAppointment'

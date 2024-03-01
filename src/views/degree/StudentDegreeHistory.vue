@@ -62,10 +62,10 @@
             </div>
           </template>
           <template #cell(parentTemplateUpdatedAt)="row">
-            <font-awesome
+            <v-icon
               v-if="row.item.showRevisionIndicator"
-              icon="exclamation-triangle"
               class="boac-exclamation mr-1"
+              :icon="mdiAlertRhombus"
               :title="`Revisions to the original degree template have been made since the creation of this degree check.`"
             />
             <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ moment(row.item.parentTemplateUpdatedAt).format('MMM D, YYYY') }}</span>
@@ -82,6 +82,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiAlertRhombus} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

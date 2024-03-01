@@ -5,7 +5,7 @@
       <div class="mb-4">
         <h1 class="page-section-header">Everyone's Cohorts</h1>
         <div v-if="includesAdmittedStudents" class="pl-1">
-          <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
+          <v-icon aria-label="Star icon" class="accent-color-orange" :icon="mdiStar" />
           denotes a cohort of admitted students.
         </div>
       </div>
@@ -20,7 +20,7 @@
         <ul>
           <li v-for="cohort in row.cohorts" :key="cohort.id">
             <span v-if="cohort.domain === 'admitted_students'" class="mr-1 text-success">
-              <font-awesome aria-label="Star icon" class="accent-color-orange" icon="star" />
+              <v-icon aria-label="Star icon" class="accent-color-orange" :icon="mdiStar" />
               <span class="sr-only">Admitted Students</span>
             </span>
             <router-link :to="'/cohort/' + cohort.id">{{ cohort.name }}</router-link> ({{ cohort.totalStudentCount }})
@@ -30,6 +30,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiStar} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

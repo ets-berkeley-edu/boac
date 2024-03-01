@@ -12,8 +12,8 @@
           variant="link"
           @click="updateCollapseStates"
         >
-          <font-awesome v-if="expanded" icon="caret-down" />
-          <font-awesome v-if="!expanded" icon="caret-right" />
+          <v-icon v-if="expanded" :icon="mdiMenuDown" />
+          <v-icon v-if="!expanded" :icon="mdiMenuRight" />
           {{ expanded ? 'Collapse' : 'Expand' }} all years
         </v-btn>
       </div>
@@ -27,10 +27,10 @@
         >
           Sort academic year
           <span v-if="currentOrder === 'desc' ">
-            <font-awesome icon="long-arrow-alt-down" />
+            <v-icon :icon="mdiArrowDownThin" />
           </span>
           <span v-if="currentOrder === 'asc' ">
-            <font-awesome icon="long-arrow-alt-up" />
+            <v-icon :icon="mdiArrowUpThin" />
           </span>
         </v-btn>
       </div>
@@ -60,8 +60,8 @@
         <div class="d-flex justify-content-between">
           <div class="align-items-start d-flex">
             <div class="pr-3">
-              <font-awesome icon="caret-right" class="when-academic-year-open" />
-              <font-awesome icon="caret-down" class="when-academic-year-closed" />
+              <v-icon :icon="mdiMenuRight" class="when-academic-year-open" />
+              <v-icon :icon="mdiMenuDown" class="when-academic-year-closed" />
             </div>
             <h3 class="page-section-header-sub m-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
           </div>
@@ -95,6 +95,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiArrowDownThin, mdiArrowUpThin, mdiMenuDown, mdiMenuRight} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

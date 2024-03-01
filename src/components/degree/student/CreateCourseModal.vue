@@ -8,7 +8,7 @@
         variant="link"
         @click.prevent="openModal"
       >
-        <font-awesome class="font-size-16" icon="plus" /> Manually Create Course
+        <v-icon class="font-size-16" :icon="mdiPlus" /> Manually Create Course
       </b-btn>
     </div>
     <b-modal
@@ -123,6 +123,10 @@
     </b-modal>
   </div>
 </template>
+
+<script setup>
+import {mdiPlus} from '@mdi/js'
+</script>
 
 <script>
 import AccentColorSelect from '@/components/degree/student/AccentColorSelect'

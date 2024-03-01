@@ -37,7 +37,7 @@
           variant="primary"
           @click="submit"
         >
-          <span v-if="isValidating || isSaving"><font-awesome icon="spinner" spin /> <span class="pl-1">Adding</span></span>
+          <span v-if="isValidating || isSaving"><v-progress-circular size="small" /> <span class="pl-1">Adding</span></span>
           <span v-if="!isValidating && !isSaving">{{ curatedGroupId ? 'Add' : 'Next' }}</span>
         </v-btn>
         <v-btn

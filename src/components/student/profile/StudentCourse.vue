@@ -22,9 +22,9 @@
           >
             {{ course.displayName }}
           </div>
-          <font-awesome icon="caret-right" class="caret when-course-closed" />
+          <v-icon :icon="mdiMenuRight" class="caret when-course-closed" />
           <span class="when-course-closed sr-only">Show {{ course.displayName }} class details for {{ student.name }}</span>
-          <font-awesome icon="caret-down" class="caret when-course-open" />
+          <v-icon :icon="mdiMenuDown" class="caret when-course-open" />
           <span class="when-course-open sr-only">Hide {{ course.displayName }} class details for {{ student.name }}</span>
         </v-btn>
         <div
@@ -46,10 +46,10 @@
           v-if="!course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
         ><span class="sr-only">No data</span>&mdash;</span>
-        <font-awesome
+        <v-icon
           v-if="isAlertGrade(course.midtermGrade) && !course.grade"
           :id="`term-${termId}-course-${index}-has-midterm-grade-alert`"
-          icon="exclamation-triangle"
+          :icon="mdiAlertRhombus"
           class="boac-exclamation"
         />
       </div>
@@ -64,11 +64,11 @@
           :id="`term-${termId}-course-${index}-final-grade`"
           class="font-italic text-muted"
         >{{ course.gradingBasis }}</span>
-        <font-awesome
+        <v-icon
           v-if="isAlertGrade(course.grade)"
           :id="`term-${termId}-course-${index}-has-grade-alert`"
           class="boac-exclamation ml-1"
-          icon="exclamation-triangle"
+          :icon="mdiAlertRhombus"
         />
         <IncompleteGradeAlertIcon
           v-if="sectionsWithIncompleteStatus.length"
@@ -125,7 +125,7 @@
       <div :id="`term-${termId}-course-${index}-title`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ course.title }}</div>
       <div v-if="course.courseRequirements">
         <div v-for="requirement in course.courseRequirements" :key="requirement" class="student-course-requirements">
-          <font-awesome :icon="['far', 'star']" class="text-warning" /> {{ requirement }}
+          <v-icon :icon="mdiStar" class="text-warning" /> {{ requirement }}
         </div>
       </div>
       <div v-if="currentUser.canAccessCanvasData">
@@ -266,7 +266,7 @@
         class="align-items-center d-flex pb-2"
       >
         <div class="align-items-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
-          <font-awesome class="mr-1" icon="info-circle" size="sm" />
+          <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
           <span class="font-size-12">Incomplete Grade</span>
         </div>
         <div :id="`term-${termId}-section-${section.ccn}-has-incomplete-grade`" class="font-size-14">
@@ -277,6 +277,11 @@
     </b-collapse>
   </div>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiInformationOutline, mdiMenuDown, mdiMenuRight, mdiStar} from '@mdi/js'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import IncompleteGradeAlertIcon from '@/components/student/IncompleteGradeAlertIcon'

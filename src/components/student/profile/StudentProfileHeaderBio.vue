@@ -52,7 +52,7 @@
           aria-label="Graduated"
           tooltip-placement="bottom"
         >
-          <font-awesome icon="graduation-cap" />
+          <v-icon :icon="mdiSchool" />
         </span>
       </div>
       <StudentAcademicStanding v-if="_get(student, 'sisProfile.academicStanding')" :standing="student.sisProfile.academicStanding" />
@@ -98,6 +98,10 @@
     </div>
   </div>
 </template>
+
+<script setup>
+import {mdiSchool} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

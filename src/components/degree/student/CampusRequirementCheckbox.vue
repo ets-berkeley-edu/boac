@@ -8,9 +8,9 @@
       button-variant="outline-transparent"
       @change="toggle"
     >
-      <font-awesome
+      <v-icon
         v-if="!canEdit"
-        :icon="isSatisfied ? 'check-square' : ['far', 'square']"
+        :icon="isSatisfied ? mdiCheckboxMarkedOutline : mdiSquareOutline"
         class="disabled-checkbox"
         :class="{'fully-opaque': printable}"
       />
@@ -18,6 +18,10 @@
     </b-form-checkbox>
   </div>
 </template>
+
+<script setup>
+import {mdiCheckboxMarkedOutline, mdiSquareOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

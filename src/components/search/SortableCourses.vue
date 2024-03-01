@@ -20,7 +20,7 @@
           >
             Section
             <span v-if="sort.by === 'section'">
-              <font-awesome :icon="sort.reverse.section ? 'caret-down' : 'caret-up'" />
+              <v-icon :icon="sort.reverse.section ? mdiMenuDown : mdiMenuUp" />
             </span>
           </button>
         </th>
@@ -33,7 +33,7 @@
           >
             Course Name
             <span v-if="sort.by === 'title'">
-              <font-awesome :icon="sort.reverse.title ? 'caret-down' : 'caret-up'" />
+              <v-icon :icon="sort.reverse.title ? mdiMenuDown : mdiMenuUp" />
             </span>
           </button>
         </th>
@@ -57,6 +57,10 @@
     </table>
   </div>
 </template>
+
+<script setup>
+import {mdiMenuDown, mdiMenuUp} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

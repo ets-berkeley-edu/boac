@@ -74,7 +74,7 @@
           @click="onSubmit"
         >
           <span v-if="isSaving">
-            <font-awesome class="mr-1" icon="spinner" spin /> Saving
+            <v-progress-circular class="mr-1" size="small" />
           </span>
           <span v-if="!isSaving">Save</span>
         </b-btn>

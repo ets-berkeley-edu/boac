@@ -47,7 +47,7 @@
           @click="isEditingNote = true"
         >
           <span class="m-1">
-            <font-awesome icon="file-alt" />
+            <v-icon :icon="mdiFileOutline" />
             New Note
           </span>
         </v-btn>
@@ -61,6 +61,10 @@
     />
   </div>
 </template>
+
+<script setup>
+import {mdiFileOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

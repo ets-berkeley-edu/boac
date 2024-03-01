@@ -11,7 +11,7 @@
                 target="_blank"
                 :to="`/degree/${parentTemplateId}`"
               >
-                original degree template <font-awesome icon="external-link-alt" class="pr-1" />
+                original degree template <v-icon :icon="mdiOpenInNew" class="pr-1" />
                 <span class="sr-only"> (will open new browser tab)</span>
               </router-link>
               have been made since the creation of <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}'s</span>
@@ -26,7 +26,7 @@
                 variant="link"
                 @click="dismissAlert(templateId)"
               >
-                <font-awesome icon="times" />
+                <v-icon :icon="mdiClose" />
                 <span class="sr-only">Dismiss alert</span>
               </b-btn>
             </div>
@@ -48,7 +48,7 @@
                 target="_blank"
                 :to="`/degree/${templateId}/print?includeNote=${includeNotesWhenPrint}`"
               >
-                <font-awesome class="mr-1" icon="print" />
+                <v-icon class="mr-1" :icon="mdiPrinterOutline" />
                 Print
                 <span class="sr-only"> (will open new browser tab)</span>
               </router-link>
@@ -175,7 +175,7 @@
                     @click="saveNote"
                   >
                     <span v-if="isSaving">
-                      <font-awesome class="mr-1" icon="spinner" spin /> Saving
+                      <v-progress-circular class="mr-1" size="small" />
                     </span>
                     <span v-if="!isSaving">Save Note</span>
                   </b-btn>
@@ -226,6 +226,10 @@
     </b-container>
   </div>
 </template>
+
+<script setup>
+import {mdiClose, mdiOpenInNew, mdiPrinterOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

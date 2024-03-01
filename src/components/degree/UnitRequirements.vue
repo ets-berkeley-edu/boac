@@ -22,7 +22,7 @@
                   Add unit requirement
                 </div>
                 <div>
-                  <font-awesome class="font-size-16" icon="plus" />
+                  <v-icon class="font-size-16" :icon="mdiPlus" />
                 </div>
               </div>
             </b-btn>
@@ -62,7 +62,7 @@
               >
                 <div class="d-flex text-left">
                   <div class="caret caret-column pale-blue">
-                    <font-awesome :icon="row.item.isExpanded ? 'caret-down' : 'caret-right'" />
+                    <v-icon :icon="row.item.isExpanded ? mdiMenuDown : mdiMenuRight" />
                   </div>
                   <div>
                     <span class="sr-only">{{ `${row.item.isExpanded ? 'Hide' : 'Show'} fulfillments of ` }}</span>
@@ -88,7 +88,7 @@
                   variant="link"
                   @click.prevent="onClickEdit(row.item)"
                 >
-                  <font-awesome icon="edit" />
+                  <v-icon :icon="mdiNoteEditOutline" />
                   <span class="sr-only">Edit {{ row.item.name }}</span>
                 </b-btn>
               </div>
@@ -101,7 +101,7 @@
                   variant="link"
                   @click.prevent="onClickDelete(row.item)"
                 >
-                  <font-awesome icon="trash-alt" />
+                  <v-icon :icon="mdiTrashCanOutline" />
                   <span class="sr-only">Delete {{ row.item.name }}</span>
                 </b-btn>
               </div>
@@ -124,6 +124,10 @@
     />
   </b-container>
 </template>
+
+<script setup>
+import {mdiMenuDown, mdiMenuRight, mdiNoteEditOutline, mdiPlus, mdiTrashCanOutline} from '@mdi/js'
+</script>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'

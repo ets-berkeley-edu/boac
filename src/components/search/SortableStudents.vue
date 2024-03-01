@@ -50,7 +50,7 @@
           aria-label="Inactive"
           tooltip-placement="bottom"
         >
-          <font-awesome icon="info-circle" />
+          <v-icon :icon="mdiInformationOutline" />
         </span>
         <span
           v-if="row.item.academicCareerStatus === 'Completed'"
@@ -59,7 +59,7 @@
           aria-label="Graduated"
           tooltip-placement="bottom"
         >
-          <font-awesome icon="graduation-cap" />
+          <v-icon :icon="mdiSchool" />
         </span>
       </template>
 
@@ -124,6 +124,10 @@
     </v-table>
   </div>
 </template>
+
+<script setup>
+import {mdiInformationOutline, mdiSchool} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'

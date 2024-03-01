@@ -1,6 +1,6 @@
 <template>
   <div v-if="loading" class="spinner">
-    <font-awesome :size="`${faSize}x`" icon="sync" spin />
+    <v-progress-circular :size="faSize" />
   </div>
 </template>
 

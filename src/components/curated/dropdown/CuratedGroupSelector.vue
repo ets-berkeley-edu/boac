@@ -43,7 +43,7 @@
               </div>
             </div>
             <div v-if="isSaving">
-              <font-awesome icon="check" /> Added to {{ domainLabel(true) }}
+              <v-icon :icon="mdiCheckBold" /> Added to {{ domainLabel(true) }}
             </div>
           </div>
         </template>
@@ -72,7 +72,7 @@
           variant="link"
           @click="showModal = true"
         >
-          <font-awesome icon="plus" />
+          <v-icon :icon="mdiPlus" />
           Create New {{ domainLabel(true) }}
         </b-dropdown-item>
       </b-dropdown>
@@ -94,7 +94,7 @@
 </template>
 
 <script setup>
-import {mdiMenuDown} from '@mdi/js'
+import {mdiMenuDown, mdiPlus} from '@mdi/js'
 </script>
 
 <script>

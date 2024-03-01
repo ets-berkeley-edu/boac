@@ -47,7 +47,7 @@
           variant="primary"
           @click.prevent="createClone"
         >
-          <span v-if="isSaving"><font-awesome class="mr-1" icon="spinner" spin /> Saving</span>
+          <span v-if="isSaving"><v-progress-circular class="mr-1" size="small" /> Saving</span>
           <span v-if="!isSaving">Save Copy</span>
         </b-btn>
         <b-btn

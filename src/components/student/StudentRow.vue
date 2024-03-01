@@ -17,7 +17,7 @@
               @click="onClickRemoveStudent(student)"
               @keyup.enter="onClickRemoveStudent(student)"
             >
-              <font-awesome icon="times-circle" class="font-size-24" />
+              <v-icon :icon="mdiCloseCircleOutline" class="font-size-24" />
               <span class="sr-only">Remove {{ student.firstName }} {{ student.lastName }}</span>
             </button>
           </div>
@@ -78,9 +78,9 @@
           v-if="_size(student.termGpa)"
           class="student-bio-status-legend profile-last-term-gpa-outer pl-0"
         >
-          <font-awesome
+          <v-icon
             v-if="student.termGpa[0].gpa < 2"
-            icon="exclamation-triangle"
+            :icon="mdiAlertRhombus"
             class="boac-exclamation mr-1"
           />
           <span :id="`row-${rowIndex}-student-gpa-term-name`">{{ student.termGpa[0].termName }}</span> GPA:
@@ -134,6 +134,10 @@
     </b-row>
   </b-container>
 </template>
+
+<script setup>
+import {mdiAlertRhombus, mdiCloseCircleOutline} from '@mdi/js'
+</script>
 
 <script>
 import Context from '@/mixins/Context'
