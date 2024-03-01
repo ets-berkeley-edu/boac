@@ -25,7 +25,7 @@ export default {
               }
             })
         .then(response => {
-          return response.data
+          return response
         })
         .catch(error => {
           console.log(error)

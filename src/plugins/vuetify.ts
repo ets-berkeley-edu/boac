@@ -1,6 +1,7 @@
 import 'vuetify/styles'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
+import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
@@ -10,6 +11,7 @@ import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDatePicker} from 'vuetify/components/VDatePicker'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
+import {VFileInput} from 'vuetify/components/VFileInput'
 import {VIcon} from 'vuetify/components/VIcon'
 import {VImg} from 'vuetify/components/VImg'
 import {VList, VListItem, VListItemAction, VListItemSubtitle, VListItemTitle} from 'vuetify/components/VList'
@@ -32,6 +34,7 @@ export default createVuetify({
     VApp,
     VAppBar,
     VAppBarTitle,
+    VAlert,
     VAutocomplete,
     VBtn,
     VCard,
@@ -47,6 +50,7 @@ export default createVuetify({
     VExpansionPanels,
     VExpansionPanelText,
     VExpansionPanelTitle,
+    VFileInput,
     VIcon,
     VImg,
     VList,
@@ -84,7 +88,8 @@ export default createVuetify({
       light: {
         colors: {
           alert: '#fef6e6',
-          error: '#b94a48',
+          'btn-secondary': '#6c757d',
+          error: '#cf1715',
           info: '#367DA1',
           primary: '#337ab7',
           red: colors.red.darken1,

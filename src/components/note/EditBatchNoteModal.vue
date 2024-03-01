@@ -1,123 +1,125 @@
 <template>
-  <div v-if="mode" role="dialog">
-    <focus-trap
-      v-model:active="isFocusLockActive"
-      class="create-note-container"
+  <v-overlay
+    class="justify-center overflow-auto"
+    :model-value="isOpen"
+    persistent
+    scroll-strategy="reposition"
+  >
+    <v-card
+      id="new-note-modal-container"
+      class="modal-content mt-3"
+      :class="{
+        'modal-content': ['createBatch', 'createNote', 'editDraft', 'editTemplate'].includes(mode),
+        'mt-4': ['createBatch', 'editDraft'].includes(mode)
+      }"
     >
-      <div
-        id="new-note-modal-container"
-        class="mt-3"
-        :class="{
-          'd-none': _isNil(mode),
-          'modal-content': ['createBatch', 'createNote', 'editDraft', 'editTemplate'].includes(mode),
-          'mt-4': ['createBatch', 'editDraft'].includes(mode)
-        }"
-      >
-        <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
-        <hr class="m-0" />
-        <div class="mt-2 mr-3 mb-1 ml-3">
-          <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
-            <div v-show="mode !== 'editTemplate'">
-              <BatchNoteFeatures :cancel="cancelRequested" />
-              <hr />
-            </div>
-          </Transition>
-          <div class="ml-2 mr-3 mt-2 pl-2 pr-2">
-            <v-alert
-              id="alert-in-note-modal"
-              v-model="dismissAlertSeconds"
-              class="font-weight-bolder w-100"
-              closable
-              color="info"
-              aria-live="polite"
-              role="alert"
-              @dismiss-count-down="dismissAlert"
-            >
-              <div class="d-flex">
-                <div v-if="isSaving" class="mr-2">
-                  <v-icon :icon="sync" spin />
-                </div>
-                <div>{{ alert }}</div>
+      <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
+      <hr class="m-0" />
+      <div class="mt-2 mr-3 mb-1 ml-3">
+        <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
+          <div v-show="mode !== 'editTemplate'">
+            <BatchNoteFeatures :cancel="cancelRequested" />
+            <hr />
+          </div>
+        </Transition>
+        <div class="ml-2 mr-3 mt-2 pl-2 pr-2">
+          <v-alert
+            id="alert-in-note-modal"
+            :v-model="!!dismissAlertSeconds"
+            class="font-weight-bolder w-100"
+            closable
+            color="info"
+            aria-live="polite"
+            role="alert"
+            @dismiss-count-down="dismissAlert"
+          >
+            <div class="d-flex">
+              <div v-if="isSaving" class="mr-2">
+                <v-icon :icon="sync" spin />
               </div>
-            </v-alert>
-          </div>
-          <div>
-            <label
-              id="create-note-subject-label"
-              for="create-note-subject"
-              class="font-size-14 font-weight-bolder mb-1"
-            >
-              <span class="sr-only">Note </span>Subject
-            </label>
-          </div>
-          <div>
-            <input
-              id="create-note-subject"
-              :value="model.subject"
-              :disabled="isSaving || boaSessionExpired"
-              :class="{'bg-light': isSaving}"
-              aria-labelledby="create-note-subject-label"
-              class="cohort-create-input-name"
-              maxlength="255"
-              type="text"
-              @input="setSubjectPerEvent"
-              @keydown.esc="cancelRequested"
-            >
-          </div>
-          <div id="note-details">
-            <RichTextEditor
-              :disabled="isSaving || boaSessionExpired"
-              :initial-value="model.body || ''"
-              :is-in-modal="true"
-              label="Note Details"
-              :on-value-update="setBody"
-              :show-advising-note-best-practices="true"
-            />
-          </div>
+              <div>{{ alert }}</div>
+            </div>
+          </v-alert>
         </div>
         <div>
-          <div class="mt-2 mr-3 mb-1 ml-3">
-            <AdvisingNoteTopics
-              :key="mode"
-              :add-topic="addTopic"
-              :disabled="isSaving || boaSessionExpired"
-              :remove-topic="removeTopic"
-              :topics="model.topics"
-            />
-          </div>
-          <div class="mt-2 mr-3 mb-3 ml-3">
-            <PrivacyPermissions
-              v-if="currentUser.canAccessPrivateNotes"
-              :disabled="isSaving || boaSessionExpired"
-            />
-          </div>
-          <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
-            <div key="0" class="mt-2 mr-3 mb-3 ml-3">
-              <ContactMethod :disabled="isSaving || boaSessionExpired" />
-            </div>
-            <div key="1" class="mt-2 mb-3 ml-3">
-              <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
-            </div>
-          </TransitionGroup>
-          <div class="mt-2 mr-3 mb-1 ml-3">
-            <AdvisingNoteAttachments
-              :add-attachments="addNoteAttachments"
-              :disabled="isSaving || boaSessionExpired"
-              :existing-attachments="model.attachments"
-            />
-          </div>
+          <label
+            id="create-note-subject-label"
+            for="create-note-subject"
+            class="font-size-14 font-weight-bolder mb-1"
+          >
+            <span class="sr-only">Note </span>Subject
+          </label>
         </div>
-        <hr class="my-2" />
         <div>
-          <CreateNoteFooter
-            :cancel="cancelRequested"
-            :save-as-template="saveAsTemplate"
-            :update-note="updateNote"
-            :update-template="updateTemplate"
+          <v-text-field
+            id="create-note-subject"
+            :v-model="model.subject"
+            aria-labelledby="create-note-subject-label"
+            :class="{'bg-light': isSaving}"
+            color="primary"
+            density="compact"
+            :disabled="isSaving || boaSessionExpired"
+            maxlength="255"
+            type="text"
+            variant="outlined"
+            @input="setSubjectPerEvent"
+            @keydown.esc="cancelRequested"
+          ></v-text-field>
+        </div>
+        <div id="note-details">
+          <RichTextEditor
+            v-if="isOpen"
+            :disabled="isSaving || boaSessionExpired"
+            :initial-value="model.body || ''"
+            :is-in-modal="true"
+            label="Note Details"
+            :on-value-update="setBody"
+            :show-advising-note-best-practices="true"
           />
         </div>
       </div>
-    </focus-trap>
+      <div>
+        <div class="mt-2 mr-3 mb-1 ml-3">
+          <AdvisingNoteTopics
+            :key="mode"
+            :add-topic="addTopic"
+            :disabled="isSaving || boaSessionExpired"
+            :remove-topic="removeTopic"
+            :topics="model.topics"
+          />
+        </div>
+        <div class="mt-2 mr-3 mb-3 ml-3">
+          <PrivacyPermissions
+            v-if="currentUser.canAccessPrivateNotes"
+            :disabled="isSaving || boaSessionExpired"
+          />
+        </div>
+        <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
+          <div key="0" class="mt-2 mr-3 mb-3 ml-3">
+            <ContactMethod :disabled="isSaving || boaSessionExpired" />
+          </div>
+          <div key="1" class="mt-2 mb-3 ml-3">
+            <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
+          </div>
+        </TransitionGroup>
+        <div class="mt-2 mr-3 mb-1 ml-3">
+          <AdvisingNoteAttachments
+            :add-attachments="addNoteAttachments"
+            :disabled="isSaving || boaSessionExpired"
+            :existing-attachments="model.attachments"
+          />
+        </div>
+      </div>
+      <hr class="my-2" />
+      <div>
+        <CreateNoteFooter
+          :cancel="cancelRequested"
+          :save-as-template="saveAsTemplate"
+          :update-note="updateNote"
+          :update-template="updateTemplate"
+        />
+      </div>
+    </v-card>
     <AreYouSureModal
       v-if="showDiscardNoteModal"
       :function-cancel="cancelDiscardNote"
@@ -139,7 +141,7 @@
       :show-modal="showDiscardTemplateModal"
       modal-header="Discard unsaved template?"
     />
-  </div>
+  </v-overlay>
 </template>
 
 <script>
@@ -157,10 +159,11 @@ import NoteEditSession from '@/mixins/NoteEditSession'
 import PrivacyPermissions from '@/components/note/PrivacyPermissions'
 import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
-import {useContextStore} from '@/stores/context'
 import {addAttachments, createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
+import {exitSession} from '@/stores/note-edit-session/utils'
 import {getUserProfile} from '@/api/user'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
@@ -183,6 +186,10 @@ export default {
     initialMode: {
       required: true,
       type: String
+    },
+    isOpen: {
+      required: true,
+      type: Boolean
     },
     noteId: {
       default: undefined,
@@ -208,33 +215,10 @@ export default {
     showDiscardTemplateModal: false,
     showErrorPopover: false
   }),
-  computed: {
-    isFocusLockActive() {
-      return !this.isFocusLockDisabled
-    }
-  },
-  created() {
-    // remove scrollbar for content behind the modal
-    document.body.classList.add('modal-open')
-    getMyNoteTemplates().then(this.setNoteTemplates)
-    this.resetModel()
-    this.init().then(note => {
-      const onFinish = () => {
-        this.setMode(this.initialMode)
-        this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-        this.setEventHandler('user-session-expired', this.onBoaSessionExpires)
-      }
-      this.setModel(note)
-      if (note.sid) {
-        useNoteStore().setNoteRecipient(note.sid).then(onFinish)
-      } else {
-        onFinish()
-      }
-    })
-  },
-  beforeUnmount() {
-    document.body.classList.remove('modal-open')
-    this.removeEventHandler('user-session-expired', this.onBoaSessionExpires)
+  watch: {
+    isOpen(newVal) {
+      this.onChangeIsOpen(newVal)
+    },
   },
   methods: {
     addNoteAttachments(attachments) {
@@ -336,7 +320,7 @@ export default {
     exit(revert) {
       this.alert = this.dismissAlertSeconds = undefined
       this.showCreateTemplateModal = this.showDiscardNoteModal = this.showDiscardTemplateModal = this.showErrorPopover = false
-      useNoteStore().exitSession(revert).then(this.onClose)
+      exitSession(revert).then(this.onClose)
     },
     init() {
       return new Promise(resolve => {
@@ -360,6 +344,31 @@ export default {
           onReject()
         }
       })
+    },
+    onChangeIsOpen(isOpen) {
+      if (isOpen) {
+        // remove scrollbar for content behind the modal
+        document.body.classList.add('modal-open')
+        getMyNoteTemplates().then(this.setNoteTemplates)
+        this.resetModel()
+        this.init().then(note => {
+          const onFinish = () => {
+            this.setMode(this.initialMode)
+            this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
+            this.setEventHandler('user-session-expired', this.onBoaSessionExpires)
+          }
+          this.setModel(note)
+          if (note.sid) {
+            useNoteStore().setNoteRecipient(note.sid).then(onFinish)
+          } else {
+            onFinish()
+          }
+        })
+      } else {
+        this.setMode(undefined)
+        document.body.classList.remove('modal-open')
+        this.removeEventHandler('user-session-expired', this.onBoaSessionExpires)
+      }
     },
     saveAsTemplate() {
       this.setIsSaving(true)
@@ -445,23 +454,11 @@ export default {
   overflow: hidden;
   max-height: 0;
 }
-.create-note-container {
-  background-color: rgb(0,0,0);
-  background-color: rgba(0,0,0,0.4);
-  display: block;
-  height: 100%;
-  left: 0;
-  overflow: auto;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 100;
-}
 .modal-content {
   background-color: #fff;
   margin: 140px auto auto auto;
+  min-width: 400px;
   padding-bottom: 20px;
-  border: 1px solid #888;
   width: 60%;
 }
 </style>

@@ -5,21 +5,9 @@
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>
     <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote" class="w-100">
-      <div class="choose-attachment-file-wrapper h-100 no-wrap pl-3 pr-3 w-100">
-        Add attachment:
-        <v-btn
-          id="choose-file-for-note-attachment"
-          :disabled="disabled"
-          aria-hidden="true"
-          class="btn-file-upload mt-2 mb-2"
-          size="sm"
-          type="file"
-          variant="outlined"
-          @keydown.enter.prevent="clickBrowseForAttachment"
-        >
-          Select File
-        </v-btn>
+      <div class="choose-attachment-file-wrapper font-size-14 h-100 no-wrap pl-3 pr-3 w-100">
         <v-file-input
+          id="choose-file-for-note-attachment"
           ref="attachment-file-input"
           v-model="attachments"
           aria-label="Select file for attachment"
@@ -27,8 +15,28 @@
           :disabled="disabled || _size(existingAttachments) === config.maxAttachmentsPerNote"
           :error="Boolean(attachments && attachments.length)"
           multiple
+          :prepend-icon="null"
           variant="plain"
-        ></v-file-input>
+        >
+          <template #label>
+            <div class="font-size-14">
+              Add attachment:
+              <v-btn
+                id="choose-file-for-note-attachment-btn"
+                :disabled="disabled"
+                aria-hidden="true"
+                class="mt-2 mb-2 px-2"
+                density="comfortable"
+                hide-details
+                type="file"
+                variant="outlined"
+                @keydown.enter.prevent="clickBrowseForAttachment"
+              >
+                Select File
+              </v-btn>
+            </div>
+          </template>
+        </v-file-input>
       </div>
     </div>
     <div v-if="_size(existingAttachments) >= config.maxAttachmentsPerNote" class="w-100">
@@ -123,3 +131,11 @@ export default {
   }
 }
 </script>
+
+<style lang="scss">
+.choose-attachment-file-wrapper {
+  label {
+    width: 100%;
+  }
+}
+</style>

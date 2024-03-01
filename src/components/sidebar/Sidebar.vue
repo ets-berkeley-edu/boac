@@ -46,24 +46,23 @@
       </div>
       <div
         v-if="!currentUser.isAdmin"
-        class="d-flex justify-content-center mb-3 pl-3 sidebar"
+        class="d-flex justify-content-center mb-3 px-3 sidebar"
       >
         <v-btn
           id="batch-note-button"
+          class="mt-1 w-100"
+          color="primary"
           :disabled="!!mode"
-          class="btn-primary-color-override btn-primary-color-override-opaque mr-2 mt-1 w-100"
           @click="isCreateNoteModalOpen = true"
         >
-          <span class="m-1">
-            <v-icon class="mr-2" :icon="mdiFileDocument" />
-            New Note
-          </span>
+          <v-icon class="mr-1" :icon="mdiFileDocument" />
+          New Note
         </v-btn>
       </div>
     </div>
     <EditBatchNoteModal
-      v-if="isCreateNoteModalOpen"
       initial-mode="createBatch"
+      :is-open="isCreateNoteModalOpen"
       :on-close="onCreateNoteModalClose"
     />
   </div>
@@ -80,6 +79,7 @@ import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
+import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util.vue'
 
 export default {
@@ -91,7 +91,11 @@ export default {
     LinkToDraftNotes,
     MyAdmitCohorts
   },
-  mixins: [Context, Util],
+  mixins: [
+    Context,
+    NoteEditSession,
+    Util,
+  ],
   data: () => ({
     isCreateNoteModalOpen: false
   }),

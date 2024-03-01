@@ -30,6 +30,7 @@
     "numeral": "2.0.6",
     "pinia": "2.1.7",
     "roboto-fontface": "*",
+    "v-calendar": "^3.1.2",
     "vue": "3.4.21",
     "vue-router": "4.3.0",
     "vue3-shortkey": "4.0.0",

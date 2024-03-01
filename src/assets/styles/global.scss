@@ -1,10 +1,40 @@
 @forward "variables";
 
+.choose-attachment-file-wrapper {
+  position: relative;
+  align-items: center;
+  overflow: hidden;
+  display: inline-block;
+  background-color: #f7f7f7;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  text-align: center;
+}
+.choose-attachment-file-wrapper input[type=file] {
+  font-size: 100px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+}
+.choose-attachment-file-wrapper:hover,
+.choose-attachment-file-wrapper:focus,
+.choose-attachment-file-wrapper:active
+{
+  color: #333;
+  background-color: #eee;
+}
 .font-size-12 {
   font-size: 12px;
 }
 .font-size-14 {
   font-size: 14px;
+}
+.font-size-24 {
+  font-size: 24px;
+}
+.modal-open {
+  overflow: hidden;
 }
 .section-divider {
   background-color: #4a90e2;
@@ -36,4 +66,10 @@ a {
 a:hover {
   color: #0056b3;
   text-decoration: underline
+}
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid rgba(0,0,0,.1)
 }

@@ -8,16 +8,14 @@
         </ul>
       </v-expansion-panel>
     </v-expansion-panels>
-    <div>
-      <label
-        for="create-note-add-student-input"
-        class="font-size-14 input-label text mt-2 mb-0"
-      >
-        <span class="font-weight-bolder">Student</span>
-      </label>
-      <div class="mb-2">
-        Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
-      </div>
+    <label
+      for="create-note-add-student-input"
+      class="font-size-14 input-label text mt-2 mb-0"
+    >
+      <span class="font-weight-bolder">Student</span>
+    </label>
+    <div class="mb-2">
+      Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
     </div>
     <div class="mb-2">
       <InputTextAutocomplete

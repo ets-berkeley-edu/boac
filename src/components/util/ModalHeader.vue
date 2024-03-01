@@ -34,3 +34,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.modal-header {
+  align-items: flex-start;
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+}
+</style>
