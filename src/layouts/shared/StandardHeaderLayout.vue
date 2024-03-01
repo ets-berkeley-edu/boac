@@ -53,7 +53,7 @@
             />
             <v-tooltip
               v-model="showErrorPopover"
-              attach="search-students-input"
+              target="search-students-input"
               location="top"
             >
               <span

@@ -46,13 +46,15 @@ export default {
   name: 'Home',
   components: {SortableGroup, Spinner},
   mixins: [Context, Util],
-  data: () => ({
-    cohorts: undefined,
-    curatedGroups: undefined
-  }),
+  computed: {
+    cohorts() {
+      return this._filter(this.currentUser.myCohorts, ['domain', 'default'])
+    },
+    curatedGroups() {
+      return this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
+    },
+  },
   mounted() {
-    this.cohorts = this._filter(this.currentUser.myCohorts, ['domain', 'default'])
-    this.curatedGroups = this._filter(this.currentUser.myCuratedGroups, ['domain', 'default'])
     this.loadingComplete()
     scrollToTop()
   }

@@ -1,8 +1,8 @@
-# Face-off: Old vs. New
+# Face/Off: Old vs. New
 
 Conversion guides and notes.
 
-![Picture of an airplane flying above the clouds](font-awesome-and-mdi-faceoff.png)
+![Face/Off movie poster](font-awesome-and-mdi-faceoff.png)
 
 ## Icons
 Font Awesome to MDI
