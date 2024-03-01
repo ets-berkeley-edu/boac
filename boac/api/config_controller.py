@@ -59,7 +59,6 @@ def app_config():
         ) + ['Campus Requirements'],
         'degreeProgressColorCodes': ACCENT_COLOR_CODES,
         'devAuthEnabled': app.config['DEVELOPER_AUTH_ENABLED'],
-        'disableMatrixViewThreshold': app.config['DISABLE_MATRIX_VIEW_THRESHOLD'],
         'draftNoteSubjectPlaceholder': '[DRAFT NOTE]',
         'ebEnvironment': app.config['EB_ENVIRONMENT'] if 'EB_ENVIRONMENT' in app.config else None,
         'ec2InstanceId': os.environ.get('EC2_INSTANCE_ID'),

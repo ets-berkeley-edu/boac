@@ -1,7 +1,7 @@
 <template>
   <div class="w-100">
     <Spinner />
-    <div v-if="!loading && !isToggling && error">
+    <div v-if="!loading && error">
       <h1 class="page-section-header">Error</h1>
       <div class="faint-text">
         <span v-if="error.message">{{ error.message }}</span>
@@ -72,8 +72,8 @@
           </div>
         </div>
       </div>
-      <SectionSpinner :loading="!loading && isToggling" />
-      <div v-if="!loading && !isToggling">
+      <SectionSpinner :loading="!loading" />
+      <div v-if="!loading">
         <h2 class="sr-only">Students</h2>
         <div v-if="!section.totalStudentCount" class="d-flex ml-3 mt-3">
           <span class="has-error"><v-icon :icon="mdiAlertRhombus" /></span>
@@ -88,35 +88,6 @@
               :students="section.students"
               class="mr-2"
             />
-          </div>
-          <div v-if="!matrixDisabledMessage" class="d-flex mb-2 text-nowrap">
-            <v-btn-group
-              id="tabs-button-group"
-              :aria-label="`You are in ${tab} view. Click button to enter ${tab === 'list' ? 'matrix' : 'list'} view.`"
-            >
-              <v-btn
-                id="btn-tab-list"
-                class="tab-button"
-                :class="{'tab-button-selected': tab === 'list'}"
-                :disabled="tab === 'list'"
-                variant="secondary"
-                @click="toggleView('list')"
-                @keyup.enter="toggleView('list')"
-              >
-                <v-icon :icon="mdiFormatListBulleted" /> List
-              </v-btn>
-              <v-btn
-                id="btn-tab-matrix"
-                class="tab-button"
-                :class="{'tab-button-selected': tab === 'matrix'}"
-                :disabled="tab === 'matrix'"
-                variant="secondary"
-                @click="toggleView('matrix')"
-                @keyup.enter="toggleView('matrix')"
-              >
-                <v-icon :icon="mdiTable" /> Matrix
-              </v-btn>
-            </v-btn-group>
           </div>
           <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-items-center d-flex ml-auto mr-3">
             <div id="view-per-page-label" class="pr-1">
@@ -156,37 +127,29 @@
             </div>
           </div>
         </div>
-        <div v-if="tab === 'matrix' && !isToggling && !loading && !error" id="matrix-outer" class="ml-3 mt-3">
-          <Matrix :featured="featured" :section="section" />
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {mdiAlertRhombus, mdiFormatListBulleted, mdiTable} from '@mdi/js'
+import {mdiAlertRhombus} from '@mdi/js'
 </script>
 
 <script>
 import Context from '@/mixins/Context'
 import CourseStudents from '@/components/course/CourseStudents'
 import CuratedGroupSelector from '@/components/curated/dropdown/CuratedGroupSelector'
-import ga from '@/lib/ga'
-import Matrix from '@/components/matrix/Matrix'
 import Pagination from '@/components/util/Pagination'
 import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
-import {getSection} from '@/api/course'
-import {hasMatrixPlottableProperty} from '@/berkeley'
 import {scrollToTop} from '@/lib/utils'
 
 export default {
   name: 'Course',
   components: {
     CourseStudents,
-    Matrix,
     Pagination,
     SectionSpinner,
     CuratedGroupSelector,
@@ -196,8 +159,6 @@ export default {
   data: () => ({
     error: null,
     featured: null,
-    isToggling: false,
-    matrixDisabledMessage: null,
     meetings: undefined,
     pagination: {
       currentPage: 1,
@@ -209,26 +170,32 @@ export default {
       students: []
     },
     sectionId: undefined,
-    tab: 'list',
     termId: undefined
   }),
   created() {
     this.sectionId = this.$route.params.sectionId
     this.termId = this.$route.params.termId
-    this.tab = this._includes(['list', 'matrix'], this.$route.query.tab) ? this.$route.query.tab : this.tab
-    this.initPagination()
-    this.toggleView(this.tab, 'course-header')
+    if (this.$route.query.p && !isNaN(this.$route.query.p)) {
+      this.pagination.currentPage = parseInt(this.$route.query.p, 10)
+    }
+    if (this.$route.query.s && !isNaN(this.$route.query.s)) {
+      const itemsPerPage = parseInt(this.$route.query.s, 10)
+      if (this._includes(this.pagination.options, itemsPerPage)) {
+        this.pagination.itemsPerPage = itemsPerPage
+      } else {
+        this.$router.push({
+          query: {...this.$route.query, s: this.pagination.itemsPerPage}
+        })
+      }
+    }
+    if (this.$route.query.u) {
+      this.featured = this.$route.query.u
+    }
   },
   mounted() {
     scrollToTop()
   },
   methods: {
-    exceedsMatrixThreshold(studentCount) {
-      return (
-        parseInt(studentCount, 10) >
-        parseInt(this.config.disableMatrixViewThreshold, 10)
-      )
-    },
     featureSearchedStudent(data) {
       const section = this._clone(data)
       const subject = this._remove(section.students, student => {
@@ -251,82 +218,10 @@ export default {
         query: {...this.$route.query, p: this.pagination.currentPage}
       })
     },
-    initPagination() {
-      if (this.$route.query.p && !isNaN(this.$route.query.p)) {
-        this.pagination.currentPage = parseInt(this.$route.query.p, 10)
-      }
-      if (this.$route.query.s && !isNaN(this.$route.query.s)) {
-        const itemsPerPage = parseInt(this.$route.query.s, 10)
-        if (this._includes(this.pagination.options, itemsPerPage)) {
-          this.pagination.itemsPerPage = itemsPerPage
-        } else {
-          this.$router.push({
-            query: {...this.$route.query, s: this.pagination.itemsPerPage}
-          })
-        }
-      }
-      if (this.$route.query.u) {
-        this.featured = this.$route.query.u
-      }
-    },
-    loadListView() {
-      const limit = this.pagination.itemsPerPage
-      const offset = this.pagination.currentPage === 0 ? 0 : (this.pagination.currentPage - 1) * limit
-      ga.course('view', this.section.displayName)
-      return getSection(this.termId, this.sectionId, offset, limit, this.featured)
-    },
-    loadMatrixView() {
-      ga.course('matrix', this.section.displayName)
-      return getSection(this.termId, this.sectionId)
-    },
-    partitionPlottableStudents() {
-      const xAxisMeasure = this._get(this, 'selectedAxes.x') || 'analytics.currentScore'
-      const yAxisMeasure = this._get(this, 'selectedAxes.y') || 'cumulativeGPA'
-      return this._partition(
-        this.section.students,
-        student =>
-          hasMatrixPlottableProperty(student, xAxisMeasure) &&
-          hasMatrixPlottableProperty(student, yAxisMeasure)
-      )
-    },
     resizePage(itemsPerPage) {
-      this.isToggling = true
       const previousItemsPerPage = this.pagination.itemsPerPage
       this.pagination.itemsPerPage = itemsPerPage
       this.pagination.currentPage = Math.round(this.pagination.currentPage * (previousItemsPerPage / this.pagination.itemsPerPage))
-      this.toggleView(this.tab)
-    },
-    toggleView(tabName, focusAfter) {
-      this.isToggling = true
-      this.tab = tabName
-      this.alertScreenReader(`Loading ${this.tab} view of ${this.section.title || this.section.displayName}`)
-
-      const done = data => {
-        this.setPageTitle(data.displayName)
-        this.section = this.featureSearchedStudent(data)
-        this.meetings = this._orderBy(this.section.meetings, ['startDate'], ['asc'])
-        let totalStudentCount = this._get(this.section, 'totalStudentCount')
-        if (this.exceedsMatrixThreshold(totalStudentCount)) {
-          this.matrixDisabledMessage = `Sorry, the matrix view is only available when total student count is below ${this.config.disableMatrixViewThreshold}. Please narrow your search.`
-        } else {
-          if (this.partitionPlottableStudents()[0].length === 0) {
-            this.matrixDisabledMessage = 'No student data is available to display.'
-          } else {
-            this.matrixDisabledMessage = null
-          }
-        }
-        this.isToggling = false
-        let message = `Course ${data.displayName} loaded in ${tabName} view. `
-        if (tabName === 'matrix' || totalStudentCount < this.pagination.itemsPerPage) {
-          message += `Showing all ${totalStudentCount} students.`
-        } else {
-          message += `Showing ${this.pagination.itemsPerPage} of ${totalStudentCount} total students.`
-        }
-        this.loadingComplete(message)
-        this.putFocusNextTick(focusAfter || `btn-tab-${this.tab === 'list' ? 'matrix' : 'list'}`)
-      }
-      const loadView = tabName === 'matrix' ? this.loadMatrixView : this.loadListView
-      loadView().then(done)
     }
   }
 }
@@ -364,26 +259,5 @@ export default {
 .course-term-name {
   font-size: 16px;
   font-weight: bold;
-}
-.tab-button {
-  background-color: #6bd;
-  border: 1px solid transparent;
-  color: #fff;
-  font-size: 14px;
-  opacity: 1;
-}
-.tab-button:hover {
-  color: #cef;
-}
-.tab-button:disabled {
-  cursor: not-allowed;
-}
-.tab-button-selected {
-  background-color: #49b;
-}
-.tab-button-selected:active,
-.tab-button-selected:focus {
-  color: #fff;
-  outline: none !important;
 }
 </style>

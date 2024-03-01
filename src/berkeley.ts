@@ -179,23 +179,8 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
   return description
 }
 
-export function getMatrixPlottableProperty(obj, prop) {
-  if (_.has(obj, prop + '.percentile')) {
-    return _.get(obj, prop + '.percentile')
-  }
-  return _.get(obj, prop)
-}
-
 export function getSectionsWithIncompleteStatus(sections) {
   return _.filter(sections, 'incompleteStatusCode')
-}
-
-export function hasMatrixPlottableProperty(obj, prop) {
-  // In the case of cumulative GPA, zero indicates missing data rather than a real zero.
-  if (prop === 'cumulativeGPA') {
-    return !!getMatrixPlottableProperty(obj, prop)
-  }
-  return _.isFinite(getMatrixPlottableProperty(obj, prop))
 }
 
 export function isAdvisor(user) {
