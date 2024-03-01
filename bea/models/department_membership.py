@@ -24,21 +24,9 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class Term(object):
+class DepartmentMembership(object):
 
-    def __init__(self, data):
-        self.data = data
-
-    # Hyphenated code
-    @property
-    def code(self):
-        return self.data['code']
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    # 4-digit code
-    @property
-    def sis_id(self):
-        return self.data['sis_id']
+    def __init__(self, advisor_role, dept, is_automated):
+        self.advisor_role = advisor_role
+        self.dept = dept
+        self.is_automated = is_automated

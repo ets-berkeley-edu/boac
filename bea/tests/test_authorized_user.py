@@ -35,12 +35,10 @@ from selenium.webdriver.support.wait import WebDriverWait as Wait
 @pytest.mark.usefixtures('page_objects')
 class TestAuthorizedUser:
 
-    auth_user = User(
-        {
-            'uid': utils.get_admin_uid(),
-            'username': utils.get_admin_username(),
-        },
-    )
+    auth_user = User({
+        'uid': utils.get_admin_uid(),
+        'username': utils.get_admin_username(),
+    })
 
     def test_record_each_login(self):
         initial_logins = boa_utils.get_user_login_count(self.auth_user)

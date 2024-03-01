@@ -23,22 +23,23 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from bea.models.cohort import Cohort
 
-class Term(object):
 
-    def __init__(self, data):
-        self.data = data
-
-    # Hyphenated code
-    @property
-    def code(self):
-        return self.data['code']
+class FilteredCohort(Cohort):
 
     @property
-    def name(self):
-        return self.data['name']
+    def search_criteria(self):
+        return self.data['search_criteria']
 
-    # 4-digit code
+    @search_criteria.setter
+    def search_criteria(self, value):
+        self.data['search_criteria'] = value
+
     @property
-    def sis_id(self):
-        return self.data['sis_id']
+    def history(self):
+        return self.data['history']
+
+    @history.setter
+    def history(self, value):
+        self.data['history'] = value
