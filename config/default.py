@@ -110,8 +110,6 @@ DATA_LOCH_SIS_SCHEMA = 'sis_data'
 DATA_LOCH_STUDENT_SCHEMA = 'student'
 DATA_LOCH_TERMS_SCHEMA = 'terms'
 
-DISABLE_MATRIX_VIEW_THRESHOLD = 800
-
 # In demo mode, student profile pictures and sensitive data will be blurred.
 DEMO_MODE_AVAILABLE = False
 
