@@ -23,22 +23,54 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from enum import Enum
 
-class Term(object):
+
+class AcademicStanding(object):
 
     def __init__(self, data):
         self.data = data
 
-    # Hyphenated code
     @property
-    def code(self):
-        return self.data['code']
+    def standing(self):
+        return self.data['standing']
+
+    @standing.setter
+    def standing(self, value):
+        self.data['standing'] = value
 
     @property
-    def name(self):
-        return self.data['name']
+    def term(self):
+        return self.data['term']
 
-    # 4-digit code
+    @term.setter
+    def term(self, value):
+        self.data['term'] = value
+
     @property
-    def sis_id(self):
-        return self.data['sis_id']
+    def date(self):
+        return self.data['date']
+
+    @date.setter
+    def date(self, value):
+        self.data['date'] = value
+
+
+class AcademicStandings(Enum):
+
+    DIS = {
+        'code': 'DIS',
+        'descrip': 'Dismissed',
+    }
+    GST = {
+        'code': 'GST',
+        'descrip': 'Good Standing',
+    }
+    PRO = {
+        'code': 'PRO',
+        'descrip': 'Probation',
+    }
+    SUB = {
+        'code': 'SUB',
+        'descrip': 'Subject to Dismissal',
+    }

@@ -47,6 +47,9 @@ TERM_NAME = 'Spring 2024'
 TERM_SIS_ID = '2242'
 TERM_START_DATE = '2024-01-16'
 
+TEST_DATA = f'{BASE_DIR}/bea/fixtures/bea-test-data.json'
+TEST_DEFAULT_COHORT_MAJOR = 'History BA'
+
 TESTING = True
 
 TIMEOUT_SHORT = 20

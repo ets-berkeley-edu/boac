@@ -24,21 +24,47 @@ ENHANCEMENTS, OR MODIFICATIONS.
 """
 
 
-class Term(object):
+class Cohort(object):
 
     def __init__(self, data):
         self.data = data
 
-    # Hyphenated code
     @property
-    def code(self):
-        return self.data['code']
+    def cohort_id(self):
+        return self.data['id']
+
+    @cohort_id.setter
+    def cohort_id(self, value):
+        self.data['id'] = value
 
     @property
     def name(self):
         return self.data['name']
 
-    # 4-digit code
+    @name.setter
+    def name(self, value):
+        self.data['name'] = value
+
     @property
-    def sis_id(self):
-        return self.data['sis_id']
+    def ce3(self):
+        return self.data['ce3']
+
+    @ce3.setter
+    def ce3(self, value):
+        self.data['ce3'] = value
+
+    @property
+    def owner_uid(self):
+        return self.data['owner_uid']
+
+    @owner_uid.setter
+    def owner_uid(self, value):
+        self.data['owner_uid'] = value
+
+    @property
+    def members(self):
+        return self.data['members']
+
+    @members.setter
+    def members(self, value):
+        self.data['members'] = value

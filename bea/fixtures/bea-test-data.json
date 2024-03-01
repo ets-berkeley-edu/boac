@@ -1,0 +1,559 @@
+{
+    "filters": {
+        "students": [
+            {
+                "academic_careers": [
+                    {
+                        "career": "Undergraduate"
+                    }
+                ],
+                "visa_types": [
+                    {
+                        "visa_type": "J1"
+                    }
+                ]
+            },
+            {
+                "levels": [
+                    {
+                        "level": "30"
+                    },
+                    {
+                        "level": "40"
+                    },
+                    {
+                        "level": "5"
+                    }
+                ],
+                "ethnicities": [
+                    {
+                        "ethnicity": "Puerto Rican"
+                    }
+                ]
+            },
+            {
+                "incomplete_sched_grades": [
+                    {
+                        "min": "2023-03-17",
+                        "max": "2023-09-28"
+                    }
+                ]
+            },
+            {
+                "colleges": [
+                    {
+                        "college": "Undergrad Engineering"
+                    },
+                    {
+                        "college": "Undergrad Letters & Science"
+                    }
+                ],
+                "visa_types": [
+                    {
+                        "visa_type": "F1"
+                    },
+                    {
+                        "visa_type": "J1"
+                    }
+                ],
+                "ethnicities": [
+                    {
+                        "ethnicity": "Other Spanish-American / Latino"
+                    }
+                ],
+                "incomplete_grades": [
+                    {
+                        "grade": "Frozen"
+                    },
+                    {
+                        "grade": "Failing grade, formerly an incomplete"
+                    },
+                    {
+                        "grade": "Passing grade, formerly an incomplete"
+                    },
+                    {
+                        "grade": "Scheduled to become an F/NP"
+                    }
+                ]
+            },
+            {
+                "minors": [
+                    {
+                        "minor": "Aerospace Engineering UG"
+                    }
+                ]
+            },
+            {
+                "graduate_plans": [
+                    {
+                        "plan": "History PhD"
+                    }
+                ]
+            },
+            {
+                "grading_basis_epn": [
+                    {
+                        "term": true
+                    }
+                ],
+                "majors": [
+                    {
+                        "major": "Industrial Eng & Ops Rsch BS"
+                    }
+                ]
+            },
+            {
+                "coe_advisors": [
+                    {
+                        "advisor": "117339"
+                    }
+                ],
+                "coe_ethnicities": [
+                    {
+                        "ethnicity": "E"
+                    }
+                ],
+                "intended_majors": [
+                    {
+                        "major": "Electrical Eng & Comp Sci BS"
+                    }
+                ]
+            },
+            {
+                "visa_types": [
+                    {
+                        "visa_type": "All types"
+                    }
+                ],
+                "ethnicities": [
+                    {
+                        "ethnicity": "Other Spanish-American / Latino"
+                    }
+                ],
+                "career_statuses": [
+                    {
+                        "status": "Completed"
+                    }
+                ]
+            },
+            {
+                "academic_divs": [
+                    {
+                        "div": "School of Public Health"
+                    }
+                ],
+                "entering_terms": [
+                    {
+                        "term": "2208"
+                    }
+                ],
+                "holds": true
+            },
+            {
+                "asc_inactive": true,
+                "asc_teams": [
+                    {
+                        "squad": "Men's Crew"
+                    },
+                    {
+                        "squad": "Women's Crew"
+                    }
+                ]
+            },
+            {
+                "asc_intensive": true
+            },
+            {
+                "levels": [
+                    {
+                        "level": "10"
+                    }
+                ],
+                "mid_point_deficient": true
+            },
+            {
+                "coe_inactive": true
+            },
+            {
+                "coe_preps": [
+                    {
+                        "prep": "PREP"
+                    },
+                    {
+                        "prep": "T-PREP"
+                    },
+                    {
+                        "prep": "PREP eligible"
+                    },
+                    {
+                        "prep": "T-PREP eligible"
+                    }
+                ],
+                "coe_probation": true,
+                "coe_underrepresented_minority": true
+            },
+            {
+                "expected_grad_terms": true,
+                "gpa_ranges": [
+                    {
+                        "range": {
+                            "min": "3.51",
+                            "max": "4.000"
+                        }
+                    },
+                    {
+                        "range": {
+                            "min": ".02",
+                            "max": "2"
+                        }
+                    }
+                ],
+                "majors": [
+                    {
+                        "major": "Chemistry BS"
+                    },
+                    {
+                        "major": "History BA"
+                    }
+                ],
+                "units": [
+                    {
+                        "unit": "120 +"
+                    }
+                ]
+            },
+            {
+                "gpa_ranges_last_term": [
+                    {
+                        "range": {
+                            "min": "3",
+                            "max": "3.5"
+                        }
+                    },
+                    {
+                        "range": {
+                            "min": ".02",
+                            "max": "2"
+                        }
+                    }
+                ],
+                "majors": [
+                    {
+                        "major": "Physics BA"
+                    },
+                    {
+                        "major": "English BA"
+                    }
+                ]
+            },
+            {
+                "majors": [
+                    {
+                        "major": "Letters & Sci Undeclared UG"
+                    }
+                ],
+                "transfer_student": true,
+                "underrepresented_minority": true,
+                "last_initials": [
+                    {
+                        "initial": {
+                            "min": "BR",
+                            "max": "G"
+                        }
+                    }
+                ]
+            },
+            {
+                "academic_standings": [
+                    {
+                        "standing": "2202-PRO"
+                    },
+                    {
+                        "standing": "2198-DIS"
+                    }
+                ],
+                "career_statuses": [
+                    {
+                        "status": "Inactive"
+                    },
+                    {
+                        "status": "Active"
+                    }
+                ]
+            },
+            {
+                "degree_terms": [
+                    {
+                        "term": "2025"
+                    },
+                    {
+                        "term": "2022"
+                    }
+                ],
+                "degrees_awarded": [
+                    {
+                        "degree": "Physics BA"
+                    }
+                ]
+            }
+        ],
+        "admits": [
+            {
+                "residency": [
+                    {
+                        "category": "INT"
+                    }
+                ],
+                "colleges": [
+                    {
+                        "college": "College of Letters and Science"
+                    }
+                ]
+            },
+            {
+                "current_sir": true,
+                "freshman_or_transfer": [
+                    {
+                        "fresh_or_trans": "Transfer"
+                    }
+                ],
+                "colleges": [
+                    {
+                        "college": "College of Engineering"
+                    }
+                ]
+            },
+            {
+                "family_single_parent": true,
+                "hispanic": true,
+                "xethnic": [
+                    {
+                        "ethnic": "White"
+                    }
+                ]
+            },
+            {
+                "family_dependents": [
+                    {
+                        "num": {
+                            "min": "7",
+                            "max": "8"
+                        }
+                    }
+                ],
+                "urem": true
+            },
+            {
+                "foster_care": true,
+                "fee_waiver": true
+            },
+            {
+                "student_dependents": [
+                    {
+                        "num": {
+                            "min": "0",
+                            "max": "1"
+                        }
+                    }
+                ],
+                "student_single_parent": true
+            },
+            {
+                "last_school_lcff_plus": true,
+                "special_program_cep": [
+                    {
+                        "program": "Talent Search"
+                    }
+                ]
+            },
+            {
+                "re_entry_status": true
+            },
+            {
+                "first_gen_college": true,
+                "foster_care": true
+            }
+        ]
+    },
+    "degree_checks": [
+        {
+            "name": "Course Workflows",
+            "unit_reqts": [
+                {
+                    "name": "Unit Req 1",
+                    "unit_count": "12"
+                },
+                {
+                    "name": "Unit Req 2",
+                    "unit_count": "49"
+                }
+            ],
+            "categories": [
+                {
+                    "name": "TopCat 1: -UR, +SC, -C",
+                    "desc": "",
+                    "column_num": 1,
+                    "unit_reqts": [],
+                    "sub_categories": [
+                        {
+                            "name": "SubCat 1.1: -UR, +C",
+                            "unit_reqts": [],
+                            "courses": [
+                                {
+                                    "name": "Course 1.1.1: -UR, +U",
+                                    "units": "4"
+                                },
+                                {
+                                    "name": "Course 1.1.2: +UR, +U",
+                                    "units": "4",
+                                    "unit_reqts": [
+                                        {
+                                            "reqt": "Unit Req 2"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "SubCat 1.2: +UR, +C",
+                            "unit_reqts": [
+                                {
+                                    "reqt": "Unit Req 1"
+                                }
+                            ],
+                            "courses": [
+                                {
+                                    "name": "Course 1.2.1: -UR, +U",
+                                    "units": "4"
+                                },
+                                {
+                                    "name": "Course 1.2.2: -UR, +U",
+                                    "units": "3"
+                                },
+                                {
+                                    "name": "TRANSFER COURSE",
+                                    "transfer_course": true,
+                                    "units": "4",
+                                    "unit_reqts": [
+                                        {
+                                            "reqt": "Unit Req 2"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 2: -UR, -SC, +C",
+                    "column_num": 1,
+                    "courses": [
+                        {
+                            "name": "Course 2.1: -UR, -U"
+                        },
+                        {
+                            "name": "Course 2.2: -UR, -U"
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 3: -UR, +SC, -C",
+                    "column_num": 2,
+                    "sub_categories": [
+                        {
+                            "name": "SubCat 3.1: -UR, -C"
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 4: -UR, -SC, +C",
+                    "column_num": 3,
+                    "courses": [
+                        {
+                            "name": "Course 4.1: -U, -UR"
+                        },
+                        {
+                            "name": "Course 4.2: -U, -UR"
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 5: -UR, -SC, -C",
+                    "column_num": 3
+                }
+            ]
+        },
+        {
+            "name": "Unit Fulfillment",
+            "unit_reqts": [
+                {
+                    "name": "Unit Req 0",
+                    "unit_count": "12"
+                },
+                {
+                    "name": "Unit Req 1",
+                    "unit_count": "49"
+                },
+                {
+                    "name": "Unit Req 2",
+                    "unit_count": "5"
+                }
+            ],
+            "categories": [
+                {
+                    "name": "TopCat 0",
+                    "desc": "Top level category c UF",
+                    "column_num": 1,
+                    "unit_reqts": [
+                        {
+                            "reqt": "Unit Req 0"
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 1",
+                    "desc": "Top level category c unit fulfillment",
+                    "column_num": 2,
+                    "unit_reqts": [
+                        {
+                            "reqt": "Unit Req 1"
+                        }
+                    ],
+                    "sub_categories": [
+                        {
+                            "name": "SubCat 1",
+                            "desc": "Subcategory s UF",
+                            "courses": [
+                                {
+                                    "name": "Course 1 s UF",
+                                    "units": "4"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "TopCat 2",
+                    "desc": "Top level category s UF",
+                    "column_num": 2
+                },
+                {
+                    "name": "TopCat 3",
+                    "desc": "Top level category s UF",
+                    "column_num": 3,
+                    "sub_categories": [
+                        {
+                            "name": "SubCat 3",
+                            "desc": "Subcategory c UF",
+                            "unit_reqts": [
+                                {
+                                    "reqt": "Unit Req 1"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

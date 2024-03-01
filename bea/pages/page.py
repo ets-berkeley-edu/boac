@@ -153,7 +153,7 @@ class Page(object):
         try:
             self.element(locator).click()
         except (exceptions.ElementClickInterceptedException, exceptions.ElementNotInteractableException) as error:
-            app.logger.error(f'Failed to click #{locator}, using JS instead - {error}')
+            app.logger.error(f'Failed to click {locator}, using JS instead - {error}')
             self.click_element_js(locator, addl_pause)
         finally:
             WebDriverManager.get_browser_logs(self.driver)

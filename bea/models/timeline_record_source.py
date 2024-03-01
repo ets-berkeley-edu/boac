@@ -23,22 +23,40 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from enum import Enum
 
-class Term(object):
 
-    def __init__(self, data):
-        self.data = data
+class TimelineRecordSource(Enum):
 
-    # Hyphenated code
-    @property
-    def code(self):
-        return self.data['code']
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    # 4-digit code
-    @property
-    def sis_id(self):
-        return self.data['sis_id']
+    ASC = {
+        'name': 'ASC',
+        'schema': 'boac_advising_asc',
+    }
+    DATA = {
+        'name': 'Data Science',
+        'schema': 'boac_advising_data_science',
+    }
+    E_AND_I = {
+        'name': 'CE3',
+        'schema': 'boac_advising_e_i',
+    }
+    E_FORM = {
+        'name': 'eForm',
+        'schema': 'sis_advising_notes',
+    }
+    EOP = {
+        'name': 'EOP',
+        'schema': 'boac_advising_eop',
+    }
+    HISTORY = {
+        'name': 'History Dept',
+        'schema': 'boac_advising_history_dept',
+    }
+    SIS = {
+        'name': 'SIS',
+        'schema': 'sis_advising_notes',
+    }
+    YCBM = {
+        'name': 'YouCanBookMe',
+        'schema': 'ycbm_advising_appointments',
+    }

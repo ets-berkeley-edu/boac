@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import json
 import os
 
 from bea.models.term import Term
@@ -92,3 +93,13 @@ def get_previous_term_code(current_term_id):
     else:
         d4 = '8'
     return d1 + d2_3 + d4
+
+
+def parse_test_data():
+    with open(app.config['TEST_DATA']) as f:
+        return json.load(f)
+
+
+def in_op(arr):
+    arr = list(map(lambda i: f"'{i}'", arr))
+    return ', '.join(arr)

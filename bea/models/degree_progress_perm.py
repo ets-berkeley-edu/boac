@@ -23,22 +23,16 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from enum import Enum
 
-class Term(object):
 
-    def __init__(self, data):
-        self.data = data
+class DegreeProgressPerm(Enum):
 
-    # Hyphenated code
-    @property
-    def code(self):
-        return self.data['code']
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    # 4-digit code
-    @property
-    def sis_id(self):
-        return self.data['sis_id']
+    READ = {
+        'desc': 'Read-only',
+        'user_perm': 'Degree Progress (read)',
+    }
+    WRITE = {
+        'desc': 'Read and write',
+        'user_perm': 'Degree Progress (read/write)',
+    }
