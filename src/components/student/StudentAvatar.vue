@@ -1,6 +1,7 @@
 <template>
   <div class="position-relative">
     <img
+      :id="`student-avatar-${student.uid}-img`"
       :class="avatarStyle"
       :aria-label="ariaLabel"
       :alt="ariaLabel"
@@ -14,12 +15,14 @@
       aria-hidden="true"
       class="student-avatar-alert-count"
     >
-      <span
-        v-b-tooltip.hover.bottom
+      <v-tooltip
+        :id="`student-avatar-${student.uid}-tooltip`"
+        activator="parent"
+        location="bottom"
         :title="`${alertCount} alert${alertCount === 1 ? '' : 's'}`"
       >
         {{ alertCount }}
-      </span>
+      </v-tooltip>
     </div>
   </div>
 </template>
@@ -64,7 +67,7 @@ export default {
   },
   methods: {
     avatarError() {
-      this.avatarUrl = require('@/assets/avatar-50.png')
+      this.avatarUrl = '@/assets/avatar-50.png'
     }
   }
 }

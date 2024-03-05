@@ -1,50 +1,79 @@
 <template>
-  <div>
-    <v-table
-      :borderless="true"
-      :fields="fields"
-      :items="students"
-      :no-sort-reset="true"
-      :small="true"
-      :sort-by.sync="sortBy"
-      :sort-compare="sortCompare"
-      :sort-desc.sync="sortDescending"
-      stacked="md"
-      thead-class="sortable-table-header text-nowrap"
-    >
-      <template #cell(curated)="row">
+  <v-data-table-virtual
+    :id="id"
+    v-resize="onResize"
+    :cell-props="{class: 'pa-1 font-size-16'}"
+    class="bg-transparent pa-2"
+    :class="{'stacked-table': stackTable}"
+    density="compact"
+    :headers="headers"
+    :items="students"
+    :sort-by.sync="sortBy"
+    :sort-compare="sortCompare"
+    :sort-desc.sync="sortDescending"
+    thead-class="sortable-table-header text-nowrap"
+  >
+    <template #headers="{columns, isSorted, getSortIcon, toggleSort}">
+      <tr>
+        <template v-for="column in columns" :key="column.key">
+          <th class="py-1 px-0">
+            <v-btn
+              v-if="column.sortable"
+              :id="`${id}-sort-by-${column.key}-btn`"
+              :append-icon="isSorted(column) ? getSortIcon(column) : undefined"
+              class="sortable-table-header text-left px-1"
+              density="compact"
+              variant="text"
+              @click="() => toggleSort(column)"
+            >
+              {{ column.title }}
+            </v-btn>
+            <span v-if="!column.sortable" class="sr-only">{{ column.title }}</span>
+          </th>
+        </template>
+      </tr>
+    </template>
+    <template #item.curated="{item}">
+      <div>
         <CuratedStudentCheckbox
           v-if="options.includeCuratedCheckbox"
           :domain="domain"
-          :student="row.item"
+          :student="item"
         />
-      </template>
-
-      <template #cell(avatar)="row">
-        <StudentAvatar :key="row.item.sid" size="small" :student="row.item" />
+      </div>
+    </template>
+    <template #item.avatar="{item}">
+      <div>
+        <StudentAvatar
+          :key="item.sid"
+          size="small"
+          :student="item"
+        />
         <div v-if="options.includeCuratedCheckbox" class="sr-only">
-          <ManageStudent domain="default" :is-button-variant-link="true" :student="row.item" />
+          <ManageStudent domain="default" :is-button-variant-link="true" :student="item" />
         </div>
-      </template>
-
-      <template #cell(lastName)="row">
+      </div>
+    </template>
+    <template #item.name="{item}">
+      <div>
         <span class="sr-only">Student name</span>
         <router-link
-          v-if="row.item.uid"
-          :id="`link-to-student-${row.item.uid}`"
+          v-if="item.uid"
+          :id="`link-to-student-${item.uid}`"
+          class="text-primary"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          :to="studentRoutePath(row.item.uid, currentUser.inDemoMode)"
-          v-html="lastNameFirst(row.item)"
+          :to="studentRoutePath(item.uid, currentUser.inDemoMode)"
+          v-html="lastNameFirst(item)"
         />
         <span
-          v-if="!row.item.uid"
-          :id="`student-${row.item.sid}-has-no-uid`"
+          v-if="!item.uid"
+          :id="`student-${item.sid}-has-no-uid`"
           class="font-weight-500"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          v-html="lastNameFirst(row.item)"
+          v-html="lastNameFirst(item)"
         />
         <span
-          v-if="row.item.academicCareerStatus === 'Inactive' || displayAsAscInactive(row.item) || displayAsCoeInactive(row.item)"
+          v-if="item.academicCareerStatus === 'Inactive' || displayAsAscInactive(item) || displayAsCoeInactive(item)"
           class="inactive-info-icon sortable-students-icon"
           uib-tooltip="Inactive"
           aria-label="Inactive"
@@ -53,7 +82,7 @@
           <v-icon :icon="mdiInformationOutline" />
         </span>
         <span
-          v-if="row.item.academicCareerStatus === 'Completed'"
+          v-if="item.academicCareerStatus === 'Completed'"
           class="sortable-students-icon"
           uib-tooltip="Graduated"
           aria-label="Graduated"
@@ -61,73 +90,76 @@
         >
           <v-icon :icon="mdiSchool" />
         </span>
-      </template>
-
-      <template #cell(sid)="row">
+      </div>
+    </template>
+    <template #item.sid="{item}">
+      <div>
         <span class="sr-only">S I D </span>
-        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ row.item.sid }}</span>
-      </template>
-
-      <template v-if="!options.compact" #cell(majors[0])="row">
+        <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ item.sid }}</span>
+      </div>
+    </template>
+    <template v-if="!options.compact" #item.major="{item}">
+      <div>
         <span class="sr-only">Major</span>
-        <div v-if="!row.item.majors || row.item.majors.length === 0">--<span class="sr-only">No data</span></div>
+        <div v-if="!item.majors || item.majors.length === 0">--<span class="sr-only">No data</span></div>
         <div
-          v-for="major in row.item.majors"
+          v-for="major in item.majors"
           :key="major"
         >
           {{ major }}
         </div>
-      </template>
-
-      <template v-if="!options.compact" #cell(expectedGraduationTerm.id)="row">
+      </div>
+    </template>
+    <template v-if="!options.compact" #item.expectedGraduationTerm="{item}">
+      <div>
         <span class="sr-only">Expected graduation term</span>
-        <div v-if="!row.item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-        <span class="text-nowrap">{{ abbreviateTermName(row.item.expectedGraduationTerm && row.item.expectedGraduationTerm.name) }}</span>
-      </template>
-
-      <template v-if="!options.compact" #cell(term.enrolledUnits)="row">
+        <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
+        <span class="text-nowrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
+      </div>
+    </template>
+    <template v-if="!options.compact" #item.enrolledUnits="{item}">
+      <div>
         <span class="sr-only">Term units</span>
-        <div>{{ _get(row.item.term, 'enrolledUnits', 0) }}</div>
-      </template>
-
-      <template v-if="!options.compact" #cell(cumulativeUnits)="row">
+        <div>{{ _get(item.term, 'enrolledUnits', 0) }}</div>
+      </div>
+    </template>
+    <template v-if="!options.compact" #item.cumulativeUnits="{item}">
+      <div>
         <span class="sr-only">Units completed</span>
-        <div v-if="!row.item.cumulativeUnits">--<span class="sr-only">No data</span></div>
-        <div v-if="row.item.cumulativeUnits">{{ numFormat(row.item.cumulativeUnits, '0.00') }}</div>
-      </template>
-
-      <template v-if="!options.compact" #cell(cumulativeGPA)="row">
+        <div v-if="!item.cumulativeUnits">--<span class="sr-only">No data</span></div>
+        <div v-if="item.cumulativeUnits">{{ numFormat(item.cumulativeUnits, '0.00') }}</div>
+      </div>
+    </template>
+    <template v-if="!options.compact" #item.cumulativeGPA="{item}">
+      <div>
         <span class="sr-only">GPA</span>
-        <div v-if="_isNil(row.item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
-        <div v-if="!_isNil(row.item.cumulativeGPA)">{{ round(row.item.cumulativeGPA, 3) }}</div>
-      </template>
-
-      <template #cell(alertCount)="row">
+        <div v-if="_isNil(item.cumulativeGPA)">--<span class="sr-only">No data</span></div>
+        <div v-if="!_isNil(item.cumulativeGPA)">{{ round(item.cumulativeGPA, 3) }}</div>
+      </div>
+    </template>
+    <template #item.alertCount="{item}">
+      <div>
         <span class="sr-only">Issue count</span>
         <div class="float-right mr-2">
           <div
-            v-if="!row.item.alertCount"
-            :aria-label="`No alerts for ${row.item.name}`"
+            v-if="!item.alertCount"
+            :aria-label="`No alerts for ${item.name}`"
             class="bg-white border pl-3 pr-3 rounded-pill text-muted"
           >
             0
           </div>
           <div
-            v-if="row.item.alertCount"
-            :aria-label="`${row.item.alertCount} alerts for ${row.item.name}`"
+            v-if="item.alertCount"
+            :aria-label="`${item.alertCount} alerts for ${item.name}`"
             class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
           >
-            {{ row.item.alertCount }}
+            {{ item.alertCount }}
           </div>
         </div>
-      </template>
-    </v-table>
-  </div>
+      </div>
+    </template>
+  </v-data-table-virtual>
 </template>
-
-<script setup>
-import {mdiInformationOutline, mdiSchool} from '@mdi/js'
-</script>
 
 <script>
 import Context from '@/mixins/Context'
@@ -151,6 +183,11 @@ export default {
       required: true,
       type: String
     },
+    id: {
+      default: 'sortable-group-students',
+      required: false,
+      type: String
+    },
     options: {
       type: Object,
       default: () => ({
@@ -166,10 +203,18 @@ export default {
     }
   },
   data: () => ({
-    fields: undefined,
+    headers: undefined,
     sortBy: undefined,
-    sortDescending: undefined
+    sortDescending: undefined,
+    stackTable: false
   }),
+  computed: {
+    headerProps() {
+      return {
+        class: this.$vuetify.display.mdAndDown ? 'd-none' : ''
+      }
+    }
+  },
   watch: {
     sortBy() {
       this.onChangeSortBy()
@@ -178,29 +223,35 @@ export default {
       this.onChangeSortBy()
     }
   },
+  mounted() {
+    this.onResize()
+  },
   created() {
     this.sortBy = this.options.sortBy
     this.sortDescending = this.options.reverse
 
     const sortable = this.students.length > 1
-    this.fields = [
-      {key: 'curated', label: ''},
-      {key: 'avatar', label: '', class: 'pr-0'},
-      {key: 'lastName', label: 'Name', sortable},
-      {key: 'sid', label: 'SID', sortable}
-    ]
+    this.headers = []
+    if (this.options.includeCuratedCheckbox) {
+      this.headers = this.headers.concat(this.createHeader({key: 'curated', value: 'curated', title: ''}))
+    }
+    this.headers = this.headers.concat([
+      this.createHeader({key: 'avatar', title: 'Photo', value: 'photo', clazz: 'pr-0', visuallyHidden: true}),
+      this.createHeader({key: 'name', title: 'Name', value: 'lastName'}),
+      this.createHeader({key: 'sid', title: 'SID', value: 'sid'})
+    ])
     if (this.options.compact) {
-      this.fields = this.fields.concat([
-        {key: 'alertCount', label: 'Alerts', sortable, class: 'alert-count text-right'}
+      this.headers = this.headers.concat([
+        this.createHeader({key: 'alertCount', title: 'Alerts', value: 'alertCount', clazz: 'alert-count', align: 'end'})
       ])
     } else {
-      this.fields = this.fields.concat([
-        {key: 'majors[0]', label: 'Major', sortable, class: 'truncate-with-ellipsis'},
-        {key: 'expectedGraduationTerm.id', label: 'Grad', sortable},
-        {key: 'term.enrolledUnits', label: 'Term units', sortable},
-        {key: 'cumulativeUnits', label: 'Units completed', sortable},
-        {key: 'cumulativeGPA', label: 'GPA', sortable},
-        {key: 'alertCount', label: 'Alerts', sortable, class: 'alert-count text-right'}
+      this.headers = this.headers.concat([
+        this.createHeader({key: 'major', title: 'Major', value: 'majors[0]', sortable: sortable, clazz: 'truncate-with-ellipsis'}),
+        this.createHeader({key: 'expectedGraduationTerm', title: 'Grad', value: 'expectedGraduationTerm.id', sortable: sortable}),
+        this.createHeader({key: 'enrolledUnits', title: 'Term units', value: 'term.enrolledUnits', sortable: sortable}),
+        this.createHeader({key: 'cumulativeUnits', title: 'Units completed', value: 'cumulativeUnits', sortable: sortable}),
+        this.createHeader({key: 'cumulativeGPA', title: 'GPA', value: 'cumulativeGPA', sortable: sortable}),
+        this.createHeader({key: 'alertCount', title: 'Alerts', value: 'alertCount', sortable: sortable, clazz: 'alert-count', align: 'end'})
       ])
     }
   },
@@ -216,9 +267,30 @@ export default {
     normalizeForSort(value) {
       return this._isString(value) ? value.toLowerCase() : value
     },
+    createHeader({key, title, value, sortable=false, clazz=null, align=null, visuallyHidden=false}) {
+      let header = {
+        cellProps: visuallyHidden ? {} : {'data-label': title},
+        key: key,
+        title: title,
+        value: value
+      }
+      if (sortable) {
+        header['sortable'] = sortable
+      }
+      if (clazz) {
+        header['class'] = clazz
+      }
+      if (align) {
+        header['align'] = align
+      }
+      return header
+    },
     onChangeSortBy() {
-      const field = this._find(this.fields, ['key', this.sortBy])
-      this.alertScreenReader(`Sorted by ${field.label}${this.sortDescending ? ', descending' : ''}`)
+      const field = this._find(this.headers, ['value', this._get(this.sortBy, 0)])
+      this.alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
+    },
+    onResize() {
+      this.stackTable = this.$vuetify.display.mdAndDown
     },
     sortCompare(a, b, sortBy, sortDesc) {
       let aValue = this._get(a, sortBy)

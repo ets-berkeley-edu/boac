@@ -24,17 +24,58 @@
   color: #333;
   background-color: #eee;
 }
+.demo-mode-blur {
+  color: transparent !important;
+  text-shadow: 0 0 15px rgba(0, 0, 0, 0.5) !important;
+}
+.demo-mode-blur:hover {
+  color: transparent !important;
+  text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
+}
 .font-size-12 {
   font-size: 12px;
 }
 .font-size-14 {
   font-size: 14px;
 }
+.font-size-16 {
+  font-size: 16px;
+}
 .font-size-24 {
   font-size: 24px;
 }
 .modal-open {
   overflow: hidden;
+}
+.page-section-header {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+}
+.page-section-header-sub {
+  font-size: 18px;
+  font-weight: bold;
+}
+.pill-alerts {
+  border-radius: 10px;
+  color: #fff;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: 800;
+  height: 20px;
+  line-height: 20px;
+  padding: 0 4px 0 4px;
+  text-align: center;
+}
+.pill-alerts-nonzero {
+  background-color: #f0ad4e;
+}
+.pill-alerts-zero {
+  background-color: #ccc;
+}
+.pill-alerts-per-student {
+  color: #f0ad4e;
 }
 .section-divider {
   background-color: #4a90e2;
@@ -43,6 +84,14 @@
   height: 1px;
   margin-top: 1rem;
   margin-bottom: 1rem;
+}
+.sortable-table-header {
+  color: #666;
+  font-size: 12px;
+  font-weight: 700;
+  min-width: unset;
+  text-transform: uppercase !important;
+  vertical-align: top;
 }
 .sr-only {
   position: absolute;
@@ -54,6 +103,41 @@
   clip: rect(0,0,0,0);
   white-space: nowrap;
   border: 0;
+}
+.stacked-table {
+  thead {
+    display: none;
+  }
+  tbody, tbody>tr, tbody>tr>td {
+    display: block;
+  }
+  tbody>tr {
+    margin-bottom: 12px;
+  }
+  tbody>tr>td {
+    &::after {
+      display: block;
+      clear: both;
+      content: "";
+    }
+    &::before {
+      content: attr(data-label);
+      width: 40%;
+      float: left;
+      text-align: right;
+      overflow-wrap: break-word;
+      font-weight: 700;
+      font-style: normal;
+      padding: 0 0.5rem 0 0;
+      margin: 0;
+    }
+    &>div {
+      display: inline-block;
+      width: 60%;
+      padding: 0 0 0 0.5rem;
+      margin: 0;
+    }
+  }
 }
 .vh-100 {
   height: 100vh!important;
@@ -72,4 +156,7 @@ hr {
   margin-bottom: 1rem;
   border: 0;
   border-top: 1px solid rgba(0,0,0,.1)
+}
+table, th, td {
+  border: none !important;
 }
