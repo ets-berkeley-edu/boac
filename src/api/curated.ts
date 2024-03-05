@@ -115,5 +115,5 @@ export function renameCuratedGroup(curatedGroupId: number, name: string) {
 
 export function getStudentsWithAlerts(curatedGroupId: number) {
   const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/students_with_alerts`
-  return axios.get(url).then(response => response.data, () => null)
+  return axios.get(url).then(response => response, () => null)
 }

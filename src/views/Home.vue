@@ -1,5 +1,5 @@
 <template>
-  <div class="ml-4 mt-4">
+  <div class="ml-6 mt-6">
     <h1 class="sr-only">Welcome to BOA</h1>
     <Spinner />
     <div v-if="!loading" class="home-content">
@@ -16,20 +16,36 @@
           <router-link id="create-filtered-cohort" to="/cohort/new">Create a student cohort</router-link>
           automatically by your filtering preferences, such as GPA or units.
         </div>
-        <div v-for="cohort in cohorts" :key="cohort.id">
-          <SortableGroup :group="cohort" :is-cohort="true" />
-        </div>
+        <v-expansion-panels
+          elevation="0"
+          multiple
+          variant="accordion"
+        >
+          <template v-for="cohort in cohorts" :key="cohort.id">
+            <SortableGroup
+              :id="`cohort-${cohort.id}`"
+              :group="cohort"
+              :is-cohort="true"
+            />
+          </template>
+        </v-expansion-panels>
       </div>
       <div v-if="_filter(curatedGroups, ['domain', 'default']).length">
         <div id="curated-groups-header-row">
           <h2 class="page-section-header">Curated Groups</h2>
         </div>
-        <div
-          v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"
-          :key="curatedGroup.id"
+        <v-expansion-panels
+          elevation="0"
+          multiple
+          variant="accordion"
         >
-          <SortableGroup :group="curatedGroup" :is-cohort="false" />
-        </div>
+          <template
+            v-for="curatedGroup in _filter(curatedGroups, ['domain', 'default'])"
+            :key="curatedGroup.id"
+          >
+            <SortableGroup :group="curatedGroup" :is-cohort="false" />
+          </template>
+        </v-expansion-panels>
       </div>
     </div>
   </div>

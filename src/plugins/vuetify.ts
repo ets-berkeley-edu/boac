@@ -1,6 +1,7 @@
 import 'vuetify/styles'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
+import {Resize} from 'vuetify/directives'
 import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
@@ -8,6 +9,7 @@ import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
+import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDatePicker} from 'vuetify/components/VDatePicker'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
@@ -45,6 +47,8 @@ export default createVuetify({
     VCol,
     VContainer,
     VDatePicker,
+    VDataTable,
+    VDataTableVirtual,
     VDialog,
     VExpansionPanel,
     VExpansionPanels,
@@ -76,6 +80,9 @@ export default createVuetify({
       style: 'text-transform: none;',
     }
   },
+  directives: {
+    Resize
+  },
   icons: {
     defaultSet: 'mdi',
     aliases,
@@ -91,6 +98,7 @@ export default createVuetify({
           'btn-secondary': '#6c757d',
           error: '#cf1715',
           info: '#367DA1',
+          'pale-blue': '#f3fbff',
           primary: '#337ab7',
           red: colors.red.darken1,
           secondary: '#eee',

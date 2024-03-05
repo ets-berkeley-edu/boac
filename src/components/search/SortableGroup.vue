@@ -1,44 +1,42 @@
 <template>
-  <v-card
-    :id="`sortable-${keyword}-${group.id}`"
-    body-class="pa-0"
-    :border-variant="isFetching || openAndLoaded ? 'primary' : 'light'"
-    class="mr-3 sortable-group"
-    :class="{
-      'bg-pale-blue': isFetching || openAndLoaded,
-      'border-0': !isFetching && !openAndLoaded
-    }"
+  <v-expansion-panel
+    :id="id"
+    :bg-color="isOpen ? 'pale-blue' : 'transparent'"
+    class="sortable-group pb-1"
+    :class="isOpen ? 'border-1' : 'border-0'"
+    elevation="0"
+    @group:selected="fetchStudents"
   >
-    <v-card-title class="bg-transparent border-0 pl-1" :class="{'pa-0': compact}">
-      <v-btn
-        :id="`sortable-${keyword}-${group.id}-toggle`"
-        block
-        class="border-0"
-        :class="{'shadow-none': !isOpen && !buttonHasFocus}"
-        :pressed="null"
-        variant="text"
-        @click.prevent="fetchStudents"
-        @focus="buttonHasFocus = true"
-        @blur="buttonHasFocus = false"
-      >
-        <div class="d-flex justify-content-between">
-          <div class="align-items-start d-flex">
-            <div class="caret pale-blue pr-4">
+    <v-expansion-panel-title
+      :id="`${id}-expand-btn`"
+      class="bg-transparent px-3 w-100"
+      hide-actions
+    >
+      <template #default="{expanded}">
+        <div class="d-flex justify-space-between align-baseline w-100">
+          <div class="text-primary d-flex align-center">
+            <div class="pr-2">
               <v-progress-circular
                 v-if="isFetching"
+                color="primary"
                 indeterminate
                 size="small"
               />
-              <v-icon v-if="!isFetching" :icon="isOpen ? mdiMenuDown : mdiMenuRight" />
+              <v-icon
+                v-if="!isFetching"
+                color="primary"
+                :icon="expanded ? mdiMenuDown : mdiMenuRight"
+                size="x-large"
+              />
             </div>
-            <h3 class="page-section-header-sub text-wrap">
+            <h3 class="page-section-header-sub">
               <span class="sr-only">{{ `${isOpen ? 'Hide' : 'Show'} details for ${groupTypeName} ` }}</span>
               {{ group.name }}
               (<span :id="`sortable-${keyword}-${group.id}-total-student-count`">{{ group.totalStudentCount }}</span>
               <span class="sr-only">&nbsp;students</span>)
             </h3>
           </div>
-          <div class="count align-items-center d-flex justify-content-end">
+          <div class="count d-flex align-center">
             <div v-if="!compact" class="pr-2 sortable-table-header">
               Total Alerts:
             </div>
@@ -51,59 +49,55 @@
             </div>
             <div
               v-if="group.alertCount"
-              class="font-weight-normal pill-alerts pill-alerts-nonzero mb-1 pl-2 pr-2"
+              class="pill-alerts pill-alerts-nonzero px-2"
               :aria-label="`${group.alertCount} alerts for ${groupTypeName} '${group.name}'`"
             >
               {{ group.alertCount }}
             </div>
           </div>
         </div>
-      </v-btn>
-    </v-card-title>
-    <v-expansion-panels v-model="isOpen">
-      <v-expansion-panel
-        :id="`sortable-${keyword}-${group.id}`"
-        :aria-expanded="openAndLoaded"
-        class="mr-3"
-        :value="true"
-      >
-        <v-expansion-panel-text>
-          <div v-if="_size(studentsWithAlerts)">
-            <div v-if="!compact && _size(studentsWithAlerts) === 50" :id="`sortable-${keyword}-${group.id}-alert-limited`" class="px-3">
-              Showing 50 students with a high number of alerts.
-              <router-link
-                :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
-                :to="getRoutePath(group)"
-              >
-                View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
-              </router-link>
-            </div>
-            <div class="pt-4">
-              <SortableStudents
-                domain="default"
-                :students="studentsWithAlerts"
-                :options="sortableGroupOptions"
-              />
-            </div>
+      </template>
+    </v-expansion-panel-title>
+    <v-expansion-panel-text :id="`${id}-details`" class="bg-transparent">
+      <div v-if="_size(studentsWithAlerts)">
+        <div
+          v-if="!compact && _size(studentsWithAlerts) === 50"
+          :id="`sortable-${keyword}-${group.id}-alert-limited`"
+          class="px-3"
+        >
+          Showing 50 students with a high number of alerts.
+          <router-link
+            :id="`sortable-${keyword}-${group.id}-alert-limited-view-all`"
+            :to="getRoutePath(group)"
+          >
+            View all {{ group.totalStudentCount }} students in {{ groupTypeName }} "{{ group.name }}"
+          </router-link>
+        </div>
+        <div class="pt-4">
+          <SortableStudents
+            :id="`${id}-students`"
+            domain="default"
+            :students="studentsWithAlerts"
+            :options="sortableGroupOptions"
+          />
+        </div>
+      </div>
+      <div v-if="openAndLoaded" class="mb-3 ml-3">
+        <router-link
+          :id="`sortable-${keyword}-${group.id}-view-all`"
+          :to="getRoutePath(group)"
+        >
+          <span v-if="group.totalStudentCount">
+            View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
+            in {{ groupTypeName }} "{{ group.name }}"
+          </span>
+          <div v-if="!group.totalStudentCount" class="pt-3">
+            {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
           </div>
-          <div v-if="openAndLoaded" class="mb-3 ml-3">
-            <router-link
-              :id="`sortable-${keyword}-${group.id}-view-all`"
-              :to="getRoutePath(group)"
-            >
-              <span v-if="group.totalStudentCount">
-                View {{ pluralize('student', group.totalStudentCount, {1: 'the one', 'other': `all ${group.totalStudentCount}`}) }}
-                in {{ groupTypeName }} "{{ group.name }}"
-              </span>
-              <div v-if="!group.totalStudentCount" class="pt-3">
-                {{ _capitalize(groupTypeName) }} "{{ group.name }}" has 0 students
-              </div>
-            </router-link>
-          </div>
-        </v-expansion-panel-text>
-      </v-expansion-panel>
-    </v-expansion-panels>
-  </v-card>
+        </router-link>
+      </div>
+    </v-expansion-panel-text>
+  </v-expansion-panel>
 </template>
 
 <script setup>
@@ -137,12 +131,15 @@ export default {
   data: () => ({
     buttonHasFocus: false,
     groupTypeName: undefined,
-    isFetching: undefined,
-    isOpen: undefined,
+    isFetching: false,
+    isOpen: false,
     keyword: undefined,
     studentsWithAlerts: undefined
   }),
   computed: {
+    id() {
+      return `sortable-${this.keyword}-${this.group.id}`
+    },
     openAndLoaded: {
       get: function() {
         return this.isOpen && !this.isFetching
@@ -156,7 +153,7 @@ export default {
         compact: this.compact,
         includeCuratedCheckbox: false,
         reverse: true,
-        sortBy: 'alertCount'
+        sortBy: ['alertCount']
       }
     }
   },
@@ -165,8 +162,8 @@ export default {
     this.groupTypeName = this.isCohort ? 'cohort' : 'curated group'
   },
   methods: {
-    fetchStudents() {
-      this.isOpen = !this.isOpen
+    fetchStudents(param) {
+      this.isOpen = param.value
       if (this._isNil(this.studentsWithAlerts)) {
         this.isFetching = true
         const apiCall = this.isCohort ? getCohortStudentsWithAlerts : getCuratedStudentsWithAlerts
@@ -185,16 +182,22 @@ export default {
 </script>
 
 <style scoped>
-.bg-pale-blue {
-  background-color: #f3fbff;
-}
-.caret {
-  width: 10px;
-}
 .count {
   min-width: 130px;
 }
-.pale-blue {
-  color: #337ab7;
+.sortable-group {
+  border: 1px solid #007bff;
+  border-radius: 0.25rem;
+}
+</style>
+
+<style lang="scss">
+.sortable-group {
+  &.v-expansion-panel::after {
+    border: none !important;
+  }
+  .v-expansion-panel-text__wrapper {
+    padding: 0;
+  }
 }
 </style>

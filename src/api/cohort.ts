@@ -131,7 +131,7 @@ export function getStudentsPerFilters(
 
 export function getStudentsWithAlerts(cohortId) {
   const url = `${utils.apiBaseUrl()}/api/cohort/${cohortId}/students_with_alerts`
-  return axios.get(url).then(response => response.data, () => null)
+  return axios.get(url).then(response => response, () => null)
 }
 
 export function getUsersWithCohorts() {
