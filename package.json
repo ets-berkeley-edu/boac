@@ -1,7 +1,5 @@
 {
   "name": "BOA",
-  "version": "0.1.0",
-  "private": false,
   "engines": {
     "node": "^18.0.0 || >=20.0.0"
   },
@@ -51,5 +49,6 @@
     "vite-plugin-vuetify": "^2.0.2",
     "vue-eslint-parser": "^9.4.2",
     "vue-tsc": "^1.8.27"
-  }
+  },
+  "type": "module"
 }
