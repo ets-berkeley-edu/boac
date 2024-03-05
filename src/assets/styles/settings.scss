@@ -1,0 +1,5 @@
+$helvetica: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+
+@use 'vuetify' with (
+  $body-font-family: $helvetica
+);

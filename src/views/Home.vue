@@ -19,7 +19,6 @@
         <v-expansion-panels
           elevation="0"
           multiple
-          variant="accordion"
         >
           <template v-for="cohort in cohorts" :key="cohort.id">
             <SortableGroup

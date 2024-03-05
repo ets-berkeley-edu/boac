@@ -8,6 +8,7 @@ import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
+import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDatePicker} from 'vuetify/components/VDatePicker'
@@ -44,6 +45,7 @@ export default createVuetify({
     VCardSubtitle,
     VCardText,
     VCardTitle,
+    VChip,
     VCol,
     VContainer,
     VDatePicker,
@@ -96,13 +98,15 @@ export default createVuetify({
         colors: {
           alert: '#fef6e6',
           'btn-secondary': '#6c757d',
+          gray: '#cccccc',
           error: '#cf1715',
           info: '#367DA1',
           'pale-blue': '#f3fbff',
           primary: '#337ab7',
           red: colors.red.darken1,
           secondary: '#eee',
-          success: '#437F4B'
+          success: '#437F4B',
+          warn: '#f0ad4e'
         }
       }
     }

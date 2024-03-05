@@ -20,7 +20,10 @@ export default defineConfig({
       template: {transformAssetUrls}
     }),
     vuetify({
-      autoImport: false
+      autoImport: false,
+      styles: {
+        configFile: 'src/assets/styles/settings.scss'
+      }
     })
   ],
   resolve: {
