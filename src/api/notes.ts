@@ -96,7 +96,7 @@ export function deleteNote(note: any) {
   return axios
     .delete(`${utils.apiBaseUrl()}/api/notes/delete/${note.id}`)
     .then(response => {
-      store.commit('context/broadcast', {eventType: 'note-deleted', obj: note.id})
+      store.commit('context/broadcast', {eventType: 'note-deleted', data: note.id})
       $_refreshMyDraftNoteCount()
       return response.data
     })
