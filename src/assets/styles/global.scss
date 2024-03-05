@@ -1,5 +1,3 @@
-@forward "variables";
-
 .choose-attachment-file-wrapper {
   position: relative;
   align-items: center;
@@ -56,26 +54,7 @@
 .page-section-header-sub {
   font-size: 18px;
   font-weight: bold;
-}
-.pill-alerts {
-  border-radius: 10px;
-  color: #fff;
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 800;
-  height: 20px;
-  line-height: 20px;
-  padding: 0 4px 0 4px;
-  text-align: center;
-}
-.pill-alerts-nonzero {
-  background-color: #f0ad4e;
-}
-.pill-alerts-zero {
-  background-color: #ccc;
-}
-.pill-alerts-per-student {
-  color: #f0ad4e;
+  line-height: 1.2;
 }
 .section-divider {
   background-color: #4a90e2;
@@ -115,6 +94,8 @@
     margin-bottom: 12px;
   }
   tbody>tr>td {
+    height: unset !important;
+
     &::after {
       display: block;
       clear: both;

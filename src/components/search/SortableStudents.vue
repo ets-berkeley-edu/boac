@@ -2,8 +2,8 @@
   <v-data-table-virtual
     :id="id"
     v-resize="onResize"
-    :cell-props="{class: 'pa-1 font-size-16'}"
-    class="bg-transparent pa-2"
+    :cell-props="{class: 'pa-1 pa-md-0 font-size-16'}"
+    class="bg-transparent pa-2 pt-md-0"
     :class="{'stacked-table': stackTable}"
     density="compact"
     :headers="headers"
@@ -140,21 +140,23 @@
     <template #item.alertCount="{item}">
       <div>
         <span class="sr-only">Issue count</span>
-        <div class="float-right mr-2">
-          <div
+        <div class="pr-2">
+          <PillAlert
             v-if="!item.alertCount"
             :aria-label="`No alerts for ${item.name}`"
-            class="bg-white border pl-3 pr-3 rounded-pill text-muted"
+            color="gray"
+            outlined
           >
             0
-          </div>
-          <div
+          </PillAlert>
+          <PillAlert
             v-if="item.alertCount"
             :aria-label="`${item.alertCount} alerts for ${item.name}`"
-            class="bg-white border border-warning font-weight-bolder pill-alerts-per-student pl-3 pr-3 rounded-pill"
+            color="warn"
+            outlined
           >
             {{ item.alertCount }}
-          </div>
+          </PillAlert>
         </div>
       </div>
     </template>
@@ -165,6 +167,7 @@
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
 import ManageStudent from '@/components/curated/dropdown/ManageStudent'
+import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
@@ -175,6 +178,7 @@ export default {
   components: {
     CuratedStudentCheckbox,
     ManageStudent,
+    PillAlert,
     StudentAvatar
   },
   mixins: [Context, Util],

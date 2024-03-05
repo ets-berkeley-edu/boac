@@ -2,9 +2,10 @@
   <v-expansion-panel
     :id="id"
     :bg-color="isOpen ? 'pale-blue' : 'transparent'"
-    class="sortable-group pb-1"
+    class="sortable-group"
     :class="isOpen ? 'border-1' : 'border-0'"
     elevation="0"
+    rounded
     @group:selected="fetchStudents"
   >
     <v-expansion-panel-title
@@ -40,20 +41,21 @@
             <div v-if="!compact" class="pr-2 sortable-table-header">
               Total Alerts:
             </div>
-            <div
+            <PillAlert
               v-if="!group.alertCount"
-              class="pill-alerts pill-alerts-zero"
               :aria-label="`No issues for ${groupTypeName} '${group.name}'`"
+              color="gray"
             >
               0
-            </div>
-            <div
+            </PillAlert>
+            <PillAlert
               v-if="group.alertCount"
-              class="pill-alerts pill-alerts-nonzero px-2"
               :aria-label="`${group.alertCount} alerts for ${groupTypeName} '${group.name}'`"
+              class="px-2"
+              color="warn"
             >
               {{ group.alertCount }}
-            </div>
+            </PillAlert>
           </div>
         </div>
       </template>
@@ -82,9 +84,10 @@
           />
         </div>
       </div>
-      <div v-if="openAndLoaded" class="mb-3 ml-3">
+      <div v-if="openAndLoaded" class="pa-3">
         <router-link
           :id="`sortable-${keyword}-${group.id}-view-all`"
+          class="text-primary font-weight-regular"
           :to="getRoutePath(group)"
         >
           <span v-if="group.totalStudentCount">
@@ -106,6 +109,7 @@ import {mdiMenuDown, mdiMenuRight} from '@mdi/js'
 
 <script>
 import Context from '@/mixins/Context'
+import PillAlert from '@/components/util/PillAlert'
 import SortableStudents from '@/components/search/SortableStudents'
 import Util from '@/mixins/Util'
 import {getStudentsWithAlerts as getCohortStudentsWithAlerts} from '@/api/cohort'
@@ -113,7 +117,7 @@ import {getStudentsWithAlerts as getCuratedStudentsWithAlerts} from '@/api/curat
 
 export default {
   name: 'SortableGroup',
-  components: {SortableStudents},
+  components: {PillAlert, SortableStudents},
   mixins: [Context, Util],
   props: {
     compact: {
@@ -187,7 +191,6 @@ export default {
 }
 .sortable-group {
   border: 1px solid #007bff;
-  border-radius: 0.25rem;
 }
 </style>
 
