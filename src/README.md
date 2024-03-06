@@ -71,6 +71,12 @@ TODO: notes
 
 TODO: notes
 
+### b-dropdown to v-select
+
+Example: src/components/note/CreateNoteHeader.vue
+
+- VSelect has no direct equivalent of `<b-select-header>`; use Vuetify's `prepend-item` slot instead.
+
 ### b-table to v-table
 
 Example: src/components/search/SortableStudents.vue

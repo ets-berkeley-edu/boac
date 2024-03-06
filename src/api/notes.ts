@@ -83,11 +83,10 @@ export function updateNote(
 
 export function applyNoteTemplate(noteId: number, templateId: number) {
   return axios.post(`${utils.apiBaseUrl()}/api/note/apply_template`, {noteId, templateId}).then(response => {
-    const data = response.data
-    useContextStore().broadcast('note-updated', data)
+    useContextStore().broadcast('note-updated', response)
     $_track('update')
     $_refreshMyDraftNoteCount()
-    return data
+    return response
   })
 }
 

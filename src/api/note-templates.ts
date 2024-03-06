@@ -13,7 +13,7 @@ const $_track = action => ga.noteTemplate(action)
 export function getMyNoteTemplates() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/note_templates/my`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function createNoteTemplate(noteId: number, title: string) {
