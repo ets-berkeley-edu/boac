@@ -12,16 +12,16 @@
       role="banner"
     >
       <div v-if="_startsWith($route.path, '/home')" class="text-nowrap">
-        <span class="font-weight-bolder">UC Berkeley</span>
+        <span class="font-weight-bold">UC Berkeley</span>
         Online Advising
       </div>
       <router-link
         v-if="!_startsWith($route.path, '/home')"
         id="home-header"
-        class="text-nowrap"
+        class="text-no-wrap"
         to="/"
       >
-        <span class="font-weight-bolder">UC Berkeley</span>
+        <span class="font-weight-bold">UC Berkeley</span>
         Online Advising
       </router-link>
     </div>

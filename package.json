@@ -31,8 +31,9 @@
     "vue": "3.4.21",
     "vue-router": "4.3.0",
     "vue3-shortkey": "4.0.0",
+    "vue3-simple-typeahead": "1.0.11",
     "vue3-smooth-scroll": "0.8.1",
-    "vuetify": "3.5.6",
+    "vuetify": "3.5.8",
     "webfontloader": "1.6.28"
   },
   "devDependencies": {
@@ -43,12 +44,12 @@
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.22.0",
     "eslint-plugin-vue-scoped-css": "^2.7.2",
-    "typescript": "5.3.3",
-    "vite": "^5.1.4",
+    "typescript": "5.4.2",
+    "vite": "^5.1.5",
     "vite-plugin-compression": "^0.5.1",
     "vite-plugin-vuetify": "^2.0.2",
     "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^1.8.27"
+    "vue-tsc": "^2.0.5"
   },
   "type": "module"
 }

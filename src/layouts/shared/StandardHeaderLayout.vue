@@ -1,56 +1,51 @@
 <template>
   <v-container
     v-shortkey="['ctrl', 'alt', 's']"
-    class="my-2"
+    class="my-2 py-0"
     fluid
     @shortkey="() => putFocusNextTick('search-students-input')"
   >
-    <v-row>
+    <v-row no-gutters>
       <v-col align-self="center" cols="auto" md="4">
         <div class="py-2">
           <HeaderBranding />
         </div>
       </v-col>
       <v-col>
-        <div class="align-items-center d-flex">
+        <div class="justify-center d-flex">
           <div>
             <label for="search-students-input" class="sr-only">
               {{ labelForSearchInput }}
               (Type / to put focus in the search input field.)
             </label>
-            <!--
-            <Autocomplete
+            <SimpleTypeahead
               id="search-students-input"
               :key="autocompleteInputResetKey"
               aria-labelledby="search-input-label"
-              base-class="autocomplete"
+              class="simple-typeahead"
               :class="{
                 'faint-text': !queryText,
                 'search-focus-in': isFocusOnSearch || queryText,
                 'search-focus-out': !isFocusOnSearch && !queryText
               }"
-              :default-value="queryText"
               :disabled="isSearching"
+              :item-projection="item => item.email"
+              :items="searchHistory"
+              :min-input-length="1"
               name="q"
               placeholder="/ to search"
-              :search="onChangeAutocomplete"
               type="search"
+              @select-item="selectItem"
               @keydown.enter.prevent="search"
-              @submit="onSubmitAutocomplete"
+              @on-input="onInput"
+              @on-blur="onBlur"
               @focusin="onFocusInSearch"
               @focusout="onFocusOutSearch"
             >
-              <template #result="{result, props}">
-                <li v-bind="props" :id="`search-auto-suggest-${props['data-result-index']}`">
-                  <span class="font-size-18">{{ result }}</span>
-                </li>
+              <template #list-item-text="slot">
+                <span v-html="slot.boldMatchText(slot.itemProjection(slot.item))"></span>
               </template>
-            </Autocomplete>
-            -->
-            <v-text-field
-              id="search-students-input"
-              placeholder="Type here..."
-            />
+            </SimpleTypeahead>
             <v-tooltip
               v-model="showErrorPopover"
               target="search-students-input"
@@ -66,11 +61,11 @@
               </span>
             </v-tooltip>
           </div>
-          <div v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" class="d-flex">
+          <div v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" class="d-flex justify-center">
             <div class="pl-2">
               <v-btn
                 id="go-search"
-                class="h-100"
+                class="btn-search"
                 variant="outlined"
                 @keydown.enter="search"
                 @click.stop="search"
@@ -90,15 +85,17 @@
                 <template #activator="{}">
                   <v-btn
                     id="search-options-panel-toggle"
-                    class="px-2"
+                    class="px-0"
                     :class="{'border-0': !isFocusAdvSearchButton}"
+                    color="white"
+                    icon
                     variant="text"
                     @click.prevent="openAdvancedSearch"
                     @focusin="() => isFocusAdvSearchButton = true"
                     @focusout="() => isFocusAdvSearchButton = false"
                   >
                     <span class="sr-only">Open advanced search</span>
-                    <v-icon :icon="mdiTuneVariant" size="lg" />
+                    <v-icon :icon="mdiTune" size="large" />
                   </v-btn>
                 </template>
               </v-tooltip>
@@ -115,7 +112,8 @@
 </template>
 
 <script setup>
-import {mdiAlertCircle, mdiTuneVariant} from '@mdi/js'
+import SimpleTypeahead from 'vue3-simple-typeahead'
+import {mdiAlertCircle, mdiTune} from '@mdi/js'
 </script>
 
 <script>
@@ -160,6 +158,15 @@ export default {
     })
   },
   methods: {
+    selectItem(item) {
+      console.log(`search.selectItem: ${item}`)
+    },
+    onInput(event) {
+      console.log(`search.onInput: ${event}`)
+    },
+    onBlur(event) {
+      console.log(`search.onBlur: ${event}`)
+    },
     hideError() {
       this.showErrorPopover = false
     },
@@ -211,8 +218,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .search-focus-in {
+  border: 0;
   max-width: 300px;
   width: 300px;
   transition: max-width ease-out 0.2s;
@@ -221,5 +229,46 @@ export default {
   max-width: 200px;
   transition: min-width ease-in 0.2s;
   width: 200px;
+}
+</style>
+
+<style scoped>
+.btn-search {
+  background-color: transparent;
+  color: white;
+  font-size: 16px;
+  height: 42px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  margin-top: 4px;
+  padding: 6px 8px;
+}
+.btn-search:hover {
+  background-color: white;
+  border-color: white;
+  color: black;
+}
+.simple-typeahead {
+  background-color: white;
+  border-radius: 8px;
+  border-color: rgb(238, 238, 238);
+  border-style: solid;
+  border-width: 1px;
+  box-sizing: border-box;
+  cursor: text;
+  display: inline-block;
+  flex-basis: 0%;
+  flex-grow: 1;
+  flex-shrink: 1;
+  font-feature-settings: normal;
+  font-kerning: auto;
+  font-optical-sizing: auto;
+  font-size: 16px;
+  height: 50px;
+  margin: 0;
+  outline-offset: -2px;
+  overflow-x: visible;
+  overflow-y: visible;
+  padding: 12px;
 }
 </style>
