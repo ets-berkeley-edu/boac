@@ -15,7 +15,7 @@
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
           :disabled="isSaving || !_trim(model.subject) || !!model.setDate || !!model.contactType"
-          variant="plain"
+          variant="text"
           @click="saveAsTemplate"
         >
           Save as template
@@ -37,7 +37,7 @@
             id="save-as-draft-button"
             class="mr-1"
             :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
-            variant="plain"
+            variant="text"
             @click.prevent="updateNote"
           >
             Save and Close Draft

@@ -14,7 +14,7 @@
         >
           <span
             v-if="isAutoSavingDraftNote && !suppressAutoSaveDraftNoteAlert"
-            class="accent-color-green font-size-12 font-weight-700 mb-1 ml-2"
+            class="text-accent-green font-size-12 font-weight-bold mb-1 ml-2"
           >
             DRAFT SAVED
           </span>
@@ -22,80 +22,94 @@
       </div>
     </div>
     <div class="mr-4">
-      <!-- TODO: if v-select is not accessible, we need to find a better replacement for b-dropdown -->
-      <!-- <b-dropdown
+      <v-select
         v-if="mode !== 'editTemplate'"
         id="my-templates-button"
-        class="mb-3 ml-0 pb-1"
+        bg-color="primary"
+        class="templates-dropdown"
+        density="compact"
         :disabled="isSaving || boaSessionExpired"
-        right
-        text="Templates"
-        toggle-class="btn-primary-color-override"
-        variant="primary"
+        hide-details
+        :items="noteTemplates"
+        label="Templates"
+        open-on-hover
+        :menu-props="{contentClass: 'bg-white', location: 'bottom right', openOnFocus: true}"
+        persistent-hint
+        variant="solo-filled"
         @show="onShowTemplatesMenu"
         @hide="alertScreenReader('Templates menu closed.')"
       >
-        <b-dropdown-header v-if="!_size(noteTemplates)" id="no-templates-header" class="templates-dropdown-header">
-          <div class="font-weight-bolder">Templates</div>
-          <div class="templates-dropdown-instructions">
-            You have no saved templates.
-          </div>
-        </b-dropdown-header>
-        <b-dropdown-text
-          v-for="template in noteTemplates"
-          :key="template.id"
-        >
-          <div class="align-items-center d-flex font-weight-normal justify-content-between text-nowrap">
-            <v-btn
-              :id="`load-note-template-${template.id}`"
-              :title="template.title"
-              class="pb-0 text-nowrap template-dropdown-title truncate-with-ellipsis"
-              variant="link"
-              @click="loadTemplate(template)"
-            >
-              {{ template.title }}
-            </v-btn>
-            <div class="align-items-center d-flex ml-3">
-              <div class="pl-2">
-                <v-btn
-                  :id="`btn-rename-note-template-${template.id}`"
-                  variant="link"
-                  class="p-0"
-                  @click="openRenameTemplateModal(template)"
-                >
-                  Rename<span class="sr-only"> template {{ template.title }}</span>
-                </v-btn>
-              </div>
-              <div class="pl-1 pr-1">
-                |
-              </div>
-              <div>
-                <v-btn
-                  :id="`btn-edit-note-template-${template.id}`"
-                  variant="link"
-                  class="p-0"
-                  @click="editTemplate(template)"
-                >
-                  Edit<span class="sr-only"> template {{ template.title }}</span>
-                </v-btn>
-              </div>
-              <div class="pl-1 pr-1">
-                |
-              </div>
-              <div>
-                <v-btn
-                  :id="`btn-delete-note-template-${template.id}`"
-                  variant="link"
-                  class="p-0"
-                  @click="openDeleteTemplateModal(template)"
-                >
-                  Delete<span class="sr-only"> template {{ template.title }}</span>
-                </v-btn>
-              </div>
+        <template #no-data>
+          <div id="no-templates-header" class="templates-dropdown-header text-medium-emphasis">
+            <div class="font-weight-bold">Templates</div>
+            <div class="templates-dropdown-instructions">
+              You have no saved templates.
             </div>
           </div>
-        </b-dropdown-text>
-      </b-dropdown> -->
+        </template>
+        <template #item="{props, item}">
+          <v-list-item v-bind="props">
+            <template #title="{title}">
+              <v-btn
+                :id="`load-note-template-${item.raw.id}`"
+                :title="title"
+                class="text-nowrap template-dropdown-title truncate-with-ellipsis"
+                color="primary"
+                density="compact"
+                variant="text"
+                @click="loadTemplate(item.raw)"
+              >
+                {{ title }}
+              </v-btn>
+            </template>
+            <template #append>
+              <v-list-item-action end>
+                <div class="align-items-center d-flex ml-3">
+                  <div class="pl-2">
+                    <v-btn
+                      :id="`btn-rename-note-template-${item.raw.id}`"
+                      class="px-2"
+                      density="compact"
+                      variant="text"
+                      @click="openRenameTemplateModal(item.raw)"
+                    >
+                      Rename<span class="sr-only"> template {{ item.raw.title }}</span>
+                    </v-btn>
+                  </div>
+                  <div aria-role="separator">
+                    |
+                  </div>
+                  <div>
+                    <v-btn
+                      :id="`btn-edit-note-template-${item.raw.id}`"
+                      class="px-2"
+                      density="compact"
+                      variant="text"
+                      @click="editTemplate(item.raw)"
+                    >
+                      Edit<span class="sr-only"> template {{ item.raw.title }}</span>
+                    </v-btn>
+                  </div>
+                  <div aria-role="separator">
+                    |
+                  </div>
+                  <div>
+                    <v-btn
+                      :id="`btn-delete-note-template-${item.raw.id}`"
+                      class="px-2"
+                      density="compact"
+                      variant="text"
+                      @click="openDeleteTemplateModal(item.raw)"
+                    >
+                      Delete<span class="sr-only"> template {{ item.raw.title }}</span>
+                    </v-btn>
+                  </div>
+                </div>
+              </v-list-item-action>
+            </template>
+          </v-list-item>
+        </template>
+      </v-select>
     </div>
     <RenameTemplateModal
       v-if="showRenameTemplateModal"
@@ -242,6 +256,20 @@ export default {
 }
 </script>
 
+<style>
+.template-dropdown-title {
+  max-width: 200px;
+}
+.templates-dropdown-header {
+  font-size: .875rem;
+  padding: 0.5rem 1.5rem;
+}
+.templates-dropdown-instructions {
+  max-width: 300px;
+  white-space: normal;
+}
+</style>
+
 <style scoped>
 .bounce-enter-active {
   animation: bounce-in 0.75s;
@@ -260,14 +288,7 @@ export default {
     transform: scale(1);
   }
 }
-.template-dropdown-title {
-  max-width: 200px;
-}
-.templates-dropdown-header {
-  width: 300px;
-}
-.templates-dropdown-instructions {
-  max-width: 300px;
-  white-space: normal;
+.templates-dropdown {
+  width: 145px;
 }
 </style>

@@ -35,7 +35,7 @@
           >
             <div class="d-flex">
               <div v-if="isSaving" class="mr-2">
-                <v-icon :icon="sync" spin />
+                <v-icon :icon="mdiSync" spin />
               </div>
               <div>{{ alert }}</div>
             </div>
@@ -144,6 +144,10 @@
   </v-overlay>
 </template>
 
+<script setup>
+import {mdiSync} from '@mdi/js'
+</script>
+
 <script>
 import AdvisingNoteAttachments from '@/components/note/AdvisingNoteAttachments'
 import AdvisingNoteTopics from '@/components/note/AdvisingNoteTopics'
@@ -161,7 +165,7 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
 import {addAttachments, createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
-import {exitSession} from '@/stores/note-edit-session/utils'
+import {exitSession, setSubjectPerEvent, updateAdvisingNote} from '@/stores/note-edit-session/utils'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -285,7 +289,7 @@ export default {
         // File upload might take time; alert will be overwritten when API call is done.
         this.showAlert('Creating template...', 60)
         // Save draft before creating template.
-        useNoteStore().updateAdvisingNote().then(() => {
+        updateAdvisingNote().then(() => {
           createNoteTemplate(this.model.id, title).then(() => {
             this.showAlert(`Template '${title}' created.`)
             setTimeout(() => {
@@ -378,9 +382,7 @@ export default {
       }
       this.invokeIfAuthenticated(ifAuthenticated)
     },
-    setSubjectPerEvent() {
-      useNoteStore().setSubjectPerEvent()
-    },
+    setSubjectPerEvent,
     showAlert(alert, seconds=3) {
       this.alert = alert
       this.dismissAlertSeconds = seconds
@@ -396,7 +398,7 @@ export default {
         if (this.model.isDraft || (this.model.subject && this.completeSidSet.length)) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
-          useNoteStore().updateAdvisingNote().then(() => {
+          updateAdvisingNote().then(() => {
             this.setIsSaving(false)
             this.alertScreenReader(this.mode.includes('create') ? 'Note created' : 'Note saved')
             this.exit(false)

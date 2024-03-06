@@ -6,7 +6,7 @@ import {useContextStore} from '@/stores/context'
 export function getDepartments(excludeEmpty?: boolean) {
   return axios
     .get(`${utils.apiBaseUrl()}/api/users/departments?excludeEmpty=${excludeEmpty}`)
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
@@ -16,15 +16,15 @@ export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDel
       sortBy,
       sortDescending
     })
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function getUserProfile() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/profile/my`)
     .then(response => {
-      const user = response.data
-      if (!user.isAuthenticated) {
+      const user = response
+      if (!_.get(user, 'isAuthenticated')) {
         useContextStore().broadcast('user-session-expired')
       }
       return user
@@ -32,15 +32,15 @@ export function getUserProfile() {
 }
 
 export function getCalnetProfileByCsid(csid) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`).then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_csid/${csid}`).then(response => response, () => null)
 }
 
 export function getCalnetProfileByUserId(userId) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`).then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_user_id/${userId}`).then(response => response, () => null)
 }
 
 export function getCalnetProfileByUid(uid) {
-  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`).then(response => response.data, () => null)
+  return axios.get(`${utils.apiBaseUrl()}/api/user/calnet_profile/by_uid/${uid}`).then(response => response, () => null)
 }
 
 export function getUserByUid(uid, ignoreDeleted?: boolean) {
@@ -48,7 +48,7 @@ export function getUserByUid(uid, ignoreDeleted?: boolean) {
   if (!_.isNil(ignoreDeleted)) {
     url += `?ignoreDeleted=${ignoreDeleted}`
   }
-  return axios.get(url).then(response => response.data, () => null)
+  return axios.get(url).then(response => response, () => null)
 }
 
 export function getUsers(
@@ -68,19 +68,19 @@ export function getUsers(
       sortBy,
       sortDescending
     })
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function userAutocomplete(snippet: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/users/autocomplete`, {snippet: snippet})
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function becomeUser(uid: string) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/auth/become_user`, {uid: uid})
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function setDemoMode(demoMode: boolean) {
@@ -98,5 +98,5 @@ export function createOrUpdateUser(profile: any, memberships: any[], deleteActio
       profile,
       memberships
     })
-    .then(response => response.data)
+    .then(response => response)
 }
