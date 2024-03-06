@@ -1,8 +1,8 @@
 <template>
-  <div class="modal-header py-2">
+  <div class="modal-header py-0">
     <h3
       :id="headerId"
-      class="font-size-24"
+      class="font-size-24 font-weight-medium"
       :class="clazz"
       tabindex="0"
     >

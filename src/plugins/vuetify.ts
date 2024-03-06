@@ -1,7 +1,7 @@
 import 'vuetify/styles'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
-import {Resize} from 'vuetify/directives'
+import {Intersect, Resize} from 'vuetify/directives'
 import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
@@ -85,6 +85,7 @@ export default createVuetify({
     }
   },
   directives: {
+    Intersect,
     Resize
   },
   icons: {

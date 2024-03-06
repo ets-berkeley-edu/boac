@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-wrap mb-1 mt-2 pt-2">
+  <div class="d-flex flex-wrap">
     <div class="flex-grow-1">
       <div class="align-items-center d-flex">
         <ModalHeader
@@ -25,19 +25,21 @@
       <v-select
         v-if="mode !== 'editTemplate'"
         id="my-templates-button"
+        v-model="selectedTemplate"
         bg-color="primary"
         class="templates-dropdown"
         density="compact"
         :disabled="isSaving || boaSessionExpired"
         hide-details
+        item-value="id"
         :items="noteTemplates"
         label="Templates"
         open-on-hover
-        :menu-props="{contentClass: 'bg-white', location: 'bottom right', openOnFocus: true}"
+        :menu-props="{contentClass: 'bg-white', location: 'bottom right'}"
         persistent-hint
+        return-object
         variant="solo-filled"
-        @show="onShowTemplatesMenu"
-        @hide="alertScreenReader('Templates menu closed.')"
+        @update:menu="onToggleTemplatesMenu"
       >
         <template #no-data>
           <div id="no-templates-header" class="templates-dropdown-header text-medium-emphasis">
@@ -153,6 +155,7 @@ export default {
   },
   data: () => ({
     modalHeader: undefined,
+    selectedTemplate: undefined,
     showDeleteTemplateModal: false,
     showRenameTemplateModal: false,
     suppressAutoSaveDraftNoteAlert: false,
@@ -221,10 +224,14 @@ export default {
         this.alertScreenReader(`Template ${template.title} loaded.`)
       })
     },
-    onShowTemplatesMenu() {
-      let count = this._size(this.noteTemplates)
-      const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
-      this.alertScreenReader(`Template menu open. You have ${suffix}.`)
+    onToggleTemplatesMenu(isOpen) {
+      if (isOpen) {
+        let count = this._size(this.noteTemplates)
+        const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
+        this.alertScreenReader(`Template menu open. You have ${suffix}.`)
+      } else {
+        this.alertScreenReader('Templates menu closed.')
+      }
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
@@ -289,6 +296,6 @@ export default {
   }
 }
 .templates-dropdown {
-  width: 145px;
+  width: 170px;
 }
 </style>
