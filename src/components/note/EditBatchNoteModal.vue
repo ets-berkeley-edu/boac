@@ -9,13 +9,13 @@
       id="new-note-modal-container"
       class="modal-content mt-3"
       :class="{
-        'modal-content': ['createBatch', 'createNote', 'editDraft', 'editTemplate'].includes(mode),
         'mt-4': ['createBatch', 'editDraft'].includes(mode)
       }"
+      min-width="500"
     >
       <CreateNoteHeader :cancel-primary-modal="cancelRequested" />
-      <hr class="m-0" />
-      <div class="mt-2 mr-3 mb-1 ml-3">
+      <hr />
+      <div class="px-4">
         <Transition v-if="['createBatch', 'editDraft'].includes(mode)" name="batch-transition">
           <div v-show="mode !== 'editTemplate'">
             <BatchNoteFeatures :cancel="cancelRequested" />
@@ -436,31 +436,24 @@ export default {
 
 <!-- The 'batch' classes (below) are used by Vue transition above. -->
 <style scoped>
-.batch-enter-active {
+.batch-enter-active { /* eslint-disable-line vue-scoped-css/no-unused-selector */
   -webkit-transition-duration: 0.3s;
   transition-duration: 0.3s;
   -webkit-transition-timing-function: ease-in;
   transition-timing-function: ease-in;
 }
-.batch-leave-active {
+.batch-leave-active { /* eslint-disable-line vue-scoped-css/no-unused-selector */
   -webkit-transition-duration: 0.3s;
   transition-duration: 0.5s;
   -webkit-transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
   transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
 }
-.batch-enter-to, .batch-leave {
+.batch-enter-to, .batch-leave { /* eslint-disable-line vue-scoped-css/no-unused-selector */
   max-height: 280px;
   overflow: hidden;
 }
-.batch-enter, .batch-leave-to {
+.batch-enter, .batch-leave-to { /* eslint-disable-line vue-scoped-css/no-unused-selector */
   overflow: hidden;
   max-height: 0;
-}
-.modal-content {
-  background-color: #fff;
-  margin: 140px auto auto auto;
-  min-width: 400px;
-  padding-bottom: 20px;
-  width: 60%;
 }
 </style>

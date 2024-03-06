@@ -32,8 +32,7 @@ export function deleteNoteTemplate(templateId: number) {
 
 export function renameNoteTemplate(noteTemplateId: number, title: string) {
   const data = {id: noteTemplateId, title: title}
-  return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(response => {
-    const template = response.data
+  return axios.post(`${utils.apiBaseUrl()}/api/note_template/rename`, data).then(template => {
     useNoteStore().onUpdateTemplate(template)
     $_track('update')
     return template
