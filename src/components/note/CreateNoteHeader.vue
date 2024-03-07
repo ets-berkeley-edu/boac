@@ -125,11 +125,12 @@
       v-if="showDeleteTemplateModal"
       :function-cancel="cancel"
       :function-confirm="deleteTemplateConfirmed"
-      :modal-body="`Are you sure you want to delete the <b>'${_get(targetTemplate, 'title')}'</b> template?`"
       :show-modal="showDeleteTemplateModal"
       button-label-confirm="Delete"
       modal-header="Delete Template"
-    />
+    >
+      Are you sure you want to delete the <strong>'{{ _get(targetTemplate, 'title') }}'</strong> template?
+    </AreYouSureModal>
   </div>
 </template>
 

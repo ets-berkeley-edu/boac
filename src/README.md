@@ -83,6 +83,7 @@ Example: src/components/note/CreateNoteHeader.vue
 - Add property `persistent` so the overlay stays open when you click outside.
 - Add property e.g. `:menu-props="{contentClass: 'bg-white'}"` to override the default gray background of the menu.
 - Add `<v-card class="modal-content">` as a child of `<v-overlay>` and wrapping its contents.
+- Remove these properties: `body-class`, `hide-footer`, and `hide-header`.
 
 ### b-table to v-table
 
