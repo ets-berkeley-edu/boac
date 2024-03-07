@@ -49,6 +49,7 @@ module.exports = {
     'vue/multiline-html-element-content-newline': 2,
     'vue/no-boolean-default': 2,
     'vue/no-deprecated-destroyed-lifecycle': 1,
+    'vue/no-deprecated-filter': 1,
     'vue/no-deprecated-slot-attribute': 2,
     'vue/no-deprecated-v-on-native-modifier': 1,
     'vue/no-multi-spaces': 2,

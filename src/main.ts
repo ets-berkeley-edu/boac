@@ -7,12 +7,14 @@ import Highcharts from 'highcharts'
 import highchartsAccessibility from 'highcharts/modules/accessibility'
 import HighchartsMore from 'highcharts/highcharts-more'
 import linkify from 'vue-linkify'
+import moment from 'moment-timezone'
 import router from './router'
 import store from './store'
 import VCalendar from 'v-calendar'
 import Vue from 'vue'
 import VueHighcharts from 'vue-highcharts'
 import VueHotkey from 'v-hotkey'
+import VueMoment from 'vue-moment'
 import {routerHistory, writeHistory} from 'vue-router-back-button'
 import {library} from '@fortawesome/fontawesome-svg-core'
 import {far} from '@fortawesome/free-regular-svg-icons'
@@ -39,6 +41,7 @@ Vue.use(BootstrapVue)
 Vue.use(CKEditor)
 Vue.use(VCalendar)
 Vue.use(VueHotkey)
+Vue.use(VueMoment, {moment})
 
 HighchartsMore(Highcharts)
 Vue.use(VueHighcharts, {Highcharts})
