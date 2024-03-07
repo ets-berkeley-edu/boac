@@ -8,6 +8,7 @@ import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
+import {VCheckbox} from 'vuetify/components/VCheckbox'
 import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
@@ -46,6 +47,7 @@ export default createVuetify({
     VCardSubtitle,
     VCardText,
     VCardTitle,
+    VCheckbox,
     VChip,
     VCol,
     VContainer,

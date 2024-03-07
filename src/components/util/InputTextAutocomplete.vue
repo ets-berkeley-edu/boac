@@ -1,43 +1,43 @@
 <template>
   <div :id="id">
-    <b-input-group>
-      <v-text-field
-        :id="`${id}-input`"
-        ref="autocompleteInput"
-        v-model="query"
-        :aria-labelledby="inputLabelledBy"
-        :aria-readonly="disabled"
-        autocomplete="off"
-        :class="inputClass"
-        :disabled="disabled"
-        :maxlength="maxlength"
-        name="autocomplete-name"
-        :placeholder="placeholder"
-        :type="demoModeBlur && currentUser.inDemoMode ? 'password' : formInputType"
-        @focusin="makeSuggestions"
-        @input="onTextInput"
-        @keypress.enter.prevent="onEnter"
-        @keyup.esc="onEscInput"
-        @keyup.down="onArrowDown"
-      />
-      <slot name="append"></slot>
-      <b-input-group-append v-if="showAddButton">
-        <v-btn
-          :id="`${id}-add-button`"
-          class="btn btn-primary-color-override"
-          :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !(fallback && fallbackWhen(query)))"
-          @click="onAddButton"
-          @keyup.enter="onAddButton"
-        >
-          <div v-if="!addButtonLoading">
-            <v-icon :icon="mdiPlus" /> Add
-          </div>
-          <div v-if="addButtonLoading">
-            <v-progress-circular size="small" />
-          </div>
-        </v-btn>
-      </b-input-group-append>
-    </b-input-group>
+    <v-autocomplete
+      :id="`${id}-input`"
+      ref="autocompleteInput"
+      v-model="query"
+      :aria-labelledby="inputLabelledBy"
+      :aria-readonly="disabled"
+      autocomplete="off"
+      :class="inputClass"
+      :disabled="disabled"
+      :maxlength="maxlength"
+      name="autocomplete-name"
+      :placeholder="placeholder"
+      :type="demoModeBlur && currentUser.inDemoMode ? 'password' : formInputType"
+      @focusin="makeSuggestions"
+      @input="onTextInput"
+      @keypress.enter.prevent="onEnter"
+      @keyup.esc="onEscInput"
+      @keyup.down="onArrowDown"
+    />
+    <!--
+    TODO:
+    <b-input-group-append v-if="showAddButton">
+      <v-btn
+        :id="`${id}-add-button`"
+        class="btn btn-primary-color-override"
+        :disabled="addButtonLoading || isLoading || (!selectedSuggestion && !(fallback && fallbackWhen(query)))"
+        @click="onAddButton"
+        @keyup.enter="onAddButton"
+      >
+        <div v-if="!addButtonLoading">
+          <v-icon :icon="mdiPlus" /> Add
+        </div>
+        <div v-if="addButtonLoading">
+          <v-progress-circular size="small" />
+        </div>
+      </v-btn>
+    </b-input-group-append>
+    -->
     <div v-if="restrict || suggestions.length" class="dropdown">
       <ul
         :id="`${id}-suggestions`"
@@ -80,10 +80,6 @@
     </div>
   </div>
 </template>
-
-<script setup>
-import {mdiPlus} from '@mdi/js'
-</script>
 
 <script>
 import Context from '@/mixins/Context'
