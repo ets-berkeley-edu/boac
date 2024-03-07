@@ -327,11 +327,12 @@
       v-if="bundleForDelete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="`Are you sure you want to delete <strong>&quot;${bundleForDelete.name}&quot;</strong>`"
       :show-modal="!!bundleForDelete"
       button-label-confirm="Delete"
       modal-header="Delete Course"
-    />
+    >
+      Are you sure you want to delete <strong>&quot;{{ bundleForDelete.name }}&quot;</strong>
+    </AreYouSureModal>
   </div>
 </template>
 

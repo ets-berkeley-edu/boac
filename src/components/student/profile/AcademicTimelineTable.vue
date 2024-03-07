@@ -321,11 +321,12 @@
       v-if="showDeleteConfirmModal"
       :function-cancel="cancelTheDelete"
       :function-confirm="deleteConfirmed"
-      :modal-body="deleteConfirmModalBody"
       :show-modal="showDeleteConfirmModal"
       button-label-confirm="Delete"
       modal-header="Delete note"
-    />
+    >
+      {{ deleteConfirmModalBody }}
+    </AreYouSureModal>
   </div>
 </template>
 

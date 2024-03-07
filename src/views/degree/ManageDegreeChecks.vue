@@ -196,11 +196,12 @@
       v-if="templateForDelete"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="deleteModalBody"
       :show-modal="!!templateForDelete"
       button-label-confirm="Delete"
       modal-header="Delete Degree"
-    />
+    >
+      {{ deleteModalBody }}
+    </AreYouSureModal>
     <CloneTemplateModal
       v-if="templateToClone"
       :after-create="afterClone"

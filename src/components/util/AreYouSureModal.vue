@@ -1,28 +1,27 @@
 <template>
-  <b-modal
+  <v-overlay
     v-model="showAreYouSureModal"
-    :no-close-on-backdrop="true"
-    body-class="pl-0 pr-0"
-    hide-footer
-    hide-header
-    @cancel.prevent="functionCancel"
-    @hide.prevent="functionCancel"
-    @shown="putFocusNextTick('modal-header')"
+    class="justify-center overflow-auto"
+    max-width="800"
+    min-width="400"
+    persistent
+    width="100%"
+    @update:model-value="onToggle"
   >
-    <div>
+    <v-card class="modal-content">
       <ModalHeader clazz="px-3" :text="modalHeader" />
-      <div v-if="modalBody" class="modal-body">
-        <div class="px-3">
-          <span v-html="modalBody" />
-        </div>
+      <hr />
+      <div class="px-4">
+        <slot></slot>
       </div>
-      <div class="modal-footer mb-0 pb-0 pt-3">
-        <form @submit.prevent="confirm">
+      <hr />
+      <form @submit.prevent="confirm">
+        <div class="d-flex justify-end py-3 px-4">
           <v-btn
             id="are-you-sure-confirm"
-            class="btn-primary-color-override"
+            color="primary"
             :disabled="isProcessing"
-            @click.prevent="confirm"
+            @click.prevent.once="confirm"
           >
             <v-progress-circular
               v-if="isProcessing"
@@ -33,17 +32,16 @@
           </v-btn>
           <v-btn
             id="are-you-sure-cancel"
-            class="pl-2"
             :disabled="isProcessing"
             variant="plain"
             @click.stop="functionCancel"
           >
             {{ buttonLabelCancel }}
           </v-btn>
-        </form>
-      </div>
-    </div>
-  </b-modal>
+        </div>
+      </form>
+    </v-card>
+  </v-overlay>
 </template>
 
 <script>
@@ -72,11 +70,6 @@ export default {
     functionConfirm: {
       type: Function,
       required: true
-    },
-    modalBody: {
-      type: String,
-      required: false,
-      default: null
     },
     modalHeader: {
       type: String,
@@ -110,6 +103,13 @@ export default {
         })
       } else {
         this.isProcessing = false
+      }
+    },
+    onToggle(isOpen) {
+      if (isOpen) {
+        this.putFocusNextTick('modal-header')
+      } else {
+        this.functionCancel()
       }
     }
   }

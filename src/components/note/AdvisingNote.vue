@@ -136,11 +136,12 @@
       v-if="showConfirmDeleteAttachment"
       :function-cancel="cancelRemoveAttachment"
       :function-confirm="confirmedRemoveAttachment"
-      :modal-body="`Are you sure you want to delete the <b>'${displayName(existingAttachments, deleteAttachmentIndex)}'</b> attachment?`"
       :show-modal="showConfirmDeleteAttachment"
       button-label-confirm="Delete"
       modal-header="Delete Attachment"
-    />
+    >
+      Are you sure you want to delete the <strong>'{{ displayName(existingAttachments, deleteAttachmentIndex) }}'</strong> attachment?
+    </AreYouSureModal>
     <div v-if="isOpen">
       <ul class="pill-list pl-0 mt-3">
         <li

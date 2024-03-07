@@ -117,11 +117,12 @@
       v-if="isDeleting"
       :function-cancel="deleteCanceled"
       :function-confirm="deleteConfirmed"
-      :modal-body="`Are you sure you want to delete <strong>${_get(selected, 'name')}</strong>?`"
       :show-modal="isDeleting"
       button-label-confirm="Delete"
       modal-header="Delete Unit Requirement"
-    />
+    >
+      Are you sure you want to delete <strong>{{ _get(selected, 'name') }}</strong>?
+    </AreYouSureModal>
   </b-container>
 </template>
 

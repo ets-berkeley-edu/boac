@@ -6,7 +6,7 @@
     max-width="900"
     min-width="400"
     persistent
-    width="80%"
+    width="100%"
     @shown="putFocusNextTick('modal-header')"
   >
     <v-card class="modal-content">
@@ -54,6 +54,7 @@
           </v-btn>
           <v-btn
             id="cancel-rename-template"
+            :disabled="isSaving"
             variant="plain"
             @click="cancelModal"
           >

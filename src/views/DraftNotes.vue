@@ -101,10 +101,11 @@
         :button-label-confirm="isDeleting ? 'Deleting' : 'Delete'"
         :function-cancel="deselectDraftNote"
         :function-confirm="deleteDraftNote"
-        :modal-body="deleteModalBodyText"
         modal-header="Are you sure?"
         :show-modal="showDeleteModal"
-      />
+      >
+        {{ deleteModalBodyText }}
+      </AreYouSureModal>
     </div>
     <EditBatchNoteModal
       v-if="showEditModal"
