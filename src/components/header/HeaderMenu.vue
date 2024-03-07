@@ -19,7 +19,7 @@
         <v-list-item-action v-if="currentUser.canReadDegreeProgress">
           <v-btn
             id="header-menu-degree-check"
-            class="nav-link-color text-decoration-none"
+            class="text-body text-decoration-none"
             to="/degrees"
             variant="text"
           >
@@ -30,7 +30,7 @@
           <v-btn
             id="header-menu-analytics"
             :to="currentUser.isAdmin ? '/analytics/qcadv' : `/analytics/${myDirectorDepartment.toLowerCase()}`"
-            class="nav-link-color text-decoration-none"
+            class="text-body text-decoration-none"
             variant="text"
           >
             Flight Data Recorder
@@ -39,7 +39,7 @@
         <v-list-item-action v-if="currentUser.isAdmin">
           <v-btn
             id="header-menu-flight-deck"
-            class="nav-link-color text-decoration-none"
+            class="text-body text-decoration-none"
             to="/admin"
             variant="text"
           >
@@ -49,7 +49,7 @@
         <v-list-item-action v-if="currentUser.isAdmin">
           <v-btn
             id="header-menu-passengers"
-            class="nav-link-color text-decoration-none"
+            class="text-body text-decoration-none"
             to="/admin/passengers"
             variant="text"
           >
@@ -61,7 +61,7 @@
         >
           <v-btn
             id="header-menu-profile"
-            class="nav-link-color text-decoration-none"
+            class="text-body text-decoration-none"
             to="/profile"
             variant="text"
           >
@@ -118,9 +118,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.nav-link-color {
-  color: #212529;
-}
-</style>

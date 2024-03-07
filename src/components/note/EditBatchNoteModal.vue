@@ -22,11 +22,11 @@
             <hr />
           </div>
         </Transition>
-        <div class="ml-2 mr-3 mt-2 pl-2 pr-2">
+        <div class="px-2">
           <v-alert
             id="alert-in-note-modal"
             :v-model="!!dismissAlertSeconds"
-            class="font-weight-bolder w-100"
+            class="font-weight-bold w-100 mb-2"
             closable
             color="info"
             aria-live="polite"
@@ -78,22 +78,18 @@
           />
         </div>
       </div>
-      <div>
-        <div class="mt-2 mr-3 mb-1 ml-3">
-          <AdvisingNoteTopics
-            :key="mode"
-            :add-topic="addTopic"
-            :disabled="isSaving || boaSessionExpired"
-            :remove-topic="removeTopic"
-            :topics="model.topics"
-          />
-        </div>
-        <div class="mt-2 mr-3 mb-3 ml-3">
-          <PrivacyPermissions
-            v-if="currentUser.canAccessPrivateNotes"
-            :disabled="isSaving || boaSessionExpired"
-          />
-        </div>
+      <div class="pa-4">
+        <AdvisingNoteTopics
+          :key="mode"
+          :add-topic="addTopic"
+          :disabled="isSaving || boaSessionExpired"
+          :remove-topic="removeTopic"
+          :topics="model.topics"
+        />
+        <PrivacyPermissions
+          v-if="currentUser.canAccessPrivateNotes"
+          :disabled="isSaving || boaSessionExpired"
+        />
         <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
           <div key="0" class="mt-2 mr-3 mb-3 ml-3">
             <ContactMethod :disabled="isSaving || boaSessionExpired" />

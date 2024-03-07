@@ -101,6 +101,7 @@ export default createVuetify({
         colors: {
           'accent-green': '#36a600',
           alert: '#fef6e6',
+          body: '#212529',
           'btn-secondary': '#6c757d',
           gray: '#cccccc',
           error: '#cf1715',
@@ -110,7 +111,7 @@ export default createVuetify({
           red: colors.red.darken1,
           secondary: '#eee',
           success: '#437F4B',
-          warn: '#f0ad4e'
+          warning: '#f0ad4e'
         }
       }
     }

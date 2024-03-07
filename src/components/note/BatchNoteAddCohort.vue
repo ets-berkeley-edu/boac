@@ -1,48 +1,63 @@
 <template>
   <div>
-    <div>
+    <div class="py-2">
       <label
         :for="`batch-note-${type}`"
-        class="font-size-14 font-weight-bolder input-label text mt-2"
-      ><span class="sr-only">Select a </span>{{ header }}</label>
+        class="font-size-14 font-weight-bold"
+      >
+        <span class="sr-only">Select a </span>{{ header }}
+      </label>
     </div>
-    <select
+    <v-select
       :id="`batch-note-${type}`"
-      :disabled="disabled"
-      dropright
-      :text="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
+      v-model="added"
       :aria-label="`Note will be created for all students in selected ${type}${objects.length === 1 ? '' : 's'}`"
-      variant="outlined"
       class="mb-2 ml-0 transparent"
+      density="compact"
+      :disabled="disabled"
+      hide-details
+      hide-selected
+      item-title="name"
+      item-value="id"
+      :items="objects"
+      :label="isCuratedGroupsMode ? 'Add Group' : 'Add Cohort'"
+      multiple
+      return-object
+      single-line
+      variant="outlined"
       menu-class="batch-note-cohorts-dropdown"
     >
-      <option
-        v-for="object in objects"
-        :id="`batch-note-${type}-option-${object.id}`"
-        :key="object.id"
-        :aria-label="`Add ${type} ${object.name}`"
-        :disabled="_includes(addedIds, object.id)"
-        @click="addItem(object)"
-      >
-        {{ _truncate(object.name) }}
-      </option>
-    </select>
-    <div>
-      <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap">
-          <span :id="`batch-note-${type}-${index}`">{{ _truncate(addedObject.name) }}</span>
-          <v-btn
-            :id="`remove-${type}-from-batch-${index}`"
-            variant="plain"
-            class="p-0"
-            @click.prevent="remove(addedObject)"
-          >
-            <v-icon :icon="mdiCloseCircle" class="font-size-20 has-error pl-2" />
-            <span class="sr-only">Remove</span>
-          </v-btn>
-        </span>
-      </div>
-    </div>
+      <template #item="{props, item}">
+        <v-list-item v-bind="props">
+          <template #title="{title}">
+            <span
+              :id="`batch-note-${type}-option-${item.value}`"
+              :key="item.value"
+              :aria-label="`Add ${type} ${title}`"
+              @click.stop="addItem(item.raw)"
+            >
+              {{ title }}
+            </span>
+          </template>
+        </v-list-item>
+      </template>
+      <template #selection="{item, index}">
+        <v-chip
+          :id="`batch-note-${type}-${index}`"
+          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          closable
+          :close-label="`Remove ${type} ${item.title}`"
+          density="comfortable"
+          variant="outlined"
+          @click:close="remove(item.raw)"
+        >
+          {{ item.title }}
+          <template #close>
+            <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+          </template>
+        </v-chip>
+      </template>
+    </v-select>
   </div>
 </template>
 
@@ -95,14 +110,15 @@ export default {
   },
   methods: {
     addItem(object) {
-      this.added.push(object)
-      this.addObject(object)
-      this.alertScreenReader(`${this.header} ${object.name} added to batch note`)
+      if (!this.addedIds.includes(object.id)) {
+        this.added.push(object)
+        this.addObject(object)
+      }
     },
     remove(object) {
-      this.added = this._filter(this.added, a => a.id !== object.id)
+      const index = this._findIndex(this.added, {'id': object.id})
+      this.added.splice(index, 1)
       this.removeObject(object)
-      this.alertScreenReader(`${this.header} ${object.name} removed from batch note`)
     }
   }
 }
