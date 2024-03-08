@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import {each} from 'lodash'
 import axios from 'axios'
 import ga from '@/lib/ga'
 import utils from '@/api/api-utils'
@@ -56,7 +56,7 @@ export function updateNoteTemplate(
     subject,
     topics,
   }
-  _.each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
+  each(newAttachments || [], (attachment, index) => data[`attachment[${index}]`] = attachment)
   return utils.postMultipartFormData('/api/note_template/update', data).then(template => {
     useNoteStore().onUpdateTemplate(template)
     $_track('update')

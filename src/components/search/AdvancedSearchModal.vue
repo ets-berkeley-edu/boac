@@ -1,302 +1,320 @@
 <template>
+  <v-tooltip location="bottom" text="Advanced search options">
+    <template #activator="{}">
+      <v-btn
+        id="search-options-panel-toggle"
+        class="px-0"
+        :class="{'border-0': !isFocusAdvSearchButton}"
+        color="white"
+        icon
+        variant="text"
+        @click.prevent="openAdvancedSearch"
+        @focusin="() => isFocusAdvSearchButton = true"
+        @focusout="() => isFocusAdvSearchButton = false"
+      >
+        <span class="sr-only">Open advanced search</span>
+        <v-icon :icon="mdiTune" size="large" />
+      </v-btn>
+    </template>
+  </v-tooltip>
   <v-dialog
     v-model="showAdvancedSearch"
     max-width="600"
     @hidden="onHidden"
   >
-    <div>
-      <div class="align-items-center d-flex justify-content-between my-2">
-        <div class="ml-2">
-          <h2
-            id="advanced-search-header"
-            class="font-size-24 font-weight-700"
-            tabindex="-1"
-          >
-            Advanced Search
-          </h2>
-        </div>
-        <div class="faint-text mr-1">
-          <v-btn
-            id="advanced-search-close"
-            class="pt-0"
-            variant="text"
-            @click="cancel"
-            @keydown.enter="cancel"
-          >
-            <span class="sr-only">Close</span>
-            <v-icon class="font-size-14" :icon="mdiClose" />
-          </v-btn>
-        </div>
-      </div>
-      <div class="mb-3 mx-2">
-        <label id="search-input-label" class="sr-only">{{ labelForSearchInput }}</label>
-        <!--
-        TODO:
-        <Autocomplete
-          id="advanced-search-students-input"
-          :key="autocompleteInputResetKey"
-          aria-labelledby="search-input-label"
-          :aria-required="searchInputRequired"
-          :base-class="validDateRange === false ? 'disabled' : 'autocomplete'"
-          :default-value="queryText"
-          :disabled="isSearching || validDateRange === false"
-          name="q"
-          placeholder="Search"
-          :search="onChangeAutocomplete"
-          type="search"
-          @keydown.enter.prevent="search"
-          @submit="setQueryText"
-        >
-          <template #result="{result, props}">
-            <li v-bind="props" :id="`search-auto-suggest-${props['data-result-index']}`">
-              <span class="font-size-18">{{ result }}</span>
-            </li>
-          </template>
-        </Autocomplete>
-        -->
-      </div>
-      <AdvancedSearchCheckboxes class="mb-2 ml-2" />
-      <transition class="pt-2" name="drawer">
-        <div
-          v-if="currentUser.canAccessAdvisingData && includeNotes"
-          class="border border-info mb-3 mx-2 p-3 rounded"
-        >
-          <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
-          <label class="font-size-16 font-weight-700" for="search-option-note-filters-topic">Topic</label>
-          <div>
-            <select
-              id="search-option-note-filters-topic"
-              v-model="topic"
-              class="w-75"
-              :disabled="isSearching"
-              style="font-size: 16px;"
+    <template #default="{}">
+      <div>
+        <div class="align-items-center d-flex justify-content-between my-2">
+          <div class="ml-2">
+            <h2
+              id="advanced-search-header"
+              class="font-size-24 font-weight-700"
+              tabindex="-1"
             >
-              <option :value="null">Any topic</option>
-              <option
-                v-for="option in topicOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.text }}
-              </option>
-            </select>
+              Advanced Search
+            </h2>
           </div>
-          <div class="pt-3">
-            <v-radio-group v-model="postedBy" class="mb-0" label="Posted By">
-              <div class="d-flex">
-                <div class="mr-2">
-                  <v-radio
-                    id="search-options-note-filters-posted-by-anyone"
-                    class="z-index-0"
-                    :ischecked="postedBy === 'anyone'"
-                    :disabled="isSearching"
-                    name="note-filters-posted-by"
-                    value="anyone"
-                  >
-                    Anyone
-                  </v-radio>
-                </div>
-                <div>
-                  <v-radio
-                    id="search-options-note-filters-posted-by-you"
-                    class="z-index-0"
-                    :ischecked="postedBy === 'you'"
-                    :disabled="isSearching"
-                    name="note-filters-posted-by"
-                    value="you"
-                    @change="() => setAuthor(null)"
-                  >
-                    You
-                  </v-radio>
-                </div>
-              </div>
-            </v-radio-group>
-          </div>
-          <div class="pt-3">
-            <div class="mb-0 w-50">
-              <label for="search-options-note-filters-author">Advisor</label>
-              <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
-              <InputTextAutocomplete
-                id="search-options-note-filters-author"
-                v-model="author"
-                :disabled="isSearching || postedBy === 'you'"
-                input-labelled-by="notes-search-author-input-label"
-                :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
-                :source="findAdvisorsByName"
-              />
-            </div>
-          </div>
-          <div class="pt-3">
-            <div class="mb-0 w-50">
-              <label for="search-options-note-filters-student">Student (name or SID)</label>
-              <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
-              <InputTextAutocomplete
-                id="search-options-note-filters-student"
-                v-model="student"
-                :disabled="isSearching"
-                :demo-mode-blur="true"
-                input-labelled-by="notes-search-student-input-label"
-                placeholder="Enter name or SID..."
-                :source="findStudentsByNameOrSid"
-              />
-            </div>
-          </div>
-          <div class="pt-3">
-            <div class="mb-0">
-              <label for="search-options-note-filters-last-updated-from">Date Range</label>
-              <div class="align-items-center d-flex">
-                <div>
-                  <label
-                    id="note-filters-date-from-label"
-                    for="search-options-note-filters-last-updated-from"
-                    class="font-weight-500 pt-1 px-2"
-                  >
-                    <span class="sr-only">Date</span>
-                    From
-                  </label>
-                </div>
-                <div>
-                  <v-date-picker
-                    :max-date="toDate || new Date()"
-                    popover-visibility="focus"
-                    :value="fromDate"
-                    @input="v => setFromDate(v)"
-                  >
-                    <template #default="{inputValue, inputEvents}">
-                      <input
-                        id="search-options-note-filters-last-updated-from"
-                        aria-labelledby="note-filters-date-from-label"
-                        class="form-control"
-                        :disabled="isSearching"
-                        name="note-filters-date-from"
-                        placeholder="MM/DD/YYYY"
-                        type="text"
-                        :value="inputValue"
-                        v-on="inputEvents"
-                      />
-                    </template>
-                  </v-date-picker>
-                </div>
-                <div class="sr-only">
-                  <v-btn
-                    id="search-options-note-filters-last-updated-from-clear"
-                    :disabled="!fromDate"
-                    variant="link"
-                    @click="() => setFromDate(null)"
-                  >
-                    <span class="sr-only">Clear the 'from' date.</span>
-                    <v-icon
-                      class="font-size-14"
-                      :icon="mdiClose"
-                      size="sm"
-                    />
-                  </v-btn>
-                </div>
-                <div>
-                  <label
-                    id="note-filters-date-to-label"
-                    for="search-options-note-filters-last-updated-to"
-                    class="font-weight-500 pt-1 px-2"
-                  >
-                    <span class="sr-only">Date</span>
-                    to
-                  </label>
-                </div>
-                <div>
-                  <v-date-picker
-                    v-model="toDate"
-                    :max-date="new Date()"
-                    :min-date="fromDate || new Date('01/01/1900')"
-                    popover-visibility="focus"
-                  >
-                    <template #default="{inputValue, inputEvents}">
-                      <input
-                        id="search-options-note-filters-last-updated-to"
-                        aria-labelledby="note-filters-date-to-label"
-                        class="form-control"
-                        :disabled="isSearching"
-                        name="note-filters-date-to"
-                        placeholder="MM/DD/YYYY"
-                        type="text"
-                        :value="inputValue"
-                        v-on="inputEvents"
-                      />
-                    </template>
-                  </v-date-picker>
-                </div>
-                <div class="sr-only">
-                  <v-btn
-                    id="search-options-note-filters-last-updated-to-clear"
-                    :disabled="!toDate"
-                    variant="link"
-                    @click="toDate = null"
-                  >
-                    <span class="sr-only">Clear the 'to' date.</span>
-                    <v-icon
-                      class="font-size-14"
-                      :icon="mdiClose"
-                      size="sm"
-                    />
-                  </v-btn>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </transition>
-      <div class="my-2 pr-2">
-        <div class="align-items-center d-flex">
-          <div v-if="includeNotes" class="flex-grow-1">
+          <div class="faint-text mr-1">
             <v-btn
-              v-if="isDirty"
-              id="reset-advanced-search-form-btn"
-              :disabled="isSearching"
-              size="sm"
-              variant="link"
-              @click="() => reset(true)"
-            >
-              Reset
-            </v-btn>
-          </div>
-          <div class="pr-2">
-            <v-btn
-              id="advanced-search"
-              class="btn-primary-color-override"
-              :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
-              variant="primary"
-              @click.prevent="search"
-            >
-              <span v-if="isSearching" class="px-1">
-                <v-progress-circular
-                  class="mr-2"
-                  indeterminate
-                  size="small"
-                />
-                <span>Searching...</span>
-              </span>
-              <span v-if="!isSearching">
-                Search
-              </span>
-            </v-btn>
-          </div>
-          <div>
-            <v-btn
-              id="advanced-search-cancel"
-              class="pl-2"
-              variant="link"
+              id="advanced-search-close"
+              class="pt-0"
+              variant="text"
               @click="cancel"
+              @keydown.enter="cancel"
             >
-              Cancel
+              <span class="sr-only">Close</span>
+              <v-icon class="font-size-14" :icon="mdiClose" />
             </v-btn>
           </div>
         </div>
+        <div class="mb-3 mx-2">
+          <label id="search-input-label" class="sr-only">{{ labelForSearchInput }}</label>
+          <!--
+          TODO:
+          <Autocomplete
+            id="advanced-search-students-input"
+            :key="autocompleteInputResetKey"
+            aria-labelledby="search-input-label"
+            :aria-required="searchInputRequired"
+            :base-class="validDateRange === false ? 'disabled' : 'autocomplete'"
+            :default-value="queryText"
+            :disabled="isSearching || validDateRange === false"
+            name="q"
+            placeholder="Search"
+            :search="onChangeAutocomplete"
+            type="search"
+            @keydown.enter.prevent="search"
+            @submit="setQueryText"
+          >
+            <template #result="{result, props}">
+              <li v-bind="props" :id="`search-auto-suggest-${props['data-result-index']}`">
+                <span class="font-size-18">{{ result }}</span>
+              </li>
+            </template>
+          </Autocomplete>
+          -->
+        </div>
+        <AdvancedSearchCheckboxes class="mb-2 ml-2" />
+        <transition class="pt-2" name="drawer">
+          <div
+            v-if="currentUser.canAccessAdvisingData && includeNotes"
+            class="border border-info mb-3 mx-2 p-3 rounded"
+          >
+            <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+            <label class="font-size-16 font-weight-700" for="search-option-note-filters-topic">Topic</label>
+            <div>
+              <select
+                id="search-option-note-filters-topic"
+                v-model="topic"
+                class="w-75"
+                :disabled="isSearching"
+                style="font-size: 16px;"
+              >
+                <option :value="null">Any topic</option>
+                <option
+                  v-for="option in topicOptions"
+                  :key="option.value"
+                  :value="option.value"
+                >
+                  {{ option.text }}
+                </option>
+              </select>
+            </div>
+            <div class="pt-3">
+              <v-radio-group v-model="postedBy" class="mb-0" label="Posted By">
+                <div class="d-flex">
+                  <div class="mr-2">
+                    <v-radio
+                      id="search-options-note-filters-posted-by-anyone"
+                      class="z-index-0"
+                      :ischecked="postedBy === 'anyone'"
+                      :disabled="isSearching"
+                      name="note-filters-posted-by"
+                      value="anyone"
+                    >
+                      Anyone
+                    </v-radio>
+                  </div>
+                  <div>
+                    <v-radio
+                      id="search-options-note-filters-posted-by-you"
+                      class="z-index-0"
+                      :ischecked="postedBy === 'you'"
+                      :disabled="isSearching"
+                      name="note-filters-posted-by"
+                      value="you"
+                      @change="() => setAuthor(null)"
+                    >
+                      You
+                    </v-radio>
+                  </div>
+                </div>
+              </v-radio-group>
+            </div>
+            <div class="pt-3">
+              <div class="mb-0 w-50">
+                <label for="search-options-note-filters-author">Advisor</label>
+                <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
+                <InputTextAutocomplete
+                  id="search-options-note-filters-author"
+                  v-model="author"
+                  :disabled="isSearching || postedBy === 'you'"
+                  input-labelled-by="notes-search-author-input-label"
+                  :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
+                  :source="findAdvisorsByName"
+                />
+              </div>
+            </div>
+            <div class="pt-3">
+              <div class="mb-0 w-50">
+                <label for="search-options-note-filters-student">Student (name or SID)</label>
+                <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
+                <InputTextAutocomplete
+                  id="search-options-note-filters-student"
+                  v-model="student"
+                  :disabled="isSearching"
+                  :demo-mode-blur="true"
+                  input-labelled-by="notes-search-student-input-label"
+                  placeholder="Enter name or SID..."
+                  :source="findStudentsByNameOrSid"
+                />
+              </div>
+            </div>
+            <div class="pt-3">
+              <div class="mb-0">
+                <label for="search-options-note-filters-last-updated-from">Date Range</label>
+                <div class="align-items-center d-flex">
+                  <div>
+                    <label
+                      id="note-filters-date-from-label"
+                      for="search-options-note-filters-last-updated-from"
+                      class="font-weight-500 pt-1 px-2"
+                    >
+                      <span class="sr-only">Date</span>
+                      From
+                    </label>
+                  </div>
+                  <div>
+                    <v-date-picker
+                      :max-date="toDate || new Date()"
+                      popover-visibility="focus"
+                      :value="fromDate"
+                      @input="v => setFromDate(v)"
+                    >
+                      <template #default="{inputValue, inputEvents}">
+                        <input
+                          id="search-options-note-filters-last-updated-from"
+                          aria-labelledby="note-filters-date-from-label"
+                          class="form-control"
+                          :disabled="isSearching"
+                          name="note-filters-date-from"
+                          placeholder="MM/DD/YYYY"
+                          type="text"
+                          :value="inputValue"
+                          v-on="inputEvents"
+                        />
+                      </template>
+                    </v-date-picker>
+                  </div>
+                  <div class="sr-only">
+                    <v-btn
+                      id="search-options-note-filters-last-updated-from-clear"
+                      :disabled="!fromDate"
+                      icon
+                      @click="() => setFromDate(null)"
+                    >
+                      <span class="sr-only">Clear the 'from' date.</span>
+                      <v-icon
+                        class="font-size-14"
+                        :icon="mdiClose"
+                        size="sm"
+                      />
+                    </v-btn>
+                  </div>
+                  <div>
+                    <label
+                      id="note-filters-date-to-label"
+                      for="search-options-note-filters-last-updated-to"
+                      class="font-weight-500 pt-1 px-2"
+                    >
+                      <span class="sr-only">Date</span>
+                      to
+                    </label>
+                  </div>
+                  <div>
+                    <v-date-picker
+                      v-model="toDate"
+                      :max-date="new Date()"
+                      :min-date="fromDate || new Date('01/01/1900')"
+                      popover-visibility="focus"
+                    >
+                      <template #default="{inputValue, inputEvents}">
+                        <input
+                          id="search-options-note-filters-last-updated-to"
+                          aria-labelledby="note-filters-date-to-label"
+                          class="form-control"
+                          :disabled="isSearching"
+                          name="note-filters-date-to"
+                          placeholder="MM/DD/YYYY"
+                          type="text"
+                          :value="inputValue"
+                          v-on="inputEvents"
+                        />
+                      </template>
+                    </v-date-picker>
+                  </div>
+                  <div class="sr-only">
+                    <v-btn
+                      id="search-options-note-filters-last-updated-to-clear"
+                      :disabled="!toDate"
+                      icon
+                      @click="toDate = null"
+                    >
+                      <span class="sr-only">Clear the 'to' date.</span>
+                      <v-icon
+                        class="font-size-14"
+                        :icon="mdiClose"
+                        size="sm"
+                      />
+                    </v-btn>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+        <div class="my-2 pr-2">
+          <div class="align-items-center d-flex">
+            <div v-if="includeNotes" class="flex-grow-1">
+              <v-btn
+                v-if="isDirty"
+                id="reset-advanced-search-form-btn"
+                :disabled="isSearching"
+                size="sm"
+                icon
+                @click="() => reset(true)"
+              >
+                Reset
+              </v-btn>
+            </div>
+            <div class="pr-2">
+              <v-btn
+                id="advanced-search"
+                class="btn-primary-color-override"
+                :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
+                @click.prevent="search"
+              >
+                <span v-if="isSearching" class="px-1">
+                  <v-progress-circular
+                    class="mr-2"
+                    indeterminate
+                    size="small"
+                  />
+                  <span>Searching...</span>
+                </span>
+                <span v-if="!isSearching">
+                  Search
+                </span>
+              </v-btn>
+            </div>
+            <div>
+              <v-btn
+                id="advanced-search-cancel"
+                class="pl-2"
+                text="Cancel"
+                @click="cancel"
+              />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </template>
   </v-dialog>
 </template>
 
 <script setup>
-import {mdiClose} from '@mdi/js'
+import {findStudentsByNameOrSid} from '@/api/student'
+import {mdiClose, mdiTune} from '@mdi/js'
 </script>
 
 <script>
@@ -306,7 +324,6 @@ import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import SearchSession from '@/mixins/SearchSession'
 import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
-import {findStudentsByNameOrSid} from '@/api/student'
 import {scrollToTop} from '@/lib/utils'
 
 export default {
@@ -317,6 +334,7 @@ export default {
   },
   mixins: [Context, SearchSession, Util],
   data: () => ({
+    isFocusAdvSearchButton: false,
     counter: 0
   }),
   computed: {
@@ -349,8 +367,6 @@ export default {
       this.onHidden()
       setTimeout(this.reset, 100)
     },
-    findAdvisorsByName,
-    findStudentsByNameOrSid,
     onChangeAutocomplete(input) {
       this.queryText = input
       const q = this._trim(input && input.toLowerCase())
@@ -359,6 +375,10 @@ export default {
     onHidden() {
       this.showAdvancedSearch = false
       this.resetAutocompleteInput()
+    },
+    openAdvancedSearch() {
+      this.showAdvancedSearch = true
+      this.alertScreenReader('Advanced search is open')
     },
     reset(force) {
       if (force || !this.$route.path.startsWith('/search')) {

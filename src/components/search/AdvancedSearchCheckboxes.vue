@@ -11,7 +11,7 @@
     </div>
     <div class="align-items-center d-flex flex-wrap ml-2">
       <div v-if="domain.includes('admits')" class="align-items-center d-flex mr-3">
-        <b-checkbox
+        <v-checkbox
           id="search-include-admits-checkbox"
           v-model="includeAdmits"
           class="z-index-0"
@@ -25,7 +25,7 @@
         </label>
       </div>
       <div class="align-items-center d-flex mr-3">
-        <b-checkbox
+        <v-checkbox
           id="search-include-students-checkbox"
           v-model="includeStudents"
           class="z-index-0"
@@ -39,7 +39,7 @@
         </label>
       </div>
       <div v-if="domain.includes('courses')" class="align-items-center d-flex mr-3">
-        <b-checkbox
+        <v-checkbox
           id="search-include-courses-checkbox"
           v-model="includeCourses"
           class="z-index-0"
@@ -53,7 +53,7 @@
         </label>
       </div>
       <div v-if="currentUser.canAccessAdvisingData" class="align-items-center d-flex mr-3">
-        <b-checkbox
+        <v-checkbox
           id="search-include-notes-checkbox"
           v-model="includeNotes"
           class="z-index-0"

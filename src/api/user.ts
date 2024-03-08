@@ -1,4 +1,4 @@
-import _ from 'lodash'
+import {get, isNil} from 'lodash'
 import axios from 'axios'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
@@ -12,7 +12,7 @@ export function getDepartments(excludeEmpty?: boolean) {
 export function getAdminUsers(sortBy: string, sortDescending: boolean, ignoreDeleted?: boolean) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/users/admins`, {
-      ignoreDeleted: _.isNil(ignoreDeleted) ? null : ignoreDeleted,
+      ignoreDeleted: isNil(ignoreDeleted) ? null : ignoreDeleted,
       sortBy,
       sortDescending
     })
@@ -24,7 +24,7 @@ export function getUserProfile() {
     .get(`${utils.apiBaseUrl()}/api/profile/my`)
     .then(response => {
       const user = response
-      if (!_.get(user, 'isAuthenticated')) {
+      if (!get(user, 'isAuthenticated')) {
         useContextStore().broadcast('user-session-expired')
       }
       return user
@@ -45,7 +45,7 @@ export function getCalnetProfileByUid(uid) {
 
 export function getUserByUid(uid, ignoreDeleted?: boolean) {
   let url = `${utils.apiBaseUrl()}/api/user/by_uid/${uid}`
-  if (!_.isNil(ignoreDeleted)) {
+  if (!isNil(ignoreDeleted)) {
     url += `?ignoreDeleted=${ignoreDeleted}`
   }
   return axios.get(url).then(response => response, () => null)
