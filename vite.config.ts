@@ -9,7 +9,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        additionalData: '@import "./src/assets/styles/global.scss";'
+        additionalData: '@use "./src/assets/styles/global.scss" as *;'
       }
     }
   },
@@ -20,7 +20,6 @@ export default defineConfig({
       template: {transformAssetUrls}
     }),
     vuetify({
-      autoImport: false,
       styles: {
         configFile: 'src/assets/styles/settings.scss'
       }

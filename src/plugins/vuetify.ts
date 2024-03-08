@@ -1,4 +1,4 @@
-import 'vuetify/styles'
+import './main.scss'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
 import {Intersect, Resize} from 'vuetify/directives'
