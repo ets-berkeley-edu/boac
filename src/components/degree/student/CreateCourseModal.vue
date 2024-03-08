@@ -199,7 +199,7 @@ export default {
           this._trim(this.name),
           this._trim(this.note),
           this.parentCategory.id,
-          this.parentCategory.id,
+          this.sid,
           this._map(this.selectedUnitRequirements, 'id'),
           this.units
         ).then(course => {
