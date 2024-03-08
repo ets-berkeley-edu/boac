@@ -6,13 +6,6 @@ import {fileURLToPath, URL} from 'node:url'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  css: {
-    preprocessorOptions: {
-      scss: {
-        additionalData: '@use "./src/assets/styles/global.scss" as *;'
-      }
-    }
-  },
   define: {'process.env': {}},
   plugins: [
     viteCompression(),
