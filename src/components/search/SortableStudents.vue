@@ -152,7 +152,7 @@
           <PillAlert
             v-if="item.alertCount"
             :aria-label="`${item.alertCount} alerts for ${item.name}`"
-            color="warn"
+            color="warning"
             outlined
           >
             {{ item.alertCount }}

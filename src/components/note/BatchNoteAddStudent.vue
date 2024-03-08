@@ -10,17 +10,18 @@
     </v-expansion-panels>
     <label
       for="create-note-add-student-input"
-      class="font-size-14 input-label text mt-2 mb-0"
+      class="font-size-14 font-weight-bold"
     >
-      <span class="font-weight-bolder">Student</span>
+      Student
     </label>
-    <div class="mb-2">
+    <div id="create-note-add-student-desc" class="pb-2">
       Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
     </div>
-    <div class="mb-2">
+    <div class="pb-2">
       <InputTextAutocomplete
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
+        aria-describedby="create-note-add-student-desc"
         class="w-75"
         :demo-mode-blur="true"
         :disabled="disabled"
@@ -36,19 +37,22 @@
       />
     </div>
     <div>
-      <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment text-uppercase text-nowrap truncate">
-          <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
-          <v-btn
-            :id="`remove-student-from-batch-${index}`"
-            variant="plain"
-            class="p-0"
-            @click.prevent="remove(addedStudent)"
-          >
-            <v-icon :icon="mdiCloseCircle" class="font-size-20 has-error pl-2" />
-            <span class="sr-only">Remove {{ addedStudent.label }} from batch note</span>
-          </v-btn>
-        </span>
+      <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
+        <v-chip
+          :id="`batch-note-student-${index}`"
+          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate"
+          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          closable
+          :close-label="`Remove ${addedStudent.label} from batch note`"
+          density="comfortable"
+          variant="outlined"
+          @click.prevent="remove(addedStudent)"
+        >
+          {{ addedStudent.label }}
+          <template #close>
+            <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+          </template>
+        </v-chip>
       </div>
     </div>
   </div>
@@ -64,7 +68,7 @@ import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
-import {useNoteStore} from '@/stores/note-edit-session'
+import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 
 export default {
   name: 'BatchNoteAddStudent',
@@ -103,10 +107,10 @@ export default {
   },
   methods: {
     addStudent(student) {
-      if (student) {
+      if (student && !this.recipients.sids.includes(student.sid)) {
         this.setIsRecalculating(true)
         this.addedStudents.push(student)
-        useNoteStore().setNoteRecipient(student.sid).then(() => {
+        setNoteRecipient(student.sid).then(() => {
           this.resetAutoCompleteKey = new Date().getTime()
           this.alertScreenReader(`${student.label} added to batch note`)
           this.clearWarning()
@@ -129,7 +133,7 @@ export default {
             sidList.push(student.sid)
             this._remove(sids, s => s === student.sid)
           })
-          useNoteStore().setNoteRecipients(
+          setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
             this._uniq(this.recipients.sids.concat(sidList))
@@ -159,9 +163,10 @@ export default {
     },
     remove(student) {
       if (student) {
-        this.addedStudents = this._filter(this.addedStudents, a => a.sid !== student.sid)
+        const index = this._findIndex(this.addedStudents, {'sid': student.sid})
+        this.addedStudents.splice(index, 1)
         if (this.recipients.sids.includes(student.sid)) {
-          useNoteStore().setNoteRecipients(
+          setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
             this._without(this.recipients.sids, student.sid)

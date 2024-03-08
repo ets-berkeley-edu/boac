@@ -1,5 +1,5 @@
 <template>
-  <div class="mt-1 mr-3 mb-0 ml-3">
+  <div class="pt-1 px-3 pb-0">
     <div
       v-if="boaSessionExpired"
       id="uh-oh-session-time-out"
@@ -14,6 +14,7 @@
         <v-btn
           v-if="!['editTemplate'].includes(mode)"
           id="btn-save-as-template"
+          color="primary"
           :disabled="isSaving || !_trim(model.subject) || !!model.setDate || !!model.contactType"
           variant="text"
           @click="saveAsTemplate"
@@ -25,7 +26,8 @@
         <div v-if="mode === 'editTemplate'">
           <v-btn
             id="btn-update-template"
-            class="btn-primary-color-override mr-1"
+            class="mr-1"
+            color="primary"
             :disabled="isSaving || !model.subject"
             @click.prevent="updateTemplate"
           >
@@ -36,6 +38,7 @@
           <v-btn
             id="save-as-draft-button"
             class="mr-1"
+            color="primary"
             :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
             variant="text"
             @click.prevent="updateNote"
@@ -46,8 +49,8 @@
         <div v-if="!['editTemplate'].includes(mode)">
           <v-btn
             id="create-note-button"
-            class="btn-primary-color-override"
             :class="{'mr-2': mode !== 'editDraft'}"
+            color="primary"
             :disabled="isSaving || !completeSidSet.length || !_trim(model.subject)"
             @click.prevent="publish"
           >

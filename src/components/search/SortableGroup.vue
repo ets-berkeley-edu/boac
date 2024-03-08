@@ -52,7 +52,7 @@
               v-if="group.alertCount"
               :aria-label="`${group.alertCount} alerts for ${groupTypeName} '${group.name}'`"
               class="px-2"
-              color="warn"
+              color="warning"
             >
               {{ group.alertCount }}
             </PillAlert>
