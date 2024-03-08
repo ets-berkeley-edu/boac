@@ -122,6 +122,9 @@ export default {
 .select-menu {
   background-color: #fff;
   height: 44px;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
   width: 320px;
 }
 </style>
