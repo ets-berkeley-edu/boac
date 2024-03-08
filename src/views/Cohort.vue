@@ -219,6 +219,7 @@ export default {
       })
     },
     goToPage(page) {
+      this.loadingStart()
       this.setPagination(page)
       this.onPageNumberChange().then(() => {
         scrollToTop()
