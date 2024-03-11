@@ -46,7 +46,6 @@ export function applyFilters(orderBy: string, termId: string) {
 
 export function loadCohort(cohortId: number, orderBy: string, termId: string) {
   return new Promise<void>(resolve => {
-    const domain: string = store.getters['cohort/domain']
     const pagination: any = store.getters['cohort/pagination']
     getCohort(
       cohortId,
@@ -59,7 +58,7 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
       if (cohort) {
         store.commit('cohort/setDomain', cohort.domain)
         const owner = cohort.isOwnedByCurrentUser ? 'me' : get(cohort, 'owner.uid')
-        translateToFilterOptions(domain, owner, cohort.criteria).then(filters => {
+        translateToFilterOptions(cohort.domain, owner, cohort.criteria).then(filters => {
           store.commit('cohort/updateSession', {
             cohort,
             filters: filters,
@@ -67,7 +66,7 @@ export function loadCohort(cohortId: number, orderBy: string, termId: string) {
             totalStudentCount: cohort.totalStudentCount
           })
           store.commit('cohort/stashOriginalFilters')
-          updateFilterOptions(domain, owner, filters).then(resolve)
+          updateFilterOptions(cohort.domain, owner, filters).then(resolve)
         })
       } else {
         throw new TypeError(`Cohort ${cohortId} not found.`)
