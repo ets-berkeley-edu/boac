@@ -67,6 +67,7 @@ import Context from '@/mixins/Context'
 import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
 import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util'
+import {each, filter, findIndex, includes, map, remove, split, trim, uniq, without} from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
 
@@ -99,7 +100,7 @@ export default {
   mounted() {
     if (this.recipients.sids.length) {
       getStudentsBySids(this.recipients.sids).then(students => {
-        this._each(students, student => {
+        each(students, student => {
           this.addStudent(student)
         })
       })
@@ -122,24 +123,24 @@ export default {
       this.showWarning = false
     },
     handleListInput(query) {
-      const trimmed = this._trim(query, ' ,\n\t')
+      const trimmed = trim(query, ' ,\n\t')
       if (trimmed) {
-        const sids = this._split(query, this.sidDelimiter)
+        const sids = split(query, this.sidDelimiter)
         return getStudentsBySids(sids).then(data => {
           this.setIsRecalculating(true)
           const sidList = []
-          this._each(data, student => {
+          each(data, student => {
             this.addedStudents.push(student)
             sidList.push(student.sid)
-            this._remove(sids, s => s === student.sid)
+            remove(sids, s => s === student.sid)
           })
           setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
-            this._uniq(this.recipients.sids.concat(sidList))
+            uniq(this.recipients.sids.concat(sidList))
           ).then(() => {
             this.alertScreenReader(`${sidList.length} students added to batch note`)
-            this.sidsNotFound = this._uniq(sids)
+            this.sidsNotFound = uniq(sids)
             if (this.sidsNotFound.length) {
               this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
             } else {
@@ -153,7 +154,7 @@ export default {
       }
     },
     isList(query) {
-      return query && this.sidDelimiter.test(this._trim(query, ' ,\n\t'))
+      return query && this.sidDelimiter.test(trim(query, ' ,\n\t'))
     },
     isPresent(query) {
       return query && query.length > 1
@@ -163,13 +164,13 @@ export default {
     },
     remove(student) {
       if (student) {
-        const index = this._findIndex(this.addedStudents, {'sid': student.sid})
+        const index = findIndex(this.addedStudents, {'sid': student.sid})
         this.addedStudents.splice(index, 1)
         if (this.recipients.sids.includes(student.sid)) {
           setNoteRecipients(
             this.recipients.cohorts,
             this.recipients.curatedGroups,
-            this._without(this.recipients.sids, student.sid)
+            without(this.recipients.sids, student.sid)
           ).then(() => {
             this.putFocusNextTick('create-note-add-student-input')
           })
@@ -183,10 +184,10 @@ export default {
       this.alertScreenReader(message)
     },
     studentsByNameOrSid(query, limit) {
-      const sids = this._map(this.addedStudents, 'sid')
+      const sids = map(this.addedStudents, 'sid')
       return new Promise(resolve => {
         findStudentsByNameOrSid(query, limit).then(students => {
-          resolve(this._filter(students, s => !this._includes(sids, s.sid)))
+          resolve(filter(students, s => !includes(sids, s.sid)))
         })
       })
     }
