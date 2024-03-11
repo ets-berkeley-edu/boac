@@ -15,9 +15,9 @@
           <span v-if="totalRecipientCount >= 500">Are you sure you want to attach this note</span>
           to {{ pluralize('student record', totalRecipientCount) }}{{ totalRecipientCount >= 500 ? '?' : '.' }}
         </span>
-        <div v-if="!['editTemplate'].includes(mode) && totalRecipientCount > 1">
+        <div v-if="!['editTemplate'].includes(mode) && totalRecipientCount > 1" class="pt-1">
           <span class="font-weight-bold text-error">Important: </span>
-          <span class="font-weight-regular text-body">
+          <span class="text-body">
             {{ mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
             but not the associated students.
           </span>
@@ -50,21 +50,21 @@
     <div>
       <BatchNoteAddCohort
         v-if="nonAdmitCohorts.length"
-        :add-object="addCohort"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="false"
         :objects="nonAdmitCohorts"
         :remove-object="removeCohort"
+        :update="updateCohorts"
       />
     </div>
     <div>
       <BatchNoteAddCohort
         v-if="nonAdmitCuratedGroups.length"
-        :add-object="addCuratedGroup"
         :disabled="isSaving || boaSessionExpired"
         :is-curated-groups-mode="true"
         :objects="nonAdmitCuratedGroups"
         :remove-object="removeCuratedGroup"
+        :update="updateCuratedGroups"
       />
     </div>
   </div>
@@ -77,6 +77,7 @@ import Context from '@/mixins/Context'
 import NoteEditSession from '@/mixins/NoteEditSession'
 import Util from '@/mixins/Util'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {capitalize, differenceBy, findIndex, reject, size} from 'lodash'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
 
 export default {
@@ -94,26 +95,31 @@ export default {
   },
   computed: {
     nonAdmitCohorts() {
-      return this._reject(this.currentUser.myCohorts, {'domain': 'admitted_students'})
+      return reject(this.currentUser.myCohorts, {'domain': 'admitted_students'})
     },
     nonAdmitCuratedGroups() {
-      return this._reject(this.currentUser.myCuratedGroups, {'domain': 'admitted_students'})
+      return reject(this.currentUser.myCuratedGroups, {'domain': 'admitted_students'})
     },
     totalRecipientCount() {
-      return this._size(this.completeSidSet)
+      return size(this.completeSidSet)
     }
   },
   methods: {
-    addCohort(cohort) {
-      setNoteRecipients(
-        this.recipients.cohorts.concat(cohort),
-        this.recipients.curatedGroups,
-        this.recipients.sids
-      ).then(() => {
-        this.alertScreenReader(`Added cohort '${cohort.name}'`)
-      })
+    updateCohorts(cohorts) {
+      const cohort = differenceBy(cohorts, this.recipients.cohorts, 'id')
+      if (size(cohorts) > size(this.recipients.cohorts)) {
+        setNoteRecipients(
+          this.recipients.cohorts.concat(cohort),
+          this.recipients.curatedGroups,
+          this.recipients.sids
+        ).then(() => {
+          this.alertScreenReader(`Added cohort '${cohort.name}'`)
+        })
+      } else {
+        this.removeCohort(cohort)
+      }
     },
-    addCuratedGroup(curatedGroup) {
+    updateCuratedGroups(curatedGroup) {
       setNoteRecipients(
         this.recipients.cohorts,
         this.recipients.curatedGroups.concat(curatedGroup),
@@ -123,7 +129,7 @@ export default {
       })
     },
     removeCohort(cohort) {
-      const index = this._findIndex(this.recipients.cohorts, {'id': cohort.id})
+      const index = findIndex(this.recipients.cohorts, {'id': cohort.id})
       this.recipients.cohorts.splice(index, 1)
       setNoteRecipients(
         this.recipients.cohorts,
@@ -134,14 +140,14 @@ export default {
       })
     },
     removeCuratedGroup(curatedGroup) {
-      const index = this._findIndex(this.recipients.curatedGroups, {'id': curatedGroup.id})
+      const index = findIndex(this.recipients.curatedGroups, {'id': curatedGroup.id})
       this.recipients.curatedGroups.splice(index, 1)
       setNoteRecipients(
         this.recipients.cohorts,
         this.recipients.curatedGroups,
         this.recipients.sids
       ).then(() => {
-        this.alertScreenReader(`Removed ${this._capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
+        this.alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
       })
     }
   }

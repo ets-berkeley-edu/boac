@@ -7,6 +7,7 @@
       id="contact-type-options"
       v-model="contactType"
       aria-describedby="contact-type-label"
+      color="primary"
       density="comfortable"
       :disabled="disabled"
       :ripple="false"

@@ -16,7 +16,6 @@
       density="compact"
       :disabled="disabled"
       hide-details
-      hide-selected
       item-title="name"
       item-value="id"
       :items="objects"
@@ -26,6 +25,7 @@
       single-line
       variant="outlined"
       menu-class="batch-note-cohorts-dropdown"
+      @update:model-value="onUpdate"
     >
       <template #item="{props, item}">
         <v-list-item v-bind="props">
@@ -34,7 +34,6 @@
               :id="`batch-note-${type}-option-${item.value}`"
               :key="item.value"
               :aria-label="`Add ${type} ${title}`"
-              @click.stop="addItem(item.raw)"
             >
               {{ title }}
             </span>
@@ -50,6 +49,7 @@
           density="comfortable"
           variant="outlined"
           @click:close="remove(item.raw)"
+          @keyup.enter="remove(item.raw)"
         >
           {{ item.title }}
           <template #close>
@@ -67,16 +67,12 @@ import {mdiCloseCircle} from '@mdi/js'
 
 <script>
 import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import {findIndex, map} from 'lodash'
 
 export default {
   name: 'BatchNoteAddCohort',
-  mixins: [Context, Util],
+  mixins: [Context],
   props: {
-    addObject: {
-      required: true,
-      type: Function
-    },
     disabled: {
       required: false,
       type: Boolean
@@ -92,6 +88,10 @@ export default {
     removeObject: {
       required: true,
       type: Function
+    },
+    update: {
+      required: true,
+      type: Function
     }
   },
   data: () => ({
@@ -101,7 +101,7 @@ export default {
   }),
   computed: {
     addedIds() {
-      return this._map(this.added, 'id')
+      return map(this.added, 'id')
     }
   },
   created() {
@@ -109,14 +109,11 @@ export default {
     this.type = this.isCuratedGroupsMode ? 'curated' : 'cohort'
   },
   methods: {
-    addItem(object) {
-      if (!this.addedIds.includes(object.id)) {
-        this.added.push(object)
-        this.addObject(object)
-      }
+    onUpdate(value) {
+      this.update(value)
     },
     remove(object) {
-      const index = this._findIndex(this.added, {'id': object.id})
+      const index = findIndex(this.added, {'id': object.id})
       this.added.splice(index, 1)
       this.removeObject(object)
     }

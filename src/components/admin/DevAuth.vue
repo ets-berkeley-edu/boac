@@ -20,6 +20,7 @@
         aria-required="true"
         class="form-input"
         density="compact"
+        :disabled="isLoggingIn"
         hide-details
         placeholder="Password"
         type="password"
@@ -29,6 +30,7 @@
         id="dev-auth-submit"
         class="btn-dev-auth"
         color="primary"
+        :disabled="isLoggingIn"
         type="submit"
       >
         DevAuth!
@@ -52,6 +54,7 @@ export default {
     }
   },
   data: () => ({
+    isLoggingIn: false,
     uid: null,
     password: null
   }),
@@ -63,12 +66,14 @@ export default {
       let uid = this._trim(this.uid)
       let password = this._trim(this.password)
       if (uid && password) {
+        this.isLoggingIn = true
         devAuthLogIn(uid, password).then(() => {
           if (this.currentUser.isAuthenticated) {
             const redirect = this._get(this.$router, 'currentRoute.query.redirect')
             this.$router.push({path: redirect || '/'}, this._noop)
           } else {
             this.reportError('Sorry, user is not authorized to use BOA.')
+            this.isLoggingIn = false
           }
         })
       } else if (uid) {
