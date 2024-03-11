@@ -138,11 +138,15 @@ export default {
     anchor: () => location.hash,
     showStudentsSection() {
       return this._size(this.students) && this.editMode !== 'apply'
+    },
+    sortByKey() {
+      return this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
     }
   },
   watch: {
-    domain(newVal, oldVal) {
-      this.removeEventHandler(`${oldVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
+    domain(newVal) {
+      this.removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)
+      this.removeEventHandler('sortBy-user-preference-change', this.onChangeSortBy)
       this.setEventHandler(`${newVal === 'admitted_students' ? 'admitSortBy' : 'sortBy'}-user-preference-change`, this.onChangeSortBy)
     },
     isCompactView() {
@@ -160,10 +164,9 @@ export default {
       this.loadingComplete(this.getLoadedAlert())
     } else {
       const cohortId = this.toInt(this._get(this.$route, 'params.id'))
-      const domain = this.$route.query.domain || 'default'
-      const orderBy = this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy')
+      const orderBy = this._get(this.currentUser.preferences, this.sortByKey)
       const termId = this._get(this.currentUser.preferences, 'termId')
-      this.init(cohortId, domain, orderBy, termId).then(() => {
+      this.init(cohortId, this.domain || 'default', orderBy, termId).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
@@ -172,16 +175,13 @@ export default {
         this.putFocusNextTick(this.cohortId ? 'cohort-name' : 'create-cohort-h1')
       })
     }
-  },
-  created() {
-    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.setEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.setEventHandler(`${this.sortByKey}-user-preference-change`, this.onChangeSortBy)
     this.setEventHandler('cohort-apply-filters', this.resetPagination)
     this.setEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
   destroyed() {
-    const sortByKey = this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
-    this.removeEventHandler(`${sortByKey}-user-preference-change`, this.onChangeSortBy)
+    this.removeEventHandler('admitSortBy-user-preference-change', this.onChangeSortBy)
+    this.removeEventHandler('sortBy-user-preference-change', this.onChangeSortBy)
     this.removeEventHandler('cohort-apply-filters', this.resetPagination)
     this.removeEventHandler('termId-user-preference-change', this.onChangeTerm)
   },
@@ -191,7 +191,8 @@ export default {
       if (!this.cohortId) {
         return 'Create cohort page has loaded'
       } else {
-        return `Cohort ${this.cohortName || ''}, sorted by ${translateSortByOption(this.currentUser.preferences.sortBy)}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
+        const sortByOption = translateSortByOption(this._get(this.currentUser.preferences, this.sortByKey))
+        return `Cohort ${this.cohortName || ''}, sorted by ${sortByOption}, ${this.pageNumber > 1 ? `(page ${this.pageNumber})` : ''} has loaded`
       }
     },
     init(cohortId, domain, orderBy, termId) {
@@ -241,7 +242,7 @@ export default {
     },
     onPageNumberChange() {
       return applyFilters(
-        this._get(this.currentUser.preferences, this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'),
+        this._get(this.currentUser.preferences, this.sortByKey),
         this._get(this.currentUser.preferences, 'termId')
       )
     },
