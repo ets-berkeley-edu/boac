@@ -17,6 +17,7 @@
           multiple
           :prepend-icon="null"
           variant="plain"
+          @update:modelValue="onAttachmentsInput"
         >
           <template #label>
             <div class="font-size-14">
@@ -101,9 +102,19 @@ export default {
     attachments: [],
     attachmentError: undefined
   }),
-  watch: {
-    attachments(files) {
-      if (files) {
+  beforeCreate() {
+    addFileDropEventListeners()
+  },
+  methods: {
+    clickBrowseForAttachment() {
+      this.$refs['attachment-file-input'].$el.click()
+    },
+    deleteAttachmentByIndex(index) {
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
+      useNoteStore().removeAttachmentByIndex(index)
+    },
+    onAttachmentsInput(files) {
+      if (this._size(files)) {
         this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           const attachments = []
@@ -115,18 +126,7 @@ export default {
           this.alertScreenReader('Attachments added')
         }
       }
-    }
-  },
-  beforeCreate() {
-    addFileDropEventListeners()
-  },
-  methods: {
-    clickBrowseForAttachment() {
-      this.$refs['attachment-file-input'].$el.click()
-    },
-    deleteAttachmentByIndex(index) {
-      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
-      useNoteStore().removeAttachmentByIndex(index)
+      this.attachments = []
     }
   }
 }
