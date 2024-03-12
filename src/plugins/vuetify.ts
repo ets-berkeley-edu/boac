@@ -12,7 +12,6 @@ import {VCheckbox} from 'vuetify/components/VCheckbox'
 import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
-import {VDatePicker} from 'vuetify/components/VDatePicker'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
@@ -51,7 +50,6 @@ export default createVuetify({
     VChip,
     VCol,
     VContainer,
-    VDatePicker,
     VDataTable,
     VDataTableVirtual,
     VDialog,
