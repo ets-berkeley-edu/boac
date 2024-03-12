@@ -30,20 +30,35 @@
   color: transparent !important;
   text-shadow: 0 0 20px rgba(0, 0, 0, 0.5) !important;
 }
+.faint-text {
+  color: grey;
+}
 .font-size-12 {
   font-size: 12px;
 }
-.font-size-13 {
-  font-size: 13px;
-}
 .font-size-14 {
-  font-size: 14px;
+  font-size: 14px !important;
 }
 .font-size-16 {
   font-size: 16px;
 }
+.font-size-15 {
+  font-size: 15px;
+}
+.font-size-18 {
+  font-size: 18px;
+}
+.font-size-20 {
+  font-size: 20px;
+}
 .font-size-24 {
   font-size: 24px;
+}
+.font-weight-500 {
+  font-weight: 500;
+}
+.font-weight-700 {
+  font-weight: 700;
 }
 .modal-content {
   background-color: #fff;
