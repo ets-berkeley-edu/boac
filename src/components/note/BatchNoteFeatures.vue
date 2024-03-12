@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div role="alert">
+    <div v-if="totalRecipientCount || recipients.cohorts.length || recipients.curatedGroups.length" role="alert">
       <div
         v-if="!isRecalculating && totalRecipientCount"
         id="target-student-count-alert"
@@ -41,32 +41,26 @@
         </span>
       </span>
     </div>
-    <div>
-      <BatchNoteAddStudent
-        :disabled="isSaving || boaSessionExpired"
-        :on-esc-form-input="cancel"
-      />
-    </div>
-    <div>
-      <BatchNoteAddCohort
-        v-if="nonAdmitCohorts.length"
-        :disabled="isSaving || boaSessionExpired"
-        :is-curated-groups-mode="false"
-        :objects="nonAdmitCohorts"
-        :remove-object="removeCohort"
-        :update="updateCohorts"
-      />
-    </div>
-    <div>
-      <BatchNoteAddCohort
-        v-if="nonAdmitCuratedGroups.length"
-        :disabled="isSaving || boaSessionExpired"
-        :is-curated-groups-mode="true"
-        :objects="nonAdmitCuratedGroups"
-        :remove-object="removeCuratedGroup"
-        :update="updateCuratedGroups"
-      />
-    </div>
+    <BatchNoteAddStudent
+      :disabled="isSaving || boaSessionExpired"
+      :on-esc-form-input="cancel"
+    />
+    <BatchNoteAddCohort
+      v-if="nonAdmitCohorts.length"
+      :disabled="isSaving || boaSessionExpired"
+      :is-curated-groups-mode="false"
+      :objects="nonAdmitCohorts"
+      :remove-object="removeCohort"
+      :update="updateCohorts"
+    />
+    <BatchNoteAddCohort
+      v-if="nonAdmitCuratedGroups.length"
+      :disabled="isSaving || boaSessionExpired"
+      :is-curated-groups-mode="true"
+      :objects="nonAdmitCuratedGroups"
+      :remove-object="removeCuratedGroup"
+      :update="updateCuratedGroups"
+    />
   </div>
 </template>
 

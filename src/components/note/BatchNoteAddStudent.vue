@@ -14,7 +14,7 @@
     >
       Student
     </label>
-    <div id="create-note-add-student-desc" class="pb-2">
+    <div id="create-note-add-student-desc" class="font-size-14 pb-2">
       Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
     </div>
     <div class="pb-2">
@@ -36,24 +36,22 @@
         @input="addStudent"
       />
     </div>
-    <div>
-      <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
-        <v-chip
-          :id="`batch-note-student-${index}`"
-          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          closable
-          :close-label="`Remove ${addedStudent.label} from batch note`"
-          density="comfortable"
-          variant="outlined"
-          @click.prevent="remove(addedStudent)"
-        >
-          {{ addedStudent.label }}
-          <template #close>
-            <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
-          </template>
-        </v-chip>
-      </div>
+    <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
+      <v-chip
+        :id="`batch-note-student-${index}`"
+        class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate"
+        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        closable
+        :close-label="`Remove ${addedStudent.label} from batch note`"
+        density="comfortable"
+        variant="outlined"
+        @click.prevent="remove(addedStudent)"
+      >
+        {{ addedStudent.label }}
+        <template #close>
+          <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+        </template>
+      </v-chip>
     </div>
   </div>
 </template>

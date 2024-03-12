@@ -2,55 +2,63 @@
   <v-overlay
     v-model="showModalProxy"
     aria-label="Name Your Template"
-    body-class="pl-0 pr-0"
-    @hidden="onHidden"
-    @shown="putFocusNextTick('modal-header')"
+    class="justify-center overflow-auto"
+    persistent
+    width="100%"
+    @update:model-value="onToggle"
   >
-    <div>
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
       <ModalHeader text="Name Your Template" />
+      <hr />
       <form @submit.prevent="createTemplate">
-        <div class="ml-3 mr-3">
-          <div>
-            <label class="pb-2" for="template-title-input">Template name:</label>
-            <input
-              id="template-title-input"
-              v-model="title"
-              class="cohort-create-input-name"
-              type="text"
-              maxlength="255"
-              required
-            >
-          </div>
-          <div class="faint-text mb-3"><span class="sr-only">Template name has a </span>255 character limit <span v-if="title.length">({{ 255 - title.length }} left)</span></div>
+        <div class="px-4 py-2">
+          <v-text-field
+            id="template-title-input"
+            v-model="title"
+            class="v-input-details-override"
+            counter="255"
+            density="compact"
+            :disabled="isSaving"
+            label="Template name"
+            maxlength="255"
+            persistent-counter
+            :rules="[validationRules.required, validationRules.maxLength]"
+            variant="outlined"
+          >
+            <template #counter="{max, value}">
+              <div id="name-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
+                <span class="sr-only">Template name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+              </div>
+            </template>
+          </v-text-field>
           <div
             v-if="error"
-            id="create-error"
+            id="create-template-error"
             aria-live="polite"
+            class="text-error font-size-13 font-weight-regular"
             role="alert"
-            class="has-error"
           >
             {{ error }}
           </div>
-          <div
-            v-if="title.length === 255"
-            class="sr-only"
-            aria-live="polite"
-          >
-            Template name cannot exceed 255 characters.
-          </div>
         </div>
-        <div class="modal-footer pl-0">
-          <v-btn
+        <hr class="my-2" />
+        <div class="d-flex justify-end px-4 py-2">
+          <ProgressButton
             id="create-template-confirm"
-            :disabled="!title.length"
-            class="btn-primary-color-override"
-            @click.prevent="createTemplate"
+            :action="createTemplate"
+            :disabled="isSaving || !title.length || title.length > 255"
+            :in-progress="isSaving"
           >
-            Save
-          </v-btn>
+            {{ isSaving ? 'Saving' : 'Save' }}
+          </ProgressButton>
           <v-btn
             id="cancel-template-create"
-            class="pl-1"
+            class="ml-1"
+            :disabled="isSaving"
             variant="plain"
             @click="cancelModal"
           >
@@ -58,18 +66,19 @@
           </v-btn>
         </div>
       </form>
-    </div>
+    </v-card>
   </v-overlay>
 </template>
 
 <script>
-import Util from '@/mixins/Util'
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
+import Util from '@/mixins/Util'
 import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'CreateTemplateModal',
-  components: {ModalHeader},
+  components: {ModalHeader, ProgressButton},
   mixins: [Util],
   props: {
     cancel: {
@@ -95,7 +104,12 @@ export default {
   },
   data: () => ({
     title: '',
-    error: undefined
+    error: undefined,
+    isSaving: false,
+    validationRules: {
+      required: value => !!value || 'Template name is required',
+      maxLength: value => (!value || value.length <= 255) || 'Template name cannot exceed 255 characters.',
+    }
   }),
   computed: {
     showModalProxy: {
@@ -116,16 +130,26 @@ export default {
     reset() {
       this.title = ''
       this.error = undefined
+      this.isSaving = false
     },
     cancelModal() {
       this.cancel()
       this.reset()
     },
     createTemplate: function() {
+      this.isSaving = true
       this.error = validateTemplateTitle({title: this.title})
       if (!this.error) {
         this.create(this.title)
-        this.reset()
+      } else {
+        this.isSaving = false
+      }
+    },
+    onToggle(isOpen) {
+      if (isOpen) {
+        this.putFocusNextTick('modal-header')
+      } else {
+        this.onHidden()
       }
     }
   }

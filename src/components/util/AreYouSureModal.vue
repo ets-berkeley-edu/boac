@@ -2,13 +2,15 @@
   <v-overlay
     v-model="showAreYouSureModal"
     class="justify-center overflow-auto"
-    max-width="800"
-    min-width="400"
     persistent
     width="100%"
     @update:model-value="onToggle"
   >
-    <v-card class="modal-content">
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
       <ModalHeader clazz="px-3" :text="modalHeader" />
       <hr />
       <div class="px-4">
@@ -17,19 +19,14 @@
       <hr />
       <form @submit.prevent="confirm">
         <div class="d-flex justify-end py-3 px-4">
-          <v-btn
+          <ProgressButton
             id="are-you-sure-confirm"
-            color="primary"
+            :action="confirm"
             :disabled="isProcessing"
-            @click.prevent.once="confirm"
+            :in-progress="isProcessing"
           >
-            <v-progress-circular
-              v-if="isProcessing"
-              class="mr-1"
-              size="small"
-            />
             {{ buttonLabelConfirm }}
-          </v-btn>
+          </ProgressButton>
           <v-btn
             id="are-you-sure-cancel"
             :disabled="isProcessing"
@@ -46,11 +43,12 @@
 
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
 import Util from '@/mixins/Util'
 
 export default {
   name: 'AreYouSureModal',
-  components: {ModalHeader},
+  components: {ModalHeader, ProgressButton},
   mixins: [Util],
   props: {
     buttonLabelCancel: {
