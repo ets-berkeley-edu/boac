@@ -164,9 +164,10 @@ export default {
       this.loadingComplete(this.getLoadedAlert())
     } else {
       const cohortId = this.toInt(this._get(this.$route, 'params.id'))
+      const domain = this.$route.query.domain || 'default'
       const orderBy = this._get(this.currentUser.preferences, this.sortByKey)
       const termId = this._get(this.currentUser.preferences, 'termId')
-      this.init(cohortId, this.domain || 'default', orderBy, termId).then(() => {
+      this.init(cohortId, domain, orderBy, termId).then(() => {
         this.showFilters = !this.isCompactView
         this.pageNumber = this.pagination.currentPage
         const pageTitle = this.cohortId ? this.cohortName : 'Create Cohort'
