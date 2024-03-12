@@ -27,6 +27,7 @@
           :multiple="true"
           :plain="true"
           :state="Boolean(attachments && attachments.length)"
+          @input="onFormFileInput"
         />
       </div>
     </div>
@@ -88,9 +89,19 @@ export default {
     attachments: [],
     attachmentError: undefined
   }),
-  watch: {
-    attachments(files) {
-      if (files) {
+  beforeCreate() {
+    addFileDropEventListeners()
+  },
+  methods: {
+    clickBrowseForAttachment() {
+      this.$refs['attachment-file-input'].$el.click()
+    },
+    deleteAttachmentByIndex(index) {
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
+      removeAttachmentByIndex(index)
+    },
+    onFormFileInput(files) {
+      if (this._size(files)) {
         this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           const attachments = []
@@ -102,18 +113,7 @@ export default {
           this.alertScreenReader('Attachments added')
         }
       }
-    }
-  },
-  beforeCreate() {
-    addFileDropEventListeners()
-  },
-  methods: {
-    clickBrowseForAttachment() {
-      this.$refs['attachment-file-input'].$el.click()
-    },
-    deleteAttachmentByIndex(index) {
-      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
-      removeAttachmentByIndex(index)
+      this.attachments = []
     }
   }
 }
