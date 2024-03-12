@@ -3,13 +3,15 @@
     v-model="showModalProxy"
     aria-label="Rename Your Template"
     class="justify-center overflow-auto"
-    max-width="900"
-    min-width="400"
     persistent
     width="100%"
-    @shown="putFocusNextTick('modal-header')"
+    @update:model-value="onToggle"
   >
-    <v-card class="modal-content">
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
       <ModalHeader text="Rename Your Template" />
       <hr />
       <form @submit.prevent="renameTemplate">
@@ -17,9 +19,10 @@
           <v-text-field
             id="rename-template-input"
             v-model="title"
-            class="rename-template-input"
+            class="v-input-details-override"
             counter="255"
             density="compact"
+            :disabled="isSaving"
             label="Template name"
             maxlength="255"
             persistent-counter
@@ -44,16 +47,17 @@
         </div>
         <hr class="my-2" />
         <div class="d-flex justify-end px-4 py-2">
-          <v-btn
+          <ProgressButton
             id="rename-template-confirm"
-            color="primary"
+            :action="renameTemplate"
             :disabled="isSaving || !title.length || title.length > 255"
-            @click.prevent.once="renameTemplate"
+            :in-progress="isSaving"
           >
-            Rename
-          </v-btn>
+            {{ isSaving ? 'Renaming' : 'Rename' }}
+          </ProgressButton>
           <v-btn
             id="cancel-rename-template"
+            class="ml-1"
             :disabled="isSaving"
             variant="plain"
             @click="cancelModal"
@@ -68,12 +72,13 @@
 
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
 import Util from '@/mixins/Util'
 import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'RenameTemplateModal',
-  components: {ModalHeader},
+  components: {ModalHeader, ProgressButton},
   mixins: [Util],
   props: {
     cancel: {
@@ -125,9 +130,19 @@ export default {
     this.title = this.template.title
   },
   methods: {
-    cancelModal() {
+    reset() {
+      this.title = ''
       this.error = undefined
+      this.isSaving = false
+    },
+    cancelModal() {
       this.cancel()
+      this.reset()
+    },
+    onToggle(isOpen) {
+      if (isOpen) {
+        this.putFocusNextTick('modal-header')
+      }
     },
     renameTemplate: function() {
       this.isSaving = true
@@ -141,25 +156,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss">
-.rename-template-input {
-  .v-input__details {
-    align-items: baseline;
-    flex-wrap: wrap;
-    padding: 6px 10px 0 10px;
-    .v-counter {
-      flex-grow: 1;
-      flex-shrink: 0;
-      text-align: end;
-    }
-    .v-messages {
-      font-size: 14px;
-      min-height: unset;
-      .v-messages__message {
-        margin: 4px 0;
-      }
-    }
-  }
-}
-</style>

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="attachmentError" class="mt-3 mb-3 w-100">
+    <div v-if="attachmentError" class="w-100">
       <v-icon :icon="mdiAlert" class="text-danger pr-1" />
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>

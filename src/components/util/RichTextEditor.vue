@@ -1,25 +1,24 @@
 <template>
   <div>
-    <div>
-      <label
-        :id="`${ckElementId}-label`"
-        :for="ckElementId"
-        class="font-size-16 font-weight-bolder mt-3 mb-1"
-      >
-        {{ label }}
-        <span v-if="showAdvisingNoteBestPractices" class="font-size-14 font-weight-500">
-          (<a
-            id="link-to-advising-note-best-practices"
-            href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
-            target="_blank"
-            aria-label="Open in new window"
-          >Shared advising note best practices<v-icon :icon="mdiOpenInNew" class="pl-1" /></a>)
-        </span>
-      </label>
-    </div>
+    <label
+      :id="`${ckElementId}-label`"
+      :for="ckElementId"
+      class="font-size-16 font-weight-bold"
+    >
+      {{ label }}
+      <span v-if="showAdvisingNoteBestPractices" class="font-size-14 font-weight-500">
+        (<a
+          id="link-to-advising-note-best-practices"
+          href="https://advisingmatters.berkeley.edu/resources/shared-advising-notes"
+          target="_blank"
+          aria-label="Open in new window"
+        >Shared advising note best practices<v-icon :icon="mdiOpenInNew" class="pl-1" /></a>)
+      </span>
+    </label>
     <div
       :id="ckElementId"
       :aria-labelledby="`${ckElementId}-label`"
+      class="mt-1"
       role="textbox"
     >
       <ckeditor
