@@ -79,196 +79,185 @@
           </div>
           <AdvancedSearchCheckboxes />
           <v-expand-transition v-if="currentUser.canAccessAdvisingData">
-            <v-card
-              v-show="includeNotes"
-              class="mx-auto bg-secondary"
-            >
-              <v-card-text>
-                <div class="border border-info mb-3 mx-2 p-3 rounded">
-                  <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
-                  <label class="font-size-16 font-weight-700" for="search-option-note-filters-topic">Topic</label>
+            <v-card v-show="includeNotes" variant="outlined" color="primary">
+              <v-card-title>
+                <h3 class="notes-and-appointments-filters-header">Filters for notes and appointments</h3>
+              </v-card-title>
+              <v-card-actions>
+                <div class="px-3">
+                  <label class="form-control-label" for="search-option-note-filters-topic">Topic</label>
                   <div>
-                    <select
+                    <v-select
                       id="search-option-note-filters-topic"
                       v-model="topic"
-                      class="w-75"
+                      base-color="black"
+                      bg-color="transparent"
+                      class="ml-0 my-2 w-75"
+                      color="black"
+                      density="compact"
                       :disabled="isSearching"
-                      style="font-size: 16px;"
+                      hide-details
+                      item-title="text"
+                      item-value="value"
+                      :items="topicOptions"
+                      label="Select..."
+                      return-object
+                      variant="outlined"
                     >
-                      <option :value="null">Any topic</option>
-                      <option
-                        v-for="option in topicOptions"
-                        :key="option.value"
-                        :value="option.value"
-                      >
-                        {{ option.text }}
-                      </option>
-                    </select>
+                      <template #item="{props, item}">
+                        <v-list-item v-bind="props">
+                          <template #title="{title}">
+                            <span
+                              :id="`batch-note-${type}-option-${item.value}`"
+                              :key="item.value"
+                              :aria-label="`Add ${type} ${title}`"
+                            >
+                              {{ title }}
+                            </span>
+                          </template>
+                        </v-list-item>
+                      </template>
+                    </v-select>
                   </div>
-                  <div>
-                    <v-radio-group v-model="postedBy" class="d-flex" label="Posted By">
+                  <div class="mt-4">
+                    <label class="form-control-label">Posted By</label>
+                    <v-radio-group v-model="postedBy" inline>
                       <v-radio
                         id="search-options-note-filters-posted-by-anyone"
-                        class="z-index-0"
                         :ischecked="postedBy === 'anyone'"
                         :disabled="isSearching"
-                        name="note-filters-posted-by"
                         label="Anyone"
                         value="anyone"
                       />
                       <v-radio
                         id="search-options-note-filters-posted-by-you"
-                        class="z-index-0"
                         :ischecked="postedBy === 'you'"
                         :disabled="isSearching"
-                        name="note-filters-posted-by"
+                        label="You"
                         value="you"
                         @change="() => setAuthor(null)"
-                      >
-                        You
-                      </v-radio>
+                      />
                     </v-radio-group>
                   </div>
-                  <div class="pt-3">
-                    <div class="mb-0 w-50">
-                      <label for="search-options-note-filters-author">Advisor</label>
-                      <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
-                      <InputTextAutocomplete
-                        id="search-options-note-filters-author"
-                        v-model="author"
-                        :disabled="isSearching || postedBy === 'you'"
-                        input-labelled-by="notes-search-author-input-label"
-                        :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
-                        :source="findAdvisorsByName"
-                      />
-                    </div>
-                  </div>
-                  <div class="pt-3">
-                    <div class="mb-0 w-50">
-                      <label for="search-options-note-filters-student">Student (name or SID)</label>
-                      <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
-                      <InputTextAutocomplete
-                        id="search-options-note-filters-student"
-                        v-model="student"
+                  <label class="form-control-label" for="search-options-note-filters-author">Advisor</label>
+                  <span id="notes-search-author-input-label" class="sr-only">Select note author from list of suggested advisors.</span>
+                  <InputTextAutocomplete
+                    id="search-options-note-filters-author"
+                    v-model="author"
+                    :disabled="isSearching || postedBy === 'you'"
+                    input-labelled-by="notes-search-author-input-label"
+                    :placeholder="postedBy === 'you' ? currentUser.name : 'Enter name...'"
+                    :source="findAdvisorsByName"
+                  />
+                  <label class="form-control-label" for="search-options-note-filters-student">Student (name or SID)</label>
+                  <span id="notes-search-student-input-label" class="sr-only">Select a student for notes-related search. Expect auto-suggest as you type name or SID.</span>
+                  <InputTextAutocomplete
+                    id="search-options-note-filters-student"
+                    v-model="student"
+                    :disabled="isSearching"
+                    :demo-mode-blur="true"
+                    input-labelled-by="notes-search-student-input-label"
+                    placeholder="Enter name or SID..."
+                    :source="findStudentsByNameOrSid"
+                  />
+                  <label class="form-control-label" for="search-options-note-filters-last-updated-from">Date Range</label>
+                  <div class="d-flex">
+                    <label
+                      id="note-filters-date-from-label"
+                      class="text-black"
+                      for="search-options-note-filters-last-updated-from"
+                    >
+                      <span class="sr-only">Date</span>
+                      From
+                    </label>
+                    <VDatePicker v-model="fromDate" :input-debounce="500">
+                      <template #default="{inputValue, inputEvents}">
+                        <VBaseInput
+                          id="search-options-note-filters-last-updated-from"
+                          :value="inputValue"
+                          v-on="inputEvents"
+                        />
+                      </template>
+                    </VDatePicker>
+                    <!--
+                    <template #default="{inputValue, inputEvents}">
+                      <input
+                        id="search-options-note-filters-last-updated-from"
+                        aria-labelledby="note-filters-date-from-label"
+                        class="form-control"
                         :disabled="isSearching"
-                        :demo-mode-blur="true"
-                        input-labelled-by="notes-search-student-input-label"
-                        placeholder="Enter name or SID..."
-                        :source="findStudentsByNameOrSid"
+                        name="note-filters-date-from"
+                        placeholder="MM/DD/YYYY"
+                        type="text"
+                        :value="inputValue"
+                        v-on="inputEvents"
                       />
+                    </template>
+                    -->
+                    <div class="sr-only">
+                      <v-btn
+                        id="search-options-note-filters-last-updated-from-clear"
+                        :disabled="!fromDate"
+                        icon
+                        @click="() => setFromDate(null)"
+                      >
+                        <span class="sr-only">Clear the 'from' date.</span>
+                        <v-icon
+                          class="font-size-14"
+                          :icon="mdiClose"
+                          size="sm"
+                        />
+                      </v-btn>
                     </div>
-                  </div>
-                  <div class="pt-3">
-                    <div class="mb-0">
-                      <label for="search-options-note-filters-last-updated-from">Date Range</label>
-                      <div class="d-flex">
-                        <div>
-                          <label
-                            id="note-filters-date-from-label"
-                            for="search-options-note-filters-last-updated-from"
-                            class="font-weight-500 pt-1 px-2"
-                          >
-                            <span class="sr-only">Date</span>
-                            From
-                          </label>
-                        </div>
-                        <div>
-                          <VDatePicker v-model="fromDate" :input-debounce="500">
-                            <template #default="{inputValue, inputEvents}">
-                              <VBaseInput
-                                id="search-options-note-filters-last-updated-from"
-                                :value="inputValue"
-                                v-on="inputEvents"
-                              />
-                            </template>
-                          </VDatePicker>
-                          <!--
-                          <template #default="{inputValue, inputEvents}">
-                            <input
-                              id="search-options-note-filters-last-updated-from"
-                              aria-labelledby="note-filters-date-from-label"
-                              class="form-control"
-                              :disabled="isSearching"
-                              name="note-filters-date-from"
-                              placeholder="MM/DD/YYYY"
-                              type="text"
-                              :value="inputValue"
-                              v-on="inputEvents"
-                            />
-                          </template>
-                          -->
-                        </div>
-                        <div class="sr-only">
-                          <v-btn
-                            id="search-options-note-filters-last-updated-from-clear"
-                            :disabled="!fromDate"
-                            icon
-                            @click="() => setFromDate(null)"
-                          >
-                            <span class="sr-only">Clear the 'from' date.</span>
-                            <v-icon
-                              class="font-size-14"
-                              :icon="mdiClose"
-                              size="sm"
-                            />
-                          </v-btn>
-                        </div>
-                        <div>
-                          <label
-                            id="note-filters-date-to-label"
-                            for="search-options-note-filters-last-updated-to"
-                            class="font-weight-500 pt-1 px-2"
-                          >
-                            <span class="sr-only">Date</span>
-                            to
-                          </label>
-                        </div>
-                        <div>
-                          <VDatePicker v-model="toDate" :input-debounce="500">
-                            <template #default="{inputValue, inputEvents}">
-                              <VBaseInput
-                                id="search-options-note-filters-last-updated-to"
-                                :value="inputValue"
-                                v-on="inputEvents"
-                              />
-                            </template>
-                          </VDatePicker>
-                          <!--
-                            <template #default="{inputValue, inputEvents}">
-                              <input
-                                id="search-options-note-filters-last-updated-to"
-                                aria-labelledby="note-filters-date-to-label"
-                                class="form-control"
-                                :disabled="isSearching"
-                                name="note-filters-date-to"
-                                placeholder="MM/DD/YYYY"
-                                type="text"
-                                :value="inputValue"
-                                v-on="inputEvents"
-                              />
-                            </template>
-                          -->
-                        </div>
-                        <div class="sr-only">
-                          <v-btn
-                            id="search-options-note-filters-last-updated-to-clear"
-                            :disabled="!toDate"
-                            icon
-                            @click="toDate = null"
-                          >
-                            Clear the 'to' date.
-                            <v-icon
-                              class="font-size-14"
-                              :icon="mdiClose"
-                              size="sm"
-                            />
-                          </v-btn>
-                        </div>
-                      </div>
-                    </div>
+                    <label
+                      id="note-filters-date-to-label"
+                      for="search-options-note-filters-last-updated-to"
+                      class="text-black"
+                    >
+                      <span class="sr-only">Date</span>
+                      to
+                    </label>
+                    <VDatePicker v-model="toDate" :input-debounce="500">
+                      <template #default="{inputValue, inputEvents}">
+                        <VBaseInput
+                          id="search-options-note-filters-last-updated-to"
+                          :value="inputValue"
+                          v-on="inputEvents"
+                        />
+                      </template>
+                    </VDatePicker>
+                    <!--
+                      <template #default="{inputValue, inputEvents}">
+                        <input
+                          id="search-options-note-filters-last-updated-to"
+                          aria-labelledby="note-filters-date-to-label"
+                          class="form-control"
+                          :disabled="isSearching"
+                          name="note-filters-date-to"
+                          placeholder="MM/DD/YYYY"
+                          type="text"
+                          :value="inputValue"
+                          v-on="inputEvents"
+                        />
+                      </template>
+                    -->
+                    <v-btn
+                      id="search-options-note-filters-last-updated-to-clear"
+                      class="sr-only"
+                      :disabled="!toDate"
+                      icon
+                      @click="toDate = null"
+                    >
+                      Clear the 'to' date.
+                      <v-icon
+                        class="font-size-14"
+                        :icon="mdiClose"
+                        size="sm"
+                      />
+                    </v-btn>
                   </div>
                 </div>
-              </v-card-text>
+              </v-card-actions>
             </v-card>
           </v-expand-transition>
           <div>
@@ -456,6 +445,11 @@ export default {
 </style>
 
 <style scoped>
+.form-control-label {
+  color: black;
+  font-size: 16px;
+  font-weight: bold;
+}
 .notes-and-appointments-filters-header {
   color: #337ab7;
   font-size: 18px;

@@ -9,6 +9,7 @@
       autocomplete="off"
       :class="inputClass"
       :disabled="disabled"
+      hide-details
       :maxlength="maxlength"
       name="autocomplete-name"
       :placeholder="placeholder"
