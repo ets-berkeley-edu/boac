@@ -24,7 +24,6 @@
       return-object
       single-line
       variant="outlined"
-      menu-class="batch-note-cohorts-dropdown"
       @update:model-value="onUpdate"
     >
       <template #item="{props, item}">
@@ -120,10 +119,3 @@ export default {
   }
 }
 </script>
-
-<style>
-.batch-note-cohorts-dropdown {
-  max-height: 400px !important;
-  overflow-y: scroll !important;
-}
-</style>

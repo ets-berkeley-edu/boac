@@ -71,7 +71,7 @@
         <h2 class="page-section-header-sub my-2">Add {{ domain === 'admitted_students' ? 'Admits' : 'Students' }}</h2>
         <div class="w-75">
           <div>Type or paste a list of {{ domain === 'admitted_students' ? 'CS ID' : 'Student Identification (SID)' }} numbers numbers below.</div>
-          <div class="text-secondary">Example: 9999999990, 9999999991</div>
+          <div class="text-medium-emphasis">Example: 9999999990, 9999999991</div>
         </div>
         <CuratedGroupBulkAdd
           :bulk-add-sids="bulkAddSids"
