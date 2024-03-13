@@ -42,7 +42,7 @@
       <template #selection="{item, index}">
         <v-chip
           :id="`batch-note-${type}-${index}`"
-          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
           closable
           :close-label="`Remove ${type} ${item.title}`"
           density="comfortable"
@@ -50,7 +50,7 @@
           @click:close="remove(item.raw)"
           @keyup.enter="remove(item.raw)"
         >
-          {{ item.title }}
+          <span class="truncate-with-ellipsis">{{ item.title }}</span>
           <template #close>
             <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
           </template>

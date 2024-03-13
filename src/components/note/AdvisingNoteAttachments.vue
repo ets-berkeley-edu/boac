@@ -1,70 +1,85 @@
 <template>
   <div>
-    <div v-if="attachmentError" class="w-100">
-      <v-icon :icon="mdiAlert" class="text-danger pr-1" />
-      <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
-    </div>
-    <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote" class="w-100">
-      <div class="choose-attachment-file-wrapper font-size-14 h-100 no-wrap pl-3 pr-3 w-100">
-        <v-file-input
-          id="choose-file-for-note-attachment"
-          ref="attachment-file-input"
-          v-model="attachments"
-          aria-label="Select file for attachment"
-          density="compact"
-          :disabled="disabled || _size(existingAttachments) === config.maxAttachmentsPerNote"
-          :error="Boolean(attachments && attachments.length)"
-          multiple
-          :prepend-icon="null"
-          variant="plain"
-          @update:model-value="onAttachmentsInput"
-        >
-          <template #label>
-            <div class="font-size-14">
-              Add attachment:
-              <v-btn
-                id="choose-file-for-note-attachment-btn"
-                :disabled="disabled"
-                aria-hidden="true"
-                class="my-2 ml-2 px-2"
-                density="comfortable"
-                hide-details
-                type="file"
-                variant="outlined"
-                @keydown.enter.prevent="clickBrowseForAttachment"
-              >
-                Select File
-              </v-btn>
-            </div>
-          </template>
-        </v-file-input>
-      </div>
-    </div>
-    <div v-if="_size(existingAttachments) >= config.maxAttachmentsPerNote" class="w-100">
-      A note can have no more than {{ config.maxAttachmentsPerNote }} attachments.
+    <v-alert
+      v-if="attachmentError"
+      id="attachment-error"
+      aria-live="polite"
+      class="font-size-14 w-100 mb-1"
+      density="compact"
+      :icon="mdiAlert"
+      :text="attachmentError"
+      type="error"
+      variant="tonal"
+    ></v-alert>
+    <v-file-input
+      v-if="_size(existingAttachments) < useContextStore().config.maxAttachmentsPerNote"
+      id="choose-file-for-note-attachment"
+      ref="attachment-file-input"
+      v-model="attachments"
+      aria-label="Select file for attachment"
+      class="choose-file-for-note-attachment border rounded"
+      :clearable="false"
+      density="comfortable"
+      :disabled="disabled || _size(existingAttachments) === useContextStore().config.maxAttachmentsPerNote"
+      :error="attachmentError"
+      flat
+      hide-details
+      :loading="isAdding ? 'primary' : false"
+      multiple
+      :prepend-icon="null"
+      single-line
+      variant="solo-filled"
+      @update:model-value="onAttachmentsInput"
+    >
+      <template #label>
+        <div class="d-flex align-center justify-center">
+          <div class="font-size-14">
+            Add attachment:
+          </div>
+          <v-btn
+            id="choose-file-for-note-attachment-btn"
+            :disabled="disabled"
+            aria-hidden="true"
+            class="my-2 ml-2 px-2"
+            density="comfortable"
+            hide-details
+            type="file"
+            variant="outlined"
+            @keydown.enter.prevent="clickBrowseForAttachment"
+          >
+            Select File
+          </v-btn>
+        </div>
+      </template>
+      <template #selection>
+        <div></div>
+      </template>
+    </v-file-input>
+    <div v-if="_size(existingAttachments) >= useContextStore().config.maxAttachmentsPerNote" class="w-100">
+      A note can have no more than {{ useContextStore().config.maxAttachmentsPerNote }} attachments.
     </div>
     <div>
-      <ul class="pill-list pl-0 mt-3">
+      <ul aria-label="attachments" class="list-no-bullets mt-1">
         <li
           v-for="(attachment, index) in existingAttachments"
-          :id="`new-note-attachment-${index}`"
           :key="index"
-          class="mt-1"
         >
-          <span class="pill pill-attachment text-nowrap">
-            <v-icon :icon="mdiPaperclip" />
-            {{ attachment.displayName }}
-            <v-btn
-              :id="`remove-note-attachment-${index}`"
-              class="p-0"
-              :disabled="disabled"
-              variant="plain"
-              @click.prevent="() => deleteAttachmentByIndex(index)"
-            >
-              <v-icon :icon="mdiCloseCircle" class="font-size-20 has-error pl-2" />
-              <span class="sr-only">Delete attachment '{{ attachment.displayName }}'</span>
-            </v-btn>
-          </span>
+          <v-chip
+            :id="`new-note-attachment-${index}`"
+            class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap mt-1"
+            closable
+            :close-label="`Remove attachment ${attachment.displayName}`"
+            density="comfortable"
+            :prepend-icon="mdiPaperclip"
+            variant="outlined"
+            @click:close="deleteAttachmentByIndex(index)"
+            @keyup.enter="deleteAttachmentByIndex(index)"
+          >
+            <span class="truncate-with-ellipsis">{{ attachment.displayName }}</span>
+            <template #close>
+              <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+            </template>
+          </v-chip>
         </li>
       </ul>
     </div>
@@ -79,6 +94,7 @@ import {mdiAlert, mdiCloseCircle, mdiPaperclip} from '@mdi/js'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
@@ -100,10 +116,14 @@ export default {
   },
   data: () => ({
     attachments: [],
-    attachmentError: undefined
+    attachmentError: undefined,
+    isAdding: false
   }),
   beforeCreate() {
     addFileDropEventListeners()
+  },
+  created() {
+    this.attachments = this.existingAttachments
   },
   methods: {
     clickBrowseForAttachment() {
@@ -115,6 +135,8 @@ export default {
     },
     onAttachmentsInput(files) {
       if (this._size(files)) {
+        this.isAdding = true
+        this.alertScreenReader(`Adding ${files.length} attachments`)
         this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           const attachments = []
@@ -122,20 +144,25 @@ export default {
             attachment.displayName = attachment.name
             attachments.push(attachment)
           })
-          this.addAttachments(attachments)
-          this.alertScreenReader('Attachments added')
+          this.addAttachments(attachments).then(() => {
+            this.alertScreenReader('Attachments added')
+            this.isAdding = false
+          })
+        } else {
+          this.isAdding = false
         }
       }
-      this.attachments = []
     }
   }
 }
 </script>
 
-<style lang="scss">
-.choose-attachment-file-wrapper {
-  label {
-    width: 100%;
-  }
+<style>
+.choose-file-for-note-attachment .v-label.v-field-label {
+  visibility: visible !important;
+  width: 100%;
+}
+.choose-file-for-note-attachment input {
+  cursor: pointer;
 }
 </style>

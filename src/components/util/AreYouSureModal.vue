@@ -12,8 +12,7 @@
       max-width="600"
     >
       <ModalHeader clazz="px-3" :text="modalHeader" />
-      <hr />
-      <div class="px-4">
+      <div class="px-4 mt-4">
         <slot></slot>
       </div>
       <hr />
