@@ -143,6 +143,7 @@ import Util from '@/mixins/Util'
 import {exitSession, setNoteRecipient, setSubjectPerEvent} from '@/stores/note-edit-session/utils'
 import {getNote, updateNote} from '@/api/notes'
 import {getUserProfile} from '@/api/user'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'EditAdvisingNote',
@@ -231,7 +232,7 @@ export default {
     save(isDraft) {
       const ifAuthenticated = () => {
         const trimmedSubject = this._trim(this.model.subject)
-        const setDate = this.model.setDate ? this.moment(this.model.setDate).format('YYYY-MM-DD') : null
+        const setDate = this.model.setDate ? DateTime.fromJSDate(this.model.setDate).toFormat('YYYY-MM-DD') : null
         if (trimmedSubject || this.model.isDraft) {
           updateNote(
             this.model.id,

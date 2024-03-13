@@ -3,7 +3,7 @@
     <span :id="`withdrawal-term-${termId}`" class="red-flag-status">
       {{ withdrawal.description }}
       ({{ withdrawal.reason }})
-      <span class="text-nowrap">{{ moment(withdrawal.date).format('MMM DD, YYYY') }}</span>
+      <span class="text-nowrap">{{ DateTime.fromJSDate(withdrawal.date).toFormat('MMM DD, YYYY') }}</span>
     </span>
   </div>
 </template>

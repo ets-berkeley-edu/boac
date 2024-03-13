@@ -131,7 +131,7 @@
           </template>
           <template #cell(createdAt)="row">
             <div v-if="row.item.id !== _get(templateForEdit, 'id')">
-              {{ moment(row.item.createdAt).format('MMM D, YYYY') }}
+              {{ DateTime.fromJSDate(row.item.createdAt).toFormat('MMM D, YYYY') }}
             </div>
           </template>
           <template #cell(actions)="row">
@@ -223,6 +223,7 @@ import DegreeEditSession from '@/mixins/DegreeEditSession'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {deleteDegreeTemplate, getDegreeTemplates, updateDegreeTemplate} from '@/api/degree'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'ManageDegreeChecks',

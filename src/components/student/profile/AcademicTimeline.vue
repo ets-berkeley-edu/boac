@@ -29,6 +29,8 @@ import AcademicTimelineTable from '@/components/student/profile/AcademicTimeline
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getNote} from '@/api/notes'
+import {DateTime} from 'luxon'
+
 
 export default {
   name: 'AcademicTimeline',
@@ -127,7 +129,7 @@ export default {
     sortDate(message) {
       if (message.type === 'appointment' || message.type === 'note') {
         if (message.setDate) {
-          return this.moment(message.setDate).tz(this.config.timezone).utc().format()
+          return DateTime.fromJSDate(message.setDate).setZone(this.config.timezone).toUTC()
         } else {
           return message.createdAt
         }

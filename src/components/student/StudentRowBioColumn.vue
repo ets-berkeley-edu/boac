@@ -76,7 +76,8 @@
     </div>
     <div v-if="student.withdrawalCancel" :id="`row-${rowIndex}-withdrawal-cancel`">
       <span class="red-flag-small">
-        {{ student.withdrawalCancel.description }} {{ moment(student.withdrawalCancel.date).format('MMM DD, YYYY') }}
+        {{ student.withdrawalCancel.description }}
+        {{ DateTime.fromJSDate(student.withdrawalCancel.date).toFormat('MMM DD, YYYY') }}
       </span>
     </div>
     <StudentAcademicStanding v-if="student.academicStanding" :standing="student.academicStanding" :row-index="`row-${rowIndex}`" />
@@ -156,6 +157,7 @@ import DegreesAwarded from '@/components/student/DegreesAwarded'
 import StudentAcademicStanding from '@/components/student/profile/StudentAcademicStanding'
 import Util from '@/mixins/Util.vue'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'StudentRowBioColumn',

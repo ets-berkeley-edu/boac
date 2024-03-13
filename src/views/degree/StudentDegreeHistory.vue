@@ -54,7 +54,7 @@
             <span v-if="row.item.isCurrent" class="ml-2">(current)</span>
           </template>
           <template #cell(updatedAt)="row">
-            {{ moment(row.item.updatedAt).format('MMM D, YYYY') }}
+            {{ DateTime.fromJSDate(row.item.updatedAt).toFormat('MMM D, YYYY') }}
           </template>
           <template #cell(updatedBy)="row">
             <div class="align-right w-100">
@@ -68,7 +68,7 @@
               :icon="mdiAlertRhombus"
               :title="`Revisions to the original degree template have been made since the creation of this degree check.`"
             />
-            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ moment(row.item.parentTemplateUpdatedAt).format('MMM D, YYYY') }}</span>
+            <span v-if="row.item.parentTemplateUpdatedAt" :class="{'boac-exclamation': row.item.showRevisionIndicator}">{{ DateTime.fromJSDate(row.item.parentTemplateUpdatedAt).toFormat('MMM D, YYYY') }}</span>
             <span v-if="!row.item.parentTemplateUpdatedAt">&mdash;</span>
             <div class="sr-only">
               Note: Revisions to the original degree template have been made since the creation of this degree check.
@@ -94,6 +94,7 @@ import StudentProfileHeader from '@/components/student/profile/StudentProfileHea
 import Util from '@/mixins/Util'
 import {getDegreeChecks} from '@/api/degree'
 import {getStudentByUid} from '@/api/student'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'StudentDegreeHistory',
@@ -115,7 +116,7 @@ export default {
         this.degreeChecks = data
         this._each(this.degreeChecks, degreeCheck => {
           if (degreeCheck.parentTemplateUpdatedAt) {
-            degreeCheck.showRevisionIndicator = this.moment(new Date(degreeCheck.createdAt)).isBefore(new Date(degreeCheck.parentTemplateUpdatedAt))
+            degreeCheck.showRevisionIndicator = DateTime.fromJSDate(new Date(degreeCheck.createdAt)) < (new Date(degreeCheck.parentTemplateUpdatedAt))
           } else {
             degreeCheck.showRevisionIndicator = false
           }

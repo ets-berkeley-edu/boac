@@ -58,7 +58,7 @@
                   <div>
                     {{ meeting.days }}
                     <span v-if="meetings.length > 1">
-                      ({{ moment(meeting.startDate).format('MMM D') }} to {{ moment(meeting.endDate).format('MMM D') }})
+                      ({{ DateTime.fromJSDate(meeting.startDate).toFormat('MMM D') }} to {{ DateTime.fromJSDate(meeting.endDate).toFormat('MMM D') }})
                     </span>
                   </div>
                   <div>{{ meeting.time }}</div>
@@ -145,6 +145,7 @@ import SectionSpinner from '@/components/util/SectionSpinner'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {scrollToTop} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'Course',

@@ -32,7 +32,7 @@
       <span v-if="note.advisorName" :id="`advising-note-search-result-advisor-${note.id}`">
         {{ note.advisorName }} -
       </span>
-      <span v-if="lastModified">{{ moment(lastModified).format('MMM D, YYYY') }}</span>
+      <span v-if="lastModified">{{ DateTime.fromJSDate(lastModified).toFormat('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>
@@ -40,6 +40,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvisingNoteSnippet',
@@ -56,7 +57,7 @@ export default {
   created() {
     const timestamp = this._get(this.note, 'updatedAt') || this._get(this.note, 'createdAt')
     if (timestamp) {
-      this.lastModified = this.moment(timestamp).tz(this.config.timezone)
+      this.lastModified = DateTime.fromJSDate(timestamp).setZone(this.config.timezone)
     }
   }
 }
