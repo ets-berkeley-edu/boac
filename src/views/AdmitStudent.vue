@@ -297,6 +297,7 @@ import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getAdmitBySid} from '@/api/admit'
 import {scrollToTop} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdmitStudent',
@@ -307,18 +308,18 @@ export default {
   }),
   computed: {
     birthDate() {
-      let birthDate = this.moment(this.admit.birthdate, ['YYYY-MM-DD', 'M/D/YY'])
-      if (birthDate.isAfter(this.now)) {
-        birthDate.subtract(100, 'years')
+      let birthDate = DateTime.fromJSDate(this.admit.birthdate)
+      if (birthDate > (this.now)) {
+        birthDate.minus({years: 100})
       }
-      return birthDate.format('MMM D, YYYY')
+      return birthDate.toFormat('MMM D, YYYY')
     },
     fullName() {
       return this._join(this._remove([this.admit.firstName, this.admit.middleName, this.admit.lastName]), ' ')
     }
   },
   created() {
-    this.now = this.moment()
+    this.now = DateTime.now()
     let sid = this._get(this.$route, 'params.sid')
     if (this.currentUser.inDemoMode) {
       // In demo-mode we do not want to expose SID in browser location bar.

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import ga from '@/lib/ga'
-import moment from 'moment-timezone'
+import {DateTime} from 'luxon'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
@@ -51,7 +51,7 @@ export function deleteCohort(id) {
 
 export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: any[]) {
   const fileDownload = require('js-file-download')
-  const now = moment().format('YYYY-MM-DD_HH-mm-ss')
+  const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
   const termId = useContextStore().currentUser.preferences.termId || useContextStore().config.currentEnrollmentTermId
 
@@ -67,7 +67,7 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
 
 export function downloadCsv(domain: string, cohortName: string, filters: any[], csvColumnsSelected: any[]) {
   const fileDownload = require('js-file-download')
-  const now = moment().format('YYYY-MM-DD_HH-mm-ss')
+  const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
   const termId = useContextStore().currentUser.preferences.termId || useContextStore().config.currentEnrollmentTermId
   $_track('download', filename)

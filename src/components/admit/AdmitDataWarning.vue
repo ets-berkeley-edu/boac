@@ -1,7 +1,7 @@
 <template>
   <h2 v-if="show" class="font-size-16 has-error mb-0 py-1">
     <span class="has-error mr-1"><v-icon :icon="mdiAlertRhombus" /></span>
-    Admit data was last updated on {{ moment(localUpdatedAt).format('MMM D, YYYY') }}
+    Admit data was last updated on {{ DateTime.fromJSDate(localUpdatedAt).toFormat('MMM D, YYYY') }}
   </h2>
 </template>
 
@@ -11,7 +11,7 @@ import {mdiAlertRhombus} from '@mdi/js'
 
 <script>
 import Context from '@/mixins/Context'
-import moment from 'moment'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdmitDataWarning',
@@ -28,14 +28,11 @@ export default {
     show: undefined
   }),
   created() {
-    const now = this.moment()
+    const now = DateTime.now()
     if (this.updatedAt) {
-      this.localUpdatedAt = moment(this.updatedAt).tz(this.config.timezone)
-      this.show = moment.duration(now.diff(this.localUpdatedAt)).as('hours') >= 24
+      this.localUpdatedAt = DateTime.fromObject(this.updatedAt).setZone(this.config.timezone)
+      this.show = now.diff(this.localUpdatedAt, 'hours') >= 24
     }
-  },
-  methods: {
-    moment
   }
 }
 </script>

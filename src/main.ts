@@ -1,6 +1,7 @@
 import App from './App.vue'
 import axios from 'axios'
-import moment from 'moment'
+
+import {DateTime} from 'luxon'
 import router from '@/router'
 import {createApp} from 'vue'
 import {get, trim} from 'lodash'
@@ -15,7 +16,7 @@ initializeAxios(app, axios)
 
 // Globals
 app.config.globalProperties.$isInIframe = !!window.parent.frames.length
-app.config.globalProperties.$moment = moment
+app.config.globalProperties.$DateTime = DateTime
 app.config.globalProperties.$ready = (focusTarget?: string) => useContextStore().loadingComplete(focusTarget)
 
 const apiBaseUrl = import.meta.env.VITE_APP_API_BASE_URL

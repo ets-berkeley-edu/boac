@@ -40,7 +40,7 @@
       <span v-if="appointment.advisorName" :id="`appointment-search-result-advisor-${appointment.id}`">
         {{ appointment.advisorName }} -
       </span>
-      <span v-if="createdAt">{{ moment(createdAt).format('MMM D, YYYY') }}</span>
+      <span v-if="createdAt">{{ DateTime.fromJSDate(createdAt).toFormat('MMM D, YYYY') }}</span>
     </div>
   </div>
 </template>
@@ -48,6 +48,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AppointmentSnippet',
@@ -64,7 +65,7 @@ export default {
   created() {
     const timestamp = this._get(this.appointment, 'createdAt')
     if (timestamp) {
-      this.createdAt = this.moment(timestamp).tz(this.config.timezone)
+      this.createdAt = DateTime.fromJSDate(timestamp).setZone(this.config.timezone)
     }
   }
 }

@@ -52,7 +52,7 @@
           >
             <div :id="`term-${term.termId}-dropped-course-${droppedIndex}`" role="cell">
               {{ droppedSection.displayName }} - {{ droppedSection.component }} {{ droppedSection.sectionNumber }}
-              (Dropped<span v-if="droppedSection.dropDate"> as of {{ moment(droppedSection.dropDate).format('MMM D, YYYY') }}</span>)
+              (Dropped<span v-if="droppedSection.dropDate"> as of {{ DateTime.fromJSDate(droppedSection.dropDate).toFormat('MMM D, YYYY') }}</span>)
             </div>
           </div>
         </div>

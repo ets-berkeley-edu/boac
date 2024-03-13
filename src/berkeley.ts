@@ -1,5 +1,6 @@
 import _ from 'lodash'
-import moment from 'moment'
+
+import {DateTime} from 'luxon'
 import {useContextStore} from '@/stores/context'
 
 export function describeCuratedGroupDomain(domain, capitalize) {
@@ -143,7 +144,7 @@ export function getIncompleteGradeDescription(courseDisplayName, sections) {
         const statusCode = _.toUpper(section.incompleteStatusCode)
         let lapseDate
         if (section.incompleteLapseGradeDate) {
-          lapseDate = moment(new Date(section.incompleteLapseGradeDate)).format('ll')
+          lapseDate = DateTime.fromObject(section.incompleteLapseGradeDate).toLocaleString(DateTime.DATE_MED)
         }
         switch(statusCode) {
         case 'I': {

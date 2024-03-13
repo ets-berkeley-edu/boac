@@ -1,7 +1,8 @@
 import _ from 'lodash'
 import axios from 'axios'
 import ga from '@/lib/ga'
-import moment from 'moment-timezone'
+import {DateTime} from 'luxon'
+
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
@@ -66,7 +67,7 @@ export function deleteCuratedGroup(domain: string, curatedGroupId: number) {
 export function downloadCuratedGroupCsv(curatedGroupId: number, name: string, csvColumnsSelected: any[]) {
   $_track('download')
   const fileDownload = require('js-file-download')
-  const now = moment().format('YYYY-MM-DD_HH-mm-ss')
+    const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
   const termId = _.get(useContextStore().currentUser, 'preferences.termId') || _.get(useContextStore().config, 'currentEnrollmentTermId')
   const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/download_csv`
   return axios.post(url, {csvColumnsSelected, termId})

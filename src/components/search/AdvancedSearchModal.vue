@@ -308,6 +308,7 @@ import Util from '@/mixins/Util'
 import {addToSearchHistory, findAdvisorsByName} from '@/api/search'
 import {findStudentsByNameOrSid} from '@/api/student'
 import {scrollToTop} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvancedSearchModal',
@@ -397,10 +398,11 @@ export default {
             query.noteTopic = this.topic
           }
           if (this.fromDate) {
-            query.noteDateFrom = this.moment(this.fromDate).format('YYYY-MM-DD')
+            query.noteDateFrom = DateTime.fromJSDate(this.fromDate).toFormat('YYYY-MM-DD')
           }
           if (this.toDate) {
-            query.noteDateTo = this.moment(this.toDate).format('YYYY-MM-DD')
+            query.noteDateTo = DateTime.fromJSDate(this.toDate).toFormat('YYYY-MM-DD')
+
           }
         }
         this.$router.push(

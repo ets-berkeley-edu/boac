@@ -67,7 +67,7 @@
           </div>
           <div>
             <dt>Date Initiated</dt>
-            <dd>{{ moment(note.createdAt, 'MM/DD/YYYY') }}</dd>
+            <dd>{{ DateTime.fromJSDate(note.createdAt).toFormat('MM/DD/YYYY') }}</dd>
           </div>
           <div>
             <dt>Form Status </dt>
@@ -75,7 +75,7 @@
           </div>
           <div>
             <dt>Final Date &amp; Time Stamp</dt>
-            <dd>{{ moment(note.updatedAt, 'MM/DD/YYYY h:mm:ssa') }}</dd>
+            <dd>{{ DateTime.fromJSDate(note.updatedAt).toFormat('MM/DD/YYYY h:mm:ssa') }}</dd>
           </div>
         </dl>
       </div>
@@ -224,6 +224,7 @@ import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
 import {oxfordJoin} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvisingNote',
