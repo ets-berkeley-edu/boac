@@ -84,21 +84,20 @@
           :add-topic="addTopic"
           :disabled="isSaving || boaSessionExpired"
           :remove-topic="removeTopic"
-          :topics="model.topics"
         />
         <PrivacyPermissions
           v-if="currentUser.canAccessPrivateNotes"
           :disabled="isSaving || boaSessionExpired"
         />
         <TransitionGroup v-if="mode !== 'editTemplate'" name="batch-transition">
-          <div key="0">
+          <div key="0" class="pt-4">
             <ContactMethod :disabled="isSaving || boaSessionExpired" />
           </div>
-          <div key="1" class="pb-4">
+          <div key="1" class="pt-4">
             <ManuallySetDate :disabled="isSaving || boaSessionExpired" />
           </div>
         </TransitionGroup>
-        <div>
+        <div class="pt-5">
           <AdvisingNoteAttachments
             :add-attachments="addNoteAttachments"
             :disabled="isSaving || boaSessionExpired"
@@ -396,7 +395,6 @@ export default {
       this.dismissAlertSeconds = seconds
     },
     toggleShowCreateTemplateModal(show) {
-      console.log(`toggleShowCreateTemplateModal: ${show}`)
       this.showCreateTemplateModal = show
       const toggle = show ? this.disableFocusLock : this.enableFocusLock
       toggle()

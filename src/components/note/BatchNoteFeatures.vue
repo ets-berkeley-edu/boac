@@ -113,14 +113,19 @@ export default {
         this.removeCohort(cohort)
       }
     },
-    updateCuratedGroups(curatedGroup) {
-      setNoteRecipients(
-        this.recipients.cohorts,
-        this.recipients.curatedGroups.concat(curatedGroup),
-        this.recipients.sids
-      ).then(() => {
-        this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
-      })
+    updateCuratedGroups(curatedGroups) {
+      const curatedGroup = differenceBy(curatedGroups, this.recipients.curatedGroups, 'id')
+      if (size(curatedGroups) > size(this.recipients.curatedGroups)) {
+        setNoteRecipients(
+          this.recipients.cohorts,
+          this.recipients.curatedGroups.concat(curatedGroup),
+          this.recipients.sids
+        ).then(() => {
+          this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+        })
+      } else {
+        this.removeCuratedGroup(curatedGroup)
+      }
     },
     removeCohort(cohort) {
       const index = findIndex(this.recipients.cohorts, {'id': cohort.id})

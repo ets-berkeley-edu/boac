@@ -1,66 +1,51 @@
 <template>
   <div>
-    <div>
-      <label id="add-note-topic-label" class="font-weight-bold mt-2" for="add-note-topic">
-        Topic Categories
-      </label>
-    </div>
-    <v-container class="pl-0 ml-0">
-      <v-row class="pb-1">
-        <v-col cols="9">
-          <select
-            v-if="topicOptions.length"
-            id="add-topic-select-list"
-            :key="topics.length"
-            v-model="selected"
-            aria-label="Use up and down arrows to review topics. Hit enter to select a topic."
-            :disabled="disabled"
-            style="font-size: 16px;"
-          >
-            <option :value="null" disabled>Select...</option>
-            <option
-              v-for="option in topicOptions"
-              :key="option.value"
-              :disabled="option.disabled"
-              :value="option.value"
-            >
-              {{ option.text }}
-            </option>
-          </select>
-        </v-col>
-      </v-row>
-      <div>
-        <ul
-          id="note-topics-list"
-          class="mb-2 pill-list pl-0"
-          aria-labelledby="note-topics-label"
+    <label id="add-note-topic-label" class="font-weight-bold font-size-14" for="add-note-topic">
+      Topic Categories
+    </label>
+    <v-select
+      id="add-topic-select-list"
+      v-model="selectedTopics"
+      class="mt-2"
+      density="compact"
+      :disabled="disabled"
+      hide-details
+      item-title="text"
+      :items="topicOptions"
+      multiple
+      persistent-hint
+      return-object
+      single-line
+      variant="outlined"
+      @update:model-value="onUpdate"
+    >
+      <template #item="{props}">
+        <v-list-item
+          v-bind="props"
+          class="min-height-unset py-1"
+          density="compact"
         >
-          <li
-            v-for="(addedTopic, index) in topics"
-            :id="`${notePrefix}-topic-${index}`"
-            :key="index"
-            class="mt-1"
-          >
-            <span class="pill pill-attachment text-uppercase text-nowrap">
-              {{ addedTopic }}
-              <v-btn
-                :id="`remove-${notePrefix}-topic-${index}`"
-                class="p-0"
-                :disabled="disabled"
-                variant="plain"
-                @click.prevent="removeTopic(addedTopic)"
-              >
-                <v-icon :icon="mdiCloseCircle" class="font-size-20 has-error pl-2" />
-                <span class="sr-only">Remove</span>
-              </v-btn>
-            </span>
-          </li>
-        </ul>
-        <label id="note-topics-label" class="sr-only" for="note-topics-list">
-          topics
-        </label>
-      </div>
-    </v-container>
+        </v-list-item>
+      </template>
+      <template #selection="{item, index}">
+        <v-chip
+          :id="`${notePrefix}-topic-${index}`"
+          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          closable
+          :close-label="`Remove ${item.title}`"
+          density="comfortable"
+          :disabled="disabled"
+          variant="outlined"
+          @click:close="onClickRemove(item.raw)"
+          @keyup.enter="onClickRemove(item.raw)"
+        >
+          {{ item.title }}
+          <template #close>
+            <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
+          </template>
+        </v-chip>
+      </template>
+    </v-select>
   </div>
 </template>
 
@@ -72,6 +57,8 @@ import {mdiCloseCircle} from '@mdi/js'
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getTopicsForNotes} from '@/api/topics'
+import {differenceBy, findIndex, includes, size} from 'lodash'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'AdvisingNoteTopics',
@@ -93,14 +80,10 @@ export default {
     removeTopic: {
       type: Function,
       required: true
-    },
-    topics: {
-      type: Array,
-      required: true
     }
   },
   data: () => ({
-    selected: null,
+    selectedTopics: [],
     topicOptions: []
   }),
   computed: {
@@ -108,43 +91,45 @@ export default {
       return this.noteId ? `note-${this.noteId}` : 'note'
     }
   },
-  watch: {
-    selected(option) {
-      this.addTopic(option)
-    }
-  },
   created() {
+    this.selectedTopics = useNoteStore().model.topics
     getTopicsForNotes(false).then(rows => {
       this._each(rows, row => {
         const topic = row['topic']
         this.topicOptions.push({
           text: topic,
           value: topic,
-          disabled: this._includes(this.topics, topic)
+          disabled: includes(this.selectedTopics, topic)
         })
       })
     })
   },
   methods: {
     add(topic) {
-      // Reset the dropdown
-      this.selected = null
       if (topic) {
-        this.setDisabled(topic, true)
         this.addTopic(topic)
         this.putFocusNextTick('add-topic-select-list')
         this.alertScreenReader(`Topic ${topic} added.`)
       }
     },
-    remove(topic) {
-      this.setDisabled(topic, false)
-      this.removeTopic(topic)
-      this.alertScreenReader(`Removed topic ${topic}.`)
-      this.putFocusNextTick('add-topic-select-list')
+    onClickRemove(topic) {
+      const index = findIndex(this.selectedTopics, {'text': topic.text})
+      this.selectedTopics.splice(index, 1)
+      this.remove(topic)
     },
-    setDisabled(topic, disable) {
-      const option = this._find(this.topicOptions, ['value', topic])
-      this._set(option, 'disabled', disable)
+    onUpdate(selectedTopics) {
+      const savedTopics = useNoteStore().model.topics
+      const topic = differenceBy(selectedTopics, savedTopics)
+      if (size(selectedTopics) > size(savedTopics)){
+        this.add(topic.text)
+      } else {
+        this.remove(topic.text)
+      }
+    },
+    remove(topic) {
+      this.removeTopic(topic.text)
+      this.alertScreenReader(`Removed topic ${topic.text}.`)
+      this.putFocusNextTick('add-topic-select-list')
     }
   }
 }

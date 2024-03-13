@@ -109,7 +109,7 @@ export default createVuetify({
           'pale-blue': '#f3fbff',
           primary: '#337ab7',
           red: colors.red.darken1,
-          secondary: '#eee',
+          secondary: '#8bbdda',
           success: '#437F4B',
           warning: '#f0ad4e'
         }

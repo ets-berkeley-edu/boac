@@ -60,6 +60,12 @@
 .font-weight-700 {
   font-weight: 700;
 }
+.list-no-bullets {
+  list-style-type: none;
+}
+.min-height-unset {
+  min-height: unset !important;
+}
 .modal-content {
   background-color: #fff !important;
   margin: 140px auto auto auto !important;

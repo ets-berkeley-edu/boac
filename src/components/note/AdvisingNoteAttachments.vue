@@ -17,7 +17,7 @@
           multiple
           :prepend-icon="null"
           variant="plain"
-          @update:modelValue="onAttachmentsInput"
+          @update:model-value="onAttachmentsInput"
         >
           <template #label>
             <div class="font-size-14">
@@ -26,7 +26,7 @@
                 id="choose-file-for-note-attachment-btn"
                 :disabled="disabled"
                 aria-hidden="true"
-                class="mt-2 mb-2 px-2"
+                class="my-2 ml-2 px-2"
                 density="comfortable"
                 hide-details
                 type="file"
