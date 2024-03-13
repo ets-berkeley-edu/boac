@@ -27,7 +27,7 @@
         <div v-if="appointment.status === 'cancelled'" class="mt-2">
           <div>
             <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />
-            <span class="text-secondary ml-1">
+            <span class=" ml-1">
               Canceled
             </span>
           </div>
@@ -54,7 +54,7 @@
           (appointment imported from {{ appointment.legacySource }})
         </span>
       </div>
-      <div v-if="_size(advisor.departments)" class="text-secondary">
+      <div v-if="_size(advisor.departments)" class="text-medium-emphasis">
         <span v-for="(dept, index) in advisor.departments" :key="dept.code">
           <span :id="`appointment-${appointment.id}-advisor-dept-${index}`">{{ dept.name }}</span>
         </span>

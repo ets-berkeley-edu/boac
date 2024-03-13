@@ -11,13 +11,14 @@
     "serve-vue": "vite --host --strictPort"
   },
   "dependencies": {
-    "@ckeditor/ckeditor5-build-classic": "41.1.0",
+    "@ckeditor/ckeditor5-build-classic": "41.2.0",
     "@ckeditor/ckeditor5-vue": "5.1.0",
     "@mdi/js": "7.4.47",
+    "@popperjs/core": "^2.11.8",
     "axios": "1.6.7",
     "core-js": "3.36.0",
-    "focus-trap": "^7.5.4",
-    "focus-trap-vue": "^4.0.3",
+    "focus-trap": "7.5.4",
+    "focus-trap-vue": "4.0.3",
     "js-file-download": "0.4.12",
     "lodash": "4.17.21",
     "luxon": "^3.4.4",
@@ -28,13 +29,13 @@
     "numeral": "2.0.6",
     "pinia": "2.1.7",
     "roboto-fontface": "*",
-    "v-calendar": "^3.1.2",
+    "v-calendar": "3.1.2",
     "vue": "3.4.21",
     "vue-router": "4.3.0",
     "vue3-shortkey": "4.0.0",
     "vue3-simple-typeahead": "1.0.11",
     "vue3-smooth-scroll": "0.8.1",
-    "vuetify": "3.5.8",
+    "vuetify": "3.5.9",
     "webfontloader": "1.6.28"
   },
   "devDependencies": {
@@ -46,12 +47,13 @@
     "eslint": "^8.57.0",
     "eslint-plugin-vue": "^9.22.0",
     "eslint-plugin-vue-scoped-css": "^2.7.2",
+    "postcss": "^8.4.35",
+    "postcss-nesting": "^12.1.0",
     "typescript": "5.4.2",
-    "vite": "^5.1.5",
+    "vite": "^5.1.6",
     "vite-plugin-compression": "^0.5.1",
-    "vite-plugin-vuetify": "^2.0.2",
-    "vue-eslint-parser": "^9.4.2",
-    "vue-tsc": "^2.0.5"
+    "vite-plugin-vuetify": "^2.0.3",
+    "vue-eslint-parser": "^9.4.2"
   },
   "type": "module"
 }

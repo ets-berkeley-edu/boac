@@ -5,7 +5,7 @@
       {{ currentUser.isAdmin ? 'Draft Notes' : 'My Draft Notes' }}
     </h1>
     <div v-if="!loading" class="pr-3">
-      <div v-if="!currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 pl-2 text-secondary">
+      <div v-if="!currentUser.isAdmin && myDraftNotes.length" class="font-weight-700 pb-3 pl-2 text-medium-emphasis">
         A draft note is only visible to its author.
       </div>
       <b-table
@@ -16,7 +16,7 @@
         :items="myDraftNotes"
         responsive
         stacked="md"
-        thead-class="text-nowrap text-secondary text-uppercase"
+        thead-class="text-nowrap text-medium-emphasis text-uppercase"
         :tbody-tr-attr="item => ({id: `draft-note-${item.id}`})"
       >
         <template #cell(student)="row">
@@ -85,7 +85,7 @@
             >
               <v-icon
                 aria-label="Delete"
-                :class="isDeleting ? 'text-secondary' : 'has-error'"
+                :class="isDeleting ? 'text-medium-emphasis' : 'has-error'"
                 :icon="mdiTrashCanOutline"
                 title="Delete"
               />

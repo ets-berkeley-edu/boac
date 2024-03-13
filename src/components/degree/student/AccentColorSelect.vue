@@ -38,7 +38,7 @@
           id="border-color-none"
           @click="setSelected(undefined)"
         >
-          <span class="text-secondary">-- None --</span>
+          <span class="text-medium-emphasis">-- None --</span>
         </b-dropdown-item>
         <b-dropdown-item
           v-for="(hexCode, colorName) in _omit(config.degreeProgressColorCodes, [selected])"

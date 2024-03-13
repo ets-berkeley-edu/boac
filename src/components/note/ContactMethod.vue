@@ -1,14 +1,20 @@
 <template>
   <div>
-    <div id="contact-type-label" class="font-weight-bold mb-1">
+    <label
+      id="contact-type-label"
+      class="font-weight-bold font-size-14"
+      for="contact-type-options"
+    >
       Contact Method
-    </div>
+    </label>
     <v-radio-group
       id="contact-type-options"
       v-model="contactType"
       aria-describedby="contact-type-label"
+      color="primary"
       density="comfortable"
       :disabled="disabled"
+      hide-details
       :ripple="false"
       @change="alertScreenReader(contactType)"
     >

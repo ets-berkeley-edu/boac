@@ -108,7 +108,7 @@
             (note imported from {{ note.legacySource }})
           </span>
         </div>
-        <div v-if="_size(author.departments)" class="text-secondary">
+        <div v-if="_size(author.departments)" class="text-medium-emphasis">
           <div v-for="(deptName, index) in _orderBy(_map(author.departments, 'name'))" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>

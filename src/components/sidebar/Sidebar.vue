@@ -64,6 +64,7 @@
       initial-mode="createBatch"
       :is-open="isCreateNoteModalOpen"
       :on-close="onCreateNoteModalClose"
+      :toggle-show="toggleCreateNoteModal"
     />
   </div>
 </template>
@@ -111,6 +112,9 @@ export default {
     onCreateNoteModalClose() {
       this.isCreateNoteModalOpen = false
       this.putFocusNextTick('batch-note-button')
+    },
+    toggleCreateNoteModal(show) {
+      this.isCreateNoteModalOpen = show
     }
   }
 }

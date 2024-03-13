@@ -7,7 +7,6 @@ module.exports = {
     '@vue/eslint-config-typescript',
     'eslint:recommended',
     'plugin:vue-scoped-css/vue3-recommended',
-    'plugin:vue/vue3-essential',
     'plugin:vue/vue3-recommended'
   ],
   rules: {
@@ -15,8 +14,8 @@ module.exports = {
     'array-bracket-spacing': 2,
     'eqeqeq': 2,
     'key-spacing': 2,
-    'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-console': 1,
+    'no-debugger': 2,
     'no-multi-spaces': 2,
     'no-trailing-spaces': 2,
     'no-unexpected-multiline': 2,

@@ -6,7 +6,7 @@ import {nextTick} from 'vue'
 import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/lib/utils'
 import {
   assign, capitalize, clone, cloneDeep, compact, concat, debounce, difference, differenceBy, each, eachRight, every,
-  extend, filter, find, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
+  extend, filter, find, findIndex, flatten, get, groupBy, includes, indexOf, inRange, isEmpty, isEqual, isNaN, isNil, isNumber,
   isString, isUndefined, join, keys, map, mapValues, max, merge, noop, omit, orderBy, partition, reject, remove,
   reverse, set, size, slice, some, sortBy, split, startsWith, sumBy, toString, trim, truncate, union, uniq, unset,
   upperCase, upperFirst, values, without, xor, xorBy
@@ -40,6 +40,7 @@ export default {
     _extend: extend,
     _filter: filter,
     _find: find,
+    _findIndex: findIndex,
     _flatten: flatten,
     _get: get,
     _groupBy: groupBy,

@@ -1,4 +1,4 @@
-import 'vuetify/styles'
+import './main.scss'
 import {aliases, mdi} from 'vuetify/iconsets/mdi-svg'
 import {createVuetify} from 'vuetify'
 import {Intersect, Resize} from 'vuetify/directives'
@@ -8,10 +8,10 @@ import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
+import {VCheckbox} from 'vuetify/components/VCheckbox'
 import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
-import {VDatePicker} from 'vuetify/components/VDatePicker'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
@@ -46,10 +46,10 @@ export default createVuetify({
     VCardSubtitle,
     VCardText,
     VCardTitle,
+    VCheckbox,
     VChip,
     VCol,
     VContainer,
-    VDatePicker,
     VDataTable,
     VDataTableVirtual,
     VDialog,
@@ -101,6 +101,7 @@ export default createVuetify({
         colors: {
           'accent-green': '#36a600',
           alert: '#fef6e6',
+          body: '#212529',
           'btn-secondary': '#6c757d',
           gray: '#cccccc',
           error: '#cf1715',
@@ -108,9 +109,9 @@ export default createVuetify({
           'pale-blue': '#f3fbff',
           primary: '#337ab7',
           red: colors.red.darken1,
-          secondary: '#eee',
+          secondary: '#8bbdda',
           success: '#437F4B',
-          warn: '#f0ad4e'
+          warning: '#f0ad4e'
         }
       }
     }

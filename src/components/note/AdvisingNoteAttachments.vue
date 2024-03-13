@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="attachmentError" class="mt-3 mb-3 w-100">
+    <div v-if="attachmentError" class="w-100">
       <v-icon :icon="mdiAlert" class="text-danger pr-1" />
       <span id="attachment-error" aria-live="polite" role="alert">{{ attachmentError }}</span>
     </div>
@@ -17,6 +17,7 @@
           multiple
           :prepend-icon="null"
           variant="plain"
+          @update:model-value="onAttachmentsInput"
         >
           <template #label>
             <div class="font-size-14">
@@ -25,7 +26,7 @@
                 id="choose-file-for-note-attachment-btn"
                 :disabled="disabled"
                 aria-hidden="true"
-                class="mt-2 mb-2 px-2"
+                class="my-2 ml-2 px-2"
                 density="comfortable"
                 hide-details
                 type="file"
@@ -101,9 +102,19 @@ export default {
     attachments: [],
     attachmentError: undefined
   }),
-  watch: {
-    attachments(files) {
-      if (files) {
+  beforeCreate() {
+    addFileDropEventListeners()
+  },
+  methods: {
+    clickBrowseForAttachment() {
+      this.$refs['attachment-file-input'].$el.click()
+    },
+    deleteAttachmentByIndex(index) {
+      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
+      useNoteStore().removeAttachmentByIndex(index)
+    },
+    onAttachmentsInput(files) {
+      if (this._size(files)) {
         this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (!this.attachmentError) {
           const attachments = []
@@ -115,18 +126,7 @@ export default {
           this.alertScreenReader('Attachments added')
         }
       }
-    }
-  },
-  beforeCreate() {
-    addFileDropEventListeners()
-  },
-  methods: {
-    clickBrowseForAttachment() {
-      this.$refs['attachment-file-input'].$el.click()
-    },
-    deleteAttachmentByIndex(index) {
-      this.alertScreenReader(`Attachment '${this.existingAttachments[index].name}' removed`)
-      useNoteStore().removeAttachmentByIndex(index)
+      this.attachments = []
     }
   }
 }

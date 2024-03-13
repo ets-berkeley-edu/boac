@@ -34,10 +34,10 @@
         item-value="id"
         :items="noteTemplates"
         label="Templates"
-        open-on-hover
         :menu-props="{contentClass: 'bg-white', location: 'bottom right'}"
         persistent-hint
         return-object
+        single-line
         variant="solo-filled"
         @update:menu="onToggleTemplatesMenu"
       >

@@ -1,9 +1,13 @@
 <template>
   <div>
-    <div id="manually-set-date-label" class="font-weight-bold mb-1">
+    <label
+      id="manually-set-date-label"
+      class="font-weight-bold font-size-14"
+      for="manually-set-date-input"
+    >
       Manually Set Date
-    </div>
-    <div class="d-flex w-100">
+    </label>
+    <div class="d-flex w-100 pt-2">
       <div class="w-50">
         <DatePicker
           v-model="manuallySetDate"

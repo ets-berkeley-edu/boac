@@ -43,28 +43,28 @@ export default {
       },
       set: v => {
         useSearchStore().setIncludeAdmits(v)
-        useContextStore().useSearchStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include admits.`)
+        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include admits.`)
       }
     },
     includeCourses: {
       get: () => useSearchStore().includeCourses,
       set: v => {
         useSearchStore().setIncludeCourses(v)
-        useSearchStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include courses.`)
+        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include courses.`)
       }
     },
     includeNotes: {
       get: () => useSearchStore().includeNotes,
       set: v => {
         useSearchStore().setIncludeNotes(v)
-        useSearchStore().alertScreenReader(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
+        useContextStore().alertScreenReader(`Search will include ${v ? 'notes and' : 'neither notes nor'} appointments.`)
       }
     },
     includeStudents: {
       get: () => useSearchStore().includeStudents,
       set: v => {
         useSearchStore().setIncludeStudents(v)
-        useSearchStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include students.`)
+        useContextStore().alertScreenReader(`Search ${v ? 'will' : 'will not'} include students.`)
       }
     },
     isSearching: {
