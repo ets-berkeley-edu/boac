@@ -1,9 +1,24 @@
 import {get, isString, map, trim} from 'lodash'
 import {deleteNote, removeAttachment, updateNote} from '@/api/notes'
 import {getDistinctSids} from '@/api/student'
+import {nextTick} from 'vue'
 import {NoteEditSessionModel, NoteRecipients} from '@/stores/note-edit-session/index'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
+
+export function disableFocusLock(): void {
+  const onNextTick = () => {
+    useNoteStore().setFocusLockDisabled(true)
+  }
+  nextTick(onNextTick)
+}
+
+export function enableFocusLock(): void {
+  const onNextTick = () => {
+    useNoteStore().setFocusLockDisabled(true)
+  }
+  nextTick(onNextTick)
+}
 
 export function exitSession(revert: boolean): Promise<NoteEditSessionModel | undefined> {
   return new Promise<NoteEditSessionModel | undefined>(resolve => {
@@ -83,7 +98,7 @@ export function setNoteRecipients(cohorts, curatedGroups, sids): Promise<void> {
     }
     const recipients: NoteRecipients = useNoteStore().recipients
     if (cohortIds.length || curatedGroupIds.length) {
-      getDistinctSids(recipients.sids, cohortIds, curatedGroupIds).then(data => onFinish(data.sids))
+      getDistinctSids(recipients.sids, cohortIds, curatedGroupIds).then(data => onFinish(get(data, 'sids')))
     } else {
       onFinish(recipients.sids)
     }
@@ -101,7 +116,7 @@ export function updateAdvisingNote(): Promise<any> {
     const recipients: NoteRecipients = useNoteStore().recipients
 
     useNoteStore().setBody(trim(model.body))
-    const setDate = model.setDate ? model.setDate.format('YYYY-MM-DD') : null
+    const setDate = model.setDate ? model.setDate.toFormat('yyyy-MM-dd') : null
     const sids: string[] = Array.from(completeSidSet)
     const isDraft = model.isDraft
     updateNote(

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!_isUndefined(isPrivate)">
+  <div v-if="isUndefined(isPrivate)">
     <div id="privacy-permissions-label" class="font-weight-bold mb-1">
       Privacy Permissions
     </div>
@@ -7,7 +7,7 @@
       v-model="isPrivate"
       aria-describedby="privacy-permissions-label"
       :disabled="disabled"
-      @change="alertScreenReader(isPrivate ? 'Available only to CE3' : 'Available to all advisors')"
+      @change="onChange"
     >
       <div>
         <v-radio
@@ -30,13 +30,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
-import NoteEditSession from '@/mixins/NoteEditSession'
-import Util from '@/mixins/Util'
+import {isUndefined} from 'lodash'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'PrivacyPermissions',
-  mixins: [Context, NoteEditSession, Util],
   props: {
     disabled: {
       required: false,
@@ -49,8 +48,14 @@ export default {
         return this.model.isPrivate
       },
       set(value) {
-        this.setIsPrivate(value)
+        useNoteStore().setIsPrivate(value)
       }
+    }
+  },
+  methods: {
+    isUndefined,
+    onChange() {
+      useContextStore().alertScreenReader(this.isPrivate ? 'Available only to CE3' : 'Available to all advisors')
     }
   }
 }

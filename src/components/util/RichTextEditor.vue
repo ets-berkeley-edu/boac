@@ -38,11 +38,10 @@ import {mdiOpenInNew} from '@mdi/js'
 
 <script>
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import Util from '@/mixins/Util'
+import {each, isString} from 'lodash'
 
 export default {
   name: 'RichTextEditor',
-  mixins: [Util],
   props: {
     disabled: {
       required: false,
@@ -107,7 +106,7 @@ export default {
         const ckEditorTool = 'ck ck-reset ck-editor ck-rounded-corners'
         const elements = document.getElementsByClassName(ckEditorTool)
         if (elements.length > 0) {
-          this._each(elements, element => {
+          each(elements, element => {
             document.getElementById(this.ckElementId).appendChild(element)
           })
           clearInterval(this.domFixer)
@@ -124,7 +123,7 @@ export default {
       this.domFixer = setInterval(this.correctTheDOM, 500)
     },
     onUpdate(event) {
-      this.onValueUpdate(this._isString(event) ? event : event.target.value)
+      this.onValueUpdate(isString(event) ? event : event.target.value)
     }
   }
 }

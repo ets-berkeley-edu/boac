@@ -1,9 +1,9 @@
 <template>
-  <div class="faint-text">
-    <div class="pb-1 session-expired-header">
+  <div class="text-medium-emphasis">
+    <h4 class="font-size-18 mb-1">
       <v-icon :icon="mdiAlert" class="pr-1 text-warning" />
       Uh oh, your session timed out!
-    </div>
+    </h4>
     <div>
       To continue, you will need to refresh the page and reauthenticate via CalNet. Your edits will be lost unless you
       copy them to a text editor or the clipboard and paste or reenter them when the page reloads.
@@ -23,9 +23,3 @@ export default {
   name: 'SessionExpired'
 }
 </script>
-
-<style scoped>
-.session-expired-header {
-  font-size: 18px;
-}
-</style>

@@ -1,61 +1,58 @@
 <template>
   <div>
-    <div v-if="totalRecipientCount || recipients.cohorts.length || recipients.curatedGroups.length" role="alert">
+    <div v-if="totalRecipientCount || useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length" role="alert">
       <div
-        v-if="!isRecalculating && totalRecipientCount"
+        v-if="!useNoteStore().isRecalculating && totalRecipientCount"
         id="target-student-count-alert"
         :class="{
-          'text-error': mode !== 'editDraft' && totalRecipientCount >= 250,
-          'font-weight-bold': mode !== 'editDraft' && totalRecipientCount >= 500
+          'text-error': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 250,
+          'font-weight-bold': useNoteStore().mode !== 'editDraft' && totalRecipientCount >= 500
         }"
         class="font-size-14 font-italic pb-2"
       >
-        <span v-if="mode !== 'editDraft'">
+        <span v-if="useNoteStore().mode !== 'editDraft'">
           <span v-if="totalRecipientCount < 500">This note will be attached</span>
           <span v-if="totalRecipientCount >= 500">Are you sure you want to attach this note</span>
           to {{ pluralize('student record', totalRecipientCount) }}{{ totalRecipientCount >= 500 ? '?' : '.' }}
         </span>
-        <div v-if="!['editTemplate'].includes(mode) && totalRecipientCount > 1" class="pt-1">
+        <div v-if="!['editTemplate'].includes(useNoteStore().mode) && totalRecipientCount > 1" class="pt-1">
           <span class="font-weight-bold text-error">Important: </span>
           <span class="text-body">
-            {{ mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
+            {{ useNoteStore().mode === 'editDraft' ? 'Updating this draft' : 'Saving as a draft' }} will retain the content of your note
             but not the associated students.
           </span>
         </div>
       </div>
-      <span v-if="!totalRecipientCount && (recipients.cohorts.length || recipients.curatedGroups.length)" class="font-italic">
+      <span v-if="!totalRecipientCount && (useNoteStore().recipients.cohorts.length || useNoteStore().recipients.curatedGroups.length)" class="font-italic">
         <span
-          v-if="recipients.cohorts.length && !recipients.curatedGroups.length"
+          v-if="useNoteStore().recipients.cohorts.length && !useNoteStore().recipients.curatedGroups.length"
           id="no-students-per-cohorts-alert"
-        >There are no students in the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }}.</span>
+        >There are no students in the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}.</span>
         <span
-          v-if="recipients.curatedGroups.length && !recipients.cohorts.length"
+          v-if="useNoteStore().recipients.curatedGroups.length && !useNoteStore().recipients.cohorts.length"
           id="no-students-per-curated-groups-alert"
-        >There are no students in the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }}.</span>
+        >There are no students in the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }}.</span>
         <span
-          v-if="recipients.cohorts.length && recipients.curatedGroups.length"
+          v-if="useNoteStore().recipients.cohorts.length && useNoteStore().recipients.curatedGroups.length"
           id="no-students-alert"
         >
-          Neither the {{ pluralize('cohort', recipients.cohorts.length, {1: ' '}) }}
-          nor the {{ pluralize('group', recipients.curatedGroups.length, {1: ' '}) }} have students.
+          Neither the {{ pluralize('cohort', useNoteStore().recipients.cohorts.length, {1: ' '}) }}
+          nor the {{ pluralize('group', useNoteStore().recipients.curatedGroups.length, {1: ' '}) }} have students.
         </span>
       </span>
     </div>
     <BatchNoteAddStudent
-      :disabled="isSaving || boaSessionExpired"
       :on-esc-form-input="cancel"
     />
     <BatchNoteAddCohort
-      v-if="nonAdmitCohorts.length"
-      :disabled="isSaving || boaSessionExpired"
+      v-if="size(nonAdmitCohorts)"
       :is-curated-groups-mode="false"
       :objects="nonAdmitCohorts"
       :remove-object="removeCohort"
       :update="updateCohorts"
     />
     <BatchNoteAddCohort
-      v-if="nonAdmitCuratedGroups.length"
-      :disabled="isSaving || boaSessionExpired"
+      v-if="size(nonAdmitCuratedGroups)"
       :is-curated-groups-mode="true"
       :objects="nonAdmitCuratedGroups"
       :remove-object="removeCuratedGroup"
@@ -67,12 +64,12 @@
 <script>
 import BatchNoteAddCohort from '@/components/note/BatchNoteAddCohort'
 import BatchNoteAddStudent from '@/components/note/BatchNoteAddStudent'
-import Context from '@/mixins/Context'
-import NoteEditSession from '@/mixins/NoteEditSession'
-import Util from '@/mixins/Util'
 import {describeCuratedGroupDomain} from '@/berkeley'
 import {capitalize, differenceBy, findIndex, reject, size} from 'lodash'
+import {pluralize} from '@/lib/utils'
 import {setNoteRecipients} from '@/stores/note-edit-session/utils'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'BatchNoteFeatures',
@@ -80,7 +77,6 @@ export default {
     BatchNoteAddCohort,
     BatchNoteAddStudent
   },
-  mixins: [Context, NoteEditSession, Util],
   props: {
     cancel: {
       required: true,
@@ -89,66 +85,69 @@ export default {
   },
   computed: {
     nonAdmitCohorts() {
-      return reject(this.currentUser.myCohorts, {'domain': 'admitted_students'})
+      return reject(useContextStore().currentUser.myCohorts, {'domain': 'admitted_students'})
     },
     nonAdmitCuratedGroups() {
-      return reject(this.currentUser.myCuratedGroups, {'domain': 'admitted_students'})
+      return reject(useContextStore().currentUser.myCuratedGroups, {'domain': 'admitted_students'})
     },
     totalRecipientCount() {
-      return size(this.completeSidSet)
+      return size(useNoteStore().completeSidSet)
     }
   },
   methods: {
+    pluralize,
+    removeCohort(cohort) {
+      const index = findIndex(useNoteStore().recipients.cohorts, {'id': cohort.id})
+      useNoteStore().recipients.cohorts.splice(index, 1)
+      setNoteRecipients(
+        useNoteStore().recipients.cohorts,
+        useNoteStore().recipients.curatedGroups,
+        useNoteStore().recipients.sids
+      ).then(() => {
+        useContextStore().alertScreenReader(`Removed cohort '${cohort.name}'`)
+      })
+    },
+    removeCuratedGroup(curatedGroup) {
+      const index = findIndex(useNoteStore().recipients.curatedGroups, {'id': curatedGroup.id})
+      useNoteStore().recipients.curatedGroups.splice(index, 1)
+      setNoteRecipients(
+        useNoteStore().recipients.cohorts,
+        useNoteStore().recipients.curatedGroups,
+        useNoteStore().recipients.sids
+      ).then(() => {
+        useContextStore().alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
+      })
+    },
+    size,
     updateCohorts(cohorts) {
-      const cohort = differenceBy(cohorts, this.recipients.cohorts, 'id')
-      if (size(cohorts) > size(this.recipients.cohorts)) {
+      const cohort = differenceBy(cohorts, useNoteStore().recipients.cohorts, 'id')
+      if (size(cohorts) > size(useNoteStore().recipients.cohorts)) {
         setNoteRecipients(
-          this.recipients.cohorts.concat(cohort),
-          this.recipients.curatedGroups,
-          this.recipients.sids
+          useNoteStore().recipients.cohorts.concat(cohort),
+          useNoteStore().recipients.curatedGroups,
+          useNoteStore().recipients.sids
         ).then(() => {
-          this.alertScreenReader(`Added cohort '${cohort.name}'`)
+          useContextStore().alertScreenReader(`Added cohort '${cohort.name}'`)
         })
       } else {
         this.removeCohort(cohort)
       }
     },
     updateCuratedGroups(curatedGroups) {
-      const curatedGroup = differenceBy(curatedGroups, this.recipients.curatedGroups, 'id')
-      if (size(curatedGroups) > size(this.recipients.curatedGroups)) {
+      const curatedGroup = differenceBy(curatedGroups, useNoteStore().recipients.curatedGroups, 'id')
+      if (size(curatedGroups) > size(useNoteStore().recipients.curatedGroups)) {
         setNoteRecipients(
-          this.recipients.cohorts,
-          this.recipients.curatedGroups.concat(curatedGroup),
-          this.recipients.sids
+          useNoteStore().recipients.cohorts,
+          useNoteStore().recipients.curatedGroups.concat(curatedGroup),
+          useNoteStore().recipients.sids
         ).then(() => {
-          this.alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
+          useContextStore().alertScreenReader(`Added ${describeCuratedGroupDomain(curatedGroup.domain)} '${curatedGroup.name}'`)
         })
       } else {
         this.removeCuratedGroup(curatedGroup)
       }
     },
-    removeCohort(cohort) {
-      const index = findIndex(this.recipients.cohorts, {'id': cohort.id})
-      this.recipients.cohorts.splice(index, 1)
-      setNoteRecipients(
-        this.recipients.cohorts,
-        this.recipients.curatedGroups,
-        this.recipients.sids
-      ).then(() => {
-        this.alertScreenReader(`Removed cohort '${cohort.name}'`)
-      })
-    },
-    removeCuratedGroup(curatedGroup) {
-      const index = findIndex(this.recipients.curatedGroups, {'id': curatedGroup.id})
-      this.recipients.curatedGroups.splice(index, 1)
-      setNoteRecipients(
-        this.recipients.cohorts,
-        this.recipients.curatedGroups,
-        this.recipients.sids
-      ).then(() => {
-        this.alertScreenReader(`Removed ${capitalize(describeCuratedGroupDomain(curatedGroup.domain))} '${curatedGroup.name}'`)
-      })
-    }
+    useNoteStore
   }
 }
 </script>

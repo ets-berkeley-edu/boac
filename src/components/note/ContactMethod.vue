@@ -9,14 +9,14 @@
     </label>
     <v-radio-group
       id="contact-type-options"
-      v-model="contactType"
+      :model-value="contactType"
       aria-describedby="contact-type-label"
       color="primary"
       density="comfortable"
       :disabled="disabled"
       hide-details
       :ripple="false"
-      @change="alertScreenReader(contactType)"
+      @change="useContextStore().alertScreenReader(contactType)"
     >
       <v-radio
         id="contact-option-none-radio-button"
@@ -38,18 +38,12 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
-import NoteEditSession from '@/mixins/NoteEditSession'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'ContactMethod',
-  mixins: [Context, NoteEditSession],
-  props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    }
-  },
+
   data: () => ({
     contactOptions: [
       'Email',
@@ -64,12 +58,18 @@ export default {
   computed: {
     contactType: {
       get() {
-        return this.model.contactType
+        return useNoteStore().model.contactType
       },
       set(value) {
-        this.setContactType(value)
+        useNoteStore().setContactType(value)
       }
+    },
+    disabled() {
+      return !!(useNoteStore().isSaving || useNoteStore().boaSessionExpired)
     }
+  },
+  methods: {
+    useContextStore
   }
 }
 </script>

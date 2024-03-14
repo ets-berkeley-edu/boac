@@ -40,7 +40,7 @@
       <v-chip
         :id="`batch-note-student-${index}`"
         class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate-with-ellipsis"
-        :class="{'demo-mode-blur': currentUser.inDemoMode}"
+        :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         closable
         :close-label="`Remove ${addedStudent.label} from batch note`"
         density="comfortable"
@@ -62,25 +62,20 @@ import {mdiCloseCircle} from '@mdi/js'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import Autocomplete from '@/components/util/Autocomplete'
-import NoteEditSession from '@/mixins/NoteEditSession.vue'
-import Util from '@/mixins/Util'
 import {each, filter, findIndex, includes, map, remove, split, trim, uniq, without} from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
+import {putFocusNextTick} from '@/lib/utils'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'BatchNoteAddStudent',
   components: {
     Autocomplete
   },
-  mixins: [Context, NoteEditSession, Util],
   props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    },
     onEscFormInput: {
       default: () => {},
       required: false,
@@ -96,9 +91,14 @@ export default {
     sidsNotFound: [],
     warning: undefined
   }),
+  computed: {
+    disabled() {
+      return useNoteStore().isSaving || useNoteStore().boaSessionExpired
+    }
+  },
   mounted() {
-    if (this.recipients.sids.length) {
-      getStudentsBySids(this.recipients.sids).then(students => {
+    if (useNoteStore().recipients.sids.length) {
+      getStudentsBySids(useNoteStore().recipients.sids).then(students => {
         each(students, student => {
           this.addStudent(student)
         })
@@ -107,12 +107,12 @@ export default {
   },
   methods: {
     addStudent(student) {
-      if (student && !this.recipients.sids.includes(student.sid)) {
-        this.setIsRecalculating(true)
+      if (student && !useNoteStore().recipients.sids.includes(student.sid)) {
+        useNoteStore().setIsRecalculating(true)
         this.addedStudents.push(student)
         setNoteRecipient(student.sid).then(() => {
           this.resetAutoCompleteKey = new Date().getTime()
-          this.alertScreenReader(`${student.label} added to batch note`)
+          useContextStore().alertScreenReader(`${student.label} added to batch note`)
           this.clearWarning()
         })
       }
@@ -126,7 +126,7 @@ export default {
       if (trimmed) {
         const sids = split(query, this.sidDelimiter)
         return getStudentsBySids(sids).then(data => {
-          this.setIsRecalculating(true)
+          useNoteStore().setIsRecalculating(true)
           const sidList = []
           each(data, student => {
             this.addedStudents.push(student)
@@ -134,18 +134,18 @@ export default {
             remove(sids, s => s === student.sid)
           })
           setNoteRecipients(
-            this.recipients.cohorts,
-            this.recipients.curatedGroups,
-            uniq(this.recipients.sids.concat(sidList))
+            useNoteStore().recipients.cohorts,
+            useNoteStore().recipients.curatedGroups,
+            uniq(useNoteStore().recipients.sids.concat(sidList))
           ).then(() => {
-            this.alertScreenReader(`${sidList.length} students added to batch note`)
+            useContextStore().alertScreenReader(`${sidList.length} students added to batch note`)
             this.sidsNotFound = uniq(sids)
             if (this.sidsNotFound.length) {
               this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
             } else {
               this.clearWarning()
             }
-            this.putFocusNextTick('create-note-add-student-input')
+            putFocusNextTick('create-note-add-student-input')
           })
         })
       } else {
@@ -165,22 +165,22 @@ export default {
       if (student) {
         const index = findIndex(this.addedStudents, {'sid': student.sid})
         this.addedStudents.splice(index, 1)
-        if (this.recipients.sids.includes(student.sid)) {
+        if (useNoteStore().recipients.sids.includes(student.sid)) {
           setNoteRecipients(
-            this.recipients.cohorts,
-            this.recipients.curatedGroups,
-            without(this.recipients.sids, student.sid)
+            useNoteStore().recipients.cohorts,
+            useNoteStore().recipients.curatedGroups,
+            without(useNoteStore().recipients.sids, student.sid)
           ).then(() => {
-            this.putFocusNextTick('create-note-add-student-input')
+            putFocusNextTick('create-note-add-student-input')
           })
         }
-        this.alertScreenReader(`${student.label} removed from batch note`)
+        useContextStore().alertScreenReader(`${student.label} removed from batch note`)
       }
     },
     setWarning(message) {
       this.warning = message
       this.showWarning = true
-      this.alertScreenReader(message)
+      useContextStore().alertScreenReader(message)
     },
     studentsByNameOrSid(query, limit) {
       const sids = map(this.addedStudents, 'sid')

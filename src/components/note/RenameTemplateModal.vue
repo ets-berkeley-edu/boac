@@ -18,7 +18,7 @@
         <div class="px-4 py-2">
           <v-text-field
             id="rename-template-input"
-            v-model="title"
+            :model-value="title"
             class="v-input-details-override"
             counter="255"
             density="compact"
@@ -73,13 +73,12 @@
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import Util from '@/mixins/Util'
+import {putFocusNextTick} from '@/lib/utils'
 import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'RenameTemplateModal',
   components: {ModalHeader, ProgressButton},
-  mixins: [Util],
   props: {
     cancel: {
       type: Function,
@@ -141,7 +140,7 @@ export default {
     },
     onToggle(isOpen) {
       if (isOpen) {
-        this.putFocusNextTick('modal-header')
+        putFocusNextTick('modal-header')
       }
     },
     renameTemplate: function() {
