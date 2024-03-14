@@ -39,15 +39,16 @@
     <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
       <v-chip
         :id="`batch-note-student-${index}`"
-        class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate"
+        class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate-with-ellipsis"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"
         closable
         :close-label="`Remove ${addedStudent.label} from batch note`"
         density="comfortable"
         variant="outlined"
-        @click.prevent="remove(addedStudent)"
+        @click:close="remove(addedStudent)"
+        @keyup.enter="remove(addedStudent)"
       >
-        {{ addedStudent.label }}
+        <span class="truncate-with-ellipsis">{{ addedStudent.label }}</span>
         <template #close>
           <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
         </template>

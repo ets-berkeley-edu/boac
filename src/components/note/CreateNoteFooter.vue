@@ -22,52 +22,48 @@
           Save as template
         </v-btn>
       </div>
-      <div class="d-flex">
-        <div v-if="mode === 'editTemplate'">
-          <v-btn
-            id="btn-update-template"
-            class="mr-1"
-            color="primary"
-            :disabled="isSaving || !model.subject"
-            @click.prevent="updateTemplate"
-          >
-            Update Template
-          </v-btn>
-        </div>
-        <div v-if="model.isDraft">
-          <v-btn
-            id="save-as-draft-button"
-            class="mr-1"
-            color="primary"
-            :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
-            variant="text"
-            @click.prevent="updateNote"
-          >
-            Save and Close Draft
-          </v-btn>
-        </div>
-        <div v-if="!['editTemplate'].includes(mode)">
-          <v-btn
-            id="create-note-button"
-            :class="{'mr-2': mode !== 'editDraft'}"
-            color="primary"
-            :disabled="isSaving || !completeSidSet.length || !_trim(model.subject)"
-            @click.prevent="publish"
-          >
-            Publish Note
-          </v-btn>
-        </div>
-        <div v-if="mode !== 'editDraft'">
-          <v-btn
-            id="create-note-cancel"
-            color="error"
-            :disabled="isSaving"
-            variant="outlined"
-            @click.prevent="cancel"
-          >
-            Discard
-          </v-btn>
-        </div>
+      <div class="d-flex justify-end">
+        <v-btn
+          v-if="mode === 'editTemplate'"
+          id="btn-update-template"
+          class="mr-1"
+          color="primary"
+          :disabled="isSaving || !model.subject"
+          @click.prevent="updateTemplate"
+        >
+          Update Template
+        </v-btn>
+        <v-btn
+          v-if="model.isDraft"
+          id="save-as-draft-button"
+          class="mr-1"
+          color="primary"
+          :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
+          variant="text"
+          @click.prevent="updateNote"
+        >
+          Save and Close Draft
+        </v-btn>
+        <v-btn
+          v-if="!['editTemplate'].includes(mode)"
+          id="create-note-button"
+          :class="{'mr-2': mode !== 'editDraft'}"
+          color="primary"
+          :disabled="isSaving || !completeSidSet.length || !_trim(model.subject)"
+          @click.prevent="publish"
+        >
+          Publish Note
+        </v-btn>
+        <v-btn
+          v-if="mode !== 'editDraft'"
+          id="create-note-cancel"
+          color="error"
+          :disabled="isSaving"
+          variant="outlined"
+          @click.prevent="cancel"
+        >
+          Discard
+        </v-btn>
       </div>
     </div>
   </div>

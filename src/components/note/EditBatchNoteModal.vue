@@ -158,7 +158,7 @@ import RichTextEditor from '@/components/util/RichTextEditor'
 import Util from '@/mixins/Util'
 import {addAttachments, createDraftNote, getNote} from '@/api/notes'
 import {createNoteTemplate, getMyNoteTemplates, updateNoteTemplate} from '@/api/note-templates'
-import {exitSession, setSubjectPerEvent, updateAdvisingNote} from '@/stores/note-edit-session/utils'
+import {exitSession, isAutoSaveMode, setSubjectPerEvent, updateAdvisingNote} from '@/stores/note-edit-session/utils'
 import {getUserProfile} from '@/api/user'
 import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
@@ -229,16 +229,20 @@ export default {
   },
   methods: {
     addNoteAttachments(attachments) {
-      if (useNoteStore().isAutoSaveMode(this.mode)) {
-        this.setIsSaving(true)
-        addAttachments(this.model.id, attachments).then(response => {
-          useNoteStore().setAttachments(response.attachments)
-          useContextStore().alertScreenReader('Attachment added', 'assertive')
-          this.setIsSaving(false)
-        })
-      } else {
-        this.setAttachments(attachments)
-      }
+      return new Promise(resolve => {
+        if (isAutoSaveMode(this.mode)) {
+          this.setIsSaving(true)
+          addAttachments(this.model.id, attachments).then(response => {
+            useNoteStore().setAttachments(response.attachments)
+            useContextStore().alertScreenReader('Attachment added', 'assertive')
+            this.setIsSaving(false)
+            resolve()
+          })
+        } else {
+          this.setAttachments(attachments)
+          resolve()
+        }
+      })
     },
     cancelRequested() {
       if (this.mode === 'editTemplate') {

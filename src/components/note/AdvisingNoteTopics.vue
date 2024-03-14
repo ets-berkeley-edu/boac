@@ -30,7 +30,7 @@
       <template #selection="{item, index}">
         <v-chip
           :id="`${notePrefix}-topic-${index}`"
-          class="font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
           closable
           :close-label="`Remove ${item.title}`"
           density="comfortable"
@@ -39,7 +39,7 @@
           @click:close="onClickRemove(item.raw)"
           @keyup.enter="onClickRemove(item.raw)"
         >
-          {{ item.title }}
+          <span class="truncate-with-ellipsis">{{ item.title }}</span>
           <template #close>
             <v-icon color="error" :icon="mdiCloseCircle"></v-icon>
           </template>
