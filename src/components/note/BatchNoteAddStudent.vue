@@ -23,17 +23,17 @@
         :key="resetAutoCompleteKey"
         aria-describedby="create-note-add-student-desc"
         class="w-75"
-        :demo-mode-blur="true"
         :disabled="disabled"
         :fallback="handleListInput"
         :fallback-when="isList"
+        :fetch="studentsByNameOrSid"
         input-labelled-by="create-note-add-student-label"
+        option-label-key="name"
+        option-value-key="sid"
         maxlength="-1"
-        :on-esc-form-input="onEscFormInput"
-        :show-add-button="true"
-        :source="studentsByNameOrSid"
+        :on-esc="onEscFormInput"
         :suggest-when="isSuggestible"
-        @input="addStudent"
+        :on-click-add-button="addStudent"
       />
     </div>
     <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">

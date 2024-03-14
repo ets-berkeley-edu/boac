@@ -1,3 +1,7 @@
+.autocomplete-with-add-button .v-field {
+  border-bottom-right-radius: 0;
+  border-top-right-radius: 0;
+}
 .choose-attachment-file-wrapper {
   position: relative;
   align-items: center;
