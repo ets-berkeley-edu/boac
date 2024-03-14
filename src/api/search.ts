@@ -8,19 +8,19 @@ export function findAdvisorsByName(query: string, limit: number, abortController
   return axios
     .get(
       `${utils.apiBaseUrl()}/api/search/advisors/find_by_name?q=${query}&limit=${limit}`,
-      {signal: abortController.signal}
-    ).then(response => response.data)
+      {signal: abortController.signal})
+    .then(response => response)
     .catch(error => error)
 }
 
 export function getMySearchHistory() {
   const url = `${utils.apiBaseUrl()}/api/search/my_search_history`
-  return axios.get(url).then(response => response.data, () => null)
+  return axios.get(url).then(response => response, () => null)
 }
 
 export function addToSearchHistory(phrase: string) {
   const url = `${utils.apiBaseUrl()}/api/search/add_to_search_history`
-  return axios.post(url, {phrase}).then(response => response.data, () => null)
+  return axios.post(url, {phrase}).then(response => response, () => null)
 }
 
 export function search(
@@ -49,7 +49,7 @@ export function search(
       offset: offset || 0,
       limit: limit || 50
     })
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
 
 export function searchAdmittedStudents(phrase: string, orderBy?: string) {
@@ -58,5 +58,5 @@ export function searchAdmittedStudents(phrase: string, orderBy?: string) {
       searchPhrase: phrase,
       orderBy: orderBy || 'last_name',
     })
-    .then(response => response.data, () => null)
+    .then(response => response, () => null)
 }
