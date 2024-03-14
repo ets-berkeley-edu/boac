@@ -5,34 +5,34 @@
         {{ labelForSearchInput }}
         (Type / to put focus in the search input field.)
       </label>
-      <SimpleTypeahead
+      <v-autocomplete
         id="search-students-input"
         :key="autocompleteInputResetKey"
         aria-labelledby="search-input-label"
-        class="simple-typeahead"
+        bg-color="white"
         :class="{
           'faint-text': !queryText,
           'search-focus-in': isFocusOnSearch || queryText,
           'search-focus-out': !isFocusOnSearch && !queryText
         }"
+        clearable
+        density="comfortable"
         :disabled="isSearching"
-        :item-projection="item => item.email"
-        :items="searchHistory"
-        :min-input-length="1"
-        name="q"
+        hide-details
+        hide-no-data
+        :items="useSearchStore().searchHistory"
+        :menu-icon="null"
         placeholder="/ to search"
         type="search"
-        @select-item="selectItem"
+        variant="outlined"
+      />
+      <!--
+        :search="onChangeAutocomplete"
         @keydown.enter.prevent="search"
-        @on-input="onInput"
-        @on-blur="onBlur"
+        @submit="onSubmitAutocomplete"
         @focusin="onFocusInSearch"
         @focusout="onFocusOutSearch"
-      >
-        <template #list-item-text="slot">
-          <span v-html="slot.boldMatchText(slot.itemProjection(slot.item))"></span>
-        </template>
-      </SimpleTypeahead>
+      -->
       <v-tooltip
         v-model="showErrorPopover"
         target="search-students-input"
@@ -76,7 +76,6 @@
 
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
-import SimpleTypeahead from 'vue3-simple-typeahead'
 import {mdiAlertCircle} from '@mdi/js'
 </script>
 
@@ -87,7 +86,7 @@ import {addToSearchHistory, getMySearchHistory} from '@/api/search'
 import {getAllTopics} from '@/api/topics'
 import {useSearchStore} from '@/stores/search'
 import {scrollToTop} from '@/lib/utils'
-import {each} from 'lodash'
+import {each, noop, trim} from 'lodash'
 
 export default {
   name: 'StandardHeaderLayout',
@@ -117,21 +116,12 @@ export default {
     })
   },
   methods: {
-    selectItem(item) {
-      console.log(`search.selectItem: ${item}`)
-    },
-    onInput(event) {
-      console.log(`search.onInput: ${event}`)
-    },
-    onBlur(event) {
-      console.log(`search.onBlur: ${event}`)
-    },
     hideError() {
       this.showErrorPopover = false
     },
     onChangeAutocomplete(input) {
       this.queryText = input
-      const q = this._trim(input && input.toLowerCase())
+      const q = trim(input && input.toLowerCase())
       return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     },
     onFocusInSearch() {
@@ -146,7 +136,7 @@ export default {
       this.search()
     },
     search() {
-      const q = this._trim(this.queryText)
+      const q = trim(this.queryText)
       if (q) {
         this.$router.push(
           {
@@ -159,7 +149,7 @@ export default {
               q
             }
           },
-          this._noop
+          noop
         )
         addToSearchHistory(q).then(history => useSearchStore().setSearchHistory(history))
       } else {
@@ -204,26 +194,18 @@ export default {
   color: black;
 }
 .simple-typeahead {
-  background-color: white;
-  border-radius: 8px;
-  border-color: rgb(238, 238, 238);
-  border-style: solid;
-  border-width: 1px;
-  box-sizing: border-box;
-  cursor: text;
-  display: inline-block;
-  flex-basis: 0%;
-  flex-grow: 1;
-  flex-shrink: 1;
-  font-feature-settings: normal;
-  font-kerning: auto;
-  font-optical-sizing: auto;
-  font-size: 16px;
-  height: 50px;
-  margin: 0;
-  outline-offset: -2px;
-  overflow-x: visible;
-  overflow-y: visible;
-  padding: 12px;
+  /*display: inline-block;*/
+  /*flex-basis: 0%;*/
+  /*flex-grow: 1;*/
+  /*flex-shrink: 1;*/
+  /*font-feature-settings: normal;*/
+  /*font-kerning: auto;*/
+  /*font-optical-sizing: auto;*/
+  /*font-size: 16px;*/
+  /*height: 50px;*/
+  /*margin: 0;*/
+  /*outline-offset: -2px;*/
+  //overflow-x: visible;
+  //overflow-y: visible;
 }
 </style>

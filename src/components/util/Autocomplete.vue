@@ -19,11 +19,10 @@
       :maxlength="maxlength"
       :menu-icon="null"
       variant="outlined"
-      @click:clear="() => items = []"
-      @update:focused="s => console.log(`@update:focused: ${s}`)"
+      @click:clear="onClear"
+      @update:focused="onFocused"
       @update:menu="s => console.log(`@update:menu: ${s}`)"
-      @update:modelValue="value => selected = value"
-      @update:search="args => onUpdateSearch(args)"
+      @update:search="onUpdateSearch"
     >
       <template #append-inner>
         <v-progress-circular
@@ -48,13 +47,21 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import {mdiPlus} from '@mdi/js'
 import {useContextStore} from '@/stores/context'
-import {map, noop} from 'lodash'
-import {defineProps, ref} from 'vue'
+import {find, map, noop} from 'lodash'
+import {ref} from 'vue'
 
 const props = defineProps({
+  ariaRequired: {
+    required: false,
+    type: Boolean
+  },
+  compact: {
+    required: false,
+    type: Boolean
+  },
   disabled: {
     required: false,
     type: Boolean
@@ -108,12 +115,21 @@ let isFetching = ref(false)
 let items = ref([])
 let selected = ref(undefined)
 
+const onClear = () => {
+  items.value = []
+  isFetching.value = false
+}
+
 const onClickAdd = () => {
   const item = find(items, [props.optionValueKey, selected])
   if (item) {
     props.onClickAddButton(item)
     isFetching.value = false
   }
+}
+
+const onFocused = () => {
+  isFetching.value = false
 }
 
 const onUpdateSearch = args => {
@@ -132,6 +148,6 @@ const onUpdateSearch = args => {
 .add-button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
-  height: 39px !important;
+  height: 40px !important;
 }
 </style>

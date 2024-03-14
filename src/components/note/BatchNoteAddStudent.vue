@@ -23,6 +23,7 @@
         :key="resetAutoCompleteKey"
         aria-describedby="create-note-add-student-desc"
         class="w-75"
+        :compact="true"
         :disabled="disabled"
         :fallback="handleListInput"
         :fallback-when="isList"

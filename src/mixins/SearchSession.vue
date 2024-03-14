@@ -79,10 +79,6 @@ export default {
       get: () => useSearchStore().queryText,
       set: v => useSearchStore().setQueryText(v)
     },
-    searchHistory: {
-      get: () => useSearchStore().searchHistory,
-      set: v => useSearchStore().setSearchHistory(v)
-    },
     showAdvancedSearch: {
       get: () => useSearchStore().showAdvancedSearch,
       set: v => useSearchStore().setShowAdvancedSearch(v)
