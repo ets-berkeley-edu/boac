@@ -18,7 +18,7 @@
       Type a name, individual Student Identification (SID), or paste a list of SID numbers below. (Example: 9999999990, 9999999991)
     </div>
     <div class="pb-2">
-      <InputTextAutocomplete
+      <Autocomplete
         id="create-note-add-student"
         :key="resetAutoCompleteKey"
         aria-describedby="create-note-add-student-desc"
@@ -63,7 +63,7 @@ import {mdiCloseCircle} from '@mdi/js'
 
 <script>
 import Context from '@/mixins/Context'
-import InputTextAutocomplete from '@/components/util/InputTextAutocomplete'
+import Autocomplete from '@/components/util/Autocomplete'
 import NoteEditSession from '@/mixins/NoteEditSession.vue'
 import Util from '@/mixins/Util'
 import {each, filter, findIndex, includes, map, remove, split, trim, uniq, without} from 'lodash'
@@ -73,7 +73,7 @@ import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/ut
 export default {
   name: 'BatchNoteAddStudent',
   components: {
-    InputTextAutocomplete
+    Autocomplete
   },
   mixins: [Context, NoteEditSession, Util],
   props: {
