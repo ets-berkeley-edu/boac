@@ -23,16 +23,16 @@
     </div>
     <div class="mr-4">
       <v-select
-        v-if="mode !== 'editTemplate'"
+        v-if="useNoteStore().mode !== 'editTemplate'"
         id="my-templates-button"
         v-model="selectedTemplate"
         bg-color="primary"
         class="templates-dropdown"
         density="compact"
-        :disabled="isSaving || boaSessionExpired"
+        :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired"
         hide-details
         item-value="id"
-        :items="noteTemplates"
+        :items="useNoteStore().noteTemplates"
         label="Templates"
         :menu-props="{contentClass: 'bg-white', location: 'bottom right'}"
         persistent-hint
@@ -129,25 +129,26 @@
       button-label-confirm="Delete"
       modal-header="Delete Template"
     >
-      Are you sure you want to delete the <strong>'{{ _get(targetTemplate, 'title') }}'</strong> template?
+      Are you sure you want to delete the <strong>'{{ get(targetTemplate, 'title') }}'</strong> template?
     </AreYouSureModal>
   </div>
 </template>
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
 import ModalHeader from '@/components/util/ModalHeader'
-import NoteEditSession from '@/mixins/NoteEditSession'
 import RenameTemplateModal from '@/components/note/RenameTemplateModal'
-import Util from '@/mixins/Util'
 import {applyNoteTemplate} from '@/api/notes'
 import {deleteNoteTemplate, renameNoteTemplate} from '@/api/note-templates'
+import {disableFocusLock, enableFocusLock} from '@/stores/note-edit-session/utils'
+import {get, size} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'CreateNoteHeader',
   components: {AreYouSureModal, ModalHeader, RenameTemplateModal},
-  mixins: [Context, NoteEditSession, Util],
   props: {
     cancelPrimaryModal: {
       required: true,
@@ -165,7 +166,7 @@ export default {
   computed: {
     headerText() {
       let text
-      switch (this.mode) {
+      switch (useNoteStore().mode) {
       case 'createBatch':
         text = 'Create Note(s)'
         break
@@ -183,6 +184,9 @@ export default {
         break
       }
       return text
+    },
+    isAutoSavingDraftNote() {
+      return useNoteStore().isAutoSavingDraftNote
     }
   },
   watch: {
@@ -199,67 +203,69 @@ export default {
       this.showDeleteTemplateModal = false
       this.showRenameTemplateModal = false
       this.targetTemplate = null
-      this.alertScreenReader('Canceled')
-      this.putFocusNextTick('create-note-subject')
-      this.enableFocusLock()
+      useContextStore().alertScreenReader('Canceled')
+      putFocusNextTick('create-note-subject')
+      enableFocusLock()
     },
     deleteTemplateConfirmed() {
       return deleteNoteTemplate(this.targetTemplate.id).then(() => {
         this.showDeleteTemplateModal = false
         this.targetTemplate = null
-        this.alertScreenReader('Template deleted.')
-        this.putFocusNextTick('create-note-subject')
-        this.enableFocusLock()
+        useContextStore().alertScreenReader('Template deleted.')
+        putFocusNextTick('create-note-subject')
+        enableFocusLock()
       })
     },
     editTemplate(template) {
-      this.setModel(template)
-      this.setMode('editTemplate')
-      this.putFocusNextTick('create-note-subject')
-      this.alertScreenReader(`Edit template ${template.title}.`)
+      useNoteStore().setModel(template)
+      useNoteStore().setMode('editTemplate')
+      putFocusNextTick('create-note-subject')
+      useContextStore().alertScreenReader(`Edit template ${template.title}.`)
     },
+    get,
     loadTemplate(template) {
-      applyNoteTemplate(this.model.id, template.id).then(note => {
-        this.setModel(note)
-        this.putFocusNextTick('create-note-subject')
-        this.alertScreenReader(`Template ${template.title} loaded.`)
+      applyNoteTemplate(useNoteStore().model.id, template.id).then(note => {
+        useNoteStore().setModel(note)
+        putFocusNextTick('create-note-subject')
+        useContextStore().alertScreenReader(`Template ${template.title} loaded.`)
       })
     },
     onToggleTemplatesMenu(isOpen) {
       if (isOpen) {
-        let count = this._size(this.noteTemplates)
+        let count = size(useNoteStore().noteTemplates)
         const suffix = count === 1 ? 'one saved template' : `${count || 'no'} saved templates`
-        this.alertScreenReader(`Template menu open. You have ${suffix}.`)
+        useContextStore().alertScreenReader(`Template menu open. You have ${suffix}.`)
       } else {
-        this.alertScreenReader('Templates menu closed.')
+        useContextStore().alertScreenReader('Templates menu closed.')
       }
     },
     openDeleteTemplateModal(template) {
       this.targetTemplate = template
-      this.disableFocusLock()
+      disableFocusLock()
       this.showDeleteTemplateModal = true
-      this.alertScreenReader('Delete template modal opened.')
+      useContextStore().alertScreenReader('Delete template modal opened.')
     },
     openRenameTemplateModal(template) {
       this.targetTemplate = template
-      this.disableFocusLock()
+      disableFocusLock()
       this.showRenameTemplateModal = true
-      this.alertScreenReader('Rename template modal opened.')
+      useContextStore().alertScreenReader('Rename template modal opened.')
     },
     renameTemplate(title) {
       renameNoteTemplate(this.targetTemplate.id, title).then(() => {
         this.targetTemplate = null
         this.showRenameTemplateModal = false
-        this.alertScreenReader(`Template renamed '${title}'.`)
-        this.enableFocusLock()
+        useContextStore().alertScreenReader(`Template renamed '${title}'.`)
+        enableFocusLock()
       })
     },
     toggleShowRenameTemplateModal(show) {
       this.showRenameTemplateModal = show
-      const toggle = show ? this.disableFocusLock : this.enableFocusLock
+      const toggle = show ? disableFocusLock : enableFocusLock
       toggle()
-      this.alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
-    }
+      useContextStore().alertScreenReader(`Dialog ${show ? 'opened' : 'closed'}.`)
+    },
+    useNoteStore
   }
 }
 </script>

@@ -54,32 +54,19 @@ import {mdiCloseCircle} from '@mdi/js'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
+import {differenceBy, each, findIndex, includes, size} from 'lodash'
 import {getTopicsForNotes} from '@/api/topics'
-import {differenceBy, findIndex, includes, size} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'AdvisingNoteTopics',
-  mixins: [Context, Util],
   props: {
-    addTopic: {
-      type: Function,
-      required: true
-    },
-    disabled: {
-      required: false,
-      type: Boolean
-    },
     noteId: {
       default: undefined,
       type: Number,
       required: false
-    },
-    removeTopic: {
-      type: Function,
-      required: true
     }
   },
   data: () => ({
@@ -87,6 +74,9 @@ export default {
     topicOptions: []
   }),
   computed: {
+    disabled() {
+      return !!(useNoteStore().isSaving || useNoteStore().boaSessionExpired)
+    },
     notePrefix() {
       return this.noteId ? `note-${this.noteId}` : 'note'
     }
@@ -94,7 +84,7 @@ export default {
   created() {
     this.selectedTopics = useNoteStore().model.topics
     getTopicsForNotes(false).then(rows => {
-      this._each(rows, row => {
+      each(rows, row => {
         const topic = row['topic']
         this.topicOptions.push({
           text: topic,
@@ -107,9 +97,9 @@ export default {
   methods: {
     add(topic) {
       if (topic) {
-        this.addTopic(topic)
-        this.putFocusNextTick('add-topic-select-list')
-        this.alertScreenReader(`Topic ${topic} added.`)
+        useNoteStore().addTopic(topic)
+        putFocusNextTick('add-topic-select-list')
+        useContextStore().alertScreenReader(`Topic ${topic} added.`)
       }
     },
     onClickRemove(topic) {
@@ -127,9 +117,9 @@ export default {
       }
     },
     remove(topic) {
-      this.removeTopic(topic.text)
-      this.alertScreenReader(`Removed topic ${topic.text}.`)
-      this.putFocusNextTick('add-topic-select-list')
+      useNoteStore().removeTopic(topic.text)
+      useContextStore().alertScreenReader(`Removed topic ${topic.text}.`)
+      putFocusNextTick('add-topic-select-list')
     }
   }
 }

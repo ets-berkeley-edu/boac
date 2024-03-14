@@ -20,6 +20,7 @@
             class="search-input-date"
             :class="{'rounded-e-0': manuallySetDate}"
             density="compact"
+            :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired"
             hide-details
             :model-value="inputValue"
             name="manually-set-date-input"
@@ -51,30 +52,29 @@ import {mdiClose} from '@mdi/js'
 </script>
 
 <script>
-import NoteEditSession from '@/mixins/NoteEditSession'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'ManuallySetDate',
   components: {DatePicker},
-  mixins: [NoteEditSession],
-  props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    }
-  },
   data: () => ({
     maxDate: new Date()
   }),
   computed: {
+    disabled() {
+      return !!(useNoteStore().isSaving || useNoteStore().boaSessionExpired)
+    },
     manuallySetDate: {
       get() {
-        return this.model.setDate ? this.model.setDate.toDate() : null
+        return useNoteStore().model.setDate ? useNoteStore().model.setDate.toJSDate() : null
       },
       set(value) {
-        this.setSetDate(value)
+        useNoteStore().setSetDate(value)
       }
     }
+  },
+  methods: {
+    useNoteStore
   }
 }
 </script>

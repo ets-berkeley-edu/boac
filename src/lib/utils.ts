@@ -1,5 +1,10 @@
 import _ from 'lodash'
 import {nextTick} from 'vue'
+import numeral from 'numeral'
+
+export function numFormat(num, format=null) {
+  numeral(num).format(format)
+}
 
 export function oxfordJoin(arr, zeroString) {
   switch((arr || []).length) {
@@ -10,6 +15,9 @@ export function oxfordJoin(arr, zeroString) {
   }
 }
 
+export function pluralize(noun: string, count: number, substitutions = {}, pluralSuffix = 's') {
+  return (`${substitutions[count] || substitutions['other'] || count} ` + (count !== 1 ? `${noun}${pluralSuffix}` : noun))
+}
 export function putFocusNextTick(id: string, cssSelector?: string) {
   nextTick(() => {
     let counter = 0

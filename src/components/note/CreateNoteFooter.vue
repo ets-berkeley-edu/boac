@@ -1,7 +1,7 @@
 <template>
   <div class="pt-1 px-3 pb-0">
     <div
-      v-if="boaSessionExpired"
+      v-if="useNoteStore().boaSessionExpired"
       id="uh-oh-session-time-out"
       aria-live="polite"
       class="pl-3 pr-3"
@@ -9,13 +9,13 @@
     >
       <SessionExpired />
     </div>
-    <div v-if="!boaSessionExpired" class="d-flex flex-wrap">
+    <div v-if="!useNoteStore().boaSessionExpired" class="d-flex flex-wrap">
       <div class="flex-grow-1">
         <v-btn
-          v-if="!['editTemplate'].includes(mode)"
+          v-if="!['editTemplate'].includes(useNoteStore().mode)"
           id="btn-save-as-template"
           color="primary"
-          :disabled="isSaving || !_trim(model.subject) || !!model.setDate || !!model.contactType"
+          :disabled="useNoteStore().isSaving || !trim(useNoteStore().model.subject) || !!useNoteStore().model.setDate || !!useNoteStore().model.contactType"
           variant="text"
           @click="saveAsTemplate"
         >
@@ -24,41 +24,41 @@
       </div>
       <div class="d-flex justify-end">
         <v-btn
-          v-if="mode === 'editTemplate'"
+          v-if="useNoteStore().mode === 'editTemplate'"
           id="btn-update-template"
           class="mr-1"
           color="primary"
-          :disabled="isSaving || !model.subject"
+          :disabled="useNoteStore().isSaving || !useNoteStore().model.subject"
           @click.prevent="updateTemplate"
         >
           Update Template
         </v-btn>
         <v-btn
-          v-if="model.isDraft"
+          v-if="useNoteStore().model.isDraft"
           id="save-as-draft-button"
           class="mr-1"
           color="primary"
-          :disabled="isSaving || (!_trim(model.subject) && !_trim(model.body))"
+          :disabled="useNoteStore().isSaving || (!trim(useNoteStore().model.subject) && !trim(useNoteStore().model.body))"
           variant="text"
           @click.prevent="updateNote"
         >
           Save and Close Draft
         </v-btn>
         <v-btn
-          v-if="!['editTemplate'].includes(mode)"
+          v-if="!['editTemplate'].includes(useNoteStore().mode)"
           id="create-note-button"
-          :class="{'mr-2': mode !== 'editDraft'}"
+          :class="{'mr-2': useNoteStore().mode !== 'editDraft'}"
           color="primary"
-          :disabled="isSaving || !completeSidSet.length || !_trim(model.subject)"
+          :disabled="useNoteStore().isSaving || !useNoteStore().completeSidSet.length || !trim(useNoteStore().model.subject)"
           @click.prevent="publish"
         >
           Publish Note
         </v-btn>
         <v-btn
-          v-if="mode !== 'editDraft'"
+          v-if="useNoteStore().mode !== 'editDraft'"
           id="create-note-cancel"
           color="error"
-          :disabled="isSaving"
+          :disabled="useNoteStore().isSaving"
           variant="outlined"
           @click.prevent="cancel"
         >
@@ -70,15 +70,13 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
-import NoteEditSession from '@/mixins/NoteEditSession'
 import SessionExpired from '@/components/note/SessionExpired'
-import Util from '@/mixins/Util'
+import {trim} from 'lodash'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'CreateNoteFooter',
   components: {SessionExpired},
-  mixins: [Context, NoteEditSession, SessionExpired, Util],
   props: {
     cancel: {
       required: true,
@@ -99,9 +97,11 @@ export default {
   },
   methods: {
     publish() {
-      this.setIsDraft(false)
+      useNoteStore().setIsDraft(false)
       this.updateNote()
-    }
+    },
+    trim,
+    useNoteStore
   }
 }
 </script>

@@ -51,7 +51,7 @@
             id="create-template-confirm"
             :action="createTemplate"
             :disabled="isSaving || !title.length || title.length > 255"
-            :in-progress="isSaving"
+            :in-progress="useNoteStore().isSaving"
           >
             {{ isSaving ? 'Saving' : 'Save' }}
           </ProgressButton>
@@ -73,13 +73,12 @@
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
-import Util from '@/mixins/Util'
+import {putFocusNextTick} from '@/lib/utils'
 import {validateTemplateTitle} from '@/lib/note'
 
 export default {
   name: 'CreateTemplateModal',
   components: {ModalHeader, ProgressButton},
-  mixins: [Util],
   props: {
     cancel: {
       type: Function,
@@ -147,7 +146,7 @@ export default {
     },
     onToggle(isOpen) {
       if (isOpen) {
-        this.putFocusNextTick('modal-header')
+        putFocusNextTick('modal-header')
       } else {
         this.onHidden()
       }

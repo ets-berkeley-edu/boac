@@ -65,17 +65,12 @@ import {mdiCloseCircle} from '@mdi/js'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import {findIndex, map} from 'lodash'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'BatchNoteAddCohort',
-  mixins: [Context],
   props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    },
     objects: {
       required: true,
       type: Array
@@ -101,6 +96,9 @@ export default {
   computed: {
     addedIds() {
       return map(this.added, 'id')
+    },
+    disabled() {
+      return useNoteStore().isSaving || useNoteStore().boaSessionExpired
     }
   },
   created() {

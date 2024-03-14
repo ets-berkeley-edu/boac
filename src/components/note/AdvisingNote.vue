@@ -9,12 +9,12 @@
       </span>
       <span v-if="!note.isDraft">
         <span v-if="note.subject" :id="`note-${note.id}-subject`">{{ note.subject }}</span>
-        <span v-if="!note.subject && _size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
-        <span v-if="!note.subject && !_size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
-        <span v-if="!note.subject && !_size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !_isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
-          advisor {{ author.name }}<span v-if="note.topics && _size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
+        <span v-if="!note.subject && size(note.message)" :id="`note-${note.id}-subject`" v-html="note.message"></span>
+        <span v-if="!note.subject && !size(note.message) && note.category" :id="`note-${note.id}-subject`">{{ note.category }}<span v-if="note.subcategory">, {{ note.subcategory }}</span></span>
+        <span v-if="!note.subject && !size(note.message) && !note.category && !note.eForm" :id="`note-${note.id}-category-closed`">{{ !isEmpty(note.author.departments) ? note.author.departments[0].name : '' }}
+          advisor {{ author.name }}<span v-if="note.topics && size(note.topics)">: {{ oxfordJoin(note.topics) }}</span>
         </span>
-        <span v-if="!note.subject && !_size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
+        <span v-if="!note.subject && !size(note.message) && !note.category && note.eForm" :id="`note-${note.id}-subject`">
           eForm: {{ note.eForm.action }} &mdash; {{ note.eForm.status }}
         </span>
       </span>
@@ -79,7 +79,7 @@
           </div>
         </dl>
       </div>
-      <div v-if="!_isNil(author) && !author.name && !author.email && !note.eForm" class="mt-2 text-black-50 advisor-profile-not-found">
+      <div v-if="!isNil(author) && !author.name && !author.email && !note.eForm" class="mt-2 text-black-50 advisor-profile-not-found">
         Advisor profile not found
         <span v-if="note.legacySource" class="font-italic">
           (note imported from {{ note.legacySource }})
@@ -108,14 +108,14 @@
             (note imported from {{ note.legacySource }})
           </span>
         </div>
-        <div v-if="_size(author.departments)" class="text-medium-emphasis">
-          <div v-for="(deptName, index) in _orderBy(_map(author.departments, 'name'))" :key="index">
+        <div v-if="size(author.departments)" class="text-medium-emphasis">
+          <div v-for="(deptName, index) in authorDepartments" :key="index">
             <span :id="`note-${note.id}-author-dept-${index}`">{{ deptName }}</span>
           </div>
         </div>
       </div>
-      <div v-if="note.topics && _size(note.topics)">
-        <div class="pill-list-header mt-3 mb-1">{{ _size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
+      <div v-if="note.topics && size(note.topics)">
+        <div class="pill-list-header mt-3 mb-1">{{ size(note.topics) === 1 ? 'Topic Category' : 'Topic Categories' }}</div>
         <ul class="pill-list pl-0">
           <li
             v-for="(topic, index) in note.topics"
@@ -177,9 +177,9 @@
           <span :id="`note-${note.id}-attachment-error`" aria-live="polite" role="alert">{{ attachmentError }}</span>
         </div>
         <div v-if="uploadingAttachment" class="w-100">
-          <v-icon :icon="mdiSync" spin /> Uploading {{ _size(attachments) === 1 ? 'attachment' : 'attachments' }}...
+          <v-icon :icon="mdiSync" spin /> Uploading {{ size(attachments) === 1 ? 'attachment' : 'attachments' }}...
         </div>
-        <div v-if="_size(existingAttachments) < config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
+        <div v-if="size(existingAttachments) < config.maxAttachmentsPerNote && !uploadingAttachment" class="w-100">
           <label for="choose-file-for-note-attachment" class="sr-only"><span class="sr-only">Note </span>Attachments</label>
           <div :id="`note-${note.id}-attachment-dropzone`" class="choose-attachment-file-wrapper no-wrap pl-3 pr-3 w-100">
             Add attachment:
@@ -196,14 +196,14 @@
             <b-form-file
               ref="attachment-file-input"
               v-model="attachments"
-              :disabled="_size(existingAttachments) === config.maxAttachmentsPerNote"
+              :disabled="size(existingAttachments) === config.maxAttachmentsPerNote"
               :state="Boolean(attachments && attachments.length)"
               :multiple="true"
               :plain="true"
             ></b-form-file>
           </div>
         </div>
-        <div v-if="_size(existingAttachments) === config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
+        <div v-if="size(existingAttachments) === config.maxAttachmentsPerNote" :id="`note-${note.id}-max-attachments-notice`" class="w-100">
           A note can have no more than {{ config.maxAttachmentsPerNote }} attachments.
         </div>
       </div>
@@ -217,19 +217,18 @@ import {mdiAlertRhombus, mdiCloseCircleOutline, mdiPaperclip, mdiSync} from '@md
 
 <script>
 import AreYouSureModal from '@/components/util/AreYouSureModal'
-import Context from '@/mixins/Context'
-import Util from '@/mixins/Util'
 import {addAttachments, removeAttachment} from '@/api/notes'
 import {addFileDropEventListeners, validateAttachment} from '@/lib/note'
+import {cloneDeep, each, get, isEmpty, isNil, map, orderBy, size} from 'lodash'
+import {DateTime} from 'luxon'
 import {getBoaUserRoles, termNameForSisId} from '@/berkeley'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
-import {oxfordJoin} from '@/lib/utils'
-import {DateTime} from 'luxon'
+import {numFormat, oxfordJoin, toInt} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'AdvisingNote',
   components: {AreYouSureModal},
-  mixins: [Context, Util],
   props: {
     afterSaved: {
       required: true,
@@ -264,6 +263,9 @@ export default {
     uploadingAttachment: false
   }),
   computed: {
+    authorDepartments() {
+      return orderBy(map(this.author.departments, 'name'))
+    },
     isEditable() {
       return !this.note.legacySource
     },
@@ -273,26 +275,26 @@ export default {
   },
   watch: {
     attachments(files) {
-      if (this._size(files)) {
+      if (size(files)) {
         this.attachmentError = validateAttachment(files, this.existingAttachments)
         if (this.attachmentError) {
           this.resetFileInput()
         } else {
           this.clearErrors()
-          this._each(files, attachment => {
+          each(files, attachment => {
             attachment.displayName = attachment.name
-            this.alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
+            useContextStore().alertScreenReader(`Uploading attachment '${attachment.displayName}'`)
           })
           this.uploadingAttachment = true
           addAttachments(this.note.id, files).then(updatedNote => {
-            this.alertScreenReader(`${this._size(files)} ${this._size(files) === 1 ? 'attachment' : 'attachments'} added.`)
+            useContextStore().alertScreenReader(`${size(files)} ${size(files) === 1 ? 'attachment' : 'attachments'} added.`)
             this.afterSaved(updatedNote)
             this.resetAttachments()
             this.uploadingAttachment = false
           })
             .catch(error => {
-              this.alertScreenReader()
-              this.attachmentError = this._get(error, 'message')
+              useContextStore().alertScreenReader()
+              this.attachmentError = get(error, 'message')
               this.uploadingAttachment = false
               this.resetFileInput()
             })
@@ -315,7 +317,7 @@ export default {
     addFileDropEventListeners()
   },
   created() {
-    this.author = this._get(this.note, 'author')
+    this.author = get(this.note, 'author')
     this.loadAuthorDetails()
     this.resetAttachments()
   },
@@ -327,14 +329,14 @@ export default {
       const requiresLazyLoad = (
         this.isOpen &&
         (
-          !this._get(this.note, 'author.name') ||
-          !this._get(this.note, 'author.role') ||
-          this._get(this.author, 'uid') !== this._get(this.note, 'author.uid') ||
-          this._get(this.author, 'sid') !== this._get(this.note, 'author.sid')
+          !get(this.note, 'author.name') ||
+          !get(this.note, 'author.role') ||
+          get(this.author, 'uid') !== get(this.note, 'author.uid') ||
+          get(this.author, 'sid') !== get(this.note, 'author.sid')
         )
       )
       if (requiresLazyLoad) {
-        const hasIdentifier = this._get(this.note, 'author.uid') || this._get(this.note, 'author.sid')
+        const hasIdentifier = get(this.note, 'author.uid') || get(this.note, 'author.sid')
         if (hasIdentifier) {
           const author_uid = this.note.author.uid
           const callback = data => {
@@ -379,19 +381,22 @@ export default {
       if (attachment && attachment.id) {
         this.existingAttachments.splice(this.deleteAttachmentIndex, 1)
         return removeAttachment(this.note.id, attachment.id).then(updatedNote => {
-          this.alertScreenReader(`Attachment '${attachment.displayName}' removed`)
+          useContextStore().alertScreenReader(`Attachment '${attachment.displayName}' removed`)
           this.afterSaved(updatedNote)
         })
       }
     },
     displayName(attachments, index) {
-      return this._size(attachments) <= index ? '' : attachments[index].displayName
+      return size(attachments) <= index ? '' : attachments[index].displayName
     },
     downloadUrl(attachment) {
       return `${this.config.apiBaseUrl}/api/notes/attachment/${attachment.id}`
     },
+    isNil,
+    numFormat,
+    oxfordJoin,
     resetAttachments() {
-      this.existingAttachments = this._cloneDeep(this.note.attachments)
+      this.existingAttachments = cloneDeep(this.note.attachments)
     },
     resetFileInput() {
       const inputElement = this.$refs['attachment-file-input']
@@ -399,7 +404,9 @@ export default {
         inputElement.reset()
       }
     },
-    termNameForSisId
+    size,
+    termNameForSisId,
+    toInt
   }
 }
 </script>
