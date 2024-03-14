@@ -1,93 +1,137 @@
 <template>
-  <v-autocomplete
-    :id="id"
-    bg-color="transparent"
-    :clearable="!isFetching"
-    color="black"
-    base-color="black"
-    density="compact"
-    :disabled="disabled"
-    hide-details
-    hide-no-data
-    :items="items"
-    :label="placeholder"
-    :menu-icon="null"
-    variant="outlined"
-    @update:focused="s => console.log(`@update:focused: ${s}`)"
-    @update:menu="s => console.log(`@update:menu: ${s}`)"
-    @update:search="onUpdateSearch"
-    @update:modelValue="s => console.log(`@update:modelValue=${s}`)"
-    @click:clear="() => items = []"
-  >
-    <template #append-inner>
-      <v-progress-circular
-        v-if="isFetching"
-        color="pale-blue"
-        indeterminate
-        :size="16"
-        :width="3"
-      />
-    </template>
-  </v-autocomplete>
+  <div class="align-center d-flex">
+    <v-autocomplete
+      :id="id"
+      bg-color="transparent"
+      :clearable="!isFetching"
+      base-color="black"
+      :class="{
+        'demo-mode-blur': useContextStore().currentUser.inDemoMode,
+        'autocomplete-with-add-button': !!onClickAddButton
+      }"
+      color="black"
+      density="compact"
+      :disabled="disabled"
+      hide-details
+      hide-no-data
+      :items="items"
+      :label="placeholder"
+      :maxlength="maxlength"
+      :menu-icon="null"
+      variant="outlined"
+      @click:clear="() => items = []"
+      @update:focused="s => console.log(`@update:focused: ${s}`)"
+      @update:menu="s => console.log(`@update:menu: ${s}`)"
+      @update:modelValue="value => selected = value"
+      @update:search="args => onUpdateSearch(args)"
+    >
+      <template #append-inner>
+        <v-progress-circular
+          v-if="isFetching"
+          color="pale-blue"
+          indeterminate
+          :size="16"
+          :width="3"
+        />
+      </template>
+    </v-autocomplete>
+    <v-btn
+      v-if="onClickAddButton"
+      :id="`${id}-add-button`"
+      class="add-button"
+      color="primary"
+      variant="flat"
+      @click="onClickAdd"
+    >
+      <v-icon :icon="mdiPlus" /> Add
+    </v-btn>
+  </div>
 </template>
 
-<script>
-import {ref} from 'vue'
-import {map} from 'lodash'
+<script setup>
+import {mdiPlus} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+import {map, noop} from 'lodash'
+import {defineProps, ref} from 'vue'
 
-export default {
-  props: {
-    disabled: {
-      required: false,
-      type: Boolean
-    },
-    fetch: {
-      required: true,
-      type: Function
-    },
-    id: {
-      required: true,
-      type: String
-    },
-    optionLabelKey: {
-      default: 'title',
-      required: false,
-      type: String
-    },
-    optionValueKey: {
-      default: 'value',
-      required: false,
-      type: String
-    },
-    placeholder: {
-      default: undefined,
-      required: false,
-      type: String
-    },
-    suggestWhen: {
-      default: query => query && query.length > 1,
-      required: false,
-      type: Function
-    }
+const props = defineProps({
+  disabled: {
+    required: false,
+    type: Boolean
   },
-  setup(props) {
-    let isFetching = ref(false)
-    let items = ref([])
-    const onUpdateSearch = args => {
-      isFetching.value = true
-      if (props.suggestWhen(args)) {
-        const controller = new AbortController()
-        props.fetch(args, 20, controller).then(results => {
-          items.value = map(results, result => ({title: result.label, value: result.uid}))
-          isFetching.value = false
-        })
-      }
-    }
-    return {
-      isFetching,
-      items,
-      onUpdateSearch
-    }
+  fetch: {
+    required: true,
+    type: Function
+  },
+  id: {
+    required: true,
+    type: String
+  },
+  onClickAddButton: {
+    default: undefined,
+    required: false,
+    type: Function
+  },
+  onEsc: {
+    default: noop,
+    required: false,
+    type: Function
+  },
+  optionLabelKey: {
+    default: 'title',
+    required: false,
+    type: String
+  },
+  optionValueKey: {
+    default: 'value',
+    required: false,
+    type: String
+  },
+  maxlength: {
+    default: '56',
+    required: false,
+    type: String
+  },
+  placeholder: {
+    default: undefined,
+    required: false,
+    type: String
+  },
+  suggestWhen: {
+    default: query => query && query.length > 1,
+    required: false,
+    type: Function
+  }
+})
+
+let isFetching = ref(false)
+let items = ref([])
+let selected = ref(undefined)
+
+const onClickAdd = () => {
+  const item = find(items, [props.optionValueKey, selected])
+  if (item) {
+    props.onClickAddButton(item)
+    isFetching.value = false
+  }
+}
+
+const onUpdateSearch = args => {
+  isFetching.value = true
+  if (props.suggestWhen(args)) {
+    const controller = new AbortController()
+    props.fetch(args, 20, controller).then(results => {
+      items.value = map(results, result => ({title: result.label, value: result.uid}))
+      isFetching.value = false
+    })
   }
 }
 </script>
+
+<style scoped>
+.add-button {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+  height: 39px !important;
+}
+</style>
