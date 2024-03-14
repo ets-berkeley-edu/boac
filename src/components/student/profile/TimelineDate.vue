@@ -1,8 +1,9 @@
 <template>
   <div v-if="datePerTimezone && dateFormat">
-    <span class="sr-only">{{ srPrefix }} </span>{{ moment(datePerTimezone).format(dateFormat) }}
+    <span class="sr-only">{{ srPrefix }} </span>
+    {{ DateTime.fromJSDate(datePerTimezone).toFormat(dateFormat) }}
     <div v-if="includeTimeOfDay">
-      {{ moment(datePerTimezone).format('h:mma') }}
+      {{ DateTime.fromJSDate(datePerTimezone).toFormat('h:mma') }}
     </div>
   </div>
 </template>
@@ -10,6 +11,7 @@
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'TimelineDate',
@@ -32,7 +34,7 @@ export default {
   },
   data() {
     return {
-      now: this.moment()
+      now: DateTime.now()
     }
   },
   computed: {
@@ -46,7 +48,7 @@ export default {
       if (!this.date) {
         return null
       }
-      return this.moment(this.date).tz(this.config.timezone)
+      return DateTime.fromJSDate(this.date).setZone(this.config.timezone)
     }
   }
 }

@@ -103,6 +103,8 @@
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByCsid, getCalnetProfileByUid} from '@/api/user'
+import {DateTime} from 'luxon'
+
 
 export default {
   name: 'AdvisingAppointment',
@@ -134,7 +136,7 @@ export default {
   },
   methods: {
     datePerTimezone(date) {
-      return this.moment(date).tz(this.config.timezone)
+      return DateTime.fromJSDate(date).setZone(this.config.timezone)
     },
     downloadUrl(attachment) {
       return `${this.config.apiBaseUrl}/api/appointments/attachment/${attachment.id}`

@@ -132,7 +132,7 @@
                 {{ noteUpdatedBy ? 'edited this note' : 'Last edited' }}
                 <span v-if="isToday(noteUpdatedAt)"> today.</span>
                 <span v-if="!isToday(noteUpdatedAt)">
-                  on <span id="degree-note-updated-at">{{ moment(noteUpdatedAt).format('MMM D, YYYY') }}.</span>
+                  on <span id="degree-note-updated-at">{{ noteUpdatedAt.toFormat('MMM D, YYYY') }}.</span>
                 </span>
               </span>
             </div>
@@ -234,11 +234,11 @@ import {mdiClose, mdiOpenInNew, mdiPrinterOutline} from '@mdi/js'
 <script>
 import Context from '@/mixins/Context'
 import DegreeEditSession from '@/mixins/DegreeEditSession'
-import moment from 'moment-timezone'
 import Util from '@/mixins/Util'
 import {getCalnetProfileByUserId} from '@/api/user'
 import {updateDegreeNote} from '@/api/degree'
 import {refreshDegreeTemplate} from '@/stores/degree-edit-session/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'StudentDegreeCheckHeader',
@@ -259,17 +259,17 @@ export default {
   }),
   computed: {
     noteUpdatedAt() {
-      return this.degreeNote && this.moment(new Date(this.degreeNote.updatedAt))
+      return this.degreeNote && DateTime.fromJSDate(new Date(this.degreeNote.updatedAt))
     }
   },
   created() {
-    this.showRevisionIndicator = this.moment(new Date(this.createdAt)).isBefore(new Date(this.parentTemplateUpdatedAt))
+    this.showRevisionIndicator = DateTime.fromJSDate(new Date(this.createdAt)) < DateTime.fromJSDate(new Date(this.parentTemplateUpdatedAt))
     const updatedAtDate = new Date(this.updatedAt)
     const isFresh = new Date(this.createdAt) === updatedAtDate
     const userId = isFresh ? this.createdBy : this.updatedBy
     getCalnetProfileByUserId(userId).then(data => {
       const name = data.name || `${data.uid} (UID)`
-      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${this.moment(updatedAtDate).format('MMM D, YYYY')}`
+      this.updatedAtDescription = `${isFresh ? 'Created' : 'Last updated'} by ${name} on ${DateTime.fromJSDate(updatedAtDate).toFormat('MMM D, YYYY')}`
     })
     this.initNote()
   },
@@ -304,7 +304,7 @@ export default {
       this.isSaving = false
     },
     isToday: date => {
-      return moment().diff(date, 'days') === 0
+      return date.hasSame(DateTime.now(),'day')
     },
     onToggleNotesWhenPrint(flag) {
       this.setIncludeNotesWhenPrint(flag)

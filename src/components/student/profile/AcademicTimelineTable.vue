@@ -356,6 +356,7 @@ import {dismissStudentAlert} from '@/api/student'
 import {markAppointmentRead} from '@/api/appointments'
 import {isDirector} from '@/berkeley'
 import {scrollTo} from '@/lib/utils'
+import {DateTime} from 'luxon'
 
 export default {
   name: 'AcademicTimelineTable',
@@ -596,8 +597,8 @@ export default {
       this.putFocusNextTick('edit-note-subject')
     },
     getSameDayDate(message) {
-      let startsAt = this.moment(message.createdAt).tz(this.config.timezone).format('h:mma')
-      let endsAt = this.moment(message.endsAt).tz(this.config.timezone).format('h:mma')
+      let startsAt = DateTime.fromJSDate(message.createdAt).setZone(this.config.timezone).toFormat('h:mma')
+      let endsAt = DateTime.fromJSDate(message.endsAt).setZone(this.config.timezone).toFormat('h:mma')
 
       return `${startsAt}-${endsAt}`
     },

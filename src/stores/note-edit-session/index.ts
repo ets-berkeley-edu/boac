@@ -1,6 +1,7 @@
-import moment from 'moment'
+
 import {cloneDeep, find, isNil, sortBy} from 'lodash'
 import {defineStore} from 'pinia'
+import {DateTime} from 'luxon'
 
 const VALID_MODES = ['createBatch', 'createNote', 'editDraft', 'editNote', 'editTemplate']
 
@@ -170,7 +171,7 @@ export const useNoteStore = defineStore('note', {
           id: model.id,
           isDraft: model.isDraft,
           isPrivate: model.isPrivate,
-          setDate: model.setDate ? moment(model.setDate) : null,
+          setDate: model.setDate ? DateTime.fromJSDate(model.setDate) : null,
           subject: model.subject,
           topics: model.topics || [],
         }
@@ -186,7 +187,7 @@ export const useNoteStore = defineStore('note', {
       this.recipients = recipients
     },
     setSetDate(setDate: any) {
-      this.model.setDate = setDate ? moment(setDate) : null
+      this.model.setDate = setDate ? DateTime.fromJSDate(setDate) : null
     },
     setSubject(subject: string) {
       this.model.subject = subject
