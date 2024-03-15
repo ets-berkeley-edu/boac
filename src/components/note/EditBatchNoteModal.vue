@@ -228,6 +228,7 @@ export default {
         this.setMode(this.initialMode)
         this.alertScreenReader(this.mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
         this.setEventHandler('user-session-expired', this.onBoaSessionExpires)
+        this.putFocusNextTick(this.sid ? 'create-note-subject' : 'modal-header-note')
       }
       this.setModel(note)
       if (note.sid) {
