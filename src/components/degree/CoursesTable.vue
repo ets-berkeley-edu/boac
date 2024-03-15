@@ -422,7 +422,7 @@ export default {
           unitRequirements: (course || category).unitRequirements
         })
       })
-      return this._sortBy(transformed, ['name'])
+      return transformed
     },
     hasAnyNotes() {
       return !!this._find(this.categoryCourseBundles, bundle => this.getNote(bundle))
