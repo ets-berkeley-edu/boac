@@ -354,7 +354,7 @@ export default {
           const onFinish = () => {
             useNoteStore().setMode(this.initialMode)
             useContextStore().alertScreenReader(useNoteStore().mode === 'createNote' ? 'Create note form is open.' : 'Create batch note form is open.')
-            putFocusNextTick('modal-header-note')
+            putFocusNextTick(this.sid ? 'create-note-subject' : 'modal-header-note')
             useContextStore().setEventHandler('user-session-expired', useNoteStore().onBoaSessionExpires)
           }
           useNoteStore().setModel(note)
