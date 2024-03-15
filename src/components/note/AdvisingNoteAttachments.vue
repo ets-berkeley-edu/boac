@@ -69,6 +69,7 @@
             closable
             :close-label="`Remove attachment ${attachment.displayName}`"
             density="comfortable"
+            :disabled="disabled"
             :prepend-icon="mdiPaperclip"
             variant="outlined"
             @click:close="deleteAttachmentByIndex(index)"

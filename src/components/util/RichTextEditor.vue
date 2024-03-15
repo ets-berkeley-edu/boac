@@ -22,7 +22,7 @@
       role="textbox"
     >
       <ckeditor
-        :value="initialValue"
+        :model-value="initialValue"
         :disabled="disabled"
         :editor="editor"
         :config="editorConfig"

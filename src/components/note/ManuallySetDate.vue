@@ -36,6 +36,7 @@
         id="manually-set-date-clear"
         class="clear-btn px-0"
         color="btn-secondary"
+        :disabled="useNoteStore().isSaving || useNoteStore().boaSessionExpired"
         variant="flat"
         @click="manuallySetDate = null"
       >
