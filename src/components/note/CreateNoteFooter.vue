@@ -23,16 +23,16 @@
         </v-btn>
       </div>
       <div class="d-flex justify-end">
-        <v-btn
+        <ProgressButton
           v-if="useNoteStore().mode === 'editTemplate'"
           id="btn-update-template"
+          :action="updateTemplate"
           class="mr-1"
-          color="primary"
           :disabled="useNoteStore().isSaving || !useNoteStore().model.subject"
-          @click.prevent="updateTemplate"
+          :in-progress="useNoteStore().isSaving"
         >
           Update Template
-        </v-btn>
+        </ProgressButton>
         <v-btn
           v-if="useNoteStore().model.isDraft"
           id="save-as-draft-button"
@@ -44,16 +44,16 @@
         >
           Save and Close Draft
         </v-btn>
-        <v-btn
+        <ProgressButton
           v-if="!['editTemplate'].includes(useNoteStore().mode)"
           id="create-note-button"
+          :action="publish"
           :class="{'mr-2': useNoteStore().mode !== 'editDraft'}"
-          color="primary"
-          :disabled="useNoteStore().isSaving || !useNoteStore().completeSidSet.length || !trim(useNoteStore().model.subject)"
-          @click.prevent="publish"
+          :disabled="useNoteStore().isSaving || isEmpty(useNoteStore().completeSidSet) || !trim(useNoteStore().model.subject)"
+          :in-progress="useNoteStore().isSaving"
         >
           Publish Note
-        </v-btn>
+        </ProgressButton>
         <v-btn
           v-if="useNoteStore().mode !== 'editDraft'"
           id="create-note-cancel"
@@ -70,13 +70,14 @@
 </template>
 
 <script>
+import ProgressButton from '@/components/util/ProgressButton.vue'
 import SessionExpired from '@/components/note/SessionExpired'
-import {trim} from 'lodash'
+import {isEmpty, trim} from 'lodash'
 import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'CreateNoteFooter',
-  components: {SessionExpired},
+  components: {ProgressButton, SessionExpired},
   props: {
     cancel: {
       required: true,
@@ -100,6 +101,7 @@ export default {
       useNoteStore().setIsDraft(false)
       this.updateNote()
     },
+    isEmpty,
     trim,
     useNoteStore
   }

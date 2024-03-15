@@ -394,7 +394,7 @@ export default {
     updateNote() {
       this.setIsSaving(true)
       const ifAuthenticated = () => {
-        if (useNoteStore().model.isDraft || (useNoteStore().model.subject && useNoteStore().completeSidSet.length)) {
+        if (useNoteStore().model.isDraft || (useNoteStore().model.subject && size(useNoteStore().completeSidSet))) {
           // File upload might take time; alert will be overwritten when API call is done.
           this.showAlert('Creating note...', 60)
           updateAdvisingNote().then(() => {

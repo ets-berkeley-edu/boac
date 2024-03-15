@@ -50,8 +50,8 @@
           <ProgressButton
             id="create-template-confirm"
             :action="createTemplate"
-            :disabled="isSaving || !title.length || title.length > 255"
-            :in-progress="useNoteStore().isSaving"
+            :disabled="isSaving || !title.length || title.length > 255 || useNoteStore().boaSessionExpired"
+            :in-progress="isSaving"
           >
             {{ isSaving ? 'Saving' : 'Save' }}
           </ProgressButton>
@@ -74,6 +74,7 @@
 import ModalHeader from '@/components/util/ModalHeader'
 import ProgressButton from '@/components/util/ProgressButton'
 import {putFocusNextTick} from '@/lib/utils'
+import {useNoteStore} from '@/stores/note-edit-session'
 import {validateTemplateTitle} from '@/lib/note'
 
 export default {
@@ -135,7 +136,7 @@ export default {
       this.cancel()
       this.reset()
     },
-    createTemplate: function() {
+    createTemplate() {
       this.isSaving = true
       this.error = validateTemplateTitle({title: this.title})
       if (!this.error) {
@@ -150,7 +151,8 @@ export default {
       } else {
         this.onHidden()
       }
-    }
+    },
+    useNoteStore
   }
 }
 </script>

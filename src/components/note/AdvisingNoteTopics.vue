@@ -5,16 +5,14 @@
     </label>
     <v-select
       id="add-topic-select-list"
-      v-model="selectedTopics"
+      :model-value="selectedTopics"
       class="mt-2"
       density="compact"
       :disabled="disabled"
       hide-details
-      item-title="text"
       :items="topicOptions"
       multiple
       persistent-hint
-      return-object
       single-line
       variant="outlined"
       @update:model-value="onUpdate"
@@ -32,12 +30,12 @@
           :id="`${notePrefix}-topic-${index}`"
           class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
           closable
-          :close-label="`Remove ${item.title}`"
+          :close-label="`Remove ${item}`"
           density="comfortable"
           :disabled="disabled"
           variant="outlined"
-          @click:close="onClickRemove(item.raw)"
-          @keyup.enter="onClickRemove(item.raw)"
+          @click:close="onClickRemove(item)"
+          @keyup.enter="onClickRemove(item)"
         >
           <span class="truncate-with-ellipsis">{{ item.title }}</span>
           <template #close>
@@ -54,7 +52,7 @@ import {mdiCloseCircle} from '@mdi/js'
 </script>
 
 <script>
-import {differenceBy, each, findIndex, includes, size} from 'lodash'
+import {differenceBy, each, size} from 'lodash'
 import {getTopicsForNotes} from '@/api/topics'
 import {putFocusNextTick} from '@/lib/utils'
 import {useContextStore} from '@/stores/context'
@@ -70,7 +68,6 @@ export default {
     }
   },
   data: () => ({
-    selectedTopics: [],
     topicOptions: []
   }),
   computed: {
@@ -79,18 +76,26 @@ export default {
     },
     notePrefix() {
       return this.noteId ? `note-${this.noteId}` : 'note'
+    },
+    selectedTopics: {
+      get() {
+        return useNoteStore().model.topics
+      },
+      set(topics) {
+        const topicsToAdd = differenceBy(topics, useNoteStore().model.topics)
+        const topicsToRemove = differenceBy(useNoteStore().model.topics, topics)
+        if (size(topicsToAdd)) {
+          this.add(topicsToAdd[0])
+        } else if (size(topicsToRemove)) {
+          this.remove(topicsToRemove[0])
+        }
+      }
     }
   },
   created() {
-    this.selectedTopics = useNoteStore().model.topics
     getTopicsForNotes(false).then(rows => {
       each(rows, row => {
-        const topic = row['topic']
-        this.topicOptions.push({
-          text: topic,
-          value: topic,
-          disabled: includes(this.selectedTopics, topic)
-        })
+        this.topicOptions.push(row.topic)
       })
     })
   },
@@ -103,22 +108,14 @@ export default {
       }
     },
     onClickRemove(topic) {
-      const index = findIndex(this.selectedTopics, {'text': topic.text})
-      this.selectedTopics.splice(index, 1)
       this.remove(topic)
     },
-    onUpdate(selectedTopics) {
-      const savedTopics = useNoteStore().model.topics
-      const topic = differenceBy(selectedTopics, savedTopics)
-      if (size(selectedTopics) > size(savedTopics)){
-        this.add(topic.text)
-      } else {
-        this.remove(topic.text)
-      }
+    onUpdate(topics) {
+      this.selectedTopics = topics
     },
     remove(topic) {
-      useNoteStore().removeTopic(topic.text)
-      useContextStore().alertScreenReader(`Removed topic ${topic.text}.`)
+      useNoteStore().removeTopic(topic)
+      useContextStore().alertScreenReader(`Removed topic ${topic}.`)
       putFocusNextTick('add-topic-select-list')
     }
   }
