@@ -188,7 +188,7 @@ export default {
   flex-basis: 100%;
 }
 .status-cancelled-icon {
-  color: #f0ad4e;
+  color: rgb(var(--v-theme-warning));
   width: 18px;
 }
 </style>

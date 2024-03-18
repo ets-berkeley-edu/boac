@@ -1,72 +1,74 @@
 <template>
-  <div class="pt-3">
-    <div role="navigation" aria-label="Cohorts and Curated Groups">
-      <div v-if="myCohorts">
-        <Cohorts :cohorts="myCohorts" />
-        <hr class="ml-2 mr-2 section-divider" />
-      </div>
-      <div v-if="currentUser.myCuratedGroups">
-        <CuratedGroups domain="default" />
-        <hr class="ml-2 mr-2 section-divider" />
-      </div>
-      <div v-if="currentUser.canAccessAdmittedStudents">
-        <div class="ml-2 sidebar-header">
-          Admitted Students
+  <v-navigation-drawer
+    class="sidebar"
+    color="tertiary"
+    permanent
+    :scrim="false"
+  >
+    <div class="pt-3">
+      <div aria-label="Cohorts and Curated Groups">
+        <div v-if="myCohorts">
+          <Cohorts :cohorts="myCohorts" />
+          <hr class="ml-2 mr-2 section-divider" />
         </div>
-        <div class="ml-1">
-          <div v-if="myAdmitCohorts" class="py-2">
-            <MyAdmitCohorts :cohorts="myAdmitCohorts" />
+        <div v-if="currentUser.myCuratedGroups">
+          <CuratedGroups domain="default" />
+          <hr class="ml-2 mr-2 section-divider" />
+        </div>
+        <div v-if="currentUser.canAccessAdmittedStudents">
+          <div class="ml-2 sidebar-header">
+            Admitted Students
           </div>
-          <div v-if="currentUser.myCuratedGroups">
-            <div class="pt-2">
-              <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
+          <div class="ml-1">
+            <div v-if="myAdmitCohorts" class="py-2">
+              <MyAdmitCohorts :cohorts="myAdmitCohorts" />
+            </div>
+            <div v-if="currentUser.myCuratedGroups">
+              <div class="pt-2">
+                <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
+              </div>
             </div>
           </div>
+          <hr class="mx-2 section-divider" />
         </div>
-        <hr class="mx-2 section-divider" />
-      </div>
-      <div class="mb-2 sidebar-row-link">
-        <div class="ml-1 mr-2">
+        <div class="mb-2 px-1 sidebar-row-link">
           <router-link id="cohorts-all" to="/cohorts/all">Everyone's Cohorts</router-link>
         </div>
-      </div>
-      <div class="mb-2 sidebar-row-link">
-        <div class="ml-1 mr-2">
+        <div class="mb-2 px-1 sidebar-row-link">
           <router-link id="groups-all" to="/groups/all">Everyone's Groups</router-link>
         </div>
       </div>
-    </div>
-    <div
-      v-if="currentUser.canAccessAdvisingData"
-      class="batch-note-button fixed-bottom-sidebar"
-      :class="{'z-index-0': !loading}"
-    >
-      <div class="sidebar" :class="{'mb-3': currentUser.isAdmin}">
-        <LinkToDraftNotes />
-      </div>
-      <div
-        v-if="!currentUser.isAdmin"
-        class="d-flex justify-content-center mb-3 px-3 sidebar"
+      <v-banner
+        v-if="currentUser.canAccessAdvisingData"
+        aria-label="Notes"
+        :border="'tertiary'"
+        class="sidebar-sticky bg-tertiary px-0 py-3"
+        sticky
       >
-        <v-btn
-          id="batch-note-button"
-          class="mt-1 w-100"
-          color="primary"
-          :disabled="!!mode"
-          @click="isCreateNoteModalOpen = true"
-        >
-          <v-icon class="mr-1" :icon="mdiFileDocument" />
-          New Note
-        </v-btn>
-      </div>
+        <div class="d-flex flex-column w-100">
+          <LinkToDraftNotes />
+          <v-btn
+            v-if="!currentUser.isAdmin"
+            id="batch-note-button"
+            class="mx-3 mt-1"
+            color="primary"
+            :disabled="!!mode"
+            variant="flat"
+            @click="isCreateNoteModalOpen = true"
+          >
+            <v-icon class="mr-1" :icon="mdiFileDocument" />
+            New Note
+          </v-btn>
+        </div>
+        <EditBatchNoteModal
+          initial-mode="createBatch"
+          :is-open="isCreateNoteModalOpen"
+          :on-close="onCreateNoteModalClose"
+          :toggle-show="toggleCreateNoteModal"
+        />
+      </v-banner>
     </div>
-    <EditBatchNoteModal
-      initial-mode="createBatch"
-      :is-open="isCreateNoteModalOpen"
-      :on-close="onCreateNoteModalClose"
-      :toggle-show="toggleCreateNoteModal"
-    />
-  </div>
+  </v-navigation-drawer>
 </template>
 
 <script setup>
@@ -121,15 +123,12 @@ export default {
 </script>
 
 <style>
-.batch-note-button {
-  background-color: rgb(18, 80, 116);
-  padding-top: 10px;
-  width: 16.6%;
+.sidebar.v-navigation-drawer .v-navigation-drawer__content {
+  overflow: unset !important;
 }
-.fixed-bottom-sidebar {
-  bottom: 0;
-  position: fixed;
-  z-index: 2;
+.sidebar-sticky {
+  bottom: 0px;
+  box-shadow: 0px -20px 30px -15px rgba(var(--v-theme-tertiary), 0.7);
 }
 .sidebar-header {
   color: #fff;
@@ -142,11 +141,10 @@ export default {
   font-weight: 600;
 }
 .sidebar-pill {
-  background-color: #8bbdda;
+  background-color: rgb(var(--v-theme-secondary));
   border-radius: 10px;
-  color: #125704;
+  color: rgb(var(--v-theme-quaternary));
   display: inline-block;
-  float: right;
   font-size: 16px;
   font-weight: 800;
   height: 20px;
@@ -155,31 +153,33 @@ export default {
   text-align: center;
 }
 .sidebar-row-link {
-  border-left: 6px solid #125074;
-  color: #8bbdda;
+  border-left: 6px solid transparent;
+  color: rgb(var(--v-theme-secondary));
   font-size: 16px;
+  line-height: 24px;
 }
 .sidebar-row-link:hover,
 .sidebar-row-link:focus,
+.sidebar-row-link:focus-within,
 .sidebar-row-link:active {
-  border-left: 6px solid #f0ad4e !important;
-  background-color: #083456;
+  background-color: rgb(var(--v-theme-quaternary));
   border: 0;
-  color: #f0ad4e;
+  border-left: 6px solid rgb(var(--v-theme-warning)) !important;
+  color: rgb(var(--v-theme-warning));
   text-decoration: none;
-  -moz-outline-style: none;
+  outline-style: none;
 }
 .sidebar-row-link:hover .sidebar-pill,
 .sidebar-row-link:focus .sidebar-pill,
+.sidebar-row-link:focus-within .sidebar-pill,
 .sidebar-row-link:active .sidebar-pill {
-  background-color: #f0ad4e;
-  color: #083456;
+  background-color: rgb(var(--v-theme-warning));
 }
 .sidebar-row-link a:link,
 .sidebar-row-link a:visited {
   text-decoration: none;
   border: 0;
   color: inherit;
-  -moz-outline-style: none;
+  outline-style: none;
 }
 </style>

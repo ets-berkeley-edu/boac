@@ -6,6 +6,7 @@ import {VAlert} from 'vuetify/components/VAlert'
 import {VAppBar, VAppBarTitle} from 'vuetify/components/VAppBar'
 import {VApp} from 'vuetify/components/VApp'
 import {VAutocomplete} from 'vuetify/components/VAutocomplete'
+import {VBanner} from 'vuetify/components/VBanner'
 import {VBtn} from 'vuetify/components/VBtn'
 import {VCard, VCardActions, VCardSubtitle, VCardText, VCardTitle} from 'vuetify/components/VCard'
 import {VCheckbox} from 'vuetify/components/VCheckbox'
@@ -15,11 +16,14 @@ import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDialog} from 'vuetify/components/VDialog'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
+import {VFooter} from 'vuetify/components/VFooter'
 import {VIcon} from 'vuetify/components/VIcon'
 import {VImg} from 'vuetify/components/VImg'
+import {VLayout} from 'vuetify/components/VLayout'
 import {VList, VListItem, VListItemAction, VListItemSubtitle, VListItemTitle} from 'vuetify/components/VList'
 import {VMain} from 'vuetify/components/VMain'
 import {VMenu} from 'vuetify/components/VMenu'
+import {VNavigationDrawer} from 'vuetify/components/VNavigationDrawer'
 import {VOverlay} from 'vuetify/components/VOverlay'
 import {VProgressCircular} from 'vuetify/components/VProgressCircular'
 import {VRadio} from 'vuetify/components/VRadio'
@@ -40,6 +44,7 @@ export default createVuetify({
     VAppBarTitle,
     VAlert,
     VAutocomplete,
+    VBanner,
     VBtn,
     VCard,
     VCardActions,
@@ -58,8 +63,10 @@ export default createVuetify({
     VExpansionPanelText,
     VExpansionPanelTitle,
     VFileInput,
+    VFooter,
     VIcon,
     VImg,
+    VLayout,
     VList,
     VListItem,
     VListItemAction,
@@ -67,6 +74,7 @@ export default createVuetify({
     VListItemTitle,
     VMain,
     VMenu,
+    VNavigationDrawer,
     VOverlay,
     VProgressCircular,
     VRadio,
@@ -107,10 +115,12 @@ export default createVuetify({
           error: '#cf1715',
           info: '#367DA1',
           'pale-blue': '#f3fbff',
-          primary: '#337ab7',
+          primary: '#3b7ea5',
+          quaternary: '#083456',
           red: colors.red.darken1,
           secondary: '#8bbdda',
           success: '#437F4B',
+          tertiary: '#125074',
           warning: '#f0ad4e'
         }
       }

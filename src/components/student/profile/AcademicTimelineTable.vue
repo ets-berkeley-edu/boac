@@ -792,7 +792,7 @@ export default {
   color: #8bbdda;
 }
 .text-icon-exclamation {
-  color: #f0ad4e;
+  color: rgb(var(--v-theme-warning));
 }
 .timeline-query-input {
   box-sizing: border-box;
