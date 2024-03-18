@@ -184,7 +184,7 @@
   }
 }
 .vh-100 {
-  height: 100vh!important;
+  height: 100vh !important;
 }
 a {
   color: #007bff;
@@ -194,6 +194,9 @@ a {
 a:hover {
   color: #0056b3;
   text-decoration: underline
+}
+body,html {
+  height: 100%
 }
 hr {
   margin-top: 1rem;

@@ -1,36 +1,33 @@
 <template>
   <div>
-    <div class="d-flex justify-space-between mb-1 sidebar-row-link">
-      <div class="ml-1" :class="headerClass">
+    <div class="d-flex justify-space-between align-center mb-1 pl-1 pr-2 sidebar-row-link">
+      <div :class="headerClass">
         {{ domain === 'admitted_students' ? 'CE3 Groups' : 'Curated Groups' }}
       </div>
-      <div class="ml-1 mr-2">
-        <NavLink
-          :id="`create-${idFragment}-from-sidebar`"
-          :aria-label="`Create a new ${domainLabel(false)}.`"
-          class="sidebar-create-link"
-          path="/curate"
-          :query-args="{'domain': domain}"
-        >
-          <v-icon :icon="mdiPlus" :class="headerClass" />
-        </NavLink>
-      </div>
+      <NavLink
+        :id="`create-${idFragment}-from-sidebar`"
+        :aria-label="`Create a new ${domainLabel(false)}.`"
+        class="sidebar-create-link"
+        path="/curate"
+        :query-args="{'domain': domain}"
+      >
+        <v-icon color="white" :icon="mdiPlus" size="large" />
+      </NavLink>
     </div>
     <div
       v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', domain])"
       :key="group.id"
-      class="d-flex justify-space-between sidebar-row-link"
+      class="d-flex justify-space-between align-center pl-1 sidebar-row-link"
     >
-      <div class="ml-1 truncate-with-ellipsis">
-        <NavLink
-          :id="`sidebar-${idFragment}-${index}`"
-          :aria-label="`${_capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
-          :path="`/curated/${group.id}`"
-        >
-          {{ group.name }}
-        </NavLink>
-      </div>
-      <div class="ml-1 mr-2">
+      <NavLink
+        :id="`sidebar-${idFragment}-${index}`"
+        :aria-label="`${_capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
+        class="truncate-with-ellipsis"
+        :path="`/curated/${group.id}`"
+      >
+        {{ group.name }}
+      </NavLink>
+      <div class="pl-1 pr-2">
         <span
           :id="`sidebar-${idFragment}-${index}-count`"
           class="sidebar-pill"

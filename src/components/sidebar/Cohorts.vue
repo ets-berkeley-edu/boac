@@ -1,35 +1,30 @@
 <template>
   <div v-if="cohorts">
-    <div class="d-flex justify-space-between mb-1 sidebar-row-link">
-      <div class="ml-1 sidebar-header">
-        Cohorts
-      </div>
-      <div class="ml-1 mr-2">
-        <NavLink
-          id="cohort-create"
-          aria-label="Create cohort"
-          class="sidebar-create-link"
-          path="/cohort/new"
-        >
-          <v-icon :icon="mdiPlus" class="sidebar-header" />
-        </NavLink>
-      </div>
+    <div class="d-flex justify-space-between align-center mb-1 pl-1 pr-2 sidebar-row-link">
+      <div class="sidebar-header">Cohorts</div>
+      <NavLink
+        id="cohort-create"
+        aria-label="Create cohort"
+        class="sidebar-create-link"
+        path="/cohort/new"
+      >
+        <v-icon color="white" :icon="mdiPlus" size="large" />
+      </NavLink>
     </div>
     <div
       v-for="cohort in cohorts"
       :key="cohort.id"
-      class="d-flex justify-space-between sidebar-row-link"
+      class="d-flex justify-space-between align-center pl-1 sidebar-row-link"
     >
-      <div class="ml-1 truncate-with-ellipsis">
-        <NavLink
-          :id="`sidebar-cohort-${cohort.id}`"
-          :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
-          :path="`/cohort/${cohort.id}`"
-        >
-          {{ cohort.name }}
-        </NavLink>
-      </div>
-      <div class="ml-1 mr-2">
+      <NavLink
+        :id="`sidebar-cohort-${cohort.id}`"
+        :aria-label="`Cohort ${cohort.name} has ${cohort.totalStudentCount} students`"
+        class="truncate-with-ellipsis"
+        :path="`/cohort/${cohort.id}`"
+      >
+        {{ cohort.name }}
+      </NavLink>
+      <div class="pl-1 pr-2">
         <span
           :id="`sidebar-cohort-${cohort.id}-total-student-count`"
           class="sidebar-pill"

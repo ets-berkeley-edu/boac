@@ -83,7 +83,7 @@ export default {
   width: 60px;
 }
 .student-avatar-alert-count {
-  background-color: #f0ad4e;
+  background-color: rgb(var(--v-theme-warning));
   border-radius: 15px;
   border: 2px solid #fff;
   color: #fff;
