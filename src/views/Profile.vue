@@ -1,10 +1,12 @@
+Profile
+
 <template>
-  <div class="ml-3 mr-3 mt-3">
+  <div class="pa-6">
     <Spinner />
-    <div v-if="!loading">
+    <div v-if="!useContextStore().loading">
       <div class="align-items-center d-flex pb-3">
-        <div class="pr-2">
-          <v-icon :style="{color: '#3b7ea5'}" :icon="mdiAccountCircle" :size="24" />
+        <div class="pr-2 pt-1">
+          <v-icon :style="{color: '#3b7ea5'}" :icon="mdiAccountCircle" size="x-large" />
         </div>
         <div class="pt-2">
           <h1 class="page-section-header">Profile</h1>
@@ -13,7 +15,7 @@
       <div>
         <MyProfile />
       </div>
-      <div v-if="config.isDemoModeAvailable">
+      <div v-if="useContextStore().config.isDemoModeAvailable">
         <div class="pt-4">
           <h2 class="mb-0 page-section-header-sub">Demo Mode</h2>
         </div>
@@ -28,11 +30,10 @@ import {mdiAccountCircle} from '@mdi/js'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
+import {useContextStore} from '@/stores/context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import MyProfile from '@/components/admin/MyProfile'
 import Spinner from '@/components/util/Spinner'
-import Util from '@/mixins/Util'
 
 export default {
   name: 'Profile',
@@ -41,9 +42,8 @@ export default {
     MyProfile,
     Spinner
   },
-  mixins: [Context, Util],
   mounted() {
-    this.loadingComplete()
+    useContextStore().loadingComplete()
   }
 }
 </script>

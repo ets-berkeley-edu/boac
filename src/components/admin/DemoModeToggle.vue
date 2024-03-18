@@ -10,23 +10,26 @@
           class="avatar student-avatar-large"
         />
       </div>
-      <div class="pl-2 pt-2">
+      <div class="pl-3 ">
         <div v-if="!_isNil(currentUser.inDemoMode)">
-          <b-form-checkbox
+          <v-checkbox
             v-if="!isToggling"
             id="toggle-demo-mode"
             v-model="inDemoMode"
             :disabled="isToggling"
+            :label="`${inDemoMode ? 'On' : 'Off'}`"
+            :aria-label="`Demo mode is ${inDemoMode ? 'On' : 'Off'}`"
             @change="toggle"
           >
-            <span class="sr-only">Demo mode is </span>{{ inDemoMode ? 'On' : 'Off' }}
-          </b-form-checkbox>
+          </v-checkbox>
           <div v-if="isToggling" class="demo-mode-label">
             <v-progress-circular size="small" />
             Toggling demo mode...
           </div>
         </div>
-        <div class="faint-text pt-2">
+        <div class="faint-text"
+             :class="{'text-description': !isToggling}"
+        >
           In demo mode, student profile pictures and sensitive data will be blurred.
         </div>
       </div>
@@ -38,12 +41,13 @@
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
 import {setDemoMode} from '@/api/user'
+import sampleBlurAvatar from '@/assets/sampleBlurAvatar.jpg'
 
 export default {
   name: 'DemoModeToggle',
   mixins: [Context, Util],
   data: () => ({
-    blurAvatarUrl: require('@/assets/sampleBlurAvatar.jpg'),
+    blurAvatarUrl: sampleBlurAvatar,
     inDemoMode: undefined,
     isToggling: undefined
   }),
@@ -66,5 +70,22 @@ export default {
 .demo-mode-label {
   font-weight: 500;
   padding-bottom: 3px;
+}
+
+.img-blur {
+  filter: blur(20px);
+}
+
+.text-description {
+  position: relative;
+  top: -20px;
+  left: 10px;
+}
+
+#avatar-verify-blur {
+  height: 50px;
+  width: auto;
+  border-radius: 50%;
+
 }
 </style>
