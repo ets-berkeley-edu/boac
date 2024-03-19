@@ -54,17 +54,19 @@ import {mdiPlus} from '@mdi/js'
 
 <script>
 import NavLink from '@/components/util/NavLink'
-import Util from '@/mixins/Util'
+import {pluralize} from '@/lib/utils'
 
 export default {
   name: 'MyAdmitCohorts',
   components: {NavLink},
-  mixins: [Util],
   props: {
     cohorts: {
       type: Array,
       required: true
     }
+  },
+  methods: {
+    pluralize
   }
 }
 </script>

@@ -15,13 +15,13 @@
       </NavLink>
     </div>
     <div
-      v-for="(group, index) in _filter(currentUser.myCuratedGroups, ['domain', domain])"
+      v-for="(group, index) in filter(get(useContextStore().currentUser, 'myCuratedGroups'), ['domain', domain])"
       :key="group.id"
       class="d-flex justify-space-between align-center pl-1 sidebar-row-link"
     >
       <NavLink
         :id="`sidebar-${idFragment}-${index}`"
-        :aria-label="`${_capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
+        :aria-label="`${capitalize(domainLabel(false))} ${group.name} has ${group.totalStudentCount} students.`"
         class="truncate-with-ellipsis"
         :path="`/curated/${group.id}`"
       >
@@ -43,15 +43,15 @@ import {mdiPlus} from '@mdi/js'
 </script>
 
 <script>
-import Context from '@/mixins/Context'
 import NavLink from '@/components/util/NavLink'
-import Util from '@/mixins/Util'
 import {describeCuratedGroupDomain} from '@/berkeley'
+import {capitalize, filter, get} from 'lodash'
+import {pluralize} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'CuratedGroups',
   components: {NavLink},
-  mixins: [Context, Util],
   props: {
     domain: {
       type: String,
@@ -72,7 +72,10 @@ export default {
   methods: {
     domainLabel(capitalize) {
       return describeCuratedGroupDomain(this.domain, capitalize)
-    }
+    },
+    get,
+    pluralize,
+    useContextStore
   }
 }
 </script>

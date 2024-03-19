@@ -11,11 +11,11 @@
           <Cohorts :cohorts="myCohorts" />
           <hr class="ml-2 mr-2 section-divider" />
         </div>
-        <div v-if="currentUser.myCuratedGroups">
+        <div v-if="myCuratedGroups">
           <CuratedGroups domain="default" />
           <hr class="ml-2 mr-2 section-divider" />
         </div>
-        <div v-if="currentUser.canAccessAdmittedStudents">
+        <div v-if="get(useContextStore().currentUser, 'canAccessAdmittedStudents')">
           <div class="ml-2 sidebar-header">
             Admitted Students
           </div>
@@ -23,7 +23,7 @@
             <div v-if="myAdmitCohorts" class="py-2">
               <MyAdmitCohorts :cohorts="myAdmitCohorts" />
             </div>
-            <div v-if="currentUser.myCuratedGroups">
+            <div v-if="myCuratedGroups">
               <div class="pt-2">
                 <CuratedGroups domain="admitted_students" header-class="sidebar-sub-header" />
               </div>
@@ -39,7 +39,7 @@
         </div>
       </div>
       <v-banner
-        v-if="currentUser.canAccessAdvisingData"
+        v-if="get(useContextStore().currentUser, 'canAccessAdvisingData')"
         aria-label="Notes"
         :border="'tertiary'"
         class="sidebar-sticky bg-tertiary px-0 py-3"
@@ -48,11 +48,11 @@
         <div class="d-flex flex-column w-100">
           <LinkToDraftNotes />
           <v-btn
-            v-if="!currentUser.isAdmin"
+            v-if="!get(useContextStore().currentUser, 'isAdmin')"
             id="batch-note-button"
             class="mx-3 mt-1"
             color="primary"
-            :disabled="!!mode"
+            :disabled="!!useNoteStore().mode"
             variant="flat"
             @click="isCreateNoteModalOpen = true"
           >
@@ -77,13 +77,14 @@ import {mdiFileDocument} from '@mdi/js'
 
 <script>
 import Cohorts from '@/components/sidebar/Cohorts.vue'
-import Context from '@/mixins/Context'
 import CuratedGroups from '@/components/sidebar/CuratedGroups.vue'
 import EditBatchNoteModal from '@/components/note/EditBatchNoteModal.vue'
 import LinkToDraftNotes from '@/components/sidebar/LinkToDraftNotes.vue'
 import MyAdmitCohorts from '@/components/sidebar/MyAdmitCohorts.vue'
-import NoteEditSession from '@/mixins/NoteEditSession.vue'
-import Util from '@/mixins/Util.vue'
+import {get, filter} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
+import {useContextStore} from '@/stores/context'
+import {useNoteStore} from '@/stores/note-edit-session'
 
 export default {
   name: 'Sidebar',
@@ -94,30 +95,30 @@ export default {
     LinkToDraftNotes,
     MyAdmitCohorts
   },
-  mixins: [
-    Context,
-    NoteEditSession,
-    Util,
-  ],
   data: () => ({
     isCreateNoteModalOpen: false
   }),
   computed: {
     myAdmitCohorts() {
-      return this._filter(this.currentUser.myCohorts, ['domain', 'admitted_students'])
+      return filter(get(useContextStore().currentUser, 'myCohorts'), ['domain', 'admitted_students'])
     },
     myCohorts() {
-      return this._filter(this.currentUser.myCohorts, ['domain', 'default'])
+      return filter(get(useContextStore().currentUser, 'myCohorts'), ['domain', 'default'])
+    },
+    myCuratedGroups() {
+      return get(useContextStore().currentUser, 'myCuratedGroups')
     }
   },
   methods: {
+    get,
     onCreateNoteModalClose() {
       this.isCreateNoteModalOpen = false
-      this.putFocusNextTick('batch-note-button')
+      putFocusNextTick('batch-note-button')
     },
     toggleCreateNoteModal(show) {
       this.isCreateNoteModalOpen = show
-    }
+    },
+    useNoteStore
   }
 }
 </script>
