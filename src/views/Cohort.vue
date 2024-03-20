@@ -110,6 +110,7 @@ import {applyFilters, loadCohort, resetFiltersToLastApply, updateFilterOptions} 
 import {scrollToTop} from '@/lib/utils'
 import {translateSortByOption} from '@/berkeley'
 import {useContextStore} from '@/stores/context'
+import {useRoute} from 'vue-router'
 
 export default {
   name: 'Cohort',
@@ -154,17 +155,18 @@ export default {
     }
   },
   mounted() {
-    const forwardPath = this.$routerHistory.hasForward() && this._get(this.$routerHistory.next(), 'path')
-    const continueExistingSession =
-      (this._startsWith(forwardPath, '/student') || this._startsWith(forwardPath, '/admit/student')) && this._size(this.filters)
+    // TODO: BOAC-5167
+    // const forwardPath = this.$routerHistory.hasForward() && this._get(this.$routerHistory.next(), 'path')
+    // (this._startsWith(forwardPath, '/student') || this._startsWith(forwardPath, '/admit/student')) && this._size(this.filters)
+    const continueExistingSession = false
     if (continueExistingSession) {
       this.showFilters = !this.isCompactView
       this.pageNumber = this.pagination.currentPage
       this.setPageTitle(this.cohortName)
       this.loadingComplete(this.getLoadedAlert())
     } else {
-      const cohortId = this.toInt(this._get(this.$route, 'params.id'))
-      const domain = this.$route.query.domain || 'default'
+      const cohortId = this.toInt(this._get(useRoute(), 'params.id'))
+      const domain = useRoute().query.domain || 'default'
       const orderBy = this._get(this.currentUser.preferences, this.sortByKey)
       const termId = this._get(this.currentUser.preferences, 'termId')
       this.init(cohortId, domain, orderBy, termId).then(() => {
