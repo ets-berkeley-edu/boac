@@ -1,7 +1,7 @@
 <template>
-  <div v-if="isReady" class="align-items-center d-flex pb-1">
+  <div v-if="isReady" class="align-center d-flex pb-1">
     <div>
-      <label id="sort-by" class="font-size-16 mb-0 pr-2 text-nowrap text-medium-emphasis" for="students-sort-by">
+      <label id="sort-by" class="font-size-16 mb-0 pr-2 text-no-wrap text-medium-emphasis" for="students-sort-by">
         Sort<span class="sr-only"> students</span> by
       </label>
     </div>

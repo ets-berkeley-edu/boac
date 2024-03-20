@@ -15,13 +15,13 @@
         block
         class="mb-2 ml-0"
         menu-class="w-100"
-        :toggle-class="`align-items-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-content-between transparent`"
+        :toggle-class="`align-center border-base border-color-${selected ? selected.toLowerCase() : 'lightgrey'} d-flex justify-content-between transparent`"
         variant="close-white"
       >
         <template #button-content>
           <div
             v-if="selected"
-            class="align-items-center d-flex"
+            class="align-center d-flex"
             :class="`accent-color-${selected.toLowerCase()}`"
           >
             <div class="pr-2">
@@ -46,7 +46,7 @@
           :key="hexCode"
           @click="setSelected(colorName)"
         >
-          <div class="align-items-center d-flex" :class="`accent-color-${colorName.toLowerCase()}`">
+          <div class="align-center d-flex" :class="`accent-color-${colorName.toLowerCase()}`">
             <div class="pr-2">
               <v-icon :icon="mdiSquareOutline" />
             </div>

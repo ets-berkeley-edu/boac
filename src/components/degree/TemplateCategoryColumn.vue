@@ -10,8 +10,8 @@
         variant="link"
         @click="add"
       >
-        <div class="align-items-center d-flex justify-content-between">
-          <div class="pr-2 text-nowrap">
+        <div class="align-center d-flex justify-content-between">
+          <div class="pr-2 text-no-wrap">
             Add column {{ position }} requirement
           </div>
           <div>

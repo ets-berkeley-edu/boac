@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isReady" class="align-items-center d-flex pb-1">
+  <div v-if="isReady" class="align-center d-flex pb-1">
     <div>
       <label id="term-select-label" class="font-size-16 mb-0 pr-2 text-medium-emphasis" for="students-term-select">
         <span class="sr-only">Select </span>Term

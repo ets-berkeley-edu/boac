@@ -58,7 +58,7 @@
           Cancel
         </v-btn>
       </div>
-      <div v-if="!mode" class="d-flex align-items-center">
+      <div v-if="!mode" class="d-flex align-center">
         <div v-if="isOwnedByCurrentUser">
           <v-btn
             id="bulk-add-sids-button"

@@ -62,12 +62,12 @@
       <b-btn
         v-if="currentUser.canEditDegreeProgress"
         id="duplicate-existing-course"
-        class="align-items-center d-flex flex-row-reverse p-0"
+        class="align-center d-flex flex-row-reverse p-0"
         :disabled="disableButtons || !options.length"
         variant="link"
         @click.prevent="openMenu"
       >
-        <div class="font-size-16 text-nowrap">
+        <div class="font-size-16 text-no-wrap">
           Duplicate Course
         </div>
         <div class="font-size-14 pr-1">

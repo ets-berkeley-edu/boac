@@ -13,7 +13,7 @@
       :disabled="disabled"
       :lazy="true"
       menu-class="w-100"
-      toggle-class="d-flex justify-content-between align-items-center"
+      toggle-class="d-flex justify-content-between align-center"
       :text="objectType === 'cohort' ? 'Add Cohort' : 'Add Group'"
       :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"
@@ -32,7 +32,7 @@
     </b-dropdown>
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-nowrap">
+        <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-no-wrap">
           <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${objectType}-from-batch-${index}`"

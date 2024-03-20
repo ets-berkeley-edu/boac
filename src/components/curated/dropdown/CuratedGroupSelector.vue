@@ -48,7 +48,7 @@
           </div>
         </template>
         <b-dropdown-item v-if="!myCuratedGroups.length">
-          <span class="text-nowrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
+          <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
         </b-dropdown-item>
         <b-dropdown-item
           v-for="group in myCuratedGroups"

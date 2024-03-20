@@ -22,7 +22,7 @@
     </b-card-header>
     <b-card-body body-class="p-0" role="table">
       <div role="rowgroup">
-        <div role="row" class="student-course-label student-course-header text-nowrap">
+        <div role="row" class="student-course-label student-course-header text-no-wrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
           <div role="columnheader" class="student-course-column-grade">Mid</div>
           <div role="columnheader" class="student-course-column-grade">Final</div>
@@ -65,7 +65,7 @@
           <span v-if="round(_get(term, 'termGpa.gpa', 0), 3) > 0" class="font-size-14">{{ round(_get(term, 'termGpa.gpa', 0), 3) }}</span>
           <span v-else>&mdash;</span>
         </div>
-        <div :id="`term-${term.termId}-units`" class="align-items-center d-flex justify-content-end">
+        <div :id="`term-${term.termId}-units`" class="align-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Total Units: </div>
           <div class="font-size-14 text-right" :class="{'units-total': showMinUnits || showMaxUnits}">
             <span v-if="_get(term, 'enrolledUnits', 0) !== 0">{{ numFormat(term.enrolledUnits, '0.0') }}</span>
@@ -78,11 +78,11 @@
         :id="`term-${term.termId}-units-allowed`"
         class="text-right"
       >
-        <div v-if="showMinUnits" class="align-items-center d-flex justify-content-end">
+        <div v-if="showMinUnits" class="align-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Exception Min Units: </div>
           <div :id="`term-${term.termId}-min-units`" class="font-size-14 units-total">{{ numFormat(term.minTermUnitsAllowed, '0.0') }}</div>
         </div>
-        <div v-if="showMaxUnits" class="align-items-center d-flex justify-content-end">
+        <div v-if="showMaxUnits" class="align-center d-flex justify-content-end">
           <div class="student-course-label align-right mr-1">Exception Max Units: </div>
           <div :id="`term-${term.termId}-max-units`" class="font-size-14 units-total">{{ numFormat(term.maxTermUnitsAllowed, '0.0') }}</div>
         </div>

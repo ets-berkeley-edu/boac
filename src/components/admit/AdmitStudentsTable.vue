@@ -4,14 +4,14 @@
       <tr>
         <th v-if="includeCuratedCheckbox || removeStudent" class="pt-3"></th>
         <th class="align-top pt-3">Name</th>
-        <th class="align-top pt-3 text-nowrap">CS ID</th>
+        <th class="align-top pt-3 text-no-wrap">CS ID</th>
         <th class="align-top pt-3">SIR</th>
         <th class="align-top pt-3">CEP</th>
-        <th class="align-top pt-3 text-nowrap">Re-entry</th>
-        <th class="align-top pt-3 text-nowrap">1st Gen</th>
+        <th class="align-top pt-3 text-no-wrap">Re-entry</th>
+        <th class="align-top pt-3 text-no-wrap">1st Gen</th>
         <th class="align-top pt-3">UREM</th>
         <th class="align-top pt-3">Waiver</th>
-        <th class="align-top pt-3 text-nowrap">INT'L</th>
+        <th class="align-top pt-3 text-no-wrap">INT'L</th>
         <th class="align-top pt-3">Freshman or Transfer</th>
       </tr>
     </thead>

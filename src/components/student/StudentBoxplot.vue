@@ -121,7 +121,7 @@ export default {
           borderColor: '#eee',
           borderRadius: 16,
           headerFormat: `
-            <div class="align-items-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-content-between px-3 py-2">
+            <div class="align-center boxplot-tooltip-font-family boxplot-tooltip-header d-flex justify-content-between px-3 py-2">
               <div>User Score</div>
               <div class="ml-3 pl-5">${this._get(this.dataset.student, 'raw') || '&mdash;'}</div>
             </div>
@@ -131,23 +131,23 @@ export default {
           padding: 0,
           pointFormat: `
             <div class="boxplot-tooltip-font-family px-3 py-2 w-100">
-              <div class="align-items-center d-flex justify-content-between">
+              <div class="align-center d-flex justify-content-between">
                 <div>Maximum</div>
                 <div class="ml-3 pl-5">${this.getCourseDecile(10) || '&mdash;'}</div>
               </div>
-              <div class="align-items-center d-flex justify-content-between pt-1">
+              <div class="align-center d-flex justify-content-between pt-1">
                 <div>70th Percentile</div>
                 <div class="ml-3 pl-5">${this.getCourseDecile(7) || '&mdash;'}</div>
               </div>
-              <div class="align-items-center d-flex justify-content-between pt-1">
+              <div class="align-center d-flex justify-content-between pt-1">
                 <div>50th Percentile</div>
                 <div class="ml-3 pl-5">${this.getCourseDecile(5) || '&mdash;'}</div>
               </div>
-              <div class="align-items-center d-flex justify-content-between pt-1">
+              <div class="align-center d-flex justify-content-between pt-1">
                 <div>30th Percentile</div>
                 <div class="ml-3 pl-5">${this.getCourseDecile(3) || '&mdash;'}</div>
               </div>
-              <div class="align-items-center d-flex justify-content-between pt-1">
+              <div class="align-center d-flex justify-content-between pt-1">
                 <div>Minimum</div>
                 <div class="ml-3 pl-5">${this.getCourseDecile(0) || '&mdash;'}</div>
               </div>

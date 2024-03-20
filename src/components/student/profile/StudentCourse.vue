@@ -36,7 +36,7 @@
           Waitlisted
         </div>
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-no-wrap">
         <span
           v-if="course.midtermGrade"
           :id="`term-${termId}-course-${index}-midterm-grade`"
@@ -53,7 +53,7 @@
           class="boac-exclamation"
         />
       </div>
-      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-nowrap">
+      <div role="cell" class="d-flex pt-1 px-1 student-course-column-grade text-no-wrap">
         <span
           v-if="course.grade"
           :id="`term-${termId}-course-${index}-final-grade`"
@@ -78,7 +78,7 @@
         />
         <span v-if="!course.grade && !course.gradingBasis" :id="`term-${termId}-course-${index}-final-grade`"><span class="sr-only">No data</span>&mdash;</span>
       </div>
-      <div role="cell" class="student-course-column-units font-size-14 text-nowrap pt-1 pl-1">
+      <div role="cell" class="student-course-column-units font-size-14 text-no-wrap pt-1 pl-1">
         <span :id="`term-${termId}-course-${index}-units`">{{ numFormat(course.units, '0.0') }}</span>
       </div>
     </div>
@@ -178,7 +178,7 @@
                   <span v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
                     Score:
                     <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
-                    <span class="text-muted text-nowrap">
+                    <span class="text-muted text-no-wrap">
                       (Maximum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[10] }})
                     </span>
                   </span>
@@ -226,13 +226,13 @@
                   <span v-if="canvasSite.analytics.currentScore.courseDeciles">
                     Score:
                     <strong>{{ canvasSite.analytics.currentScore.student.raw }}</strong>
-                    <span class="text-muted text-nowrap">
+                    <span class="text-muted text-no-wrap">
                       (Maximum: {{ canvasSite.analytics.currentScore.courseDeciles[10] }})
                     </span>
                   </span>
                   <span
                     v-if="!canvasSite.analytics.currentScore.courseDeciles"
-                    class="font-italic text-muted text-nowrap"
+                    class="font-italic text-muted text-no-wrap"
                   >
                     No Data
                   </span>
@@ -263,9 +263,9 @@
       <div
         v-for="section in sectionsWithIncompleteStatus"
         :key="section.ccn"
-        class="align-items-center d-flex pb-2"
+        class="align-center d-flex pb-2"
       >
-        <div class="align-items-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
+        <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-no-wrap">
           <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
           <span class="font-size-12">Incomplete Grade</span>
         </div>

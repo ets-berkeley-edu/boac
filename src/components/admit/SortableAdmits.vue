@@ -10,7 +10,7 @@
       :sort-compare="sortCompare"
       :sort-desc.sync="sortDescending"
       stacked="md"
-      thead-class="sortable-table-header text-nowrap"
+      thead-class="sortable-table-header text-no-wrap"
     >
       <template #cell(curated)="row">
         <CuratedStudentCheckbox

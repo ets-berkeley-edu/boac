@@ -12,7 +12,7 @@
         small
       >
         <b-thead class="border-bottom">
-          <b-tr class="sortable-table-header text-nowrap">
+          <b-tr class="sortable-table-header text-no-wrap">
             <b-th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to assign course</span>
             </b-th>
@@ -62,7 +62,7 @@
                 </div>
               </td>
               <td class="td-name">
-                <div class="align-items-center d-flex pt-1">
+                <div class="align-center d-flex pt-1">
                   <div
                     :class="{
                       'font-weight-500': isEditing(course),

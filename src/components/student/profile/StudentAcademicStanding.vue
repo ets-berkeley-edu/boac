@@ -4,7 +4,7 @@
     class="student-academic-standing"
   >
     <span :id="`${rowIndex ? rowIndex + '-' : ''}academic-standing-term-${termId}`" class="red-flag-status">
-      {{ config.academicStandingDescriptions[standing.status] || standing.status }} <span class="text-nowrap">({{ termName }})</span>
+      {{ config.academicStandingDescriptions[standing.status] || standing.status }} <span class="text-no-wrap">({{ termName }})</span>
     </span>
   </div>
 </template>

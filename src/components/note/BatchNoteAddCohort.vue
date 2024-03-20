@@ -42,7 +42,7 @@
       <template #selection="{item, index}">
         <v-chip
           :id="`batch-note-${type}-${index}`"
-          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap"
           closable
           :close-label="`Remove ${type} ${item.title}`"
           density="comfortable"

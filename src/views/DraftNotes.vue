@@ -16,7 +16,7 @@
         :items="myDraftNotes"
         responsive
         stacked="md"
-        thead-class="text-nowrap text-medium-emphasis text-uppercase"
+        thead-class="text-no-wrap text-medium-emphasis text-uppercase"
         :tbody-tr-attr="item => ({id: `draft-note-${item.id}`})"
       >
         <template #cell(student)="row">
@@ -40,7 +40,7 @@
           </span>
         </template>
         <template #cell(subject)="row">
-          <div class="align-items-center d-flex justify-content-between">
+          <div class="align-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                 {{ _trim(row.item.subject) || config.draftNoteSubjectPlaceholder }}
@@ -204,7 +204,7 @@ export default {
     }
     this.fields.push(
       {
-        class: 'text-nowrap w-5',
+        class: 'text-no-wrap w-5',
         key: 'updatedAt',
         label: 'Date'
       },

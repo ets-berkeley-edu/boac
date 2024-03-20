@@ -9,7 +9,7 @@
   >
     <b-row>
       <b-col class="pb-3 pb-xl-0" xl="4" md="6">
-        <div class="align-items-center d-flex">
+        <div class="align-center d-flex">
           <div v-if="listType === 'curatedGroupForOwner'">
             <button
               :id="`row-${rowIndex}-remove-student-from-curated-group`"
@@ -23,7 +23,7 @@
           </div>
           <div class="d-flex flex-column flex-sm-row">
             <div>
-              <div class="align-items-center d-flex">
+              <div class="align-center d-flex">
                 <div v-if="listType === 'cohort'" class="mr-3">
                   <CuratedStudentCheckbox domain="default" :student="student" />
                 </div>

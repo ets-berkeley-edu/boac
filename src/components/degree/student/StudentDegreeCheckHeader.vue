@@ -84,7 +84,7 @@
         <b-col cols="8">
           <div v-if="isEditingNote || noteBody" class="d-flex justify-content-between">
             <div>
-              <h3 class="font-size-20 font-weight-bold text-nowrap">Degree Notes</h3>
+              <h3 class="font-size-20 font-weight-bold text-no-wrap">Degree Notes</h3>
             </div>
             <div class="align-items-baseline d-flex justify-content-end">
               <label for="degree-note-print-toggle" class="faint-text font-weight-500 pr-3">
@@ -118,13 +118,13 @@
           </b-btn>
         </b-col>
         <b-col cols="4">
-          <h3 class="font-size-20 font-weight-bold mb-1 text-nowrap">In-progress courses</h3>
+          <h3 class="font-size-20 font-weight-bold mb-1 text-no-wrap">In-progress courses</h3>
         </b-col>
       </b-row>
       <b-row align-v="start">
         <b-col cols="8">
           <div v-if="noteBody && !isEditingNote && (noteUpdatedAt || noteUpdatedBy)" class="d-flex font-size-14">
-            <div v-if="noteUpdatedBy" class="pr-2 text-nowrap">
+            <div v-if="noteUpdatedBy" class="pr-2 text-no-wrap">
               <span v-if="noteUpdatedBy" class="faint-text font-weight-normal">
                 <span id="degree-note-updated-by">{{ noteUpdatedBy }}</span>
               </span>

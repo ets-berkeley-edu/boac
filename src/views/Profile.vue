@@ -4,7 +4,7 @@ Profile
   <div class="pa-6">
     <Spinner />
     <div v-if="!useContextStore().loading">
-      <div class="align-items-center d-flex pb-3">
+      <div class="align-center d-flex pb-3">
         <div class="pr-2 pt-1">
           <v-icon :style="{color: '#3b7ea5'}" :icon="mdiAccountCircle" size="x-large" />
         </div>

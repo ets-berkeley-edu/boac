@@ -11,7 +11,7 @@
     :sort-by.sync="sortBy"
     :sort-compare="sortCompare"
     :sort-desc.sync="sortDescending"
-    thead-class="sortable-table-header text-nowrap"
+    thead-class="sortable-table-header text-no-wrap"
   >
     <template #headers="{columns, isSorted, getSortIcon, toggleSort}">
       <tr>
@@ -114,7 +114,7 @@
       <div>
         <span class="sr-only">Expected graduation term</span>
         <div v-if="!item.expectedGraduationTerm">--<span class="sr-only">No data</span></div>
-        <span class="text-nowrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
+        <span class="text-no-wrap">{{ abbreviateTermName(item.expectedGraduationTerm && item.expectedGraduationTerm.name) }}</span>
       </div>
     </template>
     <template v-if="!options.compact" #item.enrolledUnits="{item}">

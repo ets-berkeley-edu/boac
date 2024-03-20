@@ -14,7 +14,7 @@
       @dragstart="onDrag($event, 'start')"
       @drop="onDropCourse($event)"
     >
-      <div class="align-items-center d-flex justify-content-between w-100">
+      <div class="align-center d-flex justify-content-between w-100">
         <h3
           v-if="category.categoryType === 'Category'"
           class="category-header"
@@ -29,7 +29,7 @@
         >
           {{ category.name }}
         </h4>
-        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
+        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
           <b-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             class="pr-1 pt-0"

@@ -28,7 +28,7 @@
       <template #selection="{item, index}">
         <v-chip
           :id="`${notePrefix}-topic-${index}`"
-          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap"
+          class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap"
           closable
           :close-label="`Remove ${item}`"
           density="comfortable"
