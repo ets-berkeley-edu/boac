@@ -6,20 +6,23 @@
       <div v-if="domain === 'admitted_students' && students" class="pb-2">
         <AdmitDataWarning :updated-at="_get(students, '[0].updatedAt')" />
       </div>
-      <b-collapse
-        id="show-hide-filters"
-        v-model="showFilters"
-        class="mr-3 mb-3"
-      >
-        <FilterRow
-          v-for="(filter, index) in filters"
-          :key="filterRowUniqueKey(filter, index)"
-          class="filter-row"
-          :position="index"
-        />
-        <FilterRow v-if="isOwnedByCurrentUser" />
-        <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
-      </b-collapse>
+      <v-expand-transition>
+        <v-card
+          v-show="showFilters"
+          id="show-hide-filters"
+          flat
+          tile
+        >
+          <FilterRow
+            v-for="(filter, index) in filters"
+            :key="filterRowUniqueKey(filter, index)"
+            class="filter-row"
+            :position="index"
+          />
+          <FilterRow v-if="isOwnedByCurrentUser" />
+          <ApplyAndSaveButtons v-if="isOwnedByCurrentUser" />
+        </v-card>
+      </v-expand-transition>
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
         <div class="align-center d-flex justify-content-between mr-3 pt-1">
@@ -132,7 +135,7 @@ export default {
   mixins: [CohortEditSession, Context, Util],
   data: () => ({
     pageNumber: undefined,
-    showFilters: undefined,
+    showFilters: false,
     showHistory: false
   }),
   computed: {
