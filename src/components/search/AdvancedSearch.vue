@@ -193,19 +193,21 @@ export default {
   border-color: white;
   color: black;
 }
+/*
 .simple-typeahead {
-  /*display: inline-block;*/
-  /*flex-basis: 0%;*/
-  /*flex-grow: 1;*/
-  /*flex-shrink: 1;*/
-  /*font-feature-settings: normal;*/
-  /*font-kerning: auto;*/
-  /*font-optical-sizing: auto;*/
-  /*font-size: 16px;*/
-  /*height: 50px;*/
-  /*margin: 0;*/
-  /*outline-offset: -2px;*/
-  //overflow-x: visible;
-  //overflow-y: visible;
+  display: inline-block;
+  onClickClearflex-basis: 0%;
+  onClickClearflex-grow: 1;
+  onClickClearflex-shrink: 1;
+  onClickClearfont-feature-settings: normal;
+  onClickClearfont-kerning: auto;
+  onClickClearfont-optical-sizing: auto;
+  onClickClearfont-size: 16px;
+  onClickClearheight: 50px;
+  onClickClearmargin: 0;
+  onClickClearoutline-offset: -2px;
+  onClickClearoverflow-x: visible;
+  onClickClearoverflow-y: visible;
 }
+*/
 </style>
