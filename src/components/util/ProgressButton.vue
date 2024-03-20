@@ -9,7 +9,7 @@
       <div v-if="inProgress" class="pr-1">
         <v-progress-circular indeterminate size="18" />
       </div>
-      <span class="text-nowrap">
+      <span class="text-no-wrap">
         <slot></slot>
       </span>
     </div>

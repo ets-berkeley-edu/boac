@@ -4,7 +4,7 @@
       <b-col>
         <div class="align-items-start d-flex flex-row justify-content-between">
           <h3
-            class="font-weight-bold pb-0 pr-2 text-nowrap"
+            class="font-weight-bold pb-0 pr-2 text-no-wrap"
             :class="{'font-size-14': printable, 'font-size-20': !printable}"
           >
             Unit Requirements
@@ -18,7 +18,7 @@
               @click.prevent="onClickAdd"
             >
               <div class="align-center d-flex justify-content-between">
-                <div class="pr-2 text-nowrap">
+                <div class="pr-2 text-no-wrap">
                   Add unit requirement
                 </div>
                 <div>
@@ -45,7 +45,7 @@
             :items="_filter(items, item => item.type === 'unitRequirement' || item.isExpanded)"
             small
             :tbody-tr-attr="getTableRowAttributes"
-            thead-class="sortable-table-header text-nowrap border-bottom"
+            thead-class="sortable-table-header text-no-wrap border-bottom"
           >
             <template v-if="sid && !printable" #cell(name)="row">
               <div v-if="row.item.type === 'course'" class="pl-3">

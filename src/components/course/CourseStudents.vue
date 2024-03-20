@@ -150,7 +150,7 @@
             <div>30th Percentile: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[3] }}</div>
             <div>Minimum: {{ canvasSite.analytics.assignmentsSubmitted.courseDeciles[0] }}</div>
           </div>
-          <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="font-size-14 text-nowrap">
+          <div v-if="!canvasSite.analytics.assignmentsSubmitted.boxPlottable" class="font-size-14 text-no-wrap">
             <div v-if="canvasSite.analytics.assignmentsSubmitted.courseDeciles">
               <strong>{{ canvasSite.analytics.assignmentsSubmitted.student.raw }}</strong>
               <span class="faint-text">

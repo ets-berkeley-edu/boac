@@ -65,8 +65,8 @@
               :key="index"
               :class="{'bg-light': index % 2 === 0}"
             >
-              <td class="text-nowrap">{{ term.name }}</td>
-              <td class="text-nowrap text-right">
+              <td class="text-no-wrap">{{ term.name }}</td>
+              <td class="text-no-wrap text-right">
                 <v-icon v-if="term.gpa < 2" :icon="mdiAlertRhombus" class="text-danger pr-2" />
                 <span v-if="term.gpa < 2" class="sr-only">Low GPA in {{ term.name }}: </span>
                 <span

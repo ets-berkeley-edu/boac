@@ -124,12 +124,12 @@ export default {
             <div class="units-chart-font-family w-100">
               <div class="align-center d-flex">
                 <div><div style="background-color: #aec9eb; height: 12px; width: 12px;"></div></div>
-                <div class="pl-1 text-left text-nowrap">Units Completed</div>
+                <div class="pl-1 text-left text-no-wrap">Units Completed</div>
                 <div class="font-weight-bold pl-2 text-right w-100">${this.cumulativeUnits || '0'}</div>
               </div>
               <div class="align-center d-flex w-100">
                 <div><div style="background-color: #d6e4f9; height: 12px; width: 12px;"></div></div>
-                <div class="pl-1 text-left text-nowrap">Currently Enrolled Units</div>
+                <div class="pl-1 text-left text-no-wrap">Currently Enrolled Units</div>
                 <div class="font-weight-bold pl-2 text-right w-100">${this.currentEnrolledUnits || '0'}</div>
               </div>
             </div>

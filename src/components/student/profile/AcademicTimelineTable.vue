@@ -22,7 +22,7 @@
         <label
           :id="`timeline-${filter}s-query-label`"
           :for="`timeline-${filter}s-query-input`"
-          class="mb-0 ml-2 mr-1 text-nowrap"
+          class="mb-0 ml-2 mr-1 text-no-wrap"
         >
           Search {{ filter === 'eForm' ? 'eForm' : _capitalize(filter) }}s:
         </label>
@@ -104,7 +104,7 @@
           </td>
           <td></td>
           <td>
-            <div class="align-top pr-2 float-right text-nowrap text-muted">
+            <div class="align-top pr-2 float-right text-no-wrap text-muted">
               <TimelineDate
                 :date="new Date()"
                 :include-time-of-day="false"
@@ -243,7 +243,7 @@
           <td class="column-right align-top">
             <div
               :id="`timeline-tab-${activeTab}-date-${index}`"
-              class="pt-2 pr-2 text-nowrap"
+              class="pt-2 pr-2 text-no-wrap"
             >
               <div v-if="!_includes(openMessages, message.transientId) || !_includes(['appointment', 'eForm', 'note'], message.type)">
                 <TimelineDate

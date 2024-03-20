@@ -8,7 +8,7 @@
         small
       >
         <b-thead class="border-bottom">
-          <b-tr class="sortable-table-header text-nowrap">
+          <b-tr class="sortable-table-header text-no-wrap">
             <b-th v-if="hasAssignedCourses && canEdit" class="px-0 th-course-assignment-menu">
               <span v-if="hasAssignedCourses" class="sr-only">Options to re-assign course</span>
               <span v-if="!hasAssignedCourses" class="sr-only">Recommended?</span>
@@ -145,7 +145,7 @@
                   :class="{
                     'faint-text font-italic': !bundle.course && !getAccentColor(bundle),
                     'font-size-12': printable,
-                    'font-size-14 text-nowrap': !printable
+                    'font-size-14 text-no-wrap': !printable
                   }"
                 >
                   {{ getGrade(bundle) }}
@@ -219,7 +219,7 @@
                 </div>
               </td>
               <td v-if="canEdit && (sid || !isCampusRequirements)" class="td-actions">
-                <div class="d-flex justify-content-end text-nowrap">
+                <div class="d-flex justify-content-end text-no-wrap">
                   <div class="btn-container">
                     <b-btn
                       v-if="!isUserDragging(_get(bundle.course, 'id'))"

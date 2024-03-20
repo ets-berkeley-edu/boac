@@ -16,7 +16,7 @@
         :items="myDraftNotes"
         responsive
         stacked="md"
-        thead-class="text-nowrap text-medium-emphasis text-uppercase"
+        thead-class="text-no-wrap text-medium-emphasis text-uppercase"
         :tbody-tr-attr="item => ({id: `draft-note-${item.id}`})"
       >
         <template #cell(student)="row">
@@ -204,7 +204,7 @@ export default {
     }
     this.fields.push(
       {
-        class: 'text-nowrap w-5',
+        class: 'text-no-wrap w-5',
         key: 'updatedAt',
         label: 'Date'
       },

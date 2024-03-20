@@ -62,7 +62,7 @@
               <v-progress-circular size="small" />
             </div>
             <div>
-              <span class="text-nowrap">Search<span v-if="isSearching">ing</span></span>
+              <span class="text-no-wrap">Search<span v-if="isSearching">ing</span></span>
             </div>
           </div>
         </v-btn>

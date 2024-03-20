@@ -23,7 +23,7 @@
         to="/degree/new"
       >
         <div class="align-center d-inline-flex flex-nowrap">
-          <div class="order-2 text-nowrap">
+          <div class="order-2 text-no-wrap">
             Create new degree check
           </div>
           <div class="order-1 pr-2">
@@ -38,7 +38,7 @@
         class="w-25"
         to="/degree/batch"
       >
-        <span class="text-nowrap">Batch degree checks</span>
+        <span class="text-no-wrap">Batch degree checks</span>
       </router-link>
     </div>
     <div v-if="!loading">
@@ -60,7 +60,7 @@
           small
           stacked="md"
           striped
-          thead-class="sortable-table-header text-nowrap"
+          thead-class="sortable-table-header text-no-wrap"
         >
           <template #cell(name)="row">
             <div

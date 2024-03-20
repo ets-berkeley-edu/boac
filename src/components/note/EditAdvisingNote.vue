@@ -105,7 +105,7 @@
           @click.stop
           @keyup.stop
         >
-          <span class="pill pill-attachment text-nowrap">
+          <span class="pill pill-attachment text-no-wrap">
             <v-icon :icon="mdiPaperclip" class="pr-1 pl-1" />
             {{ attachment.displayName }}
           </span>

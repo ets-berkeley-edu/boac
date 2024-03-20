@@ -22,7 +22,7 @@
     </b-card-header>
     <b-card-body body-class="p-0" role="table">
       <div role="rowgroup">
-        <div role="row" class="student-course-label student-course-header text-nowrap">
+        <div role="row" class="student-course-label student-course-header text-no-wrap">
           <div role="columnheader" class="student-course-column-name">Course</div>
           <div role="columnheader" class="student-course-column-grade">Mid</div>
           <div role="columnheader" class="student-course-column-grade">Final</div>

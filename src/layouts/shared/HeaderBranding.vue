@@ -11,7 +11,7 @@
       class="font-size-16 header-text text-white"
       role="banner"
     >
-      <div v-if="_startsWith($route.path, '/home')" class="text-nowrap">
+      <div v-if="_startsWith($route.path, '/home')" class="text-no-wrap">
         <span class="font-weight-bold">UC Berkeley</span>
         Online Advising
       </div>

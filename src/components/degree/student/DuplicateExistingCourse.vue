@@ -67,7 +67,7 @@
         variant="link"
         @click.prevent="openMenu"
       >
-        <div class="font-size-16 text-nowrap">
+        <div class="font-size-16 text-no-wrap">
           Duplicate Course
         </div>
         <div class="font-size-14 pr-1">

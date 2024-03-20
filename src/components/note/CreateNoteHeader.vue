@@ -55,7 +55,7 @@
               <v-btn
                 :id="`load-note-template-${item.raw.id}`"
                 :title="title"
-                class="text-nowrap template-dropdown-title truncate-with-ellipsis"
+                class="text-no-wrap template-dropdown-title truncate-with-ellipsis"
                 color="primary"
                 density="compact"
                 variant="text"

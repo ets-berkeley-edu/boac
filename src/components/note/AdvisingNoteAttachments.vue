@@ -65,7 +65,7 @@
         >
           <v-chip
             :id="`new-note-attachment-${index}`"
-            class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap mt-1"
+            class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap mt-1"
             closable
             :close-label="`Remove attachment ${attachment.displayName}`"
             density="comfortable"

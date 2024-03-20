@@ -123,7 +123,7 @@
             :key="topic"
             class="mt-2"
           >
-            <span class="pill pill-attachment text-uppercase text-nowrap">{{ topic }}</span>
+            <span class="pill pill-attachment text-uppercase text-no-wrap">{{ topic }}</span>
           </li>
         </ul>
       </div>
@@ -150,7 +150,7 @@
           :key="attachment.name"
           class="mt-2"
         >
-          <span class="pill pill-attachment text-nowrap">
+          <span class="pill pill-attachment text-no-wrap">
             <a
               :id="`note-${note.id}-attachment-${index}`"
               :href="downloadUrl(attachment)"

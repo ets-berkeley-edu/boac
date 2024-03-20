@@ -2,9 +2,9 @@
   <div class="ml-3 mr-3 mt-3">
     <Spinner />
     <div class="d-flex flex-wrap align-items-baseline justify-content-between">
-      <h1 id="page-header" class="page-section-header text-nowrap mr-2">Batch Degree Checks</h1>
+      <h1 id="page-header" class="page-section-header text-no-wrap mr-2">Batch Degree Checks</h1>
       <router-link id="manage-degrees-link" to="/degrees">
-        <div class="text-nowrap">
+        <div class="text-no-wrap">
           Manage degree checks
         </div>
       </router-link>
@@ -63,7 +63,7 @@
           </b-btn>
         </div>
         <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="mb-3">
-          <span class="font-weight-bolder truncate pill pill-attachment text-uppercase text-nowrap pl-2">
+          <span class="font-weight-bolder truncate pill pill-attachment text-uppercase text-no-wrap pl-2">
             <span :id="`batch-note-student-${index}`" :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ addedStudent.label }}</span>
             <b-btn
               :id="`remove-student-from-batch-${index}`"

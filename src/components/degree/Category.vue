@@ -29,7 +29,7 @@
         >
           {{ category.name }}
         </h4>
-        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-nowrap">
+        <div v-if="!sid && canEdit" class="align-items-start d-flex justify-content-end text-no-wrap">
           <b-btn
             :id="`column-${position}-edit-category-${category.id}-btn`"
             class="pr-1 pt-0"

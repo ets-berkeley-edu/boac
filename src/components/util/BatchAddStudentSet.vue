@@ -32,7 +32,7 @@
     </b-dropdown>
     <div>
       <div v-for="(addedObject, index) in added" :key="addedObject.id" class="mb-1">
-        <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-nowrap">
+        <span class="font-weight-bolder pill pill-attachment pl-2 text-uppercase text-no-wrap">
           <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${objectType}-from-batch-${index}`"

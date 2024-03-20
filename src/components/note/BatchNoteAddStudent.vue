@@ -57,7 +57,7 @@
     <div v-for="(addedStudent, index) in addedStudents" :key="addedStudent.sid" class="pb-1">
       <v-chip
         :id="`batch-note-student-${index}`"
-        class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-nowrap truncate-with-ellipsis"
+        class="v-chip-content-override font-weight-bold text-medium-emphasis text-uppercase text-no-wrap truncate-with-ellipsis"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         closable
         :close-label="`Remove ${addedStudent.label} from batch note`"

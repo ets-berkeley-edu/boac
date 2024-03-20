@@ -12,7 +12,7 @@
         small
       >
         <b-thead class="border-bottom">
-          <b-tr class="sortable-table-header text-nowrap">
+          <b-tr class="sortable-table-header text-no-wrap">
             <b-th v-if="currentUser.canEditDegreeProgress" class="th-course-assignment-menu">
               <span class="sr-only">Options to assign course</span>
             </b-th>
