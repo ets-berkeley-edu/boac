@@ -5,23 +5,23 @@ const EDIT_MODE_TYPES = ['add', 'apply', 'edit-[0-9]+', 'rename']
 
 export const useCohortStore = defineStore('cohort', {
   state: () => ({
-    cohortId: undefined,
-    cohortName: undefined,
+    cohortId: undefined as number | undefined,
+    cohortName: undefined as string | null | undefined,
     cohortOwner() {
       return this.isOwnedByCurrentUser ? 'me' : this.cohortOwnerUid
     },
     cohortOwnerUid: undefined,
-    domain: undefined,
-    editMode: undefined,
-    filterOptionGroups: undefined,
-    filters: undefined,
-    isCompactView: undefined,
-    isModifiedSinceLastSearch: undefined,
-    isOwnedByCurrentUser: undefined,
+    domain: undefined as string | null | undefined,
+    editMode: undefined as string | null | undefined,
+    filterOptionGroups: [] as any[],
+    filters: [] as any[],
+    isCompactView: false,
+    isModifiedSinceLastSearch: false,
+    isOwnedByCurrentUser: false,
     orderBy: undefined,
-    originalFilters: undefined,
+    originalFilters: [] as any[],
     pagination: {
-      currentPage: undefined,
+      currentPage: undefined as number | null | undefined,
       itemsPerPage: 50
     },
     showApplyButton() {
@@ -31,7 +31,7 @@ export const useCohortStore = defineStore('cohort', {
       return this.isModifiedSinceLastSearch === false
     },
     showSortBy() {
-      return !this.isModifiedSinceLastSearch && this.totalStudentCount > 1
+      return !this.isModifiedSinceLastSearch && (this.totalStudentCount || 0) > 1
     },
     students: undefined,
     termId: undefined,
@@ -44,7 +44,7 @@ export const useCohortStore = defineStore('cohort', {
     setCompactView(compactView: boolean) {
       return this.isCompactView = compactView
     },
-    setEditMode(editMode: string) {
+    setEditMode(editMode: string | null) {
       if (isNil(editMode)) {
         this.editMode = null
       } else if (find(EDIT_MODE_TYPES, type => editMode.match(type))) {

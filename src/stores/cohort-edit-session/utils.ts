@@ -2,7 +2,7 @@ import {getCohort, getCohortFilterOptions, getStudentsPerFilters, translateToFil
 import {get, size} from 'lodash'
 import {useCohortStore} from '@/stores/cohort-edit-session/index'
 
-export function updateFilterOptions(domain: string, owner: string, existingFilters: any[]) {
+export function updateFilterOptions(domain: string, owner: string | undefined, existingFilters: any[]) {
   return new Promise<void>(resolve => {
     getCohortFilterOptions(domain, owner, existingFilters).then(data => {
       useCohortStore().updateFilterOptions(data)
@@ -16,15 +16,15 @@ export function applyFilters(orderBy: string, termId: string) {
     const filters = useCohortStore().filters
     if (size(filters)) {
       useCohortStore().setEditMode('apply')
-      const cohortId: number = useCohortStore().cohortId
-      const isOwnedByCurrentUser: boolean = useCohortStore().isOwnedByCurrentUser
+      const cohortId: number = Number(useCohortStore().cohortId)
+      const isOwnedByCurrentUser: boolean = Boolean(useCohortStore().isOwnedByCurrentUser)
       const pagination: any = useCohortStore().pagination
       const limit: number = pagination.itemsPerPage
       const offset: number = (pagination.currentPage - 1) * limit
       const isReadOnly: boolean = !!cohortId && !isOwnedByCurrentUser
 
       const done = data => {
-        useCohortStore().updateStudents(data.students, data.totalStudentCount)
+        useCohortStore().updateStudents({students: data.students, totalStudentCount: data.totalStudentCount})
         useCohortStore().stashOriginalFilters()
         useCohortStore().setEditMode(null)
         resolve()
@@ -32,7 +32,7 @@ export function applyFilters(orderBy: string, termId: string) {
       if (isReadOnly) {
         getCohort(cohortId, true, limit, offset, orderBy, termId).then(done)
       } else {
-        const domain = useCohortStore().domain
+        const domain = String(useCohortStore().domain)
         getStudentsPerFilters(domain, filters, orderBy, termId, offset, limit).then(done)
       }
     } else {
@@ -73,8 +73,8 @@ export function resetFiltersToLastApply() {
     useCohortStore().setEditMode(null)
     useCohortStore().setModifiedSinceLastSearch(false)
 
-    const cohortOwner = useCohortStore().cohortOwner
-    const domain = useCohortStore().domain
+    const cohortOwner = useCohortStore().cohortOwner()
+    const domain = String(useCohortStore().domain)
     const filters = useCohortStore().filters
     updateFilterOptions(domain, cohortOwner, filters).then(resolve)
   })

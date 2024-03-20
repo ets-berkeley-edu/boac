@@ -63,6 +63,7 @@ import Util from '@/mixins/Util'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useRouter} from 'vue-router'
 
 export default {
   name: 'ApplyAndSaveButtons',
@@ -102,13 +103,14 @@ export default {
       this.showCreateModal = false
       this.isPerforming = 'save'
       this.alertScreenReader('Creating cohort')
-      createCohort(this.domain, name, this.filters).then(cohort => {
+      createCohort(this.domain, name, this.filters).then(async cohort => {
         useCohortStore().updateSession(cohort, this.filters, this.students, cohort.totalStudentCount)
         useCohortStore().stashOriginalFilters()
         useCohortStore().setModifiedSinceLastSearch(null)
         this.savedCohortCallback(`Cohort "${name}" created`)
         this.setPageTitle(this.cohortName)
-        history.pushState({}, null, `/cohort/${this.cohortId}`)
+        await useRouter().push(`/cohort/${this.cohortId}`)
+        window.history.replaceState({...window.history.state, ...{}}, null)
         this.isPerforming = null
       })
     },
