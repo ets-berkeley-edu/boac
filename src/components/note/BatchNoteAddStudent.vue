@@ -1,13 +1,5 @@
 <template>
   <div>
-    <v-expansion-panels v-model="showWarning" class="p-3 mt-2 mb-3 warning">
-      <v-expansion-panel>
-        <span v-if="warning">{{ warning }}</span>
-        <ul v-if="sidsNotFound.length && (sidsNotFound.length <= magicNumber)" id="sids-not-found" class="mb-0 mt-1">
-          <li v-for="sid in sidsNotFound" :key="sid">{{ sid }}</li>
-        </ul>
-      </v-expansion-panel>
-    </v-expansion-panels>
     <label
       for="create-note-add-student-input"
       class="font-size-14 font-weight-bold"
@@ -21,36 +13,38 @@
     <div class="align-center d-flex pb-2 w-75">
       <v-autocomplete
         id="create-note-add-student"
-        :key="key"
+        :key="vAutocompleteKey"
         aria-describedby="create-note-add-student-desc"
         auto-select-first
         class="autocomplete-students autocomplete-with-add-button"
         :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
         density="comfortable"
         :disabled="disabled"
-        hide-details
+        :error-messages="autocompleteErrorMessage"
+        :hide-details="!size(autocompleteErrorMessage)"
         :hide-no-data="size(autoSuggestedStudents) < 3"
         item-title="label"
         item-value="sid"
         :items="autoSuggestedStudents"
         :menu-icon="null"
+        type="search"
         variant="outlined"
+        @click:append="onClickAddButton"
         @click:clear="resetAutocomplete"
-        @update:search="onChangeAutocompleteQuery"
-        @update:model-value="onSelectSuggestedStudent"
         @keydown.esc="onEscFormInput"
+        @update:search="onUpdateSearch"
+        @update:model-value="onUpdateModel"
       >
-        <template #append="{}">
+        <template #append>
           <v-btn
             id="create-note-add-student-add-button"
             class="add-button"
             color="primary"
-            :disabled="!size(sidsManuallyAdded) || isUpdatingStudentAutocomplete"
+            :prepend-icon="mdiPlus"
+            text="Add"
             variant="flat"
-            @click="onClickAddButton"
-          >
-            <v-icon :icon="mdiPlus" /> Add
-          </v-btn>
+            @click.stop="onClickAddButton"
+          />
         </template>
       </v-autocomplete>
     </div>
@@ -80,7 +74,22 @@ import {mdiCloseCircle, mdiPlus} from '@mdi/js'
 </script>
 
 <script>
-import {each, filter, find, findIndex, includes, map, remove, size, split, trim, uniq, without} from 'lodash'
+import {
+  differenceWith,
+  each,
+  filter,
+  find,
+  findIndex,
+  includes, isEqual,
+  join,
+  map,
+  remove,
+  size,
+  split,
+  trim,
+  uniq,
+  without
+} from 'lodash'
 import {findStudentsByNameOrSid, getStudentsBySids} from '@/api/student'
 import {putFocusNextTick} from '@/lib/utils'
 import {setNoteRecipient, setNoteRecipients} from '@/stores/note-edit-session/utils'
@@ -98,15 +107,16 @@ export default {
   },
   data: () => ({
     addedStudents: [],
+    autocompleteErrorMessage: undefined,
     autocompleteModel: undefined,
     autoSuggestedStudents: [],
     isUpdatingStudentAutocomplete: false,
-    key: new Date(),
     magicNumber: 15,
+    query: undefined,
     showWarning: false,
     sidsManuallyAdded: [],
-    sidsNotFound: [],
-    warning: undefined
+    warning: undefined,
+    vAutocompleteKey: new Date()
   }),
   computed: {
     disabled() {
@@ -117,31 +127,12 @@ export default {
     if (useNoteStore().recipients.sids.length) {
       getStudentsBySids(useNoteStore().recipients.sids).then(students => {
         each(students, student => {
-          this.onSelectSuggestedStudent(student.sid)
+          this.onUpdateModel(student.sid)
         })
       })
     }
   },
   methods: {
-    clearWarning() {
-      this.warning = null
-      this.showWarning = false
-    },
-    extractDelimitedSids(query) {
-      return /^[0-9,\s]*$/.test(query) ? uniq(split(query, /\s+|,+,/)) : []
-    },
-    onChangeAutocompleteQuery(query) {
-      query = this.trimAndScrubQueryInput(query)
-      this.isUpdatingStudentAutocomplete = true
-      if (size(query) > 1) {
-        this.sidsManuallyAdded = this.extractDelimitedSids(query)
-        findStudentsByNameOrSid(query, 20).then(students => {
-          const existingSids = map(this.addedStudents, 'sid')
-          students = filter(students, s => !includes(existingSids, s.sid))
-          this.autoSuggestedStudents = map(students, s => ({label: s.label, sid: s.sid}))
-        })
-      }
-    },
     onClickAddButton() {
       if (this.sidsManuallyAdded) {
         return getStudentsBySids(this.sidsManuallyAdded).then(data => {
@@ -158,21 +149,22 @@ export default {
             uniq(useNoteStore().recipients.sids.concat(sidList))
           ).then(() => {
             useContextStore().alertScreenReader(`${sidList.length} students added to batch note`)
-            this.sidsNotFound = uniq(this.sidsManuallyAdded)
-            if (this.sidsNotFound.length) {
-              this.setWarning(this.sidsNotFound.length === 1 ? 'One student ID not found.' : `${this.sidsNotFound.length} student IDs not found.`)
-            } else {
-              this.clearWarning()
+            const sidsNotFound = differenceWith(this.sidsManuallyAdded, sidList, isEqual)
+            console.log(`sidsNotFound: ${sidsNotFound}`)
+            if (sidsNotFound.length) {
+              const suffix = sidsNotFound.length === 1 ? '' : 's'
+              this.autocompleteErrorMessage = `No student${suffix} found with SID${suffix} ${join(sidsNotFound)}.`
             }
+            this.resetAutocomplete()
             putFocusNextTick('create-note-add-student-input')
           })
         })
       } else {
+        this.resetAutocomplete()
         return Promise.resolve()
       }
     },
-    onSelectSuggestedStudent(sid) {
-      this.clearWarning()
+    onUpdateModel(sid) {
       const student = sid ? find(this.autoSuggestedStudents, ['sid', sid]) : null
       if (student && !useNoteStore().recipients.sids.includes(student.sid)) {
         useNoteStore().setIsRecalculating(true)
@@ -183,6 +175,25 @@ export default {
         })
       } else {
         this.resetAutocomplete()
+      }
+    },
+    onUpdateSearch(input) {
+      this.autocompleteErrorMessage = undefined
+      input = trim(input, ' ,\n\t')
+      if (input.length) {
+        this.sidsManuallyAdded = /^[0-9,\s]*$/.test(input) ? uniq(split(input, /\s+|,+,/)) : []
+        if (!this.sidsManuallyAdded.length) {
+          this.query = input.replace((/\s+|\r\n|\n|\r/gm),' ')
+          this.isUpdatingStudentAutocomplete = true
+          if (size(this.query) > 1) {
+            findStudentsByNameOrSid(this.query, 20).then(students => {
+              const existingSids = map(this.addedStudents, 'sid')
+              students = filter(students, s => !includes(existingSids, s.sid))
+              this.autoSuggestedStudents = map(students, s => ({label: s.label, sid: s.sid}))
+              this.isUpdatingStudentAutocomplete = false
+            })
+          }
+        }
       }
     },
     remove(student) {
@@ -204,31 +215,29 @@ export default {
     resetAutocomplete() {
       this.autoSuggestedStudents = []
       this.isUpdatingStudentAutocomplete = false
-      this.key = new Date()
+      this.query = undefined
       this.sidsManuallyAdded = []
-    },
-    setWarning(message) {
-      this.warning = message
-      this.showWarning = true
-      useContextStore().alertScreenReader(message)
-    },
-    trimAndScrubQueryInput(query) {
-      return trim(query, ' ,\n\t').replace((/\s+|\r\n|\n|\r/gm),' ')
+      this.vAutocompleteKey = new Date()
     }
   }
 }
 </script>
 
+<style>
+.v-input__append:has(button) {
+  margin-left: 0 !important;
+}
+</style>
+
 <style scoped>
+autocomplete-students {
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
 .add-button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;
-  height: 40px !important;
-}
-.warning {
-  background-color: #fbf7dc;
-  border-radius: 5px;
-  color: #795f31;
+  height: 48px !important;
 }
 </style>
 
