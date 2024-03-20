@@ -5,7 +5,7 @@
       id="alert-batch-created"
       v-model="successMessage"
       aria-live="polite"
-      class="align-items-center w-100"
+      class="align-center w-100"
       closable
       fade
       role="alert"
@@ -22,7 +22,7 @@
         class="w-25"
         to="/degree/new"
       >
-        <div class="align-items-center d-inline-flex flex-nowrap">
+        <div class="align-center d-inline-flex flex-nowrap">
           <div class="order-2 text-nowrap">
             Create new degree check
           </div>
@@ -65,7 +65,7 @@
           <template #cell(name)="row">
             <div
               v-if="row.item.id === _get(templateForEdit, 'id')"
-              class="align-items-center d-flex flex-wrap justify-content-between mt-2 rename-template"
+              class="align-center d-flex flex-wrap justify-content-between mt-2 rename-template"
             >
               <div class="flex-grow-1 mr-2">
                 <div>
@@ -95,7 +95,7 @@
                   </span>
                 </div>
               </div>
-              <div class="align-items-center d-flex pb-3 mb-2 mr-2">
+              <div class="align-center d-flex pb-3 mb-2 mr-2">
                 <b-btn
                   id="confirm-rename-btn"
                   :disabled="!templateForEdit.name.trim() || !!errorDuringEdit"
@@ -136,7 +136,7 @@
           </template>
           <template #cell(actions)="row">
             <div class="align-right w-100">
-              <div v-if="row.item.id !== _get(templateForEdit, 'id')" class="align-items-center d-flex flex-wrap">
+              <div v-if="row.item.id !== _get(templateForEdit, 'id')" class="align-center d-flex flex-wrap">
                 <div>
                   <router-link
                     :id="`degree-check-${row.item.id}-print-link`"

@@ -62,7 +62,7 @@
                 </div>
               </td>
               <td class="td-name">
-                <div class="align-items-center d-flex pt-1">
+                <div class="align-center d-flex pt-1">
                   <div
                     :class="{
                       'font-weight-500': isEditing(course),

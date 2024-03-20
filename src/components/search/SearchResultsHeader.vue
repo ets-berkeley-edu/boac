@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="align-items-center d-flex">
+    <div class="align-center d-flex">
       <div class="mr-2">
         <h1 class="page-section-header">Search Results</h1>
       </div>

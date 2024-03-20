@@ -11,7 +11,7 @@
     @row-unhovered="rowUnhovered"
   >
     <template #cell(avatar)="row">
-      <div class="align-items-center d-flex">
+      <div class="align-center d-flex">
         <div class="px-2">
           <CuratedStudentCheckbox domain="default" :student="row.item" />
         </div>

@@ -13,7 +13,7 @@
       :disabled="disabled"
       :lazy="true"
       menu-class="w-100"
-      toggle-class="d-flex justify-content-between align-items-center"
+      toggle-class="d-flex justify-content-between align-center"
       :text="objectType === 'cohort' ? 'Add Cohort' : 'Add Group'"
       :aria-label="`Degree check will be created for all students in selected ${objectType}${objects.length === 1 ? '' : 's'}`"
       variant="outline-dark"

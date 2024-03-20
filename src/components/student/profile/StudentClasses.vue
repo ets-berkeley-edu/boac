@@ -1,6 +1,6 @@
 <template>
   <div id="student-terms-container" class="m-3 p-0">
-    <div class="align-items-center d-flex mb-2 px-2">
+    <div class="align-center d-flex mb-2 px-2">
       <div class="pt-1">
         <h2 class="student-section-header mr-2">Classes</h2>
       </div>
@@ -65,7 +65,7 @@
             </div>
             <h3 class="page-section-header-sub m-0">{{ `Fall ${year.label - 1} - Summer ${year.label}` }}</h3>
           </div>
-          <div class="align-items-center d-flex justify-content-end">
+          <div class="align-center d-flex justify-content-end">
             <span class="color-black">{{ totalUnits(year) || 0 }} Units</span>
           </div>
         </div>

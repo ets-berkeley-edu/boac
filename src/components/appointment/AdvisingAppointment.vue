@@ -23,7 +23,7 @@
         <span :id="`appointment-${appointment.id}-details`" v-html="appointment.details"></span>
       </div>
 
-      <div class="d-flex align-items-center mt-1 mb-3">
+      <div class="d-flex align-center mt-1 mb-3">
         <div v-if="appointment.status === 'cancelled'" class="mt-2">
           <div>
             <v-icon :icon="mdiCalendarMinus" class="status-cancelled-icon" />

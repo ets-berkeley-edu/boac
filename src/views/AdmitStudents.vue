@@ -61,7 +61,7 @@
       </div>
       <SectionSpinner :loading="sorting" />
       <div v-if="!sorting">
-        <div class="align-items-center d-flex justify-content-end mr-3 py-1">
+        <div class="align-center d-flex justify-content-end mr-3 py-1">
           <div class="mr-auto">
             <CuratedGroupSelector
               context-description="Admit Students"

@@ -81,7 +81,7 @@
                   'font-size-14 td-name': !printable
                 }"
               >
-                <div class="align-items-center d-flex pt-1">
+                <div class="align-center d-flex pt-1">
                   <div v-if="!bundle.course && bundle.category.isRecommended" class="pr-1">
                     <v-icon
                       :id="`category-${bundle.category.id}-is-recommended`"

@@ -17,7 +17,7 @@
               variant="link"
               @click.prevent="onClickAdd"
             >
-              <div class="align-items-center d-flex justify-content-between">
+              <div class="align-center d-flex justify-content-between">
                 <div class="pr-2 text-nowrap">
                   Add unit requirement
                 </div>
@@ -79,7 +79,7 @@
               </div>
             </template>
             <template v-if="currentUser.canEditDegreeProgress && !sid && !printable" #cell(actions)="row">
-              <div class="align-items-center d-flex">
+              <div class="align-center d-flex">
                 <b-btn
                   :id="`unit-requirement-${row.item.id}-edit-btn`"
                   class="pr-2 pt-0"

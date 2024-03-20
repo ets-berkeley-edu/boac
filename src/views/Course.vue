@@ -89,7 +89,7 @@
               class="mr-2"
             />
           </div>
-          <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-items-center d-flex ml-auto mr-3">
+          <div v-if="tab === 'list' && (section.totalStudentCount > pagination.defaultItemsPerPage)" class="align-center d-flex ml-auto mr-3">
             <div id="view-per-page-label" class="pr-1">
               {{ section.totalStudentCount }} total students &mdash; View per page:&nbsp;
             </div>

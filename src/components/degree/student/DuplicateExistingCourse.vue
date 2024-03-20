@@ -62,7 +62,7 @@
       <b-btn
         v-if="currentUser.canEditDegreeProgress"
         id="duplicate-existing-course"
-        class="align-items-center d-flex flex-row-reverse p-0"
+        class="align-center d-flex flex-row-reverse p-0"
         :disabled="disableButtons || !options.length"
         variant="link"
         @click.prevent="openMenu"

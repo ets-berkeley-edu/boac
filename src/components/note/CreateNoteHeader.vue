@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex flex-wrap">
     <div class="flex-grow-1">
-      <div class="align-items-center d-flex">
+      <div class="align-center d-flex">
         <ModalHeader
           class="border-bottom-0"
           header-id="modal-header-note"
@@ -66,7 +66,7 @@
             </template>
             <template #append>
               <v-list-item-action end>
-                <div class="align-items-center d-flex ml-3">
+                <div class="align-center d-flex ml-3">
                   <div class="pl-2">
                     <v-btn
                       :id="`btn-rename-note-template-${item.raw.id}`"

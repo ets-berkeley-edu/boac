@@ -25,7 +25,7 @@
         Force buttons to enable
       </b-btn>
     </div>
-    <div class="align-items-center d-flex">
+    <div class="align-center d-flex">
       <div class="pr-1">
         <v-icon :icon="mdiBug" />
       </div>

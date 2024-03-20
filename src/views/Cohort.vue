@@ -22,7 +22,7 @@
       </b-collapse>
       <SectionSpinner :loading="editMode === 'apply'" />
       <div v-if="!showHistory && showStudentsSection">
-        <div class="align-items-center d-flex justify-content-between mr-3 pt-1">
+        <div class="align-center d-flex justify-content-between mr-3 pt-1">
           <div>
             <CuratedGroupSelector
               :context-description="domain === 'default' ? `Cohort ${cohortName || ''}` : `Admitted Students Cohort ${cohortName || ''}`"

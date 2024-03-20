@@ -263,9 +263,9 @@
       <div
         v-for="section in sectionsWithIncompleteStatus"
         :key="section.ccn"
-        class="align-items-center d-flex pb-2"
+        class="align-center d-flex pb-2"
       >
-        <div class="align-items-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
+        <div class="align-center bg-danger d-flex mr-2 pill-alerts px-2 text-uppercase text-nowrap">
           <v-icon class="mr-1" :icon="mdiInformationOutline" size="sm" />
           <span class="font-size-12">Incomplete Grade</span>
         </div>

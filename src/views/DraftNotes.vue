@@ -40,7 +40,7 @@
           </span>
         </template>
         <template #cell(subject)="row">
-          <div class="align-items-center d-flex justify-content-between">
+          <div class="align-center d-flex justify-content-between">
             <div>
               <div v-if="row.item.author.uid !== currentUser.uid" :class="{'demo-mode-blur': currentUser.inDemoMode}">
                 {{ _trim(row.item.subject) || config.draftNoteSubjectPlaceholder }}
