@@ -37,7 +37,7 @@
         variant="outlined"
         @click:clear="resetAutocomplete"
         @update:search="onChangeAutocompleteQuery"
-        @update:modelValue="onSelectSuggestedStudent"
+        @update:model-value="onSelectSuggestedStudent"
         @keydown.esc="onEscFormInput"
       >
         <template #append="{}">
@@ -220,10 +220,6 @@ export default {
 </script>
 
 <style scoped>
-autocomplete-students {
-  border-bottom-left-radius: 0;
-  border-top-left-radius: 0;
-}
 .add-button {
   border-bottom-left-radius: 0;
   border-top-left-radius: 0;

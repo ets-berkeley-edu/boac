@@ -67,9 +67,11 @@ Font Awesome to MDI
 
 TODO: notes
 
-### b-collapse to v-expansion-panel
+### b-collapse to v-expansion-panels
 
-TODO: notes
+- `<v-expansion-panels>` are an accordion-style component. For a simple collapsible section controlled by a separate button, use `<v-expand-transition>` instead.
+- Replace `<b-collapse v-model>` with `<v-expansion-panels v-model><v-expansion-panel>`.
+- Use `v-model` if you need to open or close the panels programmatically. Give each `<v-expansion-panel>` a `value`; `v-model` aray will contain the `value` of each expanded panel (see https://vuetifyjs.com/en/components/expansion-panels/#model).
 
 ### b-dropdown to v-select
 
