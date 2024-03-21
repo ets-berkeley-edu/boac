@@ -26,7 +26,7 @@
       <v-card-text class="pt-1">
         <div class="mb-4">
           <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput }}</label>
-          <v-autocomplete
+          <v-combobox
             id="advanced-search-students-input"
             :key="autocompleteInputResetKey"
             v-model="queryText"
@@ -40,7 +40,6 @@
             placeholder="Search"
             type="search"
             variant="outlined"
-            @update:model-value="onUpdateAutocompleteModel"
             @keydown.enter.prevent="search"
           />
         </div>
@@ -339,10 +338,6 @@ export default {
     //   const q = this._trim(input && input.toLowerCase())
     //   return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     // },
-    onUpdateAutocompleteModel(input) {
-      this.queryText = input
-      this.search()
-    },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
       this.alertScreenReader('Advanced search is open')

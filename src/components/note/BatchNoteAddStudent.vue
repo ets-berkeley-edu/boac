@@ -10,7 +10,7 @@
       Type a name, individual Student Identification (SID), or paste a list of SID numbers below.
       (Example: 9999999990, 9999999991)
     </div>
-    <div class="align-center d-flex pb-2 w-75">
+    <div class="align-center d-flex pb-2">
       <v-autocomplete
         id="create-note-add-student"
         :key="vAutocompleteKey"
