@@ -1,81 +1,123 @@
 <template>
-  <v-expand-transition>
-    <v-card v-show="useCohortStore().editMode === 'rename'">
-      <div class="d-flex align-top">
-        <form @submit.prevent="submitRename">
-          <v-text-field
-            id="rename-cohort-input"
-            v-model="name"
-            aria-label="Cohort name, 255 characters or fewer"
-            aria-required="true"
-            class="mr-2"
-            counter="255"
-            density="compact"
-            maxlength="255"
-            required
-            type="text"
-            persistent-counter
-            :rules="[validationRules.required, validationRules.maxLength]"
-            validate-on="blur"
-            variant="outlined"
-            @keyup.esc="cancel"
-          >
-            <template #counter="{max, value}">
-              <div id="name-template-counter" aria-live="polite" class="font-size-13 text-no-wrap my-1">
-                <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
-              </div>
-            </template>
-          </v-text-field>
-        </form>
-        <v-btn
+  <v-card
+    v-show="isOpen"
+    class="py-3"
+    flat
+  >
+    <div class="d-flex flex-column flex-md-row align-top">
+      <form class="w-100 mb-2" @submit.prevent="submitRename">
+        <v-text-field
+          v-if="isOpen"
+          id="rename-cohort-input"
+          v-model="name"
+          aria-label="Cohort name, 255 characters or fewer"
+          aria-required="true"
+          class="v-input-details-override mr-2"
+          counter="255"
+          density="compact"
+          :disabled="isSaving"
+          label="Cohort Name"
+          maxlength="255"
+          required
+          type="text"
+          persistent-counter
+          :rules="[validationRules.valid]"
+          validate-on="blur"
+          variant="outlined"
+          @keyup.esc="cancel"
+        >
+          <template #counter="{max, value}">
+            <div id="name-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+              <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+            </div>
+          </template>
+        </v-text-field>
+      </form>
+      <div class="d-flex justify-end">
+        <ProgressButton
           id="rename-confirm"
-          :disabled="!name"
-          color="primary"
-          @click.prevent="submit"
+          :action="submit"
+          :disabled="isInvalid || isSaving"
+          :in-progress="isSaving"
         >
           Rename
-        </v-btn>
+        </ProgressButton>
         <v-btn
           id="rename-cancel"
+          :disabled="isSaving"
           variant="plain"
           @click="cancel"
         >
           Cancel
         </v-btn>
       </div>
-    </v-card>
-  </v-expand-transition>
+    </div>
+  </v-card>
 </template>
 
 <script setup>
+import ProgressButton from '@/components/util/ProgressButton'
+import {putFocusNextTick, setPageTitle} from '@/lib/utils'
+import {saveCohort} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
+import {validateCohortName} from '@/lib/cohort'
 </script>
 
 <script>
 export default {
   name: 'RenameCohort',
+  components: {ProgressButton},
   props: {
     cancel: {
       type: Function,
       required: true
     },
-    error: {
-      default: undefined,
-      type: String,
-      required: false
-    },
-    submit: {
-      type: Function,
+    isOpen: {
+      type: Boolean,
       required: true
     }
   },
   data: () => ({
-    name: '',
+    isInvalid: true,
     isSaving: false,
-    validationRules: {
-      required: value => !!value || 'Cohort name is required',
-      maxLength: value => (!value || value.length <= 255) || 'Cohort name cannot exceed 255 characters.',
-    }
+    name: '',
+    validationRules: {}
   }),
+  watch: {
+    isOpen(val) {
+      if (val) {
+        this.name = useCohortStore().cohortName
+      }
+    }
+  },
+  created() {
+    this.validationRules = {
+      valid: name => {
+        const valid = validateCohortName({id: useCohortStore().cohortId, name})
+        this.isInvalid = true !== valid
+        return valid
+      }
+    }
+  },
+  methods: {
+    submit() {
+      const cohort = useCohortStore()
+      if (true !== validateCohortName({id: cohort.cohortId, name: this.name})) {
+        putFocusNextTick('rename-cohort-input')
+      } else {
+        this.isSaving = true
+        useContextStore().alertScreenReader('Renaming cohort')
+        cohort.renameCohort(this.name)
+        saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
+          this.isSaving = false
+          useContextStore().alertScreenReader(`Cohort renamed to '${this.name}'`)
+          setPageTitle(this.name)
+          cohort.setEditMode(null)
+          putFocusNextTick('cohort-name')
+        })
+      }
+    }
+  }
 }
 </script>

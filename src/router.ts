@@ -24,8 +24,8 @@ const StudentDegreeCheck = () => import('@/views/degree/StudentDegreeCheck.vue')
 const StudentDegreeCreate = () => import('@/views/degree/StudentDegreeCreate.vue')
 const StudentDegreeHistory = () => import('@/views/degree/StudentDegreeHistory.vue')
 import {createRouter, createWebHistory, RouteRecordRaw} from 'vue-router'
+import {filter, get, includes, size, trim} from 'lodash'
 import {isAdvisor, isDirector} from '@/berkeley'
-import {filter, includes, size, trim} from 'lodash'
 import {useContextStore} from '@/stores/context'
 
 const $_goToLogin = (to: any, next: any) => {
@@ -42,9 +42,9 @@ const $_isCE3 = user => !!size(filter(user.departments, d => d.code === 'ZCEEE' 
 
 const $_requiresDegreeProgress = (to: any, from: any, next: any) => {
   const currentUser = useContextStore().currentUser
-  if (currentUser.canReadDegreeProgress) {
+  if (get(currentUser, 'canReadDegreeProgress')) {
     next()
-  } else if (currentUser.isAuthenticated) {
+  } else if (get(currentUser, 'isAuthenticated')) {
     next({path: '/404'})
   } else {
     $_goToLogin(to, next)
@@ -65,10 +65,10 @@ const routes:RouteRecordRaw[] = [
     component: Login,
     beforeEnter: (to: any, from: any, next: any) => {
       const currentUser = useContextStore().currentUser
-      if (currentUser.isAuthenticated) {
+      if (get(currentUser, 'isAuthenticated')) {
         if (trim(to.query.redirect)) {
           next(to.query.redirect)
-        } else if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
+        } else if (isAdvisor(currentUser) || isDirector(currentUser) || get(currentUser, 'isAdmin')) {
           next('/home')
         } else {
           next({path: '/404'})
@@ -87,8 +87,8 @@ const routes:RouteRecordRaw[] = [
     beforeEnter: (to: any, from: any, next: any) => {
       // Requires Advisor
       const currentUser = useContextStore().currentUser
-      if (currentUser.isAuthenticated) {
-        if (isAdvisor(currentUser) || isDirector(currentUser) || currentUser.isAdmin) {
+      if (get(currentUser, 'isAuthenticated')) {
+        if (isAdvisor(currentUser) || isDirector(currentUser) || get(currentUser, 'isAdmin')) {
           next()
         } else {
           next({path: '/404'})
@@ -178,8 +178,8 @@ const routes:RouteRecordRaw[] = [
     beforeEnter: (to: any, from: any, next: any) => {
       // Requires CE3
       const currentUser = useContextStore().currentUser
-      if (currentUser.isAuthenticated) {
-        if (currentUser.isAdmin || $_isCE3(currentUser)) {
+      if (get(currentUser, 'isAuthenticated')) {
+        if (get(currentUser, 'isAdmin') || $_isCE3(currentUser)) {
           next()
         } else {
           next({path: '/404'})
@@ -247,7 +247,7 @@ const routes:RouteRecordRaw[] = [
     path: '/',
     component: StandardLayout,
     beforeEnter: (to: any, from: any, next: any) => {
-      if (useContextStore().currentUser.isAuthenticated) {
+      if (get(useContextStore().currentUser, 'isAuthenticated')) {
         next()
       } else {
         $_goToLogin(to, next)
@@ -286,6 +286,17 @@ const routes:RouteRecordRaw[] = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+})
+
+router.afterEach((to: any, from: any) => {
+  const samePageLink = to.name === from.name && to.hash
+  if (!samePageLink) {
+    const context = useContextStore()
+    context.resetApplicationState()
+    context.loadingStart(to)
+    const pageTitle = get(to, 'name')
+    document.title = `${pageTitle || 'Welcome'} | BOA`
+  }
 })
 
 export default router

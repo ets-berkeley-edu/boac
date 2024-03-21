@@ -5,7 +5,7 @@
     permanent
     :scrim="false"
   >
-    <div class="pt-3">
+    <div class="bg-tertiary pt-3">
       <div aria-label="Cohorts and Curated Groups">
         <div v-if="myCohorts">
           <Cohorts :cohorts="myCohorts" />

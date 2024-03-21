@@ -2,6 +2,16 @@ import _ from 'lodash'
 import {nextTick} from 'vue'
 import numeral from 'numeral'
 
+const decodeHtml = (snippet: string) => {
+  if (snippet && snippet.indexOf('&') > 0) {
+    const el = document.createElement('textarea')
+    el.innerHTML = snippet
+    return el.value
+  } else {
+    return snippet
+  }
+}
+
 export function numFormat(num, format=null) {
   numeral(num).format(format)
 }
@@ -31,6 +41,10 @@ export function putFocusNextTick(id: string, cssSelector?: string) {
       }
     }, 500)
   })
+}
+
+export function setPageTitle(phrase: string) {
+  document.title = `${phrase ? decodeHtml(phrase) : 'UC Berkeley'} | BOA`
 }
 
 export function scroll(anchor) {
