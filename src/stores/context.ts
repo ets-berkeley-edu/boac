@@ -11,6 +11,7 @@ const $_getDefaultApplicationState = () => ({
 })
 
 export type BoaConfig = {
+  currentEnrollmentTermId: undefined,
   isProduction: boolean,
   maxAttachmentsPerNote: number
 }
@@ -32,7 +33,9 @@ export const useContextStore = defineStore('context', {
       myCohorts: [] as Array<any>,
       myCuratedGroups: [] as Array<any>,
       myDraftNoteCount: undefined as number | undefined,
-      preferences: {}
+      preferences: {
+        termId: undefined as string | undefined
+      }
     },
     dismissedFooterAlert: false,
     dismissedServiceAnnouncement: false,

@@ -36,7 +36,7 @@
           <span :id="`batch-degree-check-${objectType}-${index}`">{{ _truncate(addedObject.name) }}</span>
           <b-btn
             :id="`remove-${objectType}-from-batch-${index}`"
-            variant="link"
+            variant="plain"
             class="p-0"
             :disabled="disabled"
             @click.prevent="remove(addedObject)"

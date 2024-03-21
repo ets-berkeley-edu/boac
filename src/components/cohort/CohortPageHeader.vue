@@ -1,134 +1,115 @@
 <template>
   <div>
-    <div v-if="!cohortId && totalStudentCount === undefined" class="pb-3">
+    <div v-if="!useCohortStore().cohortId && useCohortStore().totalStudentCount === undefined" class="pb-3">
       <h1 id="create-cohort-h1" class="page-section-header">
-        Create {{ domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
+        Create {{ useCohortStore().domain === 'default' ? 'a Cohort' : 'an admissions cohort' }}
       </h1>
-      <div v-if="domain === 'default'">
+      <div v-if="useCohortStore().domain === 'default'">
         Find a set of students, then save your search as a filtered cohort. Revisit your filtered cohorts at any time.
       </div>
-      <div v-if="domain === 'admitted_students'">
+      <div v-if="useCohortStore().domain === 'admitted_students'">
         Find a set of admitted students using the filters below.
       </div>
     </div>
     <div v-if="!renameMode" class="d-flex flex-wrap justify-content-between">
       <div>
-        <h1 v-if="cohortName" id="cohort-name" class="page-section-header pb-0">
-          {{ cohortName }}
+        <h1 v-if="useCohortStore().cohortName" id="cohort-name" class="page-section-header pb-0">
+          {{ useCohortStore().cohortName }}
           <span
-            v-if="editMode !== 'apply' && totalStudentCount !== undefined"
+            v-if="useCohortStore().editMode !== 'apply' && useCohortStore().totalStudentCount !== undefined"
             class="faint-text"
-          >{{ pluralize(domain === 'admitted_students' ? 'admit' : 'student', totalStudentCount) }}</span>
+          >{{ pluralize(useCohortStore().domain === 'admitted_students' ? 'admit' : 'student', useCohortStore().totalStudentCount) }}</span>
         </h1>
-        <h1 v-if="!cohortName && totalStudentCount !== undefined" id="cohort-results-header">
-          {{ pluralize('Result', totalStudentCount) }}
+        <h1 v-if="!useCohortStore().cohortName && useCohortStore().totalStudentCount !== undefined" id="cohort-results-header">
+          {{ pluralize('Result', useCohortStore().totalStudentCount) }}
         </h1>
       </div>
       <div v-if="!showHistory" class="d-flex align-self-baseline mr-3">
-        <div v-if="cohortId && _size(filters)">
+        <div v-if="useCohortStore().cohortId && size(useCohortStore().filters)">
           <v-btn
             id="show-hide-details-button"
-            class="no-wrap pr-1 p-0"
-            variant="link"
+            class="text-no-wrap pr-1 p-0"
+            variant="text"
             @click="toggleShowHideDetails"
           >
-            {{ isCompactView ? 'Show' : 'Hide' }} Filters
+            {{ useCohortStore().isCompactView ? 'Show' : 'Hide' }} Filters
           </v-btn>
         </div>
-        <div v-if="cohortId && isOwnedByCurrentUser && _size(filters)" class="faint-text">|</div>
-        <div v-if="cohortId && isOwnedByCurrentUser">
+        <div v-if="useCohortStore().cohortId && useCohortStore().isOwnedByCurrentUser && size(useCohortStore().filters)" class="faint-text">|</div>
+        <div v-if="useCohortStore().cohortId && useCohortStore().isOwnedByCurrentUser">
           <v-btn
             id="rename-button"
             class="pt-0 px-1"
-            variant="link"
+            variant="text"
             @click="beginRename"
           >
             Rename
           </v-btn>
         </div>
-        <div v-if="cohortId && isOwnedByCurrentUser" class="faint-text">|</div>
-        <div v-if="cohortId && isOwnedByCurrentUser">
+        <div v-if="useCohortStore().cohortId && useCohortStore().isOwnedByCurrentUser" class="faint-text">|</div>
+        <div v-if="useCohortStore().cohortId && useCohortStore().isOwnedByCurrentUser">
           <v-btn
             id="delete-button"
-            v-b-modal="'confirm-delete-modal'"
             class="pt-0 px-1"
-            variant="link"
+            variant="text"
+            @click="showDeleteModal = true"
           >
             Delete
           </v-btn>
-          <b-modal
+          <DeleteCohortModal
             id="confirm-delete-modal"
-            v-model="showDeleteModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
-          >
-            <DeleteCohortModal
-              :cohort-name="cohortName"
-              :cancel-delete-modal="cancelDeleteModal"
-              :delete-cohort="cohortDelete"
-            />
-          </b-modal>
+            :cohort-name="useCohortStore().cohortName"
+            :cancel-delete-modal="cancelDeleteModal"
+            :delete-cohort="cohortDelete"
+            :error="error"
+            :show-modal="showDeleteModal"
+          />
         </div>
-        <div v-if="(cohortId && isOwnedByCurrentUser) || (cohortId && _size(filters))" class="faint-text">|</div>
-        <div v-if="cohortId || totalStudentCount !== undefined">
+        <div v-if="(useCohortStore().cohortId && useCohortStore().isOwnedByCurrentUser) || (useCohortStore().cohortId && size(useCohortStore().filters))" class="faint-text">|</div>
+        <div v-if="useCohortStore().cohortId || useCohortStore().totalStudentCount !== undefined">
           <v-btn
-            v-if="domain === 'default'"
+            v-if="useCohortStore().domain === 'default'"
             id="export-student-list-button"
-            v-b-modal="'export-students-modal'"
-            :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            class="no-wrap pt-0 px-1"
-            variant="link"
+            :disabled="!exportEnabled || !useCohortStore().totalStudentCount || useCohortStore().isModifiedSinceLastSearch"
+            class="text-no-wrap pt-0 px-1"
+            variant="text"
+            @click="showExportStudentsModal = true"
           >
             Export List
           </v-btn>
-          <v-btn
-            v-if="domain === 'admitted_students'"
-            id="export-student-list-button"
-            v-b-modal="'export-admits-modal'"
-            :disabled="!exportEnabled || !totalStudentCount || isModifiedSinceLastSearch"
-            class="no-wrap pt-0 px-1"
-            variant="link"
-          >
-            Export List
-          </v-btn>
-          <b-modal
-            id="export-admits-modal"
-            v-model="showExportAdmitsModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
-          >
-            <FerpaReminderModal
-              :cancel="cancelExportModal"
-              :confirm="() => exportStudents(getCsvExportColumnsSelected(domain))"
-            />
-          </b-modal>
-          <b-modal
+          <ExportListModal
             id="export-students-modal"
-            v-model="showExportStudentsModal"
-            body-class="pl-0 pr-0"
-            hide-footer
-            hide-header
-            @shown="putFocusNextTick('modal-header')"
+            :cancel="cancelExportModal"
+            :csv-columns-selected="getCsvExportColumnsSelected(useCohortStore().domain)"
+            :csv-columns="getCsvExportColumns(useCohortStore().domain)"
+            :error="error"
+            :export="exportStudents"
+            :show-modal="showExportStudentsModal"
+          />
+          <v-btn
+            v-if="useCohortStore().domain === 'admitted_students'"
+            id="export-student-list-button"
+            class="text-no-wrap pt-0 px-1"
+            :disabled="!exportEnabled || !useCohortStore().totalStudentCount || useCohortStore().isModifiedSinceLastSearch"
+            variant="text"
+            @click="showExportAdmitsModal = true"
           >
-            <ExportListModal
-              :cancel="cancelExportModal"
-              :csv-columns-selected="getCsvExportColumnsSelected(domain)"
-              :csv-columns="getCsvExportColumns(domain)"
-              :export="exportStudents"
-            />
-          </b-modal>
+            Export List
+          </v-btn>
+          <FerpaReminderModal
+            id="export-admits-modal"
+            :cancel="cancelExportModal"
+            :confirm="() => exportStudents(getCsvExportColumnsSelected(useCohortStore().domain))"
+            :show-modal="showExportAdmitsModal"
+          />
         </div>
         <div v-if="isHistorySupported" class="faint-text">|</div>
         <div v-if="isHistorySupported">
           <v-btn
             id="show-cohort-history-button"
-            :disabled="isModifiedSinceLastSearch"
-            class="no-wrap pl-1 pr-0 pt-0"
-            variant="link"
+            :disabled="useCohortStore().isModifiedSinceLastSearch"
+            class="pl-1 pr-0 pt-0"
+            variant="text"
             @click="toggleShowHistory(true)"
           >
             History
@@ -138,86 +119,48 @@
       <div v-if="showHistory" class="d-flex align-self-baseline mr-4">
         <v-btn
           id="show-cohort-history-button"
-          class="no-wrap pl-2 pr-0 pt-0"
-          variant="link"
+          class="text-no-wrap pl-2 pr-0 pt-0"
+          variant="text"
           @click="toggleShowHistory(false)"
         >
           Back to Cohort
         </v-btn>
       </div>
     </div>
-    <div v-if="renameMode" class="d-flex flex-wrap justify-content-between">
-      <div class="flex-grow-1 mr-4">
-        <div>
-          <form @submit.prevent="submitRename">
-            <input
-              id="rename-cohort-input"
-              v-model="name"
-              :aria-invalid="!name"
-              class="rename-input text-dark p-2 w-100"
-              aria-label="Input cohort name, 255 characters or fewer"
-              aria-required="true"
-              maxlength="255"
-              required
-              type="text"
-              @keyup.esc="cancelRename"
-            />
-          </form>
-        </div>
-        <div class="pt-1">
-          <span v-if="renameError" class="has-error">{{ renameError }}</span>
-          <span v-if="!renameError" class="faint-text">255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></span>
-        </div>
-        <div class="sr-only" aria-live="polite">{{ renameError }}</div>
-        <div
-          v-if="name.length === 255"
-          class="sr-only"
-          aria-live="polite"
-        >
-          Cohort name cannot exceed 255 characters.
-        </div>
-      </div>
-      <div class="d-flex align-self-baseline mr-2">
-        <v-btn
-          id="rename-confirm"
-          :disabled="!name"
-          class="btn-primary-color-override rename-btn"
-          variant="primary"
-          size="sm"
-          @click.prevent="submitRename"
-        >
-          Rename
-        </v-btn>
-        <v-btn
-          id="rename-cancel"
-          class="rename-btn"
-          variant="link"
-          size="sm"
-          @click="cancelRename"
-        >
-          Cancel
-        </v-btn>
-      </div>
-    </div>
+    <RenameCohort
+      :cancel="cancelRename"
+      :error="renameError"
+      :submit="submitRename"
+    ></RenameCohort>
   </div>
 </template>
 
+<script setup>
+import {get, size} from 'lodash'
+import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
+import {pluralize} from '@/lib/utils'
+import {putFocusNextTick} from '@/lib/utils'
+import router from '@/router'
+import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession'
-import Context from '@/mixins/Context'
 import DeleteCohortModal from '@/components/cohort/DeleteCohortModal'
 import ExportListModal from '@/components/util/ExportListModal'
 import FerpaReminderModal from '@/components/util/FerpaReminderModal'
-import router from '@/router'
-import Util from '@/mixins/Util'
+import RenameCohort from '@/components/cohort/RenameCohort'
 import {deleteCohort, downloadCohortCsv, downloadCsv, saveCohort} from '@/api/cohort'
-import {getCsvExportColumns, getCsvExportColumnsSelected} from '@/berkeley'
 import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CohortPageHeader',
-  components: {DeleteCohortModal, ExportListModal, FerpaReminderModal},
-  mixins: [CohortEditSession, Context, Util],
+  components: {
+    DeleteCohortModal,
+    ExportListModal,
+    FerpaReminderModal,
+    RenameCohort
+  },
   props: {
     showHistory: {
       type: Boolean,
@@ -229,6 +172,7 @@ export default {
     }
   },
   data: () => ({
+    error: undefined,
     exportEnabled: true,
     isHistorySupported: true,
     name: undefined,
@@ -239,97 +183,103 @@ export default {
   }),
   computed: {
     renameMode() {
-      return this.editMode === 'rename'
+      return useCohortStore().editMode === 'rename'
     }
   },
   watch: {
     name() {
       this.renameError = undefined
+    },
+    showDeleteModal() {
+      this.error = undefined
+    },
+    showExportAdmitsModal() {
+      this.error = undefined
+    },
+    showExportStudentsModal() {
+      this.error = undefined
     }
   },
   created() {
-    this.isHistorySupported = this.cohortId && this.domain === 'default'
-    this.name = this.cohortName
+    this.isHistorySupported = useCohortStore().cohortId && useCohortStore().domain === 'default'
+    this.name = useCohortStore().cohortName
   },
   methods: {
     beginRename() {
-      this.name = this.cohortName
-      this.setEditMode('rename')
-      this.alertScreenReader(`Renaming cohort '${this.name}'`)
-      this.putFocusNextTick('rename-cohort-input')
+      this.name = useCohortStore().cohortName
+      useCohortStore().setEditMode('rename')
+      useContextStore().alertScreenReader(`Renaming cohort '${this.name}'`)
+      putFocusNextTick('rename-cohort-input')
     },
     cancelDeleteModal() {
       this.showDeleteModal = false
-      this.alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
+      useContextStore().alertScreenReader(`Cancel deletion of cohort '${this.name}'`)
     },
     cancelExportModal() {
       this.showExportAdmitsModal = this.showExportStudentsModal = false
-      this.alertScreenReader(`Cancel export of cohort '${this.name}'`)
+      useContextStore().alertScreenReader(`Cancel export of cohort '${this.name}'`)
     },
     cancelRename() {
-      this.name = this.cohortName
-      this.setEditMode(null)
-      this.alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
+      this.name = useCohortStore().cohortName
+      useCohortStore().setEditMode(null)
+      useContextStore().alertScreenReader(`Cancel renaming of cohort '${this.name}'`)
     },
     cohortDelete() {
-      this.alertScreenReader(`Deleting cohort '${this.name}'`)
-      deleteCohort(this.cohortId).then(() => {
+      useContextStore().alertScreenReader(`Deleting cohort '${this.name}'`)
+      return deleteCohort(useCohortStore().cohortId).then(() => {
         this.showDeleteModal = false
+        useContextStore().alertScreenReader(`Deleted cohort '${this.name}'`)
         router.push({path: '/'})
+      }, error => {
+        useContextStore().alertScreenReader(`Failed to delete cohort '${this.name}'`)
+        this.handleError(error)
       })
     },
     downloadCsvPerFilters(csvColumnsSelected) {
-      return new Promise(resolve => {
-        const isReadOnly = this.cohortId && !this.isOwnedByCurrentUser
+      return new Promise((resolve, reject) => {
+        const isReadOnly = useCohortStore().cohortId && !useCohortStore().isOwnedByCurrentUser
         if (isReadOnly) {
-          downloadCohortCsv(this.cohortId, this.cohortName, csvColumnsSelected).then(resolve)
+          downloadCohortCsv(useCohortStore().cohortId, useCohortStore().cohortName, csvColumnsSelected).then(resolve, reject)
         } else {
-          downloadCsv(this.domain, this.cohortName, this.filters, csvColumnsSelected).then(resolve)
+          downloadCsv(useCohortStore().domain, useCohortStore().cohortName, useCohortStore().filters, csvColumnsSelected).then(resolve, reject)
         }
       })
     },
     exportStudents(csvColumnsSelected) {
-      this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
-      this.alertScreenReader(`Exporting cohort '${this.name}'`)
-      this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
+      useContextStore().alertScreenReader(`Exporting cohort '${this.name}'`)
+      return this.downloadCsvPerFilters(csvColumnsSelected).then(() => {
         this.exportEnabled = true
-        this.alertScreenReader('Export is done.')
+        this.showExportAdmitsModal = this.showExportStudentsModal = this.exportEnabled = false
+        useContextStore().alertScreenReader(`Downloading cohort '${this.name}'`)
+      }, error => {
+        useContextStore().alertScreenReader(`Failed to export cohort '${this.name}'`)
+        this.handleError(error)
       })
     },
-    getCsvExportColumns,
-    getCsvExportColumnsSelected,
+    handleError(error) {
+      this.error = get(error, 'message', 'An unknown error occurred.')
+    },
     submitRename() {
       this.renameError = validateCohortName({
-        id: this.cohortId,
+        id: useCohortStore().cohortId,
         name: this.name
       })
       if (this.renameError) {
-        this.putFocusNextTick('rename-cohort-input')
+        putFocusNextTick('rename-cohort-input')
       } else {
         this.renameCohort(this.name)
-        saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
-          this.alertScreenReader(`Cohort renamed to '${this.name}'`)
+        saveCohort(useCohortStore().cohortId, useCohortStore().cohortName, useCohortStore().filters).then(() => {
+          useContextStore().alertScreenReader(`Cohort renamed to '${this.name}'`)
           this.setPageTitle(this.name)
-          this.putFocusNextTick('cohort-name')
+          putFocusNextTick('cohort-name')
         })
-        this.setEditMode(null)
+        useCohortStore().setEditMode(null)
       }
     },
     toggleShowHideDetails() {
-      this.toggleCompactView()
-      this.alertScreenReader(this.isCompactView ? 'Filters are hidden' : 'Filters are visible')
+      useCohortStore().toggleCompactView()
+      useContextStore().alertScreenReader(useCohortStore().isCompactView ? 'Filters are hidden' : 'Filters are visible')
     }
   }
 }
 </script>
-
-<style scoped>
-.rename-btn {
-  height: 38px;
-}
-.rename-input {
-  box-sizing: border-box;
-  border: 2px solid #ccc;
-  border-radius: 4px;
-}
-</style>

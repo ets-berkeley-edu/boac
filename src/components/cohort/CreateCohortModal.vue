@@ -42,7 +42,7 @@
         </v-btn>
         <v-btn
           id="create-cancel"
-          variant="link"
+          variant="plain"
           @click="cancelModal"
         >
           Cancel

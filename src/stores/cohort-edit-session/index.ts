@@ -41,19 +41,6 @@ export const useCohortStore = defineStore('cohort', {
     addFilter(filter: any) {
       return this.filters.push(filter)
     },
-    setCompactView(compactView: boolean) {
-      return this.isCompactView = compactView
-    },
-    setEditMode(editMode: string | null) {
-      if (isNil(editMode)) {
-        this.editMode = null
-      } else if (find(EDIT_MODE_TYPES, type => editMode.match(type))) {
-        // Valid mode
-        this.editMode = editMode
-      } else {
-        throw new TypeError('Invalid page mode: ' + editMode)
-      }
-    },
     removeFilter(index: number) {
       this.filters.splice(index, 1)
       this.isModifiedSinceLastSearch = true
@@ -79,8 +66,21 @@ export const useCohortStore = defineStore('cohort', {
     setCurrentPage(currentPage: number) {
       this.pagination.currentPage = currentPage
     },
+    setCompactView(compactView: boolean) {
+      return this.isCompactView = compactView
+    },
     setDomain(domain: string) {
       this.domain = domain
+    },
+    setEditMode(editMode: string | null) {
+      if (isNil(editMode)) {
+        this.editMode = null
+      } else if (find(EDIT_MODE_TYPES, type => editMode.match(type))) {
+        // Valid mode
+        this.editMode = editMode
+      } else {
+        throw new TypeError('Invalid page mode: ' + editMode)
+      }
     },
     setModifiedSinceLastSearch(value: boolean) {
       this.isModifiedSinceLastSearch = value
