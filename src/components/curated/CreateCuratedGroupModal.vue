@@ -2,7 +2,7 @@
   <div>
     <ModalHeader :text="`Name Your ${domainLabel(true)}`" />
     <form @submit.prevent="createCuratedGroup" @keydown.esc="cancelModal">
-      <div class="m-3">
+      <div class="ma-3">
         <label id="label-of-create-input" for="create-input" tabindex="-1"><span class="sr-only">{{ domainLabel(true) }} </span>Name:</label>
         <b-form-input
           id="create-input"

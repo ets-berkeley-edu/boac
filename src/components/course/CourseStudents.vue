@@ -35,7 +35,7 @@
         >
           <h3
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
-            class="m-0 p-0 student-name"
+            class="ma-0 pa-0 student-name"
           >
             <span v-if="row.item.firstName" v-html="lastNameFirst(row.item)"></span>
             <span v-if="!row.item.firstName" v-html="row.item.lastName"></span>
@@ -44,7 +44,7 @@
         <span
           v-if="!row.item.uid"
           :id="`student-${row.item.sid}-has-no-uid`"
-          class="font-size-16 m-0 p-0 "
+          class="font-size-16 ma-0 pa-0 "
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
         >
           <span v-if="row.item.firstName" v-html="lastNameFirst(row.item)"></span>

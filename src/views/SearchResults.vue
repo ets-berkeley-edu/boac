@@ -1,5 +1,5 @@
 <template>
-  <div class="m-3">
+  <div class="ma-3">
     <Spinner />
     <SearchResultsHeader :results="results" />
     <div v-if="!loading && _size(results.admits)">
@@ -41,11 +41,10 @@
         <v-btn
           v-if="!completeNoteResults"
           id="fetch-more-notes"
-          variant="link"
+          text="Show additional advising notes"
+          variant="text"
           @click.prevent="fetchMoreNotes"
-        >
-          Show additional advising notes
-        </v-btn>
+        />
         <SectionSpinner :loading="loadingAdditionalNotes" />
       </div>
     </div>
@@ -65,11 +64,10 @@
         <v-btn
           v-if="!completeAppointmentResults"
           id="fetch-more-appointments"
-          variant="link"
+          text="Show additional advising appointments"
+          variant="text"
           @click.prevent="fetchMoreAppointments"
-        >
-          Show additional advising appointments
-        </v-btn>
+        />
         <SectionSpinner :loading="loadingAdditionalAppointments" />
       </div>
     </div>

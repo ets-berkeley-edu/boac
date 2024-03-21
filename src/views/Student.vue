@@ -16,7 +16,7 @@
           <StudentProfileGPA :student="student" />
         </div>
       </div>
-      <div class="m-3">
+      <div class="ma-3">
         <AcademicTimeline :student="student" />
         <AreYouSureModal
           v-if="showAreYouSureModal"

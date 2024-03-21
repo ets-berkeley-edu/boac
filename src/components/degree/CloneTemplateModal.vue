@@ -11,7 +11,7 @@
   >
     <ModalHeader text="Name Your Degree Copy" />
     <form @submit.prevent="createClone" @keydown.esc="cancel">
-      <div class="m-3">
+      <div class="ma-3">
         <label id="degree-name-input-label" for="degree-name-input">Degree Name:</label>
         <b-form-input
           id="degree-name-input"

@@ -32,7 +32,7 @@
       <div class="pr-2">
         Debug
       </div>
-      [<b-button class="m-0 p-0" variant="link" @click="showDebug = !showDebug">{{ showDebug ? 'hide' : 'show' }}</b-button>]
+      [<b-button class="ma-0 pa-0" variant="link" @click="showDebug = !showDebug">{{ showDebug ? 'hide' : 'show' }}</b-button>]
     </div>
     <transition name="drawer">
       <pre v-if="showDebug">{{ degreeEditSessionToString }}</pre>

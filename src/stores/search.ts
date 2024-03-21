@@ -62,46 +62,22 @@ export const useSearchStore = defineStore('search', {
       this.includeNotes = domain.includes('notes')
       this.includeStudents = domain.includes('students')
     },
-    resetAutocompleteInput() {
-      this.autocompleteInputResetKey++
-    },
-    setAuthor(value: string | null) {
-      this.author = value
-    },
-    setFromDate(value: string) {
-      this.fromDate = value
-    },
-    setPostedBy(value: string) {
-      this.postedBy = value
-    },
-    setStudent(value: string) {
-      this.student = value
-    },
-    setToDate(value: string) {
-      this.toDate = value
-    },
-    setTopic(value: string) {
-      this.topic = value
-    },
-    setIncludeAdmits(value: boolean) {
-      this.includeAdmits = value
-    },
+    resetAutocompleteInput() {this.autocompleteInputResetKey++},
+    setAuthor(value: string | null) {this.author = value},
+    setFromDate(value: string) {this.fromDate = value},
+    setIncludeAdmits(value: boolean) {this.includeAdmits = value},
     setIncludeCourses(value: boolean) {this.includeCourses = value},
     setIncludeNotes(value: boolean) {this.includeNotes = value},
     setIncludeStudents(value: boolean) {this.includeStudents = value},
     setIsFocusOnSearch(value: boolean) {this.isFocusOnSearch = value},
     setIsSearching(value: boolean) {this.isSearching = value},
-    setSearchHistory(history: string[]) {
-      this.searchHistory = history || []
-    },
-    setShowAdvancedSearch(show: boolean) {
-      this.showAdvancedSearch = show
-    },
-    setTopicOptions(topicOptions: any[]) {
-      this.topicOptions = topicOptions
-    },
-    setQueryText(queryText: string) {
-      this.queryText = queryText
-    }
+    setPostedBy(value: string) {this.postedBy = value},
+    setQueryText(queryText: string) {this.queryText = queryText},
+    setSearchHistory(history: string[]) {this.searchHistory = history || []},
+    setShowAdvancedSearch(show: boolean) {this.showAdvancedSearch = show},
+    setStudent(value: string) {this.student = value},
+    setToDate(value: string) {this.toDate = value},
+    setTopic(value: string) {this.topic = value},
+    setTopicOptions(topicOptions: any[]) {this.topicOptions = topicOptions}
   }
 })

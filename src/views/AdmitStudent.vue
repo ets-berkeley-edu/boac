@@ -1,7 +1,7 @@
 <template>
   <div>
     <Spinner />
-    <div v-if="!loading" class="m-3">
+    <div v-if="!loading" class="ma-3">
       <h1
         id="admit-name-header"
         :class="{'demo-mode-blur': currentUser.inDemoMode}"

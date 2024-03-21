@@ -34,7 +34,7 @@
           <span
             v-if="sortedBy !== 'first_name'"
             :id="`student-${student.sid}-has-no-uid`"
-            class="font-size-16 m-0"
+            class="font-size-16 ma-0"
             :class="{'demo-mode-blur': currentUser.inDemoMode}"
           >
             {{ student.firstName }} {{ student.lastName }}

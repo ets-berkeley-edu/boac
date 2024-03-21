@@ -7,12 +7,12 @@
       <div v-if="!loading && isDirty" class="pb-1">
         [<v-btn
           id="edit-search-btn"
-          class="px-0"
-          variant="link"
+          class="mb-1 px-0"
+          color="primary"
+          text="edit search"
+          variant="text"
           @click.prevent="openAdvancedSearch"
-        >
-          edit search
-        </v-btn>]
+        />]
       </div>
     </div>
     <div v-if="!loading">

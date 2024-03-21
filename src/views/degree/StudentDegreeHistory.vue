@@ -9,7 +9,7 @@
     </div>
     <Spinner />
     <div v-if="!loading">
-      <div class="m-3 pt-2">
+      <div class="ma-3 pt-2">
         <b-container class="px-0 mx-0" :fluid="true">
           <b-row>
             <b-col>
