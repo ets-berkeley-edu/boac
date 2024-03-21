@@ -1,11 +1,14 @@
 <template>
   <div class="student-checkbox">
-    <b-form-checkbox
+    <v-checkbox
       :id="checkboxId"
       v-model="status"
       :aria-label="ariaLabel"
-      size="sm"
-      @change="toggle"
+      base-color="secondary"
+      color="secondary"
+      density="compact"
+      hide-details
+      @update:model-value="toggle"
     />
   </div>
 </template>

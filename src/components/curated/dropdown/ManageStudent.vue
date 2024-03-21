@@ -1,6 +1,6 @@
 <template>
   <div :class="{'opacity-zero': srOnly && !isAdding && !isRemoving && !showModal}">
-    <b-dropdown
+    <v-menu
       :id="dropdownId"
       :aria-label="`${domainLabel(true)}s for ${student.name}`"
       :class="{'pa-0': isButtonVariantLink}"
@@ -12,8 +12,11 @@
       :toggle-class="isButtonVariantLink ? '' : 'b-dd-override b-dd-narrow btn-primary-color-override'"
       :variant="dropdownVariant"
     >
-      <template #button-content>
-        <div :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)">
+      <template #activator="{props}">
+        <v-btn
+          :id="isAdding ? `added-to-${idFragment}` : (isRemoving ? `removed-from-${idFragment}` : `add-to-${idFragment}`)"
+          v-bind="props"
+        >
           <div v-if="!isAdding && !isRemoving" class="d-flex justify-content-between">
             <div :class="labelClass">
               {{ label }}
@@ -33,41 +36,44 @@
           <span v-if="isAdding" :class="{'text-success': isButtonVariantLink}">
             <v-icon :icon="mdiCheckBold" /> Added
           </span>
-        </div>
+        </v-btn>
       </template>
-      <b-dropdown-item v-if="!_filter(currentUser.myCuratedGroups, ['domain', domain]).length">
-        <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
-      </b-dropdown-item>
-      <div v-if="!groupsLoading" class="pt-1">
-        <b-dropdown-item
-          v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
-          :id="`${idFragment}-${group.id}-menu-item`"
-          :key="group.id"
-          class="b-dd-item-override"
-          @click="groupCheckboxClick(group)"
-          @keyup.enter="groupCheckboxClick(group)"
-        >
-          <b-form-checkbox
-            :id="`${idFragment}-${group.id}-checkbox`"
-            v-model="checkedGroups"
-            :aria-label="_includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
-            :value="group.id"
+      <v-card min-width="300">
+        <v-list>
+          <v-list-item v-if="!_filter(currentUser.myCuratedGroups, ['domain', domain]).length">
+            <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
+          </v-list-item>
+          <div v-if="!groupsLoading" class="pt-1">
+            <v-list-item
+              v-for="group in _filter(currentUser.myCuratedGroups, ['domain', domain])"
+              :id="`${idFragment}-${group.id}-menu-item`"
+              :key="group.id"
+              @click="groupCheckboxClick(group)"
+              @keyup.enter="groupCheckboxClick(group)"
+            >
+              <v-checkbox
+                :id="`${idFragment}-${group.id}-checkbox`"
+                v-model="checkedGroups"
+                :aria-label="_includes(checkedGroups, group.id) ? `Remove ${student.name} from '${group.name}' group` : `Add ${student.name} to '${group.name}' group`"
+                :value="group.id"
+              >
+                <span class="sr-only">{{ domainLabel(true) }} </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
+              </v-checkbox>
+            </v-list-item>
+          </div>
+          <v-divider />
+          <v-list-item
+            :id="`create-${idFragment}`"
+            :aria-label="`Create a new ${domainLabel(false)}`"
+            class="create-new-button mb-0 pl-0 text-dark"
+            @click="showModal = true"
           >
-            <span class="sr-only">{{ domainLabel(true) }} </span>{{ group.name }}<span class="sr-only"> {{ checkedGroups.includes(group.id) ? 'is' : 'is not' }} selected</span>
-          </b-form-checkbox>
-        </b-dropdown-item>
-      </div>
-      <b-dropdown-divider />
-      <b-dropdown-item
-        :id="`create-${idFragment}`"
-        :aria-label="`Create a new ${domainLabel(false)}`"
-        class="create-new-button mb-0 pl-0 text-dark"
-        @click="showModal = true"
-      >
-        <v-icon :icon="mdiPlus" /> Create New {{ domainLabel(true) }}
-      </b-dropdown-item>
-    </b-dropdown>
-    <b-modal
+            <v-icon :icon="mdiPlus" /> Create New {{ domainLabel(true) }}
+          </v-list-item>
+        </v-list>
+      </v-card>
+    </v-menu>
+    <v-dialog
       v-model="showModal"
       body-class="pl-0 pr-0"
       hide-footer
@@ -79,7 +85,7 @@
         :create="onCreateCuratedGroup"
         :domain="domain"
       />
-    </b-modal>
+    </v-dialog>
   </div>
 </template>
 

@@ -37,10 +37,13 @@
   </div>
 </template>
 
+<script setup>
+import {DateTime} from 'luxon'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import Util from '@/mixins/Util'
-import {DateTime} from 'luxon'
 
 export default {
   name: 'AdvisingNoteSnippet',
