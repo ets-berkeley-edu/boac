@@ -8,7 +8,7 @@
     density="compact"
     :headers="headers"
     :items="students"
-    :sort-by.sync="sortBy"
+    :sort-by.sync="[sortBy]"
     :sort-compare="sortCompare"
     :sort-desc.sync="sortDescending"
     thead-class="sortable-table-header text-no-wrap"
@@ -171,6 +171,7 @@ import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
 import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {isNil, isNumber} from 'lodash'
 import {sortComparator} from '@/lib/utils'
 
 export default {
@@ -300,8 +301,8 @@ export default {
       let aValue = this._get(a, sortBy)
       let bValue = this._get(b, sortBy)
       // If column type is number then nil is treated as zero.
-      aValue = this._isNil(aValue) && this._isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
-      bValue = this._isNil(bValue) && this._isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
+      aValue = isNil(aValue) && isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
+      bValue = isNil(bValue) && isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
       let result = sortComparator(aValue, bValue)
       if (result === 0) {
         this._each(['lastName', 'firstName', 'sid'], field => {

@@ -14,6 +14,7 @@ import {VChip} from 'vuetify/components/VChip'
 import {VCol, VContainer, VSpacer, VRow} from 'vuetify/components/VGrid'
 import {VDataTable, VDataTableVirtual} from 'vuetify/components/VDataTable'
 import {VDialog} from 'vuetify/components/VDialog'
+import {VDivider} from 'vuetify/components/VDivider'
 import {VExpansionPanel, VExpansionPanels, VExpansionPanelText, VExpansionPanelTitle} from 'vuetify/components/VExpansionPanel'
 import {VFileInput} from 'vuetify/components/VFileInput'
 import {VFooter} from 'vuetify/components/VFooter'
@@ -58,6 +59,7 @@ export default createVuetify({
     VDataTable,
     VDataTableVirtual,
     VDialog,
+    VDivider,
     VExpansionPanel,
     VExpansionPanels,
     VExpansionPanelText,

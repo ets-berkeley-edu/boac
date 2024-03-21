@@ -3,33 +3,36 @@
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a {{ domainLabel(false) }}
     </label>
-    <div class="add-all-checkbox">
-      <b-form-checkbox
+    <div class="add-all-checkbox-container">
+      <v-checkbox
         :id="checkboxId"
         v-model="isSelectAllChecked"
         :aria-controls="dropdownId"
-        aria-labelledby="add-all-checkbox-label"
+        base-color="secondary"
+        class="add-all-checkbox"
+        color="primary"
         :disabled="isSaving"
+        hide-details
         :indeterminate="indeterminate"
-        size="lg"
-        @change="toggle"
+        @update:model-value="toggle"
       />
     </div>
     <div>
-      <b-dropdown
+      <v-menu
         v-if="!!_size(sids)"
         :id="dropdownId"
-        :variant="isSaving ? 'success' : 'primary'"
+        :color="isSaving ? 'success' : 'primary'"
         :disabled="isSaving"
         class="curated-selector mr-2"
         toggle-class="b-dd-override"
         size="sm"
         no-caret
       >
-        <template #button-content>
-          <div
+        <template #activator="{props}">
+          <v-btn
             :id="isSaving ? `add-to-${idFragment}-confirmation` : `add-to-${idFragment}`"
             class="px-1"
+            v-bind="props"
           >
             <div v-if="!isSaving" class="d-flex justify-content-between">
               <div class="pr-2">Add to {{ domainLabel(true) }}</div>
@@ -45,38 +48,41 @@
             <div v-if="isSaving">
               <v-icon :icon="mdiCheckBold" /> Added to {{ domainLabel(true) }}
             </div>
-          </div>
+          </v-btn>
         </template>
-        <b-dropdown-item v-if="!myCuratedGroups.length">
-          <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
-        </b-dropdown-item>
-        <b-dropdown-item
-          v-for="group in myCuratedGroups"
-          :key="group.id"
-          class="b-dd-item-override"
-          @click="curatedGroupCheckboxClick(group)"
-        >
-          <b-form-checkbox
-            :id="`${idFragment}-${group.id}-checkbox`"
-            @click="curatedGroupCheckboxClick(group)"
-            @keyup.enter="curatedGroupCheckboxClick(group)"
-          >
-            <span class="sr-only">Hit enter to add students to </span>{{ group.name }}
-          </b-form-checkbox>
-        </b-dropdown-item>
-        <b-dropdown-divider />
-        <b-dropdown-item
-          :id="`create-${idFragment}`"
-          :aria-label="`Create a new ${domainLabel(false)}`"
-          class="pl-0 text-dark"
-          variant="link"
-          @click="showModal = true"
-        >
-          <v-icon :icon="mdiPlus" />
-          Create New {{ domainLabel(true) }}
-        </b-dropdown-item>
-      </b-dropdown>
-      <b-modal
+        <v-card min-width="300">
+          <v-list>
+            <v-list-item v-if="!myCuratedGroups.length">
+              <span class="text-no-wrap pb-1 pl-3 pr-3 pt-1 faint-text">You have no {{ domainLabel(false) }}s.</span>
+            </v-list-item>
+            <v-list-item
+              v-for="group in myCuratedGroups"
+              :key="group.id"
+              @click="curatedGroupCheckboxClick(group)"
+            >
+              <v-checkbox
+                :id="`${idFragment}-${group.id}-checkbox`"
+                @click="curatedGroupCheckboxClick(group)"
+                @keyup.enter="curatedGroupCheckboxClick(group)"
+              >
+                <span class="sr-only">Hit enter to add students to </span>{{ group.name }}
+              </v-checkbox>
+            </v-list-item>
+            <v-divider />
+            <v-list-item
+              :id="`create-${idFragment}`"
+              :aria-label="`Create a new ${domainLabel(false)}`"
+              class="pl-0 text-dark"
+              variant="link"
+              @click="showModal = true"
+            >
+              <v-icon :icon="mdiPlus" />
+              Create New {{ domainLabel(true) }}
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
+      <v-dialog
         v-model="showModal"
         body-class="pl-0 pr-0"
         hide-footer
@@ -88,13 +94,13 @@
           :create="modalCreateCuratedGroup"
           :domain="domain"
         />
-      </b-modal>
+      </v-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
-import {mdiMenuDown, mdiPlus} from '@mdi/js'
+import {mdiCheckBold, mdiMenuDown, mdiPlus} from '@mdi/js'
 </script>
 
 <script>
@@ -241,12 +247,14 @@ label {
   margin-bottom: 0;
 }
 .add-all-checkbox {
+  padding-bottom: 20px;
+}
+.add-all-checkbox-container {
   background-color: #eee;
   border: 1px solid #aaa;
   border-radius: 6px;
   height: 36px;
   margin-right: 6px;
-  padding: 2px 2px 0 7px;
   width: 36px;
 }
 .curated-selector {
