@@ -1,6 +1,5 @@
 <script>
 import _ from 'lodash'
-import moment from 'moment-timezone'
 import numeral from 'numeral'
 import {nextTick} from 'vue'
 import {oxfordJoin, putFocusNextTick, stripHtmlAndTrim, toInt} from '@/lib/utils'
@@ -90,7 +89,6 @@ export default {
     escapeForRegExp: s => s && s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
     isNilOrBlank: s => _.isNil(s) || _.trim(s) === '',
     lastNameFirst: u => u.lastName && u.firstName ? `${u.lastName}, ${u.firstName}` : (u.lastName || u.firstName),
-    moment,
     nextTick,
     numFormat: (num, format=null) => numeral(num).format(format),
     oxfordJoin,
