@@ -15,7 +15,7 @@
         <v-btn
           id="dismiss-service-announcement"
           title="Dismiss"
-          variant="link"
+          variant="plain"
           @click="toggle"
         >
           <v-icon :icon="mdiClose" />

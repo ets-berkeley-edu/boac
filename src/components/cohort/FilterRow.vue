@@ -189,7 +189,7 @@
       <v-btn
         id="unsaved-filter-reset"
         class="p-0"
-        variant="link"
+        variant="plain"
         @click="reset"
       >
         Cancel
@@ -201,7 +201,7 @@
           <v-btn
             :id="`edit-added-filter-${position}`"
             class="btn-cohort-added-filter pr-1"
-            variant="link"
+            variant="plain"
             size="sm"
             @click="onClickEditButton"
           >
@@ -211,7 +211,7 @@
         <v-btn
           :id="`remove-added-filter-${position}`"
           class="btn-cohort-added-filter pl-2 pr-0"
-          variant="link"
+          variant="plain"
           size="sm"
           @click="remove"
         >
@@ -232,7 +232,7 @@
         <v-btn
           :id="`cancel-edit-added-filter-${position}`"
           class="btn-cohort-added-filter"
-          variant="link"
+          variant="plain"
           size="sm"
           @click="onClickCancelEdit"
         >

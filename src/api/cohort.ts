@@ -1,6 +1,8 @@
 import axios from 'axios'
 import ga from '@/lib/ga'
+import {get, toPlainObject} from 'lodash'
 import {DateTime} from 'luxon'
+import fileDownload from 'js-file-download'
 import utils from '@/api/api-utils'
 import {useContextStore} from '@/stores/context'
 
@@ -46,14 +48,13 @@ export function deleteCohort(id) {
         'Content-Type': 'application/json'
       }
     })
-    .then(() => $_onDelete(id), () => null)
+    .then(() => $_onDelete(id))
 }
 
 export function downloadCohortCsv(cohortId: number, cohortName: string, csvColumnsSelected: any[]) {
-  const fileDownload = require('js-file-download')
   const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = useContextStore().currentUser.preferences.termId || useContextStore().config.currentEnrollmentTermId
+  const termId = useContextStore().currentUser.preferences.termId || get(useContextStore().config, 'currentEnrollmentTermId')
 
   $_track('download', filename)
   return axios
@@ -62,14 +63,13 @@ export function downloadCohortCsv(cohortId: number, cohortName: string, csvColum
       csvColumnsSelected,
       termId
     })
-    .then(response => fileDownload(response, `${filename}.csv`), () => null)
+    .then(response => fileDownload(toPlainObject(response), `${filename}.csv`))
 }
 
 export function downloadCsv(domain: string, cohortName: string, filters: any[], csvColumnsSelected: any[]) {
-  const fileDownload = require('js-file-download')
   const now = DateTime.now().toFormat('YYYY-MM-DD_HH-mm-ss')
   const filename = cohortName ? `${cohortName}-students-${now}` : `students-${now}`
-  const termId = useContextStore().currentUser.preferences.termId || useContextStore().config.currentEnrollmentTermId
+  const termId = useContextStore().currentUser.preferences.termId || get(useContextStore().config, 'currentEnrollmentTermId')
   $_track('download', filename)
 
   return axios.post(`${utils.apiBaseUrl()}/api/cohort/download_csv_per_filters`, {
@@ -78,7 +78,7 @@ export function downloadCsv(domain: string, cohortName: string, filters: any[], 
     filters,
     termId
   })
-  .then(response => fileDownload(response, `${filename}.csv`), () => null)
+  .then(response => fileDownload(toPlainObject(response), `${filename}.csv`))
 }
 
 export function getCohort(
@@ -91,7 +91,7 @@ export function getCohort(
 ) {
   $_track('view')
   const url = `${utils.apiBaseUrl()}/api/cohort/${id}?includeStudents=${includeStudents}&limit=${limit}&offset=${offset}&orderBy=${orderBy}&termId=${termId}`
-  return axios.get(url).then(response => response, () => null)
+  return axios.get(url).then(response => response)
 }
 
 export function getCohortEvents(id: number, offset: number, limit: number) {
