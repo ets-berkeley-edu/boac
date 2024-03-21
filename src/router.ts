@@ -11,6 +11,7 @@ const CuratedGroup = () => import('@/views/CuratedGroup.vue')
 const DegreeTemplate = () => import('@/views/degree/DegreeTemplate.vue')
 const DraftNotes = () => import('@/views/DraftNotes.vue')
 const Error = () => import('@/views/Error.vue')
+const FlightDeck = () => import('@/views/FlightDeck.vue')
 const Home = () => import('@/views/Home.vue')
 const Login = () => import('./layouts/Login.vue')
 const ManageDegreeChecks = () => import('@/views/degree/ManageDegreeChecks.vue')
@@ -144,6 +145,30 @@ const routes:RouteRecordRaw[] = [
         path: '/student/:uid',
         component: Student,
         name: 'Student'
+      }
+    ]
+  },
+  {
+    path: '/',
+    component: StandardLayout,
+    beforeEnter: (to: any, from: any, next: any) => {
+      // Requires Admin
+      const currentUser = useContextStore().currentUser
+      if (currentUser.isAuthenticated) {
+        if (currentUser.isAdmin) {
+          next()
+        } else {
+          next({path: '/404'})
+        }
+      } else {
+        $_goToLogin(to, next)
+      }
+    },
+    children: [
+      {
+        path: '/admin',
+        component: FlightDeck,
+        name: 'Flight Deck'
       }
     ]
   },
