@@ -1,82 +1,86 @@
 <template>
   <div class="justify-center d-flex">
-    <div>
-      <label for="search-students-input" class="sr-only">
-        {{ labelForSearchInput }}
-        (Type / to put focus in the search input field.)
-      </label>
-      <v-autocomplete
-        id="search-students-input"
-        :key="autocompleteInputResetKey"
-        aria-labelledby="search-input-label"
-        bg-color="white"
-        :class="{
-          'faint-text': !queryText,
-          'search-focus-in': isFocusOnSearch || queryText,
-          'search-focus-out': !isFocusOnSearch && !queryText
-        }"
-        clearable
-        density="comfortable"
-        :disabled="isSearching"
-        hide-details
-        hide-no-data
-        :items="useSearchStore().searchHistory"
-        :menu-icon="null"
-        placeholder="/ to search"
-        type="search"
-        variant="outlined"
-      />
-      <!--
-        :search="onChangeAutocomplete"
-        @keydown.enter.prevent="search"
-        @submit="onSubmitAutocomplete"
-        @focusin="onFocusInSearch"
-        @focusout="onFocusOutSearch"
-      -->
-      <v-tooltip
-        v-model="showErrorPopover"
-        target="search-students-input"
-        location="top"
-      >
-        <span
-          id="popover-error-message"
-          aria-live="polite"
-          class="has-error"
-          role="alert"
-        >
-          <v-icon :icon="mdiAlertCircle" class="text-warning pr-1" /> Search input is required
-        </span>
-      </v-tooltip>
-    </div>
-    <div v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" class="d-flex justify-center">
-      <div class="pl-2">
-        <v-btn
-          id="go-search"
-          class="btn-search"
+    <div class="align-center d-flex">
+      <div class="mr-2">
+        <label for="search-students-input" class="sr-only">
+          {{ labelForSearchInput }}
+          (Type / to put focus in the search input field.)
+        </label>
+        <v-combobox
+          id="search-students-input"
+          :key="autocompleteInputResetKey"
+          v-model="queryText"
+          aria-labelledby="search-input-label"
+          bg-color="white"
+          :class="{
+            'faint-text': !queryText,
+            'search-focus-in': isFocusOnSearch || queryText,
+            'search-focus-out': !isFocusOnSearch && !queryText
+          }"
+          density="comfortable"
+          :disabled="isSearching"
+          hide-details
+          hide-no-data
+          :items="useSearchStore().searchHistory"
+          :menu-icon="null"
+          placeholder="/ to search"
+          type="search"
           variant="outlined"
-          @keydown.enter="search"
-          @click.stop="search"
+          @focusin="() => useSearchStore().setIsFocusOnSearch(true)"
+          @focusout="() => useSearchStore().setIsFocusOnSearch(false)"
+          @keydown.enter.prevent="search"
         >
-          <div class="d-flex">
-            <div v-if="isSearching" class="pr-1">
-              <v-progress-circular size="small" />
-            </div>
-            <div>
-              <span class="text-no-wrap">Search<span v-if="isSearching">ing</span></span>
-            </div>
-          </div>
-        </v-btn>
+          <template #append-inner>
+            <v-btn
+              v-if="!isSearching && size(trim(queryText))"
+              aria-label="Clear search input"
+              icon
+              size="x-small"
+              @click="() => queryText = null"
+            >
+              <v-icon :icon="mdiClose" />
+            </v-btn>
+            <v-progress-circular
+              v-if="isSearching"
+              indeterminate
+              size="x-small"
+              width="2"
+            />
+          </template>
+        </v-combobox>
+        <v-tooltip
+          v-model="showErrorPopover"
+          target="search-students-input"
+          location="top"
+        >
+          <span
+            id="popover-error-message"
+            aria-live="polite"
+            class="has-error"
+            role="alert"
+          >
+            <v-icon :icon="mdiAlertCircle" class="text-warning pr-1" /> Search input is required
+          </span>
+        </v-tooltip>
       </div>
-      <div>
-        <AdvancedSearchModal />
-      </div>
+      <v-btn
+        v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData"
+        id="go-search"
+        class="btn-search"
+        text="Search"
+        variant="outlined"
+        @keydown.enter="search"
+        @click.stop="search"
+      />
+      <AdvancedSearchModal v-if="currentUser.canAccessAdvisingData || currentUser.canAccessCanvasData" />
     </div>
   </div>
 </template>
 
 <script setup>
 import AdvancedSearchModal from '@/components/search/AdvancedSearchModal'
-import {mdiAlertCircle} from '@mdi/js'
+import {mdiAlertCircle, mdiClose} from '@mdi/js'
+import {size} from 'lodash'
 </script>
 
 <script>
@@ -119,22 +123,6 @@ export default {
     hideError() {
       this.showErrorPopover = false
     },
-    onChangeAutocomplete(input) {
-      this.queryText = input
-      const q = trim(input && input.toLowerCase())
-      return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
-    },
-    onFocusInSearch() {
-      this.setIsFocusOnSearch(true)
-      this.alertScreenReader('Search has focus')
-    },
-    onFocusOutSearch() {
-      this.setIsFocusOnSearch(false)
-    },
-    onSubmitAutocomplete(value) {
-      this.queryText = value
-      this.search()
-    },
     search() {
       const q = trim(this.queryText)
       if (q) {
@@ -163,7 +151,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .search-focus-in {
   border: 0;
   max-width: 300px;
@@ -175,23 +163,18 @@ export default {
   transition: min-width ease-in 0.2s;
   width: 200px;
 }
-</style>
-
-<style scoped>
 .btn-search {
   background-color: transparent;
   color: white;
   font-size: 16px;
-  height: 42px;
+  height: 46px;
   letter-spacing: 1px;
-  margin-bottom: 4px;
-  margin-top: 4px;
   padding: 6px 8px;
 }
 .btn-search:hover {
   background-color: white;
   border-color: white;
-  color: black;
+  color: #3b7ea5;
 }
 /*
 .simple-typeahead {

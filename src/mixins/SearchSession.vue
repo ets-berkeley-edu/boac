@@ -101,8 +101,7 @@ export default {
       'resetAdvancedSearch',
       'resetAutocompleteInput',
       'setAuthor',
-      'setFromDate',
-      'setIsFocusOnSearch'
+      'setFromDate'
     ])
   }
 }
