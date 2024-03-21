@@ -38,25 +38,28 @@
   color: grey;
 }
 .font-size-12 {
-  font-size: 12px;
+  font-size: 12px !important;
+}
+.font-size-13 {
+  font-size: 13px !important;
 }
 .font-size-14 {
   font-size: 14px !important;
 }
-.font-size-16 {
-  font-size: 16px;
-}
 .font-size-15 {
-  font-size: 15px;
+  font-size: 15px !important;
+}
+.font-size-16 {
+  font-size: 16px !important;
 }
 .font-size-18 {
-  font-size: 18px;
+  font-size: 18px !important;
 }
 .font-size-20 {
-  font-size: 20px;
+  font-size: 20px !important;
 }
 .font-size-24 {
-  font-size: 24px;
+  font-size: 24px !important;
 }
 .font-weight-500 {
   font-weight: 500;
@@ -171,6 +174,7 @@
     }
     .v-messages {
       font-size: 14px;
+      line-height: 14px;
       min-height: unset;
       .v-messages__message {
         margin: 4px 0;
@@ -187,7 +191,7 @@
   height: 100vh !important;
 }
 a {
-  color: #007bff;
+  color: rgb(var(--v-theme-anchor));
   text-decoration: none;
   background-color: transparent
 }
