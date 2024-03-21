@@ -23,10 +23,14 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import calendar
+from datetime import datetime as dt
 import json
 import os
+import shutil
 
 from bea.models.term import Term
+from dateutil import tz
 from flask import current_app as app
 
 
@@ -70,8 +74,16 @@ def get_admin_password():
     return os.getenv('PASSWORD')
 
 
+def get_test_identifier():
+    return f'QA TEST {calendar.timegm(dt.now().timetuple())}'
+
+
 def default_download_dir():
     return f'{app.config["BASE_DIR"]}/bea/downloads'
+
+
+def attachments_dir():
+    return f'{app.config["BASE_DIR"]}/bea/assets'
 
 
 def get_current_term():
@@ -100,6 +112,26 @@ def parse_test_data():
         return json.load(f)
 
 
+def date_to_local_tz(date):
+    return date.astimezone(tz.gettz('Los Angeles'))
+
+
 def in_op(arr):
     arr = list(map(lambda i: f"'{i}'", arr))
     return ', '.join(arr)
+
+
+def prepare_download_dir():
+    # Make sure a clean download directory exists
+    if os.path.isdir(default_download_dir()):
+        shutil.rmtree(default_download_dir())
+    os.mkdir(default_download_dir())
+
+
+def is_download_dir_empty():
+    return False if os.listdir(default_download_dir()) else True
+
+
+def assert_equivalence(actual, expected):
+    app.logger.info(f'Expecting {expected}, got {actual}')
+    assert actual == expected

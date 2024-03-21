@@ -47,7 +47,6 @@ class Homepage(BoaPages):
     def load_page(self):
         self.driver.get(boa_utils.get_boa_base_url())
         self.wait_for_spinner()
-        self.hide_boa_footer()
 
     def click_sign_in_button(self):
         self.wait_for_page_and_click(Homepage.SIGN_IN_BUTTON)

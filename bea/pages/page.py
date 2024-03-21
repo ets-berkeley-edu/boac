@@ -23,6 +23,7 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+import glob
 import time
 
 from bea.test_utils import utils
@@ -104,11 +105,14 @@ class Page(object):
                 else:
                     time.sleep(1)
 
+    def when_visible(self, locator, timeout):
+        Wait(self.driver, timeout).until(ec.visibility_of_element_located(locator))
+
     def when_not_visible(self, locator, timeout):
         Wait(self.driver, timeout).until(ec.invisibility_of_element_located(locator))
 
     def wait_for_element(self, locator, timeout):
-        app.logger.debug(f'Waiting for element at {locator}')
+        app.logger.info(f'Waiting for element at {locator}')
         if self.driver.name == 'chrome':
             for entry in self.driver.get_log('browser'):
                 if app.config['BASE_URL'] in entry:
@@ -138,7 +142,7 @@ class Page(object):
     def hide_boa_footer(self):
         if self.is_present(Page.FOOTER) and self.element(Page.FOOTER).is_displayed():
             app.logger.debug('Chasing away the speedbird')
-            self.click_element(Page.SPEEDBIRD)
+            self.element(Page.SPEEDBIRD).click()
 
     def click_element(self, locator, addl_pause=None):
         sleep_default = app.config['CLICK_SLEEP']
@@ -183,6 +187,10 @@ class Page(object):
     def wait_for_element_and_type_js(self, element_id, string, addl_pause=None):
         self.wait_for_page_and_click_js((By.ID, element_id), addl_pause)
         self.driver.execute_script(f"document.getElementById('{element_id}').value='{string}'")
+
+    def wait_for_textbox_and_type(self, locator, string, addl_pause=None):
+        self.wait_for_element_and_click(locator, addl_pause)
+        self.remove_and_enter_chars(locator, string)
 
     def remove_chars(self, locator):
         self.wait_for_element_and_click(locator)
@@ -296,3 +304,23 @@ class Page(object):
         finally:
             if len(self.window_handles()) > 1:
                 self.close_window_and_switch()
+
+    # FILES
+
+    def download_file(self, download_button, file):
+        app.logger.info(f'Downloading to {utils.default_download_dir()}')
+        utils.prepare_download_dir()
+        self.wait_for_page_and_click(download_button)
+        extension = file.file_name.split('.')[-1]
+        tries = 0
+        max_tries = 15
+        while tries <= max_tries:
+            tries += 1
+            try:
+                assert len(glob.glob(f'{utils.default_download_dir()}/*.{extension}')) == 1
+                break
+            except AssertionError:
+                if tries == max_tries:
+                    raise
+                else:
+                    time.sleep(1)

@@ -55,12 +55,14 @@ class BoaPages(Page):
     PROFILE_LINK = (By.ID, 'header-menu-profile')
     FEEDBACK_LINK = (By.XPATH, '//a[contains(text(), "Feedback/Help")]')
     LOG_OUT_LINK = (By.XPATH, '//a[contains(text(), "Log Out")]')
+    CONFIRM_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-confirm')
+    CANCEL_DELETE_OR_DISCARD = (By.ID, 'are-you-sure-cancel')
 
     def wait_for_boa_title(self, string):
         self.wait_for_title(f'{string} | BOA')
 
     def click_header_dropdown(self):
-        self.wait_for_element_and_click(BoaPages.MENU_BUTTON)
+        self.wait_for_element_and_click(BoaPages.HEADER_DROPDOWN)
 
     def open_menu(self):
         if not self.is_present(BoaPages.LOG_OUT_LINK) or not self.element(BoaPages.LOG_OUT_LINK).is_displayed():
@@ -82,4 +84,14 @@ class BoaPages(Page):
                 self.wait_for_element_and_click(BoaPages.LOG_OUT_LINK)
             time.sleep(2)
 
-        self.wait_for_title('Welcome')
+        self.wait_for_boa_title('Welcome')
+
+    def confirm_delete_or_discard(self):
+        self.wait_for_element_and_click(self.CONFIRM_DELETE_OR_DISCARD)
+
+    def cancel_delete_or_discard(self):
+        self.wait_for_element_and_click(self.CANCEL_DELETE_OR_DISCARD)
+
+    # BATCH NOTES
+
+    BATCH_NOTE_BUTTON = By.ID, 'batch-note-button'
