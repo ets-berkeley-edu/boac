@@ -20,57 +20,29 @@
   </v-tooltip>
   <v-dialog v-model="showAdvancedSearch">
     <v-card max-width="800">
-      <v-card-title class="pb-0">
-        <div class="align-center d-flex justify-space-between">
-          <h2
-            id="advanced-search-header"
-            class="font-size-24 font-weight-700"
-            tabindex="-1"
-          >
-            Advanced Search
-          </h2>
-          <div>
-            <v-btn
-              id="advanced-search-close"
-              class="font-size-14 font-weight-700"
-              elevation="0"
-              icon
-              @click="cancel"
-              @keydown.enter="cancel"
-            >
-              <span class="sr-only">Close</span>
-              <v-icon
-                color="primary"
-                :icon="mdiCloseThick"
-                size="16"
-              />
-            </v-btn>
-          </div>
-        </div>
+      <v-card-title class="pb-0 ml-2">
+        <AdvancedSearchModalHeader :on-click-close="cancel" />
       </v-card-title>
-      <v-card-text class="pt-0">
-        <div class="mb-3">
+      <v-card-text class="pt-1">
+        <div class="mb-4">
           <label for="advanced-search-students-input" class="sr-only">{{ labelForSearchInput }}</label>
-          <Autocomplete
+          <v-autocomplete
             id="advanced-search-students-input"
             :key="autocompleteInputResetKey"
+            v-model="queryText"
             :aria-required="searchInputRequired"
-            :default-value="queryText"
+            clearable
             :disabled="isSearching || validDateRange === false"
+            hide-details
+            hide-no-data
+            :items="useSearchStore().searchHistory"
+            :menu-icon="null"
             placeholder="Search"
-            :fetch="() => {
-              return new Promise(resolve => resolve(searchHistory))
-            }"
             type="search"
+            variant="outlined"
+            @update:model-value="onUpdateAutocompleteModel"
             @keydown.enter.prevent="search"
-            @submit="setQueryText"
-          >
-            <template #result="{result, props}">
-              <li v-bind="props" :id="`search-auto-suggest-${props['data-result-index']}`">
-                <span class="font-size-18">{{ result }}</span>
-              </li>
-            </template>
-          </Autocomplete>
+          />
         </div>
         <AdvancedSearchCheckboxes />
         <v-expand-transition v-if="currentUser.canAccessAdvisingData">
@@ -269,17 +241,16 @@
             <v-btn
               id="reset-advanced-search-form-btn"
               :disabled="isSearching"
+              text="Reset"
               variant="text"
               @click="() => reset(true)"
-            >
-              Reset
-            </v-btn>
+            />
           </div>
           <v-btn
             id="advanced-search"
             class="btn-primary-color-override"
-            :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
             color="primary"
+            :disabled="isSearching || allOptionsUnchecked || (searchInputRequired && !_trim(queryText))"
             @click.prevent="search"
           >
             <span v-if="isSearching" class="px-1">
@@ -308,9 +279,11 @@
 
 <script setup>
 import AdvancedSearchCheckboxes from '@/components/search/AdvancedSearchCheckboxes'
+import AdvancedSearchModalHeader from '@/components/search/AdvancedSearchModalHeader'
 import Autocomplete from '@/components/util/Autocomplete.vue'
 import {findStudentsByNameOrSid} from '@/api/student'
-import {mdiClose, mdiCloseThick, mdiTune} from '@mdi/js'
+import {mdiClose, mdiTune} from '@mdi/js'
+import {useSearchStore} from '@/stores/search'
 </script>
 
 <script>
@@ -366,6 +339,10 @@ export default {
     //   const q = this._trim(input && input.toLowerCase())
     //   return q.length ? this.searchHistory.filter(s => s.toLowerCase().startsWith(q)) : this.searchHistory
     // },
+    onUpdateAutocompleteModel(input) {
+      this.queryText = input
+      this.search()
+    },
     openAdvancedSearch() {
       this.showAdvancedSearch = true
       this.alertScreenReader('Advanced search is open')
@@ -433,20 +410,10 @@ export default {
         this.putFocusNextTick('search-students-input')
       }
       scrollToTop()
-    },
-    setQueryText(value) {
-      this.queryText = value
     }
   }
 }
 </script>
-
-<style>
-#advanced-search-students-input {
-  border:  1px solid #337ab7;
-  height: 64px;
-}
-</style>
 
 <style scoped>
 .form-control-label {

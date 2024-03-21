@@ -1,5 +1,5 @@
 <template>
-  <div class="m-2 p-3">
+  <div class="ma-2 pa-3">
     <Spinner />
     <div v-if="!loading">
       <h1 class="page-section-header">{{ title }}</h1>

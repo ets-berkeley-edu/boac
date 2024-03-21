@@ -1,5 +1,5 @@
 <template>
-  <div class="m-4">
+  <div class="ma-4">
     <Spinner />
     <div v-if="!loading">
       <div class="mb-4">

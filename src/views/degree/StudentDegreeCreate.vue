@@ -5,7 +5,7 @@
       <div class="border-bottom light-blue-background pb-2">
         <StudentProfileHeader :compact="true" :link-to-student-profile="true" :student="student" />
       </div>
-      <div class="m-3 pt-2">
+      <div class="ma-3 pt-2">
         <h2 class="page-section-header">Create <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.firstName }}</span>'s Degree Check</h2>
         <div>
           Choose a new degree check for <span :class="{'demo-mode-blur': currentUser.inDemoMode}">{{ student.name }}</span> from the list of options in the menu below.

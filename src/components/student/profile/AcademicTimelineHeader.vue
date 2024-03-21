@@ -46,7 +46,7 @@
           variant="primary"
           @click="isEditingNote = true"
         >
-          <span class="m-1">
+          <span class="ma-1">
             <v-icon :icon="mdiFileOutline" />
             New Note
           </span>
