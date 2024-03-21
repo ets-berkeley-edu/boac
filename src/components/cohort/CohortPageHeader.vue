@@ -141,7 +141,6 @@
     ></RenameCohort>
     <DeleteCohortModal
       id="confirm-delete-modal"
-      :cohort-name="cohort.cohortName"
       :cancel-delete-modal="cancelDeleteModal"
       :delete-cohort="cohortDelete"
       :error="error"

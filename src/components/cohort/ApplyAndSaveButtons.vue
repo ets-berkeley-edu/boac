@@ -1,164 +1,157 @@
 <template>
-  <div>
+  <div class="pt-4">
     <v-btn
-      v-if="showApplyButton"
+      v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-apply"
-      :disabled="!!editMode"
-      class="btn-filter-draft btn-primary-color-override"
-      variant="primary"
+      :disabled="!!useCohortStore().editMode"
+      class="mr-2"
+      color="primary"
       @click="apply"
     >
       Apply
     </v-btn>
     <v-btn
-      v-if="showApplyButton"
+      v-if="useCohortStore().showApplyButton()"
       id="unsaved-filter-reset"
-      :disabled="!!editMode"
-      class="btn-filter-draft"
+      :disabled="!!useCohortStore().editMode"
+      variant="text"
       @click="resetToLastApply"
     >
       Reset
     </v-btn>
-    <div v-if="showSaveButton && isPerforming !== 'search'">
+    <div v-if="isPerforming !== 'search'">
       <v-btn
         id="save-button"
-        :class="{'btn-primary-color-override': isPerforming !== 'acknowledgeSave'}"
-        :variant="saveButtonVariant"
-        :disabled="!!editMode || showCreateModal || !!isPerforming"
-        class="btn-filter-draft save-button-width mt-3"
+        class="mr-2"
+        :color="saveButtonColor"
+        :disabled="!!useCohortStore().editMode || showCreateModal || !!isPerforming"
         @click="save"
       >
         <span v-if="isPerforming === 'acknowledgeSave'">Saved</span>
         <span v-if="isPerforming === 'save'"><v-progress-circular size="small" /> Saving</span>
-        <span v-if="!isPerforming && cohortId">Save Cohort</span>
-        <span v-if="!isPerforming && !cohortId">Save</span>
+        <span v-if="!isPerforming && useCohortStore().cohortId">Save Cohort</span>
+        <span v-if="!isPerforming && !useCohortStore().cohortId">Save</span>
       </v-btn>
       <v-btn
-        v-if="!isPerforming && cohortId"
+        v-if="!isPerforming && useCohortStore().cohortId"
         id="reset-to-saved-cohort"
-        :disabled="!!editMode"
-        class="btn-filter-draft"
+        :disabled="!!useCohortStore().editMode"
+        variant="text"
         @click="resetToSaved"
       >
         Reset
       </v-btn>
-      <b-modal
-        v-model="showCreateModal"
-        body-class="pl-0 pr-0"
-        hide-footer
-        hide-header
-        @shown="putFocusNextTick('modal-header')"
-      >
-        <CreateCohortModal :cancel="cancelCreateModal" :create="create" />
-      </b-modal>
+      <CreateCohortModal
+        :cancel="cancelCreateModal"
+        :create="create"
+        :show-modal="showCreateModal"
+      />
     </div>
   </div>
 </template>
 
+<script setup>
+import {get} from 'lodash'
+import {putFocusNextTick} from '@/lib/utils'
+</script>
+
 <script>
-import CohortEditSession from '@/mixins/CohortEditSession'
-import Context from '@/mixins/Context'
 import CreateCohortModal from '@/components/cohort/CreateCohortModal'
-import Util from '@/mixins/Util'
 import {applyFilters, loadCohort, resetFiltersToLastApply} from '@/stores/cohort-edit-session/utils'
 import {createCohort, saveCohort} from '@/api/cohort'
 import {useCohortStore} from '@/stores/cohort-edit-session'
+import {useContextStore} from '@/stores/context'
 import {useRouter} from 'vue-router'
 
 export default {
   name: 'ApplyAndSaveButtons',
   components: {CreateCohortModal},
-  mixins: [CohortEditSession, Context, Util],
   data: () => ({
     isPerforming: undefined,
     showCreateModal: false
   }),
   computed: {
-    saveButtonVariant() {
+    saveButtonColor() {
       return this.isPerforming === 'acknowledgeSave' ? 'success' : 'primary'
     }
   },
   methods: {
     apply() {
-      this.broadcast('cohort-apply-filters')
+      const cohort = useCohortStore()
+      const context = useContextStore()
+      context.broadcast('cohort-apply-filters')
       this.isPerforming = 'search'
-      this.alertScreenReader('Searching for students')
-      this.setModifiedSinceLastSearch(false)
-      const orderBy = this._get(
-        this.currentUser.preferences,
-        this.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
+      context.alertScreenReader('Searching for students')
+      cohort.setModifiedSinceLastSearch(false)
+      const orderBy = get(
+        context.currentUser.preferences,
+        cohort.domain === 'admitted_students' ? 'admitSortBy' : 'sortBy'
       )
-      const termId = this._get(this.currentUser.preferences, 'termId')
+      const termId = get(context.currentUser.preferences, 'termId')
       applyFilters(orderBy, termId).then(() => {
-        this.putFocusNextTick('cohort-results-header')
-        this.alertScreenReader(`Results include ${this.totalStudentCount} student${this.totalStudentCount === 1 ? '' : 's'}`)
+        putFocusNextTick('cohort-results-header')
+        context.alertScreenReader(`Results include ${cohort.totalStudentCount} student${cohort.totalStudentCount === 1 ? '' : 's'}`)
         this.isPerforming = null
       })
     },
     cancelCreateModal() {
-      this.alertScreenReader('Canceled')
+      useContextStore().alertScreenReader('Canceled')
       this.showCreateModal = false
     },
     create(name) {
+      const cohortStore = useCohortStore()
+      const context = useContextStore()
       this.showCreateModal = false
       this.isPerforming = 'save'
-      this.alertScreenReader('Creating cohort')
-      createCohort(this.domain, name, this.filters).then(async cohort => {
-        useCohortStore().updateSession(cohort, this.filters, this.students, cohort.totalStudentCount)
-        useCohortStore().stashOriginalFilters()
-        useCohortStore().setModifiedSinceLastSearch(null)
-        this.savedCohortCallback(`Cohort "${name}" created`)
-        this.setPageTitle(this.cohortName)
-        await useRouter().push(`/cohort/${this.cohortId}`)
-        window.history.replaceState({...window.history.state, ...{}}, null)
-        this.isPerforming = null
+      context.alertScreenReader('Creating cohort')
+      return createCohort(cohortStore.domain, name, cohortStore.filters).then(async cohort => {
+        if (cohort) {
+          cohortStore.updateSession(cohort, cohortStore.filters, cohortStore.students, cohort.totalStudentCount)
+          cohortStore.stashOriginalFilters()
+          cohortStore.setModifiedSinceLastSearch(null)
+          this.savedCohortCallback(`Cohort "${cohortStore.cohortName}" created`)
+          context.setPageTitle(cohortStore.cohortName)
+          await useRouter().push(`/cohort/${cohortStore.cohortId}`)
+          window.history.replaceState({...window.history.state, ...{}}, null)
+          this.isPerforming = null
+        }
       })
     },
     resetToLastApply() {
-      this.alertScreenReader('Resetting filters')
+      useContextStore().alertScreenReader('Resetting filters')
       resetFiltersToLastApply()
     },
     resetToSaved() {
+      const cohort = useCohortStore()
       this.isPerforming = 'search'
-      this.setCurrentPage(0)
-      this.setModifiedSinceLastSearch(null)
-      this.setEditMode('apply')
-      loadCohort(this.cohortId, this.orderBy, this.termId).then(() => {
-        this.setEditMode(null)
-        this.alertScreenReader('Filters reset')
+      cohort.setCurrentPage(0)
+      cohort.setModifiedSinceLastSearch(null)
+      cohort.setEditMode('apply')
+      loadCohort(cohort.cohortId, cohort.orderBy, cohort.termId).then(() => {
+        cohort.setEditMode(null)
+        useContextStore().alertScreenReader('Filters reset')
         this.isPerforming = null
       })
     },
     save() {
-      if (this.cohortId) {
-        this.alertScreenReader(`Saving changes to cohort ${this.cohortName}`)
+      const cohort = useCohortStore()
+      if (cohort.cohortId) {
+        useContextStore().alertScreenReader(`Saving changes to cohort ${cohort.cohortName}`)
         this.isPerforming = 'save'
-        saveCohort(this.cohortId, this.cohortName, this.filters).then(() => {
-          this.setModifiedSinceLastSearch(null)
-          this.savedCohortCallback(`Cohort "${this.cohortName}" saved`)
+        saveCohort(cohort.cohortId, cohort.cohortName, cohort.filters).then(() => {
+          cohort.setModifiedSinceLastSearch(null)
+          this.savedCohortCallback(`Cohort "${cohort.cohortName}" saved`)
         })
       } else {
         this.showCreateModal = true
-        this.alertScreenReader('Create cohort form is open')
+        useContextStore().alertScreenReader('Create cohort form is open')
       }
     },
     savedCohortCallback(updateStatus) {
-      this.alertScreenReader(updateStatus)
+      useContextStore().alertScreenReader(updateStatus)
       this.isPerforming = 'acknowledgeSave'
       setTimeout(() => (this.isPerforming = null), 2000)
     }
   }
 }
 </script>
-
-<style scoped>
-.btn-filter-draft {
-  height: 40px;
-  margin: 15px 8px 0 0;
-  width: 80px;
-}
-.save-button-width {
-  min-width: 120px;
-  width: 120px;
-}
-</style>

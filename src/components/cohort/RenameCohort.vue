@@ -22,7 +22,7 @@
           type="text"
           persistent-counter
           :rules="[validationRules.valid]"
-          validate-on="blur"
+          validate-on="lazy input"
           variant="outlined"
           @keyup.esc="cancel"
         >

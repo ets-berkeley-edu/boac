@@ -125,9 +125,6 @@ export default {
     showModalProxy: {
       get() {
         return this.showModal
-      },
-      set(value) {
-        this.toggleShow(value)
       }
     }
   },
