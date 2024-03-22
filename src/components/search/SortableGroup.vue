@@ -44,7 +44,7 @@
             <PillAlert
               v-if="!group.alertCount"
               :aria-label="`No issues for ${groupTypeName} '${group.name}'`"
-              color="gray"
+              color="grey"
             >
               0
             </PillAlert>

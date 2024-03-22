@@ -2,56 +2,28 @@
   <v-data-table-virtual
     :id="id"
     v-resize="onResize"
-    :cell-props="{class: 'pa-1 pa-md-0 font-size-16'}"
-    class="bg-transparent pa-2 pt-md-0"
     :class="{'stacked-table': stackTable}"
     density="compact"
     :headers="headers"
     :items="students"
-    :sort-by.sync="[sortBy]"
+    :items-per-page="50"
+    :sort-by="[sortBy]"
     :sort-compare="sortCompare"
-    :sort-desc.sync="sortDescending"
-    thead-class="sortable-table-header text-no-wrap"
   >
-    <template #headers="{columns, isSorted, getSortIcon, toggleSort}">
-      <tr>
-        <template v-for="column in columns" :key="column.key">
-          <th class="py-1 px-0">
-            <v-btn
-              v-if="column.sortable"
-              :id="`${id}-sort-by-${column.key}-btn`"
-              :append-icon="isSorted(column) ? getSortIcon(column) : undefined"
-              class="sortable-table-header text-left px-1"
-              density="compact"
-              variant="text"
-              @click="() => toggleSort(column)"
-            >
-              {{ column.title }}
-            </v-btn>
-            <span v-if="!column.sortable" class="sr-only">{{ column.title }}</span>
-          </th>
-        </template>
-      </tr>
+    <template #header.avatar="{column}">
+      <span class="sr-only">{{ column.title }}</span>
     </template>
     <template #item.curated="{item}">
-      <div>
-        <CuratedStudentCheckbox
-          v-if="options.includeCuratedCheckbox"
-          :domain="domain"
-          :student="item"
-        />
-      </div>
+      <CuratedStudentCheckbox v-if="options.includeCuratedCheckbox" :domain="domain" :student="item" />
     </template>
     <template #item.avatar="{item}">
-      <div>
-        <StudentAvatar
-          :key="item.sid"
-          size="small"
-          :student="item"
-        />
-        <div v-if="options.includeCuratedCheckbox" class="sr-only">
-          <ManageStudent domain="default" :is-button-variant-link="true" :student="item" />
-        </div>
+      <StudentAvatar
+        :key="item.sid"
+        size="small"
+        :student="item"
+      />
+      <div v-if="options.includeCuratedCheckbox" class="sr-only">
+        <ManageStudent domain="default" :is-button-variant-link="true" :student="item" />
       </div>
     </template>
     <template #item.name="{item}">
@@ -62,14 +34,14 @@
           :id="`link-to-student-${item.uid}`"
           class="text-primary"
           :class="{'demo-mode-blur': currentUser.inDemoMode}"
-          :to="studentRoutePath(item.uid, currentUser.inDemoMode)"
+          :to="studentRoutePath(item.uid, useContextStore().currentUser.inDemoMode)"
           v-html="lastNameFirst(item)"
         />
         <span
           v-if="!item.uid"
           :id="`student-${item.sid}-has-no-uid`"
           class="font-weight-500"
-          :class="{'demo-mode-blur': currentUser.inDemoMode}"
+          :class="{'demo-mode-blur': useContextStore().currentUser.inDemoMode}"
           v-html="lastNameFirst(item)"
         />
         <span
@@ -144,7 +116,7 @@
           <PillAlert
             v-if="!item.alertCount"
             :aria-label="`No alerts for ${item.name}`"
-            color="gray"
+            color="grey"
             outlined
           >
             0
@@ -163,6 +135,12 @@
   </v-data-table-virtual>
 </template>
 
+<script setup>
+import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
+import {mdiInformationOutline} from '@mdi/js'
+import {useContextStore} from '@/stores/context'
+</script>
+
 <script>
 import Context from '@/mixins/Context'
 import CuratedStudentCheckbox from '@/components/curated/dropdown/CuratedStudentCheckbox'
@@ -170,8 +148,7 @@ import ManageStudent from '@/components/curated/dropdown/ManageStudent'
 import PillAlert from '@/components/util/PillAlert'
 import StudentAvatar from '@/components/student/StudentAvatar'
 import Util from '@/mixins/Util'
-import {displayAsAscInactive, displayAsCoeInactive} from '@/berkeley'
-import {isNil, isNumber} from 'lodash'
+import {find, get, isNil, isNumber} from 'lodash'
 import {sortComparator} from '@/lib/utils'
 
 export default {
@@ -213,13 +190,6 @@ export default {
     sortDescending: undefined,
     stackTable: false
   }),
-  computed: {
-    headerProps() {
-      return {
-        class: this.$vuetify.display.mdAndDown ? 'd-none' : ''
-      }
-    }
-  },
   watch: {
     sortBy() {
       this.onChangeSortBy()
@@ -234,72 +204,44 @@ export default {
   created() {
     this.sortBy = this.options.sortBy
     this.sortDescending = this.options.reverse
-
-    const sortable = this.students.length > 1
     this.headers = []
     if (this.options.includeCuratedCheckbox) {
-      this.headers = this.headers.concat(this.createHeader({key: 'curated', value: 'curated', title: ''}))
+      this.headers.push({key: 'curated', sortable: false, width: 0, value: 'curated'})
     }
+    const sortable = this.students.length > 1
     this.headers = this.headers.concat([
-      this.createHeader({key: 'avatar', title: 'Photo', value: 'photo', clazz: 'pr-0', visuallyHidden: true}),
-      this.createHeader({key: 'name', title: 'Name', value: 'lastName'}),
-      this.createHeader({key: 'sid', title: 'SID', value: 'sid'})
+      {align: 'end', key: 'avatar', sortable: false, title: 'Photo', width: 0, value: 'photo'},
+      {key: 'name', sortable, title: 'Name', value: 'lastName'},
+      {key: 'sid', sortable, title: 'SID', value: 'sid'}
     ])
     if (this.options.compact) {
-      this.headers = this.headers.concat([
-        this.createHeader({key: 'alertCount', title: 'Alerts', value: 'alertCount', clazz: 'alert-count', align: 'end'})
-      ])
+      this.headers.push({key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'})
     } else {
       this.headers = this.headers.concat([
-        this.createHeader({key: 'major', title: 'Major', value: 'majors[0]', sortable: sortable, clazz: 'truncate-with-ellipsis'}),
-        this.createHeader({key: 'expectedGraduationTerm', title: 'Grad', value: 'expectedGraduationTerm.id', sortable: sortable}),
-        this.createHeader({key: 'enrolledUnits', title: 'Term units', value: 'term.enrolledUnits', sortable: sortable}),
-        this.createHeader({key: 'cumulativeUnits', title: 'Units completed', value: 'cumulativeUnits', sortable: sortable}),
-        this.createHeader({key: 'cumulativeGPA', title: 'GPA', value: 'cumulativeGPA', sortable: sortable}),
-        this.createHeader({key: 'alertCount', title: 'Alerts', value: 'alertCount', sortable: sortable, clazz: 'alert-count', align: 'end'})
+        {key: 'major', sortable, title: 'Major', value: 'majors[0]'},
+        {key: 'expectedGraduationTerm', sortable, title: 'Grad', value: 'expectedGraduationTerm.id'},
+        {key: 'enrolledUnits', sortable, title: 'Term units', value: 'term.enrolledUnits'},
+        {key: 'cumulativeUnits', sortable, title: 'Units completed', value: 'cumulativeUnits'},
+        {key: 'cumulativeGPA', sortable, title: 'GPA', value: 'cumulativeGPA'},
+        {align: 'end', key: 'alertCount', sortable, title: 'Alerts', value: 'alertCount'}
       ])
     }
   },
   methods: {
-    abbreviateTermName: termName =>
-      termName &&
-      termName
-        .replace('20', ' \'')
-        .replace('Spring', 'Spr')
-        .replace('Summer', 'Sum'),
-    displayAsAscInactive,
-    displayAsCoeInactive,
-    normalizeForSort(value) {
-      return this._isString(value) ? value.toLowerCase() : value
-    },
-    createHeader({key, title, value, sortable=false, clazz=null, align=null, visuallyHidden=false}) {
-      let header = {
-        cellProps: visuallyHidden ? {} : {'data-label': title},
-        key: key,
-        title: title,
-        value: value
-      }
-      if (sortable) {
-        header['sortable'] = sortable
-      }
-      if (clazz) {
-        header['class'] = clazz
-      }
-      if (align) {
-        header['align'] = align
-      }
-      return header
-    },
+    abbreviateTermName: termName => termName && termName.replace('20', ' \'').replace('Spring', 'Spr').replace('Summer', 'Sum'),
+    normalizeForSort: value => this._isString(value) ? value.toLowerCase() : value,
     onChangeSortBy() {
-      const field = this._find(this.headers, ['value', this._get(this.sortBy, 0)])
-      this.alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
+      const field = find(this.headers, ['value', get(this.sortBy, 0)])
+      if (field) {
+        this.alertScreenReader(`Sorted by ${field.title}${this.sortDescending ? ', descending' : ''}`)
+      }
     },
     onResize() {
       this.stackTable = this.$vuetify.display.mdAndDown
     },
     sortCompare(a, b, sortBy, sortDesc) {
-      let aValue = this._get(a, sortBy)
-      let bValue = this._get(b, sortBy)
+      let aValue = get(a, sortBy)
+      let bValue = get(b, sortBy)
       // If column type is number then nil is treated as zero.
       aValue = isNil(aValue) && isNumber(bValue) ? 0 : this.normalizeForSort(aValue)
       bValue = isNil(bValue) && isNumber(aValue) ? 0 : this.normalizeForSort(bValue)
@@ -307,8 +249,8 @@ export default {
       if (result === 0) {
         this._each(['lastName', 'firstName', 'sid'], field => {
           result = sortComparator(
-            this.normalizeForSort(this._get(a, field)),
-            this.normalizeForSort(this._get(b, field))
+            this.normalizeForSort(get(a, field)),
+            this.normalizeForSort(get(b, field))
           )
           // Secondary sort is always ascending
           result *= sortDesc ? -1 : 1
