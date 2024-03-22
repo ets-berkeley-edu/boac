@@ -3,7 +3,6 @@
     :id="id"
     v-resize="onResize"
     :class="{'stacked-table': stackTable}"
-    density="compact"
     :headers="headers"
     :items="students"
     :items-per-page="50"
@@ -112,24 +111,13 @@
     <template #item.alertCount="{item}">
       <div>
         <span class="sr-only">Issue count</span>
-        <div class="pr-2">
-          <PillAlert
-            v-if="!item.alertCount"
-            :aria-label="`No alerts for ${item.name}`"
-            color="grey"
-            outlined
-          >
-            0
-          </PillAlert>
-          <PillAlert
-            v-if="item.alertCount"
-            :aria-label="`${item.alertCount} alerts for ${item.name}`"
-            color="warning"
-            outlined
-          >
-            {{ item.alertCount }}
-          </PillAlert>
-        </div>
+        <PillAlert
+          :aria-label="`${item.alertCount || 'No'} alerts for ${item.name}`"
+          :color="item.alertCount ? 'grey' : 'warning'"
+          outlined
+        >
+          {{ item.alertCount || 0 }}
+        </PillAlert>
       </div>
     </template>
   </v-data-table-virtual>
@@ -206,11 +194,11 @@ export default {
     this.sortDescending = this.options.reverse
     this.headers = []
     if (this.options.includeCuratedCheckbox) {
-      this.headers.push({key: 'curated', sortable: false, width: 0, value: 'curated'})
+      this.headers.push({align: 'start', cellProps: {width: 0}, key: 'curated', sortable: false, value: 'curated', headerProps: {width: 0}})
     }
     const sortable = this.students.length > 1
     this.headers = this.headers.concat([
-      {align: 'end', key: 'avatar', sortable: false, title: 'Photo', width: 0, value: 'photo'},
+      {align: 'start', key: 'avatar', sortable: false, title: 'Photo', value: 'photo'},
       {key: 'name', sortable, title: 'Name', value: 'lastName'},
       {key: 'sid', sortable, title: 'SID', value: 'sid'}
     ])
