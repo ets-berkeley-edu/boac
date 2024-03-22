@@ -1,16 +1,14 @@
 <template>
-  <div class="student-checkbox">
-    <v-checkbox
-      :id="checkboxId"
-      v-model="status"
-      :aria-label="ariaLabel"
-      base-color="secondary"
-      color="secondary"
-      density="compact"
-      hide-details
-      @update:model-value="toggle"
-    />
-  </div>
+  <v-checkbox
+    :id="checkboxId"
+    v-model="status"
+    :aria-label="ariaLabel"
+    base-color="grey"
+    color="primary"
+    density="compact"
+    hide-details
+    @update:model-value="toggle"
+  />
 </template>
 
 <script>

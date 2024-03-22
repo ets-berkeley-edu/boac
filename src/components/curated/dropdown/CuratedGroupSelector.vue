@@ -3,20 +3,18 @@
     <label id="add-all-checkbox-label" :for="checkboxId" class="sr-only">
       Select all students to add to a {{ domainLabel(false) }}
     </label>
-    <div class="add-all-checkbox-container">
-      <v-checkbox
-        :id="checkboxId"
-        v-model="isSelectAllChecked"
-        :aria-controls="dropdownId"
-        base-color="secondary"
-        class="add-all-checkbox"
-        color="primary"
-        :disabled="isSaving"
-        hide-details
-        :indeterminate="indeterminate"
-        @update:model-value="toggle"
-      />
-    </div>
+    <v-checkbox
+      :id="checkboxId"
+      v-model="isSelectAllChecked"
+      :aria-controls="dropdownId"
+      base-color="grey"
+      color="primary"
+      density="comfortable"
+      :disabled="isSaving"
+      hide-details
+      :indeterminate="indeterminate"
+      @update:model-value="toggle"
+    />
     <div>
       <v-menu
         v-if="!!_size(sids)"
@@ -24,8 +22,8 @@
         :color="isSaving ? 'success' : 'primary'"
         :disabled="isSaving"
         class="curated-selector mr-2"
-        toggle-class="b-dd-override"
         size="sm"
+        toggle-class="b-dd-override"
         no-caret
       >
         <template #activator="{props}">
@@ -245,17 +243,6 @@ export default {
 label {
   font-size: 14px;
   margin-bottom: 0;
-}
-.add-all-checkbox {
-  padding-bottom: 20px;
-}
-.add-all-checkbox-container {
-  background-color: #eee;
-  border: 1px solid #aaa;
-  border-radius: 6px;
-  height: 36px;
-  margin-right: 6px;
-  width: 36px;
 }
 .curated-selector {
   height: 35px;

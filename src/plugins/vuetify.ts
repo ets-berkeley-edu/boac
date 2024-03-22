@@ -114,7 +114,6 @@ export default createVuetify({
           anchor: '#337ab7',
           body: '#212529',
           'btn-secondary': '#6c757d',
-          gray: '#cccccc',
           error: '#cf1715',
           info: '#367DA1',
           'pale-blue': '#f3fbff',
