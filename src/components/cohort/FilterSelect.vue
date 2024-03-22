@@ -1,66 +1,40 @@
 <template>
   <div>
-    <b-select
-      v-if="hasOptGroups(options)"
+    <v-select
       :id="`filter-select-${type}-${filterRowIndex}`"
       v-model="vModelProxy"
       :aria-labelledby="labelledby"
       class="select-menu"
+      density="compact"
       :disabled="!options"
-      @change="onSelectChange"
+      eager
+      hide-details
+      item-title="name"
+      :items="options"
+      persistent-hint
+      return-object
+      single-line
+      variant="outlined"
     >
-      <b-select-option
-        v-if="!vModelProxy"
-        :id="`${type}-option-null`"
-        :value="undefined"
-      >
-        Select...
-      </b-select-option>
-      <b-select-option-group
-        v-for="(groupOptions, label) in options"
-        :id="normalizeId(`${type}-option-group-${label}`)"
-        :key="label"
-        :label="label"
-      >
-        <b-select-option
-          v-for="option in groupOptions"
-          :id="normalizeId(`${type}-option-${option.value}`)"
-          :key="option.key"
-          :aria-disabled="option.disabled"
-          class="h-100"
-          :disabled="option.disabled"
-          :value="option"
+      <template #item="{props, item}">
+        <v-list-subheader
+          v-if="item.raw.header"
+          :id="listItemId(item)"
         >
-          {{ getLabel(option) }}
-        </b-select-option>
-      </b-select-option-group>
-    </b-select>
-    <b-select
-      v-if="!hasOptGroups(options)"
-      :id="normalizeId(`filter-select-${type}-${filterRowIndex}`)"
-      v-model="vModelProxy"
-      :aria-labelledby="labelledby"
-      class="select-menu"
-      @change="onSelectChange"
-    >
-      <b-select-option
-        v-if="!vModelProxy"
-        :id="`${type}-option-null`"
-        :value="undefined"
-      >
-        Select...
-      </b-select-option>
-      <b-select-option
-        v-for="option in options"
-        :id="normalizeId(`${type}-option-${option.value}`)"
-        :key="option.key"
-        class="h-100"
-        :disabled="option.disabled"
-        :value="option"
-      >
-        {{ getLabel(option) }}
-      </b-select-option>
-    </b-select>
+          {{ item.raw.header }}
+        </v-list-subheader>
+        <v-list-item
+          v-else
+          :id="listItemId(item.raw.value)"
+          v-bind="props"
+          :aria-describedby="item.raw.group ? listItemId({header: item.raw.group}) : false"
+          class="min-height-unset py-1 pl-8"
+          density="compact"
+          role="option"
+          :title="item.title"
+        ></v-list-item>
+      </template>
+    </v-select>
   </div>
 </template>
 
@@ -76,14 +50,10 @@ export default {
       required: true,
       type: String
     },
-    onSelectChange: {
-      required: true,
-      type: Function
-    },
     options: {
-      default: undefined,
+      default: () => [],
       required: false,
-      type: [Object, Array, undefined]
+      type: [Object, Array]
     },
     type: {
       required: true,
@@ -112,7 +82,12 @@ export default {
   },
   methods: {
     getLabel: option => option.name || option.label.primary,
-    hasOptGroups: options => !Array.isArray(options),
+    listItemId(item) {
+      if (item.header) {
+        return this.normalizeId(`${this.type}-option-group-${item.header}`)
+      }
+      return this.normalizeId(`${this.type}-option-${item.key}`)
+    },
     normalizeId: id => id.toLowerCase().replace(/\W/g, ' ').trim().replace(/[ ]+/g, '-')
   }
 }
