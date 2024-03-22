@@ -33,20 +33,18 @@ export function addStudentsToCuratedGroup(curatedGroupId: number, sids: string[]
       sids: sids,
       returnStudentProfiles: returnStudentProfiles
     })
-    .then(response => {
-      const group = response.data
-      $_onUpdate(group)
-      return group
+    .then(data => {
+      $_onUpdate(data)
+      return data
     })
 }
 
 export function createCuratedGroup(domain: string, name: string, sids: string[]) {
   return axios
     .post(`${utils.apiBaseUrl()}/api/curated_group/create`, {domain, name, sids})
-    .then(function(response) {
-      const group = response.data
-      $_onCreate(group)
-      return group
+    .then(function(data) {
+      $_onCreate(data)
+      return data
     })
 }
 
@@ -71,7 +69,7 @@ export function downloadCuratedGroupCsv(curatedGroupId: number, name: string, cs
   const termId = get(useContextStore().currentUser, 'preferences.termId') || get(useContextStore().config, 'currentEnrollmentTermId')
   const url = `${utils.apiBaseUrl()}/api/curated_group/${curatedGroupId}/download_csv`
   return axios.post(url, {csvColumnsSelected, termId})
-    .then(response => fileDownload(response.data, `${name}-students-${now}.csv`), () => null)
+    .then(data => fileDownload(data, `${name}-students-${now}.csv`), () => null)
 }
 
 export function getCuratedGroup(
