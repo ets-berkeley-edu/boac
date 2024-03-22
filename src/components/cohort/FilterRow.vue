@@ -459,7 +459,7 @@ export default {
       }
       this.updateExistingFilter({index: this.position, updatedFilter: this.filter})
       this.setModifiedSinceLastSearch(true)
-      updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(() => {
+      updateFilterOptions(this.domain, this.cohortOwner(), this.filters).then(() => {
         this.isModifyingFilter = false
         this.setEditMode(null)
         this.alertScreenReader(`${this.filter.label.primary} filter updated`)
@@ -599,7 +599,7 @@ export default {
     },
     remove() {
       this.removeFilter(this.position)
-      updateFilterOptions(this.domain, this.cohortOwner, this.filters).then(this._noop)
+      updateFilterOptions(this.domain, this.cohortOwner(), this.filters).then(this._noop)
       this.setEditMode(null)
       this.putFocusNewFilterDropdown()
       this.alertScreenReader(`${this.filter.label.primary} filter removed`)

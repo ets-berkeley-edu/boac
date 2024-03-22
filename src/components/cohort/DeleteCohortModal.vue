@@ -14,7 +14,7 @@
       <ModalHeader text="Delete Saved Cohort" />
       <hr />
       <div class="px-4 py-2">
-        Are you sure you want to delete "<strong>{{ cohortName }}</strong>"?
+        Are you sure you want to delete "<strong>{{ useCohortStore().cohortName }}</strong>"?
       </div>
       <hr />
       <div aria-live="polite">
@@ -52,6 +52,7 @@
 
 <script setup>
 import {mdiAlert} from '@mdi/js'
+import {useCohortStore} from '@/stores/cohort-edit-session'
 </script>
 
 <script>
@@ -67,22 +68,18 @@ export default {
       required: true,
       type: Function
     },
-    cohortName: {
-      required: true,
-      type: String
-    },
     deleteCohort: {
       required: true,
       type: Function
     },
     error: {
       default: undefined,
-      type: String,
-      required: false
+      required: false,
+      type: String
     },
     showModal: {
-      type: Boolean,
-      required: true
+      required: true,
+      type: Boolean
     }
   },
   data: () => ({
@@ -92,9 +89,6 @@ export default {
     showModalProxy: {
       get() {
         return this.showModal
-      },
-      set(value) {
-        this.toggleShow(value)
       }
     }
   },

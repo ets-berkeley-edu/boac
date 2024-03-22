@@ -219,7 +219,7 @@ export default {
           } else {
             throw new TypeError('\'domain\' is required when creating a new cohort.')
           }
-          updateFilterOptions(this.domain, this.cohortOwner, []).then(() => {
+          updateFilterOptions(this.domain, this.cohortOwner(), []).then(() => {
             this.resetSession()
             this.stashOriginalFilters()
             resolve()

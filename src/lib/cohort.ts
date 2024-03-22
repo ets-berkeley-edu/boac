@@ -8,7 +8,7 @@ const isExistingName = (name: string, id?: number) => {
     'curated group': currentUser.myCuratedGroups,
     cohort: currentUser.myCohorts
   }
-  let msg = undefined as string | undefined
+  let msg = ''
   each(all, (cohorts, cohortType) => {
     if (msg) {
       return false
@@ -44,5 +44,5 @@ export function validateCohortName(cohort: {id?: number, name: string}) {
     return `Sorry, '${name}' is a reserved name. Please choose a different name.`
   }
   const msg = isExistingName(name, get(cohort, 'id'))
-  return msg || true
+  return msg && size(msg) ? msg : true
 }

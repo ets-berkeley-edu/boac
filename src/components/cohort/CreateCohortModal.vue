@@ -1,64 +1,79 @@
 <template>
-  <div>
-    <ModalHeader text="Name Your Cohort" />
-    <form @submit.prevent="createCohort" @keydown.esc="cancelModal">
-      <div class="ma-3">
-        <label id="label-of-create-input" for="create-input"><span class="sr-only">Cohort </span>Name:</label>
-        <b-form-input
-          id="create-input"
-          v-model="name"
-          aria-labelledby="label-of-create-input"
-          class="cohort-create-input-name"
-          maxlength="255"
-          size="lg"
-        />
-        <div class="faint-text mb-3"><span class="sr-only">Cohort name has a </span>255 character limit <span v-if="name.length">({{ 255 - name.length }} left)</span></div>
-        <div
-          v-if="error"
-          id="create-error"
-          class="has-error"
-          aria-live="polite"
-          role="alert"
-        >
-          {{ error }}
+  <v-overlay
+    v-model="showModalProxy"
+    class="justify-center overflow-auto"
+    persistent
+    width="100%"
+    @update:model-value="onToggle"
+  >
+    <v-card
+      class="modal-content"
+      min-width="400"
+      max-width="600"
+    >
+      <ModalHeader text="Name Your Cohort" />
+      <hr />
+      <form class="w-100 mb-2" @submit.prevent="createCohort" @keydown.esc="cancelModal">
+        <div class="px-4 py-2">
+          <v-text-field
+            id="create-cohort-input"
+            v-model="name"
+            aria-label="Cohort name, 255 characters or fewer"
+            aria-required="true"
+            class="v-input-details-override mr-2"
+            counter="255"
+            density="compact"
+            :disabled="isSaving"
+            label="Cohort Name"
+            maxlength="255"
+            required
+            type="text"
+            persistent-counter
+            :rules="[validationRules.valid]"
+            validate-on="lazy input"
+            variant="outlined"
+            @keyup.esc="cancel"
+          >
+            <template #counter="{max, value}">
+              <div id="name-create-cohort-counter" aria-live="polite" class="font-size-13 text-no-wrap ml-2 mt-1">
+                <span class="sr-only">Cohort name has a </span>{{ max }} character limit <span v-if="value">({{ max - value }} left)</span>
+              </div>
+            </template>
+          </v-text-field>
         </div>
-        <div
-          v-if="name.length === 255"
-          class="sr-only"
-          aria-live="polite"
-        >
-          Cohort name cannot exceed 255 characters.
+        <hr />
+        <div class="d-flex justify-end px-4 py-2">
+          <ProgressButton
+            id="create-confirm"
+            :action="createCohort"
+            :disabled="!name.length"
+            :in-progress="isSaving"
+          >
+            Save
+          </ProgressButton>
+          <v-btn
+            id="create-cancel"
+            :disabled="isSaving"
+            variant="plain"
+            @click="cancelModal"
+          >
+            Cancel
+          </v-btn>
         </div>
-      </div>
-      <div class="modal-footer mb-0 mr-2 pb-0 pl-0">
-        <v-btn
-          id="create-confirm"
-          :disabled="!name.length"
-          class="btn-primary-color-override"
-          variant="primary"
-          @click.prevent="createCohort"
-        >
-          Save
-        </v-btn>
-        <v-btn
-          id="create-cancel"
-          variant="plain"
-          @click="cancelModal"
-        >
-          Cancel
-        </v-btn>
-      </div>
-    </form>
-  </div>
+      </form>
+    </v-card>
+  </v-overlay>
 </template>
 
 <script>
 import ModalHeader from '@/components/util/ModalHeader'
+import ProgressButton from '@/components/util/ProgressButton'
+import {putFocusNextTick} from '@/lib/utils'
 import {validateCohortName} from '@/lib/cohort'
 
 export default {
   name: 'CreateCohortModal',
-  components: {ModalHeader},
+  components: {ModalHeader, ProgressButton},
   props: {
     cancel: {
       required: true,
@@ -67,31 +82,58 @@ export default {
     create: {
       required: true,
       type: Function
+    },
+    showModal: {
+      required: true,
+      type: Boolean
     }
   },
   data: () => ({
+    isInvalid: true,
+    isSaving: false,
     name: '',
-    error: undefined
+    validationRules: {}
   }),
-  watch: {
-    name() {
-      this.error = undefined
+  computed: {
+    showModalProxy: {
+      get() {
+        return this.showModal
+      }
+    }
+  },
+  created() {
+    this.validationRules = {
+      valid: name => {
+        const valid = validateCohortName({name})
+        this.isInvalid = true !== valid
+        return valid
+      }
     }
   },
   methods: {
     reset() {
+      this.isSaving = false
       this.name = ''
-      this.error = undefined
     },
     cancelModal() {
       this.cancel()
       this.reset()
     },
-    createCohort: function() {
-      this.error = validateCohortName({name: this.name})
-      if (!this.error) {
-        this.create(this.name)
-        this.reset()
+    createCohort() {
+      if (true !== validateCohortName({name: this.name})) {
+        putFocusNextTick('create-cohort-input')
+      } else {
+        this.isSaving = true
+        this.create(this.name).then(() => {
+          this.reset()
+        })
+      }
+    },
+    onToggle(isOpen) {
+      if (isOpen) {
+        putFocusNextTick('modal-header')
+      } else {
+        this.cancel()
       }
     }
   }
