@@ -11,13 +11,13 @@ export function ping() {
 export function getVersion() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/version`)
-    .then(response => response.data, () => null)
+    .then(response => response)
 }
 
 export function getServiceAnnouncement() {
   return axios
     .get(`${utils.apiBaseUrl()}/api/service_announcement`)
-    .then(response => response.data, () => null)
+    .then(response => response.data)
 }
 
 export function publishAnnouncement(publish) {

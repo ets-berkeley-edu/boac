@@ -1,5 +1,5 @@
 <template>
-  <div class="p-3">
+  <div class="pa-3">
     <Spinner />
     <div v-if="!loading">
       <div class="align-items-center d-flex pb-3">
@@ -22,11 +22,7 @@
       </div>
       <div class="mt-2 pt-5">
         <h2 id="manage-topics-header" class="page-section-header-sub">Manage Topics</h2>
-        <ManageTopics />
-      </div>
-      <div class="mt-2 pt-5">
-        <h2 class="page-section-header-sub">Alerts Log Export</h2>
-        <AlertsLogExport />
+        <!-- <ManageTopics /> -->
       </div>
       <div class="mt-2 pt-5">
         <div class="pb-3 pt-3">
@@ -40,7 +36,7 @@
       <div class="pl-3">
         <div class="align-items-center d-flex">
           <div class="pb-1 pl-2">
-            [<b-button
+            [<v-btn
               class="m-0 p-0"
               :class="{'collapsed': showConfigs}"
               aria-controls="collapse-configs"
@@ -50,28 +46,30 @@
               <div class="pb-1">
                 {{ showConfigs ? 'Hide' : 'Show' }} configs
               </div>
-            </b-button>]
+            </v-btn>]
           </div>
         </div>
-        <b-collapse id="collapse-configs" v-model="showConfigs">
-          <b-table
-            hover
-            :items="configs"
-            striped
-            thead-class="sr-only"
-          ></b-table>
-        </b-collapse>
+        <v-table v-show="showConfigs">
+          <tbody>
+            <tr
+              v-for="item in configs"
+              :key="item.key"
+            >
+              <td>{{ item.key }}</td>
+              <td>{{ item.value }}</td>
+            </tr>
+          </tbody>
+        </v-table>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import AlertsLogExport from '@/components/admin/AlertsLogExport'
 import Context from '@/mixins/Context'
 import DemoModeToggle from '@/components/admin/DemoModeToggle'
 import EditServiceAnnouncement from '@/components/admin/EditServiceAnnouncement'
-import ManageTopics from '@/components/topics/ManageTopics'
+// import ManageTopics from '@/components/topics/ManageTopics'
 import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getVersion} from '@/api/config'
@@ -79,10 +77,9 @@ import {getVersion} from '@/api/config'
 export default {
   name: 'Admin',
   components: {
-    AlertsLogExport,
     DemoModeToggle,
     EditServiceAnnouncement,
-    ManageTopics,
+    // ManageTopics,
     Spinner
   },
   mixins: [Context, Util],

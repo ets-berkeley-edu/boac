@@ -1,19 +1,19 @@
 <template>
   <div v-if="announcement !== undefined && originalText !== undefined">
-    <div class="p-2">
+    <div class="pa-5">
       <div v-if="isTogglingPublish">
-        <font-awesome icon="spinner" spin />
+        <Spinner />
         {{ isPublished ? 'Unposting...' : 'Posting...' }}
       </div>
       <div v-if="!isTogglingPublish">
-        <b-form-checkbox
+        <v-checkbox
           id="checkbox-publish-service-announcement"
           v-model="isPublished"
           :disabled="isSaving || !originalText || !originalText.length"
           @change="togglePublish"
         >
           <span id="checkbox-service-announcement-label">{{ isPublished ? 'Posted' : 'Post' }}</span>
-        </b-form-checkbox>
+        </v-checkbox>
       </div>
       <div>
         <div v-if="error" class="mt-2 has-error w-100">
@@ -27,16 +27,16 @@
           :on-value-update="onEditorUpdate"
         />
         <div>
-          <b-btn
+          <v-btn
             id="button-update-service-announcement"
             :disabled="text === originalText"
             variant="primary"
             class="btn-primary-color-override mt-2"
             @click="updateText"
           >
-            <span v-if="isSaving"><font-awesome icon="spinner" spin /> Update...</span>
+            <!-- <span v-if="isSaving"><font-awesome icon="spinner" spin /> Update...</span> -->
             <span v-if="!isSaving">Update</span>
-          </b-btn>
+          </v-btn>
         </div>
       </div>
     </div>
@@ -44,22 +44,25 @@
 </template>
 
 <script>
-import Context from '@/mixins/Context'
+// import Context from '@/mixins/Context'
 import RichTextEditor from '@/components/util/RichTextEditor'
+import Spinner from '@/components/util/Spinner'
 import Util from '@/mixins/Util'
 import {getServiceAnnouncement, publishAnnouncement, updateAnnouncement} from '@/api/config'
+import {useContextStore} from '@/stores/context'
 
 export default {
   name: 'EditServiceAnnouncement',
-  components: {RichTextEditor},
-  mixins: [Context, Util],
+  components: {RichTextEditor, Spinner},
+  mixins: [Util],
   data: () => ({
     error: undefined,
     isPublished: undefined,
     isTogglingPublish: false,
     isSaving: false,
     originalText: undefined,
-    text: undefined
+    text: undefined,
+    announcement: useContextStore().announcement
   }),
   created() {
     getServiceAnnouncement().then(data => {
@@ -81,7 +84,7 @@ export default {
         publishAnnouncement(this.isPublished).then(data => {
           this.isPublished = data.isPublished
           this.isTogglingPublish = false
-          this.alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
+          useContextStore().alertScreenReader(`Service announcement has been ${this.isPublished ? 'published' : 'unpublished'}.`)
         })
       }
     },
@@ -96,7 +99,7 @@ export default {
           this.originalText = this.text = data.text
           this.isPublished = data.isPublished
           this.isSaving = false
-          this.alertScreenReader('The service announcement has been updated.')
+          useContextStore().alertScreenReader('The service announcement has been updated.')
         })
       }
     }
