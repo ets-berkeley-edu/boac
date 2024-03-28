@@ -23,12 +23,21 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 ENHANCEMENTS, OR MODIFICATIONS.
 """
 
+from itertools import groupby
+import re
+
+
+from bea.models.advisor_role import AdvisorRole
 from bea.models.degree_progress_perm import DegreeProgressPerm
 from bea.models.department import Department
+from bea.models.department_membership import DepartmentMembership
+from bea.models.note import Note
+from bea.models.note_attachment import NoteAttachment
 from bea.models.term import Term
 from bea.models.user import User
 from bea.test_utils import utils
 from boac import db, std_commit
+from dateutil import parser
 from flask import current_app as app
 from sqlalchemy import text
 
@@ -102,6 +111,74 @@ def restore_user(user):
     app.logger.info(sql)
     db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
+
+
+def get_authorized_users():
+    auth_users = []
+    sql = """SELECT authorized_users.uid AS uid,
+                    authorized_users.can_access_advising_data AS can_access_advising_data,
+                    authorized_users.can_access_canvas_data AS can_access_canvas_data,
+                    authorized_users.deleted_at AS deleted_at,
+                    authorized_users.is_admin AS is_admin,
+                    authorized_users.is_blocked AS is_blocked,
+                    authorized_users.degree_progress_permission AS deg_prog_perm,
+                    authorized_users.automate_degree_progress_permission AS deg_prog_automated,
+                    university_dept_members.automate_membership AS is_automated,
+                    university_dept_members.role AS advisor_role,
+                    university_depts.dept_code AS dept_code
+               FROM authorized_users
+          LEFT JOIN university_dept_members
+                 ON authorized_users.id = university_dept_members.authorized_user_id
+          LEFT JOIN university_depts
+                 ON university_dept_members.university_dept_id = university_depts.id
+           ORDER BY uid ASC;"""
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+
+    advisors = groupby(results, key=lambda u: u.uid)
+    for k, v in advisors:
+        app.logger.info(f'Getting advisor role(s) for UID {k}')
+        v = list(v)
+        active = False if v[0]['deleted_at'] else True
+        can_access_advising_data = v[0]['can_access_advising_data']
+        can_access_canvas_data = v[0]['can_access_canvas_data']
+        is_admin = v[0]['is_admin']
+        is_blocked = v[0]['is_blocked']
+        degree_progress_automated = v[0]['deg_prog_automated']
+        if v[0]['deg_prog_perm'] == 'read':
+            degree_progress_perm = DegreeProgressPerm.READ
+        elif v[0]['deg_prog_perm'] == 'read_write':
+            degree_progress_perm = DegreeProgressPerm.WRITE
+        else:
+            degree_progress_perm = None
+
+        memberships = []
+        for dept_memb in v:
+            role = dept_memb['advisor_role'] and next(filter(lambda r: (r.value['code'] == dept_memb['advisor_role']), AdvisorRole))
+            dept = dept_memb['dept_code'] and next(filter(lambda d: (d.value['code'] == dept_memb['dept_code']), Department))
+            is_automated = dept_memb['is_automated']
+            membership = DepartmentMembership(advisor_role=role,
+                                              dept=dept,
+                                              is_automated=is_automated)
+            memberships.append(membership)
+
+        user = User({
+            'uid': k,
+            'active': active,
+            'can_access_advising_data': can_access_advising_data,
+            'can_access_canvas_data': can_access_canvas_data,
+            'degree_progress_perm': degree_progress_perm,
+            'degree_progress_automated': degree_progress_automated,
+            'dept_memberships': memberships,
+            'depts': [m.dept for m in memberships],
+            'is_admin': is_admin,
+            'is_blocked': is_blocked,
+        })
+        auth_users.append(user)
+
+    app.logger.info(f'There are {len(auth_users)} authorized users')
+    return auth_users
 
 
 def get_dept_advisors(dept, membership=None):
@@ -179,8 +256,8 @@ def get_dept_advisors(dept, membership=None):
         user = User({
             'uid': row['uid'],
             'active': True,
-            'can_access_advising_data': (True if row['can_access_advising_data'] == 't' else False),
-            'can_access_canvas_data': (True if row['can_access_canvas_data'] == 't' else False),
+            'can_access_advising_data': row['can_access_advising_data'],
+            'can_access_canvas_data': row['can_access_canvas_data'],
             'degree_progress_perm': degree_progress_perm,
             'depts': depts,
             'dept_memberships': dept_memberships,
@@ -205,6 +282,27 @@ def get_advisor_names(advisor):
         advisor.full_name = names[0]
         advisor.alt_names = names[1::]
 
+
+def get_director(auth_users):
+    directors = []
+    for u in auth_users:
+        for m in u.dept_memberships:
+            if m.advisor_role and m.advisor_role.value['code'] == AdvisorRole.DIRECTOR.value['code']:
+                directors.append(u)
+    return directors[0]
+
+
+def get_advising_data_advisor(dept, test_advisor):
+    advisors = []
+    dept_advisors = get_dept_advisors(dept)
+    dept_advisors.reverse()
+    app.logger.info(f'Dept advisor UIDs are {list(map(lambda a: a.uid, dept_advisors))}')
+    for a in dept_advisors:
+        if a.can_access_advising_data and a.uid != test_advisor.uid:
+            advisors.append(a)
+    return advisors[0]
+
+
 # NOTES
 
 
@@ -219,3 +317,98 @@ def get_sids_with_notes_of_src_boa(drafts=False):
     results = db.session.execute(text(sql))
     std_commit(allow_test_environment=True)
     return list(map(lambda r: r['sid'], results))
+
+
+def get_note_ids_by_subject(note_subject, student=None):
+    if student:
+        clause = f" AND sid = '{student.sid}'"
+    else:
+        clause = ''
+    sql = f"""SELECT id
+                FROM notes
+               WHERE subject = '{note_subject}'{clause}
+                 AND deleted_at IS NULL;
+    """
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return list(map(lambda r: r['id'], results))
+
+
+def get_student_notes(student):
+    sql = f"SELECT * FROM notes WHERE sid = '{student.sid}'"
+    app.logger.info(sql)
+    results = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    return get_notes_from_pg_db_result(results)
+
+
+def get_notes_from_pg_db_result(results):
+    notes = []
+    for row in results:
+        app.logger.info(f"Gathering data for BOA note ID {row['id']}")
+
+        depts = list(filter(lambda d: d.value['code'] in row['author_dept_codes'], Department))
+        advisor = User({
+            'depts': list(map(lambda d: d.value['name'], depts)),
+            'full_name': row['author_name'],
+            'role': row['author_role'],
+            'uid': row['author_uid'],
+        })
+
+        attachments = []
+        attach_query = f"SELECT * FROM note_attachments WHERE note_id = '{row['id']}' AND deleted_at IS NULL"
+        app.logger.info(attach_query)
+        attach_results = db.session.execute(text(attach_query))
+        std_commit(allow_test_environment=True)
+        for a in attach_results:
+            if a['note_id'] == row['id']:
+                file_name = a['path_to_attachment'].split('/')[-1]
+                if not re.sub(r'(20)\d{6}(_)\d{6}(_)', '', file_name[0:15]):
+                    visible_file_name = file_name[16:-1]
+                else:
+                    visible_file_name = file_name
+                attachments.append(NoteAttachment({
+                    'attachment_id': a['id'],
+                    'file_name': visible_file_name,
+                    'deleted_at': a['deleted_at'],
+                }))
+
+        student = row['sid'] and User({'sid': row['sid']})
+
+        topics = []
+        topic_query = f"SELECT note_id, topic FROM note_topics WHERE note_id = '{row['id']}' AND deleted_at IS NULL"
+        app.logger.info(topic_query)
+        topic_results = db.session.execute(text(topic_query))
+        std_commit(allow_test_environment=True)
+        for t in topic_results:
+            if t['note_id'] == row['id']:
+                topics.append(t['topic'])
+
+        note = Note({
+            'advisor': advisor,
+            'body': re.sub(r'\s+', ' ', row['body']) if row['body'] else None,
+            'created_date': utils.date_to_local_tz(row['created_at']),
+            'deleted_date': (row['deleted_at'] and utils.date_to_local_tz(row['deleted_at'])),
+            'is_draft': (row['is_draft'] == 't'),
+            'is_private': (row['is_private'] == 't'),
+            'record_id': row['id'],
+            'set_date': (row['set_date'] and utils.date_to_local_tz(parser.parse(row['set_date'].strftime('%Y-%m-%d')))),
+            'student': student,
+            'subject': re.sub(r'\s+', ' ', row['subject']),
+            'updated_date': utils.date_to_local_tz(row['updated_at']),
+        })
+        notes.append(note)
+    return notes
+
+
+def get_attachment_id_by_file_name(note, attachment):
+    sql = f"""SELECT id
+                FROM note_attachments
+               WHERE note_id = {note.record_id}
+                 AND path_to_attachment LIKE '%{attachment.file_name}'"""
+    app.logger.info(sql)
+    result = db.session.execute(text(sql))
+    std_commit(allow_test_environment=True)
+    ids = [row['id'] for row in result]
+    attachment.attachment_id = ids[-1]

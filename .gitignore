@@ -21,6 +21,7 @@ config/*-local.conf
 # Local dev
 venv
 .tox/
+.venv
 
 # Compiled/optimized files
 .python-version

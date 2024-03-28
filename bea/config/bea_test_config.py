@@ -35,6 +35,7 @@ from bea.models.department import Department
 from bea.models.department_membership import DepartmentMembership
 from bea.models.filtered_cohort import FilteredCohort
 from bea.models.incomplete_grades import IncompleteGrades
+from bea.models.note_attachment import NoteAttachment
 from bea.models.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
 from bea.test_utils import boa_utils
@@ -379,8 +380,17 @@ class BEATestConfig(object):
 
     # TODO set_degree_templates
 
-    # TODO set_note_attachments
+    def set_note_attachments(self):
+        attachments = []
+        files = os.listdir(utils.attachments_dir())
+        for f in files:
+            size = os.path.getsize(f'{utils.attachments_dir()}/{f}')
+            attachment = NoteAttachment(file_name=f, file_size=size)
+            attachments.append(attachment)
+        self.attachments = attachments
 
     # CONFIGURATION FOR SPECIFIC TEST SCRIPTS #
 
-    # TODO
+    def note_mgmt(self):
+        self.set_note_attachments()
+        self.set_base_configs()

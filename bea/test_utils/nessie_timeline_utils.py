@@ -22,10 +22,15 @@ SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED HEREUNDER IS PROVIDED
 "AS IS". REGENTS HAS NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES,
 ENHANCEMENTS, OR MODIFICATIONS.
 """
+from itertools import groupby
 
+from bea.models.note import Note
+from bea.models.note_attachment import NoteAttachment
 from bea.models.timeline_record_source import TimelineRecordSource
 from bea.models.user import User
+from bea.test_utils import utils
 from boac.externals import data_loch
+from dateutil import parser
 from flask import current_app as app
 
 
@@ -97,3 +102,263 @@ def get_sids_with_ycbm_appts():
     app.logger.info(sql)
     results = data_loch.safe_execute_rds(sql)
     return list(map(lambda r: r['sid'], results))
+
+
+# Student-specific notes
+
+def get_asc_notes(student):
+    sql = f"""SELECT boac_advising_asc.advising_notes.id AS id,
+                     boac_advising_asc.advising_notes.created_at AS created_date,
+                     boac_advising_asc.advising_notes.updated_at AS updated_date,
+                     boac_advising_asc.advising_notes.advisor_uid AS advisor_uid,
+                     boac_advising_asc.advising_notes.advisor_first_name AS advisor_first_name,
+                     boac_advising_asc.advising_notes.advisor_last_name AS advisor_last_name,
+                     boac_advising_asc.advising_notes.subject AS subject,
+                     boac_advising_asc.advising_notes.body AS body,
+                     json_agg(boac_advising_asc.advising_note_topics.topic) AS topics
+                FROM boac_advising_asc.advising_notes
+           LEFT JOIN boac_advising_asc.advising_note_topics
+                  ON boac_advising_asc.advising_notes.id = boac_advising_asc.advising_note_topics.id
+               WHERE boac_advising_asc.advising_notes.sid = '{student.sid}'
+            GROUP BY advising_notes.id, created_date, advisor_uid, subject, body"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    for r in results:
+        advisor = User({
+            'uid': r['advisor_uid'],
+            'first_name': r['advisor_first_name'],
+            'last_name': r['advisor_last_name'],
+        })
+        note = Note({
+            'advisor': advisor,
+            'body': r['body'],
+            'created_date': utils.date_to_local_tz(r['created_date']),
+            'record_id': r['id'],
+            'source': TimelineRecordSource.ASC,
+            'student': student,
+            'subject': r['subject'],
+            'topics': r['topics'],
+            'updated_date': utils.date_to_local_tz(r['updated_date']),
+        })
+        notes.append(note)
+    return notes
+
+
+def get_e_and_i_notes(student):
+    sql = f"""SELECT boac_advising_e_i.advising_notes.id AS id,
+                     boac_advising_e_i.advising_notes.advisor_uid AS advisor_uid,
+                     boac_advising_e_i.advising_notes.advisor_first_name AS advisor_first_name,
+                     boac_advising_e_i.advising_notes.advisor_last_name AS advisor_last_name,
+                     boac_advising_e_i.advising_notes.overview AS subject,
+                     boac_advising_e_i.advising_notes.note AS body,
+                     boac_advising_e_i.advising_notes.created_at AS created_date,
+                     boac_advising_e_i.advising_notes.updated_at AS updated_date,
+                     boac_advising_e_i.advising_note_topics.topic AS topic
+                FROM boac_advising_e_i.advising_notes
+           LEFT JOIN boac_advising_e_i.advising_note_topics
+                  ON boac_advising_e_i.advising_notes.id = boac_advising_e_i.advising_note_topics.id
+               WHERE boac_advising_e_i.advising_notes.sid = '{student.sid}'
+                 AND advisor_first_name != 'Reception'
+                 AND advisor_last_name != 'Front Desk'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    grouped = groupby(results, key=lambda n: n['id'])
+    for k, v in grouped:
+        v = list(v)
+        advisor = User({
+            'uid': v[0]['advisor_uid'],
+            'first_name': v[0]['advisor_first_name'],
+            'last_name': v[0]['advisor_last_name'],
+        })
+        topics = []
+        for t in v:
+            if t['topic']:
+                topics.append(t['topic'].upper())
+        topics.sort()
+        note = Note({
+            'advisor': advisor,
+            'body': (v[0]['body'] or ''),
+            'created_date': utils.date_to_local_tz(v[0]['created_date']),
+            'record_id': k,
+            'source': TimelineRecordSource.E_AND_I,
+            'subject': v[0]['subject'],
+            'topics': topics,
+            'updated_date': utils.date_to_local_tz(v[0]['updated_date']),
+        })
+        notes.append(note)
+    return notes
+
+
+def get_data_sci_notes(student):
+    sql = f"""SELECT boac_advising_data_science.advising_notes.id AS id,
+                     boac_advising_data_science.advising_notes.advisor_email AS advisor_email,
+                     boac_advising_data_science.advising_notes.reason_for_appointment AS topics,
+                     boac_advising_data_science.advising_notes.body AS body,
+                     boac_advising_data_science.advising_notes.created_at AS created_date
+                FROM boac_advising_data_science.advising_notes
+               WHERE boac_advising_data_science.advising_notes.sid = '{student.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    for r in results:
+        created_date = utils.date_to_local_tz(parser.parse(r['created_date']))
+        topics = r['topics'].split(', ')
+        topics = list(map(lambda t: t.upper(), topics))
+        topics.sort()
+        note = Note({
+            'body': r['body'],
+            'created_date': created_date,
+            'record_id': r['id'],
+            'source': TimelineRecordSource.DATA,
+            'topics': topics,
+            'updated_date': created_date,
+        })
+        notes.append(note)
+    return notes
+
+
+def get_eop_notes(student):
+    sql = f"""SELECT boac_advising_eop.advising_notes.id AS id,
+                     boac_advising_eop.advising_notes.advisor_uid AS advisor_uid,
+                     boac_advising_eop.advising_notes.advisor_first_name AS advisor_first_name,
+                     boac_advising_eop.advising_notes.advisor_last_name AS advisor_last_name,
+                     boac_advising_eop.advising_notes.overview AS subject,
+                     boac_advising_eop.advising_notes.note AS body,
+                     boac_advising_eop.advising_notes.privacy_permissions AS privacy,
+                     boac_advising_eop.advising_notes.contact_method AS contact_type,
+                     boac_advising_eop.advising_notes.created_at AS created_date,
+                     boac_advising_eop.advising_note_topics.topic AS topic,
+                     boac_advising_eop.advising_notes.attachment AS file_name
+                FROM boac_advising_eop.advising_notes
+           LEFT JOIN boac_advising_eop.advising_note_topics
+                  ON boac_advising_eop.advising_notes.id = boac_advising_eop.advising_note_topics.id
+               WHERE boac_advising_eop.advising_notes.sid = '{student.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    grouped = groupby(results, key=lambda n: n['id'])
+    for k, v in grouped:
+        v = list(v)
+        advisor = User({
+            'uid': v[0]['advisor_uid'],
+            'first_name': v[0]['advisor_first_name'],
+            'last_name': v[0]['advisor_last_name'],
+        })
+        if v[0]['file_name']:
+            attachment = NoteAttachment({
+                'file_name': v[0]['file_name'],
+                'attachment_id': v[0]['id'],
+            })
+        else:
+            attachment = None
+        created_date = utils.date_to_local_tz(parser.parse(v['created_date']))
+        topics = []
+        for t in v:
+            if t['topic']:
+                topics.append(t['topic'].upper())
+        topics.sort()
+        note = Note({
+            'advisor': advisor,
+            'attachment': [attachment],
+            'body': v[0]['body'],
+            'created_date': created_date,
+            'is_private': (v[0]['privacy'] == 'Note available only to CE3'),
+            'record_id': v[0]['id'],
+            'source': TimelineRecordSource.EOP,
+            'subject': v[0]['subject'],
+            'topics': topics,
+            'contact_type': v[0]['contact_type'],
+            'updated_date': created_date,
+        })
+        notes.append(note)
+    return notes
+
+
+def get_history_notes(student):
+    sql = f"""SELECT boac_advising_history_dept.advising_notes.id AS id,
+                     boac_advising_history_dept.advising_notes.advisor_uid AS advisor_uid,
+                     boac_advising_history_dept.advising_notes.note AS body,
+                     boac_advising_history_dept.advising_notes.created_at AS created_date
+                FROM boac_advising_history_dept.advising_notes
+               WHERE boac_advising_history_dept.advising_notes.sid = '{student.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    for r in results:
+        advisor = User({'uid': r['advisor_uid']})
+        created_date = utils.date_to_local_tz(parser.parse(r['created_date']))
+        note = Note({
+            'advisor': advisor,
+            'body': r['body'],
+            'created_date': created_date,
+            'record_id': r['id'],
+            'source': TimelineRecordSource.HISTORY,
+            'updated_date': created_date,
+        })
+        notes.append(note)
+    return notes
+
+
+def get_sis_notes(student):
+    sql = f"""SELECT sis_advising_notes.advising_notes.id AS id,
+                     sis_advising_notes.advising_notes.note_category AS category,
+                     sis_advising_notes.advising_notes.note_subcategory AS subcategory,
+                     sis_advising_notes.advising_notes.note_body AS body,
+                     sis_advising_notes.advising_notes.created_by AS advisor_uid,
+                     sis_advising_notes.advising_notes.advisor_sid AS advisor_sid,
+                     sis_advising_notes.advising_notes.created_at AS created_date,
+                     sis_advising_notes.advising_notes.updated_at AS updated_date,
+                     sis_advising_notes.advising_note_topics.note_topic AS topic,
+                     sis_advising_notes.advising_note_attachments.sis_file_name AS sis_file_name,
+                     sis_advising_notes.advising_note_attachments.user_file_name AS user_file_name
+                FROM sis_advising_notes.advising_notes
+           LEFT JOIN sis_advising_notes.advising_note_topics
+                  ON sis_advising_notes.advising_notes.id = sis_advising_notes.advising_note_topics.advising_note_id
+           LEFT JOIN sis_advising_notes.advising_note_attachments
+                  ON sis_advising_notes.advising_notes.id = sis_advising_notes.advising_note_attachments.advising_note_id
+               WHERE sis_advising_notes.advising_notes.sid = '{student.sid}'"""
+    app.logger.info(sql)
+    results = data_loch.safe_execute_rds(sql)
+    notes = []
+    grouped = groupby(results, key=lambda n: n['id'])
+    for k, v in grouped:
+        v = list(v)
+        advisor = User({'uid': v[0]['advisor_uid']})
+        attachment_data = []
+        for r in v:
+            if r['sis_file_name']:
+                file_data = {
+                    'sis_file_name': r['sis_file_name'],
+                    'file_name': (r['sis_file_name'] if r['advisor_uid'] == 'UCBCONVERSION' else r['user_file_name']),
+                }
+                if file_data not in attachment_data:
+                    attachment_data.append(file_data)
+        attachments = [NoteAttachment(a) for a in attachment_data]
+        source_body_empty = True if not v[0]['body'] or not v[0]['body'].strip() else False
+        if source_body_empty:
+            sub_cat = f" {v[0]['subcategory']}" if v[0]['subcategory'] else ''
+            body = f"{v[0]['category']}{sub_cat}"
+        else:
+            body = v[0]['body'].replace('&Tab;', '')
+        created_date = v[0]['created_date']
+        updated_date = created_date if advisor.uid == 'UCBCONVERSION' else v[0]['updated_date']
+        topics = []
+        for t in v:
+            if t['topic']:
+                topics.append(t['topic'].upper())
+        topics.sort()
+        note = Note({
+            'record_id': k,
+            'body': body,
+            'source_body_empty': source_body_empty,
+            'advisor': advisor,
+            'created_date': utils.date_to_local_tz(created_date),
+            'updated_date': utils.date_to_local_tz(updated_date),
+            'topics': topics,
+            'attachments': attachments,
+            'source': TimelineRecordSource.SIS,
+        })
+        notes.append(note)
+    return notes
