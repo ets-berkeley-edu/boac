@@ -9,7 +9,7 @@
       :id="`existing-filter-${position}`"
       class="existing-filter-name px-2"
     >
-      {{ filter.value.label.primary }}<span class="sr-only"> is filter number {{ position }}</span>
+      {{ get(filter, 'value.label.primary') }}<span class="sr-only"> is filter number {{ position }}</span>
     </div>
     <div
       v-if="isModifyingFilter && !isExistingFilter"
